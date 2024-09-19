@@ -32,6 +32,7 @@ const renderDropdown = (
         const obj = _.find(props.options, (o) => {
           return o.value === value;
         });
+
         props.input.onChange(obj);
       }}
       value={props.input.value?.value}

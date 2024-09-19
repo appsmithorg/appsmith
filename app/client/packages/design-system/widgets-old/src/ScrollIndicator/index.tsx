@@ -52,6 +52,7 @@ interface Props {
   showScrollbarOnlyOnHover?: boolean;
   mode?: "DARK" | "LIGHT";
 }
+
 function ScrollIndicator({
   alwaysShowScrollbar,
   bottom,
@@ -102,10 +103,12 @@ function ScrollIndicator({
     const thumbHeight =
       e.target.offsetHeight / (e.target.scrollHeight / e.target.offsetHeight);
     const thumbPosition = (e.target.scrollTop / e.target.offsetHeight) * 100;
+
     /* set scroll thumb height */
     if (thumbRef.current) {
       thumbRef.current.style.height = thumbHeight + "px";
     }
+
     setThumbPosition({
       thumbPosition,
     });
@@ -128,6 +131,7 @@ function ScrollIndicator({
   const setScrollVisibilityOnHover = useCallback((e) => {
     if (e?.type === "mouseenter") {
       setIsScrollVisible(true);
+
       /*
         Scroll Thumb by default has height 0.
         Since we have to rely on hover event instead of scroll event when showScrollbarOnlyOnHover is true,
@@ -154,6 +158,7 @@ function ScrollIndicator({
         setScrollVisibilityOnHover,
       );
     }
+
     return () => {
       if (showScrollbarOnlyOnHover) {
         containerRef.current?.removeEventListener(

@@ -171,6 +171,7 @@ export const useFilteredAndSortedFileOperations = ({
   const dsOperations = datasources.map((ds) =>
     generateCreateQueryForDSOption(ds, createQueryAction(ds.id)),
   );
+
   fileOperations.push(...dsOperations);
 
   // Add generic action creation
@@ -216,6 +217,7 @@ export const useFilteredWidgets = (query: string) => {
       ),
     [allWidgets],
   );
+
   return useMemo(() => {
     if (!query) return searchableWidgets;
 
@@ -235,8 +237,10 @@ export const useFilteredActions = (query: string) => {
   const actions = useSelector(getActions);
   const pages = useSelector(getPageList) || [];
   const pageMap = keyBy(pages, "pageId");
+
   return useMemo(() => {
     if (!query) return actions;
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return actions.filter((action: any) => {
@@ -274,7 +278,9 @@ export const useFilteredPages = (query: string) => {
 
   return useMemo(() => {
     if (!pages) return [];
+
     if (!query) return attachKind(pages, SEARCH_ITEM_TYPES.page);
+
     return attachKind(
       pages.filter(
         // TODO: Fix this the next time the file is edited
@@ -294,10 +300,12 @@ export const useRecentlyUsedDSMap = () => {
     () =>
       recentDatasourceIds.reduce((map: Record<string, number>, id, index) => {
         map[id] = index;
+
         return map;
       }, {}),
     [recentDatasourceIds],
   );
+
   return recentlyUsedOrderMap;
 };
 
@@ -311,9 +319,11 @@ export const updateActionOperations = (
   const newApiActionIdx = actionOps.findIndex(
     (op) => op.title === "New blank API",
   );
+
   if (newApiActionIdx > -1) {
     actionOps[newApiActionIdx].pluginId = restApiPlugin?.id;
   }
+
   return actionOps;
 };
 
@@ -324,6 +334,7 @@ export const getSortedDatasources = (
   const sortedDS = datasources.sort((a, b) => {
     const orderA = recentlyUsedDSMap[a.id];
     const orderB = recentlyUsedDSMap[b.id];
+
     if (orderA !== undefined && orderB !== undefined) {
       return orderA - orderB;
     } else if (orderA !== undefined) {
@@ -334,5 +345,6 @@ export const getSortedDatasources = (
       return 0;
     }
   });
+
   return sortedDS;
 };

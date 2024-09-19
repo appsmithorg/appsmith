@@ -48,6 +48,7 @@ const LayoutSystemWrapper = ({
   const { widgetSystem } = getLayoutSystem(renderMode, layoutSystemType);
   const { propertyEnhancer, WidgetWrapper } = widgetSystem;
   const enhancedProperties = propertyEnhancer(widgetProps);
+
   return (
     <WidgetWrapper {...enhancedProperties}>
       <Widget {...enhancedProperties} />

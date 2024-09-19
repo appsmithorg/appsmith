@@ -107,8 +107,10 @@ const CreateNewAppsOption = ({
     AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA");
     // fetch plugins information to show list of all plugins
     dispatch(fetchPlugins({ workspaceId: application?.workspaceId }));
+
     // For air-gapped version as internet access won't necessarily be available, we skip fetching mock datasources.
     if (!isAirgapped()) dispatch(fetchMockDatasources());
+
     if (application?.workspaceId) {
       dispatch(
         fetchingEnvironmentConfigs({
@@ -141,6 +143,7 @@ const CreateNewAppsOption = ({
 
   const onClickSkipButton = () => {
     const applicationObject = application!;
+
     urlBuilder.updateURLParams(
       {
         applicationSlug: applicationObject.slug,

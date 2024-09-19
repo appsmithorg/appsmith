@@ -16,6 +16,7 @@ export default class EntityNavigationFactory {
           ActionPaneNavigation.create,
           entityInfo,
         );
+
         return instance;
       case ENTITY_TYPE.JSACTION:
         return new JSObjectsPaneNavigation(entityInfo);

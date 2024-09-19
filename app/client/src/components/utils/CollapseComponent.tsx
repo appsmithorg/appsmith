@@ -42,9 +42,11 @@ function CollapseComponent(props: {
   const handleIsOpen = () => {
     toggleOpen(!open);
   };
+
   if (!props.title) {
     return <div>{props.children ? props.children : null}</div>;
   }
+
   return (
     <CollapseWrapper>
       <div

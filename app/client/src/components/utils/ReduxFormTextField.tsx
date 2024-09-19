@@ -15,6 +15,7 @@ const renderComponent = (
 ) => {
   const value = componentProps.input.value || componentProps.defaultValue || "";
   const showError = componentProps.meta.touched && !componentProps.meta.active;
+
   return componentProps.type === SettingSubtype.NUMBER ? (
     <NumberInput
       {...omit(componentProps, "type")}

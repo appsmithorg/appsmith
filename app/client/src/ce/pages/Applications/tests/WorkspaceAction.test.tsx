@@ -141,6 +141,7 @@ jest.mock("ee/utils/airgapHelpers", () => ({
 const mockIsAirGapped = (val: boolean) => {
   /* eslint-disable @typescript-eslint/no-var-requires */
   const { isAirgapped } = require("ee/utils/airgapHelpers");
+
   isAirgapped.mockImplementation(() => val);
 };
 

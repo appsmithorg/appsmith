@@ -41,6 +41,28 @@
     "project": "./tsconfig.json"
   },
   "rules": {
+    "padding-line-between-statements": [
+      "error",
+      { "blankLine": "always", "prev": "*", "next": "return" },
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": ["if", "for", "while"]
+      },
+      {
+        "blankLine": "always",
+        "prev": ["if", "for", "while"],
+        "next": "*"
+      },
+      { "blankLine": "always", "prev": ["const", "let"], "next": "*" },
+      {
+        "blankLine": "any",
+        "prev": ["const", "let"],
+        "next": ["const", "let"]
+      },
+      { "blankLine": "always", "prev": "*", "next": "function" },
+      { "blankLine": "always", "prev": "function", "next": "*" }
+    ],
     "testing-library/consistent-data-testid": [
       "warn",
       {
@@ -72,7 +94,7 @@
     "react-perf/jsx-no-new-array-as-prop": "warn",
     "react-perf/jsx-no-new-function-as-prop": "warn",
     "react-perf/jsx-no-jsx-as-prop": "warn",
-   "react-perf/jsx-no-new-object-as-prop": [
+    "react-perf/jsx-no-new-object-as-prop": [
       "warn",
       {
         // we are disabling this rule here for native component since it won't make much difference in performance

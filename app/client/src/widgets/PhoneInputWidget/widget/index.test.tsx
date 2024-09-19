@@ -23,6 +23,7 @@ describe("defaultValueValidation", () => {
 
   it("should validate defaulttext with object value", () => {
     const value = {};
+
     result = defaultValueValidation(value, {} as PhoneInputWidgetProps, _);
 
     expect(result).toEqual({

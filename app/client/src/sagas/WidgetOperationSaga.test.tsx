@@ -102,6 +102,7 @@ describe("WidgetOperationSaga - ", () => {
           widgetId: "test",
         },
       });
+
       value.next(); // start
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -139,6 +140,7 @@ describe("Should test handleUpdateWidgetDynamicProperty ", () => {
       isDynamic: true,
       propertyPath: "isVisible",
     });
+
     value.next(); // start
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -178,6 +180,7 @@ describe("Should test batchUpdateWidgetDynamicPropertySaga ", () => {
         widgetId: "test",
       },
     });
+
     value.next(); // start
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -222,6 +225,7 @@ describe("Should test batchUpdateWidgetDynamicPropertySaga ", () => {
         widgetId: "test",
       },
     });
+
     value.next(); // start
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

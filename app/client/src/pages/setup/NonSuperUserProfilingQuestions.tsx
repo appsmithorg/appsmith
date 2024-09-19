@@ -104,6 +104,7 @@ function NonSuperUserProfilingQuestions(
 }
 
 const selector = formValueSelector(WELCOME_NON_SUPER_FORM_NAME);
+
 export default connect((state: AppState) => {
   return {
     proficiency: selector(state, WELCOME_FORM_PROFICIENCY_LEVEL),

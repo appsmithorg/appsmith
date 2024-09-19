@@ -47,6 +47,7 @@ export const updateJSCollectionInUnEvalTree = (
   const functionsList: Array<string> = [];
   const jsEntityConfig = configTree[entityName] as JSActionEntityConfig;
   const varList: Array<string> | undefined = jsEntityConfig?.variables;
+
   Object.keys(jsEntityConfig?.meta).forEach((action) => {
     functionsList.push(action);
   });
@@ -55,6 +56,7 @@ export const updateJSCollectionInUnEvalTree = (
   if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
       const action = parsedBody.actions[i];
+
       if (jsCollection.hasOwnProperty(action.name)) {
         if (jsCollection[action.name] !== action.body) {
           const data = get(
@@ -62,6 +64,7 @@ export const updateJSCollectionInUnEvalTree = (
             `${entityName}.${action.name}.data`,
             {},
           );
+
           set(
             modifiedUnEvalTree,
             `${entityName}.${action.name}`,
@@ -79,12 +82,15 @@ export const updateJSCollectionInUnEvalTree = (
           EvaluationSubstitutionType.TEMPLATE;
 
         const dynamicBindingPathList = oldConfig.dynamicBindingPathList;
+
         dynamicBindingPathList.push({ key: action.name });
 
         const dependencyMap = oldConfig.dependencyMap;
+
         dependencyMap["body"].push(action.name);
 
         const meta = oldConfig.meta;
+
         meta[action.name] = {
           arguments: action.arguments,
           confirmBeforeExecute: false,
@@ -95,6 +101,7 @@ export const updateJSCollectionInUnEvalTree = (
           `${entityName}.${action.name}.data`,
           {},
         );
+
         set(
           modifiedUnEvalTree,
           `${entityName}.${action.name}`,
@@ -104,14 +111,17 @@ export const updateJSCollectionInUnEvalTree = (
       }
     }
   }
+
   if (functionsList && functionsList.length > 0) {
     for (let i = 0; i < functionsList.length; i++) {
       const oldActionName = functionsList[i];
       const existed = parsedBody.actions.find(
         (js: ParsedJSSubAction) => js.name === oldActionName,
       );
+
       if (!existed) {
         const reactivePaths = oldConfig.reactivePaths;
+
         delete reactivePaths[oldActionName];
 
         oldConfig.dynamicBindingPathList =
@@ -123,6 +133,7 @@ export const updateJSCollectionInUnEvalTree = (
 
         const dependencyMap = oldConfig.dependencyMap["body"];
         const removeIndex = dependencyMap.indexOf(oldActionName);
+
         if (removeIndex > -1) {
           oldConfig.dependencyMap["body"] = dependencyMap.filter(
             // TODO: Fix this the next time the file is edited
@@ -130,7 +141,9 @@ export const updateJSCollectionInUnEvalTree = (
             (item: any) => item !== oldActionName,
           );
         }
+
         const meta = oldConfig.meta;
+
         delete meta[oldActionName];
 
         unset(modifiedUnEvalTree[entityName], oldActionName);
@@ -138,12 +151,15 @@ export const updateJSCollectionInUnEvalTree = (
       }
     }
   }
+
   if (parsedBody.variables.length && varList) {
     for (let i = 0; i < parsedBody.variables.length; i++) {
       const newVar = parsedBody.variables[i];
       const existedVar = varList.indexOf(newVar.name);
+
       if (existedVar > -1) {
         const existedVarVal = jsCollection[newVar.name];
+
         if (
           (!!existedVarVal && existedVarVal.toString()) !==
             (newVar.value && newVar.value.toString()) ||
@@ -156,10 +172,12 @@ export const updateJSCollectionInUnEvalTree = (
       } else {
         varList.push(newVar.name);
         const reactivePaths = oldConfig.reactivePaths;
+
         reactivePaths[newVar.name] =
           EvaluationSubstitutionType.SMART_SUBSTITUTE;
 
         const dynamicBindingPathList = oldConfig.dynamicBindingPathList;
+
         dynamicBindingPathList.push({ key: newVar.name });
 
         set(configTree, `${entityName}.variables`, varList);
@@ -168,14 +186,18 @@ export const updateJSCollectionInUnEvalTree = (
         JSObjectCollection.removeVariable(`${entityName}.${newVar.name}`);
       }
     }
+
     let newVarList: Array<string> = varList;
+
     for (let i = 0; i < varList.length; i++) {
       const varListItem = varList[i];
       const existsInParsed = parsedBody.variables.find(
         (item) => item.name === varListItem,
       );
+
       if (!existsInParsed) {
         const reactivePaths = oldConfig.reactivePaths;
+
         delete reactivePaths[varListItem];
 
         oldConfig.dynamicBindingPathList =
@@ -189,10 +211,12 @@ export const updateJSCollectionInUnEvalTree = (
         unset(modifiedUnEvalTree[entityName], varListItem);
       }
     }
+
     if (newVarList.length) {
       set(configTree, `${entityName}.variables`, newVarList);
     }
   }
+
   return modifiedUnEvalTree;
 };
 
@@ -212,15 +236,19 @@ export const removeFunctionsAndVariableJSCollection = (
   const oldConfig = configTree[entityName] as JSActionEntityConfig;
   const modifiedDataTree: DataTree = unEvalTree;
   const functionsList: Array<string> = [];
+
   Object.keys(oldConfig.meta).forEach((action) => {
     functionsList.push(action);
   });
   //removed variables
   const varList: Array<string> | undefined = oldConfig.variables;
+
   set(oldConfig, `${entityName}.variables`, []);
+
   if (varList) {
     for (let i = 0; i < varList.length; i++) {
       const varName = varList[i];
+
       unset(modifiedDataTree[entityName], varName);
       // When user updates the JSObject all the variable's reset's to initial value
       JSObjectCollection.removeVariable(`${entityName}.${varName}`);
@@ -233,6 +261,7 @@ export const removeFunctionsAndVariableJSCollection = (
 
   for (let i = 0; i < functionsList.length; i++) {
     const actionName = functionsList[i];
+
     delete reactivePaths[actionName];
     delete meta[actionName];
     unset(modifiedDataTree[entityName], actionName);
@@ -261,9 +290,11 @@ export function isJSObjectFunction(
 ) {
   const entityConfig = configTree[jsObjectName] as JSActionEntityConfig;
   const entity = dataTree[jsObjectName];
+
   if (isJSAction(entity)) {
     return entityConfig.meta.hasOwnProperty(key);
   }
+
   return false;
 }
 
@@ -273,9 +304,12 @@ export function isJSObjectVariable(
   configTree: ConfigTree,
 ) {
   const entityConfig = configTree[jsObjectName] as JSActionEntityConfig;
+
   if (!entityConfig) return false;
+
   const entity = configTree[jsObjectName];
   const variables = entityConfig.variables;
+
   return (
     isJSAction(entity as unknown as DataTreeEntity) && variables?.includes(key)
   );
@@ -292,6 +326,7 @@ function updateJSExecutionError(
   executionError: JSExecutionError,
 ) {
   const { collectionId } = executionError;
+
   if (errors[collectionId]) {
     errors[collectionId].push(executionError);
   } else {
@@ -304,6 +339,7 @@ function updateJSExecutionData(
   executionData: JSExecutionData,
 ) {
   const { collectionId } = executionData;
+
   if (sortedData[collectionId]) {
     sortedData[collectionId].push(executionData);
   } else {
@@ -322,12 +358,14 @@ function getJSActionFromJSCollections(
     jsCollections,
     (collection) => collection.config.name === collectionName,
   );
+
   if (!jsCollection) return;
 
   const jsAction: JSAction | undefined = find(
     jsCollection.config.actions,
     (action) => action.name === functionName,
   );
+
   return jsAction;
 }
 
@@ -348,7 +386,9 @@ export function* sortJSExecutionDataByCollectionId(
       JSCollectionsForCurrentPage,
       jsfuncFullName,
     );
+
     if (!(jsAction && jsAction.collectionId)) continue;
+
     const { collectionId, id: actionId } = jsAction;
 
     if (errors[jsfuncFullName]) {

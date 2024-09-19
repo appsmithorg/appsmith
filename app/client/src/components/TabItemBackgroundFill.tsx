@@ -46,6 +46,7 @@ export default function TabItemBackgroundFill(props: {
   vertical: boolean;
 }) {
   const { selected, tab, vertical } = props;
+
   return (
     <Wrapper selected={selected} vertical={vertical}>
       {tab.title}

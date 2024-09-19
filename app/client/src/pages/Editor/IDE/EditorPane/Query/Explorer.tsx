@@ -19,6 +19,7 @@ const QueriesContainer = styled(Flex)`
 
 const QueryExplorer = () => {
   const ideViewMode = useSelector(getIDEViewMode);
+
   if (ideViewMode === EditorViewMode.FullScreen) {
     return (
       <QueriesContainer
@@ -31,6 +32,7 @@ const QueryExplorer = () => {
       </QueriesContainer>
     );
   }
+
   return null;
 };
 

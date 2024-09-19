@@ -26,8 +26,10 @@ export default function* showToast(
   const urlObject = new URL(window?.location?.href);
   const debugFlag = urlObject?.searchParams?.get("debug");
   const debug = debugFlag === "true" || debugFlag;
+
   if (appMode === APP_MODE.PUBLISHED && !debug && !extraOtions?.forceDisplay) {
     log.error(message);
+
     return;
   }
 

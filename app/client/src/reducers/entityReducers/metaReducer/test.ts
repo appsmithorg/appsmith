@@ -49,6 +49,7 @@ test("Update widget meta state using evalMetaUpdates", () => {
       value: ["YELLOW"],
     },
   ];
+
   currentMetaState = metaReducer(
     currentMetaState,
     updateMetaState(evalMetaUpdates),

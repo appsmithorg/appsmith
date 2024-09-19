@@ -73,11 +73,15 @@ export const getWidgetPropsForPropertyPane = createSelector(
   getLayoutSystemType,
   (state) => {
     const currentWidget = getCurrentWidgetProperties(state);
+
     if (!currentWidget) return;
+
     const evaluatedWidget = find(getDataTree(state), {
       widgetId: currentWidget.widgetId,
     }) as WidgetEntity;
+
     if (!evaluatedWidget) return;
+
     return evaluatedWidget[EVALUATION_PATH];
   },
   (
@@ -93,9 +97,11 @@ export const getWidgetPropsForPropertyPane = createSelector(
       ...widget,
       layoutSystemType,
     };
+
     if (evaluatedValue) {
       widgetProperties[EVALUATION_PATH] = evaluatedValue;
     }
+
     return widgetProperties;
   },
 );
@@ -114,9 +120,11 @@ export const selectedWidgetsPresentInCanvas = createSelector(
   getSelectedWidgets,
   (canvasWidgets, selectedWidgets) => {
     const widgets = [];
+
     for (const widget of selectedWidgets) {
       if (widget in canvasWidgets) widgets.push(widget);
     }
+
     return widgets;
   },
 );
@@ -267,6 +275,7 @@ export const getIsPropertyPaneVisible = createSelector(
       ? lastSelectedWidget === pane.widgetId || widgets.includes(pane.widgetId)
       : false;
     const multipleWidgetsSelected = !!(widgets && widgets.length >= 2);
+
     return !!(
       isWidgetSelected &&
       !multipleWidgetsSelected &&
@@ -332,6 +341,7 @@ export const getShouldFocusPanelPropertySearch = createSelector(
   getCurrentWidgetName,
   (propertyPanel, widgetName) => {
     if (!widgetName) return false;
+
     return Object.keys(propertyPanel)
       .map((x) => x.split(".")[0])
       .includes(widgetName);

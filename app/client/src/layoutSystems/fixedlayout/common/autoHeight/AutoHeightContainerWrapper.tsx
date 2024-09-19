@@ -17,6 +17,7 @@ export interface AutoHeightWrapperProps {
 
 export function AutoHeightContainerWrapper(props: WidgetProps) {
   const isCanvas = useWidgetConfig(props.type, "isCanvas");
+
   if (isCanvas) return props.children;
 
   const maxDynamicHeight = getWidgetMaxAutoHeight(props);

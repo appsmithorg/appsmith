@@ -21,8 +21,10 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 //Saga to create application snapshot
 export function* createSnapshotSaga() {
   let response: ApiResponse | undefined;
+
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
+
     response = yield ApplicationApi.createApplicationSnapShot({
       applicationId,
     });
@@ -44,8 +46,10 @@ export function* createSnapshotSaga() {
 //Saga to fetch application snapshot
 export function* fetchSnapshotSaga() {
   let response: ApiResponse<SnapshotDetails> | undefined;
+
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
+
     response = yield ApplicationApi.getSnapShotDetails({
       applicationId,
     });
@@ -73,6 +77,7 @@ function* restoreApplicationFromSnapshotSaga() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let response: ApiResponse<any> | undefined;
   let appId = "";
+
   try {
     appId = yield select(getCurrentApplicationId);
     AnalyticsUtil.logEvent("RESTORE_SNAPSHOT", {
@@ -80,6 +85,7 @@ function* restoreApplicationFromSnapshotSaga() {
     });
 
     const applicationId: string = yield select(getCurrentApplicationId);
+
     response = yield ApplicationApi.restoreApplicationFromSnapshot({
       applicationId,
     });
@@ -127,6 +133,7 @@ function* restoreApplicationFromSnapshotSaga() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     let error: Error = e;
+
     if (error) {
       error.message = `Layout conversion error - while restoring snapshot: ${error.message}`;
     } else {
@@ -149,8 +156,10 @@ function* restoreApplicationFromSnapshotSaga() {
 //Saga to delete application snapshot
 export function* deleteApplicationSnapshotSaga() {
   let response: ApiResponse | undefined;
+
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
+
     response = yield ApplicationApi.deleteApplicationSnapShot({
       applicationId,
     });
@@ -175,6 +184,7 @@ function* updateSnapshotDetailsSaga() {
   try {
     const snapshotDetails: SnapshotDetails | undefined =
       yield call(fetchSnapshotSaga);
+
     yield put(updateSnapshotDetails(snapshotDetails));
   } catch (error) {
     throw error;

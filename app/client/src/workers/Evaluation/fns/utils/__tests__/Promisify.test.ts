@@ -33,11 +33,13 @@ describe("Tests for promisify util", () => {
     onPageLoad: false,
   };
   const eventType = EventType.ON_PAGE_LOAD;
+
   beforeAll(() => {
     ExecutionMetaData.setExecutionMetaData({ triggerMeta, eventType });
   });
   it("Should dispatch payload return by descriptor", async () => {
     const metaDataSpy = jest.spyOn(ExecutionMetaData, "setExecutionMetaData");
+
     //@ts-expect-error No types;
     self.showAlert = undefined;
     const descriptor = jest.fn((key) => ({
@@ -45,6 +47,7 @@ describe("Tests for promisify util", () => {
       payload: { key },
     }));
     const executor = promisify(descriptor);
+
     await executor(123);
     expect(requestMock).toBeCalledTimes(1);
     expect(requestMock).toBeCalledWith({

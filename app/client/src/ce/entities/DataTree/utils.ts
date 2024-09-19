@@ -34,6 +34,7 @@ export const setOverridingProperty = ({
       [OverridingPropertyType.META]: undefined,
     };
   }
+
   switch (type) {
     case OverridingPropertyType.DEFAULT:
       propertyOverrideDependency[propertyName][OverridingPropertyType.DEFAULT] =
@@ -52,14 +53,17 @@ export const setOverridingProperty = ({
     const updatedOverridingProperty = new Set(
       overridingPropertyPaths[overridingPropertyKey],
     );
+
     overridingPropertyPaths[overridingPropertyKey] = [
       ...updatedOverridingProperty.add(propertyName),
     ];
   } else {
     overridingPropertyPaths[overridingPropertyKey] = [propertyName];
   }
+
   // if property dependent on metaProperty also has defaultProperty then defaultProperty will also override metaProperty on eval.
   const defaultPropertyName = propertyOverrideDependency[propertyName].DEFAULT;
+
   if (type === OverridingPropertyType.META && defaultPropertyName) {
     overridingPropertyPaths[defaultPropertyName].push(overridingPropertyKey);
   }

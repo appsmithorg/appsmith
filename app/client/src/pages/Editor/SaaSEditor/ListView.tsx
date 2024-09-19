@@ -96,9 +96,11 @@ class ListView extends React.Component<Props> {
     } = this.props;
     const params: string = location.search;
     let pgId = new URLSearchParams(params).get("importTo");
+
     if (!pgId) {
       pgId = basePageId;
     }
+
     if (pgId) {
       this.props.createAction({
         pageId: pgId,
@@ -112,20 +114,25 @@ class ListView extends React.Component<Props> {
 
   render() {
     const { isCreating, isEditorInitialized, plugin } = this.props;
+
     if (!plugin) {
       return this.renderNotFound();
     }
+
     if (isCreating || !isEditorInitialized) {
       return this.renderLoading();
     }
+
     return this.renderPage();
   }
 
   renderPage() {
     const { datasources, plugin } = this.props;
+
     if (!plugin) {
       return this.renderNotFound();
     }
+
     return (
       <IntegrationHomePage>
         <p className="sectionHeader">Select a datasource or create a new one</p>
@@ -168,6 +175,7 @@ class ListView extends React.Component<Props> {
         params: { basePageId },
       },
     } = this.props;
+
     return (
       <IntegrationHomePage>
         <NotFound
@@ -193,10 +201,13 @@ const mapStateToProps = (state: AppState, props: RouteProps): StateProps => {
     props.match.params.pluginPackageName,
   );
   let datasources: Datasource[] = [];
+
   if (plugin) {
     datasources = getDatasourcesByPluginId(state, plugin.id);
   }
+
   const { applicationSlug, pageSlug } = selectURLSlugs(state);
+
   return {
     plugin,
     actions: state.entities.actions,

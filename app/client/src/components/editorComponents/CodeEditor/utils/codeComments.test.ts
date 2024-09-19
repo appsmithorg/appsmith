@@ -12,6 +12,7 @@ describe("handleCodeComment", () => {
     const editor = CodeMirror(document.body, { mode: EditorModes.JAVASCRIPT });
 
     const code = `const a = 1;`;
+
     editor.setValue(code);
 
     // Select the code before commenting
@@ -30,6 +31,7 @@ describe("handleCodeComment", () => {
 
     const code = `const a = 1;
       const b = 2;`;
+
     editor.setValue(code);
 
     // Select the code before commenting
@@ -49,6 +51,7 @@ describe("handleCodeComment", () => {
 
     const code = `// const a = 1;
       // const b = 2;`;
+
     editor.setValue(code);
 
     // Select the code before commenting
@@ -70,6 +73,7 @@ describe("handleCodeComment", () => {
       const b = 2;
       const c = 3;
       const d = 4;`;
+
     editor.setValue(code);
 
     // Select the code before commenting
@@ -89,6 +93,7 @@ describe("handleCodeComment", () => {
     });
 
     const code = `hello world`;
+
     editor.setValue(code);
 
     // Select the code before commenting
@@ -108,6 +113,7 @@ describe("handleCodeComment", () => {
     });
 
     const code = `// hello world`;
+
     editor.setValue(code);
 
     // Select the code before commenting

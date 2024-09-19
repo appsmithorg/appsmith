@@ -37,6 +37,7 @@ const PageMenuItem = (props: {
   const handleOnSelect = useCallback(() => {
     props.onSelect(props.page.pageId);
   }, [props]);
+
   return <MenuItem onSelect={handleOnSelect}>{props.page.pageName}</MenuItem>;
 };
 

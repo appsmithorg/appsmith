@@ -83,6 +83,7 @@ function useGridLayoutTemplate(): ReturnValue {
               "0px",
             ]);
           }
+
           break;
         case EditorState.LIBRARIES:
           if (isPreviewMode || isProtectedMode) {
@@ -103,6 +104,7 @@ function useGridLayoutTemplate(): ReturnValue {
               "0px",
             ]);
           }
+
           break;
         case EditorState.EDITOR:
           if (isPreviewMode || isProtectedMode) {

@@ -38,6 +38,7 @@ describe("AnvilWidgetNameComponent", () => {
         handler.log("Dragged!");
       },
     };
+
     render(
       <Provider store={store}>
         <AnvilWidgetNameComponent {..._props} />
@@ -47,6 +48,7 @@ describe("AnvilWidgetNameComponent", () => {
     const draggableNameComponent = screen.getByTestId(
       "t--anvil-draggable-widget-name",
     );
+
     expect(draggableNameComponent).toBeInTheDocument();
     fireEvent.dragStart(draggableNameComponent);
 

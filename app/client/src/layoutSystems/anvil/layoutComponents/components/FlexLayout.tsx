@@ -58,6 +58,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
   // Create a ref so that this DOM node can be
   // observed by the observer for changes in size
   const ref = React.useRef<HTMLDivElement>(null);
+
   usePositionObserver(
     "layout",
     {
@@ -112,6 +113,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     getShouldHighLightCellSelector(state, layoutId, layoutType),
   );
   const highlightShown = useSelector(getAnvilHighlightShown);
+
   highlightShown?.rowIndex;
   // The following properties aren't included in type FlexProps but can be passed as style.
   const styleProps: CSSProperties = useMemo(() => {

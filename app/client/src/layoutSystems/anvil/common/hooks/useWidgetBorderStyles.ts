@@ -53,25 +53,30 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
   // By default don't show any borders
   let borderColor = "transparent";
   let borderWidth = "var(--on-canvas-ui-border-width-2)";
+
   // If widget is focused, use the thin borders
   if (isFocused && !isSelected) {
     borderColor = `var(${onCanvasUI.selectionBGCSSVar})`;
     borderWidth = "var(--on-canvas-ui-border-width-1)";
   }
+
   // If the widget is select default to the thick borders
   if (isSelected) {
     borderColor = `var(${onCanvasUI.selectionBGCSSVar})`;
   }
+
   // If the widget has widgets being dragged or redistributed inside it
   // Use the thin border
   if (showDraggedOnBorder) {
     borderColor = `var(${onCanvasUI.selectionBGCSSVar})`;
     borderWidth = "var(--on-canvas-ui-border-width-1)";
   }
+
   // If the widget has an error, use the error color
   if (showError) {
     borderColor = `var(--on-canvas-ui-widget-error)`;
   }
+
   // Don't show border when resizing the canvas, redistributing space or dragging widgets
   const shouldHideBorder =
     isCanvasResizing || isDistributingSpace || isDragging;

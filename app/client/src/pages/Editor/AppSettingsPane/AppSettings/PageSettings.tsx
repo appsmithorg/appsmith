@@ -131,20 +131,24 @@ function PageSettings(props: { page: Page }) {
   const savePageName = useCallback(() => {
     if (!canManagePages || pageNameError !== null || page.pageName === pageName)
       return;
+
     const payload: UpdatePageActionPayload = {
       id: page.pageId,
       name: pageName,
     };
+
     setIsPageNameSaving(true);
     dispatch(updatePageAction(payload));
   }, [page.pageId, page.pageName, pageName, pageNameError]);
 
   const saveCustomSlug = useCallback(() => {
     if (!canManagePages || page.customSlug === customSlug) return;
+
     const payload: UpdatePageActionPayload = {
       id: page.pageId,
       customSlug: customSlug || "",
     };
+
     setIsCustomSlugSaving(true);
     dispatch(updatePageAction(payload));
   }, [page.pageId, page.customSlug, customSlug]);
@@ -152,10 +156,12 @@ function PageSettings(props: { page: Page }) {
   const saveIsShown = useCallback(
     (isShown: boolean) => {
       if (!canManagePages) return;
+
       const payload: UpdatePageActionPayload = {
         id: page.pageId,
         isHidden: !isShown,
       };
+
       setIsShownSaving(true);
       dispatch(updatePageAction(payload));
     },
@@ -164,6 +170,7 @@ function PageSettings(props: { page: Page }) {
 
   const onPageNameChange = (value: string) => {
     let errorMessage = null;
+
     if (!value || value.trim().length === 0) {
       errorMessage = PAGE_SETTINGS_NAME_EMPTY_MESSAGE();
     } else if (value !== page.pageName && hasActionNameConflict(value)) {
@@ -315,6 +322,7 @@ function PageSettings(props: { page: Page }) {
           isSelected={isDefault}
           onChange={() => {
             if (!canManagePages) return;
+
             setIsDefault(!isDefault);
             setIsDefaultSaving(true);
             dispatch(setPageAsDefault(page.pageId, applicationId));

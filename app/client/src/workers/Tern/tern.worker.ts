@@ -20,6 +20,7 @@ const pending: { [x: number]: CallbackFn } = {};
 
 self.onmessage = function (e) {
   const data = e.data;
+
   switch (data.type) {
     case TernWorkerAction.INIT:
       return startServer(data.plugins, data.scripts);
@@ -33,7 +34,9 @@ self.onmessage = function (e) {
       });
     case TernWorkerAction.GET_FILE:
       const c = pending[data.id];
+
       delete pending[data.id];
+
       return c(data.err, data.text);
     case TernWorkerAction.DELETE_DEF:
       return server.deleteDefs(data.name);

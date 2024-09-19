@@ -43,6 +43,7 @@ export default function AudioComponent(props: AudioComponentProps) {
     playing,
     url,
   } = props;
+
   return url ? (
     <ReactPlayer
       config={{

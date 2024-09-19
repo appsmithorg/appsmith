@@ -13,6 +13,7 @@ const { match } = require("path-to-regexp");
 const MONGO_OBJECT_ID_REGEX = "[0-9a-f]{24}";
 const UUID_REGEX =
   "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+
 export const ID_EXTRACTION_REGEX = `(${MONGO_OBJECT_ID_REGEX}|${UUID_REGEX})`;
 
 export const BUILDER_BASE_PATH_DEPRECATED = "/applications";
@@ -129,7 +130,9 @@ export const matchGeneratePagePath = (pathName: string) =>
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);
+
   url.searchParams.set(GIT_BRANCH_QUERY_KEY, encodeURIComponent(branch));
+
   return url.toString().slice(url.origin.length);
 };
 

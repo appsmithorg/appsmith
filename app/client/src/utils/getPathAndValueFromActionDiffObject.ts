@@ -22,6 +22,7 @@ export function getPathAndValueFromActionDiffObject(actionObjectDiff: any) {
   } else {
     let path = "";
     let value = "";
+
     // Loop through the diff objects in difference Array
     for (let i = 0; i < actionObjectDiff.length; i++) {
       //kind = N indicates a newly added property/element
@@ -43,6 +44,7 @@ export function getPathAndValueFromActionDiffObject(actionObjectDiff: any) {
               } else if (typeof item === "string" && !acc) {
                 acc += `${item}`;
               } else acc += `${path}[${item}]`;
+
               return acc;
             } catch (error) {
               Sentry.captureException({
@@ -56,6 +58,7 @@ export function getPathAndValueFromActionDiffObject(actionObjectDiff: any) {
         // get value from diff object
         value = actionObjectDiff[i]?.rhs;
       }
+
       return { path, value };
     }
   }

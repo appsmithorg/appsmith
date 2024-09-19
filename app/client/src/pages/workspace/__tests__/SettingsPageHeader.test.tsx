@@ -41,17 +41,20 @@ describe("<PageHeader />", () => {
   it("is rendered", () => {
     renderComponent();
     const searchInput = screen.queryAllByTestId("t--search-input");
+
     expect(searchInput).toHaveLength(1);
   });
   it("should search and filter results for the given search query", async () => {
     renderComponent();
     const searchInput = screen.queryAllByTestId("t--search-input");
+
     await userEvent.type(searchInput[0], "test value");
     expect(searchInput[0]).toHaveValue("test value");
   });
   it("should have a button with text Add", () => {
     renderComponent();
     const button = screen.queryAllByTestId("t--page-header-input");
+
     expect(button).toHaveLength(1);
     expect(button[0]).toHaveTextContent("Add");
   });
@@ -70,6 +73,7 @@ describe("<PageHeader />", () => {
     );
     const moreMenu = queryAllByTestId("t--page-header-actions");
     let menuOptions = queryAllByText(/Documentation/i);
+
     expect(menuOptions).toHaveLength(0);
 
     await userEvent.click(moreMenu[0]);

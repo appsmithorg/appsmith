@@ -30,10 +30,12 @@ export const DropTargetComponentWrapper = memo(
     const widget = useSelector((state: AppState) =>
       getWidget(state, dropTargetProps.parentId || MAIN_CONTAINER_WIDGET_ID),
     );
+
     if ((dropTargetProps.parentId && !widget) || dropDisabled) {
       //eslint-disable-next-line
       return <>{children}</>;
     }
+
     return (
       <DropTargetComponent {...dropTargetProps}>{children}</DropTargetComponent>
     );

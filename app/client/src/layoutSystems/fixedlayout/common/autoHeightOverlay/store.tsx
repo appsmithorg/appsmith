@@ -139,10 +139,12 @@ export const AutoHeightLimitsStateContextProvider: React.FC<{
 
 export const useAutoHeightLimitsDispatch = () => {
   const { dispatch } = useContext(AutoHeightLimitsStateContext);
+
   return dispatch;
 };
 
 export const useAutoHeightLimitsState = () => {
   const { state } = useContext(AutoHeightLimitsStateContext);
+
   return state;
 };

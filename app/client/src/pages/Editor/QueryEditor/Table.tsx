@@ -176,6 +176,7 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
 const renderCell = (props: any) => {
   const value = props.cell.value;
   let displayValue;
+
   switch (getType(value)) {
     case Types.NUMBER:
     case Types.BOOLEAN:
@@ -240,6 +241,7 @@ function Table(props: TableProps) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return Object.keys(data[0]).map((key: any) => {
         const uniqueKey = uniqueId();
+
         return {
           Header: key === "" ? uniqueKey : key,
           accessor: key,
@@ -306,6 +308,7 @@ function Table(props: TableProps) {
       const row = rows[index];
 
       prepareRow(row);
+
       return (
         <div
           {...row.getRowProps({

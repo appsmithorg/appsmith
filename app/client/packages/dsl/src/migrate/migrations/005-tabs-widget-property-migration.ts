@@ -16,20 +16,26 @@ export const tabsWidgetTabsPropertyMigration = (currentDSL: DSLWidget) => {
             const childForTab = child.children
               ?.filter(Boolean)
               .find((tabChild: DSLWidget) => tabChild.tabId === tab.id);
+
             if (childForTab) {
               tab.widgetId = childForTab.widgetId;
             }
+
             return tab;
           });
+
           child.tabs = JSON.stringify(newTabs);
         } catch (migrationError) {
           log.debug({ migrationError });
         }
       }
+
       if (child.children && child.children.length) {
         child = tabsWidgetTabsPropertyMigration(child);
       }
+
       return child;
     });
+
   return currentDSL;
 };

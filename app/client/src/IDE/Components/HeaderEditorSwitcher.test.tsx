@@ -37,6 +37,7 @@ describe("HeaderEditorSwitcher", () => {
 
   it("calls onClick handler when clicked", () => {
     const { getByText } = render(<HeaderEditorSwitcher {...defaultProps} />);
+
     fireEvent.click(getByText("Title"));
 
     expect(mockOnClick).toHaveBeenCalled();
@@ -44,6 +45,7 @@ describe("HeaderEditorSwitcher", () => {
 
   it("forwards ref correctly", () => {
     const ref = React.createRef();
+
     render(<HeaderEditorSwitcher {...defaultProps} ref={ref} />);
     expect(ref.current).toBeTruthy();
   });
@@ -52,6 +54,7 @@ describe("HeaderEditorSwitcher", () => {
     const { getByText } = render(
       <HeaderEditorSwitcher {...defaultProps} onClick={undefined} />,
     );
+
     fireEvent.click(getByText("Title")); // Should not throw error
   });
 
@@ -67,6 +70,7 @@ describe("HeaderEditorSwitcher", () => {
     );
 
     const icon = container.querySelector(".remixicon-icon"); // Get chevron icon
+
     expect(getByTestId("root-div")).toHaveTextContent("Prefix");
     expect(icon).toHaveAttribute(
       "fill",

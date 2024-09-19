@@ -135,6 +135,7 @@ function ReleaseComponent({ release }: ReleaseProps) {
 
   const getReadMoreState = useCallback((): ReleaseComponentViewState => {
     if (isCollapsed) return ReleaseComponentViewState.collapsed;
+
     return ReleaseComponentViewState.expanded;
   }, [isCollapsed]);
 
@@ -144,6 +145,7 @@ function ReleaseComponent({ release }: ReleaseProps) {
 
   const getHeight = useCallback(() => {
     if (!contentRef.current) return 500;
+
     return isCollapsed ? 500 : contentRef.current.scrollHeight;
   }, [isCollapsed]);
 
