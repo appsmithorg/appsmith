@@ -20,7 +20,7 @@ import set from "lodash/set";
 import log from "loglevel";
 import { isPlainObject, isString } from "lodash";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
-import { apiFailureResponseInterceptor } from "ee/api/ApiUtils";
+import { apiFailureResponseInterceptor } from "api/interceptors";
 import { klonaLiteWithTelemetry } from "utils/helpers";
 
 // function to extract all objects that have dynamic values
