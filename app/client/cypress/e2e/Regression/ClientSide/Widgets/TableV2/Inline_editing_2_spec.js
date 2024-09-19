@@ -6,13 +6,12 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
-  entityExplorer,
   propPane,
   table,
-  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 import PageList from "../../../../../support/Pages/PageList";
+const publish = require("../../../../../locators/publishWidgetspage.json");
 
 describe(
   "Table widget inline editing functionality",
@@ -31,8 +30,7 @@ describe(
       cy.openPropertyPane("tablewidgetv2");
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.editColumn("EditActions1");
-      cy.get(".t--property-pane-section-collapse-savebutton").click();
-      //cy.get(".t--property-pane-section-collapse-discardbutton").click();
+      cy.get(widgetsPage.propertyPaneSaveButton).click();
       cy.getAlert("onDiscard", "discarded!!");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "NewValue");
@@ -53,7 +51,7 @@ describe(
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.editTableCell(0, 0);
       cy.get(
-        "[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor input.bp3-input",
+        widgetsPage.firstEditInput,
       ).should("not.be.disabled");
     });
 
@@ -61,12 +59,12 @@ describe(
       cy.openPropertyPane("tablewidgetv2");
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.editColumn("step");
-      cy.get(".t--property-control-cellwrapping .ads-v2-switch")
+      cy.get(widgetsPage.cellControlSwitch)
         .first()
         .click({ force: true });
       cy.editTableCell(0, 0);
       cy.get(
-        "[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor input.bp3-input",
+        widgetsPage.firstEditInput,
       ).should("not.be.disabled");
     });
 
@@ -115,16 +113,16 @@ describe(
 
     it("6. should check if updatedRowIndex is getting updated for single row update mode", () => {
       cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
-      cy.get(".t--widget-textwidget").should("exist");
+      cy.get(publish.textWidget).should("exist");
       cy.updateCodeInput(
-        ".t--property-control-text",
+        PROPERTY_SELECTOR.text,
         `{{Table1.updatedRowIndex}}`,
       );
 
       cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
-      cy.get(".t--widget-buttonwidget").should("exist");
-      cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
-      cy.updateCodeInput(".t--property-control-label", "Reset");
+      cy.get(widgetsPage.widgetBtn).should("exist");
+      cy.get(PROPERTY_SELECTOR.onClick).find(PROPERTY_SELECTOR.jsToggle).click();
+      cy.updateCodeInput(widgetsPage.propertyControlLabel, "Reset");
       cy.updateCodeInput(
         PROPERTY_SELECTOR.onClick,
         `{{resetWidget("Table1",true)}}`,
@@ -166,15 +164,15 @@ describe(
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });
       table.AddSampleTableData();
       cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
-      cy.get(".t--widget-textwidget").should("exist");
+      cy.get(publish.textWidget).should("exist");
       cy.updateCodeInput(
-        ".t--property-control-text",
+        PROPERTY_SELECTOR.text,
         `{{Table1.updatedRowIndex}}`,
       );
       cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
-      cy.get(".t--widget-buttonwidget").should("exist");
-      cy.get(PROPERTY_SELECTOR.onClick).find(".t--js-toggle").click();
-      cy.updateCodeInput(".t--property-control-label", "Reset");
+      cy.get(widgetsPage.widgetBtn).should("exist");
+      cy.get(PROPERTY_SELECTOR.onClick).find(PROPERTY_SELECTOR.jsToggle).click();
+      cy.updateCodeInput(widgetsPage.propertyControlLabel, "Reset");
       propPane.EnterJSContext(
         "onClick",
         '{{resetWidget("Table1",true)}}',
