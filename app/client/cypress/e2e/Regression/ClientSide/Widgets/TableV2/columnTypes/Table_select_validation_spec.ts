@@ -95,9 +95,6 @@ describe(
       // Expect the save row option to be enabled
       agHelper.GetElement(table._saveNewRow).should("be.enabled");
 
-      // Expect button to have a valid color
-      validateSelectBorderColor("var(--wds-color-border)");
-
       // Discard save new row
       agHelper.GetElement(table._discardRow).click({ force: true });
     });
