@@ -83,18 +83,7 @@
     <!-- Start of Reo Javascript -->
     <script type="text/javascript">
       if (CLOUD_HOSTING && REO_CLIENT_ID) {
-        !(function () {
-          var e, t, n;
-          (e = REO_CLIENT_ID),
-            (t = function () {
-              Reo.init({ clientID: REO_CLIENT_ID });
-            }),
-            ((n = document.createElement("script")).src =
-              "https://static.reo.dev/" + e + "/reo.js"),
-            (n.async = !0),
-            (n.onload = t),
-            document.head.appendChild(n);
-        })();
+        !function(){var e,t,n;e=REO_CLIENT_ID,t=function(){Reo.init({clientID:REO_CLIENT_ID})},(n=document.createElement("script")).src="https://static.reo.dev/"+e+"/reo.js",n.async=!0,n.onload=t,document.head.appendChild(n)}();
       }
     </script>
     <!-- End of Reo Javascript -->
