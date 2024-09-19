@@ -188,6 +188,7 @@ export interface BaseAction {
   userPermissions?: string[];
   errorReports?: Array<LayoutOnLoadActionErrors>;
   isPublic?: boolean;
+  packageId?: string;
   moduleId?: string;
   moduleInstanceId?: string;
   workflowId?: string;

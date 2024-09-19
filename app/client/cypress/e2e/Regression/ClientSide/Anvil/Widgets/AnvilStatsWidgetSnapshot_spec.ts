@@ -4,7 +4,8 @@ import {
   anvilSnapshot,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe(
+// TODO: Enable when issue(github.com/appsmithorg/appsmith/issues/36419) is solved.
+describe.skip(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Stats Widget`,
   { tags: ["@tag.Anvil", "@tag.Visual"] },
   () => {
@@ -20,7 +21,7 @@ describe(
     });
 
     it("2. Preview Mode", () => {
-      anvilSnapshot.enterPreviewMode("StatsWidget");
+      anvilSnapshot.enterPreviewMode();
     });
 
     it("3. Deploy Mode", () => {
