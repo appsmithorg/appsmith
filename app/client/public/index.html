@@ -17,32 +17,31 @@
         transition: all ease-in 0.3s;
       }
     </style>
-    <script>
-      // '' (empty strings), 'false' are falsy
-      // could return either boolean or string based on value
-      const parseConfig = (config) => {
-        if (
-          (config.startsWith("{") && config.startsWith("}")) ||
-          config.indexOf("__") === 0 ||
-          config.indexOf("$") === 0 ||
-          config.indexOf("%") === 0
-        )
-          return "";
+      <script>
+        // '' (empty strings), 'false' are falsy
+        // could return either boolean or string based on value
+        const parseConfig = (config) => {
+          if (
+            (config.startsWith("{") && config.startsWith("}")) ||
+            config.indexOf("__") === 0 ||
+            config.indexOf("$") === 0 ||
+            config.indexOf("%") === 0
+          )
+            return "";
 
-        const result = config.trim();
-        if (result.toLowerCase() === "false" || result === "") {
-          return false;
-        } else if (result.toLowerCase() === "true") {
-          return true;
-        }
+          const result = config.trim();
+          if (result.toLowerCase() === "false" || result === "") {
+            return false;
+          } else if (result.toLowerCase() === "true") {
+            return true;
+          }
 
-        return result;
-      };
-      const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
-      const ZIPY_KEY = parseConfig('{{env "APPSMITH_ZIPY_SDK_KEY"}}');
-      const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
-      const REO_CLIENT_ID = parseConfig('{{env "APPSMITH_REO_CLIENT_ID"}}');
-    </script>
+          return result;
+        };
+        const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
+        const ZIPY_KEY = parseConfig('{{env "APPSMITH_ZIPY_SDK_KEY"}}');
+        const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
+      </script>
     <script>
         window.__APPSMITH_CHUNKS_TO_PRELOAD =
       <%=
@@ -76,26 +75,9 @@
         const head = document.getElementsByTagName("head")[0];
         head && head.appendChild(script);
       }
-    </script>
 
-    <!-- Start of Reo Javascript -->
-    <script type="text/javascript">
-      if (CLOUD_HOSTING && REO_CLIENT_ID) {
-        !(function () {
-          var e, t, n;
-          (e = REO_CLIENT_ID),
-            (t = function () {
-              Reo.init({ clientID: REO_CLIENT_ID });
-            }),
-            ((n = document.createElement("script")).src =
-              "https://static.reo.dev/" + e + "/reo.js"),
-            (n.async = !0),
-            (n.onload = t),
-            document.head.appendChild(n);
-        })();
-      }
+
     </script>
-    <!-- End of Reo Javascript -->
   </head>
 
   <body class="appsmith-light-theme">
@@ -247,7 +229,7 @@
           //OTLP following the naming convention of Sdk initialisation
           otlpServiceName: parseConfig('{{env "APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME"}}'),
           otlpEndpoint:parseConfig('{{env "APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT"}}'),
-          
+
         },
         fusioncharts: {
           licenseKey: parseConfig('{{env "APPSMITH_FUSIONCHARTS_LICENSE_KEY"}}'),
