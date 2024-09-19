@@ -4,18 +4,17 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../../../support/Pages/EditorNavigation";
 
-const widgetsPage = require("../../../../../../locators/Widgets.json");
-const commonlocators = require("../../../../../../locators/commonlocators.json");
-const publish = require("../../../../../../locators/publishWidgetspage.json");
-const dsl = require("../../../../../../fixtures/tableV2AndTextDsl.json");
+import dsl from "../../../../../../fixtures/tableV2AndTextDsl.json";
+import widgetsPage from "../../../../../../locators/Widgets.json";
+import commonlocators from "../../../../../../locators/commonlocators.json";
+import publish from "../../../../../../locators/publishWidgetspage.json";
 import { firstJSObjectBody, secondJSObjectBody } from "./Fixture";
 
 import {
   agHelper,
-  table,
-  locators,
   jsEditor,
-  propPane,
+  locators,
+  table,
 } from "../../../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -29,38 +28,46 @@ describe(
     });
 
     it("1. Table Widget V2 Functionality To Filter and search data", function () {
-      cy.get(publish.searchInput).first().type("query");
-      cy.get(publish.filterBtn).click({ force: true });
-      cy.get(publish.attributeDropdown).click({ force: true });
-      cy.get(publish.attributeValue).contains("task").click({ force: true });
-      cy.get(publish.conditionDropdown).click({ force: true });
-      cy.get(publish.attributeValue)
+      table.SearchTable("query");
+      agHelper.GetNClick(publish.filterBtn, 0, true);
+      agHelper.GetNClick(publish.attributeDropdown, 0, true);
+
+      agHelper
+        .GetElement(publish.attributeValue)
+        .contains("task")
+        .click({ force: true });
+      agHelper.GetNClick(publish.conditionDropdown, 0, true);
+      agHelper
+        .GetElement(publish.attributeValue)
         .contains("contains")
         .click({ force: true });
-      cy.get(publish.tableFilterInputValue).type("bind", { force: true });
-      cy.wait(500);
-      cy.get(widgetsPage.filterApplyBtn).click({ force: true });
-      cy.wait(500);
-      cy.get(".t--close-filter-btn").click({ force: true });
+      agHelper.TypeText(publish.tableFilterInputValue, "bind");
+
+      agHelper.GetNClick(widgetsPage.filterApplyBtn, 0, true);
+      agHelper.GetNClick(".t--close-filter-btn", 0, true);
     });
 
     it("2. Table Widget V2 Functionality to validate filtered table data", function () {
       EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       (cy as any).testJsontext("text", "{{Table1.filteredTableData[0].task}}");
-      (cy as any).readTableV2data("0", "1").then((tabData: unknown) => {
-        const tableData = tabData;
-        cy.get(commonlocators.labelTextStyle).should("have.text", tableData);
+      table.ReadTableRowColumnData(0, 1, "v2").then((tabData: string) => {
+        agHelper.AssertText(
+          commonlocators.labelTextStyle,
+          "text",
+          tabData as string,
+        );
       });
 
       //Table Widget V2 Functionality to validate filtered table data with actual table data
-      const tableData = JSON.parse(dsl.dsl.children[0].tableData);
-      cy.get(commonlocators.labelTextStyle).should(
-        "have.text",
-        tableData[2].task,
+      const tableData = JSON.parse(dsl.dsl.children[0].tableData as string);
+      agHelper.AssertText(
+        commonlocators.labelTextStyle,
+        "text",
+        tableData[1].task as string,
       );
     });
 
-    it.only("3. When primary key is set, selectedRowIndex should not updated after data update", function () {
+    it("3. When primary key is set, selectedRowIndex should not updated after data update", function () {
       // https://github.com/appsmithorg/appsmith/issues/36080
       jsEditor.CreateJSObject(firstJSObjectBody, {
         paste: true,
