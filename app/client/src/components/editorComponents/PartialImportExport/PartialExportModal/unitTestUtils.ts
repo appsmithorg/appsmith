@@ -12780,7 +12780,6 @@ export const defaultAppState = {
           ab_ds_binding_enabled: true,
           ask_ai_js: false,
           license_connection_pool_size_enabled: false,
-          release_widgetdiscovery_enabled: false,
           ab_ai_js_function_completion_enabled: true,
           release_workflows_enabled: false,
           license_scim_enabled: false,
