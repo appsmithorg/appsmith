@@ -9,6 +9,16 @@ import type {
 } from "web-vitals";
 import isString from "lodash/isString";
 
+type TNavigator = Navigator & {
+  deviceMemory: number;
+  connection: {
+    effectiveType: string;
+    downlink: number;
+    rtt: number;
+    saveData: boolean;
+  };
+};
+
 export class PageLoadInstrumentation extends InstrumentationBase {
   // PerformanceObserver to observe resource timings
   resourceTimingObserver: PerformanceObserver | null = null;
@@ -16,10 +26,6 @@ export class PageLoadInstrumentation extends InstrumentationBase {
   rootSpan: Span;
   // List of resource URLs to ignore
   ignoreResourceUrls: string[] = [];
-  // Timestamp when the page was last hidden
-  pageLastHiddenAt: number = 0;
-  // Duration the page was hidden for
-  pageHiddenFor: number = 0;
   // Flag to check if navigation entry was pushed
   wasNavigationEntryPushed: boolean = false;
   // Set to keep track of resource entries
@@ -44,7 +50,11 @@ export class PageLoadInstrumentation extends InstrumentationBase {
   }
 
   enable(): void {
-    this.addVisibilityChangeListener();
+    // Register connection change listener
+    this.addConnectionAttributes();
+
+    // Add device attributes to the root span
+    this.addDeviceAttributes();
 
     // Listen for LCP and FCP events
     // reportAllChanges: true will report all LCP and FCP events
@@ -61,17 +71,26 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     }
   }
 
-  private addVisibilityChangeListener() {
-    // Listen for page visibility changes to track time spent on hidden page
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "hidden") {
-        this.pageLastHiddenAt = performance.now();
-      } else {
-        const endTime = performance.now();
-
-        this.pageHiddenFor = endTime - this.pageLastHiddenAt;
-      }
+  private addDeviceAttributes() {
+    this.rootSpan.setAttributes({
+      deviceMemory: (navigator as TNavigator).deviceMemory,
+      hardwareConcurrency: navigator.hardwareConcurrency,
     });
+  }
+
+  private addConnectionAttributes() {
+    if ((navigator as TNavigator).connection) {
+      const { downlink, effectiveType, rtt, saveData } = (
+        navigator as TNavigator
+      ).connection;
+
+      this.rootSpan.setAttributes({
+        effectiveConnectionType: effectiveType,
+        connectionDownlink: downlink,
+        connectionRtt: rtt,
+        connectionSaveData: saveData,
+      });
+    }
   }
 
   // Handler for LCP report
@@ -156,7 +175,6 @@ export class PageLoadInstrumentation extends InstrumentationBase {
         element: this.getElementName(element),
         entryType,
         loadTime,
-        pageHiddenFor: this.pageHiddenFor,
       },
       0,
     );
