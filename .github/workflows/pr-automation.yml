@@ -122,6 +122,16 @@ jobs:
               else
                 echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19
        
+  perform-test-for-tags-in-commit-message:
+      needs: [ parse-tags-from-commit-message ]
+      if: success()
+      uses: ./.github/workflows/pr-cypress.yml
+      secrets: inherit
+      with:
+        tags: ${{ needs.parse-tags-from-commit-message.outputs.tags}}
+        spec: ${{ needs.parse-tags-from-commit-message.outputs.spec}}
+        matrix: ${{ needs.parse-tags-from-commit-message.outputs.matrix}}
+        is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
 
   parse-tags-from-pr-description:
     needs: [ checkTestLabelAndCommit ]
@@ -185,6 +195,7 @@ jobs:
           script: |
             require("write-cypress-status.js")({core, context, github}, "important", process.env.BODY)
 
+
   # Call the workflow to run Cypress tests
   perform-test-for-tags-in-pr-description:
     needs: [ parse-tags-from-pr-description ]
@@ -197,13 +208,4 @@ jobs:
       matrix: ${{ needs.parse-tags-from-pr-description.outputs.matrix}}
       is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
 
-  perform-test-for-tags-in-commit-message:
-    needs: [ parse-tags-from-commit-message ]
-    if: success()
-    uses: ./.github/workflows/pr-cypress.yml
-    secrets: inherit
-    with:
-      tags: ${{ needs.parse-tags-from-commit-message.outputs.tags}}
-      spec: ${{ needs.parse-tags-from-commit-message.outputs.spec}}
-      matrix: ${{ needs.parse-tags-from-commit-message.outputs.matrix}}
-      is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
+  
