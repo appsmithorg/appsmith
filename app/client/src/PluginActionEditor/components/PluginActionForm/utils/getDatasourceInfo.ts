@@ -14,14 +14,18 @@ export const getDatasourceInfo = (datasource: Datasource): string => {
     "datasourceConfiguration.authentication.authenticationType",
     "",
   ).toUpperCase();
+
   if (headers.length)
     info.push(`${headers.length} Header${headers.length > 1 ? "s" : ""}`);
+
   if (queryParameters.length)
     info.push(
       `${queryParameters.length} query parameters${
         queryParameters.length > 1 ? "s" : ""
       }`,
     );
+
   if (authType.length) info.push(authType);
+
   return info.join(" | ");
 };

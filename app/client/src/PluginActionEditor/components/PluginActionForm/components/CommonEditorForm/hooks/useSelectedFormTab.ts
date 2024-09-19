@@ -15,6 +15,7 @@ export function useSelectedFormTab(): [string, (id: string) => void] {
       const index = Object.values(API_EDITOR_TABS).indexOf(
         value as API_EDITOR_TABS,
       );
+
       dispatch(setApiPaneConfigSelectedTabIndex(index));
     },
     [dispatch],

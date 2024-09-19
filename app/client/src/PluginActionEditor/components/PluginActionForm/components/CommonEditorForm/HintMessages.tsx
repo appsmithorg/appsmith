@@ -5,6 +5,7 @@ export function HintMessages(props: { hintMessages: string[] }) {
   if (props.hintMessages.length === 0) {
     return null;
   }
+
   return (
     <>
       {props.hintMessages.map((msg, i) => (
