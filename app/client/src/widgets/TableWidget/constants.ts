@@ -55,6 +55,8 @@ export const getCurrentRowBinding = (
   withBinding = true,
 ) => {
   let rowBinding = `${entityName}.sanatizedTableData.map((currentRow) => ( ${userInput}))`;
+
   if (withBinding) rowBinding = `{{${rowBinding}}}`;
+
   return rowBinding;
 };

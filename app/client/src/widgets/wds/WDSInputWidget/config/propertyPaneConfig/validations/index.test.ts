@@ -142,6 +142,7 @@ describe("defaultValueValidation", () => {
 
   it("should validate defaulttext with object value", () => {
     const value = {};
+
     result = defaultValueValidation(
       value,
       // TODO: Fix this the next time the file is edited

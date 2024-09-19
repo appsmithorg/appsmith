@@ -18,6 +18,7 @@ const DividerWrapper = styled.div<{
   ${(props) => {
     const paddingVal = props.thickness / 2;
     let padStyle: string;
+
     if (props.isHorizontal) {
       padStyle = `padding: 0px ${
         props.showEndCap ? paddingVal + "px" : "0px"
@@ -27,6 +28,7 @@ const DividerWrapper = styled.div<{
         props.showStartCap ? paddingVal + "px" : "0px"
       } 0px ${props.showEndCap ? paddingVal + "px" : "0px"} 0px;`;
     }
+
     return padStyle;
   }}
 `;

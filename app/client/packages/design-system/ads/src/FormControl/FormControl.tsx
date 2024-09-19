@@ -56,6 +56,7 @@ FormControl.displayName = "FormControl";
 
 function FormLabel({ children, className, ...rest }: FormLabelProps) {
   const { isRequired, size } = useFormControlContext();
+
   return (
     <StyledLabel
       className={clsx(FormControlLabelClassName, className)}
@@ -72,6 +73,7 @@ FormLabel.displayName = "FormLabel";
 
 function FormHelper({ children, className, ...rest }: FormHelperProps) {
   const { isDisabled } = useFormControlContext();
+
   return (
     <StyledHelper
       className={clsx(FormControlHelperClassName, className)}

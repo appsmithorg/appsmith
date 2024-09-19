@@ -42,6 +42,7 @@ export function Checkbox(props: CheckboxProps) {
       props.input.onChange &&
       props.input.onChange(e.target.checked);
   };
+
   return (
     <StyledCheckbox
       {...props}

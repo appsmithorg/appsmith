@@ -9,12 +9,14 @@ describe("isReadOnlyUpdateHook", () => {
     } as unknown as WidgetProps;
 
     const updates = isReadOnlyUpdateHook(props1, "readOnly", true);
+
     expect(updates).toEqual([
       { propertyPath: "readOnly", propertyValue: true },
       { propertyPath: "type", propertyValue: "WDS_KEY_VALUE_WIDGET" },
     ]);
 
     const updates2 = isReadOnlyUpdateHook(props1, "readOnly", false);
+
     expect(updates2).toEqual([
       { propertyPath: "readOnly", propertyValue: false },
       { propertyPath: "type", propertyValue: "WDS_INPUT_WIDGET" },
@@ -26,12 +28,14 @@ describe("isReadOnlyUpdateHook", () => {
     } as unknown as WidgetProps;
 
     const updates3 = isReadOnlyUpdateHook(props2, "readOnly", true);
+
     expect(updates3).toEqual([
       { propertyPath: "readOnly", propertyValue: true },
       { propertyPath: "type", propertyValue: "WDS_KEY_VALUE_WIDGET" },
     ]);
 
     const updates4 = isReadOnlyUpdateHook(props2, "readOnly", false);
+
     expect(updates4).toEqual([
       { propertyPath: "readOnly", propertyValue: false },
       { propertyPath: "type", propertyValue: "WDS_EMAIL_INPUT_WIDGET" },
@@ -45,6 +49,7 @@ describe("isReadOnlyUpdateHook", () => {
     } as unknown as WidgetProps;
 
     const updates = isReadOnlyUpdateHook(props, "readOnly", true);
+
     expect(updates).toEqual([
       { propertyPath: "readOnly", propertyValue: true },
     ]);
@@ -57,6 +62,7 @@ describe("isReadOnlyUpdateHook", () => {
     } as unknown as WidgetProps;
 
     const updates = isReadOnlyUpdateHook(props, "readOnly", true);
+
     expect(updates).toEqual([
       { propertyPath: "readOnly", propertyValue: true },
     ]);

@@ -32,6 +32,7 @@ import {
 
 function Tabs(props: TabsProps) {
   const { className, defaultValue, ...rest } = props;
+
   return (
     <StyledTabs
       className={clsx(TabsClassName, className)}
@@ -45,6 +46,7 @@ function Tabs(props: TabsProps) {
 
 function TabsList(props: TabsListProps) {
   const { children, className, ...rest } = props;
+
   return (
     <StyledTabsList
       className={clsx(TabsListClassName, className)}
@@ -58,6 +60,7 @@ function TabsList(props: TabsListProps) {
 
 function Tab(props: TabProps) {
   const { children, className, notificationCount, value, ...rest } = props;
+
   return (
     <StyledTab
       className={clsx(TabsListTabClassName, className)}
@@ -78,6 +81,7 @@ function Tab(props: TabProps) {
 
 function TabPanel(props: TabPanelProps) {
   const { className, ...rest } = props;
+
   return (
     <StyledTabPanel
       className={clsx(TabsPanelClassName, className)}
@@ -86,4 +90,5 @@ function TabPanel(props: TabPanelProps) {
     />
   );
 }
+
 export { Tabs, TabsList, Tab, TabPanel };

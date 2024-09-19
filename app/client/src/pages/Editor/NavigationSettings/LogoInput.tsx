@@ -35,16 +35,20 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
   useEffect(() => {
     if (logoAssetId?.length) {
       setLogoUrl(`/api/v1/assets/${logoAssetId}`);
+
       return;
     } else if (cloudHosting) {
       setLogoUrl(null);
+
       return;
     } else if (!cloudHosting && tenantConfig?.brandLogoUrl) {
       setLogoUrl(tenantConfig.brandLogoUrl);
+
       return;
     }
 
     setLogoUrl(null);
+
     return;
   }, [logoAssetId, tenantConfig, cloudHosting]);
 

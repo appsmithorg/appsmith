@@ -129,6 +129,7 @@ const WidgetIconWrapper = styled.span<{ isActiveItem: boolean }>`
 const usePageName = (pageId: string) => {
   const pages = useSelector(getPageList);
   const page = pages.find((page) => page.pageId === pageId);
+
   return page?.pageName;
 };
 
@@ -142,6 +143,7 @@ function WidgetItem(props: {
   const title = getItemTitle(item);
   const pageName = usePageName(item.pageId);
   const subText = `${pageName}`;
+
   return (
     <>
       <WidgetIconWrapper
@@ -234,6 +236,7 @@ function DatasourceItem(props: {
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon = getPluginIcon(pluginGroups[item.pluginId]);
   const title = getItemTitle(item);
+
   return (
     <>
       {icon}
@@ -374,6 +377,7 @@ function ActionOperationItem({ isActiveItem, item }: any) {
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon = item.pluginId && getPluginIcon(pluginGroups[item.pluginId]);
+
   return (
     <ActionOperation isActive={isActiveItem}>
       <div className="action-icon">

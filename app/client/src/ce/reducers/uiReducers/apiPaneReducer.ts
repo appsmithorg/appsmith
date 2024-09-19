@@ -93,6 +93,7 @@ export const handlers = {
     action: ReduxAction<{ [id: string]: any }>,
   ) => {
     const actionId = Object.keys(action.payload)[0];
+
     return {
       ...state,
       isRunning: {
@@ -210,6 +211,7 @@ export const handlers = {
     action: ReduxAction<{ id: string; values: Record<string, unknown> }>,
   ): ApiPaneReduxState => {
     const { id, values } = action.payload;
+
     return {
       ...state,
       extraformData: {
@@ -223,6 +225,7 @@ export const handlers = {
     action: ReduxAction<{ selectedTabIndex: number }>,
   ) => {
     const { selectedTabIndex } = action.payload;
+
     return {
       ...state,
       selectedConfigTabIndex: selectedTabIndex,

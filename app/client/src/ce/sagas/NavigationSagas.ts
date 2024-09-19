@@ -31,6 +31,7 @@ export function* handleRouteChange(
   action: ReduxAction<RouteChangeActionPayload>,
 ) {
   const { pathname, state } = action.payload.location;
+
   try {
     yield fork(clearErrors);
     yield fork(watchForTrackableUrl, action.payload);
@@ -45,10 +46,12 @@ export function* handleRouteChange(
         previousPath,
         state,
       );
+
       if (ideType === IDE_TYPE.App) {
         yield fork(logNavigationAnalytics, action.payload);
         yield fork(appBackgroundHandler);
         const entityInfo = identifyEntityFromPath(pathname);
+
         yield fork(updateRecentEntitySaga, entityInfo);
         yield fork(updateIDETabsOnRouteChangeSaga, entityInfo);
         yield fork(setSelectedWidgetsSaga, state?.invokedBy);
@@ -63,6 +66,7 @@ export function* handleRouteChange(
 
 function* appBackgroundHandler() {
   const currentTheme: BackgroundTheme = yield select(getCurrentThemeDetails);
+
   changeAppBackground(currentTheme);
 }
 
@@ -75,6 +79,7 @@ function* appBackgroundHandler() {
  * */
 function* clearErrors() {
   const isCrashed: boolean = yield select(getSafeCrash);
+
   if (isCrashed) {
     yield put(flushErrors());
   }
@@ -114,6 +119,7 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   );
   const ideViewMode: EditorViewMode = yield select(getIDEViewMode);
   const { height, width } = window.screen;
+
   AnalyticsUtil.logEvent("ROUTE_CHANGE", {
     toPath: pathname,
     fromPath: previousPath || undefined,
@@ -133,12 +139,15 @@ function* setSelectedWidgetsSaga(invokedBy?: NavigationMethod) {
   const entityInfo = identifyEntityFromPath(pathname);
   let widgets: string[] = [];
   let lastSelectedWidget = MAIN_CONTAINER_WIDGET_ID;
+
   if (entityInfo.entity === FocusEntity.PROPERTY_PANE) {
     widgets = entityInfo.id.split(",");
+
     if (widgets.length) {
       lastSelectedWidget = widgets[widgets.length - 1];
     }
   }
+
   yield put(setSelectedWidgets(widgets, invokedBy));
   yield put(setLastSelectedWidget(lastSelectedWidget));
 }

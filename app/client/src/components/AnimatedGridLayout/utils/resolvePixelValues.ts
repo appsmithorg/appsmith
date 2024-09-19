@@ -21,6 +21,7 @@ export function resolvePixelValues(totalPixels: number, sizes: string[]) {
     if (size.includes("fr")) {
       return normalizeMeasurement(size) * frInPixels;
     }
+
     return normalizeMeasurement(size);
   });
 }

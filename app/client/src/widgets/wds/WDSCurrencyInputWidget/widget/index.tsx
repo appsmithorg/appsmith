@@ -159,6 +159,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     ) {
       this.formatText();
     }
+
     // If defaultText property has changed, reset isDirty to false
     if (
       this.props.defaultText !== prevProps.defaultText &&
@@ -218,6 +219,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
           new RegExp("\\" + getLocaleThousandSeparator(), "g"),
           "",
         );
+
         this.props.updateWidgetMetaProperty("parsedText", deFormattedValue);
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
           triggerPropertyName: "onFocus",
@@ -232,8 +234,10 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
             this.props.decimals,
             this.props.parsedText,
           );
+
           this.props.updateWidgetMetaProperty("parsedText", formattedValue);
         }
+
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
           triggerPropertyName: "onBlur",
           dynamicString: this.props.onBlur,

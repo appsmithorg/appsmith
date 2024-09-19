@@ -37,6 +37,7 @@ export default function Link({
   const clickHandler = () => {
     onClick ? onClick() : window.open(link, "_blank");
   };
+
   return (
     <LinkText
       className={className}

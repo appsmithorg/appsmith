@@ -111,6 +111,7 @@ export function ChangeSubList({
       </div>
     );
   });
+
   // eslint-disable-next-line react/jsx-no-useless-fragment
   return <>{sublist}</>;
 }
@@ -148,6 +149,7 @@ export function ExpandableChange({ filter, kind, status }: ChangeProps) {
 
   const getTitleMessage = () => {
     let action = "";
+
     if (hasOnlyOneChange) {
       if (isModified) {
         action = "edited";

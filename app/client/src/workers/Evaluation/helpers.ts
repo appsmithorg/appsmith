@@ -16,6 +16,7 @@ export const uniqueOrderUpdatePaths = (updatePaths: string[]) =>
 export const getNewDataTreeUpdates = (paths: string[], dataTree: object) =>
   paths.map((path) => {
     const segmentedPath = path.split(".");
+
     return {
       kind: "N",
       path: segmentedPath,
@@ -39,12 +40,15 @@ export type DiffWithNewTreeState = Diff<DataTree, DataTree> | DiffNewTreeState;
 export const findDuplicateIndex = (arr: Array<unknown>) => {
   const _uniqSet = new Set();
   let currSetSize = 0;
+
   for (let i = 0; i < arr.length; i++) {
     // JSON.stringify because value can be objects
     _uniqSet.add(JSON.stringify(arr[i]));
+
     if (_uniqSet.size > currSetSize) currSetSize = _uniqSet.size;
     else return i;
   }
+
   return -1;
 };
 
@@ -62,6 +66,7 @@ export const countOccurrences = (
 ): number => {
   string += "";
   subString += "";
+
   if (subString.length <= 0) return string.length + 1;
 
   let n = 0, // count of occurrences
@@ -70,17 +75,21 @@ export const countOccurrences = (
 
   while (true) {
     pos = string.indexOf(subString, pos);
+
     if (pos >= 0) {
       ++n;
+
       /**
        * If you are only interested in knowing
        * whether occurances count exceeds maxLimit,
        * then break the loop.
        */
       if (maxLimit && n > maxLimit) break;
+
       pos += step;
     } else break;
   }
+
   return n;
 };
 
@@ -96,15 +105,18 @@ export const stringifyFnsInObject = (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const fnValue: any = get(userObject, path);
+
     fnStrings.push(fnValue.toString());
   }
 
   const output = JSON.parse(JSON.stringify(userObject));
+
   for (const [index, parsedFnString] of fnStrings.entries()) {
     set(output, paths[index], parsedFnString);
   }
 
   output[fn_keys] = paths;
+
   return output;
 };
 
@@ -124,6 +136,7 @@ const parseFunctionsInObject = (
   if (Array.isArray(userObject)) {
     for (let i = 0; i < userObject.length; i++) {
       const arrayValue = userObject[i];
+
       if (typeof arrayValue == "function") {
         paths.push(constructPath(path, `[${i}]`));
       } else if (typeof arrayValue == "object") {
@@ -136,8 +149,10 @@ const parseFunctionsInObject = (
     }
   } else {
     const keys = Object.keys(userObject);
+
     for (const key of keys) {
       const value = userObject[key];
+
       if (typeof value == "function") {
         paths.push(constructPath(path, key));
       } else if (typeof value == "object") {
@@ -157,6 +172,7 @@ const parseFunctionsInObject = (
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const isLargeCollection = (val: any) => {
   if (!Array.isArray(val)) return false;
+
   const rowSize = !isObject(val[0]) ? 1 : Object.keys(val[0]).length;
 
   const size = val.length * rowSize;
@@ -172,16 +188,19 @@ const getReducedDataTree = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const withErrors = Object.keys(dataTree).reduce((acc: any, key: string) => {
     const widgetValue = dataTree[key] as WidgetEntity;
+
     acc[key] = {
       __evaluation__: {
         errors: widgetValue.__evaluation__?.errors,
       },
     };
+
     return acc;
   }, {});
 
   return constrainedDiffPaths.reduce((acc: DataTree, key: string) => {
     set(acc, key, get(dataTree, key));
+
     return acc;
   }, withErrors);
 };
@@ -217,19 +236,23 @@ const generateDiffUpdates = (
           rhs: rhs as any,
           path: segmentedPath,
         });
+
         // ignore trying to diff moment objects
         return true;
       }
+
       if (rhs === undefined) {
         //if an undefined value is being set it should be a delete
         if (lhs !== undefined) {
           attachDirectly.push({ kind: "D", lhs, path: segmentedPath });
         }
+
         return true;
       }
 
       const isLhsLarge = isLargeCollection(lhs);
       const isRhsLarge = isLargeCollection(rhs);
+
       if (!isLhsLarge && !isRhsLarge) {
         //perform diff on this node
         return false;
@@ -239,6 +262,7 @@ const generateDiffUpdates = (
 
       if ((!isLhsLarge && isRhsLarge) || (isLhsLarge && !isRhsLarge)) {
         attachDirectly.push({ kind: "N", path: segmentedPath, rhs });
+
         return true;
       }
 
@@ -251,6 +275,7 @@ const generateDiffUpdates = (
     }) || [];
 
   const largeDataSetUpdates = [...attachDirectly, ...attachLater];
+
   return [...updates, ...largeDataSetUpdates];
 };
 
@@ -262,19 +287,25 @@ const correctUndefinedUpdatesToDeletesOrNew = (
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { kind, lhs, path, rhs } = update as any;
+
       if (kind === "E") {
         if (lhs === undefined && rhs !== undefined) {
           acc.push({ kind: "N", path, rhs });
         }
+
         if (lhs !== undefined && rhs === undefined) {
           acc.push({ path, lhs, kind: "D" });
         }
+
         if (lhs !== undefined && rhs !== undefined) {
           acc.push(update);
         }
+
         return acc;
       }
+
       acc.push(update);
+
       return acc;
     },
     [] as Diff<DataTree, DataTree>[],
@@ -298,7 +329,9 @@ const generateRootWidgetUpdates = (
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ({ path }: any) => {
         const pathCopy = [...path];
+
         pathCopy.pop();
+
         return {
           kind: "E",
           path: pathCopy,
@@ -317,6 +350,7 @@ const getScrubbedOutUpdatesWhenRootCollectionIsUpdated = (
   const rootCollectionPaths = rootCollectionUpdates
     .filter((update) => update?.path?.length)
     .map((update) => (update.path as string[]).join("."));
+
   return (
     updates // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -352,6 +386,7 @@ export const generateOptimisedUpdates = (
     correctedUpdates,
     rootCollectionUpdates,
   );
+
   return [...scrubedOutUpdates, ...rootCollectionUpdates];
 };
 
@@ -376,6 +411,7 @@ export const generateSerialisedUpdates = (
   //it is not necessary to send lhs and we can make the payload to transfer to the main thread smaller for quicker transfer
   // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   let removedLhs = updates.map(({ lhs, ...rest }: any) => rest);
+
   removedLhs = [...removedLhs, ...(mergeAdditionalUpdates || [])];
 
   try {
@@ -413,6 +449,8 @@ export const generateOptimisedUpdatesAndSetPrevState = (
   if (error && dataTreeEvaluator?.errors) {
     dataTreeEvaluator.errors.push(error);
   }
+
   dataTreeEvaluator?.setPrevState(dataTree);
+
   return serialisedUpdates;
 };

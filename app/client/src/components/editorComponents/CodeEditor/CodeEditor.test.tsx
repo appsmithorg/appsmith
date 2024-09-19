@@ -38,6 +38,7 @@ describe("CodeEditor", () => {
       </Provider>,
     );
     const testInstance = testRenderer.root;
+
     expect(
       // eslint-disable-next-line testing-library/await-async-queries
       testInstance.findByType(EvaluatedValuePopup).props.hideEvaluatedValue,
@@ -67,6 +68,7 @@ describe("CodeEditor", () => {
       </Provider>,
     );
     const testInstance = testRenderer.root;
+
     expect(
       // eslint-disable-next-line testing-library/await-async-queries
       testInstance.findByType(EvaluatedValuePopup).props.hideEvaluatedValue,

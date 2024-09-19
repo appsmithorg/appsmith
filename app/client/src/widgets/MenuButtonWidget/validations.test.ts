@@ -36,6 +36,7 @@ describe("sourceDataArrayValidation", () => {
       parsed: mockSourceData,
       messages: [{ name: "", message: "" }],
     };
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -66,6 +67,7 @@ describe("sourceDataArrayValidation", () => {
         },
       ],
     };
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -94,6 +96,7 @@ describe("sourceDataArrayValidation", () => {
         },
       ],
     };
+
     expect(result).toStrictEqual(expected);
   });
 });

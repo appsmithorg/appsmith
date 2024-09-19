@@ -13,11 +13,13 @@ export const getQueryPaneDebuggerState = (state: AppState) =>
 
 export const getQueryRunErrorMessage = (state: AppState, id: string) => {
   const { runErrorMessage } = state.ui.queryPane;
+
   return runErrorMessage[id];
 };
 
 export const getQueryIsRunning = (state: AppState, id: string): boolean => {
   const { isRunning } = state.ui.queryPane;
+
   return !!isRunning[id];
 };
 
@@ -26,9 +28,11 @@ export const getLastQueryTab = (
 ): FocusEntityInfo | undefined => {
   const tabs = selectQuerySegmentEditorTabs(state);
   const pageId = getCurrentPageId(state);
+
   if (tabs.length) {
     const url = getQueryEntityItemUrl(tabs[tabs.length - 1], pageId);
     const urlWithoutQueryParams = url.split("?")[0];
+
     return identifyEntityFromPath(urlWithoutQueryParams);
   }
 };

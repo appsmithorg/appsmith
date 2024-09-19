@@ -14,6 +14,7 @@ describe("parseOnDataPointClickParams", () => {
       },
     };
     const parsedEvent = parseOnDataPointClickParams(event, chartType);
+
     expect(parsedEvent.rawEventData).toEqual(event);
   });
 });
@@ -27,6 +28,7 @@ describe("parseOnDataPointClickForCustomEChart", () => {
       seriesName: "seriesName",
     };
     const parsedEvent = parseOnDataPointClickForCustomEChart(event);
+
     expect(parsedEvent.rawEventData).toEqual(event);
   });
 
@@ -42,6 +44,7 @@ describe("parseOnDataPointClickForCustomEChart", () => {
       },
     };
     const parsedEvent = parseOnDataPointClickForCustomEChart(event);
+
     expect(Object.keys(parsedEvent.rawEventData ?? [])).toEqual([
       "data",
       "seriesName",
@@ -60,6 +63,7 @@ describe("parseOnDataPointClickForCustomEChart", () => {
       },
     };
     const parsedEvent = parseOnDataPointClickForCustomEChart(event);
+
     expect(parsedEvent.x).toBeUndefined();
     expect(parsedEvent.y).toBeUndefined();
     expect(parsedEvent.seriesTitle).toBeUndefined();
@@ -77,6 +81,7 @@ describe("parseOnDataPointClickForCustomFusionChart", () => {
       otherKey: "otherValue",
     };
     const parsedEvent = parseOnDataPointClickForCustomFusionChart(event);
+
     expect(parsedEvent.rawEventData).toEqual(eventData);
   });
 
@@ -92,6 +97,7 @@ describe("parseOnDataPointClickForCustomFusionChart", () => {
       otherKey: "otherValue",
     };
     const parsedEvent = parseOnDataPointClickForCustomFusionChart(event);
+
     expect(parsedEvent.rawEventData).toEqual(eventData);
     expect(parsedEvent.x).toEqual("x value");
     expect(parsedEvent.y).toEqual("y value");
@@ -107,6 +113,7 @@ describe("parseOnDataPointClickForCustomFusionChart", () => {
       otherKey: "otherValue",
     };
     const parsedEvent = parseOnDataPointClickForCustomFusionChart(event);
+
     expect(parsedEvent.rawEventData).toEqual(eventData);
     expect(parsedEvent.x).toBeUndefined();
     expect(parsedEvent.y).toBeUndefined();

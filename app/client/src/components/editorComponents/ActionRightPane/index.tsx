@@ -83,6 +83,7 @@ export function useEntityDependencies(actionName: string) {
     entityDependencies &&
     (entityDependencies?.directDependencies.length > 0 ||
       entityDependencies?.inverseDependencies.length > 0);
+
   return {
     hasDependencies,
     entityDependencies,

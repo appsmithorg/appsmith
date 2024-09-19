@@ -166,12 +166,14 @@ describe("EChartsConfigurationBuilder", () => {
       chartData,
       longestLabels,
     );
+
     expect(output).toEqual(defaultExpectedConfig);
   });
 
   describe("2. Allow scroll variations", () => {
     it("2.1 data zoom property isn't present if allowScroll is false", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.allowScroll = false;
 
       // TODO: Fix this the next time the file is edited
@@ -179,6 +181,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.dataZoom = [];
 
       const output = builder.prepareEChartConfig(
@@ -200,6 +203,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.dataZoom = dataZoomConfig;
 
       const output = builder.prepareEChartConfig(
@@ -207,6 +211,7 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.dataZoom).toStrictEqual(expectedConfig.dataZoom);
     });
 
@@ -221,6 +226,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.dataZoom = [];
 
       const output = builder.prepareEChartConfig(
@@ -228,6 +234,7 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.dataZoom).toStrictEqual(expectedConfig.dataZoom);
     });
   });
@@ -235,11 +242,13 @@ describe("EChartsConfigurationBuilder", () => {
   describe("3. Title configuration variations", () => {
     it("3.1 includes default title config for non PIE_CHART chart types", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "BAR_CHART";
 
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = { ...defaultExpectedConfig };
+
       expectedConfig.title = {
         text: "chart name",
         left: "center",
@@ -259,16 +268,19 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.title).toStrictEqual(expectedConfig.title);
     });
 
     it("3.2 includes layout infomration for pie chart chart type", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "PIE_CHART";
 
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = { ...defaultExpectedConfig };
+
       expectedConfig.title = [
         {
           text: "chart name",
@@ -302,6 +314,7 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.title).toStrictEqual(expectedConfig.title);
     });
   });
@@ -309,6 +322,7 @@ describe("EChartsConfigurationBuilder", () => {
   describe("4. x-axis configuration variations", () => {
     it("4.1 returns appropriate config type for BAR_CHART", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "BAR_CHART";
 
       // TODO: Fix this the next time the file is edited
@@ -316,6 +330,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.xAxis.type = "value";
       expectedConfig.xAxis.axisLabel.rotate = 0;
 
@@ -324,11 +339,13 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.xAxis).toStrictEqual(expectedConfig.xAxis);
     });
 
     it("4.2 should configuration for label orientation SLANT", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.labelOrientation = LabelOrientation.SLANT;
 
       // TODO: Fix this the next time the file is edited
@@ -336,6 +353,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.xAxis.axisLabel.rotate = 45; // slant configuration needs rotate = 45;
       expectedConfig.xAxis.axisLabel.width = 2;
       expectedConfig.xAxis.nameGap = 12;
@@ -345,17 +363,20 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.xAxis).toStrictEqual(expectedConfig.xAxis);
     });
 
     describe("4.3 when label orientation is rotate", () => {
       it("4.3.1 returns correct configuration for label orientation ROTATE", () => {
         const labelRotatedProps = JSON.parse(JSON.stringify(defaultProps));
+
         labelRotatedProps.labelOrientation = LabelOrientation.ROTATE;
 
         const labelRotatedConfig = JSON.parse(
           JSON.stringify(defaultExpectedConfig),
         );
+
         labelRotatedConfig.xAxis.axisLabel.rotate = 90;
         labelRotatedConfig.xAxis.nameGap = 12;
         labelRotatedConfig.grid.bottom = 52;
@@ -365,12 +386,14 @@ describe("EChartsConfigurationBuilder", () => {
           chartData,
           longestLabels,
         );
+
         expect(output).toStrictEqual(labelRotatedConfig);
       });
     });
 
     it("4.4 returns correct configuration for label orientation AUTO", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.labelOrientation = LabelOrientation.AUTO;
 
       // TODO: Fix this the next time the file is edited
@@ -378,6 +401,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.xAxis.axisLabel = {
         color: Colors.DOVE_GRAY2,
         fontFamily: "fontfamily",
@@ -391,11 +415,13 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.xAxis).toStrictEqual(expectedConfig.xAxis);
     });
 
     it("4.5 returns correct xAxis configuration for PIE_CHART", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "PIE_CHART";
 
       // TODO: Fix this the next time the file is edited
@@ -403,6 +429,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.xAxis = {
         type: "category",
         axisLabel: { ...defaultExpectedConfig.xAxis.axisLabel, width: -50 },
@@ -415,6 +442,7 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.xAxis).toStrictEqual(expectedConfig.xAxis);
     });
   });
@@ -422,6 +450,7 @@ describe("EChartsConfigurationBuilder", () => {
   describe("5. y axis configuration variations", () => {
     it("5.1 returns appropriate y axis type for BAR_CHART", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "BAR_CHART";
 
       // TODO: Fix this the next time the file is edited
@@ -429,6 +458,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.yAxis.type = "category";
 
       const output = builder.prepareEChartConfig(
@@ -436,11 +466,13 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.yAxis).toStrictEqual(expectedConfig.yAxis);
     });
 
     it("5.2 returns correct y axis config for adaptive y axis option", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.setAdaptiveYMin = true;
 
       // TODO: Fix this the next time the file is edited
@@ -448,6 +480,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.yAxis.min = "dataMin"; // "datamin" means that the y axis is adaptive in echarts
 
       const output = builder.prepareEChartConfig(
@@ -455,11 +488,13 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output).toStrictEqual(expectedConfig);
     });
 
     it("5.3 includes only axisLabel configuration for y axis when chart type is PIE_CHART", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "PIE_CHART";
 
       const config = {
@@ -472,6 +507,7 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.yAxis).toStrictEqual(config);
     });
   });
@@ -480,6 +516,7 @@ describe("EChartsConfigurationBuilder", () => {
     it("6.1 chooses the app primary color for first series if no series color is present", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       const modifiedChartData = JSON.parse(JSON.stringify(chartData));
+
       modifiedChartData.seriesID1.color = "";
 
       // TODO: Fix this the next time the file is edited
@@ -487,6 +524,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.series[0].itemStyle.color = "primarycolor";
 
       const output = builder.prepareEChartConfig(
@@ -494,12 +532,14 @@ describe("EChartsConfigurationBuilder", () => {
         modifiedChartData,
         longestLabels,
       );
+
       expect(output).toStrictEqual(expectedConfig);
     });
 
     it("6.2 doesn't choose the app primary color for second series if its series color isn't present", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       const modifiedChartData = JSON.parse(JSON.stringify(chartData));
+
       modifiedChartData.seriesID2.color = "";
 
       // TODO: Fix this the next time the file is edited
@@ -507,6 +547,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.series[1].itemStyle.color = "";
 
       const output = builder.prepareEChartConfig(
@@ -514,11 +555,13 @@ describe("EChartsConfigurationBuilder", () => {
         modifiedChartData,
         longestLabels,
       );
+
       expect(output).toStrictEqual(expectedConfig);
     });
 
     it("6.3 chooses the appropriate configuration for bar chart", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "BAR_CHART";
 
       // TODO: Fix this the next time the file is edited
@@ -538,11 +581,13 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.series).toStrictEqual(expectedConfig.series);
     });
 
     it("6.4 chooses the appropriate configuration for line chart", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "LINE_CHART";
 
       // TODO: Fix this the next time the file is edited
@@ -550,6 +595,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.series[0].type = "line";
       expectedConfig.series[1].type = "line";
 
@@ -558,11 +604,13 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.series).toStrictEqual(expectedConfig.series);
     });
 
     it("6.5 chooses the appropriate configuration for column chart", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "COLUMN_CHART";
 
       // TODO: Fix this the next time the file is edited
@@ -570,6 +618,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.series[0].type = "bar";
       expectedConfig.series[1].type = "bar";
 
@@ -578,11 +627,13 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.series).toStrictEqual(expectedConfig.series);
     });
 
     it("6.6 chooses the appropriate configuration for area chart", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "AREA_CHART";
 
       // TODO: Fix this the next time the file is edited
@@ -590,6 +641,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.series[0].type = "line";
       expectedConfig.series[1].type = "line";
       expectedConfig.series[0].areaStyle = {};
@@ -600,11 +652,13 @@ describe("EChartsConfigurationBuilder", () => {
         chartData,
         longestLabels,
       );
+
       expect(output.series).toStrictEqual(expectedConfig.series);
     });
 
     it("6.7 chooses the appropriate configuration for pie chart", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "PIE_CHART";
 
       // TODO: Fix this the next time the file is edited
@@ -612,6 +666,7 @@ describe("EChartsConfigurationBuilder", () => {
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
+
       expectedConfig.series = [
         {
           type: "pie",
@@ -639,12 +694,14 @@ describe("EChartsConfigurationBuilder", () => {
         },
         longestLabels,
       );
+
       expect(output.series).toStrictEqual(expectedConfig.series);
     });
 
     it("6.8 chooses a default series name for the legend if series name prop is empty", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       const chartDataParams = JSON.parse(JSON.stringify(chartData));
+
       chartDataParams.seriesID1.seriesName = "";
 
       let output = builder.prepareEChartConfig(
@@ -655,6 +712,7 @@ describe("EChartsConfigurationBuilder", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let firstSeriesName = (output.series as any[])[0].name;
+
       expect(firstSeriesName).toEqual("Series");
 
       chartDataParams.seriesID1.seriesName = undefined;
@@ -671,9 +729,11 @@ describe("EChartsConfigurationBuilder", () => {
 
     it("6.9 PIE-CHART chooses a default series name for the legend if series name prop is empty", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "PIE_CHART";
 
       const chartDataParams = JSON.parse(JSON.stringify(chartData1));
+
       chartDataParams.seriesName = "";
 
       let output = builder.prepareEChartConfig(
@@ -686,6 +746,7 @@ describe("EChartsConfigurationBuilder", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let firstSeriesName = (output.series as any[])[0].name;
+
       expect(firstSeriesName).toEqual("Series");
 
       chartDataParams.seriesName = undefined;
@@ -704,6 +765,7 @@ describe("EChartsConfigurationBuilder", () => {
 
     it("6.10 shows labels on series data if Show Labels if true otherwise false", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.showDataPointLabel = true;
 
       // TODO: Fix this the next time the file is edited
@@ -716,6 +778,7 @@ describe("EChartsConfigurationBuilder", () => {
       expectedConfig.series[1].label.show = true;
 
       let output = builder.prepareEChartConfig(props, chartData, longestLabels);
+
       expect(output.series).toStrictEqual(expectedConfig.series);
 
       props.showDataPointLabel = false;
@@ -728,6 +791,7 @@ describe("EChartsConfigurationBuilder", () => {
 
     it("6.11 shows labels on series data if Show Labels if true, else false for PIE Chart as well", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
+
       props.chartType = "PIE_CHART";
       props.showDataPointLabel = true;
 

@@ -23,19 +23,24 @@ export const getInputValue = (inputValue: any) => {
   } else if (typeof inputValue === "number" || typeof inputValue === "string") {
     inputValue += "";
   }
+
   return inputValue;
 };
 const computeCursorIndex = (editor: CodeMirror.Editor) => {
   const cursor = editor.getCursor();
   let cursorIndex = cursor.ch;
+
   if (cursor.line > 0) {
     for (let lineIndex = 0; lineIndex < cursor.line; lineIndex++) {
       const line = editor.getLine(lineIndex);
+
       cursorIndex = cursorIndex + line.length + 1;
     }
   }
+
   return cursorIndex;
 };
+
 export const checkIfCursorInsideBinding = (
   editor: CodeMirror.Editor,
 ): boolean => {
@@ -45,6 +50,7 @@ export const checkIfCursorInsideBinding = (
   const stringSegments = getDynamicStringSegments(value);
   // count of chars processed
   let cumulativeCharCount = 0;
+
   stringSegments.forEach((segment: string) => {
     const start = cumulativeCharCount;
     const dynamicStart = segment.indexOf("{{");
@@ -53,6 +59,7 @@ export const checkIfCursorInsideBinding = (
     const dynamicDoesEnd = dynamicEnd > -1;
     const dynamicStartIndex = dynamicStart + start + 2;
     const dynamicEndIndex = dynamicEnd + start;
+
     if (
       dynamicDoesStart &&
       cursorIndex >= dynamicStartIndex &&
@@ -61,8 +68,10 @@ export const checkIfCursorInsideBinding = (
     ) {
       cursorBetweenBinding = true;
     }
+
     cumulativeCharCount = start + segment.length;
   });
+
   return cursorBetweenBinding;
 };
 
@@ -130,11 +139,13 @@ export const removeNewLineCharsIfRequired = (
   editorSize: EditorSize,
 ) => {
   let resultVal;
+
   if (editorSize === EditorSize.COMPACT) {
     resultVal = removeNewLineChars(inputVal);
   } else {
     resultVal = inputVal;
   }
+
   return resultVal;
 };
 
@@ -161,6 +172,7 @@ export function shouldShowSlashCommandMenu(
     store.getState(),
     FEATURE_FLAG.ab_learnability_ease_of_initial_use_enabled,
   );
+
   return (
     !!isEaseOfUseFlagEnabled &&
     !!SlashCommandMenuOnFocusWidgetProps[widgetType] &&

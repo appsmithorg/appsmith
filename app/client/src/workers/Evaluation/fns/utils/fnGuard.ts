@@ -19,6 +19,7 @@ export function addFn(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: function (...args: any[]) {
       const fnWithGuards = getFnWithGuards(fn, fnName, fnGuards);
+
       return fnWithGuards(...args);
     },
     enumerable: false,
@@ -50,6 +51,7 @@ export function getFnWithGuards(
     for (const guard of fnGuards) {
       guard(fn, fnName);
     }
+
     return fn(...args);
   };
 }

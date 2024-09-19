@@ -118,7 +118,9 @@ const BottomView = (props: Props) => {
   // Handle the height of the view when toggling the hidden state
   useEffect(() => {
     const panel = panelRef.current;
+
     if (!panel) return;
+
     if (props.hidden) {
       panel.style.height = MIN_HEIGHT[props.behaviour];
     } else {

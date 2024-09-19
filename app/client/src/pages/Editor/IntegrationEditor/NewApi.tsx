@@ -167,6 +167,7 @@ function NewApiScreen(props: Props) {
 
   useEffect(() => {
     const plugin = plugins.find((p) => p.name === "REST API");
+
     setAuthAPiPlugin(plugin);
   }, [plugins]);
 
@@ -210,6 +211,7 @@ function NewApiScreen(props: Props) {
     const isGeneratePageInitiator = getIsGeneratePageInitiator(
       queryParams.isGeneratePageMode,
     );
+
     if (
       isGeneratePageInitiator &&
       !params?.skipValidPluginCheck &&
@@ -219,8 +221,10 @@ function NewApiScreen(props: Props) {
       props?.showUnsupportedPluginDialog(() =>
         handleOnClick(actionType, { skipValidPluginCheck: true, ...params }),
       );
+
       return;
     }
+
     switch (actionType) {
       case API_ACTION.CREATE_NEW_API:
       case API_ACTION.CREATE_NEW_GRAPHQL_API:

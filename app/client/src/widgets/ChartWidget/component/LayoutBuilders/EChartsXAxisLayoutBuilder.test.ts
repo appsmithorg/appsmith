@@ -28,6 +28,7 @@ describe("EChartsXAxisLayoutBuilder", () => {
           font: font,
           longestLabel: { x: "123456", y: "123" },
         });
+
         expect(builder.widthForXAxisLabels()).toEqual(6);
       });
 
@@ -39,6 +40,7 @@ describe("EChartsXAxisLayoutBuilder", () => {
           font: font,
           longestLabel: { x: "123456", y: "123" },
         });
+
         expect(builder.widthForXAxisLabels()).toEqual(3);
       });
     });
@@ -104,6 +106,7 @@ describe("EChartsXAxisLayoutBuilder", () => {
           font: font,
           longestLabel: { x: "123456", y: "123" },
         });
+
         expect(builder.defaultHeightForXAxisLabels).toEqual(30);
         expect(builder.gapBetweenLabelAndName).toEqual(10);
         expect(builder.defaultHeightForXAxisName).toEqual(40);
@@ -121,6 +124,7 @@ describe("EChartsXAxisLayoutBuilder", () => {
           font: font,
           longestLabel: { x: "123456", y: "123" },
         });
+
         expect(builder.defaultHeightForRotatedLabels).toEqual(50);
         expect(builder.gapBetweenLabelAndName).toEqual(10);
         expect(builder.defaultHeightForXAxisName).toEqual(40);
@@ -223,6 +227,7 @@ describe("EChartsXAxisLayoutBuilder", () => {
           y: "123",
         },
       });
+
       expect(builder.axisLabelConfig(100)).toEqual({});
     });
 
@@ -273,6 +278,7 @@ describe("EChartsXAxisLayoutBuilder", () => {
           y: "123",
         },
       });
+
       expect(builder.defaultHeightForXAxisName).toEqual(40);
 
       const allocatedXAxisHeight = 100;
@@ -282,6 +288,7 @@ describe("EChartsXAxisLayoutBuilder", () => {
         builder.gapBetweenLabelAndName;
 
       const nameGap = allocatedXAxisHeight - builder.defaultHeightForXAxisName;
+
       expect(builder.defaultHeightForXAxisName).toEqual(40);
       expect(nameGap).toEqual(60);
 

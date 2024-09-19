@@ -63,6 +63,7 @@ export default {
 const ModalHeaderTemplate = (args: ModalHeaderProps) => {
   const [{}, updateArgs] = useArgs();
   const changeOpenState = (state: boolean) => updateArgs({ open: state });
+
   return (
     <Modal onOpenChange={changeOpenState}>
       <ModalTrigger>
@@ -85,6 +86,7 @@ ModalHeaderStory.args = {
 const ModalBodyTemplate = (args: { children: React.ReactNode }) => {
   const [{}, updateArgs] = useArgs();
   const changeOpenState = (state: boolean) => updateArgs({ open: state });
+
   return (
     <Modal onOpenChange={changeOpenState}>
       <ModalTrigger>

@@ -10,6 +10,7 @@ const PagerContainer = styled.div`
     height: 49px;
   }
 `;
+
 function PagerIcon(props: {
   icon: IconName;
   onClick: Function;
@@ -30,6 +31,7 @@ function PagerIcon(props: {
     />
   );
 }
+
 interface PagerProps {
   pageNo: number;
   prevPageClick: Function;

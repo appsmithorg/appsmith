@@ -43,8 +43,10 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
         ...each,
         index,
       };
+
       return obj;
     }, {});
+
     this.updateProperty(this.props.propertyName, menuItems);
   };
 
@@ -67,6 +69,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
   onEdit = (index: number) => {
     const menuItems = this.getMenuItems();
     const targetMenuItem = menuItems[index];
+
     this.props.openNextPanel({
       index,
       ...targetMenuItem,
@@ -122,14 +125,18 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           isVisible: isVisible,
         };
       }
+
       return item;
     });
+
     this.updateProperty(this.props.propertyName, updatedMenuItems);
   };
 
   deleteOption = (index: number) => {
     const menuItemsArray = this.getMenuItems();
+
     if (menuItemsArray.length === 1) return;
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updatedArray = menuItemsArray.filter((eachItem: any, i: number) => {
@@ -143,16 +150,19 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           ...each,
           index,
         };
+
         return obj;
       },
       {},
     );
+
     this.updateProperty(this.props.propertyName, updatedObj);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
     const menuItemsArray = this.getMenuItems();
     const itemId = menuItemsArray[index].id;
+
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,

@@ -55,6 +55,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     // is getting controlled from outside, then we always load workspaces
     if (isModalOpen) {
       getApplicationsListAndOpenModal();
+
       return;
     }
   }, [isModalOpen]);
@@ -88,6 +89,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   const workspaceList = useMemo(() => {
     const filteredUserWorkspaces = workspaces.filter((item) => {
       const permitted = hasCreateNewAppPermission(item.userPermissions ?? []);
+
       return permitted;
     });
 

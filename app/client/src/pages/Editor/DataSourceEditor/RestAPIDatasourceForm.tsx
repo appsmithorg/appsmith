@@ -128,15 +128,19 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isDirty(prop: any) {
     const { formMeta } = this.props;
+
     return _.get(formMeta, prop + ".visited", false);
   }
 
   ensureAPIKeyDefaultsAreCorrect = () => {
     if (!this.props.formData) return;
+
     const { authentication } = this.props.formData;
+
     if (!authentication || !_.get(authentication, "addTo")) {
       this.props.change("authentication.addTo", ApiKeyAuthType.Header);
     }
+
     if (!authentication || !_.get(authentication, "headerPrefix")) {
       this.props.change("authentication.headerPefix", "ApiKeyAuthType.Header");
     }
@@ -144,6 +148,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   ensureOAuthDefaultsAreCorrect = () => {
     if (!this.props.formData) return;
+
     const { authentication } = this.props.formData;
 
     if (!authentication || !_.get(authentication, "grantType")) {
@@ -152,9 +157,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
         GrantType.ClientCredentials,
       );
     }
+
     if (_.get(authentication, "isTokenHeader") === undefined) {
       this.props.change("authentication.isTokenHeader", true);
     }
+
     if (
       !this.isDirty("authentication.headerPrefix") &&
       _.get(authentication, "headerPrefix") === undefined
@@ -204,7 +211,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       isFeatureEnabled,
       datasource?.userPermissions || [],
     );
+
     if (!formData) return true;
+
     return !formData.url || (!createMode && !canManageDatasource);
   };
 
@@ -247,6 +256,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   urlValidator = (value: string) => {
     const validationRegex = "^(http|https)://";
+
     if (value) {
       const regex = new RegExp(validationRegex);
 
@@ -276,6 +286,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   renderEditor = () => {
     const { formData, messages } = this.props;
+
     if (!formData) return;
 
     return (
@@ -399,6 +410,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   renderSelfSignedCertificateFields = () => {
     const { connection } = this.props.formData;
+
     if (connection?.ssl.authTypeControl) {
       return (
         <div style={{ marginTop: "16px" }}>
@@ -418,6 +430,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     const { authType } = this.props.formData;
 
     let content;
+
     if (authType === AuthType.OAuth2) {
       content = this.renderOauth2();
     } else if (authType === AuthType.basic) {
@@ -427,6 +440,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     } else if (authType === AuthType.bearerToken) {
       content = this.renderBearerToken();
     }
+
     if (content) {
       return content;
     }
@@ -434,6 +448,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   renderApiKey = () => {
     const { authentication } = this.props.formData;
+
     return (
       <>
         <FormInputContainer data-location-id={btoa("authentication.label")}>
@@ -541,8 +556,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       | ClientCredentials
       | AuthorizationCode
       | undefined;
+
     if (!authentication) return;
+
     let content;
+
     switch (authentication.grantType) {
       case GrantType.AuthorizationCode:
         content = this.renderOauth2AuthorizationCode();
@@ -580,6 +598,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   renderOauth2Common = () => {
     const { formData } = this.props;
+
     return (
       <>
         <FormInputContainer
@@ -813,6 +832,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
     const redirectURL =
       window.location.origin + "/api/v1/datasources/authorize";
+
     return (
       <>
         {this.renderOauth2Common()}
@@ -941,6 +961,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       formName: this.props.formName,
       initialValue: initialValue,
     };
+
     return (
       <FormControl
         config={config}
@@ -967,6 +988,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       formName: this.props.formName,
       isRequired: isRequired,
     };
+
     return (
       <FormControl
         config={config}
@@ -995,6 +1017,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       formName: this.props.formName,
       isRequired: isRequired,
     };
+
     return (
       <FormControl
         config={config}

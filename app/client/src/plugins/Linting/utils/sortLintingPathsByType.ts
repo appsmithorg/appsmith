@@ -28,6 +28,7 @@ export default function sortLintingPathsByType(
 
     // We are only interested in dynamic leaves
     if (!isDynamicLeaf(unevalTree, fullPropertyPath, configTree)) continue;
+
     if (isATriggerPath(entityConfig, propertyPath)) {
       triggerPaths.add(fullPropertyPath);
       continue;

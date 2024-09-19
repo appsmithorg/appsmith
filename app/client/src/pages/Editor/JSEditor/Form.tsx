@@ -170,11 +170,13 @@ function JSEditorForm({
       // Hash here could mean to navigate (set cursor/focus) to a particular function
       // If the hash has a function name in this JS Object, we will set that
       const actionName = hash.substring(1);
+
       if (currentJSCollection.body) {
         const position = getJSPropertyLineFromName(
           currentJSCollection.body,
           actionName,
         );
+
         if (position) {
           // Resetting the focus and position based on the cmd click navigation
           dispatch(setFocusableInputField(`${currentJSCollection.name}.body`));
@@ -224,8 +226,10 @@ function JSEditorForm({
       }),
     );
     setActiveResponse(jsAction);
+
     if (jsAction.id !== selectedJSActionOption.data?.id)
       setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
+
     dispatch(
       setActiveJSAction({
         jsCollectionId: currentJSCollection.id || "",
@@ -268,6 +272,7 @@ function JSEditorForm({
   const handleJSActionOptionSelection: DropdownOnSelect = (value) => {
     if (value) {
       const jsAction = getActionFromJsCollection(value, currentJSCollection);
+
       if (jsAction) {
         setSelectedJSActionOption({
           data: jsAction,
@@ -283,6 +288,7 @@ function JSEditorForm({
     from: EventLocation,
   ) => {
     event.preventDefault();
+
     if (
       !disableRunFunctionality &&
       !isExecutingCurrentJSAction &&
@@ -308,6 +314,7 @@ function JSEditorForm({
   const blockCompletions = useMemo(() => {
     if (selectedJSActionOption.label) {
       const funcName = `${selectedJSActionOption.label}()`;
+
       return [
         {
           parentPath: "this",
@@ -319,6 +326,7 @@ function JSEditorForm({
         },
       ];
     }
+
     return [];
   }, [selectedJSActionOption.label, currentJSCollection.name]);
 

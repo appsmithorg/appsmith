@@ -52,6 +52,7 @@ export const matchViewerPath = (pathName: string) =>
  */
 export const getSearchQuery = (search = "", key: string) => {
   const params = new URLSearchParams(search);
+
   return decodeURIComponent(params.get(key) || "");
 };
 
@@ -120,6 +121,7 @@ export const getConsolidatedApiPrefetchRequest = (
   if (appMode === APP_MODE.EDIT) {
     const requestUrl = `${origin}/api/${"v1/consolidated-api/edit"}?${searchParams.toString()}`;
     const request = new Request(requestUrl, { method: "GET", headers });
+
     return request;
   }
 
@@ -127,6 +129,7 @@ export const getConsolidatedApiPrefetchRequest = (
   if (appMode === APP_MODE.PUBLISHED) {
     const requestUrl = `${origin}/api/v1/consolidated-api/view?${searchParams.toString()}`;
     const request = new Request(requestUrl, { method: "GET", headers });
+
     return request;
   }
 
@@ -169,6 +172,7 @@ export class PrefetchApiService {
 
     this.headerKeys.forEach((headerKey) => {
       const headerValue = request.headers.get(headerKey);
+
       if (headerValue) {
         requestKey += `:${headerKey}:${headerValue}`;
       }
@@ -217,12 +221,14 @@ export class PrefetchApiService {
     // Acquire the lock
     await this.aqcuireFetchMutex(request);
     const prefetchApiCache = await caches.open(this.cacheName);
+
     try {
       const response = await fetch(request);
 
       if (response.ok) {
         // Clone the response as the response can be consumed only once
         const clonedResponse = response.clone();
+
         // Put the response in the cache
         await prefetchApiCache.put(request, clonedResponse);
       }

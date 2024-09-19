@@ -5,6 +5,7 @@ import { AnvilErrorBoundary } from "./AnvilErrorBoundary";
 
 export const AnvilWidgetComponent = (props: BaseWidgetProps) => {
   const { children, deferRender, type } = props;
+
   /**
    * The widget mount calls the withWidgetProps with the widgetId and type to fetch the
    * widget props. During the computation of the props (in withWidgetProps) if the evaluated

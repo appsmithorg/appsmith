@@ -17,4 +17,5 @@ const StyledFormGroup = styled(FormGroup)<FormGroupProps>`
     }
   }
 `;
+
 export default StyledFormGroup;

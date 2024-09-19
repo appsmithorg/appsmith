@@ -22,6 +22,7 @@ const widgetPositionsReducer = createImmerReducer(initialState, {
 
     for (const widgetId of widgetIds) {
       const newPosition = widgetPositions[widgetId];
+
       if (state[widgetId] === undefined) {
         state[widgetId] = {
           height: 0,
@@ -32,16 +33,22 @@ const widgetPositionsReducer = createImmerReducer(initialState, {
           offsetTop: 0,
         };
       }
+
       if (state[widgetId].height !== newPosition.height)
         state[widgetId].height = newPosition.height;
+
       if (state[widgetId].width !== newPosition.width)
         state[widgetId].width = newPosition.width;
+
       if (state[widgetId].left !== newPosition.left)
         state[widgetId].left = newPosition.left;
+
       if (state[widgetId].top !== newPosition.top)
         state[widgetId].top = newPosition.top;
+
       if (state[widgetId].offsetLeft !== newPosition.offsetLeft)
         state[widgetId].offsetLeft = newPosition.offsetLeft;
+
       if (state[widgetId].offsetTop !== newPosition.offsetTop)
         state[widgetId].offsetTop = newPosition.offsetTop;
     }
@@ -51,6 +58,7 @@ const widgetPositionsReducer = createImmerReducer(initialState, {
     action: AnvilReduxAction<string[]>,
   ) => {
     const elements = action.payload;
+
     for (const each of elements) {
       if (state[each]) {
         delete state[each];

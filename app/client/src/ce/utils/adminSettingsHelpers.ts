@@ -16,6 +16,7 @@ export const saveAllowed = (
 ) => {
   const connectedMethodsCount =
     socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
+
   if (connectedMethodsCount === 1) {
     const checkFormLogin =
         !("APPSMITH_FORM_LOGIN_DISABLED" in settings) && isFormLoginEnabled,

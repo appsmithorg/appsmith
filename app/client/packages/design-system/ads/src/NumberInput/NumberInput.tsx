@@ -52,6 +52,7 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
     useEffect(() => {
       if (inputRef.current) {
         inputRef.current.addEventListener("keydown", handleKeyDown);
+
         return () => {
           inputRef.current?.removeEventListener("keydown", handleKeyDown);
         };
@@ -61,6 +62,7 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
     useEffect(() => {
       if (props.value !== undefined) {
         const newValue = handlePrefixAndSuffix(props.value);
+
         setValue(newValue);
       }
     }, [props.value]);
@@ -99,15 +101,20 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
 
     const handlePrefixAndSuffix = (value: string) => {
       let newValue = value;
+
       if (newValue === "" || newValue === undefined) return "";
+
       // defensive check to make sure the value is a string
       newValue = newValue.toString();
+
       if (prefix && !newValue.startsWith(prefix)) {
         newValue = prefix + newValue;
       }
+
       if (suffix && !newValue.endsWith(suffix)) {
         newValue = newValue + suffix;
       }
+
       return newValue;
     };
 
@@ -117,27 +124,33 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
       // Check if the input value is a valid number
       if (!isNaN(inputValue)) {
         let newValue = inputValue;
+
         // Apply operation on the value
         if (operation === "add") {
           newValue += scale;
         } else if (operation === "subtract") {
           newValue -= scale;
         }
+
         // Check min and max values
         if (typeof min === "number" && newValue < min) {
           newValue = min;
         }
+
         if (typeof max === "number" && newValue > max) {
           newValue = max;
         }
+
         // Convert the value back to a string and append prefix and postfix if present
         let newValueString = String(newValue);
+
         newValueString = handlePrefixAndSuffix(newValueString);
         setValue(newValueString);
         onChange?.(newValueString);
       } else {
         setValue("");
         onChange?.("");
+
         return;
       }
     };
@@ -146,6 +159,7 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
       if (typeof min === "number") {
         return getNumericalValue(value) <= min;
       }
+
       return false;
     };
 
@@ -153,6 +167,7 @@ const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
       if (typeof max === "number") {
         return getNumericalValue(value) >= max;
       }
+
       return false;
     };
 

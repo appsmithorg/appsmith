@@ -16,15 +16,18 @@ function validatePropertyPaneConfig(
 ) {
   for (const sectionOrControlConfig of config) {
     const sectionConfig = sectionOrControlConfig as PropertyPaneSectionConfig;
+
     if (sectionConfig.sectionName && isFunction(sectionConfig.sectionName)) {
       return ` SectionName should be a string and not a function. Search won't work for functions at the moment`;
     }
+
     if (sectionOrControlConfig.children) {
       for (const propertyControlConfig of sectionOrControlConfig.children) {
         const propertyControlValidation = validatePropertyControl(
           propertyControlConfig,
           isWidgetHidden,
         );
+
         if (propertyControlValidation !== true)
           return propertyControlValidation;
       }
@@ -55,6 +58,7 @@ function validatePropertyControl(
       }: isBindProperty should be true if isJSConvertible is true or when control type is [${controls.join(
         " | ",
       )}]`;
+
     if (!_config.validation)
       return `${
         _config.propertyName
@@ -73,37 +77,47 @@ function validatePropertyControl(
 
   if (_config.validation !== undefined) {
     const res = validateValidationStructure(_config.validation);
+
     if (res !== true) return `${_config.propertyName}: ${res}`;
   }
+
   if (_config.children) {
     for (const child of _config.children) {
       const res = validatePropertyControl(child, isWidgetHidden);
+
       if (res !== true) return `${_config.propertyName}.${res}`;
     }
   }
+
   if (_config.panelConfig) {
     if (_config.panelConfig.children) {
       const res = validatePropertyPaneConfig(
         _config.panelConfig.children,
         isWidgetHidden,
       );
+
       if (res !== true) return `${_config.propertyName}.${res}`;
     }
+
     if (_config.panelConfig.contentChildren) {
       const res = validatePropertyPaneConfig(
         _config.panelConfig.contentChildren,
         isWidgetHidden,
       );
+
       if (res !== true) return `${_config.propertyName}.${res}`;
     }
+
     if (_config.panelConfig.styleChildren) {
       const res = validatePropertyPaneConfig(
         _config.panelConfig.styleChildren,
         isWidgetHidden,
       );
+
       if (res !== true) return `${_config.propertyName}.${res}`;
     }
   }
+
   return true;
 }
 
@@ -118,6 +132,7 @@ function validateValidationStructure(
     if (!config.params.expected)
       return `For a ${ValidationTypes.FUNCTION} type validation, expected type and example are mandatory`;
   }
+
   return true;
 }
 
@@ -145,6 +160,7 @@ describe("Tests all widget's propertyPane config", () => {
           validatePropertyPaneConfig(propertyPaneConfig, !!config.hideCard),
         ).toStrictEqual(true);
         const propertyPaneContentConfig = widget.getPropertyPaneContentConfig();
+
         expect(
           validatePropertyPaneConfig(
             propertyPaneContentConfig,
@@ -152,6 +168,7 @@ describe("Tests all widget's propertyPane config", () => {
           ),
         ).toStrictEqual(true);
         const propertyPaneStyleConfig = widget.getPropertyPaneStyleConfig();
+
         expect(
           validatePropertyPaneConfig(
             propertyPaneStyleConfig,
@@ -169,22 +186,27 @@ describe("Tests all widget's propertyPane config", () => {
       if (config.isDeprecated) {
         it(`Check if ${widget.type}'s deprecation config has a proper replacement Widget`, () => {
           const widgetType = widget.type;
+
           if (config.replacement === undefined) {
             fail(`${widgetType}'s replacement widget is not defined`);
           }
+
           const replacementWidgetType = config.replacement;
           const replacementWidget = WidgetFactory.get(replacementWidgetType);
           const replacementWidgetConfig = replacementWidget?.getConfig();
+
           if (replacementWidgetConfig === undefined) {
             fail(
               `${widgetType}'s replacement widget ${replacementWidgetType} does not resolve to an actual widget Config`,
             );
           }
+
           if (replacementWidgetConfig?.isDeprecated) {
             fail(
               `${widgetType}'s replacement widget ${replacementWidgetType} itself is deprecated. Cannot have a deprecated widget as a replacement for another deprecated widget`,
             );
           }
+
           if (replacementWidgetConfig?.hideCard) {
             fail(
               `${widgetType}'s replacement widget ${replacementWidgetType} should be available in the entity Explorer`,
@@ -195,15 +217,18 @@ describe("Tests all widget's propertyPane config", () => {
 
       it(`Check if ${widget.type}'s setter method are configured correctly`, () => {
         const setterConfig = widget.getSetterConfig();
+
         if (setterConfig) {
           expect(setterConfig).toHaveProperty("__setters");
           const setters = setterConfig.__setters;
+
           for (const [setterName, config] of Object.entries(setters)) {
             expect(config).toHaveProperty("type");
             expect(config).toHaveProperty("path");
             expect(setterName).toContain("set");
             const type = config.type;
             const path = config.path;
+
             expect(typeof type).toBe("string");
             expect(typeof path).toBe("string");
           }
