@@ -4,7 +4,8 @@ import {
   anvilSnapshot,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe(
+// TODO: Enable when issue(github.com/appsmithorg/appsmith/issues/36419) is solved.
+describe.skip(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Checkbox Widget`,
   { tags: ["@tag.Anvil", "@tag.Visual"] },
   () => {
