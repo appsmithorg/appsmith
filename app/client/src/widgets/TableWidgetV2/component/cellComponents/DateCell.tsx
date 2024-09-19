@@ -12,6 +12,7 @@ import styled from "styled-components";
 import {
   DateInputFormat,
   EditableCellActions,
+  MomentDateInputFormat,
 } from "widgets/TableWidgetV2/constants";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import moment from "moment";
@@ -237,7 +238,7 @@ export const DateCell = (props: DateComponentProps) => {
     setHasFocus(false);
 
     if (inputFormat === DateInputFormat.MILLISECONDS)
-      momentAdjustedInputFormat = "x";
+      momentAdjustedInputFormat = MomentDateInputFormat.MILLISECONDS;
     const formattedDate = date
       ? moment(date).format(momentAdjustedInputFormat)
       : "";

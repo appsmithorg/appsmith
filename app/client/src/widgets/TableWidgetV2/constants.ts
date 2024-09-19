@@ -219,6 +219,10 @@ export enum DateInputFormat {
   MILLISECONDS = "Milliseconds",
 }
 
+export enum MomentDateInputFormat {
+  MILLISECONDS = "x",
+}
+
 export const defaultEditableCell: EditableCell = {
   column: "",
   index: -1,
