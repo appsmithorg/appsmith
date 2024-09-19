@@ -39,7 +39,7 @@ describe(
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });
       table.AddSampleTableData();
     });
-    it.only("1. should prevent adding a row when a required select column has no data", () => {
+    it("1. should prevent adding a row when a required select column has no data", () => {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       // Allow adding a row in table
