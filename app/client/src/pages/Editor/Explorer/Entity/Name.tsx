@@ -57,8 +57,10 @@ export const replace = (
   keyIndex = 1,
 ): JSX.Element[] => {
   const occurrenceIndex = str.indexOf(delimiter);
+
   if (occurrenceIndex === -1)
     return [<span key={`notokenize-${keyIndex}`}>{str}</span>];
+
   const sliced = str.slice(occurrenceIndex + delimiter.length);
   const nextOccurenceIndex = sliced.indexOf(delimiter);
   const rest = str.slice(
@@ -74,6 +76,7 @@ export const replace = (
       {token}
     </span>,
   ].concat(replace(rest, delimiter, className, keyIndex + 1));
+
   return final;
 };
 
@@ -105,6 +108,7 @@ export const EntityName = React.memo(
     // Check to show tooltip on hover
     const nameWrapperRef = useRef<HTMLDivElement | null>(null);
     const [showTooltip, setShowTooltip] = useState(false);
+
     useEffect(() => {
       setShowTooltip(!!isEllipsisActive(nameWrapperRef.current));
     }, [updatedName, name]);
@@ -123,8 +127,10 @@ export const EntityName = React.memo(
           searchTokenizationDelimiter,
           searchHighlightSpanClassName,
         );
+
         return final;
       }
+
       return updatedName;
     }, [searchKeyword, updatedName]);
 

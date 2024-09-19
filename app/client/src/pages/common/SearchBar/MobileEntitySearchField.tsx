@@ -57,6 +57,7 @@ function MobileEntitySearchField(props: any) {
   const isHomePage = useRouteMatch("/applications")?.isExact;
 
   if (!isHomePage) return null;
+
   return (
     <>
       <div className="flex items-center w-full pl-4">
@@ -117,4 +118,5 @@ function MobileEntitySearchField(props: any) {
     </>
   );
 }
+
 export default MobileEntitySearchField;

@@ -33,9 +33,11 @@ const IconWrapper = styled.span`
 const getIcon = (props: LogItemProps, pluginImages: Record<string, string>) => {
   const entityType = props.source?.type;
   let Icon = null;
+
   if (entityType) {
     Icon = getIconForEntity[entityType];
   }
+
   return Icon ? (
     <Icon {...props} pluginImages={pluginImages} />
   ) : (
@@ -50,6 +52,7 @@ export default function LogEntityLink(props: LogItemProps) {
   const pluginImages = getPluginImagesFromPlugins(plugins);
 
   const plugin = props.iconId ? pluginGroups[props.iconId] : undefined;
+
   return (
     <div>
       {props.source && (

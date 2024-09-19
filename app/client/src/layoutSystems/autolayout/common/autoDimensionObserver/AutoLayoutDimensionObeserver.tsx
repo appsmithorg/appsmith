@@ -41,15 +41,19 @@ export default function AutoLayoutDimensionObserver(
     new ResizeObserver((entries) => {
       const width = entries[0].contentRect.width;
       const height = entries[0].contentRect.height;
+
       if (width === 0 || height === 0) return;
+
       setCurrentDimension({ width, height });
     }),
   );
 
   useEffect(() => {
     if (currentDimension.width === 0) return;
+
     const padding = WIDGET_PADDING * 2;
     const widthDiff = Math.abs(props.width - currentDimension.width - padding);
+
     if (
       (widthDiff >= 1 && props.shouldObserveWidth) ||
       props.width < props.minWidth
@@ -59,10 +63,12 @@ export default function AutoLayoutDimensionObserver(
 
   useEffect(() => {
     if (currentDimension.height === 0) return;
+
     const padding = WIDGET_PADDING * 2;
     const heightDiff = Math.abs(
       props.height - currentDimension.height - padding,
     );
+
     if (
       (heightDiff >= 1 && props.shouldObserveHeight) ||
       props.height < props.minHeight

@@ -80,6 +80,7 @@ export function ConversionForm(
   } = props;
 
   const snapShotStyles: React.CSSProperties = {};
+
   if (snapShotDetails) {
     if (!snapShotDetails.labelText) {
       snapShotStyles.marginTop = "24px";
@@ -92,6 +93,7 @@ export function ConversionForm(
 
   const onPrimaryButtonClick = (primaryButton: ButtonInfo) => {
     primaryButton.onClick();
+
     if (primaryButton.closeModal) {
       closeModal();
     }

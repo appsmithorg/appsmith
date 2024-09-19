@@ -7,6 +7,7 @@ export const FixedResizableLayer = memo((props: BaseWidgetProps) => {
   if (props.resizeDisabled || props.type === "SKELETON_WIDGET") {
     return props.children;
   }
+
   return (
     <ResizableComponent {...props} paddingOffset={WIDGET_PADDING}>
       {props.children}

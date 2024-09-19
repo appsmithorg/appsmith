@@ -15,6 +15,7 @@ class LayoutColumn extends BaseLayoutComponent {
   static getChildTemplate(props: LayoutProps): LayoutProps | null {
     if (props.childTemplate || props.childTemplate === null)
       return props.childTemplate;
+
     return {
       insertChild: true,
       layoutId: "",

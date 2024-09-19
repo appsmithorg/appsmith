@@ -47,9 +47,12 @@ export const useNavigateToWidget = () => {
           navigationMethod,
           basePageId,
         );
+
         return;
       }
+
       const allWidgets = getCurrentPageWidgets(store.getState());
+
       // restrict multi-select across pages
       if (widgetId && (isMultiSelect || isShiftSelect) && !allWidgets[widgetId])
         return;

@@ -179,6 +179,7 @@ export default connect(
     const actionConfigurationParams =
       selector(state, "actionConfiguration.queryParameters") || [];
     let datasourceFromAction = selector(state, "datasource");
+
     if (datasourceFromAction && datasourceFromAction.hasOwnProperty("id")) {
       datasourceFromAction = state.entities.datasources.list.find(
         (d) => d.id === datasourceFromAction.id,
@@ -207,6 +208,7 @@ export default connect(
       const validHeaders = headers.filter(
         (value) => value.key && value.key !== "",
       );
+
       headersCount += validHeaders.length;
     }
 
@@ -216,6 +218,7 @@ export default connect(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (value: any) => value.key && value.key !== "",
       );
+
       headersCount += validHeaders.length;
     }
 
@@ -226,6 +229,7 @@ export default connect(
       const validParams = params.filter(
         (value) => value.key && value.key !== "",
       );
+
       paramsCount = validParams.length;
     }
 
@@ -235,6 +239,7 @@ export default connect(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (value: any) => value.key && value.key !== "",
       );
+
       paramsCount += validParams.length;
     }
 
@@ -244,6 +249,7 @@ export default connect(
     let hasResponse = false;
     let suggestedWidgets;
     const actionResponse = getActionData(state, apiId);
+
     if (actionResponse) {
       hasResponse =
         !isEmpty(actionResponse.statusCode) &&

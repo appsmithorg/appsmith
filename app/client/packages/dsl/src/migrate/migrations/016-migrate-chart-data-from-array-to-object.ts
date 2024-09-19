@@ -21,6 +21,7 @@ export const migrateChartDataFromArrayToObject = (currentDSL: DSLWidget) => {
 
         children.chartData.map((datum: any, index: number) => {
           const generatedKey = generateReactKey();
+
           set(newChartData, `${generatedKey}`, datum);
 
           if (

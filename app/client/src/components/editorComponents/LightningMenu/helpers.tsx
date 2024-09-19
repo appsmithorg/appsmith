@@ -192,6 +192,7 @@ export const getLightningMenuOptions = (
       shouldCloseDropdown: false,
     },
   ];
+
   if (widgets.length > 0) {
     widgets = widgets.sort((a: WidgetProps, b: WidgetProps) => {
       return toUpper(get(a, "widgetName")) > toUpper(get(b, "widgetName"))
@@ -208,6 +209,7 @@ export const getLightningMenuOptions = (
       shouldCloseDropdown: false,
     });
   }
+
   return [
     ...options,
     {

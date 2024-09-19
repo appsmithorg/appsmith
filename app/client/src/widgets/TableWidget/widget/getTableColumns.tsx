@@ -33,9 +33,11 @@ export const getBooleanPropertyValue = (value: any, index: number) => {
   if (isBoolean(value)) {
     return value;
   }
+
   if (Array.isArray(value) && isBoolean(value[index])) {
     return value[index];
   }
+
   return !!value;
 };
 
@@ -115,5 +117,6 @@ export const getCellProperties = (
       ),
     } as CellLayoutProperties;
   }
+
   return {} as CellLayoutProperties;
 };

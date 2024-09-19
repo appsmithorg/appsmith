@@ -124,6 +124,7 @@ export const onGenerateFormClick = ({
   props,
 }: OnButtonClickProps) => {
   const widgetProperties: JSONFormWidgetProps = props.widgetProperties;
+
   if (widgetProperties.autoGenerateForm) return;
 
   // TODO: Fix this the next time the file is edited
@@ -145,6 +146,7 @@ export const onGenerateFormClick = ({
 
   if (status === ComputedSchemaStatus.LIMIT_EXCEEDED) {
     batchUpdateProperties({ fieldLimitExceeded: true });
+
     return;
   }
 
@@ -152,6 +154,7 @@ export const onGenerateFormClick = ({
     if (widgetProperties.fieldLimitExceeded) {
       batchUpdateProperties({ fieldLimitExceeded: false });
     }
+
     return;
   }
 
@@ -525,12 +528,14 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
           propertyValue: string,
         ) => {
           const propertiesToUpdate = [{ propertyPath, propertyValue }];
+
           if (!props.iconAlign) {
             propertiesToUpdate.push({
               propertyPath: `${prefix}.iconAlign`,
               propertyValue: Alignment.LEFT,
             });
           }
+
           return propertiesToUpdate;
         },
         validation: {

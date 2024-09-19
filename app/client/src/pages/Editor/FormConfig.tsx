@@ -109,6 +109,7 @@ export default function FormConfig(props: FormConfigProps) {
           const focusableElement = getPropertyControlFocusElement(
             controlRef.current,
           );
+
           focusableElement?.scrollIntoView({
             block: "center",
             behavior: "smooth",
@@ -118,6 +119,7 @@ export default function FormConfig(props: FormConfigProps) {
       }, 0);
     }
   }, [shouldFocusPropertyPath]);
+
   if (props.multipleConfig?.length) {
     top = (
       <div style={{ display: "flex" }}>
@@ -133,6 +135,7 @@ export default function FormConfig(props: FormConfigProps) {
     bottom = props.multipleConfig?.map((config) => {
       return renderFormConfigBottom({ config });
     });
+
     return (
       <>
         {top}
@@ -195,6 +198,7 @@ function renderFormConfigTop(props: {
   } = { ...props.config };
   const shouldRenderSubtitle =
     subtitle && controlsWithSubtitleInTop.includes(controlType);
+
   return (
     <div className="form-config-top" key={props.config.label}>
       {!nestedFormControl && // if the form control is a nested form control hide its label
@@ -269,6 +273,7 @@ function renderFormConfigBottom(props: {
   configErrors?: EvaluationError[];
 }) {
   const { controlType, info, subtitle } = { ...props.config };
+
   return (
     <>
       {subtitle && !controlsWithSubtitleInTop.includes(controlType) && (

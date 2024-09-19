@@ -20,13 +20,16 @@ describe("@appsmith/wds/RadioGroup", () => {
 
     // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
     const label = container.querySelector("label") as HTMLElement;
+
     expect(label).toHaveTextContent("Radio Group");
 
     const radioGroup = screen.getByRole("radiogroup");
+
     expect(radioGroup).toHaveAttribute("aria-labelledby");
     expect(radioGroup.getAttribute("aria-labelledby")).toBe(label.id);
 
     const options = screen.getAllByRole("radio");
+
     expect(options[0]).toHaveAttribute("value", "value-1");
     expect(options[1]).toHaveAttribute("value", "value-2");
 
@@ -51,6 +54,7 @@ describe("@appsmith/wds/RadioGroup", () => {
     );
 
     const radioGroup = screen.getByTestId("t--radio-group");
+
     expect(radioGroup).toBeInTheDocument();
   });
 
@@ -60,6 +64,7 @@ describe("@appsmith/wds/RadioGroup", () => {
     );
 
     const options = screen.getAllByRole("radio");
+
     expect(options[0]).toBeChecked();
     expect(options[1]).not.toBeChecked();
   });
@@ -76,6 +81,7 @@ describe("@appsmith/wds/RadioGroup", () => {
     );
 
     const options = screen.getAllByRole("radio");
+
     await userEvent.click(options[0]);
     expect(onChangeSpy).toHaveBeenCalled();
   });
@@ -84,6 +90,7 @@ describe("@appsmith/wds/RadioGroup", () => {
     render(<RadioGroup isDisabled items={items} label="Radio  Group Label" />);
 
     const options = screen.getAllByRole("radio");
+
     expect(options[0]).toBeDisabled();
     expect(options[1]).toBeDisabled();
   });

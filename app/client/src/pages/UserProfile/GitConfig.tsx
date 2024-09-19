@@ -31,11 +31,13 @@ export default function GitConfig() {
 
   const setAuthorName = (value: string) => {
     setAuthorNameInState(value);
+
     if (authorName) setAreFormValuesUpdated(true);
   };
 
   const setAuthorEmail = (value: string) => {
     setAuthorEmailInState(value);
+
     if (authorEmail) setAreFormValuesUpdated(true);
   };
 

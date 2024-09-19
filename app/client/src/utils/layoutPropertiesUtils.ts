@@ -72,6 +72,7 @@ export function getLayoutProperties(
     direction === LayoutDirection.Horizontal
       ? horizontalAlignment[alignment]
       : verticalAlignment[alignment];
+
   if (spacing !== Spacing.None) {
     properties = {
       ...properties,
@@ -81,6 +82,7 @@ export function getLayoutProperties(
           : JustifyContent.SpaceBetween,
     };
   }
+
   return properties;
 }
 

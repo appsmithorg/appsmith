@@ -11,7 +11,9 @@ import type { FlattenedWidgetProps } from "../../../../WidgetProvider/constants"
  */
 export function isFillWidgetType(type: WidgetType): boolean {
   if (!type) return false;
+
   const widgetConfig = WidgetFactory.getConfig(type);
+
   return widgetConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
 }
 
@@ -24,6 +26,7 @@ export function isFillWidgetPresentInList(
   children: WidgetLayoutProps[],
 ): boolean {
   if (!children || !children?.length) return false;
+
   return children.some(
     (child: WidgetLayoutProps) => child && isFillWidgetType(child.widgetType),
   );

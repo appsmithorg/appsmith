@@ -19,6 +19,7 @@ import TextComponent from "../component";
 import { OverflowTypes } from "../constants";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
+
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -637,6 +638,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   shouldDisableLink = (): boolean => {
     const text = this.props.text || "";
     const count: number = countOccurrences(text, "\n", false, 0);
+
     return (
       (count === 0 && text.length > MAX_HTML_PARSING_LENGTH) ||
       text.length > 50000
@@ -647,6 +649,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     const disableLink: boolean = this.props.disableLink
       ? true
       : this.shouldDisableLink();
+
     return (
       <WidgetStyleContainer
         className="t--text-widget-container"

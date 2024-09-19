@@ -29,8 +29,10 @@ export function defaultValueValidation(
       .format(1.1)
       .replace(/\p{Number}/gu, "");
   }
+
   const decimalSeperator = getLocaleDecimalSeperator();
   const defaultDecimalSeperator = ".";
+
   if (_.isObject(value)) {
     return {
       isValid: false,

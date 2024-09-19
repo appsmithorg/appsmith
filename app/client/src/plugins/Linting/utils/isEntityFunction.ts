@@ -18,6 +18,7 @@ export default function isEntityFunction(
     const entityFnpropertyName = entityFn.path
       ? entityFn.path.split(".")[1]
       : entityFn.name;
+
     return (
       entityFnpropertyName === propertyName &&
       entityFn.qualifier(entity as DataTreeEntity)

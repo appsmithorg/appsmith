@@ -110,6 +110,7 @@ export const getSourcePath = (name: string | number, basePath?: string) => {
 
   if (typeof name === "string") {
     const sanitizedName = sanitizeKey(name);
+
     nameWithNotation = `.${name}`;
 
     if (sanitizedName !== name) {
@@ -188,6 +189,7 @@ export const dataTypeFor = (value: any) => {
   const typeOfValue = typeof value;
 
   if (Array.isArray(value)) return DataType.ARRAY;
+
   if (value === null) return DataType.NULL;
 
   return typeOfValue as DataType;
@@ -295,6 +297,7 @@ export const getKeysFromSchema = (
 
 export const mapOriginalIdentifierToSanitizedIdentifier = (schema: Schema) => {
   const map: Record<string, string> = {};
+
   Object.values(schema).map(({ identifier, originalIdentifier }) => {
     map[originalIdentifier] = identifier;
   });
@@ -386,6 +389,7 @@ class SchemaParser {
    */
   static parse = (widgetName: string, options: ParseOptions) => {
     const { currSourceData, fieldThemeStylesheets, schema = {} } = options;
+
     if (!currSourceData)
       return { schema, modifiedSchemaItems: {}, removedSchemaItems: [] };
 
@@ -394,6 +398,7 @@ class SchemaParser {
 
     const prevSchema = (() => {
       const rootSchemaItem = schema[ROOT_SCHEMA_KEY];
+
       if (rootSchemaItem) return rootSchemaItem.children;
 
       return {};
@@ -452,6 +457,7 @@ class SchemaParser {
 
     const currSourceData = (() => {
       const potentialData = FIELD_TYPE_TO_POTENTIAL_DATA[fieldType];
+
       if (schemaItem.isCustomField) {
         return potentialData;
       }
@@ -558,6 +564,7 @@ class SchemaParser {
     }
 
     let children: Schema = {};
+
     if (dataType === DataType.OBJECT) {
       children = SchemaParser.convertObjectToSchema(sanitizedOptions);
     }
@@ -571,6 +578,7 @@ class SchemaParser {
     const componentDefaultValues = (() => {
       const { componentDefaultValues } = FieldComponent;
       let defaultValues: FieldComponentBaseProps;
+
       if (typeof componentDefaultValues === "function") {
         defaultValues = componentDefaultValues({
           sourceDataPath,
@@ -747,6 +755,7 @@ class SchemaParser {
     if (!isObject(currSourceData)) {
       return schema;
     }
+
     const customFieldAccessors = getKeysFromSchema(prevSchema, ["accessor"], {
       onlyCustomFieldKeys: true,
     });
@@ -820,6 +829,7 @@ class SchemaParser {
         });
 
         schema[identifier].position = prevSchemaItem.position;
+
         if (baseSchemaPath) {
           modifiedSchemaItems[schemaPath] = schema[identifier];
         }
@@ -839,6 +849,7 @@ class SchemaParser {
 
     removedKeys.forEach((removedKey) => {
       const identifier = origIdentifierToIdentifierMap[removedKey];
+
       delete schema[identifier];
 
       if (baseSchemaPath) {
@@ -847,6 +858,7 @@ class SchemaParser {
     });
 
     const newAddedKeys: string[] = [];
+
     newKeys.forEach((newKey) => {
       const schemaItem = SchemaParser.getSchemaItemFor(newKey, {
         ...rest,
@@ -863,6 +875,7 @@ class SchemaParser {
 
       if (baseSchemaPath) {
         const schemaPath = `${baseSchemaPath}.${schemaItem.identifier}`;
+
         modifiedSchemaItems[schemaPath] = schema[schemaItem.identifier];
       }
     });

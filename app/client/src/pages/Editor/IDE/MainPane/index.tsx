@@ -5,9 +5,11 @@ import useRoutes from "ee/pages/Editor/IDE/MainPane/useRoutes";
 import { useWidgetSelectionBlockListener } from "pages/Editor/IDE/hooks";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
+
 export const MainPane = (props: { id: string }) => {
   const { path } = useRouteMatch();
   const routes = useRoutes(path);
+
   useWidgetSelectionBlockListener();
 
   return (

@@ -32,8 +32,10 @@ export function defaultSelectedRowValidation(
     if (props.multiRowSelection) {
       if (_.isString(value)) {
         const trimmed = (value as string).trim();
+
         try {
           const parsedArray = JSON.parse(trimmed);
+
           if (Array.isArray(parsedArray)) {
             const sanitized = parsedArray.filter((entry) => {
               return (
@@ -41,6 +43,7 @@ export function defaultSelectedRowValidation(
                 parseInt(entry, 10) > -1
               );
             });
+
             return { isValid: true, parsed: sanitized };
           } else {
             throw Error("Not a stringified array");
@@ -49,6 +52,7 @@ export function defaultSelectedRowValidation(
           // If cannot be parsed as an array
           const arrayEntries = trimmed.split(",");
           const result: number[] = [];
+
           arrayEntries.forEach((entry: string) => {
             if (
               Number.isInteger(parseInt(entry, 10)) &&
@@ -57,20 +61,25 @@ export function defaultSelectedRowValidation(
               if (!_.isNil(entry)) result.push(parseInt(entry, 10));
             }
           });
+
           return { isValid: true, parsed: result };
         }
       }
+
       if (Array.isArray(value)) {
         const sanitized = value.filter((entry) => {
           return (
             Number.isInteger(parseInt(entry, 10)) && parseInt(entry, 10) > -1
           );
         });
+
         return { isValid: true, parsed: sanitized };
       }
+
       if (Number.isInteger(value) && (value as number) > -1) {
         return { isValid: true, parsed: [value] };
       }
+
       return {
         isValid: false,
         parsed: [],
@@ -86,6 +95,7 @@ export function defaultSelectedRowValidation(
             parsed: undefined,
           };
         }
+
         if (Number.isInteger(parseInt(_value, 10)) && parseInt(_value, 10) > -1)
           return { isValid: true, parsed: parseInt(_value, 10) };
 
@@ -101,6 +111,7 @@ export function defaultSelectedRowValidation(
       }
     }
   }
+
   return {
     isValid: true,
     parsed: value,
@@ -121,6 +132,7 @@ export function totalRecordsCountValidation(
       message: "",
     };
   }
+
   if (!Number.isFinite(value) && !_.isString(value)) {
     return {
       isValid: false,
@@ -128,6 +140,7 @@ export function totalRecordsCountValidation(
       message: "This value must be a number",
     };
   }
+
   if (_.isString(value) && !/^\d+\.?\d*$/.test(value as string)) {
     return {
       isValid: false,
@@ -135,6 +148,7 @@ export function totalRecordsCountValidation(
       message: "This value must be a number",
     };
   }
+
   return {
     isValid: true,
     parsed: Number(value),
@@ -154,6 +168,7 @@ export function uniqueColumnNameValidation(
     (val: string, index: number, arr: string[]) => arr.indexOf(val) !== index,
   );
   const hasError = !!duplicates.length;
+
   if (value && hasError) {
     return {
       isValid: false,
@@ -161,6 +176,7 @@ export function uniqueColumnNameValidation(
       messages: ["Column names should be unique."],
     };
   }
+
   return {
     isValid: true,
     parsed: value,
@@ -187,6 +203,7 @@ export const updateColumnStyles = (
   }> = [];
   const tokens = propertyPath.split("."); // horizontalAlignment/textStyle
   const currentStyleName = tokens[0];
+
   // TODO: Figure out how propertyPaths will work when a nested property control is updating another property
   if (primaryColumns && currentStyleName) {
     // The style being updated currently
@@ -205,6 +222,7 @@ export const updateColumnStyles = (
           propertyValue: propertyValue,
         });
       }
+
       // Is this a dynamic binding property?
       const notADynamicBinding =
         !props.dynamicBindingPathList ||
@@ -219,8 +237,10 @@ export const updateColumnStyles = (
         });
       }
     });
+
     if (propertiesToUpdate.length > 0) return propertiesToUpdate;
   }
+
   return;
 };
 
@@ -237,6 +257,7 @@ export function updateIconNameHook(
     propertyPath,
     propertyValue,
   );
+
   if (updateDerivedColumnsHookArr) {
     propertiesToUpdate = [
       ...updateDerivedColumnsHookArr,
@@ -273,6 +294,7 @@ export function updateIconAlignmentHook(
     propertyPath,
     propertyValue,
   );
+
   if (updateDerivedColumnsHookArr) {
     propertiesToUpdate = [
       ...updateDerivedColumnsHookArr,
@@ -310,6 +332,7 @@ export const updateDerivedColumnsHook = (
   if (propertyValue && addColumnRegex.test(propertyPath)) {
     if (propertyValue.id) {
       const propertiesToUpdate = [];
+
       // sets default value for some properties
       propertyValue.labelColor = Colors.WHITE;
       propertiesToUpdate.push({
@@ -318,20 +341,24 @@ export const updateDerivedColumnsHook = (
       });
       const oldColumnOrder = props.columnOrder || [];
       const newColumnOrder = [...oldColumnOrder, propertyValue.id];
+
       propertiesToUpdate.push({
         propertyPath: "columnOrder",
         propertyValue: newColumnOrder,
       });
+
       return propertiesToUpdate;
     }
   }
 
   const matches = propertyPath.match(updateColumnRegex);
+
   if (matches && matches.length === 3) {
     const propertiesToUpdate = [];
     const columnId = matches[1];
     const columnProperty = matches[2];
     const { derivedColumns = {} } = props;
+
     // only change derived properties of custom columns
     if (derivedColumns[columnId]) {
       propertiesToUpdate.push({
@@ -413,6 +440,7 @@ function updateThemeStylesheetsInColumns(
     });
   }
 }
+
 // Gets the base property path excluding the current property.
 // For example, for  `primaryColumns[5].computedValue` it will return
 // `primaryColumns[5]`
@@ -422,9 +450,11 @@ export const getBasePropertyPath = (
   try {
     const propertyPathRegex = /^(.*)\.\w+$/g;
     const matches = [...propertyPath.matchAll(propertyPathRegex)][0];
+
     if (matches && Array.isArray(matches) && matches.length === 2) {
       return matches[1];
     }
+
     return;
   } catch (e) {
     return;
@@ -442,6 +472,7 @@ export const hideByColumnType = (
     ? propertyPath
     : getBasePropertyPath(propertyPath);
   const columnType = get(props, `${baseProperty}.columnType`, "");
+
   return !columnTypes.has(columnType);
 };
 
@@ -459,6 +490,7 @@ export const removeBoxShadowColorProp = (
     propertyPath,
     "boxShadowColor",
   );
+
   return [
     {
       propertyPath: boxShadowColorPath,
@@ -483,6 +515,8 @@ export const replacePropertyName = (
   targetPropertyName: string,
 ) => {
   const path = propertyPath.split(".");
+
   path.pop();
+
   return `${path.join(".")}.${targetPropertyName}`;
 };

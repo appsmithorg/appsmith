@@ -7,6 +7,7 @@ describe("Snowflake WidgetQueryGenerator", () => {
       pluginSpecifiedTemplates: [{ value: true }],
     },
   };
+
   test("should build select form data correctly", () => {
     const expr = Snowflake.build(
       {
@@ -293,6 +294,7 @@ OFFSET
       },
       initialValues,
     );
+
     expect(expr).toEqual([]);
   });
 
@@ -320,6 +322,7 @@ OFFSET
       },
       initialValues,
     );
+
     expect(expr).toEqual([]);
   });
 
@@ -347,6 +350,7 @@ OFFSET
       },
       initialValues,
     );
+
     expect(expr).toEqual([
       {
         name: "Insert_someTable",

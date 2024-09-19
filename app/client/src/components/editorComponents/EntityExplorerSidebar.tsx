@@ -111,6 +111,7 @@ export const EntityExplorerSidebar = memo(({ children }: Props) => {
   const handleMouseLeave = useCallback(() => {
     if (hoverStartTime !== 0) {
       const timeTaken = moment().diff(hoverStartTime, "seconds");
+
       AnalyticsUtil.logEvent("TIME_TO_NAVIGATE_ENTITY_EXPLORER", { timeTaken });
       setHoverStartTime(0);
     }

@@ -31,6 +31,7 @@ export const migrateTableSanitizeColumnKeys = (currentDSL: DSLWidget) => {
       );
 
       const newPrimaryColumns: Record<string, ColumnProperties> = {};
+
       if (primaryColumnEntries.length) {
         for (const [, primaryColumnEntry] of primaryColumnEntries.entries()) {
           // Value is reassigned when its invalid(Faulty DSL  https://github.com/appsmithorg/appsmith/issues/8979)
@@ -38,6 +39,7 @@ export const migrateTableSanitizeColumnKeys = (currentDSL: DSLWidget) => {
           let [, value] = primaryColumnEntry;
           const sanitizedKey = removeSpecialChars(key, 200);
           let id = "";
+
           if (value.id) {
             id = removeSpecialChars(value.id, 200);
           }
@@ -45,9 +47,11 @@ export const migrateTableSanitizeColumnKeys = (currentDSL: DSLWidget) => {
           else if (Object.keys(value)) {
             const onlyKey = Object.keys(value)[0] as keyof ColumnProperties;
             const obj: ColumnProperties = value[onlyKey];
+
             if (!obj.id && !obj.columnType) {
               continue;
             }
+
             value = obj;
             id = removeSpecialChars(value.id, 200);
           }

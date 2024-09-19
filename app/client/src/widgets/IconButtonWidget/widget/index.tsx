@@ -28,6 +28,7 @@ const ICON_BUTTON_SIZE_IN_AUTOLAYOUT = 32;
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
+
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
   backgroundColor: string;

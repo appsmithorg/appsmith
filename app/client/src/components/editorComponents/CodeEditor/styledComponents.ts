@@ -23,10 +23,13 @@ const getBorderStyle = (
   },
 ) => {
   if (props.hasError) return "var(--ads-v2-color-border-error)";
+
   if (props.editorTheme !== EditorTheme.DARK) {
     if (props.isFocused) return "var(--ads-v2-color-border-emphasis)";
+
     return "var(--ads-v2-color-border)";
   }
+
   return "transparent";
 };
 
@@ -411,6 +414,7 @@ export const EditorWrapper = styled.div<{
 
     ${(props) => {
       let height = props.height || "auto";
+
       if (
         (props.size === EditorSize.COMPACT ||
           props.size === EditorSize.COMPACT_RETAIN_FORMATTING) &&
@@ -418,6 +422,7 @@ export const EditorWrapper = styled.div<{
       ) {
         height = props.height || "36px";
       }
+
       return `height: ${height}`;
     }}
   }

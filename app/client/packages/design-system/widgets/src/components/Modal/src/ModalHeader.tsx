@@ -18,6 +18,7 @@ export const ModalHeader = (props: ModalHeaderProps) => {
   // if this component is mounted inside it.
   useLayoutEffect(() => {
     setLabelId(id);
+
     return () => setLabelId(undefined);
   }, [id, setLabelId]);
 

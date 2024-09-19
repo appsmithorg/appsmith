@@ -104,9 +104,11 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         props.widgetId
       ) {
         valueRef.current = value.trim();
+
         if (widgets.indexOf(value.trim()) > -1) {
           setName(props.title);
         }
+
         dispatch(updateWidgetName(props.widgetId, value.trim()));
         toggleEditWidgetName(props.widgetId, false);
       }
@@ -116,6 +118,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
 
   useEffect(() => {
     if (props.isPanelTitle) return;
+
     if (isCurrentWidgetRecentlyAdded) {
       containerRef.current?.focus();
     }
@@ -149,6 +152,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
+
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
@@ -216,4 +220,5 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
     </div>
   ) : null;
 });
+
 export default PropertyPaneTitle;

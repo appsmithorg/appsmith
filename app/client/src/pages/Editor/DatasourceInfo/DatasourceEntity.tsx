@@ -37,6 +37,7 @@ const ExplorerDatasourceEntity = React.memo(
     const location = useLocation();
     const switchDatasource = useCallback(() => {
       let url;
+
       if (props.plugin && props.plugin.type === PluginType.SAAS) {
         url = saasEditorDatasourceIdURL({
           basePageId: entityId,
@@ -86,6 +87,7 @@ const ExplorerDatasourceEntity = React.memo(
     );
 
     let isDefaultExpanded = false;
+
     if (expandDatasourceId === props.datasource.id) {
       isDefaultExpanded = true;
     } else if (queryAction && isStoredDatasource(queryAction.datasource)) {

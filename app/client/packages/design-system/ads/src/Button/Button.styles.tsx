@@ -39,6 +39,7 @@ const getSizes = (size: ButtonSizes, isIconButton?: boolean) => {
       --button-gap: var(--ads-v2-spaces-3);
     `,
   };
+
   return Sizes[size];
 };
 
@@ -56,6 +57,7 @@ const getHeights = (size: ButtonSizes, isIconButton?: boolean) => {
     //   --button-height: 40px;
     // `,
   };
+
   return Heights[size];
 };
 

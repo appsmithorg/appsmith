@@ -38,8 +38,10 @@ export const useFeatureFlagOverride = () => {
           ) {
             acc[flagName] = flagValues[flagName];
           }
+
           return acc;
         }, {} as OverriddenFeatureFlags);
+
         if (filteredFlagValues) {
           dispatch(setFeatureFlagOverridesAction(filteredFlagValues));
         }
@@ -63,6 +65,7 @@ export const useFeatureFlagOverride = () => {
           AvailableFeaturesToOverride.includes(flagName) &&
           isBoolean(flagValue),
       );
+
       if (areAllFlagsValid) {
         dispatch(updateFeatureFlagOverrideAction(featureFlagValues));
         setFeatureFlagOverrideValues(featureFlagValues);

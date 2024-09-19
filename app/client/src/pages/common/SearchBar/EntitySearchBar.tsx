@@ -143,6 +143,7 @@ function EntitySearchBar(props: any) {
     const viewURL = viewerURL({
       basePageId: defaultPage.baseId,
     });
+
     window.location.href = `${viewURL}`;
   }
 
@@ -175,6 +176,7 @@ function EntitySearchBar(props: any) {
   );
 
   let loginUrl = AUTH_LOGIN_URL;
+
   if (queryParams.has("redirectUrl")) {
     loginUrl += `?redirectUrl
     =${queryParams.get("redirectUrl")}`;

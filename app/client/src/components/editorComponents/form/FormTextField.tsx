@@ -13,6 +13,7 @@ const renderComponent = (
   },
 ) => {
   const showError = componentProps.meta.touched && !componentProps.meta.active;
+
   return (
     <>
       <InputComponent {...componentProps} />

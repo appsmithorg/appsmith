@@ -35,6 +35,7 @@ describe("JS Segment", () => {
     });
     const useDispatchSpy = jest.spyOn(redux, "useDispatch");
     const mockDispatchFn = jest.fn();
+
     useDispatchSpy.mockReturnValue(mockDispatchFn);
     const wrapper = getWrapper(store);
 

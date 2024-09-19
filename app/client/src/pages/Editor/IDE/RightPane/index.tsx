@@ -13,6 +13,7 @@ import { SentryRoute } from "ee/AppRouter";
 
 const RightPane = () => {
   const { path } = useRouteMatch();
+
   return (
     <SentryRoute
       component={PropertyPaneWrapper}

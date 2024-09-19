@@ -48,6 +48,7 @@ it("Computes the bottomRow of the canvas within a container correctly", () => {
   };
 
   const result = getCanvasBottomRow("m", canvasWidgets);
+
   expect(result).toBe(300);
 });
 
@@ -82,6 +83,7 @@ it("Computes the bottomRow of the canvas within a Modal correctly", () => {
   };
 
   const result = getCanvasBottomRow("m", canvasWidgets);
+
   expect(result).toBe(300);
 });
 
@@ -116,6 +118,7 @@ it("Ignores the detached children of the canvas correctly", () => {
   };
 
   const result = getCanvasBottomRow("m", canvasWidgets);
+
   expect(result).toBe(100);
 });
 
@@ -148,6 +151,7 @@ it("Computes the bottomRow of the canvas within a Modal correctly", () => {
   };
 
   const result = getCanvasBottomRow("m", canvasWidgets);
+
   expect(result).toBe(500);
 });
 
@@ -181,6 +185,7 @@ it("Computes the bottomRow of the canvas within a Container when the container h
   };
 
   const result = getCanvasBottomRow("m", canvasWidgets);
+
   expect(result).toBe(100);
 });
 
@@ -230,5 +235,6 @@ it("Computes all the effected canvases for the changed widgets", () => {
   // Since the container p has changed, it will effect the parent m and the child q
 
   const result = getCanvasWidgetHeightsToUpdate(["p"], canvasWidgets);
+
   expect(result).toStrictEqual({ q: 100, m: 200 });
 });

@@ -312,6 +312,7 @@ describe("getAllIdentifiers", () => {
         2,
         perCase.invalidIdentifiers,
       );
+
       expect(references).toStrictEqual(perCase.expectedResults);
     });
   });
@@ -402,6 +403,7 @@ describe("parseJSObjectWithAST", () => {
       },
     ];
     const { parsedObject } = parseJSObject(body);
+
     expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 
@@ -490,6 +492,7 @@ describe("parseJSObjectWithAST", () => {
       },
     ];
     const { parsedObject } = parseJSObject(body);
+
     expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 
@@ -563,6 +566,7 @@ describe("parseJSObjectWithAST", () => {
       },
     ];
     const { parsedObject } = parseJSObject(body);
+
     expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 
@@ -622,6 +626,7 @@ describe("parseJSObjectWithAST", () => {
       },
     ];
     const { parsedObject } = parseJSObject(body);
+
     expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 });
@@ -719,6 +724,7 @@ describe("getMemberExpressionObjectFromProperty", () => {
       propertyName,
       code,
     );
+
     expect(actualResponse).toStrictEqual([]);
   });
   it("returns an empty array for invalid js", () => {
@@ -731,6 +737,7 @@ describe("getMemberExpressionObjectFromProperty", () => {
       propertyName,
       code,
     );
+
     expect(actualResponse).toStrictEqual([]);
   });
   it("returns correct member expression object(s)", () => {
@@ -783,6 +790,7 @@ describe("getMemberExpressionObjectFromProperty", () => {
         testDatum.propertyName,
         testDatum.code,
       );
+
       expect(actualResponse).toStrictEqual(testDatum.expectedResponse);
     }
   });

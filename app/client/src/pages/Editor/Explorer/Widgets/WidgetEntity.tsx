@@ -43,6 +43,7 @@ const useWidget = (
     (e: any) => {
       const isMultiSelect = e.metaKey || e.ctrlKey;
       const isShiftSelect = e.shiftKey;
+
       navigateToWidget(
         widgetId,
         widgetType,

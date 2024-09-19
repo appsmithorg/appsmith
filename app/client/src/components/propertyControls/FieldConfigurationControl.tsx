@@ -61,6 +61,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
   isArrayItem = () => {
     const schema: Schema = this.props.propertyValue;
+
     return Boolean(schema?.[ARRAY_ITEM_KEY]);
   };
 
@@ -68,6 +69,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
     const schema: Schema = this.props.propertyValue;
     const schemaItems = Object.values(schema);
     const sortedSchemaItems = sortBy(schemaItems, ({ position }) => position);
+
     return sortedSchemaItems[index];
   };
 
@@ -173,6 +175,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
           "FieldConfigurationControl.addNewField",
         ),
       };
+
       set(updatedSchema, path, schemaItem);
 
       this.updateProperty("schema", updatedSchema.schema);
@@ -184,6 +187,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
 
     try {
       const parsedValue = JSON.parse(value);
+
       this.updateProperty(this.props.propertyName, parsedValue);
     } catch (e) {
       log.error(e);

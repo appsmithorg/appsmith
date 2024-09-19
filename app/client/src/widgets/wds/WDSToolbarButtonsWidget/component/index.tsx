@@ -39,6 +39,7 @@ export const ToolbarButtonsComponent = (
         return button.isDisabled;
       })
       .map((button) => button.id);
+
     return { sortedButtons, disabledKeys };
   }, [buttonsList]);
 

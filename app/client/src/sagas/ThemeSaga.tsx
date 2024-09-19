@@ -26,6 +26,7 @@ export function changeAppBackground(currentTheme: BackgroundTheme) {
 
 export function* setThemeSaga(actionPayload: ReduxAction<ThemeMode>) {
   const theme: BackgroundTheme = yield select(getCurrentThemeDetails);
+
   changeAppBackground(theme);
   yield localStorage.setItem("THEME", actionPayload.payload);
 }

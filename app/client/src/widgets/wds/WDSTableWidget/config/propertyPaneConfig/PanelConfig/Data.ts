@@ -114,6 +114,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
+
         return columnType !== "url";
       },
       dependencies: ["primaryColumns", "columnOrder"],
@@ -212,6 +213,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
+
         return columnType !== ColumnTypes.DATE;
       },
       dependencies: ["primaryColumns", "columnOrder"],
@@ -341,6 +343,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
+
         return columnType !== ColumnTypes.DATE;
       },
       dependencies: ["primaryColumns", "columnType"],
@@ -402,6 +405,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
+
         return columnType !== ColumnTypes.CURRENCY;
       },
       dependencies: ["primaryColumns", "columnType"],
@@ -440,6 +444,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
+
         return columnType !== ColumnTypes.CURRENCY;
       },
       dependencies: ["primaryColumns", "columnType"],
@@ -457,6 +462,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
+
         return columnType !== ColumnTypes.CURRENCY;
       },
     },
@@ -486,6 +492,7 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
+
         return columnType !== ColumnTypes.CURRENCY;
       },
     },

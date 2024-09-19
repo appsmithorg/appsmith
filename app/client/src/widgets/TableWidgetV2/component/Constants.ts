@@ -430,6 +430,7 @@ export const ConditionFunctions: {
   lessThan: (a: any, b: any) => {
     const numericB = Number(b);
     const numericA = Number(a);
+
     return numericA < numericB;
   },
   // TODO: Fix this the next time the file is edited
@@ -437,6 +438,7 @@ export const ConditionFunctions: {
   lessThanEqualTo: (a: any, b: any) => {
     const numericB = Number(b);
     const numericA = Number(a);
+
     return numericA <= numericB;
   },
   // TODO: Fix this the next time the file is edited
@@ -444,6 +446,7 @@ export const ConditionFunctions: {
   greaterThan: (a: any, b: any) => {
     const numericB = Number(b);
     const numericA = Number(a);
+
     return numericA > numericB;
   },
   // TODO: Fix this the next time the file is edited
@@ -451,6 +454,7 @@ export const ConditionFunctions: {
   greaterThanEqualTo: (a: any, b: any) => {
     const numericB = Number(b);
     const numericA = Number(a);
+
     return numericA >= numericB;
   },
   // TODO: Fix this the next time the file is edited
@@ -459,6 +463,7 @@ export const ConditionFunctions: {
     if (isString(a) && isString(b)) {
       return a.includes(b);
     }
+
     return false;
   },
   // TODO: Fix this the next time the file is edited
@@ -467,6 +472,7 @@ export const ConditionFunctions: {
     if (isString(a) && isString(b)) {
       return !a.includes(b);
     }
+
     return false;
   },
   // TODO: Fix this the next time the file is edited
@@ -475,6 +481,7 @@ export const ConditionFunctions: {
     if (isString(a) && isString(b)) {
       return a.indexOf(b) === 0;
     }
+
     return false;
   },
   // TODO: Fix this the next time the file is edited
@@ -483,6 +490,7 @@ export const ConditionFunctions: {
     if (isString(a) && isString(b)) {
       return a.length === a.lastIndexOf(b) + b.length;
     }
+
     return false;
   },
   // TODO: Fix this the next time the file is edited
