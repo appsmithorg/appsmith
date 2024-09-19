@@ -1,6 +1,8 @@
 package com.appsmith.external.helpers;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
+import com.appsmith.external.converters.JSONObjectDeserializer;
+import com.appsmith.external.converters.JSONObjectSerializer;
 import com.appsmith.external.views.Views;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -11,9 +13,11 @@ import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.StdConverter;
 import jakarta.persistence.Transient;
+import net.minidev.json.JSONObject;
 
 /**
  * Owner of ObjectMapper configuration designed for serialization/deserialization of objects into/from the database.
@@ -49,6 +53,12 @@ public final class JsonForDatabase {
         // If at all we decide to change this to `false`, it _has_ to be treated as debt, and paid off by changing it
         // back to `true`.
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        // Custom serializer module for JSONObject of page DSL
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(JSONObject.class, new JSONObjectSerializer(JSONObject.class));
+        module.addDeserializer(JSONObject.class, new JSONObjectDeserializer(JSONObject.class));
+        om.registerModule(module);
 
         om.setVisibility(om.getSerializationConfig()
                 .getDefaultVisibilityChecker()
