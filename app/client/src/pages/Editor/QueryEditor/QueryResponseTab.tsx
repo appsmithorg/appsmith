@@ -205,7 +205,12 @@ const QueryResponseTab = (props: Props) => {
     const { pluginSpecifiedTemplates } =
       currentActionConfig.actionConfiguration;
 
-    if (error && pluginSpecifiedTemplates[0].value === true) {
+    if (
+      error &&
+      pluginSpecifiedTemplates &&
+      pluginSpecifiedTemplates.length > 0 &&
+      pluginSpecifiedTemplates[0].value === true
+    ) {
       showPreparedStatementWarning = true;
     }
   }
