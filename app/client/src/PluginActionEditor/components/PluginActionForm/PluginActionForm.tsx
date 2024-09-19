@@ -1,5 +1,5 @@
 import React from "react";
-import { useChangeActionCall } from "IDE/hooks";
+import { useChangeActionCall } from "./hooks/useChangeActionCall";
 
 const PluginActionForm = () => {
   useChangeActionCall();

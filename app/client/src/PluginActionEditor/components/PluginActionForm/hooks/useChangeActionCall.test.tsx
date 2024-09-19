@@ -1,10 +1,10 @@
 import { renderHook } from "@testing-library/react-hooks/dom";
-import { useChangeActionCall } from "./useChangeActionCall";
 import { useDispatch } from "react-redux";
 import { PluginType } from "entities/Action";
-import { usePluginActionContext } from "PluginActionEditor";
 import { changeApi } from "actions/apiPaneActions";
 import { changeQuery } from "actions/queryPaneActions";
+import { useChangeActionCall } from "./useChangeActionCall";
+import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
 
 jest.mock("react-redux", () => ({
   useDispatch: jest.fn(),
