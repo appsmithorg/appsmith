@@ -13,7 +13,7 @@ const datasourceHomeLocators = require("../../../../locators/apiWidgetslocator.j
 const datasourceLocators = require("../../../../locators/DatasourcesEditor.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("GlobalSearch", function () {
+describe("GlobalSearch", { tags: ["@tag.Sanity"] }, function () {
   before(() => {
     _.agHelper.AddDsl("MultipleWidgetDsl");
   });

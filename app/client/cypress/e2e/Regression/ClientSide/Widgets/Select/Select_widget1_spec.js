@@ -9,7 +9,7 @@ const defaultValue = `
 
 describe(
   "Select Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Select"] },
+  { tags: ["@tag.Widget", "@tag.Select", "@tag.Sanity"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");
