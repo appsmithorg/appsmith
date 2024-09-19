@@ -225,14 +225,17 @@ export const DateCell = (props: DateComponentProps) => {
     let momentAdjustedInputFormat = inputFormat;
     if (isNewRow) {
       updateNewRowValues(alias, date, date);
+
       return;
     }
 
     if (isRequired && !date) {
       setIsValid(false);
       setShowRequiredError(true);
+
       return;
     }
+
     setIsValid(true);
     setShowRequiredError(false);
     setHasFocus(false);
@@ -247,10 +250,12 @@ export const DateCell = (props: DateComponentProps) => {
 
   const onDateCellEdit = () => {
     setHasFocus(true);
+
     if (isRequired && !value) {
       setIsValid(false);
       setShowRequiredError(true);
     }
+
     toggleCellEditMode(true, rowIndex, alias, value);
   };
 

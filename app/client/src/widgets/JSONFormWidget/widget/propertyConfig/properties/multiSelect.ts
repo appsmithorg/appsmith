@@ -50,6 +50,7 @@ export function defaultOptionValueValidation(
     if (typeof value === "string" && value.trim() !== "") {
       try {
         const parsedValue = JSON.parse(value as string);
+
         if (Array.isArray(parsedValue)) return parsedValue;
       } catch (e) {
         return value.split(",").map((s) => s.trim());
@@ -232,6 +233,7 @@ const PROPERTIES = {
         getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).compute(
           (schemaItem) => {
             if (schemaItem.fieldType !== FieldType.MULTISELECT) return true;
+
             return !schemaItem.serverSideFiltering;
           },
         ),
@@ -351,6 +353,7 @@ const PROPERTIES = {
           getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).compute(
             (schemaItem) => {
               if (schemaItem.fieldType !== FieldType.MULTISELECT) return true;
+
               return !schemaItem.serverSideFiltering;
             },
           ),

@@ -57,6 +57,7 @@ const DesktopEntitySearchField = (props: any) => {
   const isHomePage = useRouteMatch("/applications")?.isExact;
 
   if (!isHomePage) return null;
+
   return (
     <SearchContainer isMobile={isMobile}>
       <SearchInput

@@ -23,6 +23,7 @@ describe("SidebarButton", () => {
     const { container } = render(<SidebarButton {...withWarningCondition} />);
 
     const svgs = container.querySelectorAll("svg");
+
     expect(svgs).toHaveLength(2);
   });
 

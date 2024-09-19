@@ -9,6 +9,7 @@ export const NAVIGATION_CLASSNAME = "navigable-entity-highlight";
 
 const hasReference = (token: CodeMirror.Token) => {
   const tokenString = token.string;
+
   return token.type === "variable" || tokenString === "this";
 };
 
@@ -19,8 +20,10 @@ export const entityMarker: MarkHelper = (
   to,
 ) => {
   let markers: CodeMirror.TextMarker[] = [];
+
   if (from && to) {
     const toLine = editor.getLine(to.line);
+
     if (toLine) {
       markers = editor.findMarks(
         {
@@ -55,10 +58,13 @@ const addMarksForLine = (
 ) => {
   const lineNo = editor.getLineNumber(line) || 0;
   const tokens = editor.getLineTokens(lineNo);
+
   tokens.forEach((token) => {
     const tokenString = token.string;
+
     if (hasReference(token) && tokenString in entityNavigationData) {
       const data = entityNavigationData[tokenString];
+
       if (data.navigable) {
         editor.markText(
           { ch: token.start, line: lineNo },
@@ -66,6 +72,7 @@ const addMarksForLine = (
           getMarkOptions(data),
         );
       }
+
       addMarksForChildren(
         entityNavigationData[tokenString],
         lineNo,
@@ -83,6 +90,7 @@ const addMarksForChildren = (
   editor: CodeMirror.Editor,
 ) => {
   const childNodes = navigationData.children || {};
+
   if (Object.keys(childNodes).length) {
     const token = editor.getTokenAt(
       {
@@ -91,8 +99,10 @@ const addMarksForChildren = (
       },
       true,
     );
+
     if (token.string in childNodes) {
       const childLink = childNodes[token.string];
+
       if (childLink.navigable) {
         editor.markText(
           { ch: token.start, line: lineNo },
@@ -100,6 +110,7 @@ const addMarksForChildren = (
           getMarkOptions(childLink),
         );
       }
+
       addMarksForChildren(childNodes[token.string], lineNo, token.end, editor);
     }
   }

@@ -13,6 +13,7 @@ interface Position {
  */
 export function getPosition({ max, min, value }: Position) {
   const position = ((value - min) / (max - min)) * 100;
+
   return Math.min(Math.max(position, 0), 100);
 }
 
@@ -51,6 +52,7 @@ export function getChangeValue({
 export function getClientPosition(event: any) {
   if ("TouchEvent" in window && event instanceof window.TouchEvent) {
     const touch = event.touches[0];
+
     return touch.clientX;
   }
 

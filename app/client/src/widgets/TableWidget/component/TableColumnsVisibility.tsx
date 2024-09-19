@@ -94,6 +94,7 @@ function VisibilityIcon(props: { visible?: boolean }) {
 
 function TableColumnsVisibility(props: TableColumnsVisibilityProps) {
   const [selected, selectMenu] = React.useState(false);
+
   if (props.columns.length === 0) {
     return (
       <TableIconWrapper disabled>
@@ -103,11 +104,13 @@ function TableColumnsVisibility(props: TableColumnsVisibilityProps) {
       </TableIconWrapper>
     );
   }
+
   const columns = props.columns.sort(
     (a: ReactTableColumnProps, b: ReactTableColumnProps) => {
       return a.accessor > b.accessor ? 1 : b.accessor > a.accessor ? -1 : 0;
     },
   );
+
   return (
     <Popover
       enforceFocus={false}
@@ -139,11 +142,13 @@ function TableColumnsVisibility(props: TableColumnsVisibilityProps) {
               const hiddenColumns = Array.isArray(props.hiddenColumns)
                 ? props.hiddenColumns.slice()
                 : [];
+
               if (!option.isHidden) {
                 hiddenColumns.push(option.accessor);
               } else {
                 hiddenColumns.splice(hiddenColumns.indexOf(option.accessor), 1);
               }
+
               props.updateHiddenColumns(hiddenColumns);
             }}
             selected={!option.isHidden}

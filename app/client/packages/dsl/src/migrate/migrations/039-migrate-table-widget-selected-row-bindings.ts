@@ -6,11 +6,13 @@ const getUpdatedColumns = (
   columns: Record<string, ColumnProperties>,
 ) => {
   const updatedColumns: Record<string, ColumnProperties> = {};
+
   if (columns && Object.keys(columns).length > 0) {
     for (const [columnId, columnProps] of Object.entries(columns)) {
       const sanitizedColumnId = removeSpecialChars(columnId, 200);
       const selectedRowBindingValue = `${widgetName}.selectedRow`;
       let newOnClickBindingValue = undefined;
+
       if (
         columnProps.onClick &&
         columnProps.onClick.includes(selectedRowBindingValue)
@@ -20,11 +22,14 @@ const getUpdatedColumns = (
           "currentRow",
         );
       }
+
       updatedColumns[sanitizedColumnId] = columnProps;
+
       if (newOnClickBindingValue)
         updatedColumns[sanitizedColumnId].onClick = newOnClickBindingValue;
     }
   }
+
   return updatedColumns;
 };
 
@@ -44,7 +49,9 @@ export const migrateTableWidgetSelectedRowBindings = (
     } else if (child.children && child.children.length > 0) {
       child = migrateTableWidgetSelectedRowBindings(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

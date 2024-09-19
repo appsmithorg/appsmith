@@ -16,6 +16,7 @@ export const migrateTableWidgetV2Validation = (currentDSL: DSLWidget) => {
     } else if (child.children && child.children.length > 0) {
       child = migrateTableWidgetV2Validation(child);
     }
+
     return child;
   });
 

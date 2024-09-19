@@ -188,6 +188,7 @@ enum GeneratePageSelectedViewIconEnum {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DatasourceOptionSelectedView = (props: any) => {
   const { iconType, option, pluginImages } = props;
+
   return (
     <OptionWrapper>
       <StyledIconWrapper>
@@ -279,6 +280,7 @@ function GeneratePageForm() {
         selectedDatasource.data?.pluginId,
       );
     }
+
     return false;
   });
 
@@ -308,6 +310,7 @@ function GeneratePageForm() {
       ) {
         const pluginId: string = dataSourceObj.data.pluginId;
         const pluginPackageName: string = generateCRUDSupportedPlugin[pluginId];
+
         AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_DATASOURCE", {
           datasourceType: pluginPackageName,
         });
@@ -317,6 +320,7 @@ function GeneratePageForm() {
         selectTable(DEFAULT_DROPDOWN_OPTION);
         selectColumn(DEFAULT_DROPDOWN_OPTION);
         setSelectedDatasourceIsInvalid(false);
+
         if (dataSourceObj.id) {
           switch (pluginPackageName) {
             case PluginPackageName.GOOGLE_SHEETS:
@@ -353,6 +357,7 @@ function GeneratePageForm() {
         AnalyticsUtil.logEvent("GEN_CRUD_PAGE_SELECT_TABLE");
         selectTable(TableObj);
         selectColumn(DEFAULT_DROPDOWN_OPTION);
+
         if (!isGoogleSheetPlugin && !isS3Plugin) {
           const { data } = TableObj;
 
@@ -360,7 +365,9 @@ function GeneratePageForm() {
             if (data.columns.length === 0) setIsSelectedTableEmpty(true);
             else {
               if (isSelectedTableEmpty) setIsSelectedTableEmpty(false);
+
               const newSelectedTableColumnOptions: DropdownOption[] = [];
+
               data.columns.map((column) => {
                 if (
                   column.type &&
@@ -447,6 +454,7 @@ function GeneratePageForm() {
         iconSize: "md",
         iconColor: "var(--ads-v2-color-fg)",
       }));
+
       setSelectedDatasourceTableOptions(tables as DropdownOptions);
     }
   }, [bucketList, isS3Plugin, setSelectedDatasourceTableOptions]);
@@ -468,6 +476,7 @@ function GeneratePageForm() {
       } else {
         setSelectedDatasourceIsInvalid(false);
         const tables = selectedDatasourceStructure?.tables;
+
         if (tables) {
           const newTables = tables.map(({ columns, name }) => ({
             id: name,
@@ -480,6 +489,7 @@ function GeneratePageForm() {
               columns,
             },
           }));
+
           setSelectedDatasourceTableOptions(newTables as DropdownOptions);
         }
       }
@@ -515,6 +525,7 @@ function GeneratePageForm() {
       if (dataSourceOptions[i].id === selectedDatasource.id) {
         if (!equal(dataSourceOptions[i], selectedDatasource))
           selectDataSource(dataSourceOptions[i]);
+
         break;
       }
     }
@@ -532,17 +543,20 @@ function GeneratePageForm() {
       const queryParams = getQueryParams();
       const datasourceId = queryParams.datasourceId;
       const generateNewPage = queryParams.new_page;
+
       if (datasourceId) {
         if (generateNewPage || numberOfEntities > 0) {
           currentMode.current = GENERATE_PAGE_MODE.NEW;
         } else {
           currentMode.current = GENERATE_PAGE_MODE.REPLACE_EMPTY;
         }
+
         setDatasourceIdToBeSelected(datasourceId);
         delete queryParams.datasourceId;
         delete queryParams.new_page;
         const redirectURL =
           window.location.pathname + getQueryStringfromObject(queryParams);
+
         history.replace(redirectURL);
       }
     }
@@ -559,6 +573,7 @@ function GeneratePageForm() {
     );
     // Event for datasource creation click
     const entryPoint = DatasourceCreateEntryPoints.GENERATE_CRUD;
+
     AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
       entryPoint,
     });
@@ -566,6 +581,7 @@ function GeneratePageForm() {
 
   const generatePageAction = (data: GeneratePagePayload) => {
     let extraParams = {};
+
     if (data.pluginSpecificParams) {
       extraParams = {
         pluginSpecificParams: data.pluginSpecificParams,
@@ -594,6 +610,7 @@ function GeneratePageForm() {
       searchColumn: selectedColumn.value,
       tableName: selectedTable.value || "",
     };
+
     generatePageAction(payload);
   };
 
@@ -606,6 +623,7 @@ function GeneratePageForm() {
       datasourceId: selectedDatasource.id as string,
       params: { isGeneratePageMode: "generate-page" },
     });
+
     history.push(redirectURL);
   };
 
@@ -632,9 +650,11 @@ function GeneratePageForm() {
     if (datasourceTableOptions.length === 0) {
       tableDropdownErrorMsg = `Couldn't find any ${pluginField.TABLE}, Please select another datasource`;
     }
+
     if (fetchingDatasourceConfigError) {
       tableDropdownErrorMsg = `Failed fetching datasource structure, Please check your datasource configuration`;
     }
+
     if (isSelectedTableEmpty) {
       tableDropdownErrorMsg = `Couldn't find any columns, Please select table with columns.`;
     }

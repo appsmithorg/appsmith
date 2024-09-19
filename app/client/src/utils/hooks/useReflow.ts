@@ -225,6 +225,7 @@ export const useReflow = (
               true,
               true,
             );
+
             exitContainer.current = undefined;
             mousePointerAtContainerExit.current = undefined;
 
@@ -271,6 +272,7 @@ export const useReflow = (
       //Trigger reflow action
       if (!isEmpty(correctedMovementMap)) {
         isReflowing.current = true;
+
         if (forceDirection) dispatch(reflowMoveAction(correctedMovementMap));
         else throttledDispatch(reflowMoveAction(correctedMovementMap));
       } else if (isReflowing.current) {

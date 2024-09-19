@@ -25,6 +25,7 @@ const LayoutSystemBasedCanvas = memo((props: WidgetProps) => {
     [renderMode, layoutSystemType],
   );
   const { Canvas, propertyEnhancer } = canvasSystem;
+
   return (
     <Canvas {...propertyEnhancer(props)} maxWidth={themeSetting.appMaxWidth} />
   );

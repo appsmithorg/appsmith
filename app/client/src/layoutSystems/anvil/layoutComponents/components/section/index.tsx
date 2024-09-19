@@ -17,6 +17,7 @@ class Section extends WidgetRow {
     if (props.allowedWidgetTypes && props.allowedWidgetTypes.length) {
       return props.allowedWidgetTypes;
     }
+
     // TODO: remove string hard coding.
     return [anvilWidgets.ZONE_WIDGET];
   }

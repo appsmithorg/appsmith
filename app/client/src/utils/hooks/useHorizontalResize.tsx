@@ -97,6 +97,7 @@ const useHorizontalResize = (
     const eventWithTouches = Object.assign({}, event, {
       touches: [{ clientX: event.clientX, clientY: event.clientY }],
     });
+
     onTouchMove(eventWithTouches);
   };
 

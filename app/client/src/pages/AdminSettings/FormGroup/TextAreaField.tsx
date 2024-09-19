@@ -13,6 +13,7 @@ const renderComponent = (
   },
 ) => {
   const showError = componentProps.meta.touched && !componentProps.meta.active;
+
   // TODO: Does there need to be a LazyCodeEditor here? Why?
   return (
     <>
@@ -48,6 +49,7 @@ export interface FormTextAreaFieldProps {
 
 function FormTextAreaField(props: FormTextAreaFieldProps) {
   const { setting } = props;
+
   return (
     <div
       className={`t--admin-settings-text-area-input t--admin-settings-${

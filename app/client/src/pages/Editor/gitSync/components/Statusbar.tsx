@@ -17,9 +17,11 @@ export const StatusbarWrapper = styled.div`
 export default function GitSyncStatusbar(props: StatusbarProps) {
   const { completed, message, period } = props;
   const [percentage, setPercentage] = useState(0);
+
   useEffect(() => {
     if (completed) {
       setPercentage(100);
+
       if (props.onHide) {
         setTimeout(() => {
           props.onHide && props.onHide();
@@ -33,10 +35,12 @@ export default function GitSyncStatusbar(props: StatusbarProps) {
           },
           (period * 1000) / 9,
         );
+
         return () => clearInterval(interval);
       }
     }
   });
+
   return (
     <Statusbar
       active={false}

@@ -36,9 +36,11 @@ describe("FileTabs", () => {
     // Check if each tab is rendered with correct content
     mockTabs.forEach((tab) => {
       const tabElement = getByTestId(`t--ide-tab-${sanitizeString(tab.title)}`);
+
       expect(tabElement).not.toBeNull();
 
       const tabTitleElement = getByText(tab.title);
+
       expect(tabTitleElement).not.toBeNull();
     });
   });
@@ -55,6 +57,7 @@ describe("FileTabs", () => {
     const tabElement = getByTestId(
       `t--ide-tab-${sanitizeString(mockTabs[0].title)}`,
     );
+
     fireEvent.click(tabElement);
 
     expect(mockNavigateToTab).toHaveBeenCalledWith(mockTabs[0]);
@@ -75,6 +78,7 @@ describe("FileTabs", () => {
     const closeElement = tabElement.querySelector(
       "[data-testid='t--tab-close-btn']",
     ) as HTMLElement;
+
     fireEvent.click(closeElement);
     expect(mockOnClose).toHaveBeenCalledWith(mockTabs[1].key);
   });

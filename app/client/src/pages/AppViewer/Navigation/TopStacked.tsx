@@ -37,6 +37,7 @@ export function TopStacked(props: NavigationProps) {
 
   // Mark default page as first page
   const appPages = pages;
+
   if (appPages.length > 1) {
     appPages.forEach((item, i) => {
       if (item.isDefault) {
@@ -49,6 +50,7 @@ export function TopStacked(props: NavigationProps) {
   const setShowScrollArrows = useCallback(() => {
     if (tabsRef.current) {
       const { offsetWidth, scrollLeft, scrollWidth } = tabsRef.current;
+
       setShouldShowLeftArrow(scrollLeft > 0);
       setShouldShowRightArrow(scrollLeft + offsetWidth < scrollWidth);
     }
@@ -56,8 +58,10 @@ export function TopStacked(props: NavigationProps) {
 
   const measuredTabsRef = useCallback((node) => {
     tabsRef.current = node;
+
     if (node !== null) {
       const { offsetWidth, scrollWidth } = node;
+
       setTabsScrollable(scrollWidth > offsetWidth);
       setShowScrollArrows();
     }
@@ -89,9 +93,11 @@ export function TopStacked(props: NavigationProps) {
 
   useEffect(() => {
     let clear;
+
     if (isScrolling) {
       clear = requestAF();
     }
+
     return clear;
   }, [isScrolling, isScrollingLeft]);
 

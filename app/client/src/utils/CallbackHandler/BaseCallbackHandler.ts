@@ -27,8 +27,10 @@ abstract class BaseCallbackHandler {
     ) => void,
   ) {
     const callbacks = this.events.get(type) || [];
+
     callbacks.push(callback);
     this.events.set(type, callbacks);
+
     return this;
   }
   /**
@@ -44,12 +46,14 @@ abstract class BaseCallbackHandler {
     ) => void,
   ) {
     const callbacks = this.events.get(type) || [];
+
     this.events.set(
       type,
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       callbacks.filter((fn: any) => fn !== callback),
     );
+
     return this;
   }
   /**
@@ -59,6 +63,7 @@ abstract class BaseCallbackHandler {
    */
   removeByType(type: CallbackHandlerEventType) {
     this.events.delete(type);
+
     return this;
   }
   /**
@@ -72,9 +77,11 @@ abstract class BaseCallbackHandler {
     ...args: CallbackHandlerBaseEvents[CallbackHandlerEventType]
   ) {
     const callbacks = this.events.get(type) || [];
+
     callbacks.forEach((fn) => {
       fn(...args);
     });
+
     return this;
   }
 

@@ -32,6 +32,7 @@ function Link(props: LinkProps) {
     if (url.indexOf("//") === 0) {
       url = location.protocol + url;
     }
+
     return url
       .toLowerCase()
       .replace(/([a-z])?:\/\//, "$1")
@@ -79,6 +80,7 @@ function Link(props: LinkProps) {
             if (!rest.to || rest.to === "") {
               e.preventDefault();
             }
+
             rest.onClick?.(e);
           },
         }

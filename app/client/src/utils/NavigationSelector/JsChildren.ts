@@ -19,6 +19,7 @@ export const getJsChildrenNavData = (
 
   const dataTreeAction = dataTree[jsAction.config.name] as JSActionEntity;
   const jsActionVariables = jsAction.config.variables || [];
+
   if (dataTreeAction) {
     let children: NavigationData[] = jsAction.config.actions.map((jsChild) => {
       return createNavData({

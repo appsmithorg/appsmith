@@ -15,8 +15,10 @@ export const mapDataMigration = (currentDSL: DSLWidget) => {
           },
         );
       }
+
       if (children.defaultMarkers) {
         const defaultMarkers = JSON.parse(children.defaultMarkers);
+
         children.defaultMarkers = defaultMarkers.map(
           (marker: {
             lat: number;
@@ -32,6 +34,7 @@ export const mapDataMigration = (currentDSL: DSLWidget) => {
           },
         );
       }
+
       if (children.selectedMarker) {
         children.selectedMarker = {
           lat: children.selectedMarker.lat,
@@ -39,6 +42,7 @@ export const mapDataMigration = (currentDSL: DSLWidget) => {
           title: children.selectedMarker.title,
         };
       }
+
       if (children.mapCenter) {
         children.mapCenter = {
           lat: children.mapCenter.lat,
@@ -46,6 +50,7 @@ export const mapDataMigration = (currentDSL: DSLWidget) => {
           title: children.mapCenter.title,
         };
       }
+
       if (children.center) {
         children.center = {
           lat: children.center.lat,
@@ -56,7 +61,9 @@ export const mapDataMigration = (currentDSL: DSLWidget) => {
     } else if (children.children && children.children.length > 0) {
       children = mapDataMigration(children);
     }
+
     return children;
   });
+
   return currentDSL;
 };

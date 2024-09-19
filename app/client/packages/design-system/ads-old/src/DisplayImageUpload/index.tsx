@@ -178,6 +178,7 @@ const SpinnerContainer = styled.div`
 // Dashboard is code-split away to avoid bundling Uppy in the main bundle
 const DashboardLazy = React.lazy(async () => {
   await new Promise((resolve) => setTimeout(resolve, 10000));
+
   return import("./Dashboard");
 });
 
@@ -229,6 +230,7 @@ export default function DisplayImageUpload({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+
                   if (onRemove) onRemove();
                 }}
               >

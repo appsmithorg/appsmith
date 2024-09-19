@@ -15,12 +15,14 @@ import type { Middleware } from "redux";
 export const handler = (action: ReduxAction<any>) => {
   let appParams: ApplicationURLParams = {};
   let pageParams: PageURLParams[] = [];
+
   switch (action?.type) {
     case ReduxActionTypes.IMPORT_APPLICATION_SUCCESS:
     case ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS:
     case ReduxActionTypes.FETCH_APPLICATION_SUCCESS: {
       const application: ApplicationPayload = action.payload;
       const { pages } = application;
+
       appParams = {
         baseApplicationId: application.baseId,
         applicationSlug: application.slug,
@@ -37,6 +39,7 @@ export const handler = (action: ReduxAction<any>) => {
     case ReduxActionTypes.CREATE_APPLICATION_SUCCESS: {
       const application: ApplicationPayload = action.payload.application;
       const { pages } = application;
+
       appParams = {
         baseApplicationId: application.baseId,
         applicationSlug: application.slug,
@@ -51,6 +54,7 @@ export const handler = (action: ReduxAction<any>) => {
     }
     case ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE: {
       const application = action.payload;
+
       appParams = {
         baseApplicationId: application.baseId,
         applicationSlug: application.slug,
@@ -60,6 +64,7 @@ export const handler = (action: ReduxAction<any>) => {
     }
     case ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS: {
       const pages: Page[] = action.payload.pages;
+
       pageParams = pages.map((page) => ({
         pageSlug: page.slug,
         basePageId: page.basePageId,
@@ -69,6 +74,7 @@ export const handler = (action: ReduxAction<any>) => {
     }
     case ReduxActionTypes.UPDATE_PAGE_SUCCESS: {
       const page: UpdatePageResponse = action.payload;
+
       pageParams = [
         {
           pageSlug: page.slug,
@@ -80,6 +86,7 @@ export const handler = (action: ReduxAction<any>) => {
     }
     case ReduxActionTypes.CREATE_PAGE_SUCCESS: {
       const page: Page = action.payload;
+
       pageParams = [
         {
           pageSlug: page.slug,
@@ -91,6 +98,7 @@ export const handler = (action: ReduxAction<any>) => {
     }
     case ReduxActionTypes.GENERATE_TEMPLATE_PAGE_SUCCESS: {
       const { page } = action.payload;
+
       urlBuilder.updateURLParams(null, [
         {
           pageSlug: page.slug,
@@ -102,6 +110,7 @@ export const handler = (action: ReduxAction<any>) => {
     }
     case ReduxActionTypes.UPDATE_APPLICATION_SUCCESS:
       const application = action.payload;
+
       appParams = {
         baseApplicationId: application.baseid,
         applicationSlug: application.slug,
@@ -110,6 +119,7 @@ export const handler = (action: ReduxAction<any>) => {
       break;
     case ReduxActionTypes.CLONE_PAGE_SUCCESS:
       const { basePageId, pageSlug } = action.payload;
+
       pageParams = [
         {
           basePageId,
@@ -128,6 +138,7 @@ const routeParamsMiddleware: Middleware =
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   () => (next: any) => (action: ReduxAction<any>) => {
     handler(action);
+
     return next(action);
   };
 

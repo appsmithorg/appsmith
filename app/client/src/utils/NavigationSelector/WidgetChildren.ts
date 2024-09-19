@@ -12,13 +12,16 @@ export const getWidgetChildrenNavData = (
   basePageId: string,
 ) => {
   const dataTreeWidget: WidgetEntity = dataTree[widgetName] as WidgetEntity;
+
   if (widgetType === "FORM_WIDGET") {
     const children: EntityNavigationData = {};
     const formChildren: EntityNavigationData = {};
+
     if (dataTreeWidget) {
       Object.keys(dataTreeWidget.data || {}).forEach((childWidgetName) => {
         const childWidgetId = (dataTree[childWidgetName] as WidgetEntity)
           .widgetId;
+
         formChildren[childWidgetName] = createNavData({
           id: `${widgetName}.data.${childWidgetName}`,
           name: childWidgetName,

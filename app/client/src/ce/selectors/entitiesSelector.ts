@@ -109,17 +109,23 @@ export const getDatasourcesGroupedByPluginCategory = createSelector(
   getPlugins,
   (datasources, plugins): DatasourceGroupByPluginCategory => {
     const groupedPlugins = keyBy(plugins, "id");
+
     return <DatasourceGroupByPluginCategory>groupBy(datasources, (d) => {
       const plugin = groupedPlugins[d.pluginId];
+
       if (
         plugin.type === PluginType.SAAS ||
         plugin.type === PluginType.REMOTE
       ) {
         return PluginCategory.SAAS;
       }
+
       if (plugin.type === PluginType.AI) return PluginCategory.AI;
+
       if (plugin.type === PluginType.DB) return PluginCategory.Databases;
+
       if (plugin.type === PluginType.API) return PluginCategory.APIs;
+
       return PluginCategory.Others;
     });
   },
@@ -165,6 +171,7 @@ export const getShouldShowWidgetName = createSelector(
     const isGitConnected = !!(gitMetaData && gitMetaData?.remoteUrl);
     const currentBranch = gitMetaData?.branchName;
     const { protectedBranches = [] } = state.ui.gitSync;
+
     if (!isGitConnected || !currentBranch) {
       return false;
     } else {
@@ -222,6 +229,7 @@ export const getDatasourceFirstTableName = (
   if (!datasourceId) {
     return "";
   }
+
   const structure = getDatasourceStructureById(state, datasourceId);
 
   if (structure) {
@@ -229,6 +237,7 @@ export const getDatasourceFirstTableName = (
       return structure.tables[0].name;
     }
   }
+
   return "";
 };
 
@@ -267,6 +276,7 @@ export const getPluginIdsOfNames = (
   const pluginIds = plugins.map((plugin) => plugin.id);
 
   if (!pluginIds.length) return undefined;
+
   return pluginIds;
 };
 
@@ -280,6 +290,7 @@ export const getPluginIdsOfPackageNames = (
   const pluginIds = plugins.map((plugin) => plugin.id);
 
   if (!pluginIds.length) return undefined;
+
   return pluginIds;
 };
 
@@ -295,6 +306,7 @@ export const getPluginNameFromDatasourceId = (
   );
 
   if (!plugin) return undefined;
+
   return plugin.name;
 };
 
@@ -310,6 +322,7 @@ export const getPluginPackageFromDatasourceId = (
   );
 
   if (!plugin) return undefined;
+
   return plugin.packageName;
 };
 
@@ -337,6 +350,7 @@ export const getPluginNameFromId = (
   );
 
   if (!plugin) return "";
+
   return plugin.name;
 };
 
@@ -349,6 +363,7 @@ export const getPluginPackageNameFromId = (
   );
 
   if (!plugin) return "";
+
   return plugin.packageName;
 };
 
@@ -361,6 +376,7 @@ export const getPluginDatasourceComponentFromId = (
   );
 
   if (!plugin) return "";
+
   return plugin.datasourceComponent;
 };
 
@@ -376,6 +392,7 @@ export const getPluginTypeFromDatasourceId = (
   );
 
   if (!plugin) return undefined;
+
   return plugin.type;
 };
 
@@ -438,7 +455,9 @@ export const getDatasourceDrafts = (state: AppState) => {
 
 export const getDatasourceDraft = (state: AppState, id: string) => {
   const drafts = state.ui.datasourcePane.drafts;
+
   if (id in drafts) return drafts[id];
+
   return {};
 };
 
@@ -558,9 +577,11 @@ export const getDatasourcePlugins = createSelector(getPlugins, (plugins) => {
 
 export const getPluginImages = createSelector(getPlugins, (plugins) => {
   const pluginImages: Record<string, string> = {};
+
   plugins.forEach((plugin) => {
     pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
   });
+
   return pluginImages;
 });
 
@@ -615,11 +636,13 @@ export const getGenerateCRUDEnabledPluginMap = createSelector(
   getPlugins,
   (plugins) => {
     const pluginIdGenerateCRUDPageEnabled: GenerateCRUDEnabledPluginMap = {};
+
     plugins.map((plugin) => {
       if (plugin.generateCRUDPageComponent) {
         pluginIdGenerateCRUDPageEnabled[plugin.id] = plugin.packageName;
       }
     });
+
     return pluginIdGenerateCRUDPageEnabled;
   },
 );
@@ -640,6 +663,7 @@ export const getCurrentActions = createSelector(
   getActions,
   (pageId, actions): ActionData[] => {
     if (!pageId) return [];
+
     return actions.filter((a) => a.config.pageId === pageId);
   },
 );
@@ -667,6 +691,7 @@ export const getCurrentJSCollections = createSelector(
   getJSCollections,
   (pageId, actions) => {
     if (!pageId) return [];
+
     return actions.filter((a) => a.config.pageId === pageId);
   },
 );
@@ -682,12 +707,14 @@ export const getJSCollectionFromName = createSelector(
   ],
   (jsCollections, JSObjectName) => {
     let currentJSCollection = null;
+
     for (const jsCollection of jsCollections) {
       if (JSObjectName === jsCollection.config.name) {
         currentJSCollection = jsCollection;
         break;
       }
     }
+
     return currentJSCollection;
   },
 );
@@ -702,10 +729,12 @@ export const getJSActionFromName = createSelector(
   ],
   (JSCollectionData, { functionName }) => {
     if (!JSCollectionData) return null;
+
     const jsFunction = find(
       JSCollectionData.config.actions,
       (action) => action.name === functionName,
     );
+
     return jsFunction || null;
   },
 );
@@ -716,12 +745,14 @@ export const getJSActionFromJSCollection = (
 ) => {
   const actions = JSCollection.config.actions;
   let currentAction = null;
+
   for (const jsAction of actions) {
     if (functionName === jsAction.name) {
       currentAction = jsAction;
       break;
     }
   }
+
   return currentAction;
 };
 
@@ -735,6 +766,7 @@ export const getActionResponses = createSelector(getActions, (actions) => {
   actions.forEach((a) => {
     responses[a.config.id] = a.data;
   });
+
   return responses;
 });
 
@@ -743,6 +775,7 @@ export const getAction = (
   actionId: string,
 ): Action | undefined => {
   const action = find(state.entities.actions, (a) => a.config.id === actionId);
+
   return action ? action.config : undefined;
 };
 
@@ -754,6 +787,7 @@ export const getActionByBaseId = (
     state.entities.actions,
     (a) => a.config.baseId === baseActionId,
   );
+
   return action ? action.config : undefined;
 };
 
@@ -762,6 +796,7 @@ export const getActionData = (
   actionId: string,
 ): ActionResponse | undefined => {
   const action = find(state.entities.actions, (a) => a.config.id === actionId);
+
   return action ? action.data : undefined;
 };
 
@@ -770,6 +805,7 @@ export const getJSCollection = (state: AppState, collectionId: string) => {
     state.entities.jsActions,
     (a) => a.config.id === collectionId,
   );
+
   return jsaction && jsaction.config;
 };
 
@@ -781,6 +817,7 @@ export const getJsCollectionByBaseId = (
     state.entities.jsActions,
     (a) => a.config.baseId === baseCollectionId,
   );
+
   return jsaction && jsaction.config;
 };
 
@@ -796,6 +833,7 @@ export const getJSCollectionFromAllEntities = (
     state.entities.jsActions,
     (a) => a.config.id === actionId,
   );
+
   return jsaction && jsaction.config;
 };
 
@@ -807,6 +845,7 @@ export function getCurrentPageNameByActionId(
     return action.config.id === actionId;
   });
   const pageId = action ? action.config.pageId : "";
+
   return getPageNameByPageId(state, pageId);
 }
 
@@ -818,6 +857,7 @@ export function getCurrentPageNameByJSCollectionId(
     return action.config.id === actionId;
   });
   const pageId = action ? action.config.pageId : "";
+
   return getPageNameByPageId(state, pageId);
 }
 
@@ -825,10 +865,12 @@ export function getPageNameByPageId(state: AppState, pageId: string): string {
   const page = state.entities.pageList.pages.find(
     (page) => page.pageId === pageId,
   );
+
   return page ? page.pageName : "";
 }
 
 const getQueryPaneSavingMap = (state: AppState) => state.ui.queryPane.isSaving;
+
 export const getApiPaneSavingMap = (state: AppState) =>
   state.ui.apiPane.isSaving;
 const getActionDirtyState = (state: AppState) => state.ui.apiPane.isDirty;
@@ -878,14 +920,17 @@ export const getParentModalId = (
   let parentModalId;
   let { parentId } = widget;
   let parentWidget = pageWidgets[parentId];
+
   while (parentId && parentId !== MAIN_CONTAINER_WIDGET_ID) {
     if (parentWidget?.type === "MODAL_WIDGET") {
       parentModalId = parentId;
       break;
     }
+
     parentId = parentWidget?.parentId;
     parentWidget = pageWidgets[parentId];
   }
+
   return parentModalId;
 };
 
@@ -946,6 +991,7 @@ export const getAllPageWidgets = createSelector(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return Object.entries(widgetsMap).reduce((res: any[], [, widget]: any) => {
       res.push(widget);
+
       return res;
     }, []);
   },
@@ -1003,6 +1049,7 @@ export const getExistingActionNames = createSelector(
           if (actionItem.config.pageId === currentPageId) {
             return actionItem.config.name;
           }
+
           return undefined;
         },
       );
@@ -1013,6 +1060,7 @@ export const getExistingActionNames = createSelector(
           if (actionItem.config.pageId !== currentPageId) {
             return actionItem.config.name;
           }
+
           return undefined;
         },
       );
@@ -1033,6 +1081,7 @@ export const getAppMode = (state: AppState) => state.entities.app.mode;
 
 export const widgetsMapWithParentModalId = (state: AppState) => {
   const appMode = getAppMode(state);
+
   return appMode === APP_MODE.EDIT
     ? getAllWidgetsMap(state)
     : getCanvasWidgetsWithParentId(state);
@@ -1055,6 +1104,7 @@ export const selectDatasourceIdToNameMap = createSelector(
     return datasources.reduce(
       (acc, datasource) => {
         acc[datasource.id] = datasource.name;
+
         return acc;
       },
       {} as Record<string, string>,
@@ -1100,6 +1150,7 @@ export const selectFilesForExplorer = createSelector(
       ...workflowJsActions,
     ].reduce((acc, file) => {
       let group;
+
       if (file.config.pluginType === PluginType.JS) {
         group = GROUP_TYPES.JS_ACTIONS;
       } else if (file.config.pluginType === PluginType.API) {
@@ -1116,11 +1167,13 @@ export const selectFilesForExplorer = createSelector(
       } else {
         group = datasourceIdToNameMap[file.config.datasource.id];
       }
+
       acc = acc.concat({
         type: file.config.pluginType,
         entity: file,
         group,
       });
+
       return acc;
     }, [] as Array<ExplorerFileEntity>);
 
@@ -1139,6 +1192,7 @@ export const selectFilesForExplorer = createSelector(
           });
           acc.group = file.group;
         }
+
         acc.files = acc.files.concat({
           ...file,
           entity: {
@@ -1147,6 +1201,7 @@ export const selectFilesForExplorer = createSelector(
             isMainJSCollection: file.entity?.config?.isMainJSCollection,
           },
         });
+
         return acc;
       },
       {
@@ -1158,6 +1213,7 @@ export const selectFilesForExplorer = createSelector(
         files: [] as any,
       },
     );
+
     return groupedFiles.files;
   },
 );
@@ -1166,6 +1222,7 @@ export const selectFilesForExplorer = createSelector(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getActionValidationConfig = (state: AppState, action: any) => {
   const pluginId = action.pluginId;
+
   return getActionValidationConfigFromPlugin(
     state.entities.plugins.editorConfigs[pluginId],
     {},
@@ -1177,15 +1234,18 @@ export const getAllActionValidationConfig = (state: AppState) => {
   const allValidationConfigs: {
     [actionId: string]: ActionValidationConfigMap;
   } = {};
+
   for (const action of allActions) {
     const pluginId = action.config.pluginId;
     let validationConfigs: ActionValidationConfigMap = {};
+
     validationConfigs = getActionValidationConfigFromPlugin(
       state.entities.plugins.editorConfigs[pluginId],
       {},
     );
     allValidationConfigs[action.config.id] = validationConfigs;
   }
+
   return allValidationConfigs;
 };
 
@@ -1198,10 +1258,13 @@ function getActionValidationConfigFromPlugin(
   let newValidationConfig: ActionValidationConfigMap = {
     ...validationConfig,
   };
+
   if (!editorConfigs || !editorConfigs.length) return {};
+
   for (const editorConfig of editorConfigs) {
     if (editorConfig.validationConfig) {
       const configProperty = editorConfig.configProperty;
+
       newValidationConfig[configProperty] = editorConfig.validationConfig;
     }
 
@@ -1210,14 +1273,17 @@ function getActionValidationConfigFromPlugin(
         editorConfig.children,
         validationConfig,
       );
+
       newValidationConfig = Object.assign(
         newValidationConfig,
         childrenValidationConfig,
       );
     }
   }
+
   return newValidationConfig;
 }
+
 export const getJSActions = (
   state: AppState,
   JSCollectionId: string,
@@ -1238,6 +1304,7 @@ export const getActiveJSActionId = (
   const jsCollection = state.entities.jsActions.find(
     (jsCollectionData) => jsCollectionData.config.id === jsCollectionId,
   );
+
   return jsCollection?.activeJSActionId ?? null;
 };
 
@@ -1249,9 +1316,11 @@ export const getIsExecutingJSAction = (
   const jsCollection = state.entities.jsActions.find(
     (jsCollectionData) => jsCollectionData.config.id === jsCollectionId,
   );
+
   if (jsCollection?.isExecuting && jsCollection.isExecuting[actionId]) {
     return jsCollection.isExecuting[actionId];
   }
+
   return false;
 };
 
@@ -1265,6 +1334,7 @@ export const getJSCollectionParseErrors = (
     `${jsCollectionName}.${EVAL_ERROR_PATH}.body`,
     [],
   ) as EvaluationError[];
+
   return allErrors.filter((error) => {
     return error.errorType === PropertyEvaluationErrorType.PARSE;
   });
@@ -1317,6 +1387,7 @@ export const selectLibrariesForExplorer = createSelector(
         const recommendedLibrary = recommendedLibraries.find(
           (lib) => lib.url === url,
         );
+
         return {
           name: recommendedLibrary?.name || url,
           docsURL: recommendedLibrary?.url || url,
@@ -1325,6 +1396,7 @@ export const selectLibrariesForExplorer = createSelector(
           accessor: [],
         } as JSLibrary;
       });
+
     return [...queuedInstalls, ...libs];
   },
 );
@@ -1332,12 +1404,14 @@ export const selectLibrariesForExplorer = createSelector(
 export const getAllJSActionsData = (state: AppState) => {
   const jsActionsData: Record<string, unknown> = {};
   const jsCollections = state.entities.jsActions;
+
   jsCollections.forEach((collection) => {
     if (collection.data) {
       Object.keys(collection.data).forEach((actionId) => {
         const jsAction = getJSActions(state, collection.config.id).find(
           (action) => action.id === actionId,
         );
+
         if (jsAction) {
           jsActionsData[`${collection.config.name}.${jsAction.name}`] =
             collection.data?.[actionId];
@@ -1345,6 +1419,7 @@ export const getAllJSActionsData = (state: AppState) => {
       });
     }
   });
+
   return jsActionsData;
 };
 
@@ -1370,15 +1445,22 @@ export const getAllDatasourceTableKeys = createSelector(
     dataTreePath: string | undefined,
   ) => {
     if (!dataTreePath || !datasourceStructures) return;
+
     const { entityName } = getEntityNameAndPropertyPath(dataTreePath);
     const action = find(actions, ({ config: { name } }) => name === entityName);
+
     if (!action) return;
+
     const datasource = action.config.datasource;
     const datasourceId = "id" in datasource ? datasource.id : undefined;
+
     if (!datasourceId || !(datasourceId in datasourceStructures)) return;
+
     const tables: Record<string, string> = {};
     const { tables: datasourceTable } = datasourceStructures[datasourceId];
+
     if (!datasourceTable) return;
+
     datasourceTable.forEach((table) => {
       if (table?.name) {
         tables[table.name] = "table";
@@ -1404,9 +1486,11 @@ export const getDatasourceScopeValue = (
   const datasource = getDatasource(state, datasourceId);
   const pluginId = get(datasource, "pluginId", "");
   const formConfig = formConfigs[pluginId];
+
   if (!formConfig || (!!formConfig && formConfig.length === 0)) {
     return null;
   }
+
   const configProperty = "datasourceConfiguration.authentication.scopeString";
   const scopeValue = get(formData, configProperty);
   const options = formConfig[0]?.children?.find(
@@ -1419,6 +1503,7 @@ export const getDatasourceScopeValue = (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (option: any) => option.value === scopeValue,
   )?.label;
+
   return label;
 };
 
@@ -1435,10 +1520,12 @@ export const getDatasourcesUsedInApplicationByActions = (
       ) {
         acc.add(action.config.datasource.id);
       }
+
       return acc;
     },
     new Set(),
   );
+
   return datasources.filter(
     (ds) =>
       datasourceIdsUsedInCurrentApplication.has(ds.id) &&
@@ -1457,10 +1544,12 @@ const getOtherDatasourcesInWorkspace = (state: AppState): Datasource[] => {
       ) {
         acc.add(action.config.datasource.id);
       }
+
       return acc;
     },
     new Set(),
   );
+
   return allDatasources.filter(
     (ds) =>
       !datasourceIdsUsedInCurrentApplication.has(ds.id) &&
@@ -1473,7 +1562,9 @@ export const getEntityExplorerDatasources = (state: AppState): Datasource[] => {
   const datasourcesUsedInApplication =
     getDatasourcesUsedInApplicationByActions(state);
   const otherDatasourceInWorkspace = getOtherDatasourcesInWorkspace(state);
+
   otherDatasourceInWorkspace.reverse();
+
   return otherDatasourceInWorkspace.slice(
     0,
     MAX_DATASOURCE_SUGGESTIONS - datasourcesUsedInApplication.length,
@@ -1562,6 +1653,7 @@ export const getQuerySegmentItems = createSelector(
       const iconUrl = getAssetUrl(
         pluginGroups[action.config.pluginId]?.iconLocation,
       );
+
       if (action.config.pluginType === PluginType.API) {
         group = isEmbeddedRestDatasource(action.config.datasource)
           ? "APIs"
@@ -1573,6 +1665,7 @@ export const getQuerySegmentItems = createSelector(
       } else {
         group = datasourceIdToNameMap[action.config.datasource.id];
       }
+
       return {
         icon: ActionUrlIcon(iconUrl),
         title: action.config.name,
@@ -1581,6 +1674,7 @@ export const getQuerySegmentItems = createSelector(
         group,
       };
     });
+
     return items;
   },
 );
@@ -1593,6 +1687,7 @@ export const getJSSegmentItems = createSelector(
       key: js.config.baseId,
       type: PluginType.JS,
     }));
+
     return items;
   },
 );

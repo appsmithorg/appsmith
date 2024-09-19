@@ -17,6 +17,7 @@ function Box({ children, className, ...rest }: BoxProps) {
       [key]: newValue,
     };
   }, {} as BoxProps);
+
   return (
     <StyledBox className={clsx(BoxClassName, className)} {...transformedRest}>
       {children}

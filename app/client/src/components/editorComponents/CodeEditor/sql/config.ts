@@ -95,6 +95,7 @@ export function getSqlEditorModeFromPluginName(name: string) {
 
 export function getSqlMimeFromMode(mode: TEditorSqlModes) {
   const modeConfig = find(sqlModesConfig, { mode });
+
   return modeConfig?.mime ?? "text/x-sql";
 }
 

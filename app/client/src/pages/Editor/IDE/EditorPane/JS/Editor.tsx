@@ -6,6 +6,7 @@ import { SentryRoute } from "ee/AppRouter";
 const JSEditorPane = () => {
   const { path } = useRouteMatch();
   const routes = useJSEditorRoutes(path);
+
   return (
     <Switch>
       {routes.map((route) => (

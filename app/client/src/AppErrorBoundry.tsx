@@ -58,6 +58,7 @@ class AppErrorBoundary extends Component {
         </Wrapper>
       );
     }
+
     return this.props.children;
   }
 }

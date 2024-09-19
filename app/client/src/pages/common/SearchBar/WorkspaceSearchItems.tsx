@@ -23,7 +23,9 @@ interface Props {
 const WorkspaceSearchItems = (props: Props) => {
   const { setIsDropdownOpen, workspacesList } = props;
   const history = useHistory();
+
   if (!workspacesList || workspacesList?.length === 0) return null;
+
   return (
     <div className="mb-2">
       <Text className="!mb-2 !block" kind="body-s">

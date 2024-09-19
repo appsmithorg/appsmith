@@ -31,6 +31,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
       /(?:https:\/\/|www)?([\da-z.-]+)\.([a-z.]{2,6})[/\w .-]*\/?/;
     const base64Regex =
       /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
+
     if (
       urlRegex.test(value as string) &&
       !whiteSpaceRegex.test(value as string)
@@ -41,8 +42,10 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
           parsed: "https://" + value,
         };
       }
+
       try {
         const newUrl = new URL(value as string);
+
         // URL is valid
         return {
           isValid: true,
@@ -80,6 +83,7 @@ export function documentUrlValidation(value: unknown): ValidationResponse {
       };
     }
   }
+
   // value is empty here
   return {
     isValid: true,

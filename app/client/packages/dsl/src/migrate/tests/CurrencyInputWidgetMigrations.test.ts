@@ -3004,6 +3004,7 @@ describe("CurrencyInputWidgetMigrations - ", () => {
       const migratedDsl = migrateInputWidgetShowStepArrows(
         oldDSLWithoutShowStepArrows as unknown as DSLWidget,
       );
+
       expect(migratedDsl).toEqual(expectedDSLWithShowStepArrows);
     });
   });

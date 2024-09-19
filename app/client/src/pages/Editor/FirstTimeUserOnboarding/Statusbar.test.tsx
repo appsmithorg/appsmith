@@ -16,6 +16,7 @@ let container: any = null;
 
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
+
   return {
     ...originalModule,
     useDispatch: () => dispatch,
@@ -26,6 +27,7 @@ jest.mock("../../../selectors/onboardingSelectors", () => {
   const originalModule = jest.requireActual(
     "../../../selectors/onboardingSelectors",
   );
+
   return {
     ...originalModule,
     isWidgetActionConnectionPresent: jest.fn(),
@@ -109,6 +111,7 @@ describe("Statusbar", () => {
       onboardingSelectors,
       "isWidgetActionConnectionPresent",
     );
+
     isWidgetActionConnectionPresentSelector.mockImplementation(() => {
       return true;
     });
@@ -144,6 +147,7 @@ describe("Statusbar", () => {
         store.evaluations.dependencies.inverseDependencyMap,
       );
     };
+
     //Both property and trigger dependency present
     expect(isWidgetActionConnectionPresentHelper()).toBe(true);
     //only trigger dependency present

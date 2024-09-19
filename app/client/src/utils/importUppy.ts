@@ -23,6 +23,7 @@ export async function importUppy() {
         (m) => m.default,
       ),
     ]);
+
   isUppyLoaded = true;
 
   return {

@@ -49,12 +49,14 @@ export const useCanvasWidthAutoResize = ({
         containerWidth:
           ref.current.offsetWidth - sidebarWidth - scrollbarWidth(),
       });
+
       dispatch(updateCanvasLayoutAction(resolvedCanvasWidth));
     }
   }, [appLayoutType, dispatch, isCanvasInitialized, ref, sidebarWidth]);
 
   useEffect(() => {
     const canvasContainerElement = ref.current;
+
     if (canvasContainerElement) {
       const debouncedResize = debounce(
         ([
@@ -82,6 +84,7 @@ export const useCanvasWidthAutoResize = ({
       );
 
       const resizeObserver = new ResizeObserver(debouncedResize);
+
       resizeObserver.observe(canvasContainerElement);
 
       return () => {

@@ -67,6 +67,7 @@ export function* executeActionTriggers(
 ): any {
   // when called via a promise, a trigger can return some value to be used in .then
   let response: unknown[] = [];
+
   switch (trigger.type) {
     case "RUN_PLUGIN_ACTION":
       response = yield call(executePluginActionTriggerSaga, trigger, eventType);
@@ -76,6 +77,7 @@ export function* executeActionTriggers(
       const action: ReturnType<typeof getAction> = yield select(
         (state: AppState) => getAction(state, trigger.payload.actionId),
       );
+
       if (action) {
         yield put(
           updateActionData([
@@ -87,6 +89,7 @@ export function* executeActionTriggers(
           ]),
         );
       }
+
       break;
     case "NAVIGATE_TO":
       yield call(navigateActionSaga, trigger);
@@ -130,6 +133,7 @@ export function* executeActionTriggers(
       log.error("Trigger type unknown", trigger);
       throw Error("Trigger type unknown");
   }
+
   return response;
 }
 
@@ -147,6 +151,7 @@ export function* executeAppAction(payload: ExecuteTriggerPayload): any {
   } = payload;
 
   log.debug({ dynamicString, callbackData, globalContext });
+
   if (dynamicString === undefined) {
     throw new Error("Executing undefined action");
   }
@@ -170,6 +175,7 @@ function* initiateActionTriggerExecution(
   action: ReduxAction<ExecuteTriggerPayload>,
 ) {
   const { event, source, triggerPropertyName } = action.payload;
+
   // Clear all error for this action trigger. In case the error still exists,
   // it will be created again while execution
   AppsmithConsole.deleteErrors([
@@ -177,6 +183,7 @@ function* initiateActionTriggerExecution(
   ]);
   try {
     yield call(executeAppAction, action.payload);
+
     if (event.callback) {
       event.callback({ success: true });
     }
@@ -184,6 +191,7 @@ function* initiateActionTriggerExecution(
     if (event.callback) {
       event.callback({ success: false });
     }
+
     log.error(e);
   }
 }

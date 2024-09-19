@@ -354,12 +354,14 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
               propertyValue: string,
             ) => {
               const propertiesToUpdate = [{ propertyPath, propertyValue }];
+
               if (!props.iconAlign) {
                 propertiesToUpdate.push({
                   propertyPath: "iconAlign",
                   propertyValue: Alignment.LEFT,
                 });
               }
+
               return propertiesToUpdate;
             },
             dependencies: ["iconAlign"],
@@ -518,6 +520,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
 
   hasOnClickAction = () => {
     const { isDisabled, onClick, onReset, resetFormOnClick } = this.props;
+
     return Boolean((onClick || onReset || resetFormOnClick) && !isDisabled);
   };
 
@@ -542,6 +545,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     this.setState({
       isLoading: false,
     });
+
     if (result.success) {
       if (this.props.resetFormOnClick && this.props.onReset)
         this.props.onReset();
@@ -577,6 +581,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       "isFormValid" in this.props &&
       !this.props.isFormValid;
     const isDisabled = this.props.isDisabled || disabled;
+
     return (
       <ButtonComponent
         borderRadius={this.props.borderRadius}

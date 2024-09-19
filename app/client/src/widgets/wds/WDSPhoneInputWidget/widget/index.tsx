@@ -239,6 +239,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         type: EventType.ON_TEXT_CHANGE,
       },
     });
+
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -254,6 +255,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         },
       });
     }
+
     if (!focusState) {
       this.props.updateWidgetMetaProperty("isFocused", focusState, {
         triggerPropertyName: "onBlur",
@@ -263,6 +265,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         },
       });
     }
+
     super.onFocusChange(focusState);
   };
 

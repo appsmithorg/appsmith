@@ -13,6 +13,7 @@ const renderComponent = (
   },
 ) => {
   const setting = componentProps.setting;
+
   return (
     <FormGroup
       className={`tag-input t--admin-settings-tag-input t--admin-settings-${

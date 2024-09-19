@@ -1,6 +1,7 @@
 import type { OffsetType, PositionType } from "./walkthroughContext";
 
 const DEFAULT_POSITION: PositionType = "top";
+
 export const PADDING_HIGHLIGHT = 10;
 
 interface PositionCalculator {
@@ -11,8 +12,11 @@ interface PositionCalculator {
 export function getPosition({ offset, targetId }: PositionCalculator) {
   const target = document.querySelector(targetId);
   const bodyCoordinates = document.body.getBoundingClientRect();
+
   if (!target) return null;
+
   let coordinates;
+
   if (target) {
     coordinates = target.getBoundingClientRect();
   }

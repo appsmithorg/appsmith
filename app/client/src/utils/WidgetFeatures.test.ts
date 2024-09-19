@@ -36,6 +36,7 @@ describe("Widget Features tests", () => {
         ...DUMMY_WIDGET,
         dynamicHeight,
       });
+
       expect(result).toBe(true);
     });
   });
@@ -47,6 +48,7 @@ describe("Widget Features tests", () => {
         ...DUMMY_WIDGET,
         dynamicHeight,
       });
+
       expect(result).toBe(true);
     });
   });
@@ -61,6 +63,7 @@ describe("Widget Features tests", () => {
         ...DUMMY_WIDGET,
         dynamicHeight,
       });
+
       expect(result).toBe(false);
     });
   });

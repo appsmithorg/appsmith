@@ -12,6 +12,7 @@ jest.mock("../../hooks/gitPermissionHooks", () => ({
 describe("GitSettings TabGeneral test for git admin disabled", () => {
   it("disconnect disabled when no permission", () => {
     const initialState: Partial<AppState> = {};
+
     render(<TabGeneral />, { initialState });
     expect(screen.queryByTestId("t--git-disconnect-btn")).toBe(null);
   });
