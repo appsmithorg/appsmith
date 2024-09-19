@@ -13346,6 +13346,7 @@ __metadata:
     eslint: ^8.51.0
     eslint-config-prettier: ^9.0.0
     eslint-import-resolver-babel-module: ^5.3.2
+    eslint-linter-browserify: ^9.10.0
     eslint-plugin-cypress: ^2.15.1
     eslint-plugin-import: ^2.28.1
     eslint-plugin-jest: ^27.4.2
@@ -18777,6 +18778,13 @@ __metadata:
     is-core-module: ^2.13.0
     resolve: ^1.22.4
   checksum: 439b91271236b452d478d0522a44482e8c8540bf9df9bd744062ebb89ab45727a3acd03366a6ba2bdbcde8f9f718bab7fe8db64688aca75acf37e04eafd25e22
+  languageName: node
+  linkType: hard
+
+"eslint-linter-browserify@npm:^9.10.0":
+  version: 9.10.0
+  resolution: "eslint-linter-browserify@npm:9.10.0"
+  checksum: fcaa6899a35e95b49c16a0c6ba6506a22fb89ec1e5f3cc61b6b1330f9291de243fb2fe0e52b893f8b344dbe515f8d67361e901b936ec1ae647b0725e30dcc783
   languageName: node
   linkType: hard
 

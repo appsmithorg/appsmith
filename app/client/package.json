@@ -125,6 +125,7 @@
     "deep-diff": "^1.0.2",
     "downloadjs": "^1.4.7",
     "echarts": "^5.4.2",
+    "eslint-linter-browserify": "^9.10.0",
     "fast-deep-equal": "^3.1.3",
     "fast-sort": "^3.4.0",
     "fastdom": "^1.0.11",
