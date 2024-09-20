@@ -7,7 +7,7 @@ let childBranchKey = "ChildBranch";
 let mainBranch = "master";
 describe(
   "Git sync modal: merge tab",
-  { tags: ["@tag.Git", "@tag.Git"] },
+  { tags: ["@tag.Git", "@tag.Git", "@tag.Sanity"] },
   function () {
     before(() => {
       _.homePage.NavigateToHome();

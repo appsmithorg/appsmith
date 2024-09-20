@@ -3,7 +3,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Sanitise toast error messages", () => {
+describe("Sanitise toast error messages", { tags: ["@tag.JS"] }, () => {
   before(() => {
     _.jsEditor.CreateJSObject(
       `export default {

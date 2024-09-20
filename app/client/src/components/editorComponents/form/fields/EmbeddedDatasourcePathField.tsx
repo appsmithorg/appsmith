@@ -26,7 +26,6 @@ import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHe
 import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
 import { DATASOURCE_URL_EXACT_MATCH_REGEX } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
-import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 
@@ -60,6 +59,7 @@ import {
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { isGACEnabled } from "ee/utils/planHelpers";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { getDatasourceInfo } from "PluginActionEditor/components/PluginActionForm/utils/getDatasourceInfo";
 
 interface ReduxStateProps {
   workspaceId: string;

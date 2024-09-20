@@ -7,7 +7,13 @@ import type {
 import { SpanKind } from "@opentelemetry/api";
 import { context } from "@opentelemetry/api";
 import { trace } from "@opentelemetry/api";
-import { deviceType, browserName, browserVersion } from "react-device-detect";
+import {
+  deviceType,
+  browserName,
+  browserVersion,
+  osName,
+  osVersion,
+} from "react-device-detect";
 import { APP_MODE } from "entities/App";
 import { matchBuilderPath, matchViewerPath } from "constants/routes";
 import nanoid from "nanoid";
@@ -33,7 +39,7 @@ const getAppMode = memoizeOne((pathname: string) => {
   return appMode;
 });
 
-const getCommonTelemetryAttributes = () => {
+export const getCommonTelemetryAttributes = () => {
   const pathname = window.location.pathname;
   const appMode = getAppMode(pathname);
 
@@ -44,6 +50,8 @@ const getCommonTelemetryAttributes = () => {
     browserVersion,
     otlpSessionId: OTLP_SESSION_ID,
     hostname: window.location.hostname,
+    osName,
+    osVersion,
   };
 };
 

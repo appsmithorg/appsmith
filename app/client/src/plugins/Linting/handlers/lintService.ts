@@ -9,6 +9,7 @@ import { PathUtils } from "plugins/Linting/utils/pathUtils";
 import { extractReferencesFromPath } from "ee/plugins/Linting/utils/getEntityDependencies";
 import { groupDifferencesByType } from "plugins/Linting/utils/groupDifferencesByType";
 import type {
+  LintRequest,
   LintTreeRequestPayload,
   LintTreeResponse,
 } from "plugins/Linting/types";
@@ -39,7 +40,8 @@ class LintService {
     }
   }
 
-  lintTree = (payload: LintTreeRequestPayload) => {
+  lintTree = (lintRequest: LintRequest<LintTreeRequestPayload>) => {
+    const { data: payload, webworkerTelemetry } = lintRequest;
     const {
       cloudHosting,
       configTree,
@@ -78,6 +80,7 @@ class LintService {
       errors: {},
       lintedJSPaths: [],
       jsPropertiesState,
+      webworkerTelemetry,
     };
 
     try {
@@ -87,12 +90,13 @@ class LintService {
         jsPropertiesState,
         cloudHosting,
         asyncJSFunctionsInDataFields,
-
+        webworkerTelemetry,
         configTree,
       });
 
       lintTreeResponse.errors = lintErrors;
       lintTreeResponse.lintedJSPaths = lintedJSPaths;
+      lintTreeResponse.webworkerTelemetry = webworkerTelemetry;
     } catch (e) {}
 
     return lintTreeResponse;

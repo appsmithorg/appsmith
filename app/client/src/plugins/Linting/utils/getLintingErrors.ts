@@ -36,8 +36,8 @@ import setters from "workers/Evaluation/setters";
 import { isMemberExpressionNode } from "@shared/ast/src";
 import { generate } from "astring";
 import getInvalidModuleInputsError from "ee/plugins/Linting/utils/getInvalidModuleInputsError";
-import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 import { objectKeys } from "@appsmith/utils";
+import { profileFn } from "UITelemetry/generateWebWorkerTraces";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -192,12 +192,13 @@ export default function getLintingErrors({
   originalBinding,
   script,
   scriptType,
+  webworkerTelemetry,
 }: getLintingErrorsProps): LintError[] {
   const scriptPos = getEvaluationScriptPosition(scriptType);
   const lintingGlobalData = generateLintingGlobalData(data);
   const lintingOptions = lintOptions(lintingGlobalData);
 
-  startAndEndSpanForFn(
+  profileFn(
     "Linter",
     // adding some metrics to compare the performance changes with eslint
     {
@@ -205,6 +206,7 @@ export default function getLintingErrors({
       linesOfCodeLinted: originalBinding.split("\n").length,
       codeSizeInChars: originalBinding.length,
     },
+    webworkerTelemetry,
     () => jshint(script, lintingOptions),
   );
   const sanitizedJSHintErrors = sanitizeJSHintErrors(jshint.errors, scriptPos);
