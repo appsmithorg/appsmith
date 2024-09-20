@@ -51,10 +51,10 @@ export class PageLoadInstrumentation extends InstrumentationBase {
 
   enable(): void {
     // Register connection change listener
-    this.addConnectionAttributes();
+    this.addConnectionAttributes.call(this);
 
     // Add device attributes to the root span
-    this.addDeviceAttributes();
+    this.addDeviceAttributes.call(this);
 
     // Listen for LCP and FCP events
     // reportAllChanges: true will report all LCP and FCP events
