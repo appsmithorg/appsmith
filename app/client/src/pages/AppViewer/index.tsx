@@ -163,7 +163,9 @@ function AppViewer(props: Props) {
 
         if (pageId) {
           // Used for fetching page resources
-          dispatch(fetchPublishedPageResourcesAction(basePageId));
+          dispatch(
+            fetchPublishedPageResourcesAction(basePageId, baseApplicationId),
+          );
         }
       }
     }

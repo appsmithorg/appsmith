@@ -73,6 +73,7 @@ export interface FetchPublishedPageActionPayload {
 
 export interface FetchPublishedPageResourcesPayload {
   pageId: string;
+  applicationId: string;
 }
 
 export const fetchPublishedPageAction = (
@@ -298,10 +299,12 @@ export const clonePageSuccess = ({
 // In future we can reuse this for fetching other page level resources in published mode
 export const fetchPublishedPageResourcesAction = (
   pageId: string,
+  applicationId: string,
 ): ReduxAction<FetchPublishedPageResourcesPayload> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_INIT,
   payload: {
     pageId,
+    applicationId,
   },
 });
 
