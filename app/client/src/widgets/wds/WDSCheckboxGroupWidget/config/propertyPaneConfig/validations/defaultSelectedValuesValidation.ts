@@ -8,11 +8,13 @@ export function defaultSelectedValuesValidation(
   if (typeof value === "string") {
     try {
       values = JSON.parse(value);
+
       if (!Array.isArray(values)) {
         throw new Error();
       }
     } catch {
       values = value.length ? value.split(",") : [];
+
       if (values.length > 0) {
         values = values.map((_v: string) => _v.trim());
       }

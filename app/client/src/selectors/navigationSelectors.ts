@@ -90,6 +90,7 @@ export const getEntitiesForNavigation = createSelector(
     // data tree retriggers this
     jsActions = jsActions.filter((a) => a.config.pageId === pageId);
     const navigationData: EntityNavigationData = {};
+
     if (!dataTree) return navigationData;
 
     actions.forEach((action) => {
@@ -101,7 +102,9 @@ export const getEntitiesForNavigation = createSelector(
         (datasource) => datasource.id === datasourceId,
       );
       const config = getActionConfig(action.config.pluginType);
+
       if (!config) return;
+
       navigationData[action.config.name] = createNavData({
         id: action.config.id,
         name: action.config.name,
@@ -126,6 +129,7 @@ export const getEntitiesForNavigation = createSelector(
     jsActions.forEach((jsAction) => {
       // dataTree for null check
       const result = getJsChildrenNavData(jsAction, basePageId, dataTree);
+
       navigationData[jsAction.config.name] = createNavData({
         id: jsAction.config.id,
         name: jsAction.config.name,
@@ -146,6 +150,7 @@ export const getEntitiesForNavigation = createSelector(
         dataTree,
         basePageId,
       );
+
       navigationData[widget.widgetName] = createNavData({
         id: widget.widgetId,
         name: widget.widgetName,
@@ -156,6 +161,7 @@ export const getEntitiesForNavigation = createSelector(
       });
     });
     let moduleInstanceNavigationData: EntityNavigationData = {};
+
     if (!!modulesData.moduleInstances) {
       moduleInstanceNavigationData = getModuleInstanceNavigationData(
         modulesData.moduleInstances,
@@ -174,6 +180,7 @@ export const getEntitiesForNavigation = createSelector(
         this: navigationData[entityName],
       };
     }
+
     return {
       ...navigationData,
       ...moduleInstanceNavigationData,
@@ -188,12 +195,16 @@ export const getPathNavigationUrl = createSelector(
   ],
   (entitiesForNavigation, fullPath) => {
     if (!fullPath) return undefined;
+
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
     const navigationData = entitiesForNavigation[entityName];
+
     if (!navigationData) return undefined;
+
     switch (navigationData.type) {
       case JSACTION_TYPE: {
         const jsPropertyNavigationData = navigationData.children[propertyPath];
+
         return jsPropertyNavigationData.url;
       }
       case ACTION_TYPE: {

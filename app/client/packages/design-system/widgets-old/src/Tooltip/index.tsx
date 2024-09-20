@@ -67,6 +67,7 @@ const TooltipWrapper = styled(Tooltip)<
 
 if (!portalContainer) {
   const tooltipPortalElement = document.createElement("div");
+
   tooltipPortalElement.id = rootElementId;
   document.body.append(tooltipPortalElement);
   portalContainer = document.getElementById(rootElementId);

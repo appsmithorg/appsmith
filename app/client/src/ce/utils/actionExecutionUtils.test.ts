@@ -6,6 +6,7 @@ import configureStore from "redux-mock-store";
 describe("getTestPayloadFromCollectionData", () => {
   beforeAll(() => {
     const store = configureStore()({});
+
     jest.spyOn(store, "getState").mockReturnValue({});
   });
 
@@ -30,6 +31,7 @@ describe("getTestPayloadFromCollectionData", () => {
       activeJSActionId: "123",
       data: {},
     };
+
     expect(getTestPayloadFromCollectionData(collectionData)).toBe("");
   });
 
@@ -54,6 +56,7 @@ describe("getTestPayloadFromCollectionData", () => {
         },
       },
     };
+
     expect(getTestPayloadFromCollectionData(collectionData)).toBe(
       "test payload",
     );

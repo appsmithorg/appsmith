@@ -134,6 +134,7 @@ const TableColumnEmptyWrapper = styled.div`
     margin-top: 23px;
   }
 `;
+
 export interface TableProps {
   data: any[];
   columns: any[];
@@ -198,6 +199,7 @@ function Table(props: TableProps) {
           ) : rows.length > 0 ? (
             rows.map((row, index) => {
               prepareRow(row);
+
               return (
                 <tr {...row.getRowProps()} key={index}>
                   {row.cells.map((cell, index) => {

@@ -49,15 +49,18 @@ class TernDefinitionError extends Error {
 
 const removeDataTreeFromContext = () => {
   if (!dataTreeEvaluator) return {};
+
   const evalTree = dataTreeEvaluator?.getEvalTree();
   const dataTreeEntityNames = Object.keys(evalTree);
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tempDataTreeStore: Record<string, any> = {};
+
   for (const entityName of dataTreeEntityNames) {
     tempDataTreeStore[entityName] = self[entityName];
     delete self[entityName];
   }
+
   return tempDataTreeStore;
 };
 
@@ -67,6 +70,7 @@ function addTempStoredDataTreeToContext(
   tempDataTreeStore: Record<string, any>,
 ) {
   const dataTreeEntityNames = Object.keys(tempDataTreeStore);
+
   for (const entityName of dataTreeEntityNames) {
     self[entityName] = tempDataTreeStore[entityName];
   }
@@ -93,6 +97,7 @@ export async function installLibrary(
   const libStore = takenAccessors.reduce(
     (acc: Record<string, unknown>, a: string) => {
       acc[a] = self[a];
+
       return acc;
     },
     {},
@@ -111,6 +116,7 @@ export async function installLibrary(
     const accessors: string[] = [];
 
     let module = null;
+
     try {
       /**
        * Try to import the library using importScripts
@@ -121,6 +127,7 @@ export async function installLibrary(
 
       // Find keys add that were installed to the global scope.
       const keysAfterInstallation = Object.keys(self);
+
       accessors.push(
         ...difference(keysAfterInstallation, envKeysBeforeInstallation),
       );
@@ -161,6 +168,7 @@ export async function installLibrary(
             takenAccessors,
             takenNamesMap,
           );
+
           self[uniqueName] = self[accessors[i]];
           accessors[i] = uniqueName;
         }
@@ -178,6 +186,7 @@ export async function installLibrary(
             takenAccessors,
             takenNamesMap,
           );
+
           self[uniqAccessor] = flattenModule(module);
           accessors.push(uniqAccessor);
         }
@@ -204,6 +213,7 @@ export async function installLibrary(
       for (const acc of accessors) {
         self[acc] = undefined;
       }
+
       log.debug(e, `ternDefinitions failed for ${url}`);
       throw new TernDefinitionError(
         `Failed to generate autocomplete definitions: ${name}`,
@@ -225,6 +235,7 @@ export async function installLibrary(
   } catch (error) {
     addTempStoredDataTreeToContext(tempDataTreeStore);
     takenAccessors.forEach((k) => (self[k] = libStore[k]));
+
     return { success: false, defs, error };
   }
 }
@@ -234,6 +245,7 @@ export function uninstallLibrary(
 ) {
   const { data } = request;
   const accessor = data;
+
   try {
     for (const key of accessor) {
       self[key] = undefined;
@@ -241,6 +253,7 @@ export function uninstallLibrary(
       delete libraryReservedIdentifiers[key];
       delete invalidEntityIdentifiers[key];
     }
+
     return { success: true };
   } catch (e) {
     return { success: false };
@@ -261,6 +274,7 @@ export async function loadLibraries(
       const accessors = lib.accessor;
       const keysBefore = Object.keys(self);
       let module = null;
+
       try {
         self.importScripts(url);
         const keysAfter = Object.keys(self);
@@ -298,9 +312,12 @@ export async function loadLibraries(
 
       try {
         module = await import(/* webpackIgnore: true */ url);
+
         if (!module || typeof module !== "object") throw "Not an ESM module";
+
         const key = accessors[0];
         const flattenedModule = flattenModule(module);
+
         libStore[key] = flattenedModule;
         self[key] = flattenedModule;
         libraryReservedIdentifiers[key] = true;
@@ -310,11 +327,14 @@ export async function loadLibraries(
         throw new ImportError(url);
       }
     }
+
     JSLibraries.push(...libs);
     JSLibraryAccessor.regenerateSet();
+
     return { success: true, message };
   } catch (e) {
     message = (e as Error).message;
+
     return { success: false, message };
   }
 }
@@ -332,6 +352,7 @@ function generateUniqueAccessor(
   takenNamesMap: Record<string, true>,
 ) {
   let name = urlOrName;
+
   // extract file name from url
   try {
     // Checks to see if a URL was passed
@@ -343,19 +364,23 @@ function generateUniqueAccessor(
      * TODO: Handle the case where the URL is from a different CDN like unpkg, cdnjs etc.
      */
     const urlPathParts = urlObject.pathname.split("/");
+
     name = urlPathParts.pop() as string;
     name = name?.includes("+esm") ? (urlPathParts.pop() as string) : name;
   } catch (e) {}
 
   // Replace all non-alphabetic characters with underscores and remove trailing underscores
   const validVar = name.replace(/[^a-zA-Z]/g, "_").replace(/_+$/, "");
+
   if (
     !takenAccessors.includes(validVar) &&
     !takenNamesMap.hasOwnProperty(validVar)
   ) {
     return validVar;
   }
+
   let index = 0;
+
   /**
    * If the accessor is already taken, generate a unique name by appending an index to the accessor.
    * The index is incremented until a unique name is found.
@@ -363,10 +388,12 @@ function generateUniqueAccessor(
    */
   while (index++ < 100) {
     const name = `${validVar}_${index}`;
+
     if (!takenAccessors.includes(name) && !takenNamesMap.hasOwnProperty(name)) {
       return name;
     }
   }
+
   throw new Error("Unable to generate a unique accessor");
 }
 
@@ -374,14 +401,19 @@ function generateUniqueAccessor(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function flattenModule(module: Record<string, any>) {
   const keys = Object.keys(module);
+
   // If there are no keys other than default, return default.
   if (keys.length === 1 && keys[0] === "default") return module.default;
+
   // If there are keys other than default, return a new object with all the keys
   // and set its prototype of default export.
   const libModule = Object.create(module.default || {});
+
   for (const key of Object.keys(module)) {
     if (key === "default") continue;
+
     libModule[key] = module[key];
   }
+
   return libModule;
 }

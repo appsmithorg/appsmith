@@ -42,5 +42,6 @@ export const getWidgetSizeConfiguration = (
 
 export function isLargeWidget(type: string): boolean {
   const config: AnvilConfig | null = WidgetFactory.getWidgetAnvilConfig(type);
+
   return config && config.isLargeWidget;
 }

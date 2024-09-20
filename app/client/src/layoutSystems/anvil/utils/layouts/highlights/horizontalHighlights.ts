@@ -121,12 +121,14 @@ const markDraggedHugWidgetHighlights = (
     const layoutProps = (currentLayout.layout as WidgetLayoutProps[]).find(
       (layout) => layout.widgetId === widget.widgetId,
     );
+
     return layoutProps?.alignment;
   });
   const checkIfAllDraggedWidgetsAlignmentAreSame =
     draggedWidgetsAlignment.every(
       (alignment) => alignment === draggedWidgetsAlignment[0],
     );
+
   if (checkIfAllDraggedWidgetsAlignmentAreSame) {
     highlights.forEach((highlight) => {
       if (
@@ -174,6 +176,7 @@ export function getHighlightsForLayouts(
 
   let index = 0;
   const discardedLayoutIndices: number[] = [];
+
   // Loop over all child layouts.
   while (index < layouts.length) {
     // Extract information on current child layout.
@@ -205,6 +208,7 @@ export function getHighlightsForLayouts(
     const isPreviousLayoutDiscarded = discardedLayoutIndices.includes(
       index - 1,
     );
+
     if (!isPreviousLayoutDiscarded) {
       /**
        * Add a highlight for the drop zone above the child layout.
@@ -231,6 +235,7 @@ export function getHighlightsForLayouts(
         hasFillWidget,
         skipEntity,
       );
+
       if (skipEntity && !hasFillWidget) {
         markDraggedHugWidgetHighlights(
           updatedHighlights,
@@ -239,6 +244,7 @@ export function getHighlightsForLayouts(
           draggedWidgets,
         );
       }
+
       highlights = updatedHighlights;
     }
 
@@ -250,6 +256,7 @@ export function getHighlightsForLayouts(
        */
       discardedLayoutIndices.push(index);
     }
+
     /**
      * Add highlights of the child layout if it is not a drop target.
      * because if it is, then it can handle its own drag behavior.
@@ -257,8 +264,10 @@ export function getHighlightsForLayouts(
     if (!isDropTarget && layoutHighlights.length) {
       highlights.push(...layoutHighlights);
     }
+
     index += 1;
     const isLastLayout = index === layouts.length;
+
     if (!skipEntity && isLastLayout) {
       // Add a highlight for the drop zone below the child layout.
       highlights = updateHighlights(
@@ -360,6 +369,7 @@ export function updateHighlights(
     ? arr.filter((each: AnvilHighlightInfo, index: number) => {
         if (each.rowIndex === rowIndex - 1 && !each.isVertical) {
           if (prevHighlightsIndex === -1) prevHighlightsIndex = index;
+
           return true;
         }
       })
@@ -380,6 +390,7 @@ export function updateHighlights(
     isCurrentLayoutEmpty,
     isInitialHighlight,
   );
+
   /**
    * If previous highlights exist,
    * then update their bottom drop zone to match the top drop zone of current highlights.
@@ -391,7 +402,9 @@ export function updateHighlights(
       ...updatedHighlights.slice(prevHighlightsIndex + prevHighlights.length),
     ];
   }
+
   updatedHighlights.push(...curr);
+
   return updatedHighlights;
 }
 
@@ -429,6 +442,7 @@ export function generateHighlights(
   let posY = 0;
   const emptyLayout = isFirstHighlight && isLastHighlight;
   let gap = 0;
+
   switch (true) {
     case emptyLayout:
     case isFirstHighlight:
@@ -460,6 +474,7 @@ export function generateHighlights(
       );
       break;
   }
+
   return arr.map((alignment: FlexLayerAlignment, index: number) => ({
     ...baseHighlight,
     alignment,

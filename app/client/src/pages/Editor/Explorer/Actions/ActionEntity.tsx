@@ -107,6 +107,7 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       pluginType={action.pluginType}
     />
   );
+
   return (
     <Entity
       action={switchToAction}

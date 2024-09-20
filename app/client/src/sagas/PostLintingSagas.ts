@@ -26,9 +26,11 @@ export function* logLatestLintPropertyErrors({
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
     const entity = dataTree[entityName];
     const config = configTree[entityName];
+
     // only log lint errors in JSObjects
     if (!isLintErrorLoggingEnabledForEntity(entity, propertyPath, config))
       continue;
+
     // only log lint errors (not warnings)
     const lintErrorsInPath = errors[path].filter(
       (error) => error.severity === Severity.ERROR,

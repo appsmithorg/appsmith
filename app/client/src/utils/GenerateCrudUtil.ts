@@ -12,11 +12,14 @@ export const getIsGeneratePageInitiator = (
 ): boolean => {
   if (isGeneratePageMode) {
     const isGeneratePageInitiator = isGeneratePageMode === "generate-page";
+
     return isGeneratePageInitiator;
   }
+
   const params: string = location.search;
   const searchParamsInstance = new URLSearchParams(params);
   const initiatorParam = searchParamsInstance.get("isGeneratePageMode");
   const isGeneratePageInitiator = initiatorParam === "generate-page";
+
   return isGeneratePageInitiator;
 };

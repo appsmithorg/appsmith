@@ -43,6 +43,7 @@ export default {
     if (!props.isDirty && filteredValues.length !== values.length) {
       return filteredValues;
     }
+
     return values;
   },
   //
@@ -55,6 +56,7 @@ export default {
     return values
       .map((value) => {
         const label = options.find((option) => value === option.value)?.label;
+
         if (label) {
           return label;
         } else {

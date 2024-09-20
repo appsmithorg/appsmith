@@ -11,6 +11,7 @@ export const useWidgets = () => {
       (widget: WidgetProps) =>
         !widget.children || widget.children?.length === 0,
     );
+
     return final;
   });
 };
@@ -18,6 +19,7 @@ export const useWidgets = () => {
 export const useActions = () => {
   const actions = useSelector((state: AppState) => {
     const currentPageId = state.entities.pageList.currentPageId;
+
     return state.entities.actions.filter(
       (action) => action.config.pageId === currentPageId,
     );
@@ -47,5 +49,6 @@ export const usePageId = () => {
   const pageId = useSelector((state: AppState) => {
     return state.entities.pageList.currentPageId;
   });
+
   return pageId || "";
 };

@@ -23,6 +23,7 @@ export const migrateButtonVariant = (currentDSL: DSLWidget) => {
         currentDSL.buttonVariant = ButtonVariantTypes.PRIMARY;
     }
   }
+
   if (currentDSL.type === "MENU_BUTTON_WIDGET") {
     switch (currentDSL.menuVariant) {
       case "OUTLINE":
@@ -35,11 +36,13 @@ export const migrateButtonVariant = (currentDSL: DSLWidget) => {
         currentDSL.menuVariant = ButtonVariantTypes.PRIMARY;
     }
   }
+
   if (currentDSL.type === "TABLE_WIDGET") {
     if (currentDSL.hasOwnProperty("primaryColumns")) {
       Object.keys(currentDSL.primaryColumns).forEach((column) => {
         if (currentDSL.primaryColumns[column].columnType === "iconButton") {
           let newVariant = ButtonVariantTypes.PRIMARY;
+
           switch (currentDSL.primaryColumns[column].buttonVariant) {
             case "OUTLINE":
               newVariant = ButtonVariantTypes.SECONDARY;
@@ -53,10 +56,12 @@ export const migrateButtonVariant = (currentDSL: DSLWidget) => {
       });
     }
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((child: DSLWidget) =>
       migrateButtonVariant(child),
     );
   }
+
   return currentDSL;
 };

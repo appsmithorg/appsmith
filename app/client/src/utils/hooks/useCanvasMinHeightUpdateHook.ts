@@ -23,6 +23,7 @@ export const useCanvasMinHeightUpdateHook = (
     widgetId !== MAIN_CONTAINER_WIDGET_ID &&
     widget &&
     widget.type === WidgetTypes.CANVAS_WIDGET;
+
   useEffect(() => {
     if (canUpdateWidgetMinHeight && widget.minHeight !== minHeight) {
       dispatch(updateWidgetMetaPropAndEval(widgetId, "minHeight", minHeight));

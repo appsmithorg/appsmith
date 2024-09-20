@@ -34,6 +34,7 @@ class WebStorage {
     try {
       this.storage.setItem("test", "testA");
       this.storage.removeItem("test");
+
       return true;
     } catch (e) {
       return false;
@@ -45,15 +46,18 @@ class WebStorage {
       if (!this._isSupported) {
         throw new LocalStorageNotSupportedError();
       }
+
       return this.storage.getItem(key);
     } catch (error) {
       this.handleError(error as Error);
     }
+
     return null;
   };
 
   handleError = (e: Error) => {
     let message;
+
     if (e.name === "QuotaExceededError") {
       message = LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE;
     } else if (e.name === "NS_ERROR_FILE_NO_DEVICE_SPACE") {
@@ -65,6 +69,7 @@ class WebStorage {
           LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED,
         ),
       );
+
       return;
     }
 
@@ -82,6 +87,7 @@ class WebStorage {
       if (!this._isSupported) {
         throw new LocalStorageNotSupportedError();
       }
+
       this.storage.setItem(key, value);
     } catch (error) {
       this.handleError(error as Error);
@@ -93,6 +99,7 @@ class WebStorage {
       if (!this._isSupported) {
         throw new LocalStorageNotSupportedError();
       }
+
       this.storage.removeItem(key);
     } catch (error) {
       this.handleError(error as Error);
@@ -104,6 +111,7 @@ class WebStorage {
       if (!this._isSupported) {
         throw new LocalStorageNotSupportedError();
       }
+
       this.storage.clear();
     } catch (error) {
       this.handleError(error as Error);
@@ -124,6 +132,7 @@ class SessionStorage extends WebStorage {
 }
 
 const localStorage = new LocalStorage();
+
 export const sessionStorage = new SessionStorage();
 
 export default localStorage;

@@ -61,6 +61,7 @@ async function generateStory(title: string, description: string) {
 
     files.forEach((file) => {
       const name = file.replace(".tsx", "");
+
       importList += createImportListString(name, title);
       componentList += createComponentListString(name);
     });

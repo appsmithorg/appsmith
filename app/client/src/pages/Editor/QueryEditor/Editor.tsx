@@ -120,6 +120,7 @@ class QueryEditor extends React.Component<Props> {
 
   constructor(props: Props) {
     super(props);
+
     // Call the first evaluations when the page loads
     // call evaluations only for queries and not google sheets (which uses apiId)
     if (this.props.match.params.baseQueryId) {
@@ -135,6 +136,7 @@ class QueryEditor extends React.Component<Props> {
     // if the current action is non existent, do not dispatch change query page action
     // this action should only be dispatched when switching from an existent action.
     if (!this.props.pluginId) return;
+
     this.context?.changeQueryPage?.(this.props.baseActionId);
 
     // fixes missing where key issue by populating the action with a where object when the component is mounted.
@@ -142,6 +144,7 @@ class QueryEditor extends React.Component<Props> {
       const { path = "", value = "" } = {
         ...getPathAndValueFromActionDiffObject(this.props.actionObjectDiff),
       };
+
       if (value && path) {
         this.props.setActionProperty(this.props.actionId, path, value);
       }
@@ -264,6 +267,7 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
     | QueryAction
     | SaaSAction;
   let pluginId;
+
   if (action) {
     pluginId = action.pluginId;
   }
@@ -297,6 +301,7 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
 
   const allPlugins = getPlugins(state);
   let uiComponent = UIComponentTypes.DbEditorForm;
+
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
   const currentEnvDetails = getCurrentEnvironmentDetails(state);

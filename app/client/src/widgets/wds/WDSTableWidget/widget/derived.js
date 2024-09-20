@@ -63,6 +63,7 @@ export default {
       "__primaryKey__",
       ...nonDataColumnAliases,
     ];
+
     return _.omit(selectedRow, keysToBeOmitted);
   },
   //
@@ -95,6 +96,7 @@ export default {
      */
     if (index > -1) {
       const row = rows.find((row) => row.__originalIndex__ === index);
+
       triggeredRow = { ...row };
     } else {
       /*
@@ -112,6 +114,7 @@ export default {
       "__primaryKey__",
       ...nonDataColumnAliases,
     ];
+
     return _.omit(triggeredRow, keysToBeOmitted);
   },
   //
@@ -147,6 +150,7 @@ export default {
       "__primaryKey__",
       ...nonDataColumnAliases,
     ];
+
     return indices.map((index) => _.omit(rows[index], keysToBeOmitted));
   },
   //
@@ -173,6 +177,7 @@ export default {
   getOrderedTableColumns: (props, moment, _) => {
     let columns = [];
     let existingColumns = props.primaryColumns || {};
+
     /*
      * Assign index based on the columnOrder
      */
@@ -203,6 +208,7 @@ export default {
 
     const sortByColumn = props.sortOrder && props.sortOrder.column;
     const isAscOrder = props.sortOrder && props.sortOrder.order === "asc";
+
     /* set sorting flags and convert the existing columns into an array */
     Object.values(existingColumns).forEach((column) => {
       /* guard to not allow columns without id */
@@ -327,6 +333,7 @@ export default {
                 }
               case "url":
                 const column = primaryColumns[sortByColumnOriginalId];
+
                 if (column && column.displayText) {
                   if (_.isString(column.displayText)) {
                     return sortByOrder(false);
@@ -418,6 +425,7 @@ export default {
         try {
           const _a = a.toString().toLowerCase();
           const _b = b.toString().toLowerCase();
+
           return (
             _a.lastIndexOf(_b) >= 0 &&
             _a.length === _a.lastIndexOf(_b) + _b.length
@@ -475,21 +483,26 @@ export default {
         ...row,
         ...columnWithDisplayText.reduce((acc, column) => {
           let displayText;
+
           if (_.isArray(column.displayText)) {
             displayText = column.displayText[row.__originalIndex__];
           } else {
             displayText = column.displayText;
           }
+
           acc[column.alias] = displayText;
+
           return acc;
         }, {}),
       };
+
       if (searchKey) {
         isSearchKeyFound = Object.values(_.omit(displayedRow, hiddenColumns))
           .join(", ")
           .toLowerCase()
           .includes(searchKey);
       }
+
       if (!isSearchKeyFound) {
         return false;
       }
@@ -506,11 +519,14 @@ export default {
       const filterOperator =
         props.filters.length >= 2 ? props.filters[1].operator : "OR";
       let isSatisfyingFilters = filterOperator === "AND";
+
       for (let i = 0; i < props.filters.length; i++) {
         let filterResult = true;
+
         try {
           const conditionFunction =
             ConditionFunctions[props.filters[i].condition];
+
           if (conditionFunction) {
             filterResult = conditionFunction(
               displayedRow[props.filters[i].column],
@@ -539,6 +555,7 @@ export default {
 
       return isSatisfyingFilters;
     });
+
     return finalTableData;
   },
   //
@@ -556,6 +573,7 @@ export default {
 
     if (index > -1) {
       const row = rows.find((row) => row.__originalIndex__ === index);
+
       updatedRow = { ...row };
     } else {
       /*
@@ -563,6 +581,7 @@ export default {
        *  have proper row structure with empty string values
        */
       updatedRow = {};
+
       if (rows && rows[0]) {
         Object.keys(rows[0]).forEach((key) => {
           updatedRow[key] = "";
@@ -587,6 +606,7 @@ export default {
       "__primaryKey__",
       ...nonDataColumnAliases,
     ];
+
     return _.omit(updatedRow, keysToBeOmitted);
   },
   //
@@ -689,6 +709,7 @@ export default {
       /* Math.max fixes the value of (pageNo - 1) to a minimum of 0 as negative values are not valid */
       return Math.max(props.pageNo - 1, 0) * pageSize;
     }
+
     return 0;
   },
   //
@@ -771,6 +792,7 @@ export default {
           (value === "" || _.isNil(value))
         ) {
           validationMap[editedColumn.alias] = true;
+
           return;
         } else if (
           (!_.isNil(validation.isColumnEditableCellValid) &&
@@ -780,6 +802,7 @@ export default {
             (value === "" || _.isNil(value)))
         ) {
           validationMap[editedColumn.alias] = false;
+
           return;
         }
 
@@ -793,6 +816,7 @@ export default {
               validation.min > value
             ) {
               validationMap[editedColumn.alias] = false;
+
               return;
             }
 
@@ -802,8 +826,10 @@ export default {
               validation.max < value
             ) {
               validationMap[editedColumn.alias] = false;
+
               return;
             }
+
             break;
         }
       }

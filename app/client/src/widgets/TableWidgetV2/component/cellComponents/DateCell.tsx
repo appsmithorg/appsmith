@@ -220,28 +220,34 @@ export const DateCell = (props: DateComponentProps) => {
   const onDateSelected = (date: string) => {
     if (isNewRow) {
       updateNewRowValues(alias, date, date);
+
       return;
     }
 
     if (isRequired && !date) {
       setIsValid(false);
       setShowRequiredError(true);
+
       return;
     }
+
     setIsValid(true);
     setShowRequiredError(false);
     setHasFocus(false);
 
     const formattedDate = date ? moment(date).format(inputFormat) : "";
+
     onDateSave(rowIndex, alias, formattedDate, onDateSelectedString);
   };
 
   const onDateCellEdit = () => {
     setHasFocus(true);
+
     if (isRequired && !value) {
       setIsValid(false);
       setShowRequiredError(true);
     }
+
     toggleCellEditMode(true, rowIndex, alias, value);
   };
 

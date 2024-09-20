@@ -46,6 +46,7 @@ import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissi
 const docsURLMap = recommendedLibraries.reduce(
   (acc, lib) => {
     acc[lib.url] = lib.docsURL;
+
     return acc;
   },
   {} as Record<string, string>,
@@ -232,6 +233,7 @@ export function LibraryEntity({ lib }: { lib: JSLibrary }) {
 
   const [isOpen, open] = React.useState(false);
   const docsURL = docsURLMap[lib.url || ""] || lib.docsURL;
+
   return (
     <Library className={`t--installed-library-${lib.name}`}>
       <div

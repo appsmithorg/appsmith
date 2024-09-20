@@ -15,6 +15,7 @@ const FeatureFlags = {
 };
 
 const basePageId = "0123456789abcdef00000000";
+
 describe("IDE Render: JS", () => {
   localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   describe("JS Blank State", () => {
@@ -303,6 +304,7 @@ describe("IDE Render: JS", () => {
         name: "Main",
         pageId: page.pageId,
       });
+
       Main_JS.isMainJSCollection = true;
 
       const Normal_JS = JSObjectFactory.build({
@@ -334,6 +336,7 @@ describe("IDE Render: JS", () => {
 
       // Normal JS object should be editable
       const normalJsObjectEntity = getByTestId("t--entity-item-Normal");
+
       expect(normalJsObjectEntity.classList.contains("editable")).toBe(true);
 
       // should have `t--context-menu` as a child of the normalJsObjectEntity
@@ -343,6 +346,7 @@ describe("IDE Render: JS", () => {
 
       // Main JS object should not be editable
       const mainJsObjectEntity = getByTestId("t--entity-item-Main");
+
       expect(mainJsObjectEntity.classList.contains("editable")).toBe(false);
       // should not have `t--context-menu` as a child of the mainJsObjectEntity
       expect(mainJsObjectEntity.querySelector(".t--context-menu")).toBeNull();

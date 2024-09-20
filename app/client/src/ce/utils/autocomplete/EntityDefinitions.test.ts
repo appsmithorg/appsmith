@@ -167,6 +167,7 @@ describe("getPropsForJSActionEntity", () => {
       jsObjectEntity as JSActionEntity,
       "JSObject3",
     );
+
     expect(expectedProperties).toStrictEqual(result);
   });
 });

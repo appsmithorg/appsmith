@@ -177,14 +177,17 @@ const dsl3: DSLWidget = {
 describe("Migrate to Resizable Modal", () => {
   it("To test modal with type MODAL_SMALL", () => {
     const newDsl = migrateResizableModalWidgetProperties(inputDsl1);
+
     expect(JSON.stringify(newDsl) === JSON.stringify(outputDsl1));
   });
   it("To test modal with type MODAL_SMALL", () => {
     const newDsl = migrateResizableModalWidgetProperties(inputDsl2);
+
     expect(JSON.stringify(newDsl) === JSON.stringify(outputDsl2));
   });
   it("To test a migrated modal", () => {
     const newDsl = migrateResizableModalWidgetProperties(dsl3);
+
     expect(JSON.stringify(newDsl) === JSON.stringify(dsl3));
   });
 });

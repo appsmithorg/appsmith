@@ -74,8 +74,10 @@ export const useClickToSelectWidget = (widgetId: string) => {
       // 1. If the component is resizing or dragging because it is handled internally in draggable component.
       // 2. If table filter property pane is open.
       if (shouldIgnoreClicks) return;
+
       if ((!isPropPaneVisible && isSelected) || !isSelected) {
         let type: SelectionRequestType = SelectionRequestType.One;
+
         if (e.metaKey || e.ctrlKey || (layoutSystemType && e.shiftKey)) {
           type = SelectionRequestType.PushPop;
         } else if (e.shiftKey) {
@@ -103,5 +105,6 @@ export const useClickToSelectWidget = (widgetId: string) => {
     },
     [shouldIgnoreClicks, isPropPaneVisible, isSelected, parentWidgetToOpen],
   );
+
   return clickToSelectWidget;
 };

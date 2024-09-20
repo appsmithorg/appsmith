@@ -58,6 +58,7 @@ class LabelAlignmentOptionsControl extends BaseControl<LabelAlignmentOptionsCont
 
   public render() {
     const { options, propertyValue } = this.props;
+
     return (
       <SegmentedControl
         isFullWidth={this.props.fullWidth}

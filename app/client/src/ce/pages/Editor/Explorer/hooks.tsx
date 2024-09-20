@@ -30,8 +30,10 @@ export interface UseConvertToModulesOptionsProps {
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
+
   const widgetNameMached =
     widgets.widgetName.toLowerCase().indexOf(keyword) > -1;
+
   if (widgets.children) {
     widgets.children = compact(
       widgets.children.map((widget: CanvasStructure) =>
@@ -39,6 +41,7 @@ const findWidgets = (widgets: CanvasStructure, keyword: string) => {
       ),
     );
   }
+
   if (widgetNameMached || (widgets.children && widgets.children.length > 0)) {
     return widgets;
   }
@@ -49,8 +52,10 @@ export const useDatasourcesPageMapInCurrentApplication = () => {
   const reducerDatasources = useSelector((state: AppState) => {
     return state.entities.datasources.list;
   });
+
   return useMemo(() => {
     const datasourcesPageMap: Record<string, Datasource[]> = {};
+
     for (const [key, value] of Object.entries(actions)) {
       const datasourceIds = value.reduce((acc, action) => {
         if (
@@ -59,11 +64,13 @@ export const useDatasourcesPageMapInCurrentApplication = () => {
         ) {
           acc.add(action.config.datasource.id);
         }
+
         return acc;
       }, new Set());
       const activeDatasources = reducerDatasources.filter((datasource) =>
         datasourceIds.has(datasource.id),
       );
+
       datasourcesPageMap[key] = activeDatasources;
     }
 
@@ -83,10 +90,12 @@ export const useCurrentApplicationDatasource = () => {
         ) {
           acc.add(action.config.datasource.id);
         }
+
         return acc;
       },
       new Set(),
     );
+
     return allDatasources.filter((ds) =>
       datasourceIdsUsedInCurrentApplication.has(ds.id),
     );
@@ -107,10 +116,12 @@ export const useOtherDatasourcesInWorkspace = () => {
         ) {
           acc.add(action.config.datasource.id);
         }
+
         return acc;
       },
       new Set(),
     );
+
     return allDatasources
       .filter(
         (ds) =>
@@ -119,6 +130,7 @@ export const useOtherDatasourcesInWorkspace = () => {
       )
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [actions, allDatasources]);
+
   return otherDatasourcesInWorkspace;
 };
 
@@ -139,6 +151,7 @@ export const useAppWideAndOtherDatasource = () => {
       ),
     [otherDatasourceInWorkspace],
   );
+
   return {
     appWideDS,
     otherDS,
@@ -148,8 +161,10 @@ export const useAppWideAndOtherDatasource = () => {
 export const useDatasourceSuggestions = () => {
   const datasourcesUsedInApplication = useCurrentApplicationDatasource();
   const otherDatasourceInWorkspace = useOtherDatasourcesInWorkspace();
+
   if (datasourcesUsedInApplication.length >= MAX_DATASOURCE_SUGGESTIONS)
     return [];
+
   return otherDatasourceInWorkspace.slice(
     0,
     MAX_DATASOURCE_SUGGESTIONS - datasourcesUsedInApplication.length,
@@ -179,6 +194,7 @@ export const useActions = (searchKeyword?: string) => {
                 action.config.name
                   .toLowerCase()
                   .indexOf(searchKeyword.toLowerCase()) > -1;
+
               if (searchMatches) {
                 draft[key][index] = action;
               } else {
@@ -186,12 +202,16 @@ export const useActions = (searchKeyword?: string) => {
               }
             });
           }
+
           draft[key] = draft[key].filter(Boolean);
         }
       });
+
       log.debug("Filtered actions in:", performance.now() - start, "ms");
+
       return filteredActions;
     }
+
     return actions;
   }, [searchKeyword, actions, pageIds]);
 };
@@ -214,13 +234,17 @@ export const useWidgets = (searchKeyword?: string) => {
               value,
               searchKeyword.toLowerCase(),
             ) as WidgetProps;
+
             draft[key] = filteredWidgets;
           }
         }
       });
+
       log.debug("Filtered widgets in: ", performance.now() - start, "ms");
+
       return filteredDSLs;
     }
+
     return pageCanvasStructures;
   }, [searchKeyword, pageCanvasStructures, pageIds]);
 };
@@ -237,6 +261,7 @@ export const usePageIds = (searchKeyword?: string) => {
           const searchMatches =
             page.pageName.toLowerCase().indexOf(searchKeyword.toLowerCase()) >
             -1;
+
           if (searchMatches) {
           } else {
             delete draft[index];
@@ -246,6 +271,7 @@ export const usePageIds = (searchKeyword?: string) => {
 
       return filteredPages.map((page) => page.pageId);
     }
+
     return pages.map((page) => page.pageId);
   }, [searchKeyword, pages]);
 };
@@ -278,24 +304,31 @@ export function useActiveActionBaseId() {
   const apiMatch = matchPath<{ baseApiId: string }>(location.pathname, {
     path: `${basePath}${API_EDITOR_ID_PATH}`,
   });
+
   if (apiMatch?.params?.baseApiId) {
     return apiMatch.params.baseApiId;
   }
+
   const queryMatch = matchPath<{ baseQueryId: string }>(location.pathname, {
     path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
+
   if (queryMatch?.params?.baseQueryId) {
     return queryMatch.params.baseQueryId;
   }
+
   const jsMatch = matchPath<{ baseCollectionId: string }>(location.pathname, {
     path: `${basePath}${JS_COLLECTION_ID_PATH}`,
   });
+
   if (jsMatch?.params?.baseCollectionId) {
     return jsMatch.params.baseCollectionId;
   }
+
   const saasMatch = matchPath<{ baseApiId: string }>(location.pathname, {
     path: `${basePath}${SAAS_EDITOR_API_ID_PATH}`,
   });
+
   if (saasMatch?.params?.baseApiId) {
     return saasMatch.params.baseApiId;
   }

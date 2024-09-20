@@ -64,5 +64,6 @@ export function ProvisioningUpgradePage() {
     isEnterprise: true,
   };
   const props = { header, carousel, footer };
+
   return <UpgradePage {...props} />;
 }

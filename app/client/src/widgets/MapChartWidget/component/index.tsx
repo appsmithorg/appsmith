@@ -153,6 +153,7 @@ export default function EchartComponent(props: MapChartComponentProps) {
       className={clsx({
         "bp3-skeleton": isLoading,
       })}
+      data-testid="t--map-chart-container"
       onClick={(e) => e.stopPropagation()}
     >
       <div ref={chartContainer} />

@@ -19,6 +19,7 @@ export const WidgetProfiler = ({
     },
     [type],
   );
+
   return (
     <Profiler id={widgetId} onRender={onRender}>
       {children}

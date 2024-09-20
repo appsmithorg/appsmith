@@ -155,9 +155,11 @@ function DataControlComponent(props: RenderComponentProps) {
               event: React.ChangeEvent<HTMLTextAreaElement> | string,
             ) => {
               let value: string = event as string;
+
               if (typeof event !== "string") {
                 value = event.target.value;
               }
+
               updateOption(index, "seriesName", value);
             },
           }}
@@ -178,9 +180,11 @@ function DataControlComponent(props: RenderComponentProps) {
                 event: React.ChangeEvent<HTMLTextAreaElement> | string,
               ) => {
                 let value: string = event as string;
+
                 if (typeof event !== "string") {
                   value = event.target.value;
                 }
+
                 updateOption(index, "color", value);
               }}
               color={item.color || ""}
@@ -206,9 +210,11 @@ function DataControlComponent(props: RenderComponentProps) {
               event: React.ChangeEvent<HTMLTextAreaElement> | string,
             ) => {
               let value: string = event as string;
+
               if (typeof event !== "string") {
                 value = event.target.value;
               }
+
               updateOption(index, "data", value);
             },
           }}

@@ -376,6 +376,7 @@ class MetaWidgetGenerator {
     const containerParentWidget =
       this?.currTemplateWidgets?.[this.containerParentId];
     let metaWidgets: MetaWidgets = {};
+
     this.siblings = {};
 
     if (
@@ -456,6 +457,7 @@ class MetaWidgetGenerator {
         ...cachedMetaWidgets,
         ...childMetaWidgets,
       };
+
       if (metaWidget) {
         cachedMetaWidgets[metaWidget.widgetId] = metaWidget;
       }
@@ -473,6 +475,7 @@ class MetaWidgetGenerator {
 
     this.cachedItemKeys.prev.forEach((key) => {
       const metaCacheProps = this.getRowCache(key) ?? {};
+
       Object.values(metaCacheProps).forEach((cache) => {
         prevCachedMetaWidgetIds.push(cache.metaWidgetId);
       });
@@ -483,6 +486,7 @@ class MetaWidgetGenerator {
 
     this.cachedItemKeys.curr.forEach((key) => {
       const metaCacheProps = this.getRowCache(key) ?? {};
+
       Object.values(metaCacheProps).forEach((cache) => {
         currCachedMetaWidgetIds.push(cache.metaWidgetId);
       });
@@ -670,6 +674,7 @@ class MetaWidgetGenerator {
 
       if (metaWidgetId) {
         children.push(metaWidgetId);
+
         if (metaWidget) {
           metaWidgets[metaWidgetId] = metaWidget;
         }
@@ -1359,6 +1364,7 @@ class MetaWidgetGenerator {
       ? rowCache[this.containerWidgetId]?.rowIndex
       : rowCache[this.containerWidgetId]?.prevRowIndex ??
         rowCache[this.containerWidgetId]?.rowIndex;
+
     return rowIndex;
   };
 
@@ -1552,6 +1558,7 @@ class MetaWidgetGenerator {
     if (this.serverSidePagination && typeof this.pageSize === "number") {
       const startIndex = 0;
       const endIndex = this.pageSize;
+
       return arr.slice(startIndex, endIndex);
     }
 
@@ -1561,6 +1568,7 @@ class MetaWidgetGenerator {
       if (this.virtualizer) {
         const virtualItems = this.virtualizer.getVirtualItems();
         const endIndex = virtualItems[virtualItems.length - 1]?.index ?? 0;
+
         return arr.slice(startIndex, endIndex + 1);
       }
 
@@ -1569,6 +1577,7 @@ class MetaWidgetGenerator {
 
     if (typeof this.pageNo === "number" && typeof this.pageSize === "number") {
       const endIndex = startIndex + this.pageSize;
+
       return arr.slice(startIndex, endIndex);
     }
 
@@ -1579,6 +1588,7 @@ class MetaWidgetGenerator {
     if (this.infiniteScroll) {
       if (this.virtualizer) {
         const items = this.virtualizer.getVirtualItems();
+
         return items[0]?.index ?? 0;
       }
     } else if (
@@ -1617,6 +1627,7 @@ class MetaWidgetGenerator {
       !options.keepMetaWidgetData
     ) {
       const { templateWidgetId, templateWidgetName, type } = templateCache;
+
       return {
         ...templateCache,
         metaWidgetId: templateWidgetId,
@@ -1635,6 +1646,7 @@ class MetaWidgetGenerator {
 
     templateWidgetIds.forEach((templateWidgetId) => {
       const rowTemplateCache = this.getRowTemplateCache(key, templateWidgetId);
+
       references[templateWidgetId] = rowTemplateCache?.metaWidgetId;
     });
 
@@ -1686,6 +1698,7 @@ class MetaWidgetGenerator {
         }
       });
     }
+
     return dependantBinding;
   };
 
@@ -1710,6 +1723,7 @@ class MetaWidgetGenerator {
     const containers = { ids: [] as string[], names: [] as string[] };
     const startIndex = this.getStartIndex();
     const currentViewData = this.getCurrentViewData();
+
     currentViewData.forEach((_datum, viewIndex) => {
       const rowIndex = startIndex + viewIndex;
       const key = this.getPrimaryKey(rowIndex);
@@ -1717,6 +1731,7 @@ class MetaWidgetGenerator {
         key,
         this.containerWidgetId,
       );
+
       if (!containers.ids) {
         containers.ids = [];
         containers.names = [];
@@ -1753,6 +1768,7 @@ class MetaWidgetGenerator {
     const templateWidgetIds = Object.keys(this.currTemplateWidgets || {});
 
     const metaWidgets: MetaWidgetCacheProps[] = [];
+
     templateWidgetIds.forEach((templateWidgetId) => {
       const rowTemplateCache = this.getRowTemplateCache(
         key,
@@ -1799,6 +1815,7 @@ class MetaWidgetGenerator {
 
   private getContainerBinding = (metaWidgets: MetaWidgetCacheProps[]) => {
     const widgetsProperties: string[] = [];
+
     metaWidgets.forEach((metaWidget) => {
       const { metaWidgetName, templateWidgetId, templateWidgetName, type } =
         metaWidget;
@@ -1823,7 +1840,9 @@ class MetaWidgetGenerator {
     if (rowIndex === -1) {
       return;
     }
+
     const key = this.getPrimaryKey(rowIndex);
+
     return this.getRowTemplateCache(key, this.containerWidgetId, {
       keepMetaWidgetData: true,
     })?.metaWidgetName;
@@ -1858,6 +1877,7 @@ class MetaWidgetGenerator {
       if (!isKeyInPrimaryKey) return false;
 
       const viewIndex = this.primaryKeys.indexOf(key);
+
       return !isEqual(this.data[viewIndex], this.cachedKeyDataMap[key]);
     });
   };
@@ -1865,12 +1885,15 @@ class MetaWidgetGenerator {
   private getDataForCacheKey = (key: string) => {
     if (this.primaryKeys?.includes(key)) {
       const viewIndex = this.primaryKeys.indexOf(key);
+
       return this.data[viewIndex];
     }
 
     const rowIndex = this.getRowIndexFromPrimaryKey(key);
+
     if (!isNil(rowIndex)) {
       const viewIndex = this.getViewIndex(rowIndex);
+
       return this.data[viewIndex];
     }
   };
@@ -1915,6 +1938,7 @@ class MetaWidgetGenerator {
   private unmountVirtualizer = () => {
     if (this.virtualizer) {
       const cleanup = this.virtualizer._didMount();
+
       cleanup();
       this.virtualizer = undefined;
     }
@@ -1926,6 +1950,7 @@ class MetaWidgetGenerator {
       this.virtualizer._didMount()();
 
       const options = this.virtualizerOptions();
+
       if (options) {
         this.virtualizer.setOptions(options);
       }
@@ -1947,6 +1972,7 @@ class MetaWidgetGenerator {
           const listCount = this.data?.length || 0;
           const itemSpacing =
             listCount && ((listCount - 1) * this.itemSpacing) / listCount;
+
           return this.templateHeight + itemSpacing;
         },
         getScrollElement: () => scrollElement,

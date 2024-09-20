@@ -86,6 +86,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("REST API");
       // Check new tab presence
       const newTab = getByTestId("t--ide-tab-new_query");
+
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -119,6 +120,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("REST API");
       // Check new tab presence
       const newTab = getByTestId("t--ide-tab-new_query");
+
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -250,6 +252,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("REST API");
       // Check new tab presence
       const newTab = getByTestId("t--ide-tab-new_query");
+
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -302,6 +305,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("REST API");
       // Check new tab presence
       const newTab = getByTestId("t--ide-tab-new_query");
+
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -446,6 +450,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("REST API");
       // Check new tab presence
       const newTab = getByTestId("t--ide-tab-new_query");
+
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -499,6 +504,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("REST API");
       // Check new tab presence
       const newTab = getByTestId("t--ide-tab-new_query");
+
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -648,6 +654,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("REST API");
       // Check new tab presence
       const newTab = getByTestId("t--ide-tab-new_query");
+
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -702,6 +709,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("REST API");
       // Check new tab presence
       const newTab = getByTestId("t--ide-tab-new_query");
+
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(

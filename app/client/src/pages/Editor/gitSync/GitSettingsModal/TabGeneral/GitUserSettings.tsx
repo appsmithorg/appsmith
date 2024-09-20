@@ -185,6 +185,7 @@ const GitUserSettings = () => {
       data.authorName = localConfig?.authorName;
       data.authorEmail = localConfig?.authorEmail;
     }
+
     dispatch(updateLocalGitConfigInit(data));
   };
 

@@ -11,7 +11,9 @@ export const migrateTableWidgetDelimiterProperties = (
     } else if (child.children && child.children.length > 0) {
       child = migrateTableWidgetDelimiterProperties(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

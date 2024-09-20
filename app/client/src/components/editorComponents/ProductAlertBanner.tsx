@@ -67,22 +67,27 @@ const ProductAlertBanner = () => {
     const timer = setTimeout(() => {
       setIsShown(true);
     }, 2000);
+
     return () => clearTimeout(timer);
   }, []);
 
   if (!isShown) return null;
 
   if (!userIsLoggedIn) return null;
+
   if (isSignpostingOverlayOpen) return null;
 
   if (!message) return null;
+
   // If dismissed, it will not be shown
   if (config && config.dismissed) return null;
+
   if (dismissed) return null;
 
   // If still snoozed, it will not be shown
   if (config && config.snoozeTill) {
     const stillSnoozed = moment().isBefore(moment(config.snoozeTill));
+
     if (stillSnoozed) {
       return null;
     }
@@ -132,6 +137,7 @@ const ProductAlertBanner = () => {
                 snoozeTill: new Date(),
               });
             }
+
             setDismissed(true);
           }}
         >
