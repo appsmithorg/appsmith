@@ -15,6 +15,9 @@ on:
 jobs:
   checkTestLabelAndCommit:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     outputs:
       ok_to_test: ${{ steps.checkLabel.outputs.ok_to_test }}
       commit_contains_test: ${{ steps.checkCommitMessage.outputs.commit_contains_test }}
@@ -37,20 +40,25 @@ jobs:
               console.log("Label 'ok-to-test' is not present");
               core.setOutput("ok_to_test", "false");
             }
+
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Checkout the head commit of the branch
+        uses: actions/checkout@v4
+        with:
+          repository: appsmithorg/appsmith
       
       - name: Check Commit Message
         id: checkCommitMessage
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const commitMessage = context.payload.pull_request.head.commit.message;
-            if (commitMessage.includes("/ok-to-test tags=")) {
-              console.log("Commit message contains '/ok-to-test tags='");
-              core.setOutput("commit_contains_test", "true");
-            } else {
-              console.log("Commit message does not contain '/ok-to-test tags='");
-              core.setOutput("commit_contains_test", "false");
-            }
+        run: |
+          commit_message=$(git log -1 --pretty=%B)
+          if [[ "$commit_message" == *"/ok-to-test tags="* ]]; then
+            echo "Commit message contains '/ok-to-test tags='"
+            echo "commit_contains_test=true" >> $GITHUB_ENV
+          else
+            echo "Commit message does not contain '/ok-to-test tags='"
+            echo "commit_contains_test=false" >> $GITHUB_ENV
+          fi
+
   mark-stale:
     needs: [ checkTestLabelAndCommit ]
     if: needs.checkTestLabelAndCommit.outputs.ok_to_test == 'false' && needs.checkTestLabelAndCommit.outputs.commit_contains_test == 'false'
