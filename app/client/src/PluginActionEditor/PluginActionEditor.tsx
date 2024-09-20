@@ -14,7 +14,8 @@ import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { Text } from "@appsmith/ads";
-import { useIsEditorInitialised, useActionSettingsConfig } from "IDE/hooks";
+import { useIsEditorInitialised } from "IDE/hooks";
+import { useActionSettingsConfig } from "./hooks";
 
 interface ChildrenProps {
   children: React.ReactNode | React.ReactNode[];
