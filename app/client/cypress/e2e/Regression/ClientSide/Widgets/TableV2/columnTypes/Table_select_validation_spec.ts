@@ -9,27 +9,8 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../../support/Pages/EditorNavigation";
 
-const hexToRgb = (hex: string) => {
-  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-  hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
-
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})`
-    : null;
-};
-
-const validateSelectBorderColor = (color: string) => {
-  agHelper
-    .GetElement(commonlocators.singleSelectWidgetButtonControl)
-    .then(($el) => {
-      const borderDangerColor = getComputedStyle($el[0]).getPropertyValue(
-        color,
-      );
-      const borderDangerColorRgb = hexToRgb(borderDangerColor);
-      cy.wrap($el).should("have.css", "border-color", borderDangerColorRgb);
-    });
-};
+const TABLE_SELECT_WIDGET_ERROR_BORDER = "rgb(217, 25, 33)";
+const TABLE_SELECT_WIDGET_VALID_BORDER = "rgb(85, 61, 233)";
 
 describe(
   "Table widget - Select column validation",
@@ -83,7 +64,9 @@ describe(
       agHelper.GetElement(table._saveNewRow).should("be.disabled");
 
       // Expect select to have an error color
-      validateSelectBorderColor("--wds-color-border-danger");
+      agHelper
+        .GetElement(commonlocators.singleSelectWidgetButtonControl)
+        .should("have.css", "border-color", TABLE_SELECT_WIDGET_ERROR_BORDER);
 
       // Select a valid option from the select table cell
       agHelper.GetNClick(commonlocators.singleSelectWidgetButtonControl);
@@ -94,6 +77,11 @@ describe(
 
       // Expect the save row option to be enabled
       agHelper.GetElement(table._saveNewRow).should("be.enabled");
+
+      // Expect button to have a valid color
+      agHelper
+        .GetElement(commonlocators.singleSelectWidgetButtonControl)
+        .should("have.css", "border-color", TABLE_SELECT_WIDGET_VALID_BORDER);
 
       // Discard save new row
       agHelper.GetElement(table._discardRow).click({ force: true });
@@ -131,7 +119,9 @@ describe(
       table.ClickOnEditIcon(0, 0, true);
 
       // Exect the select to have an error color
-      validateSelectBorderColor("--wds-color-border-danger");
+      agHelper
+        .GetElement(commonlocators.singleSelectWidgetButtonControl)
+        .should("have.css", "border-color", TABLE_SELECT_WIDGET_ERROR_BORDER);
     });
   },
 );
