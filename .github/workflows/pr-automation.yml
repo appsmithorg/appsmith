@@ -50,7 +50,7 @@ jobs:
       - name: Check Commit Message
         id: checkCommitMessage
         run: |
-          commit_message=$(git log -1 --pretty=%B)
+          commit_message=$(git log -1 --skip=1 --pretty=%B)
           # Print the commit message for debugging
           echo "Commit Message: $commit_message" 
           if [[ "$commit_message" == *"/ok-to-test tags="* ]]; then
