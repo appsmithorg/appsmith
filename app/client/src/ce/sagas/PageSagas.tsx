@@ -332,13 +332,15 @@ export function* updateCanvasLayout(response: FetchPageResponse) {
   const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
 
   // resize main canvas
-  resizePublishedMainCanvasToLowestWidget(canvasWidgetsPayload.widgets);
+  yield call(
+    resizePublishedMainCanvasToLowestWidget,
+    canvasWidgetsPayload.widgets,
+  );
   // Update the canvas
-  yield put(initCanvasLayout(canvasWidgetsPayload));
-
+  yield call(initCanvasLayout, canvasWidgetsPayload);
   // Since new page has new layout, we need to generate a data structure
   // to compute dynamic height based on the new layout.
-  yield put(generateAutoHeightLayoutTreeAction(true, true));
+  yield call(generateAutoHeightLayoutTreeAction, true, true);
 }
 
 export function* postFetchedPublishedPage(
@@ -352,12 +354,11 @@ export function* postFetchedPublishedPage(
 
   yield call(updateCanvasLayout, response);
   // set current page
-  yield put(
-    updateCurrentPage(
-      pageId,
-      response.data.slug,
-      response.data.userPermissions,
-    ),
+  yield call(
+    updateCurrentPage,
+    pageId,
+    response.data.slug,
+    response.data.userPermissions,
   );
 }
 
@@ -421,7 +422,9 @@ export function* fetchPublishedPageResourcesSaga(
 
       // Sending applicationId as empty as we have publishedActions present,
       // it won't call the actions view api with applicationId
-      yield put(fetchActionsForView({ applicationId: "", publishedActions }));
+      yield put(
+        fetchActionsForView({ applicationId: applicationId, publishedActions }),
+      );
       yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
     }
   } catch (error) {
