@@ -12,7 +12,7 @@ import type { FeatureFlags } from "ee/entities/FeatureFlag";
 export const FormContainer = styled.div`
   display: flex;
   position: relative;
-  height 100%;
+  height: 100%;
   overflow: hidden;
   flex: 1;
   flex-direction: column;
