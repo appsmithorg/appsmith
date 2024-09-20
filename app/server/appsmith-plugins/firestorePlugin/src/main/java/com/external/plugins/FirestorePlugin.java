@@ -25,15 +25,8 @@ import com.external.plugins.exceptions.FirestorePluginError;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.DocumentReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.FieldValue;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.FirestoreException;
-import com.google.cloud.firestore.Query;
-import com.google.cloud.firestore.QuerySnapshot;
-import com.google.cloud.firestore.WriteResult;
+import com.google.cloud.Timestamp;
+import com.google.cloud.firestore.*;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
@@ -59,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -96,6 +90,12 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class FirestorePlugin extends BasePlugin {
 
     private static final String FIELDVALUE_TIMESTAMP_METHOD_NAME = "serverTimestamp";
+    private static final Pattern REFERENCE_PATTERN = Pattern.compile("^/?[^/]+/[^/]+(/[^/]+/[^/]+)*$");
+    private static final String LATITUDE = "latitude";
+    private static final String LONGITUDE = "longitude";
+    private static final String STRING_SEPERATOR = "/";
+    private static final String SECONDS = "second";
+    private static final String NANO_SECONDS = "nanoseconds";
 
     public FirestorePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -815,6 +815,9 @@ public class FirestorePlugin extends BasePlugin {
 
         private Mono<ActionExecutionResult> methodAddToCollection(
                 CollectionReference collection, Map<String, Object> mapBody) {
+
+            mapBody.replaceAll((key, value) -> checkAndConvertDataType(value, collection));
+
             return Mono.justOrEmpty(collection.add(mapBody))
                     .flatMap(future -> {
                         try {
@@ -836,6 +839,30 @@ public class FirestorePlugin extends BasePlugin {
                         result.setIsExecutionSuccess(true);
                         return Mono.just(result);
                     });
+        }
+
+        private Object checkAndConvertDataType(Object value, CollectionReference collection) {
+            if (value instanceof Map<?, ?> mapValue) {
+                if (mapValue.containsKey(SECONDS) && mapValue.containsKey(NANO_SECONDS)) {
+                    long seconds = ((Number) mapValue.get(SECONDS)).longValue();
+                    int nanos = ((Number) mapValue.get(NANO_SECONDS)).intValue();
+                    return Timestamp.ofTimeSecondsAndNanos(seconds, nanos);
+                } else if (mapValue.containsKey(LATITUDE) && mapValue.containsKey(LONGITUDE)) {
+                    double latitude = ((Number) mapValue.get(LATITUDE)).doubleValue();
+                    double longitude = ((Number) mapValue.get(LONGITUDE)).doubleValue();
+                    return new GeoPoint(latitude, longitude);
+                }
+            } else if (value instanceof String stringValue) {
+                // Validate the string as a Firestore document reference using regex
+                if (REFERENCE_PATTERN.matcher(stringValue).matches()) {
+                    // Remove leading slash if present
+                    if (stringValue.startsWith(STRING_SEPERATOR)) {
+                        stringValue = stringValue.substring(1);
+                    }
+                    return collection.getFirestore().document(stringValue);
+                }
+            }
+            return value;
         }
 
         private Object resultToMap(Object objResult) throws AppsmithPluginException {
@@ -868,6 +895,7 @@ public class FirestorePlugin extends BasePlugin {
 
             } else if (objResult instanceof DocumentReference) {
                 // A reference containing details of another document.
+
                 DocumentReference documentReference = (DocumentReference) objResult;
                 return Map.of(
                         "id", documentReference.getId(),
@@ -888,6 +916,16 @@ public class FirestorePlugin extends BasePlugin {
                 }
                 return converted;
 
+            } else if (objResult instanceof Timestamp) {
+                // Handle Firestore Timestamp directly
+                Timestamp timestamp = (Timestamp) objResult;
+                // Convert to ISO 8601 string or any preferred format
+                return timestamp.toSqlTimestamp().toInstant().toString();
+
+            } else if (objResult instanceof GeoPoint) {
+                GeoPoint geoPoint = (GeoPoint) objResult;
+                return String.format("POINT(%f %f)", geoPoint.getLatitude(), geoPoint.getLongitude());
+
             } else if (isRoot) {
                 throw new AppsmithPluginException(
                         FirestorePluginError.QUERY_EXECUTION_FAILED,
@@ -905,7 +943,6 @@ public class FirestorePlugin extends BasePlugin {
                     Thread.currentThread().getName() + ": datasourceCreate() called for Firestore plugin.";
             System.out.println(printMessage);
             final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-
             final Set<String> errors = validateDatasource(datasourceConfiguration);
             if (!CollectionUtils.isEmpty(errors)) {
                 return Mono.error(new AppsmithPluginException(
@@ -1002,7 +1039,6 @@ public class FirestorePlugin extends BasePlugin {
             if (isBlank(datasourceConfiguration.getUrl())) {
                 invalids.add(FirestoreErrorMessages.DS_MISSING_FIRESTORE_URL_ERROR_MSG);
             }
-
             return invalids;
         }
 
