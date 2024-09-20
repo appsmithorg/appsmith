@@ -38,7 +38,9 @@ public class JsonSchemaMigrationTest {
         ApplicationJson applicationJson =
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
-        ArtifactExchangeJson artifactExchangeJson = jsonSchemaMigration.migrateArtifactToLatestSchema(applicationJson);
+        ArtifactExchangeJson artifactExchangeJson = jsonSchemaMigration
+                .migrateArtifactExchangeJsonToLatestSchema(applicationJson, null, null)
+                .block();
         assertThat(artifactExchangeJson.getServerSchemaVersion()).isEqualTo(jsonSchemaVersions.getServerVersion());
         assertThat(artifactExchangeJson.getClientSchemaVersion()).isEqualTo(jsonSchemaVersions.getClientVersion());
         assertThat(artifactExchangeJson.getClientSchemaVersion())

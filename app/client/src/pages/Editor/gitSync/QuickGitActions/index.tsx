@@ -36,6 +36,7 @@ import {
   getIsFetchingGitStatus,
   getIsGitConnected,
   getIsPollingAutocommit,
+  getIsPullingProgress,
   getPullFailed,
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
@@ -306,9 +307,11 @@ export default function QuickGitActions() {
   const { disabled: pullDisabled, message: pullTooltipMessage } =
     getPullBtnStatus(gitStatus, !!pullFailed, isProtectedMode);
 
-  const isPullInProgress = useSelector(getIsDiscardInProgress);
+  const isDiscardInProgress = useSelector(getIsDiscardInProgress);
+  const isPullInProgress = useSelector(getIsPullingProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
-  const showPullLoadingState = isPullInProgress || isFetchingGitStatus;
+  const showPullLoadingState =
+    isDiscardInProgress || isPullInProgress || isFetchingGitStatus;
   const changesToCommit = useSelector(getCountOfChangesToCommit);
 
   const gitMetadata = useSelector(getGitMetadataSelector);
