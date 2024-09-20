@@ -35,15 +35,14 @@ public class JsonSchemaMigration {
     }
 
     /**
-     * This method migrates the server schema of artifactExchangeJson after choosing the right method for migration
-     * this will likely be overridden in EE codebase for more choices
+     * Migrates the server schema of the given ArtifactExchangeJson by selecting the appropriate migration method.
+     * This method may be overridden in the EE codebase for additional migration choices.
      *
-     * @param artifactExchangeJson artifactExchangeJson which is imported
-     * @param baseArtifactId  baseApplicationId of the application to which it's being imported,
-     *                            if it's a git connected artifact, otherwise a null value would be passed.
-     * @param branchName      branch name of the artifact for which application json is getting imported
-     *                        if it's a git connected application. Otherwise, the value would be null.
-     *
+     * @param artifactExchangeJson The artifact to be imported.
+     * @param baseArtifactId       The base application ID to which it's being imported,
+     *                             if it's a Git-connected artifact; otherwise, null.
+     * @param branchName           The branch name of the artifact being imported,
+     *                             if it's a Git-connected application; otherwise, null.
      */
     public Mono<? extends ArtifactExchangeJson> migrateArtifactExchangeJsonToLatestSchema(
             ArtifactExchangeJson artifactExchangeJson, String baseArtifactId, String branchName) {

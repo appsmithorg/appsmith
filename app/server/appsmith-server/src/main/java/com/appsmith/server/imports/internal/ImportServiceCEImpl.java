@@ -425,7 +425,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                                     new AppsmithException(
                                             AppsmithError.VALIDATION_FAILURE,
                                             "Field '" + artifactContextString
-                                                    + "' Sorry! Seems like you've imported a page-level json instead of an application. Please use the import within the page."));
+                                                    + "'. Sorry! It seems you've imported a page-level JSON instead of an application. Please use the import within the page."));
                         }
 
                         return Mono.error(new AppsmithException(
