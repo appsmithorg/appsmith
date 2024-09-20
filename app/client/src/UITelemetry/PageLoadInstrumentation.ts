@@ -41,15 +41,12 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     this.ignoreResourceUrls = ignoreResourceUrls;
     // Start the root span for the page load
     this.rootSpan = startRootSpan("PAGE_LOAD", {}, 0);
+
+    // Initialize the instrumentation after starting the root span
+    this.init();
   }
 
   init() {
-    // init method is present in the base class and needs to be implemented
-    // This is method is never called by the OpenTelemetry SDK
-    // Leaving it empty as it is done by other OpenTelemetry instrumentation classes
-  }
-
-  enable = () => {
     // Register connection change listener
     this.addConnectionAttributes();
 
@@ -69,7 +66,12 @@ export class PageLoadInstrumentation extends InstrumentationBase {
       // If PerformanceObserver is not available, fallback to polling
       this.pollResourceTimingEntries();
     }
-  };
+  }
+
+  enable() {
+    // enable method is present in the base class and needs to be implemented
+    // Leaving it empty as there is no need to do anything here
+  }
 
   private addDeviceAttributes() {
     this.rootSpan.setAttributes({
