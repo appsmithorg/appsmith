@@ -25,5 +25,9 @@ export const apiFailureResponseInterceptor = async (
     }
   }
 
-  return Promise.reject(error);
+  if (error?.response?.data.responseMeta) {
+    return Promise.resolve(error.response.data);
+  }
+
+  return Promise.resolve(error);
 };
