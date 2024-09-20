@@ -243,13 +243,11 @@ const isErrorResponse = (response: ActionExecutionResponse) => {
  * @param blobUrl string A blob url with type added a query param
  * @returns promise that resolves to file content
  */
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function* readBlob(blobUrl: string): any {
+async function readBlob(blobUrl: string) {
   const [url, fileType] = parseBlobUrl(blobUrl);
-  const file = yield fetch(url).then(async (r) => r.blob());
+  const file = await fetch(url).then(async (r) => r.blob());
 
-  return yield new Promise((resolve) => {
+  return new Promise((resolve) => {
     const reader = new FileReader();
 
     if (fileType === FileDataTypes.Base64) {
@@ -286,37 +284,36 @@ function* readBlob(blobUrl: string): any {
  * @param value
  */
 
-function* resolvingBlobUrls(
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any,
+async function resolvingBlobUrls(
+  value: unknown,
   executeActionRequest: ExecuteActionRequest,
   index: number,
   isArray?: boolean,
   arrDatatype?: string[],
 ) {
-  //Get datatypes of evaluated value.
-  const dataType: string = findDatatype(value);
+  const dataType = findDatatype(value);
 
   //If array elements then dont push datatypes to payload.
-  isArray
-    ? arrDatatype?.push(dataType)
-    : (executeActionRequest.paramProperties[`k${index}`] = {
-        datatype: dataType,
-      });
+  if (isArray) {
+    arrDatatype?.push(dataType);
+  } else {
+    executeActionRequest.paramProperties[`k${index}`] = {
+      datatype: dataType,
+    };
+  }
 
   if (isTrueObject(value)) {
     const blobUrlPaths: string[] = [];
 
-    Object.keys(value).forEach((propertyName) => {
-      if (isBlobUrl(value[propertyName])) {
+    Object.entries(value).forEach(([propertyName, propertyValue]) => {
+      if (typeof propertyValue === "string" && isBlobUrl(propertyValue)) {
         blobUrlPaths.push(propertyName);
       }
     });
 
     for (const blobUrlPath of blobUrlPaths) {
       const blobUrl = value[blobUrlPath] as string;
-      const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
+      const resolvedBlobValue: unknown = await readBlob(blobUrl);
 
       set(value, blobUrlPath, resolvedBlobValue);
 
@@ -332,9 +329,8 @@ function* resolvingBlobUrls(
       set(blobUrlPathMap, blobUrlPath, blobUrl);
       set(value, "blobUrlPaths", blobUrlPathMap);
     }
-  } else if (isBlobUrl(value)) {
-    // @ts-expect-error: Values can take many types
-    value = yield call(readBlob, value);
+  } else if (typeof value === "string" && isBlobUrl(value)) {
+    value = await readBlob(value);
   }
 
   return value;
