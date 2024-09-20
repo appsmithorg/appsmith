@@ -8,11 +8,13 @@ import {
 } from "workers/Evaluation/evaluate";
 import type { TJSpropertyState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import getLintingErrors from "./getLintingErrors";
+import type { WebworkerTelemetryAttribute } from "../types";
 
 export default function lintJSProperty(
   jsPropertyFullName: string,
   jsPropertyState: TJSpropertyState,
   globalData: DataTree,
+  webworkerTelemetry: Record<string, WebworkerTelemetryAttribute>,
 ): LintError[] {
   if (isNil(jsPropertyState)) {
     return [];
@@ -29,6 +31,7 @@ export default function lintJSProperty(
     originalBinding: jsPropertyState.value,
     scriptType,
     options: { isJsObject: true },
+    webworkerTelemetry,
   });
   const refinedErrors = propLintErrors.map((lintError) => {
     return {
