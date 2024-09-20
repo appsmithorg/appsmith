@@ -4,6 +4,8 @@
 
 stacks
 /deploy/docker/fs/opt/appsmith/info.json
+
+# Server artifacts
 /deploy/docker/fs/opt/appsmith/server
 
 # to ignore the node_modeules folder
@@ -37,6 +39,5 @@ app/client/.fleet/*
 # Observability related local storage
 utils/observability/tempo-data/*
 
-# Ignore the mongo data folder for Mongo to PG migrations
+# Ignore the mongo data backup directory for Mongo to PG migrations
 mongo-data**
-

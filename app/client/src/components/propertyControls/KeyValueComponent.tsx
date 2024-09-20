@@ -16,6 +16,7 @@ function updateOptionLabel<T>(
     if (index !== optionIndex) {
       return option;
     }
+
     return {
       ...option,
       label: updatedLabel,
@@ -32,6 +33,7 @@ function updateOptionValue<T>(
     if (index !== optionIndex) {
       return option;
     }
+
     return {
       ...option,
       value: updatedValue,
@@ -72,8 +74,10 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
   >([]);
   const [typing, setTyping] = useState<boolean>(false);
   const { pairs } = props;
+
   useEffect(() => {
     let { pairs } = props;
+
     pairs = Array.isArray(pairs) ? pairs.slice() : [];
 
     const newRenderPairs: SegmentedControlOptionWithKey[] = pairs.map(
@@ -97,6 +101,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
   function updateKey(index: number, updatedKey: string) {
     let { pairs } = props;
+
     pairs = Array.isArray(pairs) ? pairs : [];
     const updatedPairs = updateOptionLabel(pairs, index, updatedKey);
     const updatedRenderPairs = updateOptionLabel(
@@ -111,6 +116,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
   function updateValue(index: number, updatedValue: string) {
     let { pairs } = props;
+
     pairs = Array.isArray(pairs) ? pairs : [];
     const updatedPairs = updateOptionValue(pairs, index, updatedValue);
     const updatedRenderPairs = updateOptionValue(
@@ -125,6 +131,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
   function deletePair(index: number, isUpdatedViaKeyboard = false) {
     let { pairs } = props;
+
     pairs = Array.isArray(pairs) ? pairs : [];
 
     const newPairs = pairs.filter((o, i) => i !== index);
@@ -136,6 +143,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
   function addPair(e: React.MouseEvent) {
     let { pairs } = props;
+
     pairs = Array.isArray(pairs) ? pairs.slice() : [];
     pairs.push({
       label: getNextEntityName(
@@ -152,6 +160,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
       ),
     });
     const updatedRenderPairs = renderPairs.slice();
+
     updatedRenderPairs.push({
       label: getNextEntityName(
         "Option",

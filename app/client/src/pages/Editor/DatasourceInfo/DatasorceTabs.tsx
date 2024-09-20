@@ -71,6 +71,7 @@ const DatasourceTabs = (props: DatasourceTabProps) => {
           currentEnvironmentId,
         )
       : false;
+
   return (
     <TabsContainer
       defaultValue={

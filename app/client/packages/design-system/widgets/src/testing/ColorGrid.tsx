@@ -17,6 +17,7 @@ const clean = (value: number) => {
 const getColorString = (color: Color, colorSpace: "oklch" | "hex") => {
   if (colorSpace === "oklch") {
     const lch = color.oklch;
+
     return `${clean(lch.l)} ${clean(lch.c)} ${clean(lch.h)}`;
   }
 
@@ -32,6 +33,7 @@ const getTestObj = (steps: number, source: "oklch" | "hex") => {
   for (let i = 0; i < steps; i++) {
     // @ts-expect-error for some reason
     obj[i] = {};
+
     for (let k = 0; k < steps; k++) {
       const l = clean(k * LRatio);
       const c = clean(k * CRatio);
@@ -41,6 +43,7 @@ const getTestObj = (steps: number, source: "oklch" | "hex") => {
         .set("oklch.l", l)
         .set("oklch.c", c)
         .set("oklch.h", h);
+
       // @ts-expect-error for some reason
       obj[i][`${l} ${c} ${h}`] =
         source === "oklch" ? color : color.toString({ format: "hex" });

@@ -79,9 +79,11 @@ function* setFormEvaluationSagaAsync(
         },
       });
     }
+
     // RUN_FORM_EVALUATION shouldn't be called before INIT_FORM_EVALUATION has been called with
     // the same `formId` else `extractQueueOfValuesToBeFetched` will be sent an undefined value.
     let queueOfValuesToBeFetched;
+
     if (
       action?.type === ReduxActionTypes.RUN_FORM_EVALUATION &&
       workerResponse[action?.payload?.formId]
@@ -98,10 +100,12 @@ function* setFormEvaluationSagaAsync(
         payload: workerResponse,
       });
     }
+
     // If there are any actions in the queue, run them
     // Once all the actions are done, extract the actions that need to be fetched dynamically
     const formId = action.payload.formId;
     const evalOutput = workerResponse[formId];
+
     if (evalOutput && typeof evalOutput === "object") {
       if (queueOfValuesToBeFetched) {
         yield put({
@@ -219,6 +223,7 @@ function* fetchDynamicValueSaga(
           { ...evalAction, workspaceId },
           dataTreeActionConfigPath,
         );
+
         // if it exists, we store it in the substituted params object.
         // we check if that value is enclosed in dynamic bindings i.e the value has not been evaluated or somehow still contains a js expression
         // if it is, we return an empty string since we don't want to send dynamic bindings to the server.
@@ -257,7 +262,9 @@ function* fetchDynamicValueSaga(
         ...evaluatedParams,
       },
     );
+
     dynamicFetchedValues.isLoading = false;
+
     if (response.responseMeta.status === 200 && "trigger" in response.data) {
       dynamicFetchedValues.data = response.data.trigger;
       dynamicFetchedValues.hasFetchFailed = false;
@@ -271,6 +278,7 @@ function* fetchDynamicValueSaga(
     dynamicFetchedValues.isLoading = false;
     dynamicFetchedValues.data = [];
   }
+
   return dynamicFetchedValues;
 }
 
@@ -280,20 +288,24 @@ function* formEvaluationChangeListenerSaga() {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS, buffer as any);
+
   while (true) {
     if (buffer.isEmpty()) {
       yield put({
         type: ReduxActionTypes.FORM_EVALUATION_EMPTY_BUFFER,
       });
     }
+
     const action: ReduxAction<FormEvalActionPayload> =
       yield take(formEvalChannel);
+
     yield call(setFormEvaluationSagaAsync, action);
   }
 }
 
 export default function* formEvaluationChangeListener() {
   yield take(ReduxActionTypes.START_EVALUATION);
+
   while (true) {
     try {
       yield call(formEvaluationChangeListenerSaga);

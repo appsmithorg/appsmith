@@ -79,5 +79,6 @@ export function AccessControlUpgradePage() {
     message: createMessage(ACCESS_CONTROL_UPGRADE_PAGE_FOOTER),
   };
   const props = { header, carousel, footer };
+
   return <UpgradePage {...props} />;
 }

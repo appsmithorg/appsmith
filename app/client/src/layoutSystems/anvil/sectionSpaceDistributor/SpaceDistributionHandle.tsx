@@ -51,6 +51,7 @@ const updateDistributionHandlePosition = (
 ) => {
   if (ref.current && entries.length) {
     const target = entries[0].target as HTMLElement;
+
     if (target && target.parentElement) {
       // making this change to compute offset left coz offsetLeft of the dom api does not provide decimal values
       // which is causing the handle to jump on clicking it the first time
@@ -101,6 +102,7 @@ export const SpaceDistributionHandle = ({
 
   // Create a ref for ResizeObserver for the right zone
   const resizeObserverRef = useRef<ResizeObserver>();
+
   resizeObserverRef.current = new ResizeObserver((entries) => {
     // Update the position of the distribution handle on resize
     requestAnimationFrame(() =>

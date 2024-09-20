@@ -41,6 +41,7 @@ it("it checks if array to object migration functions for chart widget ", () => {
 
   // mocking implementation of our generateReactKey function
   const generatorReactKeyMock = jest.spyOn(utils, "generateReactKey");
+
   generatorReactKeyMock.mockImplementation(() => "some-random-key");
 
   const result = migrateChartDataFromArrayToObject(input);

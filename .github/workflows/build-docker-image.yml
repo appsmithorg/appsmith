@@ -9,11 +9,6 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
-      is-pg-build:
-        description: "This is a boolean value in case the workflow is being called for a PG build"
-        required: false
-        type: string
-        default: "false"
 
 jobs:
   build-docker:
@@ -79,6 +74,12 @@ jobs:
           if [[ -f scripts/generate_info_json.sh ]]; then
             scripts/generate_info_json.sh
           fi
+      
+      - name: Place server artifacts-es
+        env:
+          EDITION: ${{ vars.EDITION }}
+        run: |
+          scripts/prepare_server_artifacts.sh
 
       - name: Place server artifacts-es
         run: |

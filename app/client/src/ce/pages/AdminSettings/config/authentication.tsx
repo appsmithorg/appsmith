@@ -35,6 +35,7 @@ import { isSAMLEnabled, isOIDCEnabled } from "ee/utils/planHelpers";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import store from "store";
 const featureFlags = selectFeatureFlags(store.getState());
+
 import { getAppsmithConfigs } from "ee/configs";
 const { mailEnabled } = getAppsmithConfigs();
 
@@ -72,9 +73,11 @@ const FormAuth: AdminConfigType = {
         if (!settings) {
           return true;
         }
+
         if (settings.emailVerificationEnabled) {
           return false;
         }
+
         return !mailEnabled;
       },
     },
@@ -91,9 +94,11 @@ const FormAuth: AdminConfigType = {
         if (!settings) {
           return false;
         }
+
         if (settings.emailVerificationEnabled) {
           return false;
         }
+
         return !mailEnabled;
       },
     },
@@ -109,6 +114,7 @@ const FormAuth: AdminConfigType = {
         if (!settings) {
           return false;
         }
+
         return settings.emailVerificationEnabled && mailEnabled;
       },
     },
@@ -124,9 +130,11 @@ const FormAuth: AdminConfigType = {
         if (!settings) {
           return false;
         }
+
         if (!mailEnabled && settings.emailVerificationEnabled) {
           return true;
         }
+
         return false;
       },
     },
@@ -310,10 +318,12 @@ const AuthMethods = [
 function AuthMain() {
   FormAuthCallout.isConnected = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
+
   GoogleAuth.isConnected = GoogleAuthCallout.isConnected =
     socialLoginList.includes("google");
   GithubAuth.isConnected = GithubAuthCallout.isConnected =
     socialLoginList.includes("github");
+
   return <AuthPage authMethods={AuthMethods} />;
 }
 

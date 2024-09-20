@@ -57,6 +57,7 @@ describe("groupAndSortEntitySegmentList", () => {
 
   it("should handle empty input", () => {
     const result = groupAndSortEntitySegmentList([]);
+
     expect(result).toEqual([]);
   });
 

@@ -58,11 +58,13 @@ function SinglePageChange({ page, status }: SinglePageChangeProps) {
         query.startsWith(page),
       ),
     };
+
     return flags;
   }, [status]);
 
   const titleText = useMemo(() => {
     let text = `${page} `;
+
     if (changeFlags.isPageAdded) {
       text += "added";
     } else if (changeFlags.isPageRemoved) {
@@ -79,6 +81,7 @@ function SinglePageChange({ page, status }: SinglePageChangeProps) {
     ) {
       text += "modified";
     }
+
     return text;
   }, [page, changeFlags]);
 

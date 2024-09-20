@@ -44,6 +44,7 @@ export function migrateRateWidgetDisabledState(currentDSL: DSLWidget) {
     } else if (child.children && child.children.length > 0) {
       child = migrateRateWidgetDisabledState(child);
     }
+
     return child;
   });
 

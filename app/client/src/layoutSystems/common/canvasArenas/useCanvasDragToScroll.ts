@@ -12,6 +12,7 @@ export const useCanvasDragToScroll = (
   dependencies: Record<string, any> = {},
 ) => {
   const canScroll = useRef(true);
+
   useEffect(() => {
     if (isCurrentDraggedCanvas) {
       let scrollTimeOut: number[] = [];
@@ -28,12 +29,15 @@ export const useCanvasDragToScroll = (
       };
       const scrollFn = () => {
         clearScrollStacks();
+
         if (!canScroll.current) {
           scrollDirection = 0;
         }
+
         const scrollParent: Element | null = getNearestParentCanvas(
           canvasRef.current,
         );
+
         if (
           isDragging &&
           isCurrentDraggedCanvas &&
@@ -49,6 +53,7 @@ export const useCanvasDragToScroll = (
               behavior: "smooth",
             });
           }
+
           scrollTimeOut.push(setTimeout(scrollFn, 100 * Math.max(0.4, speed)));
         }
       };
@@ -59,6 +64,7 @@ export const useCanvasDragToScroll = (
           const scrollParent: Element | null = getNearestParentCanvas(
             canvasRef.current,
           );
+
           if (canvasRef.current && scrollParent) {
             const scrollObj = getScrollByPixels(
               {
@@ -68,6 +74,7 @@ export const useCanvasDragToScroll = (
               scrollParent,
               canvasRef.current,
             );
+
             scrollByPixels = scrollObj.scrollAmount;
             speed = scrollObj.speed;
             const currentScrollDirection =
@@ -76,8 +83,10 @@ export const useCanvasDragToScroll = (
                   ? 1
                   : -1
                 : 0;
+
             if (currentScrollDirection !== scrollDirection) {
               scrollDirection = currentScrollDirection;
+
               if (!!scrollDirection) {
                 scrollFn();
               }
@@ -85,16 +94,19 @@ export const useCanvasDragToScroll = (
           }
         }
       };
+
       canvasRef.current?.addEventListener(
         "mousemove",
         checkIfNeedsScroll,
         false,
       );
+
       return () => {
         clearScrollStacks();
         canvasRef.current?.removeEventListener("mousemove", checkIfNeedsScroll);
       };
     }
   }, [isCurrentDraggedCanvas, isDragging, dependencies]);
+
   return canScroll;
 };

@@ -46,6 +46,7 @@ export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
 
   useEffect(() => {
     canvasRef.current?.addEventListener("click", handleOnClickCapture);
+
     return () => {
       canvasRef.current?.removeEventListener("click", handleOnClickCapture);
     };
@@ -56,6 +57,7 @@ export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
   // Fetching all states used in Anvil DnD using the useAnvilGlobalDnDStates hook
   // using AnvilDnDStatesContext to provide the states to the child AnvilDraggingArena
   const anvilGlobalDnDStates = useAnvilGlobalDnDStates();
+
   return (
     <AnvilWidgetElevationProvider>
       <AnvilDnDStatesContext.Provider value={anvilGlobalDnDStates}>

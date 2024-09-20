@@ -86,6 +86,7 @@ const ThemeCardApplyButton = styled.div`
   background-color: var(--ads-v2-color-bg-emphasis-plus);
   color: var(--ads-v2-color-fg-on-emphasis-plus);
 `;
+
 /**
  * ----------------------------------------------------------------------------
  * COMPONENT

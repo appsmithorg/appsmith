@@ -11,6 +11,7 @@ import type { EventName } from "ee/utils/analyticsUtilTypes";
 export function getUserSource() {
   const { cloudHosting, segment } = getAppsmithConfigs();
   const source = cloudHosting || segment.apiKey ? "cloud" : "ce";
+
   return source;
 }
 declare global {
@@ -38,6 +39,7 @@ export function getParentContextFromURL(location: Location) {
   const editorIndex = pathSplit.findIndex((path) =>
     parentContextTypeTokens.includes(path),
   );
+
   if (editorIndex !== -1) {
     type = pathSplit[editorIndex];
 
@@ -78,6 +80,7 @@ class AnalyticsUtil {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (function init(window: any) {
         const analytics = (window.analytics = window.analytics || []);
+
         if (!analytics.initialize) {
           if (analytics.invoked) {
             log.error("Segment snippet included twice.");
@@ -106,22 +109,28 @@ class AnalyticsUtil {
             analytics.factory = function (t: any) {
               return function () {
                 const e = Array.prototype.slice.call(arguments); //eslint-disable-line prefer-rest-params
+
                 e.unshift(t);
                 analytics.push(e);
+
                 return analytics;
               };
             };
           }
+
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           for (let t: any = 0; t < analytics.methods.length; t++) {
             const e = analytics.methods[t];
+
             analytics[e] = analytics.factory(e);
           }
+
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           analytics.load = function (t: any, e: any) {
             const n = document.createElement("script");
+
             n.type = "text/javascript";
             n.async = !0;
             // Ref: https://www.notion.so/appsmith/530051a2083040b5bcec15a46121aea3
@@ -129,6 +138,7 @@ class AnalyticsUtil {
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const a: any = document.getElementsByTagName("script")[0];
+
             a.parentNode.insertBefore(n, a);
             analytics._loadOptions = e;
           };
@@ -153,12 +163,14 @@ class AnalyticsUtil {
               },
             },
           });
+
           if (!AnalyticsUtil.blockTrackEvent) {
             analytics.page();
           }
         }
       })(window);
     });
+
     return initPromise;
   }
 
@@ -172,6 +184,7 @@ class AnalyticsUtil {
     if (AnalyticsUtil.blockTrackEvent) {
       return;
     }
+
     if (
       AnalyticsUtil.blockErrorLogs &&
       eventType === AnalyticsEventType.error
@@ -188,11 +201,13 @@ class AnalyticsUtil {
     const instanceId = AnalyticsUtil.instanceId;
     const appId = getApplicationId(windowDoc.location);
     const { appVersion, segment } = getAppsmithConfigs();
+
     if (userData) {
       const source = getUserSource();
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let user: any = {};
+
       if (segment.apiKey) {
         user = {
           userId: userData.username,
@@ -201,20 +216,24 @@ class AnalyticsUtil {
         };
       } else {
         const userId = userData.username;
+
         if (userId !== AnalyticsUtil.cachedUserId) {
           AnalyticsUtil.cachedAnonymoustId = sha256(userId);
           AnalyticsUtil.cachedUserId = userId;
         }
+
         user = {
           userId: AnalyticsUtil.cachedAnonymoustId,
         };
       }
+
       finalEventData = {
         ...eventData,
         userData:
           user.userId === ANONYMOUS_USERNAME ? undefined : { ...user, source },
       };
     }
+
     finalEventData = {
       ...finalEventData,
       instanceId,
@@ -236,8 +255,10 @@ class AnalyticsUtil {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const windowDoc: any = window;
     const userId = userData.username;
+
     if (windowDoc.analytics) {
       const source = getUserSource();
+
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
       if (segment.apiKey) {
         const userProperties = {
@@ -247,6 +268,7 @@ class AnalyticsUtil {
           name: userData.name,
           emailVerified: userData.emailVerified,
         };
+
         AnalyticsUtil.user = userData;
         log.debug("Identify User " + userId);
         windowDoc.analytics.identify(userId, userProperties);
@@ -256,6 +278,7 @@ class AnalyticsUtil {
           AnalyticsUtil.cachedAnonymoustId = sha256(userId);
           AnalyticsUtil.cachedUserId = userId;
         }
+
         const userProperties = {
           userId: AnalyticsUtil.cachedAnonymoustId,
           source,
@@ -268,6 +291,7 @@ class AnalyticsUtil {
               }
             : {}),
         };
+
         log.debug(
           "Identify Anonymous User " + AnalyticsUtil.cachedAnonymoustId,
         );
@@ -312,6 +336,7 @@ class AnalyticsUtil {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const windowDoc: any = window;
     const { segment } = getAppsmithConfigs();
+
     if (windowDoc.analytics && windowDoc.analytics.user) {
       return windowDoc.analytics.user().anonymousId();
     } else if (segment.enabled) {
@@ -323,9 +348,11 @@ class AnalyticsUtil {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const windowDoc: any = window;
+
     if (windowDoc.Intercom) {
       windowDoc.Intercom("shutdown");
     }
+
     windowDoc.analytics && windowDoc.analytics.reset();
     windowDoc.mixpanel && windowDoc.mixpanel.reset();
     window.zipy && window.zipy.anonymize();

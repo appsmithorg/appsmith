@@ -11,7 +11,9 @@ import {
 export default class ActionPaneNavigationFactory {
   static *create(entityInfo: EntityInfo) {
     const action: Action | undefined = yield select(getAction, entityInfo.id);
+
     if (!action) throw Error(`Couldn't find action with id: ${entityInfo.id}`);
+
     switch (action.pluginType) {
       case PluginType.API:
         return new ApiPaneNavigation(entityInfo);

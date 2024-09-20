@@ -22,7 +22,7 @@ mv "$target/pg"/server-*.jar "$target/pg/server.jar"
 # Grab MongoDB server artifacts from that Docker image.
 image="appsmith/appsmith-$EDITION:$MONGO_TAG"
 docker run --name xx --detach --entrypoint sleep "$image" infinity
-docker cp xx:/opt/appsmith/backend "$target/mongo"
+docker cp xx:/opt/appsmith/server/mongo "$target/mongo"
 docker cp xx:/opt/appsmith/info.json "$target/mongo/source-info.json"
 docker rm --force xx
 docker image rm "$image"

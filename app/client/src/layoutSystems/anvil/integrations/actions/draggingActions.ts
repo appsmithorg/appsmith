@@ -37,6 +37,7 @@ export const addNewAnvilWidgetAction = (
     newWidget,
     dragMeta,
   };
+
   return {
     type: AnvilReduxActionTypes.ANVIL_ADD_NEW_WIDGET,
     payload,
@@ -56,6 +57,7 @@ export const moveAnvilWidgets = (
     movedWidgets,
     dragMeta,
   };
+
   return {
     type: AnvilReduxActionTypes.ANVIL_MOVE_WIDGET,
     payload,

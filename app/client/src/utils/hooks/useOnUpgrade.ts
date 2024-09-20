@@ -34,6 +34,7 @@ const useOnUpgrade = (props: Props) => {
       logEventName || "ADMIN_SETTINGS_UPGRADE",
       logEventData,
     );
+
     if (isEnterprise) {
       window.open(
         PRICING_PAGE_URL(

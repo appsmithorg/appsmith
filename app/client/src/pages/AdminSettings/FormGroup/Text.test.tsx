@@ -21,6 +21,7 @@ const useSelector = jest.fn();
 const settingsConfig = {
   textType: "some text value",
 };
+
 useSelector.mockReturnValue(settingsConfig);
 
 function renderComponent() {
@@ -47,6 +48,7 @@ describe("Text", () => {
   it("is rendered", () => {
     renderComponent();
     const text = screen.queryAllByTestId("admin-settings-text");
+
     expect(text).toHaveLength(1);
     expect(text[0].textContent).toBe(settingsConfig.textType);
   });

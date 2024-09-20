@@ -14,6 +14,7 @@ export function getWidgetLayoutMetaInfo(
   layoutOrder: string[] = [],
 ): WidgetLayoutPositionInfo | null {
   if (!parentLayout) return null;
+
   const Comp: typeof BaseLayoutComponent = LayoutFactory.get(
     parentLayout.layoutType,
   );
@@ -21,6 +22,7 @@ export function getWidgetLayoutMetaInfo(
   if (Comp.rendersWidgets) {
     return findInWidgetLayout(parentLayout, widgetId, layoutOrder);
   }
+
   return findInLayout(parentLayout, widgetId, layoutOrder);
 }
 
@@ -32,7 +34,9 @@ function findInWidgetLayout(
   const widgetLayouts: WidgetLayoutProps[] =
     parentLayout.layout as WidgetLayoutProps[];
   const index: number = getWidgetIndex(parentLayout, widgetId);
+
   if (index === -1) return null;
+
   return {
     layoutOrder: [...order, parentLayout.layoutId],
     rowIndex: index,
@@ -47,10 +51,12 @@ function findInLayout(
 ): WidgetLayoutPositionInfo | null {
   const layouts: LayoutProps[] = parentLayout.layout as LayoutProps[];
   let res: WidgetLayoutPositionInfo | null = null;
+
   for (let i = 0; i < layouts.length; i += 1) {
     const each: LayoutProps = layouts[i];
     let temp: WidgetLayoutPositionInfo | null = null;
     const Comp: typeof BaseLayoutComponent = LayoutFactory.get(each.layoutType);
+
     if (Comp.rendersWidgets) {
       temp = findInWidgetLayout(each, widgetId, [
         ...order,
@@ -59,17 +65,20 @@ function findInLayout(
     } else {
       temp = findInLayout(each, widgetId, [...order, parentLayout.layoutId]);
     }
+
     if (!!temp) {
       res = temp;
       break;
     }
   }
+
   return res;
 }
 
 function getWidgetIndex(props: LayoutProps, widgetId: string): number {
   const widgetLayouts: WidgetLayoutProps[] =
     props.layout as WidgetLayoutProps[];
+
   return widgetLayouts.findIndex(
     (item: WidgetLayoutProps) => item.widgetId === widgetId,
   );

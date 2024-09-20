@@ -20,9 +20,11 @@ const CreateDatasourcePopover = () => {
     isFeatureEnabled,
     userWorkspacePermissions,
   );
+
   if (!canCreateDatasource) {
     return null;
   }
+
   return (
     <Popover open={false}>
       <PopoverTrigger>

@@ -43,7 +43,9 @@ export const inverseFieldType = Object.entries(FieldType).reduce<
 >(
   (previousValue, currentValue) => {
     const [key, value] = currentValue;
+
     previousValue[value] = key as FieldTypeKey;
+
     return previousValue;
   },
   {} as Record<FieldType, FieldTypeKey>,

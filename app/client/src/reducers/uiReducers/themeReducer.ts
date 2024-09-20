@@ -38,6 +38,7 @@ const themeReducer = createImmerReducer(initialState, {
     const completeTheme = {
       ...theme,
     };
+
     switch (action.payload) {
       case ThemeMode.DARK:
         completeTheme.colors = {

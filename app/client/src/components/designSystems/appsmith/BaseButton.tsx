@@ -31,10 +31,13 @@ const getCustomTextColor = (
     return theme.colors.button[
       (prevButtonStyle || ButtonStyleTypes.PRIMARY).toLowerCase()
     ].solid.textColor;
+
   const isDark = tinycolor(backgroundColor).isDark();
+
   if (isDark) {
     return theme.colors.button.custom.solid.light.textColor;
   }
+
   return theme.colors.button.custom.solid.dark.textColor;
 };
 

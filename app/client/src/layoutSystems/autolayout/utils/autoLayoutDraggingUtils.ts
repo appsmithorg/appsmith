@@ -18,13 +18,17 @@ export function createFlexLayer(
   alignment: FlexLayerAlignment,
 ): FlexLayer {
   const children = [];
+
   if (movedWidgets && movedWidgets.length) {
     for (const id of movedWidgets) {
       const widget = allWidgets[id];
+
       if (!widget) continue;
+
       children.push({ id, align: alignment });
     }
   }
+
   return { children };
 }
 
@@ -41,16 +45,19 @@ export function removeWidgetsFromCurrentLayers(
   flexLayers: FlexLayer[],
 ): FlexLayer[] {
   if (!flexLayers || !flexLayers.length) return [];
+
   return flexLayers?.reduce((acc: FlexLayer[], layer: FlexLayer) => {
     const children = layer.children.filter(
       (each: LayerChild) => movedWidgets.indexOf(each.id) === -1,
     );
+
     if (children.length) {
       acc.push({
         ...layer,
         children,
       });
     }
+
     return acc;
   }, []);
 }
@@ -81,14 +88,17 @@ export function updateRelationships(
     (item) => widgets[item].parentId !== parentId,
   );
   const prevParents: string[] = [];
+
   if (orphans && orphans.length) {
     //parent has changed
     orphans.forEach((item) => {
       // remove from previous parent
       const prevParentId = widgets[item].parentId;
+
       if (prevParentId !== undefined) {
         prevParents.push(prevParentId);
         const prevParent = Object.assign({}, widgets[prevParentId]);
+
         if (isArray(prevParent.children)) {
           const updatedPrevParent = {
             ...prevParent,
@@ -102,6 +112,7 @@ export function updateRelationships(
                 prevParent.flexLayers,
               ),
           };
+
           widgets[prevParentId] = updatedPrevParent;
         }
       }
@@ -115,6 +126,7 @@ export function updateRelationships(
       }
     });
   }
+
   if (prevParents.length) {
     for (const id of prevParents) {
       const updatedWidgets = updateWidgetPositions(
@@ -125,9 +137,11 @@ export function updateRelationships(
         false,
         metaProps,
       );
+
       return updatedWidgets;
     }
   }
+
   return widgets;
 }
 
@@ -188,6 +202,7 @@ export function updateExistingLayer(
   try {
     const widgets: CanvasWidgetsReduxState = { ...allWidgets };
     const canvas = widgets[parentId];
+
     if (!canvas || !newLayer) return widgets;
 
     const map: { [key: string]: LayerChild[] } = {
@@ -199,7 +214,9 @@ export function updateExistingLayer(
     for (const child of layers[layerIndex]?.children) {
       map[child.align] = [...map[child.align], child];
     }
+
     const alignment = newLayer.children[0].align;
+
     map[alignment] = [
       ...map[alignment].slice(0, rowIndex),
       ...newLayer?.children,
@@ -226,6 +243,7 @@ export function updateExistingLayer(
     };
 
     const updatedWidgets = { ...widgets, [parentId]: updatedCanvas };
+
     return updatedWidgets;
   } catch (e) {
     return allWidgets;

@@ -205,6 +205,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
 
   it("Pressing '{Enter}' or ' ' should select the icon", async () => {
     const handleOnSelect = jest.fn();
+
     render(getTestComponent(handleOnSelect));
     await userEvent.tab();
     expect(screen.getByRole("button")?.textContent).toEqual("(none)caret-down");
@@ -245,6 +246,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
 });
 
 const config = { ...requiredParams };
+
 describe("IconSelectControl.canDisplayValue", () => {
   it("Should return true when a proper icon name is passed", () => {
     expect(IconSelectControl.canDisplayValueInUI(config, "add")).toEqual(true);

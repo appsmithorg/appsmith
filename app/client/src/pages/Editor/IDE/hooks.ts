@@ -33,6 +33,7 @@ export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
   const { pathname } = useLocation();
   const entityInfo = identifyEntityFromPath(pathname);
+
   useEffect(() => {
     setAppState(entityInfo.appState);
   }, [entityInfo.appState]);
@@ -56,6 +57,7 @@ export const useCurrentEditorState = () => {
   useEffect(() => {
     const { entity } = identifyEntityFromPath(location.pathname);
     const { segment, segmentMode } = getCurrentEntityInfo(entity);
+
     setSelectedSegment(segment);
     setSelectedSegmentState(segmentMode);
   }, [location.pathname]);
@@ -134,6 +136,7 @@ export function useWidgetSelectionBlockListener() {
       FocusEntity.PROPERTY_PANE,
       FocusEntity.WIDGET_LIST,
     ].includes(currentFocus.entity);
+
     dispatch(setWidgetSelectionBlock(!inUIMode));
   }, [currentFocus, dispatch]);
 
@@ -169,12 +172,14 @@ export const useIDETabClickHandlers = () => {
 
   const addClickHandler = useCallback(() => {
     if (segment === EditorEntityTab.JS) openAddJS();
+
     if (segment === EditorEntityTab.QUERIES) openAddQuery();
   }, [segment, segmentMode, openAddQuery, openAddJS]);
 
   const tabClickHandler = useCallback(
     (item: EntityItem) => {
       const navigateToUrl = tabsConfig.itemUrlSelector(item, basePageId);
+
       history.push(navigateToUrl, {
         invokedBy: NavigationMethod.EditorTabs,
       });
@@ -188,8 +193,10 @@ export const useIDETabClickHandlers = () => {
         // handle JS
         return segment === EditorEntityTab.JS ? closeAddJS() : closeAddQuery();
       }
+
       if (segment === EditorEntityTab.JS)
         dispatch(closeJSActionTab({ id: actionId, parentId: basePageId }));
+
       if (segment === EditorEntityTab.QUERIES)
         dispatch(closeQueryActionTab({ id: actionId, parentId: basePageId }));
     },

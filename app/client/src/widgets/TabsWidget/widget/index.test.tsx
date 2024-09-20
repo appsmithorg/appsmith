@@ -36,6 +36,7 @@ describe("Tabs widget functional cases", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+
     render(
       <MockPageDSL dsl={dsl}>
         <Canvas canvasWidth={dsl.rightColumn} widgetsStructure={dsl} />
@@ -43,6 +44,7 @@ describe("Tabs widget functional cases", () => {
     );
     const tab1 = screen.queryByText("Tab 1");
     const tab2 = screen.queryByText("Tab 2");
+
     expect(tab1).toBeDefined();
     expect(tab2).toBeDefined();
   });
@@ -59,6 +61,7 @@ describe("Tabs widget functional cases", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const children: any = buildChildren([{ type: "TABS_WIDGET" }]);
+
     children[0].children[0].children = tab1Children;
     children[0].children[1].children = tab2Children;
     // TODO: Fix this the next time the file is edited
@@ -75,12 +78,14 @@ describe("Tabs widget functional cases", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tab2: any = component.queryByText("Tab 2");
+
     expect(tab1).toBeDefined();
     expect(tab2).toBeDefined();
     let tab1Switch = component.queryByText("Tab1 Switch");
     let tab1Checkbox = component.queryByText("Tab1 Checkbox");
     let tab2Input = component.queryByText("Tab2 Text");
     let tab2Button = component.queryByText("Tab2 Button");
+
     expect(tab1Switch).toBeDefined();
     expect(tab1Checkbox).toBeDefined();
     expect(tab2Input).toBeNull();

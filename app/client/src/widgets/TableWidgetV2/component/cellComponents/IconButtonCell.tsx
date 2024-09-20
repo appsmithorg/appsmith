@@ -44,11 +44,13 @@ function IconButton(props: {
   };
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
+
     if (props.action.dynamicTrigger) {
       setLoading(true);
       props.onCommandClick(props.action.dynamicTrigger, onComplete);
     }
   };
+
   return (
     <IconButtonWrapper disabled={props.disabled} onClick={handlePropagation}>
       <StyledButton

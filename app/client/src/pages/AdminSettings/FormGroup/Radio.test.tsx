@@ -39,6 +39,7 @@ function renderComponent() {
   function RadioFieldComponent() {
     return <Radio data-testid="t--radio" setting={setting} />;
   }
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Parent = reduxForm<any, any>({
@@ -73,6 +74,7 @@ describe("Radio", () => {
     const radioOptions: NodeListOf<HTMLInputElement> =
       document.querySelectorAll("input[type=radio]");
     const numberOfCheckboxes = radioOptions.length;
+
     expect(numberOfCheckboxes).toEqual(
       setting.controlTypeProps?.options.length,
     );

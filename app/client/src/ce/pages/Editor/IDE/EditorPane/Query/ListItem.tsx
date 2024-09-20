@@ -12,6 +12,7 @@ export interface QueryListItemProps {
 
 export const QueryListItem = (props: QueryListItemProps) => {
   const { isActive, item, parentEntityId, parentEntityType } = props;
+
   return (
     <ExplorerActionEntity
       baseId={item.key}

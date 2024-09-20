@@ -43,6 +43,7 @@ describe("Resizable Utils", () => {
         direction: ReflowDirection.RIGHT,
       },
     ];
+
     input.forEach((_input) => {
       const result = isHandleResizeAllowed(
         _input.horizontalEnabled,
@@ -66,6 +67,7 @@ describe("Resizable Utils", () => {
         direction: ReflowDirection.RIGHT,
       },
     ];
+
     input.forEach((_input) => {
       const result = isHandleResizeAllowed(
         _input.horizontalEnabled,
@@ -89,6 +91,7 @@ describe("Resizable Utils", () => {
         direction: ReflowDirection.BOTTOM,
       },
     ];
+
     input.forEach((_input) => {
       const result = isHandleResizeAllowed(
         _input.horizontalEnabled,
@@ -112,6 +115,7 @@ describe("Resizable Utils", () => {
         direction: ReflowDirection.BOTTOM,
       },
     ];
+
     input.forEach((_input) => {
       const result = isHandleResizeAllowed(
         _input.horizontalEnabled,

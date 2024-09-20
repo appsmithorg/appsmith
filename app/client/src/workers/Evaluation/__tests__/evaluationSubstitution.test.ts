@@ -333,6 +333,7 @@ describe("substituteDynamicBindingWithValues", () => {
       const binding = `{{ appsmith }}`;
       const subBindings = ["{{appsmith}}"];
       const subValues = [{ test: "object" }];
+
       expect(() =>
         substituteDynamicBindingWithValues(
           binding,

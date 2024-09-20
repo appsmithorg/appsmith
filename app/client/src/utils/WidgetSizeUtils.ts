@@ -41,8 +41,10 @@ export function getCanvasWidgetHeightsToUpdate(
   canvasWidgets: Record<string, FlattenedWidgetProps>,
 ): Record<string, number> {
   const updatedCanvasWidgets: Record<string, number> = {};
+
   for (const widgetId of updatedWidgetIds) {
     const widget = canvasWidgets[widgetId];
+
     if (widget) {
       if (
         widget.type !== "CANVAS_WIDGET" &&
@@ -55,15 +57,18 @@ export function getCanvasWidgetHeightsToUpdate(
               childCanvasWidgetId,
               canvasWidgets,
             );
+
             if (bottomRow > 0) {
               updatedCanvasWidgets[childCanvasWidgetId] = bottomRow;
             }
           }
         }
       }
+
       if (widget.parentId) {
         if (!updatedCanvasWidgets.hasOwnProperty(widget.parentId)) {
           const bottomRow = getCanvasBottomRow(widget.parentId, canvasWidgets);
+
           if (bottomRow > 0) updatedCanvasWidgets[widget.parentId] = bottomRow;
         }
       }
@@ -74,11 +79,13 @@ export function getCanvasWidgetHeightsToUpdate(
           MAIN_CONTAINER_WIDGET_ID,
           canvasWidgets,
         );
+
         if (bottomRow > 0)
           updatedCanvasWidgets[MAIN_CONTAINER_WIDGET_ID] = bottomRow;
       }
     }
   }
+
   return updatedCanvasWidgets;
 }
 
@@ -93,11 +100,13 @@ export function getCanvasBottomRow(
   canvasWidgets: Record<string, FlattenedWidgetProps>,
 ) {
   const canvasWidget = canvasWidgets[canvasWidgetId];
+
   // If this widget is not defined
   // It is likely a part of the list widget's canvases
   if (canvasWidget === undefined) {
     return 0;
   }
+
   // If this widget is not a CANVAS_WIDGET
   if (canvasWidget.type !== "CANVAS_WIDGET") {
     return canvasWidget.bottomRow;
@@ -119,11 +128,13 @@ export function getCanvasBottomRow(
 
   if (canvasWidget.parentId) {
     const parentWidget = canvasWidgets[canvasWidget.parentId];
+
     // If the parent widget is undefined but the parentId exists
     // It is likely a part of the list widget
     if (parentWidget === undefined) {
       return 0;
     }
+
     // If the parent is list widget, let's return the canvasWidget.bottomRow
     // We'll be handling this specially in withWidgetProps
     if (parentWidget.type === "LIST_WIDGET") {
@@ -135,6 +146,7 @@ export function getCanvasBottomRow(
       parentWidget.type,
       parentWidget,
     );
+
     // The parent's height in rows
     parentHeightInRows = parentWidget.bottomRow - parentWidget.topRow;
 
@@ -147,6 +159,7 @@ export function getCanvasBottomRow(
         parentWidget.height / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
       );
     }
+
     // Subtract the canvas offset due to some parent elements
     parentHeightInRows = parentHeightInRows - parentHeightOffset;
   } else {
@@ -159,9 +172,11 @@ export function getCanvasBottomRow(
       if (canvasWidgets[next].detachFromLayout) {
         return prev;
       }
+
       if (canvasWidgets[next].bottomRow === canvasWidgets[next].topRow) {
         return prev;
       }
+
       return canvasWidgets[next].bottomRow > prev
         ? canvasWidgets[next].bottomRow
         : prev;
@@ -169,5 +184,6 @@ export function getCanvasBottomRow(
 
     return bottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
   }
+
   return parentHeightInRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 }

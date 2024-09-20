@@ -117,7 +117,9 @@ class GitSyncAPI extends Api {
 
   static async fetchBranches(applicationId: string, pruneBranches?: boolean) {
     const queryParams = {} as { pruneBranches?: boolean };
+
     if (pruneBranches) queryParams.pruneBranches = true;
+
     return Api.get(
       `${GitSyncAPI.baseURL}/branch/app/${applicationId}`,
       queryParams,
@@ -188,6 +190,7 @@ class GitSyncAPI extends Api {
     const url = isImporting
       ? `v1/git/import/keys?keyType=${keyType}`
       : `${ApplicationApi.baseURL}/ssh-keypair/${baseApplicationId}?keyType=${keyType}`;
+
     return isImporting ? Api.get(url) : Api.post(url);
   }
 

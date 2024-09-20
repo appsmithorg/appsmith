@@ -3,6 +3,7 @@ import { builderURL, viewerURL } from "ee/RouteBuilder";
 
 describe("builderURL", () => {
   let location: typeof window.location;
+
   beforeAll(() => {
     location = window.location;
     // TODO: Fix this the next time the file is edited
@@ -31,6 +32,7 @@ describe("builderURL", () => {
       basePageId: "0123456789abcdef00000000",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
+
     expect(pageURLObject.searchParams.get("embed")).toBe("true");
   });
 
@@ -42,6 +44,7 @@ describe("builderURL", () => {
       basePageId: "0123456789abcdef00000000",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
+
     expect(pageURLObject.searchParams.get("embed")).toBe(null);
   });
 
@@ -53,6 +56,7 @@ describe("builderURL", () => {
 
 describe("viewerURL", () => {
   let location: typeof window.location;
+
   beforeAll(() => {
     location = window.location;
     urlBuilder.updateURLParams(
@@ -78,6 +82,7 @@ describe("viewerURL", () => {
       basePageId: "0123456789abcdef00000000",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
+
     expect(pageURLObject.searchParams.get("embed")).toBe("true");
   });
 
@@ -89,6 +94,7 @@ describe("viewerURL", () => {
       basePageId: "0123456789abcdef00000000",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
+
     expect(pageURLObject.searchParams.get("embed")).toBe(null);
   });
 

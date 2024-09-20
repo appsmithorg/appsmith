@@ -7,7 +7,13 @@ import type {
 import { SpanKind } from "@opentelemetry/api";
 import { context } from "@opentelemetry/api";
 import { trace } from "@opentelemetry/api";
-import { deviceType, browserName, browserVersion } from "react-device-detect";
+import {
+  deviceType,
+  browserName,
+  browserVersion,
+  osName,
+  osVersion,
+} from "react-device-detect";
 import { APP_MODE } from "entities/App";
 import { matchBuilderPath, matchViewerPath } from "constants/routes";
 import nanoid from "nanoid";
@@ -29,10 +35,11 @@ const getAppMode = memoizeOne((pathname: string) => {
     : isViewerUrl
       ? APP_MODE.PUBLISHED
       : "";
+
   return appMode;
 });
 
-const getCommonTelemetryAttributes = () => {
+export const getCommonTelemetryAttributes = () => {
   const pathname = window.location.pathname;
   const appMode = getAppMode(pathname);
 
@@ -43,6 +50,8 @@ const getCommonTelemetryAttributes = () => {
     browserVersion,
     otlpSessionId: OTLP_SESSION_ID,
     hostname: window.location.hostname,
+    osName,
+    osVersion,
   };
 };
 
@@ -85,6 +94,7 @@ export function startNestedSpan(
     },
     startTime,
   };
+
   return generatorTrace.startSpan(spanName, spanOptions, parentContext);
 }
 
@@ -106,7 +116,9 @@ export const startAndEndSpanForFn = <T>(
 ) => {
   const span = startRootSpan(spanName, spanAttributes);
   const res: T = fn();
+
   span.end();
+
   return res;
 };
 
@@ -114,6 +126,7 @@ export const startAndEndSpanForFn = <T>(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function wrapFnWithParentTraceContext(parentSpan: Span, fn: () => any) {
   const parentContext = trace.setSpan(context.active(), parentSpan);
+
   return context.with(parentContext, fn);
 }
 
@@ -126,5 +139,6 @@ export function startAndEndSpan(
   const endTime = startTime + Math.floor(difference);
 
   const span = startRootSpan(spanName, spanAttributes, startTime);
+
   span.end(endTime);
 }

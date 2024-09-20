@@ -90,4 +90,5 @@ function EditActionCellComponent(props: RenderEditActionsProps) {
     </CellWrapper>
   );
 }
+
 export const EditActionCell = memo(EditActionCellComponent);

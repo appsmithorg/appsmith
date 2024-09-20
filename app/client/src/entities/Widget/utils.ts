@@ -48,16 +48,19 @@ const checkPathsInConfig = (
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const configValidationPaths: Record<any, ValidationConfig> = {};
+
   // Purely a Binding Path
   if (config.isBindProperty && !config.isTriggerProperty) {
     configBindingPaths[path] =
       config.evaluationSubstitutionType || EvaluationSubstitutionType.TEMPLATE;
+
     if (config.validation) {
       configValidationPaths[path] = config.validation;
     }
   } else if (config.isBindProperty && config.isTriggerProperty) {
     configTriggerPaths[path] = true;
   }
+
   return {
     configBindingPaths,
     configReactivePaths: configBindingPaths, // All bindingPaths are reactivePaths.
@@ -105,12 +108,14 @@ const childHasPanelConfig = (
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         panelConfigChildren.forEach((panelColumnConfig: any) => {
           let isSectionHidden = false;
+
           if ("hidden" in panelColumnConfig) {
             isSectionHidden = panelColumnConfig.hidden(
               originalWidget,
               propertyPath,
             );
           }
+
           if (!isSectionHidden) {
             panelColumnConfig.children.forEach(
               // TODO: Fix this the next time the file is edited
@@ -125,12 +130,14 @@ const childHasPanelConfig = (
                     (panelColumnControlConfig: any) => {
                       const panelPropertyConfigPath = `${propertyPath}.${panelColumnControlConfig.propertyName}`;
                       let isControlHidden = false;
+
                       if ("hidden" in panelColumnControlConfig) {
                         isControlHidden = panelColumnControlConfig.hidden(
                           originalWidget,
                           panelPropertyConfigPath,
                         );
                       }
+
                       if (!isControlHidden) {
                         const {
                           configBindingPaths,
@@ -141,6 +148,7 @@ const childHasPanelConfig = (
                           panelColumnControlConfig,
                           panelPropertyConfigPath,
                         );
+
                         Object.assign(bindingPaths, configBindingPaths);
                         Object.assign(reactivePaths, configReactivePaths);
                         Object.assign(triggerPaths, configTriggerPaths);
@@ -175,12 +183,14 @@ const childHasPanelConfig = (
                 } else {
                   const panelPropertyConfigPath = `${propertyPath}.${panelColumnControlOrSectionConfig.propertyName}`;
                   let isControlHidden = false;
+
                   if ("hidden" in panelColumnControlOrSectionConfig) {
                     isControlHidden = panelColumnControlOrSectionConfig.hidden(
                       originalWidget,
                       panelPropertyConfigPath,
                     );
                   }
+
                   if (!isControlHidden) {
                     const {
                       configBindingPaths,
@@ -254,6 +264,7 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
 } => {
   const bindingPaths: BindingPaths = {};
   const reactivePaths: ReactivePaths = {};
+
   Object.keys(defaultProperties).forEach((property) => {
     reactivePaths[property] = EvaluationSubstitutionType.TEMPLATE;
   });
@@ -269,9 +280,11 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
       config.children.forEach((controlConfig: any) => {
         const basePath = controlConfig.propertyName;
         let isHidden = false;
+
         if ("hidden" in controlConfig) {
           isHidden = controlConfig.hidden(widget, basePath);
         }
+
         if (!isHidden) {
           const path = controlConfig.propertyName;
           const {
@@ -280,11 +293,13 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
             configTriggerPaths,
             configValidationPaths,
           } = checkPathsInConfig(controlConfig, path);
+
           Object.assign(bindingPaths, configBindingPaths);
           Object.assign(reactivePaths, configReactivePaths);
           Object.assign(triggerPaths, configTriggerPaths);
           Object.assign(validationPaths, configValidationPaths);
         }
+
         // Has child Panel Config
         if (controlConfig.panelConfig) {
           const resultingPaths = memoizedChildHasPanelConfig(
@@ -297,14 +312,17 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
             {},
             {},
           );
+
           Object.assign(bindingPaths, resultingPaths.bindingPaths);
           Object.assign(reactivePaths, resultingPaths.reactivePaths);
           Object.assign(triggerPaths, resultingPaths.triggerPaths);
           Object.assign(validationPaths, resultingPaths.validationPaths);
         }
+
         if (controlConfig.children) {
           const basePropertyPath = controlConfig.propertyName;
           const widgetPropertyValue = get(widget, basePropertyPath, []);
+
           // Property in object structure
           if (
             !isUndefined(widgetPropertyValue) &&
@@ -312,6 +330,7 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
           ) {
             Object.keys(widgetPropertyValue).forEach((key: string) => {
               const objectIndexPropertyPath = `${basePropertyPath}.${key}`;
+
               // TODO: Fix this the next time the file is edited
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               controlConfig.children.forEach((childPropertyConfig: any) => {

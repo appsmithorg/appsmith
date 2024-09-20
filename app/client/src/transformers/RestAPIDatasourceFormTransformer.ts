@@ -34,6 +34,7 @@ export const datasourceToFormValues = (
       } as SSL,
     },
   );
+
   // set value of authTypeControl in connection if it is not present
   // authTypeControl is true if authType is SELF_SIGNED_CERTIFICATE else false
   if (!connection.ssl.authTypeControl) {
@@ -43,6 +44,7 @@ export const datasourceToFormValues = (
       connection.ssl.authType === SSLType.SELF_SIGNED_CERTIFICATE,
     );
   }
+
   const authentication = datasourceToFormAuthentication(
     authType,
     datasource,
@@ -61,6 +63,7 @@ export const datasourceToFormValues = (
         `datasourceStorages.${currentEnvironment}.datasourceConfiguration.properties[1].value`,
       )!
     : "";
+
   return {
     datasourceId: datasource.id,
     workspaceId: datasource.workspaceId,
@@ -95,6 +98,7 @@ export const formValuesToDatasource = (
   );
   const dsStorages = datasource.datasourceStorages;
   let dsStorage: DatasourceStorage;
+
   if (dsStorages.hasOwnProperty(currentEnvironment)) {
     dsStorage = dsStorages[currentEnvironment];
   } else {
@@ -113,14 +117,17 @@ export const formValuesToDatasource = (
   }
 
   const connection = form.connection;
+
   if (connection) {
     const authTypeControl = connection.ssl.authTypeControl;
+
     set(
       connection,
       "ssl.authType",
       authTypeControl ? SSLType.SELF_SIGNED_CERTIFICATE : SSLType.DEFAULT,
     );
   }
+
   const conf = {
     url: form.url,
     headers: cleanupProperties(form.headers),
@@ -135,8 +142,10 @@ export const formValuesToDatasource = (
     authentication: authentication,
     connection: form.connection,
   };
+
   set(dsStorage, "datasourceConfiguration", conf);
   set(dsStorages, currentEnvironment, dsStorage);
+
   return datasource;
 };
 
@@ -145,6 +154,7 @@ const formToDatasourceAuthentication = (
   authentication: Authentication | undefined,
 ): Authentication | null => {
   if (authType === AuthType.NONE || !authentication) return null;
+
   if (
     isClientCredentials(authType, authentication) ||
     isAuthorizationCode(authType, authentication)
@@ -165,6 +175,7 @@ const formToDatasourceAuthentication = (
         authentication.refreshTokenClientCredentialsLocation,
       useSelfSignedCert: authentication.useSelfSignedCert,
     };
+
     if (isClientCredentials(authType, authentication)) {
       return {
         ...oAuth2Common,
@@ -174,6 +185,7 @@ const formToDatasourceAuthentication = (
         ),
       };
     }
+
     if (isAuthorizationCode(authType, authentication)) {
       return {
         ...oAuth2Common,
@@ -187,6 +199,7 @@ const formToDatasourceAuthentication = (
       };
     }
   }
+
   if (authType === AuthType.basic) {
     if ("username" in authentication) {
       const basic: Basic = {
@@ -195,9 +208,11 @@ const formToDatasourceAuthentication = (
         password: authentication.password,
         secretExists: authentication.secretExists,
       };
+
       return basic;
     }
   }
+
   if (authType === AuthType.apiKey) {
     if ("label" in authentication) {
       const apiKey: ApiKey = {
@@ -207,18 +222,22 @@ const formToDatasourceAuthentication = (
         headerPrefix: authentication.headerPrefix,
         addTo: authentication.addTo,
       };
+
       return apiKey;
     }
   }
+
   if (authType === AuthType.bearerToken) {
     if ("bearerToken" in authentication) {
       const bearerToken: BearerToken = {
         authenticationType: AuthType.bearerToken,
         bearerToken: authentication.bearerToken,
       };
+
       return bearerToken;
     }
   }
+
   return null;
 };
 
@@ -240,6 +259,7 @@ const datasourceToFormAuthentication = (
   const authentication =
     datasource.datasourceStorages[currentEnvironment].datasourceConfiguration
       .authentication || {};
+
   if (
     isClientCredentials(authType, authentication) ||
     isAuthorizationCode(authType, authentication)
@@ -261,6 +281,7 @@ const datasourceToFormAuthentication = (
         authentication.refreshTokenClientCredentialsLocation || "BODY",
       useSelfSignedCert: authentication.useSelfSignedCert,
     };
+
     if (isClientCredentials(authType, authentication)) {
       return {
         ...oAuth2Common,
@@ -270,6 +291,7 @@ const datasourceToFormAuthentication = (
         ),
       };
     }
+
     if (isAuthorizationCode(authType, authentication)) {
       return {
         ...oAuth2Common,
@@ -287,6 +309,7 @@ const datasourceToFormAuthentication = (
       };
     }
   }
+
   if (authType === AuthType.basic) {
     const basic: Basic = {
       authenticationType: AuthType.basic,
@@ -294,8 +317,10 @@ const datasourceToFormAuthentication = (
       password: authentication.password || "",
       secretExists: authentication.secretExists,
     };
+
     return basic;
   }
+
   if (authType === AuthType.apiKey) {
     const apiKey: ApiKey = {
       authenticationType: AuthType.apiKey,
@@ -304,13 +329,16 @@ const datasourceToFormAuthentication = (
       headerPrefix: authentication.headerPrefix || "",
       addTo: authentication.addTo || "",
     };
+
     return apiKey;
   }
+
   if (authType === AuthType.bearerToken) {
     const bearerToken: BearerToken = {
       authenticationType: AuthType.bearerToken,
       bearerToken: authentication.bearerToken || "",
     };
+
     return bearerToken;
   }
 };
@@ -322,8 +350,10 @@ const isClientCredentials = (
   val: any,
 ): val is ClientCredentials => {
   if (authType !== AuthType.OAuth2) return false;
+
   // If there's no authentication object at all and it is oauth2, it is client credentials by default
   if (!val) return true;
+
   return get(val, "grantType") === GrantType.ClientCredentials;
 };
 
@@ -334,6 +364,7 @@ const isAuthorizationCode = (
   val: any,
 ): val is AuthorizationCode => {
   if (authType !== AuthType.OAuth2) return false;
+
   return get(val, "grantType") === GrantType.AuthorizationCode;
 };
 
@@ -341,11 +372,14 @@ const cleanupProperties = (values: Property[] | undefined): Property[] => {
   if (!Array.isArray(values)) return [];
 
   const newValues: Property[] = [];
+
   values.forEach((object: Property) => {
     const isEmpty = Object.values(object).every((x) => x === "");
+
     if (!isEmpty) {
       newValues.push(object);
     }
   });
+
   return newValues;
 };
