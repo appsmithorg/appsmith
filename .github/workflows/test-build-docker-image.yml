@@ -68,7 +68,8 @@ jobs:
         uses: benc-uk/workflow-dispatch@v1
         with:
           workflow: test-build-docker-image.yml
-          inputs: '{ "ref": "refs/heads/pg"}'
+          inputs: '{ "tags": "${{needs.setup.outputs.tags}}", "ted_tag": "${{inputs.ted_tag}}" }'
+          ref: refs/heads/pg
 
   server-build:
     needs: [setup]
