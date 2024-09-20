@@ -332,15 +332,13 @@ export function* updateCanvasLayout(response: FetchPageResponse) {
   const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
 
   // resize main canvas
-  yield call(
-    resizePublishedMainCanvasToLowestWidget,
-    canvasWidgetsPayload.widgets,
-  );
+  resizePublishedMainCanvasToLowestWidget(canvasWidgetsPayload.widgets);
   // Update the canvas
-  yield call(initCanvasLayout, canvasWidgetsPayload);
+  yield put(initCanvasLayout(canvasWidgetsPayload));
+
   // Since new page has new layout, we need to generate a data structure
   // to compute dynamic height based on the new layout.
-  yield call(generateAutoHeightLayoutTreeAction, true, true);
+  yield put(generateAutoHeightLayoutTreeAction(true, true));
 }
 
 export function* postFetchedPublishedPage(
@@ -354,11 +352,12 @@ export function* postFetchedPublishedPage(
 
   yield call(updateCanvasLayout, response);
   // set current page
-  yield call(
-    updateCurrentPage,
-    pageId,
-    response.data.slug,
-    response.data.userPermissions,
+  yield put(
+    updateCurrentPage(
+      pageId,
+      response.data.slug,
+      response.data.userPermissions,
+    ),
   );
 }
 
