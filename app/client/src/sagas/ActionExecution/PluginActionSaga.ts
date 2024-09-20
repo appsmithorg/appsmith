@@ -390,7 +390,7 @@ function updateBlobDataFromUrls(
  * @param bindings
  * @param executionParams
  */
-function* evaluateActionParams(
+async function* evaluateActionParams(
   bindings: string[] | undefined,
   formData: FormData,
   executeActionRequest: ExecuteActionRequest,
@@ -440,8 +440,7 @@ function* evaluateActionParams(
       for (const val of value) {
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const newVal: Record<string, any> = yield call(
-          resolvingBlobUrls,
+        const newVal = await resolvingBlobUrls(
           val,
           executeActionRequest,
           i,
@@ -449,8 +448,9 @@ function* evaluateActionParams(
           arrDatatype,
         );
 
-        if (newVal.hasOwnProperty("blobUrlPaths")) {
+        if (newVal && newVal.hasOwnProperty("blobUrlPaths")) {
           updateBlobDataFromUrls(
+            // @ts-expect-error: blobUrlPaths is a property of newVal
             newVal.blobUrlPaths,
             newVal,
             blobMap,
@@ -464,7 +464,8 @@ function* evaluateActionParams(
 
         if (key.includes(".files") && recordFilePickerInstrumentation) {
           filePickerInstrumentation["numberOfFiles"] += 1;
-          const { size, type } = newVal;
+
+          const { size, type } = newVal as { size: number; type: string };
 
           filePickerInstrumentation["totalSize"] += size;
           filePickerInstrumentation["fileSizes"].push(size);
