@@ -521,16 +521,16 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                             importingMetaDTO))
                     .flatMap(importableArtifact ->
                             updateImportableArtifact(artifactBasedImportService, importableArtifact))
-                .contextWrite(context -> context.put(TRANSACTION_CONTEXT, entityMap))
+                    .contextWrite(context -> context.put(TRANSACTION_CONTEXT, entityMap))
                     .onErrorResume(throwable -> {
-                    // clean up stale entities and modified entities back to the original state from the db
+                        // clean up stale entities and modified entities back to the original state from the db
                         String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                         log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
-                    return transactionHandler
-                            .cleanUpDatabase(entityMap)
-                            .then(Mono.error(new AppsmithException(
-                                    AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage)));
-                });
+                        return transactionHandler
+                                .cleanUpDatabase(entityMap)
+                                .then(Mono.error(new AppsmithException(
+                                        AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage)));
+                    });
 
             return importMono
                     .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(
