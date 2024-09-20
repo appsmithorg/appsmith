@@ -49,12 +49,12 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     // Leaving it empty as it is done by other OpenTelemetry instrumentation classes
   }
 
-  enable(): void {
+  enable = () => {
     // Register connection change listener
-    this.addConnectionAttributes.call(this);
+    this.addConnectionAttributes();
 
     // Add device attributes to the root span
-    this.addDeviceAttributes.call(this);
+    this.addDeviceAttributes();
 
     // Listen for LCP and FCP events
     // reportAllChanges: true will report all LCP and FCP events
@@ -69,7 +69,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
       // If PerformanceObserver is not available, fallback to polling
       this.pollResourceTimingEntries();
     }
-  }
+  };
 
   private addDeviceAttributes() {
     this.rootSpan.setAttributes({
