@@ -1,6 +1,7 @@
 import commonlocators from "../../../../../../locators/commonlocators.json";
 import {
   agHelper,
+  entityExplorer,
   locators,
   propPane,
   table,
@@ -17,7 +18,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Table", "@tag.Select"] },
   () => {
     before(() => {
-      cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });
+      entityExplorer.DragNDropWidget("tablewidgetv2", 350, 500);
       table.AddSampleTableData();
     });
     it("1. should prevent adding a row when a required select column has no data", () => {
