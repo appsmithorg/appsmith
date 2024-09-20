@@ -21,6 +21,7 @@ jobs:
     outputs:
       ok_to_test: ${{ steps.checkLabel.outputs.ok_to_test }}
       commit_contains_test: ${{ steps.checkCommitMessage.outputs.commit_contains_test }}
+      commit_message: ${{ steps.checkCommitMessage.outputs.commit_message }}
     steps:
 
       - name: Check PR Label
@@ -100,18 +101,12 @@ jobs:
       matrix: ${{ steps.checkAll.outputs.matrix }}
     steps:
       
-        # Checkout the code in the current branch in case the workflow is called because of a branch push event
-        - name: Checkout the head commit of the branch
-          uses: actions/checkout@v4
-          with:
-            repository: appsmithorg/appsmith
-  
         - name: Parse tags from commit message
           id: parseTagsFromCommit
           run: |
-            commit_message=$(git log -1 --pretty=%B)
+            commit_message="${{ needs.job1-set-output.outputs.commit_message }}"
             # Regex to match '/ok-to-test tags=' followed by any text within optional quotes
-            if [[ "$commit_message" =~ /ok-to-test[[:space:]]+tags=[[:space:]]*["'']?([^"'\n]*)["'']? ]]; then
+            if [[ "$commit_message" =~ /ok-to-test[[:space:]]+tags=[[:space:]]*['"]?([^"'\n]*)['"]? ]]; then
               tags=${BASH_REMATCH[1]}
               echo "Commit contains /ok-to-test tags= with tags: $tags"
               echo "has_test_spec=true" >> $GITHUB_OUTPUT
