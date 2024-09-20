@@ -42,12 +42,11 @@ jobs:
             }
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
-      - name: Checkout PR
+      - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          ref: ${{ github.event.pull_request.head.sha }}
-      
+          repository: appsmithorg/appsmith
+     
       - name: Check Commit Message
         id: checkCommitMessage
         run: |
@@ -56,10 +55,12 @@ jobs:
           echo "Commit Message: $commit_message" 
           if [[ "$commit_message" == *"/ok-to-test tags="* ]]; then
             echo "Commit message contains '/ok-to-test tags='"
-            echo "commit_contains_test=true" >> $GITHUB_ENV
+            echo "commit_contains_test=true" >> $GITHUB_OUTPUT
+            echo "commit_contains_test: $commit_contains_test"
           else
             echo "Commit message does not contain '/ok-to-test tags='"
-            echo "commit_contains_test=false" >> $GITHUB_ENV
+            echo "commit_contains_test=false" >> $GITHUB_OUTPUT
+            echo "commit_contains_test: $commit_contains_test"
           fi
 
   mark-stale:
