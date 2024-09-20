@@ -125,6 +125,7 @@ export interface IconSelectControlState {
 
 const NONE = "(none)";
 const EMPTY = "";
+
 type IconType = Required<IconProps>["name"] | typeof NONE | typeof EMPTY;
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -292,14 +293,19 @@ class IconSelectControlV2 extends BaseControl<
           emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
             key: e.key,
           });
+
           if (document.activeElement === this.searchInput.current) {
             (document.activeElement as HTMLElement).blur();
+
             if (this.initialItemIndex < 0) this.initialItemIndex = -4;
             else break;
           }
+
           const nextIndex = this.initialItemIndex + 4;
+
           if (nextIndex < this.filteredItems.length)
             this.setActiveIcon(nextIndex);
+
           e.preventDefault();
           break;
         }
@@ -318,11 +324,14 @@ class IconSelectControlV2 extends BaseControl<
             this.searchInput.current.focus();
             break;
           }
+
           emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
             key: e.key,
           });
           const nextIndex = this.initialItemIndex - 4;
+
           if (nextIndex >= 0) this.setActiveIcon(nextIndex);
+
           e.preventDefault();
           break;
         }
@@ -331,12 +340,15 @@ class IconSelectControlV2 extends BaseControl<
           if (document.activeElement === this.searchInput.current) {
             break;
           }
+
           emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
             key: e.key,
           });
           const nextIndex = this.initialItemIndex + 1;
+
           if (nextIndex < this.filteredItems.length)
             this.setActiveIcon(nextIndex);
+
           e.preventDefault();
           break;
         }
@@ -345,11 +357,14 @@ class IconSelectControlV2 extends BaseControl<
           if (document.activeElement === this.searchInput.current) {
             break;
           }
+
           emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
             key: e.key,
           });
           const nextIndex = this.initialItemIndex - 1;
+
           if (nextIndex >= 0) this.setActiveIcon(nextIndex);
+
           e.preventDefault();
           break;
         }
@@ -360,6 +375,7 @@ class IconSelectControlV2 extends BaseControl<
             this.filteredItems.length !== 2
           )
             break;
+
           emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
             key: e.key,
           });
@@ -439,6 +455,7 @@ class IconSelectControlV2 extends BaseControl<
     if (!modifiers.matchesPredicate) {
       return null;
     }
+
     return (
       <Tooltip content={icon} mouseEnterDelay={0}>
         <StyledMenuItem
@@ -456,6 +473,7 @@ class IconSelectControlV2 extends BaseControl<
     if (iconName === NONE || query === "") {
       return true;
     }
+
     return (iconName || "").toLowerCase().indexOf(query.toLowerCase()) >= 0;
   };
 
@@ -483,6 +501,7 @@ class IconSelectControlV2 extends BaseControl<
     value: any,
   ): boolean {
     if (icons.has(value)) return true;
+
     return false;
   }
 }

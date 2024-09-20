@@ -37,6 +37,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
   const onColorClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       const colorName = e.currentTarget.getAttribute("data-color-name");
+
       if (!colorName) return;
 
       setAutoFocus(selectedColor === colorName ? !autoFocus : true);

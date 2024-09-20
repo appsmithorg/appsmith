@@ -85,6 +85,7 @@ const QueryEditorHeader = (props: Props) => {
   );
 
   let actionBody = "";
+
   if (!!currentActionConfig?.actionConfiguration) {
     if ("formData" in currentActionConfig?.actionConfiguration) {
       // if the action has a formData (the action is postUQI e.g. Oracle)

@@ -46,6 +46,7 @@ export type TextProps = CommonComponentProps & {
 
 const typeSelector = (props: TextProps): string => {
   let color = "";
+
   switch (props.type) {
     case TextType.P0:
       color = "var(--ads-v2-color-fg)";
@@ -63,6 +64,7 @@ const typeSelector = (props: TextProps): string => {
       color = "var(--ads-v2-color-fg-emphasis-plus)";
       break;
   }
+
   return color;
 };
 

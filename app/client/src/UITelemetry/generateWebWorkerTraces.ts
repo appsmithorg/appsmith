@@ -49,8 +49,10 @@ export const profileFn = <T>(
 ) => {
   const span = newWebWorkerSpanData(spanName, attributes);
   const res: T = fn();
+
   addEndTimeForWebWorkerSpanData(span);
   allSpans[spanName] = span;
+
   return res;
 };
 
@@ -64,6 +66,7 @@ export const convertWebworkerSpansToRegularSpans = (
     .forEach((spanData) => {
       const { attributes, endTime, spanName, startTime } = spanData;
       const span = startNestedSpan(spanName, parentSpan, attributes, startTime);
+
       span?.end(endTime);
     });
 };
@@ -75,6 +78,7 @@ export const filterSpanData = (
     .filter((key) => !key.startsWith("__"))
     .reduce<Record<string, WebworkerSpanData>>((obj, key) => {
       obj[key] = spanData[key] as WebworkerSpanData;
+
       return obj;
     }, {});
 };

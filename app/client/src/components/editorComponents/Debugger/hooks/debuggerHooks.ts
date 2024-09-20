@@ -48,8 +48,10 @@ export const useFilteredLogs = (query: string, filter?: any) => {
         log.source?.name.toUpperCase().indexOf(query.toUpperCase()) !== -1
       )
         return true;
+
       if (log.text.toUpperCase().indexOf(query.toUpperCase()) !== -1)
         return true;
+
       if (
         !!log.state &&
         JSON.stringify(log.state).toUpperCase().indexOf(query.toUpperCase()) !==
@@ -58,6 +60,7 @@ export const useFilteredLogs = (query: string, filter?: any) => {
         return true;
     });
   }
+
   return logs;
 };
 
@@ -68,26 +71,31 @@ export const usePagination = (data: Log[], itemsPerPage = 50) => {
 
   useEffect(() => {
     const data = currentData();
+
     setPaginatedData(data);
   }, [currentPage, data.length, data[data.length - 1]?.occurrenceCount]);
 
   const currentData = useCallback(() => {
     const newMaxPage = Math.ceil(data.length / itemsPerPage);
+
     setMaxPage(newMaxPage);
 
     // Show the last itemsPerPage items
     const start = Math.max(data.length - currentPage * itemsPerPage, 0);
     const end = data.length;
+
     return data.slice(start, end);
   }, [data]);
 
   const next = useCallback(() => {
     const tempMaxPage = maxPage;
+
     setCurrentPage((currentPage) => {
       const newCurrentPage = Math.max(
         Math.min(currentPage + 1, tempMaxPage),
         1,
       );
+
       return newCurrentPage;
     });
   }, []);
@@ -149,9 +157,12 @@ export const useEntityLink = () => {
       const configTree = getConfigTree();
       const entity = dataTree[name];
       const entityConfig = configTree[name];
+
       if (!basePageId) return;
+
       if (isWidget(entity)) {
         const widgetEntity = entity as WidgetEntity;
+
         navigateToWidget(
           widgetEntity.widgetId,
           entity.type,
@@ -162,11 +173,13 @@ export const useEntityLink = () => {
         const actionConfig = getActionConfig(entityConfig.pluginType);
         const action = getAction(appState, entity.actionId);
         let plugin;
+
         if (entityConfig?.pluginType === PluginType.SAAS) {
           plugin = plugins.find(
             (plugin) => plugin?.id === entityConfig?.pluginId,
           );
         }
+
         const url =
           applicationId &&
           actionConfig?.getURL(
@@ -181,6 +194,7 @@ export const useEntityLink = () => {
         }
       } else if (isJSAction(entity)) {
         const action = getAction(appState, entity.actionId);
+
         history.push(
           jsCollectionIdURL({
             basePageId,

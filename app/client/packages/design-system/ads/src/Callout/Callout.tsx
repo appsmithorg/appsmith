@@ -60,6 +60,7 @@ function Callout({
           <StyledLinks className={CalloutChildrenLinkClassName}>
             {links.map((link) => {
               const { endIcon, onClick, startIcon, to, ...restOfLink } = link;
+
               return (
                 <Link
                   endIcon={endIcon}

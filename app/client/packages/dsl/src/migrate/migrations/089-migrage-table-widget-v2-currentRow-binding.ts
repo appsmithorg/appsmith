@@ -90,6 +90,7 @@ const TABLE_INLINE_EDIT_VALIDATION_CONTROL_PROPERTIES_TO_UPDATE = [
   "min",
   "max",
 ];
+
 export const migrateTableWidgetV2CurrentRowInValidationsBinding = (
   currentDSL: DSLWidget,
 ) => {
@@ -98,6 +99,7 @@ export const migrateTableWidgetV2CurrentRowInValidationsBinding = (
 
     const primaryColumns: Record<string, ColumnProperties> =
       widget.primaryColumns as Record<string, ColumnProperties>;
+
     Object.entries(primaryColumns).forEach(([colName, colProperties]) => {
       if (!colProperties.validation) return;
 
@@ -150,11 +152,13 @@ function getBindingPrefixSuffix(
     if (property === "isColumnEditableCellValid") {
       return oldBindingSuffixForInlineEditValidProperty(tableName, colName);
     }
+
     return oldBindingSuffixForInlineEditValidationControl(tableName);
   } else {
     if (property === "isColumnEditableCellValid") {
       return newBindingSuffixForInlineEditValidProperty(tableName, colName);
     }
+
     return newBindingSuffixForInlineEditValidationControl(tableName);
   }
 }
@@ -182,9 +186,11 @@ function updateColProperty(
     propertyToUpdate in colProperties.validation &&
     colProperties.validation[propertyToUpdate] &&
     isDynamicValue(colProperties.validation[propertyToUpdate]);
+
   if (!isValidationValueDynamic) return;
 
   const propertyValue = colProperties.validation[propertyToUpdate];
+
   colProperties.validation[propertyToUpdate] = propertyValue.replace(
     oldBindingSuffix,
     newBindingSuffix,

@@ -42,8 +42,10 @@ function TextWithTooltip(props: TextProps & { isMultiline?: boolean }) {
 
   const isEllipsisActive = () => {
     let active = false;
+
     if (ref.current) {
       const text_node = ref.current.children[0];
+
       if (props.isMultiline) {
         active = text_node && text_node.clientHeight < text_node.scrollHeight;
       } else {

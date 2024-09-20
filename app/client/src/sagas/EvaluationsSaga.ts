@@ -120,6 +120,7 @@ import { getInstanceId } from "ee/selectors/tenantSelectors";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
+
 export const evalWorker = new GracefulWorkerService(
   new Worker(
     new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
@@ -169,7 +170,9 @@ export function* updateDataTreeHandler(
   if (!isEmpty(staleMetaIds)) {
     yield put(resetWidgetsMetaState(staleMetaIds));
   }
+
   const parsedUpdates = parseUpdatesAndDeleteUndefinedUpdates(updates);
+
   yield put(setEvaluatedTree(parsedUpdates));
 
   ConfigTreeActions.setConfigTree(configTree);
@@ -178,6 +181,7 @@ export function* updateDataTreeHandler(
   if (evalMetaUpdates.length) {
     yield put(updateMetaState(evalMetaUpdates));
   }
+
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
@@ -197,8 +201,10 @@ export function* updateDataTreeHandler(
     removedPaths,
   );
   AnalyticsUtil.setBlockErrorLogs(isCreateFirstTree);
+
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
+
     postEvalActionsToDispatch.push(executeJSUpdates(jsUpdates));
 
     if (requiresLogging) {
@@ -225,6 +231,7 @@ export function* updateDataTreeHandler(
   }
 
   yield put(setDependencyMap(dependencies));
+
   if (postEvalActionsToDispatch && postEvalActionsToDispatch.length) {
     yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
   }
@@ -259,6 +266,7 @@ export function* evaluateTreeSaga(
     yield select(getMetaWidgets);
   const theme: ReturnType<typeof getSelectedAppTheme> =
     yield select(getSelectedAppTheme);
+
   log.debug({ unevalTree, configTree: unEvalAndConfigTree.configTree });
   const instanceId: string = yield select(getInstanceId);
   const workspaceId: string = yield select(getCurrentWorkspaceId);
@@ -332,6 +340,7 @@ export function* evaluateActionBindings(
 
   yield call(evalErrorHandler, errors);
   endSpan(span);
+
   return values;
 }
 
@@ -347,6 +356,7 @@ export function* evaluateAndExecuteDynamicTrigger(
   const unEvalTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
     getUnevaluatedDataTree,
   );
+
   log.debug({ execute: dynamicTrigger });
   const response: { errors: EvaluationError[]; result: unknown } = yield call(
     evalWorker.request,
@@ -366,14 +376,17 @@ export function* evaluateAndExecuteDynamicTrigger(
     transformTriggerEvalErrors,
     errors,
   );
+
   if (transformedErrors.length) {
     yield fork(showExecutionErrors, transformedErrors);
   }
+
   yield fork(logDynamicTriggerExecution, {
     dynamicTrigger,
     errors: transformedErrors,
     triggerMeta,
   });
+
   return response;
 }
 
@@ -398,6 +411,7 @@ export function* executeTriggerRequestSaga(
     data: null,
     error: null,
   };
+
   try {
     responsePayload.data = yield call(
       executeActionTriggers,
@@ -414,6 +428,7 @@ export function* executeTriggerRequestSaga(
       message: error.responseData?.[0] || error.message,
     };
   }
+
   return responsePayload;
 }
 
@@ -425,6 +440,7 @@ export function* clearEvalCache() {
    */
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.CLEAR_CACHE);
   yield put({ type: ReduxActionTypes.RESET_DATA_TREE });
+
   return true;
 }
 
@@ -458,6 +474,7 @@ function* executeAsyncJSFunction(
     eventType,
     triggerMeta,
   );
+
   return response;
 }
 
@@ -476,6 +493,7 @@ export function* executeJSFunction(
 
   // After every function execution, log execution errors if present
   yield call(handleJSFunctionExecutionErrorLog, action, collection, errors);
+
   return { result, isDirty };
 }
 
@@ -497,6 +515,7 @@ function* validateProperty(property: string, value: any, props: WidgetProps) {
       validation,
     },
   );
+
   return response;
 }
 
@@ -512,11 +531,13 @@ function mergeJSBufferedActions(
       ids: [],
     };
   }
+
   return {
     isAllAffected: false,
     ids: [...prevAffectedJSAction.ids, ...newAffectedJSAction.ids],
   };
 }
+
 export const defaultAffectedJSObjects: AffectedJSObjects = {
   isAllAffected: false,
   ids: [],
@@ -531,10 +552,13 @@ export function evalQueueBuffer() {
   const take = () => {
     if (canTake) {
       const resp = collectedPostEvalActions;
+
       collectedPostEvalActions = [];
       const affectedJSObjects = collectedAffectedJSObjects;
+
       collectedAffectedJSObjects = defaultAffectedJSObjects;
       canTake = false;
+
       return {
         postEvalActions: resp,
         affectedJSObjects,
@@ -554,16 +578,19 @@ export function evalQueueBuffer() {
     if (!shouldProcessAction(action)) {
       return;
     }
+
     canTake = true;
     // extract the affected JS action ids from the action and pass them
     //  as a part of the buffered action
     const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
+
     collectedAffectedJSObjects = mergeJSBufferedActions(
       collectedAffectedJSObjects,
       affectedJSObjects,
     );
 
     const postEvalActions = getPostEvalActions(action);
+
     collectedPostEvalActions.push(...postEvalActions);
   };
 
@@ -586,9 +613,11 @@ function getPostEvalActions(
   action: EvaluationReduxAction<unknown | unknown[]>,
 ): AnyReduxAction[] {
   const postEvalActions: AnyReduxAction[] = [];
+
   if (action.postEvalActions) {
     postEvalActions.push(...action.postEvalActions);
   }
+
   if (
     action.type === ReduxActionTypes.BATCH_UPDATES_SUCCESS &&
     Array.isArray(action.payload)
@@ -601,6 +630,7 @@ function getPostEvalActions(
       }
     });
   }
+
   return postEvalActions;
 }
 
@@ -621,6 +651,7 @@ function* evalAndLintingHandler(
   const requiresLinting = getRequiresLinting(action);
 
   const requiresEval = shouldTriggerEvaluation(action);
+
   log.debug({
     action,
     triggeredLinting: requiresLinting,
@@ -629,6 +660,7 @@ function* evalAndLintingHandler(
 
   if (!requiresEval && !requiresLinting) {
     endSpan(span);
+
     return;
   }
 
@@ -654,6 +686,7 @@ function* evalAndLintingHandler(
       ),
     );
   }
+
   if (requiresLinting) {
     effects.push(fn(initiateLinting, unEvalAndConfigTree, forceEvaluation));
   }
@@ -666,6 +699,7 @@ function* evalAndLintingHandler(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* evaluationChangeListenerSaga(): any {
   const firstEvalActionChannel = yield actionChannel(FIRST_EVAL_REDUX_ACTIONS);
+
   // Explicitly shutdown old worker if present
   yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
   const [evalWorkerListenerChannel] = yield all([
@@ -674,6 +708,7 @@ function* evaluationChangeListenerSaga(): any {
   ]);
 
   const isFFFetched = yield select(getFeatureFlagsFetched);
+
   if (!isFFFetched) {
     yield call(fetchFeatureFlagsInit);
     yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
@@ -691,6 +726,7 @@ function* evaluationChangeListenerSaga(): any {
   const initAction: EvaluationReduxAction<unknown> = yield take(
     firstEvalActionChannel,
   );
+
   firstEvalActionChannel.close();
 
   // Wait for widget config build to complete before starting evaluation only if the current editor is not a workflow
@@ -740,6 +776,7 @@ function* evaluationChangeListenerSaga(): any {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* evaluateActionSelectorFieldSaga(action: any) {
   const { id, type, value } = action.payload;
+
   try {
     const workerResponse: {
       errors: Array<unknown>;
@@ -752,8 +789,10 @@ export function* evaluateActionSelectorFieldSaga(action: any) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
+
     if (workerResponse.result) {
       const validation = validate({ type }, workerResponse.result, {}, "");
+
       if (!validation.isValid)
         validation.messages?.map((message) => {
           lintErrors.unshift({
@@ -808,6 +847,7 @@ export function* workerComputeUndoRedo(operation: string, entityId: string) {
   const workerResponse: unknown = yield call(evalWorker.request, operation, {
     entityId,
   });
+
   return workerResponse;
 }
 
@@ -833,6 +873,7 @@ export function* setAppVersionOnWorkerSaga(action: {
   payload: EvaluationVersion;
 }) {
   const version: EvaluationVersion = action.payload;
+
   yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SET_EVALUATION_VERSION, {
     version,
   });
@@ -840,6 +881,7 @@ export function* setAppVersionOnWorkerSaga(action: {
 
 export default function* evaluationSagaListeners() {
   yield take(ReduxActionTypes.START_EVALUATION);
+
   while (true) {
     try {
       yield call(evaluationChangeListenerSaga);

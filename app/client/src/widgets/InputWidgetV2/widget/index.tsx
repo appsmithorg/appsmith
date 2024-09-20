@@ -70,6 +70,7 @@ export function defaultValueValidation(
     message: "This value must be number",
   };
   const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
+
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -89,6 +90,7 @@ export function defaultValueValidation(
   }
 
   let parsed;
+
   switch (inputType) {
     case "NUMBER":
       parsed = Number(value);
@@ -127,6 +129,7 @@ export function defaultValueValidation(
     case "PASSWORD":
     case "EMAIL":
       parsed = value;
+
       if (!_.isString(parsed)) {
         try {
           parsed = _.toString(parsed);
@@ -138,6 +141,7 @@ export function defaultValueValidation(
           };
         }
       }
+
       return {
         isValid: _.isString(parsed),
         parsed: parsed,
@@ -157,6 +161,7 @@ export function defaultValueValidation(
 export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
   const max = props.maxNum;
   const value = min;
+
   min = Number(min);
 
   if (_?.isNil(value) || value === "") {
@@ -211,6 +216,7 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
 export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
   const min = props.minNum;
   const value = max;
+
   max = Number(max);
 
   if (_?.isNil(value) || value === "") {
@@ -282,6 +288,7 @@ function InputTypeUpdateHook(
       });
     }
   }
+
   //if input type is email or password default the autofill state to be true
   // the user needs to explicity set autofill to fault disable autofill
   updates.push({
@@ -665,6 +672,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         },
       });
     }
+
     if (!focusState) {
       this.props.updateWidgetMetaProperty("isFocused", focusState, {
         triggerPropertyName: "onBlur",
@@ -674,6 +682,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         },
       });
     }
+
     super.handleFocusChange(focusState);
   };
 
@@ -702,6 +711,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         getParsedText(this.props.inputText, this.props.inputType),
       );
     }
+
     // If defaultText property has changed, reset isDirty to false
     if (
       this.props.defaultText !== prevProps.defaultText &&
@@ -730,6 +740,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         type: EventType.ON_TEXT_CHANGE,
       },
     });
+
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -770,6 +781,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   getWidgetView() {
     const value = this.props.inputText ?? "";
     let isInvalid = false;
+
     if (this.props.isDirty) {
       isInvalid = "isValid" in this.props && !this.props.isValid;
     } else {
@@ -777,7 +789,9 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     }
 
     const conditionalProps: Partial<InputComponentProps> = {};
+
     conditionalProps.errorMessage = this.props.errorMessage;
+
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
@@ -793,6 +807,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     if (checkInputTypeTextByProps(this.props) && this.props.maxChars) {
       // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
+
       if (
         this.props.defaultText &&
         this.props.defaultText.toString().length > this.props.maxChars

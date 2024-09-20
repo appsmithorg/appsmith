@@ -67,6 +67,7 @@ describe("WidgetProps tests", () => {
       offsetX: 500,
       offsetY: 600,
     } as unknown as MouseEvent;
+
     expect(getMousePositionsOnCanvas(mouseEvent, gridProps)).toEqual({
       id: "mouse",
       top: 59,
@@ -86,6 +87,7 @@ describe("WidgetProps tests", () => {
       offsetX: 2,
       offsetY: 5,
     } as unknown as MouseEvent;
+
     expect(getMousePositionsOnCanvas(mouseEvent, gridProps)).toEqual({
       id: "mouse",
       top: -1,

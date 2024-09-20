@@ -86,6 +86,7 @@ export async function evalTree(
   } = data;
 
   const unevalTree = __unevalTree__.unEvalTree;
+
   configTree = __unevalTree__.configTree as ConfigTree;
   canvasWidgets = widgets;
   canvasWidgetsMeta = widgetsMeta;
@@ -143,13 +144,16 @@ export async function evalTree(
           allActionValidationConfig,
         );
       }
+
       if (shouldReplay && replayMap) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
+
       dataTreeEvaluator = new DataTreeEvaluator(
         widgetTypeConfigMap,
         allActionValidationConfig,
       );
+
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         dataTreeEvaluator.setAllActionValidationConfig(
           allActionValidationConfig,
@@ -168,6 +172,7 @@ export async function evalTree(
         webworkerTelemetry,
         { description: "non-initialisation" },
       );
+
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
@@ -190,7 +195,9 @@ export async function evalTree(
           allActionValidationConfig,
         );
       }
+
       isCreateFirstTree = false;
+
       if (shouldReplay && replayMap) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
@@ -236,12 +243,15 @@ export async function evalTree(
       );
       staleMetaIds = updateResponse.staleMetaIds;
     }
+
     dependencies = dataTreeEvaluator.inverseDependencies;
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();
     logs = dataTreeEvaluator.logs;
+
     if (shouldReplay && replayMap) {
       if (replayMap[CANVAS]?.logs) logs = logs.concat(replayMap[CANVAS]?.logs);
+
       replayMap[CANVAS]?.clearLogs();
     }
 
@@ -251,6 +261,7 @@ export async function evalTree(
       errors = dataTreeEvaluator.errors;
       logs = dataTreeEvaluator.logs;
     }
+
     if (!(error instanceof CrashingError)) {
       errors.push({
         type: EvalErrorTypes.UNKNOWN_ERROR,
@@ -259,6 +270,7 @@ export async function evalTree(
       // eslint-disable-next-line
       console.error(error);
     }
+
     dataTree = getSafeToRenderDataTree(
       makeEntityConfigsAsObjProperties(unevalTree, {
         sanitizeDataTree: false,
@@ -279,6 +291,7 @@ export async function evalTree(
     webworkerTelemetry,
     () => {
       let updates;
+
       if (isNewTree) {
         try {
           //for new tree send the whole thing, don't diff at all
@@ -304,6 +317,7 @@ export async function evalTree(
           completeEvalOrder,
         );
       }
+
       return updates;
     },
   );
@@ -343,6 +357,7 @@ export const evalTreeTransmissionErrorHandler: TransmissionErrorHandler = (
   responseData: unknown,
 ) => {
   const sanitizedData = JSON.parse(JSON.stringify(responseData));
+
   sendMessage.call(self, {
     messageId,
     messageType: MessageType.RESPONSE,
@@ -355,5 +370,6 @@ export function clearCache() {
   clearAllIntervals();
   JSObjectCollection.clear();
   DataStore.clear();
+
   return true;
 }

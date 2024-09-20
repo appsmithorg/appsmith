@@ -21,11 +21,13 @@ describe("getOnlyAffectedJSObjects", () => {
       ENTITY_TYPE: "JSACTION",
     },
   } as Record<string, JSActionEntity>;
+
   test("should return only the affected JS Objects when the ids collection is provided ", () => {
     const result = getOnlyAffectedJSObjects(dataTree, {
       ids: ["1234"],
       isAllAffected: false,
     });
+
     expect(result).toEqual({
       JSObject1: {
         actionId: "1234",
@@ -39,6 +41,7 @@ describe("getOnlyAffectedJSObjects", () => {
       isAllAffected: true,
       ids: [],
     });
+
     expect(result).toEqual(dataTree);
   });
 
@@ -47,6 +50,7 @@ describe("getOnlyAffectedJSObjects", () => {
       ids: ["someInvalidId"],
       isAllAffected: false,
     });
+
     expect(result).toEqual({});
   });
 });
@@ -76,6 +80,7 @@ describe("getIsNewWidgetAdded", () => {
     ] as DataTreeDiff[];
 
     const result = getIsNewWidgetAdded(translatedDiffs, unEvalTree);
+
     expect(result).toBeTruthy();
   });
 
@@ -92,6 +97,7 @@ describe("getIsNewWidgetAdded", () => {
     ] as DataTreeDiff[];
 
     const result = getIsNewWidgetAdded(translatedDiffs, unEvalTree);
+
     expect(result).toBeFalsy();
   });
 
@@ -99,6 +105,7 @@ describe("getIsNewWidgetAdded", () => {
     const translatedDiffs: DataTreeDiff[] = [];
     const unEvalTree: UnEvalTree = {};
     const result = getIsNewWidgetAdded(translatedDiffs, unEvalTree);
+
     expect(result).toBeFalsy();
   });
 });
@@ -151,12 +158,14 @@ describe("getAllPathsBasedOnDiffPaths", () => {
       // allKeys is empty initally
       {},
     );
+
     expect(initialAllKeys).toEqual(updatedAllKeys);
   });
   test("should not update allKeys when there are no diffs", () => {
     const updatedAllKeys = getAllPathsBasedOnDiffPaths(initialTree, [], {
       ...initialAllKeys,
     });
+
     // allkeys are not altered here since the diff is empty
     expect(initialAllKeys).toEqual(updatedAllKeys);
   });
@@ -234,6 +243,7 @@ describe("getAllPathsBasedOnDiffPaths", () => {
       draft["WidgetName.name[0]"] = true;
       draft["WidgetName.name[0].a"] = true;
     });
+
     expect(addedACollectionInAllKeys).toEqual(updatedAllKeys);
   });
 });

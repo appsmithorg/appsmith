@@ -22,6 +22,7 @@ const renderMapStatus = (status: Status) => {
       return <MapStatusText>Component loaded....</MapStatusText>;
   }
 };
+
 class LocationSearchControl extends BaseControl<ControlProps> {
   clearLocation = () => {
     this.updateProperty(this.props.propertyName, {
@@ -42,6 +43,7 @@ class LocationSearchControl extends BaseControl<ControlProps> {
       const lat = location.lat();
       const long = location.lng();
       const value = { lat, long, title };
+
       this.updateProperty(this.props.propertyName, value, true);
     } catch (e) {
       if (ref && ref.getPlaces)
@@ -57,6 +59,7 @@ class LocationSearchControl extends BaseControl<ControlProps> {
   onSearchBoxMounted = (ref: any) => {
     if (window) {
       const searchBox = new window.google.maps.places.SearchBox(ref);
+
       searchBox.addListener("places_changed", () => {
         this.onLocationSelection(searchBox);
       });
@@ -112,6 +115,7 @@ function MapScriptWrapper(props: MapScriptWrapperProps) {
           if (value === "") {
             props.clearLocation();
           }
+
           setTitle(value);
         }}
         placeholder="Enter location"

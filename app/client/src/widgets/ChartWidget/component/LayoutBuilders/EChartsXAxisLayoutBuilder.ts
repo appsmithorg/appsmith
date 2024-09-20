@@ -72,6 +72,7 @@ export class EChartsXAxisLayoutBuilder {
     } else {
       labelsHeight = this.widthForXAxisLabels();
     }
+
     return labelsHeight + this.gapBetweenLabelAndName;
   };
 
@@ -81,11 +82,13 @@ export class EChartsXAxisLayoutBuilder {
     }
 
     let labelsHeight: number;
+
     if (this.props.labelOrientation == LabelOrientation.AUTO) {
       labelsHeight = this.defaultHeightForXAxisLabels;
     } else {
       labelsHeight = this.defaultHeightForRotatedLabels;
     }
+
     return (
       labelsHeight +
       this.gapBetweenLabelAndName +
@@ -100,6 +103,7 @@ export class EChartsXAxisLayoutBuilder {
       }
       default: {
         const longestLabelKey = labelKeyForChart("xAxis", this.props.chartType);
+
         return getTextWidth(
           this.props.longestLabel[longestLabelKey],
           this.props.font,

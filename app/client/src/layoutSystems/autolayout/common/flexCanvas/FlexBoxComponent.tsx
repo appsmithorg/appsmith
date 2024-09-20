@@ -45,7 +45,9 @@ function FlexBoxComponent(props: FlexBoxProps) {
 
   const renderChildren = () => {
     if (!props.children) return null;
+
     if (!props.useAutoLayout) return props.children;
+
     if (direction === LayoutDirection.Horizontal) {
       return props.children;
     }
@@ -56,6 +58,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const map: { [key: string]: any } = {};
+
     if (isArray(props.children)) {
       for (const child of props.children) {
         map[(child as JSX.Element).props?.widgetId] = child;
@@ -73,9 +76,11 @@ function FlexBoxComponent(props: FlexBoxProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function processLayers(map: { [key: string]: any }) {
     const layers = [];
+
     for (const [index, layer] of props.flexLayers.entries()) {
       layers.push(processIndividualLayer(layer, map, index));
     }
+
     return layers;
   }
 
@@ -95,6 +100,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       centerColumns = 0,
       endColumns = 0;
     const columnInfo: AlignmentColumnInfo = alignmentColumnInfo[index];
+
     if (columnInfo) {
       startColumns = columnInfo[FlexLayerAlignment.Start];
       centerColumns = columnInfo[FlexLayerAlignment.Center];
@@ -103,6 +109,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
 
     for (const child of children) {
       const widget = map[child.id];
+
       if (child.align === FlexLayerAlignment.End) {
         end.push(widget);
       } else if (child.align === FlexLayerAlignment.Center) {

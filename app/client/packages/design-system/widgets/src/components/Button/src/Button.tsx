@@ -33,7 +33,12 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
         <span aria-hidden={isLoading ? true : undefined} data-content="">
           {icon && <Icon name={icon} size={size as keyof typeof SIZES} />}
           {Boolean(children) && (
-            <Text data-text="" fontWeight={500} lineClamp={1}>
+            <Text
+              data-text=""
+              fontWeight={500}
+              lineClamp={1}
+              size={size === "xSmall" ? "footnote" : "body"}
+            >
               {children}
             </Text>
           )}
@@ -41,7 +46,14 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
             To align buttons in the case when we don't have text content, we create an empty block with the appropriate size.
             See the styles for data-empty-text attribute.
            */}
-          {!Boolean(children) && <Text data-empty-text="">&#8203;</Text>}
+          {!Boolean(children) && (
+            <Text
+              data-empty-text=""
+              size={size === "xSmall" ? "footnote" : "body"}
+            >
+              &#8203;
+            </Text>
+          )}
         </span>
 
         {isLoading && (

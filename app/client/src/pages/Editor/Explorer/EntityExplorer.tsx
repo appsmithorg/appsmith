@@ -74,6 +74,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     AnalyticsUtil.logEvent("EXPLORER_WIDGET_CLICK");
     history.push(builderURL({ basePageId }));
     dispatch(forceOpenWidgetPanel(true));
+
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }

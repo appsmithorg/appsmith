@@ -17,8 +17,10 @@ import { render } from "test/testUtils";
 import { generateReactKey } from "widgets/WidgetUtils";
 
 const pageId = "0123456789abcdef00000000";
+
 describe("ContainerWidget tests", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
+
   jest
     .spyOn(useCanvasWidthAutoResize, "useCanvasWidthAutoResize")
     .mockImplementation(() => true);
@@ -73,6 +75,7 @@ describe("ContainerWidget tests", () => {
     const dsl: any = widgetCanvasFactory.build({
       children: containerChildren,
     });
+
     mockGetIsFetchingPage.mockImplementation(() => false);
     const spyUseCanvasDragging = jest
       .spyOn(useCanvasDraggingHook, "useCanvasDragging")
@@ -80,6 +83,7 @@ describe("ContainerWidget tests", () => {
         showCanvas: true,
       }));
     const appState = store.getState();
+
     render(
       <MemoryRouter
         initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/`]}

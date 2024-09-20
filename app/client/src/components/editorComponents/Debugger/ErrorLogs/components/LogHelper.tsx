@@ -28,6 +28,7 @@ export default function LogHelper(props: {
       downstreamErrorCode: props.pluginErrorDetails?.downstreamErrorCode,
     });
   };
+
   return (
     <ContextWrapper
       onClick={(e) => {

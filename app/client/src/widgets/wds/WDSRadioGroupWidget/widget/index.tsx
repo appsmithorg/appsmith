@@ -104,12 +104,15 @@ class WDSRadioGroupWidget extends BaseWidget<
 
   onRadioSelectionChange = (updatedValue: string) => {
     let newVal;
+
     if (isNumber(this.props.options[0].value)) {
       newVal = parseFloat(updatedValue);
     } else {
       newVal = updatedValue;
     }
+
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
     // Set isDirty to true when the selection changes
     if (!this.props.isDirty) {
       pushBatchMetaUpdates("isDirty", true);

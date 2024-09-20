@@ -35,6 +35,7 @@ describe("<ApplicationSettings />", () => {
     const forkableSetting = createMessage(
       COMMUNITY_TEMPLATES.publishFormPage.applicationSettings.forkableSetting,
     );
+
     expect(screen.getByText(title)).toBeInTheDocument();
     expect(screen.getByText(publicSetting)).toBeInTheDocument();
     expect(screen.getByText(forkableSetting)).toBeInTheDocument();

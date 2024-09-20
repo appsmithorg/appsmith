@@ -28,6 +28,7 @@ export const getFormData = (state: AppState, formName: string): GetFormData => {
   const initialValues = getFormInitialValues(formName)(state);
   const values = getFormValues(formName)(state);
   const valid = isValid(formName)(state);
+
   return { initialValues, values, valid };
 };
 
@@ -55,6 +56,7 @@ export const getDynamicFetchedValues = (
     config,
     state.evaluations.triggers[actionId],
   );
+
   return !!conditionalOutput.fetchDynamicValues
     ? conditionalOutput.fetchDynamicValues
     : ({} as DynamicValues);
@@ -66,6 +68,7 @@ export const getDynamicTriggers = (
 ): FormEvalOutput | undefined => {
   const allTriggers = state.evaluations.triggers[actionId];
   const triggersAllowedToFetch: FormEvalOutput = {};
+
   if (!isEmpty(allTriggers)) {
     Object.entries(allTriggers).forEach(([key, value]) => {
       if (value?.fetchDynamicValues?.allowedToFetch) {
@@ -73,6 +76,7 @@ export const getDynamicTriggers = (
       }
     });
   }
+
   return !isEmpty(triggersAllowedToFetch) ? triggersAllowedToFetch : undefined;
 };
 

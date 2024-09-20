@@ -83,6 +83,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
         .includes(value)
     )
       return true;
+
     return false;
   }
 }

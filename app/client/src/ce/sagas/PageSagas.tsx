@@ -155,7 +155,9 @@ export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
 ) => {
   const currentDSL = fetchPageResponse?.data.layouts[0].dsl;
+
   if (!currentDSL) return false;
+
   return currentDSL.version !== LATEST_DSL_VERSION;
 };
 
@@ -201,6 +203,7 @@ export const getCanvasWidgetsPayload = (
   }).dsl;
   const flattenedDSL = flattenDSL(extractedDSL);
   const pageWidgetId = MAIN_CONTAINER_WIDGET_ID;
+
   return {
     pageWidgetId,
     currentPageName: pageResponse.data.name,
@@ -250,6 +253,7 @@ export function* handleFetchedPage({
       fetchPageResponse,
       dslTransformer,
     );
+
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
     // fetch snapshot API
@@ -336,6 +340,7 @@ export function* fetchPublishedPageSaga(
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       // Clear any existing caches
       yield call(clearEvalCache);
@@ -345,6 +350,7 @@ export function* fetchPublishedPageSaga(
       yield call(waitForWidgetConfigBuild);
       // Get Canvas payload
       const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
+
       // resize main canvas
       resizePublishedMainCanvasToLowestWidget(canvasWidgetsPayload.widgets);
       // Update the canvas
@@ -422,6 +428,7 @@ export function* fetchAllPublishedPagesSaga() {
   try {
     const pageIdentities: { pageId: string; basePageId: string }[] =
       yield select(getAllPageIdentities);
+
     yield all(
       pageIdentities.map((pageIdentity) => {
         return call(PageApi.fetchPublishedPage, {
@@ -484,8 +491,10 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       savePageRequest,
     );
     const isValidResponse: boolean = yield validateResponse(savePageResponse);
+
     if (isValidResponse) {
       const { actionUpdates, messages } = savePageResponse.data;
+
       // We do not want to show these toasts in guided tour
       // Show toast messages from the server
       if (messages && messages.length) {
@@ -495,21 +504,26 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
           });
         });
       }
+
       // Update actions
       if (actionUpdates && actionUpdates.length > 0) {
         const actions = actionUpdates.filter(
           (d) => !d.hasOwnProperty("collectionId"),
         );
+
         if (actions && actions.length) {
           yield put(setActionsToExecuteOnPageLoad(actions));
         }
+
         const jsActions = actionUpdates.filter((d) =>
           d.hasOwnProperty("collectionId"),
         );
+
         if (jsActions && jsActions.length) {
           yield put(setJSActionsToExecuteOnPageLoad(jsActions));
         }
       }
+
       yield put(setLastUpdatedTime(Date.now() / 1000));
       yield put(savePageSuccess(savePageResponse));
 
@@ -535,6 +549,7 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       const { isRetry } = action?.payload;
       const incorrectBindingError = JSON.parse(error.message);
       const { message } = incorrectBindingError;
+
       if (isRetry) {
         Sentry.captureException(new Error("Failed to correct binding paths"));
         yield put({
@@ -554,6 +569,7 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
           migrateIncorrectDynamicBindingPathLists(nestedDSL);
         // Flatten the widgets because the save page needs it in the flat structure
         const normalizedWidgets = flattenDSL(correctedWidgets);
+
         AnalyticsUtil.logEvent("CORRECT_BAD_BINDING", {
           error: error.message,
           correctWidget: JSON.stringify(normalizedWidgets),
@@ -570,8 +586,10 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
 
 export function* saveAllPagesSaga(pageLayouts: PageLayoutsRequest[]) {
   let response: ApiResponse | undefined;
+
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
+
     response = yield PageApi.saveAllPages(applicationId, pageLayouts);
 
     const isValidResponse: boolean = yield validateResponse(response, false);
@@ -595,6 +613,7 @@ export function getLayoutSavePayload(
   editorConfigs: any,
 ) {
   const nestedDSL = nestDSL(widgets, Object.keys(widgets)[0]);
+
   return {
     ...editorConfigs,
     dsl: nestedDSL,
@@ -706,6 +725,7 @@ export function* createPageSaga(action: ReduxAction<CreatePageActionPayload>) {
     const params = { ...action.payload };
     const response: FetchPageResponse = yield call(PageApi.createPage, params);
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.CREATE_PAGE_SUCCESS,
@@ -753,6 +773,7 @@ export function* createPageSaga(action: ReduxAction<CreatePageActionPayload>) {
 
 export function* updatePageSaga(action: ReduxAction<UpdatePageActionPayload>) {
   const params = { ...action.payload, pageId: action.payload.id };
+
   try {
     params.customSlug = params.customSlug?.replaceAll(" ", "-");
     const response: ApiResponse<UpdatePageResponse> = yield call(
@@ -760,6 +781,7 @@ export function* updatePageSaga(action: ReduxAction<UpdatePageActionPayload>) {
       params,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put(updatePageSuccess(response.data));
     }
@@ -786,9 +808,11 @@ export function* deletePageSaga(action: ReduxAction<DeletePageActionPayload>) {
       const params = { pageId: pageId };
       const response: ApiResponse = yield call(PageApi.deletePage, params);
       const isValidResponse: boolean = yield validateResponse(response);
+
       if (isValidResponse) {
         yield put(deletePageSuccess());
       }
+
       // Remove this page from page DSLs
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
@@ -797,6 +821,7 @@ export function* deletePageSaga(action: ReduxAction<DeletePageActionPayload>) {
           dsl: undefined,
         },
       });
+
       // Update route params here
       if (currentPageId === pageId)
         history.push(
@@ -826,6 +851,7 @@ export function* clonePageSaga(
 
     const response: FetchPageResponse = yield call(PageApi.clonePage, request);
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put(
         clonePageSuccess({
@@ -844,6 +870,7 @@ export function* clonePageSaga(
       const { dsl, layoutId } = extractCurrentDSL({
         response,
       });
+
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
@@ -935,6 +962,7 @@ export function* updateWidgetNameSaga(
       if (state.entities.canvasWidgets.hasOwnProperty(action.payload.id)) {
         // If it does assign it to a variable
         const widget = state.entities.canvasWidgets[action.payload.id];
+
         // Check if this widget has a parent in the canvas widgets
         if (
           widget.parentId &&
@@ -942,6 +970,7 @@ export function* updateWidgetNameSaga(
         ) {
           // If the parent exists assign it to a variable
           const parent = state.entities.canvasWidgets[widget.parentId];
+
           // Check if this parent is a TABS_WIDGET
           if (parent.type === WidgetTypes.TABS_WIDGET) {
             // If it is return the tabs property
@@ -949,6 +978,7 @@ export function* updateWidgetNameSaga(
           }
         }
       }
+
       // This isn't a tab in a tabs widget so return undefined
       return;
     });
@@ -964,6 +994,7 @@ export function* updateWidgetNameSaga(
       const widgets = { ...stateWidgets };
       // Get the parent Id of the tab (canvas widget) whose name we're updating
       const parentId = widgets[action.payload.id].parentId;
+
       // Update the tabName property of the tab (canvas widget)
       widgets[action.payload.id] = {
         ...widgets[action.payload.id],
@@ -982,6 +1013,7 @@ export function* updateWidgetNameSaga(
         ...tabToChange,
         label: action.payload.newName,
       };
+
       parent.tabsObj = {
         ...parent.tabsObj,
         [updatedTab.id]: {
@@ -1013,6 +1045,7 @@ export function* updateWidgetNameSaga(
           request,
         );
         const isValidResponse: boolean = yield validateResponse(response);
+
         if (isValidResponse) {
           // @ts-expect-error: pageId can be undefined
           yield updateCanvasWithDSL(response.data, pageId, layoutId);
@@ -1071,6 +1104,7 @@ export function* updateCanvasWithDSL(
     pageActions: data.layoutOnLoadActions,
     widgets: flattenedDSL,
   };
+
   yield put(initCanvasLayout(canvasWidgetsPayload));
   yield put(fetchActionsForPage(pageId));
   yield put(fetchJSCollectionsForPage(pageId));
@@ -1087,6 +1121,7 @@ export function* setDataUrl() {
     port: window.location.port,
     hash: window.location.hash,
   };
+
   yield put(setUrlData(urlData));
 }
 
@@ -1111,6 +1146,7 @@ export function* fetchPageDSLSaga(
     );
 
     const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
+
     if (isValidResponse) {
       // Wait for the Widget config to be loaded before we can migrate the DSL
       yield call(waitForWidgetConfigBuild);
@@ -1125,6 +1161,7 @@ export function* fetchPageDSLSaga(
         dslTransformer,
         response: fetchPageResponse,
       });
+
       return {
         pageId,
         dsl,
@@ -1141,6 +1178,7 @@ export function* fetchPageDSLSaga(
         show: true,
       },
     });
+
     return {
       pageId: pageId,
       dsl: DEFAULT_TEMPLATE,
@@ -1152,6 +1190,7 @@ export function* populatePageDSLsSaga(action?: {
   payload?: { pagesWithMigratedDsl?: ApiResponse<FetchPageResponseData[]> };
 }) {
   const { pagesWithMigratedDsl } = action?.payload || {};
+
   try {
     const pageIds: string[] = yield select((state: AppState) =>
       state.entities.pageList.pages.map((page: Page) => page.pageId),
@@ -1161,16 +1200,19 @@ export function* populatePageDSLsSaga(action?: {
         if (!pagesWithMigratedDsl) {
           return call(fetchPageDSLSaga, pageId);
         }
+
         const { data } = pagesWithMigratedDsl;
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const v1PageDSL = data?.find?.((v: any) => v?.id === pageId);
+
         return call(fetchPageDSLSaga, pageId, {
           ...pagesWithMigratedDsl,
           data: v1PageDSL,
         } as ApiResponse<FetchPageResponseData>);
       }),
     );
+
     yield put({
       type: ReduxActionTypes.FETCH_PAGE_DSLS_SUCCESS,
       payload: pageDSLs,
@@ -1200,6 +1242,7 @@ export function* setPageOrderSaga(
     };
     const response: ApiResponse = yield call(PageApi.setPageOrder, request);
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.SET_PAGE_ORDER_SUCCESS,
@@ -1234,6 +1277,7 @@ export function* generateTemplatePageSaga(
     }> = yield call(PageApi.generateTemplatePage, request);
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       const pageId = response.data.page.id;
 
@@ -1278,6 +1322,7 @@ export function* generateTemplatePageSaga(
       if (!afterActionsFetch) {
         throw new Error("Failed generating template");
       }
+
       yield put(
         fetchAllPageEntityCompletion([
           executePageLoadActions(ActionExecutionContext.GENERATE_CRUD_PAGE),
@@ -1287,6 +1332,7 @@ export function* generateTemplatePageSaga(
         convertToBasePageIdSelector,
         pageId,
       );
+
       history.replace(
         builderURL({
           basePageId,
@@ -1317,6 +1363,7 @@ export function* deleteCanvasCardsStateSaga() {
   const state = JSON.parse(
     localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
   );
+
   delete state[currentPageId];
   localStorage.setItem(
     LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE,
@@ -1327,6 +1374,7 @@ export function* deleteCanvasCardsStateSaga() {
 export function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
   const state = localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE);
   const stateObject = JSON.parse(state ?? "{}");
+
   stateObject[action.payload] = true;
   localStorage.setItem(
     LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE,
@@ -1336,6 +1384,7 @@ export function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
 
 export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
   const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
+
   if (action.payload) {
     // we animate out elements and then move to the canvas
     yield put(setPreviewModeAction(action.payload));

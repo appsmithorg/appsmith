@@ -14,6 +14,7 @@ export interface UseRegisterFieldValidityProps {
   fieldName: ControllerProps["name"];
   fieldType: FieldType;
 }
+
 /**
  * This hook is used to register the isValid property of the field
  * the meta property "fieldState".

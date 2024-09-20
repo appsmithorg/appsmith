@@ -10,6 +10,7 @@ describe("validate propertypane input : docUrl", () => {
     };
 
     const result = documentUrlValidation(input1);
+
     expect(result).toStrictEqual(expected1);
 
     const input2 = "https:  //www.example.com";
@@ -25,6 +26,7 @@ describe("validate propertypane input : docUrl", () => {
     };
 
     const result1 = documentUrlValidation(input2);
+
     expect(result1).toStrictEqual(expected2);
 
     const input3 = "https://www.exam  ple.com";
@@ -40,6 +42,7 @@ describe("validate propertypane input : docUrl", () => {
     };
 
     const result2 = documentUrlValidation(input3);
+
     expect(result2).toStrictEqual(expected3);
 
     const input4 = "https://examplecom";
@@ -55,6 +58,7 @@ describe("validate propertypane input : docUrl", () => {
     };
 
     const result3 = documentUrlValidation(input4);
+
     expect(result3).toStrictEqual(expected4);
 
     const input6 = "://www.appsmith.com/docs/sample.pdf";
@@ -70,6 +74,7 @@ describe("validate propertypane input : docUrl", () => {
     };
 
     const result5 = documentUrlValidation(input6);
+
     expect(result5).toStrictEqual(expected6);
   });
 
@@ -87,6 +92,7 @@ describe("validate propertypane input : docUrl", () => {
     };
 
     const result1 = documentUrlValidation(input1);
+
     expect(result1).toStrictEqual(expected1);
 
     const input2 = "data:application/pdf;base64";
@@ -102,6 +108,7 @@ describe("validate propertypane input : docUrl", () => {
     };
 
     const result2 = documentUrlValidation(input2);
+
     expect(result2).toStrictEqual(expected2);
   });
 
@@ -113,6 +120,7 @@ describe("validate propertypane input : docUrl", () => {
     };
 
     const result1 = documentUrlValidation(input1);
+
     expect(result1).toStrictEqual(expected1);
 
     const input2 =
@@ -123,6 +131,7 @@ describe("validate propertypane input : docUrl", () => {
     };
 
     const result2 = documentUrlValidation(input2);
+
     expect(result2).toStrictEqual(expected2);
 
     const input3 = "https:www.appsmith.com/docs/sample.pdf";
@@ -132,6 +141,7 @@ describe("validate propertypane input : docUrl", () => {
     };
 
     const result3 = documentUrlValidation(input3);
+
     expect(result3).toStrictEqual(expected3);
 
     const input4 = "https://www.apsmith.com/docs/sample";
@@ -141,6 +151,7 @@ describe("validate propertypane input : docUrl", () => {
     };
 
     const result4 = documentUrlValidation(input4);
+
     expect(result4).toStrictEqual(expected4);
 
     const input5 =
@@ -152,6 +163,7 @@ describe("validate propertypane input : docUrl", () => {
     };
 
     const result5 = documentUrlValidation(input5);
+
     expect(result5).toStrictEqual(expected5);
   });
 });

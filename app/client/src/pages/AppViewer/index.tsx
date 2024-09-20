@@ -138,6 +138,7 @@ function AppViewer(props: Props) {
     const prevLocation = prevValues?.location;
     const prevPageBaseId = prevValues?.basePageId;
     let isBranchUpdated = false;
+
     if (prevBranch && prevLocation) {
       isBranchUpdated = getIsBranchUpdated(props.location, prevLocation);
     }
@@ -163,6 +164,7 @@ function AppViewer(props: Props) {
         const pageId = pages.find(
           (page) => page.basePageId === basePageId,
         )?.pageId;
+
         if (pageId) {
           // Updating the page id in store on page change
           // Earlier we were updating page id in handleFetchedPage saga after fetching the page

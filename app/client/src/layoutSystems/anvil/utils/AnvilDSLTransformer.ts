@@ -9,6 +9,7 @@ import { LayoutComponentTypes } from "./anvilTypes";
  */
 export function anvilDSLTransformer(dsl: DSLWidget) {
   const _dsl = dsl; // new reference, we don't want to modify the args directly
+
   // If there isn't a layout object, we need to create one for Anvil
   // Assumptions:
   // If there is no layout object, then we haven't run this function on this DSL yet
@@ -39,5 +40,6 @@ export function anvilDSLTransformer(dsl: DSLWidget) {
       },
     ];
   }
+
   return _dsl;
 }

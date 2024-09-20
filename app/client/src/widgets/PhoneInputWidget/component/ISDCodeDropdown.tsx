@@ -204,9 +204,11 @@ export const getSelectedISDCode = (dialCode?: string): DropdownOption => {
   let selectedCountry: ISDCodeProps | undefined = ISDCodeOptions.find(
     (item: ISDCodeProps) => item.dial_code === dialCode,
   );
+
   if (!selectedCountry) {
     selectedCountry = getDefaultISDCode();
   }
+
   return {
     label: `${selectedCountry.name} (${selectedCountry.dial_code})`,
     searchText: selectedCountry.name,
@@ -265,9 +267,11 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
       )}
     </DropdownTriggerIconWrapper>
   );
+
   if (props.disabled || !props.allowDialCodeChange) {
     return dropdownTrigger;
   }
+
   return (
     <>
       <StyledDropdown

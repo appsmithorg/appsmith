@@ -47,6 +47,7 @@ export const isValid = (
   inputValue?: string | null,
 ) => {
   let hasValidValue, value;
+
   switch (schemaItem.fieldType) {
     case FieldType.NUMBER_INPUT:
       try {
@@ -134,6 +135,7 @@ function InputField({
   const transformValue = useCallback(
     (inputValue: string) => {
       let value;
+
       switch (schemaItem.fieldType) {
         case FieldType.NUMBER_INPUT:
           try {
@@ -146,6 +148,7 @@ function InputField({
                 value = null;
               }
             }
+
             break;
           } catch (e) {
             value = inputValue;

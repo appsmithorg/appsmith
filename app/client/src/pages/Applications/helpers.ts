@@ -28,6 +28,7 @@ export const createApplicationFormSubmitHandler = async (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const { applicationName, workspaceId } = values;
+
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.CREATE_APPLICATION_INIT,
@@ -58,5 +59,6 @@ export const generateEditedByText = ({
   //assuming modifiedAt will be always available
   editedOn = howMuchTimeBeforeText(editedOn);
   editedOn = editedOn !== "" ? editedOn + " ago" : "";
+
   return editedBy + " edited " + editedOn;
 };

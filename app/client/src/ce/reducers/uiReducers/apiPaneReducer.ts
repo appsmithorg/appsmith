@@ -38,7 +38,6 @@ export interface ApiPaneReduxState {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraformData: Record<string, any>;
   selectedConfigTabIndex: number;
-  selectedRightPaneTab?: string;
   debugger: ApiPaneDebuggerState;
 }
 
@@ -94,6 +93,7 @@ export const handlers = {
     action: ReduxAction<{ [id: string]: any }>,
   ) => {
     const actionId = Object.keys(action.payload)[0];
+
     return {
       ...state,
       isRunning: {
@@ -209,8 +209,9 @@ export const handlers = {
   [ReduxActionTypes.SET_EXTRA_FORMDATA]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ id: string; values: Record<string, unknown> }>,
-  ) => {
+  ): ApiPaneReduxState => {
     const { id, values } = action.payload;
+
     return {
       ...state,
       extraformData: {
@@ -224,19 +225,10 @@ export const handlers = {
     action: ReduxAction<{ selectedTabIndex: number }>,
   ) => {
     const { selectedTabIndex } = action.payload;
+
     return {
       ...state,
       selectedConfigTabIndex: selectedTabIndex,
-    };
-  },
-  [ReduxActionTypes.SET_API_RIGHT_PANE_SELECTED_TAB]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ selectedTab: number }>,
-  ) => {
-    const { selectedTab } = action.payload;
-    return {
-      ...state,
-      selectedRightPaneTab: selectedTab,
     };
   },
   [ReduxActionTypes.SET_API_PANE_DEBUGGER_STATE]: (

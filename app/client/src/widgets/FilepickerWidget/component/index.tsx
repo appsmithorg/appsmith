@@ -25,9 +25,11 @@ class FilePickerComponent extends React.Component<
 
   render() {
     let label = this.props.label;
+
     if (this.props.files && this.props.files.length) {
       label = `${this.props.files.length} files selected`;
     }
+
     return (
       <BaseButton
         buttonColor={Colors.GREEN}

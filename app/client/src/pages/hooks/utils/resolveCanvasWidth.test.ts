@@ -6,6 +6,7 @@ const layoutTestConfigs = Object.entries(layoutConfigurations)
   .filter(([key]) => key !== "FLUID")
   .map(([key, widths]) => {
     const appLayoutType = key as SupportedLayouts;
+
     return [
       appLayoutType,
       {

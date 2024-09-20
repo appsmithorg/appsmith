@@ -153,6 +153,7 @@ const useUpdate = (intitialValue?: boolean) => {
 
   useEffect(() => {
     const isChecked = !!intitialValue;
+
     if (isChecked !== checked) {
       setChecked(isChecked);
     }

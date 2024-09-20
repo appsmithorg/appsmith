@@ -17,4 +17,5 @@ function ManageUsers({ workspaceId }: { workspaceId: string }) {
     </Link>
   ) : null;
 }
+
 export default ManageUsers;
