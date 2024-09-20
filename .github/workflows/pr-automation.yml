@@ -52,7 +52,7 @@ jobs:
         run: |
           commit_message=$(git log -1 --pretty=%B)
           # Print the commit message for debugging
-          echo "Commit Message: $commitMessage"
+          echo "Commit Message: $commit_message" 
           if [[ "$commit_message" == *"/ok-to-test tags="* ]]; then
             echo "Commit message contains '/ok-to-test tags='"
             echo "commit_contains_test=true" >> $GITHUB_ENV
