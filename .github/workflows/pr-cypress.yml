@@ -62,7 +62,6 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.number }}
-      is-pg-build: ${{ inputs.is-pg-build }}
 
   ci-test:
     needs: [build-docker-image]
