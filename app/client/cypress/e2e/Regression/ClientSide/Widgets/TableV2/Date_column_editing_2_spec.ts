@@ -93,9 +93,29 @@ describe(
         );
     });
 
-    it.only("4. should allow input format of Unix Timestamp(ms) and not throw Invalid Value error when inline editing", () => {
+    it("4. should allow input format of Unix Timestamp(ms) and not throw Invalid Value error when inline editing", () => {
+      // Get string format for tomorrow date - Sat Sep 21 2024 format
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const formattedTomorrowDateVerbose = tomorrow
+        .toLocaleDateString("en-US", {
+          weekday: "short",
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+        })
+        .replace(/,/g, "");
+
+      // Get strig format for tomorrow date - 2024-09-21
+      const formattedTomorrowDateYYYYMMDD = tomorrow
+        .toISOString()
+        .split("T")[0];
+
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-      // propPane.NavigateBackToPropertyPane();
+
+      propPane.NavigateBackToPropertyPane();
+
+      // Update table data
       propPane.UpdatePropertyFieldValue(
         "Table data",
         `
@@ -150,14 +170,36 @@ describe(
           }}
         `,
       );
+
+      // Change column to date
       table.ChangeColumnType("unix", "Date", "v2");
+
+      // Edit column
       table.EditColumn("unix", "v2");
 
+      // Update date format property
       propPane.ToggleJSMode("Date format", true);
       propPane.UpdatePropertyFieldValue("Date format", "Milliseconds");
 
+      // Update display format property
       propPane.ToggleJSMode("Display format", true);
-      propPane.UpdatePropertyFieldValue("Display format", "YYYY-MM-DD HH:mm");
+      propPane.UpdatePropertyFieldValue("Display format", "YYYY-MM-DD");
+
+      // Toggle editable
+      propPane.TogglePropertyState("Editable", "On");
+
+      // Click unix cell edit
+      table.ClickOnEditIcon(0, 2);
+
+      // Click on specific date within
+      agHelper.GetNClick(
+        `${table._dateInputPopover} [aria-label='${formattedTomorrowDateVerbose}']`,
+      );
+
+      // Check that date is set in column
+      table
+        .ReadTableRowColumnData(0, 2, "v2")
+        .then((val) => expect(val).to.equal(formattedTomorrowDateYYYYMMDD));
     });
   },
 );
