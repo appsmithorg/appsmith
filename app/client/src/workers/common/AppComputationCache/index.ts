@@ -53,7 +53,7 @@ export class AppComputationCache {
 
   debouncedDeleteInvalidCacheEntries = debounce(
     this.deleteInvalidCacheEntries,
-    10000,
+    5000,
   );
 
   /**
@@ -274,7 +274,6 @@ export class AppComputationCache {
           keyParts[0] === cacheProps.instanceId &&
           keyParts[1] === cacheProps.workspaceId &&
           keyParts[2] === cacheProps.appId &&
-          keyParts[3] === cacheProps.pageId &&
           keyParts[4] === cacheProps.appMode &&
           cacheKeyTimestamp !== new Date(cacheProps.timestamp).getTime()
         );

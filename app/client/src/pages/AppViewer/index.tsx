@@ -164,7 +164,11 @@ function AppViewer(props: Props) {
           (page) => page.basePageId === basePageId,
         )?.pageId;
         if (pageId) {
+          // Updating the page id in store on page change
+          // Earlier we were updating page id in handleFetchedPage saga after fetching the page
+          // This was causing stale pageId in the store when fetch it in the evaluateTreeSaga
           dispatch(updateCurrentPage(pageId));
+
           // TODO: Patch fix to avoid dispatch of FETCH_ALL_PAGE_ENTITY_COMPLETION twice
           // Remove this once Sneha's PR is merged
           dispatch(setupPublishedPage(pageId, true, true));

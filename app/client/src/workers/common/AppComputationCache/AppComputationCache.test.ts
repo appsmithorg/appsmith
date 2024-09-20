@@ -204,7 +204,7 @@ describe("AppComputationCache", () => {
       expect(getItemMock).toHaveBeenCalledWith(cacheKey);
       expect(result).toBe(null);
 
-      jest.advanceTimersByTime(10000);
+      jest.advanceTimersByTime(5000);
 
       expect(keysMock).toHaveBeenCalledTimes(1);
     });
@@ -237,10 +237,10 @@ describe("AppComputationCache", () => {
       expect(getItemMock).toHaveBeenCalledWith(cacheKey);
       expect(result).toBe(null);
 
-      jest.advanceTimersByTime(5000);
+      jest.advanceTimersByTime(2500);
       expect(keysMock).toHaveBeenCalledTimes(0);
 
-      jest.advanceTimersByTime(5000);
+      jest.advanceTimersByTime(2500);
       jest.runAllTimers();
 
       expect(keysMock).toHaveBeenCalledTimes(1);
