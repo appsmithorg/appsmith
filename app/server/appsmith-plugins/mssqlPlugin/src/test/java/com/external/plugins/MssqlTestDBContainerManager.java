@@ -24,7 +24,7 @@ public class MssqlTestDBContainerManager {
 
     @SuppressWarnings("rawtypes")
     public static MSSQLServerContainer getMssqlDBForTest() {
-        return new MSSQLServerContainer<>(DockerImageName.parse("mcr.microsoft.com/azure-sql-edge:1.0.3")
+        return new MSSQLServerContainer<>(DockerImageName.parse("mcr.microsoft.com/azure-sql-edge:1.0.7")
                         .asCompatibleSubstituteFor("mcr.microsoft.com/mssql/server:2017-latest"))
                 .acceptLicense()
                 .withExposedPorts(1433)
