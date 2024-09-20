@@ -1,11 +1,11 @@
 import { useSelector } from "react-redux";
 import { getPluginSettingConfigs } from "ee/selectors/entitiesSelector";
-import { usePluginActionContext } from "PluginActionEditor";
+import type { Action } from "entities/Action";
 
-function useActionSettingsConfig() {
-  const { plugin } = usePluginActionContext();
-
-  return useSelector((state) => getPluginSettingConfigs(state, plugin.id));
+function useActionSettingsConfig(action?: Action) {
+  return useSelector((state) =>
+    getPluginSettingConfigs(state, action?.pluginId || ""),
+  );
 }
 
 export { useActionSettingsConfig };

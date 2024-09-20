@@ -34,7 +34,7 @@ const PluginActionEditor = (props: ChildrenProps) => {
   const datasourceId = get(action, "datasource.id", "");
   const datasource = useSelector((state) => getDatasource(state, datasourceId));
 
-  const settingsConfig = useActionSettingsConfig();
+  const settingsConfig = useActionSettingsConfig(action);
 
   const editorConfig = useSelector((state) => getEditorConfig(state, pluginId));
 
