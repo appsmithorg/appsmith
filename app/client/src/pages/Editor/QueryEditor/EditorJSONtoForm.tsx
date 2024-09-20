@@ -197,12 +197,8 @@ export function EditorJSONtoForm(props: Props) {
     uiComponent,
   } = props;
 
-  const {
-    actionRightPaneAdditionSections,
-    actionRightPaneBackLink,
-    closeEditorLink,
-    notification,
-  } = useContext(QueryEditorContext);
+  const { actionRightPaneAdditionSections, closeEditorLink, notification } =
+    useContext(QueryEditorContext);
 
   const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
   // fetch the error count from the store.
@@ -344,7 +340,6 @@ export function EditorJSONtoForm(props: Props) {
             </SecondaryWrapper>
           </div>
           <ActionRightPane
-            actionRightPaneBackLink={actionRightPaneBackLink}
             additionalSections={actionRightPaneAdditionSections}
           />
         </Wrapper>
