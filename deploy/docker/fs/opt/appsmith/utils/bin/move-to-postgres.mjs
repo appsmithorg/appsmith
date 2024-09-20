@@ -16,7 +16,7 @@ let isBaselineMode = false;
 let mongoDbUrl;
 
 let mongoDumpFile = null;
-const EXPORT_ROOT = "mongo-data";
+const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
 
 for (let i = 2; i < process.argv.length; ++i) {
   const arg = process.argv[i];
