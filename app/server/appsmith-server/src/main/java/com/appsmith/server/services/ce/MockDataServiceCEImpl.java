@@ -72,6 +72,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
             return Mono.justOrEmpty(mockData);
         }
 
+        // Getting connection details from cloud services
         return WebClientUtils.create(baseUrl + "/api/v1/mocks")
                 .get()
                 .exchange()
