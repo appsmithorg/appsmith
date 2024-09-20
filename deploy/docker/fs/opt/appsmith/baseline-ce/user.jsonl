@@ -1,0 +1,1 @@
+{"_class":"com.appsmith.server.domains.User","deleted":false,"email":"anonymousUser","id":"66ed6921e0feb43d2213a9be","isAnonymous":true,"isEnabled":true,"isSystemGenerated":true,"name":"anonymousUser","passwordResetInitiated":false,"policies":[],"policyMap":{},"source":"FORM","tenantId":"66ed6921e0feb43d2213a9bd","workspaceIds":[]}
