@@ -62,10 +62,14 @@ jobs:
   invoke-tbp-workflow-for-pg:
     needs: [setup]
     if: github.event_name != 'push' && github.ref == 'refs/heads/release'
-    uses: benc-uk/workflow-dispatch@v1
-    with:
-      workflow: test-build-docker-image.yml
-      inputs: '{ "ref": "pg"}'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger TBP on pg branch
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: test-build-docker-image.yml
+          inputs: '{ "tags": "${{needs.setup.outputs.tags}}", "ted_tag": "${{inputs.ted_tag}}" }'
+          ref: refs/heads/pg
 
   server-build:
     needs: [setup]

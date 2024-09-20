@@ -16,9 +16,6 @@ export const getDisplayFormat: GetFormData = (state, apiId) => {
 export const getApiPaneConfigSelectedTabIndex = (state: AppState) =>
   state.ui.apiPane.selectedConfigTabIndex;
 
-export const getApiRightPaneSelectedTab = (state: AppState) =>
-  state.ui.apiPane.selectedRightPaneTab;
-
 export const getIsRunning = (state: AppState, apiId: string) =>
   state.ui.apiPane.isRunning[apiId];
 

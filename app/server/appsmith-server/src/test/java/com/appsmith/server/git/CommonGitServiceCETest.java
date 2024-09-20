@@ -294,7 +294,8 @@ public class CommonGitServiceCETest {
 
         return stringifiedFile
                 .map(data -> gson.fromJson(data, ApplicationJson.class))
-                .map(jsonSchemaMigration::migrateArtifactToLatestSchema)
+                .flatMap(applicationJson ->
+                        jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson, null, null))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
