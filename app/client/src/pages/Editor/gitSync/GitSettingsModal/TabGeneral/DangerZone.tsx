@@ -122,7 +122,7 @@ function DangerZone() {
               <Text renderAs="p">{createMessage(AUTOCOMMIT_MESSAGE)}</Text>
             </BodyInnerContainer>
             <Button
-              data-testid="t--git-disconnect-btn"
+              data-testid="t--git-autocommit-btn"
               isLoading={isAutocommitToggling || gitMetadataLoading}
               kind={isAutocommitEnabled ? "error" : "secondary"}
               onClick={handleToggleAutocommit}
