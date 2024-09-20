@@ -16,7 +16,7 @@ let locators = ObjectsRegistry.CommonLocators;
 
 describe(
   "JSON Form Widget AutoGenerate Enabled",
-  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Sanity"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

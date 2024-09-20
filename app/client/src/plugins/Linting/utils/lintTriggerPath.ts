@@ -10,6 +10,7 @@ export default function lintTriggerPath({
   entity,
   globalData,
   userScript,
+  webworkerTelemetry,
 }: lintTriggerPathProps) {
   const { jsSnippets } = getDynamicBindings(userScript, entity);
   const script = getScriptToEval(jsSnippets[0], EvaluationScriptType.TRIGGERS);
@@ -19,5 +20,6 @@ export default function lintTriggerPath({
     data: globalData,
     originalBinding: jsSnippets[0],
     scriptType: EvaluationScriptType.TRIGGERS,
+    webworkerTelemetry,
   });
 }
