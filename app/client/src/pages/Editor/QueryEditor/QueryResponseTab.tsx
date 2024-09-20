@@ -1,14 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactJson from "react-json-view";
-import {
-  apiReactJsonProps,
-  NoResponse,
-  responseTabComponent,
-  ResponseTabErrorContainer,
-  ResponseTabErrorContent,
-  ResponseTabErrorDefaultMessage,
-} from "components/editorComponents/ApiResponseView";
 import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -32,6 +24,14 @@ import ActionExecutionInProgressView from "components/editorComponents/ActionExe
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import BindDataButton from "./BindDataButton";
 import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
+import {
+  apiReactJsonProps,
+  ResponseTabErrorContainer,
+  ResponseTabErrorContent,
+  ResponseTabErrorDefaultMessage,
+} from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
+import { responseTabComponent } from "PluginActionEditor/components/PluginActionResponse/components/ResponseFormatTabs";
+import { NoResponse } from "PluginActionEditor/components/PluginActionResponse/components/NoResponse";
 
 const HelpSection = styled.div``;
 
@@ -151,9 +151,8 @@ const QueryResponseTab = (props: Props) => {
 
   let error = runErrorMessage;
   let hintMessages: Array<string> = [];
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let output: Record<string, any>[] | null = null;
+
+  let output: Record<string, unknown>[] | string = "";
 
   // Query is executed even once during the session, show the response data.
   if (actionResponse) {
@@ -292,8 +291,8 @@ const QueryResponseTab = (props: Props) => {
         )}
       {!output && !error && (
         <NoResponse
-          isButtonDisabled={!isExecutePermitted}
-          isQueryRunning={isRunning}
+          isRunDisabled={!isExecutePermitted}
+          isRunning={isRunning}
           onRunClick={responseTabOnRunClick}
         />
       )}

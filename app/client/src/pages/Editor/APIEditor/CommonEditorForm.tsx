@@ -256,6 +256,8 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     getPlugin(state, pluginId ?? ""),
   );
 
+  if (!currentActionConfig) return null;
+
   // this gets the url of the current action's datasource
   const actionDatasourceUrl =
     currentActionConfig?.datasource?.datasourceConfiguration?.url || "";

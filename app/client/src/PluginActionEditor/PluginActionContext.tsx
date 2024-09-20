@@ -4,16 +4,16 @@ import React, {
   useContext,
   useMemo,
 } from "react";
-import type { Action } from "entities/Action";
+import type { Action, StoredDatasource } from "entities/Action";
 import type { Plugin } from "api/PluginApi";
-import type { Datasource } from "entities/Datasource";
+import type { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
 
 interface PluginActionContextType {
   action: Action;
   editorConfig: unknown[];
   settingsConfig: unknown[];
   plugin: Plugin;
-  datasource?: Datasource;
+  datasource?: EmbeddedRestDatasource | StoredDatasource | Datasource;
 }
 
 // No need to export this context to use it. Use the hook defined below instead
