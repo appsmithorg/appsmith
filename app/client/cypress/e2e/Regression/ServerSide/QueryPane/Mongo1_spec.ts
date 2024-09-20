@@ -21,7 +21,7 @@ let dsName: any;
 
 describe(
   "Validate Mongo Query Pane Validations",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Sanity"] },
   () => {
     before(() => {
       //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach

@@ -11,7 +11,7 @@ import EditorNavigation, {
 
 describe(
   "Dynamic Height Width validation",
-  { tags: ["@tag.AutoHeight"] },
+  { tags: ["@tag.AutoHeight", "@tag.Sanity"] },
   function () {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

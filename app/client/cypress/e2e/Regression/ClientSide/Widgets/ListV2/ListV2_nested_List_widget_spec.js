@@ -27,7 +27,7 @@ function checkAutosuggestion(label, type) {
 }
 describe(
   " Nested List Widgets ",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Sanity"] },
   function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     beforeEach(() => {
