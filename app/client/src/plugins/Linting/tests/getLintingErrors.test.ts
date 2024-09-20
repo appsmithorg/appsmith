@@ -2,6 +2,8 @@ import { getScriptType } from "workers/Evaluation/evaluate";
 import { CustomLintErrorCode } from "../constants";
 import getLintingErrors from "../utils/getLintingErrors";
 
+const webworkerTelemetry = {};
+
 describe("getLintingErrors", () => {
   describe("1. Verify lint errors are not shown for supported window APIs", () => {
     const data = {};
@@ -17,6 +19,7 @@ describe("getLintingErrors", () => {
         originalBinding,
         script,
         scriptType,
+        webworkerTelemetry,
       });
 
       expect(Array.isArray(lintErrors)).toBe(true);
@@ -29,6 +32,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, true);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         originalBinding,
         script,
@@ -45,6 +49,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, true);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         originalBinding,
         script,
@@ -65,6 +70,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, true);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         originalBinding,
         script,
@@ -80,6 +86,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, true);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         originalBinding,
         script,
@@ -95,6 +102,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, true);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         originalBinding,
         script,
@@ -128,6 +136,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, false);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         options,
         originalBinding,
@@ -150,6 +159,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, false);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         options,
         originalBinding,
@@ -172,6 +182,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, false);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         options,
         originalBinding,

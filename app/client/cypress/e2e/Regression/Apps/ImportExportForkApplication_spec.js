@@ -9,7 +9,7 @@ import {
 
 describe(
   "Import, Export and Fork application and validate data binding",
-  { tags: ["@tag.ImportExport"] },
+  { tags: ["@tag.ImportExport", "@tag.Sanity"] },
   function () {
     let workspaceId;
     let newWorkspaceName;

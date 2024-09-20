@@ -11,6 +11,7 @@ export default function lintBindingPath({
   entity,
   fullPropertyPath,
   globalData,
+  webworkerTelemetry,
 }: lintBindingPathProps) {
   let lintErrors: LintError[] = [];
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
@@ -37,6 +38,7 @@ export default function lintBindingPath({
           data: globalData,
           originalBinding,
           scriptType,
+          webworkerTelemetry,
         });
 
         lintErrors = lintErrors.concat(lintErrorsFromSnippet);

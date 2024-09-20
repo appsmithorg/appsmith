@@ -11,10 +11,12 @@ import {
 import { Severity } from "entities/AppsmithConsole";
 import { getJSToLint } from "./getJSToLint";
 import getLintingErrors from "./getLintingErrors";
+import type { WebworkerTelemetryAttribute } from "../types";
 
 export default function lintJSObjectBody(
   jsObjectName: string,
   globalData: DataTree,
+  webworkerTelemetry: Record<string, WebworkerTelemetryAttribute>,
 ): LintError[] {
   const jsObject = globalData[jsObjectName];
   const rawJSObjectbody = (jsObject as unknown as JSActionEntity).body;
@@ -50,5 +52,6 @@ export default function lintJSObjectBody(
     data: globalData,
     originalBinding: jsbodyToLint,
     scriptType,
+    webworkerTelemetry,
   });
 }
