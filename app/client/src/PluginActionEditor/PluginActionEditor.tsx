@@ -7,7 +7,6 @@ import {
   getDatasource,
   getEditorConfig,
   getPlugin,
-  getPluginSettingConfigs,
 } from "ee/selectors/entitiesSelector";
 import { PluginActionContextProvider } from "./PluginActionContext";
 import { get } from "lodash";
@@ -16,6 +15,7 @@ import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { Text } from "@appsmith/ads";
 import { useIsEditorInitialised } from "IDE/hooks";
+import { useActionSettingsConfig } from "ee/IDE/hooks/useActionSettingsConfig";
 
 interface ChildrenProps {
   children: React.ReactNode | React.ReactNode[];
@@ -35,9 +35,7 @@ const PluginActionEditor = (props: ChildrenProps) => {
   const datasourceId = get(action, "datasource.id", "");
   const datasource = useSelector((state) => getDatasource(state, datasourceId));
 
-  const settingsConfig = useSelector((state) =>
-    getPluginSettingConfigs(state, pluginId),
-  );
+  const settingsConfig = useActionSettingsConfig();
 
   const editorConfig = useSelector((state) => getEditorConfig(state, pluginId));
 
