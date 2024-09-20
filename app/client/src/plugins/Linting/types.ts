@@ -11,6 +11,10 @@ import type {
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import type { JSLibrary } from "workers/common/JSLibrary";
+import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
+import type { SpanAttributes } from "UITelemetry/generateTraces";
+
+export type WebworkerTelemetryAttribute = WebworkerSpanData | SpanAttributes;
 
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",
@@ -21,6 +25,7 @@ export interface LintTreeResponse {
   errors: LintErrorsStore;
   lintedJSPaths: string[];
   jsPropertiesState: TJSPropertiesState;
+  webworkerTelemetry: Record<string, WebworkerTelemetryAttribute>;
 }
 
 export interface LintTreeRequestPayload {
@@ -30,11 +35,10 @@ export interface LintTreeRequestPayload {
   forceLinting?: boolean;
 }
 
-export interface LintRequest {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any;
+export interface LintRequest<T> {
+  data: T;
   method: LINT_WORKER_ACTIONS;
+  webworkerTelemetry: Record<string, WebworkerTelemetryAttribute>;
 }
 
 export interface LintTreeSagaRequestData {
@@ -46,12 +50,14 @@ export interface lintTriggerPathProps {
   userScript: string;
   entity: DataTreeEntity;
   globalData: ReturnType<typeof createEvaluationContext>;
+  webworkerTelemetry: Record<string, WebworkerTelemetryAttribute>;
 }
 export interface lintBindingPathProps {
   dynamicBinding: string;
   entity: DataTreeEntity;
   fullPropertyPath: string;
   globalData: ReturnType<typeof createEvaluationContext>;
+  webworkerTelemetry: Record<string, WebworkerTelemetryAttribute>;
 }
 export interface getLintingErrorsProps {
   script: string;
@@ -62,6 +68,7 @@ export interface getLintingErrorsProps {
   options?: {
     isJsObject: boolean;
   };
+  webworkerTelemetry: Record<string, WebworkerTelemetryAttribute>;
 }
 
 export interface getLintErrorsFromTreeProps {
@@ -71,6 +78,7 @@ export interface getLintErrorsFromTreeProps {
   cloudHosting: boolean;
   asyncJSFunctionsInDataFields: DependencyMap;
   configTree: ConfigTree;
+  webworkerTelemetry: Record<string, WebworkerTelemetryAttribute>;
 }
 
 export interface getLintErrorsFromTreeResponse {

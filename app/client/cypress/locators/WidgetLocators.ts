@@ -61,6 +61,7 @@ export const PROPERTY_SELECTOR = {
   TextFieldName: "Text",
   tableData: ".t--property-control-tabledata",
   tableColumnNames: '[data-rbd-draggable-id] input[type="text"]',
+  jsToggle : '.t--js-toggle',
 };
 
 export const WIDGETSKIT = {

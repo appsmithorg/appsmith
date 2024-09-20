@@ -21,6 +21,7 @@ export function getLintErrorsFromTree({
   jsPropertiesState,
   pathsToLint,
   unEvalTree,
+  webworkerTelemetry,
 }: getLintErrorsFromTreeProps): getLintErrorsFromTreeResponse {
   const lintTreeErrors: LintErrorsStore = {};
   const lintedJSPaths = new Set<string>();
@@ -47,6 +48,7 @@ export function getLintErrorsFromTree({
       entity,
       fullPropertyPath: bindingPath,
       globalData: globalData.getGlobalData(false),
+      webworkerTelemetry,
     });
 
     set(lintTreeErrors, `["${bindingPath}"]`, lintErrors);
@@ -67,6 +69,7 @@ export function getLintErrorsFromTree({
       userScript: unEvalPropertyValue,
       entity,
       globalData: globalData.getGlobalData(true),
+      webworkerTelemetry,
     });
 
     set(lintTreeErrors, `["${triggerPath}"]`, lintErrors);
@@ -87,6 +90,7 @@ export function getLintErrorsFromTree({
         const jsObjectBodyLintErrors = lintJSObjectBody(
           jsObjectName,
           globalData.getGlobalData(true),
+          webworkerTelemetry,
         );
 
         set(lintTreeErrors, jsObjectBodyPath, jsObjectBodyLintErrors);
@@ -96,6 +100,7 @@ export function getLintErrorsFromTree({
           jsObjectPath,
           jsObjectState,
           asyncJSFunctionsInDataFields,
+          webworkerTelemetry,
         );
         const currentLintErrorsInBody = get(
           lintTreeErrors,

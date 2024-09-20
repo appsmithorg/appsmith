@@ -36,6 +36,8 @@ import setters from "workers/Evaluation/setters";
 import { isMemberExpressionNode } from "@shared/ast/src";
 import { generate } from "astring";
 import getInvalidModuleInputsError from "ee/plugins/Linting/utils/getInvalidModuleInputsError";
+import { objectKeys } from "@appsmith/utils";
+import { profileFn } from "UITelemetry/generateWebWorkerTraces";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -67,7 +69,7 @@ function generateLintingGlobalData(data: Record<string, unknown>) {
 
   libAccessors.forEach((accessor) => (globalData[accessor] = true));
   // Add all supported web apis
-  Object.keys(SUPPORTED_WEB_APIS).forEach(
+  objectKeys(SUPPORTED_WEB_APIS).forEach(
     (apiName) => (globalData[apiName] = true),
   );
 
@@ -190,12 +192,23 @@ export default function getLintingErrors({
   originalBinding,
   script,
   scriptType,
+  webworkerTelemetry,
 }: getLintingErrorsProps): LintError[] {
   const scriptPos = getEvaluationScriptPosition(scriptType);
   const lintingGlobalData = generateLintingGlobalData(data);
   const lintingOptions = lintOptions(lintingGlobalData);
 
-  jshint(script, lintingOptions);
+  profileFn(
+    "Linter",
+    // adding some metrics to compare the performance changes with eslint
+    {
+      linter: "JSHint",
+      linesOfCodeLinted: originalBinding.split("\n").length,
+      codeSizeInChars: originalBinding.length,
+    },
+    webworkerTelemetry,
+    () => jshint(script, lintingOptions),
+  );
   const sanitizedJSHintErrors = sanitizeJSHintErrors(jshint.errors, scriptPos);
   const jshintErrors: LintError[] = sanitizedJSHintErrors.map((lintError) =>
     convertJsHintErrorToAppsmithLintError(
