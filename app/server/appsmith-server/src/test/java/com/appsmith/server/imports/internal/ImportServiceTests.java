@@ -357,7 +357,8 @@ public class ImportServiceTests {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .map(jsonSchemaMigration::migrateArtifactToLatestSchema)
+                .flatMap(applicationJson ->
+                        jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson, null, null))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
@@ -2718,11 +2719,13 @@ public class ImportServiceTests {
                 })
                 .cache();
 
-        Mono<ApplicationJson> migratedApplicationMono = v1ApplicationMono.map(applicationJson -> {
-            ApplicationJson applicationJson1 = new ApplicationJson();
-            AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
-            return (ApplicationJson) jsonSchemaMigration.migrateArtifactToLatestSchema(applicationJson1);
-        });
+        Mono<ApplicationJson> migratedApplicationMono = v1ApplicationMono
+                .flatMap(applicationJson -> {
+                    ApplicationJson applicationJson1 = new ApplicationJson();
+                    AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
+                    return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson1, null, null);
+                })
+                .map(applicationJson -> (ApplicationJson) applicationJson);
 
         StepVerifier.create(Mono.zip(v1ApplicationMono, migratedApplicationMono))
                 .assertNext(tuple -> {
