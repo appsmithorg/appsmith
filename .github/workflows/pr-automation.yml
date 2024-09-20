@@ -42,10 +42,11 @@ jobs:
             }
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
-      - name: Checkout the head commit of the branch
+      - name: Checkout PR
         uses: actions/checkout@v4
         with:
-          repository: appsmithorg/appsmith
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       
       - name: Check Commit Message
         id: checkCommitMessage
