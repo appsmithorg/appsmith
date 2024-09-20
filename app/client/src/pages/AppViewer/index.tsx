@@ -31,7 +31,6 @@ import { CANVAS_SELECTOR } from "constants/WidgetConstants";
 import {
   setupPublishedPage,
   fetchPublishedPageResourcesAction,
-  updateCurrentPage,
 } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
@@ -166,14 +165,8 @@ function AppViewer(props: Props) {
         )?.pageId;
 
         if (pageId) {
-          // Updating the page id in store on page change
-          // Earlier we were updating page id in handleFetchedPage saga after fetching the page
-          // This was causing stale pageId in the store when fetch it in the evaluateTreeSaga
-          dispatch(updateCurrentPage(pageId));
+          dispatch(setupPublishedPage(pageId, true));
 
-          // TODO: Patch fix to avoid dispatch of FETCH_ALL_PAGE_ENTITY_COMPLETION twice
-          // Remove this once Sneha's PR is merged
-          dispatch(setupPublishedPage(pageId, true, true));
           // Used for fetching page resources
           dispatch(fetchPublishedPageResourcesAction(basePageId));
         }
