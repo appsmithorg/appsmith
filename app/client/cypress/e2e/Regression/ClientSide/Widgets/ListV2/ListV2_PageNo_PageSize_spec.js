@@ -88,7 +88,7 @@ const listData = [
 
 describe(
   "List widget V2 page number and page size",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Sanity"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("listv2PaginationDsl");

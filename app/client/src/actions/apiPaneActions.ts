@@ -59,13 +59,6 @@ export const setApiPaneConfigSelectedTabIndex: (
   payload: { selectedTabIndex: payload },
 });
 
-export const setApiRightPaneSelectedTab: (
-  payload: string,
-) => ReduxAction<{ selectedTab: string }> = (payload: string) => ({
-  type: ReduxActionTypes.SET_API_RIGHT_PANE_SELECTED_TAB,
-  payload: { selectedTab: payload },
-});
-
 export const setApiPaneDebuggerState = (
   payload: Partial<ApiPaneDebuggerState>,
 ) => ({
