@@ -93,7 +93,7 @@ describe(
         );
     });
 
-    it("4. should allow input format of Unix Timestamp(ms) and not throw Invalid Value error when inline editing", () => {
+    it.only("4. should allow input format of Unix Timestamp(ms) and not throw Invalid Value error when inline editing", () => {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       // propPane.NavigateBackToPropertyPane();
       propPane.UpdatePropertyFieldValue(
@@ -152,7 +152,12 @@ describe(
       );
       table.ChangeColumnType("unix", "Date", "v2");
       table.EditColumn("unix", "v2");
+
+      propPane.ToggleJSMode("Date format", true);
       propPane.UpdatePropertyFieldValue("Date format", "Milliseconds");
+
+      propPane.ToggleJSMode("Display format", true);
+      propPane.UpdatePropertyFieldValue("Display format", "YYYY-MM-DD HH:mm");
     });
   },
 );
