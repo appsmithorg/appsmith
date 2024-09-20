@@ -29,6 +29,7 @@ import { getAppsmithConfigs } from "ee/configs";
 import { PageViewTiming } from "@newrelic/browser-agent/features/page_view_timing";
 import { PageViewEvent } from "@newrelic/browser-agent/features/page_view_event";
 import { Agent } from "@newrelic/browser-agent/loaders/agent";
+import { getCommonTelemetryAttributes } from "UITelemetry/generateTraces";
 
 const { newRelic } = getAppsmithConfigs();
 const { enableNewRelic } = newRelic;
@@ -56,7 +57,7 @@ const newRelicBrowserAgentConfig = {
 
 // The agent loader code executes immediately on instantiation.
 if (enableNewRelic) {
-  new Agent(
+  const newRelicBrowserAgent = new Agent(
     {
       ...newRelicBrowserAgentConfig,
       features: [PageViewTiming, PageViewEvent],
@@ -65,6 +66,11 @@ if (enableNewRelic) {
     // Passing a null value throws an error as well. So we pass undefined.
     undefined,
   );
+
+  const { appMode, otlpSessionId } = getCommonTelemetryAttributes();
+
+  newRelicBrowserAgent.setCustomAttribute("otlpSessionId", otlpSessionId);
+  newRelicBrowserAgent.setCustomAttribute("appMode", appMode);
 }
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";

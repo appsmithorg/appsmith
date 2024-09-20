@@ -9,6 +9,7 @@ import type {
 
 export function* openModalSaga(action: TShowModalDescription) {
   const { modalName } = action.payload;
+
   if (typeof modalName !== "string") {
     throw new ActionValidationError(
       "SHOW_MODAL_BY_NAME",
@@ -17,6 +18,7 @@ export function* openModalSaga(action: TShowModalDescription) {
       getType(modalName),
     );
   }
+
   yield put(action);
   AppsmithConsole.info({
     text: `showModal('${modalName ?? ""}') was triggered`,
@@ -25,6 +27,7 @@ export function* openModalSaga(action: TShowModalDescription) {
 
 export function* closeModalSaga(action: TCloseModalDescription) {
   const { modalName } = action.payload;
+
   if (typeof modalName !== "string") {
     throw new ActionValidationError(
       "CLOSE_MODAL",
@@ -33,6 +36,7 @@ export function* closeModalSaga(action: TCloseModalDescription) {
       getType(modalName),
     );
   }
+
   yield put(action);
   AppsmithConsole.info({
     text: `closeModal(${modalName}) was triggered`,

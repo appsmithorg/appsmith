@@ -265,6 +265,7 @@ class JSONFormWidget extends BaseWidget<
 
         if (queryConfig.create) {
           const columns = formConfig.columns;
+
           modify = {
             sourceData: generateSchemaWithDefaultValues(columns),
             onSubmit: queryConfig.create.run,
@@ -276,6 +277,7 @@ class JSONFormWidget extends BaseWidget<
           const selectedColumnNames = formConfig.columns.map(
             (column) => `${column.name}`,
           );
+
           modify = {
             sourceData: `{{_.pick(${
               formConfig?.otherFields?.defaultValues
@@ -286,6 +288,7 @@ class JSONFormWidget extends BaseWidget<
         }
 
         dynamicPropertyPathList.push({ key: "sourceData" });
+
         return {
           modify: {
             ...modify,
@@ -499,6 +502,7 @@ class JSONFormWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
     super.componentDidUpdate(prevProps);
+
     if (
       isEmpty(this.props.formData) &&
       isEmpty(this.props.fieldState) &&
@@ -509,10 +513,12 @@ class JSONFormWidget extends BaseWidget<
 
     if (prevProps.useSourceData !== this.props.useSourceData) {
       const { formData } = this.props;
+
       this.updateFormData(formData);
     }
 
     const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
+
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
       schema,
@@ -675,6 +681,7 @@ class JSONFormWidget extends BaseWidget<
         actionPayload,
       );
     }
+
     endSpan(span);
   };
 
@@ -808,6 +815,7 @@ class JSONFormWidget extends BaseWidget<
 
   getWidgetView() {
     const isAutoHeightEnabled = isAutoHeightEnabledForWidget(this.props);
+
     return (
       // Warning!!! Do not ever introduce formData as a prop directly,
       // it would lead to severe performance degradation due to frequent

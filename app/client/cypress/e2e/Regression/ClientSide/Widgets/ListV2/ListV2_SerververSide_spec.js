@@ -15,7 +15,7 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe(
   "List widget V2 Serverside Pagination",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Sanity"] },
   () => {
     before(() => {
       agHelper.AddDsl("Listv2/Listv2JSObjects");

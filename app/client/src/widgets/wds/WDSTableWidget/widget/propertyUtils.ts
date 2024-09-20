@@ -204,6 +204,7 @@ export const updateColumnOrderHook = (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any;
   }> = [];
+
   if (props && propertyValue && /^primaryColumns\.\w+$/.test(propertyPath)) {
     const newColumnOrder = [...(props.columnOrder || [])];
 
@@ -225,6 +226,7 @@ export const updateColumnOrderHook = (
     });
 
     const newId = propertyValue.id;
+
     if (newId) {
       // sets default value for some properties
       propertyValue.labelColor = Colors.WHITE;
@@ -308,6 +310,7 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
           const newColumnOrder = _.difference(props.columnOrder, [
             edtiActionColumn.id,
           ]);
+
           propertiesToUpdate = [
             ...propertiesToUpdate,
             {
@@ -327,6 +330,7 @@ export const updateInlineEditingOptionDropdownVisibilityHook = (
   if (propertiesToUpdate.length) {
     return propertiesToUpdate;
   }
+
   return;
 };
 
@@ -402,6 +406,7 @@ export const getBasePropertyPath = (
 ): string | undefined => {
   const propertyPathRegex = /^(.*)\.\w+$/g;
   const matches = [...propertyPath.matchAll(propertyPathRegex)][0];
+
   if (matches && _.isArray(matches) && matches.length === 2) {
     return matches[1];
   } else {
@@ -428,6 +433,7 @@ export const hideByColumnType = (
   }
 
   const columnType = get(props, `${baseProperty}.columnType`, "");
+
   return !columnTypes.includes(columnType);
 };
 
@@ -450,6 +456,7 @@ export const showByColumnType = (
   }
 
   const columnType = get(props, `${baseProperty}.columnType`, "");
+
   return columnTypes.includes(columnType);
 };
 
@@ -483,6 +490,7 @@ export const SelectColumnOptionsValidations = (
       value = (value as string).split(",").map((str) => str.trim());
     }
   }
+
   /*
    * when value is null, undefined and empty string
    */
@@ -493,6 +501,7 @@ export const SelectColumnOptionsValidations = (
     const hasStringOrNumber = (value as []).every(
       (item) => _.isString(item) || _.isFinite(item),
     );
+
     isValid = hasStringOrNumber;
     parsed = value;
     message = hasStringOrNumber ? "" : expectedMessage;
@@ -602,6 +611,7 @@ export const removeBoxShadowColorProp = (
     propertyPath,
     "boxShadowColor",
   );
+
   return [
     {
       propertyPath: boxShadowColorPath,
@@ -626,7 +636,9 @@ export const replacePropertyName = (
   targetPropertyName: string,
 ) => {
   const path = propertyPath.split(".");
+
   path.pop();
+
   return `${path.join(".")}.${targetPropertyName}`;
 };
 
@@ -637,6 +649,7 @@ export const updateCustomColumnAliasOnLabelChange = (
 ): Array<PropertyUpdates> | undefined => {
   // alias will be updated along with label change only for custom columns
   const regex = /^primaryColumns\.(customColumn\d+)\.label$/;
+
   if (propertyPath?.length && regex.test(propertyPath)) {
     return [
       {
@@ -650,6 +663,7 @@ export const updateCustomColumnAliasOnLabelChange = (
 export const allowedFirstDayOfWeekRange = (value: number) => {
   const allowedValues = [0, 1, 2, 3, 4, 5, 6];
   const isValid = allowedValues.includes(Number(value));
+
   return {
     isValid: isValid,
     parsed: isValid ? Number(value) : 0,
@@ -892,6 +906,7 @@ export function selectColumnOptionsValidation(
     } else if (typeof value === "string") {
       // json string
       const _value = JSON.parse(value);
+
       if (Array.isArray(_value)) {
         value = _value;
       } else {
@@ -928,6 +943,7 @@ export function selectColumnOptionsValidation(
                   _parsed = [];
                   break;
                 }
+
                 if ((_message = validateOption(value[i][j], i, j))) {
                   _isValid = false;
                   break;
@@ -943,6 +959,7 @@ export function selectColumnOptionsValidation(
           uniqueValues = new Set();
           _parsed = value;
           _isValid = true;
+
           for (let i = 0; i < (value as Array<unknown>).length; i++) {
             if (_.isNil((value as Array<unknown>)[i])) {
               _isValid = false;

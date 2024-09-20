@@ -54,6 +54,7 @@ interface ContainerWrapperProps {
   dropDisabled?: boolean;
   $noScroll: boolean;
 }
+
 function ContainerComponentWrapper(
   props: PropsWithChildren<ContainerWrapperProps>,
 ) {
@@ -166,6 +167,7 @@ function ContainerComponent(props: ContainerComponentProps) {
       </ContainerComponentWrapper>
     );
   }
+
   return (
     <WidgetStyleContainer
       backgroundColor={props.backgroundColor}

@@ -11,6 +11,7 @@ export function sanitizeScript(js: string, evaluationVersion: number) {
   //default value of evalutaion version is 2
   evaluationVersion = evaluationVersion ? evaluationVersion : 2;
   const trimmedJS = js.replace(beginsWithLineBreakRegex, "");
+
   return evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
 }
 
@@ -52,10 +53,12 @@ export const extractContentByPosition = (
     } else {
       returnedString += eachLine[i];
     }
+
     if (i !== position.to.line) {
       returnedString += "\n";
     }
   }
+
   return returnedString;
 };
 
@@ -67,5 +70,6 @@ export const getStringValue = (
   } else if (typeof inputValue === "number" || typeof inputValue === "string") {
     inputValue += "";
   }
+
   return inputValue;
 };

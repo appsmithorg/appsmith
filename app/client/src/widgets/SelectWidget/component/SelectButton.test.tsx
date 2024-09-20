@@ -9,6 +9,7 @@ import { CommonLocators } from "../../../../cypress/support/Objects/CommonLocato
 // It is necessary to make a mock of the Icon component as the error falls due to React.lazy in importIconImpl
 jest.mock("@design-system/widgets-old", () => {
   const originalModule = jest.requireActual("@design-system/widgets-old");
+
   return {
     __esModule: true,
     ...originalModule,
@@ -42,6 +43,7 @@ describe("SelectButton", () => {
       ...defaultProps,
       disabled: true,
     });
+
     fireEvent.click(getByTestId("selectbutton.btn.main"));
     expect(defaultProps.togglePopoverVisibility).not.toBeCalled();
     expect(getByText("0")).toBeTruthy();
@@ -49,17 +51,20 @@ describe("SelectButton", () => {
 
   it("should render correctly", async () => {
     const { getByText } = renderComponent();
+
     expect(getByText("0")).toBeTruthy();
   });
 
   it("should trigger handleCancelClick method on cancel click", () => {
     const { getByTestId } = renderComponent();
+
     fireEvent.click(getByTestId("selectbutton.btn.cancel"));
     expect(defaultProps.handleCancelClick).toBeCalled();
   });
 
   it("should toggle popover visibility method on button click", () => {
     const { getByTestId } = renderComponent();
+
     fireEvent.click(getByTestId("selectbutton.btn.main"));
     expect(defaultProps.togglePopoverVisibility).toBeCalled();
   });
@@ -69,6 +74,7 @@ describe("SelectButton", () => {
       ...defaultProps,
       isRequired: true,
     });
+
     expect(
       container.querySelector(locators._selectClearButton_dataTestId),
     ).toBeNull();
@@ -79,6 +85,7 @@ describe("SelectButton", () => {
       ...defaultProps,
       isRequired: false,
     });
+
     expect(
       container.querySelector(locators._selectClearButton_dataTestId),
     ).not.toBeNull();

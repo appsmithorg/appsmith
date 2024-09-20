@@ -26,7 +26,9 @@ interface Props {
 
 const ApplicationSearchItem = (props: Props) => {
   const { applicationsList, navigateToApplication } = props;
+
   if (!applicationsList || applicationsList?.length === 0) return null;
+
   return (
     <div className="mb-2">
       <Text className="!mb-2 !block" kind="body-s">

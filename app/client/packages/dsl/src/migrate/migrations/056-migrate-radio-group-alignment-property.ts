@@ -9,7 +9,9 @@ export const migrateRadioGroupAlignmentProperty = (currentDSL: DSLWidget) => {
     } else if (child.children && child.children.length > 0) {
       child = migrateRadioGroupAlignmentProperty(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

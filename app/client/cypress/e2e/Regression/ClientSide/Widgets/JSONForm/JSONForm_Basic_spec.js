@@ -11,7 +11,7 @@ const {
 
 describe(
   "JsonForm widget basis c usecases",
-  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Sanity"] },
   function () {
     before(() => {
       cy.dragAndDropToCanvas("jsonformwidget", { x: 200, y: 200 });

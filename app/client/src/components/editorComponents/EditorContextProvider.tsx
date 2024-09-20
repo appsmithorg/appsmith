@@ -206,6 +206,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
   // Memoize the context provider to prevent
   // unnecessary renders
   const contextValue = useMemo(() => apiMethods, apiMethodsDeps);
+
   return (
     <EditorContext.Provider value={contextValue}>
       {children}

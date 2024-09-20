@@ -245,6 +245,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
       WidgetFactory,
       "getWidgetPropertyPaneConfig",
     );
+
     getPropertyConfig.mockReturnValueOnce([
       {
         sectionName: "General",
@@ -369,6 +370,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
       },
     ]);
     const newDsl = captureInvalidDynamicBindingPath(baseDSL);
+
     expect(baseDSL).toEqual(newDsl);
   });
 
@@ -414,6 +416,7 @@ describe("#captureInvalidDynamicBindingPath", () => {
       WidgetFactory,
       "getWidgetPropertyPaneConfig",
     );
+
     getPropertyConfig.mockReturnValueOnce([
       {
         sectionName: "General",
@@ -596,9 +599,11 @@ describe("isNameValid()", () => {
     // Some window object methods and properties names should be valid entity names since evaluation is done
     // in the worker thread, and some of the window methods and properties are not available there.
     const validEntityNames = ["history", "parent", "screen"];
+
     for (const invalidName of invalidEntityNames) {
       expect(isNameValid(invalidName, {})).toBe(false);
     }
+
     for (const validName of validEntityNames) {
       expect(isNameValid(validName, {})).toBe(true);
     }
@@ -610,6 +615,7 @@ describe("pushToArray", () => {
     const item = "something";
     const expected = ["something"];
     const result = pushToArray(item);
+
     expect(result).toStrictEqual(expected);
   });
   it("adds to an existing array", () => {
@@ -617,6 +623,7 @@ describe("pushToArray", () => {
     const arr1 = ["another"];
     const expected = ["another", "something"];
     const result = pushToArray(item, arr1);
+
     expect(result).toStrictEqual(expected);
   });
   it("adds to an existing array and make unique", () => {
@@ -624,6 +631,7 @@ describe("pushToArray", () => {
     const arr1 = ["another", "another"];
     const expected = ["another", "something"];
     const result = pushToArray(item, arr1, true);
+
     expect(result).toStrictEqual(expected);
   });
 });
@@ -633,6 +641,7 @@ describe("concatWithArray", () => {
     const items = ["something"];
     const expected = ["something"];
     const result = concatWithArray(items);
+
     expect(result).toStrictEqual(expected);
   });
   it("adds to an existing array", () => {
@@ -640,6 +649,7 @@ describe("concatWithArray", () => {
     const arr1 = ["another"];
     const expected = ["another", "something"];
     const result = concatWithArray(items, arr1);
+
     expect(result).toStrictEqual(expected);
   });
   it("adds to an existing array and make unique", () => {
@@ -647,6 +657,7 @@ describe("concatWithArray", () => {
     const arr1 = ["another", "another"];
     const expected = ["another", "something"];
     const result = concatWithArray(items, arr1, true);
+
     expect(result).toStrictEqual(expected);
   });
 });

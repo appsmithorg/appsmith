@@ -38,6 +38,7 @@ export const AnvilDnDHighlight = ({
         width: 0,
       };
     }
+
     // Calculate padding based on highlight orientation
     const verticalPadding = highlightShown.isVertical
       ? PADDING_FOR_HORIZONTAL_HIGHLIGHT

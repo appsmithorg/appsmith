@@ -374,6 +374,7 @@ class FilePickerWidget extends BaseWidget<
     };
 
     const uppy = await this.loadAndInitUppyOnce();
+
     uppy.setOptions(uppyState);
   };
 
@@ -441,6 +442,7 @@ class FilePickerWidget extends BaseWidget<
             return file.id !== dslFile.id;
           })
         : [];
+
       this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
     });
 
@@ -452,15 +454,18 @@ class FilePickerWidget extends BaseWidget<
         : [];
       const fileReaderPromises = files.map(async (file) => {
         const reader = new FileReader();
+
         return new Promise((resolve) => {
           reader.readAsDataURL(file.data);
           reader.onloadend = () => {
             const base64data = reader.result;
             const binaryReader = new FileReader();
+
             binaryReader.readAsBinaryString(file.data);
             binaryReader.onloadend = () => {
               const rawData = binaryReader.result;
               const textReader = new FileReader();
+
               textReader.readAsText(file.data);
               textReader.onloadend = () => {
                 const text = textReader.result;
@@ -575,6 +580,7 @@ class FilePickerWidget extends BaseWidget<
           const uppy = await this.loadAndInitUppyOnce();
 
           const dashboardPlugin = uppy.getPlugin("Dashboard") as Dashboard;
+
           dashboardPlugin.closeModal();
         }}
         files={this.props.selectedFiles || []}
@@ -593,13 +599,17 @@ class FilePickerWidget extends BaseWidget<
           // Copying the `isUppyLoaded` value because `isUppyLoaded` *will* always be true
           // by the time `await this.initUppyInstanceOnce()` resolves.
           const isUppyLoadedByThisPoint = isUppyLoaded;
+
           if (!isUppyLoadedByThisPoint)
             this.setState({ isWaitingForUppyToLoad: true });
+
           const uppy = await this.loadAndInitUppyOnce();
+
           if (!isUppyLoadedByThisPoint)
             this.setState({ isWaitingForUppyToLoad: false });
 
           const dashboardPlugin = uppy.getPlugin("Dashboard") as Dashboard;
+
           dashboardPlugin.openModal();
         }}
         widgetId={this.props.widgetId}

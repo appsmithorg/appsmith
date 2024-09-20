@@ -154,6 +154,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
 
   componentDidUpdate = (prevProps: InputWidgetProps) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
     if (
       prevProps.rawText !== this.props.rawText &&
       this.props.rawText !== toString(this.props.parsedText)
@@ -170,6 +171,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         parseText(this.props.rawText, this.props.inputType),
       );
     }
+
     // If defaultText property has changed, reset isDirty to false
     if (
       this.props.defaultText !== prevProps.defaultText &&
@@ -177,11 +179,13 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     ) {
       pushBatchMetaUpdates("isDirty", false);
     }
+
     commitBatchMetaUpdates();
   };
 
   onValueChange = (value: string) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
     // Ideally text property should be derived property. But widgets with
     // derived properties won't work as expected inside a List widget.
     // TODO(Balaji): Once we refactor the List widget, need to conver
@@ -199,11 +203,13 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     if (!this.props.isDirty) {
       pushBatchMetaUpdates("isDirty", true);
     }
+
     commitBatchMetaUpdates();
   };
 
   resetWidgetText = () => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
     pushBatchMetaUpdates("rawText", "");
     pushBatchMetaUpdates("parsedText", parseText("", this.props.inputType));
     commitBatchMetaUpdates();

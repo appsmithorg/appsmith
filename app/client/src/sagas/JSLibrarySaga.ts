@@ -57,6 +57,7 @@ function* handleInstallationFailure(
 
   const applicationid: ReturnType<typeof getCurrentApplicationId> =
     yield select(getCurrentApplicationId);
+
   yield put({
     type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
     payload: {
@@ -99,6 +100,7 @@ export function* installLibrarySaga(lib: Partial<JSLibrary>) {
         kind: "info",
       },
     );
+
     return;
   }
 
@@ -119,6 +121,7 @@ export function* installLibrarySaga(lib: Partial<JSLibrary>) {
   if (!success) {
     log.debug("Failed to install locally");
     yield call(handleInstallationFailure, url as string, error?.message);
+
     return;
   }
 
@@ -127,6 +130,7 @@ export function* installLibrarySaga(lib: Partial<JSLibrary>) {
 
   const versionMatch = (url as string).match(/(?:@)(\d+\.)(\d+\.)(\d+)/);
   let [version = ""] = versionMatch ? versionMatch : [];
+
   version = version.startsWith("@") ? version.slice(1) : version;
   version = version || lib?.version || "";
 
@@ -154,9 +158,11 @@ export function* installLibrarySaga(lib: Partial<JSLibrary>) {
 
   try {
     const isValidResponse: boolean = yield validateResponse(response, false);
+
     if (!isValidResponse || !response.data) {
       log.debug("Install API failed");
       yield call(handleInstallationFailure, url as string, "", accessor);
+
       return;
     }
   } catch (e) {
@@ -166,6 +172,7 @@ export function* installLibrarySaga(lib: Partial<JSLibrary>) {
       (e as Error).message,
       accessor,
     );
+
     return;
   }
 
@@ -263,6 +270,7 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
         url: action.payload.url,
         success: false,
       });
+
       return;
     }
 
@@ -279,6 +287,7 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
       EVAL_WORKER_ACTIONS.UNINSTALL_LIBRARY,
       accessor,
     );
+
     if (!success) {
       yield put({
         type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
@@ -352,8 +361,10 @@ function* fetchJSLibraries(
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (!isValidResponse) {
       endSpan(span);
+
       return;
     }
 
@@ -391,7 +402,9 @@ function* fetchJSLibraries(
           type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
         });
       }
+
       endSpan(span);
+
       return;
     }
 
@@ -399,6 +412,7 @@ function* fetchJSLibraries(
       for (const lib of libraries) {
         try {
           const defs = JSON.parse(lib.defs);
+
           CodemirrorTernService.updateDef(defs["!name"], defs);
         } catch (e) {
           toast.show(
@@ -412,6 +426,7 @@ function* fetchJSLibraries(
           );
         }
       }
+
       yield put({
         type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
         payload: {
@@ -445,9 +460,11 @@ function* startInstallationRequestChannel() {
   const queueInstallChannel: ActionPattern<any> = yield actionChannel([
     ReduxActionTypes.INSTALL_LIBRARY_INIT,
   ]);
+
   while (true) {
     const action: ReduxAction<Partial<JSLibrary>> =
       yield take(queueInstallChannel);
+
     yield put({
       type: ReduxActionTypes.INSTALL_LIBRARY_START,
       payload: action.payload.url,

@@ -15,27 +15,36 @@ declare global {
 }
 const validateControl = (control: Record<string, unknown>) => {
   if (typeof control !== "object") return false;
+
   const properties = [
     "propertyName",
     "controlType",
     "isBindProperty",
     "isTriggerProperty",
   ];
+
   properties.forEach((prop: string) => {
     if (!control.hasOwnProperty(prop)) {
       return false;
     }
+
     const value = control[prop];
+
     if (isString(value) && value.length === 0) return false;
   });
+
   return true;
 };
 
 const validateSection = (section: Record<string, unknown>) => {
   if (typeof section !== "object") return false;
+
   if (!section.hasOwnProperty("sectionName")) return false;
+
   const name = section.sectionName;
+
   if ((name as string).length === 0) return false;
+
   if (section.children) {
     return (section.children as Array<Record<string, unknown>>).forEach(
       (child) => {
@@ -43,6 +52,7 @@ const validateSection = (section: Record<string, unknown>) => {
       },
     );
   }
+
   return true;
 };
 
@@ -50,15 +60,18 @@ expect.extend({
   toBePropertyPaneConfig(received) {
     if (Array.isArray(received)) {
       let pass = true;
+
       received.forEach((section) => {
         if (!validateSection(section) && !validateControl(section))
           pass = false;
       });
+
       return {
         pass,
         message: () => "Expected value to be a property pane config internal",
       };
     }
+
     return {
       pass: false,
       message: () => "Expected value to be a property pane config external",
@@ -90,6 +103,7 @@ describe("Validate Chart Widget's data property config", () => {
 
     hiddenFns.forEach((fn) => {
       let result = true;
+
       result = fn({ chartType: "CUSTOM_FUSION_CHART" });
       expect(result).toBeFalsy();
     });
@@ -116,6 +130,7 @@ describe("Validate Chart Widget's data property config", () => {
 
     hiddenFns.forEach((fn) => {
       let result = true;
+
       result = fn({ chartType: "CUSTOM_FUSION_CHART" });
       expect(result).toBeTruthy();
     });
@@ -131,10 +146,12 @@ describe("Validate Chart Widget's data property config", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) as unknown as ((props: any) => boolean)[];
+
     expect(hiddenFns.length).toEqual(1);
 
     hiddenFns.forEach((fn) => {
       let result = true;
+
       result = fn({ chartType: "CUSTOM_ECHART" });
       expect(result).toBeFalsy();
     });
@@ -162,6 +179,7 @@ describe("Validate Chart Widget's data property config", () => {
 
     hiddenFns.forEach((fn) => {
       let result = true;
+
       result = fn({ chartType: "CUSTOM_ECHART" });
       expect(result).toBeTruthy();
     });
@@ -177,6 +195,7 @@ describe("Validate Chart Widget's data property config", () => {
 
     allowedChartsTypes.forEach((chartType) => {
       const result = labelOrientationProperty?.hidden?.({ chartType }, "");
+
       expect(result).toBeFalsy();
     });
   });
@@ -185,6 +204,7 @@ describe("Validate Chart Widget's data property config", () => {
     const customFusionChartConfig = propertyConfigs.find((propertyConfig) => {
       return propertyConfig.propertyName == "customFusionChartConfig";
     });
+
     expect(customFusionChartConfig).not.toBeNull();
     const dataSourceValidations =
       customFusionChartConfig?.validation?.params?.allowedKeys?.[1];

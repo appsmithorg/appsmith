@@ -28,17 +28,22 @@ export function* handleStoreOperations(triggers: StoreOperation[]) {
   let parsedLocalStore = JSON.parse(existingLocalStore);
   let currentStore: AppStoreState = yield select(getAppStoreData);
   const logs: string[] = [];
+
   for (const t of triggers) {
     const { type } = t;
+
     if (type === "STORE_VALUE") {
       const { key, persist, value } = t.payload;
+
       if (persist) {
         parsedLocalStore[key] = value;
       }
+
       currentStore[key] = value;
       logs.push(`storeValue('${key}', '${value}', ${persist})`);
     } else if (type === "REMOVE_VALUE") {
       const { key } = t.payload;
+
       delete parsedLocalStore[key];
       delete currentStore[key];
       logs.push(`removeValue('${key}')`);
@@ -48,8 +53,10 @@ export function* handleStoreOperations(triggers: StoreOperation[]) {
       logs.push(`clearStore()`);
     }
   }
+
   yield put(updateAppStore(currentStore));
   const storeString = JSON.stringify(parsedLocalStore);
+
   localStorage.setItem(appStoreName, storeString);
   AppsmithConsole.addLogs(
     logs.map((text) => ({

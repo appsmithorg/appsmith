@@ -73,6 +73,7 @@ const processor = new BatchSpanProcessor(
 
 const W3C_OTLP_TRACE_HEADER = "traceparent";
 const CUSTOM_OTLP_TRACE_HEADER = "traceparent-otlp";
+
 //We are overriding the default header "traceparent" used for trace context because the browser
 // agent shares the same header's distributed tracing
 class CustomW3CTraceContextPropagator extends W3CTraceContextPropagator {

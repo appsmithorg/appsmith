@@ -16,6 +16,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
     resultString?: string,
   ) => {
     let result;
+
     try {
       result = await scriptIdentifier.extractExpressionAtPosition(pos);
     } catch (e) {
@@ -31,6 +32,7 @@ describe("extractExpressionAtPositionWholeDoc", () => {
     resultString?: string,
   ) => {
     let result;
+
     try {
       result = await jsObjectIdentifier.extractExpressionAtPosition(pos);
     } catch (e) {

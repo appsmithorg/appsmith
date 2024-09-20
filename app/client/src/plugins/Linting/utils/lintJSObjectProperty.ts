@@ -11,11 +11,13 @@ import { globalData } from "../globalData";
 import getLintSeverity from "./getLintSeverity";
 import lintJSProperty from "./lintJSProperty";
 import { isEmpty } from "lodash";
+import type { WebworkerTelemetryAttribute } from "../types";
 
 export default function lintJSObjectProperty(
   jsPropertyFullName: string,
   jsObjectState: Record<string, TJSpropertyState>,
   asyncJSFunctionsInDataFields: DependencyMap,
+  webworkerTelemetry: Record<string, WebworkerTelemetryAttribute>,
 ) {
   let lintErrors: LintError[] = [];
   const { propertyPath: jsPropertyName } =
@@ -29,7 +31,9 @@ export default function lintJSObjectProperty(
     jsPropertyFullName,
     jsPropertyState,
     globalData.getGlobalData(!isAsyncJSFunctionBoundToSyncField),
+    webworkerTelemetry,
   );
+
   lintErrors = lintErrors.concat(jsPropertyLintErrors);
 
   // if function is async, and bound to a data field, then add custom lint error
@@ -42,6 +46,7 @@ export default function lintJSObjectProperty(
       ),
     );
   }
+
   return lintErrors;
 }
 

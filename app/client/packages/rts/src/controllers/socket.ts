@@ -25,12 +25,14 @@ function subscribeToEditEvents(socket: Socket, appRoomPrefix: string) {
 
   socket.on(LEAVE_EDIT_EVENT_NAME, (resourceId) => {
     const roomName = appRoomPrefix + resourceId;
+
     socket.leave(roomName); // remove this socket from room
   });
 }
 
 async function onAppSocketConnected(socket: Socket) {
   const isAuthenticated = await tryAuthAndJoinPendingRoom(socket);
+
   if (isAuthenticated) {
     socket.join("email:" + socket.data.email);
   }
@@ -38,6 +40,7 @@ async function onAppSocketConnected(socket: Socket) {
 
 async function onPageSocketConnected(socket: Socket, socketIo: Server) {
   const isAuthenticated = await tryAuthAndJoinPendingRoom(socket);
+
   if (isAuthenticated) {
     socket.on(MOUSE_POINTER_EVENT_NAME, (event: MousePointerEvent) => {
       event.user = new AppUser(socket.data.name, socket.data.email);
@@ -52,6 +55,7 @@ async function onPageSocketConnected(socket: Socket, socketIo: Server) {
 
 async function tryAuthAndJoinPendingRoom(socket: Socket) {
   const isAuthenticated = await tryAuth(socket);
+
   if (socket.data.pendingRoomId) {
     // an appId or pageId is pending for this socket, join now
     joinEditRoom(
@@ -76,19 +80,23 @@ function joinEditRoom(socket: Socket, roomId: string, roomPrefix: string) {
 
   // add this socket to room with application id
   const roomName = roomPrefix + roomId;
+
   socket.join(roomName);
 }
 
 function findPolicyEmails(policies: Policy[], permission: string): string[] {
   const emails: string[] = [];
+
   for (const policy of policies) {
     if (policy.permission === permission) {
       for (const email of policy.users) {
         emails.push(email);
       }
+
       break;
     }
   }
+
   return emails;
 }
 
@@ -100,16 +108,20 @@ function sendCurrentUsers(socketIo, roomName: string, roomPrefix: string) {
       .then((sockets) => {
         const onlineUsernames = new Set<string>();
         const onlineUsers = new Array<AppUser>();
+
         if (sockets) {
           sockets.forEach((s) => {
             if (!onlineUsernames.has(s.data.email)) {
               onlineUsers.push(new AppUser(s.data.name, s.data.email));
             }
+
             onlineUsernames.add(s.data.email);
           });
         }
+
         const resourceId = roomName.replace(roomPrefix, ""); // get resourceId from room name by removing the prefix
         const response = new CurrentEditorsEvent(resourceId, onlineUsers);
+
         socketIo.to(roomName).emit(EDITORS_EVENT_NAME, response);
       });
   }

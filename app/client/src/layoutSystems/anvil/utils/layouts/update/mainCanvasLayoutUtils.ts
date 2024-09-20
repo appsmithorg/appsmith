@@ -35,6 +35,7 @@ export function* addDetachedWidgetToMainCanvas(
       parentId: MAIN_CONTAINER_WIDGET_ID,
     },
   );
+
   return updatedWidgets;
 }
 
@@ -73,6 +74,7 @@ export function* addWidgetsToMainCanvasLayout(
         { ...highlight, rowIndex: highlight.rowIndex + index },
         section,
       );
+
     mainCanvasWidget = res.canvas;
     mainCanvasLayout = res.canvasLayout;
     canvasWidgets = {
@@ -100,6 +102,7 @@ export function* addWidgetsToMainCanvasLayout(
       draggedWidgets,
       highlight.canvasId,
     );
+
     mainCanvasWidget = {
       ...mainCanvasWidget,
       children: [...mainCanvasWidget.children, res.section.widgetId],
@@ -147,6 +150,7 @@ export function* addWidgetsToMainCanvasLayout(
 function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
   const sections: WidgetLayoutProps[] = [];
   const nonSections: WidgetLayoutProps[] = [];
+
   widgets.forEach((widget: WidgetLayoutProps) => {
     if (widget.widgetType === anvilWidgets.SECTION_WIDGET) {
       sections.push(widget);
@@ -154,6 +158,7 @@ function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
       nonSections.push(widget);
     }
   });
+
   return [sections, nonSections];
 }
 

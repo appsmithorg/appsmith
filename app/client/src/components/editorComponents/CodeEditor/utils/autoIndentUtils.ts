@@ -5,11 +5,13 @@ import { KEYBOARD_SHORTCUTS_BY_PLATFORM } from "./keyboardShortcutConstants";
 
 export const getAutoIndentShortcutKey = () => {
   const platformOS = getPlatformOS() || "default";
+
   return KEYBOARD_SHORTCUTS_BY_PLATFORM[platformOS].autoIndentShortcut;
 };
 
 export const getAutoIndentShortcutKeyText = () => {
   const platformOS = getPlatformOS() || "default";
+
   return KEYBOARD_SHORTCUTS_BY_PLATFORM[platformOS].autoIndentShortcutText;
 };
 
@@ -18,6 +20,7 @@ export const autoIndentCode = (editor: CodeMirror.Editor) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editor.eachLine((line: any) => {
     const lineNumber = editor.getLineNumber(line);
+
     if (!isNil(lineNumber)) {
       editor.indentLine(lineNumber, "smart");
     }

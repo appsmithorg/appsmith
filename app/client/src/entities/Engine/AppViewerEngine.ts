@@ -142,6 +142,7 @@ export default class AppViewerEngine extends AppEngine {
       "AppViewerEngine.waitForFetchUserSuccess",
       rootSpan,
     );
+
     yield call(waitForFetchUserSuccess);
     endSpan(waitForUserSpan);
 
@@ -149,6 +150,7 @@ export default class AppViewerEngine extends AppEngine {
       "AppViewerEngine.waitForSegmentInit",
       rootSpan,
     );
+
     yield call(waitForSegmentInit, true);
     endSpan(waitForSegmentSpan);
 
@@ -156,6 +158,7 @@ export default class AppViewerEngine extends AppEngine {
       "AppViewerEngine.waitForFetchEnvironments",
       rootSpan,
     );
+
     yield call(waitForFetchEnvironments);
     endSpan(waitForEnvironmentsSpan);
 

@@ -35,6 +35,7 @@ describe("@appsmith/wds/Button", () => {
 
     // eslint-disable-next-line testing-library/no-node-access
     const icon = screen.getByRole("button").querySelector("[data-icon]");
+
     expect(icon).toBeInTheDocument();
   });
 
@@ -43,12 +44,14 @@ describe("@appsmith/wds/Button", () => {
     // Note: using testid=t--fallack-icon as the icon is rendered lazily and the fallback component
     // has a testid
     const icon = screen.getByTestId("t--fallback-icon");
+
     expect(icon).toBeInTheDocument();
   });
 
   it("sets icon position attribute based on the prop ", () => {
     render(<Button iconPosition="end" />);
     const button = screen.getByRole("button");
+
     expect(button).toHaveAttribute("data-icon-position", "end");
   });
 });

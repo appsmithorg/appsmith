@@ -49,11 +49,13 @@ export function* selectAnvilWidget(
   // In the event of any changes to the hook, this code needs to be updated as well.
   // TODO(#30582): Refactor this code to a common function and use it in both places.
   if (shouldIgnoreClicks) return;
+
   if (
     (!isPropPaneVisible && isWidgetAlreadySelected) ||
     !isWidgetAlreadySelected
   ) {
     let type: SelectionRequestType = SelectionRequestType.One;
+
     if (metaKey || ctrlKey) {
       type = SelectionRequestType.PushPop;
     } else if (shiftKey) {
@@ -82,6 +84,7 @@ export function* selectAnvilWidget(
       e.stopPropagation();
     }
   }
+
   log.debug("Time taken to select widget", performance.now() - start, "ms");
 }
 
@@ -113,6 +116,7 @@ export function* debugWidget(action: ReduxAction<{ widgetId: string }>) {
   );
 
   const fullPath = getErrorPropertyPath(errors, widget);
+
   if (fullPath && fullPath.length > 0) {
     yield put(setActiveEditorField(fullPath));
     yield put(setFocusablePropertyPaneField(fullPath));

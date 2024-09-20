@@ -57,6 +57,7 @@ const AnvilDraggingArenaComponent = ({
   const onDrop = useAnvilWidgetDrop(widgetId, anvilDragStates);
   const isMainCanvasDropArena =
     anvilGlobalDragStates.mainCanvasLayoutId === layoutId;
+
   return isEditOnlyMode ? (
     <>
       <AnvilHighlightingCanvas
@@ -81,6 +82,7 @@ const AnvilDraggingArenaComponent = ({
  */
 export const AnvilDraggingArena = (props: AnvilCanvasDraggingArenaProps) => {
   const anvilGlobalDragStates = useContext(AnvilDnDStatesContext);
+
   return anvilGlobalDragStates ? (
     <AnvilDraggingArenaComponent
       anvilGlobalDragStates={anvilGlobalDragStates}

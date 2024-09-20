@@ -7,6 +7,7 @@ import { getPathsFromDiff } from "./replayUtils";
 import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 
 const _DIFF_ = "diff";
+
 type ReplayType = "UNDO" | "REDO";
 
 export default abstract class ReplayEntity<T> {
@@ -30,6 +31,7 @@ export default abstract class ReplayEntity<T> {
 
   constructor(entity: T, replayEntityType: ENTITY_TYPE) {
     const doc = new Doc();
+
     this.diffMap = doc.get("map", Map);
     this.entity = entity;
     this.diffMap.set(_DIFF_, []);
@@ -90,6 +92,7 @@ export default abstract class ReplayEntity<T> {
 
       const replay = this.applyDiffs(diffs, replayType);
       const stop = performance.now();
+
       this.logs.push({
         log: `replay ${replayType}`,
         undoTime: `${stop - start} ms`,
@@ -120,11 +123,14 @@ export default abstract class ReplayEntity<T> {
   update(entity: T) {
     const startTime = performance.now();
     const diffs = deepDiff(this.entity, entity);
+
     if (diffs && diffs.length) {
       this.entity = entity;
       this.diffMap.set(_DIFF_, diffs);
     }
+
     const endTime = performance.now();
+
     this.logs.push({
       log: "replay updating",
       updateTime: `${endTime - startTime} ms`,
@@ -152,6 +158,7 @@ export default abstract class ReplayEntity<T> {
       if (!Array.isArray(diff.path) || diff.path.length === 0) {
         continue;
       }
+
       try {
         this.processDiff(diff, replay, isUndo);
         applyDiff(this.entity, true, diff);

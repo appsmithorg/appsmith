@@ -117,7 +117,9 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     } else {
       newVal = updatedValue;
     }
+
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
     // Set isDirty to true when the selection changes
     if (!this.props.isDirty) {
       pushBatchMetaUpdates("isDirty", true);

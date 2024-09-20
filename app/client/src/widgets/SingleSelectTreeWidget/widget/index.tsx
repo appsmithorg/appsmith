@@ -37,6 +37,7 @@ import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
+
   if (value === undefined || value === null)
     return {
       isValid: false,
@@ -48,8 +49,10 @@ function defaultOptionValueValidation(value: unknown): ValidationResponse {
         },
       ],
     };
+
   return { isValid: true, parsed: value };
 }
+
 class SingleSelectTreeWidget extends BaseWidget<
   SingleSelectTreeWidgetProps,
   WidgetState
@@ -713,6 +716,7 @@ class SingleSelectTreeWidget extends BaseWidget<
       if (!this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", true);
       }
+
       this.props.updateWidgetMetaProperty("selectedOption", value);
       this.props.updateWidgetMetaProperty(
         "selectedLabel",

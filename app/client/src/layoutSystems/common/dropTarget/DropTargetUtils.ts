@@ -12,11 +12,13 @@ export const calculateDropTargetRows = (
 ) => {
   /* Max bottom row including the existing widgets as well as the widget we just dropped */
   let minBottomRow = widgetBottomRow;
+
   if (occupiedSpacesByChildren) {
     minBottomRow = occupiedSpacesByChildren.reduce((prev, next) => {
       if (!widgetIdsToExclude.includes(next.id)) {
         return next.bottom > prev ? next.bottom : prev;
       }
+
       return prev;
     }, widgetBottomRow);
   }

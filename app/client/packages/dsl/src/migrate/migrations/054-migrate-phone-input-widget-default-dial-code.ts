@@ -26,7 +26,9 @@ export const migratePhoneInputWidgetDefaultDialCode = (
     } else if (child.children && child.children.length > 0) {
       child = migratePhoneInputWidgetDefaultDialCode(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

@@ -27,8 +27,11 @@ export function setSelectedQuery(entityInfo?: FocusEntityInfo) {
     if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
       const { baseApiId, baseQueryId, pluginPackageName } = entityInfo.params;
       const key = baseApiId ? baseApiId : baseQueryId;
+
       if (!key) return undefined;
+
       let type: PluginType = PluginType.API;
+
       if (pluginPackageName) {
         type = PluginType.SAAS;
       } else if (baseQueryId) {
@@ -39,6 +42,7 @@ export function setSelectedQuery(entityInfo?: FocusEntityInfo) {
         { type, key, title: key },
         entityInfo.params.basePageId,
       );
+
       history.replace(url, { invokedBy: NavigationMethod.ContextSwitching });
     }
   }

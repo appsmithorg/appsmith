@@ -124,6 +124,7 @@ function FieldLabel({
   const labelStyleProps = useMemo(() => {
     // labelStyles contains styles as comma separated values eg. "BOLD,UNDERLINE"
     const styles = labelStyle?.split(",");
+
     return {
       color: labelTextColor,
       fontSize: labelTextSize || BASE_LABEL_TEXT_SIZE,

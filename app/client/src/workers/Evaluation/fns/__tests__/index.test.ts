@@ -45,6 +45,7 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => ({
 }));
 
 const requestMock = jest.fn();
+
 jest.mock("../utils/Messenger.ts", () => ({
   ...jest.requireActual("../utils/Messenger.ts"),
   get WorkerMessenger() {
@@ -76,10 +77,12 @@ describe("Tests for entity function to be defined", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const evalContext = globalThis as any;
+
     evalContext.resetWidget("WidgetName", true);
 
     const successHandler = jest.fn();
     const invocation = evalContext.action1.run();
+
     invocation.then(successHandler);
     expect(requestMock).toBeCalledWith({
       method: MAIN_THREAD_ACTION.PROCESS_TRIGGER,

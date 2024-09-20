@@ -39,10 +39,12 @@ export const getEdgeDirection = (
   currentDirection: ReflowDirection,
 ) => {
   if (width === undefined) return currentDirection;
+
   const topEdgeDist = Math.abs(y);
   const leftEdgeDist = Math.abs(x);
   const rightEdgeDist = Math.abs(width - x);
   const min = Math.min(topEdgeDist, leftEdgeDist, rightEdgeDist);
+
   switch (min) {
     case leftEdgeDist:
       return ReflowDirection.RIGHT;
@@ -70,6 +72,7 @@ export function getReflowedSpaces(
   snapRowSpace: number,
 ) {
   const reflowedWidget = reflowingWidgets[draggingSpace.id];
+
   if (
     reflowedWidget.X !== undefined &&
     (Math.abs(reflowedWidget.X) || reflowedWidget.width)
@@ -78,12 +81,14 @@ export function getReflowedSpaces(
     const newWidth = reflowedWidget.width
       ? reflowedWidget.width / snapColumnSpace
       : draggingSpace.right - draggingSpace.left;
+
     draggingSpace = {
       ...draggingSpace,
       left: draggingSpace.left + movement,
       right: draggingSpace.left + movement + newWidth,
     };
   }
+
   if (
     reflowedWidget.Y !== undefined &&
     (Math.abs(reflowedWidget.Y) || reflowedWidget.height)
@@ -92,12 +97,14 @@ export function getReflowedSpaces(
     const newHeight = reflowedWidget.height
       ? reflowedWidget.height / snapRowSpace
       : draggingSpace.bottom - draggingSpace.top;
+
     draggingSpace = {
       ...draggingSpace,
       top: draggingSpace.top + movement,
       bottom: draggingSpace.top + movement + newHeight,
     };
   }
+
   return draggingSpace;
 }
 
@@ -170,6 +177,7 @@ export const getBlocksToDraw = (
     const draggingSpaces = childrenOccupiedSpaces.filter((each) =>
       selectedWidgets.includes(each.id),
     );
+
     return {
       draggingSpaces,
       blocksToDraw: draggingSpaces.map((each) => ({
@@ -221,6 +229,7 @@ export const getBoundUpdateRelativeRowsMethod = (
         { x: 0, y: 0 },
       );
       const widgetIdsToExclude = drawingBlocks.map((a) => a.widgetId);
+
       return updateBottomRow(
         top,
         rows,
@@ -488,6 +497,7 @@ export const modifyBlockDimension = (
     rightOffset = 0,
     topOffset = 0,
     bottomOffset = 0;
+
   if (!modifyBlock) {
     // calculate offsets based on collisions and limits
     if (leftColumn < 0) {
@@ -552,6 +562,7 @@ export const updateRectanglesPostReflow = (
   rows: number,
 ) => {
   const rectanglesToDraw: WidgetDraggingBlock[] = [];
+
   for (const block of currentRectanglesToDraw) {
     const isWithinParentBoundaries = noCollision(
       { x: block.left, y: block.top },

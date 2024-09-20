@@ -11,7 +11,9 @@ export const migrateTableWidgetParentRowSpaceProperty = (
     } else if (child.children && child.children.length > 0) {
       child = migrateTableWidgetParentRowSpaceProperty(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

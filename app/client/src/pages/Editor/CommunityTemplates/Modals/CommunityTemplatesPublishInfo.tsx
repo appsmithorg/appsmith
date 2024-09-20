@@ -25,6 +25,7 @@ const CommunityTemplatesPublishInfo = ({
     onPublishClick();
   };
   const dispatch = useDispatch();
+
   useEffect(() => {
     dispatch({
       type: ReduxActionTypes.SET_PUBLISHED_APP_TO_COMMUNITY_PORTAL,
@@ -117,6 +118,7 @@ const UnPublishedAppInstructions = ({
 };
 
 let windowReference: Window | null = null;
+
 function openUrlInNewPage(url: string) {
   // If the tab is opened focus and reload else open in new tab
   if (!windowReference || windowReference.closed) {

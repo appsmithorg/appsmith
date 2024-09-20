@@ -21,6 +21,7 @@ const sentryReduxEnhancer = Sentry.createReduxEnhancer({
       // Return null to not log the action to Sentry
       action.payload = null;
     }
+
     return action;
   },
 });

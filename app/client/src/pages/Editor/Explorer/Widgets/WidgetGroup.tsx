@@ -37,6 +37,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
   const basePageId = useSelector(getCurrentBasePageId) || "";
   const widgets = useSelector(selectWidgetsForCurrentPage);
   let isWidgetsOpen = getExplorerStatus(applicationId, "widgets");
+
   if (isWidgetsOpen === null || isWidgetsOpen === undefined) {
     isWidgetsOpen = widgets?.children?.length === 0;
     saveExplorerStatus(applicationId, "widgets", isWidgetsOpen);
