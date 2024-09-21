@@ -86,6 +86,7 @@ describe("Bug: check filteredTableData property in autocomplete definitions of t
       dataTreeEntityConfig,
     );
     expect(def).toHaveProperty("Table1.filteredTableData");
+    
     expect(entityInfo.get("Table1")).toStrictEqual({
       type: ENTITY_TYPE.WIDGET,
       subType: "TABLE_WIDGET_V2",
