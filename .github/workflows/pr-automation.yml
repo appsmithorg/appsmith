@@ -104,9 +104,9 @@ jobs:
         - name: Parse tags from commit message
           id: parseTagsFromCommit
           run: |
-            commit_message="${{ needs.checkTestLabelAndCommit.outputs.commit_message }}"
+            commit_message='${{ needs.checkTestLabelAndCommit.outputs.commit_message }}'
             # Regex to match '/ok-to-test tags=' followed by any text within optional quotes
-            if [[ "$commit_message" =~ /ok-to-test[[:space:]]+tags=[[:space:]]*\"([^\"]+)\" ]]; then
+            if [[ '$commit_message' =~ /ok-to-test[[:space:]]+tags=[[:space:]]*\"([^\"]+)\" ]]; then
               tags=${BASH_REMATCH[1]}
               echo "Commit contains /ok-to-test tags= with tags: $tags"
               echo "has_test_spec=true" >> $GITHUB_OUTPUT
