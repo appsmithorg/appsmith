@@ -110,11 +110,11 @@ jobs:
               tags=${BASH_REMATCH[1]}
               echo "Commit contains /ok-to-test tags= with tags: $tags"
               echo "has_test_spec=true" >> $GITHUB_OUTPUT
-              echo "tags_from_commit=$tags" >> $GITHUB_OUTPUT
+              echo "spec=$tags" >> $GITHUB_OUTPUT
             else
               echo "No /ok-to-test tags= found in the commit message"
               echo "has_test_spec=false" >> $GITHUB_OUTPUT
-              echo "tags_from_commit=" >> $GITHUB_OUTPUT
+              echo "spec=" >> $GITHUB_OUTPUT
             fi
   
         # In case of a run with all test cases, allocate a larger matrix
