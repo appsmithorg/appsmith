@@ -17,10 +17,7 @@ import {
 } from "selectors/propertyPaneSelectors";
 import { closePropertyPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type {
-  ReduxAction,
-  ReplayReduxActionTypes,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { flashElementsById } from "utils/helpers";
 import {
@@ -85,9 +82,10 @@ import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
+import type { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 
 export interface UndoRedoPayload {
-  operation: ReplayReduxActionTypes;
+  operation: ReplayOperation;
 }
 
 export default function* undoRedoListenerSaga() {
@@ -182,6 +180,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
 
   // if the app is in snipping or comments mode, don't do anything
   if (isSnipingMode) return;
+
   try {
     const history = createBrowserHistory();
     const pathname = history.location.pathname;
@@ -217,9 +216,11 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
 
       return;
     }
+
     switch (replayEntityType) {
       case ENTITY_TYPE.WIDGET: {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
+
         AnalyticsUtil.logEvent(event, {
           paths,
           timeTaken: endTime - startTime,
@@ -233,9 +234,11 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         if (isPropertyUpdate) {
           yield call(openPropertyPaneSaga, replay);
         }
+
         if (!isPropertyUpdate) {
           yield call(postUndoRedoSaga, replay);
         }
+
         yield put(generateAutoHeightLayoutTreeAction(true, false));
         break;
       }
@@ -314,6 +317,7 @@ function* replayActionSaga(
    * Delay change if tab needs to be switched
    */
   const didSwitch: boolean = yield call(switchTab, currentTab);
+
   if (didSwitch) yield delay(REPLAY_FOCUS_DELAY);
 
   //Reinitialize form
@@ -323,6 +327,7 @@ function* replayActionSaga(
     isAIAction(replayEntity)
       ? QUERY_EDITOR_FORM_NAME
       : API_EDITOR_FORM_NAME;
+
   yield put(initialize(currentFormName, replayEntity));
 
   //Begin modified field highlighting
@@ -398,6 +403,7 @@ function* replayDatasourceSaga(
    *  Delay change if accordion needs to be expanded
    */
   const didExpand: boolean = yield call(expandAccordion, parentSection);
+
   if (didExpand) yield delay(REPLAY_FOCUS_DELAY);
 
   /**
@@ -429,6 +435,7 @@ function* getDatasourceFieldConfig(
     replayEntity.pluginId,
   );
   const fieldInfo = findFieldInfo(formConfig, modifiedProperty);
+
   return { fieldInfo };
 }
 
@@ -439,7 +446,9 @@ function* getDatasourceFieldConfig(
 function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
   let currentTab = "";
   let fieldInfo = {};
+
   if (!modifiedProperty) return { currentTab, fieldInfo };
+
   if (isAPIAction(replayEntity)) {
     if (modifiedProperty.includes("headers"))
       currentTab = API_EDITOR_TABS.HEADERS;
@@ -453,6 +462,7 @@ function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
       modifiedProperty.includes("previous")
     )
       currentTab = API_EDITOR_TABS.PAGINATION;
+
     if (!currentTab) {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -460,7 +470,9 @@ function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
         getSettingConfig,
         replayEntity.pluginId,
       );
+
       fieldInfo = findFieldInfo(settingsConfig, modifiedProperty);
+
       if (!isEmpty(fieldInfo)) currentTab = API_EDITOR_TABS.SETTINGS;
     }
   } else {
@@ -470,7 +482,9 @@ function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
       getEditorConfig,
       replayEntity.pluginId,
     );
+
     fieldInfo = findFieldInfo(editorConfig, modifiedProperty);
+
     if (!isEmpty(fieldInfo)) {
       currentTab = EDITOR_TABS.QUERY;
     } else {
@@ -480,9 +494,12 @@ function* getEditorFieldConfig(replayEntity: Action, modifiedProperty: string) {
         getSettingConfig,
         replayEntity.pluginId,
       );
+
       fieldInfo = findFieldInfo(settingsConfig, modifiedProperty);
+
       if (!isEmpty(fieldInfo)) currentTab = EDITOR_TABS.SETTINGS;
     }
   }
+
   return { currentTab, fieldInfo };
 }

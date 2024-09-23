@@ -33,7 +33,7 @@ import {
 } from "../utils";
 import store from "store";
 import { getPageList } from "ee/selectors/entitiesSelector";
-import type { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
 import { FIELD_GROUP_CONFIG } from "../FieldGroup/FieldGroupConfig";
 import { getFunctionName, checkIfArgumentExistAtPosition } from "@shared/ast";
 
@@ -56,6 +56,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         dropdownOption.value) as ActionType;
       let value = dropdownOption.value;
       const defaultParams = FIELD_GROUP_CONFIG[type].defaultParams;
+
       switch (type) {
         case AppsmithFunction.integration:
           value = `${value}.run()`;
@@ -63,13 +64,17 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
         default:
           break;
       }
+
       if (value === "none") return "";
+
       if (defaultParams && defaultParams.length)
         return `{{${value}(${defaultParams})}}`;
+
       if (
         [AppsmithFunction.integration].includes(type as ActionIntegrationType)
       )
         return `{{${value}}}`;
+
       return `{{${value}()}}`;
     },
     view: ViewTypes.ACTION_SELECTOR_VIEW,
@@ -102,9 +107,11 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setter: (option: any, currentValue: string) => {
       const isMessageSet = Boolean(textGetter(currentValue, 0));
+
       if (!isMessageSet) {
         currentValue = enumTypeSetter("''", currentValue, 0);
       }
+
       return enumTypeSetter(option.value, currentValue, 1);
     },
     view: ViewTypes.SELECTOR_VIEW,
@@ -119,6 +126,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       const appState = store.getState();
       const pageList = getPageList(appState).map((page) => page.pageName);
       const urlFieldValue = textGetter(value, 0);
+
       return pageList.includes(urlFieldValue) ? "" : urlFieldValue;
     },
     setter: (value, currentValue) => {
@@ -135,17 +143,21 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     getter: (value: any) => {
       const queryParams = textGetter(value, 1);
+
       if (queryParams === EMPTY_BINDING_WITH_EMPTY_OBJECT || queryParams === "")
         return '{{\n{\n //"key": "value",\n}\n}}';
+
       return queryParams;
     },
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setter: (value: any, currentValue: string) => {
       const isPageOrURLSet = Boolean(textGetter(currentValue, 0));
+
       if (!isPageOrURLSet) {
         currentValue = enumTypeSetter("''", currentValue, 0);
       }
+
       return objectSetter(value, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
@@ -164,14 +176,17 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setter: (option: any, currentValue: string) => {
       const isPageOrURLSet = textGetter(currentValue, 0);
+
       if (!isPageOrURLSet) {
         currentValue = enumTypeSetter("''", currentValue, 0);
       }
+
       const isQueryParamsSet = checkIfArgumentExistAtPosition(
         getCodeFromMoustache(currentValue),
         1,
         getEvaluationVersion(),
       );
+
       if (!isQueryParamsSet) {
         currentValue = objectSetter(
           EMPTY_BINDING_WITH_EMPTY_OBJECT,
@@ -179,6 +194,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
           1,
         );
       }
+
       return enumTypeSetter(option.value, currentValue, 2);
     },
     view: ViewTypes.SELECTOR_VIEW,
@@ -193,7 +209,9 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     getter: (value: any, idx?: number) => {
       const params = textGetter(value, idx || 0);
+
       if (params === "") return '{{\n{\n //"key": "value",\n}\n}}';
+
       return params;
     },
     // TODO: Fix this the next time the file is edited
@@ -252,9 +270,11 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setter: (option: any, currentValue: string) => {
       const isKeySet = Boolean(textGetter(currentValue, 0));
+
       if (!isKeySet) {
         currentValue = enumTypeSetter("''", currentValue, 0);
       }
+
       return textSetter(option, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
@@ -291,9 +311,11 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setter: (option: any, currentValue: string) => {
       const isDataFieldSet = textGetter(currentValue, 0);
+
       if (!isDataFieldSet) {
         currentValue = enumTypeSetter("''", currentValue, 0);
       }
+
       return textSetter(option, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
@@ -358,6 +380,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       const isCallbackFunctionSet = Boolean(
         callBackFieldGetter(currentValue, 0) !== EMPTY_BINDING,
       );
+
       if (!isCallbackFunctionSet) {
         currentValue = callBackFieldSetter(
           "{{() => {\n // showAlert('Hello'); \n}}}",
@@ -365,6 +388,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
           0,
         );
       }
+
       return enumTypeSetter(value, currentValue, 1, "0");
     },
     view: ViewTypes.TEXT_VIEW,
@@ -381,13 +405,17 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       const isCallbackFunctionSet = Boolean(
         callBackFieldGetter(currentValue, 0) !== EMPTY_BINDING,
       );
+
       if (!isCallbackFunctionSet) {
         currentValue = callBackFieldSetter("", currentValue, 0);
       }
+
       const isDelaySet = Boolean(enumTypeGetter(currentValue, 1));
+
       if (!isDelaySet) {
         currentValue = enumTypeSetter("10", currentValue, 1);
       }
+
       return textSetter(value, currentValue, 2);
     },
     view: ViewTypes.TEXT_VIEW,
@@ -470,9 +498,11 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setter: (option: any, currentValue: string) => {
       const isWidgetFieldSet = enumTypeGetter(currentValue, 0);
+
       if (!isWidgetFieldSet) {
         currentValue = enumTypeSetter("''", currentValue, 0);
       }
+
       return enumTypeSetter(option.value, currentValue, 1);
     },
     view: ViewTypes.SELECTOR_VIEW,
@@ -508,13 +538,17 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setter: (option: any, currentValue: string) => {
       const isDataFieldSet = textGetter(currentValue, 0);
+
       if (!isDataFieldSet) {
         currentValue = enumTypeSetter("''", currentValue, 0);
       }
+
       const isFileTypeSet = textGetter(currentValue, 1);
+
       if (!isFileTypeSet) {
         currentValue = enumTypeSetter("''", currentValue, 1);
       }
+
       return enumTypeSetter(option.value, currentValue, 2);
     },
     view: ViewTypes.SELECTOR_VIEW,
@@ -587,6 +621,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       if (value === "") {
         value = undefined;
       }
+
       return textSetter(value, currentValue, index as number);
     },
     view: ViewTypes.TEXT_VIEW,
@@ -616,13 +651,17 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     },
     setter: (value, currentValue) => {
       const isMessageFieldSet = textGetter(currentValue, 0);
+
       if (!isMessageFieldSet) {
         currentValue = enumTypeSetter("''", currentValue, 0);
       }
+
       const isSourceFieldSet = enumTypeGetter(currentValue, 1);
+
       if (!isSourceFieldSet) {
         currentValue = enumTypeSetter("'window'", currentValue, 1);
       }
+
       return textSetter(value, currentValue, 2);
     },
     view: ViewTypes.TEXT_VIEW,
@@ -633,6 +672,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     options: (props: FieldProps) => {
       const { widgetOptionTree } = props;
       const defaultOption = { label: "Window", value: "'window'" };
+
       return [
         defaultOption,
         ...widgetOptionTree
@@ -654,9 +694,11 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setter: (option: any, currentValue: string) => {
       const isMessageFieldSet = textGetter(currentValue, 0);
+
       if (!isMessageFieldSet) {
         currentValue = enumTypeSetter("''", currentValue, 0);
       }
+
       return enumTypeSetter(option.value, currentValue, 1);
     },
     view: ViewTypes.SELECTOR_VIEW,

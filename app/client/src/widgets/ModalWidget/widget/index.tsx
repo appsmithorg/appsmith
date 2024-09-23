@@ -237,6 +237,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
               if (layoutSystemType === LayoutSystemTypes.FIXED) {
                 return [];
               }
+
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,
@@ -496,6 +497,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         !!this.props.isVisible
       );
     }
+
     return !!this.props.isVisible;
   }
 

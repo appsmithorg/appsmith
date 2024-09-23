@@ -22,14 +22,6 @@ const authReducer = createReducer(initialState, {
     isValidatingToken: false,
     isTokenValid: false,
   }),
-  [ReduxActionTypes.VERIFY_INVITE_INIT]: () => ({
-    isTokenValid: false,
-    isValidatingToken: true,
-  }),
-  [ReduxActionTypes.VERIFY_INVITE_SUCCESS]: () => ({
-    isValidatingToken: false,
-    isTokenValid: true,
-  }),
   [ReduxActionErrorTypes.VERIFY_INVITE_ERROR]: () => ({
     isValidatingToken: false,
     isTokenValid: false,

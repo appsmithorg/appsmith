@@ -12,6 +12,7 @@ type Writable<T> = { -readonly [P in keyof T]: T[P] };
 const updateRef = <T>(ref: NonNullable<UserRef<T>>, value: T | null) => {
   if (typeof ref === "function") {
     ref(value);
+
     return;
   }
 

@@ -15,8 +15,8 @@ import SuccessTick from "pages/common/SuccessTick";
 import { howMuchTimeBeforeText } from "utils/helpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { viewerURL } from "ee/RouteBuilder";
-import { Link, Text } from "design-system";
-import { importSvg } from "design-system-old";
+import { Link, Text } from "@appsmith/ads";
+import { importSvg } from "@appsmith/ads-old";
 
 const CloudyIcon = importSvg(
   async () => import("assets/icons/ads/cloudy-line.svg"),
@@ -44,6 +44,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
     const path = viewerURL({
       basePageId,
     });
+
     window.open(path, "_blank");
   };
 
@@ -55,6 +56,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
         },
       )} ago`
     : "";
+
   return lastDeployedAt ? (
     <Container className="t--git-deploy-preview">
       <div>

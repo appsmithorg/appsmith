@@ -12,7 +12,7 @@ import { shouldShowLicenseBanner } from "ee/selectors/tenantSelectors";
 import { Banner } from "ee/utils/licenseHelpers";
 import bootIntercom from "utils/bootIntercom";
 import EntitySearchBar from "pages/common/SearchBar/EntitySearchBar";
-import { Switch, Tooltip } from "design-system";
+import { Switch, Tooltip } from "@appsmith/ads";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -96,6 +96,7 @@ export function PageHeader(props: PageHeaderProps) {
       release_anvil_enabled: isSelected,
       release_anvil_toggle_enabled: shouldShowAnvilToggle,
     };
+
     dispatch(updateFeatureFlagOverrideAction(featureFlags));
     setFeatureFlagOverrideValues(featureFlags);
   }

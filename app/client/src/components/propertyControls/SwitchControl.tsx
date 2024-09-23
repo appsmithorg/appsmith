@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { Switch } from "design-system";
+import { Switch } from "@appsmith/ads";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,

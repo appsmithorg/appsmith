@@ -49,6 +49,7 @@ const StyledRTEditor = styled.div<{
   && {
     width: 100%;
     height: 100%;
+
     .tox .tox-editor-header {
       z-index: 0;
     }
@@ -58,12 +59,15 @@ const StyledRTEditor = styled.div<{
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     }
   }
+
   .tox {
     font-family: inherit;
 
     width: 100%;
+
     .tox-tbtn {
       cursor: pointer;
+
       .tox-tbtn__select-label {
         cursor: inherit;
       }
@@ -186,9 +190,11 @@ const StyledRTEditor = styled.div<{
     &:hover {
       box-shadow: 0 0 0 1px var(--wds-color-border) inset;
     }
+
     &:focus {
       background: var(--wds-color-bg-focus);
     }
+
     &:active {
       background: var(--wds-color-bg-focus);
     }
@@ -235,7 +241,6 @@ const StyledRTEditor = styled.div<{
   }
 
   ${labelLayoutStyles}
-
   & .${LABEL_CONTAINER_CLASS} {
     align-self: center;
   }
@@ -279,11 +284,12 @@ const GlobalStyles = createGlobalStyle`
     }
 
     && {
-      .tox-button, .tox-dialog { {
+      .tox-button, .tox-dialog {
+      {
         border-radius: 0px;
       }
+      }
     }
-  }
 `;
 
 export const RichTextEditorInputWrapper = styled.div<{
@@ -353,6 +359,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       // avoid updating value, when there is no actual change.
       if (newValue !== editorValue) {
         const isFocused = editor.hasFocus();
+
         /**
          * only change call the props.onValueChange when the editor is in focus.
          * This prevents props.onValueChange from getting called whenever the defaultText is changed.

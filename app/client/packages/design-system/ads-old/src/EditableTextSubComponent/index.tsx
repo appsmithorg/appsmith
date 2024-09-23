@@ -5,7 +5,8 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import type { noop } from "lodash";
-import { Icon, IconSize, Text, TextType } from "../index";
+import { Icon, Spinner } from "@appsmith/ads";
+import { Text, TextType } from "../index";
 import type { CommonComponentProps } from "../types/common";
 
 export enum EditInteractionKind {
@@ -116,14 +117,6 @@ const TextContainer = styled.div<{
   }
 `;
 
-const IconWrapper = styled.div`
-  width: var(--ads-spaces-15);
-  padding-right: var(--ads-spaces-5);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-`;
-
 export const EditableTextSubComponent = React.forwardRef(
   (props: EditableTextSubComponentProps, ref: any) => {
     const {
@@ -179,18 +172,23 @@ export const EditableTextSubComponent = React.forwardRef(
     const onConfirm = useCallback(
       (_value: string) => {
         const finalVal: string = _value.trim();
+
         onBlurEverytime && onBlurEverytime(finalVal);
+
         if (savingState === SavingState.ERROR || isInvalid || finalVal === "") {
           setValue(lastValidValue);
           onBlur && onBlur(lastValidValue);
           setSavingState(SavingState.NOT_STARTED);
         }
+
         if (changeStarted) {
           onTextChanged && onTextChanged(finalVal);
         }
+
         if (finalVal && finalVal !== defaultValue) {
           onBlur && onBlur(finalVal);
         }
+
         setIsEditing(false);
         setChangeStarted(false);
       },
@@ -208,15 +206,19 @@ export const EditableTextSubComponent = React.forwardRef(
       (_value: string) => {
         let finalVal: string =
           _value.indexOf(" ") === 0 ? _value.trim() : _value;
+
         if (valueTransform) {
           finalVal = valueTransform(finalVal);
         }
+
         const errorMessage = inputValidation && inputValidation(finalVal);
         const error = errorMessage ? errorMessage : false;
+
         if (!error && finalVal !== "") {
           setLastValidValue(finalVal);
           onTextChanged && onTextChanged(finalVal);
         }
+
         setValue(finalVal);
         setIsInvalid(error);
         setChangeStarted(true);
@@ -259,17 +261,9 @@ export const EditableTextSubComponent = React.forwardRef(
           />
 
           {savingState === SavingState.STARTED ? (
-            <IconWrapper className="icon-wrapper">
-              <Icon name={"loader"} size={IconSize.XL} />
-            </IconWrapper>
-          ) : value && !props.hideEditIcon ? (
-            <IconWrapper className="icon-wrapper">
-              <Icon
-                fillColor="var(--ads-v2-color-fg)"
-                name={iconName}
-                size={IconSize.XL}
-              />
-            </IconWrapper>
+            <Spinner size="md" />
+          ) : value && !props.hideEditIcon && iconName ? (
+            <Icon className="cursor-pointer" name={iconName} size="md" />
           ) : null}
         </TextContainer>
         {isEditing && !!isInvalid ? (

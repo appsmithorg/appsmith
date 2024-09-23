@@ -1,7 +1,7 @@
 import type { ChangeEvent } from "react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSAction } from "entities/JSCollection";
-import type { DropdownOnSelect } from "design-system-old";
+import type { DropdownOnSelect } from "@appsmith/ads-old";
 import {
   CodeEditorBorder,
   EditorModes,
@@ -61,7 +61,7 @@ import history from "utils/history";
 import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
-import { Tab, TabPanel, Tabs, TabsList } from "design-system";
+import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -91,6 +91,7 @@ const Wrapper = styled.div`
   flex-direction: row;
   height: 100%;
   width: 100%;
+  overflow: hidden;
 `;
 
 const SecondaryWrapper = styled.div`
@@ -169,11 +170,13 @@ function JSEditorForm({
       // Hash here could mean to navigate (set cursor/focus) to a particular function
       // If the hash has a function name in this JS Object, we will set that
       const actionName = hash.substring(1);
+
       if (currentJSCollection.body) {
         const position = getJSPropertyLineFromName(
           currentJSCollection.body,
           actionName,
         );
+
         if (position) {
           // Resetting the focus and position based on the cmd click navigation
           dispatch(setFocusableInputField(`${currentJSCollection.name}.body`));
@@ -223,8 +226,10 @@ function JSEditorForm({
       }),
     );
     setActiveResponse(jsAction);
+
     if (jsAction.id !== selectedJSActionOption.data?.id)
       setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
+
     dispatch(
       setActiveJSAction({
         jsCollectionId: currentJSCollection.id || "",
@@ -267,6 +272,7 @@ function JSEditorForm({
   const handleJSActionOptionSelection: DropdownOnSelect = (value) => {
     if (value) {
       const jsAction = getActionFromJsCollection(value, currentJSCollection);
+
       if (jsAction) {
         setSelectedJSActionOption({
           data: jsAction,
@@ -282,6 +288,7 @@ function JSEditorForm({
     from: EventLocation,
   ) => {
     event.preventDefault();
+
     if (
       !disableRunFunctionality &&
       !isExecutingCurrentJSAction &&
@@ -307,6 +314,7 @@ function JSEditorForm({
   const blockCompletions = useMemo(() => {
     if (selectedJSActionOption.label) {
       const funcName = `${selectedJSActionOption.label}()`;
+
       return [
         {
           parentPath: "this",
@@ -318,6 +326,7 @@ function JSEditorForm({
         },
       ];
     }
+
     return [];
   }, [selectedJSActionOption.label, currentJSCollection.name]);
 

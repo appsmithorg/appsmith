@@ -18,7 +18,7 @@ import {
 import { connect } from "react-redux";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import scrollIntoView from "scroll-into-view-if-needed";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import MockDataSources from "./MockDataSources";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
@@ -30,7 +30,7 @@ import {
   CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER,
   SAMPLE_DATASOURCES,
 } from "ee/constants/messages";
-import { Divider } from "design-system";
+import { Divider } from "@appsmith/ads";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
@@ -61,6 +61,7 @@ interface MockDataSourcesProps {
 function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   const useMockRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
+
   useEffect(() => {
     if (active && useMockRef.current) {
       isMounted.current &&
@@ -74,6 +75,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
       isMounted.current = true;
     }
   }, [active]);
+
   return (
     <div id="mock-database" ref={useMockRef}>
       <Text kind="heading-m">{createMessage(SAMPLE_DATASOURCES)}</Text>
@@ -106,6 +108,7 @@ function CreateNewAPI({
       isMounted.current = true;
     }
   }, [active]);
+
   return (
     <div id="new-api" ref={newAPIRef}>
       <Text kind="heading-m">APIs</Text>
@@ -134,6 +137,7 @@ function CreateNewDatasource({
   const { editorId, parentEntityId, parentEntityType } =
     useParentEntityInfo(editorType);
   const newDatasourceRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (active && newDatasourceRef.current) {
       scrollIntoView(newDatasourceRef.current, {
@@ -193,6 +197,7 @@ function CreateNewSaasIntegration({
       isMounted.current = true;
     }
   }, [active]);
+
   return !isAirgappedInstance ? (
     <>
       <StyledDivider />
@@ -278,7 +283,9 @@ class CreateNewDatasourceTab extends React.Component<
       pageId,
       showDebugger,
     } = this.props;
+
     if (!canCreateDatasource) return null;
+
     const mockDataSection =
       this.props.mockDatasources.length > 0 ? (
         <UseMockDatasources
@@ -286,6 +293,7 @@ class CreateNewDatasourceTab extends React.Component<
           mockDatasources={this.props.mockDatasources}
         />
       ) : null;
+
     return (
       <>
         <NewIntegrationsContainer className="p-4" id="new-integrations-wrapper">

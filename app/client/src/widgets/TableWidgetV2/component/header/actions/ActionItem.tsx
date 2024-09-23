@@ -4,7 +4,7 @@ import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import Tooltip from "components/editorComponents/Tooltip";
 import { TooltipContentWrapper } from "../../TableStyledWrappers";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const FilterIcon = importSvg(
   async () => import("assets/icons/control/filter-icon.svg"),

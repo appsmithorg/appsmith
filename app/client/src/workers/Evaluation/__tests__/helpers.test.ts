@@ -5,6 +5,7 @@ describe("Worker Helper functions test", () => {
     const input = ["a", "b", "c", "d", "e", "a", "b"];
     const expected = 5;
     const result = findDuplicateIndex(input);
+
     expect(result).toStrictEqual(expected);
   });
   it("Correctly finds the duplicate index in an array of objects and strings", () => {
@@ -19,6 +20,7 @@ describe("Worker Helper functions test", () => {
     ];
     const expected = 5;
     const result = findDuplicateIndex(input);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -38,12 +40,14 @@ describe("Worker Helper functions test", () => {
     ];
     const expected = 6;
     const result = findDuplicateIndex(input);
+
     expect(result).toStrictEqual(expected);
   });
   it("Correctly returns -1 if no duplicates are found", () => {
     const input = ["a", "b", "c", "d", "e", "f", "g"];
     const expected = -1;
     const result = findDuplicateIndex(input);
+
     expect(result).toStrictEqual(expected);
   });
 });

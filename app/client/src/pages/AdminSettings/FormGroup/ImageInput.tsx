@@ -1,6 +1,6 @@
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import React, { memo, useRef, useState, useEffect } from "react";
 
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
@@ -45,6 +45,7 @@ export const ImageInput = (props: ImageInputProps) => {
     validate &&
       validate(e, () => {
         const reader = new FileReader();
+
         reader.readAsDataURL(file);
 
         reader.onloadend = function () {
@@ -99,6 +100,7 @@ function FieldImageInput() {
     return <ImageInput value={componentProps.input.value} />;
   };
 }
+
 export function ImageInputComponent({ setting }: SettingComponentProps) {
   return (
     <FormGroup setting={setting}>

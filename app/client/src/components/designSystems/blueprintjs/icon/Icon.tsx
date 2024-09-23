@@ -11,7 +11,7 @@ import {
   iconClass,
   intentClass,
 } from "@blueprintjs/core/lib/esm/common/classes";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 // This export must be named "IconSize" to match the exports of @blueprintjs/core/lib/esm/components/icon
 export enum IconSize {

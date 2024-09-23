@@ -20,6 +20,7 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         widgets,
         FlexLayerAlignment.Start,
       );
+
       expect(layer).toEqual({
         children: [{ id: "tg6jcd1kjp", align: FlexLayerAlignment.Start }],
       });
@@ -31,6 +32,7 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         widgets,
         FlexLayerAlignment.Start,
       );
+
       expect(layer).toEqual({
         children: [],
       });
@@ -47,6 +49,7 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         layers,
       );
       const layerIndex = getLayerIndexOfWidget(result, "pt32jvs72k");
+
       expect(result[0].children.length).toEqual(1);
       expect(layerIndex).toEqual(-1);
     });
@@ -62,6 +65,7 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         ["33", "44"],
         layers,
       );
+
       expect(result[0].children.length).toEqual(2);
       expect(result).toEqual(layers);
     });
@@ -69,6 +73,7 @@ describe("test AutoLayoutDraggingUtils methods", () => {
 
   describe("test updateRelationships method", () => {
     const mainCanvasWidth = 960;
+
     it("should remove moved widgets from old parent's layers and assign new parent to the widgets", () => {
       const widgets = { ...data };
       const movedWidget = "pt32jvs72k";
@@ -81,13 +86,16 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         false,
         mainCanvasWidth,
       );
+
       expect(result[movedWidget].parentId === "0").toBeTruthy;
+
       if (result[oldParent]) {
         expect(result[oldParent]?.children?.includes(movedWidget)).toBeFalsy;
         const layerIndex = getLayerIndexOfWidget(
           result[oldParent]?.flexLayers,
           "pt32jvs72k",
         );
+
         expect(layerIndex).toEqual(-1);
       }
     });
@@ -103,13 +111,16 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         false,
         mainCanvasWidth,
       );
+
       expect(result[movedWidget].parentId === "0").toBeFalsy;
+
       if (result[oldParent]) {
         expect(result[oldParent]?.children?.includes(movedWidget)).toBeTruthy;
         const layerIndex = getLayerIndexOfWidget(
           result[oldParent]?.flexLayers,
           "pt32jvs72k",
         );
+
         expect(layerIndex).toEqual(-1);
       }
     });
@@ -130,11 +141,13 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         0,
       );
       const updatedParent = result[newParentId];
+
       expect(updatedParent.flexLayers.length).toEqual(2);
       const layerIndex = getLayerIndexOfWidget(
         updatedParent?.flexLayers,
         "pt32jvs72k",
       );
+
       expect(layerIndex).toEqual(0);
     });
     it("should add new layer at the end of the flex layers if layerIndex is invalid", () => {
@@ -152,11 +165,13 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         5,
       );
       const updatedParent = result[newParentId];
+
       expect(updatedParent.flexLayers.length).toEqual(2);
       const layerIndex = getLayerIndexOfWidget(
         updatedParent?.flexLayers,
         "pt32jvs72k",
       );
+
       expect(layerIndex).toEqual(1);
     });
   });
@@ -178,12 +193,14 @@ describe("test AutoLayoutDraggingUtils methods", () => {
         0,
       );
       const updatedParent = result[newParentId];
+
       expect(updatedParent.flexLayers.length).toEqual(1);
       expect(updatedParent.flexLayers[0].children.length).toEqual(3);
       const layerIndex = getLayerIndexOfWidget(
         updatedParent?.flexLayers,
         "pt32jvs72k",
       );
+
       expect(layerIndex).toEqual(0);
     });
   });

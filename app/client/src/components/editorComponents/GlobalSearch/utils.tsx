@@ -22,7 +22,7 @@ import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import {
   createNewAPIBasedOnParentEntity,
@@ -130,6 +130,7 @@ export function getOptionalFilters(optionalFilterMeta: any) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (acc: Array<string>, [key, value]: any) => {
       value.forEach((value: string) => acc.push(`${key}:${value}`));
+
       return acc;
     },
     [],
@@ -173,6 +174,7 @@ export type SearchItem = Datasource | any;
 // todo better checks here?
 export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
   let type: SEARCH_ITEM_TYPES;
+
   if (item.widgetName) type = SEARCH_ITEM_TYPES.widget;
   else if (
     item.kind === SEARCH_ITEM_TYPES.page ||
@@ -186,6 +188,7 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
     type = SEARCH_ITEM_TYPES.jsAction;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
   else type = SEARCH_ITEM_TYPES.datasource;
+
   return type;
 };
 
@@ -245,6 +248,7 @@ export const getEntityId = (entity: {
   [key: string]: any;
 }) => {
   const { entityType } = entity;
+
   switch (entityType) {
     case FocusEntity.DATASOURCE:
       return entity.id;
@@ -402,5 +406,6 @@ export const isMatching = (text = "", query = "") => {
   if (typeof text === "string" && typeof query === "string") {
     return text.toLowerCase().indexOf(query.toLowerCase()) > -1;
   }
+
   return false;
 };

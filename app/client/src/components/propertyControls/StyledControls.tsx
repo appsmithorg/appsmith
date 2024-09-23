@@ -1,8 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
-import type { TextInputProps } from "design-system-old";
 import type { ContainerOrientation } from "constants/WidgetConstants";
-import { Input, Icon } from "design-system";
+import { Input, Icon } from "@appsmith/ads";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 interface ControlWrapperProps {
@@ -90,7 +89,21 @@ export const StyledNavigateToFieldsContainer = styled.div`
   width: 95%;
 `;
 
-export const InputGroup = React.forwardRef((props: TextInputProps, ref) => {
+interface InputGroupProps {
+  autoFocus?: boolean;
+  className?: string;
+  dataType?: string;
+  onBlur?: () => void;
+  onFocus?: () => void;
+  placeholder?: string;
+  value?: string;
+  width?: string;
+  onChange?: (value: string) => void;
+  defaultValue?: string;
+  tabIndex?: number;
+}
+
+export const InputGroup = React.forwardRef((props: InputGroupProps, ref) => {
   let inputRef = React.useRef<HTMLInputElement>(null);
   const wrapperRef = React.useRef<HTMLInputElement>(null);
   const { dispatchInteractionAnalyticsEvent } =
@@ -100,6 +113,7 @@ export const InputGroup = React.forwardRef((props: TextInputProps, ref) => {
 
   React.useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
+
     return () => {
       window.removeEventListener("keydown", handleKeydown);
     };
@@ -114,6 +128,7 @@ export const InputGroup = React.forwardRef((props: TextInputProps, ref) => {
           inputRef?.current?.focus();
           e.preventDefault();
         }
+
         break;
       case "Escape":
         if (document.activeElement === inputRef?.current) {
@@ -121,6 +136,7 @@ export const InputGroup = React.forwardRef((props: TextInputProps, ref) => {
           wrapperRef?.current?.focus();
           e.preventDefault();
         }
+
         break;
       case "Tab":
         if (document.activeElement === wrapperRef?.current) {
@@ -128,6 +144,7 @@ export const InputGroup = React.forwardRef((props: TextInputProps, ref) => {
             key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
           });
         }
+
         break;
     }
   };

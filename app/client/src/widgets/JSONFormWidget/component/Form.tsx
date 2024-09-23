@@ -5,7 +5,6 @@ import styled from "styled-components";
 import { debounce, isEmpty } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
 import { Text } from "@blueprintjs/core";
-import { klona } from "klona";
 
 import useFixedFooter from "./useFixedFooter";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
@@ -15,6 +14,7 @@ import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import type { Schema } from "../constants";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -217,6 +217,7 @@ function Form<TValues = any>(
           schema[ROOT_SCHEMA_KEY],
           "accessor",
         );
+
         updateFormData(defaultValues as TValues, true);
       } else {
         // When the accessor changes, this formData needs to be converted to have
@@ -226,6 +227,7 @@ function Form<TValues = any>(
           formData,
           { fromId: "accessor", toId: "identifier" },
         );
+
         /**
          * This setTimeout is because of the setTimeout present in
          * FieldComponent defaultValue effect. First all the setValue
@@ -243,7 +245,11 @@ function Form<TValues = any>(
 
     const subscription = watch((values) => {
       if (!equal(valuesRef.current, values)) {
-        const clonedValue = klona(values);
+        const clonedValue = klonaRegularWithTelemetry(
+          values,
+          "Form.subscription",
+        );
+
         valuesRef.current = clonedValue;
         debouncedUpdateFormData(clonedValue as TValues);
       }

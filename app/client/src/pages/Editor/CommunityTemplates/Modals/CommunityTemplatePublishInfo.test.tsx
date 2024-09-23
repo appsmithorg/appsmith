@@ -11,6 +11,7 @@ const mockStore = configureStore();
 describe("<CommunityTemplatesPublishInfo />", () => {
   beforeEach(() => {
     const store = mockStore({});
+
     store.clearActions();
   });
 
@@ -25,6 +26,7 @@ describe("<CommunityTemplatesPublishInfo />", () => {
         },
       },
     });
+
     render(
       <Provider store={store}>
         <CommunityTemplatesPublishInfo
@@ -57,6 +59,7 @@ describe("<CommunityTemplatesPublishInfo />", () => {
         },
       },
     });
+
     render(
       <Provider store={store}>
         <CommunityTemplatesPublishInfo
@@ -85,6 +88,7 @@ describe("<CommunityTemplatesPublishInfo />", () => {
   it("handles clicking on 'View Template' button", () => {
     // Mock the utility function for opening URLs
     const mockOpenUrlInNewPage = jest.fn();
+
     jest.spyOn(window, "open").mockImplementation(mockOpenUrlInNewPage);
     const store = mockStore({
       ui: {
@@ -96,6 +100,7 @@ describe("<CommunityTemplatesPublishInfo />", () => {
         },
       },
     });
+
     render(
       <Provider store={store}>
         <CommunityTemplatesPublishInfo
@@ -127,6 +132,7 @@ describe("<CommunityTemplatesPublishInfo />", () => {
         },
       },
     });
+
     render(
       <Provider store={store}>
         <CommunityTemplatesPublishInfo

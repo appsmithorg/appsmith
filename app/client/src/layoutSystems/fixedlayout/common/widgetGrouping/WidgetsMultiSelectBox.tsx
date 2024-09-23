@@ -11,7 +11,7 @@ import {
 } from "actions/widgetActions";
 import { modText } from "utils/helpers";
 import { Layers } from "constants/Layers";
-import { TooltipComponent as Tooltip } from "design-system-old";
+import { TooltipComponent as Tooltip } from "@appsmith/ads-old";
 import { getSelectedWidgets } from "selectors/ui";
 
 import { stopEventPropagation } from "utils/AppsmithUtils";
@@ -23,7 +23,7 @@ import type { AppState } from "ee/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const POPUP_HEIGHT = 122;
 const POPUP_WIDTH = 38;
@@ -166,6 +166,7 @@ const StyledActionsContainer = React.forwardRef<
   }
 >((props, ref) => {
   const { children } = props;
+
   return (
     <StyledActions ref={ref} style={{ top: "0px", left: "0px" }}>
       {children}
@@ -204,6 +205,7 @@ function WidgetsMultiSelectBox(props: {
     if (isDragging) {
       return false;
     }
+
     const parentIDs = selectedWidgets
       .filter(Boolean)
       .map((widget) => widget.parentId);
@@ -226,6 +228,7 @@ function WidgetsMultiSelectBox(props: {
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (draggableRef.current) {
       const bounds = draggableRef.current.getBoundingClientRect();
       const parentId = get(selectedWidgets, "0.parentId");
@@ -238,6 +241,7 @@ function WidgetsMultiSelectBox(props: {
         selectedWidgets,
         (rect) => rect.leftColumn,
       )?.leftColumn;
+
       setDraggingState({
         isDragging: true,
         dragGroupActualParent: parentId || "",
@@ -266,6 +270,7 @@ function WidgetsMultiSelectBox(props: {
               node.intersectionRect.width >= menuHeight) ||
               (node.intersectionRect.height >= menuHeight &&
                 node.intersectionRect.width >= menuWidth));
+
           requestAnimationFrame(() => {
             if (menuRef.current) {
               if (isVisible) {
@@ -278,6 +283,7 @@ function WidgetsMultiSelectBox(props: {
                 menuRef.current.style.flexDirection =
                   node.intersectionRect.height < menuHeight ? "row" : "column";
               }
+
               menuRef.current.style.visibility = isVisible
                 ? "visible"
                 : "hidden";
@@ -299,8 +305,10 @@ function WidgetsMultiSelectBox(props: {
   const observeSelectionBox = () => {
     const node = draggableRef.current;
     const observer = positionObserver.current;
+
     if (observer) {
       observer.disconnect();
+
       if (node) observer.observe(node);
     }
   };

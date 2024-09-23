@@ -7,4 +7,5 @@ export interface ToggleGroupProps {
   options: ToggleGroupOption[];
   values: Array<string>;
   onClick: (value: string, isUpdatedViaKeyboard?: boolean) => void;
+  className?: string;
 }

@@ -11,7 +11,7 @@ import {
   UPGRADE,
   AUTHENTICATION_METHOD_ENABLED,
 } from "ee/constants/messages";
-import { Button, Callout, Divider, Icon, Text, Tooltip } from "design-system";
+import { Button, Callout, Divider, Icon, Text, Tooltip } from "@appsmith/ads";
 import { adminSettingsCategoryUrl } from "ee/RouteBuilder";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";

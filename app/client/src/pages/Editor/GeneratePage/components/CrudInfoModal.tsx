@@ -10,7 +10,7 @@ import {
   ModalContent,
   ModalBody,
   ModalFooter,
-} from "design-system";
+} from "@appsmith/ads";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 
@@ -24,7 +24,7 @@ import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
 import {
   ProgressiveImage,
   Container as ProgressiveImageContainer,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import SuccessTick from "pages/common/SuccessTick";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 
@@ -145,6 +145,7 @@ function GenCRUDSuccessModal(props: Props) {
     const timerId = setTimeout(() => {
       setStep(STEP.SHOW_INFO);
     }, DELAY_TIME);
+
     return () => {
       if (timerId) clearTimeout(timerId);
     };

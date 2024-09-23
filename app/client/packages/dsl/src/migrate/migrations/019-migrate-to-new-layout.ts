@@ -24,12 +24,15 @@ export const migrateToNewLayout = (dsl: DSLWidget) => {
     widgetProps.topRow *= GRID_DENSITY_MIGRATION_V1;
     widgetProps.leftColumn *= GRID_DENSITY_MIGRATION_V1;
     widgetProps.rightColumn *= GRID_DENSITY_MIGRATION_V1;
+
     if (widgetProps.children && widgetProps.children.length) {
       widgetProps.children.forEach((eachWidgetProp: DSLWidget) => {
         scaleWidget(eachWidgetProp);
       });
     }
   };
+
   scaleWidget(dsl);
+
   return dsl;
 };

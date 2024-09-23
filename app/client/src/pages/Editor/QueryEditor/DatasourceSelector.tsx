@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { CREATE_NEW_DATASOURCE, createMessage } from "ee/constants/messages";
 import styled from "styled-components";
@@ -75,12 +75,14 @@ const DatasourceSelector = (props: Props) => {
             image: pluginImages[dataSource.pluginId],
           });
         }
+
         return acc;
       },
       [],
     );
 
   if (!showDatasourceSelector) return null;
+
   return (
     <DropdownSelect>
       <DropdownField

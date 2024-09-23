@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 export function CollapseToggle(props: {
   isOpen: boolean;

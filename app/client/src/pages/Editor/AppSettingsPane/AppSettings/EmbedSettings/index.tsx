@@ -1,5 +1,5 @@
 import { changeAppViewAccessInit } from "ee/actions/applicationActions";
-import { Switch, Divider } from "design-system";
+import { Switch, Divider } from "@appsmith/ads";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {

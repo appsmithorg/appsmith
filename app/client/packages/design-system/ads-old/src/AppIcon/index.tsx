@@ -272,7 +272,7 @@ const ServerLineIcon = importRemixIcon(
   async () => import("remixicon-react/ServerLineIcon"),
 );
 
-enum Size {
+export enum Size {
   xxs = "xxs",
   xs = "xs",
   small = "small",
@@ -382,6 +382,7 @@ interface cssAttributes {
 
 const appSizeHandler = (size: Size): cssAttributes => {
   let width, height, padding;
+
   switch (size) {
     case Size.small:
       width = 20;
@@ -404,6 +405,7 @@ const appSizeHandler = (size: Size): cssAttributes => {
       padding = 5;
       break;
   }
+
   return { width, height, padding };
 };
 
@@ -436,6 +438,7 @@ function AppIcon(props: AppIconProps) {
   );
 
   let returnIcon;
+
   switch (props.name) {
     case "bag":
       returnIcon = <BagIcon />;
@@ -708,6 +711,7 @@ function AppIcon(props: AppIconProps) {
       returnIcon = null;
       break;
   }
+
   return returnIcon ? (
     <IconWrapper
       data-cy={props.cypressSelector}

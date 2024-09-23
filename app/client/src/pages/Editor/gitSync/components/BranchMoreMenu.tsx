@@ -18,7 +18,7 @@ import {
   MenuItem,
   MenuTrigger,
   toast,
-} from "design-system";
+} from "@appsmith/ads";
 
 interface Props {
   branchName: string;

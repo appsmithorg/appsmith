@@ -8,7 +8,7 @@ import {
   Text,
   MenuSeparator,
   Flex,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   ADD_NEW_WIDGET,
   CONNECT_EXISTING_WIDGET_LABEL,
@@ -147,6 +147,7 @@ function getWidgetProps(
   widgetName?: string,
 ) {
   const fieldName = widgetInfo.propertyName;
+
   switch (suggestedWidget.type) {
     case "TABLE_WIDGET":
       return {
@@ -288,13 +289,16 @@ function BindDataButton(props: BindDataButtonProps) {
   const handleOnInteraction = useCallback((open: boolean) => {
     if (!open) {
       setIsWidgetSelectionOpen(false);
+
       return;
     }
+
     setIsWidgetSelectionOpen(true);
   }, []);
 
   const isTableWidgetPresentOnCanvas = () => {
     const canvasWidgetLength = Object.keys(canvasWidgets).length;
+
     return (
       // widgetKey == 0 condition represents MainContainer
       canvasWidgetLength > 1 &&
@@ -323,6 +327,7 @@ function BindDataButton(props: BindDataButtonProps) {
       actionName,
       widgetName,
     );
+
     AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
       widget: suggestedWidget.type,
     });
@@ -337,6 +342,7 @@ function BindDataButton(props: BindDataButtonProps) {
     if (!suggestedWidgets) {
       return;
     }
+
     dispatch(
       bindDataOnCanvas({
         queryId: (params.baseApiId ||
@@ -391,12 +397,14 @@ function BindDataButton(props: BindDataButtonProps) {
               const widget: FlattenedWidgetProps | undefined =
                 canvasWidgets[widgetKey];
               const widgetInfo = WIDGET_DATA_FIELD_MAP[widget.type];
+
               if (
                 !widgetInfo ||
                 !SUPPORTED_SUGGESTED_WIDGETS.includes(widget?.type)
               ) {
                 return null;
               }
+
               return (
                 <MenuItem
                   className="widget"
@@ -418,6 +426,7 @@ function BindDataButton(props: BindDataButtonProps) {
             const widgetInfo = WIDGET_DATA_FIELD_MAP[suggestedWidget.type];
 
             if (!widgetInfo) return null;
+
             return (
               <MenuItem
                 className="widget"

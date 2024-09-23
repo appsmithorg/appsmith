@@ -12,7 +12,7 @@ import {
   resetCurrentPluginIdForCreateNewApp,
 } from "actions/onboardingActions";
 import { fetchPlugins } from "actions/pluginActions";
-import { Flex, Link, Text } from "design-system";
+import { Flex, Link, Text } from "@appsmith/ads";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { default as React, useEffect } from "react";
@@ -107,8 +107,10 @@ const CreateNewAppsOption = ({
     AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA");
     // fetch plugins information to show list of all plugins
     dispatch(fetchPlugins({ workspaceId: application?.workspaceId }));
+
     // For air-gapped version as internet access won't necessarily be available, we skip fetching mock datasources.
     if (!isAirgapped()) dispatch(fetchMockDatasources());
+
     if (application?.workspaceId) {
       dispatch(
         fetchingEnvironmentConfigs({
@@ -141,6 +143,7 @@ const CreateNewAppsOption = ({
 
   const onClickSkipButton = () => {
     const applicationObject = application!;
+
     urlBuilder.updateURLParams(
       {
         applicationSlug: applicationObject.slug,

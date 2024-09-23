@@ -209,6 +209,7 @@ export function InlineCellEditor({
             onSave();
             event.preventDefault();
           }
+
           break;
       }
     },

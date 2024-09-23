@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { ModalBody, ModalContent, Modal } from "design-system";
+import { ModalBody, ModalContent, Modal } from "@appsmith/ads";
 
 const StyledDocsSearchModal = styled(ModalContent)`
   text-rendering: auto;

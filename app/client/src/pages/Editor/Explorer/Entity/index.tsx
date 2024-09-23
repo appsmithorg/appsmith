@@ -24,7 +24,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getEntityCollapsibleState } from "selectors/editorContextSelectors";
 import type { AppState } from "ee/reducers";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
-import { Tooltip, Tag, Spinner } from "design-system";
+import { Tooltip, Tag, Spinner } from "@appsmith/ads";
 import { createMessage, EXPLORER_BETA_ENTITY } from "ee/constants/messages";
 import classNames from "classnames";
 
@@ -302,6 +302,7 @@ export const Entity = forwardRef(
       props.onToggle && props.onToggle(!isOpen);
       // Make sure this entity is enabled before toggling the collpse of children.
       !props.disabled && open(!isOpen);
+
       if (props.runActionOnExpand && !isOpen) {
         props.action && props.action(e);
       }
@@ -331,6 +332,7 @@ export const Entity = forwardRef(
 
     const enterEditMode = useCallback(() => {
       if (!canEditEntityName) return;
+
       props.updateEntityName &&
         dispatch({
           type: ReduxActionTypes.INIT_EXPLORER_ENTITY_NAME_EDIT,
@@ -341,6 +343,7 @@ export const Entity = forwardRef(
     }, [dispatch, props.entityId, props.updateEntityName]);
 
     const itemRef = useRef<HTMLDivElement | null>(null);
+
     useClick(itemRef, handleClick, noop);
 
     const addButton = props.customAddButton || (

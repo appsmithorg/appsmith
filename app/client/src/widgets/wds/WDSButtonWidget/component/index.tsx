@@ -3,8 +3,8 @@ import React from "react";
 import { Container } from "./Container";
 import { useRecaptcha } from "./useRecaptcha";
 import type { UseRecaptchaProps } from "./useRecaptcha";
-import { Button, Tooltip } from "@design-system/widgets";
-import type { ButtonProps } from "@design-system/widgets";
+import { Button, Tooltip } from "@appsmith/wds";
+import type { ButtonProps } from "@appsmith/wds";
 
 export interface ButtonComponentProps extends ButtonProps {
   text?: string;

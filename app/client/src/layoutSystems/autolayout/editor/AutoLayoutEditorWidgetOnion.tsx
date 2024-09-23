@@ -63,6 +63,7 @@ export const AutoLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
       widgetId,
     ],
   );
+
   return (
     <FlexComponent
       alignment={props.alignment}

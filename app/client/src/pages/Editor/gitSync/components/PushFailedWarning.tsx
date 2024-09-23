@@ -1,5 +1,5 @@
-import { Callout } from "design-system";
-import { Text, TextType } from "design-system-old";
+import { Callout } from "@appsmith/ads";
+import { Text, TextType } from "@appsmith/ads-old";
 import React from "react";
 import styled from "styled-components";
 

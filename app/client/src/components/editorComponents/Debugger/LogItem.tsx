@@ -8,9 +8,9 @@ import ReactJson from "react-json-view";
 import styled from "styled-components";
 import EntityLink from "./EntityLink";
 import { getLogIcon } from "./helpers";
-import { Classes, getTypographyByKey } from "design-system-old";
+import { Classes, getTypographyByKey } from "@appsmith/ads-old";
 import ContextualMenu from "./ContextualMenu";
-import { Button, Icon } from "design-system";
+import { Button, Icon } from "@appsmith/ads";
 import moment from "moment";
 import classNames from "classnames";
 import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
@@ -178,6 +178,7 @@ const MessageWrapper = styled.div`
 
 const showToggleIcon = (e: Log) => {
   let output = !!e.state || !!e.messages;
+
   if (!output && e.logData && e.logData.length > 0) {
     e.logData.forEach((item) => {
       if (typeof item === "object") {
@@ -185,6 +186,7 @@ const showToggleIcon = (e: Log) => {
       }
     });
   }
+
   return output;
 };
 
@@ -248,6 +250,7 @@ function LogItem(props: LogItemProps) {
 
   const messages = props.messages || [];
   const { collapsible } = props;
+
   return (
     <Wrapper
       className={`${props.severity} ${collapsible ? "cursor-pointer" : ""}`}
@@ -267,9 +270,7 @@ function LogItem(props: LogItemProps) {
           size="md"
         />
         <span className={`debugger-time ${props.severity}`}>
-          {props.severity === Severity.ERROR
-            ? moment(parseInt(props.timestamp)).format("HH:mm:ss")
-            : props.timestamp}
+          {moment(parseInt(props.timestamp)).format("HH:mm:ss")}
         </span>
 
         <Button

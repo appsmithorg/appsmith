@@ -20,7 +20,7 @@ import {
   ModalBody,
   ModalContent,
   ModalHeader,
-} from "design-system";
+} from "@appsmith/ads";
 import { isEmpty } from "lodash";
 import { TemplateView } from "pages/Templates/TemplateView";
 import TemplatesListLayoutSwitcher from "pages/Templates/TemplatesModal/TemplatesListLayoutSwitcher";
@@ -99,6 +99,7 @@ function CreateNewAppFromTemplatesModal({
 
   const getTemplateById = (id: string) => {
     const template = allTemplates.find((template) => template.id === id);
+
     return template;
   };
 
@@ -106,6 +107,7 @@ function CreateNewAppFromTemplatesModal({
     if (typeof template === "string") {
       template = getTemplateById(template) as TemplateInterface;
     }
+
     if (!template) return;
 
     AnalyticsUtil.logEvent("TEMPLATE_SELECT_NEW_APP_FLOW", {
@@ -117,11 +119,13 @@ function CreateNewAppFromTemplatesModal({
 
   const onTemplateClick = (template: TemplateInterface | string) => {
     const templateId = typeof template === "string" ? template : template.id;
+
     !loadingTemplateId && setShowTemplateDetails(templateId);
   };
 
   const onClickUseTemplate = (templateId: string) => {
     const template = getTemplateById(templateId);
+
     if (template) {
       AnalyticsUtil.logEvent("FORK_TEMPLATE_NEW_APP_FLOW", {
         templateId: template.id,

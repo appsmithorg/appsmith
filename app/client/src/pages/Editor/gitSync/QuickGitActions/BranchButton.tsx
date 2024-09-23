@@ -15,9 +15,9 @@ import {
   showBranchPopupSelector,
 } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Button, Icon, Tooltip } from "design-system";
+import { Button, Icon, Tooltip } from "@appsmith/ads";
 import { isEllipsisActive } from "utils/helpers";
-import { importRemixIcon } from "design-system-old";
+import { importRemixIcon } from "@appsmith/ads-old";
 import { setShowBranchPopupAction } from "actions/gitSyncActions";
 
 const ProtectedIcon = importRemixIcon(
@@ -63,6 +63,7 @@ function BranchButton() {
       modifiers={{ offset: { enabled: true, options: { offset: [7, 10] } } }}
       onInteraction={(nextState: boolean) => {
         setIsOpen(nextState);
+
         if (nextState) {
           AnalyticsUtil.logEvent("GS_OPEN_BRANCH_LIST_POPUP", {
             source: "BOTTOM_BAR_ACTIVE_BRANCH_NAME",

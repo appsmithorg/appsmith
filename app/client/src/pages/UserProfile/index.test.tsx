@@ -83,20 +83,17 @@ const defaultStoreState = {
   },
 };
 
-jest.mock("design-system-old/build/constants/messages", () => ({
-  ...jest.requireActual("design-system-old/build/constants/messages"),
-  createMessage: () => "",
-}));
-
 jest.mock("actions/gitSyncActions", () => ({
   fetchGlobalGitConfigInit: jest.fn(),
 }));
 
 const mockStore = configureStore([]);
+
 describe("Git config ", () => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let store: any;
+
   it("Should render UserProfile component for logged in user", () => {
     store = mockStore(defaultStoreState);
     (fetchGlobalGitConfigInit as jest.Mock).mockReturnValue({
@@ -111,8 +108,10 @@ describe("Git config ", () => {
         </ThemeProvider>
       </Provider>,
     );
+
     expect(getAllByText("Upload display picture")).toBeInTheDocument;
     const input = getByTestId("t--display-name");
+
     expect(input.getAttribute("value")).toBe("mockUser");
   });
 
@@ -130,6 +129,7 @@ describe("Git config ", () => {
         </ThemeProvider>
       </Provider>,
     );
+
     expect(getAllByText("Sign in to your account")).toBeInTheDocument;
   });
 

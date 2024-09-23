@@ -17,8 +17,8 @@ import {
 } from "ee/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import type { FormErrors, InjectedFormProps } from "redux-form";
-import { FormGroup } from "design-system-old";
-import { Button, Checkbox } from "design-system";
+import { FormGroup } from "@appsmith/ads-old";
+import { Button, Checkbox } from "@appsmith/ads";
 import { proficiencyOptions, useCaseOptions } from "./constants";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import { setFirstTimeUserOnboardingTelemetryCalloutVisibility } from "utils/storage";
@@ -90,6 +90,7 @@ export default function DetailsForm(
     const setTelemetryVisibleFalse = async () => {
       await setFirstTimeUserOnboardingTelemetryCalloutVisibility(false);
     };
+
     setTelemetryVisibleFalse();
   }, []);
 

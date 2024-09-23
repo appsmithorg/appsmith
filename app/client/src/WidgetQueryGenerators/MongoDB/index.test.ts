@@ -274,6 +274,7 @@ describe("Mongo WidgetQueryGenerator", () => {
       },
       initialValues,
     );
+
     expect(expr).toEqual([
       {
         name: "Insert_someTable",
@@ -326,6 +327,7 @@ describe("Mongo WidgetQueryGenerator", () => {
       },
       initialValues,
     );
+
     expect(expr).toEqual([]);
   });
 });

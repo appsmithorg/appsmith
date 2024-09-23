@@ -1,5 +1,5 @@
 import React from "react";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 
 import * as config from "../config";
 import BaseWidget from "widgets/BaseWidget";

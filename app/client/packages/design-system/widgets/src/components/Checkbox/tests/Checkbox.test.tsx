@@ -1,10 +1,10 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { Checkbox } from "@design-system/widgets";
+import { Checkbox } from "@appsmith/wds";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
 
-describe("@design-system/widgets/Checkbox", () => {
+describe("@appsmith/wds/Checkbox", () => {
   const onChangeSpy = jest.fn();
 
   it("should render the checkbox", () => {
@@ -20,6 +20,7 @@ describe("@design-system/widgets/Checkbox", () => {
     );
 
     const checkbox = screen.getByRole("checkbox");
+
     expect(checkbox).toBeChecked();
     await userEvent.click(checkbox);
     expect(onChangeSpy).toHaveBeenCalled();
@@ -28,6 +29,7 @@ describe("@design-system/widgets/Checkbox", () => {
 
   it("should render controlled checkbox", () => {
     const { rerender } = render(<Checkbox isSelected>Checkbox</Checkbox>);
+
     expect(screen.getByRole("checkbox")).toBeChecked();
 
     rerender(<Checkbox isSelected={false}>Checkbox</Checkbox>);

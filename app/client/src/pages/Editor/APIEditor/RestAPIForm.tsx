@@ -2,15 +2,12 @@ import React, { useContext } from "react";
 import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { change, formValueSelector, reduxForm } from "redux-form";
-import styled from "styled-components";
 import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Action } from "entities/Action";
 import PostBodyData from "./PostBodyData";
 import type { AppState } from "ee/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Classes, Text, TextType } from "design-system-old";
-import { createMessage, API_PANE_NO_BODY } from "ee/constants/messages";
 import get from "lodash/get";
 import type { Datasource } from "entities/Datasource";
 import {
@@ -25,16 +22,7 @@ import Pagination from "./Pagination";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { ApiEditorContext } from "./ApiEditorContext";
 import { actionResponseDisplayDataFormats } from "../utils";
-
-const NoBodyMessage = styled.div`
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-
-  .${Classes.TEXT} {
-    color: ${(props) => props.theme.colors.apiPane.body.text};
-  }
-`;
+import { HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 
 type APIFormProps = {
   httpMethodFromForm: string;
@@ -44,24 +32,18 @@ type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
 function ApiEditorForm(props: Props) {
   const { closeEditorLink } = useContext(ApiEditorContext);
-  const { actionName, httpMethodFromForm } = props;
-  const allowPostBody = httpMethodFromForm;
+  const { actionName } = props;
   const theme = EditorTheme.LIGHT;
 
   return (
     <CommonEditorForm
       {...props}
       bodyUIComponent={
-        allowPostBody ? (
-          <PostBodyData dataTreePath={`${actionName}.config`} theme={theme} />
-        ) : (
-          <NoBodyMessage>
-            <Text type={TextType.P2}>{createMessage(API_PANE_NO_BODY)}</Text>
-          </NoBodyMessage>
-        )
+        <PostBodyData dataTreePath={`${actionName}.config`} theme={theme} />
       }
       closeEditorLink={closeEditorLink}
       formName={API_EDITOR_FORM_NAME}
+      httpsMethods={HTTP_METHOD_OPTIONS}
       paginationUIComponent={
         <Pagination
           actionName={actionName}
@@ -97,6 +79,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   const actionConfigurationParams =
     selector(state, "actionConfiguration.queryParameters") || [];
   let datasourceFromAction = selector(state, "datasource");
+
   if (datasourceFromAction && datasourceFromAction.hasOwnProperty("id")) {
     datasourceFromAction = state.entities.datasources.list.find(
       (d) => d.id === datasourceFromAction.id,
@@ -131,6 +114,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     const validHeaders = headers.filter(
       (value) => value.key && value.key !== "",
     );
+
     headersCount += validHeaders.length;
   }
 
@@ -140,6 +124,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (value: any) => value.key && value.key !== "",
     );
+
     headersCount += validHeaders.length;
   }
 
@@ -149,6 +134,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (value: any) => value.key && value.key !== "",
     );
+
     headersCount += validHeaders.length;
   }
 
@@ -157,6 +143,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
 
   if (Array.isArray(params)) {
     const validParams = params.filter((value) => value.key && value.key !== "");
+
     paramsCount = validParams.length;
   }
 
@@ -166,6 +153,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (value: any) => value.key && value.key !== "",
     );
+
     paramsCount += validParams.length;
   }
 
@@ -173,6 +161,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   const actionResponse = responses[apiId];
   let hasResponse = false;
   let suggestedWidgets;
+
   if (actionResponse) {
     hasResponse =
       !isEmpty(actionResponse.statusCode) &&

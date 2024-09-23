@@ -2,7 +2,7 @@ package com.appsmith.server.constants;
 
 public enum EnvVariables {
     APPSMITH_INSTANCE_NAME,
-    APPSMITH_MONGODB_URI,
+    APPSMITH_DB_URL,
     APPSMITH_REDIS_URL,
     APPSMITH_MAIL_ENABLED,
     APPSMITH_MAIL_FROM,

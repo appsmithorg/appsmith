@@ -6,7 +6,7 @@ import type { AxiosProgressEvent, AxiosPromise } from "axios";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { AppColorCode } from "constants/DefaultTheme";
 import type { EvaluationVersion } from "constants/EvalConstants";
-import type { IconNames } from "design-system";
+import type { IconNames } from "@appsmith/ads";
 import type { Action, BaseAction } from "entities/Action";
 import type { APP_MODE } from "entities/App";
 import type { Datasource } from "entities/Datasource";
@@ -382,6 +382,7 @@ export class ApplicationApi extends Api {
       ...rest,
       currentApp: undefined,
     };
+
     return Api.put(ApplicationApi.baseURL + "/" + id, payload);
   }
 
@@ -407,9 +408,11 @@ export class ApplicationApi extends Api {
     request: ImportApplicationRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
     const formData = new FormData();
+
     if (request.applicationFile) {
       formData.append("file", request.applicationFile);
     }
+
     return Api.post(
       `${ApplicationApi.baseURL}/import/${request.workspaceId}${
         request.appId ? `?applicationId=${request.appId}` : ""
@@ -488,9 +491,11 @@ export class ApplicationApi extends Api {
     request: ImportPartialApplicationRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
     const formData = new FormData();
+
     if (request.applicationFile) {
       formData.append("file", request.applicationFile);
     }
+
     return Api.post(
       `${ApplicationApi.baseURL}/import/partial/${request.workspaceId}/${request.applicationId}?pageId=${request.pageId}`,
       formData,

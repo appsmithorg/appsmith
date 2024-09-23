@@ -11,7 +11,7 @@ import {
   SettingTypes,
 } from "ee/pages/AdminSettings/config/types";
 import BrandingBadge from "pages/AppViewer/BrandingBadge";
-import { TagInput } from "design-system-old";
+import { TagInput } from "@appsmith/ads-old";
 import localStorage from "utils/localStorage";
 import isUndefined from "lodash/isUndefined";
 import { AppsmithFrameAncestorsSetting } from "pages/Applications/EmbedSnippet/Constants/constants";
@@ -154,6 +154,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
     const sources = isUndefined(value.additionalData)
       ? localStorage.getItem("ALLOWED_FRAME_ANCESTORS") ?? ""
       : value.additionalData.replaceAll(",", " ");
+
     // If they are one of the other options we don't store it in storage since it will
     // set in the env variable on save
     if (sources !== "*" && sources !== "'none'") {

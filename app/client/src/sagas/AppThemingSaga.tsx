@@ -13,7 +13,7 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select, call } from "redux-saga/effects";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   CHANGE_APP_THEME,
   createMessage,
@@ -53,6 +53,7 @@ export function* initAppTheming() {
   try {
     const user: User = yield select(getCurrentUser);
     const { email } = user;
+
     if (email) {
       const appThemingBetaFlag: boolean = yield getBetaFlag(
         email,
@@ -109,6 +110,7 @@ export function* fetchAppSelectedTheme(
     yield select(getAllPageIdentities);
   const userDetails = yield select(getCurrentUser);
   const applicationVersion = yield select(selectApplicationVersion);
+
   try {
     const response: ApiResponse<AppTheme[]> = yield call(
       getFromServerWhenNoPrefetchedResult,
@@ -256,6 +258,7 @@ function* closeisBetaCardShown() {
   try {
     const user: User = yield select(getCurrentUser);
     const { email } = user;
+
     if (email) {
       yield setBetaFlag(email, STORAGE_KEYS.APP_THEMING_BETA_SHOWN, true);
     }
@@ -283,6 +286,7 @@ function* resetTheme() {
  */
 function* setDefaultSelectedThemeOnError() {
   const applicationId: string = yield select(getCurrentApplicationId);
+
   try {
     // Fetch all system themes
     const response: ApiResponse<AppTheme[]> =
@@ -310,6 +314,7 @@ function* setDefaultSelectedThemeOnError() {
     });
   }
 }
+
 export default function* appThemingSaga() {
   yield all([takeLatest(ReduxActionTypes.INITIALIZE_EDITOR, initAppTheming)]);
   yield all([

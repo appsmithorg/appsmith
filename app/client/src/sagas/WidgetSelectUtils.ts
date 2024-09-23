@@ -18,7 +18,7 @@ import {
 import { getWidgetChildrenIds } from "sagas/WidgetOperationUtils";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import WidgetFactory from "WidgetProvider/factory";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
 
 /**
@@ -88,6 +88,7 @@ export const deselectAll = (request: SelectionPayload): SetSelectionResult => {
       SelectionRequestType.Empty,
     );
   }
+
   return [];
 };
 
@@ -101,6 +102,7 @@ export const selectOneWidget = (
       SelectionRequestType.One,
     );
   }
+
   return request;
 };
 
@@ -112,7 +114,9 @@ export const selectMultipleWidgets = (
   const areSiblings = request.every((each) => {
     return allWidgets[each]?.parentId === parentToMatch;
   });
+
   if (!areSiblings) return;
+
   return request;
 };
 
@@ -125,12 +129,15 @@ export const shiftSelectWidgets = (
   const selectedWidgetIndex = siblingWidgets.indexOf(request[0]);
   const siblingIndexOfLastSelectedWidget =
     siblingWidgets.indexOf(lastSelectedWidget);
+
   if (siblingIndexOfLastSelectedWidget === -1) {
     return request;
   }
+
   if (currentlySelectedWidgets.includes(request[0])) {
     return currentlySelectedWidgets.filter((w) => request[0] !== w);
   }
+
   let widgets: string[] = [...currentlySelectedWidgets, ...request];
   const start =
     siblingIndexOfLastSelectedWidget < selectedWidgetIndex
@@ -141,9 +148,11 @@ export const shiftSelectWidgets = (
       ? selectedWidgetIndex
       : siblingIndexOfLastSelectedWidget;
   const unSelectedSiblings = siblingWidgets.slice(start, end + 1);
+
   if (unSelectedSiblings && unSelectedSiblings.length) {
     widgets = widgets.concat(...unSelectedSiblings);
   }
+
   return uniq(widgets);
 };
 
@@ -182,19 +191,24 @@ function* getDroppingCanvasOfWidget(widgetLastSelected: FlattenedWidgetProps) {
     );
     const firstCanvas = childWidgets.find((each) => {
       const widget = canvasWidgets[each];
+
       return widget.type === WidgetTypes.CANVAS_WIDGET;
     });
+
     if (widgetLastSelected.type === WidgetTypes.TABS_WIDGET) {
       const tabMetaProps: Record<string, unknown> = yield select(
         getWidgetMetaProps,
         widgetLastSelected,
       );
+
       return tabMetaProps.selectedTabWidgetId;
     }
+
     if (firstCanvas) {
       return firstCanvas;
     }
   }
+
   return widgetLastSelected.parentId;
 }
 
@@ -205,15 +219,18 @@ function* getLastSelectedCanvas() {
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgetLastSelected =
     lastSelectedWidget && canvasWidgets[lastSelectedWidget];
+
   if (widgetLastSelected) {
     if (areMultipleWidgetsSelected) {
       return widgetLastSelected.parentId || MAIN_CONTAINER_WIDGET_ID;
     }
+
     if (!areMultipleWidgetsSelected) {
       const canvasToSelect: string = yield call(
         getDroppingCanvasOfWidget,
         widgetLastSelected,
       );
+
       return canvasToSelect ? canvasToSelect : MAIN_CONTAINER_WIDGET_ID;
     }
   }
@@ -229,6 +246,7 @@ const isChildOfDropDisabledCanvas = (
   const widget = canvasWidgets[widgetId];
   const parentId = widget.parentId || MAIN_CONTAINER_WIDGET_ID;
   const parent = canvasWidgets[parentId];
+
   return !!parent?.dropDisabled;
 };
 
@@ -241,6 +259,7 @@ export function* getAllSelectableChildren() {
   const selectGrandChildren: boolean = lastSelectedWidget
     ? widgetLastSelected && widgetLastSelected.type === WidgetTypes.LIST_WIDGET
     : false;
+
   if (selectGrandChildren) {
     allChildren = yield call(
       getWidgetChildrenIds,
@@ -250,6 +269,7 @@ export function* getAllSelectableChildren() {
   } else {
     allChildren = yield select(getWidgetImmediateChildren, canvasId);
   }
+
   if (allChildren && allChildren.length) {
     return allChildren.filter((each) => {
       const isCanvasWidget =
@@ -260,9 +280,11 @@ export function* getAllSelectableChildren() {
         canvasWidgets,
         each,
       );
+
       return !(isCanvasWidget || isImmovableWidget);
     });
   }
+
   return [];
 }
 
@@ -285,16 +307,20 @@ export function getWidgetAncestry(
   // hidden tabs
   const widgetAncestry: string[] = [];
   let ancestorWidgetId = widgetId;
+
   while (ancestorWidgetId) {
     widgetAncestry.push(ancestorWidgetId);
+
     if (allWidgets[ancestorWidgetId] && allWidgets[ancestorWidgetId].parentId) {
       const parentId = allWidgets[ancestorWidgetId].parentId;
+
       assertParentId(parentId);
       ancestorWidgetId = parentId;
     } else {
       break;
     }
   }
+
   return widgetAncestry;
 }
 
@@ -304,6 +330,7 @@ export function* selectAllWidgetsInCanvasSaga() {
     const allSelectableChildren: string[] = yield call(
       getAllSelectableChildren,
     );
+
     if (allSelectableChildren && allSelectableChildren.length) {
       const isAnyModalSelected = allSelectableChildren.some((each) => {
         return (
@@ -312,11 +339,13 @@ export function* selectAllWidgetsInCanvasSaga() {
           canvasWidgets[each].type === WidgetFactory.widgetTypes.MODAL_WIDGET
         );
       });
+
       if (isAnyModalSelected) {
         toast.show(createMessage(SELECT_ALL_WIDGETS_MSG), {
           kind: "info",
         });
       }
+
       return allSelectableChildren;
     }
   } catch (error) {

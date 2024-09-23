@@ -24,6 +24,7 @@ export class SearchApi extends Api {
     limit?: number;
   }): Promise<AxiosPromise<SearchApiResponse>> {
     const { keyword, limit = 10 } = params;
+
     return Api.get(`${SearchApi.searchURL}?keyword=${keyword}&size=${limit}`);
   }
 }

@@ -18,9 +18,6 @@ import {
   reportSWStatus,
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import type { AppEnginePayload } from ".";
 import AppEngine, { ActionsNotFoundError } from ".";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
@@ -75,18 +72,6 @@ export default class AppViewerEngine extends AppEngine {
     yield call(super.setupEngine.bind(this), payload, rootSpan);
 
     endSpan(viewerSetupSpan);
-  }
-
-  startPerformanceTracking() {
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.INIT_VIEW_APP,
-    );
-  }
-
-  stopPerformanceTracking() {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.INIT_VIEW_APP,
-    );
   }
 
   *loadAppEntities(
@@ -157,6 +142,7 @@ export default class AppViewerEngine extends AppEngine {
       "AppViewerEngine.waitForFetchUserSuccess",
       rootSpan,
     );
+
     yield call(waitForFetchUserSuccess);
     endSpan(waitForUserSpan);
 
@@ -164,6 +150,7 @@ export default class AppViewerEngine extends AppEngine {
       "AppViewerEngine.waitForSegmentInit",
       rootSpan,
     );
+
     yield call(waitForSegmentInit, true);
     endSpan(waitForSegmentSpan);
 
@@ -171,6 +158,7 @@ export default class AppViewerEngine extends AppEngine {
       "AppViewerEngine.waitForFetchEnvironments",
       rootSpan,
     );
+
     yield call(waitForFetchEnvironments);
     endSpan(waitForEnvironmentsSpan);
 

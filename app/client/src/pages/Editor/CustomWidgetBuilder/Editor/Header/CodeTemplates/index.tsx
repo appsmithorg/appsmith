@@ -11,7 +11,7 @@ import {
   ModalBody,
   ModalFooter,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import React, { useContext, useState } from "react";
 import codeTemplates from "./Templates";
 import { CustomWidgetBuilderContext } from "pages/Editor/CustomWidgetBuilder";

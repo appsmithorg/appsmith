@@ -44,6 +44,7 @@ export function AnvilHighlightingCanvas({
     },
     setHighlightShown,
   );
+
   return showDnDListener ? (
     <>
       {isCurrentDraggedCanvas && (

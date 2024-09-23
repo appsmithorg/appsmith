@@ -6,7 +6,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-} from "design-system";
+} from "@appsmith/ads";
 import { ConversionForm } from "./ConversionForm";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsAutoLayout } from "selectors/canvasSelectors";

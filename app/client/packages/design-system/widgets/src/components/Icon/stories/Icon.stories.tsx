@@ -1,13 +1,13 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Flex, Icon, ICONS, SIZES } from "@design-system/widgets";
+import { Flex, Icon, ICONS, SIZES } from "@appsmith/wds";
 
 /**
  * Icon is a component that just displays an icon.
  */
 const meta: Meta<typeof Icon> = {
   component: Icon,
-  title: "Design-system/Widgets/Icon",
+  title: "WDS/Widgets/Icon",
 };
 
 export default meta;
@@ -22,9 +22,10 @@ export const Main: Story = {
 /**
  * The Icon component comes with three sizes
  *
- * - small — 1rem = 16px
- * - medium — 1.5rem = 24px
- * - large — 2rem = 32px
+ * - xSmall = 14px
+ * - small = 16px
+ * - medium = 24px
+ * - large = 32px
  */
 export const Sizes: Story = {
   render: () => (
@@ -51,19 +52,6 @@ export const CustomIcon: Story = {
         );
       }}
     />
-  ),
-};
-
-/**
- * For some icons, you can also pass a `filled` prop to the Icon component to get a filled variant. If there is no filled variant, it will just display the normal icon.
- */
-
-export const Filled: Story = {
-  render: () => (
-    <Flex gap="spacing-2">
-      <Icon name="stars" />
-      <Icon filled name="stars" />
-    </Flex>
   ),
 };
 

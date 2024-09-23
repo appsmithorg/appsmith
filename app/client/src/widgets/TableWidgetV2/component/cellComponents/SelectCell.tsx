@@ -200,9 +200,12 @@ export const SelectCell = (props: SelectProps) => {
 
   const cellLabelValue = useMemo(() => {
     if (releaseTableSelectCellLabelValue) {
+      if (!options.length) return value;
+
       const selectedOption = options.find(
         (option) => option[TableSelectColumnOptionKeys.VALUE] === value,
       );
+
       return selectedOption
         ? selectedOption[TableSelectColumnOptionKeys.LABEL]
         : "";

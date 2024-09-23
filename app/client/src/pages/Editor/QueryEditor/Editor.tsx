@@ -30,9 +30,6 @@ import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import type { QueryAction, SaaSAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { initFormEvaluations } from "actions/evaluationActions";
 import { getUIComponent } from "./helpers";
@@ -123,6 +120,7 @@ class QueryEditor extends React.Component<Props> {
 
   constructor(props: Props) {
     super(props);
+
     // Call the first evaluations when the page loads
     // call evaluations only for queries and not google sheets (which uses apiId)
     if (this.props.match.params.baseQueryId) {
@@ -138,6 +136,7 @@ class QueryEditor extends React.Component<Props> {
     // if the current action is non existent, do not dispatch change query page action
     // this action should only be dispatched when switching from an existent action.
     if (!this.props.pluginId) return;
+
     this.context?.changeQueryPage?.(this.props.baseActionId);
 
     // fixes missing where key issue by populating the action with a where object when the component is mounted.
@@ -145,14 +144,11 @@ class QueryEditor extends React.Component<Props> {
       const { path = "", value = "" } = {
         ...getPathAndValueFromActionDiffObject(this.props.actionObjectDiff),
       };
+
       if (value && path) {
         this.props.setActionProperty(this.props.actionId, path, value);
       }
     }
-
-    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
-      actionType: "QUERY",
-    });
   }
 
   handleDeleteClick = () => {
@@ -169,10 +165,7 @@ class QueryEditor extends React.Component<Props> {
     const pluginName = this.props.plugins.find(
       (plugin) => plugin.id === this.props.pluginId,
     )?.name;
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.RUN_QUERY_CLICK,
-      { actionId: this.props.actionId },
-    );
+
     AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
       actionId: this.props.actionId,
       dataSourceSize: dataSources.length,
@@ -186,11 +179,6 @@ class QueryEditor extends React.Component<Props> {
   };
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.isRunning === true && this.props.isRunning === false) {
-      PerformanceTracker.stopTracking(
-        PerformanceTransactionName.RUN_QUERY_CLICK,
-      );
-    }
     // Update the page when the queryID is changed by changing the
     // URL or selecting new query from the query pane
     // reusing same logic for changing query panes for switching query editor datasources, since the operations are similar.
@@ -279,6 +267,7 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
     | QueryAction
     | SaaSAction;
   let pluginId;
+
   if (action) {
     pluginId = action.pluginId;
   }
@@ -312,6 +301,7 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
 
   const allPlugins = getPlugins(state);
   let uiComponent = UIComponentTypes.DbEditorForm;
+
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
   const currentEnvDetails = getCurrentEnvironmentDetails(state);

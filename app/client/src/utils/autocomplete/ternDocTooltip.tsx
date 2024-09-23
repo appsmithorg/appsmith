@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { ternDocsInfo } from "ee/utils/autocomplete/EntityDefinitions";
 import type { Completion, TernCompletionResult } from "./CodemirrorTernService";
 import { CodeEditorColors } from "components/editorComponents/CodeEditor/constants";
-import { Link } from "design-system";
+import { Link } from "@appsmith/ads";
 
 export function renderTernTooltipContent(
   element: HTMLElement,
@@ -53,6 +53,7 @@ export function TernDocToolTip(props: {
           {examples.map((example: string) => {
             const fnName = displayText;
             const args = example;
+
             return (
               <span
                 className="flex items-center justify-start py-[2px] text-xs whitespace-nowrap"

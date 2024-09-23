@@ -8,11 +8,17 @@ import {
   INPUT_INVALID_TYPE_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "ee/constants/messages";
-import type { InputType } from "../component/types";
+import type { InputType } from "widgets/wds/WDSBaseInputWidget";
 import type { WidgetProps } from "widgets/BaseWidget";
 
-import { INPUT_TYPES } from "../constants";
 import type { InputWidgetProps, Validation } from "./types";
+import {
+  INPUT_TYPE_TO_WIDGET_TYPE_MAP,
+  INPUT_TYPES,
+} from "widgets/wds/WDSBaseInputWidget";
+import type { PropertyUpdates } from "WidgetProvider/constants";
+import { getDefaultISDCode } from "widgets/wds/WDSPhoneInputWidget/constants";
+import { getDefaultCurrency } from "widgets/wds/WDSCurrencyInputWidget/constants";
 
 /**
  * parses text to number if inputType is number
@@ -26,6 +32,7 @@ export function parseText(value: string, inputType: InputType) {
 
   if (inputType === INPUT_TYPES.NUMBER) {
     if (isNil(value) || value === "") return null;
+
     if (isNaN(parsedText)) return null;
 
     return parsedText;
@@ -131,11 +138,9 @@ export const validateInput = (props: InputWidgetProps): Validation => {
 export function inputTypeUpdateHook(
   props: WidgetProps,
   propertyName: string,
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  propertyValue: any,
+  propertyValue: InputType,
 ) {
-  const updates = [
+  const updates: PropertyUpdates[] = [
     {
       propertyPath: propertyName,
       propertyValue: propertyValue,
@@ -148,6 +153,36 @@ export function inputTypeUpdateHook(
     propertyPath: "shouldAllowAutofill",
     propertyValue: isInputTypeEmailOrPassword(propertyValue),
   });
+
+  // we will also change the widgetType based on the inputType
+  updates.push({
+    propertyPath: "type",
+    propertyValue: INPUT_TYPE_TO_WIDGET_TYPE_MAP[propertyValue],
+  });
+
+  // in case we are chaging to phone input type & there is no
+  // defaultDiaCode property in the widget, we will default the country code to US
+  if (
+    props.defaultDialCode === undefined &&
+    propertyValue === INPUT_TYPES.PHONE_NUMBER
+  ) {
+    updates.push({
+      propertyPath: "defaultDialCode",
+      propertyValue: getDefaultISDCode().dial_code,
+    });
+  }
+
+  // in case we are changing to currency input type & there is no
+  // defaultCurrency property in the widget, we will default the currency to USD
+  if (
+    props.defaultCurrencyCode === undefined &&
+    propertyValue === INPUT_TYPES.CURRENCY
+  ) {
+    updates.push({
+      propertyPath: "defaultCurrencyCode",
+      propertyValue: getDefaultCurrency().currency,
+    });
+  }
 
   return updates;
 }

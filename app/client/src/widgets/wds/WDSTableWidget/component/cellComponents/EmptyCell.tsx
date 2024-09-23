@@ -9,7 +9,7 @@ import {
   EmptyCell,
   EmptyRow,
 } from "../TableStyledWrappers";
-import { Text } from "@design-system/widgets";
+import { Text } from "@appsmith/wds";
 
 const addStickyModifierClass = (
   columns: ReactTableColumnProps[],
@@ -49,6 +49,7 @@ export const renderEmptyRows = (
           ...style,
         },
       };
+
       return (
         <tr {...rowProps} className="tr" key={index}>
           {multiRowSelection && (
@@ -78,6 +79,7 @@ export const renderEmptyRows = (
                     : MULTISELECT_CHECKBOX_WIDTH +
                       columns[cellIndex].columnProperties.width;
               }
+
               return (
                 <div
                   {...cellProps}

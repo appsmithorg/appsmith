@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import { importSvg } from "design-system-old";
-import { Text } from "design-system";
+import { importSvg } from "@appsmith/ads-old";
+import { Text } from "@appsmith/ads";
 import {
   createMessage,
   DATASOURCE_BLANK_STATE_MESSAGE,

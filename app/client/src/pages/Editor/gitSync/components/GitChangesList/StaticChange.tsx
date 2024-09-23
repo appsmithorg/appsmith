@@ -1,6 +1,6 @@
 import React from "react";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
-import { Icon, Text } from "design-system";
+import { Icon, Text } from "@appsmith/ads";
 import {
   NOT_PUSHED_YET,
   TRY_TO_PULL,
@@ -79,9 +79,11 @@ interface StaticChangeProps {
 
 export default function StaticChange({ kind, status }: StaticChangeProps) {
   const { condition, iconName, message } = allStaticChangeDefs[kind](status);
+
   if (!condition) {
     return null;
   }
+
   return (
     <div
       className="flex items-center space-x-1.5"

@@ -38,9 +38,10 @@ const regexMap = {
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toPrecache = (self as any).__WB_MANIFEST;
+
 precacheAndRoute(toPrecache);
 
-self.__WB_DISABLE_DEV_LOGS = false;
+self.__WB_DISABLE_DEV_LOGS = true;
 skipWaiting();
 clientsClaim();
 
@@ -70,6 +71,7 @@ const htmlRouteHandlerCallback: RouteHandlerCallback = async ({
   }
 
   const networkHandler = new NetworkOnly();
+
   return networkHandler.handle({ event, request });
 };
 
@@ -111,6 +113,7 @@ registerRoute(
 
     // If the response is not cached, fetch the response
     const networkHandler = new NetworkOnly();
+
     return networkHandler.handle({ event, request });
   },
   "GET",

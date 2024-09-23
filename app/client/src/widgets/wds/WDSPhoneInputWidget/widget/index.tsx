@@ -1,9 +1,8 @@
 import React from "react";
 import log from "loglevel";
 import merge from "lodash/merge";
-import { klona as clone } from "klona";
 import * as Sentry from "@sentry/react";
-import { mergeWidgetConfig } from "utils/helpers";
+import { klonaRegularWithTelemetry, mergeWidgetConfig } from "utils/helpers";
 import type { CountryCode } from "libphonenumber-js";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
@@ -50,7 +49,10 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   }
 
   static getPropertyPaneContentConfig() {
-    const parentConfig = clone(super.getPropertyPaneContentConfig());
+    const parentConfig = klonaRegularWithTelemetry(
+      super.getPropertyPaneContentConfig(),
+      "WDSPhoneInputWidget.getPropertyPaneContentConfig",
+    );
 
     const labelSectionIndex = parentConfig.findIndex(
       (section) => section.sectionName === "Label",
@@ -237,6 +239,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         type: EventType.ON_TEXT_CHANGE,
       },
     });
+
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -252,6 +255,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         },
       });
     }
+
     if (!focusState) {
       this.props.updateWidgetMetaProperty("isFocused", focusState, {
         triggerPropertyName: "onBlur",
@@ -261,6 +265,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         },
       });
     }
+
     super.onFocusChange(focusState);
   };
 

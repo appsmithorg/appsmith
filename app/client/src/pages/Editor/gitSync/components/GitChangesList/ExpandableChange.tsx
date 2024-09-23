@@ -4,7 +4,7 @@ import {
   CollapsibleHeader,
   Icon,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import React from "react";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import styled from "styled-components";
@@ -111,6 +111,7 @@ export function ChangeSubList({
       </div>
     );
   });
+
   // eslint-disable-next-line react/jsx-no-useless-fragment
   return <>{sublist}</>;
 }
@@ -148,6 +149,7 @@ export function ExpandableChange({ filter, kind, status }: ChangeProps) {
 
   const getTitleMessage = () => {
     let action = "";
+
     if (hasOnlyOneChange) {
       if (isModified) {
         action = "edited";

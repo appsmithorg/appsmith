@@ -1,6 +1,6 @@
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { AppState } from "ee/reducers";
 import { LayoutSystemTypes } from "layoutSystems/types";
@@ -35,6 +35,7 @@ import { nestDSL } from "@shared/dsl";
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
   let appId = "";
   let snapshotSaveSuccess = false;
+
   try {
     const pageList: Page[] = yield select(getPageList);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
@@ -93,6 +94,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     let error: Error = e;
+
     if (error) {
       error.message = `Layout conversion error - while converting from auto-layout to fixed layout: ${error.message}`;
     } else {
@@ -106,6 +108,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     if (snapshotSaveSuccess) {
       yield call(deleteApplicationSnapshotSaga);
     }
+
     //update conversion form state to error
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
@@ -125,6 +128,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
 function* convertFromFixedToAutoSaga() {
   let appId = "";
   let snapshotSaveSuccess = false;
+
   try {
     const pageList: Page[] = yield select(getPageList);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
@@ -176,6 +180,7 @@ function* convertFromFixedToAutoSaga() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     let error: Error = e;
+
     if (error) {
       error.message = `Layout conversion error - while converting from fixed layout to auto-layout: ${error.message}`;
     } else {
@@ -185,10 +190,12 @@ function* convertFromFixedToAutoSaga() {
     }
 
     log.error(error);
+
     //update conversion form state to error
     if (snapshotSaveSuccess) {
       yield call(deleteApplicationSnapshotSaga);
     }
+
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
     );

@@ -6,12 +6,11 @@ import type { Datasource } from "entities/Datasource";
 import type { Action, QueryAction, SaaSAction } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "design-system";
+import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import {
   createMessage,
-  DEBUGGER_RESPONSE,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
 } from "ee/constants/messages";
@@ -29,17 +28,12 @@ import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { QueryEditorContext } from "./QueryEditorContext";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import FormRender from "./FormRender";
 import QueryEditorHeader from "./QueryEditorHeader";
-import ActionEditor from "../IDE/EditorPane/components/ActionEditor";
-import QueryResponseTab from "./QueryResponseTab";
-import DatasourceSelector from "./DatasourceSelector";
 import RunHistory from "ee/components/RunHistory";
 
 const QueryFormContainer = styled.form`
@@ -203,12 +197,8 @@ export function EditorJSONtoForm(props: Props) {
     uiComponent,
   } = props;
 
-  const {
-    actionRightPaneAdditionSections,
-    actionRightPaneBackLink,
-    closeEditorLink,
-    notification,
-  } = useContext(QueryEditorContext);
+  const { actionRightPaneAdditionSections, closeEditorLink, notification } =
+    useContext(QueryEditorContext);
 
   const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
   // fetch the error count from the store.
@@ -226,10 +216,6 @@ export function EditorJSONtoForm(props: Props) {
   const showSchema =
     useShowSchema(currentActionConfig?.pluginId || "") &&
     pluginRequireDatasource;
-
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
 
   const dispatch = useDispatch();
 
@@ -254,59 +240,6 @@ export function EditorJSONtoForm(props: Props) {
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
     return null;
-  }
-
-  if (isActionRedesignEnabled && plugin) {
-    const responseTabs = [];
-    if (currentActionConfig) {
-      responseTabs.push({
-        key: "response",
-        title: createMessage(DEBUGGER_RESPONSE),
-        panelComponent: (
-          <QueryResponseTab
-            actionName={actionName}
-            actionSource={actionSource}
-            currentActionConfig={currentActionConfig}
-            isRunning={isRunning}
-            onRunClick={onRunClick}
-            runErrorMessage={runErrorMessage}
-          />
-        ),
-      });
-    }
-    return (
-      <ActionEditor
-        isRunning={isRunning}
-        onDocsClick={handleDocumentationClick}
-        onRunClick={onRunClick}
-        runOptionsSelector={
-          <DatasourceSelector
-            currentActionConfig={currentActionConfig}
-            dataSources={dataSources}
-            formName={formName}
-            onCreateDatasourceClick={onCreateDatasourceClick}
-            plugin={plugin}
-          />
-        }
-        settingsRender={
-          <SettingsWrapper>
-            <ActionSettings
-              actionSettingsConfig={settingConfig}
-              formName={formName}
-            />
-          </SettingsWrapper>
-        }
-        tabs={responseTabs}
-      >
-        <FormRender
-          editorConfig={editorConfig}
-          formData={props.formData}
-          formEvaluationState={props.formEvaluationState}
-          formName={formName}
-          uiComponent={uiComponent}
-        />
-      </ActionEditor>
-    );
   }
 
   return (
@@ -407,7 +340,6 @@ export function EditorJSONtoForm(props: Props) {
             </SecondaryWrapper>
           </div>
           <ActionRightPane
-            actionRightPaneBackLink={actionRightPaneBackLink}
             additionalSections={actionRightPaneAdditionSections}
           />
         </Wrapper>

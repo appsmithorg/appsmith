@@ -1,5 +1,5 @@
 {
-  "name": "design-system",
+  "name": "@appsmith/ads",
   "version": "2.1.43",
   "description": "This is the package for the design system that powers the Appsmith platform",
   "main": "src/index.ts",

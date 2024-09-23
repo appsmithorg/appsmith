@@ -5,7 +5,7 @@ import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { CONNECT_NEW_DATASOURCE_OPTION_ID } from "../DataSourceOption";
 import type { executeDatasourceQuerySuccessPayload } from "actions/datasourceActions";
 import { executeDatasourceQuery } from "actions/datasourceActions";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import { useDispatch, useSelector } from "react-redux";
 import { PluginPackageName } from "entities/Action";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
@@ -43,11 +43,13 @@ export const useDatasourceOptions = ({
     const unSupportedDatasourceOptions: DropdownOptions = [];
     const supportedDatasourceOptions: DropdownOptions = [];
     let newDataSourceOptions: DropdownOptions = [];
+
     if (canCreateDatasource) {
       newDataSourceOptions.push(
         FAKE_DATASOURCE_OPTION.CONNECT_NEW_DATASOURCE_OPTION,
       );
     }
+
     datasources.forEach(({ datasourceStorages, id, name, pluginId }) => {
       // Doing this since g sheets plugin is not supported for environments
       // and we need to show the option in the dropdown
@@ -68,6 +70,7 @@ export const useDatasourceOptions = ({
           isValid: datasourceStorage?.isValid,
         },
       };
+
       if (generateCRUDSupportedPlugin[pluginId])
         supportedDatasourceOptions.push(datasourceObject);
       else {
@@ -85,6 +88,7 @@ export const useDatasourceOptions = ({
     generateCRUDSupportedPlugin,
     fetchingDatasourceConfigs,
   ]);
+
   return dataSourceOptions;
 };
 
@@ -156,6 +160,7 @@ export const useSpreadSheets = ({
       >,
     ) => {
       setIsFetchingSpreadsheets(false);
+
       if (payload.data && payload.data.trigger) {
         const spreadSheets = payload.data.trigger;
 
@@ -189,6 +194,7 @@ export const useSpreadSheets = ({
         requestType: "SPREADSHEET_SELECTOR",
         ...requestObject,
       };
+
       dispatch(
         executeDatasourceQuery({
           payload: {
@@ -313,8 +319,10 @@ export const useSheetsList = (
       >,
     ) => {
       setIsFetchingSheetsList(false);
+
       if (payload.data && payload.data.trigger) {
         const responseBody = payload.data.trigger;
+
         if (Array.isArray(responseBody)) {
           setSheetsList(responseBody);
           props.setSheetOptions && props.setSheetOptions(responseBody);
@@ -346,6 +354,7 @@ export const useSheetsList = (
         pluginId: pluginId,
         requestType: "SHEET_SELECTOR",
       };
+
       dispatch(
         executeDatasourceQuery({
           payload: {
@@ -408,8 +417,10 @@ export const useSheetData = (
       >,
     ) => {
       setIsFetchingSheetData(false);
+
       if (payload.data && payload.data.trigger) {
         const responseBody = payload.data.trigger;
+
         if (Array.isArray(responseBody)) {
           setSheetData(responseBody);
           props.setSheetData && props.setSheetData(responseBody);
@@ -449,6 +460,7 @@ export const useSheetData = (
         pluginId: pluginId,
         requestType: "SHEET_DATA",
       };
+
       dispatch(
         executeDatasourceQuery({
           payload: {
@@ -531,13 +543,16 @@ export const useSheetColumnHeaders = () => {
 
       if (payload.data && payload.data.trigger) {
         const responseBody = payload.data.trigger;
+
         if (Array.isArray(responseBody)) {
           setColumnHeaderList(responseBody);
         } else {
           let error = "Failed fetching Column headers";
+
           if (typeof responseBody === "string") {
             error = responseBody;
           }
+
           setColumnHeaderList([]);
           setErrorFetchingColumnHeaderList(error);
         }
@@ -615,10 +630,13 @@ export const useS3BucketList = () => {
       }>,
     ) => {
       setIsFetchingBucketList(false);
+
       if (payload.data && payload.data.body) {
         const payloadBody = payload.data.body;
+
         if (Array.isArray(payloadBody.bucketList)) {
           const { bucketList: list = [] } = payloadBody;
+
           setBucketList(list);
         }
       }

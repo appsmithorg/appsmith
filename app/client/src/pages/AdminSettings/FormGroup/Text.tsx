@@ -1,4 +1,4 @@
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import React from "react";
 import { getSettings } from "selectors/settingsSelectors";
 import { useSelector } from "react-redux";
@@ -13,6 +13,7 @@ const TextWrapper = styled.div`
 export default function TextComponent({ setting }: SettingComponentProps) {
   const settingsConfig = useSelector(getSettings);
   const value = setting.name && settingsConfig && settingsConfig[setting.name];
+
   return (
     <FormGroup setting={setting}>
       {value && (

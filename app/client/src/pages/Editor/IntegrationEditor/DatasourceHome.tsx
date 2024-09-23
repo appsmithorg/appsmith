@@ -16,7 +16,7 @@ import {
 import type { AppState } from "ee/reducers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
@@ -24,7 +24,7 @@ import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ApiCard, API_ACTION, CardContentWrapper } from "./NewApi";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import PlusLogo from "assets/images/Plus-logo.svg";
 import {
   createMessage,
@@ -39,6 +39,7 @@ const removeQueryParams = (paramKeysToRemove: Array<string>) => {
   const queryParams = getQueryParams();
   let queryString = "";
   const queryParamKeys = Object.keys(queryParams);
+
   if (queryParamKeys && queryParamKeys.length) {
     queryParamKeys.map((key) => {
       if (!paramKeysToRemove.includes(key)) {
@@ -46,8 +47,10 @@ const removeQueryParams = (paramKeysToRemove: Array<string>) => {
           encodeURIComponent(key) + "=" + encodeURIComponent(queryParams[key]);
       }
     });
+
     return "?" + queryString;
   }
+
   return "";
 };
 
@@ -191,17 +194,20 @@ class DatasourceHomeScreen extends React.Component<Props> {
         plugin: pluginName,
         packageName: params?.packageName,
       });
+
       if (!generateCRUDSupportedPlugin[pluginId]) {
         // show modal informing user that this will break the generate flow.
         showUnsupportedPluginDialog(() => {
           const URL =
             window.location.pathname +
             removeQueryParams(["isGeneratePageMode"]);
+
           history.replace(URL);
           this.goToCreateDatasource(pluginId, pluginName, {
             skipValidPluginCheck: true,
           });
         });
+
         return;
       }
     }
@@ -214,6 +220,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
   handleOnClick = () => {
     const { editorId, editorType, parentEntityId, parentEntityType } =
       this.props;
+
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       source: API_ACTION.CREATE_NEW_API,
     });
@@ -305,6 +312,7 @@ const mapStateToProps = (
           plugin?.packageName !== PluginPackageName.GOOGLE_SHEETS,
       )
     : mostPopularPlugins;
+
   return {
     pluginImages: getPluginImages(state),
     plugins: !!props?.showMostPopularPlugins

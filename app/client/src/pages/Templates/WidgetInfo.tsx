@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { IconWrapper } from "constants/IconConstants";
 import { getWidgetCards } from "selectors/editorSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";

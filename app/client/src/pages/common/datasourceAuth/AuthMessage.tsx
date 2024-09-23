@@ -1,7 +1,7 @@
 import type { AppState } from "ee/reducers";
 import { redirectAuthorizationCode } from "actions/datasourceActions";
-import type { CalloutKind } from "design-system";
-import { Callout } from "design-system";
+import type { CalloutKind } from "@appsmith/ads";
+import { Callout } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import { ActionType } from "entities/Datasource";
 import React from "react";
@@ -65,6 +65,7 @@ export default function AuthMessage(props: AuthMessageProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOauthAuthorization: any = () => {
     if (!pluginType || !pageId) return;
+
     dispatch(redirectAuthorizationCode(pageId, datasource.id, pluginType));
   };
   // TODO: Fix this the next time the file is edited

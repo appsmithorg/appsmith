@@ -35,6 +35,7 @@ class GlobalData {
           },
         );
       }
+
       return this.globalDataWithFunctions;
     } else {
       if (isEmpty(this.globalDataWithoutFunctions)) {
@@ -47,6 +48,7 @@ class GlobalData {
           },
         );
       }
+
       return this.globalDataWithoutFunctions;
     }
   }

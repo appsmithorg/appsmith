@@ -3,8 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import { Classes } from "../constants/classes";
 import { typography } from "../constants/typography";
-import Spinner from "../Spinner";
-import { IconSize } from "../Icon";
+import { Spinner } from "@appsmith/ads";
 import { importSvg } from "../utils/icon-loadables";
 
 const DownArrow = importSvg(
@@ -135,6 +134,7 @@ const TableColumnEmptyWrapper = styled.div`
     margin-top: 23px;
   }
 `;
+
 export interface TableProps {
   data: any[];
   columns: any[];
@@ -192,17 +192,14 @@ function Table(props: TableProps) {
             <tr className="no-hover">
               <td className="no-border" colSpan={columns?.length}>
                 <CentralizedWrapper>
-                  {loaderComponent ? (
-                    loaderComponent
-                  ) : (
-                    <Spinner size={IconSize.XXL} />
-                  )}
+                  {loaderComponent ? loaderComponent : <Spinner size="lg" />}
                 </CentralizedWrapper>
               </td>
             </tr>
           ) : rows.length > 0 ? (
             rows.map((row, index) => {
               prepareRow(row);
+
               return (
                 <tr {...row.getRowProps()} key={index}>
                   {row.cells.map((cell, index) => {

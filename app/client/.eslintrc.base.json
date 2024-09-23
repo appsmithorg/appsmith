@@ -16,7 +16,9 @@
     "sort-destructure-keys",
     "cypress",
     "testing-library",
-    "jest"
+    "jest",
+    "@appsmith",
+    "react-perf"
   ],
   "extends": [
     "plugin:react/recommended", // Uses the recommended rules from @eslint-plugin-react
@@ -24,6 +26,8 @@
     "plugin:cypress/recommended",
     "plugin:testing-library/react",
     "plugin:react-hooks/recommended",
+    "plugin:@appsmith/recommended",
+    "plugin:react-perf/recommended",
     // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
     // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
     "plugin:prettier/recommended"
@@ -37,6 +41,28 @@
     "project": "./tsconfig.json"
   },
   "rules": {
+    "padding-line-between-statements": [
+      "error",
+      { "blankLine": "always", "prev": "*", "next": "return" },
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": ["if", "for", "while"]
+      },
+      {
+        "blankLine": "always",
+        "prev": ["if", "for", "while"],
+        "next": "*"
+      },
+      { "blankLine": "always", "prev": ["const", "let"], "next": "*" },
+      {
+        "blankLine": "any",
+        "prev": ["const", "let"],
+        "next": ["const", "let"]
+      },
+      { "blankLine": "always", "prev": "*", "next": "function" },
+      { "blankLine": "always", "prev": "function", "next": "*" }
+    ],
     "testing-library/consistent-data-testid": [
       "warn",
       {
@@ -65,6 +91,17 @@
     ],
     "no-console": "error",
     "no-debugger": "error",
+    "react-perf/jsx-no-new-array-as-prop": "warn",
+    "react-perf/jsx-no-new-function-as-prop": "warn",
+    "react-perf/jsx-no-jsx-as-prop": "warn",
+    "react-perf/jsx-no-new-object-as-prop": [
+      "warn",
+      {
+        // we are disabling this rule here for native component since it won't make much difference in performance
+        // we want to target react components more since there is possibility they can be pure components and new istance props should be avoided for them
+        "nativeAllowList": "all"
+      }
+    ],
     "@typescript-eslint/no-restricted-imports": [
       "error",
       {
@@ -76,11 +113,11 @@
           {
             "group": ["*.svg"],
             "importNames": ["ReactComponent"],
-            "message": "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from design-system-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
+            "message": "Reason: Please don’t import SVG icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please either import them as SVG paths (e.g. import starIconUrl from './star.svg'), or use the importSvg wrapper from @appsmith/ads-old (e.g. const StarIcon = importSvg(() => import('./star.svg')))."
           },
           {
             "group": ["remixicon-react/*"],
-            "message": "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from design-system-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
+            "message": "Reason: Please don’t import Remix icons statically. (They won’t always be needed, but they *will* always be present in the bundle and will increase the bundle size.) Instead, please use the importRemixIcon wrapper from @appsmith/ads-old (e.g. const StarIcon = importRemixIcon(() => import('remixicon-react/Star')))."
           }
         ]
       }

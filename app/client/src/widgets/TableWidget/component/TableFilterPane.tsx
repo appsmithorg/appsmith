@@ -18,7 +18,7 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const DragHandleIcon = importSvg(
   async () => import("assets/icons/ads/app-icons/draghandler.svg"),
@@ -164,4 +164,5 @@ const mapDispatchToProps = (dispatch: any) => {
     },
   };
 };
+
 export default connect(mapStateToProps, mapDispatchToProps)(TableFilterPane);

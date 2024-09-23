@@ -20,7 +20,5 @@
       ]
     }
   ],
-  "files": [
-    "mock-example.json"
-  ]
+  "files": ["mock-example.json"]
 }

@@ -33,7 +33,9 @@ function* updateLintGlobals(
 ) {
   const appMode: APP_MODE = yield select(getAppMode);
   const isEditorMode = appMode === APP_MODE.EDIT;
+
   if (!isEditorMode) return;
+
   yield call(lintWorker.updateJSLibraryGlobals, action.payload);
 }
 
@@ -46,6 +48,7 @@ function* updateOldJSCollectionLintErrors(
     lintedJSPaths.map((path) => getEntityNameAndPropertyPath(path).entityName),
   );
   const updatedJSCollectionLintErrors: LintErrorsStore = {};
+
   for (const jsObjectName of jsEntities) {
     const jsObjectBodyPath = `["${jsObjectName}.body"]`;
     const oldJsBodyLintErrors: LintError[] = yield select((state: AppState) =>
@@ -72,8 +75,10 @@ function* updateOldJSCollectionLintErrors(
       ...filteredOldJsObjectBodyLintErrors,
       ...newJSBodyLintErrors,
     ];
+
     set(updatedJSCollectionLintErrors, jsObjectBodyPath, updatedLintErrors);
   }
+
   return updatedJSCollectionLintErrors;
 }
 
@@ -103,6 +108,7 @@ export function* lintTreeSaga(payload: LintTreeSagaRequestData) {
   yield call(logLatestLintPropertyErrors, {
     errors,
     dataTree: unevalTree,
+    configTree,
   });
 }
 
@@ -132,5 +138,6 @@ export default function* lintTreeSagaWatcher() {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* setupSaga(): any {
   const featureFlags = yield select(selectFeatureFlags);
+
   yield call(lintWorker.setup, featureFlags);
 }

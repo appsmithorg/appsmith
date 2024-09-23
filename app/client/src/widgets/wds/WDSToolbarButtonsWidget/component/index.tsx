@@ -1,6 +1,6 @@
 import type { Key } from "react";
 import React, { useMemo, useState } from "react";
-import { ToolbarButtons } from "@design-system/widgets";
+import { ToolbarButtons } from "@appsmith/wds";
 import type {
   ToolbarButtonsComponentProps,
   ToolbarButtonsItemComponentProps,
@@ -39,6 +39,7 @@ export const ToolbarButtonsComponent = (
         return button.isDisabled;
       })
       .map((button) => button.id);
+
     return { sortedButtons, disabledKeys };
   }, [buttonsList]);
 

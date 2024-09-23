@@ -101,7 +101,6 @@ import { ImageCell } from "../component/cellComponents/ImageCell";
 import { VideoCell } from "../component/cellComponents/VideoCell";
 import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
 import { EditActionCell } from "../component/cellComponents/EditActionsCell";
-import { klona as clone } from "klona";
 import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
 import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
@@ -140,6 +139,7 @@ import {
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -160,6 +160,7 @@ const getMemoisedAddNewRow = (): addNewRowToTable =>
     if (isAddRowInProgress) {
       return [newRowContent, ...tableData];
     }
+
     return tableData;
   });
 
@@ -588,6 +589,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const widgetLocalStorageState = getColumnOrderByWidgetIdFromLS(widgetId);
     const memoisdGetColumnsWithLocalStorage =
       this.memoiseGetColumnsWithLocalStorage(widgetLocalStorageState);
+
     return memoisdGetColumnsWithLocalStorage(
       this.renderCell,
       columnWidthMap,
@@ -743,6 +745,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         ) {
           // Maintain original columnOrder and keep new columns at the end
           let newColumnOrder = _.intersection(columnOrder, newColumnIds);
+
           newColumnOrder = _.union(newColumnOrder, newColumnIds);
 
           const compareColumns = (a: string, b: string) => {
@@ -780,6 +783,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             const rightOrder = newColumnOrder.filter(
               (col: string) => tableColumns[col].sticky === StickyType.RIGHT,
             );
+
             this.persistColumnOrder(newColumnOrder, leftOrder, rightOrder);
           }
         }
@@ -882,6 +886,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         const propertiesToUpdate = {
           modify: propertiesToAdd,
         };
+
         super.batchUpdateWidgetProperty(propertiesToUpdate);
       }
     } else {
@@ -953,6 +958,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const isTableDataModified = this.props.tableData !== prevProps.tableData;
 
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
     // If the user has changed the tableData OR
     // The binding has returned a new value
     if (isTableDataModified) {
@@ -1129,6 +1135,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         selectedRowIndices,
         primaryColumnId,
       );
+
       pushBatchMetaUpdates("selectedRowIndices", indices);
     } else {
       const index = getSelectRowIndex(
@@ -1138,6 +1145,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         selectedRowIndex,
         primaryColumnId,
       );
+
       pushBatchMetaUpdates("selectedRowIndex", index);
     }
   };
@@ -1189,6 +1197,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       pushBatchMetaUpdates("pageNo", 1);
       this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
     }
+
     commitBatchMetaUpdates();
   };
 
@@ -1199,8 +1208,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   getPaddingAdjustedDimensions = () => {
     // eslint-disable-next-line prefer-const
     let { componentHeight, componentWidth } = this.props;
+
     // (2 * WIDGET_PADDING) gives the total horizontal padding (i.e. paddingLeft + paddingRight)
     componentWidth = componentWidth - 2 * WIDGET_PADDING;
+
     return { componentHeight, componentWidth };
   };
 
@@ -1373,8 +1384,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           rightOrder,
         },
       };
+
       newTableColumnOrder = tableWidgetColumnOrder;
     }
+
     localStorage.setItem(
       TABLE_COLUMN_ORDER_KEY,
       JSON.stringify(newTableColumnOrder),
@@ -1387,6 +1400,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       const localTableColumnOrder = getColumnOrderByWidgetIdFromLS(
         this.props.widgetId,
       );
+
       if (this.props.renderMode === RenderModes.CANVAS) {
         newColumnOrder = generateNewColumnOrderFromStickyValue(
           this.props.primaryColumns,
@@ -1410,6 +1424,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.renderMode === RenderModes.PAGE
       ) {
         const { leftOrder, rightOrder } = localTableColumnOrder;
+
         newColumnOrder = generateLocalNewColumnOrderFromStickyValue(
           localTableColumnOrder.columnOrder,
           columnName,
@@ -1423,6 +1438,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           rightOrder,
           sticky,
         );
+
         this.persistColumnOrder(
           newColumnOrder,
           updatedOrders.leftOrder,
@@ -1452,8 +1468,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       const localTableColumnOrder = getColumnOrderByWidgetIdFromLS(
         this.props.widgetId,
       );
+
       if (localTableColumnOrder) {
         const { leftOrder, rightOrder } = localTableColumnOrder;
+
         this.persistColumnOrder(columnOrder, leftOrder, rightOrder);
       } else {
         this.persistColumnOrder(columnOrder, [], []);
@@ -1551,6 +1569,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     const { filteredTableData = [], pushBatchMetaUpdates } = this.props;
 
     const currentRow = row || filteredTableData[rowIndex];
+
     pushBatchMetaUpdates(
       "triggeredRowIndex",
       currentRow?.[ORIGINAL_INDEX_KEY],
@@ -1609,6 +1628,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       const selectedRowIndices = pageData.map(
         (row: Record<string, unknown>) => row.index,
       );
+
       //single action no need to batch
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
@@ -1681,6 +1701,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       event == EventType.ON_NEXT_PAGE
         ? PaginationDirection.NEXT_PAGE
         : PaginationDirection.PREVIOUS_PAGE;
+
     this.updatePaginationDirectionFlags(paginationDirection);
 
     if (event) {
@@ -1698,6 +1719,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (this.props.onPageChange) {
       this.pushResetSelectedRowIndexUpdates();
     }
+
     commitBatchMetaUpdates();
   };
 
@@ -1746,6 +1768,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (this.props.onPageChange) {
       this.pushResetSelectedRowIndexUpdates();
     }
+
     commitBatchMetaUpdates();
   };
 
@@ -1793,6 +1816,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         this.pushResetSelectedRowIndexUpdates();
       }
     }
+
     commitBatchMetaUpdates();
   };
 
@@ -1834,7 +1858,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   removeRowFromTransientTableData = (index: number) => {
-    const newTransientTableData = clone(this.props.transientTableData);
+    const newTransientTableData = klonaRegularWithTelemetry(
+      this.props.transientTableData,
+      "TableWidgetV2.removeRowFromTransientTableData",
+    );
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     if (newTransientTableData) {
@@ -1842,6 +1869,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
       pushBatchMetaUpdates("transientTableData", newTransientTableData);
     }
+
     pushBatchMetaUpdates("updatedRowIndex", -1);
     commitBatchMetaUpdates();
   };
@@ -2562,6 +2590,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           [this.props.editableCell?.column]: value,
         });
       }
+
       commitBatchMetaUpdates();
     }
   };
@@ -2582,6 +2611,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       if (this.inlineEditTimer) {
         clearTimeout(this.inlineEditTimer);
       }
+
       const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
       pushBatchMetaUpdates("editableCell", {
@@ -2591,6 +2621,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         // To revert back to previous on discard
         initialValue: value,
         inputValue: value,
+        __originalIndex__: this.getRowOriginalIndex(rowIndex),
       });
       pushBatchMetaUpdates("columnEditableCellValue", {
         ...this.props.columnEditableCellValue,
@@ -2609,6 +2640,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           pushBatchMetaUpdates("selectedRowIndex", -1);
         }
       }
+
       commitBatchMetaUpdates();
     } else {
       if (
@@ -2636,6 +2668,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             },
           });
         }
+
         commitBatchMetaUpdates();
 
         this.clearEditableCell();
@@ -2654,31 +2687,29 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     value: string,
     onSubmit?: string,
   ) => {
-    if (this.isColumnCellValid(alias)) {
-      const { commitBatchMetaUpdates } = this.props;
+    const { commitBatchMetaUpdates } = this.props;
 
-      this.pushTransientTableDataActionsUpdates({
-        [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
-        [alias]: value,
+    this.pushTransientTableDataActionsUpdates({
+      [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
+      [alias]: value,
+    });
+
+    if (onSubmit && this.props.editableCell?.column) {
+      //since onSubmit is truthy this makes action truthy as well, so we can push this event
+      this.pushOnColumnEvent({
+        rowIndex: rowIndex,
+        action: onSubmit,
+        triggerPropertyName: "onSubmit",
+        eventType: EventType.ON_SUBMIT,
+        row: {
+          ...this.props.filteredTableData[rowIndex],
+          [this.props.editableCell.column]: value,
+        },
       });
-
-      if (onSubmit && this.props.editableCell?.column) {
-        //since onSubmit is truthy this makes action truthy as well, so we can push this event
-        this.pushOnColumnEvent({
-          rowIndex: rowIndex,
-          action: onSubmit,
-          triggerPropertyName: "onSubmit",
-          eventType: EventType.ON_SUBMIT,
-          row: {
-            ...this.props.filteredTableData[rowIndex],
-            [this.props.editableCell.column]: value,
-          },
-        });
-      }
-
-      commitBatchMetaUpdates();
-      this.clearEditableCell();
     }
+
+    commitBatchMetaUpdates();
+    this.clearEditableCell();
   };
   pushClearEditableCellsUpdates = () => {
     const { pushBatchMetaUpdates } = this.props;
@@ -2743,6 +2774,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           },
         });
       }
+
       commitBatchMetaUpdates();
     }
   };
@@ -2776,6 +2808,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         },
       });
     }
+
     commitBatchMetaUpdates();
   };
 

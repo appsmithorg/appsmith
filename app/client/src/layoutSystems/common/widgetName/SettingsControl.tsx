@@ -4,7 +4,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
-import { Icon, Text, Tooltip } from "design-system";
+import { Icon, Text, Tooltip } from "@appsmith/ads";
 
 // I honestly can't think of a better name for this enum
 export enum Activities {

@@ -32,13 +32,16 @@ export function handleTab(event: KeyboardEvent) {
       const tabbable = getTabbableDescendants(currentNode, shiftKey);
 
       let isNextWidgetElementFocusable = false;
+
       do {
         nextTabbableDescendant = getNextTabbableDescendant(tabbable, shiftKey);
+
         if (nextTabbableDescendant) {
           isNextWidgetElementFocusable = !!getFocussableElementOfWidget(
             nextTabbableDescendant,
           );
         }
+
         tabbable.shift();
       } while (!isNextWidgetElementFocusable && tabbable.length > 0);
   }

@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { Callout, Text } from "design-system";
+import { Callout, Text } from "@appsmith/ads";
 import type {
   ProductAlertConfig,
   ProductAlertState,
 } from "reducers/uiReducers/usersReducer";
 import { setMessageConfig } from "ee/sagas/userSagas";
-import type { CalloutLinkProps } from "design-system";
+import type { CalloutLinkProps } from "@appsmith/ads";
 import moment from "moment/moment";
 import { createMessage, I_UNDERSTAND, LEARN_MORE } from "ee/constants/messages";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
@@ -67,22 +67,27 @@ const ProductAlertBanner = () => {
     const timer = setTimeout(() => {
       setIsShown(true);
     }, 2000);
+
     return () => clearTimeout(timer);
   }, []);
 
   if (!isShown) return null;
 
   if (!userIsLoggedIn) return null;
+
   if (isSignpostingOverlayOpen) return null;
 
   if (!message) return null;
+
   // If dismissed, it will not be shown
   if (config && config.dismissed) return null;
+
   if (dismissed) return null;
 
   // If still snoozed, it will not be shown
   if (config && config.snoozeTill) {
     const stillSnoozed = moment().isBefore(moment(config.snoozeTill));
+
     if (stillSnoozed) {
       return null;
     }
@@ -132,6 +137,7 @@ const ProductAlertBanner = () => {
                 snoozeTill: new Date(),
               });
             }
+
             setDismissed(true);
           }}
         >

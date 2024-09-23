@@ -19,7 +19,7 @@ import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import type { JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { Flex, Text } from "design-system";
+import { Flex, Text } from "@appsmith/ads";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -119,6 +119,7 @@ function JSResponseView(props: Props) {
   // error found while trying to parse JS Object
   const hasJSObjectParseError = errors.length > 0;
   const isSaving = useSelector(getIsSavingEntity);
+
   useEffect(() => {
     setResponseStatus(
       getJSResponseViewState(
@@ -148,8 +149,10 @@ function JSResponseView(props: Props) {
     name: "",
     id: "",
   };
+
   try {
     let errorObject: Log | undefined;
+
     //get JS execution error from redux store.
     if (
       jsCollectionData &&
@@ -166,17 +169,21 @@ function JSResponseView(props: Props) {
           )
         ) {
           errorObject = error;
+
           return false;
         }
+
         return true;
       });
     }
+
     // update error message.
     if (errorObject) {
       if (errorObject.source) {
         // update action source.
         actionSource = errorObject.source;
       }
+
       if (errorObject.messages) {
         // update error message.
         errorMessage =
@@ -329,6 +336,7 @@ function JSResponseView(props: Props) {
 
 const mapStateToProps = (state: AppState) => {
   const errorCount = state.ui.debugger.context.errorCount;
+
   return {
     errorCount,
   };

@@ -1,8 +1,5 @@
-import type {
-  SwitcherProps,
-  TreeDropdownOption,
-  IconName,
-} from "design-system-old";
+import type { SwitcherProps, TreeDropdownOption } from "@appsmith/ads-old";
+import type { IconNames } from "@appsmith/ads";
 import type { EntityTypeValue, MetaArgs } from "ee/entities/DataTree/types";
 import type React from "react";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
@@ -177,7 +174,7 @@ export interface FieldGroupValueType {
   defaultParams: string;
   value?: string;
   children?: TreeDropdownOption[];
-  icon?: IconName;
+  icon?: IconNames;
 }
 
 export interface FieldGroupConfig {

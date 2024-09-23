@@ -72,7 +72,9 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
         );
       });
     }
+
     let datasourceOptions: DropdownOptionType[] = [];
+
     if (filteredDatasources.length) {
       datasourceOptions = datasourceOptions.concat(
         filteredDatasources.map((datasource) => ({
@@ -115,6 +117,7 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
                   valueOption?.data.connectionMode ||
                   DatasourceConnectionMode.READ_ONLY,
               });
+
               if (valueOption?.id) {
                 switch (pluginsPackageNamesMap[pluginId]) {
                   case PluginPackageName.GOOGLE_SHEETS:

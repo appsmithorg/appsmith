@@ -19,14 +19,14 @@ import type { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
-import { Classes as CsClasses } from "design-system-old";
+import { Classes as CsClasses } from "@appsmith/ads-old";
 import {
   Button,
   Menu,
   MenuContent,
   MenuTrigger,
   MenuItem,
-} from "design-system";
+} from "@appsmith/ads";
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
@@ -76,7 +76,7 @@ function ThemeEditor() {
 
       dispatch(updateSelectedAppThemeAction({ applicationId, theme }));
     },
-    [updateSelectedAppThemeAction],
+    [applicationId, dispatch],
   );
 
   /**
@@ -91,7 +91,7 @@ function ThemeEditor() {
         AppThemingMode.APP_THEME_SELECTION,
       ]),
     );
-  }, [setAppThemingModeStackAction]);
+  }, [dispatch, themingStack]);
 
   /**
    * resets theme

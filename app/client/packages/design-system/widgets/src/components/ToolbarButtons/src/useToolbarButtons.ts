@@ -70,6 +70,7 @@ export function useToolbarButtons<T>(
 
         if (isShowingMenu) {
           const menuItem = listItems.pop();
+
           if (menuItem) {
             calculatedSize += menuItem.getBoundingClientRect().width + gap;
           }
@@ -77,6 +78,7 @@ export function useToolbarButtons<T>(
 
         for (const [i, item] of listItems.entries()) {
           const itemWidth = item.getBoundingClientRect().width;
+
           calculatedSize += itemWidth;
 
           if (i !== 0) {
@@ -95,6 +97,7 @@ export function useToolbarButtons<T>(
             ) {
               newVisibleItems++;
             }
+
             break;
           }
         }
@@ -158,5 +161,6 @@ export function useToolbarButtons<T>(
 
 function toNumber(value: string) {
   const parsed = parseInt(value, 10);
+
   return isNaN(parsed) ? 0 : parsed;
 }

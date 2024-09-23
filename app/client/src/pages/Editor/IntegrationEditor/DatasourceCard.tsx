@@ -13,7 +13,7 @@ import type { AppState } from "ee/reducers";
 import history from "utils/history";
 import RenderDatasourceInformation from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { getQueryParams } from "utils/URLUtils";
-import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
+import { Button, MenuContent, MenuItem, MenuTrigger } from "@appsmith/ads";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -225,6 +225,7 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const editDatasource = useCallback(() => {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_EDIT_ACTION");
+
     if (plugin && plugin.type === PluginType.SAAS) {
       history.push(
         saasEditorDatasourceIdURL({
@@ -250,6 +251,7 @@ function DatasourceCard(props: DatasourceCardProps) {
         }),
       );
     }
+
     AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
       datasourceId: datasource?.id,
       pluginName: plugin?.name,
@@ -262,6 +264,7 @@ function DatasourceCard(props: DatasourceCardProps) {
       // disable button when it doesn't support page generation
       return;
     }
+
     AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
     history.push(
       generateTemplateFormURL({
@@ -276,7 +279,9 @@ function DatasourceCard(props: DatasourceCardProps) {
 
   const deleteAction = (e: Event) => {
     e.stopPropagation();
+
     if (isDeletingDatasource) return;
+
     AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
     dispatch(deleteDatasource({ id: datasource.id }));
   };
@@ -402,6 +407,7 @@ function DatasourceCard(props: DatasourceCardProps) {
                         onSelect={(e: Event) => {
                           e.preventDefault();
                           e.stopPropagation();
+
                           if (!isDeletingDatasource) {
                             confirmDelete
                               ? deleteAction(e)

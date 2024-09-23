@@ -69,7 +69,8 @@ function AddNewRowBannerComponent(props: AddNewRowBannerType) {
           className="t--save-new-row"
           disabled={props.disabledAddNewRowSave || isDiscardLoading}
           loading={isSaveLoading}
-          onClick={() => {
+          onClick={(event) => {
+            event.stopPropagation();
             setIsSaveLoading(true);
             props.onAddNewRowAction(AddNewRowActions.SAVE, () =>
               setIsSaveLoading(false),
@@ -81,4 +82,5 @@ function AddNewRowBannerComponent(props: AddNewRowBannerType) {
     </Container>
   );
 }
+
 export const AddNewRowBanner = React.memo(AddNewRowBannerComponent);

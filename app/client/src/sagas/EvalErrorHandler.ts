@@ -27,7 +27,7 @@ import {
 } from "ee/constants/messages";
 import log from "loglevel";
 import type { AppState } from "ee/reducers";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { isDynamicEntity } from "ee/entities/DataTree/isDynamicEntity";
 import { getEntityPayloadInfo } from "ee/utils/getEntityPayloadInfo";
 
@@ -51,11 +51,15 @@ function logLatestEvalPropertyErrors(
       getEntityNameAndPropertyPath(evaluatedPath);
     const entity = dataTree[entityName];
     const entityConfig = configTree[entityName];
+
     if (!entity || !entityConfig || !isDynamicEntity(entity)) continue;
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const logBlackList = (entityConfig as any)?.logBlackList;
+
     if (logBlackList && propertyPath in logBlackList) continue;
+
     const allEvalErrors: EvaluationError[] = get(
       entity,
       getEvalErrorPath(evaluatedPath, {
@@ -71,6 +75,7 @@ function logLatestEvalPropertyErrors(
       if (err.severity === Severity.WARNING) {
         evalWarnings.push(err);
       }
+
       if (err.severity === Severity.ERROR) {
         evalErrors.push(err);
       }
@@ -134,6 +139,7 @@ function logLatestEvalPropertyErrors(
         const logPropertyPath = !isJSAction(entity)
           ? propertyPath
           : entityNameToDisplay;
+
         // Add or update
         if (
           !isJSAction(entity) ||
@@ -179,6 +185,7 @@ function logLatestEvalPropertyErrors(
     for (const removedPath of removedPaths) {
       const { entityId, fullpath } = removedPath;
       const { propertyPath } = getEntityNameAndPropertyPath(fullpath);
+
       errorsToDelete.push({ id: `${entityId}-${propertyPath}` });
     }
   }
@@ -215,12 +222,14 @@ export function* evalErrorHandler(
         if (error.context) {
           // Add more info about node for the toast
           const { dependencyMap, diffs, entityType, node } = error.context;
+
           toast.show(`${error.message} Node was: ${node}`, {
             kind: "error",
           });
           AppsmithConsole.error({
             text: `${error.message} Node was: ${node}`,
           });
+
           if (error.context.logToSentry) {
             // Send the generic error message to sentry for better grouping
             Sentry.captureException(new Error(error.message), {

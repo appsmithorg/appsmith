@@ -20,7 +20,7 @@ import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import type { ThemeProp } from "WidgetProvider/constants";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "ee/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -67,17 +67,21 @@ export const useNavigationMenuData = ({
   const exportAppAsJSON = useCallback(() => {
     const id = `t--export-app-link`;
     const existingLink = document.getElementById(id);
+
     existingLink && existingLink.remove();
     const link = document.createElement("a");
 
     const branchName = currentApplication?.gitApplicationMetadata?.branchName;
+
     link.href = getExportAppAPIRoute(applicationId, branchName);
     link.id = id;
     document.body.appendChild(link);
+
     // @ts-expect-error: Types are not available
     if (!window.Cypress) {
       link.click();
     }
+
     toast.show(`Successfully exported ${currentApplication?.name}`, {
       kind: "success",
     });

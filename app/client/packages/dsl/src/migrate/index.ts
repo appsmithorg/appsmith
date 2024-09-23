@@ -90,9 +90,10 @@ import { migrateDefaultValuesForCustomEChart } from "./migrations/085-migrate-de
 import { migrateTableServerSideFiltering } from "./migrations/086-migrate-table-server-side-filtering";
 import { migrateChartwidgetCustomEchartConfig } from "./migrations/087-migrate-chart-widget-customechartdata";
 import { migrateCustomWidgetDynamicHeight } from "./migrations/088-migrate-custom-widget-dynamic-height";
+import { migrateTableWidgetV2CurrentRowInValidationsBinding } from "./migrations/089-migrage-table-widget-v2-currentRow-binding";
 import type { DSLWidget } from "./types";
 
-export const LATEST_DSL_VERSION = 89;
+export const LATEST_DSL_VERSION = 90;
 
 export const calculateDynamicHeight = () => {
   const DEFAULT_GRID_ROW_HEIGHT = 10;
@@ -108,11 +109,13 @@ export const calculateDynamicHeight = () => {
     37; /*pixelToNumber(theme.bottomBarHeight);*/
   const calculatedMinHeight =
     Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
+
   return calculatedMinHeight;
 };
 
 const migrateUnversionedDSL = (currentDSL: DSLWidget) => {
   const DEFAULT_GRID_ROW_HEIGHT = 10;
+
   if (currentDSL.version === undefined) {
     // Since this top level widget is a CANVAS_WIDGET,
     // DropTargetComponent needs to know the minimum height the canvas can take
@@ -136,6 +139,7 @@ const migrateUnversionedDSL = (currentDSL: DSLWidget) => {
     // Update version to make sure this doesn't run every time.
     currentDSL.version = 1;
   }
+
   return currentDSL;
 };
 
@@ -146,24 +150,30 @@ const migrateVersionedDSL = (currentDSL: DSLWidget, newPage = false) => {
   if (currentDSL.version === 1) {
     if (currentDSL.children && currentDSL.children.length > 0)
       currentDSL.children = currentDSL.children.map(updateContainers);
+
     currentDSL.version = 2;
   }
+
   if (currentDSL.version === 2) {
     currentDSL = chartDataMigration(currentDSL);
     currentDSL.version = 3;
   }
+
   if (currentDSL.version === 3) {
     currentDSL = mapDataMigration(currentDSL);
     currentDSL.version = 4;
   }
+
   if (currentDSL.version === 4) {
     currentDSL = singleChartDataMigration(currentDSL);
     currentDSL.version = 5;
   }
+
   if (currentDSL.version === 5) {
     currentDSL = tabsWidgetTabsPropertyMigration(currentDSL);
     currentDSL.version = 6;
   }
+
   if (currentDSL.version === 6) {
     currentDSL = dynamicPathListMigration(currentDSL);
     currentDSL.version = 7;
@@ -232,9 +242,11 @@ const migrateVersionedDSL = (currentDSL: DSLWidget, newPage = false) => {
   if (currentDSL.version === 19) {
     currentDSL.snapColumns = 64; // GridDefaults.DEFAULT_GRID_COLUMNS;
     currentDSL.snapRows = getCanvasSnapRows(currentDSL.bottomRow);
+
     if (!newPage) {
       currentDSL = migrateToNewLayout(currentDSL);
     }
+
     currentDSL.version = 20;
   }
 
@@ -245,6 +257,7 @@ const migrateVersionedDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 21) {
     const canvasWidgets = flattenDSL(currentDSL);
+
     currentDSL = migrateWidgetsWithoutLeftRightColumns(
       currentDSL,
       canvasWidgets,
@@ -277,6 +290,7 @@ const migrateVersionedDSL = (currentDSL: DSLWidget, newPage = false) => {
     currentDSL = migrateDatePickerMinMaxDate(currentDSL);
     currentDSL.version = 27;
   }
+
   if (currentDSL.version === 27) {
     currentDSL = migrateFilterValueForDropDownWidget(currentDSL);
     currentDSL.version = 28;
@@ -291,6 +305,7 @@ const migrateVersionedDSL = (currentDSL: DSLWidget, newPage = false) => {
     currentDSL = migrateToNewMultiSelect(currentDSL);
     currentDSL.version = 30;
   }
+
   if (currentDSL.version === 30) {
     currentDSL = migrateTableWidgetDelimiterProperties(currentDSL);
     currentDSL.version = 31;
@@ -360,6 +375,7 @@ const migrateVersionedDSL = (currentDSL: DSLWidget, newPage = false) => {
     currentDSL = mapAllowHorizontalScrollMigration(currentDSL);
     currentDSL.version = 44;
   }
+
   if (currentDSL.version === 44) {
     currentDSL = isSortableMigration(currentDSL);
     currentDSL.version = 45;
@@ -592,6 +608,11 @@ const migrateVersionedDSL = (currentDSL: DSLWidget, newPage = false) => {
 
   if (currentDSL.version === 88) {
     currentDSL = migrateCustomWidgetDynamicHeight(currentDSL);
+    currentDSL.version = 89;
+  }
+
+  if (currentDSL.version === 89) {
+    currentDSL = migrateTableWidgetV2CurrentRowInValidationsBinding(currentDSL);
     currentDSL.version = LATEST_DSL_VERSION;
   }
 
@@ -604,6 +625,7 @@ export const migrateDSL = (
 ): DSLWidget => {
   if (currentDSL.version === undefined) {
     const initialDSL = migrateUnversionedDSL(currentDSL);
+
     return migrateVersionedDSL(initialDSL, newPage) as DSLWidget;
   } else {
     return migrateVersionedDSL(currentDSL, newPage) as DSLWidget;

@@ -33,9 +33,12 @@ export function* batchCallsToUpdateWidgetAutoHeightSaga(
 ) {
   const isLayoutUpdating: boolean = yield select(getIsDraggingOrResizing);
   const { height, widgetId } = action.payload;
+
   log.debug("Dynamic height: batching update:", { widgetId, height });
   addWidgetToAutoHeightUpdateQueue(widgetId, height);
+
   if (isLayoutUpdating) return;
+
   yield put({
     type: ReduxActionTypes.PROCESS_AUTO_HEIGHT_UPDATES,
   });
@@ -50,6 +53,7 @@ export function* callEvalWithoutReplay(
 ) {
   if (action.payload.shouldEval) {
     const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
     yield put(
       updateAndSaveLayout(widgets, {
         shouldReplay: false,

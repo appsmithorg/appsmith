@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
 import { FloatingPortal } from "@floating-ui/react";
@@ -55,14 +55,22 @@ export function AnvilWidgetName(props: {
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       e.stopPropagation();
+
       // If we're dragging a focused widget, we need to select it before dragging
       // Otherwise, the currently selected widget(s) will instead be dragged.
       if (nameComponentState === "focus") {
         selectWidget(SelectionRequestType.One, [widgetId]);
       }
+
       setDraggingState(generateDragState());
     },
-    [nameComponentState, setDraggingState, selectWidget, generateDragState],
+    [
+      widgetId,
+      nameComponentState,
+      setDraggingState,
+      selectWidget,
+      generateDragState,
+    ],
   );
 
   /** Setup Floating UI logic */
@@ -81,7 +89,8 @@ export function AnvilWidgetName(props: {
     "widgets-editor",
   ) as HTMLDivElement | null;
 
-  let cleanup = () => {};
+  const cleanup = useRef(() => {});
+
   useEffect(() => {
     if (
       widgetElement &&
@@ -90,17 +99,23 @@ export function AnvilWidgetName(props: {
       // Makes sure we add listeners only if the widget is selected or focused
       nameComponentState !== "none"
     ) {
-      cleanup = handleWidgetUpdate(
+      cleanup.current = handleWidgetUpdate(
         widgetElement,
         widgetNameComponent,
         widgetsEditorElement,
         nameComponentState,
       );
     }
+
     return () => {
-      cleanup();
+      cleanup.current();
     };
-  }, [nameComponentState, widgetElement, widgetNameComponent]);
+  }, [
+    nameComponentState,
+    widgetElement,
+    widgetNameComponent,
+    widgetsEditorElement,
+  ]);
 
   /** EO Floating UI Logic */
 
@@ -110,8 +125,10 @@ export function AnvilWidgetName(props: {
     widgetType === SKELETON_WIDGET_TYPE
   )
     return null;
+
   // Don't show widget name component if the widget DOM element isn't found
   if (!widgetElement) return null;
+
   // Don't render any DOM nodes if the widget is not selected or focused
   if (nameComponentState === "none") return null;
 

@@ -107,7 +107,8 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
 
     protected Mono<String> getBranchedContextId(CreatorContextType contextType, String contextId, String branchName) {
         return newPageService
-                .findByBranchNameAndBasePageId(branchName, contextId, pagePermission.getActionCreatePermission())
+                .findByBranchNameAndBasePageId(
+                        branchName, contextId, pagePermission.getActionCreatePermission(), List.of(NewPage.Fields.id))
                 .map(NewPage::getId);
     }
 

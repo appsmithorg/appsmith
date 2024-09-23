@@ -1,6 +1,6 @@
 export * from "ce/sagas";
 import { sagas as CE_Sagas } from "ce/sagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { call, all, spawn, race, take } from "redux-saga/effects";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
@@ -30,5 +30,6 @@ export function* rootSaga(sagasToRun = sagasArr): any {
     ),
     crashed: take(ReduxActionTypes.SAFE_CRASH_APPSMITH),
   });
+
   if (result.crashed) yield call(rootSaga);
 }

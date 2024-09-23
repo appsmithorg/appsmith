@@ -287,7 +287,8 @@ export class ApiPage {
       | "Response"
       | "Errors"
       | "Logs"
-      | "Inspect entity",
+      | "Inspect entity"
+      | "Query",
   ) {
     this.agHelper.PressEscape();
     this.agHelper.GetNClick(this._visibleTextSpan(tabName), 0, true);
@@ -303,7 +304,7 @@ export class ApiPage {
       | "RAW",
   ) {
     this.agHelper.GetNClick(this._bodyTypeSelect);
-    cy.xpath(this._bodyTypeToSelect(subTabName)).should("be.visible").click();
+    this.agHelper.GetNClick(this._bodyTypeToSelect(subTabName));
   }
 
   AssertRightPaneSelectedTab(tabName: RightPaneTabs) {

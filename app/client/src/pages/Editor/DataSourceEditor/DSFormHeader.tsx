@@ -17,7 +17,7 @@ import { debounce } from "lodash";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import { MenuWrapper, StyledMenu } from "components/utils/formComponents";
 import styled from "styled-components";
-import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
+import { Button, MenuContent, MenuItem, MenuTrigger } from "@appsmith/ads";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 import {
   DB_NOT_SUPPORTED,
@@ -121,6 +121,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
 
   const deleteAction = () => {
     if (isDeleting) return;
+
     AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
     dispatch(deleteDatasource({ id: datasourceId }));
   };
@@ -138,6 +139,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
         onSelect={(e: Event) => {
           e.preventDefault();
           e.stopPropagation();
+
           if (!isDeleting) {
             confirmDelete ? deleteAction() : setConfirmDelete(true);
           }

@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import type {
-  ApplicationPayload,
-  Page,
-} from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
+import type { Page } from "entities/Page";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { useSelector } from "react-redux";
 import classNames from "classnames";
@@ -73,6 +71,7 @@ export function PageMenu(props: NavigationProps) {
 
   // Mark default page as first page
   const appPages = pages;
+
   if (appPages.length > 1) {
     appPages.forEach((item, i) => {
       if (item.isDefault) {

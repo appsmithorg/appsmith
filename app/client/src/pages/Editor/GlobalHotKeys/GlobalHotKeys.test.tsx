@@ -6,7 +6,7 @@ import {
 } from "ee/constants/messages";
 import { all } from "@redux-saga/core/effects";
 import { redoAction, undoAction } from "actions/pageActions";
-import { Toast } from "design-system";
+import { Toast } from "@appsmith/ads";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
@@ -45,6 +45,7 @@ jest.mock("constants/routes", () => {
 
 describe("Canvas Hot Keys", () => {
   const pageId = "0123456789abcdef00000000";
+
   beforeAll(() => {
     runSagaMiddleware();
   });
@@ -55,6 +56,7 @@ describe("Canvas Hot Keys", () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function UpdatedEditor({ dsl }: any) {
     useMockDsl(dsl);
+
     return <IDE />;
   }
 
@@ -112,6 +114,7 @@ describe("Canvas Hot Keys", () => {
       const dsl: any = widgetCanvasFactory.build({
         children,
       });
+
       mockGetIsFetchingPage.mockImplementation(() => false);
       const spyWidgetSelection = jest.spyOn(
         widgetSelectionsActions,
@@ -138,6 +141,7 @@ describe("Canvas Hot Keys", () => {
         { initialState: store.getState(), sagasToRun: sagasToRunForTests },
       );
       const canvasWidgets = component.queryAllByTestId("test-widget");
+
       expect(canvasWidgets.length).toBe(2);
       act(() => {
         if (canvasWidgets[0].firstChild) {
@@ -149,6 +153,7 @@ describe("Canvas Hot Keys", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tabsWidgetName: any =
         component.container.querySelector(`span.t--widget-name`);
+
       fireEvent.click(tabsWidgetName);
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.One,
@@ -161,6 +166,7 @@ describe("Canvas Hot Keys", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const artBoard: any = component.queryByTestId("t--canvas-artboard");
+
       // deselect all other widgets
       fireEvent.click(artBoard);
 
@@ -286,6 +292,7 @@ describe("Cut/Copy/Paste hotkey", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const artBoard: any = component.queryByTestId("t--canvas-artboard");
+
     // deselect all other widgets
     fireEvent.click(artBoard);
     act(() => {
@@ -383,6 +390,7 @@ describe("Cut/Copy/Paste hotkey", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const artBoard: any = component.queryByTestId("t--canvas-artboard");
+
     // deselect all other widgets
     fireEvent.click(artBoard);
     act(() => {

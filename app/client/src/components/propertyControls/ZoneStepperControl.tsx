@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { NumberInput } from "design-system";
+import { NumberInput } from "@appsmith/ads";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -34,11 +34,13 @@ const ZoneNumInput = React.forwardRef(
     const dispatch = useDispatch();
     const zoneCount = useSelector((state: AppState) => {
       const sectionWidget = state.entities.canvasWidgets[sectionWidgetId];
+
       return sectionWidget && sectionWidget.zoneCount;
     });
     // Handling onChange event for the NumberInput
     const handleInputChange = (value: string | undefined) => {
       const v = value ? parseFloat(value.replace(/[^0-9.-]+/g, "")) : 0;
+
       if (v === zoneCount) {
         return;
       }
@@ -103,6 +105,7 @@ class ZoneStepperControl extends BaseControl<ZoneStepperControlProps> {
 
   render() {
     const { max, min, steps } = this.getStepTypeControls();
+
     return (
       <ZoneNumInput
         max={max}
@@ -126,6 +129,7 @@ class ZoneStepperControl extends BaseControl<ZoneStepperControlProps> {
     value: any,
   ): boolean {
     const steps = 1;
+
     return (
       value >= MIN_ZONE_COUNT && value <= MAX_ZONE_COUNT && value % steps === 0
     );

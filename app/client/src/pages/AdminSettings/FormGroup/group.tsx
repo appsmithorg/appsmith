@@ -10,7 +10,7 @@ import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "ee/constants/forms";
 import { useDispatch, useSelector } from "react-redux";
 import { createMessage, LEARN_MORE } from "ee/constants/messages";
-import { Callout, Text } from "design-system";
+import { Callout, Text } from "@appsmith/ads";
 import CopyUrlForm from "./CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
@@ -125,6 +125,7 @@ export default function Group({
             ) {
               return null;
             }
+
             switch (setting.controlType) {
               case SettingTypes.RADIO:
                 return (

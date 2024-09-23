@@ -12,7 +12,7 @@ import { getTypographyByKey } from "../constants/typography";
 
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { ReactComponent as ProfileImagePlaceholder } from "../assets/icons/others/profile-placeholder.svg";
-import Icon, { IconSize } from "../Icon";
+import { Spinner } from "@appsmith/ads";
 
 interface Props {
   onChange: (file: File) => void;
@@ -178,6 +178,7 @@ const SpinnerContainer = styled.div`
 // Dashboard is code-split away to avoid bundling Uppy in the main bundle
 const DashboardLazy = React.lazy(async () => {
   await new Promise((resolve) => setTimeout(resolve, 10000));
+
   return import("./Dashboard");
 });
 
@@ -229,6 +230,7 @@ export default function DisplayImageUpload({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
+
                   if (onRemove) onRemove();
                 }}
               >
@@ -241,7 +243,7 @@ export default function DisplayImageUpload({
         <Suspense
           fallback={
             <SpinnerContainer>
-              <Icon name={"loader"} size={IconSize.XL} />
+              <Spinner size="lg" />
             </SpinnerContainer>
           }
         >

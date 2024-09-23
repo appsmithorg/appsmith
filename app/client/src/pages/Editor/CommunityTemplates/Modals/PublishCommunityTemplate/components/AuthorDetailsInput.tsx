@@ -3,8 +3,8 @@ import {
   FORM_VALIDATION_INVALID_EMAIL,
   createMessage,
 } from "ee/constants/messages";
-import { Input, Text } from "design-system";
-import { emailValidator } from "design-system-old";
+import { Input, Text } from "@appsmith/ads";
+import { emailValidator } from "@appsmith/ads-old";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
@@ -28,6 +28,7 @@ const AuthorDetailsInput = ({
     () => authorEmail && emailValidator(authorEmail).isValid,
     [authorEmail],
   );
+
   return (
     <Container>
       <Text kind="heading-s" renderAs="h2">

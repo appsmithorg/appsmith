@@ -5,7 +5,7 @@ import {
 } from "../Explorer/ExplorerIcons";
 import styled from "styled-components";
 import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
-import { Tooltip } from "design-system";
+import { Tooltip } from "@appsmith/ads";
 import { isEllipsisActive } from "utils/helpers";
 
 const Wrapper = styled.div<{ step: number }>`

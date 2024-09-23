@@ -7,7 +7,7 @@ import {
   BuildingBlockContent,
   BuildingBlockContentFooter,
 } from "./StyledComponents";
-import { Button, Text, Tooltip } from "design-system";
+import { Button, Text, Tooltip } from "@appsmith/ads";
 import history from "utils/history";
 import {
   FORK_THIS_TEMPLATE_BUILDING_BLOCK,

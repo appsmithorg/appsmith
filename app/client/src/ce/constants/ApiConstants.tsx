@@ -48,9 +48,11 @@ export const getExportAppAPIRoute = (
   branchName: string | null = null,
 ) => {
   let exportUrl = `/api/v1/applications/export/${applicationId}`;
+
   if (branchName) {
     exportUrl += `?branchName=${branchName}`;
   }
+
   return exportUrl;
 };
 

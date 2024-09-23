@@ -15,7 +15,7 @@ import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { updateRelationships } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { calculateDropTargetRows } from "layoutSystems/common/dropTarget/DropTargetUtils";
@@ -73,21 +73,25 @@ export function* getCanvasSizeAfterWidgetMove(
   //get mainCanvas's minHeight if the canvasWidget is mianCanvas
   let mainCanvasMinHeight;
   let canvasParentMinHeight = canvasWidget.minHeight;
+
   if (canvasWidgetId === MAIN_CONTAINER_WIDGET_ID) {
     const mainCanvasProps: MainCanvasReduxState =
       yield select(getMainCanvasProps);
+
     mainCanvasMinHeight = mainCanvasProps?.height;
   } else if (canvasWidget.parentId) {
     const parent: FlattenedWidgetProps = yield select(
       getWidget,
       canvasWidget.parentId,
     );
+
     if (!parent.detachFromLayout) {
       canvasParentMinHeight =
         (parent.bottomRow - parent.topRow) *
         GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     }
   }
+
   if (canvasWidget) {
     const occupiedSpacesByChildren: OccupiedSpace[] | undefined = yield select(
       getOccupiedSpacesSelectorForContainer(canvasWidgetId),
@@ -123,6 +127,7 @@ export function* getCanvasSizeAfterWidgetMove(
       // erstwhile: Math.round((rows * props.snapRowSpace) / props.parentRowSpace),
       return newBottomRow;
     }
+
     return canvasWidget.bottomRow;
   }
 }
@@ -138,6 +143,7 @@ const getBottomMostRowAfterMove = (
   const widgetBottomRow =
     updateWidgetParams.payload.topRow +
     (updateWidgetParams.payload.rows || widget.bottomRow - widget.topRow);
+
   return widgetBottomRow;
 };
 
@@ -166,6 +172,7 @@ export function* addWidgetAndMoveWidgetsSaga(
   const start = performance.now();
 
   const { canvasId, draggedBlocksToUpdate, newWidget } = actionPayload.payload;
+
   try {
     const updatedWidgetsOnAddAndMove: CanvasWidgetsReduxState = yield call(
       addWidgetAndMoveWidgets,
@@ -173,6 +180,7 @@ export function* addWidgetAndMoveWidgetsSaga(
       draggedBlocksToUpdate,
       canvasId,
     );
+
     if (
       !collisionCheckPostReflow(
         updatedWidgetsOnAddAndMove,
@@ -182,6 +190,7 @@ export function* addWidgetAndMoveWidgetsSaga(
     ) {
       throw Error;
     }
+
     yield put(
       updateAndSaveLayout(updatedWidgetsOnAddAndMove, {
         shouldReplay: actionPayload.payload.shouldReplay,
@@ -199,6 +208,7 @@ export function* addWidgetAndMoveWidgetsSaga(
       payload: {
         action: ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -238,7 +248,9 @@ function* addWidgetAndMoveWidgets(
   const updatedWidgets = {
     ...updatedWidgetsOnMove,
   };
+
   updatedWidgets[canvasId].bottomRow = bottomMostRow;
+
   return updatedWidgets;
 }
 
@@ -267,8 +279,10 @@ function* moveAndUpdateWidgets(
     movedWidgetIds,
     bottomMostRowAfterMove,
   );
+
   if (updatedCanvasBottomRow) {
     const canvasWidget = updatedWidgets[canvasId];
+
     updatedWidgets[canvasId] = {
       ...canvasWidget,
       bottomRow: updatedCanvasBottomRow,
@@ -276,6 +290,7 @@ function* moveAndUpdateWidgets(
   }
 
   const widgetPayload = draggedBlocksToUpdate?.[0]?.updateWidgetParams?.payload;
+
   //execute blueprint sagas when moving to a different canvas
   if (widgetPayload && widgetPayload.newParentId !== widgetPayload.parentId) {
     // some widgets need to update property of parent if the parent have CHILD_OPERATIONS
@@ -287,6 +302,7 @@ function* moveAndUpdateWidgets(
       movedWidgetIds,
       updatedWidgets,
     );
+
     return modifiedWidgets;
   }
 
@@ -321,6 +337,7 @@ function getParentWidgetType(
     // Now take the parent of canvas1 that is listWidget
     if (containerParent.parentId) {
       const mainParent = allWidgets[containerParent.parentId];
+
       return mainParent.type;
     }
   }
@@ -337,6 +354,7 @@ function* moveWidgetsSaga(
   const start = performance.now();
 
   const { canvasId, draggedBlocksToUpdate } = actionPayload.payload;
+
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
@@ -356,6 +374,7 @@ function* moveWidgetsSaga(
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
     let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+
     if (layoutSystemType === LayoutSystemTypes.AUTO) {
       /**
        * If previous parent is an auto-layout container,
@@ -366,6 +385,7 @@ function* moveWidgetsSaga(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+
       updatedWidgets = updateRelationships(
         draggedBlocksToUpdate.map((block) => block.widgetId),
         updatedWidgets,
@@ -376,6 +396,7 @@ function* moveWidgetsSaga(
         metaProps,
       );
     }
+
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
       moveAndUpdateWidgets,
       updatedWidgets,
@@ -407,6 +428,7 @@ function* moveWidgetsSaga(
     AnalyticsUtil.logEvent("WIDGET_DRAG", {
       widgets: draggedBlocksToUpdate.map((block) => {
         const widget = allWidgets[block.widgetId];
+
         return {
           widgetType: widget.type,
           widgetName: widget.widgetName,
@@ -424,6 +446,7 @@ function* moveWidgetsSaga(
       payload: {
         action: ReduxActionTypes.WIDGETS_MOVE,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -458,17 +481,21 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
     leftColumn,
     rightColumn,
   };
+
   widget = { ...widget, ...updatedPosition };
 
   // Replace widget with update widget props
   widgets[widgetId] = widget;
+
   // If the parent has changed i.e parentWidgetId is not parent.widgetId
   if (parent.widgetId !== newParentId && widgetId !== newParentId) {
     // Remove from the previous parent
 
     if (parent.children && Array.isArray(parent.children)) {
       const indexOfChild = parent.children.indexOf(widgetId);
+
       if (indexOfChild > -1) delete parent.children[indexOfChild];
+
       parent.children = parent.children.filter(Boolean);
     }
 
@@ -481,9 +508,11 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
         ? [...(widgets[newParentId].children || []), widgetId]
         : [widgetId],
     };
+
     widgets[widgetId].parentId = newParentId;
     widgets[newParentId] = newParent;
   }
+
   return widgets;
 }
 

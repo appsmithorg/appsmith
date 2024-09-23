@@ -20,6 +20,7 @@ export const getEntityPayloadInfo: Record<
 > = {
   [ENTITY_TYPE.WIDGET]: (entityConfig) => {
     const config = entityConfig as WidgetEntityConfig;
+
     return {
       iconId: config.widgetId,
       id: config.widgetId,
@@ -28,6 +29,7 @@ export const getEntityPayloadInfo: Record<
   },
   [ENTITY_TYPE.JSACTION]: (entityConfig) => {
     const config = entityConfig as JSActionEntityConfig;
+
     return {
       iconId: config.actionId,
       id: config.actionId,
@@ -36,6 +38,7 @@ export const getEntityPayloadInfo: Record<
   },
   [ENTITY_TYPE.ACTION]: (entityConfig) => {
     const config = entityConfig as ActionEntityConfig;
+
     return {
       iconId: config.pluginId,
       id: config.actionId,

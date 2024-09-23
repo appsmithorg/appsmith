@@ -14,7 +14,7 @@ import {
   ModalFooter,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 
 const BodyContainer = styled.div`
   display: flex;

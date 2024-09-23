@@ -1,9 +1,6 @@
 import React, { useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { NonIdealState, Classes } from "@blueprintjs/core";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Colors } from "constants/Colors";
@@ -23,7 +20,7 @@ import {
 } from "selectors/editorSelectors";
 import { fetchWorkspace } from "ee/actions/workspaceActions";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EntityExplorerWrapper } from "./Common/EntityExplorerWrapper";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -66,10 +63,6 @@ const NoResult = styled(NonIdealState)`
 
 function EntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
-  PerformanceTracker.startTracking(PerformanceTransactionName.ENTITY_EXPLORER);
-  useEffect(() => {
-    PerformanceTracker.stopTracking();
-  });
   const explorerRef = useRef<HTMLDivElement | null>(null);
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -81,6 +74,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     AnalyticsUtil.logEvent("EXPLORER_WIDGET_CLICK");
     history.push(builderURL({ basePageId }));
     dispatch(forceOpenWidgetPanel(true));
+
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }

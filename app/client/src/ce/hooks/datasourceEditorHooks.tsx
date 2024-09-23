@@ -12,7 +12,7 @@ import {
   getHasCreatePagePermission,
   hasCreateDSActionPermissionInApp,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
 import NewActionButton from "pages/Editor/DataSourceEditor/NewActionButton";
@@ -95,6 +95,7 @@ export const useHeaderActions = (
         // disable button when it doesn't support page generation
         return;
       }
+
       AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
       history.push(
         generateTemplateFormURL({

@@ -129,6 +129,7 @@ class WidgetFactory {
       isDeprecated: !!config.isDeprecated,
       replacement: config.replacement,
       displayName: config.name,
+      displayOrder: config.displayOrder,
       key: generateReactKey(),
       iconSVG: config.iconSVG,
       thumbnailSVG: config.thumbnailSVG,
@@ -204,7 +205,9 @@ class WidgetFactory {
         message:
           "Widget Builder not registered for widget type" + widgetData.type,
       };
+
       log.error(ex);
+
       return null;
     }
   }
@@ -250,6 +253,7 @@ class WidgetFactory {
       log.error(
         `Default properties are not defined for widget type: ${widgetType}`,
       );
+
       return {};
     }
   }
@@ -267,6 +271,7 @@ class WidgetFactory {
       return dependencyMap;
     } else {
       log.error(`Dependency map is defined for widget type: ${widgetType}`);
+
       return {};
     }
   }
@@ -286,6 +291,7 @@ class WidgetFactory {
       log.error(
         `Meta properties are not defined for widget type: ${widgetType}`,
       );
+
       return {};
     }
   }
@@ -301,6 +307,7 @@ class WidgetFactory {
       widgetProperties,
     );
     const styleConfig = WidgetFactory.getWidgetPropertyPaneStyleConfig(type);
+
     return [...contentConfig, ...styleConfig];
   }
 
@@ -343,6 +350,7 @@ class WidgetFactory {
 
       if (config === undefined) {
         log.error("Widget property pane config not defined", type);
+
         return [];
       } else {
         return config;
@@ -493,6 +501,7 @@ class WidgetFactory {
                   minHeight:
                     WidgetFactory.widgetConfigMap.get(type)?.minHeight || 80,
                 };
+
               return sizeConfig.configuration(props);
             },
           })) || [],
@@ -501,6 +510,7 @@ class WidgetFactory {
       };
     } else {
       log.error(`Auto layout config is not defined for widget type: ${type}`);
+
       return {
         autoDimension: {},
         widgetSize: [],
@@ -519,11 +529,13 @@ class WidgetFactory {
 
     if (!baseAnvilConfig) {
       log.error(`Anvil config is not defined for widget type: ${type}`);
+
       return {
         isLargeWidget: false,
         widgetSize: {},
       };
     }
+
     return baseAnvilConfig;
   }
 
@@ -531,6 +543,7 @@ class WidgetFactory {
   @freeze
   static getWidgetTypeConfigMap(): WidgetTypeConfigMap {
     const typeConfigMap: WidgetTypeConfigMap = {};
+
     WidgetFactory.getWidgetTypes().forEach((type) => {
       typeConfigMap[type] = {
         defaultProperties: WidgetFactory.getWidgetDefaultPropertiesMap(type),
@@ -538,6 +551,7 @@ class WidgetFactory {
         metaProperties: WidgetFactory.getWidgetMetaPropertiesMap(type),
       };
     });
+
     return typeConfigMap;
   }
 
@@ -554,6 +568,7 @@ class WidgetFactory {
       log.error(
         `Auto complete definitions are not defined for widget type: ${type}`,
       );
+
       return {};
     }
   }
@@ -589,6 +604,7 @@ class WidgetFactory {
       log.error(
         `stylesheet config is not defined for widget type: ${widgetType}`,
       );
+
       return undefined;
     }
   }
@@ -651,6 +667,7 @@ class WidgetFactory {
       widgetIdMap,
       reverseWidgetIdMap,
     );
+
     return res;
   }
 }

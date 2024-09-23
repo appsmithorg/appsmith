@@ -79,6 +79,7 @@ const componentDefaultValues = ({
     if (sourceDataPath && !skipDefaultValueProcessing) {
       const { prefixTemplate, suffixTemplate } = bindingTemplate;
       const defaultValueString = `moment(${sourceDataPath}, "${dateFormat}").format("${ISO_DATE_FORMAT}")`;
+
       defaultValue = `${prefixTemplate}${defaultValueString}${suffixTemplate}`;
     }
   }

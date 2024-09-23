@@ -6,6 +6,7 @@ export const migrateTextStyleFromTextWidget = (
   currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
     if (child.type === "TEXT_WIDGET") {
       const textStyle = child.textStyle;
+
       switch (textStyle) {
         case "HEADING":
           child.fontSize = "HEADING1";
@@ -27,7 +28,9 @@ export const migrateTextStyleFromTextWidget = (
     } else if (child.children && child.children.length > 0) {
       child = migrateTextStyleFromTextWidget(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

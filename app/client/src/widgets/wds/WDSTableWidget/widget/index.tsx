@@ -68,7 +68,6 @@ import {
   ButtonCell,
 } from "../component/cellComponents";
 
-import { klona as clone } from "klona";
 import localStorage from "utils/localStorage";
 import type { Stylesheet } from "entities/AppTheming";
 import type { getColumns } from "./reactTableUtils/getColumnsPureFn";
@@ -82,6 +81,7 @@ import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import * as config from "../config";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -102,6 +102,7 @@ const getMemoisedAddNewRow = (): addNewRowToTable =>
     if (isAddRowInProgress) {
       return [newRowContent, ...tableData];
     }
+
     return tableData;
   });
 
@@ -238,11 +239,15 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     widgetIdMap: Record<string, string>,
   ): FlattenedWidgetProps | null {
     if (!newWidget || !newWidget.primaryColumns) return null;
+
     // If the primaryColumns of the table exist
     const oldWidgetName: string = oldWidget.widgetName;
+
     if (!oldWidgetName) return null;
+
     // For each column
     const updatedPrimaryColumns = { ...newWidget.primaryColumns };
+
     for (const [columnId, column] of Object.entries(updatedPrimaryColumns)) {
       // For each property in the column
       for (const [key, value] of Object.entries(column as ColumnProperties)) {
@@ -256,6 +261,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           : value;
       }
     }
+
     return { ...newWidget, primaryColumns: updatedPrimaryColumns };
   }
 
@@ -270,6 +276,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const widgetLocalStorageState = getColumnOrderByWidgetIdFromLS(widgetId);
     const memoisdGetColumnsWithLocalStorage =
       this.memoiseGetColumnsWithLocalStorage(widgetLocalStorageState);
+
     return memoisdGetColumnsWithLocalStorage(
       this.renderCell,
       columnWidthMap,
@@ -425,6 +432,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         ) {
           // Maintain original columnOrder and keep new columns at the end
           let newColumnOrder = _.intersection(columnOrder, newColumnIds);
+
           newColumnOrder = _.union(newColumnOrder, newColumnIds);
 
           const compareColumns = (a: string, b: string) => {
@@ -462,6 +470,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             const rightOrder = newColumnOrder.filter(
               (col: string) => tableColumns[col].sticky === StickyType.RIGHT,
             );
+
             this.persistColumnOrder(newColumnOrder, leftOrder, rightOrder);
           }
         }
@@ -564,6 +573,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         const propertiesToUpdate = {
           modify: propertiesToAdd,
         };
+
         super.batchUpdateWidgetProperty(propertiesToUpdate);
       }
     } else {
@@ -633,6 +643,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     );
 
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
     // If the user has changed the tableData OR
     // The binding has returned a new value
     if (isTableDataModified) {
@@ -808,6 +819,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         selectedRowIndices,
         primaryColumnId,
       );
+
       pushBatchMetaUpdates("selectedRowIndices", indices);
     } else {
       const index = getSelectRowIndex(
@@ -817,6 +829,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         selectedRowIndex,
         primaryColumnId,
       );
+
       pushBatchMetaUpdates("selectedRowIndex", index);
     }
   };
@@ -868,6 +881,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       pushBatchMetaUpdates("pageNo", 1);
       this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
     }
+
     commitBatchMetaUpdates();
   };
 
@@ -881,7 +895,9 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       document
         .getElementById(getAnvilWidgetDOMId(this.props.widgetId))
         ?.getBoundingClientRect().width || this.props.componentWidth;
+
     componentWidth = componentWidth;
+
     return { componentHeight: 300, componentWidth };
   };
 
@@ -1050,8 +1066,10 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           rightOrder,
         },
       };
+
       newTableColumnOrder = tableWidgetColumnOrder;
     }
+
     localStorage.setItem(
       TABLE_COLUMN_ORDER_KEY,
       JSON.stringify(newTableColumnOrder),
@@ -1064,6 +1082,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const localTableColumnOrder = getColumnOrderByWidgetIdFromLS(
         this.props.widgetId,
       );
+
       if (this.props.renderMode === RenderModes.CANVAS) {
         newColumnOrder = generateNewColumnOrderFromStickyValue(
           this.props.primaryColumns,
@@ -1087,6 +1106,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.renderMode === RenderModes.PAGE
       ) {
         const { leftOrder, rightOrder } = localTableColumnOrder;
+
         newColumnOrder = generateLocalNewColumnOrderFromStickyValue(
           localTableColumnOrder.columnOrder,
           columnName,
@@ -1100,6 +1120,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           rightOrder,
           sticky,
         );
+
         this.persistColumnOrder(
           newColumnOrder,
           updatedOrders.leftOrder,
@@ -1129,8 +1150,10 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const localTableColumnOrder = getColumnOrderByWidgetIdFromLS(
         this.props.widgetId,
       );
+
       if (localTableColumnOrder) {
         const { leftOrder, rightOrder } = localTableColumnOrder;
+
         this.persistColumnOrder(columnOrder, leftOrder, rightOrder);
       } else {
         this.persistColumnOrder(columnOrder, [], []);
@@ -1228,6 +1251,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const { filteredTableData = [], pushBatchMetaUpdates } = this.props;
 
     const currentRow = row || filteredTableData[rowIndex];
+
     pushBatchMetaUpdates(
       "triggeredRowIndex",
       currentRow?.[ORIGINAL_INDEX_KEY],
@@ -1286,6 +1310,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const selectedRowIndices = pageData.map(
         (row: Record<string, unknown>) => row.index,
       );
+
       //single action no need to batch
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
@@ -1358,6 +1383,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       event == EventType.ON_NEXT_PAGE
         ? PaginationDirection.NEXT_PAGE
         : PaginationDirection.PREVIOUS_PAGE;
+
     this.updatePaginationDirectionFlags(paginationDirection);
 
     if (event) {
@@ -1375,6 +1401,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (this.props.onPageChange) {
       this.pushResetSelectedRowIndexUpdates();
     }
+
     commitBatchMetaUpdates();
   };
 
@@ -1423,6 +1450,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (this.props.onPageChange) {
       this.pushResetSelectedRowIndexUpdates();
     }
+
     commitBatchMetaUpdates();
   };
 
@@ -1470,6 +1498,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.pushResetSelectedRowIndexUpdates();
       }
     }
+
     commitBatchMetaUpdates();
   };
 
@@ -1511,7 +1540,11 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   };
 
   removeRowFromTransientTableData = (index: number) => {
-    const newTransientTableData = clone(this.props.transientTableData);
+    const newTransientTableData = klonaRegularWithTelemetry(
+      this.props.transientTableData,
+      "WDSTableWidget.removeRowFromTransientTableData",
+    );
+
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
     if (newTransientTableData) {
@@ -1519,6 +1552,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
       pushBatchMetaUpdates("transientTableData", newTransientTableData);
     }
+
     pushBatchMetaUpdates("updatedRowIndex", -1);
     commitBatchMetaUpdates();
   };

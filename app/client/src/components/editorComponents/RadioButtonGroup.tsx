@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
-import { Text, Button } from "design-system";
+import { Text, Button } from "@appsmith/ads";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 
 interface RadioButtonGroupProps {
@@ -122,6 +122,7 @@ const RadioButtonGroup = ({
 
       if (clickedButton) {
         const value = clickedButton.dataset.value || "";
+
         setValue(value);
 
         // if redux form field input exists, update state as well.

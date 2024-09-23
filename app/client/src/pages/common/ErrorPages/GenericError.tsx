@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 import Page from "./Page";
 import {
@@ -13,6 +13,7 @@ import { DISCORD_URL } from "constants/ThirdPartyConstants";
 
 function GenericError(props: { errorCode?: string }) {
   const dispatch = useDispatch();
+
   return (
     <Page
       cta={

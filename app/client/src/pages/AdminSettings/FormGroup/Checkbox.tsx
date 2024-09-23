@@ -4,7 +4,7 @@ import { Field, getFormValues } from "redux-form";
 import styled from "styled-components";
 import { FormGroup, type SettingComponentProps } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
-import { Checkbox } from "design-system";
+import { Checkbox } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "ee/constants/forms";
 import { isTenantConfig } from "ee/utils/adminSettingsHelpers";
@@ -39,10 +39,12 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
 
     function onCheckbox(value?: boolean) {
       const CheckboxValue = isPropertyDisabled ? !value : value;
+
       componentProps.input.onChange &&
         componentProps.input.onChange(CheckboxValue);
       componentProps.input.onBlur && componentProps.input.onBlur(CheckboxValue);
     }
+
     /* Value = !ENV_VARIABLE
     This has been done intentionally as naming convention used contains the word disabled but the UI should show the button enabled by default.
     */

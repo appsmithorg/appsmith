@@ -11,7 +11,11 @@ import {
   formatCurrencyNumber,
   limitDecimalValue,
 } from "../component/utilities";
-import { getLocale, mergeWidgetConfig } from "utils/helpers";
+import {
+  getLocale,
+  klonaRegularWithTelemetry,
+  mergeWidgetConfig,
+} from "utils/helpers";
 import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
@@ -26,7 +30,6 @@ import type { CurrencyInputWidgetProps } from "./types";
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
-import { klona as clone } from "klona";
 
 class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   CurrencyInputWidgetProps,
@@ -63,7 +66,10 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   }
 
   static getPropertyPaneContentConfig() {
-    const parentConfig = clone(super.getPropertyPaneContentConfig());
+    const parentConfig = klonaRegularWithTelemetry(
+      super.getPropertyPaneContentConfig(),
+      "WDSCurrencyInputWidget.getPropertyPaneContentConfig",
+    );
     const labelSectionIndex = parentConfig.findIndex(
       (section) => section.sectionName === "Label",
     );
@@ -153,6 +159,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     ) {
       this.formatText();
     }
+
     // If defaultText property has changed, reset isDirty to false
     if (
       this.props.defaultText !== prevProps.defaultText &&
@@ -212,6 +219,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
           new RegExp("\\" + getLocaleThousandSeparator(), "g"),
           "",
         );
+
         this.props.updateWidgetMetaProperty("parsedText", deFormattedValue);
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
           triggerPropertyName: "onFocus",
@@ -226,8 +234,10 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
             this.props.decimals,
             this.props.parsedText,
           );
+
           this.props.updateWidgetMetaProperty("parsedText", formattedValue);
         }
+
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
           triggerPropertyName: "onBlur",
           dynamicString: this.props.onBlur,

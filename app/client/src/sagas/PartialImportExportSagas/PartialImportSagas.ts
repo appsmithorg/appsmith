@@ -11,7 +11,7 @@ import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { pasteWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { call, fork, put, select } from "redux-saga/effects";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
@@ -25,9 +25,11 @@ import { postPageAdditionSaga } from "../TemplatesSagas";
 async function readJSONFile(file: File) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
+
     reader.onload = () => {
       try {
         const json = JSON.parse(reader.result as string);
+
         resolve(json);
       } catch (e) {
         reject(e);
@@ -41,6 +43,7 @@ function* partialImportWidgetsSaga(file: File) {
   const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
   // assume that action.payload.applicationFile is a JSON file. Parse it and extract widgets property
   const userUploadedJSON: { widgets: string } = yield call(readJSONFile, file);
+
   if ("widgets" in userUploadedJSON && userUploadedJSON.widgets.length > 0) {
     yield saveCopiedWidgets(userUploadedJSON.widgets);
     yield put(selectWidgetInitAction(SelectionRequestType.Empty));

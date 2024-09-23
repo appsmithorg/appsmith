@@ -22,7 +22,7 @@ import {
 import ManualUpgrades from "components/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 describe("URL slug names", () => {
   beforeEach(async () => {
@@ -34,6 +34,7 @@ describe("URL slug names", () => {
   it("verifies right slug names from slugs selector", () => {
     const state = store.getState();
     const { applicationSlug, pageSlug } = selectURLSlugs(state);
+
     expect(applicationSlug).toBe("my-application");
     expect(pageSlug).toBe("page-1");
   });
@@ -47,6 +48,7 @@ describe("URL slug names", () => {
       applicationSlug: newAppSlug,
       pageSlug: newPageSlug,
     });
+
     expect(url1).toBe(
       `/app/${newAppSlug}/${newPageSlug}-605c435a91dea93f0eaf91ba`,
     );
@@ -55,6 +57,7 @@ describe("URL slug names", () => {
       pageSlug: newPageSlug,
       customSlug,
     });
+
     expect(url2).toBe(`/app/${customSlug}-605c435a91dea93f0eaf91ba`);
   });
 
@@ -63,6 +66,7 @@ describe("URL slug names", () => {
       "/applications/605c435a91dea93f0eaf91ba/pages/605c435a91dea93f0eaf91ba/edit";
     const pathname2 =
       "/applications/605c435a91dea93f0eaf91ba/pages/605c435a91dea93f0eaf91ba";
+
     expect(isURLDeprecated(pathname1)).toBe(true);
     expect(isURLDeprecated(pathname2)).toBe(true);
 
@@ -71,6 +75,7 @@ describe("URL slug names", () => {
     expect(isURLDeprecated(pathname3)).toBe(false);
 
     const pathname4 = "/app/customSlug-605c435a91dea93f0eaf91ba";
+
     expect(isURLDeprecated(pathname4)).toBe(false);
   });
 
@@ -84,6 +89,7 @@ describe("URL slug names", () => {
       pageSlug: "pageSlug",
       customSlug: "customSlug",
     };
+
     urlBuilder.updateURLParams(
       {
         applicationVersion: ApplicationVersion.DEFAULT,
@@ -98,20 +104,24 @@ describe("URL slug names", () => {
       ],
     );
     const url1 = builderURL({ basePageId: params.basePageId });
+
     urlBuilder.updateURLParams({
       applicationVersion: ApplicationVersion.SLUG_URL,
     });
     const url2 = builderURL({ basePageId: params.basePageId });
+
     store.dispatch({
       type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
       payload: { applicationVersion: ApplicationVersion.DEFAULT },
     });
     const url3 = builderURL({ basePageId: params.basePageId });
+
     store.dispatch({
       type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
       payload: { applicationVersion: ApplicationVersion.SLUG_URL },
     });
     const url4 = builderURL({ basePageId: params.basePageId });
+
     expect(url1).toBe(
       `/applications/${baseApplicationId}/pages/${basePageId}/edit`,
     );
@@ -141,6 +151,7 @@ describe("URL slug names", () => {
         />
       </ManualUpgrades>,
     );
+
     expect(component.getByTestId("update-indicator")).toBeDefined();
   });
 
@@ -191,6 +202,7 @@ describe("URL slug names", () => {
     const matchBuilderCustomPath =
       matchPath_BuilderCustomSlug(customSlug_pathname);
     const matchViewerSlugPath = matchPath_ViewerCustomSlug(customSlug_pathname);
+
     expect(matchViewerSlugPath).not.toBeNull();
     expect(matchBuilderCustomPath).not.toBeNull();
 

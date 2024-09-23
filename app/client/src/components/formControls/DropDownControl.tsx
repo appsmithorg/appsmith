@@ -16,8 +16,8 @@ import {
   MATCH_ACTION_CONFIG_PROPERTY,
 } from "workers/Evaluation/formEval";
 import type { Action } from "entities/Action";
-import type { SelectOptionProps } from "design-system";
-import { Icon, Option, Select } from "design-system";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Icon, Option, Select } from "@appsmith/ads";
 
 const DropdownSelect = styled.div<{
   width: string;
@@ -44,11 +44,13 @@ class DropDownControl extends BaseControl<Props> {
         dependencies.forEach((dependencyPath) => {
           const prevValue = get(prevProps?.formValues, dependencyPath);
           const currentValue = get(this.props?.formValues, dependencyPath);
+
           if (prevValue !== currentValue) {
             hasDependenciesChanged = true;
           }
         });
       }
+
       if (hasDependenciesChanged) {
         this.props.updateConfigPropertyValue(
           this.props.formName,
@@ -70,6 +72,7 @@ class DropDownControl extends BaseControl<Props> {
         this.props?.formValues,
         FormDataPaths.COMMAND,
       );
+
       if (prevCommandValue !== currentCommandValue) {
         this.props.updateConfigPropertyValue(
           this.props.formName,
@@ -91,7 +94,7 @@ class DropDownControl extends BaseControl<Props> {
 
     return (
       <DropdownSelect
-        className={`t--${this?.props?.configProperty}`}
+        className={`t--${this?.props?.configProperty} uqi-dropdown-select`}
         data-testid={this.props.configProperty}
         style={styles}
         width={styles.width}
@@ -119,6 +122,7 @@ function renderDropdown(
   } & DropDownControlProps,
 ): JSX.Element {
   let selectedValue: string | string[];
+
   if (isEmpty(props.input?.value)) {
     if (props.isMultiSelect)
       selectedValue = props?.initialValue ? (props.initialValue as string) : [];
@@ -126,6 +130,7 @@ function renderDropdown(
       selectedValue = props?.initialValue
         ? (props.initialValue as string[])
         : "";
+
       if (props.setFirstOptionAsDefault && props.options.length > 0) {
         selectedValue = props.options[0].value as string;
         props.input?.onChange(selectedValue);
@@ -133,6 +138,7 @@ function renderDropdown(
     }
   } else {
     selectedValue = props.input?.value;
+
     if (props.isMultiSelect) {
       if (!Array.isArray(selectedValue)) {
         selectedValue = [selectedValue];
@@ -141,8 +147,10 @@ function renderDropdown(
       }
     }
   }
+
   let options: SelectOptionProps[] = [];
   let selectedOptions: SelectOptionProps[] = [];
+
   if (typeof props.options === "object" && Array.isArray(props.options)) {
     options = props.options;
     selectedOptions =
@@ -152,6 +160,7 @@ function renderDropdown(
         else return selectedValue === option.value;
       }) || [];
   }
+
   // Function to handle selection of options
   const onSelectOptions = (value: string | undefined) => {
     if (!isNil(value)) {
@@ -163,6 +172,7 @@ function renderDropdown(
           selectedValue = [selectedValue as string, value];
         }
       } else selectedValue = value;
+
       props.input?.onChange(selectedValue);
     }
   };
@@ -181,6 +191,7 @@ function renderDropdown(
           selectedValue = [];
         }
       } else selectedValue = "";
+
       props.input?.onChange(selectedValue);
     }
   };
@@ -202,17 +213,20 @@ function renderDropdown(
   if (props.options.length > 0) {
     if (props.isMultiSelect) {
       const tempSelectedValues: string[] = [];
+
       selectedOptions.forEach((option: SelectOptionProps) => {
         if (selectedValue.includes(option.value as string)) {
           tempSelectedValues.push(option.value as string);
         }
       });
+
       if (tempSelectedValues.length !== selectedValue.length) {
         selectedValue = [...tempSelectedValues];
         props.input?.onChange(tempSelectedValues);
       }
     } else {
       let tempSelectedValues = "";
+
       selectedOptions.forEach((option: SelectOptionProps) => {
         if (selectedValue === (option.value as string)) {
           tempSelectedValues = option.value as string;
@@ -228,14 +242,17 @@ function renderDropdown(
       }
 
       const isOptionDynamic = options.some((opt) => "disabled" in opt);
+
       if (isOptionDynamic && !!props?.isRequired) {
         const isCurrentOptionDisabled = options.some(
           (opt) => opt?.value === selectedValue && opt.disabled,
         );
+
         if (!tempSelectedValues || isCurrentOptionDisabled) {
           const firstEnabledOption = props?.options.find(
             (opt) => !opt?.disabled,
           );
+
           if (firstEnabledOption) {
             selectedValue = firstEnabledOption?.value as string;
             props.input?.onChange(firstEnabledOption?.value);
@@ -320,6 +337,7 @@ const mapStateToProps = (
   try {
     if (ownProps.fetchOptionsConditionally) {
       const dynamicFetchedValues = getDynamicFetchedValues(state, ownProps);
+
       isLoading = dynamicFetchedValues.isLoading;
       options = dynamicFetchedValues.data;
     }

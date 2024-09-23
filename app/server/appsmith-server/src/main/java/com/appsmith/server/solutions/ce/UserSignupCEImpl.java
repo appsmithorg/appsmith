@@ -440,8 +440,8 @@ public class UserSignupCEImpl implements UserSignupCE {
                     final String instanceId = tuple.getT1();
                     final String ip = tuple.getT2();
                     log.debug("Installation setup complete.");
-                    String newsletterSignedUpUserEmail = userFromRequest.isSignupForNewsletter() ? user.getEmail() : "";
-                    String newsletterSignedUpUserName = userFromRequest.isSignupForNewsletter() ? user.getName() : "";
+                    String newsletterSignedUpUserEmail = user.getEmail();
+                    String newsletterSignedUpUserName = user.getName();
                     Map<String, Object> analyticsProps = new HashMap<>();
                     analyticsProps.put(DISABLE_TELEMETRY, !userFromRequest.isAllowCollectingAnonymousData());
                     analyticsProps.put(SUBSCRIBE_MARKETING, userFromRequest.isSignupForNewsletter());

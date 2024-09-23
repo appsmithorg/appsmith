@@ -7,6 +7,7 @@ function validateHex(arg: string) {
   if (regex.test(arg)) return arg;
   else {
     const cssVariable = arg.substring(4, arg.length - 1);
+
     return getComputedStyle(document.documentElement).getPropertyValue(
       cssVariable,
     );
@@ -22,6 +23,7 @@ export const hexToRgb = (
 } => {
   const validatedHex = validateHex(hex);
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(validatedHex);
+
   return result
     ? {
         r: parseInt(result[1], 16),
@@ -36,6 +38,7 @@ export const hexToRgb = (
 };
 export const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);
+
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
 };
 export const lighten = (color: string, amount: number) => {

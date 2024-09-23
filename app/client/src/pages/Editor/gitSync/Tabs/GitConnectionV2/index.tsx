@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, ModalBody, ModalFooter } from "design-system";
+import { Button, ModalBody, ModalFooter } from "@appsmith/ads";
 import Steps from "./Steps";
 import type { GitProvider } from "./ChooseGitProvider";
 import ChooseGitProvider from "./ChooseGitProvider";
@@ -169,6 +169,7 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
             authorEmail: "",
             useGlobalProfile: true,
           };
+
           if (formData.remoteUrl) {
             if (!isImport) {
               connectToGit(
@@ -184,7 +185,9 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
                     if (response?.responseMeta?.error?.code === "AE-GIT-4033") {
                       setActiveStep(GIT_CONNECT_STEPS.GENERATE_SSH_KEY);
                     }
+
                     const errorResponse = response || error?.response?.data;
+
                     setErrorData(errorResponse);
                   },
                 },
@@ -203,12 +206,14 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
                   },
                   onErrorCallback(error, response) {
                     const errorResponse = response || error?.response?.data;
+
                     setErrorData(errorResponse);
                   },
                 }),
               );
             }
           }
+
           break;
         }
       }

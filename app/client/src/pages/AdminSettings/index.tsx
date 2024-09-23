@@ -12,7 +12,7 @@ import bootIntercom from "utils/bootIntercom";
 import { LoaderContainer } from "pages/AdminSettings/components";
 import { useParams } from "react-router";
 import AdminConfig from "ee/pages/AdminSettings/config";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 
 const FlexContainer = styled.div`
   display: flex;

@@ -5,7 +5,7 @@ import moment from "moment";
 import { TimePrecision } from "@blueprintjs/datetime";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
-import { DatePicker } from "design-system";
+import { DatePicker } from "@appsmith/ads";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 class DatePickerControl extends BaseControl<
@@ -49,12 +49,14 @@ class DatePickerControl extends BaseControl<
           this.inputRef?.current?.focus();
           e.preventDefault();
         }
+
         break;
       case "Escape":
         if (document.activeElement === this.inputRef?.current) {
           this.wrapperRef?.current?.focus();
           e.preventDefault();
         }
+
         break;
     }
   };
@@ -101,6 +103,7 @@ class DatePickerControl extends BaseControl<
 
   getValidDate = (date: string, format: string) => {
     const _date = moment(date, format);
+
     return _date.isValid() ? _date.toDate() : undefined;
   };
 
@@ -119,7 +122,9 @@ class DatePickerControl extends BaseControl<
           : this.formatDate(date)
         : undefined;
       const isValid = date ? this.validateDate(date) : true;
+
       if (!isValid) return;
+
       // if everything is ok, put date in state
       this.setState({ selectedDate: selectedDate });
       this.updateProperty(this.props.propertyName, selectedDate);
@@ -134,12 +139,14 @@ class DatePickerControl extends BaseControl<
       this.props.widgetProperties.version === 2
         ? ISO_DATE_FORMAT
         : this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
+
     return date ? moment(date, dateFormat).isValid() : true;
   };
 
   formatDate = (date: Date): string => {
     const dateFormat =
       this.props.widgetProperties.dateFormat || ISO_DATE_FORMAT;
+
     return moment(date).format(dateFormat);
   };
 

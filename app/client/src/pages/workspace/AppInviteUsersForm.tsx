@@ -18,7 +18,7 @@ import {
   MAKE_APPLICATION_PUBLIC_TOOLTIP,
 } from "ee/constants/messages";
 import { hasInviteUserToApplicationPermission } from "ee/utils/permissionHelpers";
-import { Button, Icon, Switch, Tooltip } from "design-system";
+import { Button, Icon, Switch, Tooltip } from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -75,6 +75,7 @@ function AppInviteUsersForm(props: any) {
     } else {
       // text area method for http urls where navigator.clipboard doesn't work
       const textArea = document.createElement("textarea");
+
       textArea.value = appViewEndPoint;
       // make the textarea out of viewport
       textArea.style.position = "absolute";
@@ -87,6 +88,7 @@ function AppInviteUsersForm(props: any) {
         textArea.remove();
       });
     }
+
     setIsCopied(true);
     setTimeout(() => {
       setIsCopied(false);
@@ -97,6 +99,7 @@ function AppInviteUsersForm(props: any) {
     const url = viewerURL({
       basePageId: defaultBasePageId,
     });
+
     return window.location.origin.toString() + url;
   }, [defaultBasePageId]);
 

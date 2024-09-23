@@ -22,8 +22,8 @@ import NoResponseSVG from "assets/images/no-response.svg";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Classes, Text, TextType } from "design-system-old";
-import { Button, Callout, Flex, SegmentedControl } from "design-system";
+import { Classes, Text, TextType } from "@appsmith/ads-old";
+import { Button, Callout, Flex, SegmentedControl } from "@appsmith/ads";
 import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
@@ -245,6 +245,7 @@ function ApiResponseView(props: Props) {
           ...responseHeaders,
           [key]: value[0],
         });
+
       return (responseHeaders = {
         ...responseHeaders,
         [key]: value,
@@ -268,10 +269,12 @@ function ApiResponseView(props: Props) {
   let filteredResponseDataTypes: { key: string; title: string }[] = [
     ...responseDataTypes,
   ];
+
   if (!!actionResponse.body && !isArray(actionResponse.body)) {
     filteredResponseDataTypes = responseDataTypes.filter(
       (item) => item.key !== API_RESPONSE_TYPE_OPTIONS.TABLE,
     );
+
     if (responseDisplayFormat.title === API_RESPONSE_TYPE_OPTIONS.TABLE) {
       onResponseTabSelect(filteredResponseDataTypes[0]?.title);
     }
@@ -315,6 +318,7 @@ function ApiResponseView(props: Props) {
         source: "API_PANE",
       });
     }
+
     dispatch(setApiPaneDebuggerState({ open: true, selectedTab: tabKey }));
   }, []);
 

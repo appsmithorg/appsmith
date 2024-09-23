@@ -1,6 +1,6 @@
 import "./styles.css";
-import { Flex } from "@design-system/widgets";
-import type { FlexProps } from "@design-system/widgets";
+import { Flex } from "@appsmith/wds";
+import type { FlexProps } from "@appsmith/wds";
 import React, { useMemo } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import type { PositionValues } from "layoutSystems/anvil/utils/types";
@@ -58,6 +58,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
   // Create a ref so that this DOM node can be
   // observed by the observer for changes in size
   const ref = React.useRef<HTMLDivElement>(null);
+
   usePositionObserver(
     "layout",
     {
@@ -112,6 +113,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     getShouldHighLightCellSelector(state, layoutId, layoutType),
   );
   const highlightShown = useSelector(getAnvilHighlightShown);
+
   highlightShown?.rowIndex;
   // The following properties aren't included in type FlexProps but can be passed as style.
   const styleProps: CSSProperties = useMemo(() => {

@@ -8,7 +8,7 @@ import {
   ModalFooter,
   ModalHeader,
   Select,
-} from "design-system";
+} from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getForkableWorkspaces,

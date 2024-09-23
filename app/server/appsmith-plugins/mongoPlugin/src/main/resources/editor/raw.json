@@ -1,14 +1,13 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "RAW",
-  "controlType" : "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'RAW'}}"
   },
   "children": [
     {
-      "controlType": "SECTION",
-      "label": "Query",
-      "description" : "Optional",
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "RAW-Z1",
       "children": [
         {
           "label": "",

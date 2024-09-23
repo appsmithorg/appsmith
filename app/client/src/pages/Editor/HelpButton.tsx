@@ -21,7 +21,7 @@ import {
   Tooltip,
   MenuSeparator,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { getAppsmithConfigs } from "ee/configs";
 import moment from "moment/moment";
 import styled from "styled-components";
@@ -104,6 +104,7 @@ export function IntercomConsent({
 
   const sendUserDataToIntercom = () => {
     const { email } = user || {};
+
     updateIntercomProperties(instanceId, user);
     dispatch(
       updateUserDetails({
@@ -122,6 +123,7 @@ export function IntercomConsent({
 
     window.Intercom("show");
   };
+
   return (
     <ConsentContainer>
       <ActionsRow>
@@ -198,6 +200,7 @@ function HelpButton() {
             dispatch(showSignpostingModal(true));
             setShowTooltip(false);
           }
+
           setShowIntercomConsent(false);
           AnalyticsUtil.logEvent("OPEN_HELP", {
             page: "Editor",
@@ -259,8 +262,10 @@ function HelpButton() {
                     if (item.link) {
                       window.open(item.link, "_blank");
                     }
+
                     if (item.id === "intercom-trigger") {
                       e?.preventDefault();
+
                       if (intercomAppID && window.Intercom) {
                         if (user?.isIntercomConsentGiven || cloudHosting) {
                           window.Intercom("show");

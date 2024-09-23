@@ -9,7 +9,7 @@ import {
   ModalHeader,
   Text,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import { EditFieldsButton } from "../../styles";
 import styled from "styled-components";
 import { useColumns } from "../../WidgetSpecificControls/ColumnDropdown/useColumns";
@@ -82,6 +82,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
   const handleSelect = (row: any, isSelected: boolean) => {
     if (row) {
       const col = row.original;
+
       setTrainsientSelectedColumnsNames((prevSelectedColumns) => {
         if (isSelected) {
           return [...prevSelectedColumns, col.name];
@@ -104,6 +105,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
 
   const handleModalState = (isOpen: boolean) => {
     setIsModalOpen(isOpen);
+
     if (!isOpen) {
       onCancel();
     }
@@ -131,6 +133,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
       Cell: function (cellProps: any) {
         const { row } = cellProps;
         const isDisabled = row.original.name === primaryColumn;
+
         return (
           <FlexWrapper>
             <StyledCheckbox
@@ -151,6 +154,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: function (cellProps: any) {
         const { row } = cellProps;
+
         return <Text>{row.original.type}</Text>;
       },
     },
@@ -189,6 +193,7 @@ export function ColumnSelectorModal({ isDisabled }: { isDisabled?: boolean }) {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               rowProps={(row: any) => {
                 const isDisabled = row.original.name === primaryColumn;
+
                 return {
                   onClick: () => isDisabled && null,
                   style: {

@@ -1,4 +1,4 @@
-import { SegmentedControl } from "design-system";
+import { SegmentedControl } from "@appsmith/ads";
 import React, { useContext } from "react";
 import { CustomWidgetBuilderContext } from "../..";
 import styles from "./styles.module.css";

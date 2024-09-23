@@ -13,6 +13,7 @@ describe("Validates Derived Properties", () => {
     };
 
     let result = isValidDate(input, moment, _);
+
     expect(result).toStrictEqual(true);
   });
 
@@ -26,6 +27,7 @@ describe("Validates Derived Properties", () => {
     };
 
     let result = isValidDate(input, moment, _);
+
     expect(result).toStrictEqual(false);
   });
 
@@ -39,6 +41,7 @@ describe("Validates Derived Properties", () => {
     };
 
     let result = isValidDate(input, moment, _);
+
     expect(result).toStrictEqual(false);
   });
 
@@ -52,6 +55,7 @@ describe("Validates Derived Properties", () => {
     };
 
     let result = isValidDate(input, moment, _);
+
     expect(result).toStrictEqual(true);
   });
 
@@ -65,6 +69,7 @@ describe("Validates Derived Properties", () => {
     };
 
     let result = isValidDate(input, moment, _);
+
     expect(result).toStrictEqual(true);
   });
 
@@ -78,6 +83,7 @@ describe("Validates Derived Properties", () => {
     };
 
     let result = isValidDate(input, moment, _);
+
     expect(result).toStrictEqual(false);
   });
 });

@@ -4,7 +4,7 @@ import {
   TooltipRoot,
   TooltipTrigger,
   TooltipContent,
-} from "@design-system/headless";
+} from "@appsmith/wds-headless";
 import { Button } from "react-aria-components";
 
 /**
@@ -12,7 +12,7 @@ import { Button } from "react-aria-components";
  */
 const meta: Meta<typeof TooltipRoot> = {
   component: TooltipRoot,
-  title: "Design-system/headless/Tooltip",
+  title: "WDS/Headless/Tooltip",
   subcomponents: {
     TooltipTrigger,
     TooltipContent,

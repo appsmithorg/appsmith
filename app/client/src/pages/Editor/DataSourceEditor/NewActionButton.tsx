@@ -10,7 +10,7 @@ import {
   Text,
   MenuSeparator,
   Tag,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   createMessage,
   ERROR_ADD_API_INVALID_URL,
@@ -47,6 +47,7 @@ export const apiPluginHasUrl = (
   if (pluginType !== PluginType.API) {
     return false;
   }
+
   return (
     !datasource ||
     !datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
@@ -81,11 +82,13 @@ function NewActionButton(props: NewActionButtonProps) {
         toast.show(ERROR_ADD_API_INVALID_URL(), {
           kind: "error",
         });
+
         return;
       }
 
       if (currentPageId) {
         setIsSelected(true);
+
         if (datasource) {
           dispatch(
             createNewQueryAction(
@@ -104,14 +107,19 @@ function NewActionButton(props: NewActionButtonProps) {
   const handleOnInteraction = useCallback(
     (open: boolean) => {
       if (disabled || isLoading) return;
+
       if (!open) {
         setIsPageSelectionOpen(false);
+
         return;
       }
+
       if (pages.length === 1) {
         createQueryAction(currentPageId);
+
         return;
       }
+
       setIsPageSelectionOpen(true);
     },
     [pages, createQueryAction, disabled, isLoading],
@@ -180,6 +188,7 @@ function NewActionButton(props: NewActionButtonProps) {
               i === 0 ? <MenuSeparator /> : null,
             ];
           }
+
           return null;
         })}
       </MenuContent>

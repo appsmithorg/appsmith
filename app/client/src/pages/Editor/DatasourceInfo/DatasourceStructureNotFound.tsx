@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { Text, Button } from "design-system";
+import { Text, Button } from "@appsmith/ads";
 import type { APIResponseError } from "api/ApiResponses";
 import { EDIT_DATASOURCE, createMessage } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -57,6 +57,7 @@ const DatasourceStructureNotFound = (props: Props) => {
 
     if (props.context === DatasourceStructureContext.DATASOURCE_VIEW_MODE) {
       props?.customEditDatasourceFn && props?.customEditDatasourceFn();
+
       return;
     }
 
@@ -66,6 +67,7 @@ const DatasourceStructureNotFound = (props: Props) => {
       params: { ...omit(getQueryParams(), "viewMode"), viewMode: false },
       generateEditorPath: true,
     });
+
     history.push(url);
   };
 

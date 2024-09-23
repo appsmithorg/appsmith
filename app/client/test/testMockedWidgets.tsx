@@ -4,7 +4,7 @@ import Canvas from "pages/Editor/Canvas";
 import IDE from "pages/Editor/IDE";
 import React from "react";
 import { useSelector } from "react-redux";
-import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
+import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
 import { useMockDsl } from "./testCommon";
 
 export function MockCanvas() {

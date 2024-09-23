@@ -18,6 +18,7 @@ export const useActiveHoverIndex = (
 
   useEffect(() => {
     const activeBranchIdx = filteredBranches.indexOf(currentBranch || "");
+
     if (activeBranchIdx !== -1) {
       setActiveHoverIndex(
         isCreateNewBranchInputValid ? activeBranchIdx + 1 : activeBranchIdx,

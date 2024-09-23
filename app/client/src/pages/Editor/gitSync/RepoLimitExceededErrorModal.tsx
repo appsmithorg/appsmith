@@ -17,7 +17,7 @@ import {
   ModalContent,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES_MESSAGE_ON_INTERCOM,
@@ -37,7 +37,7 @@ import {
   getCurrentApplication,
   getWorkspaceIdForImport,
 } from "ee/selectors/applicationSelectors";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Space } from "./components/StyledComponents";
@@ -90,9 +90,11 @@ function RepoLimitExceededErrorModal() {
       });
 
       setWorkspaceName(workspace?.name || "");
+
       return (
         applicationsOfWorkspace.filter((application: ApplicationPayload) => {
           const data = application.gitApplicationMetadata;
+
           return (
             data &&
             data.remoteUrl &&
@@ -200,6 +202,7 @@ function RepoLimitExceededErrorModal() {
           <AppListContainer>
             {applications.map((application: ApplicationPayload) => {
               const { gitApplicationMetadata } = application;
+
               return (
                 <ApplicationWrapper
                   className="t--connected-app-wrapper"

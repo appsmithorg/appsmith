@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PageWrapper from "pages/common/PageWrapper";
 import styled from "styled-components";
-import { Tabs, Tab, TabsList, TabPanel } from "design-system";
+import { Tabs, Tab, TabsList, TabPanel } from "@appsmith/ads";
 import General from "./General";
 import GitConfig from "./GitConfig";
 import { useLocation } from "react-router";
@@ -42,6 +42,7 @@ function UserProfile() {
     panelComponent: <GitConfig />,
     icon: "git-branch",
   });
+
   if (location.pathname === GIT_PROFILE_ROUTE) {
     initialTab = "gitConfig";
   }

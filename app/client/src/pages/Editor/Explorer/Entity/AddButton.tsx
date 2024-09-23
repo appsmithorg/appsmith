@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import type { ButtonSizes } from "design-system";
-import { Button } from "design-system";
+import type { ButtonSizes } from "@appsmith/ads";
+import { Button } from "@appsmith/ads";
 
 const Wrapper = styled.div<{ isSizePassed?: boolean }>`
   ${({ isSizePassed }) =>
@@ -41,6 +41,7 @@ export const EntityAddButton = (props: {
     props.onClick && props.onClick();
     e.stopPropagation();
   };
+
   if (!props.onClick) return null;
   else {
     return (

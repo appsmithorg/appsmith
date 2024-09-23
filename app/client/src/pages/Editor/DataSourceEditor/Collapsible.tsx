@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 
 const SectionLabel = styled.div`
   font-weight: 500;
@@ -9,7 +9,7 @@ const SectionLabel = styled.div`
   letter-spacing: -0.17px;
   color: var(--ads-v2-color-fg);
   display: flex;
-  .cs-icon {
+  .ads-v2-icon {
     margin-left: ${(props) => props.theme.spaces[2]}px;
   }
 `;
