@@ -10,7 +10,6 @@ import shallowEqual from "shallowequal";
 
 export type tableData = Array<Record<string, unknown>>;
 
-//TODO: (Vamsi) need to unit test this function
 export const transformDataPureFn = (
   tableData: Array<Record<string, unknown>>,
   columns: ReactTableColumnProps[],
