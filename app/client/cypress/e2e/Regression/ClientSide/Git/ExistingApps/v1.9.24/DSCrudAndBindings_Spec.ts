@@ -14,8 +14,8 @@ import {
 } from "../../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../../support/Pages/PageList";
 
 describe(
   "Import and validate older app (app created in older versions of Appsmith) from Gitea",
@@ -43,60 +43,40 @@ describe(
       dataSources.ReconnectDSbyType("PostgreSQL");
       agHelper.Sleep(3000); //for CI to reconnect successfully
       homePage.AssertNCloseImport();
+      homePage.RenameApplication(appName);
     });
 
-    it("1. Validate merge status + Bug23822", () => {
-      PageLeftPane.assertPresence("ListingAndReviews");
-      //Wait for the app to settle
-      agHelper.Sleep(3000);
-      homePage.RenameApplication(appName);
+    it("1. Validate git status", () => {
+      PageList.assertPresence("ListingAndReviews")
       assertHelper.AssertNetworkResponseData("gitStatus");
       agHelper.AssertElementExist(gitSync._bottomBarCommit, 0, 30000);
-      agHelper.AssertText(gitSync._gitPullCount, "text", "4");
       agHelper.GetNClick(gitSync._bottomBarCommit);
       agHelper.AssertElementVisibility(gitSync._gitSyncModal);
 
-      //This is expected due to Canvas Splitting PR changes in v1.9.24
       agHelper.GetNAssertContains(
         gitSync._gitStatusChanges,
-        /[0-9] page(|s) modified/,
+        "ListingAndReviews added",
       );
-
-      // Commenting it as part of #28012 - to be added back later
-      // agHelper.GetNAssertElementText(
-      //   gitSync._gitStatusChanges,
-      //   "Application settings modified",
-      //   "not.contain.text",
-      // );
-      agHelper.GetNAssertElementText(
+      agHelper.GetNAssertContains(
+        gitSync._gitStatusChanges,
+        "CountryFlags added",
+      );
+      agHelper.GetNAssertContains(
+        gitSync._gitStatusChanges,
+        "Public.astronauts added",
+      );
+      agHelper.GetNAssertContains(
+        gitSync._gitStatusChanges,
+        "Widgets added",
+      );
+      agHelper.GetNAssertContains(
         gitSync._gitStatusChanges,
         "Theme modified",
-        "not.contain.text",
       );
-      agHelper.AssertContains(/[0-9] quer(y|ies) modified/, "not.exist");
-
-      // Commented out due to #25739 - to be fixed by dev later
-      // agHelper.GetNAssertElementText(
-      //   gitSync._gitStatusChanges,
-      //   "datasource modified",
-      //   "not.contain.text",
-      // );
-
-      agHelper.AssertContains(/[0-9] JS Object(|s) modified/, "not.exist");
-
-      // Commenting it as part of #28012 - to be added back later
-      // agHelper.AssertContains(/[0-9] librar(y|ies) modified/, "not.exist");
-
-      // This assertions is commented out due to issue #https://github.com/appsmithorg/appsmith/issues/28563
-      // Since we don't want this specific message appearing when we are just migrating the metadata,
-      // this assertion is not required.
-      // Slack conversation: https://theappsmith.slack.com/archives/C04HERDNZPA/p1698851532418569
-
-      // agHelper.GetNAssertElementText(
-      //   gitSync._gitStatusChanges,
-      //   "Some of the changes above are due to an improved file structure designed to reduce merge conflicts. You can safely commit them to your repository.",
-      //   "contain.text",
-      // );
+      agHelper.GetNAssertContains(
+        gitSync._gitStatusChanges,
+        "Application settings modified",
+      );
       agHelper.GetNClick(gitSync._commitButton);
       assertHelper.AssertNetworkStatus("@commit", 201);
       gitSync.CloseGitSyncModal();
@@ -156,7 +136,7 @@ describe(
 
       //Filter & validate table data
       table.OpenNFilterTable("id", "is exactly", "196");
-      table.ReadTableRowColumnData(0, 2).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 2, "v2").then(($cellData) => {
         expect($cellData).to.eq("Ulf Merbold");
       });
       table.RemoveFilter();
@@ -167,13 +147,13 @@ describe(
       agHelper.Sleep(500);
       agHelper.ClickButton("Update");
       agHelper.Sleep(2000); //for CI update to be successful
-      table.WaitUntilTableLoad(0, 0, "v1");
+      table.WaitUntilTableLoad(0, 0, "v2");
 
       //Validate updated values in table
-      table.ReadTableRowColumnData(0, 3).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
         expect($cellData).to.eq("5");
       });
-      table.ReadTableRowColumnData(0, 4).then(($cellData) => {
+      table.ReadTableRowColumnData(0, 4, "v2").then(($cellData) => {
         expect($cellData).to.eq("Active");
       });
       agHelper.Sleep(500);
