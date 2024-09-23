@@ -2194,21 +2194,30 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
         return (
           <ImageCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            cellBackground={cellProperties.cellBackground}
-            compactMode={compactMode}
-            fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            imageSize={cellProperties.imageSize}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isHidden={isHidden}
-            isSelected={isSelected}
-            onClick={onClick}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
+          alias={props.cell.column.columnProperties.alias}
+          accentColor={this.props.accentColor}
+          allowCellWrapping={cellProperties.allowCellWrapping}
+          cellBackground={cellProperties.cellBackground}
+          compactMode={compactMode}
+          disabledEditIcon={shouldDisableEdit || this.props.isAddRowInProgress}
+          disabledEditIconMessage={disabledEditMessage}
+          fontStyle={cellProperties.fontStyle}
+          horizontalAlignment={cellProperties.horizontalAlignment}
+          imageSize={cellProperties.imageSize}
+          isCellDisabled={cellProperties.isCellDisabled}
+          isCellVisible={cellProperties.isCellVisible ?? true}
+          isCellEditMode={isCellEditMode}
+          isCellEditable={isCellEditable}
+          isEditableCellValid={this.isColumnCellValid(alias)}
+          isHidden={isHidden}
+          isSelected={isSelected}
+          onClick={onClick}
+          rowIndex={rowIndex}
+          textColor={cellProperties.textColor}
+          textSize={cellProperties.textSize}
+          value={props.cell.value}
+          verticalAlignment={cellProperties.verticalAlignment}
+          toggleCellEditMode={this.toggleCellEditMode} 
           />
         );
 

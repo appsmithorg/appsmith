@@ -1037,7 +1037,7 @@ export default {
     };
 
     let editableColumns = [];
-    const validatableColumns = ["text", "number", "currency", "date"];
+    const validatableColumns = ["text", "number", "currency", "date" , "image"];
 
     if (props.isAddRowInProgress) {
       Object.values(props.primaryColumns)
@@ -1112,6 +1112,13 @@ export default {
             }
 
             break;
+            case "image":
+              const imageUrlRegex = /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
+              if (!imageUrlRegex.test(value)) {
+                validationMap[editedColumn.alias] = false;
+                return;
+              }
+              break;
         }
       }
 
