@@ -1,1 +1,3 @@
-export * from "ce/sagas/EnvironmentSagas";
+export function* waitForFetchEnvironments() {
+  yield true;
+}
