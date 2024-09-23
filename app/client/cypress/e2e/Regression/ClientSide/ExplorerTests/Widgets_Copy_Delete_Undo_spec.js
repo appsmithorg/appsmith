@@ -17,7 +17,7 @@ before(() => {
 
 describe(
   "Test Suite to validate copy/delete/undo functionalites",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.Sanity"] },
   function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 

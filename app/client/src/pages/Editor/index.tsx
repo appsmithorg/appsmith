@@ -82,6 +82,7 @@ class Editor extends Component<Props> {
 
   componentDidMount() {
     const { basePageId } = this.props.match.params || {};
+
     urlBuilder.setCurrentBasePageId(basePageId);
 
     editorInitializer().then(() => {
@@ -122,6 +123,7 @@ class Editor extends Component<Props> {
     const prevPageId = prevProps.pages.find(
       (page) => page.basePageId === prevBasePageId,
     )?.pageId;
+
     // caching value for prevPageId as it is required in future lifecycles
     if (prevPageId) {
       this.prevPageId = prevPageId;
@@ -182,6 +184,7 @@ class Editor extends Component<Props> {
         </CenteredWrapper>
       );
     }
+
     return (
       <ThemeProvider theme={theme}>
         <div>

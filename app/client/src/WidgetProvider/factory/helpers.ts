@@ -33,14 +33,17 @@ export function addSearchConfigToPanelConfig(
       const sectionConfig = {
         ...configItem,
       };
+
       if (configItem.children) {
         sectionConfig.children = addSearchConfigToPanelConfig(
           configItem.children,
         );
       }
+
       return sectionConfig;
     } else if ((configItem as PropertyPaneControlConfig).controlType) {
       const controlConfig = configItem as PropertyPaneControlConfig;
+
       if (controlConfig.panelConfig) {
         return {
           ...controlConfig,
@@ -53,8 +56,10 @@ export function addSearchConfigToPanelConfig(
           },
         };
       }
+
       return controlConfig;
     }
+
     return configItem;
   });
 }
@@ -70,15 +75,18 @@ function addSearchSpecificPropertiesToConfig(
         collapsible: false,
         tag,
       };
+
       if (configItem.children) {
         sectionConfig.children = addSearchSpecificPropertiesToConfig(
           configItem.children,
           tag,
         );
       }
+
       return sectionConfig;
     } else if ((configItem as PropertyPaneControlConfig).controlType) {
       const controlConfig = configItem as PropertyPaneControlConfig;
+
       if (controlConfig.panelConfig) {
         return {
           ...controlConfig,
@@ -91,8 +99,10 @@ function addSearchSpecificPropertiesToConfig(
           },
         };
       }
+
       return controlConfig;
     }
+
     return configItem;
   });
 }
@@ -132,7 +142,9 @@ export const addPropertyConfigIds = (
         sectionOrControlConfig.children,
       );
     }
+
     const config = sectionOrControlConfig as PropertyPaneControlConfig;
+
     if (config.panelConfig) {
       if (
         config.panelConfig.children &&
@@ -163,6 +175,7 @@ export const addPropertyConfigIds = (
 
       (sectionOrControlConfig as PropertyPaneControlConfig) = config;
     }
+
     return sectionOrControlConfig;
   });
 };
@@ -191,6 +204,7 @@ export function enhancePropertyPaneConfig(
         features[registeredFeature as RegisteredWidgetFeatures];
       const sectionName = (config[sectionIndex] as PropertyPaneSectionConfig)
         ?.sectionName;
+
       // This has been designed to check if the sectionIndex provided in the
       // features configuration of the widget to point to the section named "General"
       // If not, it logs an error
@@ -202,6 +216,7 @@ export function enhancePropertyPaneConfig(
           `Invalid section index for feature: ${registeredFeature} in widget: ${widgetType}`,
         );
       }
+
       if (
         Array.isArray(config[sectionIndex].children) &&
         PropertyPaneConfigTemplates[
@@ -237,6 +252,7 @@ export function enhancePropertyPaneConfig(
 export function convertFunctionsToString(config: PropertyPaneConfig[]) {
   return config.map((sectionOrControlConfig: PropertyPaneConfig) => {
     const controlConfig = sectionOrControlConfig as PropertyPaneControlConfig;
+
     if (
       controlConfig.validation &&
       controlConfig.validation?.type === ValidationTypes.FUNCTION &&
@@ -246,6 +262,7 @@ export function convertFunctionsToString(config: PropertyPaneConfig[]) {
       controlConfig.validation.params.fnString =
         controlConfig.validation.params.fn.toString();
       delete controlConfig.validation.params.fn;
+
       return sectionOrControlConfig;
     }
 

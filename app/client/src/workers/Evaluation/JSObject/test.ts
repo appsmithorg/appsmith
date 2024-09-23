@@ -99,6 +99,7 @@ describe("updateJSCollectionInUnEvalTree", function () {
       body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t\n\t},\n\tmyFun2:  () => {\n\t\t//use async-await or promises\n\t\tyeso\n\t}\n}",
       ENTITY_TYPE: "JSACTION",
     };
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (JSObject1["myFun1"] as any).data = {};
@@ -124,6 +125,7 @@ describe("updateJSCollectionInUnEvalTree", function () {
       body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t\t\n\t},\n\tmyFun2:  () => {\n\t\t//use async-await or promises\n\t\tyeso\n\t}\n}",
       ENTITY_TYPE: "JSACTION",
     };
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (expectedJSObject["myFun1"] as any).data = {};

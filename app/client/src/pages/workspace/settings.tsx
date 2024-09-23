@@ -123,6 +123,7 @@ export default function Settings() {
   }, 300);
 
   const isMobile: boolean = useMediaQuery({ maxWidth: 767 });
+
   return (
     <>
       <SettingsWrapper data-testid="t--settings-wrapper" isMobile={isMobile}>

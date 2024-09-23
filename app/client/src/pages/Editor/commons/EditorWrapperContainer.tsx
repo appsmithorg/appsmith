@@ -27,6 +27,7 @@ const Wrapper = styled.div<{
 function EditorWrapperContainer({ children }: EditorWrapperContainerProps) {
   const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
   const isProtectedMode = useSelector(protectedModeSelector);
+
   return (
     <Wrapper
       className={classNames({

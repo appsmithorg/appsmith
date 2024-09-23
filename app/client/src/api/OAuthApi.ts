@@ -15,6 +15,7 @@ class OAuthApi extends Api {
     isImport?: boolean,
   ): Promise<AxiosPromise<ApiResponse<string>>> {
     const isImportQuery = isImport ? "?importForGit=true" : "";
+
     return Api.post(`${OAuthApi.url}/${datasourceId}/oauth${isImportQuery}`, {
       contextId,
       contextType,

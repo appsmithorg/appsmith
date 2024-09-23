@@ -43,11 +43,12 @@ const parts = []
 parts.push(`
 {
   debug
-  admin 127.0.0.1:2019
+  admin 0.0.0.0:2019
   persist_config off
   acme_ca_root /etc/ssl/certs/ca-certificates.crt
   servers {
     trusted_proxies static 0.0.0.0/0
+    metrics
   }
   ${isRateLimitingEnabled ? "order rate_limit before basicauth" : ""}
 }
@@ -89,6 +90,10 @@ parts.push(`
     Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}"
     X-Content-Type-Options "nosniff"
     X-Appsmith-Request-Id {http.request.uuid}
+  }
+
+  header /static/* {
+    Cache-Control "public, max-age=31536000, immutable"
   }
 
   request_body {

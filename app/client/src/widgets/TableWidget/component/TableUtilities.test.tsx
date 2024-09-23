@@ -135,6 +135,7 @@ describe("Test table columnType Image render", () => {
     const result = ImageCellComponent.props.children.map((imageDiv: any) => {
       // check and get img url if exist
       const imageDivProps = imageDiv.props.children.props;
+
       if (imageDivProps) {
         return imageDivProps.style.backgroundImage
           .slice(4, -1)

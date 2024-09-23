@@ -7,6 +7,7 @@ import { SentryRoute } from "ee/AppRouter";
 const QueryEditor = () => {
   const { path } = useRouteMatch();
   const routes = useQueryEditorRoutes(path);
+
   return (
     <Switch>
       {routes.map((route) => (

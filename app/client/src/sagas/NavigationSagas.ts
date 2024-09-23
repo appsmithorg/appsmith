@@ -12,6 +12,7 @@ function* navigateEntitySaga(action: ReduxAction<EntityInfo>) {
       EntityNavigationFactory.create,
       action.payload,
     );
+
     yield call(paneNavigation.init);
     yield call(paneNavigation.navigate);
   } catch (e) {

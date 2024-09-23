@@ -27,6 +27,7 @@ export function ImportAppSettings() {
   function handleClose() {
     setIsModalOpen(false);
   }
+
   return (
     <>
       <SettingWrapper>

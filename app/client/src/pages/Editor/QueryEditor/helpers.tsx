@@ -9,10 +9,12 @@ export const getUIComponent = (pluginId: string, allPlugins: Plugin[]) => {
     const plugin = allPlugins.find((plugin: Plugin) =>
       !!pluginId ? plugin.id === pluginId : false,
     );
+
     // Defaults to old value, new value can be DBEditorForm or UQIDBEditorForm
     if (plugin) {
       uiComponent = plugin.uiComponent;
     }
   }
+
   return uiComponent;
 };

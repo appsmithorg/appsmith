@@ -25,6 +25,7 @@ export const AnvilViewerWidgetOnion = (props: BaseWidgetProps) => {
     () => getWidgetSizeConfiguration(props.type, props, isPreviewMode),
     [isPreviewMode, props.type],
   );
+
   return (
     <AnvilFlexComponent
       flexGrow={props.flexGrow}

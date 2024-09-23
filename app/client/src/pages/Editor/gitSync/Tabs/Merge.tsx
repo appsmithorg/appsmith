@@ -112,8 +112,10 @@ export default function Merge() {
   const branchList = useMemo(() => {
     const branchOptions: DropdownOptions = [];
     let index = 0;
+
     while (true) {
       if (index === gitBranches.length) break;
+
       const branchObj = gitBranches[index];
 
       if (currentBranch !== branchObj.branchName) {
@@ -131,6 +133,7 @@ export default function Merge() {
       }
 
       const nextBranchObj = gitBranches[index + 1];
+
       if (
         getIsStartingWithRemoteBranches(
           branchObj.branchName,
@@ -141,6 +144,7 @@ export default function Merge() {
 
       index++;
     }
+
     // TODO add bellow header if dropdown supports section header
     // branchOptions.unshift({
     //   label: "Local branches",
@@ -162,6 +166,7 @@ export default function Merge() {
     AnalyticsUtil.logEvent("GS_MERGE_CHANGES_BUTTON_CLICK", {
       source: "GIT_MERGE_MODAL",
     });
+
     if (currentBranch && selectedBranchOption?.value) {
       dispatch(
         mergeBranchInit({
@@ -177,6 +182,7 @@ export default function Merge() {
 
   useEffect(() => {
     dispatch(fetchBranchesInit());
+
     return () => {
       dispatch(resetMergeStatus());
     };
@@ -198,6 +204,7 @@ export default function Merge() {
   const mergeBtnDisabled = isFetchingMergeStatus || !isMergeAble;
 
   let status = MERGE_STATUS_STATE.NONE;
+
   if (isFetchingGitStatus) {
     status = MERGE_STATUS_STATE.FETCHING;
     mergeStatusMessage = createMessage(FETCH_GIT_STATUS);
@@ -220,6 +227,7 @@ export default function Merge() {
   const showMergeButton =
     !isConflicting && !mergeError && !isFetchingGitStatus && !isMerging;
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlMerge);
+
   return (
     <>
       <ModalBody>
@@ -252,6 +260,7 @@ export default function Merge() {
                 const isProtected = protectedBranches.includes(
                   branch?.value ?? "",
                 );
+
                 return (
                   <Option disabled={isProtected} key={branch.value}>
                     {branch.value}

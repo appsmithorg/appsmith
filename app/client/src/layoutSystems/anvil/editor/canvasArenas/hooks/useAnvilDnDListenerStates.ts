@@ -67,15 +67,19 @@ const checkIfWidgetTypeDraggedIsAllowedToDrop = (
   if (allowedWidgetTypes.length === 0) {
     return true;
   }
+
   let draggedWidgetTypes: string[] = [];
+
   if (isNewWidget) {
     const { newWidget } = dragDetails;
+
     draggedWidgetTypes.push(newWidget.type);
   } else {
     draggedWidgetTypes = selectedWidgets.map(
       (eachWidgetId) => allWidgets[eachWidgetId].type,
     );
   }
+
   return areWidgetsWhitelisted(draggedWidgetTypes, allowedWidgetTypes);
 };
 
@@ -148,8 +152,10 @@ export const useAnvilDnDListenerStates = ({
       const isAnyZoneElevated = allSiblingsWidgetIds.some(
         (each) => !!elevatedWidgets[each],
       );
+
       return isAnyZoneElevated;
     }
+
     return !!elevatedWidgets[widgetId];
   }, [widgetProps, elevatedWidgets, allSiblingsWidgetIds]);
 

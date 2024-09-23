@@ -25,6 +25,7 @@ export function RecaptchaV3(props: RecaptchaV3Props) {
 
   const onClick: ButtonComponentProps["onPress"] = () => {
     if (props.isDisabled) return onClickProp;
+
     if (props.isLoading) return onClickProp;
 
     if (status === ScriptStatus.READY) {
@@ -57,9 +58,11 @@ export function RecaptchaV3(props: RecaptchaV3Props) {
   };
 
   let validGoogleRecaptchaKey = recaptchaKey;
+
   if (validGoogleRecaptchaKey && !checkValidJson(validGoogleRecaptchaKey)) {
     validGoogleRecaptchaKey = undefined;
   }
+
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
     AddScriptTo.HEAD,

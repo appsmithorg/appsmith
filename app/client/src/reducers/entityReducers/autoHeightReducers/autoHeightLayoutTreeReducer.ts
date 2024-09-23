@@ -21,15 +21,18 @@ const autoHeightLayoutTreeReducer = createImmerReducer(initialState, {
   ) => {
     const { tree } = action.payload;
     const diff: string[] = xor(Object.keys(state), [...Object.keys(tree)]);
+
     for (const widgetId of diff) {
       delete state[widgetId];
     }
+
     for (const widgetId in tree) {
       if (state[widgetId]) {
         const differentAboves = xor(
           state[widgetId].aboves,
           tree[widgetId].aboves,
         );
+
         if (differentAboves.length > 0) {
           state[widgetId].aboves = tree[widgetId].aboves;
         }
@@ -38,6 +41,7 @@ const autoHeightLayoutTreeReducer = createImmerReducer(initialState, {
           state[widgetId].belows,
           tree[widgetId].belows,
         );
+
         if (differentBelows.length > 0) {
           state[widgetId].belows = tree[widgetId].belows;
         }

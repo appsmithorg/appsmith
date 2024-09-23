@@ -30,6 +30,7 @@ export function WidgetContextMenu(props: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const parentWidget: any = useSelector((state: AppState) => {
     if (parentId) return state.ui.pageWidgets[props.pageId].dsl[parentId];
+
     return {};
   });
   const dispatch = useDispatch();
@@ -39,12 +40,14 @@ export function WidgetContextMenu(props: {
     if (widget.tabName && parentWidget.type === WidgetTypes.TABS_WIDGET) {
       const tabsObj = { ...parentWidget.tabsObj };
       const filteredTabs = Object.values(tabsObj);
+
       if (widget.parentId && !!filteredTabs.length) {
         dispatch({
           type: ReduxActionTypes.WIDGET_DELETE_TAB_CHILD,
           payload: { ...tabsObj[widget.tabId] },
         });
       }
+
       return;
     }
 
@@ -87,6 +90,7 @@ export function WidgetContextMenu(props: {
       onSelect: editWidgetName,
       label: "Rename",
     };
+
     optionTree.push(option);
   }
 

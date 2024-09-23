@@ -43,6 +43,7 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
     Object.entries(jsUpdates).forEach(([entityName, jsEntity]) => {
       const entity = localUnEvalTree[entityName] as JSActionEntity;
       const parsedBody = jsEntity.parsedBody;
+
       if (isJSAction(entity)) {
         if (!!parsedBody) {
           //add/delete/update functions from dataTree
@@ -65,6 +66,7 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
       }
     });
   }
+
   return localUnEvalTree;
 };
 
@@ -112,6 +114,7 @@ export function saveResolvedFunctionsAndJSUpdates(
         parseEndTime,
         parseStartTime,
       );
+
       dataTreeEvalRef.logs.push({
         JSObjectName: entityName,
         JSObjectASTParseTime,
@@ -122,6 +125,7 @@ export function saveResolvedFunctionsAndJSUpdates(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const variables: any = [];
+
       if (success) {
         if (!!parsedObject) {
           jsPropertiesState.update(entityName, parsedObject);
@@ -142,6 +146,7 @@ export function saveResolvedFunctionsAndJSUpdates(
                   enableJSVarUpdateTracking: true,
                   enableJSFnPostProcessors: true,
                 });
+
                 if (!!result) {
                   let params: Array<{ name: string; value: unknown }> = [];
 
@@ -155,6 +160,7 @@ export function saveResolvedFunctionsAndJSUpdates(
                   }
 
                   const functionString = parsedElement.value;
+
                   JSObjectCollection.updateResolvedFunctions(
                     `${entityName}.${parsedElement.key}`,
                     result,
@@ -182,6 +188,7 @@ export function saveResolvedFunctionsAndJSUpdates(
               const parsedKey = isStringRepresentation
                 ? parsedElement.key.slice(1, -1)
                 : parsedElement.key;
+
               variables.push({
                 name: parsedKey,
                 value: parsedElement.value,
@@ -197,6 +204,7 @@ export function saveResolvedFunctionsAndJSUpdates(
             actions: actions,
             variables,
           };
+
           set(jsUpdates, `${entityName}`, {
             parsedBody,
             id: entity.actionId,
@@ -217,6 +225,7 @@ export function saveResolvedFunctionsAndJSUpdates(
       actions: [],
       variables: [],
     };
+
     set(jsUpdates, `${entityName}`, {
       parsedBody: parsedBody,
       id: entity.actionId,
@@ -275,6 +284,7 @@ export function parseJSActions(
         if (unEvalState && unEvalState[diff.payload.propertyPath]) {
           JSObjectCollection.deleteUnEvalState(diff.payload.propertyPath);
         }
+
         if (resolvedFunctions && resolvedFunctions[diff.payload.propertyPath]) {
           JSObjectCollection.deleteResolvedFunction(diff.payload.propertyPath);
         }
@@ -296,9 +306,11 @@ export function parseJSActions(
   } else {
     Object.keys(unEvalDataTree).forEach((entityName) => {
       const entity = unEvalDataTree[entityName];
+
       if (!isJSAction(entity)) {
         return;
       }
+
       jsUpdates = saveResolvedFunctionsAndJSUpdates(
         dataTreeEvalRef,
         entity,
@@ -311,7 +323,9 @@ export function parseJSActions(
 
   Object.keys(jsUpdates).forEach((entityName) => {
     const parsedBody = jsUpdates[entityName].parsedBody;
+
     if (!parsedBody) return;
+
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {
         ...action,
@@ -326,12 +340,15 @@ export function parseJSActions(
 
 export function getJSEntities(dataTree: DataTree) {
   const jsCollections: Record<string, JSActionEntity> = {};
+
   Object.keys(dataTree).forEach((entityName: string) => {
     const entity = dataTree[entityName];
+
     if (isJSAction(entity)) {
       jsCollections[entityName] = entity;
     }
   });
+
   return jsCollections;
 }
 
@@ -339,8 +356,10 @@ export function updateEvalTreeWithJSCollectionState(evalTree: DataTree) {
   // loop through jsCollectionState and set all values to evalTree
   const jsCollections = JSObjectCollection.getVariableState();
   const jsCollectionEntries = Object.entries(jsCollections);
+
   for (const [jsObjectName, variableState] of jsCollectionEntries) {
     if (!evalTree[jsObjectName]) continue;
+
     evalTree[jsObjectName] = Object.assign(
       evalTree[jsObjectName],
       variableState,
@@ -352,11 +371,13 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
   const currentEvalContext = self;
 
   if (!dataTreeEvaluator) return;
+
   const evalTree = dataTreeEvaluator.getEvalTree();
 
   for (const fullPathArray of paths) {
     const [jsObjectName, variableName] = fullPathArray;
     const entity = evalTree[jsObjectName];
+
     if (jsObjectName && variableName && isJSAction(entity)) {
       if (!(jsObjectName in currentEvalContext)) continue;
 
@@ -365,6 +386,7 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
         variableName,
       ]);
       const value = variableValue;
+
       JSObjectCollection.setVariableValue(
         value,
         `${jsObjectName}.${variableName}`,

@@ -51,4 +51,5 @@ function TextInput(props: TextInputProps, ref: TextInputRef) {
 }
 
 const _TextInput = forwardRef(TextInput);
+
 export { _TextInput as TextInput };

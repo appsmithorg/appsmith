@@ -85,6 +85,7 @@ export const useRenderBlocksOnCanvas = (
       );
 
       const strokeWidth = 1;
+
       canvasCtx.setLineDash([3]);
       canvasCtx.strokeStyle = blockDimensions.isNotColliding
         ? "rgb(104,	113,	239)"
@@ -127,6 +128,7 @@ export const useRenderBlocksOnCanvas = (
       snapColumnSpace,
       snapRowSpace,
     );
+
     if (
       slidingArenaRef.current &&
       isCurrentDraggedCanvas &&
@@ -136,6 +138,7 @@ export const useRenderBlocksOnCanvas = (
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
+
       canvasCtx.save();
       canvasCtx.clearRect(
         0,
@@ -146,11 +149,13 @@ export const useRenderBlocksOnCanvas = (
       canvasCtx.beginPath();
       isCurrUpdatingRows = false;
       canvasCtx.transform(canvasZoomLevel, 0, 0, canvasZoomLevel, 0, 0);
+
       if (canvasIsDragging) {
         modifiedRectanglesToDraw.forEach((each) => {
           drawBlockOnCanvas(each, scrollParent);
         });
       }
+
       canvasCtx.restore();
     }
 

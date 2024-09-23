@@ -11,6 +11,7 @@ export default function bootIntercom(user?: User) {
     let email: string | undefined = user?.email;
     let username =
       user?.username === ANONYMOUS_USERNAME ? undefined : user?.username;
+
     if (!cloudHosting && username) {
       // We are hiding their information when self-hosted
       username = sha256(username || "");

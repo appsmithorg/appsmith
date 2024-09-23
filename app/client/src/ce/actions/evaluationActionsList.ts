@@ -126,5 +126,6 @@ export function getRequiresLinting(action: ReduxAction<unknown>) {
   // for any case apart from published mode of an app, we should trigger linting
   const requiresLinting =
     appMode !== APP_MODE.PUBLISHED && shouldTriggerLinting(action);
+
   return requiresLinting;
 }

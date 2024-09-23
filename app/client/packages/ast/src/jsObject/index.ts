@@ -65,9 +65,11 @@ export const isJSFunctionProperty = (
 export const parseJSObject = (code: string) => {
   let ast: Node = { end: 0, start: 0, type: "" };
   const result: TParsedJSProperty[] = [];
+
   try {
     const comments: any = [];
     const token: any = [];
+
     ast = getAST(code, {
       sourceType: SourceType.module,
       onComment: comments,
@@ -90,6 +92,7 @@ export const parseJSObject = (code: string) => {
         !isObjectExpression(node.declaration)
       )
         return;
+
       JSObjectProperties = node.declaration
         .properties as NodeWithLocation<PropertyNode>[];
     },
@@ -127,6 +130,7 @@ export const parseJSObject = (code: string) => {
 
     if (isPropertyAFunctionNode(node.value)) {
       const params = getFunctionalParamsFromNode(node.value, true, code);
+
       property = {
         ...property,
         arguments: [...params],
@@ -182,6 +186,7 @@ export const addPropertiesToJSObjectCode = (
         });
       },
     });
+
     return escodegen.generate(ast);
   } catch (e) {
     return code;

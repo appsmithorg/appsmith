@@ -133,11 +133,14 @@ export const getUpdateTimestamp = (state?: Record<string, any>) => {
   if (state) {
     //clone state to avoid mutating the original state.
     const copyState = JSON.parse(JSON.stringify(state));
+
     copyState.requestedAt = moment(copyState.requestedAt).format(
       "YYYY-MM-DD HH:mm:ss",
     );
+
     return copyState;
   }
+
   return state;
 };
 
@@ -204,6 +207,7 @@ const ErrorLogItem = (props: LogItemProps) => {
           downstreamErrorCode: props.pluginErrorDetails?.downstreamErrorCode,
         });
       }
+
       //update to redux store
       dispatch(toggleExpandErrorLogItem(props.id, !props.isExpanded));
     }

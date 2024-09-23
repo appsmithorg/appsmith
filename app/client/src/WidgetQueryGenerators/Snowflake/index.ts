@@ -16,6 +16,7 @@ export default abstract class Snowflake extends BaseQueryGenerator {
     formConfig: WidgetQueryGenerationFormConfig,
   ) {
     const { select } = widgetConfig;
+
     //if no table name do not build query
     if (!select || !formConfig.tableName) {
       return;
@@ -67,6 +68,7 @@ export default abstract class Snowflake extends BaseQueryGenerator {
       .reduce(
         (acc, curr) => {
           const { params, template } = curr;
+
           return {
             template: acc.template + " " + template,
             params: [...acc.params, ...params],
@@ -103,6 +105,7 @@ export default abstract class Snowflake extends BaseQueryGenerator {
     formConfig: WidgetQueryGenerationFormConfig,
   ) {
     const { update } = widgetConfig;
+
     //if no table name do not build query
     if (!update || !update.where || !formConfig.tableName) {
       return;
@@ -138,6 +141,7 @@ export default abstract class Snowflake extends BaseQueryGenerator {
     formConfig: WidgetQueryGenerationFormConfig,
   ) {
     const { create } = widgetConfig;
+
     //if no table name do not build query
     if (!create || !create.value || !formConfig.tableName) {
       return;
@@ -171,6 +175,7 @@ export default abstract class Snowflake extends BaseQueryGenerator {
     formConfig: WidgetQueryGenerationFormConfig,
   ) {
     const { select, totalRecord } = widgetConfig;
+
     //if no table name do not build query
     if (!totalRecord) {
       return;
@@ -200,6 +205,7 @@ export default abstract class Snowflake extends BaseQueryGenerator {
     pluginInitalValues: { actionConfiguration: ActionConfigurationSQL },
   ) {
     const allBuildConfigs = [];
+
     if (widgetConfig.select) {
       allBuildConfigs.push(this.buildSelect(widgetConfig, formConfig));
     }

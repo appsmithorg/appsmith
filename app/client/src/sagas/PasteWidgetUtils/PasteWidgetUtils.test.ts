@@ -127,11 +127,13 @@ describe("handleWidgetDynamicTriggerPathList", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any as FlattenedWidgetProps;
+
   it("1. should replace old widget names with new widget names in dynamic trigger paths", () => {
     const widgetNameMap = {
       oldName: "newName",
     };
     const button = klona(widget);
+
     handleWidgetDynamicTriggerPathList(widgetNameMap, button);
     expect(button.onClick).toEqual("{{newName.val}}");
   });
@@ -141,6 +143,7 @@ describe("handleWidgetDynamicTriggerPathList", () => {
       oldWidget1: "newWidget1",
     };
     const button = klona(widget);
+
     handleWidgetDynamicTriggerPathList(widgetNameMap, button);
     expect(button.onClick).toEqual("{{oldName.val}}");
   });
@@ -153,11 +156,13 @@ describe("handleWidgetDynamicBindingPathList", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any as FlattenedWidgetProps;
+
   it("1. should replace old widget names with new widget names in dynamic trigger paths", () => {
     const widgetNameMap = {
       oldName: "newName",
     };
     const button = klona(widget);
+
     handleWidgetDynamicBindingPathList(widgetNameMap, button);
     expect(button.onClick).toEqual("{{newName.val}}");
   });
@@ -167,6 +172,7 @@ describe("handleWidgetDynamicBindingPathList", () => {
       oldWidget1: "newWidget1",
     };
     const button = klona(widget);
+
     handleWidgetDynamicBindingPathList(widgetNameMap, button);
     expect(button.onClick).toEqual("{{oldName.val}}");
   });
@@ -179,11 +185,13 @@ describe("handleWidgetDynamicPropertyPathList", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any as FlattenedWidgetProps;
+
   it("1. should replace old widget names with new widget names in dynamic trigger paths", () => {
     const widgetNameMap = {
       oldName: "newName",
     };
     const button = klona(widget);
+
     handleWidgetDynamicPropertyPathList(widgetNameMap, button);
     expect(button.onClick).toEqual("{{newName.val}}");
   });
@@ -193,6 +201,7 @@ describe("handleWidgetDynamicPropertyPathList", () => {
       oldWidget1: "newWidget1",
     };
     const button = klona(widget);
+
     handleWidgetDynamicPropertyPathList(widgetNameMap, button);
     expect(button.onClick).toEqual("{{oldName.val}}");
   });

@@ -95,13 +95,17 @@ function DebuggerLogs(props: Props) {
 
   useEffect(() => {
     const list = listRef.current;
+
     if (!list) return;
+
     list.addEventListener("scroll", handleScroll);
+
     return () => list.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
     const list = listRef.current;
+
     if (list) {
       setTimeout(() => {
         list.scrollTop = list.scrollHeight - list.clientHeight;

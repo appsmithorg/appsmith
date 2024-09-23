@@ -82,6 +82,7 @@ describe("getCurrentLocationSaga", () => {
       payload,
     };
     const iter = getCurrentLocationSaga(trigger);
+
     expect(iter.next().value).toEqual(call(getUserLocation, payload.options));
 
     expect(iter.next().value).toHaveProperty(

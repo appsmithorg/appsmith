@@ -121,6 +121,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
 
   const deleteAction = () => {
     if (isDeleting) return;
+
     AnalyticsUtil.logEvent("DATASOURCE_CARD_DELETE_ACTION");
     dispatch(deleteDatasource({ id: datasourceId }));
   };
@@ -138,6 +139,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
         onSelect={(e: Event) => {
           e.preventDefault();
           e.stopPropagation();
+
           if (!isDeleting) {
             confirmDelete ? deleteAction() : setConfirmDelete(true);
           }

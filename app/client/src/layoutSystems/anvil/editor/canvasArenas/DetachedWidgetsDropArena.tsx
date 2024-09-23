@@ -45,6 +45,7 @@ export const DetachedWidgetsDropArena = (props: {
       layoutOrder: [props.anvilGlobalDragStates.mainCanvasLayoutId],
     });
   };
+
   return props.anvilGlobalDragStates.activateOverlayWidgetDrop ? (
     <DetachedWidgetsDropArenaWrapper
       data-testid="t--anvil-detached-widgets-drop-arena"

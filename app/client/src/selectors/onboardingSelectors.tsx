@@ -47,6 +47,7 @@ export const getSignpostingUnreadSteps = createSelector(
   getSignpostingStepState,
   (stepState) => {
     if (!stepState.length) return [];
+
     return stepState.filter((state) => isBoolean(state.read) && !state.read);
   },
 );
@@ -72,6 +73,7 @@ export const isWidgetActionConnectionPresent = createSelector(
         deps,
         widget.widgetName,
       );
+
       return !!intersection(depsConnections?.directDependencies, actionLables)
         .length;
     });
@@ -85,12 +87,14 @@ export const isWidgetActionConnectionPresent = createSelector(
           !!widget.dynamicTriggerPathList.find((path: { key: string }) => {
             return !!actionLables.find((label: string) => {
               const snippet = getNestedValue(widget, path.key);
+
               return snippet ? snippet.indexOf(`${label}.run`) > -1 : false;
             });
           })
         );
       });
     }
+
     return isBindingAvailable;
   },
 );

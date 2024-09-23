@@ -7,24 +7,24 @@ import {
   getDatasource,
   getEditorConfig,
   getPlugin,
-  getPluginSettingConfigs,
 } from "ee/selectors/entitiesSelector";
 import { PluginActionContextProvider } from "./PluginActionContext";
 import { get } from "lodash";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { Text } from "@appsmith/ads";
+import { useIsEditorInitialised } from "IDE/hooks";
+import { useActionSettingsConfig } from "./hooks";
 
 interface ChildrenProps {
-  children: React.ReactNode[];
+  children: React.ReactNode | React.ReactNode[];
 }
 
 const PluginActionEditor = (props: ChildrenProps) => {
   const { pathname } = useLocation();
 
-  const isEditorInitialized = useSelector(getIsEditorInitialized);
+  const isEditorInitialized = useIsEditorInitialised();
 
   const entity = identifyEntityFromPath(pathname);
   const action = useSelector((state) => getActionByBaseId(state, entity.id));
@@ -35,9 +35,7 @@ const PluginActionEditor = (props: ChildrenProps) => {
   const datasourceId = get(action, "datasource.id", "");
   const datasource = useSelector((state) => getDatasource(state, datasourceId));
 
-  const settingsConfig = useSelector((state) =>
-    getPluginSettingConfigs(state, pluginId),
-  );
+  const settingsConfig = useActionSettingsConfig(action);
 
   const editorConfig = useSelector((state) => getEditorConfig(state, pluginId));
 

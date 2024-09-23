@@ -47,6 +47,7 @@ function TableAction(props: TableActionProps) {
     },
     [props.selected],
   );
+
   return (
     <TableIconWrapper
       className={props.className}

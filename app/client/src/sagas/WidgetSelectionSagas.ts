@@ -66,6 +66,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     const {
       basePageId,
       invokedBy,
+      parentId,
       payload = [],
       selectionRequestType,
     } = action.payload;
@@ -79,6 +80,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     const isOnEditorURL = !!getAppViewerPageIdFromPath(
       window.location.pathname,
     );
+
     if (payload.some(isInvalidSelectionRequest) || !isOnEditorURL) {
       // Throw error
       return;
@@ -93,8 +95,9 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     // It is possible that the payload is empty.
     // These properties can be used for a finding sibling widgets for certain types of selections
     const widgetId = payload[0];
-    const parentId: string | undefined =
-      widgetId in allWidgets ? allWidgets[widgetId].parentId : undefined;
+    const finalParentId: string | undefined =
+      parentId ||
+      (widgetId in allWidgets ? allWidgets[widgetId].parentId : undefined);
 
     if (
       widgetId &&
@@ -115,7 +118,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       }
       case SelectionRequestType.One:
       case SelectionRequestType.Create: {
-        assertParentId(parentId);
+        assertParentId(finalParentId);
         newSelection = selectOneWidget(payload);
         break;
       }
@@ -124,11 +127,12 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         break;
       }
       case SelectionRequestType.ShiftSelect: {
-        assertParentId(parentId);
+        assertParentId(finalParentId);
         const siblingWidgets: string[] = yield select(
           getWidgetImmediateChildren,
-          parentId,
+          finalParentId,
         );
+
         newSelection = shiftSelectWidgets(
           payload,
           siblingWidgets,
@@ -138,11 +142,12 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         break;
       }
       case SelectionRequestType.PushPop: {
-        assertParentId(parentId);
+        assertParentId(finalParentId);
         const siblingWidgets: string[] = yield select(
           getWidgetImmediateChildren,
-          parentId,
+          finalParentId,
         );
+
         newSelection = pushPopWidgetSelection(
           payload,
           selectedWidgets,
@@ -151,7 +156,17 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         break;
       }
       case SelectionRequestType.Unselect: {
-        newSelection = unselectWidget(payload, selectedWidgets);
+        const isParentExists = finalParentId
+          ? finalParentId in allWidgets
+          : false;
+
+        if (isParentExists) {
+          assertParentId(finalParentId);
+          newSelection = [finalParentId];
+        } else {
+          newSelection = unselectWidget(payload, selectedWidgets);
+        }
+
         break;
       }
       case SelectionRequestType.All: {
@@ -171,11 +186,13 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
     ) {
       const selectionWidgetId = newSelection[0];
       const parentId = allWidgets[selectionWidgetId].parentId;
+
       if (parentId) {
         const selectionSiblingWidgets: string[] = yield select(
           getWidgetImmediateChildren,
           parentId,
         );
+
         newSelection = newSelection.filter((each) =>
           selectionSiblingWidgets.includes(each),
         );
@@ -184,8 +201,10 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
 
     if (areArraysEqual([...newSelection], [...selectedWidgets])) {
       yield put(setSelectedWidgets(newSelection));
+
       return;
     }
+
     yield call(
       appendSelectedWidgetToUrlSaga,
       newSelection,
@@ -223,6 +242,7 @@ function* appendSelectedWidgetToUrlSaga(
   );
   const appMode: APP_MODE = yield select(getAppMode);
   const viewMode = appMode === APP_MODE.PUBLISHED;
+
   if (isSnipingMode || viewMode) return;
 
   const { pathname } = window.location;
@@ -240,9 +260,11 @@ function* appendSelectedWidgetToUrlSaga(
         persistExistingParams: true,
         selectedWidgets: [MAIN_CONTAINER_WIDGET_ID],
       });
+
   if (invokedBy === NavigationMethod.CanvasClick && isWidgetSelectionBlocked) {
     AnalyticsUtil.logEvent("CODE_MODE_WIDGET_SELECTION");
   }
+
   if (currentURL !== newUrl) {
     history.push(newUrl, { invokedBy });
   }
@@ -263,6 +285,7 @@ function* waitForInitialization(saga: any, action: ReduxAction<unknown>) {
   // Wait until we're done fetching the page
   // This is so that we can reliably assume that the Editor and the Canvas have loaded
   const isPageFetching: boolean = yield select(getIsFetchingPage);
+
   if (isPageFetching) {
     yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
   }
@@ -281,7 +304,9 @@ function* handleWidgetSelectionSaga(
 
 function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   const widgetsToSelect = action.payload.widgetIds;
+
   if (widgetsToSelect.length !== 1) return;
+
   if (
     widgetsToSelect.length === 1 &&
     widgetsToSelect[0] === MAIN_CONTAINER_WIDGET_ID
@@ -319,6 +344,7 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
     const indexOfParentModalWidget: number = widgetAncestry.findIndex((id) =>
       modalWidgetIds.includes(id),
     );
+
     // If we found a modal widget in the ancestry, we want to open that modal
     if (indexOfParentModalWidget > -1) {
       // Set the flag to true, so that we can open the modal
@@ -326,7 +352,9 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
       modalWidgetToOpen = widgetAncestry[indexOfParentModalWidget];
     }
   }
+
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+
   if (isAnvilLayout) {
     // If widget is modal and modal is already open, skip opening it
     const modalProps = allWidgets[modalWidgetToOpen];
@@ -346,6 +374,7 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   if (widgetIsModal || widgetIsChildOfModal) {
     yield put(showModal(modalWidgetToOpen));
   }
+
   if (!widgetIsModal && !widgetIsChildOfModal) {
     yield put({
       type: ReduxActionTypes.CLOSE_MODAL,
@@ -356,13 +385,16 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
 
 function* focusOnWidgetSaga(action: ReduxAction<{ widgetIds: string[] }>) {
   if (action.payload.widgetIds.length > 1) return;
+
   const widgetId = action.payload.widgetIds[0];
+
   if (widgetId) {
     const allWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
     const widgetIdSelector: string = yield select(
       getWidgetSelectorByWidgetId,
       widgetId,
     );
+
     quickScrollToWidget(widgetId, widgetIdSelector, allWidgets);
   }
 }
@@ -388,6 +420,7 @@ function* setWidgetAncestry(action: ReduxAction<SetSelectedWidgetsPayload>) {
   } else {
     yield put(setSelectedWidgetAncestry(widgetAncestry));
   }
+
   yield put(setEntityExplorerAncestry(widgetAncestry));
 }
 

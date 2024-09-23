@@ -73,6 +73,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     if (this.props.defaultValue) {
       if (this.props.isMultiSelect) {
         const defaultValueSet = new Set(this.props.defaultValue);
+
         defaultSelected = options
           .filter((option) => defaultValueSet.has(option.value))
           .map((option) => option.value);
@@ -87,6 +88,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
     if (this.props.isMultiSelect) {
       const propertyValueSet = new Set(this.props.propertyValue);
+
       selected = options
         .filter((option) => propertyValueSet.has(option.value))
         .map((option) => option.value);
@@ -183,9 +185,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   onSelect = (value?: string): void => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
+
       if (this.props.isMultiSelect) {
         if (Array.isArray(selectedValue)) {
           const index = selectedValue.indexOf(value);
+
           if (index >= 0) {
             selectedValue = [
               ...selectedValue.slice(0, index),
@@ -200,6 +204,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       } else {
         selectedValue = value;
       }
+
       this.updateProperty(this.props.propertyName, selectedValue);
     }
   };
@@ -207,9 +212,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   onDeselect = (value?: string) => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
+
       if (this.props.isMultiSelect) {
         if (Array.isArray(selectedValue)) {
           const index = selectedValue.indexOf(value);
+
           if (index >= 0) {
             selectedValue = [
               ...selectedValue.slice(0, index),
@@ -222,6 +229,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       } else {
         selectedValue = "";
       }
+
       this.updateProperty(this.props.propertyName, selectedValue);
     }
   };
@@ -250,15 +258,18 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     const allowedValues = new Set(
       options?.map((x: { value: string | number }) => x.value.toString()),
     );
+
     if (config.isMultiSelect) {
       try {
         const values = JSON.parse(value);
+
         for (const x of values) {
           if (!allowedValues.has(x.toString())) return false;
         }
       } catch {
         return false;
       }
+
       return true;
     } else {
       return allowedValues.has(value);

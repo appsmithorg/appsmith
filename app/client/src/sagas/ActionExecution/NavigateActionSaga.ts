@@ -57,6 +57,7 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
 
     if (target === NavigationTargetType.SAME_WINDOW) {
       history.push(path);
+
       if (currentPageId === page.pageId) {
         yield call(setDataUrl);
         yield put({
@@ -66,6 +67,7 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(path, "_blank");
     }
+
     AppsmithConsole.info({
       text: `navigateTo('${page.pageName}') was triggered`,
       state: {
@@ -84,9 +86,11 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
 
       // Default to https protocol to support navigation to URLs like www.google.com
       url = `https://${url}`;
+
       if (!isValidURL(url))
         throw new TriggerFailureError("Enter a valid URL or page name");
     }
+
     if (target === NavigationTargetType.SAME_WINDOW) {
       window.location.assign(url);
     } else if (target === NavigationTargetType.NEW_WINDOW) {

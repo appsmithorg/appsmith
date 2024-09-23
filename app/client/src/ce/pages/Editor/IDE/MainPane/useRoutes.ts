@@ -49,6 +49,7 @@ export interface RouteReturnType extends RouteProps {
 
 function useRoutes(path: string): RouteReturnType[] {
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
+
   return [
     {
       key: "Canvas",

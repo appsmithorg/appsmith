@@ -5,7 +5,7 @@ import EditorNavigation, {
 
 describe(
   "Dynamic Height Width validation with limits",
-  { tags: ["@tag.AutoHeight"] },
+  { tags: ["@tag.AutoHeight", "@tag.Sanity"] },
   function () {
     it("1. Validate change in auto height with limits width for widgets and highlight section validation", function () {
       agHelper.AddDsl("dynamicHeightContainerdsl");

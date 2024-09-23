@@ -94,6 +94,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     getWidgetByID(dragDetails.draggedOn || ""),
   );
   const isReflowing = useSelector(getIsReflowing);
+
   useEffect(() => {
     if (
       dragDetails.draggedOn &&
@@ -147,6 +148,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
       currentOffset.x - parentOffset.x,
       currentOffset.y - parentOffset.y,
     );
+
     return {
       X: leftColumn * parentColumnWidth,
       Y: topRow * parentRowHeight,
@@ -184,6 +186,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     const reflowedBlocks: WidgetDraggingBlock[] =
       reflowedPositionsUpdatesWidgets.map((each) => {
         const widget = allWidgets[each.id];
+
         return {
           left: each.left * snapColumnSpace,
           top: each.top * snapRowSpace,
@@ -202,6 +205,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     const cannotDrop = allUpdatedBlocks.some((each) => {
       return !each.isNotColliding;
     });
+
     if (!cannotDrop) {
       const draggedBlocksToUpdate = allUpdatedBlocks
         .sort(
@@ -232,6 +236,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
             updateWidgetParams,
           };
         });
+
       dispatchDrop(draggedBlocksToUpdate);
     }
   };
@@ -246,6 +251,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
       const movedWidgets = draggedBlocksToUpdate.filter(
         (each) => each.updateWidgetParams.operation !== "ADD_CHILD",
       );
+
       if (newWidget) {
         addNewWidget(newWidget, movedWidgets);
       }
@@ -271,6 +277,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     movedWidgets: WidgetDraggingUpdateParams[],
   ) => {
     const { updateWidgetParams } = newWidget;
+
     if (movedWidgets && movedWidgets.length) {
       dispatch({
         type: ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
@@ -310,6 +317,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   };
 
   const rowRef = useRef(snapRows);
+
   useEffect(() => {
     rowRef.current = snapRows;
   }, [snapRows, isDragging]);
@@ -356,6 +364,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const occSpaces: OccupiedSpace[] = isChildOfCanvas
     ? filteredChildOccupiedSpaces
     : currentOccSpaces;
+
   return {
     blocksToDraw,
     defaultHandlePositions,

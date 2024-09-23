@@ -45,6 +45,7 @@ const getMockStore = (
   };
   const mockStore = configureStore([]);
   const newStatusSlice = merge(statusSlice, override);
+
   return mockStore({
     ui: {
       gitSync: {
@@ -63,6 +64,7 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
+
     expect(
       getByTestId("t--status-change-skeleton-loading"),
     ).toBeInTheDocument();
@@ -76,6 +78,7 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
+
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
@@ -106,6 +109,7 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
+
     expect(getByTestId("t--status-change-PAGE-Page1")).toBeInTheDocument();
     expect(getByTestId("t--status-change-PAGE-Page2")).toBeInTheDocument();
     expect(getByTestId("t--status-change-PAGE-Page3")).toBeInTheDocument();
@@ -141,6 +145,7 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
+
     expect(getByTestId("t--status-change-DATASOURCES")).toBeInTheDocument();
     expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
     expect(
@@ -265,6 +270,7 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
+
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
@@ -294,6 +300,7 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
+
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
@@ -318,6 +325,7 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
+
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
@@ -346,6 +354,7 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
+
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
@@ -374,6 +383,7 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
+
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();

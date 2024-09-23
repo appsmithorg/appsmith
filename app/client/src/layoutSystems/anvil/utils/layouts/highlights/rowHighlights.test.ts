@@ -33,6 +33,7 @@ describe("rowHighlights tests", () => {
     layout: [],
     layoutType: LayoutComponentTypes.WIDGET_ROW,
   };
+
   describe("checkIntersection", () => {
     it("returns true if the lines intersect the same space", () => {
       // Lines starting at the same point.
@@ -111,6 +112,7 @@ describe("rowHighlights tests", () => {
         data,
         getDimensions,
       );
+
       // There should be 1 row.
       expect(res.metaData.length).toEqual(1);
       // All three widgets should be in the same row.
@@ -190,6 +192,7 @@ describe("rowHighlights tests", () => {
         data,
         getDimensions,
       );
+
       // There should be 2 rows.
       expect(res.metaData.length).toEqual(2);
       // There should two widgets in each row.
@@ -271,6 +274,7 @@ describe("rowHighlights tests", () => {
         data,
         getDimensions,
       );
+
       // There should be 2 rows.
       expect(res.metaData.length).toEqual(2);
       // There should two widgets in each row.
@@ -302,6 +306,7 @@ describe("rowHighlights tests", () => {
         top: false,
       },
     };
+
     it("should derive highlights for a row", () => {
       const data: WidgetLayoutProps[] = [
         {
@@ -645,6 +650,7 @@ describe("rowHighlights tests", () => {
           responsiveBehavior: ResponsiveBehavior.Hug,
         },
       ]);
+
       expect(res[0].posY).toEqual(0);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
       expect(res[0].posX).toEqual(0);
@@ -722,6 +728,7 @@ describe("rowHighlights tests", () => {
         },
       ]);
       const posX: number = positions[layout.layoutId].width - HIGHLIGHT_SIZE;
+
       expect(res).toBeDefined();
       expect(res[0].posY).toEqual(0);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.End);
@@ -915,6 +922,7 @@ describe("rowHighlights tests", () => {
           responsiveBehavior: ResponsiveBehavior.Hug,
         },
       ]);
+
       expect(res.length).toEqual(3);
       // First highlight should be placed before dragged widget
       expect(res[0].posX).toBeLessThan(positions[button1].left);

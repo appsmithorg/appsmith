@@ -29,6 +29,7 @@ const ModalBodyWrapper = styled(ModalBody)`
   width: 100%;
   overflow-y: hidden;
 `;
+
 function TemplatesModal() {
   const templatesModalInfo = useSelector(templateModalSelector);
   const dispatch = useDispatch();
@@ -41,6 +42,7 @@ function TemplatesModal() {
 
   useEffect(() => {
     setShowTemplateDetails("");
+
     if (templatesModalInfo.isOpen) {
       dispatch({
         type: ReduxActionTypes.RESET_TEMPLATE_FILTERS,

@@ -168,6 +168,7 @@ function WorkspaceInviteUsers(props: any) {
                     ? user.roles?.[0]?.entityType === ENTITY_TYPE.APPLICATION
                     : user.roles?.[0]?.entityType === ENTITY_TYPE.WORKSPACE) &&
                   user.roles?.[0]?.id;
+
                 return showUser ? (
                   <User
                     key={user?.userGroupId ? user.userGroupId : user.username}

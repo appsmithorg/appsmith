@@ -143,10 +143,10 @@ describe(
     });
 
     it("11. Verify table search includes label and value for table with select column type", () => {
+      deployMode.NavigateBacktoEditor();
       // This flag is turned on to allow the label show in the table select cell content
       // when this feature is turned on fully, this flag will be removed
       featureFlagIntercept({ release_table_cell_label_value_enabled: true });
-      deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.EnterJSContext("Table data", demoTableDataForSelect);
 

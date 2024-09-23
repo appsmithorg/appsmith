@@ -48,9 +48,11 @@ const chars = [
 // get excel column name from index, e.g. A,B,...,AA,AB
 const numberToExcelHeader = (index: number): string => {
   const quotient = Math.floor(index / 26);
+
   if (quotient > 0) {
     return numberToExcelHeader(quotient - 1) + chars[index % 26];
   }
+
   return chars[index % 26];
 };
 
@@ -72,6 +74,7 @@ export const parseExcelData = (rawData: RawSheetData): ExcelData => {
 
       // process body
       let cellValue = dataValue;
+
       if (_.isDate(dataValue)) {
         cellValue = dataValue.toDateString();
       }
@@ -81,6 +84,7 @@ export const parseExcelData = (rawData: RawSheetData): ExcelData => {
 
     body.push(currRow);
   }
+
   return {
     headers: headers,
     body: body,

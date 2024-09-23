@@ -16,6 +16,7 @@ export const getIsBranchUpdated = (
 
 export const addClassToDocumentRoot = (className: string) => {
   const element: HTMLElement | null = document.querySelector("#root");
+
   if (!!element) {
     element.classList.add(className);
   }
@@ -23,6 +24,7 @@ export const addClassToDocumentRoot = (className: string) => {
 
 export const removeClassFromDocumentRoot = (className: string) => {
   const element: HTMLElement | null = document.querySelector("#root");
+
   if (!!element) {
     element.classList.remove(className);
   }

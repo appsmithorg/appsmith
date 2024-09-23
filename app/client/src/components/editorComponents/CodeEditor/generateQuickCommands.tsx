@@ -163,6 +163,7 @@ export function ShowMoreCommand(props: {
     const loadMoreOptionIndex = filteredCommands.findIndex(
       (element) => element.displayText === showMoreLabel,
     );
+
     if (loadMoreOptionIndex !== -1) {
       const suggestionList = matchingCommands(
         props.suggestions.slice(
@@ -171,6 +172,7 @@ export function ShowMoreCommand(props: {
         ),
         props.searchText,
       ).slice(0, props.suggestions.length);
+
       filteredCommands.splice(loadMoreOptionIndex, 1, ...suggestionList);
     }
 
@@ -184,6 +186,7 @@ export function ShowMoreCommand(props: {
       ),
     );
   };
+
   return (
     <div
       className="command-container relative cursor-pointer w-full"
@@ -220,6 +223,7 @@ export function Command(props: {
   const switchToAction: MouseEventHandler<HTMLElement> = useCallback(
     (event) => {
       event.stopPropagation();
+
       if (!props.url) return;
 
       history.push(props.url, { invokedBy: NavigationMethod.SlashCommandHint });
@@ -299,6 +303,7 @@ export const generateQuickCommands = (
       });
       // Event for datasource creation click
       const entryPoint = DatasourceCreateEntryPoints.CODE_EDITOR_SLASH_COMMAND;
+
       AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
         entryPoint,
       });
@@ -308,6 +313,7 @@ export const generateQuickCommands = (
 
   const suggestions = entitiesForSuggestions.map((suggestion) => {
     const name = suggestion.name;
+
     return {
       text:
         suggestion.type === ENTITY_TYPE.ACTION
@@ -323,6 +329,7 @@ export const generateQuickCommands = (
         let icon = null;
         const completionData = data.data as NavigationData;
         const plugin = pluginIdToPlugin[completionData.pluginId || ""];
+
         if (completionData.type === ENTITY_TYPE.JSACTION) {
           icon = JsFileIconV2(16, 16);
         } else if (plugin?.iconLocation) {
@@ -332,6 +339,7 @@ export const generateQuickCommands = (
             </EntityIcon>
           );
         }
+
         ReactDOM.render(
           <Command
             eventParams={{
@@ -376,6 +384,7 @@ export const generateQuickCommands = (
             />
           </EntityIcon>
         );
+
         ReactDOM.render(
           <Command icon={icon} name={`New ${data.displayText} query`} />,
           element,
@@ -399,6 +408,7 @@ export const generateQuickCommands = (
         });
       },
     });
+
     commonCommands.unshift(askGPT);
   }
 
@@ -443,6 +453,7 @@ export const generateQuickCommands = (
         commandsHeader("Bind data", "", filteredCommands.length > 0),
       );
       filteredCommands.push(...limitedSuggestions);
+
       if (
         suggestionsMatchingSearchText.length > NO_OF_QUERIES_TO_SHOW_BY_DEFAULT
       ) {
@@ -452,6 +463,7 @@ export const generateQuickCommands = (
 
     if (currentEntityType === ENTITY_TYPE.WIDGET) {
       const createNewCommands: CommandsCompletion[] = [];
+
       createNewCommands.push(...datasourceCommands);
 
       // Get top 3 matching create new commands
