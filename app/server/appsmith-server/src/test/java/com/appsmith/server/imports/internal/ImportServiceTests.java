@@ -21,6 +21,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.ImportExportConstants;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -899,14 +900,11 @@ public class ImportServiceTests {
                 importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null);
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(
-                        throwable -> throwable instanceof AppsmithException
-                                && throwable
-                                        .getMessage()
-                                        .equals(
-                                                AppsmithError.VALIDATION_FAILURE.getMessage(
-                                                        "Field '" + FieldName.APPLICATION
-                                                                + "' Sorry! Seems like you've imported a page-level json instead of an application. Please use the import within the page.")))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.VALIDATION_FAILURE.getMessage("Field '" + FieldName.APPLICATION
+                                        + ImportExportConstants.ARTIFACT_JSON_IMPORT_VALIDATION_ERROR_MESSAGE)))
                 .verify();
     }
 

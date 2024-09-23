@@ -6,6 +6,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.aspect.TransactionAspect;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.ImportExportConstants;
 import com.appsmith.server.converters.ArtifactExchangeJsonAdapter;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Artifact;
@@ -432,11 +433,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         log.error("Error in importing {}. Field {} is missing", artifactContextString, errorField);
 
                         if (errorField.equals(artifactContextString)) {
-                            return Mono.error(
-                                    new AppsmithException(
-                                            AppsmithError.VALIDATION_FAILURE,
-                                            "Field '" + artifactContextString
-                                                    + "'. Sorry! It seems you've imported a page-level JSON instead of an application. Please use the import within the page."));
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.VALIDATION_FAILURE,
+                                    "Field '" + artifactContextString
+                                            + ImportExportConstants.ARTIFACT_JSON_IMPORT_VALIDATION_ERROR_MESSAGE));
                         }
 
                         return Mono.error(new AppsmithException(
