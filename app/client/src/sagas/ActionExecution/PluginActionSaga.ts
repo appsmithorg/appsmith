@@ -1,6 +1,7 @@
 import {
   all,
   call,
+  delay,
   put,
   select,
   take,
@@ -441,7 +442,11 @@ function* evaluateActionParams(
       const arrDatatype: Array<string> = [];
 
       // array of objects containing blob urls that is loops and individual object is checked for resolution of blob urls.
-      for (const val of value) {
+
+      const BATCH_CHUNK_SIZE = 100;
+
+      for (let j = 0; j < value.length; j++) {
+        const val = value[j];
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const newVal: Record<string, any> = yield call(
@@ -473,6 +478,11 @@ function* evaluateActionParams(
           filePickerInstrumentation["totalSize"] += size;
           filePickerInstrumentation["fileSizes"].push(size);
           filePickerInstrumentation["fileTypes"].push(type);
+        }
+
+        if ((j + 1) % BATCH_CHUNK_SIZE === 0) {
+          // Yield control back to the event loop and empty the stack trace
+          yield delay(0);
         }
       }
 
