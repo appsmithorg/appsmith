@@ -21,6 +21,7 @@ export default {
           ColumnTypes.NUMBER,
           ColumnTypes.DATE,
           ColumnTypes.CURRENCY,
+          ColumnTypes.SELECT,
         ],
         true,
       )
