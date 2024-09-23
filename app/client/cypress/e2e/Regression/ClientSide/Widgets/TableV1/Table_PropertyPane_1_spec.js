@@ -106,7 +106,7 @@ describe(
     it("3. Column Detail - Edit column name and validate test for computed value based on column type selected (image, button , url)", function () {
       // Changing Column data type from "Date" to "Image"
       const imageVal =
-        "https://images.pexels.com/photos/736230/pexels-photo-736230.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500";
+        "http://host.docker.internal:4200/453-200x300.jpg";
 
       cy.changeColumnType("Image", false);
       // "Moement "date" to "Image"

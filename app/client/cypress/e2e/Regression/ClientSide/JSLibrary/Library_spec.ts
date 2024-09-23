@@ -68,9 +68,10 @@ describe(
       AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.OpenInstaller();
       installer.InstallLibraryViaURL(
-        "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
+        "http://host.docker.internal:4200/+esm.js",
         "fast_xml_parser",
       );
+      cy.pause();
       agHelper.Sleep(2000);
       // Uninstallation should succeed
       installer.uninstallLibrary("fast_xml_parser");
@@ -79,7 +80,7 @@ describe(
       // Reinstallation should succeed with the same accessor
       installer.OpenInstaller();
       installer.InstallLibraryViaURL(
-        "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
+        "http://host.docker.internal:4200/%2Besm.js",
         "fast_xml_parser",
       );
     });

@@ -22,7 +22,7 @@
         "children": [
             {
                 "isVisible": true,
-                "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                 "imageShape": "RECTANGLE",
                 "maxZoomLevel": 1,
                 "image": "",

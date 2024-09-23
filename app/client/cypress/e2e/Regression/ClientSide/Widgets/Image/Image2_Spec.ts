@@ -16,12 +16,12 @@ describe(
   { tags: ["@tag.Widget", "@tag.Image"] },
   function () {
     const image = (src: string) => 'img[src="' + src + '"]';
-    const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
+    const jpgImg = "http://host.docker.internal:4200/453-200x300.jpg";
     const gifImg =
-      "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/5eeea355389655.59822ff824b72.gif";
-    const svgImg = "https://assets.codepen.io/3/kiwi.svg";
-    const webpImg = "https://www.gstatic.com/webp/gallery/4.sm.webp";
-    const pngImg = "https://assets.appsmith.com/widgets/default.png";
+      "http://host.docker.internal:4200/sampleGIFfile.gif";
+    const svgImg = "http://host.docker.internal:4200/kiwi.svg";
+    const webpImg = "http://host.docker.internal:4200/4_sm.webp";
+    const pngImg = "http://host.docker.internal:4200/clouddefaultImage.png";
 
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.IMAGE);

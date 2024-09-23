@@ -18,9 +18,9 @@ describe(
   { tags: ["@tag.Widget", "@tag.Modal"] },
   function () {
     const image = (src: string) => 'img[src="' + src + '"]';
-    const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
+    const jpgImg = "http://host.docker.internal:4200/453-200x300.jpg";
     const gifImg =
-      "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/5eeea355389655.59822ff824b72.gif";
+      "http://host.docker.internal:4200/sampleGIFfile.gif";
 
     it("1. Modal widget functionality", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);

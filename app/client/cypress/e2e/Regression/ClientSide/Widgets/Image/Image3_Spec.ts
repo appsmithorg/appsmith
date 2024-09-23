@@ -15,7 +15,7 @@ describe(
   "Image widget - Rotation & Download",
   { tags: ["@tag.Widget", "@tag.Image"] },
   function () {
-    const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
+    const jpgImg = "http://host.docker.internal:4200/453-200x300.jpg";
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.IMAGE);
       propPane.UpdatePropertyFieldValue("Image", jpgImg);

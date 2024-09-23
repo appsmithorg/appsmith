@@ -26957,7 +26957,7 @@
                               "imageShape": "RECTANGLE",
                               "dynamicBindingPathList": [{ "key": "image" }],
                               "leftColumn": 0,
-                              "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                              "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                               "key": "lsc53q139g",
                               "image": "{{File_List.listData.map((currentItem) => currentItem.img)}}",
                               "rightColumn": 16,
@@ -28396,7 +28396,7 @@
                               "imageShape": "RECTANGLE",
                               "leftColumn": 0,
                               "dynamicBindingPathList": [{ "key": "image" }],
-                              "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png"
+                              "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png"
                             },
                             "Container4": {
                               "backgroundColor": "white",
@@ -28656,7 +28656,7 @@
                                           "dynamicBindingPathList": [
                                             { "key": "image" }
                                           ],
-                                          "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                                          "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                                           "labelTextSize": "0.875rem",
                                           "image": "{{currentItem.data}}",
                                           "rightColumn": 19,
@@ -29548,7 +29548,7 @@
                               "imageShape": "RECTANGLE",
                               "dynamicBindingPathList": [{ "key": "image" }],
                               "leftColumn": 0,
-                              "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                              "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                               "key": "lsc53q139g",
                               "image": "{{File_List.listData.map((currentItem) => currentItem.img)}}",
                               "rightColumn": 16,
@@ -30987,7 +30987,7 @@
                               "imageShape": "RECTANGLE",
                               "leftColumn": 0,
                               "dynamicBindingPathList": [{ "key": "image" }],
-                              "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png"
+                              "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png"
                             },
                             "Container4": {
                               "backgroundColor": "white",
@@ -31247,7 +31247,7 @@
                                           "dynamicBindingPathList": [
                                             { "key": "image" }
                                           ],
-                                          "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+                                          "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                                           "labelTextSize": "0.875rem",
                                           "image": "{{currentItem.data}}",
                                           "rightColumn": 19,

@@ -46,7 +46,7 @@ describe(
       agHelper.GetNClickByContains(dataSources._dropdownOption, "img");
 
       GenerateCRUDNValidateDeployPage(
-        "http://www.serebii.net/pokemongo/pokemon/150.png",
+        "http://host.docker.internal:4200/150.png",
         "150",
         `["Bug","Ghost","Dark"]`,
         10,

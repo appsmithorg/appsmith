@@ -1955,7 +1955,7 @@ export const defaultAppState = {
             key: "image",
           },
         ],
-        defaultImage: "https://assets.appsmith.com/widgets/default.png",
+        defaultImage: "http://host.docker.internal:4200/clouddefaultImage.png",
         key: "0pndua8j2k",
         image: "{{tbl_userInfo.selectedRow.image}}",
         isDeprecated: false,
@@ -14706,7 +14706,8 @@ export const defaultAppState = {
                 key: "image",
               },
             ],
-            defaultImage: "https://assets.appsmith.com/widgets/default.png",
+            defaultImage:
+              "http://host.docker.internal:4200/clouddefaultImage.png",
             key: "0pndua8j2k",
             image: "{{tbl_userInfo.selectedRow.image}}",
             isDeprecated: false,
