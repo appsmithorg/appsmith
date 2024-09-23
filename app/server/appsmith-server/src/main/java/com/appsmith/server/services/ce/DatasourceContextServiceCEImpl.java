@@ -13,6 +13,7 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.DatasourceContextIdentifier;
+import com.appsmith.server.domains.DatasourcePluginContext;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -20,6 +21,10 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -29,6 +34,7 @@ import reactor.core.scheduler.Schedulers;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 @Slf4j
@@ -38,6 +44,13 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     protected final Map<DatasourceContextIdentifier, Mono<DatasourceContext<Object>>> datasourceContextMonoMap;
     protected final Map<DatasourceContextIdentifier, Object> datasourceContextSynchronizationMonitorMap;
     protected final Map<DatasourceContextIdentifier, DatasourceContext<?>> datasourceContextMap;
+
+    protected final Cache<DatasourceContextIdentifier, DatasourcePluginContext> datasourcePluginContextMapLRUCache =
+            CacheBuilder.newBuilder()
+                    .removalListener(createRemovalListener())
+                    .expireAfterAccess(2, TimeUnit.HOURS)
+                    .build();
+
     private final DatasourceService datasourceService;
     private final DatasourceStorageService datasourceStorageService;
     private final PluginService pluginService;
@@ -65,6 +78,48 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         this.datasourceContextSynchronizationMonitorMap = new ConcurrentHashMap<>();
         this.configService = configService;
         this.datasourcePermission = datasourcePermission;
+    }
+
+    private RemovalListener<DatasourceContextIdentifier, DatasourcePluginContext> createRemovalListener() {
+        return (RemovalNotification<DatasourceContextIdentifier, DatasourcePluginContext> removalNotification) -> {
+            handleRemoval(removalNotification);
+        };
+    }
+
+    private void handleRemoval(
+            RemovalNotification<DatasourceContextIdentifier, DatasourcePluginContext> removalNotification) {
+        final DatasourceContextIdentifier datasourceContextIdentifier = removalNotification.getKey();
+        final DatasourcePluginContext datasourcePluginContext = removalNotification.getValue();
+
+        log.debug(
+                "Removing Datasource Context from cache and closing the open connection for DatasourceId: {} and environmentId: {}",
+                datasourceContextIdentifier.getDatasourceId(),
+                datasourceContextIdentifier.getEnvironmentId());
+
+        // Close connection and remove entry from both cache maps
+        final Object connection =
+                datasourceContextMap.get(datasourceContextIdentifier).getConnection();
+
+        Mono<Plugin> pluginMono =
+                pluginService.findById(datasourcePluginContext.getPluginId()).cache();
+        if (connection != null) {
+            try {
+                pluginExecutorHelper
+                        .getPluginExecutor(pluginMono)
+                        .flatMap(
+                                pluginExecutor -> Mono.fromRunnable(() -> pluginExecutor.datasourceDestroy(connection)))
+                        .onErrorResume(e -> {
+                            log.error("Error destroying stale datasource connection", e);
+                            return Mono.empty();
+                        })
+                        .subscribe(); // Trigger the execution
+            } catch (Exception e) {
+                log.info(Thread.currentThread().getName() + ": Error destroying stale datasource connection", e);
+            }
+        }
+        // Remove the entries from both maps
+        datasourceContextMonoMap.remove(datasourceContextIdentifier);
+        datasourceContextMap.remove(datasourceContextIdentifier);
     }
 
     /**
