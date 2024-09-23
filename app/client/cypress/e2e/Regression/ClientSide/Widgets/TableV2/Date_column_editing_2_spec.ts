@@ -10,6 +10,8 @@ import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import { getFormattedTomorrowDates } from "./helpers";
+import { unixTableV2Data } from "./fixtures";
 
 describe(
   "Table widget date column inline editing functionality",
@@ -94,82 +96,14 @@ describe(
     });
 
     it("4. should allow input format of Unix Timestamp(ms) and not throw Invalid Value error when inline editing", () => {
-      // Get string format for tomorrow date - Sat Sep 21 2024 format
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const formattedTomorrowDateVerbose = tomorrow
-        .toLocaleDateString("en-US", {
-          weekday: "short",
-          year: "numeric",
-          month: "short",
-          day: "2-digit",
-        })
-        .replace(/,/g, "");
-
-      // Get strig format for tomorrow date - 2024-09-21
-      const formattedTomorrowDateYYYYMMDD = tomorrow
-        .toISOString()
-        .split("T")[0];
+      const { verboseFormat, isoFormat } = getFormattedTomorrowDates();
 
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 
       propPane.NavigateBackToPropertyPane();
 
       // Update table data
-      propPane.UpdatePropertyFieldValue(
-        "Table data",
-        `
-        {{
-          [
-              {
-                unix: 1726713837918,
-                role: 1,
-                id: 1,
-                name: "Alice Johnson",
-                email: "alice.johnson@example.com",
-                age: 28,
-                gender: 2,
-              },
-              {
-                unix: 1726713837918,
-                role: 2,
-                id: 2,
-                name: "Bob Smith",
-                email: "bob.smith@example.com",
-                age: 34,
-                gender: 1
-              },
-              {
-                unix: 1726713837918,
-                role: 3,
-                id: 3,
-                name: "Charlie Brown",
-                email: "charlie.brown@example.com",
-                age: 25,
-                gender: 3
-              },
-              {
-                unix: 1726713837918,
-                role: 2,
-                id: 4,
-                name: "Diana Prince",
-                email: "diana.prince@example.com",
-                age: 30,
-                gender: 2
-              },
-              {
-                unix: 1726713837918,
-                role: 1,
-                id: 5,
-                name: "Evan Williams",
-                email: "evan.williams@example.com",
-                age: 27,
-                gender: 1
-              }
-            ]
-          }}
-        `,
-      );
+      propPane.UpdatePropertyFieldValue("Table data", unixTableV2Data);
 
       // Change column to date
       table.ChangeColumnType("unix", "Date", "v2");
@@ -193,13 +127,13 @@ describe(
 
       // Click on specific date within
       agHelper.GetNClick(
-        `${table._dateInputPopover} [aria-label='${formattedTomorrowDateVerbose}']`,
+        `${table._dateInputPopover} [aria-label='${verboseFormat}']`,
       );
 
       // Check that date is set in column
       table
         .ReadTableRowColumnData(0, 2, "v2")
-        .then((val) => expect(val).to.equal(formattedTomorrowDateYYYYMMDD));
+        .then((val) => expect(val).to.equal(isoFormat));
     });
   },
 );
