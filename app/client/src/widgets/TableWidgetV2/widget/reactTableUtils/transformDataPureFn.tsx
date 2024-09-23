@@ -1,7 +1,7 @@
 import log from "loglevel";
 import type { MomentInput } from "moment";
 import moment from "moment";
-import _, { isNumber, isNil, isArray } from "lodash";
+import _, { isNil, isArray } from "lodash";
 import type { EditableCell } from "../../constants";
 import { ColumnTypes, DateInputFormat } from "../../constants";
 import type { ReactTableColumnProps } from "../../component/Constants";
@@ -38,17 +38,13 @@ export const transformDataPureFn = (
                 const type = _.isArray(column.metaProperties.inputFormat)
                   ? column.metaProperties.inputFormat[rowIndex]
                   : column.metaProperties.inputFormat;
+
                 if (
                   type !== DateInputFormat.EPOCH &&
                   type !== DateInputFormat.MILLISECONDS
                 ) {
                   inputFormat = type;
                   moment(value as MomentInput, inputFormat);
-                } else if (
-                  !isNumber(value) &&
-                  type !== DateInputFormat.MILLISECONDS
-                ) {
-                  isValidDate = false;
                 }
               } catch (e) {
                 isValidDate = false;
