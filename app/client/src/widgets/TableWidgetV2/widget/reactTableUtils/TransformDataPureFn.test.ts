@@ -82,6 +82,70 @@ const expectedData = [
   },
 ];
 
+// Mock columns for non-date data
+const columnsNonDate = [
+  {
+    id: "role",
+    alias: "role",
+    metaProperties: {
+      type: ColumnTypes.NUMBER,
+      format: "",
+      inputFormat: "",
+      decimals: 0,
+    },
+  },
+  {
+    id: "id",
+    alias: "id",
+    metaProperties: {
+      type: ColumnTypes.NUMBER,
+      format: "",
+      inputFormat: "",
+      decimals: 0,
+    },
+  },
+  {
+    id: "name",
+    alias: "name",
+    metaProperties: {
+      type: ColumnTypes.TEXT,
+      format: "",
+      inputFormat: "",
+      decimals: 0,
+    },
+  },
+];
+
+// Mock table data for non-date transformation
+const tableDataNonDate = [
+  {
+    role: 1,
+    id: 1,
+    name: "Alice Johnson",
+    __originalIndex__: 0,
+  },
+  {
+    role: 2,
+    id: 2,
+    name: "Bob Smith",
+    __originalIndex__: 1,
+  },
+];
+
+// Expected transformed data for non-date columns
+const expectedDataNonDate = [
+  {
+    role: 1,
+    id: 1,
+    name: "Alice Johnson",
+  },
+  {
+    role: 2,
+    id: 2,
+    name: "Bob Smith",
+  },
+];
+
 describe("transformDataPureFn", () => {
   it("should transform table data based on column meta properties", () => {
     const result = transformDataPureFn(
@@ -121,9 +185,18 @@ describe("transformDataPureFn", () => {
     expect(result).toEqual(expectedInvalidData);
   });
 
-  it("should return an empty array when tableData is not an array", () => {
+  it("should return an empty array when tableData is empty", () => {
     const result = transformDataPureFn([], columns as ReactTableColumnProps[]);
 
     expect(result).toEqual([]);
+  });
+
+  it("should not transform non-date data", () => {
+    const result = transformDataPureFn(
+      tableDataNonDate,
+      columnsNonDate as ReactTableColumnProps[],
+    );
+
+    expect(result).toEqual(expectedDataNonDate);
   });
 });
