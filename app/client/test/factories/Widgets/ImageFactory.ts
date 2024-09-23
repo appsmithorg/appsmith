@@ -4,7 +4,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 
 export const ImageFactory = Factory.Sync.makeFactory<WidgetProps>({
   isVisible: true,
-  defaultImage: "http://host.docker.internal:4200/clouddefaultImage.png",
+  defaultImage: "https://assets.appsmith.com/widgets/default.png",
   enableDownload: false,
   enableRotation: false,
   imageShape: "RECTANGLE",

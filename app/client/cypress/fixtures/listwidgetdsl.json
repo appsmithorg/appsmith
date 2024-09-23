@@ -56,7 +56,7 @@
                                       "children": [
                                           {
                                               "isVisible": true,
-                                              "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
+                                              "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
                                               "imageShape": "RECTANGLE",
                                               "maxZoomLevel": 1,
                                               "image": "{{currentItem.img}}",
@@ -193,7 +193,7 @@
               "template": {
                   "Image1": {
                       "isVisible": true,
-                      "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
+                      "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
                       "imageShape": "RECTANGLE",
                       "maxZoomLevel": 1,
                       "image": "{{List1.listData.map((currentItem) => currentItem.img)}}",

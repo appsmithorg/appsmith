@@ -2094,7 +2094,7 @@
                             "parentColumnSpace": 20.625,
                             "imageShape": "RECTANGLE",
                             "leftColumn": 0,
-                            "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png"
+                            "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png"
                           },
                           {
                             "widgetName": "Text3",
@@ -3509,7 +3509,7 @@
                             "parentColumnSpace": 20.625,
                             "imageShape": "RECTANGLE",
                             "leftColumn": 0,
-                            "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png"
+                            "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png"
                           },
                           {
                             "widgetName": "Text3",
@@ -11187,7 +11187,7 @@
                             "parentColumnSpace": 34.5,
                             "imageShape": "RECTANGLE",
                             "leftColumn": 0,
-                            "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png"
+                            "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png"
                           },
                           {
                             "widgetName": "emailText",
@@ -11598,7 +11598,7 @@
                             "parentColumnSpace": 34.5,
                             "imageShape": "RECTANGLE",
                             "leftColumn": 0,
-                            "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png"
+                            "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png"
                           },
                           {
                             "widgetName": "emailText",

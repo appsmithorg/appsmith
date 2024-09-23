@@ -49,17 +49,17 @@ export const ListV2Factory = Factory.Sync.makeFactory<WidgetProps>({
     {
       id: "001",
       name: "Blue",
-      img: "http://host.docker.internal:4200/clouddefaultImage.png",
+      img: "https://assets.appsmith.com/widgets/default.png",
     },
     {
       id: "002",
       name: "Green",
-      img: "http://host.docker.internal:4200/clouddefaultImage.png",
+      img: "https://assets.appsmith.com/widgets/default.png",
     },
     {
       id: "003",
       name: "Red",
-      img: "http://host.docker.internal:4200/clouddefaultImage.png",
+      img: "https://assets.appsmith.com/widgets/default.png",
     },
   ],
   pageSize: 3,

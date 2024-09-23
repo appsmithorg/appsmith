@@ -428,7 +428,7 @@
                       "key": "borderRadius"
                     }
                   ],
-                  "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
+                  "defaultImage": "https://assets.appsmith.com/widgets/default.png",
                   "key": "h108wfmd0r",
                   "image": "{{petImagesold.data.message}}",
                   "isDeprecated": false,
@@ -2136,7 +2136,7 @@
                       "key": "borderRadius"
                     }
                   ],
-                  "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
+                  "defaultImage": "https://assets.appsmith.com/widgets/default.png",
                   "key": "h108wfmd0r",
                   "image": "{{petImagesold.data[0].url ?? Image2.image}}",
                   "isDeprecated": false,
@@ -2355,7 +2355,7 @@
                       "key": "borderRadius"
                     }
                   ],
-                  "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
+                  "defaultImage": "https://assets.appsmith.com/widgets/default.png",
                   "key": "h108wfmd0r",
                   "image": "{{petImagesold.data.message}}",
                   "isDeprecated": false,
@@ -4063,7 +4063,7 @@
                       "key": "borderRadius"
                     }
                   ],
-                  "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
+                  "defaultImage": "https://assets.appsmith.com/widgets/default.png",
                   "key": "h108wfmd0r",
                   "image": "{{petImagesold.data[0].url ?? Image2.image}}",
                   "isDeprecated": false,
@@ -13884,7 +13884,7 @@
                               "key": "image"
                             }
                           ],
-                          "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
+                          "defaultImage": "https://assets.appsmith.com/widgets/default.png",
                           "key": "36azjue6y9",
                           "image": "{{JSONForm1.sourceData.profile_image}}",
                           "isDeprecated": false,
@@ -13930,7 +13930,7 @@
                               "key": "image"
                             }
                           ],
-                          "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
+                          "defaultImage": "https://assets.appsmith.com/widgets/default.png",
                           "key": "36azjue6y9",
                           "image": "{{JSONForm1.sourceData.agency.image_url}}",
                           "isDeprecated": false,
@@ -18028,7 +18028,7 @@
                               "key": "image"
                             }
                           ],
-                          "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
+                          "defaultImage": "https://assets.appsmith.com/widgets/default.png",
                           "key": "36azjue6y9",
                           "image": "{{JSONForm1.sourceData.profile_image}}",
                           "isDeprecated": false,
@@ -18074,7 +18074,7 @@
                               "key": "image"
                             }
                           ],
-                          "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
+                          "defaultImage": "https://assets.appsmith.com/widgets/default.png",
                           "key": "36azjue6y9",
                           "image": "{{JSONForm1.sourceData.agency.image_url}}",
                           "isDeprecated": false,

@@ -1458,7 +1458,7 @@
                               "key": "image"
                             }
                           ],
-                          "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
+                          "defaultImage": "https://assets.appsmith.com/widgets/default.png",
                           "flexVerticalAlignment": "start",
                           "key": "atqz7i34yj",
                           "image": "{{jsf_updateProduct.formData.image}}",
@@ -3042,7 +3042,7 @@
                               "key": "image"
                             }
                           ],
-                          "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
+                          "defaultImage": "https://assets.appsmith.com/widgets/default.png",
                           "flexVerticalAlignment": "start",
                           "key": "atqz7i34yj",
                           "image": "{{jsf_updateProduct.formData.image}}",
