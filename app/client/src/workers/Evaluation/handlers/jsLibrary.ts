@@ -133,7 +133,10 @@ export async function installLibrary(
         envKeysBeforeInstallation,
       );
 
-      if (differentiatingKeys[differentiatingKeys.length - 1] === "default") {
+      if (
+        differentiatingKeys.length > 0 &&
+        differentiatingKeys[differentiatingKeys.length - 1] === "default"
+      ) {
         // Changing default export to library specific name
         const uniqueName = generateUniqueAccessor(
           url,
@@ -146,12 +149,12 @@ export async function installLibrary(
         // removing default from differentiating keys
         differentiatingKeys.pop();
         // deleting the reference of default key from the self object
-        delete self["default"];
+        self["default"] = undefined;
         // mapping all the references of differentiating keys from the self object to the self[uniqueName] key object
         differentiatingKeys.map((key) => {
           self[uniqueName][key] = self[key];
           // deleting the references from the self object
-          delete self[key];
+          self[key] = undefined;
         });
         // pushing the uniqueName to the accessor array
         accessors.push(uniqueName);
