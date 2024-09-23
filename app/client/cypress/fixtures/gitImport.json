@@ -562,7 +562,7 @@
                   "renderMode": "CANVAS",
                   "isLoading": false,
                   "iconAlign": "left",
-                  "defaultText": "{{echoAPI.data.headers.Info}}"
+                  "defaultText": "{{echoAPI.data.headers[0].value}}"
                 },
                 {
                   "widgetName": "Input2",
