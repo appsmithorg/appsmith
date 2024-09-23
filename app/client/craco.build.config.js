@@ -32,9 +32,9 @@ plugins.push(
       // one by one (as the service worker does it) keeps the network busy for a long time
       // and delays the service worker installation
       /\/*\.svg$/,
-      // Exclude all routes starting with /static/
-      /\/static\/.*$/,
     ],
+    // Don’t cache-bust JS and CSS chunks
+    dontCacheBustURLsMatching: /\.[0-9a-zA-Z]{8}\.chunk\.(js|css)$/,
   }),
 );
 
