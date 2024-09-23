@@ -5,11 +5,10 @@ import configureStore from "redux-mock-store";
 import QueryResponseTab from "./QueryResponseTab";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { Action } from "entities/Action";
-import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
-import { EditorViewMode } from "ee/entities/IDE/constants";
 import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { BrowserRouter as Router } from "react-router-dom";
+import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 
 // Mock store
 const mockStore = configureStore([]);
@@ -32,44 +31,7 @@ const defaultProps = {
   runErrorMessage: "",
 };
 
-const storeData = {
-  ...unitTestBaseMockStore,
-  evaluations: {
-    tree: {},
-  },
-  entities: {
-    plugins: {
-      list: [],
-    },
-    datasources: {
-      structure: {},
-    },
-  },
-  ui: {
-    ...unitTestBaseMockStore.ui,
-    users: {
-      featureFlag: {
-        data: {},
-        overriddenFlags: {},
-      },
-    },
-    ide: {
-      view: EditorViewMode.FullScreen,
-    },
-    debugger: {
-      context: {
-        errorCount: 0,
-      },
-    },
-    queryPane: {
-      debugger: {
-        open: true,
-        responseTabHeight: 200,
-        selectedTab: "response",
-      },
-    },
-  },
-};
+const storeData = getIDETestState({});
 
 describe("QueryResponseTab", () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
