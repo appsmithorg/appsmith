@@ -9,6 +9,7 @@ import type { ApiResponse } from "api/types";
 import {
   createMessage,
   ERROR_0,
+  ERROR_413,
   ERROR_500,
   SERVER_API_TIMEOUT_ERROR,
 } from "ee/constants/messages";
@@ -25,20 +26,23 @@ describe("Api success response interceptors", () => {
 
   it("checks 413 error", async () => {
     axios.defaults.adapter = async () => {
-      return new Promise((resolve, reject) => {
-        reject({
-          response: {
-            status: 413,
-            statusText: "Request Entity Too Large",
-          },
-        } as AxiosError);
-      });
+      return Promise.reject({
+        response: {
+          status: 413,
+        },
+      } as AxiosError);
     };
 
     try {
       await axios.get("https://example.com");
     } catch (error) {
       expect((error as AxiosError<ApiResponse>).response?.status).toBe(413);
+      expect((error as AxiosError<ApiResponse>).message).toBe(
+        createMessage(ERROR_413, 100),
+      );
+      expect(
+        (error as AxiosError<ApiResponse> & { statusCode?: string }).statusCode,
+      ).toBe("AE-APP-4013");
     }
 
     axios.defaults.adapter = undefined;

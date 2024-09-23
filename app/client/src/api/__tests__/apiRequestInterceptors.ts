@@ -95,7 +95,7 @@ describe("Api request interceptors", () => {
     axios.interceptors.request.eject(identifier);
   });
 
-  it("checks if the request config has airgapped in the headers", async () => {
+  it("checks if request is 200 ok when isAirgapped is true", async () => {
     const url = "v1/saas";
     const identifier = axios.interceptors.request.use((config) => {
       return blockAirgappedRoutes(config, { isAirgapped: true });
