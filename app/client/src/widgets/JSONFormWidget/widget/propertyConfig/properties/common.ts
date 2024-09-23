@@ -74,6 +74,7 @@ function accessorValidation(
   const schema = lodash.cloneDeep(lodash.get(props, grandParentPath));
   const RESTRICTED_KEYS = ["__array_item__", "__root_schema__"];
   const currentSchemaItem = lodash.cloneDeep(schema[schemaItemIdentifier]);
+
   // Remove the current edited schemaItem from schema so it doesn't
   // get picked in the existing keys list
   delete schema[schemaItemIdentifier];

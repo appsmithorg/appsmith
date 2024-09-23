@@ -79,6 +79,7 @@ function SimilarTemplates(props: SimilarTemplatesProp) {
                 />
               );
             }
+
             return (
               <FixedHeightTemplate
                 hideForkTemplateButton={props.isForkingEnabled}

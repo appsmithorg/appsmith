@@ -94,8 +94,10 @@ interface TitleProps {
 function Title(props: TitleProps) {
   const ref = createRef<HTMLDivElement>();
   const [useToolTip, updateToolTip] = useState(false);
+
   useEffect(() => {
     const element = ref.current;
+
     if (element && element.offsetWidth < element.scrollWidth) {
       updateToolTip(true);
     } else {
@@ -167,6 +169,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const headerProps = { ...column.getHeaderProps() };
+
   headerProps["style"] = {
     ...headerProps.style,
     left:
@@ -176,12 +179,16 @@ const HeaderCellComponent = (props: HeaderProps) => {
   };
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
+
     let columnIndex = props.columnIndex;
+
     if (props.isAscOrder === true) {
       columnIndex = -1;
     }
+
     const sortOrder =
       props.isAscOrder === undefined ? false : !props.isAscOrder;
+
     props.sortTableColumn(columnIndex, sortOrder);
   };
 
@@ -358,4 +365,5 @@ const HeaderCellComponent = (props: HeaderProps) => {
     </div>
   );
 };
+
 export const HeaderCell = memo(HeaderCellComponent);

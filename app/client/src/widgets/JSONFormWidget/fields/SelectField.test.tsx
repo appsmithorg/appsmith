@@ -24,6 +24,7 @@ describe(".isValid", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -47,6 +48,7 @@ describe(".isValid", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -63,6 +65,7 @@ describe(".isValid", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });

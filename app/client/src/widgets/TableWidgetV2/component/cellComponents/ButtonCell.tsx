@@ -84,4 +84,5 @@ function ButtonCellComponent(props: RenderActionProps) {
     </CellWrapper>
   );
 }
+
 export const ButtonCell = memo(ButtonCellComponent);

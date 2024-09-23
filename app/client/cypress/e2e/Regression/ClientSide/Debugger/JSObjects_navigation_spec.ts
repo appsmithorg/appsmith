@@ -7,7 +7,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 
-describe("JSObjects", () => {
+describe("JSObjects", { tags: ["@tag.JS"] }, () => {
   it("1. Focus and position cursor on the ch,line having an error", () => {
     const JS_OBJECT_BODY = `export default {
         myVar1: [],

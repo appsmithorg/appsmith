@@ -60,6 +60,7 @@ describe("Wigdet selection methods", () => {
   describe("Deselect", () => {
     it("returns an empty selection", () => {
       const result = deselectAll([]);
+
       expect(result).toStrictEqual([]);
     });
     it("will error out when request has any widgets", () => {
@@ -70,6 +71,7 @@ describe("Wigdet selection methods", () => {
   describe("Select One", () => {
     it("returns a selection", () => {
       const result = selectOneWidget(["widgetId"]);
+
       expect(result).toStrictEqual(["widgetId"]);
     });
     it("will error out when wrong payload supplied", () => {
@@ -86,6 +88,7 @@ describe("Wigdet selection methods", () => {
         ["widgetId1", "widgetId2"],
         allWidgetsMock,
       );
+
       expect(result).toStrictEqual(["widgetId1", "widgetId2"]);
     });
 
@@ -94,6 +97,7 @@ describe("Wigdet selection methods", () => {
         ["widgetId1", "widgetId3"],
         allWidgetsMock,
       );
+
       expect(result).toBeUndefined();
     });
   });
@@ -106,6 +110,7 @@ describe("Wigdet selection methods", () => {
         ["w1"],
         "w1",
       );
+
       expect(result).toStrictEqual(["w1", "w5", "w2", "w3", "w4"]);
     });
 
@@ -116,6 +121,7 @@ describe("Wigdet selection methods", () => {
         ["w5"],
         "w5",
       );
+
       expect(result).toStrictEqual(["w5", "w2", "w3", "w4"]);
     });
 
@@ -126,6 +132,7 @@ describe("Wigdet selection methods", () => {
         ["w5", "w3"],
         "w5",
       );
+
       expect(result).toStrictEqual(["w5", "w3", "w1", "w2", "w4"]);
     });
 
@@ -136,6 +143,7 @@ describe("Wigdet selection methods", () => {
         ["w7"],
         "w7",
       );
+
       expect(result).toStrictEqual(["w2"]);
     });
 
@@ -146,6 +154,7 @@ describe("Wigdet selection methods", () => {
         ["w1", "w2"],
         "w2",
       );
+
       expect(result).toStrictEqual(["w1"]);
     });
   });
@@ -156,6 +165,7 @@ describe("Wigdet selection methods", () => {
         ["w2", "w3"],
         ["w1", "w2", "w3"],
       );
+
       expect(result).toStrictEqual(["w2", "w3", "w1"]);
     });
 
@@ -165,11 +175,13 @@ describe("Wigdet selection methods", () => {
         ["w2", "w1"],
         ["w1", "w2", "w3"],
       );
+
       expect(result).toStrictEqual(["w2"]);
     });
 
     it("removes other if new selection is not a sibling", () => {
       const result = pushPopWidgetSelection(["w1"], ["w3", "w4"], ["w1", "w2"]);
+
       expect(result).toStrictEqual(["w1"]);
     });
   });
@@ -177,11 +189,13 @@ describe("Wigdet selection methods", () => {
   describe("UnSelect", () => {
     it("returns selection without the widget", () => {
       const result = unselectWidget(["w1"], ["w1", "w2", "w3"]);
+
       expect(result).toStrictEqual(["w2", "w3"]);
     });
 
     it("returns selection even if not selected", () => {
       const result = unselectWidget(["w1"], ["w2", "w3"]);
+
       expect(result).toStrictEqual(["w2", "w3"]);
     });
   });

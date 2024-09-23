@@ -90,6 +90,7 @@ export function DragContainer(props: DragContainerProps) {
     const hasOnClick = Boolean(
       props.onClick && !props.disabled && !props.loading,
     );
+
     return (
       <ButtonContainer
         buttonColor={props.buttonColor}

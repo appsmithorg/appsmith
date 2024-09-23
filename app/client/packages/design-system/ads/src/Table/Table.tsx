@@ -39,6 +39,7 @@ function Table<T extends DefaultRecordType = DefaultRecordType>({
       cell: StyledCell,
     },
   };
+
   return (
     <RcTable<T>
       {...props}

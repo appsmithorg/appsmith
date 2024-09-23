@@ -28,6 +28,7 @@ export function EmptyComponent(props: {
   addFunction?: () => void;
 }) {
   const showAddCta = props.addFunction && props.addBtnText;
+
   return (
     <ECContainer>
       <ECMainText>{props.mainText}</ECMainText>

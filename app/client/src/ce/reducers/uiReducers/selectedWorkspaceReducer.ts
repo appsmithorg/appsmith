@@ -66,6 +66,7 @@ export const handlers = {
     const applications = draftState.applications.filter(
       (application: ApplicationPayload) => application.id !== action.payload.id,
     );
+
     draftState.applications = [...applications];
   },
   [ReduxActionTypes.CREATE_APPLICATION_SUCCESS]: (
@@ -76,6 +77,7 @@ export const handlers = {
     }>,
   ) => {
     const applications = draftState.applications;
+
     applications.push(action.payload.application);
     draftState.applications = [...applications];
   },
@@ -101,12 +103,14 @@ export const handlers = {
     const applications = draftState.applications;
 
     const appIndex = draftState.applications.findIndex((app) => app.id === id);
+
     if (appIndex !== -1) {
       applications[appIndex] = {
         ...applications[appIndex],
         ...rest,
       };
     }
+
     draftState.applications = [...applications];
   },
   [ReduxActionTypes.GET_ALL_USERS_OF_WORKSPACE_SUCCESS]: (

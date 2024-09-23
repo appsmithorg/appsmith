@@ -1,7 +1,7 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Page Settings", { tags: ["@tag.Settings"] }, () => {
+describe("Page Settings", { tags: ["@tag.Settings", "@tag.Sanity"] }, () => {
   it("1. Page name change updates URL", () => {
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page1");

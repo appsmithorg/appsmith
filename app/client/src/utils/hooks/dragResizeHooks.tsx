@@ -56,6 +56,7 @@ export const useShowTableFilterPane = () => {
 
 export const useToggleEditWidgetName = () => {
   const dispatch = useDispatch();
+
   return useCallback(
     (widgetId: string, enable: boolean) => {
       dispatch({
@@ -84,6 +85,7 @@ export const useCanvasSnapRowsUpdateHook = () => {
     },
     [dispatch],
   );
+
   return updateCanvasSnapRows;
 };
 
@@ -101,6 +103,7 @@ export interface SetDraggingStateActionPayload {
 
 export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
+
   // TODO(abhinav/Satish): Performance bottleneck
   return {
     setDraggingNewWidget: useCallback(
@@ -112,6 +115,7 @@ export const useWidgetDragResize = () => {
         } else {
           document.body.classList.remove("dragging");
         }
+
         dispatch({
           type: ReduxActionTypes.SET_NEW_WIDGET_DRAGGING,
           payload: { isDragging, newWidgetProps },
@@ -132,6 +136,7 @@ export const useWidgetDragResize = () => {
         } else {
           document.body.classList.remove("dragging");
         }
+
         dispatch({
           type: ReduxActionTypes.SET_WIDGET_DRAGGING,
           payload: {
@@ -179,11 +184,14 @@ export const useWindowSizeHooks = () => {
       height: window.innerHeight,
     });
   };
+
   useEffect(() => {
     window.addEventListener("resize", onResize);
+
     return () => {
       window.removeEventListener("resize", onResize);
     };
   }, []);
+
   return windowSize;
 };

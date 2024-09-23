@@ -43,11 +43,13 @@ describe("getQueryUrl", () => {
     };
 
     const url = getQueryUrl(focusEntity, false);
+
     expect(url).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/saas/google-sheets-plugin/api/abc",
     );
 
     const addUrl = getQueryUrl(focusEntity);
+
     expect(addUrl).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/saas/google-sheets-plugin/api/abc/add",
     );
@@ -64,11 +66,13 @@ describe("getQueryUrl", () => {
     };
 
     const url = getQueryUrl(focusEntity, false);
+
     expect(url).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/api/abc",
     );
 
     const addUrl = getQueryUrl(focusEntity);
+
     expect(addUrl).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/api/abc/add",
     );
@@ -85,11 +89,13 @@ describe("getQueryUrl", () => {
     };
 
     const url = getQueryUrl(focusEntity, false);
+
     expect(url).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/queries/abc",
     );
 
     const addUrl = getQueryUrl(focusEntity);
+
     expect(addUrl).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/queries/abc/add",
     );
@@ -106,6 +112,7 @@ describe("getQueryUrl", () => {
     };
 
     const url = getQueryUrl(focusEntity);
+
     expect(url).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/queries",
     );
@@ -122,11 +129,13 @@ describe("getQueryUrl", () => {
     };
 
     const url = getQueryUrl(focusEntity, false);
+
     expect(url).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/queries",
     );
 
     const addUrl = getQueryUrl(focusEntity);
+
     expect(addUrl).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/queries/add",
     );

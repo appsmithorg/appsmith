@@ -204,6 +204,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
               } else {
                 createQueryAction(template);
               }
+
               props.onSelect();
             }}
           >

@@ -22,7 +22,9 @@ export default class DefaultURLRedirect extends URLRedirect {
       currentApplication.applicationVersion < ApplicationVersion.SLUG_URL &&
       !isURLDeprecated(pathname) &&
       this._mode === APP_MODE.EDIT;
+
     if (!shouldSwitchFromNewToLegacyURL) return;
+
     // We do not allow downgrading application version but,
     // when switch from a branch with slug URL to another one with legacy URLs,
     // we need to compute the legacy url
@@ -31,6 +33,7 @@ export default class DefaultURLRedirect extends URLRedirect {
       basePageId,
       hash,
     });
+
     return newURL;
   }
 }

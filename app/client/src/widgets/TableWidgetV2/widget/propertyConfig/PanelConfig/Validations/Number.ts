@@ -21,6 +21,7 @@ export default [
     },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
       const path = getColumnPath(propertyPath);
+
       return hideByColumnType(
         props,
         path,
@@ -44,6 +45,7 @@ export default [
     },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
       const path = getColumnPath(propertyPath);
+
       return hideByColumnType(
         props,
         path,

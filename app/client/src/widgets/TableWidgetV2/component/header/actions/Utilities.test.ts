@@ -32,6 +32,7 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       },
     },
   ];
+
   it("work as expected", () => {
     const data = [
       {
@@ -46,6 +47,7 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       data,
     });
     const expectedCsvData = [["Id"], ["abc"], ["xyz"]];
+
     expect(JSON.stringify(csvData)).toStrictEqual(
       JSON.stringify(expectedCsvData),
     );
@@ -64,6 +66,7 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       data,
     });
     const expectedCsvData = [["Id"], ["abc test"], ["xyz"]];
+
     expect(JSON.stringify(csvData)).toStrictEqual(
       JSON.stringify(expectedCsvData),
     );
@@ -82,6 +85,7 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       data,
     });
     const expectedCsvData = [["Id"], ['"abc,test"'], ["xyz"]];
+
     expect(JSON.stringify(csvData)).toStrictEqual(
       JSON.stringify(expectedCsvData),
     );

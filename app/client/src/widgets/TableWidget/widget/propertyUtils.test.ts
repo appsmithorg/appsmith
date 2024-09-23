@@ -230,6 +230,7 @@ describe("unit test case for property utils", () => {
         propertyValue: "",
       },
     ];
+
     expect(propertiesToUpdate).toEqual(output);
   });
   it("case: when columnType is iconButton, iconName value should be add", () => {
@@ -280,6 +281,7 @@ describe("unit test case for property utils", () => {
         propertyValue: "add",
       },
     ];
+
     expect(propertiesToUpdate).toEqual(output);
   });
 });

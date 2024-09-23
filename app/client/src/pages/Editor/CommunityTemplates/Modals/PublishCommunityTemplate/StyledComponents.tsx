@@ -5,6 +5,7 @@ const _defaultContainer = styled.div`
   overflow-y: auto;
   padding: var(--ads-v2-spaces-7);
 `;
+
 export const PublishPageHeaderContainer = styled(_defaultContainer)`
   flex-direction: column;
   border-bottom: 1px solid var(--ads-v2-color-border);

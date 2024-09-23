@@ -26,6 +26,7 @@ async function appendExports(dir: string) {
 
     files.forEach((file) => {
       const name = file.replace(".tsx", "");
+
       importList += createImportListString(name, dir);
     });
 

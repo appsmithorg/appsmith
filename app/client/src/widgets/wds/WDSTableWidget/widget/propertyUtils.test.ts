@@ -263,6 +263,7 @@ describe("PropertyUtils - ", () => {
         sticky: StickyType.NONE,
       },
     };
+
     expect(
       updateColumnOrderHook(
         {

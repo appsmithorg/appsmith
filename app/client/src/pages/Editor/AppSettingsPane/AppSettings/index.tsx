@@ -112,6 +112,7 @@ function AppSettings() {
         },
       }),
     );
+
     return () => {
       dispatch(
         updateAppSettingsPaneSelectedTabAction({

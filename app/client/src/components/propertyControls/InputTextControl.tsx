@@ -126,6 +126,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
 
   isNumberType(): boolean {
     const { inputType } = this.props;
+
     switch (inputType) {
       case "CURRENCY":
       case "INTEGER":
@@ -139,9 +140,11 @@ class InputTextControl extends BaseControl<InputControlProps> {
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = event;
+
     if (typeof event !== "string") {
       value = event.target.value;
     }
+
     this.updateProperty(this.props.propertyName, value, true);
   };
 

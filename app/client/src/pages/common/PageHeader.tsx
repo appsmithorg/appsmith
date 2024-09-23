@@ -96,6 +96,7 @@ export function PageHeader(props: PageHeaderProps) {
       release_anvil_enabled: isSelected,
       release_anvil_toggle_enabled: shouldShowAnvilToggle,
     };
+
     dispatch(updateFeatureFlagOverrideAction(featureFlags));
     setFeatureFlagOverrideValues(featureFlags);
   }

@@ -7,6 +7,7 @@ const _internalClearTimeout = self.clearTimeout;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setTimeout(cb: (...args: any) => any, delay: number, ...args: any) {
   const metaData = ExecutionMetaData.getExecutionMetaData();
+
   return _internalSetTimeout(
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -74,6 +74,7 @@ function SidebarButton(props: SidebarButtonProps) {
       onClick(urlSuffix);
     }
   }, [selected, onClick, urlSuffix]);
+
   return (
     <Container>
       <Tooltip

@@ -61,6 +61,7 @@ export class DroppableComponent<
   ) {
     const presentOrder = this.props.items.map(this.getVisibleObject);
     const previousOrder = prevProps.items.map(this.getVisibleObject);
+
     return (
       !equal(presentOrder, previousOrder) ||
       this.props.focusedIndex !== prevProps.focusedIndex ||
@@ -87,7 +88,9 @@ export class DroppableComponent<
     newIndex: number,
   ) => {
     const newOrderedItems = itemsOrder.map((each) => this.props.items[each]);
+
     this.props.updateItems(newOrderedItems);
+
     if (this.props.updateFocus && originalIndex !== newIndex) {
       this.props.updateFocus(newIndex, true);
     }

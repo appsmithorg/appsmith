@@ -60,6 +60,7 @@ export const getSelectedPropertyTabIndex = createSelector(
       propertyPanelContext.selectedPropertyTabIndex !== undefined
     )
       return propertyPanelContext.selectedPropertyTabIndex;
+
     return selectedPropertyTabIndex;
   },
 );
@@ -71,6 +72,7 @@ export const getCodeEditorLastCursorPosition = createSelector(
     key: string | undefined,
   ): CursorPosition | undefined => {
     if (key === undefined) return;
+
     return codeEditorHistory[key]?.cursorPosition;
   },
 );
@@ -112,6 +114,7 @@ const getPanelContext = (
     key: options.key,
   };
 };
+
 export const getPropertySectionState = createSelector(
   [getAllPropertySectionState, getPanelContext],
   (
@@ -122,8 +125,10 @@ export const getPropertySectionState = createSelector(
     },
   ): boolean | undefined => {
     const { key, propertyPanelContext } = options;
+
     if (propertyPanelContext?.propertySectionState)
       return propertyPanelContext.propertySectionState[key];
+
     return propertySectionState[key];
   },
 );
@@ -141,6 +146,7 @@ export const getEntityCollapsibleState = createSelector(
   ): boolean | undefined => {
     if (isSubEntities(entityName))
       return subEntityCollapsibleStates[entityName];
+
     return entityCollapsibleStates[entityName];
   },
 );

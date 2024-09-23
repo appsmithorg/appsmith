@@ -146,6 +146,7 @@ export function AppJSEditorContextMenu({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const editor = document.querySelector(".CodeMirror").CodeMirror;
+
       autoIndentCode(editor);
       dispatch(updateJSCollectionBody(editor.getValue(), jsCollection.id));
       AnalyticsUtil.logEvent("PRETTIFY_CODE_MANUAL_TRIGGER");
@@ -169,6 +170,7 @@ export function AppJSEditorContextMenu({
   };
 
   const options: ContextMenuOption[] = [];
+
   if (isChangePermitted) {
     options.push(copyOption);
     options.push(moveOption);

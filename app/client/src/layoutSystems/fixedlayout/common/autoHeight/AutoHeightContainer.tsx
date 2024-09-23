@@ -54,6 +54,7 @@ export default function AutoHeightContainer({
   const observer = React.useRef(
     new ResizeObserver((entries) => {
       const height = entries[0].contentRect.height;
+
       if (height) {
         setExpectedHeight(height);
       } else {
@@ -79,6 +80,7 @@ export default function AutoHeightContainer({
 
     if (updateWidgetAutoHeight) {
       const { widgetId } = widgetProps;
+
       shouldUpdate && updateWidgetAutoHeight(widgetId, paddedHeight);
     }
   };

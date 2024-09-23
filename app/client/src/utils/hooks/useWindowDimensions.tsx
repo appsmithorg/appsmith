@@ -9,6 +9,7 @@ const useWindowHeight = () => {
       setWindowHeight(window.innerHeight);
       setWindowWidth(window.innerWidth);
     };
+
     window.addEventListener("resize", handleWindowResize);
 
     return () => {

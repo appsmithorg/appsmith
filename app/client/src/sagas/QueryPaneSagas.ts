@@ -104,12 +104,15 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
     !workflowId
   ) {
     history.push(APPLICATIONS_URL);
+
     return;
   }
+
   const action: Action | undefined = yield select(
     getActionByBaseId,
     baseQueryId,
   );
+
   if (!action) {
     if (basePageId) {
       history.push(
@@ -119,6 +122,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
         }),
       );
     }
+
     return;
   }
 
@@ -139,6 +143,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
 
   const allPlugins: Plugin[] = yield select(getPlugins);
   let uiComponent = UIComponentTypes.DbEditorForm;
+
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
   // If config exists
@@ -157,6 +162,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
       currentSettingConfig,
       uiComponent === UIComponentTypes.UQIDbEditorForm,
     );
+
     configInitialValues = merge(configInitialValues, settingInitialValues);
   }
 
@@ -196,8 +202,11 @@ function* formValueChangeSaga(
 ) {
   try {
     const { field, form } = actionPayload.meta;
+
     if (field === "dynamicBindingPathList" || field === "name") return;
+
     if (form !== QUERY_EDITOR_FORM_NAME) return;
+
     const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
     const hasRouteChanged = field === "id";
 
@@ -297,6 +306,7 @@ function* formValueChangeSaga(
     // We pass the action to run form evaluations when the dataTree evaluation is complete
     let currentEnvironment: string = yield select(getCurrentEnvironmentId);
     const pluginType = plugin?.type;
+
     if (
       (!!pluginType && DB_NOT_SUPPORTED.includes(pluginType)) ||
       !datasourceStorages.hasOwnProperty(currentEnvironment) ||
@@ -306,6 +316,7 @@ function* formValueChangeSaga(
     ) {
       currentEnvironment = Object.keys(datasourceStorages)[0];
     }
+
     let dsConfig = {
       url: "",
     };
@@ -314,6 +325,7 @@ function* formValueChangeSaga(
       dsConfig =
         datasourceStorages[currentEnvironment]?.datasourceConfiguration;
     }
+
     const postEvalActions =
       uiComponent === UIComponentTypes.UQIDbEditorForm ||
       uiComponent === UIComponentTypes.DbEditorForm
@@ -335,6 +347,7 @@ function* formValueChangeSaga(
       actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
     ) {
       const value = get(values, field);
+
       yield put(
         setActionProperty(
           {
@@ -357,6 +370,7 @@ function* formValueChangeSaga(
         ),
       );
     }
+
     yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));
   } catch (error) {
     yield put({
@@ -377,6 +391,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     pluginId,
     pluginType,
   } = actionPayload.payload;
+
   if (
     ![
       PluginType.DB,
@@ -386,6 +401,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     ].includes(pluginType)
   )
     return;
+
   const pluginTemplates: Record<string, unknown> =
     yield select(getPluginTemplates);
   const queryTemplate = pluginTemplates[pluginId];
@@ -397,6 +413,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   );
 
   const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
+
   history.replace(
     queryEditorIdURL({
       basePageId,
@@ -415,6 +432,7 @@ function* handleDatasourceCreatedSaga(
 ) {
   const { isDBCreated, payload } = actionPayload;
   const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
+
   // Only look at db plugins
   if (
     plugin &&
@@ -493,7 +511,9 @@ function* handleNameChangeSuccessSaga(
 ) {
   const { actionId } = action.payload;
   const actionObj: Action | undefined = yield select(getAction, actionId);
+
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
+
   if (!actionObj) {
     // Error case, log to sentry
     yield put({
@@ -506,17 +526,22 @@ function* handleNameChangeSuccessSaga(
         logToSentry: true,
       },
     });
+
     return;
   }
+
   if (actionObj.pluginType === PluginType.DB) {
     const params = getQueryParams();
+
     if (params.editName) {
       params.editName = "false";
     }
+
     const basePageId: string = yield select(
       convertToBasePageIdSelector,
       actionObj.pageId,
     );
+
     history.replace(
       queryEditorIdURL({
         basePageId,
@@ -540,6 +565,7 @@ function* createNewQueryForDatasourceSaga(
   }>,
 ) {
   const { datasourceId, from, queryDefaultTableName } = action.payload;
+
   if (!datasourceId) return;
 
   const createActionPayload: Partial<Action> = yield call(

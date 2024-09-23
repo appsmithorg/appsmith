@@ -18,6 +18,7 @@ describe("shouldWidgetIgnoreClicksSelector", () => {
       () => useAutoHeightUIState(),
       { wrapper },
     );
+
     act(() => {
       autoHeightUIState.current.setIsAutoHeightWithLimitsChanging(true);
     });

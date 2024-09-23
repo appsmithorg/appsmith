@@ -26,6 +26,7 @@ export const getIsTableFilterPaneVisible = createSelector(
       ? lastSelectedWidget === pane.widgetId || widgets.includes(pane.widgetId)
       : false;
     const multipleWidgetsSelected = !!(widgets && widgets.length >= 2);
+
     return !!(
       isWidgetSelected &&
       !multipleWidgetsSelected &&

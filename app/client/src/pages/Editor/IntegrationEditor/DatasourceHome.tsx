@@ -39,6 +39,7 @@ const removeQueryParams = (paramKeysToRemove: Array<string>) => {
   const queryParams = getQueryParams();
   let queryString = "";
   const queryParamKeys = Object.keys(queryParams);
+
   if (queryParamKeys && queryParamKeys.length) {
     queryParamKeys.map((key) => {
       if (!paramKeysToRemove.includes(key)) {
@@ -46,8 +47,10 @@ const removeQueryParams = (paramKeysToRemove: Array<string>) => {
           encodeURIComponent(key) + "=" + encodeURIComponent(queryParams[key]);
       }
     });
+
     return "?" + queryString;
   }
+
   return "";
 };
 
@@ -191,17 +194,20 @@ class DatasourceHomeScreen extends React.Component<Props> {
         plugin: pluginName,
         packageName: params?.packageName,
       });
+
       if (!generateCRUDSupportedPlugin[pluginId]) {
         // show modal informing user that this will break the generate flow.
         showUnsupportedPluginDialog(() => {
           const URL =
             window.location.pathname +
             removeQueryParams(["isGeneratePageMode"]);
+
           history.replace(URL);
           this.goToCreateDatasource(pluginId, pluginName, {
             skipValidPluginCheck: true,
           });
         });
+
         return;
       }
     }
@@ -214,6 +220,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
   handleOnClick = () => {
     const { editorId, editorType, parentEntityId, parentEntityType } =
       this.props;
+
     AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
       source: API_ACTION.CREATE_NEW_API,
     });
@@ -305,6 +312,7 @@ const mapStateToProps = (
           plugin?.packageName !== PluginPackageName.GOOGLE_SHEETS,
       )
     : mostPopularPlugins;
+
   return {
     pluginImages: getPluginImages(state),
     plugins: !!props?.showMostPopularPlugins

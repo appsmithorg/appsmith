@@ -46,6 +46,7 @@ describe("test HighlightUtils methods", () => {
         "1",
         9.875,
       );
+
       expect(highlights.length).toEqual(3);
       expect(highlights[0].isVertical).toBeFalsy;
       // width of each horizontal highlight = container width / 3 - padding.
@@ -110,6 +111,7 @@ describe("test HighlightUtils methods", () => {
         "1",
         10,
       );
+
       expect(highlights.length).toEqual(10);
       expect(
         highlights[0].isVertical ||
@@ -176,6 +178,7 @@ describe("test HighlightUtils methods", () => {
         startPosition: 0,
         canvasId: "1",
       });
+
       expect(result.length).toEqual(2);
       expect(result[0].posX).toEqual(2);
       expect(result[0].posY).toEqual(4);
@@ -252,6 +255,7 @@ describe("test HighlightUtils methods", () => {
         startPosition: 0,
         canvasId: "1",
       });
+
       expect(result.length).toEqual(3);
       expect(result[0].height).toEqual(
         getWidgetHeight(children[1], false) * children[1].parentRowSpace,
@@ -272,6 +276,7 @@ describe("test HighlightUtils methods", () => {
         startPosition: 0,
         canvasId: "1",
       });
+
       expect(result.length).toEqual(0);
     });
   });
@@ -364,6 +369,7 @@ describe("test HighlightUtils methods", () => {
         draggedWidgets: [],
         isMobile: false,
       });
+
       expect(result.highlights.length).toEqual(4);
       expect(result.childCount).toEqual(2);
     });
@@ -453,6 +459,7 @@ describe("test HighlightUtils methods", () => {
         draggedWidgets: [],
         isMobile: true,
       });
+
       expect(result.highlights.length).toEqual(3);
       expect(result.highlights[1].posY).toEqual(
         widgets["3"].mobileTopRow * widgets["3"].parentRowSpace +

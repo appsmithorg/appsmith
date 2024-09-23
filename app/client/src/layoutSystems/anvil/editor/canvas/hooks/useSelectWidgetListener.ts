@@ -28,6 +28,7 @@ export function useSelectWidgetListener() {
       handleClick,
       true,
     );
+
     return () => {
       document.body.removeEventListener(
         SELECT_ANVIL_WIDGET_CUSTOM_EVENT,

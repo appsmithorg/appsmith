@@ -145,17 +145,21 @@ export function* failFastApiCalls(
     success: all(successActions.map((successAction) => take(successAction))),
     failure: take(failureActions),
   });
+
   if (effectRaceResult.failure) {
     yield put(
       safeCrashAppRequest(get(effectRaceResult, "failure.payload.error.code")),
     );
+
     return false;
   }
+
   return true;
 }
 
 export function* waitForWidgetConfigBuild() {
   const isBuilt: boolean = yield select(getIsWidgetConfigBuilt);
+
   if (!isBuilt) {
     yield take(ReduxActionTypes.WIDGET_INIT_SUCCESS);
   }
@@ -164,6 +168,7 @@ export function* waitForWidgetConfigBuild() {
 export function* reportSWStatus() {
   const mode: APP_MODE = yield select(getAppMode);
   const startTime = Date.now();
+
   if ("serviceWorker" in navigator) {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -174,6 +179,7 @@ export function* reportSWStatus() {
       })),
       failed: delay(20000),
     });
+
     if (result.success) {
       AnalyticsUtil.logEvent("SW_REGISTRATION_SUCCESS", {
         message: "Service worker is active",
@@ -201,6 +207,7 @@ function* executeActionDuringUserDetailsInitialisation(
   if (!shouldInitialiseUserDetails) {
     return;
   }
+
   yield put({ type: actionType });
 }
 
@@ -226,6 +233,7 @@ export function* getInitResponses({
     identity,
   );
   let response: InitConsolidatedApi | undefined;
+
   try {
     yield call(
       executeActionDuringUserDetailsInitialisation,
@@ -241,6 +249,7 @@ export function* getInitResponses({
     const isValidResponse: boolean = yield validateResponse(
       initConsolidatedApiResponse,
     );
+
     response = initConsolidatedApiResponse.data;
 
     if (!isValidResponse) {
@@ -290,6 +299,7 @@ export function* getInitResponses({
     ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
     shouldInitialiseUserDetails,
   );
+
   return rest;
 }
 
@@ -306,6 +316,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       action.payload.mode,
       action.payload.mode,
     );
+
     yield call(engine.setupEngine, action.payload, rootSpan);
 
     const getInitResponsesSpan = startNestedSpan(
@@ -345,7 +356,9 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     yield put(generateAutoHeightLayoutTreeAction(true, false));
   } catch (e) {
     log.error(e);
+
     if (e instanceof AppEngineApiError) return;
+
     Sentry.captureException(e);
     yield put(safeCrashAppRequest());
   } finally {
@@ -363,6 +376,7 @@ export function* resetDebuggerLogs() {
   const errorsToDelete = existingErrors.map(
     (payload) => payload.id,
   ) as string[];
+
   yield put(deleteErrorLog(errorsToDelete));
 }
 
@@ -386,6 +400,7 @@ function* resetEditorSaga() {
 export function* waitForInit() {
   const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
   const isViewerInitialized: boolean = yield select(getIsViewerInitialized);
+
   if (!isEditorInitialised && !isViewerInitialized) {
     yield take([
       ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
@@ -402,18 +417,24 @@ function* updateURLSaga(action: ReduxURLChangeAction) {
 
   if ("applicationVersion" in payload) {
     updateSlugNamesInURL({ applicationSlug: payload.slug });
+
     return;
   }
+
   if ("pageId" in payload) {
     if (payload.pageId !== currentPageId) return;
+
     updateSlugNamesInURL({
       pageSlug: payload.slug,
       customSlug: payload.customSlug || "",
       applicationSlug,
     });
+
     return;
   }
+
   if (payload.id !== currentPageId) return;
+
   updateSlugNamesInURL({
     pageSlug: payload.slug,
     customSlug: payload.customSlug || "",
@@ -431,13 +452,16 @@ function* appEngineSaga(action: ReduxAction<AppEnginePayload>) {
 function* eagerPageInitSaga() {
   const url = window.location.pathname;
   const search = window.location.search;
+
   if (isEditorPath(url)) {
     const matchedEditorParams = matchEditorPath(url);
+
     if (matchedEditorParams) {
       const {
         params: { baseApplicationId, basePageId },
       } = matchedEditorParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+
       if (basePageId) {
         yield put(
           initEditorAction({
@@ -448,16 +472,19 @@ function* eagerPageInitSaga() {
             shouldInitialiseUserDetails: true,
           }),
         );
+
         return;
       }
     }
   } else if (isViewerPath(url)) {
     const matchedViewerParams = matchViewerPath(url);
+
     if (matchedViewerParams) {
       const {
         params: { baseApplicationId, basePageId },
       } = matchedViewerParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+
       if (baseApplicationId || basePageId) {
         yield put(
           initAppViewerAction({
@@ -468,6 +495,7 @@ function* eagerPageInitSaga() {
             shouldInitialiseUserDetails: true,
           }),
         );
+
         return;
       }
     }

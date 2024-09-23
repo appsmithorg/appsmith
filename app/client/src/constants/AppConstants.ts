@@ -22,17 +22,22 @@ export const getAppStoreName = (appId: string, branch?: string) =>
 export const getPersistentAppStore = (appId: string, branch?: string) => {
   const appStoreName = getAppStoreName(appId, branch);
   let storeString = "{}";
+
   // Check if localStorage exists
   if (localStorage.isSupported()) {
     const appStore = localStorage.getItem(appStoreName);
+
     if (appStore) storeString = appStore;
   }
+
   let store;
+
   try {
     store = JSON.parse(storeString);
   } catch (e) {
     store = {};
   }
+
   return store;
 };
 

@@ -42,6 +42,7 @@ const valueLookup = (
 
   for (const key of id) {
     const value = obj[schemaItem[key]];
+
     if (value !== undefined) {
       return value;
     }
@@ -93,7 +94,9 @@ const convertObjectTypeToFormData = (
 
     Object.values(schema).forEach((schemaItem) => {
       if (!schemaItem.isVisible && !options.useSourceData) return;
+
       let sourceData;
+
       if (options.sourceData) {
         sourceData = valueLookup(
           options.sourceData as Record<string, unknown>,
@@ -104,8 +107,10 @@ const convertObjectTypeToFormData = (
           "originalIdentifier",
         );
       }
+
       const toKey = schemaItem[options.toId];
       let value;
+
       if (!schemaItem.isVisible) {
         value = sourceData;
       } else {
@@ -115,6 +120,7 @@ const convertObjectTypeToFormData = (
           options.fromId,
         );
       }
+
       formData[toKey] = convertSchemaItemToFormData(schemaItem, value, {
         ...options,
         sourceData,
@@ -243,6 +249,7 @@ const processObject = (schema: Schema, toKey: keyof SchemaItem) => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const obj: Record<string, any> = {};
+
   Object.values(schema).forEach((schemaItem) => {
     obj[schemaItem[toKey]] = schemaItemDefaultValue(schemaItem, toKey);
   });
@@ -300,6 +307,7 @@ export const schemaItemDefaultValue = (
   }
 
   const { defaultValue } = schemaItem;
+
   return defaultValue;
 };
 
@@ -314,6 +322,7 @@ export const validateOptions = (
 
   let hasPrimitive = false;
   let hasObject = false;
+
   for (const value of values) {
     if (isNil(value) || Number.isNaN(value)) {
       return false;
@@ -344,6 +353,7 @@ export const countFields = (
     | undefined,
 ) => {
   let count = 0;
+
   if (!Array.isArray(obj) && !isPlainObject(obj)) return 0;
 
   if (Array.isArray(obj)) {
@@ -351,6 +361,7 @@ export const countFields = (
       const mergedObject = mergeAllObjectsInAnArray(
         obj as Record<string, unknown>[],
       );
+
       count += countFields(mergedObject) * obj.length;
     }
   } else {
@@ -381,6 +392,7 @@ export const generateSchemaWithDefaultValues = (columns: Column[]) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (obj: any, curr: any) => {
       obj[curr.name] = typeMappings[curr.type];
+
       return obj;
     },
     {},

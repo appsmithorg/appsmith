@@ -99,6 +99,7 @@ class TemplateMenu extends React.Component<Props> {
                 key={templateKey}
                 onClick={(e) => {
                   const template = this.fetchTemplate(templateKey);
+
                   createTemplate(template);
                   AnalyticsUtil.logEvent("QUERY_TEMPLATE_SELECTED", {
                     templateType: templateKey,

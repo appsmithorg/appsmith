@@ -91,28 +91,37 @@ export function createLogTitleString(data: any[]) {
       if (typeof curr === "boolean") {
         return `${acc} ${curr}`;
       }
+
       if (curr === null || curr === undefined) {
         return `${acc} undefined`;
       }
+
       if (curr instanceof Promise) {
         return `${acc} Promise ${curr.constructor.name}`;
       }
+
       if (typeof curr === "string") {
         return `${acc} ${truncate(curr)}`;
       }
+
       if (typeof curr === "number") {
         return `${acc} ${truncate(curr.toString())}`;
       }
+
       if (typeof curr === "function") {
         return `${acc} func() ${curr.name}`;
       }
+
       if (typeof curr === "object") {
         let suffix = "}";
+
         if (Array.isArray(curr)) {
           suffix = "]";
         }
+
         return `${acc} ${truncate(JSON.stringify(curr, null, "\t"), suffix)}`;
       }
+
       acc = `${acc} -`;
     }, "");
   } catch (error) {
@@ -147,6 +156,7 @@ export function getDependenciesFromInverseDependencies(
 
   Object.entries(deps).forEach(([dependant, dependencies]) => {
     const { entityName: entity } = getEntityNameAndPropertyPath(dependant);
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (dependencies as any).map((dependency: any) => {
@@ -200,6 +210,7 @@ export function getDependencyChain(
       if (!isChildPropertyPath(entityName, dependentPath)) {
         currentChain.push(dependentPath);
       }
+
       if (dependentPath !== entityName) {
         currentChain = union(
           currentChain,
@@ -207,6 +218,7 @@ export function getDependencyChain(
         );
       }
     }
+
     return currentChain;
   }
 }

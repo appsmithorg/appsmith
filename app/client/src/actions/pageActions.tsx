@@ -185,6 +185,7 @@ export const updateAndSaveLayout = (
   options: updateLayoutOptions = {},
 ) => {
   const { isRetry, shouldReplay, updatedWidgetIds } = options;
+
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
     payload: { widgets, isRetry, shouldReplay, updatedWidgetIds },
@@ -216,6 +217,7 @@ export const createPageAction = (
     orgId,
     instanceId,
   });
+
   return {
     type: ReduxActionTypes.CREATE_PAGE_INIT,
     payload: {
@@ -237,6 +239,7 @@ export const createNewPageFromEntities = (
     orgId,
     instanceId,
   });
+
   return {
     type: ReduxActionTypes.CREATE_NEW_PAGE_FROM_ENTITIES,
     payload: {
@@ -325,6 +328,7 @@ export const updatePageAction = (
       new Error("Attempting to update page without page id"),
     );
   }
+
   return {
     type: ReduxActionTypes.UPDATE_PAGE_INIT,
     payload,

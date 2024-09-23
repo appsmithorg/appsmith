@@ -13,6 +13,7 @@ import type { PropertyUpdates } from "WidgetProvider/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 const ControlTypes = getPropertyControlTypes();
+
 export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];
 
 export interface PropertyPaneSectionConfig {

@@ -13,6 +13,8 @@ import { Button } from "@appsmith/ads";
 import { getEntityProperties } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
 import store from "store";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
 
@@ -44,8 +46,11 @@ export function EntityProperties() {
     (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
 
+  const ideViewMode = useSelector(getIDEViewMode);
+
   useEffect(() => {
     document.addEventListener("click", handleOutsideClick);
+
     return () => document.removeEventListener("click", handleOutsideClick);
   }, [show]);
 
@@ -62,6 +67,7 @@ export function EntityProperties() {
     if (selectedWidgetId && show) {
       const canvasWidgets = store.getState().entities.canvasWidgets;
       const selectedWidget = canvasWidgets[selectedWidgetId];
+
       if (selectedWidget)
         dispatch({
           type: ReduxActionTypes.SET_ENTITY_INFO,
@@ -94,21 +100,25 @@ export function EntityProperties() {
       "entity-properties-container",
     ) as HTMLElement;
     const paths = e.composedPath();
+
     if (!paths?.includes(entityPropertiesContainer)) closeContainer(e);
   };
 
   useEffect(() => {
     const element = document.getElementById(`entity-${entityId}`);
     const rect = element?.getBoundingClientRect();
+
     if (ref.current && rect) {
       const top = rect?.top;
       let bottom;
+
       if (
         top + BindingContainerMaxHeight >
         window.innerHeight - BOTTOM_BAR_HEIGHT
       ) {
         bottom = window.innerHeight - rect?.bottom - EntityHeight;
       }
+
       if (bottom) {
         ref.current.style.bottom = bottom + "px";
         ref.current.style.top = "unset";
@@ -116,7 +126,11 @@ export function EntityProperties() {
         ref.current.style.top = top - EntityHeight + "px";
         ref.current.style.bottom = "unset";
       }
-      ref.current.style.left = DEFAULT_EXPLORER_PANE_WIDTH + "px";
+
+      ref.current.style.left =
+        ideViewMode === EditorViewMode.SplitScreen
+          ? "100%"
+          : DEFAULT_EXPLORER_PANE_WIDTH + "px";
     }
   }, [entityId]);
 

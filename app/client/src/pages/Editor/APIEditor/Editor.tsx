@@ -72,6 +72,7 @@ interface ReduxActionProps {
 
 function getPackageNameFromPluginId(pluginId: string, plugins: Plugin[]) {
   const plugin = plugins.find((plugin: Plugin) => plugin.id === pluginId);
+
   return plugin?.packageName;
 }
 
@@ -86,6 +87,7 @@ class ApiEditor extends React.Component<Props> {
 
   componentDidMount() {
     const type = this.getFormName();
+
     if (this.props.apiId) {
       this.props.changeAPIPage(this.props.apiId, type === "SAAS");
     }
@@ -99,12 +101,14 @@ class ApiEditor extends React.Component<Props> {
       plugins.find((plug) => {
         if (plug.id === pluginId) return plug;
       });
+
     return plugin && plugin.type;
   };
 
   componentDidUpdate(prevProps: Props) {
     if (prevProps.apiId !== this.props.apiId) {
       const type = this.getFormName();
+
       this.props.changeAPIPage(this.props.apiId || "", type === "SAAS");
     }
   }
@@ -114,7 +118,9 @@ class ApiEditor extends React.Component<Props> {
     plugins: Plugin[],
   ): string | undefined => {
     const plugin = plugins.find((plugin) => plugin.id === id);
+
     if (!plugin) return undefined;
+
     return plugin.uiComponent;
   };
 
@@ -122,7 +128,9 @@ class ApiEditor extends React.Component<Props> {
     const plugin = plugins.find(
       (plugin) => plugin.packageName === PluginPackageName.REST_API,
     );
+
     if (!plugin) return undefined;
+
     return plugin.uiComponent;
   };
 
@@ -139,9 +147,11 @@ class ApiEditor extends React.Component<Props> {
       pluginId,
       plugins,
     } = this.props;
+
     if (!pluginId && baseApiId) {
       return <EntityNotFoundPane />;
     }
+
     if (isCreating || !isEditorInitialized) {
       return (
         <LoadingContainer>
@@ -151,6 +161,7 @@ class ApiEditor extends React.Component<Props> {
     }
 
     let formUiComponent: string | undefined;
+
     if (baseApiId) {
       if (pluginId) {
         formUiComponent = this.getPluginUiComponentOfId(pluginId, plugins);
@@ -228,6 +239,7 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiId = apiAction?.id ?? "";
   const { isCreating, isDeleting, isRunning } = state.ui.apiPane;
   const pluginId = _.get(apiAction, "pluginId", "");
+
   return {
     actions: state.entities.actions,
     currentApplication: getCurrentApplication(state),

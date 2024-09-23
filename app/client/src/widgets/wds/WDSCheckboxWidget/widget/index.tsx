@@ -82,6 +82,7 @@ class WDSCheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
 
   onChange = (isChecked: boolean) => {
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
     if (!this.props.isDirty) {
       pushBatchMetaUpdates("isDirty", true);
     }

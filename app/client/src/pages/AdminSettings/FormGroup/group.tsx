@@ -125,6 +125,7 @@ export default function Group({
             ) {
               return null;
             }
+
             switch (setting.controlType) {
               case SettingTypes.RADIO:
                 return (

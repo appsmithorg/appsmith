@@ -36,6 +36,7 @@ describe("<AutoHeightContainer />", () => {
         </AutoHeightContainer>,
       )
       .toJSON();
+
     expect(tree).toHaveStyleRule("height", "100%");
   });
 
@@ -55,6 +56,7 @@ describe("<AutoHeightContainer />", () => {
       const component = getTestComponent();
       const renderResult = render(component);
       const child = await renderResult.findByTestId("test");
+
       expect(
         child.parentElement?.classList.contains("auto-height-container"),
       ).toBe(true);
@@ -77,6 +79,7 @@ describe("<AutoHeightContainer />", () => {
       const component = getTestComponent();
       const renderResult = render(component);
       const child = await renderResult.findByTestId("test");
+
       expect(child.parentElement?.tagName).toBe("DIV");
       expect(
         child.parentElement?.classList.contains("auto-height-container"),
