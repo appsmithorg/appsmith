@@ -902,7 +902,7 @@ public class ImportServiceTests {
                                         .equals(
                                                 AppsmithError.VALIDATION_FAILURE.getMessage(
                                                         "Field '" + FieldName.APPLICATION
-                                                                + "' Sorry! Seems like you've imported a page-level json instead of an application. Please use the import within the page.")))
+                                                                + "'. Sorry! It seems you've imported a page-level JSON instead of an application. Please use the import within the page.")))
                 .verify();
     }
 
