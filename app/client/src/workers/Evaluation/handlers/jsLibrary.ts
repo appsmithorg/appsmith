@@ -128,9 +128,36 @@ export async function installLibrary(
       // Find keys add that were installed to the global scope.
       const keysAfterInstallation = Object.keys(self);
 
-      accessors.push(
-        ...difference(keysAfterInstallation, envKeysBeforeInstallation),
+      const differentiatingKeys = difference(
+        keysAfterInstallation,
+        envKeysBeforeInstallation,
       );
+
+      if (differentiatingKeys[differentiatingKeys.length - 1] === "default") {
+        // Changing default export to library specific name
+        const uniqueName = generateUniqueAccessor(
+          url,
+          takenAccessors,
+          takenNamesMap,
+        );
+
+        // mapping default functionality to library name accessor
+        self[uniqueName] = self["default"];
+        // removing default from differentiating keys
+        differentiatingKeys.pop();
+        // deleting the reference of default key from the self object
+        delete self["default"];
+        // mapping all the references of differentiating keys from the self object to the self[uniqueName] key object
+        differentiatingKeys.map((key) => {
+          self[uniqueName][key] = self[key];
+          // deleting the references from the self object
+          delete self[key];
+        });
+        // pushing the uniqueName to the accessor array
+        accessors.push(uniqueName);
+      } else {
+        accessors.push(...differentiatingKeys);
+      }
 
       /**
        * Check the list of installed library to see if their values have changed.
