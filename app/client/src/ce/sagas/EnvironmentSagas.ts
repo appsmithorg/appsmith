@@ -1,3 +1,3 @@
 export function* waitForFetchEnvironments() {
-  yield true;
+  yield false;
 }
