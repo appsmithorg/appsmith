@@ -99,7 +99,7 @@ export function ApiResponse(props: {
   const requestWithTimestamp = getUpdateTimestamp(request);
 
   return (
-    <Flex h="100%" w="100%">
+    <Flex flexDirection="column" h="100%" w="100%">
       <ApiResponseMeta
         actionName={name}
         actionResponse={props.actionResponse}

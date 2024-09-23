@@ -87,7 +87,7 @@ export function ApiResponseHeaders(props: {
   const runHasFailed = hasFailed(props.actionResponse);
 
   return (
-    <Flex className="t--headers-tab" h="100%" w="100%">
+    <Flex className="t--headers-tab" flexDirection="column" h="100%" w="100%">
       {runHasFailed && !props.isRunning && (
         <Callout kind="error" links={errorCalloutLinks}>
           {createMessage(CHECK_REQUEST_BODY)}
