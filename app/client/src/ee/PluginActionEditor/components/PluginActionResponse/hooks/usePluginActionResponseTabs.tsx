@@ -1,3 +1,1 @@
-function usePluginActionResponseTabs() {}
-
-export default usePluginActionResponseTabs;
+export { default } from "ce/PluginActionEditor/components/PluginActionResponse/hooks/usePluginActionResponseTabs";
