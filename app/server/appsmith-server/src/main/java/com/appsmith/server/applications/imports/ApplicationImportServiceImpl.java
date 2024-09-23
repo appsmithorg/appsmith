@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -35,6 +36,7 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ActionPermission actionPermission,
+            JsonSchemaMigration jsonSchemaMigration,
             ImportableService<Theme> themeImportableService,
             ImportableService<NewPage> newPageImportableService,
             ImportableService<CustomJSLib> customJSLibImportableService,
@@ -50,6 +52,7 @@ public class ApplicationImportServiceImpl extends ApplicationImportServiceCEImpl
                 applicationPermission,
                 pagePermission,
                 actionPermission,
+                jsonSchemaMigration,
                 themeImportableService,
                 newPageImportableService,
                 customJSLibImportableService,
