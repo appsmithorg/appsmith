@@ -109,7 +109,7 @@ function ApiResponseView(props: Props) {
           actionResponse={actionResponse}
           isRunDisabled={disabled}
           isRunning={isRunning}
-          onClick={onDebugClick}
+          onDebugClick={onDebugClick}
           onRunClick={onRunClick}
         />
       ),

@@ -19,7 +19,7 @@ const ResponseDataContainer = styled.div`
   }
 `;
 
-const headersTransformer = (headers: Record<string, string[]>) => {
+const headersTransformer = (headers: Record<string, string[]> = {}) => {
   let responseHeaders = {};
 
   // if no headers are present in the response, use the default body text.
@@ -44,29 +44,25 @@ const headersTransformer = (headers: Record<string, string[]>) => {
 
 export function ApiResponseHeaders(props: {
   isRunning: boolean;
-  onClick: () => void;
-  actionResponse: ActionResponse;
+  onDebugClick: () => void;
+  actionResponse?: ActionResponse;
   isRunDisabled: boolean;
   onRunClick: () => void;
 }) {
-  const runHasFailed = hasFailed(props.actionResponse);
-
-  const { headers } = props.actionResponse;
-
   const responseHeaders = useMemo(() => {
-    return headersTransformer(headers);
-  }, [headers]);
+    return headersTransformer(props.actionResponse?.headers);
+  }, [props.actionResponse?.headers]);
 
   const errorCalloutLinks = useMemo(() => {
     return [
       {
         children: "Debug",
         endIcon: "bug",
-        onClick: props.onClick,
+        onClick: props.onDebugClick,
         to: "",
       },
     ];
-  }, [props.onClick]);
+  }, [props.onDebugClick]);
 
   const headersInput = useMemo(() => {
     return {
@@ -75,6 +71,20 @@ export function ApiResponseHeaders(props: {
         : "",
     };
   }, [responseHeaders]);
+
+  if (!props.actionResponse) {
+    return (
+      <Flex className="t--headers-tab" h="100%" w="100%">
+        <NoResponse
+          isRunDisabled={props.isRunDisabled}
+          isRunning={props.isRunning}
+          onRunClick={props.onRunClick}
+        />
+      </Flex>
+    );
+  }
+
+  const runHasFailed = hasFailed(props.actionResponse);
 
   return (
     <Flex className="t--headers-tab" h="100%" w="100%">

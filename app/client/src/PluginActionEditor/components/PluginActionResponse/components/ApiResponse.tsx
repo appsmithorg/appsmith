@@ -64,7 +64,7 @@ export const apiReactJsonProps = { ...reactJsonProps, collapsed: 0 };
 
 export function ApiResponse(props: {
   action: Action;
-  actionResponse: ActionResponse;
+  actionResponse?: ActionResponse;
   isRunning: boolean;
   isRunDisabled: boolean;
   theme: EditorTheme;
@@ -72,11 +72,6 @@ export function ApiResponse(props: {
   responseTabHeight: number;
 }) {
   const { id, name } = props.action;
-  const { messages, pluginErrorDetails, request } = props.actionResponse;
-
-  const runHasFailed = hasFailed(props.actionResponse);
-  const requestWithTimestamp = getUpdateTimestamp(request);
-
   const actionSource: SourceEntity = useMemo(
     () => ({
       type: ENTITY_TYPE.ACTION,
@@ -85,6 +80,23 @@ export function ApiResponse(props: {
     }),
     [name, id],
   );
+
+  if (!props.actionResponse) {
+    return (
+      <Flex h="100%" w="100%">
+        <NoResponse
+          isRunDisabled={props.isRunDisabled}
+          isRunning={props.isRunning}
+          onRunClick={props.onRunClick}
+        />
+      </Flex>
+    );
+  }
+
+  const { messages, pluginErrorDetails, request } = props.actionResponse;
+
+  const runHasFailed = hasFailed(props.actionResponse);
+  const requestWithTimestamp = getUpdateTimestamp(request);
 
   return (
     <Flex h="100%" w="100%">
