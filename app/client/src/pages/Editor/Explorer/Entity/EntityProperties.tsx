@@ -13,6 +13,8 @@ import { Button } from "@appsmith/ads";
 import { getEntityProperties } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
 import store from "store";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
 
@@ -43,6 +45,8 @@ export function EntityProperties() {
   const selectedWidgetId = useSelector(
     (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
   );
+
+  const ideViewMode = useSelector(getIDEViewMode);
 
   useEffect(() => {
     document.addEventListener("click", handleOutsideClick);
@@ -123,7 +127,10 @@ export function EntityProperties() {
         ref.current.style.bottom = "unset";
       }
 
-      ref.current.style.left = DEFAULT_EXPLORER_PANE_WIDTH + "px";
+      ref.current.style.left =
+        ideViewMode === EditorViewMode.SplitScreen
+          ? "100%"
+          : DEFAULT_EXPLORER_PANE_WIDTH + "px";
     }
   }, [entityId]);
 
