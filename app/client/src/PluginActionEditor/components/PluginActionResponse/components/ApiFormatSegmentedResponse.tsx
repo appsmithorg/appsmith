@@ -7,10 +7,10 @@ import { Flex, SegmentedControl } from "@appsmith/ads";
 import type { ActionResponse } from "api/ActionAPI";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
-import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
+import { ResponseDisplayFormats } from "constants/ApiEditorConstants/CommonApiConstants";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { responseTabComponent } from "./ResponseFormatTabs";
+import { ResponseFormatTabs } from "./ResponseFormatTabs";
 
 const ResponseBodyContainer = styled.div`
   overflow-y: clip;
@@ -46,10 +46,10 @@ function ApiFormatSegmentedResponse(props: {
 
   if (!!props.actionResponse.body && !isArray(props.actionResponse.body)) {
     filteredResponseDataTypes = responseDataTypes.filter(
-      (item) => item.key !== API_RESPONSE_TYPE_OPTIONS.TABLE,
+      (item) => item.key !== ResponseDisplayFormats.TABLE,
     );
 
-    if (responseDisplayFormat.title === API_RESPONSE_TYPE_OPTIONS.TABLE) {
+    if (responseDisplayFormat.title === ResponseDisplayFormats.TABLE) {
       onResponseTabSelect(filteredResponseDataTypes[0]?.title);
     }
   }
@@ -61,10 +61,14 @@ function ApiFormatSegmentedResponse(props: {
         index: index,
         key: dataType.key,
         title: dataType.title,
-        panelComponent: responseTabComponent(
-          dataType.key,
-          props.actionResponse.body as string | Record<string, unknown>[],
-          props.responseTabHeight,
+        panelComponent: (
+          <ResponseFormatTabs
+            data={
+              props.actionResponse.body as string | Record<string, unknown>[]
+            }
+            responseType={dataType.key}
+            tableBodyHeight={props.responseTabHeight}
+          />
         ),
       };
     });
@@ -115,11 +119,13 @@ function ApiFormatSegmentedResponse(props: {
               value={selectedControl}
             />
           </Flex>
-          {responseTabComponent(
-            selectedControl || segmentedControlOptions[0]?.value,
-            props.actionResponse?.body as string | Record<string, unknown>[],
-            props.responseTabHeight,
-          )}
+          <ResponseFormatTabs
+            data={
+              props.actionResponse?.body as string | Record<string, unknown>[]
+            }
+            responseType={selectedControl || segmentedControlOptions[0]?.value}
+            tableBodyHeight={props.responseTabHeight}
+          />
         </SegmentedControlContainer>
       ) : null}
     </ResponseBodyContainer>

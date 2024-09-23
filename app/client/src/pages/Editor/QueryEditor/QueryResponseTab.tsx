@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactJson from "react-json-view";
+import {
+  apiReactJsonProps,
+  ResponseTabErrorContainer,
+  ResponseTabErrorContent,
+  ResponseTabErrorDefaultMessage,
+} from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
+import { ResponseFormatTabs } from "PluginActionEditor/components/PluginActionResponse/components/ResponseFormatTabs";
+import { NoResponse } from "PluginActionEditor/components/PluginActionResponse/components/NoResponse";
 import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -24,14 +32,6 @@ import ActionExecutionInProgressView from "components/editorComponents/ActionExe
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import BindDataButton from "./BindDataButton";
 import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
-import {
-  apiReactJsonProps,
-  ResponseTabErrorContainer,
-  ResponseTabErrorContent,
-  ResponseTabErrorDefaultMessage,
-} from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
-import { responseTabComponent } from "PluginActionEditor/components/PluginActionResponse/components/ResponseFormatTabs";
-import { NoResponse } from "PluginActionEditor/components/PluginActionResponse/components/NoResponse";
 
 const HelpSection = styled.div``;
 
@@ -91,6 +91,8 @@ const QueryResponseTab = (props: Props) => {
   const { responseDataTypes, responseDisplayFormat } =
     actionResponseDisplayDataFormats(actionResponse);
 
+  let output: Record<string, unknown>[] | string = "";
+
   const responseBodyTabs =
     responseDataTypes &&
     responseDataTypes.map((dataType, index) => {
@@ -98,10 +100,12 @@ const QueryResponseTab = (props: Props) => {
         index: index,
         key: dataType.key,
         title: dataType.title,
-        panelComponent: responseTabComponent(
-          dataType.key,
-          output,
-          responseTabHeight,
+        panelComponent: (
+          <ResponseFormatTabs
+            data={output}
+            responseType={dataType.key}
+            tableBodyHeight={responseTabHeight}
+          />
         ),
       };
     });
@@ -151,8 +155,6 @@ const QueryResponseTab = (props: Props) => {
 
   let error = runErrorMessage;
   let hintMessages: Array<string> = [];
-
-  let output: Record<string, unknown>[] | string = "";
 
   // Query is executed even once during the session, show the response data.
   if (actionResponse) {
@@ -282,11 +284,13 @@ const QueryResponseTab = (props: Props) => {
                 suggestedWidgets={actionResponse?.suggestedWidgets}
               />
             </Flex>
-            {responseTabComponent(
-              selectedControl || segmentedControlOptions[0]?.value,
-              output,
-              responseTabHeight,
-            )}
+            <ResponseFormatTabs
+              data={output}
+              responseType={
+                selectedControl || segmentedControlOptions[0]?.value
+              }
+              tableBodyHeight={responseTabHeight}
+            />
           </ResponseDataContainer>
         )}
       {!output && !error && (
