@@ -6,6 +6,17 @@ import {
   getColumnPath,
 } from "widgets/TableWidgetV2/widget/propertyUtils";
 
+const hideColumnByType = (props: TableWidgetProps, propertyPath: string) => {
+  const path = getColumnPath(propertyPath);
+
+  return showByColumnType(
+    props,
+    path,
+    [ColumnTypes.DATE, ColumnTypes.SELECT],
+    true,
+  );
+};
+
 export default [
   {
     propertyName: "validation.regex",
@@ -18,11 +29,7 @@ export default [
     isBindProperty: true,
     isTriggerProperty: false,
     validation: { type: ValidationTypes.REGEX },
-    hidden: (props: TableWidgetProps, propertyPath: string) => {
-      const path = getColumnPath(propertyPath);
-
-      return showByColumnType(props, path, [ColumnTypes.DATE], true);
-    },
+    hidden: hideColumnByType,
   },
   {
     propertyName: "validation.isColumnEditableCellValid",
@@ -39,11 +46,7 @@ export default [
         default: true,
       },
     },
-    hidden: (props: TableWidgetProps, propertyPath: string) => {
-      const path = getColumnPath(propertyPath);
-
-      return showByColumnType(props, path, [ColumnTypes.DATE], true);
-    },
+    hidden: hideColumnByType,
   },
   {
     propertyName: "validation.errorMessage",
@@ -56,11 +59,7 @@ export default [
     isBindProperty: true,
     isTriggerProperty: false,
     validation: { type: ValidationTypes.TEXT },
-    hidden: (props: TableWidgetProps, propertyPath: string) => {
-      const path = getColumnPath(propertyPath);
-
-      return showByColumnType(props, path, [ColumnTypes.DATE], true);
-    },
+    hidden: hideColumnByType,
   },
   {
     propertyName: "validation.isColumnEditableCellRequired",
