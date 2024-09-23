@@ -110,11 +110,11 @@ jobs:
               tags=${BASH_REMATCH[1]}
               echo "Commit contains /ok-to-test tags= with tags: $tags"
               echo "has_test_spec=true" >> $GITHUB_OUTPUT
-              echo "spec=$tags" >> $GITHUB_OUTPUT
+              echo "tags=$tags" >> $GITHUB_OUTPUT
             else
               echo "No /ok-to-test tags= found in the commit message"
               echo "has_test_spec=false" >> $GITHUB_OUTPUT
-              echo "spec=" >> $GITHUB_OUTPUT
+              echo "tags=" >> $GITHUB_OUTPUT
             fi
   
         # In case of a run with all test cases, allocate a larger matrix
@@ -203,7 +203,6 @@ jobs:
         with:
           script: |
             require("write-cypress-status.js")({core, context, github}, "important", process.env.BODY)
-
 
   # Call the workflow to run Cypress tests
   perform-test-for-tags-in-pr-description:
