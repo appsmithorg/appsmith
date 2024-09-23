@@ -391,6 +391,7 @@ export default {
           layoutSystemType: LayoutSystemTypes,
         ) => {
           if (!parentId) return { widgets };
+
           const widget = { ...widgets[widgetId] };
 
           widget.dynamicHeight = DynamicHeight.FIXED;
@@ -400,6 +401,7 @@ export default {
           }
 
           widgets[widgetId] = widget;
+
           return { widgets };
         },
       },

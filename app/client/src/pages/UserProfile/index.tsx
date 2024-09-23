@@ -42,6 +42,7 @@ function UserProfile() {
     panelComponent: <GitConfig />,
     icon: "git-branch",
   });
+
   if (location.pathname === GIT_PROFILE_ROUTE) {
     initialTab = "gitConfig";
   }
@@ -56,7 +57,7 @@ function UserProfile() {
   return (
     <PageWrapper displayName={"Profile"}>
       <ProfileWrapper>
-        <BackButton goTo="/applications" />
+        <BackButton />
         <Tabs defaultValue={selectedTab} onValueChange={setSelectedTab}>
           <TabsList>
             {tabs.map((tab) => {

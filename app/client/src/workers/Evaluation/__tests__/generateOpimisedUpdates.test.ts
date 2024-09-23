@@ -32,6 +32,7 @@ export const smallDataSet = [
 ];
 //size of about 300 elements
 const largeDataSet = range(100).flatMap(() => smallDataSet);
+
 // In the oldState we have provided evaluationProps so we have created a type which states that the entity always has it
 //  and __evaluation__.errors is not optional. So we don't have to keep adding truthy checks when accessing the evaluationProps in this test case.
 interface dataTreeWithWidget {
@@ -113,6 +114,7 @@ describe("generateOptimisedUpdates", () => {
         draft.Table1.pageSize = 17;
       });
       const updates = generateOptimisedUpdates(oldState, newState, []);
+
       // no diff should be generated
       expect(updates).toEqual([]);
     });
@@ -124,6 +126,7 @@ describe("generateOptimisedUpdates", () => {
       const updates = generateOptimisedUpdates(oldState, newState, [
         "Table1.pageSize",
       ]);
+
       // no diff should be generated and the the unrealted change should be ignored
       expect(updates).toEqual([]);
     });
@@ -134,6 +137,7 @@ describe("generateOptimisedUpdates", () => {
       const updates = generateOptimisedUpdates(oldState, newState, [
         "Table1.pageSize",
       ]);
+
       expect(updates).toEqual([
         { kind: "E", path: ["Table1", "pageSize"], lhs: 0, rhs: 17 },
       ]);
@@ -147,6 +151,7 @@ describe("generateOptimisedUpdates", () => {
       const updates = generateOptimisedUpdates(oldState, newState, [
         "Table1.__evaluation__.errors.tableData",
       ]);
+
       expect(updates).toEqual([
         {
           kind: "E",
@@ -163,6 +168,7 @@ describe("generateOptimisedUpdates", () => {
       const updates = generateOptimisedUpdates(oldState, newState, [
         "Table1.tableData",
       ]);
+
       expect(updates).toEqual([
         {
           kind: "N",
@@ -233,6 +239,7 @@ describe("generateOptimisedUpdates", () => {
         [],
         additionalUpdates,
       );
+
       // we should only see additional updates
       expect(serialisedUpdates).toEqual(JSON.stringify(additionalUpdates));
     });
@@ -248,6 +255,7 @@ describe("generateOptimisedUpdates", () => {
         ["Table1.pageSize"],
         additionalUpdates,
       );
+
       //no change hence empty array
       expect(serialisedUpdates).toEqual(JSON.stringify(additionalUpdates));
     });
@@ -264,6 +272,7 @@ describe("generateOptimisedUpdates", () => {
       );
       const parsedUpdates =
         parseUpdatesAndDeleteUndefinedUpdates(serialisedUpdates);
+
       expect(parsedUpdates).toEqual([
         {
           kind: "D",
@@ -291,6 +300,7 @@ describe("generateOptimisedUpdates", () => {
     //when functions are serialised they become undefined and these updates should be deleted from the state
     describe("clean out all functions in the generated state", () => {
       const someEvalFn = (() => {}) as unknown as EvaluationError[];
+
       it("should clean out new function properties added to the generated state", () => {
         const newStateWithSomeFnProperty = produce(oldState, (draft) => {
           draft.Table1.someFn = () => {};
@@ -306,6 +316,7 @@ describe("generateOptimisedUpdates", () => {
 
         const parsedUpdates =
           parseUpdatesAndDeleteUndefinedUpdates(serialisedUpdates);
+
         //should delete all function updates
         expect(parsedUpdates).toEqual([]);
 
@@ -316,6 +327,7 @@ describe("generateOptimisedUpdates", () => {
             applyChange(draft, undefined, v);
           });
         });
+
         //no change in state
         expect(parseAndApplyUpdatesToOldState).toEqual(oldState);
       });
@@ -487,6 +499,7 @@ describe("generateOptimisedUpdates", () => {
         const serialisedExpectedOutput = JSON.stringify([
           { kind: "E", rhs: null, path: ["Table1", "pageSize"] },
         ]);
+
         expect(serialisedUpdates).toEqual(serialisedExpectedOutput);
       });
       test("should generate a regular update when it sees a valid moment object", () => {
@@ -502,6 +515,7 @@ describe("generateOptimisedUpdates", () => {
         const serialisedExpectedOutput = JSON.stringify([
           { kind: "E", rhs: validMoment, path: ["Table1", "pageSize"] },
         ]);
+
         expect(serialisedUpdates).toEqual(serialisedExpectedOutput);
       });
     });
@@ -514,6 +528,7 @@ describe("generateOptimisedUpdates", () => {
       ) {
         const parsedUpdates =
           parseUpdatesAndDeleteUndefinedUpdates(serialisedUpdates);
+
         return produce(prevState, (draft) => {
           // TODO: Fix this the next time the file is edited
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -522,16 +537,20 @@ describe("generateOptimisedUpdates", () => {
           });
         });
       }
+
       let workerStateWithCollection: dataTreeWithWidget;
       let mainThreadStateWithCollection: dataTreeWithWidget;
       const someDate = "2023-12-07T19:05:11.830Z";
+
       test("large moment collection updates should be serialised, we should always see ISO string and no moment object properties", () => {
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const largeCollection = [] as any;
+
         for (let i = 0; i < 110; i++) {
           largeCollection.push({ i, c: moment(someDate) });
         }
+
         //attaching a collection to some property in the workerState
         workerStateWithCollection = produce(oldState, (draft) => {
           draft.Table1.pageSize = largeCollection;
@@ -542,6 +561,7 @@ describe("generateOptimisedUpdates", () => {
           workerStateWithCollection,
           ["Table1.pageSize"],
         );
+
         // parsing the updates generated by worker and applying it back to the main threadState
         mainThreadStateWithCollection =
           generateMainThreadStateFromSerialisedUpdates(
@@ -552,6 +572,7 @@ describe("generateOptimisedUpdates", () => {
         const expectedMainThreadState = produce(oldState, (draft) => {
           draft.Table1.pageSize = JSON.parse(JSON.stringify(largeCollection));
         });
+
         //check first value has the correct date
         expect(mainThreadStateWithCollection.Table1.pageSize[0].c).toEqual(
           someDate,
@@ -586,6 +607,7 @@ describe("generateOptimisedUpdates", () => {
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ) as any;
+
         // check if the main thread state has the updated value
         expect(updatedMainThreadState.Table1.pageSize[0].c).toEqual(
           someNewDate,
@@ -632,6 +654,7 @@ describe("generateOptimisedUpdates", () => {
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ) as any;
+
         // check if the main thread state has the updated invalid value which should be null
         expect(updatedMainThreadState.Table1.pageSize[0].c).toEqual(null);
 

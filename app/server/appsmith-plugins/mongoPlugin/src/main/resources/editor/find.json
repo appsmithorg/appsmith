@@ -1,13 +1,13 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "FIND",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'FIND'}}"
   },
   "children": [
     {
-      "controlType": "SECTION",
-      "label": "Select collection to query",
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "FIND-Z1",
       "children": [
         {
           "label": "Collection",
@@ -32,9 +32,8 @@
       ]
     },
     {
-      "controlType": "SECTION",
-      "label": "Query",
-      "description": "Optional",
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "FIND-Z2",
       "children": [
         {
           "label": "Query",
@@ -42,7 +41,13 @@
           "controlType": "QUERY_DYNAMIC_TEXT",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "{rating : {$gte : 9}}"
-        },
+        }
+      ]
+    },
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "FIND-Z3",
+      "children": [
         {
           "label": "Sort",
           "configProperty": "actionConfiguration.formData.find.sort.data",
@@ -58,7 +63,13 @@
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "{name : 1}"
-        },
+        }
+      ]
+    },
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "FIND-Z4",
+      "children": [
         {
           "label": "Limit",
           "configProperty": "actionConfiguration.formData.find.limit.data",

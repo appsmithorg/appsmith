@@ -22,9 +22,11 @@ export const fuzzySearchInObjectItems = <T extends any[]>(
         const items = group["items"];
         const fuse = new Fuse(items, FUSE_OPTIONS);
         const resultItems = fuse.search(searchStr);
+
         return { ...group, items: resultItems };
       })
       .filter((group) => group.items.length > 0);
+
     return newFiles as T;
   }
 

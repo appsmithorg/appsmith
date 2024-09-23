@@ -54,6 +54,7 @@ export function defaultSelectedValuesValidation(
       }
     } catch {
       values = value.length ? value.split(",") : [];
+
       if (values.length > 0) {
         values = values.map((_v: string) => _v.trim());
       }
@@ -634,6 +635,7 @@ class CheckboxGroupWidget extends BaseWidget<
       (value: string) =>
         prevProps.options.some((option) => option.value === value),
     );
+
     if (validSelectedValues.length !== prevProps.selectedValues.length) {
       this.props.updateWidgetMetaProperty(
         "selectedValues",
@@ -713,6 +715,7 @@ class CheckboxGroupWidget extends BaseWidget<
     return (event: React.FormEvent<HTMLElement>) => {
       let { selectedValues = [] } = this.props;
       const isChecked = (event.target as HTMLInputElement).checked;
+
       if (isChecked) {
         selectedValues = [...selectedValues, value];
       } else {

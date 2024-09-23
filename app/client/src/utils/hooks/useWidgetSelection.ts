@@ -10,6 +10,7 @@ import history from "utils/history";
 
 export const useWidgetSelection = () => {
   const dispatch = useDispatch();
+
   return {
     selectWidget: useCallback(
       (

@@ -87,6 +87,7 @@ export function AnimatedGridLayout(props: AnimatedGridLayoutProps) {
   const components = React.Children.map(children, (child) => {
     const { name: areaName } = child.props;
     const isAreaHidden = !areaVisibility[areaName];
+
     return cloneElement(child, {
       hidden: isAreaHidden,
       dimensions: isAreaHidden
@@ -99,6 +100,7 @@ export function AnimatedGridLayout(props: AnimatedGridLayoutProps) {
 
   useLayoutEffect(() => {
     const containerElement = ref.current;
+
     if (containerElement) {
       setClientHeight(containerElement.clientHeight);
       setClientWidth(containerElement.clientWidth);
@@ -109,7 +111,9 @@ export function AnimatedGridLayout(props: AnimatedGridLayoutProps) {
       }, 100);
 
       const resizeObserver = new ResizeObserver(handleResize);
+
       resizeObserver.observe(containerElement);
+
       return () => {
         resizeObserver.unobserve(containerElement);
       };

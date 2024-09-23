@@ -17,6 +17,7 @@ import WidgetsEditorEntityExplorer from "../WidgetsEditorEntityExplorer";
 
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
+
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 pushState.mockImplementation((state: any, title: any, url: any) => {
@@ -90,11 +91,13 @@ describe("Entity Explorer tests", () => {
     const widgetsTree: any = component.queryByText("Widgets", {
       selector: "div.t--entity-name",
     });
+
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
     });
     const tabsWidget = component.queryByText(children[0].widgetName);
+
     expect(tabsWidget).toBeTruthy();
   });
 
@@ -103,6 +106,7 @@ describe("Entity Explorer tests", () => {
       widgetSelectionsActions,
       "selectWidgetInitAction",
     );
+
     beforeEach(() => {
       spyWidgetSelection.mockClear();
     });
@@ -126,6 +130,7 @@ describe("Entity Explorer tests", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tabsWidget: any = component.queryByText(children[0].widgetName);
+
       act(() => {
         fireEvent.click(tabsWidget);
         jest.runAllTimers();
@@ -163,6 +168,7 @@ describe("Entity Explorer tests", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const checkBox: any = component.queryByText(children[0].widgetName);
+
       act(() => {
         fireEvent.click(checkBox);
         jest.runAllTimers();
@@ -170,6 +176,7 @@ describe("Entity Explorer tests", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const switchWidget: any = component.queryByText(children[1].widgetName);
+
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.One,
         ["checkboxWidgetId"],
@@ -332,6 +339,7 @@ describe("Entity Explorer tests", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const buttonWidget: any = component.queryByText(children[2].widgetName);
+
       act(() => {
         fireEvent.click(buttonWidget, {
           shiftKey: true,
@@ -349,6 +357,7 @@ describe("Entity Explorer tests", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const checkBoxWidget: any = component.queryByText(children[0].widgetName);
+
       act(() => {
         fireEvent.click(checkBoxWidget, {
           shiftKey: true,
@@ -366,6 +375,7 @@ describe("Entity Explorer tests", () => {
       const chartWidget: any = component.queryByText(
         containerChildren[1].widgetName,
       );
+
       act(() => {
         fireEvent.click(chartWidget, {
           shiftKey: true,

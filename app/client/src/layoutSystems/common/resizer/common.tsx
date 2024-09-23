@@ -103,9 +103,11 @@ export function ResizableHandle(props: ResizableHandleProps) {
       memo,
       movement: [mx, my],
     } = state;
+
     if (!props.allowResize || props.disableDot) {
       return;
     }
+
     const scrollParent = getNearestParentCanvas(props.scrollParent);
 
     const initialScrollTop = memo ? memo.scrollTop : 0;
@@ -114,10 +116,13 @@ export function ResizableHandle(props: ResizableHandleProps) {
     const deltaScrolledHeight = currentScrollTop - initialScrollTop;
     const deltaY = my + deltaScrolledHeight;
     const snapped = getSnappedValues(mx, deltaY, props.snapGrid);
+
     if (first) {
       props.onStart();
+
       return { scrollTop: currentScrollTop, snapped };
     }
+
     const { snapped: snappedMemo } = memo;
 
     if (
@@ -127,6 +132,7 @@ export function ResizableHandle(props: ResizableHandleProps) {
     ) {
       props.dragCallback(snapped.x, snapped.y);
     }
+
     if (last) {
       props.onStop();
     }

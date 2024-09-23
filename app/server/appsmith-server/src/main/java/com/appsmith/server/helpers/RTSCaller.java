@@ -91,4 +91,8 @@ public class RTSCaller {
     public Mono<WebClient.RequestBodySpec> put(@NonNull String path, @NonNull Object requestBody) {
         return makeRequest(HttpMethod.PUT, path, requestBody);
     }
+
+    public Mono<WebClient.RequestBodySpec> delete(@NonNull String path) {
+        return makeRequest(HttpMethod.DELETE, path, null);
+    }
 }

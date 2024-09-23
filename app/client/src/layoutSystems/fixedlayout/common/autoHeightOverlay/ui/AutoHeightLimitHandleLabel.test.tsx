@@ -9,6 +9,7 @@ describe("<AutoHeightLimitHandleLabel />", () => {
     const tree = renderer
       .create(<AutoHeightLimitHandleLabel isActive={false} />)
       .toJSON();
+
     expect(tree).toHaveStyleRule("display", "none");
   });
 
@@ -16,6 +17,7 @@ describe("<AutoHeightLimitHandleLabel />", () => {
     const tree = renderer
       .create(<AutoHeightLimitHandleLabel isActive />)
       .toJSON();
+
     expect(tree).toHaveStyleRule("display", "initial");
   });
 });

@@ -23,6 +23,7 @@ describe("layoutUtils tests", () => {
       const canvasId = "canvasId";
       const layoutId = "layoutId";
       const expectedLayoutId = `layout_${canvasId}_${layoutId}`;
+
       expect(getAnvilLayoutDOMId(canvasId, layoutId)).toBe(expectedLayoutId);
     });
   });
@@ -46,6 +47,7 @@ describe("layoutUtils tests", () => {
         children,
         highlight,
       );
+
       expect(
         extractWidgetIdsFromLayoutProps(updatedLayout).includes(
           buttonWidget.widgetId,
@@ -84,7 +86,9 @@ describe("layoutUtils tests", () => {
         layout,
         lastWidget,
       );
+
       if (!updatedLayout) return;
+
       expect(
         extractWidgetIdsFromLayoutProps(updatedLayout).includes(
           lastWidget.widgetId,
@@ -104,6 +108,7 @@ describe("layoutUtils tests", () => {
         { ...layoutProps, layout: [lastWidget] },
         lastWidget,
       );
+
       expect(updatedLayout).toBeUndefined();
     });
   });

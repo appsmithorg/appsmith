@@ -59,6 +59,15 @@ export class Table {
   _tableRow = (rowNum: number, colNum: number, version: "v1" | "v2") =>
     this._tableWidgetVersion(version) +
     ` .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
+  _tableColumnDataWithText = (
+    colNum: number,
+    columnText: string,
+    version: "v1" | "v2",
+  ) =>
+    this._tableWidgetVersion(version) +
+    ` .tbody .td[data-colindex=${colNum}]` +
+    this._tableRowColumnDataVersion(version) +
+    ` div:contains("${columnText}")`;
   _editCellIconDiv = ".t--editable-cell-icon";
   _editCellEditor = ".t--inlined-cell-editor";
   _editCellEditorInput = this._editCellEditor + " input";
@@ -629,18 +638,24 @@ export class Table {
     this.agHelper.GetNClick(colSettings);
   }
 
-  public ClickOnEditIcon(rowIndex: number, colIndex: number) {
+  public ClickOnEditIcon(
+    rowIndex: number,
+    colIndex: number,
+    isSelectColumn: boolean = false,
+  ) {
     this.agHelper.HoverElement(this._tableRow(rowIndex, colIndex, "v2"));
     this.agHelper.GetNClick(
       this._tableRow(rowIndex, colIndex, "v2") + " " + this._editCellIconDiv,
       0,
       true,
     );
-    this.agHelper.AssertElementVisibility(
-      this._tableRow(rowIndex, colIndex, "v2") +
-        " " +
-        this._editCellEditorInput,
-    );
+    if (!isSelectColumn) {
+      this.agHelper.AssertElementVisibility(
+        this._tableRow(rowIndex, colIndex, "v2") +
+          " " +
+          this._editCellEditorInput,
+      );
+    }
   }
 
   public EditTableCell(

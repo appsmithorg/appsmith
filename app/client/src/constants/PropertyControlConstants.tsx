@@ -13,6 +13,7 @@ import type { PropertyUpdates } from "WidgetProvider/constants";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 const ControlTypes = getPropertyControlTypes();
+
 export type ControlType = (typeof ControlTypes)[keyof typeof ControlTypes];
 
 export interface PropertyPaneSectionConfig {
@@ -72,6 +73,7 @@ export interface PropertyPaneControlConfig {
   controlType: ControlType;
   validationMessage?: string;
   dataTreePath?: string;
+  // used to define children property configs when the current property is a section
   children?: PropertyPaneConfig[];
   panelConfig?: PanelConfig;
   updateRelatedWidgetProperties?: (

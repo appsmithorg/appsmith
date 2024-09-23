@@ -60,16 +60,20 @@ function renderSegementedControl(
   } & SegmentedControlProps,
 ): JSX.Element {
   let selectedValue: string;
+
   //Update selected value
   if (isNil(props.input?.value)) {
     selectedValue = props?.initialValue ? (props.initialValue as string) : "";
   } else {
     selectedValue = props.input?.value;
   }
+
   let options: SelectOptionProps[] = [];
+
   if (typeof props.options === "object" && Array.isArray(props.options)) {
     options = props.options;
   }
+
   //Function to handle selection of options
   const onSelectOptions = (value: string | undefined) => {
     if (!isNil(value)) {
@@ -133,6 +137,7 @@ const mapStateToProps = (
   try {
     if (ownProps.fetchOptionsConditionally) {
       const dynamicFetchedValues = getDynamicFetchedValues(state, ownProps);
+
       isLoading = dynamicFetchedValues.isLoading;
       options = dynamicFetchedValues.data;
     }

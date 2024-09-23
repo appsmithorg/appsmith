@@ -42,6 +42,7 @@ export function CustomEChartIFrameComponent(
 
   const postMessageFn = (data: CustomEChartIFrameMessageData) => {
     const iFrameWindow = iFrameRef.current?.contentWindow;
+
     iFrameWindow?.postMessage(data, "*");
   };
 
@@ -53,10 +54,12 @@ export function CustomEChartIFrameComponent(
     }
 
     const message: CustomEChartIFrameMessage = event.data;
+
     switch (message.type) {
       case "click-event": {
         const messageData: CustomEChartClickEventData =
           message.data as CustomEChartClickEventData;
+
         dataClickCallbackHelper(messageData.event, props, "CUSTOM_ECHART");
         break;
       }
@@ -73,6 +76,7 @@ export function CustomEChartIFrameComponent(
       case "error": {
         const errorMessage: CustomEChartErrorData =
           message.data as CustomEChartErrorData;
+
         setErrorMsg(errorMessage.message);
         setErrorStack(errorMessage.stack);
         break;
@@ -175,6 +179,7 @@ export function CustomEChartIFrameComponent(
 
       _.set(config, fnKeys[i], fn);
     }
+
     return config;
   }
 
@@ -182,10 +187,12 @@ export function CustomEChartIFrameComponent(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function stringifyFns(fns: ((...args: any[]) => any)[]) {
     let output: string = "";
+
     for (const fn of fns) {
       output += fn.toString();
       output += "\n";
     }
+
     return output;
   }
 
@@ -193,6 +200,7 @@ export function CustomEChartIFrameComponent(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function initializeECharts(echarts: any) {
     const echartsElement = document.getElementById("chartdiv");
+
     return echarts.init(echartsElement, undefined);
   }
 
@@ -243,6 +251,7 @@ export function CustomEChartIFrameComponent(
 
   useEffect(() => {
     window.addEventListener("message", onMessage);
+
     return () => {
       window.removeEventListener("message", onMessage);
     };

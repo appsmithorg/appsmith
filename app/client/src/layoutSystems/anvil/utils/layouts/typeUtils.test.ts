@@ -7,6 +7,7 @@ describe("Layouts - typeUtils tests", () => {
     it("should return true if layout renders widgets", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock()
         .layout as LayoutComponentProps;
+
       expect(doesLayoutRenderWidgets(layout)).toBeTruthy();
     });
     it("should return false if layout renders widgets", () => {
@@ -14,6 +15,7 @@ describe("Layouts - typeUtils tests", () => {
         {},
         false,
       ).layout as LayoutComponentProps;
+
       expect(doesLayoutRenderWidgets(layout)).toBeFalsy();
     });
   });

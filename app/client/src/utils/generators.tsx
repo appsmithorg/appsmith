@@ -24,13 +24,17 @@ export const getCanvasClassName = () => "canvas";
 
 export const getNearestParentCanvas = (el: Element | null) => {
   const canvasQuerySelector = `.${getCanvasClassName()}`;
+
   if (el) return el.closest(canvasQuerySelector);
+
   return null;
 };
 
 export const getNearestWidget = (el: Element | null, type: WidgetType) => {
   const canvasQuerySelector = `div[type="${type}"]`;
+
   if (el) return el.closest(canvasQuerySelector);
+
   return null;
 };
 

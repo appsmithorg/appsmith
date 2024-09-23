@@ -91,7 +91,7 @@ describe(
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper.RefreshPage();
 
-      debuggerHelper.ClickDebuggerIcon();
+      debuggerHelper.OpenDebugger();
       debuggerHelper.ClickLogsTab();
       debuggerHelper.DebuggerLogsFilter("JSObject1.astros");
       debuggerHelper.DoesConsoleLogExist("JS Function executed successfully");

@@ -32,6 +32,7 @@ export const useAnvilWidgetDrag = (
     (e: DragEvent) => {
       e.preventDefault();
       e.stopPropagation();
+
       if (shouldAllowDrag && ref.current && !(e.metaKey || e.ctrlKey)) {
         if (!isFocused) return;
 
@@ -42,6 +43,7 @@ export const useAnvilWidgetDrag = (
 
         // Generate and set the dragging state for the Anvil layout
         const draggingState = generateDragState();
+
         setDraggingState(draggingState);
       }
     },

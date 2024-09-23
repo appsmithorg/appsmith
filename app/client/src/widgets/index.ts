@@ -68,6 +68,7 @@ import { WDSCurrencyInputWidget } from "./wds/WDSCurrencyInputWidget";
 import { WDSToolbarButtonsWidget } from "./wds/WDSToolbarButtonsWidget";
 import { WDSPhoneInputWidget } from "./wds/WDSPhoneInputWidget";
 import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
+import { WDSComboBoxWidget } from "./wds/WDSComboBoxWidget";
 import { WDSSwitchWidget } from "./wds/WDSSwitchWidget";
 import { WDSSwitchGroupWidget } from "./wds/WDSSwitchGroupWidget";
 import { WDSRadioGroupWidget } from "./wds/WDSRadioGroupWidget";
@@ -165,6 +166,7 @@ const WDSWidgets = [
   WDSToolbarButtonsWidget,
   WDSPhoneInputWidget,
   WDSCheckboxGroupWidget,
+  WDSComboBoxWidget,
   WDSSwitchWidget,
   WDSSwitchGroupWidget,
   WDSRadioGroupWidget,

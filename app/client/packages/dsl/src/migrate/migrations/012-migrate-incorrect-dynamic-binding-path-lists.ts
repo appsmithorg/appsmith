@@ -39,7 +39,9 @@ function updateMinMaxDynamicHeight(
         propertyValue: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
       });
     }
+
     const maxDynamicHeight = parseInt(props.maxDynamicHeight, 10);
+
     if (
       isNaN(maxDynamicHeight) ||
       maxDynamicHeight === WidgetHeightLimits.MAX_HEIGHT_IN_ROWS ||
@@ -62,6 +64,7 @@ function updateMinMaxDynamicHeight(
     const minHeightInRows = props.isCanvas
       ? WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS
       : WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+
     updates.push(
       {
         propertyPath: "minDynamicHeight",
@@ -100,24 +103,28 @@ function updateMinMaxDynamicHeight(
         propertyValue: props.topRow,
       });
     }
+
     if (!props.shouldScrollContents) {
       updates.push({
         propertyPath: "shouldScrollContents",
         propertyValue: true,
       });
     }
+
     if (props.overflow !== undefined) {
       updates.push({
         propertyPath: "overflow",
         propertyValue: "NONE",
       });
     }
+
     if (props.scrollContents === true) {
       updates.push({
         propertyPath: "scrollContents",
         propertyValue: false,
       });
     }
+
     if (props.fixedFooter === true) {
       updates.push({
         propertyPath: "fixedFooter",
@@ -201,6 +208,7 @@ function findAndUpdatePropertyPaneControlConfig(
         }
       });
     }
+
     return sectionConfig;
   });
 }
@@ -216,6 +224,7 @@ const WidgetFeaturePropertyPaneEnhancements: Record<
         props.dynamicHeight === "AUTO_HEIGHT"
       );
     }
+
     let update = findAndUpdatePropertyPaneControlConfig(config, {
       shouldScrollContents: {
         hidden: hideWhenDynamicHeightIsEnabled,
@@ -234,6 +243,7 @@ const WidgetFeaturePropertyPaneEnhancements: Record<
         dependencies: ["dynamicHeight"],
       },
     });
+
     if (widgetType === "MODAL_WIDGET") {
       update = findAndUpdatePropertyPaneControlConfig(update, {
         dynamicHeight: {
@@ -250,6 +260,7 @@ const WidgetFeaturePropertyPaneEnhancements: Record<
         },
       });
     }
+
     return update;
   },
 };
@@ -268,6 +279,7 @@ function enhancePropertyPaneConfig(
     Object.keys(features).forEach((registeredFeature: string) => {
       const { sectionIndex } = features[registeredFeature];
       const sectionName = config[sectionIndex]?.sectionName;
+
       // This has been designed to check if the sectionIndex provided in the
       // features configuration of the widget to point to the section named "General"
       // If not, it logs an error
@@ -279,6 +291,7 @@ function enhancePropertyPaneConfig(
           `Invalid section index for feature: ${registeredFeature} in widget: ${widgetType}`,
         );
       }
+
       if (
         Array.isArray(config[sectionIndex].children) &&
         PropertyPaneConfigTemplates[registeredFeature]
@@ -300,6 +313,7 @@ function enhancePropertyPaneConfig(
 export function convertFunctionsToString(config: any[]) {
   return config.map((sectionOrControlConfig: any) => {
     const controlConfig = sectionOrControlConfig;
+
     if (
       controlConfig.validation &&
       controlConfig.validation?.type === "FUNCTION" &&
@@ -309,6 +323,7 @@ export function convertFunctionsToString(config: any[]) {
       controlConfig.validation.params.fnString =
         controlConfig.validation.params.fn.toString();
       delete controlConfig.validation.params.fn;
+
       return sectionOrControlConfig;
     }
 
@@ -363,12 +378,15 @@ export function convertFunctionsToString(config: any[]) {
 export const addPropertyConfigIds = (config: any[]) => {
   return config.map((sectionOrControlConfig: any) => {
     sectionOrControlConfig.id = generateReactKey();
+
     if (sectionOrControlConfig.children) {
       sectionOrControlConfig.children = addPropertyConfigIds(
         sectionOrControlConfig.children,
       );
     }
+
     const config = sectionOrControlConfig;
+
     if (config.panelConfig) {
       if (
         config.panelConfig.children &&
@@ -399,6 +417,7 @@ export const addPropertyConfigIds = (config: any[]) => {
 
       sectionOrControlConfig = config;
     }
+
     return sectionOrControlConfig;
   });
 };
@@ -414,15 +433,18 @@ function addSearchSpecificPropertiesToConfig(
         collapsible: false,
         tag,
       };
+
       if (configItem.children) {
         sectionConfig.children = addSearchSpecificPropertiesToConfig(
           configItem.children,
           tag,
         );
       }
+
       return sectionConfig;
     } else if (configItem.controlType) {
       const controlConfig = configItem;
+
       if (controlConfig.panelConfig) {
         return {
           ...controlConfig,
@@ -435,8 +457,10 @@ function addSearchSpecificPropertiesToConfig(
           },
         };
       }
+
       return controlConfig;
     }
+
     return configItem;
   });
 }
@@ -457,14 +481,17 @@ export function addSearchConfigToPanelConfig(config: readonly any[]) {
       const sectionConfig = {
         ...configItem,
       };
+
       if (configItem.children) {
         sectionConfig.children = addSearchConfigToPanelConfig(
           configItem.children,
         );
       }
+
       return sectionConfig;
     } else if (configItem.controlType) {
       const controlConfig = configItem;
+
       if (controlConfig.panelConfig) {
         return {
           ...controlConfig,
@@ -477,8 +504,10 @@ export function addSearchConfigToPanelConfig(config: readonly any[]) {
           },
         };
       }
+
       return controlConfig;
     }
+
     return configItem;
   });
 }
@@ -541,6 +570,7 @@ const getWidgetPropertyPaneStyleConfig = (type: string): readonly any[] => {
 const getWidgetPropertyPaneCombinedConfig = (type: string): readonly any[] => {
   const contentConfig = getWidgetPropertyPaneContentConfig(type);
   const styleConfig = getWidgetPropertyPaneStyleConfig(type);
+
   return [...contentConfig, ...styleConfig];
 };
 
@@ -564,6 +594,7 @@ const getWidgetPropertyPaneConfig = (type: string): readonly any[] => {
 
     if (config === undefined) {
       log.error("Widget property pane config not defined", type);
+
       return [];
     } else {
       return config;
@@ -583,15 +614,18 @@ const checkPathsInConfig = (
   const configBindingPaths: any = {};
   const configTriggerPaths: Record<string, true> = {};
   const configValidationPaths: Record<any, any> = {};
+
   // Purely a Binding Path
   if (config.isBindProperty && !config.isTriggerProperty) {
     configBindingPaths[path] = config.evaluationSubstitutionType || "TEMPLATE";
+
     if (config.validation) {
       configValidationPaths[path] = config.validation;
     }
   } else if (config.isBindProperty && config.isTriggerProperty) {
     configTriggerPaths[path] = true;
   }
+
   return {
     configBindingPaths,
     configReactivePaths: configBindingPaths, // All bindingPaths are reactivePaths.
@@ -613,6 +647,7 @@ const childHasPanelConfig = (
   let reactivePaths: any = {};
   let triggerPaths: Record<string, true> = {};
   let validationPaths: Record<any, any> = {};
+
   if (widgetPanelPropertyValues) {
     Object.values(widgetPanelPropertyValues).forEach(
       (widgetPanelPropertyValue: any) => {
@@ -629,12 +664,14 @@ const childHasPanelConfig = (
 
         panelConfigChildren.forEach((panelColumnConfig: any) => {
           let isSectionHidden = false;
+
           if ("hidden" in panelColumnConfig) {
             isSectionHidden = panelColumnConfig.hidden(
               originalWidget,
               propertyPath,
             );
           }
+
           if (!isSectionHidden) {
             panelColumnConfig.children.forEach(
               (panelColumnControlOrSectionConfig: any) => {
@@ -645,12 +682,14 @@ const childHasPanelConfig = (
                     (panelColumnControlConfig: any) => {
                       const panelPropertyConfigPath = `${propertyPath}.${panelColumnControlConfig.propertyName}`;
                       let isControlHidden = false;
+
                       if ("hidden" in panelColumnControlConfig) {
                         isControlHidden = panelColumnControlConfig.hidden(
                           originalWidget,
                           panelPropertyConfigPath,
                         );
                       }
+
                       if (!isControlHidden) {
                         const {
                           configBindingPaths,
@@ -661,6 +700,7 @@ const childHasPanelConfig = (
                           panelColumnControlConfig,
                           panelPropertyConfigPath,
                         );
+
                         bindingPaths = {
                           ...configBindingPaths,
                           ...bindingPaths,
@@ -677,6 +717,7 @@ const childHasPanelConfig = (
                           ...configValidationPaths,
                           ...validationPaths,
                         };
+
                         // Has child Panel Config
                         if (panelColumnControlConfig.panelConfig) {
                           const {
@@ -690,6 +731,7 @@ const childHasPanelConfig = (
                             panelPropertyConfigPath,
                             originalWidget,
                           );
+
                           bindingPaths = {
                             ...panelBindingPaths,
                             ...bindingPaths,
@@ -713,12 +755,14 @@ const childHasPanelConfig = (
                 } else {
                   const panelPropertyConfigPath = `${propertyPath}.${panelColumnControlOrSectionConfig.propertyName}`;
                   let isControlHidden = false;
+
                   if ("hidden" in panelColumnControlOrSectionConfig) {
                     isControlHidden = panelColumnControlOrSectionConfig.hidden(
                       originalWidget,
                       panelPropertyConfigPath,
                     );
                   }
+
                   if (!isControlHidden) {
                     const {
                       configBindingPaths,
@@ -729,6 +773,7 @@ const childHasPanelConfig = (
                       panelColumnControlOrSectionConfig,
                       panelPropertyConfigPath,
                     );
+
                     bindingPaths = {
                       ...configBindingPaths,
                       ...bindingPaths,
@@ -742,6 +787,7 @@ const childHasPanelConfig = (
                       ...configValidationPaths,
                       ...validationPaths,
                     };
+
                     // Has child Panel Config
                     if (panelColumnControlOrSectionConfig.panelConfig) {
                       const {
@@ -755,6 +801,7 @@ const childHasPanelConfig = (
                         panelPropertyConfigPath,
                         originalWidget,
                       );
+
                       bindingPaths = {
                         ...panelBindingPaths,
                         ...bindingPaths,
@@ -794,6 +841,7 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
 } => {
   let bindingPaths: any = {};
   let reactivePaths: any = {};
+
   Object.keys(defaultProperties).forEach((property) => {
     reactivePaths[property] = "TEMPLATE";
   });
@@ -805,9 +853,11 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
       config.children.forEach((controlConfig: any) => {
         const basePath = controlConfig.propertyName;
         let isHidden = false;
+
         if ("hidden" in controlConfig) {
           isHidden = controlConfig.hidden(widget, basePath);
         }
+
         if (!isHidden) {
           const path = controlConfig.propertyName;
           const {
@@ -816,6 +866,7 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
             configTriggerPaths,
             configValidationPaths,
           } = checkPathsInConfig(controlConfig, path);
+
           bindingPaths = {
             ...bindingPaths,
             ...configBindingPaths,
@@ -828,6 +879,7 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
           triggerPaths = { ...triggerPaths, ...configTriggerPaths };
           validationPaths = { ...validationPaths, ...configValidationPaths };
         }
+
         // Has child Panel Config
         if (controlConfig.panelConfig) {
           const resultingPaths = childHasPanelConfig(
@@ -836,6 +888,7 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
             basePath,
             widget,
           );
+
           bindingPaths = {
             ...bindingPaths,
             ...resultingPaths.bindingPaths,
@@ -850,9 +903,11 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
             ...resultingPaths.validationPaths,
           };
         }
+
         if (controlConfig.children) {
           const basePropertyPath = controlConfig.propertyName;
           const widgetPropertyValue = get(widget, basePropertyPath, []);
+
           // Property in object structure
           if (
             !isUndefined(widgetPropertyValue) &&
@@ -860,6 +915,7 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
           ) {
             Object.keys(widgetPropertyValue).forEach((key: string) => {
               const objectIndexPropertyPath = `${basePropertyPath}.${key}`;
+
               controlConfig.children.forEach((childPropertyConfig: any) => {
                 const childArrayPropertyPath = `${objectIndexPropertyPath}.${childPropertyConfig.propertyName}`;
                 const {
@@ -871,6 +927,7 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
                   childPropertyConfig,
                   childArrayPropertyPath,
                 );
+
                 bindingPaths = {
                   ...bindingPaths,
                   ...configBindingPaths,
@@ -916,6 +973,7 @@ export const migrateIncorrectDynamicBindingPathLists = (
 
   Object.keys(bindingPaths).forEach((bindingPath) => {
     const pathValue = get(migratedDsl, bindingPath);
+
     if (pathValue && isString(pathValue)) {
       if (isDynamicValue(pathValue)) {
         dynamicBindingPathList.push({ key: bindingPath });
@@ -930,5 +988,6 @@ export const migrateIncorrectDynamicBindingPathLists = (
       migrateIncorrectDynamicBindingPathLists,
     );
   }
+
   return migratedDsl;
 };

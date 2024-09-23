@@ -1,8 +1,8 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
 import { NumberInputIcon, NumberInputThumbnail } from "appsmith-icons";
-import { INPUT_TYPES } from "widgets/wds/WDSInputWidget/constants";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
+import { INPUT_TYPES } from "widgets/wds/WDSBaseInputWidget/constants";
 
 class WDSNumberInputWidget extends WDSInputWidget {
   static type = "WDS_NUMBER_INPUT_WIDGET";

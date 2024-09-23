@@ -47,6 +47,7 @@ export function deriveHighlightsFromLayers(
 ): HighlightInfo[] {
   const widgets = { ...allWidgets };
   const canvas = widgets[canvasId];
+
   if (!canvas) return [];
 
   const layers: FlexLayer[] = canvas.flexLayers || [];
@@ -57,6 +58,7 @@ export function deriveHighlightsFromLayers(
   const rowGap = isMobile ? MOBILE_ROW_GAP : ROW_GAP;
 
   let offsetTop = FLEXBOX_PADDING; // used to calculate distance of a highlight from parents's top.
+
   for (const layer of layers) {
     /**
      * Discard widgets that are detached from layout (Modals).
@@ -115,10 +117,12 @@ export function deriveHighlightsFromLayers(
       highlights.push(...payload.highlights);
       layerIndex += 1;
     } else highlights = updateHorizontalDropZone(highlights);
+
     offsetTop +=
       childrenRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT + rowGap || 0;
     childCount += payload.childCount;
   }
+
   // Add a layer of horizontal highlights for the empty space at the bottom of a stack.
   highlights.push(
     ...generateHorizontalHighlights(
@@ -133,6 +137,7 @@ export function deriveHighlightsFromLayers(
       isMobile,
     ),
   );
+
   return highlights;
 }
 export interface VerticalHighlightsPayload {
@@ -178,14 +183,21 @@ export function generateVerticalHighlights(data: {
     endColumns = 0;
   let maxHeight = 0;
   const rowSpace = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
   for (const child of children) {
     const widget = widgets[child.id];
+
     if (!widget) continue;
+
     count += 1;
+
     if (draggedWidgets.indexOf(child.id) > -1) continue;
+
     const columns: number = getWidgetWidth(widget, isMobile);
     const rows: number = getWidgetHeight(widget, isMobile);
+
     maxHeight = Math.max(maxHeight, rows * rowSpace);
+
     if (child.align === FlexLayerAlignment.End) {
       endChildren.push({ widget, columns, rows });
       endColumns += columns;
@@ -221,8 +233,10 @@ export function generateVerticalHighlights(data: {
     : [alignmentInfo];
 
   let highlights: HighlightInfo[] = [];
+
   for (const each of wrappingInfo) {
     if (!each.length) continue;
+
     /**
      * On mobile viewport,
      * if the row is wrapped, i.e. it contains less than all three alignments
@@ -235,21 +249,27 @@ export function generateVerticalHighlights(data: {
       each.reduce((a, b) => a + b.columns, 0) === 0
     )
       continue;
+
     let index = 0;
+
     for (const item of each) {
       let avoidInitialHighlight = false;
       let startPosition: number | undefined;
+
       if (item.alignment === FlexLayerAlignment.Center) {
         const { centerSize } = getAlignmentSizeInfo(each);
+
         avoidInitialHighlight =
           ((startColumns > 25 || endColumns > 25) && centerColumns === 0) ||
           centerSize === 0;
+
         if (each.length === 2)
           startPosition =
             index === 0
               ? centerSize / 2
               : GridDefaults.DEFAULT_GRID_COLUMNS - centerSize / 2;
       }
+
       highlights.push(
         ...generateHighlightsForAlignment({
           arr: item.children.map((each: AlignmentChildren) => each.widget),
@@ -273,7 +293,9 @@ export function generateVerticalHighlights(data: {
       index += 1;
     }
   }
+
   highlights = updateVerticalHighlightDropZone(highlights, columnSpace * 64);
+
   return { highlights, childCount: count };
 }
 
@@ -313,8 +335,10 @@ export function generateHighlightsForAlignment(data: {
   const res: HighlightInfo[] = [];
   let count = 0;
   const rowSpace: number = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
   for (const child of arr) {
     const left = getLeftColumn(child, isMobile);
+
     res.push({
       isNewLayer: false,
       index: count + childCount,
@@ -337,6 +361,7 @@ export function generateHighlightsForAlignment(data: {
   if (!avoidInitialHighlight) {
     const lastChild: FlattenedWidgetProps | null =
       arr && arr.length ? arr[arr.length - 1] : null;
+
     res.push({
       isNewLayer: false,
       index: count + childCount,
@@ -368,6 +393,7 @@ export function generateHighlightsForAlignment(data: {
       dropZone: {},
     });
   }
+
   return res;
 }
 
@@ -390,14 +416,17 @@ function getPositionForInitialHighlight(
 ): number {
   const containerWidth = GridDefaults.DEFAULT_GRID_COLUMNS * columnSpace;
   const endPosition = containerWidth + FLEXBOX_PADDING / 2;
+
   if (alignment === FlexLayerAlignment.End) {
     return endPosition;
   } else if (alignment === FlexLayerAlignment.Center) {
     if (!highlights.length)
       return startPosition !== undefined ? startPosition : containerWidth / 2;
+
     return Math.min(posX, endPosition);
   } else {
     if (!highlights.length) return 2;
+
     return Math.min(posX, endPosition);
   }
 }
@@ -433,6 +462,7 @@ function generateHorizontalHighlights(
     bottom: rowHeight === -1 ? 10000 : rowHeight * 0.5,
   };
   const rowGap = isMobile ? MOBILE_ROW_GAP : ROW_GAP;
+
   offsetTop = previousOffset === -1 ? offsetTop : offsetTop - rowGap;
   [
     FlexLayerAlignment.Start,
@@ -465,6 +495,7 @@ function generateHorizontalHighlights(
       dropZone,
     });
   });
+
   return arr;
 }
 
@@ -480,6 +511,7 @@ function updateVerticalHighlightDropZone(
   canvasWidth: number,
 ): HighlightInfo[] {
   const zoneSize = 0.35;
+
   for (const [index, highlight] of highlights.entries()) {
     const nextHighlight: HighlightInfo | undefined = highlights[index + 1];
     const previousHighlight: HighlightInfo | undefined = highlights[index - 1];
@@ -503,6 +535,7 @@ function updateVerticalHighlightDropZone(
         : canvasWidth - highlight.posX,
       DEFAULT_HIGHLIGHT_SIZE,
     );
+
     highlights[index] = {
       ...highlight,
       dropZone: {
@@ -511,6 +544,7 @@ function updateVerticalHighlightDropZone(
       },
     };
   }
+
   return highlights;
 }
 
@@ -526,10 +560,13 @@ function updateHorizontalDropZone(
   highlights: HighlightInfo[],
 ): HighlightInfo[] {
   let index = highlights.length - 1;
+
   while (index >= 0 && highlights[index].isVertical) {
     index -= 1;
   }
+
   if (index < 0) return highlights;
+
   const dropZone = {
     top: highlights[index].dropZone.top,
     bottom: (highlights[index]?.dropZone?.bottom || 5) * 2,
@@ -550,14 +587,18 @@ function updateHorizontalDropZone(
     },
     ...highlights.slice(index + 1),
   ];
+
   return updatedHighlights;
 }
 
 function getPreviousOffsetTop(highlights: HighlightInfo[]): number {
   if (!highlights.length) return -1;
+
   let index = highlights.length - 1;
+
   while (highlights[index].isVertical) {
     index--;
   }
+
   return highlights[index].posY + highlights[index].height;
 }

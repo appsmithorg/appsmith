@@ -9,11 +9,6 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
-      is-pg-build:
-        description: "This is a boolean value in case the workflow is being called for a PG build"
-        required: false
-        type: string
-        default: "false"
 
 jobs:
   build-docker:
@@ -79,16 +74,18 @@ jobs:
           if [[ -f scripts/generate_info_json.sh ]]; then
             scripts/generate_info_json.sh
           fi
+      
+      - name: Place server artifacts-es
+        env:
+          EDITION: ${{ vars.EDITION }}
+        run: |
+          scripts/prepare_server_artifacts.sh
 
       - name: Set base image tag
         id: set_base_tag
         run: |
           if [[ "${{ inputs.pr }}" != 0 || "${{ github.ref_name }}" != master ]]; then
-            if [[ ${{ inputs.is-pg-build }} == 'true' || "${{ github.ref_name }}" == pg ]]; then
-              base_tag=pg
-            else
-              base_tag=release
-            fi
+            base_tag=release
           else
             base_tag=nightly
           fi

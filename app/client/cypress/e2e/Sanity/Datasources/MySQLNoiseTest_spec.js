@@ -4,7 +4,11 @@ import {
 } from "../../../support/Pages/EditorNavigation";
 
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
-import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  dataSources,
+  debuggerHelper,
+} from "../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe(
@@ -60,9 +64,15 @@ describe(
         force: true,
       });
       cy.wait(2000);
-      cy.get(commonlocators.toastmsg).contains(
-        "NoiseTestQuery failed to execute",
+
+      debuggerHelper.OpenDebugger();
+      debuggerHelper.ClickLogsTab();
+      debuggerHelper.DoesConsoleLogExist(
+        "Execution failed with status PE-STC-5000",
+        true,
+        "NoiseTestQuery",
       );
+
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.statusCode).to.eq("200 OK");
       });

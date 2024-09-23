@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom/extend-expect";
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
 import { lightTheme } from "selectors/themeSelectors";
@@ -87,20 +87,13 @@ jest.mock("actions/gitSyncActions", () => ({
   fetchGlobalGitConfigInit: jest.fn(),
 }));
 
-const mockHistoryPush = jest.fn();
-
-jest.mock("react-router-dom", () => ({
-  ...jest.requireActual("react-router-dom"),
-  useHistory: () => ({
-    push: mockHistoryPush,
-  }),
-}));
-
 const mockStore = configureStore([]);
+
 describe("Git config ", () => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let store: any;
+
   it("Should render UserProfile component for logged in user", () => {
     store = mockStore(defaultStoreState);
     (fetchGlobalGitConfigInit as jest.Mock).mockReturnValue({
@@ -115,8 +108,10 @@ describe("Git config ", () => {
         </ThemeProvider>
       </Provider>,
     );
+
     expect(getAllByText("Upload display picture")).toBeInTheDocument;
     const input = getByTestId("t--display-name");
+
     expect(input.getAttribute("value")).toBe("mockUser");
   });
 
@@ -134,23 +129,8 @@ describe("Git config ", () => {
         </ThemeProvider>
       </Provider>,
     );
-    expect(getAllByText("Sign in to your account")).toBeInTheDocument;
-  });
 
-  it("should call history push when user goes back to applications", () => {
-    store = mockStore(defaultStoreState);
-    render(
-      <Provider store={store}>
-        <ThemeProvider theme={lightTheme}>
-          <Router>
-            <UserProfile />
-          </Router>
-        </ThemeProvider>
-      </Provider>,
-    );
-    const backButton = screen.getByText("Back");
-    fireEvent.click(backButton);
-    expect(mockHistoryPush).toHaveBeenCalledWith("/applications");
+    expect(getAllByText("Sign in to your account")).toBeInTheDocument;
   });
 
   afterAll(() => {

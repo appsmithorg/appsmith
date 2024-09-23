@@ -301,6 +301,7 @@ function ReconnectDatasourceModal() {
 
   const checkIfDatasourceIsConfigured = (ds: Datasource | null) => {
     if (!ds || pluginsArray.length === 0) return false;
+
     const plugin = plugins[ds.pluginId];
     const output = isGoogleSheetPluginDS(plugin?.packageName)
       ? isDatasourceAuthorizedForQueryCreation(
@@ -311,6 +312,7 @@ function ReconnectDatasourceModal() {
       : ds.datasourceStorages
         ? isEnvironmentConfigured(ds, currentEnvDetails.id)
         : false;
+
     return output;
   };
 
@@ -334,11 +336,13 @@ function ReconnectDatasourceModal() {
     setIsImport(false);
     const status = queryParams.get("response_status");
     const display_message = queryParams.get("display_message");
+
     if (status !== AuthorizationStatus.SUCCESS) {
       const message =
         status === AuthorizationStatus.APPSMITH_ERROR
           ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
           : OAUTH_AUTHORIZATION_FAILED;
+
       toast.show(display_message || message, { kind: "error" });
       AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
         applicationId: queryAppId,
@@ -365,6 +369,7 @@ function ReconnectDatasourceModal() {
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const app = applications.find((app: any) => app.id === queryAppId);
+
         if (app) {
           dispatch(
             setWorkspaceIdForImport({
@@ -374,11 +379,13 @@ function ReconnectDatasourceModal() {
           );
           dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
           const defaultPage = findDefaultPage(app.pages);
+
           if (pageIdForImport) {
             setPageId(pageIdForImport);
           } else if (defaultPage) {
             setPageId(defaultPage?.id);
           }
+
           if (!datasources.length) {
             dispatch({
               type: ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
@@ -412,6 +419,7 @@ function ReconnectDatasourceModal() {
       if (isDatasourceUpdating) {
         setIsTesting(false);
       }
+
       // while testing datasource, testing flag should be true
       if (isDatasourceTesting) {
         setIsTesting(true);
@@ -428,26 +436,32 @@ function ReconnectDatasourceModal() {
     function isOverlayClicked(classList: DOMTokenList) {
       return classList.contains("reconnect-datasource-modal");
     }
+
     // Check if the close button of the modal was clicked
     function isCloseButtonClicked(e: HTMLDivElement) {
       const dialogCloseButton = document.querySelector(
         ".ads-v2-modal__content-header-close-button",
       );
+
       if (dialogCloseButton) {
         return dialogCloseButton.contains(e);
       }
+
       return false;
     }
 
     let shouldClose = false;
+
     if (e) {
       shouldClose = isOverlayClicked(e.target.classList);
       shouldClose = shouldClose || isCloseButtonClicked(e.target);
+
       // If either the close button or the overlay was clicked close the modal
       if (shouldClose) {
         onClose();
         const isInsideApplication =
           window.location.pathname.split("/")[1] === "app";
+
         if (isInsideApplication && editorURL) {
           window.location.href = editorURL;
         }
@@ -496,6 +510,7 @@ function ReconnectDatasourceModal() {
   }, [isConfigFetched, selectedDatasourceId, queryIsImport]);
 
   const importedApplication = useSelector(getImportedApplication);
+
   useEffect(() => {
     if (!queryIsImport) {
       // @ts-expect-error: importedApplication is of type unknown
@@ -504,6 +519,7 @@ function ReconnectDatasourceModal() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (page: any) => page.isDefault,
       );
+
       if (defaultPage) {
         setPageId(defaultPage.id);
         // @ts-expect-error: importedApplication is of type unknown
@@ -519,17 +535,21 @@ function ReconnectDatasourceModal() {
       const pending = datasources.filter(
         (ds: Datasource) => !checkIfDatasourceIsConfigured(ds),
       );
+
       if (pending.length > 0) {
         if (id) {
           // checking if the current datasource is still pending
           const index = pending.findIndex((ds: Datasource) => ds.id === id);
+
           if (index > -1) {
             // don't do anything if the current datasource is still pending
             return;
           }
         }
+
         // goto next pending datasource
         const next: Datasource = pending[0];
+
         if (next && next.id) {
           setSelectedDatasourceId(next.id);
           setDatasource(next);
@@ -539,6 +559,7 @@ function ReconnectDatasourceModal() {
             pageId: pageId,
             datasourceId: next.id,
           };
+
           localStorage.setItem(
             "importedAppPendingInfo",
             JSON.stringify(appInfo),
@@ -580,10 +601,12 @@ function ReconnectDatasourceModal() {
   const onSkipBtnClick = () => {
     AnalyticsUtil.logEvent("RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK");
     localStorage.setItem("importedAppPendingInfo", "null");
+
     if (editorURL) {
       // window location because history push changes routes shallowly and some side effects needed for page loading might not run
       window.location.href = editorURL;
     }
+
     onClose();
   };
 

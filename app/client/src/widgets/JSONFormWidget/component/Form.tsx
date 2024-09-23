@@ -217,6 +217,7 @@ function Form<TValues = any>(
           schema[ROOT_SCHEMA_KEY],
           "accessor",
         );
+
         updateFormData(defaultValues as TValues, true);
       } else {
         // When the accessor changes, this formData needs to be converted to have
@@ -226,6 +227,7 @@ function Form<TValues = any>(
           formData,
           { fromId: "accessor", toId: "identifier" },
         );
+
         /**
          * This setTimeout is because of the setTimeout present in
          * FieldComponent defaultValue effect. First all the setValue

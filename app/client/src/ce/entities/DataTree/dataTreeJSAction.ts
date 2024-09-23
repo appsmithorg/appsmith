@@ -24,30 +24,37 @@ export const generateDataTreeJSAction = (
   const variableList: Record<string, any> = {};
   const variables = js.config?.variables;
   const listVariables: Array<string> = [];
+
   dynamicBindingPathList.push({ key: "body" });
 
   const removeThisReference =
     js.config.body && js.config.body.replace(reg, `${js.config.name}.`);
+
   bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
 
   if (variables) {
     for (let i = 0; i < variables.length; i++) {
       const variable = variables[i];
+
       variableList[variable.name] = variable.value;
       listVariables.push(variable.name);
       dynamicBindingPathList.push({ key: variable.name });
       bindingPaths[variable.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
     }
   }
+
   const dependencyMap: DependencyMap = {};
+
   dependencyMap["body"] = [];
   const actions = js.config.actions;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actionsData: Record<string, any> = {};
+
   if (actions) {
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
+
       meta[action.name] = {
         arguments: action.actionConfiguration?.jsArguments || [],
         confirmBeforeExecute: !!action.confirmBeforeExecute,
@@ -62,6 +69,7 @@ export const generateDataTreeJSAction = (
       };
     }
   }
+
   return {
     unEvalEntity: {
       ...variableList,

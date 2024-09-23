@@ -122,8 +122,10 @@ const entityFns = [
     qualifier: (entity: DataTreeEntity) => isRunNClearFnQualifierEntity(entity),
     fn: (entity: DataTreeEntity, entityName: string) => {
       const actionEntity = entity as ActionEntity;
+
       // @ts-expect-error: name is not defined on ActionEntity
       actionEntity.name = entityName;
+
       return getFnWithGuards(
         run.bind(actionEntity as ActionEntity),
         `${entityName}.run`,

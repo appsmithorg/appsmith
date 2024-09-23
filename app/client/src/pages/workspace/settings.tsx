@@ -123,11 +123,12 @@ export default function Settings() {
   }, 300);
 
   const isMobile: boolean = useMediaQuery({ maxWidth: 767 });
+
   return (
     <>
       <SettingsWrapper data-testid="t--settings-wrapper" isMobile={isMobile}>
         <StyledStickyHeader isMobile={isMobile}>
-          <BackButton goTo={`/applications?workspaceId=${workspaceId}`} />
+          <BackButton />
           <SettingsPageHeader
             buttonText="Add users"
             onButtonClick={onButtonClick}

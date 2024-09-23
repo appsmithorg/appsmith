@@ -8,11 +8,14 @@ import {
   INPUT_INVALID_TYPE_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "ee/constants/messages";
-import type { InputType } from "../component/types";
+import type { InputType } from "widgets/wds/WDSBaseInputWidget";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 import type { InputWidgetProps, Validation } from "./types";
-import { INPUT_TYPE_TO_WIDGET_TYPE_MAP, INPUT_TYPES } from "../constants";
+import {
+  INPUT_TYPE_TO_WIDGET_TYPE_MAP,
+  INPUT_TYPES,
+} from "widgets/wds/WDSBaseInputWidget";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getDefaultISDCode } from "widgets/wds/WDSPhoneInputWidget/constants";
 import { getDefaultCurrency } from "widgets/wds/WDSCurrencyInputWidget/constants";
@@ -29,6 +32,7 @@ export function parseText(value: string, inputType: InputType) {
 
   if (inputType === INPUT_TYPES.NUMBER) {
     if (isNil(value) || value === "") return null;
+
     if (isNaN(parsedText)) return null;
 
     return parsedText;

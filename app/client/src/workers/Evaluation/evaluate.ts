@@ -88,6 +88,7 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
 const topLevelWorkerAPIs = Object.keys(self).reduce(
   (acc, key: string) => {
     acc[key] = true;
+
     return acc;
   },
   // TODO: Fix this the next time the file is edited
@@ -107,10 +108,14 @@ function resetWorkerGlobalScope() {
 
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
+
     //TODO: Remove this once we have a better way to handle this
     if (ignoreGlobalObjectKeys.has(key)) continue;
+
     if (jsLibraryAccessorSet.has(key)) continue;
+
     if (libraryReservedIdentifiers[key]) continue;
+
     try {
       // @ts-expect-error: Types are not available
       delete self[key];
@@ -126,6 +131,7 @@ export const getScriptType = (
   isTriggerBased = false,
 ): EvaluationScriptType => {
   let scriptType = EvaluationScriptType.EXPRESSION;
+
   if (evalArgumentsExist && isTriggerBased) {
     scriptType = EvaluationScriptType.ASYNC_ANONYMOUS_FUNCTION;
   } else if (evalArgumentsExist && !isTriggerBased) {
@@ -133,6 +139,7 @@ export const getScriptType = (
   } else if (isTriggerBased && !evalArgumentsExist) {
     scriptType = EvaluationScriptType.TRIGGERS;
   }
+
   return scriptType;
 };
 
@@ -144,6 +151,7 @@ export const getScriptToEval = (
 ): string => {
   // Using replace here would break scripts with replacement patterns (ex: $&, $$)
   const buffer = EvaluationScripts[type].split(ScriptTemplate);
+
   return `${buffer[0]}${userScript}${buffer[1]}`;
 };
 
@@ -255,6 +263,7 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
   } = args;
 
   const EVAL_CONTEXT: EvalContext = {};
+
   ///// Adding callback data
   EVAL_CONTEXT.ARGUMENTS = evalArguments;
   //// Adding contextual data not part of data tree
@@ -282,6 +291,7 @@ export function sanitizeScript(js: string) {
   // makes the final function invalid. We also unescape any escaped characters
   // so that eval can happen
   const trimmedJS = js.replace(beginsWithLineBreakRegex, "");
+
   return self.evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
 }
 
@@ -311,14 +321,17 @@ export const getUserScriptToEvaluate = (
   evalArguments?: Array<any>,
 ) => {
   const unescapedJS = sanitizeScript(userScript);
+
   // If nothing is present to evaluate, return
   if (!unescapedJS.length) {
     return {
       script: "",
     };
   }
+
   const scriptType = getScriptType(!!evalArguments, isTriggerBased);
   const script = getScriptToEval(unescapedJS, scriptType);
+
   return { script };
 };
 
@@ -380,6 +393,7 @@ export default function evaluateSync(
         triggers: [],
       };
     }
+
     resetWorkerGlobalScope();
 
     setEvalContext({
@@ -393,6 +407,7 @@ export default function evaluateSync(
 
     try {
       result = indirectEval(script);
+
       if (result instanceof Promise) {
         /**
          * If a promise is returned in data field then show the error to help understand data field doesn't await to resolve promise.
@@ -408,6 +423,7 @@ export default function evaluateSync(
         { userScript: error.userScript || userScript, source: error.source },
         [ActionInDataFieldErrorModifier, TypeErrorModifier],
       );
+
       errors.push({
         errorMessage,
         severity: Severity.ERROR,
@@ -422,6 +438,7 @@ export default function evaluateSync(
     } finally {
       self["$isDataField"] = false;
     }
+
     return { result, errors };
   })();
 }
@@ -461,6 +478,7 @@ export async function evaluateAsync(
         { userScript: error.userScript || userScript, source: error.source },
         [PrimitiveErrorModifier, TypeErrorModifier],
       );
+
       errors.push({
         errorMessage: errorMessage,
         severity: Severity.ERROR,

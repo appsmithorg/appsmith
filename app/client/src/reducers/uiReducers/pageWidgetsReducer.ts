@@ -27,6 +27,7 @@ const pageWidgetsReducer = createImmerReducer(initialState, {
   ) => {
     action.payload.forEach((entry) => {
       const dsl = flattenDSL(entry.dsl);
+
       state[entry.pageId] = { dsl, layoutId: entry.layoutId };
     });
   },
@@ -42,6 +43,7 @@ const pageWidgetsReducer = createImmerReducer(initialState, {
       delete state[action.payload.pageId];
     } else {
       const dsl = flattenDSL(action.payload.dsl);
+
       state[action.payload.pageId] = { dsl, layoutId: action.payload.layoutId };
     }
   },

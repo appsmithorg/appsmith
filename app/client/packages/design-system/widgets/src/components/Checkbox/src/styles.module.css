@@ -96,9 +96,19 @@
     --checkbox-bg-color: var(--color-bd-negative);
   }
 
+  &[data-invalid][data-selected="true"] [data-icon] {
+    --checkbox-border-color: var(--color-bg-negative);
+    --checkbox-bg-color: var(--color-bg-negative);
+  }
+
   &[data-hovered][data-invalid] [data-icon] {
     --checkbox-border-color: var(--color-bd-negative-hover);
     --checkbox-bg-color: var(--color-bd-negative-hover);
+  }
+
+  &[data-hovered][data-selected="true"] [data-icon] {
+    --checkbox-border-color: var(--color-bg-negative-hover);
+    --checkbox-bg-color: var(--color-bg-negative-hover);
   }
 
   /**

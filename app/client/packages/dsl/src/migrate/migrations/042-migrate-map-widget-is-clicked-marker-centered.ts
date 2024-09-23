@@ -11,7 +11,9 @@ export const migrateMapWidgetIsClickedMarkerCentered = (
     } else if (child.children && child.children.length > 0) {
       child = migrateMapWidgetIsClickedMarkerCentered(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

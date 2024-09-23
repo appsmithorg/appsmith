@@ -9,6 +9,7 @@ import { MAX_NUMBER_OF_SQL_HINTS } from "./utils/sqlHint";
 
 jest.mock("./codeEditorUtils", () => {
   const actualExports = jest.requireActual("./codeEditorUtils");
+
   return {
     __esModule: true,
     ...actualExports,
@@ -18,6 +19,7 @@ jest.mock("./codeEditorUtils", () => {
 
 function generateRandomTable() {
   const table: Record<string, string> = {};
+
   for (let i = 0; i < 500; i++) {
     table[`T${random(0, 1000)}`] = "string";
   }
@@ -27,6 +29,7 @@ function generateRandomTable() {
 
 jest.mock("utils/getCodeMirrorNamespace", () => {
   const actual = jest.requireActual("utils/getCodeMirrorNamespace");
+
   return {
     ...actual,
     getCodeMirrorNamespaceFromDoc: jest.fn((doc) => ({
@@ -48,6 +51,7 @@ describe("hint helpers", () => {
     it("is initialized correctly", () => {
       // @ts-expect-error: Types are not available
       const helper = bindingHintHelper(MockCodemirrorEditor, {});
+
       expect(MockCodemirrorEditor.setOption).toBeCalled();
       expect(helper).toHaveProperty("showHint");
     });
@@ -99,11 +103,13 @@ describe("hint helpers", () => {
       cases.forEach((testCase) => {
         MockCodemirrorEditor.getValue.mockReturnValueOnce(testCase.value);
         MockCodemirrorEditor.getCursor.mockReturnValue(testCase.cursor);
+
         if (testCase.getLine) {
           testCase.getLine.forEach((line) => {
             MockCodemirrorEditor.getLine.mockReturnValueOnce(line);
           });
         }
+
         MockCodemirrorEditor.getTokenAt.mockReturnValueOnce({
           type: "string",
           string: "",
@@ -116,18 +122,21 @@ describe("hint helpers", () => {
         } as unknown as CodeMirror.Doc);
         // @ts-expect-error: Types are not available
         const helper = bindingHintHelper(MockCodemirrorEditor, {});
+
         // @ts-expect-error: Types are not available
         helper.showHint(MockCodemirrorEditor);
       });
 
       // Assert
       const showHintCount = cases.filter((c) => c.toCall === "showHint").length;
+
       expect(MockCodemirrorEditor.showHint).toHaveBeenCalledTimes(
         showHintCount,
       );
       const closeHintCount = cases.filter(
         (c) => c.toCall === "closeHint",
       ).length;
+
       expect(MockCodemirrorEditor.closeHint).toHaveBeenCalledTimes(
         closeHintCount,
       );
@@ -137,6 +146,7 @@ describe("hint helpers", () => {
   describe("SQL hinter", () => {
     const hinter = new SqlHintHelper();
     const randomTable = generateRandomTable();
+
     hinter.setDatasourceTableKeys(randomTable);
     jest.spyOn(hinter, "getCompletions").mockImplementation(() => ({
       from: { line: 1, ch: 1 },
@@ -156,6 +166,7 @@ describe("hint helpers", () => {
       jest.spyOn(hinter, "isSqlMode").mockImplementationOnce(() => true);
       // @ts-expect-error: actual editor is not required
       const response = hinter.handleCompletions({});
+
       expect(response.completions?.list).toBeTruthy();
     });
 
@@ -163,6 +174,7 @@ describe("hint helpers", () => {
       jest.spyOn(hinter, "isSqlMode").mockImplementationOnce(() => true);
       // @ts-expect-error: actual editor is not required
       const response = hinter.handleCompletions({});
+
       expect(response.completions?.list.length).toBeLessThanOrEqual(
         MAX_NUMBER_OF_SQL_HINTS,
       );

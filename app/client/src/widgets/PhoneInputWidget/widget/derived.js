@@ -2,12 +2,14 @@
 export default {
   isValid: (props, moment, _) => {
     let hasValidValue, value;
+
     value = props.text;
     hasValidValue = !!value;
 
     if (!props.isRequired && (props.text === "" || props.text === undefined)) {
       return true;
     }
+
     if (props.isRequired && !hasValidValue) {
       return false;
     }
@@ -17,6 +19,7 @@ export default {
     }
 
     let parsedRegex = null;
+
     if (props.regex) {
       /*
        * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags

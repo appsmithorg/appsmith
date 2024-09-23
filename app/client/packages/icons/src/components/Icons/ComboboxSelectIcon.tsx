@@ -1,0 +1,2 @@
+import React from "react";
+export const ComboboxSelectIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="#000" stroke-linecap="round" stroke-linejoin="round" d="M14.5 2.5h-12a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h7M14.5 7.5l-1 1-1-1"/><circle cx="5.5" cy="7.5" r="2" stroke="#000"/><path fill="#000" d="M7.354 8.646 7 8.293 6.293 9l.353.354zm.292 1.708a.5.5 0 0 0 .708-.708zm-1-1 1 1 .708-.708-1-1z"/></svg>;

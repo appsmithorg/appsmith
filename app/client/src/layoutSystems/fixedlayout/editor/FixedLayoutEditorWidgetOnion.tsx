@@ -55,6 +55,7 @@ export const FixedLayoutEditorWidgetOnion = (props: BaseWidgetProps) => {
       widgetId,
     ],
   );
+
   return (
     <AutoHeightOverlayLayer {...props}>
       <PositionedComponentLayer {...props}>

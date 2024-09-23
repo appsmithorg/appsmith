@@ -7,7 +7,7 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
     //Verify if bottom bar is closed.
     _.debuggerHelper.AssertClosed();
     //verify if bottom bar is open on clicking debugger icon in canvas.
-    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.OpenDebugger();
     _.debuggerHelper.AssertOpen(PageType.Canvas);
     //Verify if selected tab is errors in tab title.
     _.debuggerHelper.AssertSelectedTab(
@@ -48,7 +48,7 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
     //Verify that the errors tab is still closed.
     _.debuggerHelper.AssertClosed();
     //Verify if bottom bar opens on clicking debugger icon in api page.
-    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.OpenDebugger();
     _.debuggerHelper.AssertOpen(PageType.API);
     //Verify if selected tab is errors in tab title.
     _.debuggerHelper.AssertSelectedTab(
@@ -70,7 +70,7 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
     //Expecting errors tab to be closed as this is now a datasource
     _.debuggerHelper.AssertClosed();
     //Verify if bottom bar opens on clicking debugger icon in datasource page.
-    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.OpenDebugger();
     _.debuggerHelper.AssertOpen(PageType.DataSources);
   });
 
@@ -91,7 +91,7 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
         _.debuggerHelper.AssertClosed();
         //Verify if bottom bar opens on clicking debugger icon in query page.
         _.dataSources.CreateQueryAfterDSSaved();
-        _.debuggerHelper.ClickDebuggerIcon();
+        _.debuggerHelper.OpenDebugger();
         _.debuggerHelper.AssertOpen(PageType.Query);
         //Verify if bottom bar is closed on clicking close icon in query page.
         _.debuggerHelper.CloseBottomBar();
@@ -130,7 +130,7 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
     _.debuggerHelper.AssertClosed();
     //Verify if bottom bar opens on clicking debugger icon in query page.
     _.dataSources.CreateQueryAfterDSSaved();
-    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.OpenDebugger();
     _.debuggerHelper.AssertOpen(PageType.Query);
     //Verify if bottom bar is closed on clicking close icon in query page.
     _.debuggerHelper.CloseBottomBar();

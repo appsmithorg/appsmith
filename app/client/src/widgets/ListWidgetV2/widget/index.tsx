@@ -388,6 +388,7 @@ class ListWidget extends BaseWidget<
       const rowIndex = this.getRowIndexOfSelectedItem(
         this.props.selectedItemKey,
       );
+
       if (rowIndex !== -1) {
         this.updatePageNumber(this.props.selectedItemKey);
         this.updateSelectedItem(rowIndex);
@@ -402,10 +403,12 @@ class ListWidget extends BaseWidget<
     ) {
       // There are some mounting cases where the defaultSelectedItem isn't mapped with selectedItemKey
       const defaultKey = String(this.props.defaultSelectedItem);
+
       this.props.updateWidgetMetaProperty("selectedItemKey", defaultKey);
     }
 
     const generatorOptions = this.metaWidgetGeneratorOptions();
+
     // Mounts the virtualizer
     this.metaWidgetGenerator.withOptions(generatorOptions).didMount();
 
@@ -576,6 +579,7 @@ class ListWidget extends BaseWidget<
 
     this.updateCurrentItemsViewBinding();
     const mainCanvasWidget = this.generateMainMetaCanvasWidget();
+
     this.syncMetaContainerNames();
 
     const updates: ModifyMetaWidgetPayload = {
@@ -607,6 +611,7 @@ class ListWidget extends BaseWidget<
 
     const { metaWidgetId: metaMainCanvasId } =
       this.metaWidgetGenerator.getContainerParentCache() || {};
+
     if (
       this.props.isMetaWidget &&
       metaMainCanvasId !== this.props.metaWidgetChildrenStructure?.[0]?.widgetId
@@ -638,6 +643,7 @@ class ListWidget extends BaseWidget<
       this.metaWidgetGenerator.getMetaContainers();
 
     const mainCanvasWidget = this.mainMetaCanvasWidget();
+
     if (mainCanvasWidget) {
       mainCanvasWidget.children = currMetaContainerIds;
     }
@@ -697,11 +703,13 @@ class ListWidget extends BaseWidget<
   syncMetaContainerNames = () => {
     const { names: currMetaContainerNames } =
       this.metaWidgetGenerator.getMetaContainers();
+
     this.prevMetaContainerNames = [...currMetaContainerNames];
   };
 
   getMainContainer = () => {
     const { flattenedChildCanvasWidgets, mainContainerId = "" } = this.props;
+
     return flattenedChildCanvasWidgets?.[mainContainerId];
   };
 
@@ -793,6 +801,7 @@ class ListWidget extends BaseWidget<
 
   shouldUpdateSelectedItemAndView = () => {
     const { serverSidePagination } = this.props;
+
     return Boolean(
       !serverSidePagination &&
         isString(this.props.selectedItemKey) &&
@@ -810,6 +819,7 @@ class ListWidget extends BaseWidget<
     if (this.pageChangeEventTriggerFromSelectedKey && rowIndex !== -1) {
       this.updateSelectedItemView(rowIndex);
       this.pageChangeEventTriggerFromSelectedKey = false;
+
       return;
     }
 
@@ -1041,11 +1051,13 @@ class ListWidget extends BaseWidget<
     if (key === selectedItemKey) {
       this.resetSelectedItemKey();
       this.resetSelectedItem();
+
       return;
     }
 
     if (this.props.serverSidePagination) {
       const viewIndex = this.metaWidgetGenerator.getViewIndex(rowIndex);
+
       data = this.props.listData?.[viewIndex];
     } else {
       data = this.props.listData?.[rowIndex];
@@ -1066,6 +1078,7 @@ class ListWidget extends BaseWidget<
     if (key === selectedItemKey) {
       this.resetSelectedItemView();
       this.resetSelectedItem();
+
       return;
     }
 
@@ -1091,6 +1104,7 @@ class ListWidget extends BaseWidget<
 
   updateSelectedItem = (rowIndex: number) => {
     const data = this.props.listData?.[rowIndex];
+
     if (!isEqual(this.props.selectedItem, data)) {
       this.props.updateWidgetMetaProperty("selectedItem", data);
     }
@@ -1125,6 +1139,7 @@ class ListWidget extends BaseWidget<
 
     if (this.props.serverSidePagination) {
       const viewIndex = this.metaWidgetGenerator.getViewIndex(rowIndex);
+
       data = this.props.listData?.[viewIndex];
     } else {
       data = this.props.listData?.[rowIndex];
@@ -1209,30 +1224,36 @@ class ListWidget extends BaseWidget<
           const child: ExtendedCanvasWidgetStructure = {
             ...childWidgetStructure,
           };
+
           child.parentColumnSpace = parentColumnSpace;
           child.rightColumn = componentWidth;
           child.canExtend = true;
           child.positioning = this.props.positioning;
+
           if (this.props.layoutSystemType === LayoutSystemTypes.AUTO) {
             child.isListWidgetCanvas = true;
           }
+
           child.children = child.children?.map((container, viewIndex) => {
             const rowIndex = viewIndex + startIndex;
             const focused =
               this.props.renderMode === RenderModes.CANVAS && rowIndex === 0;
             const key = this.metaWidgetGenerator.getPrimaryKey(rowIndex);
+
             if (
               this.props.layoutSystemType === LayoutSystemTypes.AUTO &&
               container.children?.[0]
             ) {
               container.children[0].isListWidgetCanvas = true;
             }
+
             return {
               ...container,
               focused,
               selected: selectedItemKey === key,
               onClick: (e: React.MouseEvent<HTMLElement>) => {
                 e.stopPropagation();
+
                 // If Container Child Elements are clickable, we should not call the containers onItemClick Event
                 if (isTargetElementClickable(e)) return;
 
@@ -1243,6 +1264,7 @@ class ListWidget extends BaseWidget<
               },
             };
           });
+
           return renderAppsmithCanvas(child as WidgetProps);
         },
       );
@@ -1341,6 +1363,7 @@ class ListWidget extends BaseWidget<
     const { isLoading, pageNo, serverSidePagination } = this.props;
     const disableNextPage = this.shouldDisableNextPage();
     const totalDataCount = this.getTotalDataCount();
+
     return (
       this.shouldPaginate() &&
       (serverSidePagination && !totalDataCount ? (
