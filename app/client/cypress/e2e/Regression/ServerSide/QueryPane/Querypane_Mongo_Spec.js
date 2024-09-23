@@ -22,7 +22,7 @@ let datasourceName;
 
 describe(
   "Validate Mongo query commands",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Sanity"] },
   function () {
     // afterEach(function() {
     //   if (this.currentTest.state === "failed") {
