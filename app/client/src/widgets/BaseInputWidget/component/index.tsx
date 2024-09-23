@@ -530,12 +530,6 @@ class BaseInputComponent extends React.Component<
     const locale = this.props.shouldUseLocale ? getLocale() : undefined;
     const leftIcon = this.getLeftIcon();
     const conditionalProps: Record<string, number> = {};
-    const ICON_ALIGN_RIGHT = "right";
-    const rightElement =
-      this.props.iconAlign === ICON_ALIGN_RIGHT && this.props.iconName ? (
-        <Tag icon={this.props.iconName} />
-      ) : undefined;
-
     if (!isNil(this.props.maxNum)) {
       conditionalProps.max = this.props.maxNum;
     }
@@ -570,7 +564,7 @@ class BaseInputComponent extends React.Component<
         onKeyUp={this.onKeyUp}
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
-        rightElement={rightElement}
+        rightElement={this.getRightIcon()}
         stepSize={this.props.stepSize}
         value={this.props.value}
         {...conditionalProps}
