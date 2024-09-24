@@ -198,9 +198,11 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                             }
                             datasourceContextMonoMap.remove(datasourceContextIdentifier);
                             datasourceContextMap.remove(datasourceContextIdentifier);
-                            // performing LRU cache cleanup to delete old records
-                            log.info("Calling cleanup on LRU cache");
-                            datasourcePluginContextMapLRUCache.cleanUp();
+                            log.info(
+                                    "Invalidating the LRU cache entry for datasource id {}, environment id {} as the connection is stale or in error state",
+                                    datasourceContextIdentifier.getDatasourceId(),
+                                    datasourceContextIdentifier.getEnvironmentId());
+                            datasourcePluginContextMapLRUCache.invalidate(datasourceContextIdentifier);
                         }
 
                         /*
@@ -241,8 +243,13 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                         datasourceContext)
                                 .cache(); /* Cache the value so that further evaluations don't result in new connections */
 
-                        return checkIsMockMongoDatasource(plugin, datasourceStorage)
-                                .flatMap(isMockMongoDatasource -> {
+                        Mono<Boolean> checkIsMockMongoDatasourceMono =
+                                checkIsMockMongoDatasource(plugin, datasourceStorage);
+                        return Mono.zip(checkIsMockMongoDatasourceMono, connectionMonoCache)
+                                .flatMap(tuple -> {
+                                    Boolean isMockMongoDatasource = tuple.getT1();
+                                    Object connection = tuple.getT2();
+                                    datasourceContext.setConnection(connection);
                                     if (datasourceContextIdentifier.isKeyValid()
                                             && shouldCacheContextForThisPlugin(plugin)) {
                                         datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
@@ -487,16 +494,17 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             // No resource context exists for this resource. Return void.
             return Mono.empty();
         }
-        // performing cleanup for the LRU cache to delete all stale entries
-        log.info("Calling cleanup on LRU cache");
-        datasourcePluginContextMapLRUCache.cleanUp();
         return pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                 .flatMap(pluginExecutor -> {
                     log.info("Clearing datasource context for datasource storage ID {}.", datasourceStorage.getId());
                     pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
                     datasourceContextMonoMap.remove(datasourceContextIdentifier);
-
+                    log.info(
+                            "Invalidating the LRU cache entry for datasource id {}, environment id {} as delete datasource context is invoked",
+                            datasourceContextIdentifier.getDatasourceId(),
+                            datasourceContextIdentifier.getEnvironmentId());
+                    datasourcePluginContextMapLRUCache.invalidate(datasourceContextIdentifier);
                     if (!datasourceContextMap.containsKey(datasourceContextIdentifier)) {
                         log.info(
                                 "datasourceContextMap does not contain any entry for datasource storage with id: {} ",
