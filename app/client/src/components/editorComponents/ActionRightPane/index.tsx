@@ -91,11 +91,9 @@ export function useEntityDependencies(actionName: string) {
 }
 
 function ActionSidebar({
-  actionRightPaneBackLink,
   additionalSections,
 }: {
   additionalSections?: React.ReactNode;
-  actionRightPaneBackLink: React.ReactNode;
 }) {
   if (!additionalSections) {
     return null;
@@ -104,7 +102,6 @@ function ActionSidebar({
   return (
     <Wrapper>
       <SideBar>
-        {actionRightPaneBackLink}
         <CollapsibleGroupContainer>
           {additionalSections && (
             <CollapsibleGroup height={"100%"}>

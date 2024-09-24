@@ -1,9 +1,11 @@
-import type { updateJSLibraryProps } from "plugins/Linting/types";
+import type { LintRequest, updateJSLibraryProps } from "plugins/Linting/types";
 import { isEqual } from "lodash";
 import { JSLibraries, JSLibraryAccessor } from "workers/common/JSLibrary";
 import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
 
-export function updateJSLibraryGlobals(data: updateJSLibraryProps) {
+export function updateJSLibraryGlobals({
+  data,
+}: LintRequest<updateJSLibraryProps>) {
   const { add, libs } = data;
 
   if (add) {

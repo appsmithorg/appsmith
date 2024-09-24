@@ -14,7 +14,7 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("storeValue Action test", { tags: ["@tag.JS"] }, () => {
+describe("storeValue Action test", { tags: ["@tag.JS", "@tag.Sanity"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
     PageLeftPane.switchSegment(PagePaneSegment.JS);

@@ -230,5 +230,9 @@
   "showResult": ".t--property-control-showresult input[type='checkbox']",
   "infiniteLoading": ".t--property-control-infiniteloading input[type='checkbox']",
   "counterclockwise": ".t--property-control-counterclockwise input[type='checkbox']",
-  "serversideFilteringInput": ".t--property-control-serversidefiltering input[type='checkbox']"
+  "serversideFilteringInput": ".t--property-control-serversidefiltering input[type='checkbox']",
+  "propertyPaneSaveButton": ".t--property-pane-section-collapse-savebutton",
+  "firstEditInput":"[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor input.bp3-input",
+  "cellControlSwitch" : ".t--property-control-cellwrapping .ads-v2-switch",
+  "propertyControlLabel" : ".t--property-control-label"
 }

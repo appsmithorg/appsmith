@@ -354,6 +354,7 @@
     "jest-environment-jsdom": "^27.4.1",
     "jest-styled-components": "^7.0.8",
     "json5": "^2.2.3",
+    "knip": "^5.30.2",
     "lint-staged": "^14.0.1",
     "msw": "^0.28.0",
     "pg": "^8.11.3",
