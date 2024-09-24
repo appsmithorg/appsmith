@@ -234,9 +234,10 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
         // Get the widget config for the current widget
         const { getOneClickBindingConnectableWidgetConfig } =
           WidgetFactory.getWidgetMethods(currWidget.type);
+        const currentWidgetConfig = WidgetFactory.getConfig(currWidget.type);
 
         // If the widget is connectable to the current widget, return the option
-        if (getOneClickBindingConnectableWidgetConfig) {
+        if (getOneClickBindingConnectableWidgetConfig && currentWidgetConfig) {
           // This is the path we bind to the sourceData field Ex: `{{Table1.selectedRow}}`
           const { widgetBindPath } =
             getOneClickBindingConnectableWidgetConfig(currWidget);
@@ -250,7 +251,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
                 <DatasourceImage
                   alt="widget-icon"
                   className="dataSourceImage"
-                  src={currWidget.iconSVG}
+                  src={currentWidgetConfig.iconSVG}
                 />
               </ImageWrapper>
             ),
