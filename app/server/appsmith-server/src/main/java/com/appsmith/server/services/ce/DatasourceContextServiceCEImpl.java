@@ -97,6 +97,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 datasourceContextIdentifier.getEnvironmentId());
 
         // Close connection and remove entry from both cache maps
+        // confirm if this is the right way to close the connection or need to choose from datasourceContextMonoMap
         final Object connection =
                 datasourceContextMap.get(datasourceContextIdentifier).getConnection();
 
@@ -170,6 +171,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                             }
                             datasourceContextMonoMap.remove(datasourceContextIdentifier);
                             datasourceContextMap.remove(datasourceContextIdentifier);
+                            // performing LRU cache cleanup to delete old records
+                            datasourcePluginContextMapLRUCache.cleanUp();
                         }
 
                         /*
@@ -184,17 +187,13 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                             + ": Cached resource context mono exists for datasource id {}, environment id {}. Returning the same.",
                                     datasourceContextIdentifier.getDatasourceId(),
                                     datasourceContextIdentifier.getEnvironmentId());
+                            log.debug("Accessing the LRU cache to update the last accessed time");
+                            datasourcePluginContextMapLRUCache.getIfPresent(datasourceContextIdentifier);
                             return datasourceContextMonoMap.get(datasourceContextIdentifier);
                         }
 
                         /* Create a fresh datasource context */
                         DatasourceContext<Object> datasourceContext = new DatasourceContext<>();
-                        if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
-                            /* For this datasource, either the context doesn't exist, or the context is stale. Replace (or add) with
-                            the new connection in the context map. */
-                            datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
-                        }
-
                         Mono<Object> connectionMonoCache = pluginExecutor
                                 .datasourceCreate(datasourceStorage.getDatasourceConfiguration())
                                 .cache();
@@ -213,9 +212,15 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                         and we just return the context object as is. */
                                         datasourceContext)
                                 .cache(); /* Cache the value so that further evaluations don't result in new connections */
+                        DatasourcePluginContext<Object> datasourcePluginContext = new DatasourcePluginContext<>();
+                        datasourcePluginContext.setConnection(datasourceContext.getConnection());
+                        datasourcePluginContext.setPluginId(plugin.getId());
 
                         if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
+                            datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
                             datasourceContextMonoMap.put(datasourceContextIdentifier, datasourceContextMonoCache);
+                            datasourcePluginContextMapLRUCache.put(
+                                    datasourceContextIdentifier, datasourcePluginContext);
                         }
                         log.debug(
                                 Thread.currentThread().getName()
@@ -363,6 +368,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         } else {
             if (isValidDatasourceContextAvailable(datasourceStorage, datasourceContextIdentifier)) {
                 log.debug("Resource context exists. Returning the same.");
+                log.debug("Accessing the LRU cache to update the last accessed time");
+                datasourcePluginContextMapLRUCache.getIfPresent(datasourceContextIdentifier);
                 return Mono.just(datasourceContextMap.get(datasourceContextIdentifier));
             }
         }
@@ -448,6 +455,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             // No resource context exists for this resource. Return void.
             return Mono.empty();
         }
+        // performing cleanup for the LRU cache to delete all stale entries
+        datasourcePluginContextMapLRUCache.cleanUp();
         return pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                 .flatMap(pluginExecutor -> {

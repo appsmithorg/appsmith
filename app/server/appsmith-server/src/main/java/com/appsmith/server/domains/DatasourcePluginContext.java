@@ -13,4 +13,8 @@ public class DatasourcePluginContext<T> {
     T connection;
     String pluginId;
     Instant creationTime;
+
+    public DatasourcePluginContext() {
+        creationTime = Instant.now();
+    }
 }
