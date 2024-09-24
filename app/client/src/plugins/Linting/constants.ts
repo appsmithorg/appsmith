@@ -2,11 +2,16 @@ import { ECMA_VERSION } from "@shared/ast";
 import type { LintOptions } from "jshint";
 import isEntityFunction from "./utils/isEntityFunction";
 
+export const enum LINTER_VERSION {
+  "JSHINT" = "JSHint",
+  "ESLINT" = "ESLint",
+}
+
 export const lintOptions = (
   globalData: Record<string, boolean>,
-  linterVersion = 1,
+  linterVersion = LINTER_VERSION.JSHINT,
 ) => {
-  if (linterVersion === 1) {
+  if (linterVersion === LINTER_VERSION.JSHINT) {
     return {
       indent: 2,
       esversion: ECMA_VERSION,
