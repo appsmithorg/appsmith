@@ -26,6 +26,7 @@ import {
   IGNORED_LINT_ERRORS,
   lintOptions,
   SUPPORTED_WEB_APIS,
+  LINTER_VERSION,
 } from "../constants";
 import type { getLintingErrorsProps } from "../types";
 import { JSLibraries } from "workers/common/JSLibrary";
@@ -40,8 +41,23 @@ import getInvalidModuleInputsError from "ee/plugins/Linting/utils/getInvalidModu
 import { objectKeys } from "@appsmith/utils";
 import { profileFn } from "UITelemetry/generateWebWorkerTraces";
 import { log, error } from "loglevel";
+import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
+
+function getLinterVersion() {
+  let linterVersion = LINTER_VERSION.JSHINT;
+
+  const flagValues = WorkerEnv.getFeatureFlags();
+  const flagName = FEATURE_FLAG.rollout_eslint_enabled;
+
+  if (flagName in flagValues && flagValues[flagName]) {
+    linterVersion = LINTER_VERSION.ESLINT;
+  }
+
+  return linterVersion;
+}
 
 function getEvaluationScriptPosition(scriptType: EvaluationScriptType) {
   if (isEmpty(EvaluationScriptPositions)) {
@@ -285,14 +301,13 @@ function convertJsHintErrorToAppsmithLintError(
 
 export default function getLintingErrors({
   data,
-  linterVersion = 2, // Use this version for elsint
-  //linterVersion = 1,// Use this version for jshint
   options,
   originalBinding,
   script,
   scriptType,
   webworkerTelemetry,
 }: getLintingErrorsProps): LintError[] {
+  const linterVersion = getLinterVersion();
   const scriptPos = getEvaluationScriptPosition(scriptType);
   const lintingGlobalData = generateLintingGlobalData(data);
   const lintingOptions = lintOptions(lintingGlobalData, linterVersion);
@@ -304,13 +319,13 @@ export default function getLintingErrors({
       "Linter",
       // adding some metrics to compare the performance changes with eslint
       {
-        linter: linterVersion === 1 ? "JSHint" : "ESLint",
+        linter: linterVersion,
         linesOfCodeLinted: originalBinding.split("\n").length,
         codeSizeInChars: originalBinding.length,
       },
       webworkerTelemetry,
       () => {
-        if (linterVersion === 1) {
+        if (linterVersion === LINTER_VERSION.JSHINT) {
           jshint(script, lintingOptions);
         } else {
           // Replace tabs with 2 spaces before linting
@@ -324,7 +339,7 @@ export default function getLintingErrors({
       },
     );
 
-    if (linterVersion === 1) {
+    if (linterVersion === LINTER_VERSION.JSHINT) {
       const sanitizedJSHintErrors = sanitizeJSHintErrors(
         jshint.errors,
         scriptPos,
