@@ -62,6 +62,7 @@ Object.keys(plugins).forEach((key: string) =>
 );
 
 const { fusioncharts } = getAppsmithConfigs();
+
 FusionCharts.options.license({
   key: fusioncharts.licenseKey,
   creditLabel: false,
@@ -162,6 +163,7 @@ class ChartComponent extends React.Component<
     this.eChartsHTMLContainer = document.getElementById(
       this.eChartsContainerId,
     );
+
     if (!this.eChartsHTMLContainer) {
       return;
     }
@@ -295,10 +297,12 @@ class ChartComponent extends React.Component<
   renderFusionCharts = () => {
     if (this.fusionChartsInstance) {
       const { dataSource, type } = this.getCustomFusionChartDataSource();
+
       this.fusionChartsInstance.chartType(type);
       this.fusionChartsInstance.setChartData(dataSource);
     } else {
       const config = this.customFusionChartConfig();
+
       this.fusionChartsInstance = new FusionCharts(config);
 
       FusionCharts.ready(() => {
@@ -334,6 +338,7 @@ class ChartComponent extends React.Component<
       },
       ...this.getCustomFusionChartDataSource(),
     };
+
     return chartConfig;
   }
 
@@ -354,6 +359,7 @@ class ChartComponent extends React.Component<
         },
       };
     }
+
     return config || {};
   };
 
@@ -402,6 +408,7 @@ export const mapStateToProps = (
 ) => {
   const isPreviewMode = combinedPreviewModeSelector(state);
   const appMode = getAppMode(state);
+
   return {
     needsOverlay:
       appMode == APP_MODE.EDIT &&

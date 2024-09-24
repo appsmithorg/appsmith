@@ -30,6 +30,7 @@ export function HeaderComponent(props: HeaderProps) {
       </Text>
     </div>
   ));
+
   return (
     <HeaderContainer
       className="upgrade-page-header-container"

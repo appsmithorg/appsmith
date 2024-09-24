@@ -31,6 +31,7 @@ const PositionedWidget = styled.div<{
     z-index: ${(props) => props.zIndexOnHover} !important;
   }
 `;
+
 export interface PositionedContainerProps {
   componentWidth: number;
   componentHeight: number;
@@ -155,6 +156,7 @@ export function PositionedContainer(
       ...reflowDimensionsStyles,
       ...dropTargetStyles,
     };
+
     return styles;
   }, [style, isReflowEffected, onHoverZIndex, zIndex, reflowedPosition]);
 

@@ -12,6 +12,7 @@ export const migrateNewlyAddedTabsWidgetsMissingData = (
           if (has(currentDSL, ["leftColumn", "rightColumn", "bottomRow"])) {
             return each;
           }
+
           return {
             ...each,
             leftColumn: 0,
@@ -24,6 +25,7 @@ export const migrateNewlyAddedTabsWidgetsMissingData = (
           };
         });
       }
+
       currentDSL.version = 3;
     } catch (error) {
       //   Sentry.captureException({
@@ -32,10 +34,12 @@ export const migrateNewlyAddedTabsWidgetsMissingData = (
       //   });
     }
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map(
       migrateNewlyAddedTabsWidgetsMissingData,
     );
   }
+
   return currentDSL;
 };

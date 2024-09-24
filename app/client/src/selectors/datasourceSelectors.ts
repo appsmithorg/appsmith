@@ -30,6 +30,7 @@ export const getIsFetchingGsheetsColumns = (state: AppState) => {
 
 export const getFirstDatasourceId = (state: AppState) => {
   const { list } = state.entities.datasources;
+
   if (list.length) {
     return list[0].id;
   }

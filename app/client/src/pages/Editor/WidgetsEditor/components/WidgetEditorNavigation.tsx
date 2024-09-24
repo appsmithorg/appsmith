@@ -23,6 +23,7 @@ export const useNavigationPreviewHeight = () => {
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
   const currentApplicationDetails = useSelector(getCurrentApplication);
+
   useEffect(() => {
     if (navigationPreviewRef?.current) {
       const { offsetHeight } = navigationPreviewRef.current;
@@ -37,6 +38,7 @@ export const useNavigationPreviewHeight = () => {
     appSettingsPaneContext?.type,
     currentApplicationDetails?.applicationDetail?.navigationSetting,
   ]);
+
   return {
     navigationPreviewRef,
     navigationHeight,

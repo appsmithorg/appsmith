@@ -42,11 +42,13 @@ const getConfig = (focusInfo: FocusEntityInfo): Config => {
         if (focusInfo.params.pluginPackageName) {
           return queryDebuggerConfig;
         }
+
         return {
           set: setApiPaneDebuggerState,
           get: getApiPaneDebuggerState,
         };
       }
+
       return queryDebuggerConfig;
     case FocusEntity.JS_OBJECT:
       return {
@@ -70,6 +72,7 @@ const useDebuggerTriggerClick = () => {
       : canvasDebuggerConfig;
 
   const state = useSelector(config.get);
+
   return () => {
     // If debugger is already open and selected tab is error tab then we will close debugger.
     if (state.open && state.selectedTab === DEBUGGER_TAB_KEYS.ERROR_TAB) {
@@ -81,10 +84,12 @@ const useDebuggerTriggerClick = () => {
           config.set({ open: true, selectedTab: DEBUGGER_TAB_KEYS.ERROR_TAB }),
         );
       }
+
       // Select error tab if debugger is open and selected tab is not error tab.
       // And also when we are opening debugger.
       dispatch(config.set({ selectedTab: DEBUGGER_TAB_KEYS.ERROR_TAB }));
     }
+
     if (!state.open) {
       AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
         source: "TRIGGER",

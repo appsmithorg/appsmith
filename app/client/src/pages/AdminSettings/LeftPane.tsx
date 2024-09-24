@@ -124,6 +124,7 @@ export function Categories({
       "access-control": "AccessControl",
       provisioning: "Provisioning",
     };
+
     AnalyticsUtil.logEvent("ADMIN_SETTINGS_CLICK", {
       source: source[page],
     });
@@ -135,6 +136,7 @@ export function Categories({
         type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
       });
     }
+
     if (showUpgradeTag) {
       triggerAnalytics(category);
     }
@@ -148,6 +150,7 @@ export function Categories({
             ? currentSubCategory == config.slug
             : currentCategory == config.slug;
         const showUpgradeTag = config?.isFeatureEnabled === false;
+
         return (
           <CategoryItem key={config.slug}>
             <StyledLink

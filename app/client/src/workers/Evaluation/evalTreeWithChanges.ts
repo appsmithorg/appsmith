@@ -46,6 +46,7 @@ export function evalTreeWithChanges(
   const pathsToSkipFromEval = updatedValuePaths.map((path) => path.join("."));
 
   let setupUpdateTreeResponse = {} as UpdateTreeResponse;
+
   if (dataTreeEvaluator) {
     setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTreeWithDifferences(
       updatedValuePaths,
@@ -68,6 +69,7 @@ export const getAffectedNodesInTheDataTree = (
   const allUnevalUpdates = unEvalUpdates.map(
     (update) => update.payload.propertyPath,
   );
+
   // merge unevalUpdate paths and evalOrder paths
   return uniqueOrderUpdatePaths([...allUnevalUpdates, ...evalOrder]);
 };
@@ -84,6 +86,7 @@ export const evaluateAndPushResponse = (
     metaUpdates,
     additionalPathsAddedAsUpdates,
   );
+
   return pushResponseToMainThread(response);
 };
 
@@ -102,14 +105,17 @@ export const evaluateAndGenerateResponse = (
       dataTreeEvaluator,
       [],
     );
+
     defaultResponse.updates = updates;
     defaultResponse.evalMetaUpdates = [...(metaUpdates || [])];
+
     return {
       workerResponse: defaultResponse,
     };
   }
 
   const { evalOrder, jsUpdates, unEvalUpdates } = setupUpdateTreeResponse;
+
   defaultResponse.evaluationOrder = evalOrder;
   defaultResponse.unEvalUpdates = unEvalUpdates;
   defaultResponse.jsUpdates = jsUpdates;

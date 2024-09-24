@@ -15,6 +15,7 @@ function postWindowMessageFnDescriptor(
     },
   };
 }
+
 export type TPostWindowMessageArgs = Parameters<
   typeof postWindowMessageFnDescriptor
 >;
@@ -26,6 +27,7 @@ export type TPostWindowMessageActionType =
 
 export default function postWindowMessage(...args: TPostWindowMessageArgs) {
   const metaData = ExecutionMetaData.getExecutionMetaData();
+
   TriggerEmitter.emit(BatchKey.process_batched_triggers, {
     trigger: postWindowMessageFnDescriptor(...args),
     ...metaData,

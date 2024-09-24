@@ -43,16 +43,20 @@ export const migrateBindingPrefixSuffixForInlineEditValidationControl = (
       Object.values(primaryColumns).forEach((column: any) => {
         if (column.hasOwnProperty("validation")) {
           const validations = column.validation;
+
           for (const validationName in validations) {
             if (applicableValidationNames.indexOf(validationName) == -1) {
               continue;
             }
+
             const validationValue = validations[validationName];
+
             if (typeof validationValue !== "string") {
               continue;
             }
 
             let compressedValidationValue = validationValue.replace(/\s/g, "");
+
             compressedValidationValue = compressedValidationValue.replace(
               oldBindingPrefix,
               newBindingPrefix,

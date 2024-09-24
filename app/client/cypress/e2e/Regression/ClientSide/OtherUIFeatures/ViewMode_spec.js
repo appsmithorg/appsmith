@@ -14,7 +14,7 @@ Cypress.Commands.add("getSharedUrl", () => {
   return Cypress.sharedStore.url;
 });
 
-describe("Preview mode functionality", function () {
+describe("Preview mode functionality", { tags: ["@tag.IDE"] }, () => {
   before(() => {
     agHelper.AddDsl("previewMode");
     deployMode.DeployApp();

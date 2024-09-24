@@ -14,7 +14,9 @@ export const migrateTableWidgetHeaderVisibilityProperties = (
     } else if (child.children && child.children.length > 0) {
       child = migrateTableWidgetHeaderVisibilityProperties(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

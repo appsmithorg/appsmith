@@ -17,7 +17,9 @@ export const chartDataMigration = (currentDSL: DSLWidget) => {
     ) {
       children = chartDataMigration(children);
     }
+
     return children;
   });
+
   return currentDSL;
 };

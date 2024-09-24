@@ -102,6 +102,7 @@ function renderStarsWithTooltip(props: RateComponentProps, isActive?: boolean) {
   const rateTooltips = props.tooltips || [];
   const rateTooltipsCount = rateTooltips.length;
   const deltaCount = props.maxCount - rateTooltipsCount;
+
   if (rateTooltipsCount === 0) {
     return (
       <Star

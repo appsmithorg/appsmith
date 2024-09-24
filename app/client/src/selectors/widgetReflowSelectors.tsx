@@ -14,6 +14,7 @@ export const getReflowSelector = (widgetId: string) => {
     if (reflowState?.reflowingWidgets) {
       return reflowState?.reflowingWidgets[widgetId];
     }
+
     return undefined;
   });
 };

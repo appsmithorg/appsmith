@@ -37,6 +37,7 @@ const toast = {
     const icon = getIconByKind(options?.kind);
     // generate a unique toastId with the options given to it
     const toastId = JSON.stringify({ ...options, content });
+
     return toastifyToast(
       <ToastBody kind="body-m">
         <pre style={{ font: "inherit" }}>{content}</pre>

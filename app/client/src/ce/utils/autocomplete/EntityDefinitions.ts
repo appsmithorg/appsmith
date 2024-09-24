@@ -20,6 +20,7 @@ export const entityDefinitions = {
       _.omit(entity, "ENTITY_TYPE", EVALUATION_PATH),
       extraDefsToDefine,
     );
+
     if (
       typeof generatedTypeDef === "object" &&
       typeof generatedTypeDef.geolocation === "object"
@@ -89,6 +90,7 @@ export const entityDefinitions = {
         ...eeAppsmithAutocompleteDefs(generatedTypeDef),
       };
     }
+
     return generatedTypeDef;
   },
   ACTION: (entity: ActionEntity, extraDefsToDefine: ExtraDef) => {
@@ -116,6 +118,7 @@ export const entityDefinitions = {
     } else {
       dataCustomDef = { ...dataCustomDef, ...dataDef };
     }
+
     return {
       "!doc":
         "Object that contains the properties required to run queries and access the query data.",
@@ -336,7 +339,9 @@ export const getEachEntityInformation = {
     entityInformation: FieldEntityInformation,
   ): FieldEntityInformation => {
     const actionEntity = entity as ActionEntityConfig;
+
     entityInformation.entityId = actionEntity.actionId;
+
     return entityInformation;
   },
   [ENTITY_TYPE.WIDGET]: (
@@ -346,11 +351,15 @@ export const getEachEntityInformation = {
   ): FieldEntityInformation => {
     const widgetEntity = entity as WidgetEntityConfig;
     const isTriggerPath = widgetEntity.triggerPaths[propertyPath];
+
     entityInformation.entityId = widgetEntity.widgetId;
+
     if (isTriggerPath)
       entityInformation.expectedType = AutocompleteDataType.FUNCTION;
+
     entityInformation.isTriggerPath = isTriggerPath;
     entityInformation.widgetType = widgetEntity.type;
+
     return entityInformation;
   },
   [ENTITY_TYPE.JSACTION]: (
@@ -361,6 +370,7 @@ export const getEachEntityInformation = {
     propertyPath: string,
   ): FieldEntityInformation => {
     entityInformation.isTriggerPath = true;
+
     return entityInformation;
   },
 };

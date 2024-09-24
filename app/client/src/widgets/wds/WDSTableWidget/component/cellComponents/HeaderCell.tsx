@@ -45,6 +45,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
   const { column, isSortable } = props;
 
   const headerProps = { ...column.getHeaderProps() };
+
   headerProps["style"] = {
     ...headerProps.style,
     display: "flex",
@@ -55,12 +56,16 @@ const HeaderCellComponent = (props: HeaderProps) => {
   };
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
+
     let columnIndex = props.columnIndex;
+
     if (props.isAscOrder === true) {
       columnIndex = -1;
     }
+
     const sortOrder =
       props.isAscOrder === undefined ? false : !props.isAscOrder;
+
     props.sortTableColumn(columnIndex, sortOrder);
   };
 
@@ -209,4 +214,5 @@ const HeaderCellComponent = (props: HeaderProps) => {
     </th>
   );
 };
+
 export const HeaderCell = memo(HeaderCellComponent);

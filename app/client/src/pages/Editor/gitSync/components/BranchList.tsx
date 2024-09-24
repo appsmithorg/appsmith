@@ -283,10 +283,12 @@ export default function BranchList(props: {
 
   const handleCreateNewBranch = () => {
     if (isCreatingNewBranch) return;
+
     AnalyticsUtil.logEvent("GS_CREATE_NEW_BRANCH", {
       source: "BRANCH_LIST_POPUP_FROM_BOTTOM_BAR",
     });
     const branch = searchText;
+
     setIsCreatingNewBranch(true);
     dispatch(
       createNewBranchInit({
@@ -296,6 +298,7 @@ export default function BranchList(props: {
         },
         onSuccessCallback: () => {
           setIsCreatingNewBranch(false);
+
           if (typeof props.setIsPopupOpen === "function")
             props.setIsPopupOpen(false);
         },

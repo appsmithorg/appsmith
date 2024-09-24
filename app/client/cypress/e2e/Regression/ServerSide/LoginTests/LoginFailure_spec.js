@@ -5,7 +5,7 @@ import {
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Login failure", function () {
+describe("Login failure", { tags: ["@tag.Authentication"] }, function () {
   it("1. Preserves redirectUrl param on login failure", function () {
     let urlWithoutQueryParams;
     deployMode.DeployApp(locators._emptyPageTxt, true, false);

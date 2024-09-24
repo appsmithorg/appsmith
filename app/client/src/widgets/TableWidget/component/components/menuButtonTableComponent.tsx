@@ -210,6 +210,7 @@ function PopoverContent(props: PopoverContentProps) {
   const { isCompact, menuItems: itemsObj, onItemClicked } = props;
 
   if (!itemsObj) return <StyledMenu />;
+
   const visibleItems = Object.keys(itemsObj)
     .map((itemKey) => itemsObj[itemKey])
     .filter((item) => item.isVisible === true);

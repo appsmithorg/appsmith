@@ -19,7 +19,7 @@ import EditorNavigation, {
 
 describe(
   "Import and validate older app (app created in older versions of Appsmith) from Gitea",
-  { tags: ["@tag.Git"] },
+  { tags: ["@tag.Git", "@tag.Sanity"] },
   function () {
     let appRepoName = "TestMigration",
       appName = "UpgradeAppToLatestVersion",

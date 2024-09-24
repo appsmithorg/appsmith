@@ -60,12 +60,14 @@ export default [
           propertyValue: string,
         ) => {
           const propertiesToUpdate = [{ propertyPath, propertyValue }];
+
           if (!props.iconAlign) {
             propertiesToUpdate.push({
               propertyPath: "iconAlign",
               propertyValue: Alignment.LEFT,
             });
           }
+
           return propertiesToUpdate;
         },
         dependencies: ["iconAlign"],

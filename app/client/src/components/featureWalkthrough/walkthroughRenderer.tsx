@@ -156,14 +156,19 @@ const WalkthroughRenderer = ({
   const multipleHighlightsIds = multipleHighlights?.length
     ? multipleHighlights
     : [targetId];
+
   if (multipleHighlightsIds.indexOf(targetId) === -1)
     multipleHighlightsIds.push(targetId);
+
   const updateBoundingRect = () => {
     const mainTarget = document.querySelector(targetId);
+
     if (mainTarget) {
       const data: BoundingRectTargets = {};
+
       multipleHighlightsIds.forEach((id) => {
         const highlightArea = document.querySelector(id);
+
         if (highlightArea) {
           const boundingRect = highlightArea.getBoundingClientRect();
           const bodyRect = document.body.getBoundingClientRect();
@@ -171,6 +176,7 @@ const WalkthroughRenderer = ({
             typeof offset?.highlightPad === "number"
               ? offset?.highlightPad
               : PADDING_HIGHLIGHT;
+
           data[id] = {
             bw: bodyRect.width,
             bh: bodyRect.height,
@@ -196,14 +202,18 @@ const WalkthroughRenderer = ({
   useEffect(() => {
     updateBoundingRect();
     const highlightArea = document.querySelector(targetId);
+
     window.addEventListener("resize", updateBoundingRect);
     const resizeObserver = new ResizeObserver(updateBoundingRect);
+
     if (highlightArea) {
       AnalyticsUtil.logEvent("WALKTHROUGH_SHOWN", eventParams);
       resizeObserver.observe(highlightArea);
     }
+
     return () => {
       window.removeEventListener("resize", updateBoundingRect);
+
       if (highlightArea) resizeObserver.unobserve(highlightArea);
     };
   }, [targetId]);
@@ -213,6 +223,7 @@ const WalkthroughRenderer = ({
   };
 
   if (!boundingRects || Object.keys(boundingRects).length === 0) return null;
+
   const targetBounds = boundingRects[targetId];
 
   if (!targetBounds) return null;
@@ -236,6 +247,7 @@ const WalkthroughRenderer = ({
                     0 ${targetBounds.bh},
                     ${multipleHighlightsIds.reduce((acc, id) => {
                       const boundingRect = boundingRects[id];
+
                       if (boundingRect) {
                         acc = `${acc} ${boundingRect.tx} ${boundingRect.bh},
                         ${boundingRect.tx} ${boundingRect.ty},
@@ -246,6 +258,7 @@ const WalkthroughRenderer = ({
                         ${boundingRect.tx} ${boundingRect.ty + boundingRect.th},
                         ${boundingRect.tx} ${boundingRect.bh},`;
                       }
+
                       return acc;
                     }, "")}
                     ${targetBounds.bw} ${targetBounds.bh},

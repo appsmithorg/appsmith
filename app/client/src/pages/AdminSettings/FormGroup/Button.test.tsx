@@ -19,8 +19,10 @@ const setting: Setting = {
 };
 const dispatch = jest.fn();
 const settings = {};
+
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
+
   return {
     ...originalModule,
     useDispatch: () => dispatch,
@@ -41,12 +43,14 @@ describe("Button", () => {
   it("is rendered", () => {
     renderComponent();
     const button = screen.queryAllByTestId("admin-settings-button");
+
     expect(button).toHaveLength(1);
   });
 
   it("is rendered with proper text", () => {
     renderComponent();
     const button = screen.queryAllByTestId("admin-settings-button");
+
     expect(button).toHaveLength(1);
     expect(button[0].textContent).toBe(setting.text);
   });
@@ -55,6 +59,7 @@ describe("Button", () => {
     buttonIsDisabled.mockReturnValue(true);
     renderComponent();
     const button = screen.queryAllByTestId("admin-settings-button");
+
     expect(buttonIsDisabled).toHaveBeenCalledWith(settings);
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -65,6 +70,7 @@ describe("Button", () => {
     buttonIsDisabled.mockReturnValue(false);
     renderComponent();
     const button = screen.queryAllByTestId("admin-settings-button");
+
     expect(buttonIsDisabled).toHaveBeenCalledWith(settings);
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -74,6 +80,7 @@ describe("Button", () => {
   it("is executing action of setting on click", () => {
     renderComponent();
     const button = screen.queryAllByTestId("admin-settings-button");
+
     expect(buttonClickHandler).not.toHaveBeenCalled();
     button[0].click();
     expect(buttonClickHandler).toHaveBeenCalledWith(dispatch, settings);

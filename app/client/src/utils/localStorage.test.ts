@@ -36,6 +36,7 @@ describe("local storage", () => {
     });
     jest.spyOn(window.localStorage.__proto__, "getItem");
     const localStorageInstance = new LocalStorage();
+
     localStorageInstance.getItem("myTestKey");
     expect(localStorage.getItem).toHaveBeenCalledTimes(0);
   });

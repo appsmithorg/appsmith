@@ -18,7 +18,7 @@ const oneClickBinding = new OneClickBinding();
 
 describe(
   "JSONForm widget one click binding feature",
-  { tags: ["@tag.Binding"] },
+  { tags: ["@tag.Binding", "@tag.Sanity"] },
   () => {
     let datasourceName: string;
     it("1.Create flow: should check that queries are created and bound to jsonform widget properly", () => {

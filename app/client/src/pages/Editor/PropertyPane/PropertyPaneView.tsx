@@ -159,6 +159,7 @@ function PropertyPaneView(
 
   const handleKbdEvent = (e: Event) => {
     const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
+
     AnalyticsUtil.logEvent("PROPERTY_PANE_KEYPRESS", {
       key: event.detail.key,
       propertyName: event.detail.propertyName,
@@ -173,6 +174,7 @@ function PropertyPaneView(
       handleKbdEvent,
     );
     showWalkthroughIfWidgetIdSet();
+
     return () => {
       containerRef.current?.removeEventListener(
         INTERACTION_ANALYTICS_EVENT,

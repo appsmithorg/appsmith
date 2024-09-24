@@ -35,6 +35,7 @@ export function renderWidgets(props: LayoutComponentProps, startIndex = 0) {
       );
     })
     .filter(Boolean);
+
   return arr;
 }
 
@@ -55,6 +56,7 @@ export function renderLayouts(
     const Component: typeof BaseLayoutComponent = LayoutFactory.get(
       layout.layoutType,
     );
+
     return (
       <Component
         {...layout}

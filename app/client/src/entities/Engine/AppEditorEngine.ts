@@ -166,6 +166,7 @@ export default class AppEditorEngine extends AppEngine {
       "AppEditorEngine.waitForFetchUserSuccess",
       rootSpan,
     );
+
     yield call(waitForFetchUserSuccess);
     endSpan(waitForUserSpan);
 
@@ -173,6 +174,7 @@ export default class AppEditorEngine extends AppEngine {
       "AppEditorEngine.waitForSegmentInit",
       rootSpan,
     );
+
     yield call(waitForSegmentInit, true);
     endSpan(waitForSegmentInitSpan);
 
@@ -180,6 +182,7 @@ export default class AppEditorEngine extends AppEngine {
       "AppEditorEngine.waitForFetchEnvironments",
       rootSpan,
     );
+
     yield call(waitForFetchEnvironments);
     endSpan(waitForFetchEnvironmentsSpan);
 
@@ -279,6 +282,7 @@ export default class AppEditorEngine extends AppEngine {
         currentTabs,
       });
     }
+
     if (isFirstTimeUserOnboardingComplete) {
       yield put({
         type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
@@ -323,6 +327,7 @@ export default class AppEditorEngine extends AppEngine {
     const loadGitSpan = startNestedSpan("AppEditorEngine.loadGit", rootSpan);
 
     const branchInStore: string = yield select(getCurrentGitBranch);
+
     yield put(
       restoreRecentEntitiesRequest({
         applicationId,

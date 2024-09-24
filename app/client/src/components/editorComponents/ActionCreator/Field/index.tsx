@@ -43,8 +43,10 @@ export function Field(props: FieldProps) {
   const { field } = props;
   const fieldType = field.field;
   const fieldConfig = FIELD_CONFIG[fieldType];
+
   // eslint-disable-next-line react/jsx-no-useless-fragment
   if (!fieldConfig) return <></>;
+
   let viewElement: JSX.Element | null = null;
   const view = fieldConfig.view && views[fieldConfig.view];
   const label = FIELD_CONFIG[fieldType].label(props);
@@ -67,6 +69,7 @@ export function Field(props: FieldProps) {
           isUpdatedViaKeyboard = false,
         ) => {
           const finalValueToSet = fieldConfig.setter(value, "");
+
           props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
         },
         value: value,
@@ -121,6 +124,7 @@ export function Field(props: FieldProps) {
             props.value,
             isUpdatedViaKeyboard,
           );
+
           props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
         },
         value: value,
@@ -154,6 +158,7 @@ export function Field(props: FieldProps) {
             props.value,
             props.field.index,
           );
+
           props.onValueChange(finalValueToSet, false);
         },
         index: props.field.index,
@@ -171,6 +176,7 @@ export function Field(props: FieldProps) {
             props.value,
             props.field.position,
           );
+
           props.onValueChange(finalValueToSet, false);
         },
         value: value,
@@ -186,6 +192,7 @@ export function Field(props: FieldProps) {
         get: getterFunction,
         set: (value: string | DropdownOption) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);
+
           props.onValueChange(finalValueToSet, false);
         },
         value: value,
@@ -200,6 +207,7 @@ export function Field(props: FieldProps) {
         get: getterFunction,
         set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);
+
           props.onValueChange(finalValueToSet, isUpdatedViaKeyboard, true);
         },
         value: value,
@@ -234,6 +242,7 @@ export function Field(props: FieldProps) {
         get: getterFunction,
         set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);
+
           props.onValueChange(finalValueToSet, isUpdatedViaKeyboard, true);
         },
         value: value,
@@ -248,11 +257,13 @@ export function Field(props: FieldProps) {
         exampleText: exampleText,
         get: (val) => {
           const getter = field.getter || fieldConfig.getter;
+
           return getter(val);
         },
         set: (value: string, isUpdatedViaKeyboard = false) => {
           const setter = field.setter || fieldConfig.setter;
           const finalValueToSet = setter(value, props.value);
+
           props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
         },
         value: value,

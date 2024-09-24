@@ -166,6 +166,7 @@ const StyledActionsContainer = React.forwardRef<
   }
 >((props, ref) => {
   const { children } = props;
+
   return (
     <StyledActions ref={ref} style={{ top: "0px", left: "0px" }}>
       {children}
@@ -204,6 +205,7 @@ function WidgetsMultiSelectBox(props: {
     if (isDragging) {
       return false;
     }
+
     const parentIDs = selectedWidgets
       .filter(Boolean)
       .map((widget) => widget.parentId);
@@ -226,6 +228,7 @@ function WidgetsMultiSelectBox(props: {
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (draggableRef.current) {
       const bounds = draggableRef.current.getBoundingClientRect();
       const parentId = get(selectedWidgets, "0.parentId");
@@ -238,6 +241,7 @@ function WidgetsMultiSelectBox(props: {
         selectedWidgets,
         (rect) => rect.leftColumn,
       )?.leftColumn;
+
       setDraggingState({
         isDragging: true,
         dragGroupActualParent: parentId || "",
@@ -266,6 +270,7 @@ function WidgetsMultiSelectBox(props: {
               node.intersectionRect.width >= menuHeight) ||
               (node.intersectionRect.height >= menuHeight &&
                 node.intersectionRect.width >= menuWidth));
+
           requestAnimationFrame(() => {
             if (menuRef.current) {
               if (isVisible) {
@@ -278,6 +283,7 @@ function WidgetsMultiSelectBox(props: {
                 menuRef.current.style.flexDirection =
                   node.intersectionRect.height < menuHeight ? "row" : "column";
               }
+
               menuRef.current.style.visibility = isVisible
                 ? "visible"
                 : "hidden";
@@ -299,8 +305,10 @@ function WidgetsMultiSelectBox(props: {
   const observeSelectionBox = () => {
     const node = draggableRef.current;
     const observer = positionObserver.current;
+
     if (observer) {
       observer.disconnect();
+
       if (node) observer.observe(node);
     }
   };

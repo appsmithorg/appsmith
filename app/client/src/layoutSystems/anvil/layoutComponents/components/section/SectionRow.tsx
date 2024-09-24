@@ -5,6 +5,7 @@ import { FlexLayout, type FlexLayoutProps } from "../FlexLayout";
 
 export const SectionRow = (props: FlexLayoutProps) => {
   const isEditOnlyMode = useSelector(isEditOnlyModeSelector);
+
   return (
     <FlexLayout {...props} wrap={isEditOnlyMode ? "nowrap" : "wrap"}>
       {props.children}

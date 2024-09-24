@@ -12,12 +12,14 @@ const addIsDisabledToButtonColumn = (currentDSL: DSLWidget) => {
             currentDSL.primaryColumns[key]["isDisabled"] = false;
           }
         }
+
         if (!currentDSL.primaryColumns[key].hasOwnProperty("isCellVisible")) {
           currentDSL.primaryColumns[key]["isCellVisible"] = true;
         }
       }
     }
   }
+
   return currentDSL;
 };
 
@@ -27,5 +29,6 @@ export const migrateIsDisabledToButtonColumn = (currentDSL: DSLWidget) => {
   newDSL.children = newDSL.children?.map((children: DSLWidget) => {
     return migrateIsDisabledToButtonColumn(children);
   });
+
   return currentDSL;
 };

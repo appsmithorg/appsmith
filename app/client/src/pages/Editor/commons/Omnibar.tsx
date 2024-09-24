@@ -38,6 +38,7 @@ const GlobalSearch = lazy(async () => {
 
 export const Omnibar = () => {
   const isSnipingMode = useSelector(snipingModeSelector);
+
   return (
     <>
       <Suspense fallback={<span />}>

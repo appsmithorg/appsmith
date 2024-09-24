@@ -323,6 +323,7 @@ function ConditionBlock(props: any) {
     // so make sure the new formValue has been initialized with the where object,
     // especially when switching between various queries across the same Query editor form.
     const whereConfigValue = _.get(formValues, props.configProperty);
+
     // if the where object exists then it means the initialization of the form has been completed.
     // if the where object exists and the length of children field is less than one, add a new field.
     if (props.fields.length < 1 && !!whereConfigValue) {
@@ -337,9 +338,11 @@ function ConditionBlock(props: any) {
   }, [props.fields.length]);
 
   let isDisabled = false;
+
   if (props.logicalTypes.length === 1) {
     isDisabled = true;
   }
+
   const logicalFieldPath = getBindingOrConfigPathsForWhereClauseControl(
     props.configProperty,
     WhereClauseSubComponent.Condition,
@@ -361,6 +364,7 @@ function ConditionBlock(props: any) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         props.fields.map((field: any, index: number) => {
           const fieldValue: whereClauseValueType = props.fields.get(index);
+
           return (
             <ConditionWrapper key={`where-${index}`} size={size}>
               {/* Component to render the joining operator between multiple conditions */}
@@ -502,6 +506,7 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
 
   // Max width is designed in a way that the proportion stays same even after nesting
   const maxWidth = 60; //in vw
+
   return (
     <FieldArray
       component={ConditionBlock}

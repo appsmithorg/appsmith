@@ -7,7 +7,9 @@ export const isSortableMigration = (currentDSL: DSLWidget) => {
     } else if (child.children && child.children.length > 0) {
       child = isSortableMigration(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

@@ -5,7 +5,7 @@ import { modText } from "utils/helpers";
 import { usePluginActionContext } from "../PluginActionContext";
 import { useDispatch } from "react-redux";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { runAction } from "../../actions/pluginActionActions";
+import { runAction } from "actions/pluginActionActions";
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;
@@ -33,6 +33,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
     dispatch,
     plugin.name,
   ]);
+
   return (
     <IDEToolbar>
       <IDEToolbar.Left>{props.children}</IDEToolbar.Left>

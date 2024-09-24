@@ -16,6 +16,7 @@ class PrimaryColumnsColorPickerControlV2 extends BaseControl<PrimaryColumnColorP
       const { jsSnippets, stringSegments } = getDynamicBindings(color);
 
       const js = combineDynamicBindings(jsSnippets, stringSegments);
+
       computedColor = `{{${this.props.widgetProperties.widgetName}.processedTableData.map((currentRow, currentIndex) => ( ${js}))}}`;
     }
 

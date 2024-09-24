@@ -77,6 +77,7 @@ const PageElement = ({
       history.push(navigateToUrl, {
         invokedBy: NavigationMethod.EntityExplorer,
       });
+
       if (onClick) {
         onClick();
       }

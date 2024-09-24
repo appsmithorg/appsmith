@@ -9,7 +9,9 @@ export const migratePhoneInputWidgetAllowFormatting = (
     } else if (child.children && child.children.length > 0) {
       child = migratePhoneInputWidgetAllowFormatting(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

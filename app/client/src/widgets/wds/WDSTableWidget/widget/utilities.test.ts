@@ -23,7 +23,9 @@ const getCurrentRowBinding = (
   withBinding = true,
 ) => {
   let rowBinding = `${entityName}.processedTableData.map((currentRow, currentIndex) => ( ${userInput}))`;
+
   if (withBinding) rowBinding = `{{${rowBinding}}}`;
+
   return rowBinding;
 };
 
@@ -55,6 +57,7 @@ describe("getOriginalRowIndex", () => {
       "step",
     );
     const expected = -1;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -86,6 +89,7 @@ describe("getOriginalRowIndex", () => {
       "step",
     );
     const expected = 1;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -143,6 +147,7 @@ describe("getOriginalRowIndex", () => {
       "step",
     );
     const expected = -1;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -161,6 +166,7 @@ describe("getOriginalRowIndex", () => {
       "step",
     );
     const expected = -1;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -213,6 +219,7 @@ describe("getOriginalRowIndex", () => {
     ];
     const result = getOriginalRowIndex(oldTableData, newTableData, 0, "step");
     const expected = 2;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -265,6 +272,7 @@ describe("getOriginalRowIndex", () => {
     ];
     const result = getOriginalRowIndex(oldTableData, newTableData, 0, "");
     const expected = -1;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -317,6 +325,7 @@ describe("getOriginalRowIndex", () => {
     ];
     const result = getOriginalRowIndex(oldTableData, newTableData, 0, "");
     const expected = -1;
+
     expect(result).toStrictEqual(expected);
   });
 });
@@ -378,6 +387,7 @@ describe("selectRowIndex", () => {
       selectedRowIndexProp,
       "step",
     );
+
     expect(result).toStrictEqual(0);
   });
 
@@ -437,6 +447,7 @@ describe("selectRowIndex", () => {
       selectedRowIndexProp,
       "step",
     );
+
     expect(result).toStrictEqual(2);
   });
 
@@ -496,6 +507,7 @@ describe("selectRowIndex", () => {
       selectedRowIndexProp,
       undefined,
     );
+
     expect(result).toStrictEqual(0);
   });
 
@@ -555,6 +567,7 @@ describe("selectRowIndex", () => {
       selectedRowIndexProp,
       "step",
     );
+
     expect(result).toStrictEqual(0);
   });
 
@@ -614,6 +627,7 @@ describe("selectRowIndex", () => {
       selectedRowIndexProp,
       "step",
     );
+
     expect(result).toStrictEqual(-1);
   });
 });
@@ -674,6 +688,7 @@ describe("selectRowIndices", () => {
       [],
       undefined,
     );
+
     expect(result).toEqual([0]);
   });
 
@@ -732,6 +747,7 @@ describe("selectRowIndices", () => {
       [],
       undefined,
     );
+
     expect(result).toEqual([]);
   });
 
@@ -790,6 +806,7 @@ describe("selectRowIndices", () => {
       [0],
       undefined,
     );
+
     expect(result).toEqual([]);
   });
 
@@ -848,6 +865,7 @@ describe("selectRowIndices", () => {
       [0],
       "step",
     );
+
     expect(result).toEqual([0]);
   });
 
@@ -906,6 +924,7 @@ describe("selectRowIndices", () => {
       [0, 2],
       "step",
     );
+
     expect(result).toEqual([2, 0]);
   });
 });
@@ -1843,6 +1862,7 @@ describe("reorderColumns", () => {
     };
 
     const result = reorderColumns(MOCK_COLUMNS, columnOrder);
+
     expect(expected).toEqual(result);
   });
 });
@@ -1977,41 +1997,49 @@ describe("getColumnType", () => {
 
   it("returns NUMBER column type for number value", () => {
     const result = getColumnType(tableData, "id");
+
     expect(ColumnTypes.NUMBER).toEqual(result);
   });
 
   it("returns TEXT column type for empty columnKey", () => {
     const result = getColumnType(tableData, "");
+
     expect(ColumnTypes.TEXT).toEqual(result);
   });
 
   it("returns TEXT column type for string value", () => {
     const result = getColumnType(tableData, "gender");
+
     expect(ColumnTypes.TEXT).toEqual(result);
   });
 
   it("returns TEXT column type for string columnKey that does not exist in tableData", () => {
     const result = getColumnType(tableData, "coordinates");
+
     expect(ColumnTypes.TEXT).toEqual(result);
   });
 
   it("returns CHECKBOX column type for columnKey that has boolean columnValue", () => {
     const result = getColumnType(tableData, "checked");
+
     expect(ColumnTypes.CHECKBOX).toEqual(result);
   });
 
   it("returns proper column type for columnKey that has first few rows data as null", () => {
     const result = getColumnType(tableData, "longitude");
+
     expect(ColumnTypes.NUMBER).toEqual(result);
   });
 
   it("returns proper column type for columnKey that does not exist in the first few rows", () => {
     const result = getColumnType(tableData, "premium");
+
     expect(ColumnTypes.CHECKBOX).toEqual(result);
   });
 
   it("returns Date column type for valid Date field", () => {
     const result = getColumnType(tableData, "dob");
+
     expect(ColumnTypes.DATE).toEqual(result);
   });
 });
@@ -2123,6 +2151,7 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
         gender: "",
       },
     };
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -2200,6 +2229,7 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
       mockProps as any,
     );
     const expected = { currentItem: {} };
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -2276,6 +2306,7 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
       mockProps as any,
     );
     const expected = { currentItem: {} };
+
     expect(result).toStrictEqual(expected);
   });
 });
@@ -2438,6 +2469,7 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     config.columnOrder = ["step", "task", "status", "action"];
     config.columnName = "";
     config.sticky = "";
+
     return config;
   };
 
