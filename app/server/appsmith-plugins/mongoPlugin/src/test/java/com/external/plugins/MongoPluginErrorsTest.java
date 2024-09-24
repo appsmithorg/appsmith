@@ -23,6 +23,7 @@ import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -242,21 +243,25 @@ public class MongoPluginErrorsTest {
         // Mock the ListCollectionNamesPublisher
         ListCollectionNamesPublisher mockPublisher = mock(ListCollectionNamesPublisher.class);
 
+        // Create a mock subscription
+        Subscription mockSubscription = mock(Subscription.class);
+
         // Simulate an error when calling listCollectionNames
         when(mockDatabase.listCollectionNames()).thenReturn(mockPublisher);
+        when(mockMongoCmdException.getErrorCode()).thenReturn(13);
         // Mock the subscribe method to simulate an error
         doAnswer(invocation -> {
                     // Extract the Subscriber passed to the subscribe method
                     Subscriber<?> subscriber = invocation.getArgument(0);
 
+                    subscriber.onSubscribe(mockSubscription); // Provide a subscription
                     // Call the Subscriber's onError method to simulate an error
                     subscriber.onError(mockMongoCmdException);
 
                     return null; // Since subscribe returns void
                 })
                 .when(mockPublisher)
-                .subscribe(any(Subscriber.class));
-        when(mockMongoCmdException.getErrorCode()).thenReturn(13);
+                .subscribe(any());
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<DatasourceStructure> structureMono = pluginExecutor
