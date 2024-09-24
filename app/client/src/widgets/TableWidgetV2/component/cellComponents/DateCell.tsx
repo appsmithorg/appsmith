@@ -224,8 +224,19 @@ export const DateCell = (props: DateComponentProps) => {
   const onDateSelected = (date: string) => {
     let momentAdjustedInputFormat = inputFormat;
 
+    // If the input format is milliseconds or epoch, convert the date to the required format
+    if (inputFormat === DateInputFormat.MILLISECONDS) {
+      momentAdjustedInputFormat = MomentDateInputFormat.MILLISECONDS;
+    } else if (inputFormat === DateInputFormat.EPOCH) {
+      momentAdjustedInputFormat = MomentDateInputFormat.SECONDS;
+    }
+
+    const formattedDate = date
+      ? moment(date).format(momentAdjustedInputFormat)
+      : "";
+
     if (isNewRow) {
-      updateNewRowValues(alias, date, date);
+      updateNewRowValues(alias, date, formattedDate);
 
       return;
     }
@@ -240,17 +251,6 @@ export const DateCell = (props: DateComponentProps) => {
     setIsValid(true);
     setShowRequiredError(false);
     setHasFocus(false);
-
-    // If the input format is milliseconds or epoch, convert the date to the required format
-    if (inputFormat === DateInputFormat.MILLISECONDS) {
-      momentAdjustedInputFormat = MomentDateInputFormat.MILLISECONDS;
-    } else if (inputFormat === DateInputFormat.EPOCH) {
-      momentAdjustedInputFormat = MomentDateInputFormat.SECONDS;
-    }
-
-    const formattedDate = date
-      ? moment(date).format(momentAdjustedInputFormat)
-      : "";
 
     onDateSave(rowIndex, alias, formattedDate, onDateSelectedString);
   };
