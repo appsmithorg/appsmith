@@ -197,6 +197,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
+      
+      - name: Check DB URL
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          db_url=$(grep -oP 'APPSMITH_DB_URL=\K[^ ]+' cicontainerlocal/stacks/configuration/docker.env)
+          if [[ $db_url == *"postgres"* ]]; then
+            echo "DB is Postgres"
+          elif [[ $db_url == *"mongo"* ]]; then
+            echo "DB is MongoDB"
+          else
+            echo "Unknown DB"
+          fi
 
       # actions/setup-node@v4 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
