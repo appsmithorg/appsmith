@@ -24,7 +24,7 @@
     "escodegen": "^2.0.0",
     "klona": "^2.0.5",
     "lodash": "^4.17.21",
-    "rollup": "^2.77.0",
+    "rollup": "^3.29.5",
     "rollup-plugin-generate-package-json": "^3.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-typescript2": "^0.32.0",
