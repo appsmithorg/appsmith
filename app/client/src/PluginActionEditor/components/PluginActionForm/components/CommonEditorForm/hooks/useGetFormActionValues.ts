@@ -4,7 +4,7 @@ import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import get from "lodash/get";
 import { useSelector } from "react-redux";
 import type { Action, ApiAction, Property } from "entities/Action";
-import { getDatasources } from "ee/selectors/modulesSelector";
+import { getDatasources } from "ee/selectors/entitiesSelector";
 
 function useGetFormActionValues() {
   const formValues = useSelector(
