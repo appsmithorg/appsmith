@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.ImportExportConstants;
 import com.appsmith.server.converters.ArtifactExchangeJsonAdapter;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Artifact;
@@ -411,23 +412,31 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         String artifactContextString = artifactSpecificConstantsMap.get(FieldName.ARTIFACT_CONTEXT);
 
         // step 1: Schema Migration
-        ArtifactExchangeJson importedDoc = jsonSchemaMigration.migrateArtifactToLatestSchema(artifactExchangeJson);
+        Mono<? extends ArtifactExchangeJson> migratedArtifactJsonMono = artifactBasedImportService
+                .migrateArtifactExchangeJson(branchedArtifactId, artifactExchangeJson)
+                .flatMap(importedDoc -> {
+                    // Step 2: Validation of artifact Json
+                    // check for validation error and raise exception if error found
+                    String errorField = validateArtifactExchangeJson(importedDoc);
+                    if (!errorField.isEmpty()) {
+                        log.error("Error in importing {}. Field {} is missing", artifactContextString, errorField);
 
-        // Step 2: Validation of artifact Json
-        // check for validation error and raise exception if error found
-        String errorField = validateArtifactExchangeJson(importedDoc);
-        if (!errorField.isEmpty()) {
-            log.error("Error in importing {}. Field {} is missing", artifactContextString, errorField);
-            if (errorField.equals(artifactContextString)) {
-                return Mono.error(
-                        new AppsmithException(
+                        if (errorField.equals(artifactContextString)) {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.VALIDATION_FAILURE,
+                                    "Field '" + artifactContextString
+                                            + ImportExportConstants.ARTIFACT_JSON_IMPORT_VALIDATION_ERROR_MESSAGE));
+                        }
+
+                        return Mono.error(new AppsmithException(
                                 AppsmithError.VALIDATION_FAILURE,
-                                "Field '" + artifactContextString
-                                        + "' Sorry! Seems like you've imported a page-level json instead of an application. Please use the import within the page."));
-            }
-            return Mono.error(new AppsmithException(
-                    AppsmithError.VALIDATION_FAILURE, "Field '" + errorField + "' is missing in the JSON."));
-        }
+                                "Field '" + errorField + "' is missing in the JSON."));
+                    }
+
+                    artifactBasedImportService.syncClientAndSchemaVersion(importedDoc);
+                    return Mono.just(importedDoc);
+                })
+                .cache();
 
         ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO(
                 workspaceId,
@@ -441,7 +450,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 permissionGroups);
 
         MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
-        artifactBasedImportService.syncClientAndSchemaVersion(importedDoc);
 
         Mono<Workspace> workspaceMono = workspaceService
                 .findById(workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace())
@@ -469,56 +477,63 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .switchIfEmpty(Mono.just(List.of()))
                 .doOnNext(importingMetaDTO::setBranchedArtifactIds);
 
-        // this would import customJsLibs for all type of artifacts
-        Mono<Void> artifactSpecificImportableEntities =
-                artifactBasedImportService.generateArtifactSpecificImportableEntities(
-                        importedDoc, importingMetaDTO, mappedImportableResourcesDTO);
+        final Mono<? extends Artifact> resultMono = migratedArtifactJsonMono.flatMap(importedDoc -> {
 
-        /*
-         Calling the workspaceMono first to avoid creating multiple mongo transactions.
-         If the first db call inside a transaction is a Flux, then there's a chance of creating multiple mongo
-         transactions which will lead to NoSuchTransaction exception.
-        */
-        final Mono<? extends Artifact> importableArtifactMono = workspaceMono
-                .then(Mono.defer(() -> Mono.when(branchedArtifactIdsMono, artifactSpecificImportableEntities)))
-                .then(Mono.defer(() -> artifactBasedImportService.updateAndSaveArtifactInContext(
-                        importedDoc.getArtifact(), importingMetaDTO, mappedImportableResourcesDTO, currUserMono)))
-                .cache();
+            // this would import customJsLibs for all type of artifacts
+            Mono<Void> artifactSpecificImportableEntities =
+                    artifactBasedImportService.generateArtifactSpecificImportableEntities(
+                            importedDoc, importingMetaDTO, mappedImportableResourcesDTO);
 
-        final Mono<? extends Artifact> importMono = importableArtifactMono
-                .then(Mono.defer(() -> generateImportableEntities(
-                        importingMetaDTO,
-                        mappedImportableResourcesDTO,
-                        workspaceMono,
-                        importableArtifactMono,
-                        importedDoc)))
-                .then(importableArtifactMono)
-                .flatMap(importableArtifact -> updateImportableEntities(
-                        artifactBasedImportService, importableArtifact, mappedImportableResourcesDTO, importingMetaDTO))
-                .flatMap(importableArtifact -> updateImportableArtifact(artifactBasedImportService, importableArtifact))
-                .onErrorResume(throwable -> {
-                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
-                    log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
-                })
-                // execute dry run for datasource
-                .flatMap(importableArtifact -> dryOperationRepository
-                        .executeAllDbOps(mappedImportableResourcesDTO)
-                        .thenReturn(importableArtifact))
-                .as(transactionalOperator::transactional);
+            /*
+            Calling the workspaceMono first to avoid creating multiple mongo transactions.
+            If the first db call inside a transaction is a Flux, then there's a chance of creating multiple mongo
+            transactions which will lead to NoSuchTransaction exception.
+            */
+            final Mono<? extends Artifact> importableArtifactMono = workspaceMono
+                    .then(Mono.defer(() -> Mono.when(branchedArtifactIdsMono, artifactSpecificImportableEntities)))
+                    .then(Mono.defer(() -> artifactBasedImportService.updateAndSaveArtifactInContext(
+                            importedDoc.getArtifact(), importingMetaDTO, mappedImportableResourcesDTO, currUserMono)))
+                    .cache();
 
-        final Mono<? extends Artifact> resultMono = importMono
-                .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(
-                        artifactBasedImportService, importableArtifact, AnalyticsEvents.IMPORT))
-                .zipWith(currUserMono)
-                .flatMap(tuple -> {
-                    Artifact importableArtifact = tuple.getT1();
-                    User user = tuple.getT2();
-                    stopwatch.stopTimer();
-                    stopwatch.stopAndLogTimeInMillis();
-                    return sendImportRelatedAnalyticsEvent(importedDoc, importableArtifact, stopwatch, user);
-                });
+            final Mono<? extends Artifact> importMono = importableArtifactMono
+                    .then(Mono.defer(() -> generateImportableEntities(
+                            importingMetaDTO,
+                            mappedImportableResourcesDTO,
+                            workspaceMono,
+                            importableArtifactMono,
+                            importedDoc)))
+                    .then(importableArtifactMono)
+                    .flatMap(importableArtifact -> updateImportableEntities(
+                            artifactBasedImportService,
+                            importableArtifact,
+                            mappedImportableResourcesDTO,
+                            importingMetaDTO))
+                    .flatMap(importableArtifact ->
+                            updateImportableArtifact(artifactBasedImportService, importableArtifact))
+                    .onErrorResume(throwable -> {
+                        String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                        log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
+                    })
+                    // execute dry run for datasource
+                    .flatMap(importableArtifact -> dryOperationRepository
+                            .executeAllDbOps(mappedImportableResourcesDTO)
+                            .thenReturn(importableArtifact))
+                    .as(transactionalOperator::transactional);
+
+            return importMono
+                    .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(
+                            artifactBasedImportService, importableArtifact, AnalyticsEvents.IMPORT))
+                    .zipWith(currUserMono)
+                    .flatMap(tuple -> {
+                        Artifact importableArtifact = tuple.getT1();
+                        User user = tuple.getT2();
+                        stopwatch.stopTimer();
+                        stopwatch.stopAndLogTimeInMillis();
+                        return sendImportRelatedAnalyticsEvent(importedDoc, importableArtifact, stopwatch, user);
+                    });
+        });
 
         // Import Context is currently a slow API because it needs to import and create context, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the

@@ -57,6 +57,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StreamUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -236,21 +237,8 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.INVALID_DATASOURCE, FieldName.DATASOURCE, datasourceId)));
 
-        return datasourceStorageMono
-                .zipWhen(datasourceStorage -> Mono.zip(
-                        pageMono,
-                        pluginService.findById(datasourceStorage.getPluginId()),
-                        datasourceStructureSolution.getStructure(datasourceStorage, false)))
-                .flatMap(tuple -> {
-                    DatasourceStorage datasourceStorage = tuple.getT1();
-                    NewPage page = tuple.getT2().getT1();
-                    Plugin plugin = tuple.getT2().getT2();
-                    DatasourceStructure datasourceStructure = tuple.getT2().getT3();
-
-                    final String layoutId =
-                            page.getUnpublishedPage().getLayouts().get(0).getId();
-                    final String savedPageId = page.getId();
-
+        // Should this be subscribed on a scheduler?
+        Mono<ApplicationJson> applicationJsonMono = Mono.fromCallable(() -> {
                     ApplicationJson applicationJson = new ApplicationJson();
                     try {
                         AppsmithBeanUtils.copyNestedNonNullProperties(
@@ -258,6 +246,29 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                     } catch (IOException e) {
                         log.error(e.getMessage());
                     }
+
+                    return applicationJson;
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .flatMap(applicationJson ->
+                        jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson, null, null));
+
+        return datasourceStorageMono
+                .zipWhen(datasourceStorage -> Mono.zip(
+                        pageMono,
+                        pluginService.findById(datasourceStorage.getPluginId()),
+                        datasourceStructureSolution.getStructure(datasourceStorage, false),
+                        applicationJsonMono))
+                .flatMap(tuple -> {
+                    DatasourceStorage datasourceStorage = tuple.getT1();
+                    NewPage page = tuple.getT2().getT1();
+                    Plugin plugin = tuple.getT2().getT2();
+                    DatasourceStructure datasourceStructure = tuple.getT2().getT3();
+                    ApplicationJson applicationJson = tuple.getT2().getT4();
+
+                    final String layoutId =
+                            page.getUnpublishedPage().getLayouts().get(0).getId();
+                    final String savedPageId = page.getId();
                     List<NewPage> pageList = applicationJson.getPageList();
 
                     if (pageList.isEmpty()) {
@@ -558,8 +569,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
         final String jsonContent = StreamUtils.copyToString(
                 new DefaultResourceLoader().getResource(filePath).getInputStream(), Charset.defaultCharset());
 
-        ApplicationJson applicationJson = gson.fromJson(jsonContent, ApplicationJson.class);
-        return (ApplicationJson) jsonSchemaMigration.migrateArtifactToLatestSchema(applicationJson);
+        return gson.fromJson(jsonContent, ApplicationJson.class);
     }
 
     /**
