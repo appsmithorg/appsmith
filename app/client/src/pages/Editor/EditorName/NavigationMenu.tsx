@@ -13,9 +13,13 @@ interface NavigationMenuProps {
 
 export function NavigationMenu(props: NavigationMenuProps) {
   const { menuItems, setIsPopoverOpen } = props;
-
   return (
-    <MenuContent width="214px">
+    <MenuContent
+      width="214px"
+      onInteractOutside={() => {
+        setIsPopoverOpen(false);
+      }}
+    >
       {menuItems?.map((item, idx) => {
         return (
           <NavigationMenuItem
