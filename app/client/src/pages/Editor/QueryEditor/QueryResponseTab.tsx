@@ -202,15 +202,14 @@ const QueryResponseTab = (props: Props) => {
       hintMessages = actionResponse.messages;
     }
 
-    const { pluginSpecifiedTemplates } =
-      currentActionConfig.actionConfiguration;
+    const { actionConfiguration } = currentActionConfig;
+    const hasPluginSpecifiedTemplates =
+      actionConfiguration?.pluginSpecifiedTemplates?.[0]?.value === true;
+    // oracle have different key for prepared statements
+    const hasPreparedStatement =
+      actionConfiguration?.formData?.preparedStatement?.data === true;
 
-    if (
-      error &&
-      pluginSpecifiedTemplates &&
-      pluginSpecifiedTemplates.length > 0 &&
-      pluginSpecifiedTemplates[0].value === true
-    ) {
+    if (error && (hasPluginSpecifiedTemplates || hasPreparedStatement)) {
       showPreparedStatementWarning = true;
     }
   }
