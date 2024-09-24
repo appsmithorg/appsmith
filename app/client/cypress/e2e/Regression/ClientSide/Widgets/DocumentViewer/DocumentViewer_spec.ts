@@ -15,13 +15,13 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const ppt =
-  "http://host.docker.internal:4200/ppt-on-population-pptxafa26c44-208f-46a3-89cc-8a5c020b6863.pptx";
+  "https://ssz.sgp1.digitaloceanspaces.com/3ZEO2582C29EA0KKK2/ppt-on-population-pptxafa26c44-208f-46a3-89cc-8a5c020b6863.pptx";
 const pngImage =
-  "http://host.docker.internal:4200/clouddefaultImage.png";
+  "https://community.appsmith.com/sites/default/files/styles/16_9_card/public/septembercoding-min%20%281%29.png?itok=unYUZ0zm";
 const jpgImage =
-  "http://host.docker.internal:4200/453-200x300.jpg";
+  "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg?itok=yG4bpfFs";
 const pdf =
-  "http://host.docker.internal:4200/sample-pdf-file.pdf";
+  "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf";
 
 describe(
   "DocumentViewer Widget Functionality",

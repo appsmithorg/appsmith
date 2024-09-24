@@ -68,7 +68,7 @@ describe(
       AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.OpenInstaller();
       installer.InstallLibraryViaURL(
-        "http://host.docker.internal:4200/+esm.js",
+        "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
         "fast_xml_parser",
       );
       cy.pause();
