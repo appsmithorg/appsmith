@@ -40,7 +40,7 @@ const toast = {
 
     return toastifyToast(
       <ToastBody kind="body-m">
-        {content}
+        <pre style={{ font: "inherit" }}>{content}</pre>
         {actionText && (
           <StyledButton
             kind="tertiary"
