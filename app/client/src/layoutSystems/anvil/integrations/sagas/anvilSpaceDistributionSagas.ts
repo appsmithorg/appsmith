@@ -1,6 +1,6 @@
 import { all, put, select, takeLatest } from "redux-saga/effects";
 import { AnvilReduxActionTypes } from "../actions/actionTypes";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { getWidgets } from "sagas/selectors";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { updateAndSaveLayout } from "actions/pageActions";
@@ -47,12 +47,14 @@ function* reDistributeZoneSpaces(
 
   // Iterate through all zone IDs in the section
   const allZoneIds = sectionParent.children || [];
+
   allZoneIds.forEach((zoneId) => {
     let zoneWidget = updatedWidgets[zoneId];
 
     // If the zone widget exists, update its flexGrow based on the distributed spaces
     if (zoneWidget) {
       const spaces = zonesDistributed[zoneId];
+
       if (spaces) {
         zoneWidget = {
           ...zoneWidget,

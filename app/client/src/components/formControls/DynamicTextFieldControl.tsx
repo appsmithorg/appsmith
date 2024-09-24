@@ -10,17 +10,17 @@ import {
   EditorModes,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
-import type { AppState } from "@appsmith/reducers";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
+import type { AppState } from "ee/reducers";
 import styled from "styled-components";
 import {
   getPluginResponseTypes,
   getPluginNameFromId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
 import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 
 const Wrapper = styled.div<{ fullWidth: boolean }>`
   min-width: 380px;
@@ -65,7 +65,7 @@ class DynamicTextControl extends BaseControl<
 
     return (
       <Wrapper
-        className={`t--${configProperty}`}
+        className={`t--${configProperty} dynamic-text-field-control`}
         fullWidth={isActionRedesignEnabled}
       >
         <DynamicTextField
@@ -73,7 +73,7 @@ class DynamicTextControl extends BaseControl<
           disabled={this.props.disabled}
           evaluatedPopUpLabel={this?.props?.label}
           evaluationSubstitutionType={evaluationSubstitutionType}
-          height="calc(100vh / 4)"
+          height="200px"
           mode={mode}
           name={this.props.configProperty}
           placeholder={placeholderText}

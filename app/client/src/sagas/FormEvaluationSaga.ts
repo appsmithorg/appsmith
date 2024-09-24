@@ -1,7 +1,7 @@
 import type { ActionPattern } from "redux-saga/effects";
 import { call, take, select, put, actionChannel } from "redux-saga/effects";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
 import { getFormEvaluationState } from "selectors/formSelectors";
@@ -11,17 +11,16 @@ import type {
   DynamicValues,
   FormEvaluationState,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FORM_EVALUATION_REDUX_ACTIONS } from "@appsmith/actions/evaluationActionsList";
+import { FORM_EVALUATION_REDUX_ACTIONS } from "ee/actions/evaluationActionsList";
 import type { Action, ActionConfig } from "entities/Action";
 import type { FormConfigType } from "components/formControls/BaseControl";
 import PluginsApi from "api/PluginApi";
 import type { ApiResponse } from "api/ApiResponses";
-import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
+import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
 import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
-import { klona } from "klona/lite";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   extractFetchDynamicValueFormConfigs,
@@ -30,7 +29,8 @@ import {
 import type { DatasourceConfiguration } from "entities/Datasource";
 import { buffers } from "redux-saga";
 import type { Plugin } from "api/PluginApi";
-import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
+import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import { klonaLiteWithTelemetry } from "utils/helpers";
 
 export interface FormEvalActionPayload {
   formId: string;
@@ -50,6 +50,8 @@ export interface FormEvalActionPayload {
 
 function* setFormEvaluationSagaAsync(
   action: ReduxAction<FormEvalActionPayload>,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   try {
     // Get current state from redux
@@ -66,16 +68,22 @@ function* setFormEvaluationSagaAsync(
       const fetchDynamicValueFormConfigs = extractFetchDynamicValueFormConfigs(
         workerResponse[action?.payload?.formId],
       );
+
       yield put({
         type: ReduxActionTypes.INIT_TRIGGER_VALUES,
         payload: {
-          [action?.payload?.formId]: klona(fetchDynamicValueFormConfigs),
+          [action?.payload?.formId]: klonaLiteWithTelemetry(
+            fetchDynamicValueFormConfigs,
+            "FormEvaluationSaga.setFormEvaluationSagaAsync",
+          ),
         },
       });
     }
+
     // RUN_FORM_EVALUATION shouldn't be called before INIT_FORM_EVALUATION has been called with
     // the same `formId` else `extractQueueOfValuesToBeFetched` will be sent an undefined value.
     let queueOfValuesToBeFetched;
+
     if (
       action?.type === ReduxActionTypes.RUN_FORM_EVALUATION &&
       workerResponse[action?.payload?.formId]
@@ -92,10 +100,12 @@ function* setFormEvaluationSagaAsync(
         payload: workerResponse,
       });
     }
+
     // If there are any actions in the queue, run them
     // Once all the actions are done, extract the actions that need to be fetched dynamically
     const formId = action.payload.formId;
     const evalOutput = workerResponse[formId];
+
     if (evalOutput && typeof evalOutput === "object") {
       if (queueOfValuesToBeFetched) {
         yield put({
@@ -182,6 +192,8 @@ function* fetchDynamicValueSaga(
       url = evaluatedConfig.url;
 
     // Eval Action is the current action as it is stored in the dataTree
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let evalAction: any;
     // Evaluated params is the object that will hold the evaluated values of the parameters as computed in the dataTree
     let evaluatedParams;
@@ -211,6 +223,7 @@ function* fetchDynamicValueSaga(
           { ...evalAction, workspaceId },
           dataTreeActionConfigPath,
         );
+
         // if it exists, we store it in the substituted params object.
         // we check if that value is enclosed in dynamic bindings i.e the value has not been evaluated or somehow still contains a js expression
         // if it is, we return an empty string since we don't want to send dynamic bindings to the server.
@@ -249,7 +262,9 @@ function* fetchDynamicValueSaga(
         ...evaluatedParams,
       },
     );
+
     dynamicFetchedValues.isLoading = false;
+
     if (response.responseMeta.status === 200 && "trigger" in response.data) {
       dynamicFetchedValues.data = response.data.trigger;
       dynamicFetchedValues.hasFetchFailed = false;
@@ -263,27 +278,34 @@ function* fetchDynamicValueSaga(
     dynamicFetchedValues.isLoading = false;
     dynamicFetchedValues.data = [];
   }
+
   return dynamicFetchedValues;
 }
 
 function* formEvaluationChangeListenerSaga() {
   const buffer = buffers.fixed();
   const formEvalChannel: ActionPattern<ReduxAction<FormEvalActionPayload>> =
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS, buffer as any);
+
   while (true) {
     if (buffer.isEmpty()) {
       yield put({
         type: ReduxActionTypes.FORM_EVALUATION_EMPTY_BUFFER,
       });
     }
+
     const action: ReduxAction<FormEvalActionPayload> =
       yield take(formEvalChannel);
+
     yield call(setFormEvaluationSagaAsync, action);
   }
 }
 
 export default function* formEvaluationChangeListener() {
   yield take(ReduxActionTypes.START_EVALUATION);
+
   while (true) {
     try {
       yield call(formEvaluationChangeListenerSaga);

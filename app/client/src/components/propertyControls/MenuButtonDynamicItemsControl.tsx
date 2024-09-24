@@ -46,6 +46,8 @@ interface InputTextProp {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   placeholder?: string;
@@ -65,6 +67,7 @@ function InputText(props: InputTextProp) {
     theme,
     value,
   } = props;
+
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
@@ -136,6 +139,8 @@ class MenuButtonDynamicItemsControl extends BaseControl<MenuButtonDynamicItemsCo
     }
 
     const keys = getUniqueKeysFromSourceData(sourceData);
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentItem: { [key: string]: any } = {};
 
     Object.values(keys).forEach((key) => {
@@ -239,11 +244,13 @@ class MenuButtonDynamicItemsControl extends BaseControl<MenuButtonDynamicItemsCo
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = "";
+
     if (typeof event !== "string") {
       value = event.target?.value;
     } else {
       value = event;
     }
+
     if (isString(value)) {
       const output = this.getComputedValue(
         value,

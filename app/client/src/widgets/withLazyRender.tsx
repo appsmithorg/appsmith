@@ -24,9 +24,13 @@ export function withLazyRender(Widget: typeof BaseWidget) {
           (entries: IntersectionObserverEntry[]) => {
             if (!!entries.find((entry) => entry.isIntersecting)) {
               setDeferRender(false);
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (window as any).cancelIdleCallback(idleCallbackId);
               observer.disconnect();
             } else if (!idleCallbackId) {
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               idleCallbackId = (window as any).requestIdleCallback(
                 () => {
                   setDeferRender(false);
@@ -50,6 +54,8 @@ export function withLazyRender(Widget: typeof BaseWidget) {
       }
 
       return () => {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).cancelIdleCallback(idleCallbackId);
         observer && observer.disconnect();
       };

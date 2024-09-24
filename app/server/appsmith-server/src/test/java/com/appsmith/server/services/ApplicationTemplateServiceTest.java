@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.TemplateDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -58,7 +57,7 @@ public class ApplicationTemplateServiceTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        //        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
 
         cloudServicesConfig.setBaseUrl(String.format("http://localhost:%s", mockCloudServices.getPort()));
         mockCloudServices.enqueue(

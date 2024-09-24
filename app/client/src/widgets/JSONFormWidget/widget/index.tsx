@@ -1,7 +1,6 @@
 import React from "react";
 import equal from "fast-deep-equal/es6";
 import { debounce, difference, isEmpty, merge, noop } from "lodash";
-import { klona } from "klona";
 
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
@@ -31,7 +30,10 @@ import type {
   Stylesheet,
 } from "entities/AppTheming";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
@@ -58,13 +60,15 @@ import type {
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
   ONSUBMIT_NOT_CONFIGURED_ACTION_URL,
   ONSUBMIT_NOT_CONFIGURED_MESSAGE,
 } from "../constants/messages";
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -122,6 +126,8 @@ class JSONFormWidget extends BaseWidget<
   JSONFormWidgetProps,
   WidgetState & JSONFormWidgetState
 > {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   debouncedParseAndSaveFieldState: any;
   isWidgetMounting: boolean;
   actionQueue: Action[];
@@ -259,6 +265,7 @@ class JSONFormWidget extends BaseWidget<
 
         if (queryConfig.create) {
           const columns = formConfig.columns;
+
           modify = {
             sourceData: generateSchemaWithDefaultValues(columns),
             onSubmit: queryConfig.create.run,
@@ -270,6 +277,7 @@ class JSONFormWidget extends BaseWidget<
           const selectedColumnNames = formConfig.columns.map(
             (column) => `${column.name}`,
           );
+
           modify = {
             sourceData: `{{_.pick(${
               formConfig?.otherFields?.defaultValues
@@ -280,6 +288,7 @@ class JSONFormWidget extends BaseWidget<
         }
 
         dynamicPropertyPathList.push({ key: "sourceData" });
+
         return {
           modify: {
             ...modify,
@@ -346,6 +355,8 @@ class JSONFormWidget extends BaseWidget<
     return {};
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       formData: {},
@@ -461,6 +472,7 @@ class JSONFormWidget extends BaseWidget<
         sourceData: generateTypeDef(widget.sourceData),
         fieldState: generateTypeDef(widget.fieldState),
         isValid: "bool",
+        isVisible: DefaultAutocompleteDefinitions.isVisible,
       };
 
       return definitions;
@@ -490,6 +502,7 @@ class JSONFormWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: JSONFormWidgetProps) {
     super.componentDidUpdate(prevProps);
+
     if (
       isEmpty(this.props.formData) &&
       isEmpty(this.props.fieldState) &&
@@ -500,10 +513,12 @@ class JSONFormWidget extends BaseWidget<
 
     if (prevProps.useSourceData !== this.props.useSourceData) {
       const { formData } = this.props;
+
       this.updateFormData(formData);
     }
 
     const { schema } = this.constructAndSaveSchemaIfRequired(prevProps);
+
     this.debouncedParseAndSaveFieldState(
       this.state.metaInternalFieldState,
       schema,
@@ -608,6 +623,8 @@ class JSONFormWidget extends BaseWidget<
     return computedSchema;
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateFormData = (values: any, skipConversion = false) => {
     const rootSchemaItem = this.props.schema[ROOT_SCHEMA_KEY];
     const { sourceData, useSourceData } = this.props;
@@ -647,8 +664,12 @@ class JSONFormWidget extends BaseWidget<
     schema: Schema,
     afterUpdateAction?: ExecuteTriggerPayload,
   ) => {
+    const span = startRootSpan("JSONFormWidget.parseAndSaveFieldState");
     const fieldState = generateFieldState(schema, metaInternalFieldState);
-    const action = klona(afterUpdateAction);
+    const action = klonaRegularWithTelemetry(
+      afterUpdateAction,
+      "JSONFormWidget.parseAndSaveFieldState",
+    );
 
     const actionPayload =
       action && this.applyGlobalContextToAction(action, { fieldState });
@@ -660,6 +681,8 @@ class JSONFormWidget extends BaseWidget<
         actionPayload,
       );
     }
+
+    endSpan(span);
   };
 
   onSubmit = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {
@@ -710,7 +733,11 @@ class JSONFormWidget extends BaseWidget<
     actionPayload: ExecuteTriggerPayload,
     context: Record<string, unknown> = {},
   ) => {
-    const payload = klona(actionPayload);
+    const payload = klonaRegularWithTelemetry(
+      actionPayload,
+      "JSONFormWidget.applyGlobalContextToAction",
+    );
+
     const { globalContext } = payload;
 
     /**
@@ -743,10 +770,14 @@ class JSONFormWidget extends BaseWidget<
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdateWidgetProperty = (propertyName: string, propertyValue: any) => {
     this.updateWidgetProperty(propertyName, propertyValue);
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdateWidgetMetaProperty = (propertyName: string, propertyValue: any) => {
     this.props.updateWidgetMetaProperty(propertyName, propertyValue);
   };
@@ -784,6 +815,7 @@ class JSONFormWidget extends BaseWidget<
 
   getWidgetView() {
     const isAutoHeightEnabled = isAutoHeightEnabledForWidget(this.props);
+
     return (
       // Warning!!! Do not ever introduce formData as a prop directly,
       // it would lead to severe performance degradation due to frequent

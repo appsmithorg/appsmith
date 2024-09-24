@@ -1,7 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import { difference, isEmpty } from "lodash";
 import log from "loglevel";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { MetaInternalFieldState } from ".";
@@ -76,12 +76,15 @@ export const getGrandParentPropertyPath = (propertyPath: string) => {
 // that deals with object field type.
 const processFieldObject = (
   schema: Schema,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaInternalFieldState: Record<string, any> = {},
 ) => {
   const obj: Record<string, FieldStateItem> = {};
 
   Object.values(schema).forEach((schemaItem) => {
     const { accessor, identifier } = schemaItem;
+
     obj[accessor] = processFieldSchemaItem(
       schemaItem,
       metaInternalFieldState[identifier],
@@ -199,6 +202,7 @@ export const generateFieldState = (
   metaFieldState: MetaInternalFieldState,
 ) => {
   let fieldState = {};
+
   if (schema) {
     Object.values(schema).forEach((schemaItem) => {
       fieldState = processFieldSchemaItem(schemaItem, metaFieldState);
@@ -214,12 +218,14 @@ export const dynamicPropertyPathListFromSchema = (
   basePath = "schema",
 ) => {
   const paths: string[] = [];
+
   Object.values(schema).forEach((schemaItem) => {
     const properties = AUTO_JS_ENABLED_FIELDS[schemaItem.fieldType];
 
     if (properties) {
       properties.forEach((property) => {
         const propertyValue = schemaItem[property];
+
         if (isDynamicValue(propertyValue)) {
           paths.push(`${basePath}.${schemaItem.identifier}.${property}`);
         }
@@ -231,6 +237,7 @@ export const dynamicPropertyPathListFromSchema = (
         schemaItem.children,
         `${basePath}.${schemaItem.identifier}.children`,
       );
+
       paths.push(...nestedPaths);
     }
   });
@@ -247,6 +254,7 @@ const computeDynamicPropertyPathList = (
     ({ key }) => key,
   );
   const newPaths = difference(pathListFromSchema, pathListFromProps);
+
   return [...pathListFromProps, ...newPaths].map((path) => ({
     key: path,
   }));
@@ -275,6 +283,7 @@ export const computeSchema = ({
   }
 
   const count = countFields(currSourceData);
+
   if (count > MAX_ALLOWED_FIELDS) {
     AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
       widgetType: "JSON_FORM_WIDGET",

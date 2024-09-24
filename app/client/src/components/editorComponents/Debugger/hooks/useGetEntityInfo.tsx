@@ -1,22 +1,22 @@
 import { isStoredDatasource } from "entities/Action";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { keyBy } from "lodash";
 import equal from "fast-deep-equal/es6";
 import { getPluginIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo, useCallback } from "react";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
-import { getAction, getDatasource } from "@appsmith/selectors/entitiesSelector";
+import { getAction, getDatasource } from "ee/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import {
   isAction,
   isJSAction,
   isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import { doesEntityHaveErrors } from "../helpers";
 import React from "react";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 
 export const useGetEntityInfo = (name: string) => {
   const entity = useSelector((state: AppState) => state.evaluations.tree[name]);
@@ -65,6 +65,7 @@ export const useGetEntityInfo = (name: string) => {
     } else if (isJSAction(entity)) {
       const hasError = doesEntityHaveErrors(entity.actionId, debuggerErrors);
       const icon = jsIcon;
+
       return {
         name,
         icon,

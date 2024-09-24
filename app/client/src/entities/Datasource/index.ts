@@ -105,15 +105,22 @@ export const isEmbeddedAIDataSource = (datasource: StoredDatasource) => {
 };
 
 export const isEmbeddedRestDatasource = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   val: any,
 ): val is EmbeddedRestDatasource => {
   if (!_.isObject(val)) return false;
+
   if (!("datasourceConfiguration" in val)) return false;
+
   val = <EmbeddedRestDatasource>val;
+
   // Object should exist and have value
   if (!val.datasourceConfiguration) return false;
+
   //url might exist as a key but not have value, so we won't check value
   if (!("url" in val.datasourceConfiguration)) return false;
+
   return true;
 };
 

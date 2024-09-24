@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
-import type { AppState } from "@appsmith/reducers";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import type { AppState } from "ee/reducers";
+import { getAppsmithConfigs } from "ee/configs";
 import {
   CUSTOMER_PORTAL_URL_WITH_PARAMS,
   PRICING_PAGE_URL,
@@ -10,10 +10,7 @@ import {
   RAMP_FOR_ROLES,
 } from "utils/ProductRamps/RampsControlList";
 import type { EnvTypes } from "utils/ProductRamps/RampTypes";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
+import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
 
 const { cloudHosting, customerPortalUrl, pricingUrl } = getAppsmithConfigs();
 
@@ -41,6 +38,7 @@ export const getRampLink = ({
           section,
         )
       : PRICING_PAGE_URL(pricingUrl, source, instanceId, feature, section);
+
     return RAMP_LINK_TO;
   });
 
@@ -56,16 +54,24 @@ export const showProductRamps = (
       const { currentUser } = ui?.users;
       const { currentApplication } = ui?.applications;
       const isSuperUser = currentUser?.isSuperUser;
+
       if (isSuperUser) return RAMP_FOR_ROLES.SUPER_USER;
+
       const workspaceUsers = ui?.selectedWorkspace?.users;
+
       if (workspaceUsers?.length) {
         const workspaceUser = workspaceUsers.find(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (user: any) => user?.username === currentUser?.username,
         );
+
         if (workspaceUser?.roles?.length) {
           const roles = workspaceUser.roles[0]?.name;
+
           if (roles && typeof roles === "string") {
             const [role] = roles.split("-");
+
             if (role) {
               return role.trim();
             }
@@ -87,11 +93,14 @@ export const showProductRamps = (
 
     const role = getUserRoleInWorkspace();
     const env: EnvTypes = cloudHosting ? "CLOUD_HOSTED" : "SELF_HOSTED";
+
     if (rampName in PRODUCT_RAMPS_LIST) {
       const rampConfig = PRODUCT_RAMPS_LIST[rampName][env];
+
       if (role) {
         return rampConfig[role];
       }
     }
+
     return false;
   });

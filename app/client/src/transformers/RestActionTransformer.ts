@@ -59,14 +59,19 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
       };
     }
   }
+
   // Body should send correct format depending on the content type
   if (action.actionConfiguration.httpMethod !== HTTP_METHOD.GET) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let body: any = "";
+
     if (action.actionConfiguration.body) {
       body = action.actionConfiguration.body || undefined;
     }
 
     if (!isString(body)) body = JSON.stringify(body);
+
     action = {
       ...action,
       actionConfiguration: {
@@ -90,9 +95,14 @@ export const transformRestAction = (data: ApiAction): ApiAction => {
 };
 
 // Filters empty key-value pairs or key-value-type(Multipart) from form data, headers and query params
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function removeEmptyPairs(keyValueArray: any) {
   if (!keyValueArray || !keyValueArray.length) return keyValueArray;
+
   return keyValueArray.filter(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (data: any) =>
       data &&
       (!isEmpty(data.key) || !isEmpty(data.value) || !isEmpty(data.type)),
@@ -116,8 +126,10 @@ export const extractApiUrlPath = (path: string | undefined) => {
   const templateStringSegments = dynamicStringSegments.map((segment) => {
     if (isDynamicValue(segment)) {
       dynamicValuesDetected.push(segment);
+
       return "~";
     }
+
     return segment;
   });
 

@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { CSSProperties } from "react";
 import React, { memo } from "react";
 import { useSelector } from "react-redux";

@@ -75,6 +75,7 @@ export const useAnvilDnDEventCallbacks = ({
     if (anvilDnDListenerRef.current) {
       removeDisallowDroppingsUI(anvilDnDListenerRef.current);
     }
+
     canvasIsDragging.current = false;
     dispatch(setHighlightsDrawnAction());
     setHighlightShown(null);
@@ -92,6 +93,7 @@ export const useAnvilDnDEventCallbacks = ({
       // Invoke onDrop callback with the appropriate highlight info
       onDrop(currentSelectedHighlight.current);
     }
+
     resetCanvasState();
   }, [
     allowToDrop,
@@ -122,6 +124,7 @@ export const useAnvilDnDEventCallbacks = ({
           const compensatedHighlight = getHighlightCompensator(
             currentSelectedHighlight.current,
           );
+
           dispatch(setHighlightsDrawnAction(compensatedHighlight));
           setHighlightShown(compensatedHighlight);
         }
@@ -141,6 +144,8 @@ export const useAnvilDnDEventCallbacks = ({
   );
 
   const onMouseOver = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       if (canActivate) {
         setDraggingCanvas(layoutId);
@@ -157,8 +162,10 @@ export const useAnvilDnDEventCallbacks = ({
           if (anvilDnDListenerRef.current && !allowToDrop) {
             // Render disallow message if dropping is not allowed
             renderDisallowDroppingUI(anvilDnDListenerRef.current);
+
             return;
           }
+
           // Get the closest highlight based on the mouse position
           const processedHighlight = getClosestHighlight(
             {
@@ -167,6 +174,7 @@ export const useAnvilDnDEventCallbacks = ({
             },
             allHighlightsRef.current,
           );
+
           if (processedHighlight) {
             currentSelectedHighlight.current = processedHighlight;
             throttledSetHighlight();
@@ -178,10 +186,13 @@ export const useAnvilDnDEventCallbacks = ({
   );
 
   const onMouseMove = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       if (!canActivate) {
         return;
       }
+
       if (isCurrentDraggedCanvas) {
         // dragging state is set and the canvas is already being used to drag
         if (canvasIsDragging.current) {

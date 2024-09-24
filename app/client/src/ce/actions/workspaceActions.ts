@@ -1,8 +1,8 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   SaveWorkspaceLogo,
   SaveWorkspaceRequest,
-} from "@appsmith/api/WorkspaceApi";
+} from "ee/api/WorkspaceApi";
 
 interface FetchAllWorkspacesParams {
   fetchEntities?: boolean;

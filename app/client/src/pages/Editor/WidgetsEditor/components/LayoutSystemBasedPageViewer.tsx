@@ -1,6 +1,6 @@
 import SnapShotBannerCTA from "pages/Editor/CanvasLayoutConversion/SnapShotBannerCTA";
 import React from "react";
-import MainContainerWrapper from "./MainContainerWrapper";
+import { MainContainerWrapper } from "./MainContainerWrapper";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import { useSelector } from "react-redux";
 import {

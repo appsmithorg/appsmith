@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import type { CSSProperties, DragEventHandler, ReactNode } from "react";
@@ -109,6 +109,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const onDragStart: DragEventHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
     // allowDrag check is added as react jest test simulation is not respecting default behaviour
     // of draggable=false and triggering onDragStart. allowDrag condition check is purely for the test cases.
     if (allowDrag && draggableRef.current && !(e.metaKey || e.ctrlKey)) {
@@ -117,8 +118,10 @@ function DraggableComponent(props: DraggableComponentProps) {
       if (!isSelected) {
         selectWidget(SelectionRequestType.One, [props.widgetId]);
       }
+
       showTableFilterPane();
       const draggingState = props.generateDragState(e, draggableRef.current);
+
       setDraggingState(draggingState);
     }
   };

@@ -88,8 +88,8 @@ describe(
       cy.wait("@getConsolidatedData").then((intercept2) => {
         const { application, pages } = intercept2.response.body.data.pages.data;
         const defaultPage = pages.find((p) => p.isDefault);
-        legacyPathname = `/applications/${application.id}/pages/${defaultPage.id}`;
-        newPathname = `/app/${application.slug}/${defaultPage.slug}-${defaultPage.id}`;
+        legacyPathname = `/applications/${application.baseId}/pages/${defaultPage.baseId}`;
+        newPathname = `/app/${application.slug}/${defaultPage.slug}-${defaultPage.baseId}`;
       });
 
       cy.location().should((location) => {

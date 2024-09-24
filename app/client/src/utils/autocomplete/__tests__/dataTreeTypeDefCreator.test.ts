@@ -2,7 +2,7 @@ import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreato
 import type {
   WidgetEntity,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
@@ -66,6 +66,7 @@ describe("dataTreeTypeDefCreator", () => {
       {},
       dataTreeEntityConfig,
     );
+
     // TODO hetu: needs better general testing
     // instead of testing each widget maybe we can test to ensure
     // that defs are in a correct format
@@ -101,6 +102,7 @@ describe("dataTreeTypeDefCreator", () => {
     };
 
     const objType = generateTypeDef(obj);
+
     expect(objType).toStrictEqual(expected);
   });
 
@@ -217,6 +219,7 @@ describe("dataTreeTypeDefCreator", () => {
     };
 
     const value = flattenDef(def, "entity1");
+
     expect(value).toStrictEqual(expected);
   });
 });

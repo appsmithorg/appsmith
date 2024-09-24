@@ -1,4 +1,4 @@
-import { Icon, Text, Button, Divider } from "design-system";
+import { Icon, Text, Button, Divider } from "@appsmith/ads";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { PADDING_HIGHLIGHT, getPosition } from "./utils";
@@ -10,7 +10,7 @@ import type {
 import WalkthroughContext, {
   isFeatureFooterDetails,
 } from "./walkthroughContext";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { showIndicator } from "components/utils/Indicator";
 
 const CLIPID = "clip__feature";
@@ -156,14 +156,19 @@ const WalkthroughRenderer = ({
   const multipleHighlightsIds = multipleHighlights?.length
     ? multipleHighlights
     : [targetId];
+
   if (multipleHighlightsIds.indexOf(targetId) === -1)
     multipleHighlightsIds.push(targetId);
+
   const updateBoundingRect = () => {
     const mainTarget = document.querySelector(targetId);
+
     if (mainTarget) {
       const data: BoundingRectTargets = {};
+
       multipleHighlightsIds.forEach((id) => {
         const highlightArea = document.querySelector(id);
+
         if (highlightArea) {
           const boundingRect = highlightArea.getBoundingClientRect();
           const bodyRect = document.body.getBoundingClientRect();
@@ -171,6 +176,7 @@ const WalkthroughRenderer = ({
             typeof offset?.highlightPad === "number"
               ? offset?.highlightPad
               : PADDING_HIGHLIGHT;
+
           data[id] = {
             bw: bodyRect.width,
             bh: bodyRect.height,
@@ -196,14 +202,18 @@ const WalkthroughRenderer = ({
   useEffect(() => {
     updateBoundingRect();
     const highlightArea = document.querySelector(targetId);
+
     window.addEventListener("resize", updateBoundingRect);
     const resizeObserver = new ResizeObserver(updateBoundingRect);
+
     if (highlightArea) {
       AnalyticsUtil.logEvent("WALKTHROUGH_SHOWN", eventParams);
       resizeObserver.observe(highlightArea);
     }
+
     return () => {
       window.removeEventListener("resize", updateBoundingRect);
+
       if (highlightArea) resizeObserver.unobserve(highlightArea);
     };
   }, [targetId]);
@@ -213,6 +223,7 @@ const WalkthroughRenderer = ({
   };
 
   if (!boundingRects || Object.keys(boundingRects).length === 0) return null;
+
   const targetBounds = boundingRects[targetId];
 
   if (!targetBounds) return null;
@@ -232,25 +243,25 @@ const WalkthroughRenderer = ({
           <clipPath id={CLIPID}>
             <polygon
               // See the comments above the component declaration to understand the below points assignment.
-              points={`0 0, 
-                    0 ${targetBounds.bh}, 
+              points={`0 0,
+                    0 ${targetBounds.bh},
                     ${multipleHighlightsIds.reduce((acc, id) => {
                       const boundingRect = boundingRects[id];
+
                       if (boundingRect) {
-                        acc = `${acc} ${boundingRect.tx} ${boundingRect.bh}, 
-                        ${boundingRect.tx} ${boundingRect.ty}, 
+                        acc = `${acc} ${boundingRect.tx} ${boundingRect.bh},
+                        ${boundingRect.tx} ${boundingRect.ty},
                         ${boundingRect.tx + boundingRect.tw} ${boundingRect.ty},
                         ${boundingRect.tx + boundingRect.tw} ${
                           boundingRect.ty + boundingRect.th
-                        }, 
-                        ${boundingRect.tx} ${
-                          boundingRect.ty + boundingRect.th
-                        }, 
+                        },
+                        ${boundingRect.tx} ${boundingRect.ty + boundingRect.th},
                         ${boundingRect.tx} ${boundingRect.bh},`;
                       }
+
                       return acc;
                     }, "")}
-                    ${targetBounds.bw} ${targetBounds.bh}, 
+                    ${targetBounds.bw} ${targetBounds.bh},
                     ${targetBounds.bw} 0
                   `}
             />

@@ -7,7 +7,7 @@ import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { RecaptchaProps } from "./useRecaptcha";
 
 export type RecaptchaV2Props = RecaptchaProps;
@@ -28,6 +28,7 @@ export function RecaptchaV2(props: RecaptchaV2Props) {
   } = props;
   const onClick = () => {
     if (isDisabled) return onClickProp;
+
     if (isLoading) return onClickProp;
 
     if (isInvalidKey) {
@@ -37,7 +38,8 @@ export function RecaptchaV2(props: RecaptchaV2Props) {
       handleRecaptchaLoading(true);
       recaptchaRef?.current?.reset();
       recaptchaRef?.current
-        ?.executeAsync()
+        ?.executeAsync() // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .then((token: any) => {
           if (token) {
             if (typeof onRecaptchaSubmitSuccess === "function") {

@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import store from "store";
 import { ThemeProvider } from "styled-components";
 import { lightTheme } from "selectors/themeSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { Installer } from "pages/Editor/Explorer/Libraries/Installer";
 import { BrowserRouter } from "react-router-dom";
 
@@ -75,6 +75,7 @@ describe("Contains all UI tests for JS libraries", () => {
       </BrowserRouter>,
     );
     const input = screen.getByTestId("library-url");
+
     fireEvent.change(input, { target: { value: "https://valid.com/file.js" } });
     expect(screen.getByTestId("install-library-btn")).toBeEnabled();
     expect(screen.queryByText("Please enter a valid URL")).toBeNull();
@@ -101,6 +102,7 @@ describe("Contains all UI tests for JS libraries", () => {
       },
     });
     const input = screen.getByTestId("library-url");
+
     fireEvent.change(input, {
       target: {
         value:
@@ -108,6 +110,7 @@ describe("Contains all UI tests for JS libraries", () => {
       },
     });
     const installButton = screen.getByTestId("install-library-btn");
+
     expect(installButton).toBeDefined();
     fireEvent.click(installButton);
 

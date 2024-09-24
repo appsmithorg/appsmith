@@ -16,7 +16,9 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
 
   *getConfig() {
     let config: IApiPaneNavigationConfig = {};
+
     if (!this.entityInfo.propertyPath) return {};
+
     const tabIndex: number | undefined = yield call(
       this.getTabIndex,
       this.entityInfo.propertyPath,
@@ -25,18 +27,21 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
     config = {
       tabIndex,
     };
+
     return config;
   }
   *navigate() {
     const config: IApiPaneNavigationConfig = yield call(this.getConfig);
 
     yield call(this.navigateToUrl);
+
     if (!this.entityInfo.propertyPath) return;
 
     if (isNumber(config.tabIndex)) {
       yield put(setApiPaneConfigSelectedTabIndex(config.tabIndex));
       yield delay(NAVIGATION_DELAY);
     }
+
     yield call(this.scrollToView, this.entityInfo.propertyPath);
   }
 
@@ -68,6 +73,7 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
         this.isInSettingsTab,
         modifiedProperty,
       );
+
       if (inSettingsTab) {
         currentTab = API_EDITOR_TABS.SETTINGS;
       }

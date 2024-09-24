@@ -1,28 +1,28 @@
 import React from "react";
 import styled from "styled-components";
-import AdminConfig from "@appsmith/pages/AdminSettings/config";
+import AdminConfig from "ee/pages/AdminSettings/config";
 import {
   CategoryType,
   type Category,
-} from "@appsmith/pages/AdminSettings/config/types";
-import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
+} from "ee/pages/AdminSettings/config/types";
+import { adminSettingsCategoryUrl } from "ee/RouteBuilder";
 import { useParams } from "react-router";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { Link, Text } from "design-system";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { Link, Text } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
 import BusinessTag from "components/BusinessTag";
 import EnterpriseTag from "components/EnterpriseTag";
-import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
+import { getTenantPermissions } from "ee/selectors/tenantSelectors";
 import {
   getFilteredAclCategories,
   getFilteredGeneralCategories,
   getFilteredOtherCategories,
-} from "@appsmith/utils/adminSettingsHelpers";
+} from "ee/utils/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasAuditLogsReadPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasAuditLogsReadPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 export const Wrapper = styled.div`
   flex-basis: ${(props) => props.theme.sidebarWidth};
@@ -95,6 +95,8 @@ export const SettingName = styled(Text)<{ active?: boolean }>`
 
 export function getSettingsCategory(type: string): Category[] {
   return Array.from(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     AdminConfig.categories.filter((cat: any) => cat.categoryType === type),
   );
 }
@@ -115,11 +117,14 @@ export function Categories({
   const dispatch = useDispatch();
 
   const triggerAnalytics = (page: string) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const source: any = {
       "audit-logs": "AuditLogs",
       "access-control": "AccessControl",
       provisioning: "Provisioning",
     };
+
     AnalyticsUtil.logEvent("ADMIN_SETTINGS_CLICK", {
       source: source[page],
     });
@@ -131,6 +136,7 @@ export function Categories({
         type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
       });
     }
+
     if (showUpgradeTag) {
       triggerAnalytics(category);
     }
@@ -144,6 +150,7 @@ export function Categories({
             ? currentSubCategory == config.slug
             : currentCategory == config.slug;
         const showUpgradeTag = config?.isFeatureEnabled === false;
+
         return (
           <CategoryItem key={config.slug}>
             <StyledLink
@@ -188,6 +195,8 @@ export default function LeftPane() {
   const categories = getSettingsCategory(CategoryType.GENERAL);
   const aclCategories = getSettingsCategory(CategoryType.ACL);
   const othersCategories = getSettingsCategory(CategoryType.OTHER);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { category, selected: subCategory } = useParams() as any;
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;

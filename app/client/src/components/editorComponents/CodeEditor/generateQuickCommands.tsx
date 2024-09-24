@@ -7,22 +7,19 @@ import type { SlashCommandPayload } from "entities/Action";
 import { PluginType, SlashCommand } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { Button, Icon } from "design-system";
-import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { Button, Icon } from "@appsmith/ads";
+import { APPSMITH_AI } from "ee/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
-import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
-import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
+import type { AIEditorContext } from "ee/components/editorComponents/GPT";
+import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import history, { NavigationMethod } from "utils/history";
 import type { Plugin } from "api/PluginApi";
-import { EDIT, createMessage } from "@appsmith/constants/messages";
+import { EDIT, createMessage } from "ee/constants/messages";
 import { getShowHintOptions } from "./commandsHelper";
 
 export enum Shortcuts {
@@ -66,6 +63,8 @@ export const showMoreCommandOption = (
   className: "CodeMirror-commands show-more-option",
   data: {},
   shortcut: Shortcuts.SHOW_MORE,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render: (element: HTMLElement, self: any, data: any) => {
     ReactDOM.render(
       <ShowMoreCommand
@@ -101,7 +100,8 @@ export const generateCreateNewCommand = ({
   isBeta,
   shortcut,
   text,
-  triggerCompletionsPostPick,
+  triggerCompletionsPostPick, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any): CommandsCompletion => ({
   text,
   displayText: displayText,
@@ -110,6 +110,8 @@ export const generateCreateNewCommand = ({
   shortcut,
   action,
   triggerCompletionsPostPick,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render: (element: HTMLElement, self: any, data: any) => {
     ReactDOM.render(
       <Command
@@ -138,6 +140,8 @@ export const iconsByType = {
 };
 
 export function ShowMoreCommand(props: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon: any;
   name: string;
   editor: CodeMirror.Editor;
@@ -145,6 +149,8 @@ export function ShowMoreCommand(props: {
   suggestions: CommandsCompletion[];
   searchText: string;
 }) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleShowMoreClick = (event: any) => {
     event.stopPropagation();
     event.preventDefault();
@@ -157,6 +163,7 @@ export function ShowMoreCommand(props: {
     const loadMoreOptionIndex = filteredCommands.findIndex(
       (element) => element.displayText === showMoreLabel,
     );
+
     if (loadMoreOptionIndex !== -1) {
       const suggestionList = matchingCommands(
         props.suggestions.slice(
@@ -165,6 +172,7 @@ export function ShowMoreCommand(props: {
         ),
         props.searchText,
       ).slice(0, props.suggestions.length);
+
       filteredCommands.splice(loadMoreOptionIndex, 1, ...suggestionList);
     }
 
@@ -178,6 +186,7 @@ export function ShowMoreCommand(props: {
       ),
     );
   };
+
   return (
     <div
       className="command-container relative cursor-pointer w-full"
@@ -202,6 +211,8 @@ export function ShowMoreCommand(props: {
 }
 
 export function Command(props: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon: any;
   name: string;
   desc?: string;
@@ -212,10 +223,9 @@ export function Command(props: {
   const switchToAction: MouseEventHandler<HTMLElement> = useCallback(
     (event) => {
       event.stopPropagation();
+
       if (!props.url) return;
-      PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
-        url: props.url,
-      });
+
       history.push(props.url, { invokedBy: NavigationMethod.SlashCommandHint });
       AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", props.eventParams || {});
     },
@@ -293,6 +303,7 @@ export const generateQuickCommands = (
       });
       // Event for datasource creation click
       const entryPoint = DatasourceCreateEntryPoints.CODE_EDITOR_SLASH_COMMAND;
+
       AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
         entryPoint,
       });
@@ -302,6 +313,7 @@ export const generateQuickCommands = (
 
   const suggestions = entitiesForSuggestions.map((suggestion) => {
     const name = suggestion.name;
+
     return {
       text:
         suggestion.type === ENTITY_TYPE.ACTION
@@ -317,6 +329,7 @@ export const generateQuickCommands = (
         let icon = null;
         const completionData = data.data as NavigationData;
         const plugin = pluginIdToPlugin[completionData.pluginId || ""];
+
         if (completionData.type === ENTITY_TYPE.JSACTION) {
           icon = JsFileIconV2(16, 16);
         } else if (plugin?.iconLocation) {
@@ -326,6 +339,7 @@ export const generateQuickCommands = (
             </EntityIcon>
           );
         }
+
         ReactDOM.render(
           <Command
             eventParams={{
@@ -357,6 +371,8 @@ export const generateQuickCommands = (
           args: { datasource: action },
           callback,
         }),
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (element: HTMLElement, self: any, data: CommandsCompletion) => {
         const completionData = data.data as Datasource;
         const icon = (
@@ -368,6 +384,7 @@ export const generateQuickCommands = (
             />
           </EntityIcon>
         );
+
         ReactDOM.render(
           <Command icon={icon} name={`New ${data.displayText} query`} />,
           element,
@@ -391,6 +408,7 @@ export const generateQuickCommands = (
         });
       },
     });
+
     commonCommands.unshift(askGPT);
   }
 
@@ -435,6 +453,7 @@ export const generateQuickCommands = (
         commandsHeader("Bind data", "", filteredCommands.length > 0),
       );
       filteredCommands.push(...limitedSuggestions);
+
       if (
         suggestionsMatchingSearchText.length > NO_OF_QUERIES_TO_SHOW_BY_DEFAULT
       ) {
@@ -444,6 +463,7 @@ export const generateQuickCommands = (
 
     if (currentEntityType === ENTITY_TYPE.WIDGET) {
       const createNewCommands: CommandsCompletion[] = [];
+
       createNewCommands.push(...datasourceCommands);
 
       // Get top 3 matching create new commands

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import styled from "styled-components";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -54,6 +54,8 @@ function SnipeableComponent(props: SnipeableComponentProps) {
       state.ui.widgetDragResize.focusedWidget === props.widgetId,
   );
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMouseOver = (e: any) => {
     focusWidget && !isFocusedWidget && focusWidget(props.widgetId);
     e.stopPropagation();

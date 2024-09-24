@@ -69,6 +69,7 @@ function PageNumberInput(props: {
   borderRadius: string;
 }) {
   const [pageNumber, setPageNumber] = React.useState(props.pageNo || 0);
+
   useEffect(() => {
     setPageNumber(props.pageNo || 0);
   }, [props.pageNo]);
@@ -76,24 +77,29 @@ function PageNumberInput(props: {
     (e) => {
       const oldPageNo = Number(props.pageNo || 0);
       let page = Number(e.target.value);
+
       // check page is less then min page count
       if (isNaN(page) || page < 1) {
         page = 1;
       }
+
       // check page is greater then max page count
       if (page > props.pageCount) {
         page = props.pageCount;
       }
+
       // fire Event based on new page number
       if (oldPageNo < page) {
         props.updatePageNo(page, EventType.ON_NEXT_PAGE);
       } else if (oldPageNo > page) {
         props.updatePageNo(page, EventType.ON_PREV_PAGE);
       }
+
       setPageNumber(page);
     },
     [props.pageNo, props.pageCount],
   );
+
   return (
     <PageNumberInputWrapper
       borderRadius={props.borderRadius}
@@ -104,6 +110,8 @@ function PageNumberInput(props: {
       max={props.pageCount || 1}
       min={1}
       onBlur={handleUpdatePageNo}
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onKeyDown={(e: any) => {
         if (e.keyCode === Keys.ENTER) {
           handleUpdatePageNo(e);
@@ -133,6 +141,8 @@ interface TableHeaderProps {
   widgetName: string;
   widgetId: string;
   searchKey: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];
@@ -259,6 +269,7 @@ function TableHeader(props: TableHeaderProps) {
             onClick={() => {
               const pageNo =
                 props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
+
               props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
             }}
           >
@@ -285,6 +296,7 @@ function TableHeader(props: TableHeaderProps) {
                 props.currentPageIndex < props.pageCount - 1
                   ? props.currentPageIndex + 1
                   : 0;
+
               props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
             }}
           >

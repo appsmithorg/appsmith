@@ -1,10 +1,7 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { klona } from "klona";
 import { get, remove, set } from "lodash";
 
@@ -71,6 +68,7 @@ const ideReducer = createImmerReducer(initialState, {
       ["tabs", action.payload.parentId, EditorEntityTab.JS],
       [] as string[],
     );
+
     remove(tabs, (tab) => tab === action.payload.id);
   },
   [ReduxActionTypes.CLOSE_QUERY_ACTION_TAB_SUCCESS]: (
@@ -82,6 +80,7 @@ const ideReducer = createImmerReducer(initialState, {
       ["tabs", action.payload.parentId, EditorEntityTab.QUERIES],
       [] as string[],
     );
+
     remove(tabs, (tab) => tab === action.payload.id);
   },
   [ReduxActionTypes.RESET_ANALYTICS_FOR_SIDE_BY_SIDE_HOVER]: (

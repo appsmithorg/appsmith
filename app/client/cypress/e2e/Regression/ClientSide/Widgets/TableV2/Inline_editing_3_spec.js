@@ -2,10 +2,8 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
-  entityExplorer,
+  table as tableHelper,
   propPane,
-  table,
-  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
@@ -26,14 +24,14 @@ describe(
 
     it("1. should check that save/discard column is added/removed when inline save option is changed", () => {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      tableHelper.toggleColumnEditableViaColSettingsPane("step");
       cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
       cy.get(".t--property-control-updatemode .t--property-control-label")
         .last()
         .click();
       cy.get(".ads-v2-segmented-control-value-CUSTOM").click({ force: true });
       cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
-      cy.makeColumnEditable("task");
+      tableHelper.toggleColumnEditableViaColSettingsPane("task");
       cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
       cy.get(".t--property-control-updatemode .t--property-control-label")
         .last()
@@ -47,8 +45,18 @@ describe(
         .click();
       cy.get(".ads-v2-segmented-control-value-CUSTOM").click({ force: true });
       cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
-      cy.makeColumnEditable("step");
-      cy.makeColumnEditable("task");
+      tableHelper.toggleColumnEditableViaColSettingsPane(
+        "step",
+        "v2",
+        false,
+        true,
+      );
+      tableHelper.toggleColumnEditableViaColSettingsPane(
+        "task",
+        "v2",
+        false,
+        true,
+      );
       cy.get(".t--property-control-updatemode .t--property-control-label")
         .last()
         .click();
@@ -60,7 +68,7 @@ describe(
 
     it("2. should check that cell of an editable column is editable", () => {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      tableHelper.toggleColumnEditableViaColSettingsPane("step");
       // click the edit icon
       cy.editTableCell(0, 0);
       cy.get(
@@ -89,7 +97,7 @@ describe(
       cy.readTableV2data(0, 0).then((val) => {
         value = val;
       });
-      cy.makeColumnEditable("step");
+      tableHelper.toggleColumnEditableViaColSettingsPane("step");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
       cy.discardTableCellValue(0, 0);
@@ -107,7 +115,7 @@ describe(
       cy.readTableV2data(0, 0).then((val) => {
         value = val;
       });
-      cy.makeColumnEditable("step");
+      tableHelper.toggleColumnEditableViaColSettingsPane("step");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
       cy.saveTableCellValue(0, 0);
@@ -136,7 +144,7 @@ describe(
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(".t--property-control-text", `{{Table1.updatedRows}}`);
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      tableHelper.toggleColumnEditableViaColSettingsPane("step");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
       cy.saveTableCellValue(0, 0);
@@ -155,6 +163,12 @@ describe(
     it("6. should check that onsubmit event is available for the columns that are editable", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
+      cy.get(commonlocators.changeColType).last().click();
+      cy.get(tableHelper._dropdownText)
+        .children()
+        .contains("Plain text")
+        .click();
+      propPane.TogglePropertyState("Editable", "Off", "");
       [
         {
           columnType: "URL",
@@ -199,13 +213,16 @@ describe(
           .contains(data.columnType)
           .click();
         cy.wait("@updateLayout");
-        cy.wait(500);
-        cy.get(".t--property-control-onsubmit").should(data.expected);
+        cy.get(PROPERTY_SELECTOR.onSubmit).should(data.expected);
       });
 
       cy.get(propPaneBack).click();
-      cy.makeColumnEditable("step");
-      cy.editColumn("step");
+      tableHelper.toggleColumnEditableViaColSettingsPane(
+        "step",
+        "v2",
+        true,
+        false,
+      );
 
       [
         {
@@ -251,15 +268,18 @@ describe(
           .contains(data.columnType)
           .click();
         cy.wait("@updateLayout");
-        cy.wait(500);
-        cy.get(".t--property-control-onsubmit").should(data.expected);
+        cy.get(PROPERTY_SELECTOR.onSubmit).should(data.expected);
       });
     });
 
     it("7. should check that onsubmit event is triggered when changes are saved", () => {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
-      cy.editColumn("step");
+      tableHelper.toggleColumnEditableViaColSettingsPane(
+        "step",
+        "v2",
+        true,
+        false,
+      );
       cy.getAlert("onSubmit", "Submitted!!");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "NewValue");
@@ -277,8 +297,12 @@ describe(
     it("8. should check that onSubmit events has access to edit values through triggeredRow", () => {
       const value = "newCellValue";
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
-      cy.editColumn("step");
+      tableHelper.toggleColumnEditableViaColSettingsPane(
+        "step",
+        "v2",
+        true,
+        false,
+      );
       cy.getAlert("onSubmit", "{{Table1.triggeredRow.step}}");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, value);
@@ -295,7 +319,7 @@ describe(
 
     it("9. should check that onSave is working", () => {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      tableHelper.toggleColumnEditableViaColSettingsPane("step");
       cy.editColumn("EditActions1");
       //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
       cy.get(".t--property-pane-section-collapse-discardbutton").click({
@@ -317,7 +341,7 @@ describe(
 
     it("10. should check that onSave events has access to edit values through triggeredRow", () => {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      tableHelper.toggleColumnEditableViaColSettingsPane("step");
       cy.editColumn("EditActions1");
       //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
       cy.get(".t--property-pane-section-collapse-discardbutton").click({

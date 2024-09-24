@@ -1,9 +1,9 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type {
   Datasource,
   DatasourceStorage,
@@ -12,18 +12,21 @@ import type {
 } from "entities/Datasource";
 import { ToastMessageType } from "entities/Datasource";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import produce from "immer";
 import { assign } from "lodash";
 
 export interface DatasourceDataState {
   list: Datasource[];
   loading: boolean;
+  loadingTokenForDatasourceId: string | null;
   isTesting: boolean;
   isListing: boolean; // fetching unconfigured datasource list
   fetchingDatasourceStructure: Record<string, boolean>;
   structure: Record<string, DatasourceStructure>;
   isFetchingMockDataSource: false;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mockDatasourceList: any[];
   executingDatasourceQuery: boolean;
   isReconnectingModalOpen: boolean; // reconnect datasource modal for import application
@@ -46,6 +49,7 @@ export interface DatasourceDataState {
 const initialState: DatasourceDataState = {
   list: [],
   loading: false,
+  loadingTokenForDatasourceId: null,
   isTesting: false,
   isListing: false,
   fetchingDatasourceStructure: {},
@@ -78,9 +82,12 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS]: (
     state: DatasourceDataState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => {
     const mockDatasourceList = action.payload as MockDatasource[];
+
     return { ...state, isFetchingMockDataSource: false, mockDatasourceList };
   },
   [ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR]: (
@@ -235,6 +242,8 @@ const datasourceReducer = createReducer(initialState, {
       id?: string;
       environmentId: string;
       messages?: Array<string>;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       error?: any;
     }>,
   ): DatasourceDataState => {
@@ -253,6 +262,7 @@ const datasourceReducer = createReducer(initialState, {
             },
           };
         }
+
         return datasource;
       });
       const unconfiguredList = state.unconfiguredList.map((datasource) => {
@@ -269,8 +279,10 @@ const datasourceReducer = createReducer(initialState, {
             },
           };
         }
+
         return datasource;
       });
+
       return {
         ...state,
         isTesting: false,
@@ -278,6 +290,7 @@ const datasourceReducer = createReducer(initialState, {
         unconfiguredList: unconfiguredList,
       };
     }
+
     return {
       ...state,
       isTesting: false,
@@ -345,6 +358,31 @@ const datasourceReducer = createReducer(initialState, {
       ],
     };
   },
+  [ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ datasourceId: string }>,
+  ) => {
+    return {
+      ...state,
+      loadingTokenForDatasourceId: action.payload.datasourceId,
+    };
+  },
+  [ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN_SUCCESS]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      loadingTokenForDatasourceId: null,
+    };
+  },
+  [ReduxActionErrorTypes.GET_OAUTH_ACCESS_TOKEN_ERROR]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      loadingTokenForDatasourceId: null,
+    };
+  },
   [ReduxActionTypes.UPDATE_DATASOURCE_STORAGE_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<DatasourceStorage>,
@@ -409,8 +447,10 @@ const datasourceReducer = createReducer(initialState, {
       if (datasource.id === action.payload.id) {
         return { ...datasource, name: action.payload.name };
       }
+
       return datasource;
     });
+
     return {
       ...state,
       list: list,
@@ -428,16 +468,6 @@ const datasourceReducer = createReducer(initialState, {
         }
       });
     });
-
-    return {
-      ...state,
-      loading: false,
-      list: state.list.map((datasource) => {
-        if (datasource.id === action.payload.id) return action.payload;
-
-        return datasource;
-      }),
-    };
   },
   [ReduxActionErrorTypes.CREATE_DATASOURCE_ERROR]: (
     state: DatasourceDataState,
@@ -471,6 +501,8 @@ const datasourceReducer = createReducer(initialState, {
       id?: string;
       environmentId: string;
       messages?: Array<string>;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       error?: any;
     }>,
   ): DatasourceDataState => {
@@ -489,6 +521,7 @@ const datasourceReducer = createReducer(initialState, {
             },
           };
         }
+
         return datasource;
       });
       const unconfiguredList = state.unconfiguredList.map((datasource) => {
@@ -505,8 +538,10 @@ const datasourceReducer = createReducer(initialState, {
             },
           };
         }
+
         return datasource;
       });
+
       return {
         ...state,
         isTesting: false,
@@ -514,6 +549,7 @@ const datasourceReducer = createReducer(initialState, {
         unconfiguredList: unconfiguredList,
       };
     }
+
     return {
       ...state,
       isTesting: false,
@@ -710,6 +746,7 @@ const datasourceReducer = createReducer(initialState, {
             },
           );
         }
+
         return datasource;
       });
       const unconfiguredList = state.unconfiguredList.map((datasource) => {
@@ -721,14 +758,17 @@ const datasourceReducer = createReducer(initialState, {
             },
           );
         }
+
         return datasource;
       });
+
       return {
         ...state,
         list: list,
         unconfiguredList: unconfiguredList,
       };
     }
+
     return {
       ...state,
     };

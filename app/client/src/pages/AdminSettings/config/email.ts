@@ -1,20 +1,20 @@
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { isEmail } from "utils/formhelpers";
 import type { Dispatch } from "react";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { isNil, omitBy } from "lodash";
-import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
+import type { AdminConfigType } from "ee/pages/AdminSettings/config/types";
 import {
   CategoryType,
   SettingCategories,
   SettingSubtype,
   SettingTypes,
-} from "@appsmith/pages/AdminSettings/config/types";
+} from "ee/pages/AdminSettings/config/types";
 import {
   ADMIN_SETTINGS_EMAIL_WARNING,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 export const config: AdminConfigType = {
   icon: "mail-line",
@@ -55,6 +55,7 @@ export const config: AdminConfigType = {
       label: "SMTP port",
       validate: (value: string) => {
         const port = parseInt(value);
+
         if (value && (port < 0 || port > 65535)) {
           return "Please enter a valid port";
         }
@@ -113,6 +114,8 @@ export const config: AdminConfigType = {
     {
       id: "APPSMITH_MAIL_TEST_EMAIL",
       category: SettingCategories.EMAIL,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       action: (dispatch: Dispatch<ReduxAction<any>>, settings: any = {}) => {
         dispatch &&
           dispatch({
@@ -132,6 +135,8 @@ export const config: AdminConfigType = {
           });
       },
       controlType: SettingTypes.BUTTON,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       isDisabled: (settings?: Record<string, any>) => {
         return (
           !settings ||

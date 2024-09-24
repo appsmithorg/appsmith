@@ -34,6 +34,7 @@ describe("DOM mutations", () => {
       widgetsToUpdate,
       widgetsMeasuredInPixels,
     );
+
     expect(result).toStrictEqual({
       m: { y: 106, height: 900 },
       n: { y: 6, height: 100 }, // Since we're absolutely positioning the canvas widges, this y value is correct

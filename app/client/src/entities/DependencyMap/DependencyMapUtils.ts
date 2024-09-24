@@ -1,6 +1,6 @@
 import toposort from "toposort";
 import type DependencyMap from ".";
-import { IMMEDIATE_PARENT_REGEX } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { IMMEDIATE_PARENT_REGEX } from "ee/workers/Evaluation/evaluationUtils";
 
 type SortDependencies =
   | {
@@ -14,6 +14,7 @@ export class DependencyMapUtils {
   static sortDependencies(dependencyMap: DependencyMap): SortDependencies {
     const dependencyTree: Array<[string, string | undefined]> = [];
     const dependencies = dependencyMap.rawDependencies;
+
     for (const [node, deps] of dependencies.entries()) {
       if (deps.size) {
         deps.forEach((dep) => dependencyTree.push([node, dep]));
@@ -27,6 +28,7 @@ export class DependencyMapUtils {
       const sortedDependencies = toposort(dependencyTree)
         .reverse()
         .filter((edge) => !!edge);
+
       return { success: true, sortedDependencies };
     } catch (error) {
       // Cyclic dependency found. Extract node
@@ -34,18 +36,43 @@ export class DependencyMapUtils {
         new RegExp('Cyclic dependency, node was:"(.*)"'),
       );
       const node = cyclicNodes ? cyclicNodes[1] : "";
+
       return { success: false, cyclicNode: node, error };
     }
   }
-
+  // this function links childNode to its parent as a dependency for the entire dependencyGraph
   static makeParentsDependOnChildren(dependencyMap: DependencyMap) {
     const dependencies = dependencyMap.rawDependencies;
+
     for (const [node, deps] of dependencies.entries()) {
       this.makeParentsDependOnChild(dependencyMap, node);
       deps.forEach((dep) => {
         this.makeParentsDependOnChild(dependencyMap, dep);
       });
     }
+
+    return dependencyMap;
+  }
+
+  // this function links childNode to its parent as a dependency for only affectedNodes in the graph
+  static linkAffectedChildNodesToParent(
+    dependencyMap: DependencyMap,
+    affectedSet: Set<string>,
+  ) {
+    const dependencies = dependencyMap.rawDependencies;
+
+    for (const [node, deps] of dependencies.entries()) {
+      if (affectedSet.has(node)) {
+        DependencyMapUtils.makeParentsDependOnChild(dependencyMap, node);
+      }
+
+      deps.forEach((dep) => {
+        if (affectedSet.has(dep)) {
+          DependencyMapUtils.makeParentsDependOnChild(dependencyMap, dep);
+        }
+      });
+    }
+
     return dependencyMap;
   }
 
@@ -63,6 +90,7 @@ export class DependencyMapUtils {
       const existingImmediateParentDepsSet = new Set(
         existingImmediateParentDeps,
       );
+
       // Add child to immediate parent's dependencies if not already present
       // don't perform addDependency unnecessarily
       if (!existingImmediateParentDepsSet.has(curKey)) {
@@ -72,6 +100,7 @@ export class DependencyMapUtils {
           existingImmediateParentDeps,
         );
       }
+
       curKey = immediateParent;
     }
   };

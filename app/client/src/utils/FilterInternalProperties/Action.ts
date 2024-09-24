@@ -1,5 +1,5 @@
-import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import { entityDefinitions } from "ee/utils/autocomplete/EntityDefinitions";
+import type { ActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 
 export const getActionChildrenPeekData = (
@@ -7,9 +7,11 @@ export const getActionChildrenPeekData = (
   dataTree: DataTree,
 ) => {
   const dataTreeAction = dataTree[actionName] as ActionEntity;
+
   if (dataTreeAction) {
     const definitions = entityDefinitions.ACTION(dataTreeAction, {});
     const peekData: Record<string, unknown> = {};
+
     Object.keys(definitions).forEach((key) => {
       if (key.indexOf("!") === -1) {
         if (key === "data" || key === "isLoading" || key === "responseMeta") {

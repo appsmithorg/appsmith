@@ -1,9 +1,11 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
+import { SettingTypes } from "ee/pages/AdminSettings/config/types";
 import { FormGroup } from "./Common";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 const setting: Setting = {
   id: "SETTING_ID",
@@ -33,20 +35,24 @@ describe("FormGroup", () => {
   it("is rendered", () => {
     renderComponent();
     const formGroup = screen.queryAllByTestId("admin-settings-form-group");
+
     expect(formGroup).toHaveLength(1);
     expect(formGroup[0].className).toContain(CLASSNAME);
     const formGroupLabel = screen.queryAllByTestId(
       "admin-settings-form-group-label",
     );
+
     expect(formGroupLabel).toHaveLength(1);
     expect(formGroupLabel[0].textContent).toBe(setting.label);
     const formGroupHelpText = screen.queryAllByTestId(
       "admin-settings-form-group-helptext",
     );
+
     expect(formGroupHelpText).toHaveLength(0);
     const formGroupSubtext = screen.queryAllByTestId(
       "admin-settings-form-group-subtext",
     );
+
     expect(formGroupSubtext).toHaveLength(0);
   });
 
@@ -56,6 +62,7 @@ describe("FormGroup", () => {
     const formGroupHelpText = screen.queryAllByTestId(
       "admin-settings-form-group-helptext",
     );
+
     expect(formGroupHelpText).toHaveLength(1);
   });
 
@@ -65,6 +72,7 @@ describe("FormGroup", () => {
     const formGroupSubtext = screen.queryAllByTestId(
       "admin-settings-form-group-subtext",
     );
+
     expect(formGroupSubtext).toHaveLength(1);
     expect(formGroupSubtext[0].textContent).toBe(`${setting.subText}`);
   });
@@ -74,6 +82,7 @@ describe("FormGroup", () => {
     const formGroupChild = screen.queryAllByTestId(
       "admin-settings-form-group-child",
     );
+
     expect(formGroupChild).toHaveLength(1);
   });
 });

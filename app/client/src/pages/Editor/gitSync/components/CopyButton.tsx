@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import React, { useRef, useState } from "react";
-import { Button, Icon, Tooltip } from "design-system";
+import { Button, Icon, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import noop from "lodash/noop";
@@ -46,6 +46,7 @@ export function CopyButton({
       setShowCopied(true);
       stopShowingCopiedAfterDelay();
     }
+
     onCopy();
   };
 

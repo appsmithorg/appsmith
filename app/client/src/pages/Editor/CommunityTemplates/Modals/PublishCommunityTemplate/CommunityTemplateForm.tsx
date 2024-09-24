@@ -1,14 +1,11 @@
-import {
-  COMMUNITY_TEMPLATES,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
 import { publishCommunityTemplate } from "actions/communityTemplateActions";
-import { Button, Checkbox } from "design-system";
+import { Button, Checkbox } from "@appsmith/ads";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentApplication } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   PublishPageAppSettingContainer,
   PublishPageBodyContainer,
@@ -19,8 +16,8 @@ import ApplicationSettings from "./components/ApplicationSettings";
 import AuthorDetailsInput from "./components/AuthorDetailsInput";
 import PublishedInfo from "./components/PublishedInfo";
 import TemplateInfoForm from "./components/TemplateInfoForm";
-import { viewerURL } from "@appsmith/RouteBuilder";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
+import { viewerURL } from "ee/RouteBuilder";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 interface Props {
   onPublishSuccess: () => void;
@@ -43,7 +40,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
   const [isForkableSetting, setIsForkableSetting] = useState(true);
 
   const [tnCCheck, setTnCCheck] = useState(false);
-  const currentPageId: string = useSelector(getCurrentPageId);
+  const currentBasePageId: string = useSelector(getCurrentBasePageId);
 
   useEffect(() => {
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_INTENTION", {
@@ -53,11 +50,13 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
 
   useEffect(() => {
     if (!currentApplication?.name) return;
+
     setTemplateName(currentApplication.name);
   }, [currentApplication?.name]);
 
   useEffect(() => {
     if (!currentApplication?.publishedAppToCommunityTemplate) return;
+
     onPublishSuccess();
   }, [currentApplication?.publishedAppToCommunityTemplate]);
 
@@ -67,6 +66,7 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
       (field) => field.length > 0,
     );
     const areSettingsTurnedON = isPublicSetting && isForkableSetting;
+
     return areRequiredFieldsPresent && areSettingsTurnedON && tnCCheck;
   }, [
     templateName,
@@ -81,7 +81,9 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
     AnalyticsUtil.logEvent("COMMUNITY_TEMPLATE_PUBLISH_CLICK", {
       id: currentApplication?.id,
     });
-    const pageId = currentApplication?.defaultPageId || currentPageId;
+    const basePageId =
+      currentApplication?.defaultBasePageId || currentBasePageId;
+
     dispatch(
       publishCommunityTemplate({
         title: templateName,
@@ -95,11 +97,12 @@ const CommunityTemplateForm = ({ onPublishSuccess }: Props) => {
         branchName:
           currentApplication?.gitApplicationMetadata?.branchName || "",
         appUrl: `${window.location.origin}${viewerURL({
-          pageId,
+          basePageId,
         })}`,
       }),
     );
   };
+
   return (
     <>
       <PublishPageBodyContainer>

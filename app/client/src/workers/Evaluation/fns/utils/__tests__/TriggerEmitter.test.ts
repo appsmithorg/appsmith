@@ -1,8 +1,11 @@
 const pingMock = jest.fn();
+
 jest.mock("../Messenger.ts", () => ({
   ...jest.requireActual("../Messenger.ts"),
   get WorkerMessenger() {
     return {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ping: (...args: any) => {
         pingMock(JSON.stringify(args[0]));
       },
@@ -10,12 +13,13 @@ jest.mock("../Messenger.ts", () => ({
   },
 }));
 
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 import TriggerEmitter, { BatchKey } from "../TriggerEmitter";
 
 describe("Tests all trigger events", () => {
   it("Should invoke the right callback", () => {
     const callback = jest.fn();
+
     TriggerEmitter.on("test", callback);
     TriggerEmitter.emit("test", "test");
     expect(callback).toBeCalledWith("test");
@@ -41,6 +45,7 @@ describe("Tests all trigger events", () => {
       type: "CLEAR_STORE",
       payload: {},
     };
+
     TriggerEmitter.emit(BatchKey.process_store_updates, payload1);
     TriggerEmitter.emit(BatchKey.process_store_updates, payload2);
     TriggerEmitter.emit(BatchKey.process_store_updates, payload3);
@@ -71,6 +76,7 @@ describe("Tests all trigger events", () => {
         persist: true,
       },
     };
+
     TriggerEmitter.emit(BatchKey.process_logs, payload1);
     TriggerEmitter.emit(BatchKey.process_logs, payload1);
     TriggerEmitter.emit(BatchKey.process_logs, payload1);
@@ -79,6 +85,7 @@ describe("Tests all trigger events", () => {
     await new Promise((resolve) => setTimeout(resolve, 100));
     expect(pingMock).toBeCalledTimes(2);
     const args = pingMock.mock.calls;
+
     expect(args[0][0]).toBe(
       JSON.stringify({
         method: MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES,

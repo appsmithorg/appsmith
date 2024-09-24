@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.RTSCaller;
 import com.appsmith.server.services.AnalyticsService;
@@ -125,7 +126,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                             analyticsProperties,
                             false);
                 })
-                .subscribeOn(commonConfig.scheduler())
+                .subscribeOn(LoadShifter.elasticScheduler)
                 .subscribe();
     }
 

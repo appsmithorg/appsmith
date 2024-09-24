@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   all,
   call,
@@ -34,13 +34,13 @@ import {
   getCurrentApplicationId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { User } from "constants/userConstants";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import type { StepState } from "reducers/uiReducers/onBoardingReducer";
 import { isUndefined } from "lodash";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { SIGNPOSTING_ANALYTICS_STEP_NAME } from "pages/Editor/FirstTimeUserOnboarding/constants";
 
 // Signposting sagas
@@ -49,6 +49,7 @@ function* setFirstTimeUserOnboardingApplicationId(action: ReduxAction<string>) {
 
   const applicationIds: string[] =
     yield getFirstTimeUserOnboardingApplicationIds();
+
   yield put({
     type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
     payload: [...applicationIds, ...action.payload],
@@ -62,6 +63,7 @@ function* removeFirstTimeUserOnboardingApplicationIdSaga(
 
   const applicationIds: string[] =
     yield getFirstTimeUserOnboardingApplicationIds();
+
   yield put({
     type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
     payload: applicationIds.filter((id) => id !== action.payload),
@@ -78,6 +80,7 @@ function* endFirstTimeUserOnboardingSaga() {
   const firstTimeUserExperienceAppId: string = yield select(
     getCurrentApplicationId,
   );
+
   yield put(
     removeFirstTimeUserOnboardingApplicationIdAction(
       firstTimeUserExperienceAppId,
@@ -88,7 +91,7 @@ function* endFirstTimeUserOnboardingSaga() {
 function* firstTimeUserOnboardingInitSaga(
   action: ReduxAction<{
     applicationId: string;
-    pageId: string;
+    basePageId: string;
     suffix?: string;
   }>,
 ) {
@@ -99,12 +102,13 @@ function* firstTimeUserOnboardingInitSaga(
   });
   history.replace(
     builderURL({
-      pageId: action.payload.pageId,
+      basePageId: action.payload.basePageId,
       suffix: action.payload.suffix || "",
     }),
   );
 
   const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
+
   if (!isEditorInitialised) {
     yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
   }
@@ -114,10 +118,12 @@ function* firstTimeUserOnboardingInitSaga(
   // We don't want to show the signposting overlay when we intend to show the
   // telemetry callout
   const currentUser: User | undefined = yield select(getCurrentUser);
+
   if (currentUser?.isSuperUser && !isAirgapped()) {
     const isAnonymousDataPopupAlreadyOpen: unknown = yield call(
       getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
     );
+
     if (!isAnonymousDataPopupAlreadyOpen) {
       showOverlay = false;
     }
@@ -161,6 +167,7 @@ function* setSignpostingStepStateSaga(
         read: false,
       }
     : {};
+
   yield put(
     signpostingStepUpdate({
       ...action.payload,

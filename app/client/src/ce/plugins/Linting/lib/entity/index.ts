@@ -7,13 +7,10 @@ import type {
   ActionEntity as TActionEntity,
   ActionEntityConfig as TActionEntityConfig,
   JSActionEntityConfig as TJSActionEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { EntityClassLoader } from "plugins/Linting/lib/entity/EntityTree";
-import {
-  ENTITY_TYPE,
-  type IEntity,
-} from "@appsmith/plugins/Linting/lib/entity/types";
+import { ENTITY_TYPE, type IEntity } from "ee/plugins/Linting/lib/entity/types";
 import { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
 import { ActionEntity } from "plugins/Linting/lib/entity/ActionEntity";
 import { AppsmithEntity } from "plugins/Linting/lib/entity/AppsmithEntity";
@@ -22,7 +19,7 @@ import {
   isAction,
   isJSAction,
   isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 
 export default class EntityFactory {
   static getEntity<
@@ -32,6 +29,7 @@ export default class EntityFactory {
     const { DiffGenerator, Parser } = classLoader.load(
       entity as DataTreeEntity,
     );
+
     if (isWidget(entity)) {
       return new WidgetEntity(
         entity as TWidgetEntity,

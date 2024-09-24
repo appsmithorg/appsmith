@@ -1,19 +1,17 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type {
-  ApplicationPayload,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type {
   Workspace,
   WorkspaceUser,
   WorkspaceUserRoles,
-} from "@appsmith/constants/workspaceConstants";
-import type { Package } from "@appsmith/constants/PackageConstants";
-import type { UpdateApplicationRequest } from "@appsmith/api/ApplicationApi";
+} from "ee/constants/workspaceConstants";
+import type { Package } from "ee/constants/PackageConstants";
+import type { UpdateApplicationRequest } from "ee/api/ApplicationApi";
 
 export interface SelectedWorkspaceReduxState {
   workspace: Workspace;
@@ -68,6 +66,7 @@ export const handlers = {
     const applications = draftState.applications.filter(
       (application: ApplicationPayload) => application.id !== action.payload.id,
     );
+
     draftState.applications = [...applications];
   },
   [ReduxActionTypes.CREATE_APPLICATION_SUCCESS]: (
@@ -78,6 +77,7 @@ export const handlers = {
     }>,
   ) => {
     const applications = draftState.applications;
+
     applications.push(action.payload.application);
     draftState.applications = [...applications];
   },
@@ -103,12 +103,14 @@ export const handlers = {
     const applications = draftState.applications;
 
     const appIndex = draftState.applications.findIndex((app) => app.id === id);
+
     if (appIndex !== -1) {
       applications[appIndex] = {
         ...applications[appIndex],
         ...rest,
       };
     }
+
     draftState.applications = [...applications];
   },
   [ReduxActionTypes.GET_ALL_USERS_OF_WORKSPACE_SUCCESS]: (

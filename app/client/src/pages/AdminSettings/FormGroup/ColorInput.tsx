@@ -4,7 +4,7 @@ import { Field } from "redux-form";
 import { startCase } from "lodash";
 import tinycolor from "tinycolor2";
 import styled from "styled-components";
-import { Icon, Text, Tooltip } from "design-system";
+import { Icon, Text, Tooltip } from "@appsmith/ads";
 import { InputGroup, Classes } from "@blueprintjs/core";
 import Color from "colorjs.io";
 
@@ -80,6 +80,8 @@ const StyledText = styled(Text)`
 
 interface ColorInputProps {
   value: Record<brandColorsKeys, string>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange?: (value: any) => void;
   className?: string;
   tooltips?: Record<brandColorsKeys, string>;
@@ -92,6 +94,7 @@ const LeftIcon = (
   props: Omit<ColorInputProps, "value"> & { value: string },
 ) => {
   const { onChange, value } = props;
+
   return (
     <StyledColorInputIcon onChange={onChange} type="color" value={value} />
   );
@@ -118,12 +121,14 @@ export const ColorInput = (props: ColorInputProps) => {
 
       logEvent && logEvent(selectedIndex);
       let color = undefined;
+
       try {
         color = Color.parse(e.target.value);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
       }
+
       // if user is touching the primary color
       // then we need to update the shades
       if (selectedIndex === "primary" && color) {

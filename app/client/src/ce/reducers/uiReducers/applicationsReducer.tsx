@@ -1,25 +1,22 @@
 import { createReducer } from "utils/ReducerUtils";
-import type {
-  ReduxAction,
-  ApplicationPayload,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   createMessage,
   ERROR_MESSAGE_CREATE_APPLICATION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type {
   AppEmbedSetting,
   PageDefaultMeta,
   UpdateApplicationRequest,
-} from "@appsmith/api/ApplicationApi";
+} from "ee/api/ApplicationApi";
 import type { CreateApplicationFormValues } from "pages/Applications/helpers";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { ConnectToGitResponse } from "actions/gitSyncActions";
-import type { IconNames } from "design-system";
+import type { IconNames } from "@appsmith/ads";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import {
   defaultNavigationSetting,
@@ -27,6 +24,7 @@ import {
 } from "constants/AppConstants";
 import produce from "immer";
 import { isEmpty } from "lodash";
+import type { ApplicationPayload } from "entities/Application";
 
 export const initialState: ApplicationsReduxState = {
   isSavingAppName: false,
@@ -165,6 +163,7 @@ export const handlers = {
     action: ReduxAction<CreateApplicationFormValues>,
   ) => {
     const updatedCreatingApplication = { ...state.creatingApplication };
+
     updatedCreatingApplication[action.payload.workspaceId] = true;
 
     return {
@@ -180,7 +179,9 @@ export const handlers = {
     }>,
   ) => {
     const updatedCreatingApplication = { ...state.creatingApplication };
+
     updatedCreatingApplication[action.payload.workspaceId] = false;
+
     return {
       ...state,
       creatingApplication: updatedCreatingApplication,
@@ -192,6 +193,7 @@ export const handlers = {
     action: ReduxAction<{ workspaceId: string }>,
   ) => {
     const updatedCreatingApplication = { ...state.creatingApplication };
+
     updatedCreatingApplication[action.payload.workspaceId] = false;
 
     return {
@@ -232,9 +234,12 @@ export const handlers = {
   }),
   [ReduxActionTypes.IMPORT_APPLICATION_SUCCESS]: (
     state: ApplicationsReduxState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<{ importedApplication: any }>,
   ) => {
     const importedApplication = action.payload;
+
     return {
       ...state,
       importingApplication: false,
@@ -384,9 +389,14 @@ export const handlers = {
   }), // updating default branch when git sync on branch list
   [ReduxActionTypes.FETCH_BRANCHES_SUCCESS]: (
     state: ApplicationsReduxState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any[]>,
   ) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const defaultBranch = action.payload.find((branch: any) => branch.default);
+
     if (defaultBranch) {
       return {
         ...state,
@@ -399,6 +409,7 @@ export const handlers = {
         },
       };
     }
+
     return state;
   },
   [ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_SUCCESS]: (
@@ -727,6 +738,12 @@ export const handlers = {
       currentPluginIdForCreateNewApp: undefined,
     };
   },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isSavingNavigationSetting: false,
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);
@@ -748,6 +765,8 @@ export interface ApplicationsReduxState {
   importingApplication: boolean;
   importedApplication: unknown;
   isImportAppModalOpen: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workspaceIdForImport: any;
   pageIdForImport: string;
   isDatasourceConfigForImportFetched?: boolean;
@@ -774,6 +793,7 @@ export interface ApplicationsReduxState {
 
 export interface Application {
   id: string;
+  baseId: string;
   name: string;
   workspaceId: string;
   isPublic: boolean;

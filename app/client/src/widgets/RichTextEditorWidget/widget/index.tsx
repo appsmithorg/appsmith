@@ -47,6 +47,7 @@ const RichTextEditorComponent = lazy(async () =>
 );
 
 const converter = new showdown.Converter();
+
 class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
   WidgetState
@@ -467,6 +468,8 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,
@@ -530,9 +533,11 @@ class RichTextEditorWidget extends BaseWidget<
 
   getWidgetView() {
     let value = this.props.text ?? "";
+
     if (this.props.inputType === RTEFormats.MARKDOWN) {
       value = converter.makeHtml(value);
     }
+
     const { componentHeight } = this.props;
 
     return (

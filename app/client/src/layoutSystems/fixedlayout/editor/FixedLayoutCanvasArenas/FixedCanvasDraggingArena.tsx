@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { theme } from "constants/DefaultTheme";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
@@ -80,6 +80,7 @@ export function FixedCanvasDraggingArena({
     }),
     [canExtend, snapColumnSpace, snapRowSpace, snapRows],
   );
+
   return showCanvas ? (
     <StickyCanvasArena
       canvasId={`canvas-dragging-${widgetId}`}

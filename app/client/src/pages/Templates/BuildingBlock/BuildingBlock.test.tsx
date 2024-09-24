@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { ThemeProvider } from "styled-components";
 import { Router } from "react-router";
-import { templateIdUrl } from "@appsmith/RouteBuilder";
+import { templateIdUrl } from "ee/RouteBuilder";
 
 import BuildingBlock from ".";
 import history from "utils/history";
@@ -18,6 +18,7 @@ import {
 
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
+
   return {
     ...originalModule,
     useDispatch: () => jest.fn(),
@@ -56,6 +57,7 @@ describe("<BuildingBlock />", () => {
   it("navigates to the template URL when clicked", async () => {
     render(<Router history={history}>{BaseBuildingBlockRender()}</Router>);
     const pushMock = jest.spyOn(history, "push");
+
     fireEvent.click(screen.getByText(MOCK_BUILDING_BLOCK_TITLE));
     expect(pushMock).toHaveBeenCalledWith(
       templateIdUrl({ id: MOCK_BUILDING_BLOCK_ID }),
@@ -71,6 +73,7 @@ describe("<BuildingBlock />", () => {
 
   it("does not trigger onForkTemplateClick when the button is hidden", () => {
     const onForkTemplateClick = jest.fn();
+
     render(
       <ThemeProvider theme={lightTheme}>
         <BuildingBlock
@@ -81,6 +84,7 @@ describe("<BuildingBlock />", () => {
       </ThemeProvider>,
     );
     const forkButton = screen.queryByTestId("t--fork-building-block");
+
     expect(forkButton).toBeNull();
     fireEvent.click(screen.getByText(MOCK_BUILDING_BLOCK_TITLE));
     expect(onForkTemplateClick).not.toHaveBeenCalled();

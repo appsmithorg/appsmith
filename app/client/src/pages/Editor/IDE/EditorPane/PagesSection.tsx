@@ -1,25 +1,25 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
-import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { getHasCreatePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { selectAllPages } from "ee/selectors/entitiesSelector";
+import type { Page } from "entities/Page";
+import { getHasCreatePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import type { AppState } from "@appsmith/reducers";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import type { AppState } from "ee/reducers";
 import { createNewPageFromEntities } from "actions/pageActions";
 import AddPageContextMenu from "pages/Editor/Explorer/Pages/AddPageContextMenu";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
 import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
 import { IDEHeaderDropdown } from "IDE";
-import { PAGE_ENTITY_NAME } from "@appsmith/constants/messages";
+import { PAGE_ENTITY_NAME } from "ee/constants/messages";
 
 const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   const dispatch = useDispatch();
@@ -46,6 +46,7 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
       PAGE_ENTITY_NAME,
       pages.map((page: Page) => page.pageName),
     );
+
     dispatch(
       createNewPageFromEntities(applicationId, name, workspaceId, instanceId),
     );

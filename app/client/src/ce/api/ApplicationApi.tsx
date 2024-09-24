@@ -1,12 +1,12 @@
-import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
-import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
+import type { ApplicationVersion } from "ee/actions/applicationActions";
+import { getSnapShotAPIRoute } from "ee/constants/ApiConstants";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosProgressEvent, AxiosPromise } from "axios";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { AppColorCode } from "constants/DefaultTheme";
 import type { EvaluationVersion } from "constants/EvalConstants";
-import type { IconNames } from "design-system";
+import type { IconNames } from "@appsmith/ads";
 import type { Action, BaseAction } from "entities/Action";
 import type { APP_MODE } from "entities/App";
 import type { Datasource } from "entities/Datasource";
@@ -29,12 +29,13 @@ export type PublishApplicationResponse = ApiResponse;
 
 export interface ApplicationPagePayload {
   id: string;
+  baseId: string;
   name: string;
   isDefault: boolean;
   slug: string;
   isHidden?: boolean;
   customSlug?: string;
-  userPermissions?: string;
+  userPermissions?: string[];
 }
 
 export type GitApplicationMetadata =
@@ -52,6 +53,7 @@ export type GitApplicationMetadata =
 
 export interface ApplicationResponsePayload {
   id: string;
+  baseId: string;
   name: string;
   workspaceId: string;
   evaluationVersion?: EvaluationVersion;
@@ -95,7 +97,7 @@ export interface CreateApplicationRequest {
 }
 
 export interface SetDefaultPageRequest {
-  id: string;
+  pageId: string;
   applicationId: string;
 }
 
@@ -164,6 +166,8 @@ export interface FetchUsersApplicationsWorkspacesResponse extends ApiResponse {
     workspaceApplications: Array<WorkspaceApplicationObject>;
     user: string;
     newReleasesCount?: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     releaseItems?: Array<Record<string, any>>;
   };
 }
@@ -173,6 +177,8 @@ export interface FetchApplicationsOfWorkspaceResponse extends ApiResponse {
 export interface FetchReleaseItemsResponse extends ApiResponse {
   data: {
     newReleasesCount: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     releaseItems: Array<Record<string, any>>;
   };
 }
@@ -226,7 +232,7 @@ export interface UpdateApplicationResponse {
 export interface PageDefaultMeta {
   id: string;
   isDefault: boolean;
-  defaultPageId: string;
+  baseId: string;
   default: boolean;
 }
 
@@ -287,7 +293,7 @@ export class ApplicationApi extends Api {
   static changeAppViewAccessPath = (applicationId: string) =>
     `/${applicationId}/changeAccess`;
   static setDefaultPagePath = (request: SetDefaultPageRequest) =>
-    `${ApplicationApi.baseURL}/${request.applicationId}/page/${request.id}/makeDefault`;
+    `${ApplicationApi.baseURL}/${request.applicationId}/page/${request.pageId}/makeDefault`;
   static async publishApplication(
     publishApplicationRequest: PublishApplicationRequest,
   ): Promise<AxiosPromise<PublishApplicationResponse>> {
@@ -306,6 +312,8 @@ export class ApplicationApi extends Api {
 
   static async fetchAllApplicationsOfWorkspace(
     workspaceId: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     return Api.get(ApplicationApi.baseURL + "/home?workspaceId=" + workspaceId);
   }
@@ -374,6 +382,7 @@ export class ApplicationApi extends Api {
       ...rest,
       currentApp: undefined,
     };
+
     return Api.put(ApplicationApi.baseURL + "/" + id, payload);
   }
 
@@ -399,9 +408,11 @@ export class ApplicationApi extends Api {
     request: ImportApplicationRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
     const formData = new FormData();
+
     if (request.applicationFile) {
       formData.append("file", request.applicationFile);
     }
+
     return Api.post(
       `${ApplicationApi.baseURL}/import/${request.workspaceId}${
         request.appId ? `?applicationId=${request.appId}` : ""
@@ -480,9 +491,11 @@ export class ApplicationApi extends Api {
     request: ImportPartialApplicationRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
     const formData = new FormData();
+
     if (request.applicationFile) {
       formData.append("file", request.applicationFile);
     }
+
     return Api.post(
       `${ApplicationApi.baseURL}/import/partial/${request.workspaceId}/${request.applicationId}?pageId=${request.pageId}`,
       formData,

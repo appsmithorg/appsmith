@@ -2,14 +2,10 @@ import React from "react";
 import AddLibraryPopover from "./AddLibraryPopover";
 import PaneHeader from "./PaneHeader";
 import { useSelector } from "react-redux";
-import { selectLibrariesForExplorer } from "@appsmith/selectors/entitiesSelector";
+import { selectLibrariesForExplorer } from "ee/selectors/entitiesSelector";
 import { animated, useTransition } from "react-spring";
 import { LibraryEntity } from "pages/Editor/Explorer/Libraries";
-import styled from "styled-components";
-
-const Container = styled.div`
-  width: 250px;
-`;
+import { Flex } from "@appsmith/ads";
 
 const LibrarySidePane = () => {
   const libraries = useSelector(selectLibrariesForExplorer);
@@ -19,8 +15,14 @@ const LibrarySidePane = () => {
     enter: { opacity: 1 },
     leave: { opacity: 1 },
   });
+
   return (
-    <Container>
+    <Flex
+      borderRight="1px solid var(--ads-v2-color-border)"
+      flexDirection="column"
+      height="100%"
+      width={"100%"}
+    >
       <PaneHeader
         rightIcon={<AddLibraryPopover />}
         title="Installed Libraries"
@@ -30,7 +32,7 @@ const LibrarySidePane = () => {
           <LibraryEntity lib={lib} />
         </animated.div>
       ))}
-    </Container>
+    </Flex>
   );
 };
 

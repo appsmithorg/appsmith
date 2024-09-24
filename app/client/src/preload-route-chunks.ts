@@ -1,4 +1,4 @@
-import { getBaseURL } from "@appsmith/utils/preloadHelpers";
+import { getBaseURL } from "ee/utils/preloadHelpers";
 // This file preloads chunks for the edit and view modes ahead of the import()
 // call that will actually require them. This puts these chunks into HTTP cache
 // (so they can be executed immediately) but doesn’t execute them (so that the
@@ -23,16 +23,19 @@ const isPreloadingDisabled =
   "true";
 
 const currentMode = getModeForPathname(window.location.pathname);
+
 if (
   !isPreloadingDisabled &&
   window.__APPSMITH_CHUNKS_TO_PRELOAD &&
   currentMode
 ) {
   const BASE_URL = getBaseURL();
+
   window.__APPSMITH_CHUNKS_TO_PRELOAD[currentMode]
     .map((url) => BASE_URL + url)
     .forEach((url) => {
       const link = document.createElement("link");
+
       link.rel = "preload";
       link.as = getPreloadValueForFile(url);
       link.href = url;

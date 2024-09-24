@@ -4,23 +4,23 @@ import { datasourceTableIcon } from "../Explorer/ExplorerIcons";
 import QueryTemplates from "./QueryTemplates";
 import type { DatasourceTable } from "entities/Datasource";
 import type { DatasourceStructureContext } from "entities/Datasource";
-import { useCloseMenuOnScroll } from "@appsmith/pages/Editor/Explorer/hooks";
+import { useCloseMenuOnScroll } from "ee/pages/Editor/Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import { getDatasource, getPlugin } from "@appsmith/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
+import { getDatasource, getPlugin } from "ee/selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
-import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "design-system";
-import { SHOW_TEMPLATES, createMessage } from "@appsmith/constants/messages";
+import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "@appsmith/ads";
+import { SHOW_TEMPLATES, createMessage } from "ee/constants/messages";
 import styled from "styled-components";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Plugin } from "api/PluginApi";
 import { omit } from "lodash";
 import { Virtuoso } from "react-virtuoso";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { hasCreateDSActionPermissionInApp } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { useEditorType } from "@appsmith/hooks";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { hasCreateDSActionPermissionInApp } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { useEditorType } from "ee/hooks";
 import history from "utils/history";
 
 interface DatasourceStructureItemProps {
@@ -51,6 +51,7 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
   const dbStructure = props.dbStructure;
   let templateMenu = null;
   const [active, setActive] = useState(false);
+
   useCloseMenuOnScroll(SIDEBAR_ID, active, () => setActive(false));
   const collapseRef = useRef<HTMLDivElement | null>(null);
 
@@ -78,6 +79,8 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
     setActive(false);
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onEntityClick = (entity: any) => {
     AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_TABLE_SELECT", {
       datasourceId: props.datasourceId,

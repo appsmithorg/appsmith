@@ -20,8 +20,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.FieldName.POLICY_MAP;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
@@ -45,11 +48,12 @@ public class Migration029PopulateDefaultDomainIdInUserManagementRoles {
                 .is(RESET_PASSWORD_USERS.getValue())
                 .andOperator(notDeleted());
         Query queryExistingUsersWithResetPasswordPolicy = new Query(resetPasswordPolicyExistsAndNotDeleted);
-        queryExistingUsersWithResetPasswordPolicy.fields().include(User.Fields.policies);
+        queryExistingUsersWithResetPasswordPolicy.fields().include(POLICIES, POLICY_MAP);
         Map<String, String> userManagementRoleIdToUserIdMap = new HashMap<>();
         mongoTemplate.stream(queryExistingUsersWithResetPasswordPolicy, User.class)
                 .forEach(existingUser -> {
-                    Optional<Policy> resetPasswordPolicyOptional = existingUser.getPolicies().stream()
+                    Set<Policy> policies = existingUser.getPolicies() == null ? Set.of() : existingUser.getPolicies();
+                    Optional<Policy> resetPasswordPolicyOptional = policies.stream()
                             .filter(policy1 -> RESET_PASSWORD_USERS.getValue().equals(policy1.getPermission()))
                             .findFirst();
                     resetPasswordPolicyOptional.ifPresent(resetPasswordPolicy -> {

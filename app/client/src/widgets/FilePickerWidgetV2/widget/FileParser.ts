@@ -6,6 +6,8 @@ interface ExcelSheetData {
   data: unknown[];
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CSVRowData = Record<any, any>; // key represents column name, value represents cell value
 
 async function parseFileData(
@@ -34,6 +36,7 @@ async function parseFileData(
 async function parseBase64Blob(data: Blob): Promise<string> {
   return new Promise((resolve) => {
     const reader = new FileReader();
+
     reader.readAsDataURL(data);
     reader.onloadend = () => {
       resolve(reader.result as string);
@@ -44,6 +47,7 @@ async function parseBase64Blob(data: Blob): Promise<string> {
 async function parseBinaryString(data: Blob): Promise<string> {
   return new Promise((resolve) => {
     const reader = new FileReader();
+
     reader.readAsBinaryString(data);
     reader.onloadend = () => {
       resolve(reader.result as string);
@@ -54,6 +58,7 @@ async function parseBinaryString(data: Blob): Promise<string> {
 async function parseText(data: Blob): Promise<string> {
   return new Promise((resolve) => {
     const reader = new FileReader();
+
     reader.readAsText(data);
     reader.onloadend = () => {
       resolve(reader.result as string);
@@ -83,6 +88,7 @@ async function parseArrayTypeFile(
       } else if (filetype.indexOf("text/tab-separated-values") > -1) {
         result = await parseCSVBlob(data, dynamicTyping);
       }
+
       resolve(result);
     })();
   });
@@ -91,8 +97,10 @@ async function parseArrayTypeFile(
 async function parseJSONFile(data: Blob): Promise<Record<string, unknown>> {
   return new Promise((resolve) => {
     const reader = new FileReader();
+
     reader.onloadend = () => {
       let result: Record<string, unknown> = {};
+
       try {
         result = JSON.parse(reader.result as string);
       } catch {}
@@ -105,6 +113,7 @@ async function parseJSONFile(data: Blob): Promise<Record<string, unknown>> {
 async function parseXLSFile(data: Blob): Promise<ExcelSheetData[]> {
   return new Promise((resolve) => {
     const reader = new FileReader();
+
     reader.onloadend = () => {
       const sheetsData: ExcelSheetData[] = [];
       const workbook = XLSX.read(reader.result as ArrayBuffer, {
@@ -113,10 +122,12 @@ async function parseXLSFile(data: Blob): Promise<ExcelSheetData[]> {
 
       workbook.SheetNames.forEach((sheetName) => {
         const sheetData: ExcelSheetData = { name: "", data: [] };
+
         try {
           const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {
             header: 1,
           });
+
           sheetData["name"] = sheetName;
           sheetData["data"] = data;
           sheetsData.push(sheetData);
@@ -134,8 +145,10 @@ async function parseCSVBlob(
 ): Promise<CSVRowData[]> {
   return new Promise((resolve) => {
     const reader = new FileReader();
+
     reader.onloadend = () => {
       let result: CSVRowData[] = [];
+
       try {
         result = parseCSVString(reader.result as string, dynamicTyping);
       } catch {}
@@ -159,16 +172,23 @@ function parseCSVString(data: string, dynamicTyping = false): CSVRowData[] {
     header: 1, // to notify that the first row is the header row
     defval: "", // to get empty cells as empty strings
   });
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const headerRow: any[] = jsonData[0] as any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dataRows: any[][] = jsonData.slice(1) as any;
 
   dataRows.forEach((row: string[]) => {
     const rowData: CSVRowData = {};
+
     for (let i = 0; i < row.length; i++) {
       const columnName = headerRow[i];
       const cellValue = row[i];
+
       rowData[columnName] = cellValue;
     }
+
     result.push(rowData);
   });
 

@@ -314,6 +314,7 @@ describe("#parse", () => {
       schema: initialResult.schema,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
+
     expect(updatedResult.modifiedSchemaItems).toEqual(
       expectedModifiedSchemaItems,
     );
@@ -332,6 +333,7 @@ describe("#parse", () => {
       schema: schemaWithEvalValues,
       fieldThemeStylesheets: testData.fieldThemeStylesheets,
     });
+
     expect(updatedResultWithEval.modifiedSchemaItems).toEqual(
       expectedModifiedSchemaItems,
     );
@@ -354,6 +356,7 @@ describe("#parse", () => {
 
     // Set all keys to null
     const nulledSourceData = klona(testData.initialDataset.dataSource);
+
     set(nulledSourceData, "name", null);
     set(nulledSourceData, "age", null);
     set(nulledSourceData, "dob", null);
@@ -366,6 +369,7 @@ describe("#parse", () => {
 
     // Set the sourceData entry in each SchemaItem to null (only property that changes)
     const expectedSchema = klona(initialSchema);
+
     set(expectedSchema, "__root_schema__.children.name.sourceData", null);
     set(expectedSchema, "__root_schema__.sourceData.name", null);
     set(expectedSchema, "__root_schema__.children.age.sourceData", null);
@@ -440,6 +444,7 @@ describe("#parse", () => {
 
     // Set all keys to undefined
     const undefinedDataSource = klona(testData.initialDataset.dataSource);
+
     set(undefinedDataSource, "name", undefined);
     set(undefinedDataSource, "age", undefined);
     set(undefinedDataSource, "dob", undefined);
@@ -452,6 +457,7 @@ describe("#parse", () => {
 
     // Set the sourceData entry in each SchemaItem to undefined (only property that changes)
     const expectedSchema = klona(initialResult.schema);
+
     set(expectedSchema, "__root_schema__.children.name.sourceData", undefined);
     set(expectedSchema, "__root_schema__.sourceData.name", undefined);
     set(expectedSchema, "__root_schema__.children.age.sourceData", undefined);
@@ -542,6 +548,7 @@ describe("#parse", () => {
 
     // Set all keys to null
     const nulledSourceData = klona(testData.initialDataset.dataSource);
+
     set(nulledSourceData, "address.Line1", null);
     set(nulledSourceData, "address.city", null);
     set(nulledSourceData, "education[0].college", null);
@@ -551,6 +558,7 @@ describe("#parse", () => {
 
     // Set the sourceData entry in each SchemaItem to null (only property that changes)
     const expectedSchema = klona(initialResult.schema);
+
     set(
       expectedSchema,
       "__root_schema__.children.address.children.Line1.sourceData",
@@ -674,6 +682,7 @@ describe("#parse", () => {
 
     // Set all keys to undefined
     const undefinedSourceData = klona(testData.initialDataset.dataSource);
+
     set(undefinedSourceData, "address.Line1", undefined);
     set(undefinedSourceData, "address.city", undefined);
     set(undefinedSourceData, "education[0].college", undefined);
@@ -683,6 +692,7 @@ describe("#parse", () => {
 
     // Set the sourceData entry in each SchemaItem to undefined (only property that changes)
     const expectedSchema = klona(initialResult.schema);
+
     set(
       expectedSchema,
       "__root_schema__.children.address.children.Line1.sourceData",
@@ -844,6 +854,7 @@ describe("#getSchemaItemByFieldType", () => {
     const schemaItemPath =
       "schema.__root_schema__.children.address.children.city";
     const schemaItem = get({ schema }, schemaItemPath);
+
     schemaItem.isCustomField = true;
     schemaItem.accessor = "newCityName";
 
@@ -1301,6 +1312,7 @@ describe("#convertArrayToSchema", () => {
       sourceDataPath: "sourceData.entries",
       skipDefaultValueProcessing: false,
     });
+
     expect(result).toEqual(expectedSchema);
     expect(removedSchemaItems).toEqual([]);
     expect(modifiedSchemaItems).toEqual(expectedModifiedSchemaItems);
@@ -1862,6 +1874,8 @@ describe(".normalizeArrayValue", () => {
 
 describe(".fieldTypeFor", () => {
   it("return default field type of data passed", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const inputAndExpectedOutputs: [any, FieldType][] = [
       ["string", FieldType.TEXT_INPUT],
       ["2021-12-30T10:36:12.1212+05:30", FieldType.DATEPICKER],
@@ -2091,6 +2105,8 @@ describe(".checkIfArrayAndSubDataTypeChanged", () => {
 
 describe(".hasNullOrUndefined", () => {
   it("returns false when one of the parameter is null or undefined", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const inputAndExpectedOutputs: [[any, any], boolean][] = [
       [["1", "2"], false],
       [[0, ""], false],
@@ -2107,6 +2123,7 @@ describe(".hasNullOrUndefined", () => {
 
     inputAndExpectedOutputs.forEach(([input, expectedOutput]) => {
       const result = hasNullOrUndefined(input);
+
       expect(result).toEqual(expectedOutput);
     });
   });

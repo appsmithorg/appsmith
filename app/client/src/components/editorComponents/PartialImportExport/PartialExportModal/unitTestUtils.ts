@@ -173,9 +173,15 @@ export const mockAppDSProps: Datasource[] = [
         datasourceConfiguration: {
           url: "string",
           connection: {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             mode: "READ_WRITE" as any,
             ssl: {
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               authType: "DEFAULT" as any,
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any,
           },
           authentication: {
@@ -221,9 +227,15 @@ export const mockAppDSProps: Datasource[] = [
         datasourceConfiguration: {
           url: "string",
           connection: {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             mode: "READ_WRITE" as any,
             ssl: {
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               authType: "DEFAULT" as any,
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any,
           },
 
@@ -12768,7 +12780,6 @@ export const defaultAppState = {
           ab_ds_binding_enabled: true,
           ask_ai_js: false,
           license_connection_pool_size_enabled: false,
-          release_widgetdiscovery_enabled: false,
           ab_ai_js_function_completion_enabled: true,
           release_workflows_enabled: false,
           license_scim_enabled: false,

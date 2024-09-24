@@ -1,7 +1,7 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { diff } from "deep-diff";
 import { merge } from "lodash";
-import { getAction } from "@appsmith/selectors/entitiesSelector";
+import { getAction } from "ee/selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { getPathAndValueFromActionDiffObject } from "utils/getPathAndValueFromActionDiffObject";
 import configureStore from "redux-mock-store";
@@ -21,15 +21,18 @@ describe("missing key: where", () => {
 
     if (editorConfigs && pluginId) {
       editorConfig = editorConfigs[pluginId];
+
       if (editorConfig) {
         merge(initialValues, getConfigInitialValues(editorConfig));
       }
     }
+
     let settingConfig;
 
     if (settingConfigs && pluginId) {
       settingConfig = settingConfigs[pluginId];
     }
+
     merge(initialValues, getConfigInitialValues(settingConfig));
     merge(initialValues, action);
 
@@ -46,6 +49,7 @@ describe("missing key: where", () => {
     const middlewares = [];
     const mockStore = configureStore(middlewares);
     const store = mockStore(initialState);
+
     store.dispatch(
       setActionProperty({
         type: ReduxActionTypes.SET_ACTION_PROPERTY,
@@ -59,6 +63,7 @@ describe("missing key: where", () => {
     //TODO:
     setTimeout(() => {
       const stateAfterSetAction = store.getState();
+
       expect(stateAfterSetAction).toEqual(finalState);
     }, 2000);
   });

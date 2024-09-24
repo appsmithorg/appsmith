@@ -58,12 +58,16 @@ export interface EditorContextType<TCache = unknown> {
   updateWidget?: (
     operation: WidgetOperation,
     widgetId: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: any,
   ) => void;
   triggerEvalOnMetaUpdate?: () => void;
   updateWidgetProperty?: (
     widgetId: string,
     propertyName: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any,
   ) => void;
   resetChildrenMetaProperty?: (widgetId: string) => void;
@@ -78,6 +82,8 @@ export interface EditorContextType<TCache = unknown> {
   syncUpdateWidgetMetaProperty?: (
     widgetId: string,
     propertyName: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any,
   ) => void;
   syncBatchUpdateWidgetMetaProperties?: (
@@ -200,6 +206,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
   // Memoize the context provider to prevent
   // unnecessary renders
   const contextValue = useMemo(() => apiMethods, apiMethodsDeps);
+
   return (
     <EditorContext.Provider value={contextValue}>
       {children}
@@ -211,6 +218,8 @@ const mapDispatchToProps = {
   updateWidgetProperty: (
     widgetId: string,
     propertyName: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any,
   ) => updateWidgetPropertyRequest(widgetId, propertyName, propertyValue),
 
@@ -219,6 +228,8 @@ const mapDispatchToProps = {
   syncUpdateWidgetMetaProperty: (
     widgetId: string,
     propertyName: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any,
   ) => syncUpdateWidgetMetaProperty(widgetId, propertyName, propertyValue),
   syncBatchUpdateWidgetMetaProperties: (

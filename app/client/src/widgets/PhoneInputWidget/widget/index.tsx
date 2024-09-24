@@ -5,10 +5,7 @@ import PhoneInputComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  createMessage,
-  FIELD_REQUIRED_ERROR,
-} from "@appsmith/constants/messages";
+import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import {
   getCountryCode,
@@ -44,8 +41,12 @@ import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export function defaultValueValidation(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   props: PhoneInputWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ): ValidationResponse {
   const STRING_ERROR_MESSAGE = {
@@ -53,6 +54,7 @@ export function defaultValueValidation(
     message: "This value must be string",
   };
   const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
+
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -60,7 +62,9 @@ export function defaultValueValidation(
       messages: [STRING_ERROR_MESSAGE],
     };
   }
+
   let parsed = value;
+
   if (!_.isString(value)) {
     try {
       parsed = _.toString(value);
@@ -72,6 +76,7 @@ export function defaultValueValidation(
       };
     }
   }
+
   return {
     isValid: _.isString(parsed),
     parsed: parsed,
@@ -295,6 +300,8 @@ class PhoneInputWidget extends BaseInputWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
       value: "",
@@ -415,6 +422,7 @@ class PhoneInputWidget extends BaseInputWidget<
         type: EventType.ON_TEXT_CHANGE,
       },
     });
+
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -430,6 +438,7 @@ class PhoneInputWidget extends BaseInputWidget<
         },
       });
     }
+
     if (!focusState) {
       this.props.updateWidgetMetaProperty("isFocused", focusState, {
         triggerPropertyName: "onBlur",
@@ -439,6 +448,7 @@ class PhoneInputWidget extends BaseInputWidget<
         },
       });
     }
+
     super.handleFocusChange(focusState);
   };
 
@@ -476,10 +486,13 @@ class PhoneInputWidget extends BaseInputWidget<
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const countryCode = this.props.countryCode;
     const conditionalProps: Partial<PhoneInputComponentProps> = {};
+
     conditionalProps.errorMessage = this.props.errorMessage;
+
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
+
     const { componentHeight } = this.props;
 
     return (

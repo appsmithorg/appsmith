@@ -1,10 +1,12 @@
-import type {
-  JSActionEntity,
-  WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity, WidgetEntity } from "ee/entities/DataTree/types";
 import { getOnlyAffectedJSObjects, getIsNewWidgetAdded } from "./utils";
 import type { UnEvalTree } from "entities/DataTree/dataTreeTypes";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  DataTreeDiffEvent,
+  getAllPathsBasedOnDiffPaths,
+  type DataTreeDiff,
+} from "ee/workers/Evaluation/evaluationUtils";
+import produce from "immer";
 
 describe("getOnlyAffectedJSObjects", () => {
   const dataTree = {
@@ -19,11 +21,13 @@ describe("getOnlyAffectedJSObjects", () => {
       ENTITY_TYPE: "JSACTION",
     },
   } as Record<string, JSActionEntity>;
+
   test("should return only the affected JS Objects when the ids collection is provided ", () => {
     const result = getOnlyAffectedJSObjects(dataTree, {
       ids: ["1234"],
       isAllAffected: false,
     });
+
     expect(result).toEqual({
       JSObject1: {
         actionId: "1234",
@@ -37,6 +41,7 @@ describe("getOnlyAffectedJSObjects", () => {
       isAllAffected: true,
       ids: [],
     });
+
     expect(result).toEqual(dataTree);
   });
 
@@ -45,6 +50,7 @@ describe("getOnlyAffectedJSObjects", () => {
       ids: ["someInvalidId"],
       isAllAffected: false,
     });
+
     expect(result).toEqual({});
   });
 });
@@ -74,6 +80,7 @@ describe("getIsNewWidgetAdded", () => {
     ] as DataTreeDiff[];
 
     const result = getIsNewWidgetAdded(translatedDiffs, unEvalTree);
+
     expect(result).toBeTruthy();
   });
 
@@ -90,6 +97,7 @@ describe("getIsNewWidgetAdded", () => {
     ] as DataTreeDiff[];
 
     const result = getIsNewWidgetAdded(translatedDiffs, unEvalTree);
+
     expect(result).toBeFalsy();
   });
 
@@ -97,6 +105,145 @@ describe("getIsNewWidgetAdded", () => {
     const translatedDiffs: DataTreeDiff[] = [];
     const unEvalTree: UnEvalTree = {};
     const result = getIsNewWidgetAdded(translatedDiffs, unEvalTree);
+
     expect(result).toBeFalsy();
+  });
+});
+
+describe("getAllPathsBasedOnDiffPaths", () => {
+  const initialTree = {
+    WidgetName: {
+      1: "yo",
+      name: "WidgetName",
+      objectProperty: {
+        childObjectProperty: [
+          "1",
+          1,
+          {
+            key: "value",
+            2: 1,
+          },
+          ["1", "2"],
+        ],
+      },
+      stringProperty: new String("Hello"),
+    } as Record<string, unknown>,
+  };
+  const initialAllKeys = {
+    WidgetName: true,
+    "WidgetName.1": true,
+    "WidgetName.name": true,
+    "WidgetName.objectProperty": true,
+    "WidgetName.objectProperty.childObjectProperty": true,
+    "WidgetName.objectProperty.childObjectProperty[0]": true,
+    "WidgetName.objectProperty.childObjectProperty[1]": true,
+    "WidgetName.objectProperty.childObjectProperty[2]": true,
+    "WidgetName.objectProperty.childObjectProperty[2].key": true,
+    "WidgetName.objectProperty.childObjectProperty[2].2": true,
+    "WidgetName.objectProperty.childObjectProperty[3]": true,
+    "WidgetName.objectProperty.childObjectProperty[3][0]": true,
+    "WidgetName.objectProperty.childObjectProperty[3][1]": true,
+    "WidgetName.stringProperty": true,
+  } as Record<string, true>;
+
+  test("should generate all paths of the widget when a new widget as added", () => {
+    const updatedAllKeys = getAllPathsBasedOnDiffPaths(
+      initialTree,
+      [
+        {
+          event: DataTreeDiffEvent.NEW,
+          payload: { propertyPath: "WidgetName" },
+        },
+      ],
+      // allKeys is empty initally
+      {},
+    );
+
+    expect(initialAllKeys).toEqual(updatedAllKeys);
+  });
+  test("should not update allKeys when there are no diffs", () => {
+    const updatedAllKeys = getAllPathsBasedOnDiffPaths(initialTree, [], {
+      ...initialAllKeys,
+    });
+
+    // allkeys are not altered here since the diff is empty
+    expect(initialAllKeys).toEqual(updatedAllKeys);
+  });
+  test("should delete the correct paths within allKeys when a node within a widget is deleted", () => {
+    const deletedWidgetName = produce(initialTree, (draft) => {
+      // a property within the widget is deleted
+      delete draft.WidgetName.name;
+    });
+    const updatedAllKeys = getAllPathsBasedOnDiffPaths(
+      deletedWidgetName,
+      [
+        {
+          event: DataTreeDiffEvent.DELETE,
+          payload: {
+            propertyPath: "WidgetName.name",
+          },
+        },
+      ],
+      // we have to make a copy since allKeys is mutable
+      { ...initialAllKeys },
+    );
+    const deletedWidgetNameInAllKeys = produce(initialAllKeys, (draft) => {
+      delete draft["WidgetName.name"];
+    });
+
+    expect(deletedWidgetNameInAllKeys).toEqual(updatedAllKeys);
+  });
+
+  test("should add the correct paths to the allKeys when a node within a widget is added", () => {
+    const addedNewWidgetProperty = produce(initialTree, (draft) => {
+      // new property is added to the widget
+      draft.WidgetName.widgetNewProperty = "newValue";
+    });
+
+    const updatedAllKeys = getAllPathsBasedOnDiffPaths(
+      addedNewWidgetProperty,
+      [
+        {
+          event: DataTreeDiffEvent.NEW,
+          payload: {
+            propertyPath: "WidgetName.widgetNewProperty",
+          },
+        },
+      ],
+      // we have to make a copy since allKeys is mutable
+      { ...initialAllKeys },
+    );
+    const addedNewWidgetPropertyInAllKeys = produce(initialAllKeys, (draft) => {
+      draft["WidgetName.widgetNewProperty"] = true;
+    });
+
+    expect(addedNewWidgetPropertyInAllKeys).toEqual(updatedAllKeys);
+  });
+
+  test("should generate the correct paths when the value changes form a simple primitive to a collection, this is for EDIT diffs", () => {
+    const addedNewWidgetProperty = produce(initialTree, (draft) => {
+      //existing property within the widget is edited
+      draft.WidgetName.name = [{ a: 1 }];
+    });
+
+    const updatedAllKeys = getAllPathsBasedOnDiffPaths(
+      addedNewWidgetProperty,
+      [
+        {
+          event: DataTreeDiffEvent.EDIT,
+          payload: {
+            propertyPath: "WidgetName.name",
+          },
+        },
+      ],
+      // we have to make a copy since allKeys is mutable
+      { ...initialAllKeys },
+    );
+    const addedACollectionInAllKeys = produce(initialAllKeys, (draft) => {
+      draft["WidgetName.name[0]"] = true;
+      draft["WidgetName.name[0].a"] = true;
+    });
+
+    expect(addedACollectionInAllKeys).toEqual(updatedAllKeys);
   });
 });

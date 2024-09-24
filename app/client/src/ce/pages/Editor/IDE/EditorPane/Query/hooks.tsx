@@ -1,64 +1,60 @@
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import history from "utils/history";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useDispatch, useSelector } from "react-redux";
 import { useFilteredFileOperations } from "components/editorComponents/GlobalSearch/GlobalSearchHooks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
-import { getQueryUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
+import { getQueryUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 import {
   ADD_PATH,
   API_EDITOR_ID_PATH,
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
-  CURL_IMPORT_PAGE_PATH,
-} from "@appsmith/constants/routes/appRoutes";
+} from "ee/constants/routes/appRoutes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import ApiEditor from "pages/Editor/APIEditor";
-import type { UseRoutes } from "@appsmith/entities/IDE/constants";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import type { UseRoutes } from "ee/entities/IDE/constants";
 import QueryEditor from "pages/Editor/QueryEditor";
 import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
-import ListQuery from "pages/Editor/IDE/EditorPane/Query/List";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { Tag, type ListItemProps } from "design-system";
-import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
-import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
+import type { ListItemProps } from "@appsmith/ads";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
 import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 
 export const useQueryAdd = () => {
   const location = useLocation();
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
-  const { segmentMode } = useCurrentEditorState();
 
   const openAddQuery = useCallback(() => {
     if (currentEntityInfo.entity === FocusEntity.QUERY_ADD) {
       return;
     }
+
     let url = "";
+
     url = getQueryUrl(currentEntityInfo);
     history.push(url);
-  }, [currentEntityInfo, segmentMode, location]);
+  }, [currentEntityInfo]);
 
   const closeAddQuery = useCallback(() => {
     let url = "";
+
     url = getQueryUrl(currentEntityInfo, false);
     history.push(url);
-  }, [currentEntityInfo, segmentMode, location]);
+  }, [currentEntityInfo]);
 
   return { openAddQuery, closeAddQuery };
 };
@@ -109,71 +105,45 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
   return groups;
 };
 
-export const useQuerySegmentRoutes = (path: string): UseRoutes => {
-  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
-  const editorMode = useSelector(getIDEViewMode);
-
-  if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
-    return [
-      {
-        key: "ApiEditor",
-        component: ApiEditor,
-        exact: true,
-        path: [
-          BUILDER_PATH + API_EDITOR_ID_PATH,
-          BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
-          BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
-        ],
-      },
-      {
-        key: "AddQuery",
-        exact: true,
-        component: AddQuery,
-        path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
-      },
-      {
-        key: "SAASEditor",
-        component: QueryEditor,
-        exact: true,
-        path: [
-          BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
-          BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
-          BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
-        ],
-      },
-      {
-        key: "CurlImportEditor",
-        component: CurlImportEditor,
-        exact: true,
-        path: [
-          BUILDER_PATH + CURL_IMPORT_PAGE_PATH,
-          BUILDER_CUSTOM_PATH + CURL_IMPORT_PAGE_PATH,
-          BUILDER_PATH_DEPRECATED + CURL_IMPORT_PAGE_PATH,
-          BUILDER_PATH + CURL_IMPORT_PAGE_PATH + ADD_PATH,
-          BUILDER_CUSTOM_PATH + CURL_IMPORT_PAGE_PATH + ADD_PATH,
-          BUILDER_PATH_DEPRECATED + CURL_IMPORT_PAGE_PATH + ADD_PATH,
-        ],
-      },
-      {
-        key: "QueryEditor",
-        component: QueryEditor,
-        exact: true,
-        path: [path + "/:queryId"],
-      },
-      {
-        key: "QueryEmpty",
-        component: QueriesBlankState,
-        exact: true,
-        path: [path],
-      },
-    ];
-  }
+export const useQueryEditorRoutes = (path: string): UseRoutes => {
   return [
     {
-      key: "ListQuery",
-      exact: false,
-      component: ListQuery,
-      path: [path, `${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
+      key: "ApiEditor",
+      component: ApiEditor,
+      exact: true,
+      path: [
+        BUILDER_PATH + API_EDITOR_ID_PATH,
+        BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
+        BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
+      ],
+    },
+    {
+      key: "AddQuery",
+      exact: true,
+      component: AddQuery,
+      path: [`${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
+    },
+    {
+      key: "SAASEditor",
+      component: QueryEditor,
+      exact: true,
+      path: [
+        BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
+        BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
+        BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
+      ],
+    },
+    {
+      key: "QueryEditor",
+      component: QueryEditor,
+      exact: true,
+      path: [path + "/:baseQueryId"],
+    },
+    {
+      key: "QueryEmpty",
+      component: QueriesBlankState,
+      exact: true,
+      path: [path],
     },
   ];
 };
@@ -197,26 +167,31 @@ export const useAddQueryListItems = () => {
     [pageId, dispatch],
   );
 
-  const getListItems = (data: any[]) => {
+  const getListItems = (data: ActionOperation[]) => {
     return data.map((fileOperation) => {
-      const title =
+      let title =
         fileOperation.entityExplorerTitle ||
         fileOperation.dsName ||
         fileOperation.title;
+
+      title =
+        fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE
+          ? fileOperation.title
+          : title;
       const className = createAddClassName(title);
       const icon =
         fileOperation.icon ||
         (fileOperation.pluginId &&
           getPluginEntityIcon(pluginGroups[fileOperation.pluginId]));
+
       return {
         startIcon: icon,
         wrapperClassName: className,
         title,
-        description: !!fileOperation.isBeta ? (
-          <Tag isClosable={false}>Beta</Tag>
-        ) : (
-          ""
-        ),
+        description:
+          fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE
+            ? fileOperation.dsName
+            : "",
         descriptionType: "inline",
         onClick: onCreateItemClick.bind(null, fileOperation),
       } as ListItemProps;

@@ -8,7 +8,7 @@ import {
   EntityIcon,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 type IconProps = LogItemProps & {
@@ -32,6 +32,7 @@ export const getIconForEntity: IconEntityMapper = {
   },
   [ENTITY_TYPE.ACTION]: (props) => {
     const { iconId, pluginImages, source } = props;
+
     if (source?.pluginType === PluginType.API && source.httpMethod) {
       // If the source is an API action.
       return ApiMethodIcon(source.httpMethod, "16px", "32px", 50);
@@ -43,6 +44,7 @@ export const getIconForEntity: IconEntityMapper = {
         </EntityIcon>
       );
     }
+
     return <img alt="icon" />;
   },
 };

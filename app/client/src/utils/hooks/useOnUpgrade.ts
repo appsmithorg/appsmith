@@ -1,13 +1,13 @@
 import { useSelector } from "react-redux";
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
 import {
   CUSTOMER_PORTAL_URL_WITH_PARAMS,
   PRICING_PAGE_URL,
 } from "constants/ThirdPartyConstants";
-import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { pricingPageUrlSource } from "@appsmith/utils/licenseHelpers";
+import type { EventName } from "ee/utils/analyticsUtilTypes";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAppsmithConfigs } from "ee/configs";
+import { pricingPageUrlSource } from "ee/utils/licenseHelpers";
 import type {
   RampFeature,
   RampSection,
@@ -15,6 +15,8 @@ import type {
 
 interface Props {
   logEventName?: EventName;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logEventData?: any;
   featureName?: RampFeature;
   sectionName?: RampSection;
@@ -32,6 +34,7 @@ const useOnUpgrade = (props: Props) => {
       logEventName || "ADMIN_SETTINGS_UPGRADE",
       logEventData,
     );
+
     if (isEnterprise) {
       window.open(
         PRICING_PAGE_URL(

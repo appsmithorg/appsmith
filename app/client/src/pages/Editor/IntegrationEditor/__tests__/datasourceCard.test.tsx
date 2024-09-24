@@ -1,5 +1,5 @@
 import React from "react";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import store from "store";
 import { render } from "test/testUtils";
 import DatasourceCard from "../DatasourceCard";
@@ -19,6 +19,7 @@ describe("Tasks", () => {
         plugin={mockPlugins[0]}
       />,
     );
+
     expect(
       generatePageComponent.container.querySelector(".t--generate-template"),
     ).toBeDefined();
@@ -31,6 +32,7 @@ describe("Tasks", () => {
         plugin={mockPlugins[1]}
       />,
     );
+
     expect(
       NoGeneratePageComponent.container.querySelector(".t--generate-template"),
     ).toBeNull();

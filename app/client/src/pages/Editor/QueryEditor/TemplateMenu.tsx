@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import { getPluginTemplates } from "@appsmith/selectors/entitiesSelector";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import type { AppState } from "ee/reducers";
+import { getPluginTemplates } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const Container = styled.div`
   display: flex;
@@ -43,11 +43,15 @@ const Row = styled.div`
 `;
 
 interface TemplateMenuProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTemplate: (template: any) => void;
   pluginId: string;
 }
 
 interface ReduxProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   allPluginTemplates: Record<string, any>;
 }
 
@@ -95,6 +99,7 @@ class TemplateMenu extends React.Component<Props> {
                 key={templateKey}
                 onClick={(e) => {
                   const template = this.fetchTemplate(templateKey);
+
                   createTemplate(template);
                   AnalyticsUtil.logEvent("QUERY_TEMPLATE_SELECTED", {
                     templateType: templateKey,

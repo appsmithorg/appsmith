@@ -1,16 +1,16 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { Text, Button } from "design-system";
+import { Text, Button } from "@appsmith/ads";
 import type { APIResponseError } from "api/ApiResponses";
-import { EDIT_DATASOURCE, createMessage } from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { EDIT_DATASOURCE, createMessage } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
-import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
+import { datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { omit } from "lodash";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { DatasourceStructureContext } from "entities/Datasource";
 
 export interface Props {
@@ -40,7 +40,7 @@ const ButtonWrapper = styled.div`
 const DatasourceStructureNotFound = (props: Props) => {
   const { datasourceId, error, pluginName } = props;
 
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
 
   const editDatasource = () => {
     let entryPoint = DatasourceEditEntryPoints.QUERY_EDITOR_DATASOURCE_SCHEMA;
@@ -57,15 +57,17 @@ const DatasourceStructureNotFound = (props: Props) => {
 
     if (props.context === DatasourceStructureContext.DATASOURCE_VIEW_MODE) {
       props?.customEditDatasourceFn && props?.customEditDatasourceFn();
+
       return;
     }
 
     const url = datasourcesEditorIdURL({
-      pageId,
+      basePageId,
       datasourceId: datasourceId,
       params: { ...omit(getQueryParams(), "viewMode"), viewMode: false },
       generateEditorPath: true,
     });
+
     history.push(url);
   };
 

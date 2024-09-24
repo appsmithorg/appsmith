@@ -4,6 +4,7 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exceptions.AppsmithOAuth2AuthenticationException;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -76,7 +77,9 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
                 })
                 .onErrorMap(
                         AppsmithException.class,
-                        error -> new OAuth2AuthenticationException(
+                        // Throwing an AppsmithOAuth2AuthenticationException in case of an AppsmithException
+                        // This is to differentiate between Appsmith exceptions and OAuth2 exceptions
+                        error -> new AppsmithOAuth2AuthenticationException(
                                 new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), "")));
     }
 }

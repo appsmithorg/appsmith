@@ -12,7 +12,7 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { SetterConfig } from "entities/AppTheming";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
@@ -224,6 +224,8 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
 
   private _player = React.createRef<ReactPlayer>();
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       // Property reflecting the state of the widget
@@ -266,6 +268,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
 
   getWidgetView() {
     const { onEnd, onPause, onPlay, playing, url } = this.props;
+
     return (
       <Suspense fallback={<Skeleton />}>
         <AudioComponent
@@ -291,6 +294,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             ) {
               return;
             }
+
             // Stopping the media when it is playing and pause is hit
             if (this.props.playing) {
               this.props.updateWidgetMetaProperty("playing", false);

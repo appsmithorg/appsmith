@@ -1,7 +1,7 @@
 import * as React from "react";
 import styled from "styled-components";
-import type { UseThemeProps } from "@design-system/theming";
-import { ThemeProvider, useTheme } from "@design-system/theming";
+import type { UseThemeProps } from "@appsmith/wds-theming";
+import { ThemeProvider, useTheme } from "@appsmith/wds-theming";
 
 const StyledThemeProvider = styled(ThemeProvider)`
   display: inline-flex;

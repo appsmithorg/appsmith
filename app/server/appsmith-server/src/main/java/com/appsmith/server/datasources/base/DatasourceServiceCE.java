@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.dtos.DBOpsType;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -67,7 +68,7 @@ public interface DatasourceServiceCE {
     Mono<Datasource> createWithoutPermissions(Datasource datasource);
 
     Mono<Datasource> createWithoutPermissions(
-            Datasource datasource, Map<String, List<DatasourceStorage>> datasourceStorageDryRunQueries);
+            Datasource datasource, Map<DBOpsType, List<DatasourceStorage>> datasourceStorageDryRunQueries);
 
     Mono<Datasource> updateDatasourceStorage(
             DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);

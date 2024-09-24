@@ -38,7 +38,10 @@ class GlobalSearchHotKeys extends React.Component<Props> {
       {
         combo: "return",
         onKeyDown: (event: KeyboardEvent) => {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const activeElement = document.activeElement as any;
+
           activeElement?.blur(); // scroll into view doesn't work with the search input focused
           this.props.handleItemLinkClick(event, null, "ENTER_KEY");
         },

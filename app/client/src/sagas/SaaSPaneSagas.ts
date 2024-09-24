@@ -1,14 +1,12 @@
 import { all, put, select, takeEvery } from "redux-saga/effects";
-import type {
-  ApplicationPayload,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import history from "utils/history";
 import {
   getGenerateCRUDEnabledPluginMap,
   getPlugin,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
@@ -16,27 +14,30 @@ import {
   generateTemplateFormURL,
   saasEditorApiIdURL,
   saasEditorDatasourceIdURL,
-} from "@appsmith/RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
+} from "ee/RouteBuilder";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { DATASOURCE_SAAS_FORM } from "@appsmith/constants/forms";
+import { DATASOURCE_SAAS_FORM } from "ee/constants/forms";
 import { initialize } from "redux-form";
 import { omit } from "lodash";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
   const { isDBCreated, payload } = actionPayload;
   const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
+
   // Only look at SAAS plugins
   if (!plugin) return;
+
   if (plugin.type !== PluginType.SAAS) return;
 
   const currentApplicationIdForCreateNewApp: string | undefined = yield select(
@@ -47,9 +48,9 @@ function* handleDatasourceCreatedSaga(
     getApplicationByIdFromWorkspaces,
     currentApplicationIdForCreateNewApp || "",
   );
-  const pageId: string = !!currentApplicationIdForCreateNewApp
-    ? application?.defaultPageId
-    : yield select(getCurrentPageId);
+  const basePageId: string = !!currentApplicationIdForCreateNewApp
+    ? application?.defaultBasePageId
+    : yield select(getCurrentBasePageId);
 
   yield put(initialize(DATASOURCE_SAAS_FORM, omit(payload, "name")));
 
@@ -74,7 +75,7 @@ function* handleDatasourceCreatedSaga(
   ) {
     history.push(
       generateTemplateFormURL({
-        pageId,
+        basePageId,
         params: {
           datasourceId: updatedDatasource.id,
         },
@@ -86,7 +87,7 @@ function* handleDatasourceCreatedSaga(
   ) {
     history.push(
       saasEditorDatasourceIdURL({
-        pageId,
+        basePageId,
         pluginPackageName: plugin.packageName,
         datasourceId: payload.id,
         params: {
@@ -100,16 +101,20 @@ function* handleDatasourceCreatedSaga(
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
-  const { id, pageId, pluginId } = actionPayload.payload;
+  const { baseId: baseActionId, pageId, pluginId } = actionPayload.payload;
   const plugin: Plugin | undefined = yield select(getPlugin, pluginId);
 
   if (!plugin) return;
+
   if (plugin.type !== "SAAS") return;
+
+  const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
+
   history.push(
     saasEditorApiIdURL({
-      pageId,
+      basePageId,
       pluginPackageName: plugin.packageName,
-      apiId: id,
+      baseApiId: baseActionId,
       params: {
         editName: "true",
         from: "datasources",

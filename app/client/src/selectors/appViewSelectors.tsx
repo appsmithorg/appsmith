@@ -1,5 +1,5 @@
 import { createSelector } from "reselect";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 

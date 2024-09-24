@@ -2,8 +2,8 @@ import {
   createMessage,
   FETCHING_TEMPLATES,
   FORKING_TEMPLATE,
-} from "@appsmith/constants/messages";
-import type { AppState } from "@appsmith/reducers";
+} from "ee/constants/messages";
+import type { AppState } from "ee/reducers";
 import {
   getSimilarTemplatesInit,
   getTemplateInformation,
@@ -88,6 +88,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
 
   const onSimilarTemplateClick = (template: Template) => {
     setCurrentTemplateId(template.id);
+
     if (containerRef.current) {
       containerRef.current.scrollTo({ top: 0 });
     }
@@ -110,6 +111,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
     const matchViewerPath = matchPath(url.pathname, {
       path: [trimQueryString(path)],
     });
+
     url.pathname = generatePath(path, {
       ...matchViewerPath?.params,
       pageId,

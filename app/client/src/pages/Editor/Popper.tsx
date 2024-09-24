@@ -1,5 +1,5 @@
-import type { AppState } from "@appsmith/reducers";
-import { Icon } from "design-system";
+import type { AppState } from "ee/reducers";
+import { Icon } from "@appsmith/ads";
 import type { Placement, PopperOptions } from "popper.js";
 import PopperJS from "popper.js";
 import React, { useEffect, useMemo, useRef } from "react";
@@ -37,7 +37,11 @@ export interface PopperProps {
     left: number;
   };
   onPositionChange?: (position: { top: number; left: number }) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setPosition?: (e: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setIsDragging?: (e: any) => void;
   isDragging?: boolean;
   customParent?: Element | undefined;
@@ -85,6 +89,8 @@ export default (props: PopperProps) => {
   const popperIdRef = useRef(generateReactKey());
   const popperId = popperIdRef.current;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onPositionChangeFn = (e: any) => {
     if (contentRef.current && !!props.setPosition) {
       contentRef.current.style.transform = "unset";
@@ -98,8 +104,12 @@ export default (props: PopperProps) => {
         props?.editorRef &&
         props?.editorRef?.current &&
         props?.editorRef?.current?.children[1] &&
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         !!(props?.editorRef?.current?.children[1] as any)?.CodeMirror
       )
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (props?.editorRef?.current?.children[1] as any)?.CodeMirror.focus();
     }
   };
@@ -129,12 +139,14 @@ export default (props: PopperProps) => {
         className="drag-handle-block"
         onMouseEnter={(e) => {
           e.stopPropagation();
+
           if (props?.dragFn) {
             props.dragFn(true);
           }
         }}
         onMouseLeave={(e) => {
           e.stopPropagation();
+
           if (props?.dragFn) {
             props.dragFn(false);
           }
@@ -169,10 +181,14 @@ export default (props: PopperProps) => {
             ? {}
             : { placement: props.placement }),
           onCreate: (popperData) => {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const elementRef: any = popperData.instance.popper;
+
             if (isDraggable && position) {
               const initPositon =
                 position || elementRef.getBoundingClientRect();
+
               elementRef.style.transform = "unset";
               elementRef.style.top = initPositon.top + "px";
               elementRef.style.left = initPositon.left + "px";
@@ -197,6 +213,7 @@ export default (props: PopperProps) => {
           },
         },
       );
+
       if (isDraggable) {
         disablePopperEvents && _popper.disableEventListeners();
         draggableElement(
@@ -229,6 +246,7 @@ export default (props: PopperProps) => {
     props.placement,
     disablePopperEvents,
   ]);
+
   return createPortal(
     props.isOpen && (
       <PopperWrapper

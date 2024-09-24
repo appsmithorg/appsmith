@@ -1,5 +1,5 @@
 import type { NavigationSetting } from "constants/AppConstants";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import styled from "styled-components";
 
 export const StyledMenuItemText = styled.div<{

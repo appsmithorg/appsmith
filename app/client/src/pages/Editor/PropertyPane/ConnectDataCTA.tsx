@@ -1,14 +1,14 @@
 import React from "react";
-import { Button, Text } from "design-system";
-import type { AppState } from "@appsmith/reducers";
+import { Button, Text } from "@appsmith/ads";
+import type { AppState } from "ee/reducers";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { WidgetType } from "constants/WidgetConstants";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { integrationEditorURL } from "ee/RouteBuilder";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
@@ -33,13 +33,14 @@ interface ConnectDataCTAProps {
 }
 
 function ConnectDataCTA(props: ConnectDataCTAProps) {
-  const pageId: string = useSelector(getCurrentPageId);
+  const basePageId: string = useSelector(getCurrentBasePageId);
 
   const onClick = () => {
     const { widgetId, widgetTitle, widgetType } = props;
+
     history.push(
       integrationEditorURL({
-        pageId,
+        basePageId,
         selectedTab: INTEGRATION_TABS.NEW,
         params: { mode: INTEGRATION_EDITOR_MODES.AUTO },
       }),
@@ -52,6 +53,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
 
     // Event for datasource creation click
     const entryPoint = DatasourceCreateEntryPoints.PROPERTY_PANE_CONNECT_DATA;
+
     AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
       entryPoint,
     });

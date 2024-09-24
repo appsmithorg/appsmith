@@ -14,7 +14,7 @@ import CascadeFields from "./CascadeFields";
 import {
   createMessage,
   TABLE_FILTER_COLUMN_TYPE_CALLOUT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { ControlIcons } from "icons/ControlIcons";
 import { Icon, IconSize } from "@design-system/widgets-old";
 
@@ -127,18 +127,22 @@ function TableFilterPaneContent(props: TableFilterProps) {
 
   useEffect(() => {
     const filters: ReactTableFilter[] = props.filters ? [...props.filters] : [];
+
     if (filters.length === 0) {
       filters.push({ ...DEFAULT_FILTER });
     }
+
     updateFilters(filters);
   }, [props.filters]);
 
   const addFilter = () => {
     const updatedFilters = filters ? [...filters] : [];
     let operator: Operator = OperatorTypes.OR;
+
     if (updatedFilters.length >= 2) {
       operator = updatedFilters[1].operator;
     }
+
     updatedFilters.push({ ...DEFAULT_FILTER, operator });
     updateFilters(updatedFilters);
   };
@@ -158,6 +162,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
   const columns: DropdownOption[] = props.columns
     .map((column: ReactTableColumnProps) => {
       const type = column.metaProperties?.type || "text";
+
       return {
         label: column.Header,
         value: column.accessor,
@@ -174,6 +179,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
     filters[0].column &&
     filters[0].condition
   );
+
   return (
     <TableFilterOuterWrapper
       onClick={(e) => {
@@ -196,6 +202,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
               applyFilter={(filter: ReactTableFilter, index: number) => {
                 // here updated filters store in state, not in redux
                 const updatedFilters = filters ? [...filters] : [];
+
                 updatedFilters[index] = filter;
                 updateFilters(updatedFilters);
               }}
@@ -213,13 +220,16 @@ function TableFilterPaneContent(props: TableFilterProps) {
                 if (index === 1 && filters.length > 2) {
                   filters[2].operator = filters[1].operator;
                 }
+
                 const newFilters = [
                   ...filters.slice(0, index),
                   ...filters.slice(index + 1),
                 ];
+
                 if (newFilters.length === 0) {
                   newFilters.push({ ...DEFAULT_FILTER });
                 }
+
                 // removed filter directly update redux
                 // with redux update, useEffect will update local state too
                 props.applyFilter(newFilters);

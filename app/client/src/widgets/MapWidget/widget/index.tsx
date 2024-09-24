@@ -59,6 +59,8 @@ const DefaultCenter = { ...DEFAULT_CENTER, long: DEFAULT_CENTER.lng };
 interface Center {
   lat: number;
   long: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [x: string]: any;
 }
 
@@ -427,6 +429,8 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       },
     ];
   }
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getDefaultPropertiesMap(): Record<string, any> {
     return {
       markers: "defaultMarkers",
@@ -434,6 +438,8 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       center: undefined,
@@ -462,9 +468,11 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         if (index === i) {
           marker = { lat, long };
         }
+
         return marker;
       },
     );
+
     this.disableDrag(false);
     this.props.updateWidgetMetaProperty("markers", markers);
   };
@@ -474,6 +482,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     const marker = { lat, long, title: "" };
 
     const markers = [];
+
     (this.props.markers || []).forEach((m) => {
       markers.push(m);
     });
@@ -499,6 +508,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       long: long,
       title: title,
     };
+
     this.props.updateWidgetMetaProperty("selectedMarker", selectedMarker, {
       triggerPropertyName: "onMarkerClick",
       dynamicString: this.props.onMarkerClick,
@@ -527,6 +537,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
       JSON.stringify(this.props.mapCenter)
     ) {
       this.props.updateWidgetMetaProperty("center", this.props.mapCenter);
+
       return;
     }
 

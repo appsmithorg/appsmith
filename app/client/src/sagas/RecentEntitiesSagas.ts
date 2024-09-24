@@ -1,5 +1,5 @@
 import { matchPath } from "react-router";
-import { matchBasePath } from "@appsmith/pages/Editor/Explorer/helpers";
+import { matchBasePath } from "ee/pages/Editor/Explorer/helpers";
 import {
   API_EDITOR_ID_PATH,
   QUERIES_EDITOR_ID_PATH,
@@ -11,38 +11,43 @@ import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 
 export const getEntityInCurrentPath = (pathName: string) => {
   const builderMatch = matchBuilderPath(pathName);
+
   if (builderMatch)
     return {
       type: "page",
-      id: builderMatch?.params?.pageId,
+      id: builderMatch?.params?.basePageId,
       params: builderMatch?.params,
       pageType: "canvas",
     };
 
   const baseMatch = matchBasePath(pathName);
+
   if (!baseMatch) return { type: "", id: "" };
+
   const { path: basePath } = baseMatch;
-  const apiMatch = matchPath<{ apiId: string }>(pathName, {
+  const apiMatch = matchPath<{ baseApiId: string }>(pathName, {
     path: [
       `${basePath}${API_EDITOR_ID_PATH}`,
       `${basePath}${SAAS_EDITOR_API_ID_PATH}`,
     ],
   });
+
   if (apiMatch)
     return {
       type: "action",
-      id: apiMatch?.params?.apiId,
+      id: apiMatch?.params?.baseApiId,
       params: apiMatch?.params,
       pageType: "apiEditor",
     };
 
-  const queryMatch = matchPath<{ queryId: string }>(pathName, {
+  const queryMatch = matchPath<{ baseQueryId: string }>(pathName, {
     path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
+
   if (queryMatch)
     return {
       type: "action",
-      id: queryMatch.params?.queryId,
+      id: queryMatch.params?.baseQueryId,
       params: queryMatch?.params,
       pageType: "queryEditor",
     };
@@ -50,6 +55,7 @@ export const getEntityInCurrentPath = (pathName: string) => {
   const datasourceMatch = matchPath<{ datasourceId: string }>(pathName, {
     path: `${basePath}${DATA_SOURCES_EDITOR_ID_PATH}`,
   });
+
   if (datasourceMatch)
     return {
       type: "datasource",
@@ -58,13 +64,14 @@ export const getEntityInCurrentPath = (pathName: string) => {
       pageType: "datasourceEditor",
     };
 
-  const jsObjectMatch = matchPath<{ collectionId: string }>(pathName, {
+  const jsObjectMatch = matchPath<{ baseCollectionId: string }>(pathName, {
     path: `${basePath}${JS_COLLECTION_ID_PATH}`,
   });
+
   if (jsObjectMatch) {
     return {
       type: "jsAction",
-      id: jsObjectMatch?.params?.collectionId,
+      id: jsObjectMatch?.params?.baseCollectionId,
       params: jsObjectMatch?.params,
       pageType: "jsEditor",
     };

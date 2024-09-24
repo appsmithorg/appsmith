@@ -5,13 +5,13 @@ import WalkthroughContext from "./walkthroughContext";
 import { createPortal } from "react-dom";
 import { retryPromise } from "utils/AppsmithUtils";
 import { useLocation } from "react-router-dom";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { isElementVisible } from "./utils";
 import { hideIndicator } from "components/utils/Indicator";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 const WalkthroughRenderer = lazy(async () => {
   return retryPromise(
@@ -24,6 +24,8 @@ const WalkthroughRenderer = lazy(async () => {
 
 const LoadingFallback = () => null;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function Walkthrough({ children }: any) {
   const [activeWalkthrough, setActiveWalkthrough] =
     useState<FeatureParams | null>();
@@ -40,8 +42,10 @@ export default function Walkthrough({ children }: any) {
   const pushFeature = (value: FeatureParams, prioritize = false) => {
     if (!isWalkthroughDisabled || !!value?.forceExecution) {
       const alreadyExists = feature.some((f) => f.targetId === value.targetId);
+
       if (!alreadyExists) {
         const _value = Array.isArray(value) ? [...value] : [value];
+
         if (prioritize) {
           // Get ahead of the queue
           setFeature((e) => [..._value, ...e]);
@@ -49,6 +53,7 @@ export default function Walkthrough({ children }: any) {
           setFeature((e) => [...e, ..._value]);
         }
       }
+
       updateActiveWalkthrough();
     }
   };
@@ -56,16 +61,20 @@ export default function Walkthrough({ children }: any) {
   const popFeature = (triggeredFrom?: string) => {
     hideIndicator();
     const eventParams = activeWalkthrough?.eventParams || {};
+
     if (triggeredFrom) {
       eventParams.from = triggeredFrom;
     }
+
     AnalyticsUtil.logEvent("WALKTHROUGH_DISMISSED", eventParams);
+
     if (activeWalkthrough && activeWalkthrough.onDismiss) {
       activeWalkthrough.onDismiss();
     }
 
     setFeature((e) => {
       e.shift();
+
       return [...e];
     });
     setActiveWalkthrough(null);
@@ -77,12 +86,14 @@ export default function Walkthrough({ children }: any) {
 
     if (feature.length > 0) {
       const highlightArea = document.querySelector(feature[0].targetId);
+
       if (highlightArea) {
         setTimeout(() => {
           if (isElementVisible(highlightArea as HTMLElement)) {
             if (typeof feature[0].runBeforeWalkthrough === "function") {
               feature[0].runBeforeWalkthrough();
             }
+
             setActiveWalkthrough(feature[0]);
           }
         }, feature[0].delay || DEFAULT_DELAY);

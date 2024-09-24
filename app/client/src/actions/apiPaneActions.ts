@@ -1,8 +1,8 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { SlashCommandPayload } from "entities/Action";
-import type { ApiPaneDebuggerState } from "@appsmith/reducers/uiReducers/apiPaneReducer";
+import type { ApiPaneDebuggerState } from "ee/reducers/uiReducers/apiPaneReducer";
 
 export const changeApi = (
   id: string,
@@ -47,17 +47,6 @@ export const updateBodyContentType = (
   payload: { title, apiId },
 });
 
-export const redirectToNewIntegrations = (
-  pageId: string,
-  params?: any,
-): ReduxAction<{
-  pageId: string;
-  params: any;
-}> => ({
-  type: ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
-  payload: { pageId, params },
-});
-
 export const executeCommandAction = (payload: SlashCommandPayload) => ({
   type: ReduxActionTypes.EXECUTE_COMMAND,
   payload: payload,
@@ -68,13 +57,6 @@ export const setApiPaneConfigSelectedTabIndex: (
 ) => ReduxAction<{ selectedTabIndex: number }> = (payload: number) => ({
   type: ReduxActionTypes.SET_API_PANE_CONFIG_SELECTED_TAB,
   payload: { selectedTabIndex: payload },
-});
-
-export const setApiRightPaneSelectedTab: (
-  payload: string,
-) => ReduxAction<{ selectedTab: string }> = (payload: string) => ({
-  type: ReduxActionTypes.SET_API_RIGHT_PANE_SELECTED_TAB,
-  payload: { selectedTab: payload },
 });
 
 export const setApiPaneDebuggerState = (

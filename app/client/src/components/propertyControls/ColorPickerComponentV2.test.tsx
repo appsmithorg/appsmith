@@ -40,6 +40,8 @@ const store = mockStore({
   },
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getTestComponent = (handleOnChange: any = undefined) => (
   <Provider store={store}>
     <ThemeProvider theme={lightTheme}>
@@ -228,6 +230,7 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
 
   it("Pressing {Enter} should select the color in focus", async () => {
     const onColorChange = jest.fn();
+
     render(getTestComponent(onColorChange));
     await userEvent.tab();
     await userEvent.keyboard("{Enter}");

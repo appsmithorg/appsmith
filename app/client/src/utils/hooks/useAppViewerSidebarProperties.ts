@@ -5,7 +5,7 @@ import {
   getAppSidebarPinned,
   getCurrentApplication,
   getSidebarWidth,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { useIsMobileDevice } from "./useDeviceDetect";
 
@@ -28,5 +28,6 @@ export const useAppViewerSidebarProperties = () => {
 
   const sidebarWidth =
     isMobile || (isEmbed && !isEmbeddedAppWithNavVisible) ? 0 : _sidebarWidth;
+
   return { hasSidebarPinned, sidebarWidth };
 };

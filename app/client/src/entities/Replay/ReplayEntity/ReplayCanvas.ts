@@ -11,7 +11,7 @@ import {
   WIDGETS,
 } from "../replayUtils";
 import type { AppTheme } from "entities/AppTheming";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 
 export interface Canvas {
   widgets: CanvasWidgetsReduxState;
@@ -46,6 +46,7 @@ const positionProps = [
 function isPositionUpdate(widgetProperty: string) {
   return positionProps.indexOf(widgetProperty) !== -1;
 }
+
 export default class ReplayCanvas extends ReplayEntity<Canvas> {
   public constructor(entity: Canvas) {
     super(entity, ENTITY_TYPE.WIDGET);
@@ -59,6 +60,8 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
    * @param isUndo
    * @returns
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public processDiff(diff: CanvasDiff, replay: any, isUndo: boolean) {
     if (!diff || !diff.path || !diff.path.length || diff.path[1] === "0")
       return;
@@ -79,6 +82,8 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
    * @param replay
    * @param isUndo
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public processDiffForTheme(diff: CanvasDiff, replay: any) {
     if (!diff || !diff.path || !diff.path.length || diff.path[1] === "0")
       return;
@@ -98,6 +103,8 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
    * @param isUndo
    * @returns
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public processDiffForWidgets(diff: CanvasDiff, replay: any, isUndo: boolean) {
     if (!diff || !diff.path || !diff.path.length || diff.path[1] === "0")
       return;
@@ -115,10 +122,12 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
             isUndo,
             !isUndo,
           );
+
           addToArray(replay, TOASTS, toast);
         } else {
           setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
         }
+
         break;
       // element is deleted in dsl
       case "D":
@@ -130,10 +139,12 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
             isUndo,
             isUndo,
           );
+
           addToArray(replay, TOASTS, toast);
         } else {
           setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
         }
+
         break;
       // element is edited
       case "E":
@@ -142,6 +153,7 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
         } else {
           setPropertyUpdate(replay, [WIDGETS, widgetId, UPDATES], diff.path);
         }
+
         break;
       default:
         break;
@@ -149,6 +161,8 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
   }
 
   private createToast(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     diffWidget: any,
     dslWidget: CanvasWidgetsReduxState | undefined,
     widgetId: string,
@@ -158,6 +172,7 @@ export default class ReplayCanvas extends ReplayEntity<Canvas> {
     const widgetName = isCreated
       ? diffWidget.widgetName
       : dslWidget?.widgetName;
+
     return {
       isCreated,
       isUndo,

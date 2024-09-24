@@ -1,7 +1,7 @@
 import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { Datasource, QueryTemplate } from "entities/Datasource";
 import { useCallback, useState } from "react";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { PluginName } from "entities/Action";
@@ -9,22 +9,20 @@ import { isGoogleSheetPluginDS } from "utils/editorContextUtils";
 import {
   getHasCreatePagePermission,
   hasCreateDSActionPermissionInApp,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { DATASOURCES_ALLOWED_FOR_PREVIEW_MODE } from "constants/QueryEditorConstants";
 import {
   getGenerateCRUDEnabledPluginMap,
   getPlugin,
-} from "@appsmith/selectors/entitiesSelector";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import type { AppState } from "@appsmith/reducers";
-import {
-  getCurrentApplication,
-  getPagePermissions,
-} from "selectors/editorSelectors";
+} from "ee/selectors/entitiesSelector";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import type { AppState } from "ee/reducers";
+import { getPagePermissions } from "selectors/editorSelectors";
 import { get } from "lodash";
-import { useEditorType } from "@appsmith/hooks";
+import { useEditorType } from "ee/hooks";
 import history from "utils/history";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 interface FetchPreviewData {
   datasourceId: string;
@@ -38,7 +36,11 @@ interface UseDatasourceQueryReturn {
 }
 
 interface UseDatasourceQueryParams {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setPreviewData: (data: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setPreviewDataError: (string: any) => void;
 }
 
@@ -52,6 +54,8 @@ export const useDatasourceQuery = ({
   const [failedFetchingPreviewData, setFailedFetchingPreviewData] =
     useState(false);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFetchPreviewDataSuccess = useCallback((payload: any) => {
     setIsLoading(false);
 
@@ -68,6 +72,8 @@ export const useDatasourceQuery = ({
     }
   }, []);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFetchPreviewDataFailure = useCallback((error: any) => {
     setIsLoading(false);
     setFailedFetchingPreviewData(true);

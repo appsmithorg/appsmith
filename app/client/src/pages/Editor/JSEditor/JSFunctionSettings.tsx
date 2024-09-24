@@ -2,13 +2,13 @@ import {
   FUNCTION_SETTINGS_HEADING,
   NO_JS_FUNCTIONS,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { JSAction } from "entities/JSCollection";
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { CONFIRM_BEFORE_CALLING_HEADING, SETTINGS_HEADINGS } from "./constants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { Icon, Tooltip, Switch } from "design-system";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { Icon, Tooltip, Switch } from "@appsmith/ads";
 import RemoveConfirmationModal from "./RemoveConfirmBeforeCallingDialog";
 
 interface SettingsHeadingProps {
@@ -125,6 +125,7 @@ const SettingsBodyWrapper = styled.div`
 const SwitchWrapper = styled.div`
   margin-left: 6ch;
 `;
+
 function SettingsHeading({
   grow,
   hasInfo,

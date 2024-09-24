@@ -30,6 +30,8 @@ export default abstract class MongoDB extends BaseQueryGenerator {
     const { select } = widgetConfig;
 
     if (select) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const queryPayload: any = {
         type: QUERY_TYPE.SELECT,
         name: `Find_${removeSpecialChars(formConfig.tableName)}`,
@@ -194,6 +196,7 @@ export default abstract class MongoDB extends BaseQueryGenerator {
       .reduce(
         (acc, key) => {
           acc[key] = initialValues[key as keyof MongoDBFormData];
+
           return acc;
         },
         {} as Record<string, object>,
@@ -227,6 +230,7 @@ export default abstract class MongoDB extends BaseQueryGenerator {
         ),
       );
     }
+
     if (
       widgetConfig.update &&
       formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE
@@ -239,6 +243,7 @@ export default abstract class MongoDB extends BaseQueryGenerator {
         ),
       );
     }
+
     if (
       widgetConfig.create &&
       formConfig.connectionMode === DatasourceConnectionMode.READ_WRITE

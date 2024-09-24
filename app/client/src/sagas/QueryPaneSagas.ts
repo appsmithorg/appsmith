@@ -7,25 +7,21 @@ import {
   takeEvery,
   fork,
 } from "redux-saga/effects";
-import * as Sentry from "@sentry/react";
+import type { ApplicationPayload } from "entities/Application";
 import type {
-  ApplicationPayload,
   ReduxAction,
   ReduxActionWithMeta,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxFormActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { getDynamicTriggers, getFormData } from "selectors/formSelectors";
-import {
-  DATASOURCE_DB_FORM,
-  QUERY_EDITOR_FORM_NAME,
-} from "@appsmith/constants/forms";
+import { DATASOURCE_DB_FORM, QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import history from "utils/history";
 import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { autofill, change, initialize, reset } from "redux-form";
 import {
   getAction,
@@ -36,7 +32,8 @@ import {
   getSettingConfig,
   getPlugins,
   getGenerateCRUDEnabledPluginMap,
-} from "@appsmith/selectors/entitiesSelector";
+  getActionByBaseId,
+} from "ee/selectors/entitiesSelector";
 import type { Action, QueryAction } from "entities/Action";
 import { PluginType } from "entities/Action";
 import {
@@ -48,25 +45,22 @@ import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import type { Datasource } from "entities/Datasource";
 import omit from "lodash/omit";
-import {
-  createMessage,
-  ERROR_ACTION_RENAME_FAIL,
-} from "@appsmith/constants/messages";
+import { createMessage, ERROR_ACTION_RENAME_FAIL } from "ee/constants/messages";
 import get from "lodash/get";
 import {
   initFormEvaluations,
   startFormEvaluations,
 } from "actions/evaluationActions";
 import { updateReplayEntity } from "actions/pageActions";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   datasourcesEditorIdURL,
   generateTemplateFormURL,
   integrationEditorURL,
   queryEditorIdURL,
-} from "@appsmith/RouteBuilder";
+} from "ee/RouteBuilder";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
@@ -75,57 +69,81 @@ import { fetchDynamicValuesSaga } from "./FormEvaluationSaga";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { validateResponse } from "./ErrorSagas";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { toast } from "design-system";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { createDefaultActionPayloadWithPluginDefaults } from "./ActionSagas";
-import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { isGACEnabled } from "@appsmith/utils/planHelpers";
-import { getHasManageActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { DB_NOT_SUPPORTED } from "ee/utils/Environments";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { isGACEnabled } from "ee/utils/planHelpers";
+import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { ChangeQueryPayload } from "actions/queryPaneActions";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
-} from "@appsmith/selectors/applicationSelectors";
+} from "ee/selectors/applicationSelectors";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
-import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
+import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
-  const { applicationId, id, moduleId, packageId, pageId, workflowId } =
-    actionPayload.payload;
+  const {
+    applicationId,
+    basePageId,
+    baseQueryId,
+    moduleId,
+    packageId,
+    workflowId,
+  } = actionPayload.payload;
   let configInitialValues = {};
 
-  if (!(packageId && moduleId) && !(applicationId && pageId) && !workflowId) {
+  if (
+    !(packageId && moduleId) &&
+    !(applicationId && basePageId) &&
+    !workflowId
+  ) {
     history.push(APPLICATIONS_URL);
+
     return;
   }
-  const action: Action | undefined = yield select(getAction, id);
+
+  const action: Action | undefined = yield select(
+    getActionByBaseId,
+    baseQueryId,
+  );
+
   if (!action) {
-    if (pageId) {
+    if (basePageId) {
       history.push(
         integrationEditorURL({
-          pageId,
+          basePageId,
           selectedTab: INTEGRATION_TABS.ACTIVE,
         }),
       );
     }
+
     return;
   }
 
   // fetching pluginId and the consequent configs from the action
   const pluginId = action.pluginId;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentEditorConfig: any[] = yield select(getEditorConfig, pluginId);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentSettingConfig: any[] = yield select(getSettingConfig, pluginId);
 
   // Update the evaluations when the queryID is changed by changing the
   // URL or selecting new query from the query pane
-  yield put(initFormEvaluations(currentEditorConfig, currentSettingConfig, id));
+  yield put(
+    initFormEvaluations(currentEditorConfig, currentSettingConfig, action.id),
+  );
 
   const allPlugins: Plugin[] = yield select(getPlugins);
   let uiComponent = UIComponentTypes.DbEditorForm;
+
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
   // If config exists
@@ -144,6 +162,7 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
       currentSettingConfig,
       uiComponent === UIComponentTypes.UQIDbEditorForm,
     );
+
     configInitialValues = merge(configInitialValues, settingInitialValues);
   }
 
@@ -153,11 +172,14 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
   // Set the initialValues in the state for redux-form lib
   yield put(initialize(QUERY_EDITOR_FORM_NAME, formInitialValues));
 
-  if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+  if (
+    uiComponent === UIComponentTypes.UQIDbEditorForm ||
+    uiComponent === UIComponentTypes.DbEditorForm
+  ) {
     // Once the initial values are set, we can run the evaluations based on them.
     yield put(
       startFormEvaluations(
-        id,
+        action.id,
         formInitialValues.actionConfiguration,
         //@ts-expect-error: id does not exists
         action.datasource.id,
@@ -180,8 +202,11 @@ function* formValueChangeSaga(
 ) {
   try {
     const { field, form } = actionPayload.meta;
+
     if (field === "dynamicBindingPathList" || field === "name") return;
+
     if (form !== QUERY_EDITOR_FORM_NAME) return;
+
     const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
     const hasRouteChanged = field === "id";
 
@@ -281,6 +306,7 @@ function* formValueChangeSaga(
     // We pass the action to run form evaluations when the dataTree evaluation is complete
     let currentEnvironment: string = yield select(getCurrentEnvironmentId);
     const pluginType = plugin?.type;
+
     if (
       (!!pluginType && DB_NOT_SUPPORTED.includes(pluginType)) ||
       !datasourceStorages.hasOwnProperty(currentEnvironment) ||
@@ -290,6 +316,7 @@ function* formValueChangeSaga(
     ) {
       currentEnvironment = Object.keys(datasourceStorages)[0];
     }
+
     let dsConfig = {
       url: "",
     };
@@ -298,8 +325,10 @@ function* formValueChangeSaga(
       dsConfig =
         datasourceStorages[currentEnvironment]?.datasourceConfiguration;
     }
+
     const postEvalActions =
-      uiComponent === UIComponentTypes.UQIDbEditorForm
+      uiComponent === UIComponentTypes.UQIDbEditorForm ||
+      uiComponent === UIComponentTypes.DbEditorForm
         ? [
             startFormEvaluations(
               values.id,
@@ -318,6 +347,7 @@ function* formValueChangeSaga(
       actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
     ) {
       const value = get(values, field);
+
       yield put(
         setActionProperty(
           {
@@ -340,6 +370,7 @@ function* formValueChangeSaga(
         ),
       );
     }
+
     yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));
   } catch (error) {
     yield put({
@@ -353,8 +384,14 @@ function* formValueChangeSaga(
 }
 
 function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
-  const { actionConfiguration, id, pageId, pluginId, pluginType } =
-    actionPayload.payload;
+  const {
+    actionConfiguration,
+    baseId: baseActionId,
+    pageId,
+    pluginId,
+    pluginType,
+  } = actionPayload.payload;
+
   if (
     ![
       PluginType.DB,
@@ -364,6 +401,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     ].includes(pluginType)
   )
     return;
+
   const pluginTemplates: Record<string, unknown> =
     yield select(getPluginTemplates);
   const queryTemplate = pluginTemplates[pluginId];
@@ -373,10 +411,13 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     !!actionConfiguration.formData?.body ||
     isEmpty(queryTemplate)
   );
+
+  const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
+
   history.replace(
     queryEditorIdURL({
-      pageId,
-      queryId: id,
+      basePageId,
+      baseQueryId: baseActionId,
       params: {
         editName: "true",
         showTemplate,
@@ -391,6 +432,7 @@ function* handleDatasourceCreatedSaga(
 ) {
   const { isDBCreated, payload } = actionPayload;
   const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
+
   // Only look at db plugins
   if (
     plugin &&
@@ -407,9 +449,9 @@ function* handleDatasourceCreatedSaga(
     getApplicationByIdFromWorkspaces,
     currentApplicationIdForCreateNewApp || "",
   );
-  const pageId: string = !!currentApplicationIdForCreateNewApp
-    ? application?.defaultPageId
-    : yield select(getCurrentPageId);
+  const basePageId: string = !!currentApplicationIdForCreateNewApp
+    ? application?.defaultBasePageId
+    : yield select(getCurrentBasePageId);
 
   yield put(initialize(DATASOURCE_DB_FORM, omit(payload, "name")));
 
@@ -434,7 +476,7 @@ function* handleDatasourceCreatedSaga(
   ) {
     history.push(
       generateTemplateFormURL({
-        pageId,
+        basePageId,
         params: {
           datasourceId: updatedDatasource.id,
         },
@@ -446,7 +488,7 @@ function* handleDatasourceCreatedSaga(
   ) {
     history.push(
       datasourcesEditorIdURL({
-        pageId,
+        basePageId,
         datasourceId: payload.id,
         params: {
           from: "datasources",
@@ -469,32 +511,41 @@ function* handleNameChangeSuccessSaga(
 ) {
   const { actionId } = action.payload;
   const actionObj: Action | undefined = yield select(getAction, actionId);
+
   yield take(ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS);
+
   if (!actionObj) {
     // Error case, log to sentry
-    toast.show(createMessage(ERROR_ACTION_RENAME_FAIL, ""), {
-      kind: "error",
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
+      payload: {
+        show: true,
+        error: {
+          message: createMessage(ERROR_ACTION_RENAME_FAIL, ""),
+        },
+        logToSentry: true,
+      },
     });
 
-    Sentry.captureException(
-      new Error(createMessage(ERROR_ACTION_RENAME_FAIL, "")),
-      {
-        extra: {
-          actionId: actionId,
-        },
-      },
-    );
     return;
   }
+
   if (actionObj.pluginType === PluginType.DB) {
     const params = getQueryParams();
+
     if (params.editName) {
       params.editName = "false";
     }
+
+    const basePageId: string = yield select(
+      convertToBasePageIdSelector,
+      actionObj.pageId,
+    );
+
     history.replace(
       queryEditorIdURL({
-        pageId: actionObj.pageId,
-        queryId: actionId,
+        basePageId,
+        baseQueryId: actionObj.baseId,
         params,
       }),
     );
@@ -514,6 +565,7 @@ function* createNewQueryForDatasourceSaga(
   }>,
 ) {
   const { datasourceId, from, queryDefaultTableName } = action.payload;
+
   if (!datasourceId) return;
 
   const createActionPayload: Partial<Action> = yield call(

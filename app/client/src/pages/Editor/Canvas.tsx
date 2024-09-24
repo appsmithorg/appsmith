@@ -11,12 +11,12 @@ import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutU
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
-} from "@design-system/theming";
+} from "@appsmith/wds-theming";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
+import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 import CodeModeTooltip from "pages/Editor/WidgetsEditor/components/CodeModeTooltip";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { focusWidget } from "actions/widgetActions";
@@ -56,10 +56,8 @@ const Canvas = (props: CanvasProps) => {
     borderRadius: themeSetting.borderRadius,
     seedColor: themeSetting.accentColor,
     colorMode: themeSetting.colorMode.toLowerCase(),
-    fontFamily: themeSetting.fontFamily,
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
-    iconStyle: themeSetting.iconStyle.toLowerCase(),
   } as Parameters<typeof useTheme>[0];
   // in case of non-WDS theme, we will pass an empty object to useTheme hook
   // so that fixedLayout theme does not break because of calculations done in useTheme
@@ -94,7 +92,7 @@ const Canvas = (props: CanvasProps) => {
         <Wrapper
           $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
           background={isAnvilLayout ? "" : backgroundForCanvas}
-          className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
+          className={`relative t--canvas-artboard ${paddingBottomClass} ${marginHorizontalClass} ${getViewportClassName(
             canvasWidth,
           )}`}
           data-testid={"t--canvas-artboard"}
@@ -123,6 +121,7 @@ const Canvas = (props: CanvasProps) => {
   } catch (error) {
     log.error("Error rendering DSL", error);
     Sentry.captureException(error);
+
     return null;
   }
 };

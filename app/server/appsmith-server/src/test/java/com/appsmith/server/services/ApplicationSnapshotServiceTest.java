@@ -97,11 +97,11 @@ public class ApplicationSnapshotServiceTest {
                 .flatMap(application -> {
                     assert application.getId() != null;
                     return applicationSnapshotService
-                            .createApplicationSnapshot(application.getId(), "")
+                            .createApplicationSnapshot(application.getId())
                             .thenReturn(application.getId());
                 })
-                .flatMap(
-                        applicationId -> applicationSnapshotService.getWithoutDataByApplicationId(applicationId, null));
+                .flatMap(applicationId ->
+                        applicationSnapshotService.getWithoutDataByBranchedApplicationId(applicationId));
 
         StepVerifier.create(snapshotMono)
                 .assertNext(snapshot -> {
@@ -122,12 +122,12 @@ public class ApplicationSnapshotServiceTest {
                     assert application.getId() != null;
                     // create snapshot twice
                     return applicationSnapshotService
-                            .createApplicationSnapshot(application.getId(), "")
-                            .then(applicationSnapshotService.createApplicationSnapshot(application.getId(), ""))
+                            .createApplicationSnapshot(application.getId())
+                            .then(applicationSnapshotService.createApplicationSnapshot(application.getId()))
                             .thenReturn(application.getId());
                 })
-                .flatMap(
-                        applicationId -> applicationSnapshotService.getWithoutDataByApplicationId(applicationId, null));
+                .flatMap(applicationId ->
+                        applicationSnapshotService.getWithoutDataByBranchedApplicationId(applicationId));
 
         StepVerifier.create(snapshotMono)
                 .assertNext(snapshot -> {
@@ -154,9 +154,8 @@ public class ApplicationSnapshotServiceTest {
         Mono<Tuple2<ApplicationSnapshotResponseDTO, Application>> tuple2Mono = applicationPageService
                 .createApplication(testApplication)
                 .flatMap(application -> applicationSnapshotService
-                        .createApplicationSnapshot(testDefaultAppId, testBranchName)
-                        .then(applicationSnapshotService.getWithoutDataByApplicationId(
-                                testDefaultAppId, testBranchName))
+                        .createApplicationSnapshot(application.getId())
+                        .then(applicationSnapshotService.getWithoutDataByBranchedApplicationId(application.getId()))
                         .zipWith(Mono.just(application)));
 
         StepVerifier.create(tuple2Mono)
@@ -190,7 +189,7 @@ public class ApplicationSnapshotServiceTest {
                             .thenReturn(application);
                 })
                 .flatMapMany(application -> applicationSnapshotService
-                        .createApplicationSnapshot(application.getId(), null)
+                        .createApplicationSnapshot(application.getId())
                         .thenMany(applicationSnapshotRepository.findByApplicationId(application.getId())));
 
         StepVerifier.create(applicationSnapshotFlux)
@@ -220,14 +219,14 @@ public class ApplicationSnapshotServiceTest {
             pageDTO.setApplicationId(createdApp.getId());
             return applicationPageService
                     .createPage(pageDTO)
-                    .then(newPageService.findApplicationPages(createdApp.getId(), null, null, ApplicationMode.EDIT));
+                    .then(newPageService.findApplicationPages(createdApp.getId(), null, ApplicationMode.EDIT));
         });
 
         Mono<ApplicationPagesDTO> pagesAfterSnapshot = applicationMono
                 .flatMap(
                         application -> { // create a snapshot
                             return applicationSnapshotService
-                                    .createApplicationSnapshot(application.getId(), null)
+                                    .createApplicationSnapshot(application.getId())
                                     .thenReturn(application);
                         })
                 .flatMap(
@@ -237,9 +236,9 @@ public class ApplicationSnapshotServiceTest {
                             pageDTO.setApplicationId(application.getId());
                             return applicationPageService
                                     .createPage(pageDTO)
-                                    .then(applicationSnapshotService.restoreSnapshot(application.getId(), null))
+                                    .then(applicationSnapshotService.restoreSnapshot(application.getId()))
                                     .then(newPageService.findApplicationPages(
-                                            application.getId(), null, null, ApplicationMode.EDIT));
+                                            application.getId(), null, ApplicationMode.EDIT));
                         });
 
         // not using Mono.zip because we want pagesBeforeSnapshot to finish first
@@ -266,11 +265,11 @@ public class ApplicationSnapshotServiceTest {
                 .flatMap(
                         application -> { // create a snapshot
                             return applicationSnapshotService
-                                    .createApplicationSnapshot(application.getId(), null)
+                                    .createApplicationSnapshot(application.getId())
                                     .thenReturn(application);
                         })
                 .flatMapMany(application -> applicationSnapshotService
-                        .restoreSnapshot(application.getId(), null)
+                        .restoreSnapshot(application.getId())
                         .thenMany(applicationSnapshotRepository.findByApplicationId(application.getId())));
 
         StepVerifier.create(snapshotFlux).verifyComplete();
@@ -289,7 +288,7 @@ public class ApplicationSnapshotServiceTest {
 
         Flux<ApplicationSnapshot> snapshotFlux = applicationSnapshotRepository
                 .saveAll(List.of(snapshot1, snapshot2))
-                .then(applicationSnapshotService.deleteSnapshot(testAppId, null))
+                .then(applicationSnapshotService.deleteSnapshot(testAppId))
                 .thenMany(applicationSnapshotRepository.findByApplicationId(testAppId));
 
         StepVerifier.create(snapshotFlux).verifyComplete();
@@ -304,7 +303,7 @@ public class ApplicationSnapshotServiceTest {
         Mono<ApplicationSnapshotResponseDTO> applicationSnapshotMono = applicationPageService
                 .createApplication(testApplication)
                 .flatMap(application1 -> {
-                    return applicationSnapshotService.getWithoutDataByApplicationId(application1.getId(), null);
+                    return applicationSnapshotService.getWithoutDataByBranchedApplicationId(application1.getId());
                 });
 
         StepVerifier.create(applicationSnapshotMono)

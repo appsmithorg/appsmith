@@ -17,7 +17,7 @@ import {
   ModalContent,
   ModalHeader,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES_MESSAGE_ON_INTERCOM,
@@ -31,18 +31,18 @@ import {
   REPOSITORY_LIMIT_REACHED_INFO,
   REVOKE_ACCESS,
   REVOKE_EXISTING_REPOSITORIES,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import Link from "./components/Link";
 import {
   getCurrentApplication,
   getWorkspaceIdForImport,
-} from "@appsmith/selectors/applicationSelectors";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/selectors/applicationSelectors";
+import type { ApplicationPayload } from "entities/Application";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Space } from "./components/StyledComponents";
-import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
-import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 
 const ApplicationWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
@@ -79,6 +79,8 @@ function RepoLimitExceededErrorModal() {
   const [workspaceName, setWorkspaceName] = useState("");
   const applications = useMemo(() => {
     if (workspaces) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const workspace: any = workspaces.find((workspace: any) => {
         if (!application && workspaceIdForImport) {
           return workspace.id === workspaceIdForImport;
@@ -88,9 +90,11 @@ function RepoLimitExceededErrorModal() {
       });
 
       setWorkspaceName(workspace?.name || "");
+
       return (
         applicationsOfWorkspace.filter((application: ApplicationPayload) => {
           const data = application.gitApplicationMetadata;
+
           return (
             data &&
             data.remoteUrl &&
@@ -198,6 +202,7 @@ function RepoLimitExceededErrorModal() {
           <AppListContainer>
             {applications.map((application: ApplicationPayload) => {
               const { gitApplicationMetadata } = application;
+
               return (
                 <ApplicationWrapper
                   className="t--connected-app-wrapper"

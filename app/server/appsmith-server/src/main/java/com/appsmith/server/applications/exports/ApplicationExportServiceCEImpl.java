@@ -82,7 +82,7 @@ public class ApplicationExportServiceCEImpl implements ArtifactBasedExportServic
             String artifactId, String branchName, AclPermission aclPermission) {
 
         if (StringUtils.hasText(branchName)) {
-            return applicationService.findByBranchNameAndDefaultApplicationId(branchName, artifactId, aclPermission);
+            return applicationService.findByBranchNameAndBaseApplicationId(branchName, artifactId, aclPermission);
         }
 
         // find the application with appropriate permission

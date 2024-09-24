@@ -1,12 +1,9 @@
 import { createSelector } from "reselect";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import type { AppState } from "@appsmith/reducers";
-import { getPageActions } from "@appsmith/selectors/entitiesSelector";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
-import { getCurrentPageId } from "./editorSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import type { AppState } from "ee/reducers";
+import { getPageActions } from "ee/selectors/entitiesSelector";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
+import { getCurrentBasePageId } from "./editorSelectors";
 import type { ParentEntityIDETabs } from "../reducers/uiReducers/ideReducer";
 import { get } from "lodash";
 
@@ -24,6 +21,7 @@ export const getIDEViewMode = createSelector(
     if (featureFlag) {
       return ideViewMode;
     }
+
     return EditorViewMode.FullScreen;
   },
 );
@@ -45,17 +43,17 @@ export const getWidgetsCount = (state: AppState, pageId: string) =>
 export const getIDETabs = (state: AppState) => state.ui.ide.tabs;
 
 export const getJSTabs = createSelector(
-  getCurrentPageId,
+  getCurrentBasePageId,
   getIDETabs,
-  (pageId: string, tabs: ParentEntityIDETabs) =>
-    get(tabs, [pageId, EditorEntityTab.JS], []),
+  (basePageId: string, tabs: ParentEntityIDETabs) =>
+    get(tabs, [basePageId, EditorEntityTab.JS], []),
 );
 
 export const getQueryTabs = createSelector(
-  getCurrentPageId,
+  getCurrentBasePageId,
   getIDETabs,
-  (pageId: string, tabs: ParentEntityIDETabs): string[] =>
-    get(tabs, [pageId, EditorEntityTab.QUERIES], []),
+  (basePageId: string, tabs: ParentEntityIDETabs): string[] =>
+    get(tabs, [basePageId, EditorEntityTab.QUERIES], []),
 );
 
 export const getShowCreateNewModal = (state: AppState) =>

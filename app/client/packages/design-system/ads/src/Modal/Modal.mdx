@@ -1,0 +1,50 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as ModalStories from "./Modal.stories";
+
+<Meta of={ModalStories} />
+
+# Modal
+
+Modals are commonly used to display additional content or prompt for user interaction while blocking the main flow of the application. Use a modal to bring attention to a certain action that the user needs to take, where no other state in the application can be changed. In appsmith, modals will always have a title and may or may not be closed. The content of the modal can be customised. The buttons in the footer of a modal are optional, but typically always present. When there is a group of action buttons, always place the primary button furthest to the right.
+
+<Canvas of={ModalStories.ModalStory} />
+
+## Anatomy
+
+![Modal anatomy](./docs/modal-anatomy.png)
+
+1. **Header:** Text title accompanied by an optional close button
+2. **Content** Container for the main content of the modal; the content can be text, forms, lists, cards, or other elements.
+3. **Footer:** Container for buttons related to the content of the modal
+
+## Spacing
+
+## Usage
+
+### When to use
+
+- Use a modal when you need to display content that temporarily blocks interactions with the main view of an application.
+- Use a modal when you need to ask for confirmation from a user before proceeding.
+- Use a modal when the user needs to take critical or non-reversible actions.
+
+### When not to use
+
+- For non-essential information that is not related to the current user flow.
+- When the modal requires additional information, which is unavailable within the modal itself, for decision making.
+
+### Example: confirmation
+
+Use a modal to confirm irreversible actions and prevent mistakes. This is particularly helpful when a user is about to make a decision that has permanent consequences, such as deleting important data or cancelling a subscription. Only do this in situations that need additional thought from the user, because modals break the user flow.
+
+To do this, use a primary button on the right to indicate if the user should proceed or not, and a secondary button on the left to cancel the action. The group of buttons should be right-aligned.
+
+### Programmatically control a modal
+
+<Canvas of={ModalStories.ModalStoryTwo} />
+
+---
+
+## Resources
+
+1. Internally, our modal component depends on [radix's dialog](https://www.radix-ui.com/docs/primitives/components/dialog)

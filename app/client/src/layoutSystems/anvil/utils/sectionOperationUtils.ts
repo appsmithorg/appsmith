@@ -10,11 +10,11 @@ import type {
 import { call, select } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 import { generateReactKey } from "utils/generators";
-import { addNewChildToDSL } from "../integrations/sagas/anvilDraggingSagas";
 import type BaseLayoutComponent from "../layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "../layoutComponents/LayoutFactory";
 import { defaultHighlightRenderInfo } from "../utils/constants";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { anvilWidgets } from "widgets/wds/constants";
+import { getUpdatedListOfWidgetsAfterAddingNewWidget } from "../integrations/sagas/anvilWidgetAdditionSagas";
 
 /**
  * Function to get the highlight information for the last column of a Section Widget
@@ -138,6 +138,7 @@ export function* mergeLastZonesOfSection(
         zoneOrder[currentZoneCount - count - 2],
         zoneOrder[currentZoneCount - count - 1],
       );
+
       updatedWidgets = {
         ...widgetsPostMerge,
       };
@@ -166,14 +167,17 @@ export function* addNewZonesToSection(
   // Create and add the specified number of zones to the Section Widget
   do {
     const sectionWidget: FlattenedWidgetProps = updatedWidgets[sectionWidgetId];
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newWidget: any = {
       newWidgetId: generateReactKey(),
       parentId: sectionWidget.widgetId,
       type: anvilWidgets.ZONE_WIDGET,
     };
     const highlight = getSectionLastColumnHighlight(sectionWidget);
+
     updatedWidgets = yield call(
-      addNewChildToDSL,
+      getUpdatedListOfWidgetsAfterAddingNewWidget,
       highlight,
       newWidget,
       false,

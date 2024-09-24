@@ -3,7 +3,7 @@ import type {
   WidgetEntity,
   ActionEntity,
   JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
   findLoadingEntities,
@@ -143,6 +143,7 @@ describe("Widget loading state utils", () => {
     beforeAll(() => {
       // mock WidgetFactory.getLoadingProperties
       const loadingPropertiesMap = new Map<string, RegExp[]>();
+
       loadingPropertiesMap.set("TABLE_WIDGET", [/.tableData$/]);
 
       jest
@@ -163,6 +164,7 @@ describe("Widget loading state utils", () => {
         baseDataTree,
         baseInverseMap,
       );
+
       expect(loadingEntites).toStrictEqual(new Set(["Select1"]));
     });
 
@@ -175,6 +177,7 @@ describe("Widget loading state utils", () => {
         baseDataTree,
         baseInverseMap,
       );
+
       expect(loadingEntites).toStrictEqual(new Set(["Select1", "Select2"]));
     });
 
@@ -185,6 +188,7 @@ describe("Widget loading state utils", () => {
         baseDataTree,
         baseInverseMap,
       );
+
       expect(loadingEntites).toStrictEqual(new Set([]));
     });
 
@@ -205,6 +209,7 @@ describe("Widget loading state utils", () => {
           "Select1",
         ],
       });
+
       expect(loadingEntites).toStrictEqual(new Set(["Select1"]));
     });
 
@@ -224,6 +229,7 @@ describe("Widget loading state utils", () => {
           "Select1",
         ],
       });
+
       expect(loadingEntites).toStrictEqual(new Set(["Select1"]));
     });
 
@@ -251,6 +257,7 @@ describe("Widget loading state utils", () => {
           ],
         },
       );
+
       expect(loadingEntites).toStrictEqual(new Set(["Select1"]));
     });
 
@@ -285,6 +292,7 @@ describe("Widget loading state utils", () => {
           "Select2",
         ],
       });
+
       expect(loadingEntites).toStrictEqual(new Set(["Select2"]));
     });
 
@@ -292,6 +300,7 @@ describe("Widget loading state utils", () => {
       const loadingEntites = findLoadingEntities(["Api1"], baseDataTree, {
         "Api1.data": ["Table1.tableData"],
       });
+
       expect(loadingEntites).toStrictEqual(new Set(["Table1"]));
     });
 
@@ -299,6 +308,7 @@ describe("Widget loading state utils", () => {
       const loadingEntites = findLoadingEntities(["Api1"], baseDataTree, {
         "Api1.run": ["Table1.primaryColumns.action.onClick"],
       });
+
       expect(loadingEntites).toStrictEqual(new Set());
     });
   });
@@ -334,6 +344,7 @@ describe("Widget loading state utils", () => {
         },
         baseDataTree,
       );
+
       expect(groupedDependantsMap).toStrictEqual({
         Query1: { "Query1.data": ["JS_file.func1"] },
         Query2: {
@@ -354,6 +365,7 @@ describe("Widget loading state utils", () => {
         },
         baseDataTree,
       );
+
       expect(groupedDependantsMap).toStrictEqual({
         JS_file: {
           "JS_file.func1": ["Select1.options"],
@@ -371,6 +383,7 @@ describe("Widget loading state utils", () => {
         },
         baseDataTree,
       );
+
       expect(groupedDependantsMap).toStrictEqual({
         JS_file: {
           "JS_file.func1": ["Select1.options"],
@@ -396,6 +409,7 @@ describe("Widget loading state utils", () => {
         },
         new Set<string>(),
       );
+
       expect(dependants).toStrictEqual(
         new Set(["JS_file.func1", "Select1.options"]),
       );
@@ -417,6 +431,7 @@ describe("Widget loading state utils", () => {
         },
         new Set<string>(),
       );
+
       expect(dependants).toStrictEqual(
         new Set([
           "JS_file.func1",
@@ -444,6 +459,7 @@ describe("Widget loading state utils", () => {
         },
         new Set<string>(),
       );
+
       expect(dependants).toStrictEqual(new Set(["Select2.options"]));
     });
 
@@ -462,6 +478,7 @@ describe("Widget loading state utils", () => {
         },
         new Set<string>(),
       );
+
       expect(dependants).toStrictEqual(
         new Set(["JS_file.internalFunc", "JS_file.func1", "Select1.options"]),
       );
@@ -483,6 +500,7 @@ describe("Widget loading state utils", () => {
         },
         new Set<string>(),
       );
+
       expect(dependants).toStrictEqual(
         new Set([
           "JS_file.internalFunc1",
@@ -517,6 +535,7 @@ describe("Widget loading state utils", () => {
         },
         new Set<string>(),
       );
+
       expect(dependants).toStrictEqual(
         new Set(["JS_file.func2", "Select2.options"]),
       );

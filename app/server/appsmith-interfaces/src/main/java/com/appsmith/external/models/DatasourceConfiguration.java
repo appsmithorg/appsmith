@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.FromRequest;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
@@ -33,21 +34,23 @@ public class DatasourceConfiguration implements AppsmithDomain {
     @JsonView({Views.Public.class, FromRequest.class})
     AuthenticationDTO authentication;
 
+    @JsonView({Views.Public.class, FromRequest.class})
     SSHConnection sshProxy;
 
+    @JsonView({Views.Public.class, FromRequest.class})
     Boolean sshProxyEnabled;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     List<Property> properties;
 
     // For REST API.
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     String url;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     List<Property> headers;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     List<Property> queryParameters;
 
     public boolean isSshProxyEnabled() {

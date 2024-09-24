@@ -1,11 +1,11 @@
 import React, { forwardRef, useMemo } from "react";
 import type { CSSProperties } from "react";
-import { Flex } from "@design-system/widgets";
+import { Flex } from "@appsmith/wds";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { FlexProps } from "@design-system/widgets/src/components/Flex/src/types";
+import type { FlexProps } from "@appsmith/wds/src/components/Flex/src/types";
 import type { AnvilFlexComponentProps } from "../utils/types";
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -15,7 +15,7 @@ import { Layers } from "constants/Layers";
 import { noop } from "utils/AppsmithUtils";
 import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spaceDistributionEditorUtils";
 import styles from "./styles.module.css";
-import { AnvilDataAttributes } from "widgets/anvil/constants";
+import { AnvilDataAttributes } from "widgets/wds/constants";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
@@ -49,6 +49,8 @@ export const AnvilFlexComponent = forwardRef(
       widgetSize,
       widgetType,
     }: AnvilFlexComponentProps,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ref: any,
   ) => {
     const _className = `${className} ${styles.anvilWidgetWrapper}`;
@@ -60,6 +62,7 @@ export const AnvilFlexComponent = forwardRef(
         widgetConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
       const verticalAlignment =
         widgetConfig?.flexVerticalAlignment || FlexVerticalAlignment.Top;
+
       return { isFillWidget, verticalAlignment };
     }, [widgetType]);
     // Memoize flex props to be passed to the WDS Flex component.
@@ -67,6 +70,7 @@ export const AnvilFlexComponent = forwardRef(
     const flexProps: FlexProps = useMemo(() => {
       const { isFillWidget, verticalAlignment } = widgetConfigProps;
       let flexBasis = "auto";
+
       if (flexGrow) {
         // flexGrow is a widget property present only for zone widgets which represents the number of columns the zone occupies in a section.
         // pls refer to convertFlexGrowToFlexBasis for more details.
@@ -74,6 +78,7 @@ export const AnvilFlexComponent = forwardRef(
       } else if (isFillWidget) {
         flexBasis = "0%";
       }
+
       const data: FlexProps = {
         alignSelf: verticalAlignment || FlexVerticalAlignment.Top,
         flexGrow: isFillWidget ? 1 : 0,
@@ -82,6 +87,7 @@ export const AnvilFlexComponent = forwardRef(
         alignItems: "center",
         width: "fit-content",
       };
+
       if (widgetSize) {
         const {
           maxHeight,
@@ -91,6 +97,7 @@ export const AnvilFlexComponent = forwardRef(
           paddingBottom,
           paddingTop,
         } = widgetSize;
+
         data.maxHeight = maxHeight;
         data.maxWidth = maxWidth;
         data.minHeight = minHeight;
@@ -98,11 +105,13 @@ export const AnvilFlexComponent = forwardRef(
         data.paddingTop = paddingTop;
         data.paddingBottom = paddingBottom;
       }
+
       return data;
     }, [widgetConfigProps, widgetSize, flexGrow]);
     const testDataAttributes = {
       [AnvilDataAttributes.WIDGET_NAME]: widgetName,
     };
+
     // Render the Anvil Flex Component using the Flex component from WDS
     return (
       <Flex

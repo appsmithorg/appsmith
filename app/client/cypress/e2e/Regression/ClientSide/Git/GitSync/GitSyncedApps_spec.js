@@ -132,7 +132,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       apiPage.RunAPI();
       apiPage.ResponseStatusCheck("200 OK");
       // curl import
-      dataSources.FillCurlNImport(
+      apiPage.FillCurlNImport(
         `curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST '` +
           datasourceFormData["echoApiUrl"],
       );

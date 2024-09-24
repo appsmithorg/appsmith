@@ -16,27 +16,29 @@ import {
   FORGOT_PASSWORD_SUCCESS_TEXT,
   createMessage,
   FORGOT_PASSWORD_PAGE_SUB_TITLE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import { FORGOT_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
+import { FORGOT_PASSWORD_FORM_NAME } from "ee/constants/forms";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { FormGroup } from "design-system-old";
-import { Button, Link, Callout, Icon } from "design-system";
+import { FormGroup } from "@appsmith/ads-old";
+import { Button, Link, Callout, Icon } from "@appsmith/ads";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import type { ForgotPasswordFormValues } from "./helpers";
 import { forgotPasswordSubmitHandler } from "./helpers";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import Container from "./Container";
 
 const { mailEnabled } = getAppsmithConfigs();
 
 const validate = (values: ForgotPasswordFormValues) => {
   const errors: ForgotPasswordFormValues = {};
+
   if (!values.email || isEmptyString(values.email)) {
     errors.email = createMessage(FORM_VALIDATION_EMPTY_EMAIL);
   } else if (!isEmail(values.email)) {
     errors.email = createMessage(FORM_VALIDATION_INVALID_EMAIL);
   }
+
   return errors;
 };
 
@@ -134,6 +136,7 @@ const selector = formValueSelector(FORGOT_PASSWORD_FORM_NAME);
 
 export default connect((state, props: ForgotPasswordProps) => {
   const queryParams = new URLSearchParams(props.location.search);
+
   return {
     initialValues: {
       email: queryParams.get("email") || "",

@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { applyChange } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { createImmerReducer } from "utils/ReducerUtils";
@@ -20,9 +20,11 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     }>,
   ) => {
     const { updates } = action.payload;
+
     if (!updates || updates.length === 0) {
       return state;
     }
+
     for (const update of updates) {
       try {
         if (update.kind === "newTree") {
@@ -31,6 +33,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
           if (!update.path || update.path.length === 0) {
             continue;
           }
+
           applyChange(state, undefined, update);
         }
       } catch (e) {

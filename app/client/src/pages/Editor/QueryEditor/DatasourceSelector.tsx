@@ -1,25 +1,22 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
-import {
-  CREATE_NEW_DATASOURCE,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { CREATE_NEW_DATASOURCE, createMessage } from "ee/constants/messages";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getHasCreateDatasourcePermission,
   getHasManageActionPermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { Action } from "entities/Action";
-import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
-import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
+import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import { getPluginImages } from "ee/selectors/entitiesSelector";
 import type { Datasource } from "entities/Datasource";
 import type { Plugin } from "api/PluginApi";
-import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import type { AppState } from "ee/reducers";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 
 const DropdownSelect = styled.div`
   font-size: 14px;
@@ -78,12 +75,14 @@ const DatasourceSelector = (props: Props) => {
             image: pluginImages[dataSource.pluginId],
           });
         }
+
         return acc;
       },
       [],
     );
 
   if (!showDatasourceSelector) return null;
+
   return (
     <DropdownSelect>
       <DropdownField

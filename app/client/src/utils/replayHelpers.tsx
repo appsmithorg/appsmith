@@ -14,8 +14,8 @@ import {
   WIDGET_REMOVED,
   BULK_WIDGET_REMOVED,
   ACTION_CONFIGURATION_CHANGED,
-} from "@appsmith/constants/messages";
-import { toast } from "design-system";
+} from "ee/constants/messages";
+import { toast } from "@appsmith/ads";
 import { setApiPaneConfigSelectedTabIndex } from "../actions/apiPaneActions";
 import { API_EDITOR_TABS } from "../constants/ApiEditorConstants/CommonApiConstants";
 import store from "../store";
@@ -45,6 +45,7 @@ export const processUndoRedoToasts = (
       100,
       1000,
     );
+
   showUndoRedoToast(widgetName, isMultipleToasts, isCreated, !isUndo);
 };
 
@@ -115,6 +116,7 @@ function getWidgetDescription(isCreated: boolean, isMultiple: boolean) {
  */
 export const scrollWidgetIntoView = (id: string) => {
   const el = document.getElementById(id);
+
   if (el)
     scrollIntoView(el, {
       scrollMode: "if-needed",
@@ -137,6 +139,7 @@ export function shouldDisallowToast(shouldUndo: boolean): boolean {
 
   if (flag === null || !flag) {
     localStorage.setItem(itemKey, "true");
+
     return false;
   }
 
@@ -147,25 +150,33 @@ export function highlightReplayElement(configProperties: Array<string> = []) {
   const elements = configProperties
     .map((configProperty: string) => {
       const replayId = btoa(configProperty);
+
       return document.querySelector(
         `[data-location-id="${replayId}"]`,
       ) as HTMLElement;
     })
     .filter((el) => Boolean(el));
+
   if (elements.length === 1) {
     elements[0].scrollIntoView({ behavior: "smooth" });
   }
+
   elements.forEach((element) => flashElement(element));
 }
 
 export function switchTab(replayId: string): boolean {
   if (!replayId) return false;
+
   const element = document.querySelector(`[id$="${replayId}"]`) as HTMLElement;
+
   if (!element) return false;
+
   if (element.getAttribute("data-state") == "active") return false;
+
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const index = Object.values(API_EDITOR_TABS).indexOf(replayId);
+
   store.dispatch(setApiPaneConfigSelectedTabIndex(index));
 
   return true;
@@ -173,14 +184,20 @@ export function switchTab(replayId: string): boolean {
 
 export function expandAccordion(replayId: string): boolean {
   if (!replayId) return false;
+
   const element = document.querySelector(
     `[data-location-id="section-${replayId}"]`,
   );
+
   if (!element) return false;
+
   const accordion = element.querySelector(
     ".bp3-icon-chevron-down",
   ) as HTMLElement;
+
   if (!accordion) return false;
+
   accordion.click();
+
   return true;
 }

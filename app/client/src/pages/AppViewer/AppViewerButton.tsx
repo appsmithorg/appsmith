@@ -9,7 +9,7 @@ import {
   getMenuItemTextColor,
   getSignInButtonStyles,
 } from "./utils";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 
 const StyledButton = styled(Button)<{
   primaryColor: string;
@@ -78,7 +78,7 @@ const StyledButton = styled(Button)<{
       gap: 10px;
       width: 100%;
       justify-content: ${isMinimal ? "center" : "flex-start"};
-      
+
       .bp3-button-text {
         ${getTypographyByKey("h5")}
         font-weight: 400;
@@ -102,7 +102,7 @@ const StyledButton = styled(Button)<{
       }
 
       &:hover,
-      &:active, 
+      &:active,
       &:focus {
         background-color: ${styles.backgroundOnHover} !important;
 

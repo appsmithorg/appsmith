@@ -5,20 +5,21 @@ import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { NavigationMethod } from "utils/history";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import history from "utils/history";
 
 export const useWidgetSelection = () => {
   const dispatch = useDispatch();
+
   return {
     selectWidget: useCallback(
       (
         type: SelectionRequestType,
         payload?: string[],
         invokedBy?: NavigationMethod,
-        pageId?: string,
+        basePageId?: string,
       ) => {
-        dispatch(selectWidgetInitAction(type, payload, invokedBy, pageId));
+        dispatch(selectWidgetInitAction(type, payload, invokedBy, basePageId));
       },
       [dispatch],
     ),

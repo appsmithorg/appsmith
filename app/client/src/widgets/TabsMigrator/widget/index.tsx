@@ -28,20 +28,25 @@ function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
       delete currentDSL.tabs;
     }
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map(migrateTabsDataUsingMigrator);
   }
+
   return currentDSL;
 }
 
 const migrateTabsData = (currentDSL: DSLWidget) => {
   if (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ["TABS_WIDGET", "TABS_MIGRATOR_WIDGET"].includes(currentDSL.type as any) &&
     currentDSL.version === 1
   ) {
     try {
       currentDSL.type = "TABS_WIDGET";
       const isTabsDataBinded = isString(currentDSL.tabs);
+
       currentDSL.dynamicPropertyPathList =
         currentDSL.dynamicPropertyPathList || [];
       currentDSL.dynamicBindingPathList =
@@ -50,21 +55,29 @@ const migrateTabsData = (currentDSL: DSLWidget) => {
       if (isTabsDataBinded) {
         const tabsString = currentDSL.tabs.replace(
           DATA_BIND_REGEX_GLOBAL,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (word: any) => `"${word}"`,
         );
+
         try {
           currentDSL.tabs = JSON.parse(tabsString);
         } catch (error) {
           return migrateTabsDataUsingMigrator(currentDSL);
         }
-        const dynamicPropsList = currentDSL.tabs
-          .filter((each: any) => DATA_BIND_REGEX_GLOBAL.test(each.isVisible))
+        const dynamicPropsList = currentDSL.tabs // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .filter((each: any) => DATA_BIND_REGEX_GLOBAL.test(each.isVisible)) // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .map((each: any) => {
             return { key: `tabsObj.${each.id}.isVisible` };
           });
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dynamicBindablePropsList = currentDSL.tabs.map((each: any) => {
           return { key: `tabsObj.${each.id}.isVisible` };
         });
+
         currentDSL.dynamicPropertyPathList = [
           ...currentDSL.dynamicPropertyPathList,
           ...dynamicPropsList,
@@ -74,6 +87,7 @@ const migrateTabsData = (currentDSL: DSLWidget) => {
           ...dynamicBindablePropsList,
         ];
       }
+
       currentDSL.dynamicPropertyPathList =
         currentDSL.dynamicPropertyPathList.filter((each) => {
           return each.key !== "tabs";
@@ -83,6 +97,8 @@ const migrateTabsData = (currentDSL: DSLWidget) => {
           return each.key !== "tabs";
         });
       currentDSL.tabsObj = currentDSL.tabs.reduce(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (obj: any, tab: any, index: number) => {
           obj = {
             ...obj,
@@ -92,6 +108,7 @@ const migrateTabsData = (currentDSL: DSLWidget) => {
               index,
             },
           };
+
           return obj;
         },
         {},
@@ -107,9 +124,11 @@ const migrateTabsData = (currentDSL: DSLWidget) => {
       delete currentDSL.tabs;
     }
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map(migrateTabsData);
   }
+
   return currentDSL;
 };
 
@@ -262,6 +281,7 @@ class TabsMigratorWidget extends BaseWidget<
     if (get(this.props, EVAL_VALUE_PATH, false)) {
       const tabsDsl = cloneDeep(this.props);
       const migratedTabsDsl = migrateTabsData(tabsDsl);
+
       super.batchUpdateWidgetProperty({
         modify: {
           tabsObj: migratedTabsDsl.tabsObj,

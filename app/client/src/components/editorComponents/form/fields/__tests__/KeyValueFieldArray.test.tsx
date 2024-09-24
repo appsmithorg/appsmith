@@ -16,12 +16,19 @@ const initialProps = {
   hasType: false,
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let rendererTimer: any;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getComponent(props: any) {
   function keyValueComponent() {
     return <KeyValueFieldArray {...props} />;
   }
+
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Parent = reduxForm<any, any>({
     validate: () => {
       return {};
@@ -38,6 +45,7 @@ describe("Bug 11832: KeyValueFieldArray", () => {
     render(getComponent(initialProps));
     rendererTimer = setTimeout(() => {
       const headerDivs = document.querySelectorAll('div[class*="t--Headers"]');
+
       expect(headerDivs.length).toBe(2);
     }, 0);
   });
@@ -50,6 +58,7 @@ describe("Bug 11832: KeyValueFieldArray", () => {
     render(getComponent(initialProps));
     rendererTimer = setTimeout(() => {
       const headerDivs = document.querySelectorAll('div[class*="t--Headers"]');
+
       expect(headerDivs.length).toBe(4);
     }, 0);
   });

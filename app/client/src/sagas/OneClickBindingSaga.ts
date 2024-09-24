@@ -1,8 +1,8 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { Plugin } from "api/PluginApi";
 import {
   ActionCreationSourceTypeEnum,
@@ -23,7 +23,7 @@ import {
   getCurrentPageNameByActionId,
   getDatasource,
   getPlugin,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import WidgetQueryGeneratorRegistry from "utils/WidgetQueryGeneratorRegistry";
 import {
@@ -31,7 +31,7 @@ import {
   getPluginActionDefaultValues,
 } from "./ActionSagas";
 import "../WidgetQueryGenerators";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
 import "WidgetQueryGenerators";
 import { getWidgetByID } from "./selectors";
 import type {
@@ -44,11 +44,11 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { ActionCreateUpdateResponse } from "api/ActionAPI";
 import ActionAPI from "api/ActionAPI";
 import { validateResponse } from "./ErrorSagas";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { fetchActions, runAction } from "actions/pluginActionActions";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "@appsmith/ads";
 import WidgetFactory from "WidgetProvider/factory";
 
 export function* createActionsForOneClickBindingSaga(
@@ -90,6 +90,7 @@ export function* createActionsForOneClickBindingSaga(
           name: response.data.name,
         },
       });
+
       return response.data;
     }
   } catch (e) {
@@ -366,6 +367,7 @@ function* BindWidgetToDatasource(
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_SUCCESS,
     });
     const { otherFields } = action.payload;
+
     AnalyticsUtil.logEvent("1_CLICK_BINDING_SUCCESS", {
       widgetName: widget.widgetName,
       widgetType: widget.type,
@@ -374,26 +376,28 @@ function* BindWidgetToDatasource(
       isMock: datasource.isMock,
       formType: otherFields?.formType,
     });
-  } catch (e: any) {
-    Toaster.show({
-      text: e.message,
-      hideProgressBar: false,
-      variant: Variant.danger,
-    });
-
+  } catch (e: unknown) {
     yield put({
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_ERROR,
+      payload: {
+        show: true,
+        error: {
+          message: e instanceof Error ? e.message : "Failed to Bind to widget",
+        },
+      },
     });
   }
 
-  Toaster.show({
-    text: `Successfully created action${
+  toast.show(
+    `Successfully created action${
       newActions.length > 1 ? "s" : ""
     }: ${newActions.join(", ")}`,
-    hideProgressBar: true,
-    variant: Variant.success,
-    duration: 3000,
-  });
+    {
+      hideProgressBar: true,
+      kind: "success",
+      autoClose: 3000,
+    },
+  );
 }
 
 export default function* oneClickBindingSaga() {

@@ -6,11 +6,8 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import _ from "lodash";
-import { Button, Spinner, toast, Tooltip } from "design-system";
-import {
-  INVALID_NAME_ERROR,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { Button, Spinner, toast, Tooltip } from "@appsmith/ads";
+import { INVALID_NAME_ERROR, createMessage } from "ee/constants/messages";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -186,6 +183,8 @@ export function EditableText(props: EditableTextProps) {
     setError(false);
   }, [location.pathname]);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const edit = (e: any) => {
     setIsEditing(true);
     e.preventDefault();
@@ -195,6 +194,7 @@ export function EditableText(props: EditableTextProps) {
     (_value: string) => {
       onBlur && onBlur();
       const _isInvalid = isInvalid ? isInvalid(_value) : false;
+
       if (!_isInvalid) {
         onTextChanged(_value);
         setIsEditing(false);
@@ -210,11 +210,14 @@ export function EditableText(props: EditableTextProps) {
   const onInputchange = useCallback(
     (_value: string) => {
       let finalVal: string = _value;
+
       if (valueTransform) {
         finalVal = valueTransform(_value);
       }
+
       setValue(finalVal);
       const errorMessage = isInvalid && isInvalid(finalVal);
+
       if (errorMessage) {
         setError(true);
         setErrorMessage(errorMessage);

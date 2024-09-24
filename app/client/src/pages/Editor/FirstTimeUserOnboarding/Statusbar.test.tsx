@@ -5,15 +5,18 @@ import { Provider } from "react-redux";
 import { render } from "test/testUtils";
 import OnboardingStatusbar from "./Statusbar";
 import { getStore } from "./testUtils";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SIGNPOSTING_STEP } from "./Utils";
 import { signpostingStepUpdateInit } from "actions/onboardingActions";
 import * as onboardingSelectors from "selectors/onboardingSelectors";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
+
   return {
     ...originalModule,
     useDispatch: () => dispatch,
@@ -24,6 +27,7 @@ jest.mock("../../../selectors/onboardingSelectors", () => {
   const originalModule = jest.requireActual(
     "../../../selectors/onboardingSelectors",
   );
+
   return {
     ...originalModule,
     isWidgetActionConnectionPresent: jest.fn(),
@@ -34,6 +38,8 @@ const originalOnboardingSelectors = jest.requireActual(
   "../../../selectors/onboardingSelectors",
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function renderComponent(store: any) {
   render(
     <Provider store={store}>
@@ -105,6 +111,7 @@ describe("Statusbar", () => {
       onboardingSelectors,
       "isWidgetActionConnectionPresent",
     );
+
     isWidgetActionConnectionPresentSelector.mockImplementation(() => {
       return true;
     });
@@ -130,6 +137,8 @@ describe("Statusbar", () => {
   });
 
   it("should test useIsWidgetActionConnectionPresent function", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const store = getStore(4).getState() as any;
     const isWidgetActionConnectionPresentHelper = () => {
       return originalOnboardingSelectors.isWidgetActionConnectionPresent.resultFunc(
@@ -138,6 +147,7 @@ describe("Statusbar", () => {
         store.evaluations.dependencies.inverseDependencyMap,
       );
     };
+
     //Both property and trigger dependency present
     expect(isWidgetActionConnectionPresentHelper()).toBe(true);
     //only trigger dependency present

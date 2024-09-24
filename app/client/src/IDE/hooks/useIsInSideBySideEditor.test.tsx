@@ -1,10 +1,10 @@
 import React from "react";
 import { renderHook, act } from "@testing-library/react-hooks/dom";
 import { Provider } from "react-redux";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import { useIsInSideBySideEditor } from "./useIsInSideBySideEditor";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 import { createMemoryHistory, type MemoryHistory } from "history";
 import { Router } from "react-router";
@@ -30,6 +30,7 @@ const renderUseIsInSideBySideEditor = (
       <Router history={history}>{children}</Router>
     </Provider>
   );
+
   return renderHook(() => useIsInSideBySideEditor(), {
     wrapper,
   });
@@ -45,6 +46,7 @@ describe("useIsInSideBySideEditor", () => {
     );
 
     const ideViewMode = getIDEViewMode(store.getState());
+
     expect(ideViewMode).toBe(EditorViewMode.SplitScreen);
   });
 
@@ -61,6 +63,7 @@ describe("useIsInSideBySideEditor", () => {
     });
 
     const { result } = renderUseIsInSideBySideEditor(history, store);
+
     expect(result.current).toBe(false);
   });
 
@@ -94,6 +97,7 @@ describe("useIsInSideBySideEditor", () => {
     });
 
     const { result } = renderUseIsInSideBySideEditor(history, store);
+
     expect(result.current).toBe(true);
   });
 
@@ -135,6 +139,7 @@ describe("useIsInSideBySideEditor", () => {
     });
 
     const { rerender, result } = renderUseIsInSideBySideEditor(history, store);
+
     expect(result.current).toBe(false);
 
     act(() => {

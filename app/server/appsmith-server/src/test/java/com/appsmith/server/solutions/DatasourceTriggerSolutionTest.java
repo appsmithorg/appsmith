@@ -93,6 +93,7 @@ public class DatasourceTriggerSolutionTest {
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
         Workspace workspace = new Workspace();
         workspace.setName("Datasource Trigger Test Workspace");
         Workspace savedWorkspace = workspaceService.create(workspace).block();
@@ -170,7 +171,6 @@ public class DatasourceTriggerSolutionTest {
         datasourceService
                 .findById(datasourceId, datasourcePermission.getReadPermission())
                 .block();
-        Mockito.doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
 
         Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(
                 datasourceId,
@@ -196,6 +196,67 @@ public class DatasourceTriggerSolutionTest {
                     List columns = (List) columnsResult.getTrigger();
 
                     assertEquals(8, columns.size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void datasourceTriggerTest_should_return_collections_inorder() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        DatasourceStructure.Column[] table1Columns = {
+            new DatasourceStructure.Column("_id1", "ObjectId", null, true),
+            new DatasourceStructure.Column("age1", "Integer", null, false),
+            new DatasourceStructure.Column("dob1", "Date", null, false),
+            new DatasourceStructure.Column("gender1", "String", null, false),
+            new DatasourceStructure.Column("luckyNumber1", "Long", null, false),
+            new DatasourceStructure.Column("name1", "String", null, false),
+            new DatasourceStructure.Column("netWorth1", "BigDecimal", null, false),
+            new DatasourceStructure.Column("updatedByCommand1", "Object", null, false),
+        };
+
+        DatasourceStructure.Table table1 =
+                new DatasourceStructure.Table(TABLE, null, "TableSecond", List.of(table1Columns), null, null);
+
+        DatasourceStructure.Column[] table2Columns = {
+            new DatasourceStructure.Column("_id2", "ObjectId", null, true),
+            new DatasourceStructure.Column("age2", "Integer", null, false),
+            new DatasourceStructure.Column("dob2", "Date", null, false),
+            new DatasourceStructure.Column("gender2", "String", null, false),
+            new DatasourceStructure.Column("luckyNumber2", "Long", null, false),
+            new DatasourceStructure.Column("name2", "String", null, false),
+            new DatasourceStructure.Column("netWorth2", "BigDecimal", null, false),
+            new DatasourceStructure.Column("updatedByCommand2", "Object", null, false),
+        };
+
+        DatasourceStructure.Table table2 =
+                new DatasourceStructure.Table(TABLE, null, "TableFirst", List.of(table2Columns), null, null);
+
+        DatasourceStructure testStructure = new DatasourceStructure(List.of(table1, table2));
+
+        Mockito.when(datasourceStructureSolution.getStructure(Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
+                .thenReturn(Mono.just(testStructure));
+
+        datasourceService
+                .findById(datasourceId, datasourcePermission.getReadPermission())
+                .block();
+        Mockito.doReturn(Mono.just(Boolean.TRUE)).when(featureFlagService).check(Mockito.any());
+
+        Mono<TriggerResultDTO> tableNameMono = datasourceTriggerSolution.trigger(
+                datasourceId,
+                defaultEnvironmentId,
+                new TriggerRequestDTO("ENTITY_SELECTOR", Map.of(), ClientDataDisplayType.DROP_DOWN));
+
+        StepVerifier.create(tableNameMono)
+                .assertNext(tablesResult -> {
+                    List<Map<String, String>> tables = (List<Map<String, String>>) tablesResult.getTrigger();
+
+                    assertEquals(2, tables.size());
+                    // Check the order of the tables
+                    assertEquals("TableFirst", tables.get(0).get("label"));
+                    assertEquals("TableSecond", tables.get(1).get("label"));
                 })
                 .verifyComplete();
     }

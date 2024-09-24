@@ -1,20 +1,22 @@
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getPageList } from "selectors/editorSelectors";
 import {
   getActions,
   getAllWidgetsMap,
   getJSCollections,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { SEARCH_ITEM_TYPES } from "./utils";
 import { get } from "lodash";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { FocusEntity } from "navigation/FocusEntity";
-import type { DataTreeEntityObject } from "@appsmith/entities/DataTree/types";
+import type { DataTreeEntityObject } from "ee/entities/DataTree/types";
 import { useMemo } from "react";
 
 const recentEntitiesSelector = (state: AppState) =>
   state.ui.globalSearch.recentEntities || [];
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const emptyArr: any = [];
 const useResentEntities = (): Array<
   DataTreeEntityObject & {
@@ -35,9 +37,12 @@ const useResentEntities = (): Array<
       (recentEntities || emptyArr)
         .map((entity) => {
           const { id, pageId, type } = entity;
+
           if (type === FocusEntity.EDITOR) {
             if (!pages) return null;
+
             const result = pages.find((page) => page.pageId === id);
+
             if (result) {
               return {
                 ...result,
@@ -51,6 +56,7 @@ const useResentEntities = (): Array<
             const datasource = reducerDatasources.find(
               (reducerDatasource) => reducerDatasource.id === id,
             );
+
             return (
               datasource && {
                 ...datasource,

@@ -40,6 +40,8 @@ function PropertyPane() {
     <div
       className={"t--propertypane overflow-y-auto h-full"}
       data-testid={"t--propertypane"}
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onClick={(e: any) => {
         e.stopPropagation();
       }}
@@ -51,6 +53,7 @@ function PropertyPane() {
         }}
         onOpen={() => {
           const parent = panelWrapperRef.current;
+
           parent?.scrollTo(0, 0);
         }}
         showPanelHeader={false}

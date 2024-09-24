@@ -1,11 +1,13 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
+import { SettingTypes } from "ee/pages/AdminSettings/config/types";
 import TagInputField from "./TagInputField";
-import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
+import { SETTINGS_FORM_NAME } from "ee/constants/forms";
 import { reduxForm } from "redux-form";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 const setting: Setting = {
   id: "SETTING_TAG_INPUT_ID",
@@ -29,6 +31,9 @@ function renderComponent() {
       />
     );
   }
+
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Parent = reduxForm<any, any>({
     validate: () => {
       return {};
@@ -64,6 +69,7 @@ describe("Tag Input", () => {
     const allCrossBtns = document.getElementsByClassName("bp3-tag-remove");
     const numberOfTags = allTags.length;
     const numberOfCrossBtns = allCrossBtns.length;
+
     expect(numberOfTags).toEqual(numberOfCrossBtns);
     expect(screen.getByText(/comma/)).toBeDefined();
     expect(screen.getByText(/separated/)).toBeDefined();

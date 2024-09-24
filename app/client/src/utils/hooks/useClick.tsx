@@ -10,11 +10,14 @@ export default (
     let clickCount = 0;
     let timeoutId: ReturnType<typeof setTimeout>;
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleClick = (e: any) => {
       if (!doubleClk) {
         singleClk(e);
       } else {
         clickCount++;
+
         if (clickCount === 2 && doubleClk) {
           doubleClk(e);
           clearTimeout(timeoutId);
@@ -29,7 +32,9 @@ export default (
     };
 
     const el = currentRef.current;
+
     el?.addEventListener("click", handleClick);
+
     return () => {
       el?.removeEventListener("click", handleClick);
     };

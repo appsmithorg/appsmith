@@ -11,11 +11,11 @@ import {
   MERGE_CHANGES,
   MERGED_SUCCESSFULLY,
   SELECT_BRANCH_TO_MERGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
 import {
   getConflictFoundDocUrlMerge,
   getFetchingBranches,
@@ -51,8 +51,8 @@ import {
   Icon,
   ModalFooter,
   ModalBody,
-} from "design-system";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "@appsmith/ads";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
 
 const Row = styled.div`
@@ -84,6 +84,8 @@ export default function Merge() {
   const isFetchingBranches = useSelector(getFetchingBranches);
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
   const mergeStatus = useSelector(getMergeStatus);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const gitStatus: any = useSelector(getGitStatus);
   const mergeError = useSelector(getMergeError);
   const isMergeAble = mergeStatus?.isMergeAble && gitStatus?.isClean;
@@ -110,8 +112,10 @@ export default function Merge() {
   const branchList = useMemo(() => {
     const branchOptions: DropdownOptions = [];
     let index = 0;
+
     while (true) {
       if (index === gitBranches.length) break;
+
       const branchObj = gitBranches[index];
 
       if (currentBranch !== branchObj.branchName) {
@@ -129,6 +133,7 @@ export default function Merge() {
       }
 
       const nextBranchObj = gitBranches[index + 1];
+
       if (
         getIsStartingWithRemoteBranches(
           branchObj.branchName,
@@ -139,6 +144,7 @@ export default function Merge() {
 
       index++;
     }
+
     // TODO add bellow header if dropdown supports section header
     // branchOptions.unshift({
     //   label: "Local branches",
@@ -160,6 +166,7 @@ export default function Merge() {
     AnalyticsUtil.logEvent("GS_MERGE_CHANGES_BUTTON_CLICK", {
       source: "GIT_MERGE_MODAL",
     });
+
     if (currentBranch && selectedBranchOption?.value) {
       dispatch(
         mergeBranchInit({
@@ -175,6 +182,7 @@ export default function Merge() {
 
   useEffect(() => {
     dispatch(fetchBranchesInit());
+
     return () => {
       dispatch(resetMergeStatus());
     };
@@ -196,6 +204,7 @@ export default function Merge() {
   const mergeBtnDisabled = isFetchingMergeStatus || !isMergeAble;
 
   let status = MERGE_STATUS_STATE.NONE;
+
   if (isFetchingGitStatus) {
     status = MERGE_STATUS_STATE.FETCHING;
     mergeStatusMessage = createMessage(FETCH_GIT_STATUS);
@@ -218,6 +227,7 @@ export default function Merge() {
   const showMergeButton =
     !isConflicting && !mergeError && !isFetchingGitStatus && !isMerging;
   const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlMerge);
+
   return (
     <>
       <ModalBody>
@@ -250,6 +260,7 @@ export default function Merge() {
                 const isProtected = protectedBranches.includes(
                   branch?.value ?? "",
                 );
+
                 return (
                   <Option disabled={isProtected} key={branch.value}>
                     {branch.value}

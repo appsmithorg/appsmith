@@ -132,6 +132,7 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
         Datasource newDs = new Datasource();
         copyNestedNonNullProperties(originalEntity, newDs);
         newDs.makePristine();
+        newDs.setGitSyncId(null);
         newDs.setWorkspaceId(targetMeta.getWorkspaceId());
         newDs.setDatasourceStorages(new HashMap<>());
         newDs.setIsConfigured(null);

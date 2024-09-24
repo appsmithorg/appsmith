@@ -14,6 +14,8 @@ interface StickyCanvasArenaProps {
    * The dependencies object is to make sure the parent of the StickyCanvasArena can submit custom props,
    * those when changed the canvas re-observes to reposition or rescale it selves.
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dependencies?: Record<string, any>;
   ref: StickyCanvasArenaRef;
   shouldObserveIntersection: boolean;
@@ -71,6 +73,7 @@ const shouldUpdateCanvas = (
         width: currentIntersectWidth,
       },
     } = currentEntry;
+
     if (
       previousIntersectHeight === currentIntersectHeight &&
       previousIntersectWidth === currentIntersectWidth &&
@@ -82,6 +85,7 @@ const shouldUpdateCanvas = (
       return false;
     }
   }
+
   return true;
 };
 
@@ -100,6 +104,8 @@ const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
 `;
 
 export const StickyCanvasArena = forwardRef(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (props: StickyCanvasArenaProps, ref: any) => {
     const {
       canvasId,
@@ -134,6 +140,7 @@ export const StickyCanvasArena = forwardRef(
         entry.intersectionRect.left - entry.boundingClientRect.left;
       const calculatedTopOffset =
         entry.intersectionRect.top - entry.boundingClientRect.top;
+
       stickyCanvasRef.current.style.top = calculatedTopOffset + "px";
       stickyCanvasRef.current.style.left = calculatedLeftOffset + "px";
       stickyCanvasRef.current.style.height =
@@ -143,6 +150,7 @@ export const StickyCanvasArena = forwardRef(
     const rescaleSliderCanvas = (entry: IntersectionObserverEntry) => {
       const canvasCtx: CanvasRenderingContext2D =
         stickyCanvasRef.current.getContext("2d");
+
       stickyCanvasRef.current.height =
         entry.intersectionRect.height * scale * scaleFactor;
       stickyCanvasRef.current.width =
@@ -176,6 +184,7 @@ export const StickyCanvasArena = forwardRef(
       // This is to make sure the canvas observes and changes only when needed like when dragging or drw to select.
       if (shouldObserveIntersection) {
         interSectionObserver.current.disconnect();
+
         if (slidingArenaRef && slidingArenaRef.current) {
           interSectionObserver.current.observe(slidingArenaRef.current);
         }
@@ -190,20 +199,25 @@ export const StickyCanvasArena = forwardRef(
 
     useEffect(() => {
       let parentCanvas: Element | null;
+
       if (slidingArenaRef.current) {
         parentCanvas = getRelativeScrollingParent(slidingArenaRef.current);
         parentCanvas?.addEventListener("scroll", observeSlider, false);
         parentCanvas?.addEventListener("mouseover", observeSlider, false);
       }
+
       resizeObserver.current.observe(slidingArenaRef.current);
+
       return () => {
         parentCanvas?.removeEventListener("scroll", observeSlider);
         parentCanvas?.removeEventListener("mouseover", observeSlider);
+
         if (slidingArenaRef && slidingArenaRef.current) {
           resizeObserver.current.unobserve(slidingArenaRef.current);
         }
       };
     }, [shouldObserveIntersection]);
+
     return (
       <>
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,

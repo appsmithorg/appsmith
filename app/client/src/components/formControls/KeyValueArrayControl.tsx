@@ -10,15 +10,17 @@ import type { ControlProps, ControlData } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import type { InputProps } from "design-system";
+import type { InputProps } from "@appsmith/ads";
 import { setDefaultKeyValPairFlag } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
-import { Button, Icon, Input, Text, Tooltip } from "design-system";
+import { Button, Icon, Input, Text, Tooltip } from "@appsmith/ads";
 export interface KeyValueArrayControlProps extends ControlProps {
   name: string;
   label: string;
   maxLen?: number;
   description?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actionConfig?: any;
   extraData?: ControlData[];
   isRequired?: boolean;
@@ -112,7 +114,10 @@ function KeyValueRow(
 
   useEffect(() => {
     if (typeof props.fields.getAll() === "string") {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const fieldsValue: any[] = JSON.parse(`${props.fields.getAll()}`);
+
       props.fields.removeAll();
       fieldsValue.forEach((value, index) => {
         props.fields.insert(index, value);
@@ -129,6 +134,7 @@ function KeyValueRow(
           ? { isValid: true }
           : { isValid: false, message: keyFieldProps.validationMessage };
       }
+
       return { isValid: true };
     },
     [keyFieldProps?.validationRegex, keyFieldProps?.validationMessage],
@@ -178,6 +184,8 @@ function KeyValueRow(
           </div>
         </FlexContainer>
       )}
+      {/* TODO: Fix this the next time the file is edited */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {props.fields.map((field: any, index: number) => {
         let keyTextFieldName = `${field}.key`;
         let valueTextFieldName = `${field}.value`;

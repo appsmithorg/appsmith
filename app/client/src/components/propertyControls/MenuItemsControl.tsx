@@ -7,7 +7,7 @@ import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 interface State {
   focusedIndex: number | null;
@@ -33,14 +33,20 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
       this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
     }
   }
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateItems = (items: Array<Record<string, any>>) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const menuItems = items.reduce((obj: any, each: any, index) => {
       obj[each.id] = {
         ...each,
         index,
       };
+
       return obj;
     }, {});
+
     this.updateProperty(this.props.propertyName, menuItems);
   };
 
@@ -63,6 +69,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
   onEdit = (index: number) => {
     const menuItems = this.getMenuItems();
     const targetMenuItem = menuItems[index];
+
     this.props.openNextPanel({
       index,
       ...targetMenuItem,
@@ -81,6 +88,8 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           items={this.getMenuItems()}
           onEdit={this.onEdit}
           propertyPath={this.props.dataTreePath}
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           renderComponent={(props: any) =>
             DraggableListCard({
               ...props,
@@ -116,33 +125,44 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
           isVisible: isVisible,
         };
       }
+
       return item;
     });
+
     this.updateProperty(this.props.propertyName, updatedMenuItems);
   };
 
   deleteOption = (index: number) => {
     const menuItemsArray = this.getMenuItems();
+
     if (menuItemsArray.length === 1) return;
+
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updatedArray = menuItemsArray.filter((eachItem: any, i: number) => {
       return i !== index;
     });
     const updatedObj = updatedArray.reduce(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (obj: any, each: any, index: number) => {
         obj[each.id] = {
           ...each,
           index,
         };
+
         return obj;
       },
       {},
     );
+
     this.updateProperty(this.props.propertyName, updatedObj);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
     const menuItemsArray = this.getMenuItems();
     const itemId = menuItemsArray[index].id;
+
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,

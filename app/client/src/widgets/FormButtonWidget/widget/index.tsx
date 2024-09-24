@@ -47,6 +47,8 @@ class FormButtonWidget extends ButtonWidget {
       replacement: "BUTTON_WIDGET",
       needsMeta: true,
       tags: [WIDGET_TAGS.BUTTONS],
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any; // TODO (Sangeeth): Type error
   }
 
@@ -60,6 +62,8 @@ class FormButtonWidget extends ButtonWidget {
       recaptchaType: RecaptchaTypes.V3,
       version: 1,
       animateLoading: true,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any; // TODO (Sangeeth): Type error
   }
 
@@ -308,12 +312,14 @@ class FormButtonWidget extends ButtonWidget {
               propertyValue: string,
             ) => {
               const propertiesToUpdate = [{ propertyPath, propertyValue }];
+
               if (!props.iconAlign) {
                 propertiesToUpdate.push({
                   propertyPath: "iconAlign",
                   propertyValue: Alignment.LEFT,
                 });
               }
+
               return propertiesToUpdate;
             },
             dependencies: ["iconAlign"],
@@ -400,6 +406,7 @@ class FormButtonWidget extends ButtonWidget {
         isLoading: true,
       });
     }
+
     this.props.updateWidgetMetaProperty("recaptchaToken", token, {
       triggerPropertyName: "onClick",
       dynamicString: this.props.onClick,
@@ -432,6 +439,7 @@ class FormButtonWidget extends ButtonWidget {
     this.setState({
       isLoading: false,
     });
+
     if (result.success) {
       if (this.props.resetFormOnClick && this.props.onReset)
         this.props.onReset();

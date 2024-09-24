@@ -13,7 +13,7 @@ import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import {
   FlexVerticalAlignment,
@@ -281,6 +281,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
 
   private _player = React.createRef<ReactPlayer>();
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       // Property reflecting the state of the widget
@@ -340,6 +342,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
 
   getWidgetView() {
     const { autoPlay, onEnd, onPause, onPlay, playing, url } = this.props;
+
     return (
       <Suspense fallback={<Skeleton />}>
         <VideoComponent

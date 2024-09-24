@@ -68,6 +68,8 @@ interface TableProps {
     pageData: Row<Record<string, unknown>>[],
   ) => void;
   triggerRowSelection: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
@@ -87,10 +89,14 @@ const defaultColumn = {
   width: 150,
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ScrollbarVerticalThumb(props: any) {
   return <div {...props} className="thumb-vertical" />;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ScrollbarHorizontalThumb(props: any) {
   return <div {...props} className="thumb-horizontal" />;
 }
@@ -103,6 +109,7 @@ export function Table(props: TableProps) {
       ...props.columnSizeMap,
       ...columnWidths,
     };
+
     for (const i in columnSizeMap) {
       if (columnSizeMap[i] < 60) {
         columnSizeMap[i] = 60;
@@ -110,9 +117,11 @@ export function Table(props: TableProps) {
         const columnCounts = props.columns.filter(
           (column) => !column.isHidden,
         ).length;
+
         columnSizeMap[i] = props.width / columnCounts;
       }
     }
+
     props.handleResizeColumn(columnSizeMap);
   };
   // I don't see the need to useMemo here.
@@ -160,6 +169,7 @@ export function Table(props: TableProps) {
     usePagination,
     useRowSelect,
   );
+
   //Set isResizingColumn as true when column is resizing using table state
   if (state.columnResizing.isResizingColumn) {
     isResizingColumn.current = true;
@@ -173,12 +183,15 @@ export function Table(props: TableProps) {
       }, 0);
     }
   }
+
   let startIndex = currentPageIndex * props.pageSize;
   let endIndex = startIndex + props.pageSize;
+
   if (props.serverSidePaginationEnabled) {
     startIndex = 0;
     endIndex = props.data.length;
   }
+
   const subPage = page.slice(startIndex, endIndex);
   const selectedRowIndex = props.selectedRowIndex;
   const selectedRowIndices = props.selectedRowIndices || [];
@@ -189,6 +202,7 @@ export function Table(props: TableProps) {
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
     if (!props.multiRowSelection) return null;
+
     const selectedRowCount = reduce(
       page,
       (count, row) => {
@@ -198,6 +212,7 @@ export function Table(props: TableProps) {
     );
     const result =
       selectedRowCount === 0 ? 0 : selectedRowCount === page.length ? 1 : 2;
+
     return result;
   }, [selectedRowIndices, page]);
   const handleAllRowSelectClick = (
@@ -302,11 +317,14 @@ export function Table(props: TableProps) {
               onMouseLeave={props.enableDrag}
               onMouseOver={props.disableDrag}
             >
+              {/* TODO: Fix this the next time the file is edited */}
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {headerGroups.map((headerGroup: any, index: number) => {
                 const headerRowProps = {
                   ...headerGroup.getHeaderGroupProps(),
                   style: { display: "flex" },
                 };
+
                 return (
                   <div {...headerRowProps} className="tr" key={index}>
                     {props.multiRowSelection &&
@@ -317,6 +335,8 @@ export function Table(props: TableProps) {
                         props.borderRadius,
                       )}
                     {headerGroup.headers.map(
+                      // TODO: Fix this the next time the file is edited
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       (column: any, columnIndex: number) => {
                         return (
                           <TableHeaderCell
@@ -366,6 +386,7 @@ export function Table(props: TableProps) {
                 const isRowSelected =
                   row.index === selectedRowIndex ||
                   selectedRowIndices.includes(row.index);
+
                 return (
                   <div
                     {...rowProps}

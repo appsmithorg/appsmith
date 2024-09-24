@@ -15,11 +15,9 @@ export const WIDGETS = "widgets";
  * @param value
  * @returns
  */
-export function setPropertyUpdate(
-  replay: any,
-  path: string[],
-  value: string[],
-) {
+export // TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function setPropertyUpdate(replay: any, path: string[], value: string[]) {
   const existingPathValue = get(replay, path);
 
   if (!existingPathValue || existingPathValue.length > 2) {
@@ -36,6 +34,8 @@ export function setPropertyUpdate(
  * @param value
  * @returns
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function addToArray(obj: any, key: string, value: any) {
   if (!obj) return;
 
@@ -52,11 +52,14 @@ export function addToArray(obj: any, key: string, value: any) {
  * @param diffs
  * @returns
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getPathsFromDiff(diffs: Array<Diff<any, any>>) {
   const paths = [];
 
   for (const diff of diffs) {
     if (!diff.path || !Array.isArray(diff.path)) continue;
+
     paths.push(diff.path.join("."));
   }
 
@@ -71,11 +74,15 @@ export function getPathsFromDiff(diffs: Array<Diff<any, any>>) {
  */
 export function pathArrayToString(path?: string[]) {
   let stringPath = "";
+
   if (!path || path.length === 0) return stringPath;
+
   stringPath = path[0];
+
   for (let i = 1; i < path.length; i++) {
     stringPath += isNaN(parseInt(path[i])) ? `.${path[i]}` : `[${path[i]}]`;
   }
+
   return stringPath;
 }
 
@@ -87,13 +94,13 @@ export function pathArrayToString(path?: string[]) {
  * @param parentSection
  * @returns
  */
-export function findFieldInfo(
-  config: Array<any>,
-  field: string,
-  parentSection = "",
-) {
+export // TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function findFieldInfo(config: Array<any>, field: string, parentSection = "") {
   let result = {};
+
   if (!config || !isArray(config)) return result;
+
   for (const conf of config) {
     if (conf.configProperty === field) {
       result = { conf, parentSection };
@@ -101,8 +108,10 @@ export function findFieldInfo(
     } else if (conf.children) {
       parentSection = conf.sectionName || parentSection;
       result = findFieldInfo(conf.children, field, parentSection);
+
       if (!isEmpty(result)) break;
     }
   }
+
   return result;
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { DropdownOption } from "design-system-old";
-import { Button, SearchInput } from "design-system";
+import type { DropdownOption } from "@appsmith/ads-old";
+import { Button, SearchInput } from "@appsmith/ads";
 import {
   useSheetData,
   useSheetsList,
@@ -20,17 +20,17 @@ import {
   createMessage,
   DATASOURCE_GENERATE_PAGE_BUTTON,
   GSHEET_SEARCH_PLACEHOLDER,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import type { AppState } from "@appsmith/reducers";
-import { getDatasource } from "@appsmith/selectors/entitiesSelector";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import type { AppState } from "ee/reducers";
+import { getDatasource } from "ee/selectors/entitiesSelector";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
   getHasCreatePagePermission,
   hasCreateDSActionPermissionInApp,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import RenderInterimDataState from "./RenderInterimDataState";
 import {
   ButtonContainer,
@@ -48,7 +48,7 @@ import Entity from "../Explorer/Entity";
 import DatasourceField from "./DatasourceField";
 import { setEntityCollapsibleState } from "actions/editorContextActions";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
-import { useEditorType } from "@appsmith/hooks";
+import { useEditorType } from "ee/hooks";
 import history from "utils/history";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
@@ -67,6 +67,8 @@ function GoogleSheetSchema(props: Props) {
     [],
   );
   const [sheetOptions, setSheetOptions] = useState<DropdownOptions>([]);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [sheetData, setSheetData] = useState<any>([]);
   const [selectedSpreadsheet, setSelectedSpreadsheet] =
     useState<DropdownOption>({});
@@ -128,6 +130,7 @@ function GoogleSheetSchema(props: Props) {
     try {
       const element = document.querySelector(elementId);
       const container = document.querySelector(containerId);
+
       if (element && container) {
         const elementRect = element.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
@@ -155,6 +158,7 @@ function GoogleSheetSchema(props: Props) {
         ),
       );
     }
+
     if (!isEmpty(spreadSheet) && collapseSpreadsheet) {
       dispatch(
         setEntityCollapsibleState(`${datasourceId}-${spreadSheet}`, false),
@@ -230,8 +234,10 @@ function GoogleSheetSchema(props: Props) {
       setSelectedSpreadsheet((ss) => {
         setSelectedSheet((s) => {
           collapseAccordions(datasource?.id || "", ss.value, s.value);
+
           return {};
         });
+
         return {};
       });
     }
@@ -407,10 +413,11 @@ function GoogleSheetSchema(props: Props) {
                 <SearchInput
                   className="datasourceStructure-search"
                   endIcon="close"
-                  onChange={(value) => handleSearch(value)}
+                  onChange={(value: string) => handleSearch(value)}
                   placeholder={createMessage(GSHEET_SEARCH_PLACEHOLDER)}
                   size={"sm"}
                   startIcon="search"
+                  //@ts-expect-error Fix this the next time the file is edited
                   type="text"
                 />
               </DatasourceStructureSearchContainer>

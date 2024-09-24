@@ -312,6 +312,7 @@ describe("getAllIdentifiers", () => {
         2,
         perCase.invalidIdentifiers,
       );
+
       expect(references).toStrictEqual(perCase.expectedResults);
     });
   });
@@ -402,6 +403,7 @@ describe("parseJSObjectWithAST", () => {
       },
     ];
     const { parsedObject } = parseJSObject(body);
+
     expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 
@@ -490,6 +492,7 @@ describe("parseJSObjectWithAST", () => {
       },
     ];
     const { parsedObject } = parseJSObject(body);
+
     expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 
@@ -563,12 +566,13 @@ describe("parseJSObjectWithAST", () => {
       },
     ];
     const { parsedObject } = parseJSObject(body);
+
     expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 
   it("parse js object with params of all types", () => {
     const body = `export default{
-      myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue()) => {
+      myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue(), k = "Hello", l = 10, m = null, n = "hello" + 500, o = true, p = () => "arrow function", { o1 = 20, o2 }, [ a1, a2 = 30 ], { k1 = 20, k2 = 40 } = { k1: 500, k2: 600 }, [ g1 = 5, g2 ] = [], ...rest) => {
         //use async-await or promises
       },
     }`;
@@ -576,10 +580,12 @@ describe("parseJSObjectWithAST", () => {
     const expectedParsedObject = [
       {
         key: "myFun2",
-        value:
-          'async (a, b = Array(1, 2, 3), c = "", d = [], e = this.myVar1, f = {}, g = function () {}, h = Object.assign({}), i = String(), j = storeValue()) => {}',
+        value: `async (a, b = Array(1, 2, 3), c = \"\", d = [], e = this.myVar1, f = {}, g = function () {}, h = Object.assign({}), i = String(), j = storeValue(), k = \"Hello\", l = 10, m = null, n = \"hello\" + 500, o = true, p = () => \"arrow function\", {o1 = 20, o2}, [a1, a2 = 30], {k1 = 20, k2 = 40} = {
+  k1: 500,
+  k2: 600
+}, [g1 = 5, g2] = [], ...rest) => {}`,
         rawContent:
-          'myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue()) => {\n' +
+          'myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue(), k = "Hello", l = 10, m = null, n = "hello" + 500, o = true, p = () => "arrow function", { o1 = 20, o2 }, [ a1, a2 = 30 ], { k1 = 20, k2 = 40 } = { k1: 500, k2: 600 }, [ g1 = 5, g2 ] = [], ...rest) => {\n' +
           "        //use async-await or promises\n" +
           "      }",
         type: "ArrowFunctionExpression",
@@ -595,20 +601,32 @@ describe("parseJSObjectWithAST", () => {
         },
         arguments: [
           { paramName: "a", defaultValue: undefined },
-          { paramName: "b", defaultValue: undefined },
-          { paramName: "c", defaultValue: undefined },
-          { paramName: "d", defaultValue: undefined },
-          { paramName: "e", defaultValue: undefined },
-          { paramName: "f", defaultValue: undefined },
-          { paramName: "g", defaultValue: undefined },
-          { paramName: "h", defaultValue: undefined },
-          { paramName: "i", defaultValue: undefined },
-          { paramName: "j", defaultValue: undefined },
+          { paramName: "b", defaultValue: "{{Array(1,2,3)}}" },
+          { paramName: "c", defaultValue: "" },
+          { paramName: "d", defaultValue: "{{[]}}" },
+          { paramName: "e", defaultValue: "{{this.myVar1}}" },
+          { paramName: "f", defaultValue: "{{{}}}" },
+          { paramName: "g", defaultValue: "{{function(){}}}" },
+          { paramName: "h", defaultValue: "{{Object.assign({})}}" },
+          { paramName: "i", defaultValue: "{{String()}}" },
+          { paramName: "j", defaultValue: "{{storeValue()}}" },
+          { paramName: "k", defaultValue: "Hello" },
+          { paramName: "l", defaultValue: "{{10}}" },
+          { paramName: "m", defaultValue: "{{null}}" },
+          { paramName: "n", defaultValue: '{{"hello" + 500}}' },
+          { paramName: "o", defaultValue: "{{true}}" },
+          { paramName: "p", defaultValue: '{{() => "arrow function"}}' },
+          { paramName: "", defaultValue: "{{{}}}" },
+          { paramName: "", defaultValue: "{{[]}}" },
+          { paramName: "", defaultValue: undefined },
+          { paramName: "", defaultValue: undefined },
+          { paramName: "rest", defaultValue: undefined },
         ],
         isMarkedAsync: true,
       },
     ];
     const { parsedObject } = parseJSObject(body);
+
     expect(parsedObject).toStrictEqual(expectedParsedObject);
   });
 });
@@ -706,6 +724,7 @@ describe("getMemberExpressionObjectFromProperty", () => {
       propertyName,
       code,
     );
+
     expect(actualResponse).toStrictEqual([]);
   });
   it("returns an empty array for invalid js", () => {
@@ -718,6 +737,7 @@ describe("getMemberExpressionObjectFromProperty", () => {
       propertyName,
       code,
     );
+
     expect(actualResponse).toStrictEqual([]);
   });
   it("returns correct member expression object(s)", () => {
@@ -770,6 +790,7 @@ describe("getMemberExpressionObjectFromProperty", () => {
         testDatum.propertyName,
         testDatum.code,
       );
+
       expect(actualResponse).toStrictEqual(testDatum.expectedResponse);
     }
   });

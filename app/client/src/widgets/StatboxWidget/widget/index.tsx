@@ -6,7 +6,7 @@ import {
   FlexVerticalAlignment,
   Positioning,
 } from "layoutSystems/common/utils/constants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
@@ -181,6 +181,7 @@ class StatboxWidget extends ContainerWidget {
               if (layoutSystemType === LayoutSystemTypes.FIXED) {
                 return [];
               }
+
               //get Canvas Widget
               const canvasWidget: FlattenedWidgetProps = get(
                 widget,

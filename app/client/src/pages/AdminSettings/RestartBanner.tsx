@@ -1,6 +1,6 @@
 import React from "react";
-import { hexToRgba } from "design-system-old";
-import { Button, Icon, Spinner, Text } from "design-system";
+import { hexToRgba } from "@appsmith/ads-old";
+import { Button, Icon, Spinner, Text } from "@appsmith/ads";
 import {
   getIsRestartFailed,
   getRestartingState,
@@ -14,9 +14,9 @@ import {
   RESTART_BANNER_HEADER,
   RESTART_ERROR_BODY,
   RESTART_ERROR_HEADER,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Colors } from "constants/Colors";
-import { retryServerRestart } from "@appsmith/actions/settingsAction";
+import { retryServerRestart } from "ee/actions/settingsAction";
 import { useDispatch } from "react-redux";
 
 const RestartBannerWrapper = styled.div`
@@ -93,6 +93,7 @@ const AppIconWrapper = styled.div`
 
 function Header() {
   const isRestartFailed = useSelector(getIsRestartFailed);
+
   return (
     <HeaderContents>
       {isRestartFailed ? (
@@ -118,6 +119,7 @@ export default function RestartBanner() {
   const isRestartFailed = useSelector(getIsRestartFailed);
   const isRestarting = useSelector(getRestartingState);
   const dispatch = useDispatch();
+
   return isRestarting ? (
     <RestartBannerWrapper className="t--admin-settings-restart-notice">
       <OverlayBackdrop />

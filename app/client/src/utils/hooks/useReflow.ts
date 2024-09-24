@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { reflowMoveAction, stopReflowAction } from "actions/reflowActions";
 import type {
   OccupiedSpace,
@@ -100,6 +100,8 @@ export const useReflow = (
   // Indicates if the Containers should be reflowed
   const shouldReflowDropTargets = useRef<boolean>(false);
   // ref of timeout method
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const timeOutFunction = useRef<any>();
   // store exit container and mouse position at exit, so that it can be used during timeout
   const exitContainer = useRef<string | undefined>(undefined);
@@ -223,6 +225,7 @@ export const useReflow = (
               true,
               true,
             );
+
             exitContainer.current = undefined;
             mousePointerAtContainerExit.current = undefined;
 
@@ -269,6 +272,7 @@ export const useReflow = (
       //Trigger reflow action
       if (!isEmpty(correctedMovementMap)) {
         isReflowing.current = true;
+
         if (forceDirection) dispatch(reflowMoveAction(correctedMovementMap));
         else throttledDispatch(reflowMoveAction(correctedMovementMap));
       } else if (isReflowing.current) {

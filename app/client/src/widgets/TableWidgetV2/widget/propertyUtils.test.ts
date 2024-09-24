@@ -137,6 +137,8 @@ describe("PropertyUtils - ", () => {
   });
 
   it("updateColumnStyles - should test with all possible values", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let props: any = {
       primaryColumns: {
         1: {
@@ -156,6 +158,8 @@ describe("PropertyUtils - ", () => {
 
     expect(
       updateColumnStyles(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         props as any as TableWidgetProps,
         "style",
         "someOtherRandomStyleValue",
@@ -199,6 +203,8 @@ describe("PropertyUtils - ", () => {
 
     expect(
       updateColumnStyles(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         props as any as TableWidgetProps,
         "style",
         "someOtherRandomStyleValue",
@@ -216,6 +222,8 @@ describe("PropertyUtils - ", () => {
 
     expect(
       updateColumnStyles(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         props as any as TableWidgetProps,
         "",
         "someOtherRandomStyleValue",
@@ -224,6 +232,8 @@ describe("PropertyUtils - ", () => {
 
     expect(
       updateColumnStyles(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         {} as any as TableWidgetProps,
         "style",
         "someOtherRandomStyleValue",
@@ -232,6 +242,8 @@ describe("PropertyUtils - ", () => {
 
     expect(
       updateColumnStyles(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         {} as any as TableWidgetProps,
         "",
         "someOtherRandomStyleValue",
@@ -251,11 +263,14 @@ describe("PropertyUtils - ", () => {
         sticky: StickyType.NONE,
       },
     };
+
     expect(
       updateColumnOrderHook(
         {
           columnOrder: ["column1", "column2"],
           primaryColumns: defaultStickyValuesForPrimaryCols,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as TableWidgetProps,
         "primaryColumns.column3",
         {
@@ -280,6 +295,8 @@ describe("PropertyUtils - ", () => {
       updateColumnOrderHook(
         {
           columnOrder: ["column1", "column2"],
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as TableWidgetProps,
         "",
         {
@@ -289,6 +306,8 @@ describe("PropertyUtils - ", () => {
     ).toEqual(undefined);
 
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       updateColumnOrderHook({} as any as TableWidgetProps, "", {
         id: "column3",
       }),
@@ -298,6 +317,8 @@ describe("PropertyUtils - ", () => {
       updateColumnOrderHook(
         {
           columnOrder: ["column1", "column2"],
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as TableWidgetProps,
         "primaryColumns.column3.iconAlignment",
         {
@@ -328,6 +349,8 @@ describe("PropertyUtils - ", () => {
 
       expect(
         hideByColumnType(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           prop as any as TableWidgetProps,
           "primaryColumns.column",
           ["text"] as ColumnTypes[],
@@ -347,6 +370,8 @@ describe("PropertyUtils - ", () => {
 
       expect(
         hideByColumnType(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           prop as any as TableWidgetProps,
           "primaryColumns.column",
           ["text"] as ColumnTypes[],
@@ -366,8 +391,12 @@ describe("PropertyUtils - ", () => {
 
       expect(
         hideByColumnType(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           prop as any as TableWidgetProps,
           "primaryColumns.column.buttonColor",
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ["Button"] as any as ColumnTypes[],
         ),
       ).toBe(true);
@@ -384,8 +413,12 @@ describe("PropertyUtils - ", () => {
 
       expect(
         hideByColumnType(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           prop as any as TableWidgetProps,
           "primaryColumns.column.buttonColor",
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ["Button"] as any as ColumnTypes[],
         ),
       ).toBe(false);

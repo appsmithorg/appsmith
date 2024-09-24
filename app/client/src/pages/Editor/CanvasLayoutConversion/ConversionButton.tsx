@@ -6,7 +6,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-} from "design-system";
+} from "@appsmith/ads";
 import { ConversionForm } from "./ConversionForm";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsAutoLayout } from "selectors/canvasSelectors";
@@ -16,7 +16,7 @@ import {
   CONVERT_TO_FIXED_BUTTON,
   CONVERT_TO_FIXED_TITLE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import BetaCard from "components/editorComponents/BetaCard";
 import store from "store";
 import {
@@ -25,9 +25,9 @@ import {
 } from "actions/autoLayoutActions";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useConversionForm } from "./hooks/useConversionForm";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 function ConversionButton() {
   const [showModal, setShowModal] = React.useState(false);

@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 export const getAutoHeightLayoutTree = (state: AppState) =>
   state.entities.autoHeightLayoutTree;

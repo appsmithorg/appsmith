@@ -37,6 +37,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
+import static com.appsmith.server.migrations.constants.DeprecatedFieldName.POLICIES;
+import static com.appsmith.server.migrations.constants.FieldName.POLICY_MAP;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -101,7 +103,7 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
                 Set<PermissionGroup> workspacePermissionGroups =
                         getWorkspacePermissionGroups(workspaceId, allApplicationIds);
 
-                datasource.setPolicies(createPolicies(isPublic, workspacePermissionGroups));
+                datasource.setPolicies(createPolicies(isPublic, workspacePermissionGroups), false);
                 datasource.setInvalids(new HashSet<>());
                 datasource.setCreatedAt(now);
                 datasource.setUpdatedAt(now);
@@ -123,7 +125,7 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
      */
     private Pair<Boolean, Set<String>> getAllApplicationIdsOfDatasourceAndCheckIfAnyAppPublic(String datasourceId) {
         Query newActionsQuery = new Query().addCriteria(newActionCriteria(datasourceId));
-        newActionsQuery.fields().include(FieldName.ID, FieldName.APPLICATION_ID, NewAction.Fields.policies);
+        newActionsQuery.fields().include(FieldName.ID, FieldName.APPLICATION_ID, POLICIES, POLICY_MAP);
 
         Set<String> allApplicationIds = new HashSet<>();
         AtomicReference<Boolean> isPublic = new AtomicReference<>(false);
@@ -190,7 +192,7 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
         DatasourceStorage datasourceStorage = new DatasourceStorage();
         datasourceStorage.setDatasourceId(datasource.getId());
         datasourceStorage.setInvalids(new HashSet<>());
-        datasourceStorage.setPolicies(new HashSet<>());
+        datasourceStorage.setPolicies(new HashSet<>(), false);
         datasourceStorage.setIsConfigured(true);
         datasourceStorage.setGitSyncId(datasource.getGitSyncId());
         datasourceStorage.setEnvironmentId(envId);

@@ -25,10 +25,7 @@ import "simplebar-react/dist/simplebar.min.css";
 import StaticTable from "./StaticTable";
 import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
 import { TABLE_CONNECT_OVERLAY_TEXT } from "../constants/messages";
-import {
-  createMessage,
-  CONNECT_BUTTON_TEXT,
-} from "@appsmith/constants/messages";
+import { createMessage, CONNECT_BUTTON_TEXT } from "ee/constants/messages";
 import styles from "./styles.module.css";
 
 export interface TableProps {
@@ -68,6 +65,8 @@ export interface TableProps {
     pageData: ReactTableRowType<Record<string, unknown>>[],
   ) => void;
   triggerRowSelection: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSearch: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   compactMode?: CompactMode;
@@ -98,6 +97,7 @@ export interface TableProps {
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
   excludeFromTabOrder?: boolean;
+  disableScroll?: boolean;
 }
 
 const defaultColumn = {
@@ -112,6 +112,8 @@ export interface HeaderComponentProps {
   handleAllRowSelectClick: () => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   columnOrder?: string[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   headerGroups: any;
   canFreezeColumn?: boolean;
   editMode: boolean;
@@ -122,12 +124,16 @@ export interface HeaderComponentProps {
   columns: ReactTableColumnProps[];
   width: number;
   subPage: ReactTableRowType<Record<string, unknown>>[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prepareRow: any;
   headerWidth?: number;
   rowSelectionState: 0 | 1 | 2 | null;
   widgetId: string;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const emptyArr: any = [];
 
 export function Table(props: TableProps) {
@@ -137,6 +143,7 @@ export function Table(props: TableProps) {
       ...props.columnWidthMap,
       ...columnWidths,
     };
+
     for (const i in columnWidthMap) {
       if (columnWidthMap[i] < 60) {
         columnWidthMap[i] = 60;
@@ -144,9 +151,11 @@ export function Table(props: TableProps) {
         const columnCounts = props.columns.filter(
           (column) => !column.isHidden,
         ).length;
+
         columnWidthMap[i] = props.width / columnCounts;
       }
     }
+
     props.handleResizeColumn(columnWidthMap);
   };
   const {
@@ -197,6 +206,7 @@ export function Table(props: TableProps) {
     useRowSelect,
     useSticky,
   );
+
   //Set isResizingColumn as true when column is resizing using table state
   if (state.columnResizing.isResizingColumn) {
     isResizingColumn.current = true;
@@ -211,12 +221,15 @@ export function Table(props: TableProps) {
       }, 0);
     }
   }
+
   let startIndex = currentPageIndex * props.pageSize;
   let endIndex = startIndex + props.pageSize;
+
   if (props.serverSidePaginationEnabled) {
     startIndex = 0;
     endIndex = props.data.length;
   }
+
   const subPage = useMemo(
     () => page.slice(startIndex, endIndex),
     [page, startIndex, endIndex],
@@ -226,6 +239,7 @@ export function Table(props: TableProps) {
   const rowSelectionState = React.useMemo(() => {
     // return : 0; no row selected | 1; all row selected | 2: some rows selected
     if (!multiRowSelection) return null;
+
     const selectedRowCount = reduce(
       page,
       (count, row) => {
@@ -235,6 +249,7 @@ export function Table(props: TableProps) {
     );
     const result =
       selectedRowCount === 0 ? 0 : selectedRowCount === page.length ? 1 : 2;
+
     return result;
   }, [multiRowSelection, page, selectedRowIndices]);
   const handleAllRowSelectClick = useCallback(() => {
@@ -251,7 +266,9 @@ export function Table(props: TableProps) {
 
   const variant = (() => {
     if (props.variant === "DEFAULT") return "default";
+
     if (props.variant === "VARIANT2") return "no-borders";
+
     if (props.variant === "VARIANT3") return "horizontal-borders";
 
     return "default";
@@ -294,6 +311,7 @@ export function Table(props: TableProps) {
         )}
         <div
           className={`tableWrap ${props.isLoading ? Classes.SKELETON : ""}`}
+          data-disable-scroll={props.disableScroll ? "" : undefined}
           data-table-wrapper=""
         >
           <div {...getTableProps()} className="table column-freeze">

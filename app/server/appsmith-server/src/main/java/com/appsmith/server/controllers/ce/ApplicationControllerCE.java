@@ -84,44 +84,41 @@ public class ApplicationControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/publish/{defaultApplicationId}")
+    @PostMapping("/publish/{branchedApplicationId}")
     public Mono<ResponseDTO<Boolean>> publish(
-            @PathVariable String defaultApplicationId,
+            @PathVariable String branchedApplicationId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return applicationPageService
-                .publish(defaultApplicationId, branchName, true)
+                .publish(branchedApplicationId, true)
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
     }
 
     @JsonView(Views.Public.class)
-    @PutMapping("/{defaultApplicationId}/page/{defaultPageId}/makeDefault")
+    @PutMapping("/{branchedApplicationId}/page/{branchedPageId}/makeDefault")
     public Mono<ResponseDTO<Application>> makeDefault(
-            @PathVariable String defaultApplicationId,
-            @PathVariable String defaultPageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @PathVariable String branchedApplicationId, @PathVariable String branchedPageId) {
         return applicationPageService
-                .makePageDefault(defaultApplicationId, defaultPageId, branchName)
+                .makePageDefault(branchedApplicationId, branchedPageId)
                 .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
     }
 
     @JsonView(Views.Public.class)
-    @PutMapping("/{defaultApplicationId}/page/{defaultPageId}/reorder")
+    @PutMapping("/{branchedApplicationId}/page/{branchedPageId}/reorder")
     public Mono<ResponseDTO<ApplicationPagesDTO>> reorderPage(
-            @PathVariable String defaultApplicationId,
-            @PathVariable String defaultPageId,
-            @RequestParam Integer order,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @PathVariable String branchedApplicationId,
+            @PathVariable String branchedPageId,
+            @RequestParam Integer order) {
         return applicationPageService
-                .reorderPage(defaultApplicationId, defaultPageId, order, branchName)
+                .reorderPage(branchedApplicationId, branchedPageId, order)
                 .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
     }
 
     @JsonView(Views.Public.class)
-    @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<Application>> delete(@PathVariable String id) {
-        log.debug("Going to delete application with id: {}", id);
+    @DeleteMapping("/{branchedApplicationId}")
+    public Mono<ResponseDTO<Application>> delete(@PathVariable String branchedApplicationId) {
+        log.debug("Going to delete application with branchedApplicationId: {}", branchedApplicationId);
         return applicationPageService
-                .deleteApplication(id)
+                .deleteApplication(branchedApplicationId)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
@@ -130,7 +127,7 @@ public class ApplicationControllerCE {
     public Mono<ResponseDTO<List<Application>>> findByWorkspaceIdAndRecentlyUsedOrder(
             @RequestParam(required = false) String workspaceId) {
         log.debug("Going to get all applications by workspace id {}", workspaceId);
-        return service.findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(workspaceId)
+        return service.findByWorkspaceIdAndBaseApplicationsInRecentlyUsedOrder(workspaceId)
                 .collectList()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
@@ -145,57 +142,48 @@ public class ApplicationControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PutMapping("/{defaultApplicationId}/changeAccess")
+    @PutMapping("/{branchedApplicationId}/changeAccess")
     public Mono<ResponseDTO<Application>> shareApplication(
-            @PathVariable String defaultApplicationId,
-            @RequestBody ApplicationAccessDTO applicationAccessDTO,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @PathVariable String branchedApplicationId, @RequestBody ApplicationAccessDTO applicationAccessDTO) {
         log.debug(
-                "Going to change access for application {}, branch {} to {}",
-                defaultApplicationId,
-                branchName,
+                "Going to change access for application {} to {}",
+                branchedApplicationId,
                 applicationAccessDTO.getPublicAccess());
-        return service.changeViewAccess(defaultApplicationId, branchName, applicationAccessDTO)
+        return service.changeViewAccessForAllBranchesByBranchedApplicationId(
+                        branchedApplicationId, applicationAccessDTO)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/clone/{applicationId}")
-    public Mono<ResponseDTO<Application>> cloneApplication(
-            @PathVariable String applicationId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    @PostMapping("/clone/{branchedApplicationId}")
+    public Mono<ResponseDTO<Application>> cloneApplication(@PathVariable String branchedApplicationId) {
         return applicationPageService
-                .cloneApplication(applicationId, branchName)
+                .cloneApplication(branchedApplicationId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/view/{defaultApplicationId}")
-    public Mono<ResponseDTO<Application>> getApplicationInViewMode(
-            @PathVariable String defaultApplicationId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return service.getApplicationInViewMode(defaultApplicationId, branchName)
+    @GetMapping("/view/{branchedApplicationId}")
+    public Mono<ResponseDTO<Application>> getApplicationInViewMode(@PathVariable String branchedApplicationId) {
+        return service.getApplicationInViewMode(branchedApplicationId)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/{defaultApplicationId}/fork/{workspaceId}")
+    @PostMapping("/{branchedApplicationId}/fork/{workspaceId}")
     public Mono<ResponseDTO<ApplicationImportDTO>> forkApplication(
-            @PathVariable String defaultApplicationId,
-            @PathVariable String workspaceId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @PathVariable String branchedApplicationId, @PathVariable String workspaceId) {
         return applicationForkingService
-                .forkApplicationToWorkspace(defaultApplicationId, workspaceId, branchName)
+                .forkApplicationToWorkspace(branchedApplicationId, workspaceId)
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/export/{id}")
-    public Mono<ResponseEntity<Object>> getApplicationFile(
-            @PathVariable String id, @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to export application with id: {}, branch: {}", id, branchName);
+    @GetMapping("/export/{branchedApplicationId}")
+    public Mono<ResponseEntity<Object>> getApplicationFile(@PathVariable String branchedApplicationId) {
+        log.debug("Going to export application with branchedApplicationId: {}", branchedApplicationId);
 
-        return exportService.getArtifactFile(id, branchName, APPLICATION).map(fetchedResource -> {
+        return exportService.getArtifactFile(branchedApplicationId, APPLICATION).map(fetchedResource -> {
             HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
             Object applicationResource = fetchedResource.getArtifactResource();
             return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
@@ -203,47 +191,44 @@ public class ApplicationControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/snapshot/{id}")
+    @PostMapping("/snapshot/{branchedApplicationId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Boolean>> createSnapshot(
-            @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to create snapshot with application id: {}, branch: {}", id, branchName);
+    public Mono<ResponseDTO<Boolean>> createSnapshot(@PathVariable String branchedApplicationId) {
+        log.debug("Going to create snapshot with application branchedApplicationId: {}", branchedApplicationId);
 
         return applicationSnapshotService
-                .createApplicationSnapshot(id, branchName)
+                .createApplicationSnapshot(branchedApplicationId)
                 .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/snapshot/{id}")
+    @GetMapping("/snapshot/{branchedApplicationId}")
     public Mono<ResponseDTO<ApplicationSnapshotResponseDTO>> getSnapshotWithoutApplicationJson(
-            @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to get snapshot with application id: {}, branch: {}", id, branchName);
+            @PathVariable String branchedApplicationId) {
+        log.debug("Going to get snapshot with application branchedApplicationId: {}", branchedApplicationId);
 
         return applicationSnapshotService
-                .getWithoutDataByApplicationId(id, branchName)
+                .getWithoutDataByBranchedApplicationId(branchedApplicationId)
                 .map(applicationSnapshot -> new ResponseDTO<>(HttpStatus.OK.value(), applicationSnapshot, null));
     }
 
     @JsonView(Views.Public.class)
-    @DeleteMapping("/snapshot/{id}")
-    public Mono<ResponseDTO<Boolean>> deleteSnapshotWithoutApplicationJson(
-            @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to delete snapshot with application id: {}, branch: {}", id, branchName);
+    @DeleteMapping("/snapshot/{branchedApplicationId}")
+    public Mono<ResponseDTO<Boolean>> deleteSnapshotWithoutApplicationJson(@PathVariable String branchedApplicationId) {
+        log.debug("Going to delete snapshot with application branchedApplicationId: {}", branchedApplicationId);
 
         return applicationSnapshotService
-                .deleteSnapshot(id, branchName)
+                .deleteSnapshot(branchedApplicationId)
                 .map(isDeleted -> new ResponseDTO<>(HttpStatus.OK.value(), isDeleted, null));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/snapshot/{id}/restore")
-    public Mono<ResponseDTO<Application>> restoreSnapshot(
-            @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to restore snapshot with application id: {}, branch: {}", id, branchName);
+    @PostMapping("/snapshot/{branchedApplicationId}/restore")
+    public Mono<ResponseDTO<Application>> restoreSnapshot(@PathVariable String branchedApplicationId) {
+        log.debug("Going to restore snapshot with application branchedApplicationId: {}", branchedApplicationId);
 
         return applicationSnapshotService
-                .restoreSnapshot(id, branchName)
+                .restoreSnapshot(branchedApplicationId)
                 .map(application -> new ResponseDTO<>(HttpStatus.OK.value(), application, null));
     }
 
@@ -252,113 +237,103 @@ public class ApplicationControllerCE {
     public Mono<ResponseDTO<ArtifactImportDTO>> importApplicationFromFile(
             @RequestPart("file") Mono<Part> fileMono,
             @PathVariable String workspaceId,
-            @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {
+            @RequestParam(name = FieldName.APPLICATION_ID, required = false) String branchedApplicationId) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
-        return fileMono.flatMap(file ->
-                        importService.extractArtifactExchangeJsonAndSaveArtifact(file, workspaceId, applicationId))
+        return fileMono.flatMap(file -> importService.extractArtifactExchangeJsonAndSaveArtifact(
+                        file, workspaceId, branchedApplicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping("/ssh-keypair/{applicationId}")
+    @PostMapping("/ssh-keypair/{branchedApplicationId}")
     public Mono<ResponseDTO<GitAuth>> generateSSHKeyPair(
-            @PathVariable String applicationId, @RequestParam(required = false) String keyType) {
-        return service.createOrUpdateSshKeyPair(applicationId, keyType)
+            @PathVariable String branchedApplicationId, @RequestParam(required = false) String keyType) {
+        return service.createOrUpdateSshKeyPair(branchedApplicationId, keyType)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/ssh-keypair/{applicationId}")
-    public Mono<ResponseDTO<GitAuthDTO>> getSSHKey(@PathVariable String applicationId) {
-        return service.getSshKey(applicationId)
+    @GetMapping("/ssh-keypair/{branchedApplicationId}")
+    public Mono<ResponseDTO<GitAuthDTO>> getSSHKey(@PathVariable String branchedApplicationId) {
+        return service.getSshKey(branchedApplicationId)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
-    @PutMapping("/{defaultApplicationId}")
+    @PutMapping("/{branchedApplicationId}")
     public Mono<ResponseDTO<Application>> update(
-            @PathVariable String defaultApplicationId,
-            @RequestBody Application resource,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to update resource from base controller with id: {}", defaultApplicationId);
-        return service.update(defaultApplicationId, resource, branchName)
+            @PathVariable String branchedApplicationId, @RequestBody Application resource) {
+        log.debug("Going to update resource from base controller with id: {}", branchedApplicationId);
+        return service.updateApplicationWithPresets(branchedApplicationId, resource)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 
     @JsonView(Views.Public.class)
-    @PatchMapping("{applicationId}/themes/{themeId}")
+    @PatchMapping("{branchedApplicationId}/themes/{themeId}")
     public Mono<ResponseDTO<Theme>> setCurrentTheme(
-            @PathVariable String applicationId,
-            @PathVariable String themeId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @PathVariable String branchedApplicationId, @PathVariable String themeId) {
         return themeService
-                .changeCurrentTheme(themeId, applicationId, branchName)
+                .changeCurrentTheme(themeId, branchedApplicationId)
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/import/{workspaceId}/datasources")
     public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(
-            @PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
+            @PathVariable String workspaceId, @RequestParam(name = "defaultApplicationId") String baseApplicationId) {
         return importService
-                .findDatasourceByArtifactId(workspaceId, defaultApplicationId, APPLICATION)
+                .findDatasourceByArtifactId(workspaceId, baseApplicationId, APPLICATION)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping(value = "/{defaultApplicationId}/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{branchedApplicationId}/logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<Application>> uploadAppNavigationLogo(
-            @PathVariable String defaultApplicationId,
-            @RequestPart("file") Mono<Part> fileMono,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return fileMono.flatMap(part -> service.saveAppNavigationLogo(branchName, defaultApplicationId, part))
+            @PathVariable String branchedApplicationId, @RequestPart("file") Mono<Part> fileMono) {
+        return fileMono.flatMap(part -> service.saveAppNavigationLogo(branchedApplicationId, part))
                 .map(url -> new ResponseDTO<>(HttpStatus.OK.value(), url, null));
     }
 
     @JsonView(Views.Public.class)
-    @DeleteMapping("/{defaultApplicationId}/logo")
-    public Mono<ResponseDTO<Void>> deleteAppNavigationLogo(
-            @PathVariable String defaultApplicationId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return service.deleteAppNavigationLogo(branchName, defaultApplicationId)
+    @DeleteMapping("/{branchedApplicationId}/logo")
+    public Mono<ResponseDTO<Void>> deleteAppNavigationLogo(@PathVariable String branchedApplicationId) {
+        return service.deleteAppNavigationLogo(branchedApplicationId)
                 .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
 
     @JsonView(Views.Public.class)
-    @PostMapping(value = "/export/partial/{applicationId}/{pageId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(
+            value = "/export/partial/{branchedApplicationId}/{branchedPageId}",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseDTO<ApplicationJson>> exportApplicationPartially(
-            @PathVariable String applicationId,
-            @PathVariable String pageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @PathVariable String branchedApplicationId,
+            @PathVariable String branchedPageId,
             @Valid @RequestBody PartialExportFileDTO fileDTO) {
         // params - contains ids of jsLib, actions and datasourceIds to be exported
         return partialExportService
-                .getPartialExportResources(applicationId, pageId, branchName, fileDTO)
+                .getPartialExportResources(branchedApplicationId, branchedPageId, fileDTO)
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
     @JsonView(Views.Public.class)
     @PostMapping(
-            value = "/import/partial/{workspaceId}/{applicationId}",
+            value = "/import/partial/{workspaceId}/{branchedApplicationId}",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<ResponseDTO<Application>> importApplicationPartially(
             @RequestPart("file") Mono<Part> fileMono,
             @PathVariable String workspaceId,
-            @PathVariable String applicationId,
-            @RequestParam String pageId,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @PathVariable String branchedApplicationId,
+            @RequestParam(name = FieldName.PAGE_ID) String branchedPageId) {
         return fileMono.flatMap(fileData -> partialImportService.importResourceInPage(
-                        workspaceId, applicationId, pageId, branchName, fileData))
+                        workspaceId, branchedApplicationId, branchedPageId, null, fileData))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.CREATED.value(), fetchedResource, null));
     }
 
     @JsonView(Views.Public.class)
     @PostMapping("/import/partial/block")
-    public Mono<ResponseDTO<BuildingBlockResponseDTO>> importBlock(
-            @RequestBody BuildingBlockDTO buildingBlockDTO,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<BuildingBlockResponseDTO>> importBlock(@RequestBody BuildingBlockDTO buildingBlockDTO) {
         return partialImportService
-                .importBuildingBlock(buildingBlockDTO, branchName)
+                .importBuildingBlock(buildingBlockDTO)
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.CREATED.value(), fetchedResource, null));
     }
 }

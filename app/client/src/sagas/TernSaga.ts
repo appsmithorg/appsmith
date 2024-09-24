@@ -1,10 +1,7 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import {
-  getActions,
-  getJSCollections,
-} from "@appsmith/selectors/entitiesSelector";
-import type { AppState } from "@appsmith/reducers";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { getActions, getJSCollections } from "ee/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
 import type { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
 import type { Datasource } from "entities/Datasource";
 import { get } from "lodash";
@@ -34,26 +31,34 @@ function* handleSetTernRecentEntities(action: ReduxAction<RecentEntity[]>) {
         const datasource = reducerDatasources.find(
           (reducerDatasource) => reducerDatasource.id === id,
         );
+
         if (!datasource) break;
+
         recentEntityNames.add(datasource.name);
         break;
       }
       case FocusEntity.API:
       case FocusEntity.QUERY: {
         const action = actions.find((action) => action?.config?.id === id);
+
         if (!action) break;
+
         recentEntityNames.add(action.config.name);
         break;
       }
       case FocusEntity.JS_OBJECT: {
         const action = jsActions.find((action) => action?.config?.id === id);
+
         if (!action) break;
+
         recentEntityNames.add(action.config.name);
         break;
       }
       case FocusEntity.PROPERTY_PANE: {
         const widget = get(widgetsMap, id, null);
+
         if (!widget) break;
+
         recentEntityNames.add(widget.widgetName);
       }
     }
@@ -61,9 +66,11 @@ function* handleSetTernRecentEntities(action: ReduxAction<RecentEntity[]>) {
 
   CodemirrorTernService.updateRecentEntities(Array.from(recentEntityNames));
 }
+
 function* handleResetTernRecentEntities() {
   CodemirrorTernService.updateRecentEntities([]);
 }
+
 export default function* ternSagas() {
   yield takeLatest(
     ReduxActionTypes.SET_RECENT_ENTITIES,

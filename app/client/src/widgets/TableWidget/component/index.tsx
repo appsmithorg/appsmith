@@ -65,6 +65,8 @@ interface ReactTableComponentProps {
   columnSizeMap?: { [key: string]: number };
   handleResizeColumn: (columnSizeMap: { [key: string]: number }) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
@@ -126,6 +128,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
   const { columnOrder, hiddenColumns } = useMemo(() => {
     const order: string[] = [];
     const hidden: string[] = [];
+
     columns.forEach((item) => {
       if (item.isHidden) {
         hidden.push(item.accessor);
@@ -133,6 +136,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         order.push(item.accessor);
       }
     });
+
     return {
       columnOrder: order,
       hiddenColumns: hidden,
@@ -144,6 +148,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     const headers = Array.prototype.slice.call(
       document.querySelectorAll(`#table${widgetId} .draggable-header`),
     );
+
     headers.forEach((header, i) => {
       header.setAttribute("draggable", true);
 
@@ -151,8 +156,10 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         // check if table column is resizing
         const isResizing = !!document.querySelectorAll(".resizer.isResizing")
           .length;
+
         // disable draging if resizing
         if (isResizing) return;
+
         header.style =
           "background: #efefef; border-radius: 4px; z-index: 100; width: 100%; text-overflow: none; overflow: none;";
         e.stopPropagation();
@@ -179,6 +186,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
               "th header-reorder highlight-right";
           }
         }
+
         e.preventDefault();
       };
 
@@ -191,6 +199,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
               "th header-reorder highlight-right";
           }
         }
+
         e.preventDefault();
       };
 
@@ -202,6 +211,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       header.ondrop = (e: React.DragEvent<HTMLDivElement>) => {
         header.style = "";
         header.parentElement.className = "th header-reorder";
+
         if (i !== dragged && dragged !== -1) {
           e.preventDefault();
           const newColumnOrder = [...columnOrder];
@@ -212,6 +222,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
           if (movedColumnName && movedColumnName.length === 1) {
             newColumnOrder.splice(i, 0, movedColumnName[0]);
           }
+
           handleReorderColumn([...newColumnOrder, ...hiddenColumns]);
         } else {
           dragged = -1;
@@ -226,6 +237,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     } else {
       const column = columns[columnIndex];
       const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
+
       if (
         columnType !== ColumnTypes.IMAGE &&
         columnType !== ColumnTypes.VIDEO

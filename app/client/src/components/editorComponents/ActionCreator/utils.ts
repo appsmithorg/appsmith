@@ -20,17 +20,18 @@ import {
   checkIfCatchBlockExists,
   checkIfThenBlockExists,
 } from "@shared/ast";
-import type { TreeDropdownOption } from "design-system-old";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
 import type { TActionBlock } from "./types";
 import { AppsmithFunction, DEFAULT_LABELS, FieldType } from "./constants";
 import { FIELD_GROUP_CONFIG } from "./FieldGroup/FieldGroupConfig";
 import store from "store";
-import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
+import { selectEvaluationVersion } from "ee/selectors/applicationSelectors";
 import { FIELD_CONFIG } from "./Field/FieldConfig";
 import { setGenericArgAtPostition } from "@shared/ast/src/actionCreator";
 
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
+
   return stringSegments
     .map((segment, index) => {
       if (jsSnippets[index] && jsSnippets[index].length > 0) {
@@ -44,6 +45,7 @@ export const stringToJS = (string: string): string => {
 
 export const JSToString = (js: string): string => {
   const segments = js.split(" + ");
+
   return segments
     .map((segment) => {
       if (segment.charAt(0) === "'") {
@@ -57,30 +59,38 @@ export const argsStringToArray = (funcArgs: string): string[] => {
   const argsplitMatches = [...funcArgs.matchAll(FUNC_ARGS_REGEX)];
   const arr: string[] = [];
   let isPrevUndefined = true;
+
   for (const match of argsplitMatches) {
     const matchVal = match[0];
+
     if (!matchVal || matchVal === "") {
       if (isPrevUndefined) {
         arr.push(matchVal);
       }
+
       isPrevUndefined = true;
     } else {
       isPrevUndefined = false;
       arr.push(matchVal);
     }
   }
+
   return arr;
 };
 
 export function getEvaluationVersion() {
   const state = store.getState();
+
   return selectEvaluationVersion(state);
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const modalSetter = (changeValue: any, currentValue: string) => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getCodeFromMoustache(currentValue);
+
   try {
     return setModalName(requiredValue, changeValue, getEvaluationVersion());
   } catch (e) {
@@ -93,16 +103,20 @@ export const modalGetter = (value: string) => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getCodeFromMoustache(value);
+
   return getModalName(requiredValue, getEvaluationVersion());
 };
 
 export const objectSetter = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   changeValue: any,
   currentValue: string,
   argNum: number,
 ): string => {
   const requiredValue = getCodeFromMoustache(currentValue);
   const changeValueWithoutBraces = getCodeFromMoustache(changeValue);
+
   try {
     return setObjectAtPosition(
       requiredValue,
@@ -116,6 +130,8 @@ export const objectSetter = (
 };
 
 export const textSetter = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   changeValue: any,
   currentValue: string,
   argNum: number,
@@ -124,6 +140,7 @@ export const textSetter = (
   const changeValueWithoutBraces = getCodeFromMoustache(
     stringToJS(changeValue),
   );
+
   try {
     return `{{${setCallbackFunctionField(
       requiredValue,
@@ -140,6 +157,7 @@ export const textGetter = (value: string, argNum: number): string => {
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = stringToJS(value);
+
   return getTextArgumentAtPosition(
     requiredValue,
     argNum,
@@ -148,6 +166,8 @@ export const textGetter = (value: string, argNum: number): string => {
 };
 
 export const enumTypeSetter = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   changeValue: any,
   currentValue: string,
   argNum: number,
@@ -156,6 +176,7 @@ export const enumTypeSetter = (
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getDynamicBindings(currentValue).jsSnippets[0];
+
   changeValue = getCodeFromMoustache(changeValue) || defaultValue || "";
   try {
     return setEnumArgumentAtPosition(
@@ -177,6 +198,7 @@ export const enumTypeGetter = (
   // requiredValue is value minus the surrounding {{ }}
   // eg: if value is {{download()}}, requiredValue = download()
   const requiredValue = getDynamicBindings(value).jsSnippets[0];
+
   return getEnumArgumentAtPosition(
     requiredValue,
     argNum,
@@ -186,12 +208,15 @@ export const enumTypeGetter = (
 };
 
 export const callBackFieldSetter = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   changeValue: any,
   currentValue: string,
   argNum: number,
 ): string => {
   const requiredValue = getCodeFromMoustache(currentValue);
   const requiredChangeValue = getCodeFromMoustache(changeValue) || "() => {}";
+
   try {
     return `{{${
       setCallbackFunctionField(
@@ -213,6 +238,7 @@ export const callBackFieldGetter = (value: string, argNumber = 0) => {
     argNumber,
     getEvaluationVersion(),
   );
+
   return `{{${funcExpr}}}`;
 };
 
@@ -224,6 +250,7 @@ export const genericSetter = (
   codeFragment = codeFragment ? stringToJS(codeFragment) : "''";
   code = getCodeFromMoustache(code);
   const funcExpr = setGenericArgAtPostition(codeFragment, code, argNum);
+
   return `{{${funcExpr}}}`;
 };
 
@@ -234,16 +261,22 @@ export const genericSetter = (
 export const isValueValidURL = (value: string) => {
   if (value) {
     const indices = [];
+
     for (let i = 0; i < value.length; i++) {
       if (value[i] === "'") {
         indices.push(i);
       }
     }
+
     const str = value.substring(indices[0], indices[1] + 1);
     const isValid = isValidURL(str);
+
     if (isValid) return isValid;
+
     const looksLikeURL = matchesURLPattern(str);
+
     if (!looksLikeURL) return false;
+
     return isValidURL(`https://${str}`);
   }
 };
@@ -254,10 +287,12 @@ export function flattenOptions(
 ): TreeDropdownOption[] {
   options.forEach((option) => {
     results.push(option);
+
     if (option.children) {
       flattenOptions(option.children, results);
     }
   });
+
   return results;
 }
 
@@ -294,6 +329,8 @@ export function codeToAction(
 
   const mainActionType = (selectedOption.type ||
     selectedOption.value ||
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     AppsmithFunction.none) as any;
 
   if (strict) {
@@ -442,6 +479,7 @@ export function actionToCode(
   if (!actionFieldConfig) {
     return code;
   }
+
   /**
    * Unfortunately, we have to do this because the integration action could be represented with success and error callbacks
    * or then/catch blocks. We need to check if the action is an integration action and if it had a success or error callback
@@ -450,6 +488,8 @@ export function actionToCode(
    */
   const supportsCallback = actionType === AppsmithFunction.integration;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if (chainableFns.includes(actionType as any) && multipleActions) {
     const existingSuccessCallback =
       supportsCallback &&
@@ -459,6 +499,7 @@ export function actionToCode(
       getFuncExpressionAtPosition(code, 1, evaluationVersion);
     const thenBlockExists = checkIfThenBlockExists(code, evaluationVersion);
     const catchBlockExists = checkIfCatchBlockExists(code, evaluationVersion);
+
     if (actionType === AppsmithFunction.integration) {
       if (existingSuccessCallback || existingErrorCallback) {
         successBlocks.forEach((block) => {
@@ -568,6 +609,7 @@ export function isEmptyBlock(block: string) {
 export function getCodeFromMoustache(value = "") {
   // Remove white spaces around the braces, otherwise the regex will fail
   const code = value.trim().replace(/^{{|}}$/g, "");
+
   return code;
 }
 
@@ -579,6 +621,7 @@ export function paramSetter(
   argNum = argNum || 0;
   const requiredValue = getCodeFromMoustache(currentValue);
   const changeValueWithoutBraces = getCodeFromMoustache(changeValue);
+
   return setQueryParam(
     requiredValue,
     changeValueWithoutBraces,
@@ -590,6 +633,7 @@ export function paramSetter(
 export function paramGetter(code: string, argNum?: number) {
   argNum = argNum || 0;
   const requiredValue = getCodeFromMoustache(code);
+
   return getQueryParam(requiredValue, argNum, getEvaluationVersion());
 }
 

@@ -12,13 +12,13 @@ import {
   CONFIRM_CONTEXT_DELETE,
   CONTEXT_MOVE,
   createMessage,
-} from "@appsmith/constants/messages";
-import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
+} from "ee/constants/messages";
+import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
 import {
   autoIndentCode,
   getAutoIndentShortcutKeyText,
 } from "components/editorComponents/CodeEditor/utils/autoIndentUtils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { updateJSCollectionBody } from "actions/jsPaneActions";
 import type { IconName } from "@blueprintjs/icons";
 
@@ -28,9 +28,9 @@ import equal from "fast-deep-equal/es6";
 import {
   getHasDeleteActionPermission,
   getHasManageActionPermission,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+} from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { JSCollection } from "entities/JSCollection";
 
 interface AppJSEditorContextMenuProps {
@@ -146,6 +146,7 @@ export function AppJSEditorContextMenu({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const editor = document.querySelector(".CodeMirror").CodeMirror;
+
       autoIndentCode(editor);
       dispatch(updateJSCollectionBody(editor.getValue(), jsCollection.id));
       AnalyticsUtil.logEvent("PRETTIFY_CODE_MANUAL_TRIGGER");
@@ -169,6 +170,7 @@ export function AppJSEditorContextMenu({
   };
 
   const options: ContextMenuOption[] = [];
+
   if (isChangePermitted) {
     options.push(copyOption);
     options.push(moveOption);

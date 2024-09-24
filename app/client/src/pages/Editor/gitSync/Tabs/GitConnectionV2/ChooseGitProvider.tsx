@@ -18,18 +18,18 @@ import {
   Radio,
   RadioGroup,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import styled from "styled-components";
 import { GIT_DEMO_GIF } from "./constants";
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { setWorkspaceIdForImport } from "ee/actions/applicationActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import history from "utils/history";
 import noop from "lodash/noop";
-import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
+import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import {
   CHOOSE_A_GIT_PROVIDER_STEP,
@@ -40,8 +40,8 @@ import {
   I_HAVE_EXISTING_REPO,
   NEED_EMPTY_REPO_MESSAGE,
   createMessage,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const WellInnerContainer = styled.div`

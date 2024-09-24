@@ -26,7 +26,7 @@ import {
   DEFAULT_CAMERA_LABEL,
   DEFAULT_CAMERA_LABEL_DESCRIPTION,
   FRONT_CAMERA_LABEL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
@@ -305,6 +305,8 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
     return {};
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       image: null,
@@ -382,8 +384,10 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("imageBlobURL", undefined);
       this.props.updateWidgetMetaProperty("imageDataURL", undefined);
       this.props.updateWidgetMetaProperty("imageRawBinary", undefined);
+
       return;
     }
+
     // Set isDirty to true when an image is captured
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
@@ -449,6 +453,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("videoBlobURL", undefined);
       this.props.updateWidgetMetaProperty("videoDataURL", undefined);
       this.props.updateWidgetMetaProperty("videoRawBinary", undefined);
+
       return;
     }
 

@@ -23,7 +23,9 @@ const getCurrentRowBinding = (
   withBinding = true,
 ) => {
   let rowBinding = `${entityName}.processedTableData.map((currentRow, currentIndex) => ( ${userInput}))`;
+
   if (withBinding) rowBinding = `{{${rowBinding}}}`;
+
   return rowBinding;
 };
 
@@ -55,6 +57,7 @@ describe("getOriginalRowIndex", () => {
       "step",
     );
     const expected = -1;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -86,6 +89,7 @@ describe("getOriginalRowIndex", () => {
       "step",
     );
     const expected = 1;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -143,6 +147,7 @@ describe("getOriginalRowIndex", () => {
       "step",
     );
     const expected = -1;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -151,12 +156,17 @@ describe("getOriginalRowIndex", () => {
     const newTableData = undefined;
     const selectedRowIndex = 1;
     const result = getOriginalRowIndex(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       oldTableData as any as Array<Record<string, unknown>>,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       newTableData as any as Array<Record<string, unknown>>,
       selectedRowIndex,
       "step",
     );
     const expected = -1;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -209,6 +219,7 @@ describe("getOriginalRowIndex", () => {
     ];
     const result = getOriginalRowIndex(oldTableData, newTableData, 0, "step");
     const expected = 2;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -261,6 +272,7 @@ describe("getOriginalRowIndex", () => {
     ];
     const result = getOriginalRowIndex(oldTableData, newTableData, 0, "");
     const expected = -1;
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -313,6 +325,7 @@ describe("getOriginalRowIndex", () => {
     ];
     const result = getOriginalRowIndex(oldTableData, newTableData, 0, "");
     const expected = -1;
+
     expect(result).toStrictEqual(expected);
   });
 });
@@ -374,6 +387,7 @@ describe("selectRowIndex", () => {
       selectedRowIndexProp,
       "step",
     );
+
     expect(result).toStrictEqual(0);
   });
 
@@ -433,6 +447,7 @@ describe("selectRowIndex", () => {
       selectedRowIndexProp,
       "step",
     );
+
     expect(result).toStrictEqual(2);
   });
 
@@ -492,6 +507,7 @@ describe("selectRowIndex", () => {
       selectedRowIndexProp,
       undefined,
     );
+
     expect(result).toStrictEqual(0);
   });
 
@@ -551,6 +567,7 @@ describe("selectRowIndex", () => {
       selectedRowIndexProp,
       "step",
     );
+
     expect(result).toStrictEqual(0);
   });
 
@@ -610,6 +627,7 @@ describe("selectRowIndex", () => {
       selectedRowIndexProp,
       "step",
     );
+
     expect(result).toStrictEqual(-1);
   });
 });
@@ -670,6 +688,7 @@ describe("selectRowIndices", () => {
       [],
       undefined,
     );
+
     expect(result).toEqual([0]);
   });
 
@@ -728,6 +747,7 @@ describe("selectRowIndices", () => {
       [],
       undefined,
     );
+
     expect(result).toEqual([]);
   });
 
@@ -786,6 +806,7 @@ describe("selectRowIndices", () => {
       [0],
       undefined,
     );
+
     expect(result).toEqual([]);
   });
 
@@ -844,6 +865,7 @@ describe("selectRowIndices", () => {
       [0],
       "step",
     );
+
     expect(result).toEqual([0]);
   });
 
@@ -902,6 +924,7 @@ describe("selectRowIndices", () => {
       [0, 2],
       "step",
     );
+
     expect(result).toEqual([2, 0]);
   });
 });
@@ -952,6 +975,8 @@ describe("getAllTableColumnKeys - ", () => {
 
   it("should test with undefined", () => {
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       getAllTableColumnKeys(undefined as any as Array<Record<string, unknown>>),
     ).toEqual([]);
   });
@@ -967,6 +992,8 @@ describe("getTableStyles - ", () => {
         cellBackground: "#f00",
         verticalAlignment: "start",
         horizontalAlignment: "center",
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }) as any as TableStyles,
     ).toEqual({
       textColor: "#fff",
@@ -998,6 +1025,8 @@ describe("getDerivedColumns - ", () => {
 
     expect(
       getDerivedColumns(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         primaryColumns as any as Record<string, ColumnProperties>,
       ),
     ).toEqual({});
@@ -1021,6 +1050,8 @@ describe("getDerivedColumns - ", () => {
 
     expect(
       getDerivedColumns(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         primaryColumns as any as Record<string, ColumnProperties>,
       ),
     ).toEqual({
@@ -1049,6 +1080,8 @@ describe("getDerivedColumns - ", () => {
 
     expect(
       getDerivedColumns(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         primaryColumns as any as Record<string, ColumnProperties>,
       ),
     ).toEqual({
@@ -1069,18 +1102,24 @@ describe("getDerivedColumns - ", () => {
 
   it("should check with undefined", () => {
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       getDerivedColumns(undefined as any as Record<string, ColumnProperties>),
     ).toEqual({});
   });
 
   it("should check with simple string", () => {
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       getDerivedColumns("test" as any as Record<string, ColumnProperties>),
     ).toEqual({});
   });
 
   it("should check with number", () => {
     expect(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       getDerivedColumns(1 as any as Record<string, ColumnProperties>),
     ).toEqual({});
   });
@@ -1126,6 +1165,8 @@ describe("escapeString", () => {
   });
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const MOCK_COLUMNS: Record<string, any> = {
   id: {
     isDerived: false,
@@ -1821,6 +1862,7 @@ describe("reorderColumns", () => {
     };
 
     const result = reorderColumns(MOCK_COLUMNS, columnOrder);
+
     expect(expected).toEqual(result);
   });
 });
@@ -1955,41 +1997,49 @@ describe("getColumnType", () => {
 
   it("returns NUMBER column type for number value", () => {
     const result = getColumnType(tableData, "id");
+
     expect(ColumnTypes.NUMBER).toEqual(result);
   });
 
   it("returns TEXT column type for empty columnKey", () => {
     const result = getColumnType(tableData, "");
+
     expect(ColumnTypes.TEXT).toEqual(result);
   });
 
   it("returns TEXT column type for string value", () => {
     const result = getColumnType(tableData, "gender");
+
     expect(ColumnTypes.TEXT).toEqual(result);
   });
 
   it("returns TEXT column type for string columnKey that does not exist in tableData", () => {
     const result = getColumnType(tableData, "coordinates");
+
     expect(ColumnTypes.TEXT).toEqual(result);
   });
 
   it("returns CHECKBOX column type for columnKey that has boolean columnValue", () => {
     const result = getColumnType(tableData, "checked");
+
     expect(ColumnTypes.CHECKBOX).toEqual(result);
   });
 
   it("returns proper column type for columnKey that has first few rows data as null", () => {
     const result = getColumnType(tableData, "longitude");
+
     expect(ColumnTypes.NUMBER).toEqual(result);
   });
 
   it("returns proper column type for columnKey that does not exist in the first few rows", () => {
     const result = getColumnType(tableData, "premium");
+
     expect(ColumnTypes.CHECKBOX).toEqual(result);
   });
 
   it("returns Date column type for valid Date field", () => {
     const result = getColumnType(tableData, "dob");
+
     expect(ColumnTypes.DATE).toEqual(result);
   });
 });
@@ -2090,6 +2140,8 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
     };
 
     const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockProps as any,
     );
     const expected = {
@@ -2099,6 +2151,7 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
         gender: "",
       },
     };
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -2171,9 +2224,12 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
     };
 
     const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockProps as any,
     );
     const expected = { currentItem: {} };
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -2245,9 +2301,12 @@ describe("getSourceDataAndCaluclateKeysForEventAutoComplete", () => {
     };
 
     const result = getSourceDataAndCaluclateKeysForEventAutoComplete(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mockProps as any,
     );
     const expected = { currentItem: {} };
+
     expect(result).toStrictEqual(expected);
   });
 });
@@ -2368,7 +2427,11 @@ describe("generateNewColumnOrderFromStickyValue", () => {
   };
 
   let tableConfig: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     primaryColumns: any;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     columnOrder: any;
     columnName?: string;
     sticky?: string | undefined;
@@ -2376,7 +2439,11 @@ describe("generateNewColumnOrderFromStickyValue", () => {
   let newColumnOrder;
 
   const resetValues = (config: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     primaryColumns: any;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     columnOrder: any;
     columnName?: string;
     sticky?: string | undefined;
@@ -2402,12 +2469,15 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     config.columnOrder = ["step", "task", "status", "action"];
     config.columnName = "";
     config.sticky = "";
+
     return config;
   };
 
   test("Column order should remain same when leftmost or the right-most columns are frozen", () => {
     tableConfig = { ...baseTableConfig };
     newColumnOrder = generateNewColumnOrderFromStickyValue(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableConfig.primaryColumns as any,
       tableConfig.columnOrder,
       "step",
@@ -2417,6 +2487,8 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     expect(newColumnOrder).toEqual(["step", "task", "status", "action"]);
 
     newColumnOrder = generateNewColumnOrderFromStickyValue(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableConfig.primaryColumns as any,
       tableConfig.columnOrder,
       "action",
@@ -2430,6 +2502,8 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     tableConfig = resetValues(baseTableConfig);
 
     newColumnOrder = generateNewColumnOrderFromStickyValue(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableConfig.primaryColumns as any,
       tableConfig.columnOrder,
       "action",
@@ -2442,6 +2516,8 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     tableConfig = resetValues(baseTableConfig);
 
     newColumnOrder = generateNewColumnOrderFromStickyValue(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableConfig.primaryColumns as any,
       tableConfig.columnOrder,
       "step",
@@ -2456,6 +2532,8 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     tableConfig.primaryColumns.step.sticky = "left";
 
     newColumnOrder = generateNewColumnOrderFromStickyValue(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableConfig.primaryColumns as any,
       tableConfig.columnOrder,
       "action",
@@ -2470,6 +2548,8 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     tableConfig.primaryColumns.action.sticky = "right";
 
     newColumnOrder = generateNewColumnOrderFromStickyValue(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableConfig.primaryColumns as any,
       tableConfig.columnOrder,
       "step",
@@ -2485,6 +2565,8 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     tableConfig.primaryColumns.action.sticky = "right";
 
     newColumnOrder = generateNewColumnOrderFromStickyValue(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableConfig.primaryColumns as any,
       tableConfig.columnOrder,
       "step",
@@ -2494,6 +2576,8 @@ describe("generateNewColumnOrderFromStickyValue", () => {
 
     expect(newColumnOrder).toEqual(["step", "task", "status", "action"]);
     newColumnOrder = generateNewColumnOrderFromStickyValue(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableConfig.primaryColumns as any,
       tableConfig.columnOrder,
       "action",
@@ -2511,6 +2595,8 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     tableConfig.primaryColumns.task.sticky = "left";
 
     newColumnOrder = generateNewColumnOrderFromStickyValue(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableConfig.primaryColumns as any,
       ["step", "action", "task", "status"],
       "step",
@@ -2529,6 +2615,8 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     tableConfig.primaryColumns.task.sticky = "right";
 
     newColumnOrder = generateNewColumnOrderFromStickyValue(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableConfig.primaryColumns as any,
       ["status", "step", "action", "task"],
       "task",

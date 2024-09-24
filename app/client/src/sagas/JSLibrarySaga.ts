@@ -1,14 +1,11 @@
 import type { ApiResponse } from "api/ApiResponses";
 import LibraryApi from "api/LibraryAPI";
-import {
-  createMessage,
-  customJSLibraryMessages,
-} from "@appsmith/constants/messages";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { ActionPattern } from "redux-saga/effects";
 import {
   actionChannel,
@@ -22,18 +19,18 @@ import {
 } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { validateResponse } from "./ErrorSagas";
 import { EvalWorker } from "./EvaluationsSaga";
 import log from "loglevel";
 import { APP_MODE } from "entities/App";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { getAppMode } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { JSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { selectInstalledLibraries } from "@appsmith/selectors/entitiesSelector";
-import { toast } from "design-system";
+import { selectInstalledLibraries } from "ee/selectors/entitiesSelector";
+import { toast } from "@appsmith/ads";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
@@ -58,14 +55,16 @@ function* handleInstallationFailure(
     text: `Failed to install library script at ${url}`,
   });
 
-  toast.show(message || `Failed to install library script at ${url}`, {
-    kind: "error",
-  });
   const applicationid: ReturnType<typeof getCurrentApplicationId> =
     yield select(getCurrentApplicationId);
+
   yield put({
     type: ReduxActionErrorTypes.INSTALL_LIBRARY_FAILED,
-    payload: { url, show: false },
+    payload: {
+      url,
+      show: true,
+      message: message || `Failed to install library script at ${url}`,
+    },
   });
   AnalyticsUtil.logEvent("INSTALL_LIBRARY", {
     url,
@@ -101,6 +100,7 @@ export function* installLibrarySaga(lib: Partial<JSLibrary>) {
         kind: "info",
       },
     );
+
     return;
   }
 
@@ -121,6 +121,7 @@ export function* installLibrarySaga(lib: Partial<JSLibrary>) {
   if (!success) {
     log.debug("Failed to install locally");
     yield call(handleInstallationFailure, url as string, error?.message);
+
     return;
   }
 
@@ -129,6 +130,7 @@ export function* installLibrarySaga(lib: Partial<JSLibrary>) {
 
   const versionMatch = (url as string).match(/(?:@)(\d+\.)(\d+\.)(\d+)/);
   let [version = ""] = versionMatch ? versionMatch : [];
+
   version = version.startsWith("@") ? version.slice(1) : version;
   version = version || lib?.version || "";
 
@@ -156,9 +158,11 @@ export function* installLibrarySaga(lib: Partial<JSLibrary>) {
 
   try {
     const isValidResponse: boolean = yield validateResponse(response, false);
+
     if (!isValidResponse || !response.data) {
       log.debug("Install API failed");
       yield call(handleInstallationFailure, url as string, "", accessor);
+
       return;
     }
   } catch (e) {
@@ -168,6 +172,7 @@ export function* installLibrarySaga(lib: Partial<JSLibrary>) {
       (e as Error).message,
       accessor,
     );
+
     return;
   }
 
@@ -250,12 +255,22 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
     if (!isValidResponse) {
       yield put({
         type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
-        payload: accessor,
+        payload: {
+          show: true,
+          accessor,
+          error: {
+            message: createMessage(
+              customJSLibraryMessages.UNINSTALL_FAILED,
+              name,
+            ),
+          },
+        },
       });
       AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
         url: action.payload.url,
         success: false,
       });
+
       return;
     }
 
@@ -272,13 +287,21 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
       EVAL_WORKER_ACTIONS.UNINSTALL_LIBRARY,
       accessor,
     );
+
     if (!success) {
-      toast.show(
-        createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name),
-        {
-          kind: "error",
+      yield put({
+        type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
+        payload: {
+          accessor,
+          show: true,
+          error: {
+            message: createMessage(
+              customJSLibraryMessages.UNINSTALL_FAILED,
+              name,
+            ),
+          },
         },
-      );
+      });
     }
 
     try {
@@ -300,8 +323,18 @@ function* uninstallLibrarySaga(action: ReduxAction<JSLibrary>) {
       success: true,
     });
   } catch (e) {
-    toast.show(createMessage(customJSLibraryMessages.UNINSTALL_FAILED, name), {
-      kind: "error",
+    yield put({
+      type: ReduxActionErrorTypes.UNINSTALL_LIBRARY_FAILED,
+      payload: {
+        accessor,
+        show: true,
+        error: {
+          message: createMessage(
+            customJSLibraryMessages.UNINSTALL_FAILED,
+            name,
+          ),
+        },
+      },
     });
     AnalyticsUtil.logEvent("UNINSTALL_LIBRARY", {
       url: action.payload.url,
@@ -328,8 +361,10 @@ function* fetchJSLibraries(
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (!isValidResponse) {
       endSpan(span);
+
       return;
     }
 
@@ -367,7 +402,9 @@ function* fetchJSLibraries(
           type: ReduxActionErrorTypes.FETCH_JS_LIBRARIES_FAILED,
         });
       }
+
       endSpan(span);
+
       return;
     }
 
@@ -375,6 +412,7 @@ function* fetchJSLibraries(
       for (const lib of libraries) {
         try {
           const defs = JSON.parse(lib.defs);
+
           CodemirrorTernService.updateDef(defs["!name"], defs);
         } catch (e) {
           toast.show(
@@ -388,6 +426,7 @@ function* fetchJSLibraries(
           );
         }
       }
+
       yield put({
         type: ReduxActionTypes.UPDATE_LINT_GLOBALS,
         payload: {
@@ -416,12 +455,16 @@ function* fetchJSLibraries(
 }
 
 function* startInstallationRequestChannel() {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const queueInstallChannel: ActionPattern<any> = yield actionChannel([
     ReduxActionTypes.INSTALL_LIBRARY_INIT,
   ]);
+
   while (true) {
     const action: ReduxAction<Partial<JSLibrary>> =
       yield take(queueInstallChannel);
+
     yield put({
       type: ReduxActionTypes.INSTALL_LIBRARY_START,
       payload: action.payload.url,

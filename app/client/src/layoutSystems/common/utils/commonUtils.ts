@@ -12,12 +12,15 @@ export const getAutoDimensionsConfig = (
   props: BaseWidgetProps,
 ): AutoDimensionOptions | undefined => {
   let autoDimensionConfig = config.autoDimension;
+
   if (isFunction(autoDimensionConfig)) {
     autoDimensionConfig = autoDimensionConfig(props);
   }
+
   if (props.isListItemContainer && autoDimensionConfig) {
     autoDimensionConfig.height = false;
   }
+
   return autoDimensionConfig;
 };
 
@@ -58,11 +61,15 @@ export const restructureWidgetSizeConfig = (
     minHeight: {},
     minWidth: {},
   };
+
   if (!sizeConfig || !sizeConfig.length) return res;
 
   return sizeConfig.reduce(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (acc: any, size: WidgetSizeConfig) => {
       const data = size.configuration(props);
+
       if (size.viewportMinWidth === 0) {
         //  WDS flex component doesn't handle null || undefined values. Hence, add in properties only if they are defined.
         const res = {
@@ -71,16 +78,22 @@ export const restructureWidgetSizeConfig = (
           minHeight: {},
           minWidth: {},
         };
+
         if (data?.maxHeight)
           res.maxHeight = { base: addPixelToSize(data.maxHeight) };
+
         if (data?.maxWidth)
           res.maxWidth = { base: addPixelToSize(data.maxWidth) };
+
         if (data?.minHeight)
           res.minHeight = { base: addPixelToSize(data.minHeight) };
+
         if (data?.minWidth)
           res.minWidth = { base: addPixelToSize(data.minWidth) };
+
         return res;
       }
+
       return {
         maxHeight: data?.maxHeight
           ? {
@@ -127,5 +140,6 @@ export const restructureWidgetSizeConfig = (
 
 export const addPixelToSize = (size: number | string): string => {
   if (!size) return "";
+
   return typeof size === "string" ? size : `${size}px`;
 };

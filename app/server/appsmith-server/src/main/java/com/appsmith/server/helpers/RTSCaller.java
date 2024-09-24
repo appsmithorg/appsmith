@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
@@ -28,6 +29,8 @@ public class RTSCaller {
     @Value("${appsmith.rts.port:}")
     private String rtsPort;
 
+    private static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
+
     @PostConstruct
     private void makeWebClient() {
         if (isEmpty(rtsPort)) {
@@ -45,6 +48,9 @@ public class RTSCaller {
         // We do NOT use `WebClientUtils` here, intentionally, since we don't allow connections to 127.0.0.1,
         // which is exactly the _only_ host we want to hit from here.
         webClient = WebClient.builder()
+                .exchangeStrategies(ExchangeStrategies.builder()
+                        .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE_IN_BYTES))
+                        .build())
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create(connectionProvider)))
                 .baseUrl("http://127.0.0.1:" + rtsPort)
                 .build();
@@ -84,5 +90,9 @@ public class RTSCaller {
 
     public Mono<WebClient.RequestBodySpec> put(@NonNull String path, @NonNull Object requestBody) {
         return makeRequest(HttpMethod.PUT, path, requestBody);
+    }
+
+    public Mono<WebClient.RequestBodySpec> delete(@NonNull String path) {
+        return makeRequest(HttpMethod.DELETE, path, null);
     }
 }

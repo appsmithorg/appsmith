@@ -1,4 +1,4 @@
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { get, isEmpty, set } from "lodash";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type { LintError } from "utils/DynamicBindingUtils";
@@ -21,6 +21,7 @@ export function getLintErrorsFromTree({
   jsPropertiesState,
   pathsToLint,
   unEvalTree,
+  webworkerTelemetry,
 }: getLintErrorsFromTreeProps): getLintErrorsFromTreeResponse {
   const lintTreeErrors: LintErrorsStore = {};
   const lintedJSPaths = new Set<string>();
@@ -47,7 +48,9 @@ export function getLintErrorsFromTree({
       entity,
       fullPropertyPath: bindingPath,
       globalData: globalData.getGlobalData(false),
+      webworkerTelemetry,
     });
+
     set(lintTreeErrors, `["${bindingPath}"]`, lintErrors);
   });
 
@@ -59,13 +62,16 @@ export function getLintErrorsFromTree({
       unEvalTree,
       triggerPath,
     ) as unknown as string;
+
     // remove all lint errors from path
     set(lintTreeErrors, `["${triggerPath}"]`, []);
     const lintErrors = lintTriggerPath({
       userScript: unEvalPropertyValue,
       entity,
       globalData: globalData.getGlobalData(true),
+      webworkerTelemetry,
     });
+
     set(lintTreeErrors, `["${triggerPath}"]`, lintErrors);
   });
 
@@ -76,6 +82,7 @@ export function getLintErrorsFromTree({
         getEntityNameAndPropertyPath(jsObjectPath);
       const jsObjectState = get(jsPropertiesState, jsObjectName);
       const jsObjectBodyPath = `["${jsObjectName}.body"]`;
+
       // An empty state shows that there is a parse error in the jsObject or the object is empty, so we lint the entire body
       // instead of an individual properties
       if (isEmpty(jsObjectState)) {
@@ -83,7 +90,9 @@ export function getLintErrorsFromTree({
         const jsObjectBodyLintErrors = lintJSObjectBody(
           jsObjectName,
           globalData.getGlobalData(true),
+          webworkerTelemetry,
         );
+
         set(lintTreeErrors, jsObjectBodyPath, jsObjectBodyLintErrors);
       } else if (jsPropertyName !== "body") {
         lintedJSPaths.add(jsObjectPath);
@@ -91,6 +100,7 @@ export function getLintErrorsFromTree({
           jsObjectPath,
           jsObjectState,
           asyncJSFunctionsInDataFields,
+          webworkerTelemetry,
         );
         const currentLintErrorsInBody = get(
           lintTreeErrors,
@@ -101,6 +111,7 @@ export function getLintErrorsFromTree({
           ...currentLintErrorsInBody,
           ...propertyLintErrors,
         ];
+
         set(lintTreeErrors, jsObjectBodyPath, updatedLintErrors);
       }
     });

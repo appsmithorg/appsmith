@@ -7,30 +7,29 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getCurrentApplication,
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { EntityClassNames } from "../Entity";
 import { createNewPageFromEntities } from "actions/pageActions";
-import { ADD_PAGE_TOOLTIP, createMessage } from "@appsmith/constants/messages";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import { ADD_PAGE_TOOLTIP, createMessage } from "ee/constants/messages";
+import type { Page } from "entities/Page";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
-import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
+import { selectAllPages } from "ee/selectors/entitiesSelector";
 import {
   getExplorerStatus,
   saveExplorerStatus,
-} from "@appsmith/pages/Editor/Explorer/helpers";
+} from "ee/pages/Editor/Explorer/helpers";
 import AddPageContextMenu from "./AddPageContextMenu";
 import { useLocation } from "react-router";
-import type { AppState } from "@appsmith/reducers";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { getInstanceId } from "@appsmith//selectors/tenantSelectors";
+import type { AppState } from "ee/reducers";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { getInstanceId } from "ee//selectors/tenantSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreatePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasCreatePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import {
   ENTITY_HEIGHT,
   RelativeContainer,
@@ -38,6 +37,7 @@ import {
 } from "../Common/components";
 import { EntityExplorerResizeHandler } from "../Common/EntityExplorerResizeHandler";
 import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -60,6 +60,7 @@ function Pages() {
   useEffect(() => {
     // scroll to the current page
     const currentPage = document.getElementById("entity-" + currentPageId);
+
     if (currentPage) {
       setTimeout(() => currentPage.scrollIntoView(), 0);
     }

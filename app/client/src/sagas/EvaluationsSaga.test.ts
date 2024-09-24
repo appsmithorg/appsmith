@@ -5,19 +5,19 @@ import {
   evalWorker,
 } from "./EvaluationsSaga";
 import { expectSaga } from "redux-saga-test-plan";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { select } from "redux-saga/effects";
 import { getMetaWidgets, getWidgets, getWidgetsMeta } from "./selectors";
-import { getAllActionValidationConfig } from "@appsmith//selectors/entitiesSelector";
+import { getAllActionValidationConfig } from "ee//selectors/entitiesSelector";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import * as log from "loglevel";
 
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { fetchPluginFormConfigsSuccess } from "actions/pluginActions";
 import { createJSCollectionSuccess } from "actions/jsActionActions";
 jest.mock("loglevel");
@@ -27,8 +27,11 @@ describe("evaluateTreeSaga", () => {
     jest.unmock("loglevel");
   });
   test("should set 'shouldRespondWithLogs'to evaluations when the log level is debug", async () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (log.getLevel as any).mockReturnValue(log.levels.DEBUG);
     const unEvalAndConfigTree = { unEvalTree: {}, configTree: {} };
+
     return expectSaga(evaluateTreeSaga, unEvalAndConfigTree)
       .provide([
         [select(getAllActionValidationConfig), {}],
@@ -55,8 +58,11 @@ describe("evaluateTreeSaga", () => {
       .run();
   });
   test("should set 'shouldRespondWithLogs' to false when the log level is not debug", async () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (log.getLevel as any).mockReturnValue(log.levels.INFO);
     const unEvalAndConfigTree = { unEvalTree: {}, configTree: {} };
+
     return expectSaga(evaluateTreeSaga, unEvalAndConfigTree)
       .provide([
         [select(getAllActionValidationConfig), {}],
@@ -127,9 +133,13 @@ describe("evaluateTreeSaga", () => {
 describe("evalQueueBuffer", () => {
   test("should return a buffered action with the default affectedJSObjects state for an action which does not have affectedJSObjects associated to it", () => {
     const buffer = evalQueueBuffer();
+
     // this action does not generate an affectedJSObject
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     buffer.put(fetchPluginFormConfigsSuccess({} as any));
     const bufferedAction = buffer.take();
+
     expect(bufferedAction).toEqual({
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: defaultAffectedJSObjects,
@@ -138,9 +148,15 @@ describe("evalQueueBuffer", () => {
   });
   test("should club all JS actions affectedJSObjects's ids", () => {
     const buffer = evalQueueBuffer();
+
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     buffer.put(createJSCollectionSuccess({ id: "1" } as any));
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     buffer.put(createJSCollectionSuccess({ id: "2" } as any));
     const bufferedAction = buffer.take();
+
     expect(bufferedAction).toEqual({
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: { ids: ["1", "2"], isAllAffected: false },
@@ -149,6 +165,9 @@ describe("evalQueueBuffer", () => {
   });
   test("should return all JS actions that have changed when there is a pending action which affects all JS actions ", () => {
     const buffer = evalQueueBuffer();
+
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     buffer.put(createJSCollectionSuccess({ id: "1" } as any));
     // this action triggers an isAllAffected flag
     buffer.put({
@@ -158,6 +177,7 @@ describe("evalQueueBuffer", () => {
     expect(buffer.isEmpty()).not.toBeTruthy();
 
     const bufferedAction = buffer.take();
+
     expect(bufferedAction).toEqual({
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: { ids: [], isAllAffected: true },
@@ -167,8 +187,12 @@ describe("evalQueueBuffer", () => {
   });
   test("should reset the collectedAffectedJSObjects after the buffered action has been dequeued and the subsequent actions should have the defaultAffectedJSObjects", () => {
     const buffer = evalQueueBuffer();
+
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     buffer.put(createJSCollectionSuccess({ id: "1" } as any));
     const bufferedAction = buffer.take();
+
     expect(bufferedAction).toEqual({
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: { ids: ["1"], isAllAffected: false },
@@ -176,8 +200,11 @@ describe("evalQueueBuffer", () => {
     });
     expect(buffer.isEmpty()).toBeTruthy();
     // this action does not generate an affectedJSObject, So the subsequent buffered action should have default affectedJSObjects
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     buffer.put(fetchPluginFormConfigsSuccess({ id: "1" } as any));
     const bufferedActionsWithDefaultAffectedJSObjects = buffer.take();
+
     expect(bufferedActionsWithDefaultAffectedJSObjects).toEqual({
       type: ReduxActionTypes.BUFFERED_ACTION,
       affectedJSObjects: defaultAffectedJSObjects,

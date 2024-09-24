@@ -4,8 +4,8 @@ import {
   NEW_API_BUTTON_TEXT,
   NEW_QUERY_BUTTON_TEXT,
   createMessage,
-} from "@appsmith/constants/messages";
-import { getNumberOfEntitiesInCurrentPage } from "@appsmith/selectors/entitiesSelector";
+} from "ee/constants/messages";
+import { getNumberOfEntitiesInCurrentPage } from "ee/selectors/entitiesSelector";
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import { PluginType } from "entities/Action";
@@ -99,6 +99,7 @@ describe("DatasourceViewModeSchema Component", () => {
       if (selector === getNumberOfEntitiesInCurrentPage) {
         return 0;
       }
+
       return selector(baseStoreForSpec); // Default case for other selectors
     });
     renderBaseDatasourceComponent();
@@ -107,6 +108,7 @@ describe("DatasourceViewModeSchema Component", () => {
     const generatePageButton = screen.queryByText(
       createMessage(DATASOURCE_GENERATE_PAGE_BUTTON),
     );
+
     expect(generatePageButton).not.toBeInTheDocument();
   });
 
@@ -134,6 +136,7 @@ describe("DatasourceViewModeSchema Component", () => {
     // Check that the "New Query" button is rendered as primary
     const newQuerySpan = screen.getByText(getCreateButtonText(PluginType.DB));
     const newQueryButton = newQuerySpan.closest("button");
+
     expect(newQueryButton).toHaveAttribute("kind", "primary");
   });
 });
@@ -148,6 +151,7 @@ describe("GoogleSheetSchema Component", () => {
       if (selector === getNumberOfEntitiesInCurrentPage) {
         return 0;
       }
+
       return selector(baseStoreForSpec); // Default case for other selectors
     });
     renderGoogleSheetDSComponent();
@@ -156,6 +160,7 @@ describe("GoogleSheetSchema Component", () => {
     const generatePageButton = screen.queryByText(
       createMessage(DATASOURCE_GENERATE_PAGE_BUTTON),
     );
+
     expect(generatePageButton).not.toBeInTheDocument();
   });
 });
@@ -186,6 +191,7 @@ describe("DSFormHeader Component", () => {
     const generatePageButton = screen.queryByText(
       createMessage(DATASOURCE_GENERATE_PAGE_BUTTON),
     );
+
     expect(generatePageButton).not.toBeInTheDocument();
   });
 });
@@ -212,6 +218,8 @@ const mockDatasource: Datasource = {
           ssl: {
             authType: SSLType.DEFAULT,
             authTypeControl: false,
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             certificateFile: {} as any,
           },
         },

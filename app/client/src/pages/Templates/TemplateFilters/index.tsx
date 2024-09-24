@@ -1,9 +1,9 @@
-import { SEARCH_TEMPLATES, createMessage } from "@appsmith/constants/messages";
+import { SEARCH_TEMPLATES, createMessage } from "ee/constants/messages";
 import {
   filterTemplates,
   setTemplateSearchQuery,
 } from "actions/templateActions";
-import { Icon, SearchInput } from "design-system";
+import { Icon, SearchInput } from "@appsmith/ads";
 import { debounce } from "lodash";
 import React, { useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,7 +13,7 @@ import {
   getTemplateSearchQuery,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   FilterCategoryWrapper,
   FilterItemText,
@@ -23,7 +23,7 @@ import {
   SearchWrapper,
   StyledFilterCategory,
 } from "./StyledComponents";
-import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
 
 export interface Filter {
   label: string;
@@ -58,7 +58,9 @@ const FilterItem = ({
   const onClick = () => {
     const action = selectedFilter ? "remove" : "add";
     const filterValue = item?.value ?? item.label;
+
     onSelectFilter(filterValue, action);
+
     if (action === "add") {
       AnalyticsUtil.logEvent("TEMPLATE_FILTER_SELECTED", {
         filter: filterValue,
@@ -102,6 +104,7 @@ function modifyAndSortFilterList(originalFilterList: Filter[]) {
     if (filter.label === ALL_TEMPLATES_FILTER_VALUE) {
       return { ...filter, label: ALL_TEMPLATES_UPDATED_LABEL };
     }
+
     return filter;
   });
 
@@ -117,6 +120,7 @@ function modifyAndSortFilterList(originalFilterList: Filter[]) {
 
     // If only one label is in the predefined order, prioritize it
     if (indexA !== -1) return -1;
+
     if (indexB !== -1) return 1;
 
     // If neither label is in the predefined order, use the default localeCompare
@@ -154,6 +158,7 @@ const FilterCategory = ({
             ),
             item,
           ];
+
       dispatch(filterTemplates(label, filterList));
     } else {
       // If "All" or "All Templates" is selected for removal, do nothing

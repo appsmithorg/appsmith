@@ -56,6 +56,7 @@ export function getComputedHeight(
   mainCanvasWidth: number,
 ): number {
   let res: number = computedHeight;
+
   /**
    * add padding buffer for canvas.
    * if parentRowSpace === 1, => type === CANVAS_WIDGET
@@ -84,19 +85,24 @@ export function getComputedHeight(
    * However a tab widget requires a min of 30 rows. So the child canvas must comply.
    */
   let containerMinHeight = 0;
+
   if (
     parent.type === "CANVAS_WIDGET" &&
     parent.parentId &&
     parent.parentId !== MAIN_CONTAINER_WIDGET_ID
   ) {
     const container = widgets[parent.parentId];
+
     containerMinHeight =
       (getWidgetMinMaxDimensionsInPixel(container, mainCanvasWidth)
         ?.minHeight || 0) / GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
     if (container.type === "TABS_WIDGET" && container?.shouldShowTabs)
       containerMinHeight -= 4;
   }
+
   res = Math.max(res, minHeight, containerMinHeight);
+
   return res;
 }
 
@@ -123,17 +129,20 @@ export function updateParentHeight(
     null,
     isMobile,
   );
+
   /**
    * For Modal widget, set additional height property
    */
   if (parent.type === "MODAL_WIDGET") {
     // Add a couple of pixels to the modal height to avoid scrollbars.
     const bufferForModal = 2;
+
     updatedParent = {
       ...updatedParent,
       height: modalHeight + bufferForModal,
     };
   }
+
   return updatedParent;
 }
 
@@ -150,10 +159,13 @@ export function getModalHeight(
   divisor: number,
 ): number {
   let res: number = computedHeight;
+
   // if (parent.parentRowSpace === 1) res -= 2;
   res *= divisor;
+
   if (parent.type === "MODAL_WIDGET")
     res *= divisor === 1 ? GridDefaults.DEFAULT_GRID_ROW_HEIGHT : 1;
+
   return res;
 }
 
@@ -167,10 +179,13 @@ export function getContainerLikeWidgetHeight(
   widgets: CanvasWidgetsReduxState,
   parent: FlattenedWidgetProps,
   isMobile: boolean,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaProps?: Record<string, any>,
 ): number {
   if (!parent.children || !parent.children.length)
     return getWidgetRows(parent, isMobile);
+
   let children: string[] = parent?.children;
 
   /**
@@ -186,6 +201,7 @@ export function getContainerLikeWidgetHeight(
       children = [metaProps[parent.widgetId]?.selectedTabWidgetId];
     } else children = [parent.children[0]];
   }
+
   return getTotalRowsOfAllChildren(widgets, children, isMobile);
 }
 
@@ -195,14 +211,20 @@ export function getTotalRowsOfAllChildren(
   isMobile: boolean,
 ): number {
   if (!children || !children.length) return 0;
+
   let top = 10000,
     bottom = 0;
+
   for (const childId of children) {
     const child = widgets[childId];
+
     if (!child) continue;
+
     const divisor = getDivisor(child);
+
     top = Math.min(top, getTopRow(child, isMobile));
     bottom = Math.max(bottom, getBottomRow(child, isMobile) / divisor);
   }
+
   return bottom - top;
 }

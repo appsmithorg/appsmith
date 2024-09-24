@@ -18,6 +18,7 @@ import type { FieldEntityInformation } from "components/editorComponents/CodeEdi
 
 jest.mock("utils/getCodeMirrorNamespace", () => {
   const actual = jest.requireActual("utils/getCodeMirrorNamespace");
+
   return {
     ...actual,
     getCodeMirrorNamespaceFromDoc: jest.fn((doc) => ({
@@ -91,6 +92,7 @@ describe("Tern server", () => {
       const { value } = CodemirrorTernService.getFocusedDocValueAndPos(
         testCase.input,
       );
+
       expect(value).toBe(testCase.expectedOutput);
     });
   });
@@ -157,6 +159,7 @@ describe("Tern server", () => {
         string: "",
       });
       const request = CodemirrorTernService.buildRequest(testCase.input, {});
+
       expect(request.query.end).toEqual(testCase.expectedOutput);
     });
   });
@@ -223,10 +226,15 @@ describe("Tern server", () => {
       });
 
       const mockAddFile = jest.fn();
+
       CodemirrorTernService.server.addFile = mockAddFile;
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const value: any = CodemirrorTernService.requestCallback(
         null,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         testCase.input.requestCallbackData as any,
         MockCodemirrorEditor as unknown as CodeMirror.Editor,
         () => null,
@@ -252,6 +260,8 @@ describe("Tern server sorting", () => {
     },
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sameEntityCompletion: Completion<any> = {
     text: "sameEntity.tableData",
     displayText: "sameEntity.tableData",
@@ -259,6 +269,7 @@ describe("Tern server sorting", () => {
     origin: "DATA_TREE",
     data: {},
   };
+
   defEntityInformation.set("sameEntity", {
     type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET",
@@ -268,6 +279,8 @@ describe("Tern server sorting", () => {
     subType: "TABLE_WIDGET_V2",
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const priorityCompletion: Completion<any> = {
     text: "selectedRow",
     displayText: "selectedRow",
@@ -275,6 +288,7 @@ describe("Tern server sorting", () => {
     origin: "DATA_TREE",
     data: {},
   };
+
   defEntityInformation.set("sameType", {
     type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET",
@@ -284,6 +298,8 @@ describe("Tern server sorting", () => {
     subType: "TABLE_WIDGET_V2",
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const diffTypeCompletion: Completion<any> = {
     text: "diffType.tableData",
     displayText: "diffType.tableData",
@@ -301,6 +317,8 @@ describe("Tern server sorting", () => {
     subType: "TABLE_WIDGET_V2",
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sameTypeDiffEntityTypeCompletion: Completion<any> = {
     text: "diffEntity.data",
     displayText: "diffEntity.data",
@@ -314,6 +332,8 @@ describe("Tern server sorting", () => {
     subType: ENTITY_TYPE.ACTION,
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dataTreeCompletion: Completion<any> = {
     text: "otherDataTree",
     displayText: "otherDataTree",
@@ -327,6 +347,8 @@ describe("Tern server sorting", () => {
     subType: "TEXT_WIDGET",
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const functionCompletion: Completion<any> = {
     text: "otherDataFunction",
     displayText: "otherDataFunction",
@@ -335,6 +357,8 @@ describe("Tern server sorting", () => {
     data: {},
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ecmascriptCompletion: Completion<any> = {
     text: "otherJS",
     displayText: "otherJS",
@@ -343,6 +367,8 @@ describe("Tern server sorting", () => {
     data: {},
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const libCompletion: Completion<any> = {
     text: "libValue",
     displayText: "libValue",
@@ -351,6 +377,8 @@ describe("Tern server sorting", () => {
     data: {},
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const unknownCompletion: Completion<any> = {
     text: "unknownSuggestion",
     displayText: "unknownSuggestion",
@@ -394,6 +422,7 @@ describe("Tern server sorting", () => {
         subType: "TABLE_WIDGET",
       },
     );
+
     expect(sortedCompletions[1]).toStrictEqual(contextCompletion);
     expect(sortedCompletions).toEqual(
       expect.arrayContaining([
@@ -421,18 +450,21 @@ describe("Tern server sorting", () => {
       dataTreeCompletion,
       AutocompleteSorter.currentFieldInfo,
     );
+
     expect(scoredCompletion1.score).toEqual(2 ** 6 + 2 ** 4 + 2 ** 3);
     //completion that belongs to the same entity.
     const scoredCompletion2 = new ScoredCompletion(
       sameEntityCompletion,
       AutocompleteSorter.currentFieldInfo,
     );
+
     expect(scoredCompletion2.score).toEqual(-Infinity);
     //completion that is a priority.
     const scoredCompletion3 = new ScoredCompletion(
       priorityCompletion,
       AutocompleteSorter.currentFieldInfo,
     );
+
     expect(scoredCompletion3.score).toBe(2 ** 8 + 2 ** 4 + 2 ** 3);
   });
 });
@@ -719,6 +751,7 @@ describe("Tern server completion", () => {
     const expectedContainingItems = _.sortBy(expectedValue, "text").map(
       (item) => expect.objectContaining(item),
     );
+
     expect(_.sortBy(result.list, "text")).toEqual(expectedContainingItems);
   });
 });

@@ -2,7 +2,7 @@ import DataTreeEvaluator from ".";
 import { unEvalTree } from "./mockData/mockUnEvalTree";
 import { configTree } from "./mockData/mockConfigTree";
 import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   arrayAccessorCyclicDependency,
   arrayAccessorCyclicDependencyConfig,
@@ -19,12 +19,12 @@ import type { WidgetConfiguration } from "WidgetProvider/constants";
 import {
   EvaluationSubstitutionType,
   type WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import generateOverrideContext from "@appsmith/workers/Evaluation/generateOverrideContext";
+import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
 import { klona } from "klona";
 
 const widgetConfigMap: Record<
@@ -35,6 +35,7 @@ const widgetConfigMap: Record<
     metaProperties: WidgetConfiguration["properties"]["meta"];
   }
 > = {};
+
 widgets.map((widget) => {
   if (widget.type) {
     widgetConfigMap[widget.type] = {
@@ -45,7 +46,7 @@ widgets.map((widget) => {
   }
 });
 
-jest.mock("@appsmith/workers/Evaluation/generateOverrideContext"); // mock the generateOverrideContext function
+jest.mock("ee/workers/Evaluation/generateOverrideContext"); // mock the generateOverrideContext function
 
 const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
 
@@ -63,6 +64,7 @@ describe("DataTreeEvaluator", () => {
           property: "my value",
         },
       );
+
       expect(result).toStrictEqual([
         "my value",
         "my value",
@@ -83,6 +85,7 @@ describe("DataTreeEvaluator", () => {
           property: "my value",
         },
       );
+
       expect(result).toStrictEqual([
         "my value",
         "my value",
@@ -103,6 +106,7 @@ describe("DataTreeEvaluator", () => {
           property: "my value",
         },
       );
+
       expect(result).toStrictEqual([
         "my value",
         "my value",
@@ -123,6 +127,7 @@ describe("DataTreeEvaluator", () => {
           property: "my value",
         },
       );
+
       expect(result).toStrictEqual([
         "my value",
         "my value",
@@ -143,6 +148,7 @@ describe("DataTreeEvaluator", () => {
           property: "my value",
         },
       );
+
       expect(result).toStrictEqual([
         "my value",
         "my value",
@@ -158,11 +164,13 @@ describe("DataTreeEvaluator", () => {
       let generateOverrideContextParams;
       // Mock generateOverrideContext only for this test
       const originalGenerateOverrideContext = generateOverrideContext;
+
       (generateOverrideContext as jest.Mock).mockImplementation((params) => {
         // The dataTree gets mutated in evaluateActionBindings thus modifying the
         // original params passed to this function. This helps preserving the params
         // actually passed.
         generateOverrideContextParams = klona(params);
+
         return overrideContextValue;
       });
 
@@ -189,15 +197,20 @@ describe("DataTreeEvaluator", () => {
         property: "my value",
         input1: "200",
       };
+
       dataTreeEvaluator.evalTree = klona(dataTree);
 
       const originalGetDynamicValue =
         dataTreeEvaluator.getDynamicValue.bind(dataTreeEvaluator);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const getDynamicValueCapturedParams: any[] = [];
+
       jest.spyOn(dataTreeEvaluator, "getDynamicValue");
       (dataTreeEvaluator.getDynamicValue as jest.Mock).mockImplementation(
         (...args) => {
           getDynamicValueCapturedParams.push(args);
+
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           return originalGetDynamicValue(...args);
@@ -250,6 +263,7 @@ describe("DataTreeEvaluator", () => {
               }),
             ];
           }
+
           expect(getDynamicValueCapturedParams[index]).toEqual(
             defaultExpectedValue,
           );
@@ -277,6 +291,7 @@ describe("DataTreeEvaluator", () => {
         unEvalTree as unknown as DataTree,
         configTree as unknown as ConfigTree,
       );
+
       dataTreeEvaluator.evalAndValidateSubTree(
         evalOrder,
         configTree as unknown as ConfigTree,
@@ -357,6 +372,7 @@ describe("DataTreeEvaluator", () => {
 
   describe("array accessor dependency handling", () => {
     const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
+
     beforeEach(() => {
       dataTreeEvaluator.setupFirstTree(
         nestedArrayAccessorCyclicDependency.initUnEvalTree,
@@ -375,6 +391,7 @@ describe("DataTreeEvaluator", () => {
               arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
               arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
             );
+
           dataTreeEvaluator.evalAndValidateSubTree(
             evalOrder,
             arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
@@ -399,6 +416,7 @@ describe("DataTreeEvaluator", () => {
               arrayAccessorCyclicDependency.apiFailureUnEvalTree,
               arrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
             );
+
           dataTreeEvaluator.evalAndValidateSubTree(
             order,
             arrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
@@ -426,6 +444,7 @@ describe("DataTreeEvaluator", () => {
             arrayAccessorCyclicDependency.apiSuccessUnEvalTree,
             arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           );
+
         dataTreeEvaluator.evalAndValidateSubTree(
           order1,
           arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
@@ -438,6 +457,7 @@ describe("DataTreeEvaluator", () => {
             arrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
             arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
           );
+
         dataTreeEvaluator.evalAndValidateSubTree(
           order2,
           arrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
@@ -466,6 +486,7 @@ describe("DataTreeEvaluator", () => {
               nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
               nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
             );
+
           dataTreeEvaluator.evalAndValidateSubTree(
             order,
             nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
@@ -493,6 +514,7 @@ describe("DataTreeEvaluator", () => {
               nestedArrayAccessorCyclicDependency.apiFailureUnEvalTree,
               nestedArrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
             );
+
           dataTreeEvaluator.evalAndValidateSubTree(
             order1,
             nestedArrayAccessorCyclicDependencyConfig.apiFailureConfigTree,
@@ -522,6 +544,7 @@ describe("DataTreeEvaluator", () => {
             nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
             nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           );
+
         dataTreeEvaluator.evalAndValidateSubTree(
           order,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
@@ -534,6 +557,7 @@ describe("DataTreeEvaluator", () => {
             nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree2,
             nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
           );
+
         dataTreeEvaluator.evalAndValidateSubTree(
           order1,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree2,
@@ -561,6 +585,7 @@ describe("DataTreeEvaluator", () => {
             nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree,
             nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
           );
+
         dataTreeEvaluator.evalAndValidateSubTree(
           order,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree,
@@ -573,6 +598,7 @@ describe("DataTreeEvaluator", () => {
             nestedArrayAccessorCyclicDependency.apiSuccessUnEvalTree3,
             nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree3,
           );
+
         dataTreeEvaluator.evalAndValidateSubTree(
           order1,
           nestedArrayAccessorCyclicDependencyConfig.apiSuccessConfigTree3,
@@ -1173,8 +1199,10 @@ describe("isDataField", () => {
       widgetId: "pzom2ufg3b",
     },
   } as ConfigTree;
+
   it("doesn't crash when config tree is empty", () => {
     const isADataField = isDataField("appsmith.store", {});
+
     expect(isADataField).toBe(false);
   });
   it("works correctly", function () {
@@ -1195,6 +1223,7 @@ describe("isDataField", () => {
 
     for (const testCase of testCases) {
       const isADataField = isDataField(testCase.fullPath, configTree);
+
       expect(isADataField).toBe(testCase.isDataField);
     }
   });

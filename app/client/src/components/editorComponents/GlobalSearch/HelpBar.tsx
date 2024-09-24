@@ -1,15 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 import { connect, useSelector } from "react-redux";
-import { getTypographyByKey, Text, TextType } from "design-system-old";
-import { Icon } from "design-system";
+import { getTypographyByKey, Text, TextType } from "@appsmith/ads-old";
+import { Icon } from "@appsmith/ads";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
-import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { HELPBAR_PLACEHOLDER } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
 const StyledHelpBar = styled.button<{ isSideBySideFlagEnabled?: boolean }>`
@@ -78,6 +78,8 @@ const mapStateToProps = (state: AppState) => ({
   isProtectedMode: protectedModeSelector(state),
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => ({
   toggleShowModal: () => {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "NAVBAR_CLICK" });

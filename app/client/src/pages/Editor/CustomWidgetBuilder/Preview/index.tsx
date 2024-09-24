@@ -1,12 +1,9 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import CustomComponent from "widgets/CustomWidget/component";
 import { CustomWidgetBuilderContext } from "../index";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import Debugger from "./Debugger";
-import {
-  CUSTOM_WIDGET_FEATURE,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
 import type { AppThemeProperties } from "entities/AppTheming";
 import { DynamicHeight } from "utils/WidgetFeatures";
 

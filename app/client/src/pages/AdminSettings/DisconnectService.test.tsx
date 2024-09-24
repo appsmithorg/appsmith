@@ -5,8 +5,10 @@ import {
   createMessage,
   DISCONNECT_AUTH_METHOD,
   DISCONNECT_CONFIRMATION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 const buttonClickHandler = jest.fn();
 
@@ -15,6 +17,7 @@ const values = {
   subHeader: "some subheader value",
   warning: "some warning",
 };
+
 useSelector.mockReturnValue(values);
 
 function renderComponent() {
@@ -36,6 +39,7 @@ describe("Disconnect Service", () => {
   it("is rendered", () => {
     renderComponent();
     const disconnectBtn = screen.queryAllByTestId("disconnect-service-button");
+
     expect(disconnectBtn).toHaveLength(1);
     expect(disconnectBtn[0].textContent).toEqual(
       createMessage(DISCONNECT_AUTH_METHOD),

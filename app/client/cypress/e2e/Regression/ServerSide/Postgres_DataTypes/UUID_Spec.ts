@@ -96,7 +96,6 @@ describe("UUID Datatype tests", { tags: ["@tag.Datasource"] }, function () {
 
     agHelper.ClickButton("Generate UUID's");
     agHelper.AssertContains("All UUIDs generated & available");
-    cy.pause();
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locators._specificToast("failed to execute")); //Assert that Insert did not fail
     agHelper.AssertElementVisibility(locators._buttonByText("Run InsertQuery"));

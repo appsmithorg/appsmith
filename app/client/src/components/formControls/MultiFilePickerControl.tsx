@@ -6,8 +6,8 @@ import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field, getFormValues } from "redux-form";
-import { Button, Tag, Text, toast } from "design-system";
-import type { AppState } from "@appsmith/reducers";
+import { Button, Tag, Text, toast } from "@appsmith/ads";
+import type { AppState } from "ee/reducers";
 import type { Datasource } from "entities/Datasource";
 import type { Action } from "entities/Action";
 import { connect } from "react-redux";
@@ -15,9 +15,9 @@ import PluginsApi from "api/PluginApi";
 import type { Plugin } from "api/PluginApi";
 import { get, isArray } from "lodash";
 import { formatFileSize } from "./utils";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { getPlugin } from "@appsmith/selectors/entitiesSelector";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { getPlugin } from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const HiddenFileInput = styled.input`
   visibility: hidden;
@@ -37,6 +37,8 @@ export type MultipleFilePickerControlProps = ControlProps & {
   pluginId?: string;
   config?: {
     uploadToTrigger?: boolean;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params?: Record<string, any>;
   };
   buttonLabel?: string;
@@ -46,6 +48,8 @@ type FilePickerProps = MultipleFilePickerControlProps & {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
   disabled?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange: (event: any) => void;
   maxUploadSize: number;
 };
@@ -93,18 +97,21 @@ function FilePicker(props: FilePickerProps) {
         const {
           data: { files },
         } = response.data.trigger as FileUploadResponse;
+
         return files;
       } else {
         return [];
       }
     } catch (e) {
       toast.show("Error uploading files", { kind: "error" });
+
       return [];
     }
   };
 
   const validateFileSizes = (files: File[]) => {
     const { maxFileSizeInBytes = -1 } = props;
+
     if (maxFileSizeInBytes === -1) return true;
 
     let totalSize = 0;
@@ -136,6 +143,7 @@ function FilePicker(props: FilePickerProps) {
       });
 
       clearInput();
+
       return false;
     }
 
@@ -151,6 +159,7 @@ function FilePicker(props: FilePickerProps) {
   const getBase64Content = async (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
+
       reader.readAsDataURL(file);
       reader.onload = () => {
         if (typeof reader.result === "string") {
@@ -166,12 +175,16 @@ function FilePicker(props: FilePickerProps) {
     event,
   ) => {
     const files = event.target.files;
+
     if (!files) return;
+
     if (files.length === 0) return;
 
     const filesArray = Array.from(files);
+
     if (!validateFileSizes(filesArray)) {
       clearInput();
+
       return;
     }
 
@@ -183,6 +196,7 @@ function FilePicker(props: FilePickerProps) {
     } else {
       filesArray.forEach(async (file) => {
         const base64Content = await getBase64Content(file);
+
         newFiles.push({
           id: file.name,
           name: file.name,
@@ -282,6 +296,7 @@ class MultipleFilePickerControl extends BaseControl<MultipleFilePickerControlPro
 
   render() {
     const { configProperty, disabled } = this.props;
+
     return (
       <Field
         component={FilePicker}

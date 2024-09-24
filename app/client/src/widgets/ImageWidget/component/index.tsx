@@ -2,8 +2,8 @@ import * as React from "react";
 import type { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { createMessage, IMAGE_LOAD_ERROR } from "@appsmith/constants/messages";
-import { importSvg } from "design-system-old";
+import { createMessage, IMAGE_LOAD_ERROR } from "ee/constants/messages";
+import { importSvg } from "@appsmith/ads-old";
 
 const RotateLeftIcon = importSvg(
   async () => import("assets/icons/widget/image/rotate-left.svg"),
@@ -174,16 +174,22 @@ class ImageComponent extends React.Component<
       maxZoomLevel !== undefined && maxZoomLevel > 1 && !this.isPanning;
     const isZoomingIn = this.state.zoomingState === ZoomingState.MAX_ZOOMED_OUT;
     let cursor = "inherit";
+
     if (zoomActive) {
       cursor = isZoomingIn ? "zoom-in" : "zoom-out";
     }
+
     if (this.props.onClick) cursor = "pointer";
 
     const hasOnClick = Boolean(zoomActive || this.props.onClick);
 
     const onClick = (
       event: React.MouseEvent<HTMLElement>,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       zoomIn: any,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       zoomOut: any,
     ) => {
       if (!this.isPanning) {
@@ -192,8 +198,10 @@ class ImageComponent extends React.Component<
         } else {
           zoomOut(event);
         }
+
         this.props.onClick && this.props.onClick(event);
       }
+
       this.isPanning = false;
     };
 
@@ -225,6 +233,8 @@ class ImageComponent extends React.Component<
           onPanningStop={() => {
             this.props.disableDrag(false);
           }}
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onZoomChange={(zoom: any) => {
             if (zoomActive) {
               //Check max zoom
@@ -259,6 +269,8 @@ class ImageComponent extends React.Component<
             disabled: !zoomActive,
           }}
         >
+          {/* TODO: Fix this the next time the file is edited */}
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {({ zoomIn, zoomOut }: any) => (
             <>
               {this.renderImageControl()}
@@ -347,6 +359,8 @@ class ImageComponent extends React.Component<
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleImageRotate = (rotateRight: boolean) => (e: any) => {
     const { imageRotation } = this.state;
 
@@ -362,6 +376,7 @@ class ImageComponent extends React.Component<
 
   onMouseEnter = () => {
     const { defaultImageUrl, imageUrl } = this.props;
+
     if (defaultImageUrl || imageUrl) {
       this.setState({ showImageControl: true });
     }

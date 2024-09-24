@@ -1,7 +1,7 @@
 import {
   ReduxActionErrorTypes,
   type ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
@@ -45,6 +45,8 @@ function* updateZonesCountOfSectionSaga(
       if (sectionWidget && sectionWidget.children) {
         // Determine the current zones' order within the section
         const zoneOrder: string[] = sectionWidget.layout[0].layout.map(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (each: any) => each.widgetId,
         );
 
@@ -69,6 +71,7 @@ function* updateZonesCountOfSectionSaga(
             sectionWidgetId,
             zoneCount - currentZoneCount,
           );
+
           updatedWidgets = updatedObj.updatedWidgets;
         }
 
@@ -112,6 +115,7 @@ function* updateZonesCountOfSectionSaga(
 
         // Update each child widget's flexGrow property based on the redistributed space
         const childrenToUpdate = updatedWidgets[sectionWidgetId].children || [];
+
         childrenToUpdate.forEach((each) => {
           updatedWidgets[each] = {
             ...updatedWidgets[each],

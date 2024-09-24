@@ -10,7 +10,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { APP_MODE } from "entities/App";
 import { useSelector } from "react-redux";
-import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import { getAppMode } from "ee/selectors/entitiesSelector";
 import AutoLayoutLayer from "./AutoLayoutLayer";
 import { FLEXBOX_PADDING, GridDefaults } from "constants/WidgetConstants";
 import type {
@@ -45,7 +45,9 @@ function FlexBoxComponent(props: FlexBoxProps) {
 
   const renderChildren = () => {
     if (!props.children) return null;
+
     if (!props.useAutoLayout) return props.children;
+
     if (direction === LayoutDirection.Horizontal) {
       return props.children;
     }
@@ -53,28 +55,39 @@ function FlexBoxComponent(props: FlexBoxProps) {
     /**
      * Wrap children of a Vertical Stack in a flex layer.
      */
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const map: { [key: string]: any } = {};
+
     if (isArray(props.children)) {
       for (const child of props.children) {
         map[(child as JSX.Element).props?.widgetId] = child;
       }
     }
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const layers: any[] = processLayers(map);
 
     return layers;
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function processLayers(map: { [key: string]: any }) {
     const layers = [];
+
     for (const [index, layer] of props.flexLayers.entries()) {
       layers.push(processIndividualLayer(layer, map, index));
     }
+
     return layers;
   }
 
   function processIndividualLayer(
     layer: FlexLayer,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     map: { [key: string]: any },
     index: number,
   ) {
@@ -87,6 +100,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
       centerColumns = 0,
       endColumns = 0;
     const columnInfo: AlignmentColumnInfo = alignmentColumnInfo[index];
+
     if (columnInfo) {
       startColumns = columnInfo[FlexLayerAlignment.Start];
       centerColumns = columnInfo[FlexLayerAlignment.Center];
@@ -95,6 +109,7 @@ function FlexBoxComponent(props: FlexBoxProps) {
 
     for (const child of children) {
       const widget = map[child.id];
+
       if (child.align === FlexLayerAlignment.End) {
         end.push(widget);
       } else if (child.align === FlexLayerAlignment.Center) {

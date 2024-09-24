@@ -1,5 +1,5 @@
-import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { PrivateWidgets } from "ee/entities/DataTree/types";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -24,7 +24,6 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import equal from "fast-deep-equal/es6";
-import { klona } from "klona/lite";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import {
   Positioning,
@@ -56,7 +55,7 @@ import {
 } from "utils/DynamicBindingUtils";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import { removeFalsyEntries } from "utils/helpers";
+import { klonaLiteWithTelemetry, removeFalsyEntries } from "utils/helpers";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
@@ -81,6 +80,7 @@ const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 */
 const PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET =
   "children.0.children.0.children.0.children";
+
 class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   state = {
     page: 1,
@@ -116,18 +116,26 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       positioning: Positioning.Fixed,
       enhancements: {
         child: {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           autocomplete: (parentProps: any) => {
             return parentProps.childAutoComplete;
           },
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           updateDataTreePath: (parentProps: any, dataTreePath: string) => {
             return `${parentProps.widgetName}.template.${dataTreePath}`;
           },
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           shouldHideProperty: (parentProps: any, propertyName: string) => {
             if (propertyName === "dynamicHeight") return true;
 
             return false;
           },
           propertyUpdateHook: (
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             parentProps: any,
             widgetName: string,
             propertyPath: string,
@@ -324,13 +332,19 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               widgets: { [widgetId: string]: FlattenedWidgetProps },
             ) => {
               let template = {};
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const logBlackListMap: any = {};
               const container = get(
                 widgets,
                 `${get(widget, "children.0.children.0")}`,
               );
               const canvas = get(widgets, `${get(container, "children.0")}`);
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               let updatePropertyMap: any = [];
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const dynamicBindingPathList: any[] = get(
                 widget,
                 "dynamicBindingPathList",
@@ -418,6 +432,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               parentId: string,
             ) => {
               if (!parentId) return { widgets };
+
               const widget = { ...widgets[widgetId] };
               const parent = { ...widgets[parentId] };
               const logBlackList: { [key: string]: boolean } = {};
@@ -456,19 +471,24 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
               if (indexOf(allowedWidgets, widget.type) === -1) {
                 const widget = widgets[widgetId];
+
                 if (widget.children && widget.children.length > 0) {
                   widget.children.forEach((childId: string) => {
                     delete widgets[childId];
                   });
                 }
+
                 if (widget.parentId) {
                   const _parent = { ...widgets[widget.parentId] };
+
                   _parent.children = _parent.children?.filter(
                     (id) => id !== widgetId,
                   );
                   widgets[widget.parentId] = _parent;
                 }
+
                 delete widgets[widgetId];
+
                 return {
                   widgets,
                   message: `This widget cannot be used inside the list widget.`,
@@ -484,6 +504,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
               widgets[parentId] = parent;
               widgets[widgetId] = widget;
+
               return { widgets };
             },
           },
@@ -605,6 +626,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     if (this.props.serverSidePaginationEnabled && !this.props.pageNo) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
+
     this.props.updateWidgetMetaProperty(
       "templateBottomRow",
       get(this.props.childWidgets, "0.children.0.bottomRow"),
@@ -628,6 +650,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   generateChildrenEntityDefinitions(props: ListWidgetProps<WidgetProps>) {
     const template = props.template;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const childrenEntityDefinitions: Record<string, any> = {};
 
     if (template) {
@@ -664,7 +688,9 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       props,
       PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
     );
+
     if (!listWidgetChildren) return;
+
     listWidgetChildren.map((child) => {
       privateWidgets[child.widgetName] = true;
     });
@@ -755,6 +781,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
     if (this.props.serverSidePaginationEnabled) {
       if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
+
       // run onPageSizeChange if user resize widgets
       if (
         this.props.onPageSizeChange &&
@@ -812,6 +839,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return {};
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
@@ -823,6 +852,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const currentPage = this.props.pageNo;
     const eventType =
       currentPage > page ? EventType.ON_PREV_PAGE : EventType.ON_NEXT_PAGE;
+
     this.props.updateWidgetMetaProperty("pageNo", page, {
       triggerPropertyName: "onPageChange",
       dynamicString: this.props.onPageChange,
@@ -891,8 +921,10 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       : componentHeight;
     const positioning: Positioning =
       this.props.positioning || childWidgetData.positioning;
+
     childWidgetData.positioning = positioning;
     childWidgetData.useAutoLayout = positioning === Positioning.Vertical;
+
     return renderAppsmithCanvas(childWidgetData as WidgetProps);
   };
 
@@ -1003,6 +1035,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             validationPath?.type === ValidationTypes.OBJECT_ARRAY
           ) {
             const value = Array.isArray(evaluatedValue) ? evaluatedValue : [];
+
             set(widget, path, value);
           } else {
             set(widget, path, toString(evaluatedValue));
@@ -1068,10 +1101,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                   `{{((currentItem) => { ${next}})(JSON.parse(JSON.stringify(${stringifiedListItem})))}}`
                 );
               }
+
               return prev + `{{${next}}}`;
             },
             "",
           );
+
           set(widget, path, newPropertyValue);
         }
 
@@ -1092,6 +1127,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
                   `{{((currentIndex) => { ${next}})(JSON.parse(JSON.stringify(${itemIndex})))}}`
                 );
               }
+
               return prev + `{{${next}}}`;
             },
             "",
@@ -1166,6 +1202,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               );
             },
           );
+
           // Set the update list of children as the new children for the current list item
           set(
             updatedListItemContainer,
@@ -1173,6 +1210,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             updatedListItemChildren,
           );
         }
+
         // Get the item container's canvas child widget
         const listItemContainerCanvas = get(
           updatedListItemContainer,
@@ -1184,6 +1222,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             listItemContainerCanvas,
             listItemIndex,
           );
+
         // Set the item container's canvas child widget
         set(
           updatedListItemContainer,
@@ -1232,6 +1271,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   updateGridChildrenProps = (children: DSLWidget[]) => {
     let updatedChildren = this.useNewValues(children);
+
     updatedChildren = this.updateActions(updatedChildren);
     updatedChildren = this.paginateItems(updatedChildren);
     updatedChildren = this.updatePosition(updatedChildren);
@@ -1260,6 +1300,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   paginateItems = (children: DSLWidget[]) => {
     // return all children if serverside pagination
     if (this.props.serverSidePaginationEnabled) return children;
+
     const { page } = this.state;
     const { perPage, shouldPaginate } = this.shouldPaginate();
 
@@ -1280,13 +1321,19 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.props.listData
     ) {
       const { page } = this.state;
-      const children = removeFalsyEntries(klona(this.props.childWidgets));
+      const children = removeFalsyEntries(
+        klonaLiteWithTelemetry(
+          this.props.childWidgets,
+          "ListWidget.renderChildren",
+        ),
+      );
       const childCanvas = children[0];
       const { perPage } = this.shouldPaginate();
 
       const canvasChildren = childCanvas.children;
       const template = canvasChildren.slice(0, 1).shift();
       const gridGap = this.getGridGap();
+
       try {
         // Passing template instead of deriving from canvasChildren becuase lesser items to compare
         // in memoize
@@ -1303,15 +1350,24 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       } catch (e) {
         log.error(e);
       }
+
       return this.renderChild(childCanvas);
     }
   };
 
   getCanvasChildren = memoizeOne(
     (
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       template: any,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       listData: any,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       staticTemplate: any,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       canvasChildren: any,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1324,10 +1380,15 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       perPage,
     ) => {
       const canvasChildrenList = [];
+
       if (listData.length > 0) {
         for (let i = 0; i < listData.length; i++) {
-          canvasChildrenList[i] = klona(template);
+          canvasChildrenList[i] = klonaLiteWithTelemetry(
+            template,
+            "ListWidget.renderChildren",
+          );
         }
+
         canvasChildren = this.updateGridChildrenProps(canvasChildrenList);
       } else {
         canvasChildren = this.updateGridChildrenProps(canvasChildren);
@@ -1335,10 +1396,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
       return canvasChildren;
     },
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (prev: any, next: any) => this.compareProps(prev, next),
   );
 
   // DeepEqual Comparison
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   compareProps = (prev: any[], next: any[]) => {
     return (
       equal(prev[0], next[0]) &&

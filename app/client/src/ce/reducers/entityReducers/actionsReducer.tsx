@@ -1,9 +1,9 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { ActionResponse } from "api/ActionAPI";
 import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import _ from "lodash";
@@ -31,7 +31,7 @@ export interface ActionDataWithMeta extends ActionData {
 export type ActionDataState = ActionData[];
 export interface PartialActionData {
   isLoading: boolean;
-  config: { id: string };
+  config: { id: string; baseId: string };
   data?: ActionResponse;
 }
 
@@ -46,6 +46,7 @@ export const handlers = {
       const foundAction = draftMetaState.find((currentAction) => {
         return currentAction.config.id === action.id;
       });
+
       return {
         isLoading: false,
         config: action,
@@ -72,6 +73,7 @@ export const handlers = {
 
       action.payload.forEach((actionPayload: Action) => {
         const stateAction = stateActionMap[actionPayload.id];
+
         if (stateAction) {
           result.push({
             data: stateAction.data,
@@ -111,7 +113,11 @@ export const handlers = {
   ) => {
     return draftMetaState.concat([
       {
-        config: { ...action.payload, id: action.payload.name },
+        config: {
+          ...action.payload,
+          baseId: action.payload.name,
+          id: action.payload.name,
+        },
         isLoading: false,
       },
     ]);
@@ -190,15 +196,17 @@ export const handlers = {
     const foundAction = draftMetaState.find((stateAction) => {
       return stateAction.config.id === action.payload.id;
     });
+
     if (foundAction) {
       foundAction.isLoading = false;
       foundAction.data = action.payload.response;
     } else {
       const partialAction: PartialActionData = {
         isLoading: false,
-        config: { id: action.payload.id },
+        config: { id: action.payload.id, baseId: action.payload.baseId },
         data: action.payload.response,
       };
+
       draftMetaState.push(partialAction);
     }
   },
@@ -249,9 +257,11 @@ export const handlers = {
     action: ReduxAction<{ [id: string]: ActionResponse }>,
   ) => {
     const actionId = Object.keys(action.payload)[0];
+
     draftMetaState.forEach((a) => {
       if (a.config.id === actionId) {
         a.isLoading = false;
+
         if (a.data) _.assign(a.data, action.payload[actionId]);
         else a.data = action.payload[actionId];
       }
@@ -309,6 +319,7 @@ export const handlers = {
     >,
   ) => {
     const actionUpdateSearch = _.keyBy(action.payload, "id");
+
     draftMetaState.forEach((action) => {
       if (action.config.id in actionUpdateSearch) {
         action.config.executeOnLoad =

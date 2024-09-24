@@ -1,6 +1,6 @@
 import React from "react";
 import PreviewBox from "./PreviewBox";
-import { Icon, Text } from "design-system";
+import { Icon, Text } from "@appsmith/ads";
 import type { PreviewsProps } from ".";
 import { ContentBox } from "pages/AdminSettings/components";
 

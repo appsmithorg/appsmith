@@ -3,14 +3,17 @@ import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
 import userEvent from "@testing-library/user-event";
 import FormControl from "../FormControl";
-import { createMessage, INVALID_URL } from "@appsmith/constants/messages";
+import { createMessage, INVALID_URL } from "ee/constants/messages";
 import FormControlRegistry from "utils/formControl/FormControlRegistry";
 import { reduxForm } from "redux-form";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 
 const urlValidator = (value: string) => {
   const validationRegex = "^(http|https)://";
+
   if (value) {
     const regex = new RegExp(validationRegex);
 
@@ -49,6 +52,8 @@ function renderComponent() {
     );
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Parent = reduxForm<any, any>({
     validate: () => {
       return {};
@@ -72,9 +77,11 @@ describe("Authenticated API URL validations", () => {
     const inputFormControl = document.querySelectorAll(
       ".t--form-control-INPUT_TEXT",
     );
+
     expect(inputFormControl.length).toBe(1);
 
     const inputBox = inputFormControl[0].querySelectorAll("input");
+
     expect(inputBox.length).toBe(1);
 
     await userEvent.type(inputBox[0], "test value");
@@ -83,6 +90,7 @@ describe("Authenticated API URL validations", () => {
     const errorText = screen.getAllByText(
       "Please enter a valid URL, for example, https://example.com",
     );
+
     expect(errorText).toBeDefined();
   });
 
@@ -91,9 +99,11 @@ describe("Authenticated API URL validations", () => {
     const inputFormControl = document.querySelectorAll(
       ".t--form-control-INPUT_TEXT",
     );
+
     expect(inputFormControl.length).toBe(1);
 
     const inputBox = inputFormControl[0].querySelectorAll("input");
+
     expect(inputBox.length).toBe(1);
 
     await userEvent.type(inputBox[0], "https://example.com");
@@ -102,6 +112,7 @@ describe("Authenticated API URL validations", () => {
     const errorText = screen.queryAllByText(
       "Please enter a valid URL, for example, https://example.com",
     );
+
     expect(errorText.length).toBe(0);
   });
 });

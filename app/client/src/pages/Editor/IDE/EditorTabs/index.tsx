@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { shallowEqual, useSelector } from "react-redux";
-import { Flex, ScrollArea, ToggleButton } from "design-system";
+import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+} from "ee/entities/IDE/constants";
 import FileTabs from "./FileTabs";
 import Container from "./Container";
 import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
@@ -47,6 +47,7 @@ const EditorTabs = () => {
   // scroll to the active tab
   useEffect(() => {
     const activetab = document.querySelector(".editor-tab.active");
+
     if (activetab) {
       activetab.scrollIntoView({
         inline: "nearest",
@@ -59,6 +60,7 @@ const EditorTabs = () => {
     const ele = document.querySelector<HTMLElement>(
       '[data-testid="t--editor-tabs"] > [data-overlayscrollbars-viewport]',
     );
+
     if (ele && ele.scrollWidth > ele.clientWidth) {
       ele.style.borderRight = "1px solid var(--ads-v2-color-border)";
     } else if (ele) {
@@ -67,10 +69,12 @@ const EditorTabs = () => {
   }, [files]);
 
   if (!isSideBySideEnabled) return null;
+
   if (segment === EditorEntityTab.UI) return null;
 
   const handleHamburgerClick = () => {
     if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) return;
+
     setShowListView(!showListView);
   };
 
@@ -86,14 +90,15 @@ const EditorTabs = () => {
   return (
     <>
       <Container>
-        {ideViewMode === EditorViewMode.SplitScreen && (
+        {ideViewMode === EditorViewMode.SplitScreen && files.length > 0 ? (
           <ToggleButton
+            data-testid="t--list-toggle"
             icon="hamburger"
             isSelected={showListView}
             onClick={handleHamburgerClick}
             size="md"
           />
-        )}
+        ) : null}
         <ScrollArea
           className="h-[32px] top-[0.5px]"
           data-testid="t--editor-tabs"
@@ -105,7 +110,12 @@ const EditorTabs = () => {
           }}
           size={"sm"}
         >
-          <Flex className="items-center" gap="spaces-2" height="100%">
+          <Flex
+            className="items-center"
+            data-testid="t--tabs-container"
+            gap="spaces-2"
+            height="100%"
+          >
             <FileTabs
               currentEntity={currentEntity}
               isListActive={showListView}

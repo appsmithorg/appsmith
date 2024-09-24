@@ -6,6 +6,8 @@ import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorC
 import styled from "styled-components";
 
 interface ActionSettingsProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actionSettingsConfig: any;
   formName: string;
   theme?: EditorTheme;
@@ -33,6 +35,8 @@ const ActionSettingsWrapper = styled.div`
 function ActionSettings(props: ActionSettingsProps): JSX.Element {
   return (
     <ActionSettingsWrapper>
+      {/* TODO: Fix this the next time the file is edited */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {props.actionSettingsConfig.map((section: any) =>
         renderEachConfig(section, props.formName),
       )}
@@ -40,6 +44,8 @@ function ActionSettings(props: ActionSettingsProps): JSX.Element {
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const renderEachConfig = (section: any, formName: string): any => {
   return section.children.map((formControlOrSection: ControlProps) => {
     if ("children" in formControlOrSection) {
@@ -47,6 +53,7 @@ const renderEachConfig = (section: any, formName: string): any => {
     } else {
       try {
         const { configProperty } = formControlOrSection;
+
         return (
           <FormRow key={configProperty}>
             <FormControl config={formControlOrSection} formName={formName} />
@@ -56,6 +63,7 @@ const renderEachConfig = (section: any, formName: string): any => {
         log.error(e);
       }
     }
+
     return null;
   });
 };

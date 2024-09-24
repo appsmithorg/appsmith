@@ -1,13 +1,13 @@
 import { setLintingErrors } from "actions/lintingActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { call, put, select, takeEvery } from "redux-saga/effects";
-import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import { getAppMode } from "ee/selectors/entitiesSelector";
 import type { JSLibrary } from "workers/common/JSLibrary";
 import { logLatestLintPropertyErrors } from "./PostLintingSagas";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import type { AppState } from "@appsmith/reducers";
+import { getAppsmithConfigs } from "ee/configs";
+import type { AppState } from "ee/reducers";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { get, set, uniq } from "lodash";
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
@@ -18,11 +18,11 @@ import type {
   LintTreeSagaRequestData,
 } from "plugins/Linting/types";
 import type { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { Linter } from "plugins/Linting/Linter";
 import log from "loglevel";
 import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -33,7 +33,9 @@ function* updateLintGlobals(
 ) {
   const appMode: APP_MODE = yield select(getAppMode);
   const isEditorMode = appMode === APP_MODE.EDIT;
+
   if (!isEditorMode) return;
+
   yield call(lintWorker.updateJSLibraryGlobals, action.payload);
 }
 
@@ -46,6 +48,7 @@ function* updateOldJSCollectionLintErrors(
     lintedJSPaths.map((path) => getEntityNameAndPropertyPath(path).entityName),
   );
   const updatedJSCollectionLintErrors: LintErrorsStore = {};
+
   for (const jsObjectName of jsEntities) {
     const jsObjectBodyPath = `["${jsObjectName}.body"]`;
     const oldJsBodyLintErrors: LintError[] = yield select((state: AppState) =>
@@ -72,8 +75,10 @@ function* updateOldJSCollectionLintErrors(
       ...filteredOldJsObjectBodyLintErrors,
       ...newJSBodyLintErrors,
     ];
+
     set(updatedJSCollectionLintErrors, jsObjectBodyPath, updatedLintErrors);
   }
+
   return updatedJSCollectionLintErrors;
 }
 
@@ -103,6 +108,7 @@ export function* lintTreeSaga(payload: LintTreeSagaRequestData) {
   yield call(logLatestLintPropertyErrors, {
     errors,
     dataTree: unevalTree,
+    configTree,
   });
 }
 
@@ -128,7 +134,10 @@ export default function* lintTreeSagaWatcher() {
   yield takeEvery(ReduxActionTypes.LINT_SETUP, setupSaga);
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* setupSaga(): any {
   const featureFlags = yield select(selectFeatureFlags);
+
   yield call(lintWorker.setup, featureFlags);
 }

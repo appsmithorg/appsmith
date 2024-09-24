@@ -1,19 +1,33 @@
+@import "../../../shared/colors/colors.module.css";
+
 .icon {
-  &[data-size="small"] {
+  &[data-size="xSmall"] {
     inline-size: var(--icon-size-1);
     block-size: var(--icon-size-1);
     stroke-width: var(--stroke-width-1);
   }
 
-  &[data-size="medium"] {
+  &[data-size="small"] {
     inline-size: var(--icon-size-2);
     block-size: var(--icon-size-2);
     stroke-width: var(--stroke-width-2);
   }
 
-  &[data-size="large"] {
+  &[data-size="medium"] {
     inline-size: var(--icon-size-3);
     block-size: var(--icon-size-3);
     stroke-width: var(--stroke-width-3);
+  }
+
+  &[data-size="large"] {
+    inline-size: var(--icon-size-4);
+    block-size: var(--icon-size-4);
+    stroke-width: var(--stroke-width-4);
+  }
+
+  @each $color in colors {
+    &[data-color="$(color)"] {
+      color: var(--color-fg-$(color));
+    }
   }
 }

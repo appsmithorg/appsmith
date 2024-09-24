@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -12,10 +12,10 @@ import type {
 import { select } from "redux-saga/effects";
 import { getWidgetMetaProps, getWidgets } from "sagas/selectors";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import { getAppMode } from "ee/selectors/entitiesSelector";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { getCanvasHeightOffset } from "utils/WidgetSizeUtils";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getDataTree } from "selectors/dataTreeSelectors";
 
@@ -47,6 +47,7 @@ export function* getChildOfContainerLikeWidget(
       getWidgetMetaProps,
       containerLikeWidget,
     );
+
     // If we have a meta for the tabs widget
     if (tabsMeta) return tabsMeta.selectedTabWidgetId;
 
@@ -81,6 +82,7 @@ export function getParentCurrentHeightInRows(
     parentHeightInRows =
       changesSoFar[parentId].bottomRow - changesSoFar[parentId].topRow;
   }
+
   return parentHeightInRows;
 }
 
@@ -102,6 +104,7 @@ export function* getMinHeightBasedOnChildren(
   const dataTree: DataTree = yield select(getDataTree);
 
   const { children = [], parentId } = stateWidgets[widgetId];
+
   // If we need to consider the parent height
   if (parentId && !ignoreParent) {
     const parent = stateWidgets[parentId];
@@ -110,6 +113,7 @@ export function* getMinHeightBasedOnChildren(
     // Initialize from the parent state
     let parentBottomRow = parent.bottomRow;
     let parentTopRow = parent.topRow;
+
     // If the tree node exists use thata
     if (parentTreeNode !== undefined) {
       parentBottomRow = parentTreeNode.bottomRow;
@@ -131,6 +135,7 @@ export function* getMinHeightBasedOnChildren(
       parentId,
       changesSoFar,
     );
+
     // The canvas will be an extension smaller than the parent?
     minHeightInRows = parentHeightInRows - GridDefaults.CANVAS_EXTENSION_OFFSET;
 
@@ -140,7 +145,9 @@ export function* getMinHeightBasedOnChildren(
       parent.type,
       parent,
     );
+
     minHeightInRows = minHeightInRows - canvasHeightOffset;
+
     // If the canvas is empty return the parent's height in rows, without
     // the canvas extension offset
     if (!children.length) {
@@ -152,6 +159,7 @@ export function* getMinHeightBasedOnChildren(
   for (const childWidgetId of children) {
     // If we've changed the widget's bottomRow via computations
     const { detachFromLayout } = stateWidgets[childWidgetId];
+
     // We ignore widgets like ModalWidget which don't occupy parent's space.
     // detachFromLayout helps us identify such widgets
     if (detachFromLayout) continue;
@@ -246,6 +254,7 @@ export function* shouldCollapseThisWidget(
     if (parentContainerLikeWidgetId) {
       const parentContainerLikeWidget =
         stateWidgets[parentContainerLikeWidgetId];
+
       // If we can collapse widgets within all auto height container like widgets
       // and if the parent container like widget exists
       // and if auto height is enabled for the parent container
@@ -259,6 +268,7 @@ export function* shouldCollapseThisWidget(
       }
     }
   }
+
   return false;
 }
 

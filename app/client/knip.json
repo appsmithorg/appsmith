@@ -1,0 +1,24 @@
+{
+  "entry": ["src/index.tsx"],
+  "project": ["src/**/*.{tsx,ts,js}"],
+  "ignore": [
+    "packages/**/stories/**",
+    "packages/**/chromatic/**",
+    "packages/design-system/widgets/src/testing/**",
+    "**/*.stories.tsx",
+    "packages/rts/build.js",
+    "packages/design-system/ads/src/Documentation/**",
+    "src/components/designSystems/blueprintjs/**",
+    "packages/design-system/ads/plopfile.mjs",
+    "src/plugins/Linting/**",
+    "src/ee/plugins/Linting/**",
+    "src/ce/plugins/Linting/**",
+    "src/workers/Evaluation/**",
+    "src/widgets/ExternalWidget/component/script.js",
+    "src/widgets/ListWidgetV2/widget/derived.js",
+    "src/workers/Tern/tern.worker.ts",
+    "src/widgets/CustomWidget/component/appsmithConsole.js",
+    "src/serviceWorker.ts",
+    "src/ee/utils/serviceWorkerUtils.ts"
+  ]
+}

@@ -38,9 +38,12 @@ import type {
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function allowedRange(value: any) {
   const allowedValues = [0, 1, 2, 3, 4, 5, 6];
   const isValid = allowedValues.includes(Number(value));
+
   return {
     isValid: isValid,
     parsed: isValid ? Number(value) : 0,
@@ -59,6 +62,7 @@ function allowedRange(value: any) {
         ],
   };
 }
+
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static type = "DATE_PICKER_WIDGET2";
 
@@ -641,6 +645,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       value: undefined,

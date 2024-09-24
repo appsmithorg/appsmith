@@ -1,9 +1,9 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { omit } from "lodash";
 import type { Action } from "entities/Action";
 import type { ActionResponse } from "api/ActionAPI";
@@ -124,6 +124,8 @@ export const handlers = {
     },
   }),
   [ReduxActionTypes.RUN_ACTION_REQUEST]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any,
     action: ReduxAction<{ id: string }>,
   ): QueryPaneReduxState => {
@@ -142,6 +144,8 @@ export const handlers = {
   },
 
   [ReduxActionTypes.RUN_ACTION_CANCELLED]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any,
     action: ReduxAction<{ id: string }>,
   ) => {
@@ -155,10 +159,13 @@ export const handlers = {
   },
 
   [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any,
     action: ReduxAction<{ [id: string]: ActionResponse }>,
   ) => {
     const actionId = Object.keys(action.payload)[0];
+
     return {
       ...state,
       isRunning: {
@@ -169,6 +176,8 @@ export const handlers = {
     };
   },
   [ReduxActionErrorTypes.RUN_ACTION_ERROR]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any,
     action: ReduxAction<{ id: string; error: Error }>,
   ) => {
@@ -191,6 +200,7 @@ export const handlers = {
     action: ReduxAction<{ selectedTabIndex: number }>,
   ) => {
     const { selectedTabIndex } = action.payload;
+
     return {
       ...state,
       selectedConfigTabIndex: selectedTabIndex,
@@ -206,6 +216,12 @@ export const handlers = {
         ...state.debugger,
         ...action.payload,
       },
+    };
+  },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: QueryPaneReduxState) => {
+    return {
+      ...state,
+      isSaving: {},
     };
   },
 };

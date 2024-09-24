@@ -1,9 +1,9 @@
 import { updateAndSaveLayout } from "actions/pageActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
@@ -57,11 +57,11 @@ import {
 } from "actions/controlActions";
 import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
-import { updateApplication } from "@appsmith/actions/applicationActions";
+import { updateApplication } from "ee/actions/applicationActions";
 import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { nestDSL, flattenDSL } from "@shared/dsl";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
@@ -70,15 +70,21 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 // An alternative implementation would be to re-use shouldRunSaga,
 // however we will still have to check for individula action types.
 // This seems cleaner
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* preventForAnvil(saga: any, action: ReduxAction<unknown>) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+
   if (!isAnvilLayout) {
     yield call(shouldRunSaga, saga, action);
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
+
   if (isAutoLayout) {
     yield call(saga, action);
   }
@@ -95,11 +101,14 @@ export function* updateLayoutForMobileCheckpoint(
   try {
     const start = performance.now();
     const isAutoLayout: boolean = yield select(getIsAutoLayout);
+
     if (!isAutoLayout) return;
+
     //Do not recalculate columns and update layout while converting layout
     const isCurrentlyConvertingLayout: boolean = yield select(
       getIsCurrentlyConvertingLayout,
     );
+
     if (isCurrentlyConvertingLayout) return;
 
     const {
@@ -117,6 +126,8 @@ export function* updateLayoutForMobileCheckpoint(
       allWidgets = yield select(getWidgets);
     }
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const metaProps: Record<string, any> = yield select(getWidgetsMeta);
     const updatedWidgets: CanvasWidgetsReduxState = isMobile
       ? alterLayoutForMobile(
@@ -134,6 +145,7 @@ export function* updateLayoutForMobileCheckpoint(
           false,
           metaProps,
         );
+
     yield put(updateAndSaveLayout(updatedWidgets));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
     log.debug(
@@ -174,9 +186,11 @@ export function* updateLayoutSystemTypeSaga(
       const nestedDSL = nestDSL(allWidgets);
 
       const autoDSL = convertDSLtoAuto(nestedDSL);
+
       log.debug("autoDSL", autoDSL);
 
       const flattenedDSL = flattenDSL(autoDSL);
+
       yield put(updateAndSaveLayout(flattenedDSL));
 
       yield call(recalculateAutoLayoutColumnsAndSave);
@@ -249,6 +263,7 @@ function* updateWidgetDimensionsSaga(
   );
 
   const widget = allWidgets[widgetId];
+
   if (!widget) return;
 
   const widgetMinMaxDimensions = getWidgetMinMaxDimensionsInPixel(
@@ -270,18 +285,21 @@ function* updateWidgetDimensionsSaga(
   ) {
     height = widgetMinMaxDimensions.minHeight;
   }
+
   if (
     widgetMinMaxDimensions.maxHeight &&
     height > widgetMinMaxDimensions.maxHeight
   ) {
     height = widgetMinMaxDimensions.maxHeight;
   }
+
   if (
     widgetMinMaxDimensions.minWidth &&
     width < widgetMinMaxDimensions.minWidth
   ) {
     width = widgetMinMaxDimensions.minWidth;
   }
+
   if (
     widgetMinMaxDimensions.maxWidth &&
     width > widgetMinMaxDimensions.maxWidth
@@ -314,13 +332,18 @@ function* processAutoLayoutDimensionUpdatesSaga() {
   let widgets = allWidgets;
   const widgetsOld = { ...widgets };
   const parentIds = new Set<string>();
+
   // Iterate through the batch and update the new dimensions
   for (const widgetId in autoLayoutWidgetDimensionUpdateBatch) {
     const { height, width } = autoLayoutWidgetDimensionUpdateBatch[widgetId];
     const widget = allWidgets[widgetId];
+
     if (!widget) continue;
+
     const parentId = widget.parentId;
+
     if (parentId === undefined) continue;
+
     if (parentId) parentIds.add(parentId);
 
     const { columnSpace } = getCanvasDimensions(
@@ -354,7 +377,11 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       [widgetId]: widgetToBeUpdated,
     };
   }
+
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+
   // Update the position of all the widgets
   for (const parentId of parentIds) {
     widgets = updateWidgetPositions(
@@ -367,6 +394,8 @@ function* processAutoLayoutDimensionUpdatesSaga() {
     );
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let widgetsToUpdate: any = {};
 
   /**
@@ -377,6 +406,8 @@ function* processAutoLayoutDimensionUpdatesSaga() {
   for (const widgetId of Object.keys(widgets)) {
     const widget = widgets[widgetId];
     const oldWidget = widgetsOld[widgetId];
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const propertiesToUpdate: Record<string, any> = {};
 
     const positionProperties = [
@@ -411,6 +442,7 @@ function* processAutoLayoutDimensionUpdatesSaga() {
 
   for (const widgetId in widgetsToUpdate) {
     const widget = widgets[widgetId];
+
     if (widget.isMetaWidget) {
       metaWidgetsToUpdate[widgetId] = widgetsToUpdate[widgetId];
     } else {
@@ -424,6 +456,7 @@ function* processAutoLayoutDimensionUpdatesSaga() {
   if (!isEmpty(canvasWidgetsToUpdate)) {
     yield put(updateMultipleWidgetPropertiesAction(canvasWidgetsToUpdate));
   }
+
   if (!isEmpty(metaWidgetsToUpdate)) {
     yield put(updateMultipleMetaWidgetPropertiesAction(metaWidgetsToUpdate));
   }
@@ -436,6 +469,7 @@ export function* updateApplicationLayoutType(
   layoutSystemType: LayoutSystemTypes,
 ) {
   const applicationId: string = yield select(getCurrentApplicationId);
+
   yield put(
     updateApplication(applicationId || "", {
       applicationDetail: {
@@ -452,9 +486,13 @@ function* updatePositionsOnTabChangeSaga(
 ) {
   const { selectedTabWidgetId, widgetId } = action.payload;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
   if (!selectedTabWidgetId || !allWidgets[selectedTabWidgetId]) return;
+
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const metaProps: Record<string, any> = yield select(getWidgetsMeta);
 
   const updatedWidgets: CanvasWidgetsReduxState = updateWidgetPositions(
@@ -468,6 +506,7 @@ function* updatePositionsOnTabChangeSaga(
       [widgetId]: { ...metaProps[widgetId], selectedTabWidgetId },
     },
   );
+
   yield put(updateAndSaveLayout(updatedWidgets));
 }
 
@@ -475,11 +514,16 @@ function* updatePositionsOnTabChangeSaga(
 function* updatePositionsSaga(action: ReduxAction<{ widgetId: string }>) {
   const { widgetId } = action.payload;
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+
   if (!widgetId || !allWidgets[widgetId]) return;
+
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const metaProps: Record<string, any> = yield select(getWidgetsMeta);
   let canvasId: string = widgetId;
+
   if (allWidgets[canvasId].type === "TABS_WIDGET") {
     // For tabs widget, recalculate the height of child canvas.
     if (
@@ -489,6 +533,7 @@ function* updatePositionsSaga(action: ReduxAction<{ widgetId: string }>) {
     )
       canvasId = metaProps[canvasId]?.selectedTabWidgetId;
   }
+
   const updatedWidgets: CanvasWidgetsReduxState = updateWidgetPositions(
     allWidgets,
     canvasId,
@@ -497,6 +542,7 @@ function* updatePositionsSaga(action: ReduxAction<{ widgetId: string }>) {
     false,
     metaProps,
   );
+
   yield put(updateAndSaveLayout(updatedWidgets));
 }
 

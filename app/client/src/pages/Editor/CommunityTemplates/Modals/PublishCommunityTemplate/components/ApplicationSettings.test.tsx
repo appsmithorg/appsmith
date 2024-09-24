@@ -1,10 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
-import {
-  COMMUNITY_TEMPLATES,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
 import ApplicationSettings from "./ApplicationSettings";
 
 describe("<ApplicationSettings />", () => {
@@ -38,6 +35,7 @@ describe("<ApplicationSettings />", () => {
     const forkableSetting = createMessage(
       COMMUNITY_TEMPLATES.publishFormPage.applicationSettings.forkableSetting,
     );
+
     expect(screen.getByText(title)).toBeInTheDocument();
     expect(screen.getByText(publicSetting)).toBeInTheDocument();
     expect(screen.getByText(forkableSetting)).toBeInTheDocument();

@@ -1,4 +1,4 @@
-import type { ApplicationPagePayload } from "@appsmith/api/ApplicationApi";
+import type { ApplicationPagePayload } from "ee/api/ApplicationApi";
 import {
   FILTER_SELECTALL,
   FILTER_SELECT_PAGE,
@@ -6,16 +6,16 @@ import {
   PAGE,
   PAGES,
   createMessage,
-} from "@appsmith/constants/messages";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+} from "ee/constants/messages";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { importTemplateIntoApplication } from "actions/templateActions";
 import type { Template } from "api/TemplatesApi";
-import { Button, Checkbox, Divider, Icon, Text } from "design-system";
+import { Button, Checkbox, Divider, Icon, Text } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import styled from "styled-components";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   width: 280px;
@@ -114,6 +114,7 @@ function PageSelection(props: PageSelectionProps) {
         selectedPages,
       ),
     );
+
     if (props.isStartWithTemplateFlow) {
       AnalyticsUtil.logEvent("fork_APPLICATIONTEMPLATE", {
         applicationId: applicationId,

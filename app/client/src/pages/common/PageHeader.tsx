@@ -4,18 +4,18 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { User } from "constants/userConstants";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { getTemplateNotificationSeenAction } from "actions/templateActions";
-import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
-import { Banner } from "@appsmith/utils/licenseHelpers";
+import { shouldShowLicenseBanner } from "ee/selectors/tenantSelectors";
+import { Banner } from "ee/utils/licenseHelpers";
 import bootIntercom from "utils/bootIntercom";
 import EntitySearchBar from "pages/common/SearchBar/EntitySearchBar";
-import { Switch, Tooltip } from "design-system";
+import { Switch, Tooltip } from "@appsmith/ads";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { setFeatureFlagOverrideValues } from "utils/storage";
 import { updateFeatureFlagOverrideAction } from "actions/featureFlagActions";
 
@@ -96,6 +96,7 @@ export function PageHeader(props: PageHeaderProps) {
       release_anvil_enabled: isSelected,
       release_anvil_toggle_enabled: shouldShowAnvilToggle,
     };
+
     dispatch(updateFeatureFlagOverrideAction(featureFlags));
     setFeatureFlagOverrideValues(featureFlags);
   }

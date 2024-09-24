@@ -64,6 +64,8 @@ export const loadMapGenerator = () => {
         },
         3,
         0,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (error: any) => error.code !== 20,
       )
         .then(
@@ -243,9 +245,12 @@ export const getChartOption = (
           borderColor: "#ccc",
           padding: [4, 8],
           fontFamily,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           formatter: (d: any) => {
             const key = d?.name as string;
             const label = countryDetails[type][key]?.["label"];
+
             return `${label}, ${d.data?.value || "-"}`;
           },
           textStyle: {
@@ -258,9 +263,12 @@ export const getChartOption = (
           show: showLabel,
           fontFamily,
           position: "top",
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           formatter: (d: any) => {
             const key = d?.name as string;
             const label = countryDetails[type][key]["short_label"];
+
             return `${label}: ${d.data?.value || "-"}`;
           },
           textStyle: {

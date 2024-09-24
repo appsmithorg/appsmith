@@ -1,23 +1,23 @@
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
-import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
-import type { AppState } from "@appsmith/reducers";
+import type { EntityItem } from "ee/entities/IDE/constants";
+import { EditorEntityTab } from "ee/entities/IDE/constants";
+import type { AppState } from "ee/reducers";
 import {
   selectJSSegmentEditorTabs,
   selectQuerySegmentEditorTabs,
-} from "@appsmith/selectors/appIDESelectors";
+} from "ee/selectors/appIDESelectors";
 import {
   getJSSegmentItems,
   getQuerySegmentItems,
-} from "@appsmith/selectors/entitiesSelector";
-import { getJSEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
-import { getQueryEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
+} from "ee/selectors/entitiesSelector";
+import { getJSEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 
 export const TabSelectors: Record<
   EditorEntityTab,
   {
     tabsSelector: (state: AppState) => EntityItem[];
     listSelector: (state: AppState) => EntityItem[];
-    itemUrlSelector: (item: EntityItem, pageId: string) => string;
+    itemUrlSelector: (item: EntityItem, basePageId: string) => string;
   }
 > = {
   [EditorEntityTab.JS]: {

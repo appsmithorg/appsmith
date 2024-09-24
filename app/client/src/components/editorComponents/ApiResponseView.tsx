@@ -5,7 +5,7 @@ import styled from "styled-components";
 import type { ActionResponse } from "api/ActionAPI";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { isArray, isEmpty, isString } from "lodash";
 import {
@@ -16,14 +16,14 @@ import {
   DEBUGGER_RESPONSE,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import NoResponseSVG from "assets/images/no-response.svg";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { Classes, Text, TextType } from "design-system-old";
-import { Button, Callout, Flex, SegmentedControl } from "design-system";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { Classes, Text, TextType } from "@appsmith/ads-old";
+import { Button, Callout, Flex, SegmentedControl } from "@appsmith/ads";
 import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
@@ -47,7 +47,7 @@ import { EMPTY_RESPONSE } from "./emptyResponse";
 import { setApiPaneDebuggerState } from "actions/apiPaneActions";
 import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import ApiResponseMeta from "./ApiResponseMeta";
 import useDebuggerTriggerClick from "./Debugger/hooks/useDebuggerTriggerClick";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
@@ -142,6 +142,8 @@ export const apiReactJsonProps = { ...reactJsonProps, collapsed: 0 };
 
 export const responseTabComponent = (
   responseType: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   output: any,
   tableBodyHeight?: number,
 ): JSX.Element => {
@@ -203,6 +205,7 @@ export const NoResponse = (props: NoResponseProps) => (
 function ApiResponseView(props: Props) {
   const {
     actionResponse = EMPTY_RESPONSE,
+    apiName,
     currentActionConfig,
     disabled,
     isRunning,
@@ -242,6 +245,7 @@ function ApiResponseView(props: Props) {
           ...responseHeaders,
           [key]: value[0],
         });
+
       return (responseHeaders = {
         ...responseHeaders,
         [key]: value,
@@ -265,10 +269,12 @@ function ApiResponseView(props: Props) {
   let filteredResponseDataTypes: { key: string; title: string }[] = [
     ...responseDataTypes,
   ];
+
   if (!!actionResponse.body && !isArray(actionResponse.body)) {
     filteredResponseDataTypes = responseDataTypes.filter(
       (item) => item.key !== API_RESPONSE_TYPE_OPTIONS.TABLE,
     );
+
     if (responseDisplayFormat.title === API_RESPONSE_TYPE_OPTIONS.TABLE) {
       onResponseTabSelect(filteredResponseDataTypes[0]?.title);
     }
@@ -312,6 +318,7 @@ function ApiResponseView(props: Props) {
         source: "API_PANE",
       });
     }
+
     dispatch(setApiPaneDebuggerState({ open: true, selectedTab: tabKey }));
   }, []);
 
@@ -335,7 +342,7 @@ function ApiResponseView(props: Props) {
       panelComponent: (
         <ResponseTabWrapper>
           <ApiResponseMeta
-            actionName={currentActionConfig?.name}
+            actionName={apiName || currentActionConfig?.name}
             actionResponse={actionResponse}
           />
           {Array.isArray(messages) && messages.length > 0 && (

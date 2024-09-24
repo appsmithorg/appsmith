@@ -18,11 +18,8 @@ import {
   Avatar,
   Callout,
   Tooltip,
-} from "design-system";
-import {
-  createMessage,
-  customJSLibraryMessages,
-} from "@appsmith/constants/messages";
+} from "@appsmith/ads";
+import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectInstallationStatus,
@@ -30,14 +27,14 @@ import {
   selectIsLibraryInstalled,
   selectQueuedLibraries,
   selectStatusForURL,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { InstallState } from "reducers/uiReducers/libraryReducer";
 import recommendedLibraries from "pages/Editor/Explorer/Libraries/recommendedLibraries";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { installLibraryInit } from "actions/JSLibraryActions";
 import classNames from "classnames";
 import type { JSLibrary } from "workers/common/JSLibrary";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
 const Wrapper = styled.div`
@@ -55,7 +52,7 @@ const Wrapper = styled.div`
       margin-bottom: 16px;
       .left-icon {
         margin-left: 14px;
-        .cs-icon {
+        .ads-v2-icon {
           margin-right: 0;
         }
       }
@@ -165,12 +162,15 @@ const InstallationProgressWrapper = styled.div<{ addBorder: boolean }>`
 function isValidJSFileURL(url: string) {
   const JS_FILE_REGEX =
     /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+
   return JS_FILE_REGEX.test(url);
 }
 
 function StatusIcon(props: {
   status: InstallState;
   isInstalled?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   action?: any;
 }) {
   const { action, isInstalled = false, status } = props;
@@ -178,6 +178,7 @@ function StatusIcon(props: {
     () => (action ? { onClick: action } : {}),
     [action],
   );
+
   if (status === InstallState.Success || isInstalled)
     return (
       <Tooltip content="Successfully installed" trigger="hover">
@@ -189,13 +190,16 @@ function StatusIcon(props: {
         />
       </Tooltip>
     );
+
   if (status === InstallState.Failed)
     return (
       <Tooltip content="Download failed, please try again." trigger="hover">
         <Icon className="failed" name="warning-line" size="md" />
       </Tooltip>
     );
+
   if (status === InstallState.Queued) return <Spinner className="queued" />;
+
   return (
     <Tooltip content="Install" trigger="hover">
       <Button
@@ -265,7 +269,9 @@ function InstallationProgress() {
   const urls = Object.keys(installStatusMap).filter(
     (url) => !recommendedLibraries.find((lib) => lib.url === url),
   );
+
   if (urls.length === 0) return null;
+
   return (
     <div>
       {urls.reverse().map((url, idx) => (
@@ -304,7 +310,9 @@ export function Installer() {
 
   const validate = useCallback((text) => {
     const isValid = !text || isValidJSFileURL(text);
+
     setIsValid(isValid);
+
     return {
       isValid,
       message: isValid ? "" : "Please enter a valid URL",
@@ -320,9 +328,11 @@ export function Installer() {
     (lib?: Partial<JSLibrary>) => {
       const url = lib?.url || URL;
       const isQueued = queuedLibraries.find((libURL) => libURL === url);
+
       if (isQueued) return;
 
       const libInstalled = installedLibraries.find((lib) => lib.url === url);
+
       if (libInstalled) {
         toast.show(
           createMessage(
@@ -333,8 +343,10 @@ export function Installer() {
             kind: "info",
           },
         );
+
         return;
       }
+
       dispatch(
         installLibraryInit({
           url,
@@ -430,6 +442,7 @@ function LibraryCard({
   const isInstalled = useSelector((state: AppState) =>
     selectIsLibraryInstalled(state, lib.url),
   );
+
   return (
     <div
       className={classNames({

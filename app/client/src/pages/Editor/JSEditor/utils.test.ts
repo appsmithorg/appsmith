@@ -41,6 +41,7 @@ const BASE_JS_OBJECT_BODY_WITH_LITERALS = `export default {
 const BASE_JS_ACTION = (useLiterals = false) => {
   return {
     workspaceId: "workspace-id",
+    applicationId: "application-id",
     pageId: "page-id",
     collectionId: "collection-id",
     pluginId: "plugin-id",
@@ -68,6 +69,7 @@ const createJSAction = (name: string, useLiterals = false): JSAction => {
   return {
     ...BASE_JS_ACTION(useLiterals),
     id: uniqueId(name),
+    baseId: uniqueId(name),
     name,
   };
 };
@@ -152,6 +154,7 @@ describe("jsAction dropdown", () => {
     const activeJSAction = jsActions[0];
     const actualResponse = getJSActionOption(activeJSAction, jsActions);
     const expectedResponse = convertJSActionToDropdownOption(activeJSAction);
+
     expect(actualResponse).toEqual(expectedResponse);
   });
 
@@ -159,6 +162,7 @@ describe("jsAction dropdown", () => {
     const activeJSAction = null;
     const actualResponse = getJSActionOption(activeJSAction, []);
     const expectedResponse = NO_FUNCTION_DROPDOWN_OPTION;
+
     expect(actualResponse).toEqual(expectedResponse);
   });
 });

@@ -5,18 +5,23 @@ export function getQueryParams() {
   const keys = urlParams.keys();
   let key = keys.next().value;
   const queryParams: Record<string, string> = {};
+
   while (key) {
     queryParams[key] = urlParams.get(key) as string;
     key = keys.next().value;
   }
+
   return queryParams;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function convertObjectToQueryParams(object: any): string {
   if (!_.isNil(object)) {
     const paramArray: string[] = _.map(_.keys(object), (key) => {
       return encodeURIComponent(key) + "=" + encodeURIComponent(object[key]);
     });
+
     return "?" + _.join(paramArray, "&");
   } else {
     return "";
@@ -26,6 +31,7 @@ export function convertObjectToQueryParams(object: any): string {
 export function isValidURL(url: string): boolean {
   try {
     new URL(url);
+
     return true;
   } catch (e) {
     return false;

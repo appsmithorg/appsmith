@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { AppState } from "@appsmith/reducers";
+import { hasCreateNewAppPermission } from "ee/utils/permissionHelpers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
 import {
   Button,
   Modal,
@@ -11,7 +11,7 @@ import {
   Spinner,
   Select,
   Option,
-} from "design-system";
+} from "@appsmith/ads";
 import { ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import {
   CANCEL,
@@ -20,10 +20,10 @@ import {
   FORK_APP_MODAL_EMPTY_TITLE,
   FORK_APP_MODAL_LOADING_TITLE,
   FORK_APP_MODAL_SUCCESS_TITLE,
-} from "@appsmith/constants/messages";
-import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
-import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { fetchAllWorkspaces } from "@appsmith/actions/workspaceActions";
+} from "ee/constants/messages";
+import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
+import { getIsFetchingApplications } from "ee/selectors/selectedWorkspaceSelectors";
+import { fetchAllWorkspaces } from "ee/actions/workspaceActions";
 
 interface ForkApplicationModalProps {
   applicationId: string;
@@ -55,6 +55,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     // is getting controlled from outside, then we always load workspaces
     if (isModalOpen) {
       getApplicationsListAndOpenModal();
+
       return;
     }
   }, [isModalOpen]);
@@ -88,6 +89,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   const workspaceList = useMemo(() => {
     const filteredUserWorkspaces = workspaces.filter((item) => {
       const permitted = hasCreateNewAppPermission(item.userPermissions ?? []);
+
       return permitted;
     });
 

@@ -1,11 +1,11 @@
 import type { MutableRefObject } from "react";
 import React, { useRef } from "react";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";
-import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
+import { CLEAR_LOG_TOOLTIP, createMessage } from "ee/constants/messages";
 import {
   Button,
   Icon,
@@ -14,7 +14,7 @@ import {
   Select,
   Tooltip,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -55,6 +55,7 @@ interface FilterHeaderProps {
 function FilterHeader(props: FilterHeaderProps) {
   const dispatch = useDispatch();
   const searchRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
+
   return (
     <Wrapper>
       <Tooltip

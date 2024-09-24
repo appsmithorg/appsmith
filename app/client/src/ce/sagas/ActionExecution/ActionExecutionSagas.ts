@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   EventType,
   ExecuteTriggerPayload,
@@ -41,9 +41,9 @@ import {
   watchCurrentLocation,
 } from "sagas/ActionExecution/geolocationSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
-import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
-import { getActionById } from "selectors/editorSelectors";
-import type { AppState } from "@appsmith/reducers";
+import type { ActionDescription } from "ee/workers/Evaluation/fns";
+import type { AppState } from "ee/reducers";
+import { getAction } from "ee/selectors/entitiesSelector";
 
 export interface TriggerMeta {
   source?: TriggerSource;
@@ -62,25 +62,22 @@ export function* executeActionTriggers(
   trigger: ActionDescription,
   eventType: EventType,
   triggerMeta: TriggerMeta,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   // when called via a promise, a trigger can return some value to be used in .then
   let response: unknown[] = [];
+
   switch (trigger.type) {
     case "RUN_PLUGIN_ACTION":
       response = yield call(executePluginActionTriggerSaga, trigger, eventType);
       break;
     case "CLEAR_PLUGIN_ACTION":
       yield put(clearActionResponse(trigger.payload.actionId));
-      const action: ReturnType<typeof getActionById> = yield select(
-        (state: AppState) =>
-          getActionById(state, {
-            match: {
-              params: {
-                apiId: trigger.payload.actionId,
-              },
-            },
-          }),
+      const action: ReturnType<typeof getAction> = yield select(
+        (state: AppState) => getAction(state, trigger.payload.actionId),
       );
+
       if (action) {
         yield put(
           updateActionData([
@@ -92,6 +89,7 @@ export function* executeActionTriggers(
           ]),
         );
       }
+
       break;
     case "NAVIGATE_TO":
       yield call(navigateActionSaga, trigger);
@@ -135,10 +133,13 @@ export function* executeActionTriggers(
       log.error("Trigger type unknown", trigger);
       throw Error("Trigger type unknown");
   }
+
   return response;
 }
 
 // This function gets called when a user clicks on a button on the canvas UI
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* executeAppAction(payload: ExecuteTriggerPayload): any {
   const {
     callbackData,
@@ -150,6 +151,7 @@ export function* executeAppAction(payload: ExecuteTriggerPayload): any {
   } = payload;
 
   log.debug({ dynamicString, callbackData, globalContext });
+
   if (dynamicString === undefined) {
     throw new Error("Executing undefined action");
   }
@@ -173,6 +175,7 @@ function* initiateActionTriggerExecution(
   action: ReduxAction<ExecuteTriggerPayload>,
 ) {
   const { event, source, triggerPropertyName } = action.payload;
+
   // Clear all error for this action trigger. In case the error still exists,
   // it will be created again while execution
   AppsmithConsole.deleteErrors([
@@ -180,6 +183,7 @@ function* initiateActionTriggerExecution(
   ]);
   try {
     yield call(executeAppAction, action.payload);
+
     if (event.callback) {
       event.callback({ success: true });
     }
@@ -187,6 +191,7 @@ function* initiateActionTriggerExecution(
     if (event.callback) {
       event.callback({ success: false });
     }
+
     log.error(e);
   }
 }

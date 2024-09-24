@@ -50,16 +50,19 @@ const tableWidgetProps = {
 
 describe("validate widget utils button style functions", () => {
   const theme = getTheme(ThemeMode.LIGHT);
+
   // validate getCustomTextColor function
   it("getCustomTextColor - validate empty or undefined background color", () => {
     // background color is undefined
     const result = getCustomTextColor(theme);
+
     expect(result).toStrictEqual("#FFFFFF");
 
     // background color is empty string
     const backgroundColor = "";
     const expected = "#FFFFFF";
     const result2 = getCustomTextColor(theme, backgroundColor);
+
     expect(result2).toStrictEqual(expected);
   });
 
@@ -68,6 +71,7 @@ describe("validate widget utils button style functions", () => {
     const blueBackground = "#3366FF";
     const expected1 = "#FFFFFF";
     const result1 = getCustomTextColor(theme, blueBackground);
+
     expect(result1).toStrictEqual(expected1);
 
     // background color is light
@@ -82,6 +86,7 @@ describe("validate widget utils button style functions", () => {
   it("getCustomBackgroundColor - validate empty or undefined background color", () => {
     const expected = "none";
     const result = getCustomBackgroundColor();
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -92,6 +97,7 @@ describe("validate widget utils button style functions", () => {
       ButtonVariantTypes.PRIMARY,
       backgroundColor,
     );
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -102,6 +108,7 @@ describe("validate widget utils button style functions", () => {
       ButtonVariantTypes.SECONDARY,
       backgroundColor,
     );
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -110,12 +117,14 @@ describe("validate widget utils button style functions", () => {
     // background color and variant is both are undefined
     const expected = "hsl(0, 0%, 95%)";
     const result = getCustomHoverColor(theme);
+
     expect(result).toStrictEqual(expected);
 
     // variant is undefined
     const backgroundColor = "#03b365";
     const expected1 = "hsl(153, 97%, 31%)";
     const result1 = getCustomHoverColor(theme, undefined, backgroundColor);
+
     expect(result1).toStrictEqual(expected1);
   });
 
@@ -135,6 +144,7 @@ describe("validate widget utils button style functions", () => {
     // variant : PRIMARY without background
     const expected2 = "hsl(0, 0%, 95%)";
     const result2 = getCustomHoverColor(theme, ButtonVariantTypes.PRIMARY);
+
     expect(result2).toStrictEqual(expected2);
 
     // variant : SECONDARY
@@ -150,6 +160,7 @@ describe("validate widget utils button style functions", () => {
     // variant : SECONDARY without background
     const expected4 = "rgba(255, 255, 255, 0.1)";
     const result4 = getCustomHoverColor(theme, ButtonVariantTypes.SECONDARY);
+
     expect(result4).toStrictEqual(expected4);
 
     // variant : TERTIARY
@@ -159,11 +170,13 @@ describe("validate widget utils button style functions", () => {
       ButtonVariantTypes.TERTIARY,
       backgroundColor,
     );
+
     expect(result5).toStrictEqual(expected5);
 
     // variant : TERTIARY without background
     const expected6 = "rgba(255, 255, 255, 0.1)";
     const result6 = getCustomHoverColor(theme, ButtonVariantTypes.TERTIARY);
+
     expect(result6).toStrictEqual(expected6);
   });
 
@@ -214,6 +227,7 @@ describe(".sanitizeKey", () => {
 
     inputAndExpectedOutput.forEach(([input, expectedOutput]) => {
       const result = sanitizeKey(input);
+
       expect(result).toEqual(expectedOutput);
     });
   });
@@ -264,6 +278,7 @@ describe(".sanitizeKey", () => {
       const result = sanitizeKey(input, {
         existingKeys,
       });
+
       expect(result).toEqual(expectedOutput);
     });
   });
@@ -278,6 +293,7 @@ describe("Test widget utility functions", () => {
 
   it("case: borderRadiusUtility returns the borderRadius based on borderRadius variant", () => {
     const expectedBorderRadius = "0.375rem";
+
     expect(borderRadiusUtility(ButtonBorderRadiusTypes.ROUNDED)).toEqual(
       expectedBorderRadius,
     );
@@ -287,6 +303,7 @@ describe("Test widget utility functions", () => {
     const boxShadow = "0px 0px 4px 3px rgba(0, 0, 0, 0.25)";
     const boxShadowColor = "red";
     const expectedBoxShadow = "0px 0px 4px 3px red";
+
     expect(replaceRgbaMigrationConstant(boxShadow, boxShadowColor)).toEqual(
       expectedBoxShadow,
     );
@@ -346,6 +363,8 @@ describe("Test widget utility functions", () => {
     // Case 1:
     expect(
       boxShadowMigration(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         tableWidgetProps.dynamicBindingPathList as any,
         "action",
         "0px 0px 4px 3px rgba(0, 0, 0, 0.25)",
@@ -372,19 +391,28 @@ describe("Test widget utility functions", () => {
     );
     // Assign values to boxShadow and boxShadowColor
     tableWidgetProps.primaryColumns.action.boxShadow = "VARIANT1";
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tableWidgetProps.primaryColumns.action.boxShadowColor = "blue" as any;
     let newBoxShadow = boxShadowMigration(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableWidgetProps.dynamicBindingPathList as any,
       "action",
       tableWidgetProps.primaryColumns.action.boxShadow,
       tableWidgetProps.primaryColumns.action.boxShadowColor,
     );
+
     expect(newBoxShadow).toEqual("0px 0px 4px 3px blue");
 
     tableWidgetProps.primaryColumns.action.boxShadow = "VARIANT1";
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tableWidgetProps.primaryColumns.action.boxShadowColor = "" as any; // Add empty boxShadowColor.
 
     newBoxShadow = boxShadowMigration(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableWidgetProps.dynamicBindingPathList as any,
       "action",
       tableWidgetProps.primaryColumns.action.boxShadow,
@@ -412,6 +440,8 @@ describe("Test widget utility functions", () => {
       "orange",
     ];
     newBoxShadow = boxShadowMigration(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableWidgetProps.dynamicBindingPathList as any,
       "action",
       tableWidgetProps.primaryColumns.action.boxShadow,
@@ -420,10 +450,14 @@ describe("Test widget utility functions", () => {
     expect(newBoxShadow).toEqual("0px 0px 4px 3px orange");
 
     tableWidgetProps.primaryColumns.action.boxShadow = "VARIANT1";
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tableWidgetProps.primaryColumns.action.boxShadowColor = ["", "", ""] as any; // Add empty boxShadowColor when dynamic
 
     // Add empty boxShadowColor.
     newBoxShadow = boxShadowMigration(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableWidgetProps.dynamicBindingPathList as any,
       "action",
       tableWidgetProps.primaryColumns.action.boxShadow,
@@ -437,6 +471,8 @@ type composePropertyUpdateHookInputType = Array<
   (
     props: unknown,
     propertyPath: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any,
   ) => PropertyUpdates[] | undefined
 >;
@@ -472,6 +508,8 @@ describe("composePropertyUpdateHook", () => {
   });
 
   it("should test that calling the function without any function returns undefined", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const input: any = [];
 
     const expected = undefined;
@@ -494,6 +532,7 @@ const DUMMY_WIDGET: WidgetProps = {
   widgetId: "",
   widgetName: "",
 };
+
 describe("Auto Height Utils", () => {
   it("should return true if withLimits is true and widget has AUTO_HEIGHT_WITH_LIMITS", () => {
     const props = {
@@ -502,6 +541,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = isAutoHeightEnabledForWidgetWithLimits(props);
+
     expect(result).toBe(true);
   });
   it("should return false if withLimits is true and widget has AUTO_HEIGHT", () => {
@@ -511,6 +551,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = isAutoHeightEnabledForWidgetWithLimits(props);
+
     expect(result).toBe(false);
   });
   it("should return true if withLimits is false and widget has AUTO_HEIGHT", () => {
@@ -520,6 +561,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = isAutoHeightEnabledForWidget(props);
+
     expect(result).toBe(true);
   });
 
@@ -530,6 +572,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = isAutoHeightEnabledForWidget(props);
+
     expect(result).toBe(false);
   });
   it("should return false withLimits is true and widget has FIXED", () => {
@@ -539,6 +582,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = isAutoHeightEnabledForWidgetWithLimits(props);
+
     expect(result).toBe(false);
   });
   it("should return 9000 if widget has AUTO_HEIGHT", () => {
@@ -549,6 +593,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = getWidgetMaxAutoHeight(props);
+
     expect(result).toBe(WidgetHeightLimits.MAX_HEIGHT_IN_ROWS);
   });
   it("should return 20 if widget has AUTO_HEIGHT_WITH_LIMITS", () => {
@@ -559,6 +604,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = getWidgetMaxAutoHeight(props);
+
     expect(result).toBe(20);
   });
   it("should return 9000 if widget has AUTO_HEIGHT_WITH_LIMITS and maxDynamicHeight is undefined", () => {
@@ -569,6 +615,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = getWidgetMaxAutoHeight(props);
+
     expect(result).toBe(WidgetHeightLimits.MAX_HEIGHT_IN_ROWS);
   });
 
@@ -580,6 +627,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = getWidgetMaxAutoHeight(props);
+
     expect(result).toBeUndefined();
   });
 
@@ -591,6 +639,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = getWidgetMinAutoHeight(props);
+
     expect(result).toBe(20);
   });
   it("should return 20 if widget has AUTO_HEIGHT_WITH_LIMITS", () => {
@@ -601,6 +650,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = getWidgetMinAutoHeight(props);
+
     expect(result).toBe(20);
   });
   it("should return 4 if widget has AUTO_HEIGHT_WITH_LIMITS and minDynamicHeight is undefined", () => {
@@ -611,6 +661,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = getWidgetMinAutoHeight(props);
+
     expect(result).toBe(WidgetHeightLimits.MIN_HEIGHT_IN_ROWS);
   });
 
@@ -622,6 +673,7 @@ describe("Auto Height Utils", () => {
     };
 
     const result = getWidgetMinAutoHeight(props);
+
     expect(result).toBeUndefined();
   });
 });
@@ -662,6 +714,7 @@ describe("Should Update Widget Height Automatically?", () => {
 
     inputs.forEach((input, index) => {
       const result = shouldUpdateWidgetHeightAutomatically(input, props);
+
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -679,6 +732,7 @@ describe("Should Update Widget Height Automatically?", () => {
     const expected = true;
 
     const result = shouldUpdateWidgetHeightAutomatically(input, props);
+
     expect(result).toStrictEqual(expected);
   });
   it("When height is above max rows, should update, no matter the expectations", () => {
@@ -695,11 +749,13 @@ describe("Should Update Widget Height Automatically?", () => {
     const expected = true;
 
     const result = shouldUpdateWidgetHeightAutomatically(input, props);
+
     expect(result).toStrictEqual(expected);
   });
   it("should return correct value for isCompactMode", () => {
     const compactHeight = 40;
     const unCompactHeight = 41;
+
     expect(isCompactMode(compactHeight)).toBeTruthy();
     expect(isCompactMode(unCompactHeight)).toBeFalsy();
   });

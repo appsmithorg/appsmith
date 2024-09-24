@@ -10,7 +10,6 @@ import type { ControllerRenderProps } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
 import { get, set } from "lodash";
 import { Icon } from "@blueprintjs/core";
-import { klona } from "klona";
 import log from "loglevel";
 
 import Accordion from "../component/Accordion";
@@ -32,6 +31,7 @@ import { Colors } from "constants/Colors";
 import { FIELD_MARGIN_BOTTOM } from "../component/styleConstants";
 import { generateReactKey } from "utils/generators";
 import { schemaItemDefaultValue } from "../helper";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 type ArrayComponentProps = FieldComponentBaseProps & {
   backgroundColor?: string;
@@ -45,6 +45,8 @@ type ArrayComponentProps = FieldComponentBaseProps & {
   cellBorderRadius?: string;
   cellBoxShadow?: string;
   accentColor?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any[];
   isCollapsible: boolean;
 };
@@ -174,6 +176,7 @@ function ArrayField({
    * Please refer to this issue:https://github.com/appsmithorg/appsmith/issues/23825 for more information.
    */
   let parsedArrayValue = value;
+
   try {
     if (typeof value === "string") {
       parsedArrayValue = JSON.parse(value);
@@ -190,18 +193,24 @@ function ArrayField({
   const { setMetaInternalFieldState } = useContext(FormContext);
 
   const add = () => {
-    let values = klona(getValues(name));
+    let values = klonaRegularWithTelemetry(getValues(name), "ArrayField.add");
+
     if (values && values.length) {
       values.push({});
     } else {
       values = [{}];
     }
+
     setValue(name, values);
   };
 
   const remove = useCallback(
     (removedKey: string) => {
-      const values = klona(getValues(name));
+      const values = klonaRegularWithTelemetry(
+        getValues(name),
+        "ArrayField.remove",
+      );
+
       if (values === undefined) {
         return;
       }
@@ -217,7 +226,10 @@ function ArrayField({
       // cachedDefaultValue[index] in the FieldRenderer
       if (removedIndex < cachedDefaultValue.length) {
         setCachedDefaultValue((prevDefaultValue) => {
-          const clonedValue = klona(prevDefaultValue);
+          const clonedValue = klonaRegularWithTelemetry(
+            prevDefaultValue,
+            "ArrayField.remove.setCachedDefaultValue",
+          );
 
           clonedValue.splice(removedIndex, 1);
 
@@ -227,8 +239,11 @@ function ArrayField({
 
       // Manually remove from the values and re-insert to maintain the position of the
       // values
-      const newValues = klona(
+      const newValues = klonaRegularWithTelemetry(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         values.filter((_val: any, index: number) => index !== removedIndex),
+        "ArrayField.remove.newValues",
       );
 
       removedKeys.current = [removedKey];
@@ -250,6 +265,7 @@ function ArrayField({
       } else {
         const diff = keysRef.current.length - valueLength;
         const newKeys = [...keysRef.current];
+
         newKeys.splice(-1 * diff);
 
         keysRef.current = newKeys;
@@ -266,8 +282,19 @@ function ArrayField({
   }, [valueLength]);
 
   useDeepEffect(() => {
-    setValue(name, klona(defaultValue));
-    setCachedDefaultValue(klona(defaultValue));
+    setValue(
+      name,
+      klonaRegularWithTelemetry(
+        defaultValue,
+        "ArrayField.useDeepEffect.setValue",
+      ),
+    );
+    setCachedDefaultValue(
+      klonaRegularWithTelemetry(
+        defaultValue,
+        "ArrayField.useDeepEffect.setCachedDefaultValue",
+      ),
+    );
   }, [defaultValue]);
 
   /**
@@ -278,7 +305,11 @@ function ArrayField({
    */
   useDeepEffect(() => {
     setMetaInternalFieldState((prevState) => {
-      const metaInternalFieldState = klona(prevState.metaInternalFieldState);
+      const metaInternalFieldState = klonaRegularWithTelemetry(
+        prevState.metaInternalFieldState,
+        "ArrayField.useDeepEffect.setMetaInternalFieldState",
+      );
+
       const currMetaInternalFieldState: FieldState<{ isValid: true }> = get(
         metaInternalFieldState,
         name,
@@ -394,6 +425,6 @@ function ArrayField({
 }
 
 const MemoizedArrayField: FieldComponent = React.memo(ArrayField);
-MemoizedArrayField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 
+MemoizedArrayField.componentDefaultValues = COMPONENT_DEFAULT_VALUES;
 export default MemoizedArrayField;

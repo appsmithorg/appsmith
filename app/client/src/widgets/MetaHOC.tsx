@@ -3,12 +3,12 @@ import type { WidgetProps } from "./BaseWidget";
 import { debounce, fromPairs, isEmpty } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { connect } from "react-redux";
 import { getWidgetMetaProps } from "sagas/selectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { error } from "loglevel";
 import WidgetFactory from "WidgetProvider/factory";
 import type BaseWidget from "./BaseWidget";
@@ -59,6 +59,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       const metaProperties = WidgetFactory.getWidgetMetaPropertiesMap(
         WrappedWidget.type,
       );
+
       this.initialMetaState = fromPairs(
         Object.entries(metaProperties).map(([key, value]) => {
           return [key, value];
@@ -75,6 +76,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     ) => {
       // Add meta updates in updatedProperties to push to evaluation
       this.updatedProperties[propertyName] = true;
+
       if (actionExecution) {
         // Adding action inside actionsToExecute
         this.actionsToExecute[propertyName] = actionExecution;
@@ -88,6 +90,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     runBatchActions = () => {
       const { executeAction } = this.context;
       const batchActionsToRun = Object.entries(this.actionsToExecute);
+
       batchActionsToRun.map(([propertyName, actionExecution]) => {
         if (actionExecution && actionExecution.dynamicString && executeAction) {
           executeAction({
@@ -117,10 +120,12 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
 
     handleTriggerEvalOnMetaUpdate = () => {
       const { triggerEvalOnMetaUpdate } = this.context;
+
       // if we have meta property update which needs to be send to evaluation only then trigger evaluation.
       // this will avoid triggering evaluation for the trailing end of debounce, when there are no meta updates.
       if (Object.keys(this.updatedProperties).length) {
         if (triggerEvalOnMetaUpdate) triggerEvalOnMetaUpdate();
+
         this.updatedProperties = {}; // once we trigger evaluation, we remove those property from updatedProperties
       }
 
@@ -155,11 +160,14 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       //if first argument is an array its a batch lets push it
       if (Array.isArray(firstArgument)) {
         this.batchMetaUpdates.push(...firstArgument);
+
         return;
       }
+
       //if first argument is a string its a propertyName arg and we are pushing a single action
       if (typeof firstArgument === "string") {
         const [propertyValue, actionExecution] = restArgs;
+
         this.batchMetaUpdates.push({
           propertyName: firstArgument,
           propertyValue,
@@ -168,6 +176,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
 
         return;
       }
+
       const allArgs = [firstArgument, ...restArgs];
 
       error("unknown args ", allArgs);
@@ -180,8 +189,11 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       if (!this.batchMetaUpdates || !this.batchMetaUpdates.length) return;
 
       const metaUpdates = this.batchMetaUpdates.reduce(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (acc: any, { propertyName, propertyValue }) => {
           acc[propertyName] = propertyValue;
+
           return acc;
         },
         {},
@@ -199,6 +211,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       });
       // extract payload from updates
       const payload = [...this.batchMetaUpdates];
+
       //clear batch updates
       this.batchMetaUpdates = [];
 
@@ -227,8 +240,11 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       if (syncBatchUpdateWidgetMetaProperties) {
         const metaOptions = this.props.__metaOptions;
         const consolidatedUpdates = batchMetaUpdates.reduce(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (acc: any, { propertyName, propertyValue }) => {
             acc.push({ widgetId, propertyName, propertyValue });
+
             if (metaOptions) {
               acc.push({
                 widgetId: metaOptions.widgetId,
@@ -236,10 +252,12 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
                 propertyValue,
               });
             }
+
             return acc;
           },
           [],
         );
+
         syncBatchUpdateWidgetMetaProperties(consolidatedUpdates);
       }
 
@@ -279,6 +297,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
         // Below code of updating metaOptions can be removed once we have ListWidget v2 where we better manage meta values of ListWidget.
         const metaOptions = this.props.__metaOptions;
         const metaPropPath = this.getMetaPropPath(propertyName);
+
         if (metaOptions && metaPropPath) {
           syncUpdateWidgetMetaProperty(
             metaOptions.widgetId,
@@ -321,6 +340,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       metaState: getWidgetMetaProps(state, ownProps),
     };
   };
+
   return connect(mapStateToProps)(MetaHOC);
 }
 

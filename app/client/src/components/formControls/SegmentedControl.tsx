@@ -7,12 +7,12 @@ import { isNil } from "lodash";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getDynamicFetchedValues } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
 import type { Action } from "entities/Action";
-import type { SelectOptionProps } from "design-system";
-import { SegmentedControl } from "design-system";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { SegmentedControl } from "@appsmith/ads";
 
 const SegmentedControlWrapper = styled.div<{
   width: string;
@@ -60,16 +60,20 @@ function renderSegementedControl(
   } & SegmentedControlProps,
 ): JSX.Element {
   let selectedValue: string;
+
   //Update selected value
   if (isNil(props.input?.value)) {
     selectedValue = props?.initialValue ? (props.initialValue as string) : "";
   } else {
     selectedValue = props.input?.value;
   }
+
   let options: SelectOptionProps[] = [];
+
   if (typeof props.options === "object" && Array.isArray(props.options)) {
     options = props.options;
   }
+
   //Function to handle selection of options
   const onSelectOptions = (value: string | undefined) => {
     if (!isNil(value)) {
@@ -109,6 +113,8 @@ interface ReduxDispatchProps {
   updateConfigPropertyValue: (
     formName: string,
     field: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ) => void;
 }
@@ -131,6 +137,7 @@ const mapStateToProps = (
   try {
     if (ownProps.fetchOptionsConditionally) {
       const dynamicFetchedValues = getDynamicFetchedValues(state, ownProps);
+
       isLoading = dynamicFetchedValues.isLoading;
       options = dynamicFetchedValues.data;
     }
@@ -140,7 +147,11 @@ const mapStateToProps = (
   }
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateConfigPropertyValue: (formName: string, field: string, value: any) => {
     dispatch(change(formName, field, value));
   },

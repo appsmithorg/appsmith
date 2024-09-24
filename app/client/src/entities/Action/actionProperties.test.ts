@@ -12,11 +12,13 @@ const DEFAULT_ACTION: Action = {
   dynamicBindingPathList: [],
   executeOnLoad: false,
   id: "",
+  baseId: "",
   invalids: [],
   isValid: false,
   jsonPathKeys: [],
   name: "",
   workspaceId: "",
+  applicationId: "",
   pageId: "",
   pluginId: "",
   messages: [],
@@ -29,6 +31,7 @@ describe("getReactivePathsOfAction", () => {
       DEFAULT_ACTION,
       undefined,
     ).reactivePaths;
+
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -82,6 +85,7 @@ describe("getReactivePathsOfAction", () => {
       basicAction,
       config,
     ).reactivePaths;
+
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -150,6 +154,7 @@ describe("getReactivePathsOfAction", () => {
       basicAction,
       config,
     ).reactivePaths;
+
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -208,6 +213,7 @@ describe("getReactivePathsOfAction", () => {
       basicAction,
       config,
     ).reactivePaths;
+
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -268,6 +274,7 @@ describe("getReactivePathsOfAction", () => {
       basicAction,
       config,
     ).reactivePaths;
+
     expect(response).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -282,6 +289,7 @@ describe("getReactivePathsOfAction", () => {
       basicAction,
       config,
     ).reactivePaths;
+
     expect(response2).toStrictEqual({
       data: EvaluationSubstitutionType.TEMPLATE,
       isLoading: EvaluationSubstitutionType.TEMPLATE,
@@ -296,6 +304,7 @@ describe("getReactivePathsOfAction", () => {
       DEFAULT_ACTION,
       undefined,
     ).bindingPaths;
+
     expect(response).toStrictEqual({});
   });
 
@@ -344,6 +353,7 @@ describe("getReactivePathsOfAction", () => {
       basicAction,
       config,
     ).bindingPaths;
+
     expect(response).toStrictEqual({
       "config.body": EvaluationSubstitutionType.TEMPLATE,
       "config.body2": EvaluationSubstitutionType.TEMPLATE,

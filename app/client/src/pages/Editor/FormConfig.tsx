@@ -16,19 +16,20 @@ import { ToggleComponentToJsonHandler } from "components/editorComponents/form/T
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
 } from "utils/editorContextUtils";
 import { getIsInputFieldFocused } from "selectors/editorContextSelectors";
 import { setFocusableInputField } from "actions/editorContextActions";
-import { Icon, Tooltip } from "design-system";
+import { Icon, Tooltip } from "@appsmith/ads";
 
 const FlexWrapper = styled.div`
   display: flex;
   width: fit-content;
   margin-right: 5px;
+  min-height: 21px;
 
   & .t--js-toggle {
     margin-bottom: 0px;
@@ -67,6 +68,12 @@ interface FormConfigProps extends FormControlProps {
   changesViewType: boolean;
 }
 
+const controlsWithSubtitleInTop = [
+  "ARRAY_FIELD",
+  "WHERE_CLAUSE",
+  "QUERY_DYNAMIC_TEXT",
+];
+
 // top contains label, subtitle, urltext, tooltip, display type
 // bottom contains the info and error text
 // props.children will render the form element
@@ -102,6 +109,7 @@ export default function FormConfig(props: FormConfigProps) {
           const focusableElement = getPropertyControlFocusElement(
             controlRef.current,
           );
+
           focusableElement?.scrollIntoView({
             block: "center",
             behavior: "smooth",
@@ -111,6 +119,7 @@ export default function FormConfig(props: FormConfigProps) {
       }, 0);
     }
   }, [shouldFocusPropertyPath]);
+
   if (props.multipleConfig?.length) {
     top = (
       <div style={{ display: "flex" }}>
@@ -126,6 +135,7 @@ export default function FormConfig(props: FormConfigProps) {
     bottom = props.multipleConfig?.map((config) => {
       return renderFormConfigBottom({ config });
     });
+
     return (
       <>
         {top}
@@ -176,6 +186,7 @@ function renderFormConfigTop(props: {
   changesViewType: boolean;
 }) {
   const {
+    controlType,
     encrypted,
     isRequired,
     label,
@@ -185,16 +196,22 @@ function renderFormConfigTop(props: {
     url,
     urlText,
   } = { ...props.config };
+  const shouldRenderSubtitle =
+    subtitle && controlsWithSubtitleInTop.includes(controlType);
+
   return (
     <div className="form-config-top" key={props.config.label}>
       {!nestedFormControl && // if the form control is a nested form control hide its label
-        (label?.length > 0 || encrypted || tooltipText || subtitle) && (
+        (label?.length > 0 ||
+          encrypted ||
+          tooltipText ||
+          shouldRenderSubtitle) && (
           <>
             <FlexWrapper>
               <FormLabel
                 config={props.config}
                 extraStyles={{
-                  marginBottom: !!subtitle && "0px",
+                  marginBottom: shouldRenderSubtitle && "0px",
                   minWidth: !!props.changesViewType && "unset",
                 }}
               >
@@ -237,7 +254,7 @@ function renderFormConfigTop(props: {
                 />
               )}
             </FlexWrapper>
-            {subtitle && (
+            {shouldRenderSubtitle && (
               <FormInfoText config={props.config}>{subtitle}</FormInfoText>
             )}
           </>
@@ -255,9 +272,13 @@ function renderFormConfigBottom(props: {
   config: ControlProps;
   configErrors?: EvaluationError[];
 }) {
-  const { controlType, info } = { ...props.config };
+  const { controlType, info, subtitle } = { ...props.config };
+
   return (
     <>
+      {subtitle && !controlsWithSubtitleInTop.includes(controlType) && (
+        <FormInfoText config={props.config}>{subtitle}</FormInfoText>
+      )}
       {info && (
         <FormInputHelperText
           addMarginTop={controlType === "CHECKBOX" ? "8px" : "2px"} // checkboxes need a higher margin top than others form control types

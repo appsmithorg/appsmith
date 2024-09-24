@@ -5,10 +5,10 @@ import { hexToRgba } from "widgets/WidgetUtils";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import type { RenderMode } from "constants/WidgetConstants";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 
 interface IframeContainerProps {
@@ -98,12 +98,16 @@ function IframeComponent(props: IframeComponentProps) {
       const iframeWindow =
         frameRef.current?.contentWindow ||
         frameRef.current?.contentDocument?.defaultView;
+
       // Accept messages only from the current iframe
       if (event.source !== iframeWindow) return;
+
       onMessageReceived(event);
     };
+
     // add a listener
     window.addEventListener("message", handler, false);
+
     // clean up
     return () => window.removeEventListener("message", handler, false);
   }, []);
@@ -111,9 +115,12 @@ function IframeComponent(props: IframeComponentProps) {
   useEffect(() => {
     if (isFirstSrcURLRender.current) {
       isFirstSrcURLRender.current = false;
+
       return;
     }
+
     onURLChanged(source);
+
     if (source || srcDoc) {
       setMessage("");
     } else {
@@ -124,9 +131,12 @@ function IframeComponent(props: IframeComponentProps) {
   useEffect(() => {
     if (isFirstSrcDocRender.current) {
       isFirstSrcDocRender.current = false;
+
       return;
     }
+
     onSrcDocChanged(srcDoc);
+
     if (srcDoc || source) {
       setMessage("");
     } else {

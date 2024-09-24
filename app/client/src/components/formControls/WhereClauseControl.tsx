@@ -8,7 +8,7 @@ import { useSelector } from "react-redux";
 import { getBindingOrConfigPathsForWhereClauseControl } from "entities/Action/actionProperties";
 import { WhereClauseSubComponent } from "./utils";
 import useResponsiveBreakpoints from "utils/hooks/useResponsiveBreakpoints";
-import { Button, Tooltip } from "design-system";
+import { Button, Tooltip } from "@appsmith/ads";
 
 //Dropdwidth and Icon have fixed widths
 const DropdownWidth = 82; //pixel value
@@ -24,6 +24,8 @@ export interface whereClauseValueType {
 }
 
 // Form config for the value field
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const valueFieldConfig: any = {
   key: "value",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
@@ -31,6 +33,8 @@ const valueFieldConfig: any = {
 };
 
 // Form config for the key field
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const keyFieldConfig: any = {
   key: "key",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
@@ -38,6 +42,8 @@ const keyFieldConfig: any = {
 };
 
 // Form config for the condition field
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const conditionFieldConfig: any = {
   key: "operator",
   controlType: "DROP_DOWN",
@@ -46,12 +52,16 @@ const conditionFieldConfig: any = {
 };
 
 // Form config for the operator field
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const logicalFieldConfig: any = {
   key: "condition",
   controlType: "DROP_DOWN",
   initialValue: "EQ",
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const LogicalFieldValue: any = styled.p<{
   width: string | undefined;
   size: string;
@@ -214,6 +224,8 @@ const GroupConditionBox = styled.div<{ size: string }>`
 `;
 
 // Component to display single line of condition, includes 2 inputs and 1 dropdown
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ConditionComponent(props: any, index: number) {
   // Custom styles have to be passed as props, otherwise the UI will be disproportional
 
@@ -289,11 +301,15 @@ function ConditionComponent(props: any, index: number) {
 }
 
 // This is the block which contains an operator and multiple conditions/ condition blocks
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ConditionBlock(props: any) {
   const targetRef = useRef<HTMLDivElement>(null);
   // Smallest width of the component below which the individual input fields don't
   // decrease in width anymore so we decide to shift to small space layout at this point
   const size = useResponsiveBreakpoints(targetRef, [{ small: 505 }]);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formValues: any = useSelector((state) =>
     getFormValues(props.formName)(state),
   );
@@ -307,6 +323,7 @@ function ConditionBlock(props: any) {
     // so make sure the new formValue has been initialized with the where object,
     // especially when switching between various queries across the same Query editor form.
     const whereConfigValue = _.get(formValues, props.configProperty);
+
     // if the where object exists then it means the initialization of the form has been completed.
     // if the where object exists and the length of children field is less than one, add a new field.
     if (props.fields.length < 1 && !!whereConfigValue) {
@@ -321,9 +338,11 @@ function ConditionBlock(props: any) {
   }, [props.fields.length]);
 
   let isDisabled = false;
+
   if (props.logicalTypes.length === 1) {
     isDisabled = true;
   }
+
   const logicalFieldPath = getBindingOrConfigPathsForWhereClauseControl(
     props.configProperty,
     WhereClauseSubComponent.Condition,
@@ -341,8 +360,11 @@ function ConditionBlock(props: any) {
     >
       {props.fields &&
         props.fields.length > 0 &&
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         props.fields.map((field: any, index: number) => {
           const fieldValue: whereClauseValueType = props.fields.get(index);
+
           return (
             <ConditionWrapper key={`where-${index}`} size={size}>
               {/* Component to render the joining operator between multiple conditions */}
@@ -484,6 +506,7 @@ export default function WhereClauseControl(props: WhereClauseControlProps) {
 
   // Max width is designed in a way that the proportion stays same even after nesting
   const maxWidth = 60; //in vw
+
   return (
     <FieldArray
       component={ConditionBlock}

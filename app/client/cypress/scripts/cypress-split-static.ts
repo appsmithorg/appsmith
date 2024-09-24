@@ -220,6 +220,7 @@ export class staticSplit {
       const specs =
         (await this.getSpecsToRun(specPattern, ignorePattern, attempt)) ?? [];
       console.log("SPECS TO RUN ----------> :", specs);
+      console.log("attempt ID  ----------> :", attempt);
       if (specs.length > 0 && !specs.includes(defaultSpec)) {
         config.specPattern = specs.length == 1 ? specs[0] : specs;
       } else {

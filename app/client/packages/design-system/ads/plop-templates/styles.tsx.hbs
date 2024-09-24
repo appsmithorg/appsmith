@@ -1,0 +1,24 @@
+import styled, { css } from "styled-components";
+import { YOUR_PROP_TYPE_1 } from "./{{capitalize name}}.types";
+
+const Variables = css`
+  // Variables that are controlled, changed, or toggled entirely within this component
+  // are defined here and used in the component's styles.
+`;
+
+// Kind style definitions
+const YOUR_KINDS = css`
+  // Styles for the kinds defined in your type
+`;
+
+export const Styled{{capitalize name}} = styled.span<{
+  // Props that affect styles are passed through here.
+  YOUR_PROP: YOUR_PROP_TYPE_1;
+}>`
+  ${Variables}
+
+  /* Kind styles */
+  ${({ YOUR_PROP }) => YOUR_PROP && YOUR_KINDS[YOUR_PROP]} /* Base style */
+
+  /* Additional styles and classes */
+`;

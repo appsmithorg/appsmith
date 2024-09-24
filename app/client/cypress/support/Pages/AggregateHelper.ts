@@ -1552,6 +1552,25 @@ export class AggregateHelper {
     ) as Cypress.Chainable<boolean>;
   }
 
+  /**
+   * Checks if the specified instance of the element is present with number and visible on the page.
+   *
+   * @param {ElementType} selector - The element selector.
+   * @param {number} [eq=0] - The index of the element to check (default is 0).
+   * @returns {Cypress.Chainable<boolean>} - Returns a boolean wrapped in a Cypress Chainable indicating visibility.
+   */
+  IsElementVisibleWithEq(selector: ElementType, eq: number = 0) {
+    return this.GetElement(selector)
+      .eq(eq)
+      .then(($element) => {
+        // Check if the element is present and visible
+        const isVisible =
+          Cypress.$($element).length > 0 && Cypress.$($element).is(":visible");
+        console.log(`Element visibility: ${isVisible}`);
+        return isVisible;
+      }) as Cypress.Chainable<boolean>;
+  }
+
   public FailIfErrorToast(error: string) {
     cy.get("body").then(($ele) => {
       if ($ele.find(this.locator._toastMsg).length > 0) {
@@ -1760,11 +1779,8 @@ export class AggregateHelper {
   public VisitNAssert(url: string, apiToValidate = "") {
     cy.visit(url);
     this.AssertURL(url);
-    if (
-      apiToValidate.includes("getAllWorkspaces") &&
-      Cypress.env("AIRGAPPED")
-    ) {
-      this.Sleep(2000);
+    if (Cypress.env("AIRGAPPED")) {
+      // Intentionally left blank: No actions needed in air-gapped environment
     } else
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);
   }

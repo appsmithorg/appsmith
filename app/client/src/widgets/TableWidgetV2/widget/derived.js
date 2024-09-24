@@ -63,6 +63,7 @@ export default {
       "__primaryKey__",
       ...nonDataColumnAliases,
     ];
+
     return _.omit(selectedRow, keysToBeOmitted);
   },
   //
@@ -95,6 +96,7 @@ export default {
      */
     if (index > -1) {
       const row = rows.find((row) => row.__originalIndex__ === index);
+
       triggeredRow = { ...row };
     } else {
       /*
@@ -112,6 +114,7 @@ export default {
       "__primaryKey__",
       ...nonDataColumnAliases,
     ];
+
     return _.omit(triggeredRow, keysToBeOmitted);
   },
   //
@@ -147,6 +150,7 @@ export default {
       "__primaryKey__",
       ...nonDataColumnAliases,
     ];
+
     return indices.map((index) => _.omit(rows[index], keysToBeOmitted));
   },
   //
@@ -215,6 +219,7 @@ export default {
   getOrderedTableColumns: (props, moment, _) => {
     let columns = [];
     let existingColumns = props.primaryColumns || {};
+
     /*
      * Assign index based on the columnOrder
      */
@@ -245,6 +250,7 @@ export default {
 
     const sortByColumn = props.sortOrder && props.sortOrder.column;
     const isAscOrder = props.sortOrder && props.sortOrder.order === "asc";
+
     /* set sorting flags and convert the existing columns into an array */
     Object.values(existingColumns).forEach((column) => {
       /* guard to not allow columns without id */
@@ -317,6 +323,87 @@ export default {
     const sortByColumnId = props.sortOrder.column;
 
     let sortedTableData;
+    /* 
+    Check if there are select columns, 
+    and if the columns are sorting by label instead of default value 
+    */
+    const selectColumnKeysWithSortByLabel = [];
+
+    Object.entries(primaryColumns).forEach(([id, column]) => {
+      const isColumnSortedByLabel =
+        column?.columnType === "select" &&
+        column?.sortBy === "label" &&
+        column?.selectOptions?.length;
+
+      if (isColumnSortedByLabel) {
+        selectColumnKeysWithSortByLabel.push(id);
+      }
+    });
+
+    /* 
+    If there are select columns, 
+    transform the specific columns data to show the label instead of the value for sorting 
+    */
+    let processedTableDataWithLabelInsteadOfValue;
+
+    if (selectColumnKeysWithSortByLabel.length) {
+      const transformedValueToLabelTableData = processedTableData.map((row) => {
+        const newRow = { ...row };
+
+        selectColumnKeysWithSortByLabel.forEach((key) => {
+          const value = row[key];
+          const isSelectOptionsAnArray = _.isArray(
+            primaryColumns[key].selectOptions,
+          );
+
+          let selectOptions;
+
+          /*
+           * If selectOptions is an array, check if it contains nested arrays.
+           * This is to handle situations where selectOptons is a javascript object and computes as a nested array.
+           */
+          if (isSelectOptionsAnArray) {
+            if (_.some(primaryColumns[key].selectOptions, _.isArray)) {
+              /* Handle the case where selectOptions contains nested arrays - selectOptions is javascript */
+              selectOptions =
+                primaryColumns[key].selectOptions[row.__originalIndex__];
+              const option = selectOptions.find((option) => {
+                return option.value === value;
+              });
+
+              if (option) {
+                newRow[key] = option.label;
+              }
+            } else {
+              /* Handle the case where selectOptions is a flat array - selectOptions is plain JSON */
+              selectOptions = primaryColumns[key].selectOptions;
+              const option = selectOptions.find(
+                (option) => option.value === value,
+              );
+
+              if (option) {
+                newRow[key] = option.label;
+              }
+            }
+          } else {
+            /* If selectOptions is not an array, parse it as JSON - not evaluated yet, so returns as string */
+            selectOptions = JSON.parse(primaryColumns[key].selectOptions);
+            const option = selectOptions.find(
+              (option) => option.value === value,
+            );
+
+            if (option) {
+              newRow[key] = option.label;
+            }
+          }
+        });
+
+        return newRow;
+      });
+
+      processedTableDataWithLabelInsteadOfValue =
+        transformedValueToLabelTableData;
+    }
 
     if (sortByColumnId) {
       const sortBycolumn = columns.find(
@@ -352,7 +439,12 @@ export default {
         }
       };
 
-      sortedTableData = processedTableData.sort((a, b) => {
+      const transformedTableDataForSorting =
+        selectColumnKeysWithSortByLabel.length
+          ? processedTableDataWithLabelInsteadOfValue
+          : processedTableData;
+
+      sortedTableData = transformedTableDataForSorting.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
           if (
             isEmptyOrNil(a[sortByColumnOriginalId]) ||
@@ -380,6 +472,7 @@ export default {
                 }
               case "url":
                 const column = primaryColumns[sortByColumnOriginalId];
+
                 if (column && column.displayText) {
                   if (_.isString(column.displayText)) {
                     return sortByOrder(false);
@@ -405,6 +498,68 @@ export default {
           return isAscOrder ? 1 : 0;
         }
       });
+
+      /*
+       * When sorting is done, transform the data back to its original state
+       * where table data shows value instead of label
+       */
+      if (selectColumnKeysWithSortByLabel.length) {
+        const transformedLabelToValueData = sortedTableData.map((row) => {
+          const newRow = { ...row };
+
+          selectColumnKeysWithSortByLabel.forEach((key) => {
+            const label = row[key];
+            const isSelectOptionsAnArray = _.isArray(
+              primaryColumns[key].selectOptions,
+            );
+
+            let selectOptions;
+
+            /*
+             * If selectOptions is an array, check if it contains nested arrays.
+             * This is to handle situations where selectOptons is a javascript object and computes as a nested array.
+             */
+            if (isSelectOptionsAnArray) {
+              if (_.some(primaryColumns[key].selectOptions, _.isArray)) {
+                /* Handle the case where selectOptions contains nested arrays - selectOptions is javascript */
+                selectOptions =
+                  primaryColumns[key].selectOptions[row.__originalIndex__];
+                const option = selectOptions.find((option) => {
+                  return option.label === label;
+                });
+
+                if (option) {
+                  newRow[key] = option.value;
+                }
+              } else {
+                /* Handle the case where selectOptions is a flat array - selectOptions is plain JSON */
+                selectOptions = primaryColumns[key].selectOptions;
+                const option = selectOptions.find(
+                  (option) => option.label === label,
+                );
+
+                if (option) {
+                  newRow[key] = option.value;
+                }
+              }
+            } else {
+              /* If selectOptions is not an array, parse it as JSON - not evaluated yet, so returns as string */
+              selectOptions = JSON.parse(primaryColumns[key].selectOptions);
+              const option = selectOptions.find(
+                (option) => option.label === label,
+              );
+
+              if (option) {
+                newRow[key] = option.value;
+              }
+            }
+          });
+
+          return newRow;
+        });
+
+        sortedTableData = transformedLabelToValueData;
+      }
     } else {
       sortedTableData = [...processedTableData];
     }
@@ -471,6 +626,7 @@ export default {
         try {
           const _a = a.toString().toLowerCase();
           const _b = b.toString().toLowerCase();
+
           return (
             _a.lastIndexOf(_b) >= 0 &&
             _a.length === _a.lastIndexOf(_b) + _b.length
@@ -523,25 +679,111 @@ export default {
       const columnWithDisplayText = Object.values(props.primaryColumns).filter(
         (column) => column.columnType === "url" && column.displayText,
       );
+
+      /*
+       * For select columns with label and values, we need to include the label value
+       * in the search
+       */
+      let labelValueForSelectCell = "";
+      /*
+       * Initialize an array to store keys for columns that have the 'select' column type
+       * and contain selectOptions.
+       */
+      const selectColumnKeys = [];
+
+      /*
+       * Iterate over the primary columns to identify which columns are of type 'select'
+       * and have selectOptions. These keys are pushed into the selectColumnKeys array.
+       */
+      Object.entries(props.primaryColumns).forEach(([id, column]) => {
+        const isColumnSelectColumnType =
+          column?.columnType === "select" && column?.selectOptions?.length;
+
+        if (isColumnSelectColumnType) {
+          selectColumnKeys.push(id);
+        }
+      });
+
+      /*
+       * If there are any select columns, iterate over them to find the label value
+       * associated with the selected value in each row.
+       */
+      if (selectColumnKeys.length) {
+        selectColumnKeys.forEach((key) => {
+          const value = row[key];
+
+          const isSelectOptionsAnArray = _.isArray(
+            primaryColumns[key].selectOptions,
+          );
+
+          let selectOptions;
+
+          /*
+           * If selectOptions is an array, check if it contains nested arrays.
+           * This is to handle situations where selectOptons is a javascript object and computes as a nested array.
+           */
+          if (isSelectOptionsAnArray) {
+            if (_.some(primaryColumns[key].selectOptions, _.isArray)) {
+              /* Handle the case where selectOptions contains nested arrays - selectOptions is javascript */
+              selectOptions =
+                primaryColumns[key].selectOptions[row.__originalIndex__];
+              const option = selectOptions.find((option) => {
+                return option.value === value;
+              });
+
+              if (option) {
+                labelValueForSelectCell = option.label;
+              }
+            } else {
+              /* Handle the case where selectOptions is a flat array - selectOptions is plain JSON */
+              selectOptions = primaryColumns[key].selectOptions;
+              const option = selectOptions.find(
+                (option) => option.value === value,
+              );
+
+              if (option) {
+                labelValueForSelectCell = option.label;
+              }
+            }
+          } else {
+            /* If selectOptions is not an array, parse it as JSON - not evaluated yet, so returns as string */
+            selectOptions = JSON.parse(primaryColumns[key].selectOptions);
+            const option = selectOptions.find(
+              (option) => option.value === value,
+            );
+
+            if (option) {
+              labelValueForSelectCell = option.label;
+            }
+          }
+        });
+      }
+
       const displayedRow = {
         ...row,
+        labelValueForSelectCell,
         ...columnWithDisplayText.reduce((acc, column) => {
           let displayText;
+
           if (_.isArray(column.displayText)) {
             displayText = column.displayText[row.__originalIndex__];
           } else {
             displayText = column.displayText;
           }
+
           acc[column.alias] = displayText;
+
           return acc;
         }, {}),
       };
+
       if (searchKey) {
         isSearchKeyFound = Object.values(_.omit(displayedRow, hiddenColumns))
           .join(", ")
           .toLowerCase()
           .includes(searchKey);
       }
+
       if (!isSearchKeyFound) {
         return false;
       }
@@ -558,11 +800,14 @@ export default {
       const filterOperator =
         props.filters.length >= 2 ? props.filters[1].operator : "OR";
       let isSatisfyingFilters = filterOperator === "AND";
+
       for (let i = 0; i < props.filters.length; i++) {
         let filterResult = true;
+
         try {
           const conditionFunction =
             ConditionFunctions[props.filters[i].condition];
+
           if (conditionFunction) {
             filterResult = conditionFunction(
               displayedRow[props.filters[i].column],
@@ -591,6 +836,7 @@ export default {
 
       return isSatisfyingFilters;
     });
+
     return finalTableData;
   },
   //
@@ -608,6 +854,7 @@ export default {
 
     if (index > -1) {
       const row = rows.find((row) => row.__originalIndex__ === index);
+
       updatedRow = { ...row };
     } else {
       /*
@@ -615,6 +862,7 @@ export default {
        *  have proper row structure with empty string values
        */
       updatedRow = {};
+
       if (rows && rows[0]) {
         Object.keys(rows[0]).forEach((key) => {
           updatedRow[key] = "";
@@ -639,6 +887,7 @@ export default {
       "__primaryKey__",
       ...nonDataColumnAliases,
     ];
+
     return _.omit(updatedRow, keysToBeOmitted);
   },
   //
@@ -741,6 +990,7 @@ export default {
       /* Math.max fixes the value of (pageNo - 1) to a minimum of 0 as negative values are not valid */
       return Math.max(props.pageNo - 1, 0) * pageSize;
     }
+
     return 0;
   },
   //
@@ -787,7 +1037,7 @@ export default {
     };
 
     let editableColumns = [];
-    const validatableColumns = ["text", "number", "currency"];
+    const validatableColumns = ["text", "number", "currency", "date", "select"];
 
     if (props.isAddRowInProgress) {
       Object.values(props.primaryColumns)
@@ -823,6 +1073,7 @@ export default {
           (value === "" || _.isNil(value))
         ) {
           validationMap[editedColumn.alias] = true;
+
           return;
         } else if (
           (!_.isNil(validation.isColumnEditableCellValid) &&
@@ -832,6 +1083,7 @@ export default {
             (value === "" || _.isNil(value)))
         ) {
           validationMap[editedColumn.alias] = false;
+
           return;
         }
 
@@ -845,6 +1097,7 @@ export default {
               validation.min > value
             ) {
               validationMap[editedColumn.alias] = false;
+
               return;
             }
 
@@ -854,8 +1107,10 @@ export default {
               validation.max < value
             ) {
               validationMap[editedColumn.alias] = false;
+
               return;
             }
+
             break;
         }
       }

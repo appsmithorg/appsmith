@@ -1,5 +1,5 @@
-import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { EditorViewMode } from "ee/entities/IDE/constants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 export const setIdeEditorViewMode = (mode: EditorViewMode) => {
   return {

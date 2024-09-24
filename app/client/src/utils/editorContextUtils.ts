@@ -3,8 +3,8 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
   DATASOURCE_SAAS_FORM,
-} from "@appsmith/constants/forms";
-import { DB_NOT_SUPPORTED } from "@appsmith/utils/Environments";
+} from "ee/constants/forms";
+import { DB_NOT_SUPPORTED } from "ee/utils/Environments";
 import { diff } from "deep-diff";
 import { PluginName, PluginPackageName, PluginType } from "entities/Action";
 import type {
@@ -16,8 +16,8 @@ import type {
 import { AuthenticationStatus, AuthType } from "entities/Datasource";
 import { get, isArray } from "lodash";
 import store from "store";
-import { getPlugin } from "@appsmith/selectors/entitiesSelector";
-import type { AppState } from "@appsmith/reducers";
+import { getPlugin } from "ee/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
 import {
   DATASOURCES_ALLOWED_FOR_PREVIEW_MODE,
   MOCK_DB_TABLE_NAMES,
@@ -67,13 +67,16 @@ export function getPropertyControlFocusElement(
       const uiInputElement = propertyInputElement.querySelector(
         'button:not([tabindex="-1"]), input, [tabindex]:not([tabindex="-1"])',
       ) as HTMLElement | undefined;
+
       if (uiInputElement) {
         return uiInputElement;
       }
+
       const codeEditorInputElement =
         propertyInputElement.getElementsByClassName("CodeEditorTarget")[0] as
           | HTMLElement
           | undefined;
+
       if (codeEditorInputElement) {
         return codeEditorInputElement;
       }
@@ -82,6 +85,7 @@ export function getPropertyControlFocusElement(
         propertyInputElement.getElementsByClassName("LazyCodeEditor")[0] as
           | HTMLElement
           | undefined;
+
       if (lazyCodeEditorInputElement) {
         return lazyCodeEditorInputElement;
       }
@@ -107,21 +111,29 @@ export function isDatasourceAuthorizedForQueryCreation(
 ): boolean {
   if (!datasource || !datasource.hasOwnProperty("datasourceStorages"))
     return false;
+
   const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
   const envSupportedDs = !DB_NOT_SUPPORTED.includes(plugin?.type || "");
+
   if (!datasource.datasourceStorages.hasOwnProperty(currentEnvironment)) {
     if (envSupportedDs) return false;
+
     const envs = Object.keys(datasource.datasourceStorages);
+
     if (envs.length === 0) return false;
+
     currentEnvironment = envs[0];
   }
+
   const datasourceStorage = datasource.datasourceStorages[currentEnvironment];
+
   if (
     !datasourceStorage ||
     !datasourceStorage.hasOwnProperty("id") ||
     !datasourceStorage.hasOwnProperty("datasourceConfiguration")
   )
     return false;
+
   const authType = get(
     datasourceStorage,
     "datasourceConfiguration.authentication.authenticationType",
@@ -136,6 +148,7 @@ export function isDatasourceAuthorizedForQueryCreation(
       authType === AuthType.OAUTH2 &&
       !!authStatus &&
       validStatusArr.includes(authStatus);
+
     return isAuthorized;
   }
 
@@ -170,8 +183,10 @@ export function getDatasourcePropertyValue(
     datasource,
     `datasourceStorages.${currentEnvironment}.datasourceConfiguration.properties`,
   );
+
   if (!!properties && properties.length > 0) {
     const propertyObj = properties.find((prop) => prop.key === propertyKey);
+
     if (!!propertyObj) {
       return propertyObj.value;
     }
@@ -182,6 +197,7 @@ export function getDatasourcePropertyValue(
 
 export function getFormName(plugin: Plugin): string {
   const pluginType = plugin?.type;
+
   if (!!pluginType) {
     switch (pluginType) {
       case PluginType.DB:
@@ -194,12 +210,16 @@ export function getFormName(plugin: Plugin): string {
         return DATASOURCE_REST_API_FORM;
     }
   }
+
   return DATASOURCE_DB_FORM;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getFormDiffPaths(initialValues: any, currentValues: any) {
   const difference = diff(initialValues, currentValues);
   const diffPaths: string[] = [];
+
   if (!!difference) {
     difference.forEach((diff) => {
       if (!!diff.path && isArray(diff.path)) {
@@ -207,6 +227,7 @@ export function getFormDiffPaths(initialValues: any, currentValues: any) {
       }
     });
   }
+
   return diffPaths;
 }
 
@@ -239,11 +260,13 @@ export function getDefaultTemplateActionConfig(
     let defaultTableName = "";
     let templateTitle = "";
     let queryTemplate: QueryTemplate | undefined = undefined;
+
     if (SQL_DATASOURCES.includes(plugin?.name)) {
       templateTitle = SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE;
     } else if (plugin?.name === PluginName.MONGO) {
       templateTitle = NOSQL_PLUGINS_DEFAULT_TEMPLATE_TYPE;
     }
+
     if (isMock) {
       switch (plugin?.name) {
         case PluginName.MONGO: {
@@ -272,6 +295,7 @@ export function getDefaultTemplateActionConfig(
     const table: DatasourceTable | undefined = dsStructure.tables?.find(
       (table: DatasourceTable) => table.name === defaultTableName,
     );
+
     queryTemplate = table?.templates?.find(
       (template: QueryTemplate) => template.title === templateTitle,
     );

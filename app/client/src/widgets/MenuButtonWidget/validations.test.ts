@@ -26,6 +26,8 @@ describe("sourceDataArrayValidation", () => {
 
     const result = sourceDataArrayValidation(
       mockSourceData,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       undefined as any,
       _,
     );
@@ -34,6 +36,7 @@ describe("sourceDataArrayValidation", () => {
       parsed: mockSourceData,
       messages: [{ name: "", message: "" }],
     };
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -49,6 +52,8 @@ describe("sourceDataArrayValidation", () => {
 
     const result = sourceDataArrayValidation(
       mockSourceData,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       undefined as any,
       _,
     );
@@ -62,6 +67,7 @@ describe("sourceDataArrayValidation", () => {
         },
       ],
     };
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -75,6 +81,8 @@ describe("sourceDataArrayValidation", () => {
 
     const result = sourceDataArrayValidation(
       mockSourceData,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       undefined as any,
       _,
     );
@@ -88,6 +96,7 @@ describe("sourceDataArrayValidation", () => {
         },
       ],
     };
+
     expect(result).toStrictEqual(expected);
   });
 });

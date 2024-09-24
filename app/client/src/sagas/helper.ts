@@ -1,4 +1,4 @@
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
 import type { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
 import type {
   FormEvalOutput,
@@ -8,40 +8,40 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Log } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
-import {
-  ENTITY_TYPE,
-  PLATFORM_ERROR,
-} from "@appsmith/entities/AppsmithConsole/utils";
-import { toast } from "design-system";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
+import { toast } from "@appsmith/ads";
 import {
   ReduxActionTypes,
   type ReduxActionType,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import get from "lodash/get";
 import set from "lodash/set";
 import log from "loglevel";
 import { isPlainObject, isString } from "lodash";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
-import { klona } from "klona/lite";
-import { apiFailureResponseInterceptor } from "@appsmith/api/ApiUtils";
+import { apiFailureResponseInterceptor } from "ee/api/ApiUtils";
+import { klonaLiteWithTelemetry } from "utils/helpers";
 
 // function to extract all objects that have dynamic values
 export const extractFetchDynamicValueFormConfigs = (
   evalOutput: FormEvalOutput,
 ) => {
   let output: Record<string, ConditionalOutput> = {};
+
   Object.entries(evalOutput).forEach(([key, value]) => {
     if ("fetchDynamicValues" in value && !!value.fetchDynamicValues) {
       output = { ...output, [key]: value };
     }
   });
+
   return output;
 };
 
 // Function to extract all the objects that have to fetch dynamic values
 export const extractQueueOfValuesToBeFetched = (evalOutput: FormEvalOutput) => {
   let output: Record<string, ConditionalOutput> = {};
+
   Object.entries(evalOutput).forEach(([key, value]) => {
     if (
       "fetchDynamicValues" in value &&
@@ -52,6 +52,7 @@ export const extractQueueOfValuesToBeFetched = (evalOutput: FormEvalOutput) => {
       output = { ...output, [key]: value };
     }
   });
+
   return output;
 };
 
@@ -86,6 +87,7 @@ const logCyclicDependecyErrors = (
         },
       );
     }
+
     AppsmithConsole.addLogs(
       layoutErrors.reduce((acc: Log[], error: LayoutOnLoadActionErrors) => {
         acc.push({
@@ -111,6 +113,7 @@ const logCyclicDependecyErrors = (
           },
           isExpanded: false,
         });
+
         return acc;
       }, []),
     );
@@ -144,15 +147,21 @@ export const enhanceRequestPayloadWithEventData = (
   try {
     switch (type) {
       case ReduxActionTypes.COPY_ACTION_INIT:
-        const actionObject = klona(payload) as Action;
+        const actionObject = klonaLiteWithTelemetry(
+          payload,
+          "helpers.enhanceRequestPayloadWithEventData",
+        ) as Action;
+
         const path = `${RequestPayloadAnalyticsPath}.originalActionId`;
         const originalActionId = get(actionObject, path, actionObject.id);
+
         if (originalActionId !== undefined)
           return set(actionObject, path, originalActionId);
     }
   } catch (e) {
     log.error("Failed to enhance payload with event data", e);
   }
+
   return payload;
 };
 
@@ -165,6 +174,7 @@ export const cleanValuesInObjectForHashing = (
   obj: Record<string, unknown>,
 ): Record<string, unknown> => {
   const cleanObj: Record<string, unknown> = {};
+
   for (const key in obj) {
     if (isString(obj[key])) {
       cleanObj[key] = (obj[key] as string)
@@ -181,6 +191,7 @@ export const cleanValuesInObjectForHashing = (
       cleanObj[key] = obj[key];
     }
   }
+
   return cleanObj;
 };
 
@@ -205,8 +216,14 @@ export async function generateHashFromString(str: unknown) {
 }
 
 export function* getFromServerWhenNoPrefetchedResult(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prefetchedResult?: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiEffect?: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   if (prefetchedResult) {
     if (prefetchedResult?.responseMeta?.error) {
@@ -221,6 +238,7 @@ export function* getFromServerWhenNoPrefetchedResult(
           status,
         },
       });
+
       return resp;
     }
 

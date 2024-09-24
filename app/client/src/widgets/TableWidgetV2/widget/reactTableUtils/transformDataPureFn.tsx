@@ -17,6 +17,8 @@ export const transformDataPureFn = (
 ): tableData => {
   if (isArray(tableData)) {
     return tableData.map((row, rowIndex) => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const newRow: { [key: string]: any } = {};
 
       columns.forEach((column) => {
@@ -76,6 +78,7 @@ export const transformDataPureFn = (
               } else {
                 newRow[alias] = "";
               }
+
               break;
             default:
               let data;
@@ -116,16 +119,22 @@ export const injectEditableCellToTableData = (
    * Inject the edited cell value from the editableCell object
    */
   if (!editableCell || !tableData.length) return tableData;
+
   const { column, index: updatedRowIndex, inputValue } = editableCell;
 
   const inRangeForUpdate =
     updatedRowIndex >= 0 && updatedRowIndex < tableData.length;
+
   if (!inRangeForUpdate) return tableData;
+
   //if same value ignore update
   if (tableData[updatedRowIndex][column] === inputValue) return tableData;
+
   //create copies of data
   const copy = [...tableData];
+
   copy[updatedRowIndex] = { ...copy[updatedRowIndex], [column]: inputValue };
+
   return copy;
 };
 
@@ -133,6 +142,7 @@ const getMemoiseInjectEditableCellToTableData = () =>
   memoizeOne(injectEditableCellToTableData, (prev, next) => {
     const [prevTableData, prevCellEditable] = prev;
     const [nextTableData, nextCellEditable] = next;
+
     //shallow compare the cellEditable properties
     if (!shallowEqual(prevCellEditable, nextCellEditable)) return false;
 
@@ -152,8 +162,10 @@ export const getMemoiseTransformDataWithEditableCell =
     const memoizedTransformData = getMemoizedTransformData();
     const memoiseInjectEditableCellToTableData =
       getMemoiseInjectEditableCellToTableData();
+
     return memoizeOne((editableCell, tableData, columns) => {
       const transformedData = memoizedTransformData(tableData, columns);
+
       return memoiseInjectEditableCellToTableData(
         transformedData,
         editableCell,

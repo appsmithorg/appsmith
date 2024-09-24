@@ -251,6 +251,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
               const primaryColumns = cloneDeep(widget.primaryColumns);
               const columnIds = Object.keys(primaryColumns);
+
               columnIds.forEach((columnId) => {
                 set(
                   primaryColumns,
@@ -286,6 +287,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   propertyValue: primaryColumns,
                 },
               ];
+
               return updatePropertyMap;
             },
           },
@@ -404,6 +406,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
@@ -474,6 +478,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     let totalColumnSizes = 0;
     const defaultColumnWidth = 150;
     const allColumnProperties = this.props.tableColumns || [];
+
     for (let index = 0; index < allColumnProperties.length; index++) {
       const isAllCellVisible: boolean | boolean[] =
         allColumnProperties[index].isCellVisible;
@@ -499,6 +504,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           inputFormat: columnProperties?.inputFormat || "",
         },
         columnProperties: columnProperties,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Cell: (props: any) => {
           const rowIndex: number = props.cell.row.index;
           const data = this.props.filteredTableData[rowIndex];
@@ -541,6 +548,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               : cellProperties.boxShadow) || "none";
 
           let isSelected = false;
+
           if (this.props.multiRowSelection) {
             isSelected =
               Array.isArray(this.props.selectedRowIndices) &&
@@ -548,6 +556,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           } else {
             isSelected = this.props.selectedRowIndex === rowIndex;
           }
+
           if (columnProperties.columnType === "button") {
             const buttonProps = {
               isSelected: isSelected,
@@ -571,12 +580,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 },
               ],
             };
+
             return renderActions(buttonProps, isHidden, cellProperties);
           } else if (columnProperties.columnType === "dropdown") {
             let options = [];
+
             try {
               options = JSON.parse(columnProperties.dropdownOptions || "");
             } catch (e) {}
+
             return renderDropdown({
               options: options,
               onItemSelect: this.onItemSelect,
@@ -592,6 +604,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               ? () =>
                   this.onCommandClick(rowIndex, columnProperties.onClick, noop)
               : noop;
+
             return renderCell(
               props.cell.value,
               columnProperties.columnType,
@@ -624,6 +637,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isCellVisible: cellProperties.isCellVisible ?? true,
               label: cellProperties.menuButtonLabel ?? "Open menu",
             };
+
             return renderMenuButton(menuButtonProps, isHidden, cellProperties);
           } else if (columnProperties.columnType === "iconButton") {
             const iconButtonProps = {
@@ -649,9 +663,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
               isCellVisible: cellProperties.isCellVisible ?? true,
               disabled: !!cellProperties.isDisabled,
             };
+
             return renderIconButton(iconButtonProps, isHidden, cellProperties);
           } else {
             const isCellVisible = cellProperties.isCellVisible ?? true;
+
             return renderCell(
               props.cell.value,
               columnProperties.columnType,
@@ -678,12 +694,15 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         columns.push(columnData);
       }
     }
+
     if (totalColumnSizes < componentWidth) {
       const lastColumnIndex = columns.length - 1;
       let remainingColumnsSize = 0;
+
       for (let i = 0; i < columns.length - 1; i++) {
         remainingColumnsSize += columns[i].width || defaultColumnWidth;
       }
+
       if (columns[lastColumnIndex]) {
         columns[lastColumnIndex].width =
           componentWidth - remainingColumnsSize < defaultColumnWidth
@@ -691,9 +710,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             : componentWidth - remainingColumnsSize; //Min remaining width to be defaultColumnWidth
       }
     }
+
     if (hiddenColumns.length && this.props.renderMode === RenderModes.CANVAS) {
       columns = columns.concat(hiddenColumns);
     }
+
     return columns.filter((column: ReactTableColumnProps) => column.accessor);
   };
 
@@ -702,20 +723,29 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     columns: ReactTableColumnProps[],
   ) => {
     const updatedTableData = [];
+
     // For each row in the tableData (filteredTableData)
     for (let row = 0; row < tableData.length; row++) {
       // Get the row object
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: { [key: string]: any } = tableData[row];
+
       if (data) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const tableRow: { [key: string]: any } = {};
+
         // For each column in the expected columns of the table
         for (let colIndex = 0; colIndex < columns.length; colIndex++) {
           // Get the column properties
           const column = columns[colIndex];
           const { accessor } = column;
           let value = data[accessor];
+
           if (column.metaProperties) {
             const type = column.metaProperties.type;
+
             switch (type) {
               case ColumnTypes.DATE:
                 let isValidDate = true;
@@ -723,10 +753,12 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                   ? column.metaProperties.format[row]
                   : column.metaProperties.format;
                 let inputFormat;
+
                 try {
                   const type = Array.isArray(column.metaProperties.inputFormat)
                     ? column.metaProperties.inputFormat[row]
                     : column.metaProperties.inputFormat;
+
                   if (type !== "Epoch" && type !== "Milliseconds") {
                     inputFormat = type;
                     moment(value, inputFormat);
@@ -736,16 +768,19 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 } catch (e) {
                   isValidDate = false;
                 }
+
                 if (isValidDate && value) {
                   try {
                     if (outputFormat === "SAME_AS_INPUT") {
                       outputFormat = inputFormat;
                     }
+
                     if (column.metaProperties.inputFormat === "Milliseconds") {
                       value = Number(value);
                     } else if (column.metaProperties.inputFormat === "Epoch") {
                       value = 1000 * Number(value);
                     }
+
                     tableRow[accessor] = moment(value, inputFormat).format(
                       outputFormat,
                     );
@@ -758,6 +793,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                 } else {
                   tableRow[accessor] = "";
                 }
+
                 break;
               default:
                 const data =
@@ -766,6 +802,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
                     : isNil(value)
                       ? ""
                       : JSON.stringify(value);
+
                 tableRow[accessor] = data;
                 break;
             }
@@ -781,6 +818,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getParsedComputedValues = (value: string | Array<unknown>) => {
     let computedValues: Array<unknown> = [];
+
     if (isString(value)) {
       try {
         computedValues = JSON.parse(value);
@@ -792,6 +830,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     } else {
       log.debug("Error parsing column values:", value);
     }
+
     return computedValues;
   };
 
@@ -800,6 +839,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     tableColumnCount: number,
   ) => {
     if (!derivedColumns) return [];
+
     //update index property of all columns in new derived columns
     return (
       Object.keys(derivedColumns)?.map((columnId: string, index: number) => {
@@ -823,6 +863,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       primaryColumns = {},
       sanitizedTableData = [],
     } = this.props;
+
     // Bail out if the data doesn't exist.
     // This is a temporary measure,
     // to solve for the scenario where the column properties are getting reset
@@ -834,11 +875,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     //Get table level styles
     const tableStyles = getTableStyles(this.props);
     const columnKeys: string[] = getAllTableColumnKeys(sanitizedTableData);
+
     // Generate default column properties for all columns
     // But donot replace existing columns with the same id
     for (let index = 0; index < columnKeys.length; index++) {
       const i = columnKeys[index];
       const prevIndex = previousColumnIds.indexOf(i);
+
       if (prevIndex > -1) {
         // we found an existing property with the same column id use the previous properties
         tableColumns[i] = primaryColumns[i];
@@ -848,11 +891,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           index,
           this.props.widgetName,
         );
+
         if (migrated === false) {
           // Update column names using the names from the table before migration
           if ((columnNameMap as Record<string, string>)[i]) {
             columnProperties.label = columnNameMap[i];
           }
+
           // Update column types using types from the table before migration
           if (
             (
@@ -866,11 +911,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             columnProperties.inputFormat = columnTypeMap[i].inputFormat;
             columnProperties.outputFormat = columnTypeMap[i].format;
           }
+
           // Hide columns which were hidden in the table before migration
           if (hiddenColumns.indexOf(i) > -1) {
             columnProperties.isVisible = false;
           }
         }
+
         //add column properties along with table level styles
         tableColumns[columnProperties.id] = {
           ...columnProperties,
@@ -878,6 +925,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         };
       }
     }
+
     // Get derived columns
     const updatedDerivedColumns = this.getDerivedColumns(
       derivedColumns,
@@ -900,6 +948,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   ) => {
     const { derivedColumns = {}, primaryColumns = {} } = this.props;
     const { columnOrder, migrated } = this.props;
+
     if (tableColumns) {
       const previousColumnIds = Object.keys(primaryColumns);
       const previousDerivedColumnIds = Object.keys(derivedColumns);
@@ -910,6 +959,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         const columnIdsToAdd = without(newColumnIds, ...previousColumnIds);
 
         const propertiesToAdd: Record<string, unknown> = {};
+
         columnIdsToAdd.forEach((id: string) => {
           if (id) {
             Object.entries(tableColumns[id]).forEach(([key, value]) => {
@@ -929,14 +979,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         }
 
         const pathsToDelete: string[] = [];
+
         if (migrated === false) {
           propertiesToAdd["migrated"] = true;
         }
+
         const propertiesToUpdate: BatchPropertyUpdatePayload = {
           modify: propertiesToAdd,
         };
 
         const columnsIdsToDelete = without(previousColumnIds, ...newColumnIds);
+
         if (columnsIdsToDelete.length > 0) {
           columnsIdsToDelete.forEach((id: string) => {
             pathsToDelete.push(`primaryColumns.${id}`);
@@ -957,6 +1010,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
     if (Array.isArray(sanitizedTableData) && sanitizedTableData.length > 0) {
       newPrimaryColumns = this.createTablePrimaryColumns();
+
       if (newPrimaryColumns) this.updateColumnProperties(newPrimaryColumns);
     }
   }
@@ -993,6 +1047,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           condition: "",
         },
       ];
+
       this.props.updateWidgetMetaProperty("filters", defaultFilter);
       // Get columns keys from this.props.tableData
       const columnIds: string[] = getAllTableColumnKeys(this.props.tableData);
@@ -1006,6 +1061,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       // If the keys which exist in the tableData are different from the ones available in primaryColumns
       if (xor(columnIds, primaryColumnIds).length > 0) {
         const newTableColumns = this.createTablePrimaryColumns(); // This updates the widget
+
         this.updateColumnProperties(newTableColumns);
       }
     }
@@ -1020,6 +1076,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const maxAllowedPageNumber = Math.ceil(
         this.props.totalRecordsCount / this.props.pageSize,
       );
+
       if (this.props.pageNo > maxAllowedPageNumber) {
         this.props.updateWidgetMetaProperty("pageNo", maxAllowedPageNumber);
       }
@@ -1037,6 +1094,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       if (this.props.multiRowSelection) {
         // Use the selectedRowIndex if available as default selected index
         let selectedRowIndices: number[] = [];
+
         // Check if selectedRowIndex is valid
         if (
           this.props.selectedRowIndex !== undefined &&
@@ -1074,6 +1132,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     if (this.props.pageSize !== prevProps.pageSize) {
       //reset current page number when page size changes
       this.props.updateWidgetMetaProperty("pageNo", 1);
+
       if (this.props.onPageSizeChange) {
         super.executeAction({
           triggerPropertyName: "onPageSizeChange",
@@ -1091,11 +1150,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
         : -1;
+
       this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
     } else {
       const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
         : [];
+
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
         selectedRowIndices,
@@ -1115,6 +1176,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.selectedRowIndex,
         this.props.primaryColumnId,
       );
+
       this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
     } else {
       const selectedRowIndices = selectRowIndices(
@@ -1124,6 +1186,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.props.selectedRowIndices,
         this.props.primaryColumnId,
       );
+
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
         selectedRowIndices,
@@ -1134,6 +1197,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   getSelectedRowIndices = () => {
     let selectedRowIndices: number[] | undefined =
       this.props.selectedRowIndices;
+
     if (!this.props.multiRowSelection) selectedRowIndices = undefined;
     else {
       if (!Array.isArray(selectedRowIndices)) {
@@ -1142,6 +1206,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         else selectedRowIndices = [];
       }
     }
+
     return selectedRowIndices;
   };
 
@@ -1179,6 +1244,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisibleSearch;
 
     const { componentHeight, componentWidth } = this.props;
+
     return (
       <Suspense fallback={<Skeleton />}>
         <ReactTableComponent
@@ -1253,6 +1319,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             column: column,
             order: asc ? SortOrderTypes.asc : SortOrderTypes.desc,
           };
+
     this.props.updateWidgetMetaProperty("sortOrder", sortOrderProps, {
       triggerPropertyName: "onSort",
       dynamicString: this.props.onSort,
@@ -1270,8 +1337,11 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleSearchTable = (searchKey: any) => {
     const { onSearchTextChanged } = this.props;
+
     this.resetSelectedRowIndex();
     this.props.updateWidgetMetaProperty("pageNo", 1);
     this.props.updateWidgetMetaProperty("searchText", searchKey, {
@@ -1290,6 +1360,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   ) => {
     try {
       const rowData = this.props.filteredTableData[rowIndex];
+
       this.props.updateWidgetMetaProperty(
         "triggeredRowIndex",
         this.props.filteredTableData[rowIndex].__originalIndex__,
@@ -1298,6 +1369,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const modifiedAction = jsSnippets.reduce((prev: string, next: string) => {
         return prev + `{{ ${next} }} `;
       }, "");
+
       if (modifiedAction) {
         super.executeAction({
           triggerPropertyName: "onClick",
@@ -1330,6 +1402,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const selectedRowIndices = pageData.map(
         (row: Record<string, unknown>) => row.index,
       );
+
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
         selectedRowIndices,
@@ -1342,8 +1415,10 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const selectedRowIndices = Array.isArray(this.props.selectedRowIndices)
         ? [...this.props.selectedRowIndices]
         : [];
+
       if (selectedRowIndices.includes(index)) {
         const rowIndex = selectedRowIndices.indexOf(index);
+
         selectedRowIndices.splice(rowIndex, 1);
         this.props.updateWidgetMetaProperty(
           "selectedRowIndices",
@@ -1396,6 +1471,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     } else {
       this.props.updateWidgetMetaProperty("pageNo", pageNo);
     }
+
     if (this.props.onPageChange) {
       this.resetSelectedRowIndex();
     }
@@ -1403,6 +1479,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handleNextPageClick = () => {
     let pageNo = this.props.pageNo || 1;
+
     pageNo = pageNo + 1;
     this.props.updateWidgetMetaProperty("pageNo", pageNo, {
       triggerPropertyName: "onPageChange",
@@ -1411,6 +1488,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         type: EventType.ON_NEXT_PAGE,
       },
     });
+
     if (this.props.onPageChange) {
       this.resetSelectedRowIndex();
     }
@@ -1421,11 +1499,13 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       const selectedRowIndex = isNumber(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
         : -1;
+
       this.props.updateWidgetMetaProperty("selectedRowIndex", selectedRowIndex);
     } else {
       const selectedRowIndices = Array.isArray(this.props.defaultSelectedRow)
         ? this.props.defaultSelectedRow
         : [];
+
       this.props.updateWidgetMetaProperty(
         "selectedRowIndices",
         selectedRowIndices,
@@ -1438,7 +1518,9 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
   handlePrevPageClick = () => {
     let pageNo = this.props.pageNo || 1;
+
     pageNo = pageNo - 1;
+
     if (pageNo >= 1) {
       this.props.updateWidgetMetaProperty("pageNo", pageNo, {
         triggerPropertyName: "onPageChange",
@@ -1447,6 +1529,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           type: EventType.ON_PREV_PAGE,
         },
       });
+
       if (this.props.onPageChange) {
         this.resetSelectedRowIndex();
       }

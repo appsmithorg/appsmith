@@ -12,11 +12,13 @@ import includes from "lodash/includes";
 import map from "lodash/map";
 import * as Sentry from "@sentry/react";
 import { useDispatch } from "react-redux";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Button, Tag } from "design-system";
+import { Button, Tag } from "@appsmith/ads";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function AddTabButtonComponent({ widgetId }: any) {
   const dispatch = useDispatch();
   const addOption = () => {
@@ -27,6 +29,7 @@ function AddTabButtonComponent({ widgetId }: any) {
       },
     });
   };
+
   return (
     <Button
       className="self-end t--add-tab-btn"
@@ -48,6 +51,7 @@ function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
       type: ReduxActionTypes.WIDGET_DELETE_TAB_CHILD,
       payload: { ...item, index },
     });
+
     if (props.deleteOption) props.deleteOption(index);
   };
 
@@ -84,6 +88,7 @@ class TabControl extends BaseControl<ControlProps, State> {
     for (let index = 0; index < tabNames.length; index++) {
       const currLabel = tabNames[index] as string;
       const duplicateValueIndex = tabNames.indexOf(currLabel);
+
       if (duplicateValueIndex !== index) {
         // get tab id from propertyValue index
         duplicateTabIds.push(propertyValue[tabIds[index]].id);
@@ -121,7 +126,9 @@ class TabControl extends BaseControl<ControlProps, State> {
           sid: string;
           label: string;
         }> = JSON.parse(tabData);
+
         this.updateProperty(this.props.propertyName, parsedData);
+
         return parsedData;
       } catch (error) {
         Sentry.captureException({
@@ -145,28 +152,37 @@ class TabControl extends BaseControl<ControlProps, State> {
       isUndefined(this.props.propertyValue)
         ? []
         : Object.values(this.props.propertyValue);
+
     menuItems = orderBy(menuItems, ["index"], ["asc"]);
     menuItems = menuItems.map((tab: DroppableItem) => ({
       ...tab,
       isDuplicateLabel: includes(this.state.duplicateTabIds, tab.id),
     }));
+
     return menuItems;
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateItems = (items: Array<Record<string, any>>) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tabsObj = items.reduce((obj: any, each: any, index: number) => {
       obj[each.id] = {
         ...each,
         index,
       };
+
       return obj;
     }, {});
+
     this.updateProperty(this.props.propertyName, tabsObj);
   };
 
   onEdit = (index: number) => {
     const tabs = this.getTabItems();
     const tabToChange = tabs[index];
+
     this.props.openNextPanel({
       index,
       ...tabToChange,
@@ -175,6 +191,7 @@ class TabControl extends BaseControl<ControlProps, State> {
   };
   render() {
     const tabs = this.getTabItems();
+
     return (
       <div className="flex flex-col">
         <div className="t--number-of-tabs mb-1 ml-auto">
@@ -211,23 +228,28 @@ class TabControl extends BaseControl<ControlProps, State> {
           isVisible: isVisible,
         };
       }
+
       return tab;
     });
+
     this.updateProperty(this.props.propertyName, updatedTabs);
   };
 
   deleteOption = (index: number) => {
     const tabIds = Object.keys(this.props.propertyValue);
     const newPropertyValue = { ...this.props.propertyValue };
+
     // detele current item from propertyValue
     delete newPropertyValue[tabIds[index]];
     const duplicateTabIds = this.getDuplicateTabIds(newPropertyValue);
+
     this.setState({ duplicateTabIds });
   };
 
   updateOption = (index: number, updatedLabel: string) => {
     const tabsArray = this.getTabItems();
     const { id: itemId } = tabsArray[index];
+
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,
@@ -235,6 +257,7 @@ class TabControl extends BaseControl<ControlProps, State> {
     // check entered label is unique or duplicate
     const tabNames = map(tabsArray, "label");
     let duplicateTabIds = [...this.state.duplicateTabIds];
+
     // if duplicate, add into array
     if (includes(tabNames, updatedLabel)) {
       duplicateTabIds.push(itemId);

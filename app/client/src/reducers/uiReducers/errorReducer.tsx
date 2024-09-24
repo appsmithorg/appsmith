@@ -2,9 +2,9 @@ import { createReducer } from "utils/ReducerUtils";
 import type {
   ReduxAction,
   ReduxActionErrorPayload,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import _ from "lodash";
 
 const initialState: ErrorReduxState = {
@@ -37,6 +37,30 @@ const errorReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FLUSH_ERRORS]: () => {
     return initialState;
+  },
+  [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
+    state: ErrorReduxState,
+  ) => {
+    if (
+      state?.currentError?.sourceAction === "FETCH_CURRENT_TENANT_CONFIG_ERROR"
+    ) {
+      return {
+        ...state,
+        ...initialState,
+      };
+    }
+
+    return state;
+  },
+  [ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS]: (state: ErrorReduxState) => {
+    if (state?.currentError?.sourceAction === "UPDATE_TENANT_CONFIG_ERROR") {
+      return {
+        ...state,
+        ...initialState,
+      };
+    }
+
+    return state;
   },
 });
 

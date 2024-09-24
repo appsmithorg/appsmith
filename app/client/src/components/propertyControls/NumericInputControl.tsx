@@ -1,5 +1,5 @@
 import React from "react";
-import { NumberInput } from "design-system";
+import { NumberInput } from "@appsmith/ads";
 
 import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
@@ -44,6 +44,7 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
       propertyValue,
       stepSize,
     } = this.props;
+
     return (
       <NumberInput
         max={max}
@@ -61,6 +62,8 @@ class NumericInputControl extends BaseControl<NumericInputControlProps> {
     );
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     return !isNaN(Number(value));
   }

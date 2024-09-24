@@ -9,6 +9,7 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => {
   const actualExports = jest.requireActual(
     "workers/Evaluation/handlers/evalTree",
   );
+
   return {
     __esModule: true,
     ...actualExports,
@@ -20,14 +21,18 @@ jest.mock("workers/Evaluation/handlers/evalTree", () => {
 });
 jest.mock("utils/MessageUtil", () => {
   const actualExports = jest.requireActual("utils/MessageUtil");
+
   return {
     __esModule: true,
     ...actualExports,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sendMessage: (...args: any[]) => {
       mockSendMessage(args[0].body.data);
       const {
         body: { data },
       } = args[0];
+
       if (isFunction(data.response)) {
         throw new Error("unserializable data");
       }
@@ -45,6 +50,7 @@ describe("test", () => {
         depedencies: { name: ["test", "you"] },
       },
     };
+
     WorkerMessenger.respond(
       "TEST",
       UNSERIALIZABLE_DATA,

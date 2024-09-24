@@ -16,7 +16,6 @@ import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -100,21 +99,13 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
     }
 
     @Override
-    public Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO, String branchName) {
+    public Mono<Void> updateRefactoredEntity(RefactorEntityNameDTO refactorEntityNameDTO) {
         String newName = refactorEntityNameDTO.getNewName();
         String actionCollectionId = refactorEntityNameDTO.getActionCollectionId();
 
         Mono<ActionCollectionDTO> branchedActionCollectionDTOMono;
-        if (!StringUtils.hasLength(branchName)) {
-            branchedActionCollectionDTOMono = actionCollectionService.findActionCollectionDTObyIdAndViewMode(
-                    actionCollectionId, false, actionPermission.getEditPermission());
-        } else {
-            branchedActionCollectionDTOMono = actionCollectionService
-                    .findByBranchNameAndDefaultCollectionId(
-                            branchName, actionCollectionId, actionPermission.getEditPermission())
-                    .flatMap(actionCollection ->
-                            actionCollectionService.generateActionCollectionByViewMode(actionCollection, false));
-        }
+        branchedActionCollectionDTOMono = actionCollectionService.findActionCollectionDTObyIdAndViewMode(
+                actionCollectionId, false, actionPermission.getEditPermission());
 
         return branchedActionCollectionDTOMono
                 .flatMap(branchedActionCollection -> {

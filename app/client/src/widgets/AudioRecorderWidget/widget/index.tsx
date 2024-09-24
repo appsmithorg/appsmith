@@ -238,6 +238,8 @@ class AudioRecorderWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       blobURL: undefined,
@@ -259,6 +261,7 @@ class AudioRecorderWidget extends BaseWidget<
     if (this.props.blobURL) {
       URL.revokeObjectURL(this.props.blobURL);
     }
+
     this.props.updateWidgetMetaProperty("blobURL", null);
     this.props.updateWidgetMetaProperty("dataURL", undefined);
     this.props.updateWidgetMetaProperty("rawBinary", undefined);
@@ -279,9 +282,12 @@ class AudioRecorderWidget extends BaseWidget<
       this.props.updateWidgetMetaProperty("blobURL", undefined);
       this.props.updateWidgetMetaProperty("dataURL", undefined);
       this.props.updateWidgetMetaProperty("rawBinary", undefined);
+
       return;
     }
+
     this.props.updateWidgetMetaProperty("blobURL", blobUrl);
+
     if (blob) {
       const blobIdForBase64 = createBlobUrl(blob, FileDataTypes.Base64);
       const blobIdForRaw = createBlobUrl(blob, FileDataTypes.Binary);

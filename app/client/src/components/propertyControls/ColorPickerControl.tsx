@@ -42,6 +42,7 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
 
   handleChangeColor = (color: string, isUpdatedViaKeyboard: boolean) => {
     let _color = color;
+
     _color = tinycolor(color).isValid() ? tinycolor(color).toString() : color;
 
     this.updateProperty(this.props.propertyName, _color, isUpdatedViaKeyboard);
@@ -71,6 +72,8 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
     return "COLOR_PICKER";
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     return !isDynamicValue(value);
   }

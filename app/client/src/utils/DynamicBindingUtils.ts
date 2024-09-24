@@ -9,14 +9,18 @@ import {
   isJSAction,
   isTrueObject,
   isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { DataTreeEntityConfig } from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
 
 export type DependencyMap = Record<string, Array<string>>;
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FormEditorConfigs = Record<string, any[]>;
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FormSettingsConfigs = Record<string, any[]>;
 export type FormDependencyConfigs = Record<string, DependencyMap>;
 export type FormDatasourceButtonConfigs = Record<string, string[]>;
@@ -24,6 +28,7 @@ export type FormDatasourceButtonConfigs = Record<string, string[]>;
 function hasNonStringSemicolons(stringifiedJS: string) {
   // This regex pattern matches semicolons that are not inside single or double quotes
   const regex = /;(?=(?:[^']*'[^']*')*[^']*$)(?=(?:[^"]*"[^"]*")*[^"]*$)/g;
+
   return regex.test(stringifiedJS);
 }
 
@@ -35,11 +40,14 @@ export const isDynamicValue = (value: string): boolean =>
 export function getDynamicStringSegments(dynamicString: string): string[] {
   let stringSegments = [];
   const indexOfDoubleParanStart = dynamicString.indexOf("{{");
+
   if (indexOfDoubleParanStart === -1) {
     return [dynamicString];
   }
+
   //{{}}{{}}}
   const firstString = dynamicString.substring(0, indexOfDoubleParanStart);
+
   firstString && stringSegments.push(firstString);
   let rest = dynamicString.substring(
     indexOfDoubleParanStart,
@@ -47,6 +55,7 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
   );
   //{{}}{{}}}
   let sum = 0;
+
   for (let i = 0; i <= rest.length - 1; i++) {
     const char = rest[i];
     const prevChar = rest[i - 1];
@@ -55,9 +64,11 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
       sum++;
     } else if (char === "}") {
       sum--;
+
       if (prevChar === "}" && sum === 0) {
         stringSegments.push(rest.substring(0, i + 1));
         rest = rest.substring(i + 1, rest.length);
+
         if (rest) {
           stringSegments = stringSegments.concat(
             getDynamicStringSegments(rest),
@@ -67,9 +78,11 @@ export function getDynamicStringSegments(dynamicString: string): string[] {
       }
     }
   }
+
   if (sum !== 0 && dynamicString !== "") {
     return [dynamicString];
   }
+
   return stringSegments;
 }
 
@@ -82,6 +95,7 @@ export const getDynamicBindings = (
   if (!isString(dynamicString)) {
     return { stringSegments: [], jsSnippets: [] };
   }
+
   const sanitisedString = dynamicString.trim();
 
   if (entity && isJSAction(entity)) {
@@ -94,9 +108,11 @@ export const getDynamicBindings = (
   const jsSnippets = stringSegments.map((segment) => {
     const length = segment.length;
     const matches = isDynamicValue(segment);
+
     if (matches) {
       return segment.substring(2, length - 2);
     }
+
     return "";
   });
 
@@ -149,6 +165,8 @@ export enum EvalErrorTypes {
 export interface EvalError {
   type: EvalErrorTypes;
   message: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   context?: Record<string, any>;
 }
 
@@ -177,6 +195,7 @@ export const getEntityDynamicBindingPathList = (
   ) {
     return [...entity.dynamicBindingPathList];
   }
+
   return [];
 };
 
@@ -191,6 +210,7 @@ export const isPathADynamicBinding = (
   ) {
     return _.find(entity.dynamicBindingPathList, { key: path }) !== undefined;
   }
+
   return false;
 };
 /**
@@ -213,9 +233,12 @@ export const getWidgetDynamicTriggerPathList = (
   ) {
     return [...widget.dynamicTriggerPathList];
   }
+
   return [];
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isPathDynamicTrigger = (widget: any, path: string): boolean => {
   if (
     widget &&
@@ -224,6 +247,7 @@ export const isPathDynamicTrigger = (widget: any, path: string): boolean => {
   ) {
     return _.find(widget.dynamicTriggerPathList, { key: path }) !== undefined;
   }
+
   return false;
 };
 
@@ -237,6 +261,7 @@ export const getWidgetDynamicPropertyPathList = (
   ) {
     return [...widget.dynamicPropertyPathList];
   }
+
   return [];
 };
 
@@ -251,6 +276,7 @@ export const isPathDynamicProperty = (
   ) {
     return _.find(widget.dynamicPropertyPathList, { key: path }) !== undefined;
   }
+
   return false;
 };
 
@@ -339,6 +365,7 @@ const getNestedEvalPath = (
   if (fullPath) {
     return `${entityName}.${nestedPath}`;
   }
+
   return nestedPath;
 };
 
@@ -432,6 +459,8 @@ export const PropertyEvalErrorTypeDebugMessage: Record<
 let temporaryDynamicPathStore: DynamicPath[] = [];
 
 // recursive function to get full key path of any object that has dynamic bindings.
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getDynamicValuePaths = (val: any, parentPath: string) => {
   if (isString(val) && isDynamicValue(val)) {
     return temporaryDynamicPathStore.push({ key: `${parentPath}` });
@@ -454,6 +483,8 @@ export function getDynamicBindingsChangesSaga(
   action: Action,
   value: unknown,
   field: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formData?: any,
 ) {
   const bindingField = field.replace("actionConfiguration.", "");
@@ -488,6 +519,7 @@ export function getDynamicBindingsChangesSaga(
     // as we check the datasource url for bindings, check the path too.
     isDynamicValue(datasourcePathField || datasourceFormPathField) &&
       dynamicBindings.push({ key: "path" });
+
     return dynamicBindings;
   }
 
@@ -502,9 +534,11 @@ export function getDynamicBindingsChangesSaga(
 
     // then we recursively go through the value and find paths with dynamic bindings
     temporaryDynamicPathStore = [];
+
     if (!!value) {
       getDynamicValuePaths(value, bindingField);
     }
+
     if (!!temporaryDynamicPathStore && temporaryDynamicPathStore.length > 0) {
       dynamicBindings = [...dynamicBindings, ...temporaryDynamicPathStore];
     }
@@ -512,8 +546,10 @@ export function getDynamicBindingsChangesSaga(
     dynamicBindings = dynamicBindings.filter((dynamicPath) => {
       if (isChildPropertyPath(bindingField, dynamicPath.key)) {
         const childPropertyValue = _.get(value, dynamicPath.key);
+
         return isDynamicValue(childPropertyValue);
       }
+
       return !!dynamicPath;
     });
   } else if (typeof value === "string") {
@@ -524,6 +560,7 @@ export function getDynamicBindingsChangesSaga(
     if (!isDynamic && fieldExists) {
       dynamicBindings = dynamicBindings.filter((d) => d.key !== bindingField);
     }
+
     if (isDynamic && !fieldExists) {
       dynamicBindings = [...dynamicBindings, { key: bindingField }];
     }
@@ -542,6 +579,7 @@ export function getDynamicBindingsChangesSaga(
   // if the currently changing field is a component's view type
   if (!!viewType) {
     const dataBindingField = bindingField.replace(".viewType", ".data");
+
     // then we filter the field of any paths that includes the binding fields
     dynamicBindings = dynamicBindings.filter(
       (dynamicPath) => !dynamicPath?.key?.includes(dataBindingField),
@@ -551,22 +589,26 @@ export function getDynamicBindingsChangesSaga(
     if (value === ViewTypes.JSON) {
       const jsonFieldPath = field.replace(".viewType", ".jsonData");
       const jsonFieldValue = get(action, jsonFieldPath);
+
       if (isDynamicValue(jsonFieldValue)) {
         dynamicBindings.push({ key: dataBindingField });
       }
     } else if (value === ViewTypes.COMPONENT) {
       const componentFieldPath = field.replace(".viewType", ".componentData");
       const componentFieldValue = get(action, componentFieldPath);
+
       temporaryDynamicPathStore = [];
 
       if (!!componentFieldValue) {
         getDynamicValuePaths(componentFieldValue, dataBindingField);
       }
+
       if (!!temporaryDynamicPathStore && temporaryDynamicPathStore.length > 0) {
         dynamicBindings = [...dynamicBindings, ...temporaryDynamicPathStore];
       }
     }
   }
+
   return dynamicBindings;
 }
 
@@ -576,7 +618,9 @@ export function getEntityType(entity: DataTreeEntity) {
 
 export function getEntityId(entity: DataTreeEntity) {
   if (isAction(entity)) return entity.actionId;
+
   if (isWidget(entity)) return entity.widgetId;
+
   if (isJSAction(entity)) return entity.actionId;
 }
 
@@ -585,6 +629,8 @@ export function getEntityName(
   entityConfig: DataTreeEntityConfig,
 ) {
   if (isAction(entity)) return entityConfig.name;
+
   if (isWidget(entity)) return entity.widgetName;
+
   if (isJSAction(entity)) return entityConfig.name;
 }

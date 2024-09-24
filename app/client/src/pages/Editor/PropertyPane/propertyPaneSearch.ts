@@ -4,7 +4,7 @@ import type {
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { debounce } from "lodash";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 interface SearchResultType {
   section: {
@@ -37,16 +37,21 @@ function tokenSearch(text: string, searchQuery: string) {
     startsWith: false,
     contains: false,
   };
+
   if (!text) return noMatch;
+
   // RegEx escaping taken from: https://github.com/tc39/proposal-regex-escaping/blob/main/polyfill.js
   const escapedSearchQuery = searchQuery.replace(/[\\^$*+?.()|[\]{}]/g, "\\$&");
   const regEx = new RegExp(`\\b${escapedSearchQuery}.*\\b`, "i");
   let matchPosition = text.search(regEx);
+
   if (matchPosition < 0) {
     // if no match found, see if it matches by splitting the camel case properties such as 'onClick'
     const caseBreakdown = text.replace(/([a-z0-9])([A-Z])/g, "$1 $2");
+
     matchPosition = caseBreakdown.search(regEx);
   }
+
   if (matchPosition === 0) {
     return {
       startsWith: true,
@@ -58,6 +63,7 @@ function tokenSearch(text: string, searchQuery: string) {
       contains: true,
     };
   }
+
   return noMatch;
 }
 
@@ -72,6 +78,7 @@ function computeChildrenIdAndInsertSection(
           ...section,
           childrenId: section.children.map((child) => child.id).join(""),
         };
+
       return section;
     }),
   );
@@ -92,6 +99,7 @@ function search(
       contains: [],
     },
   };
+
   for (const sectionConfig of sectionConfigs) {
     const sectionConfigCopy: PropertyPaneSectionConfig = {
       ...sectionConfig,
@@ -100,6 +108,7 @@ function search(
     const sectionName = sectionConfig.sectionName;
     let isPropertyStartsWith = false;
     const sectionNameMatch = tokenSearch(sectionName, query);
+
     if (sectionNameMatch.startsWith) {
       computeChildrenIdAndInsertSection(
         searchResult.section.startsWith,
@@ -123,13 +132,16 @@ function search(
         },
       };
       let isEmpty = true;
+
       for (const child of sectionConfig.children) {
         if ((child as PropertyPaneControlConfig).invisible) {
           continue;
         }
+
         if ((child as PropertyPaneControlConfig).label) {
           const label = (child as PropertyPaneControlConfig).label;
           const labelMatch = tokenSearch(label, query);
+
           if (labelMatch.startsWith) {
             isEmpty = false;
             isPropertyStartsWith = true;
@@ -141,21 +153,25 @@ function search(
         } else {
           // search through nested section
           const result = search([child as PropertyPaneSectionConfig], query);
+
           if (result.section.startsWith.length > 0) {
             isEmpty = false;
             isPropertyStartsWith = true;
             childResult.section.startsWith.push(...result.section.startsWith);
           }
+
           if (result.section.contains.length > 0) {
             isEmpty = false;
             isPropertyStartsWith = false;
             childResult.section.contains.push(...result.section.contains);
           }
+
           if (result.property.startsWith.length > 0) {
             isEmpty = false;
             isPropertyStartsWith = true;
             childResult.property.startsWith.push(...result.property.startsWith);
           }
+
           if (result.property.contains.length > 0) {
             isEmpty = false;
             isPropertyStartsWith = false;
@@ -163,8 +179,10 @@ function search(
           }
         }
       }
+
       if (!isEmpty) {
         sectionConfigCopy.children = sortSearchResult(childResult);
+
         if (isPropertyStartsWith) {
           computeChildrenIdAndInsertSection(
             searchResult.property.startsWith,
@@ -179,6 +197,7 @@ function search(
       }
     }
   }
+
   return searchResult;
 }
 
@@ -196,6 +215,8 @@ export function searchPropertyPaneConfig(
   searchQuery?: string,
 ) {
   if (!searchQuery) return config;
+
   const searchResult = search(config, searchQuery);
+
   return sortSearchResult(searchResult);
 }

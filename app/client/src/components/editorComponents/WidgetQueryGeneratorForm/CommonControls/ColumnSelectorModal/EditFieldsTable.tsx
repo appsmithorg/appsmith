@@ -1,7 +1,7 @@
 import { useTable, useSortBy, useExpanded } from "react-table";
 import React from "react";
 import styled from "styled-components";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 
 const Styles = styled.div`
   table {
@@ -113,11 +113,17 @@ const TableColumnEmptyWrapper = styled.div`
 `;
 
 export interface TableProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   columns: any[];
   isLoading?: boolean;
   loaderComponent?: JSX.Element;
   noDataComponent?: JSX.Element;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rowProps: any;
 }
 
@@ -169,6 +175,7 @@ function EditFieldsTable(props: TableProps) {
           ) : rows.length > 0 ? (
             rows.map((row, index) => {
               prepareRow(row);
+
               return (
                 <tr {...row.getRowProps(rowProps(row))} key={index}>
                   {row.cells.map((cell, index) => {

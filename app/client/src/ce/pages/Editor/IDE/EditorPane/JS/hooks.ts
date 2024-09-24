@@ -2,21 +2,18 @@ import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import type { GroupedAddOperations } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import type { GroupedAddOperations } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
+import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
-import type { UseRoutes } from "@appsmith/entities/IDE/constants";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import type { UseRoutes } from "ee/entities/IDE/constants";
 import JSEditor from "pages/Editor/JSEditor";
 import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
-import { ADD_PATH } from "@appsmith/constants/routes/appRoutes";
-import ListJS from "pages/Editor/IDE/EditorPane/JS/List";
+import { ADD_PATH } from "ee/constants/routes/appRoutes";
 import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
-import { getJSUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
+import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
+import { getJSUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
 import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 
 export const useJSAdd = () => {
@@ -35,15 +32,18 @@ export const useJSAdd = () => {
       if (currentEntityInfo.entity === FocusEntity.JS_OBJECT_ADD) {
         return;
       }
+
       const url = getJSUrl(currentEntityInfo, true);
+
       history.push(url);
     }
   }, [jsModuleCreationOptions, pageId, dispatch, currentEntityInfo]);
 
   const closeAddJS = useCallback(() => {
     const url = getJSUrl(currentEntityInfo, false);
+
     history.push(url);
-  }, [pageId, currentEntityInfo]);
+  }, [currentEntityInfo]);
 
   return { openAddJS, closeAddJS };
 };
@@ -54,9 +54,11 @@ export const useIsJSAddLoading = () => {
     (opt) => opt.focusEntityType === FocusEntity.JS_MODULE_INSTANCE,
   );
   const { isCreating } = useSelector((state) => state.ui.jsPane);
+
   if (jsModuleCreationOptions.length === 0) {
     return isCreating;
   }
+
   return false;
 };
 
@@ -77,37 +79,25 @@ export const useGroupedAddJsOperations = (): GroupedAddOperations => {
   ];
 };
 
-export const useJSSegmentRoutes = (path: string): UseRoutes => {
-  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
-  const editorMode = useSelector(getIDEViewMode);
-  if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
-    return [
-      {
-        exact: true,
-        key: "AddJS",
-        component: AddJS,
-        path: [`${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
-      },
-      {
-        exact: true,
-        key: "JSEditor",
-        component: JSEditor,
-        path: [path + "/:collectionId"],
-      },
-      {
-        key: "JSEmpty",
-        component: JSBlankState,
-        exact: true,
-        path: [path],
-      },
-    ];
-  }
+export const useJSEditorRoutes = (path: string): UseRoutes => {
   return [
     {
-      exact: false,
-      key: "ListJS",
-      component: ListJS,
-      path: [path, `${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
+      exact: true,
+      key: "AddJS",
+      component: AddJS,
+      path: [`${path}${ADD_PATH}`, `${path}/:baseCollectionId${ADD_PATH}`],
+    },
+    {
+      exact: true,
+      key: "JSEditor",
+      component: JSEditor,
+      path: [path + "/:baseCollectionId"],
+    },
+    {
+      key: "JSEmpty",
+      component: JSBlankState,
+      exact: true,
+      path: [path],
     },
   ];
 };

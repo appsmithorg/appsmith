@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 export interface DependentFeatureFlags {}
 

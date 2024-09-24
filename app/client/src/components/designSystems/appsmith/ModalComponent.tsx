@@ -60,6 +60,8 @@ const Content = styled.div<{
 
 export interface ModalComponentProps {
   isOpen: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClose: (e: any) => void;
   onModalClose?: () => void;
   children: ReactNode;
@@ -83,6 +85,7 @@ export interface ModalComponentProps {
 export function ModalComponent(props: ModalComponentProps) {
   const modalContentRef: RefObject<HTMLDivElement> =
     useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     return () => {
       // handle modal close events when this component unmounts
@@ -96,6 +99,7 @@ export function ModalComponent(props: ModalComponentProps) {
       modalContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [props.scrollContents]);
+
   return (
     <Overlay
       canEscapeKeyClose={false}

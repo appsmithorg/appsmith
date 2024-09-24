@@ -6,6 +6,8 @@ import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import userEvent from "@testing-library/user-event";
 import { waitFor } from "@testing-library/react";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function TestForm(props: any) {
   return <div>{props.children}</div>;
 }
@@ -42,6 +44,7 @@ describe("DynamicInputTextControl", () => {
     // eslint-disable-next-line testing-library/await-async-utils
     waitFor(async () => {
       const input = screen.getAllByText("My test value")[0];
+
       // eslint-disable-next-line testing-library/no-wait-for-side-effects
       await userEvent.type(input, "New text");
       await expect(screen.getAllByText("New text")).toHaveLength(2);

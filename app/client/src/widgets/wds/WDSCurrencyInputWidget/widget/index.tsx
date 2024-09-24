@@ -11,7 +11,11 @@ import {
   formatCurrencyNumber,
   limitDecimalValue,
 } from "../component/utilities";
-import { getLocale, mergeWidgetConfig } from "utils/helpers";
+import {
+  getLocale,
+  klonaRegularWithTelemetry,
+  mergeWidgetConfig,
+} from "utils/helpers";
 import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
@@ -26,7 +30,6 @@ import type { CurrencyInputWidgetProps } from "./types";
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
-import { klona as clone } from "klona";
 
 class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   CurrencyInputWidgetProps,
@@ -63,7 +66,10 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   }
 
   static getPropertyPaneContentConfig() {
-    const parentConfig = clone(super.getPropertyPaneContentConfig());
+    const parentConfig = klonaRegularWithTelemetry(
+      super.getPropertyPaneContentConfig(),
+      "WDSCurrencyInputWidget.getPropertyPaneContentConfig",
+    );
     const labelSectionIndex = parentConfig.findIndex(
       (section) => section.sectionName === "Label",
     );
@@ -74,6 +80,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     parentConfig[labelSectionIndex].children[labelPropertyIndex] = {
       ...parentConfig[labelSectionIndex].children[labelPropertyIndex],
       placeholderText: "Current Price",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const generalSectionIndex = parentConfig.findIndex(
@@ -87,6 +95,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
       ...parentConfig[generalSectionIndex].children[tooltipPropertyIndex],
       placeholderText:
         "Prices in other currencies should be recalculated in USD",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const placeholderPropertyIndex = parentConfig[
@@ -98,6 +108,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     parentConfig[generalSectionIndex].children[placeholderPropertyIndex] = {
       ...parentConfig[generalSectionIndex].children[placeholderPropertyIndex],
       placeholderText: "10",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     return mergeWidgetConfig(config.propertyPaneContentConfig, parentConfig);
@@ -113,6 +125,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
       rawText: "",
@@ -145,6 +159,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     ) {
       this.formatText();
     }
+
     // If defaultText property has changed, reset isDirty to false
     if (
       this.props.defaultText !== prevProps.defaultText &&
@@ -204,6 +219,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
           new RegExp("\\" + getLocaleThousandSeparator(), "g"),
           "",
         );
+
         this.props.updateWidgetMetaProperty("parsedText", deFormattedValue);
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
           triggerPropertyName: "onFocus",
@@ -218,8 +234,10 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
             this.props.decimals,
             this.props.parsedText,
           );
+
           this.props.updateWidgetMetaProperty("parsedText", formattedValue);
         }
+
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
           triggerPropertyName: "onBlur",
           dynamicString: this.props.onBlur,

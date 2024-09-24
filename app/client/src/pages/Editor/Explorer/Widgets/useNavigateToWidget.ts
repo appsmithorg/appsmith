@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 import type { WidgetType } from "constants/WidgetConstants";
 import { useParams } from "react-router";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
 import { useDispatch } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getCurrentPageWidgets } from "@appsmith/selectors/entitiesSelector";
+import { getCurrentPageWidgets } from "ee/selectors/entitiesSelector";
 import store from "store";
 import type { NavigationMethod } from "utils/history";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
@@ -30,7 +30,7 @@ export const useNavigateToWidget = () => {
     (
       widgetId: string,
       widgetType: WidgetType,
-      pageId: string,
+      basePageId: string,
       navigationMethod: NavigationMethod,
       isWidgetSelected?: boolean,
       isMultiSelect?: boolean,
@@ -45,11 +45,14 @@ export const useNavigateToWidget = () => {
           SelectionRequestType.UnsafeSelect,
           [widgetId],
           navigationMethod,
-          pageId,
+          basePageId,
         );
+
         return;
       }
+
       const allWidgets = getCurrentPageWidgets(store.getState());
+
       // restrict multi-select across pages
       if (widgetId && (isMultiSelect || isShiftSelect) && !allWidgets[widgetId])
         return;

@@ -11,6 +11,8 @@ import type { JSONFormWidgetProps } from "../..";
 export function defaultOptionValueValidation(
   inputValue: unknown,
   props: JSONFormWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ): ValidationResponse {
   const DEFAULT_ERROR_MESSAGE = {
@@ -30,6 +32,8 @@ export function defaultOptionValueValidation(
   };
 
   const hasLabelValueProperties = (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     obj: any,
   ): obj is { value: string | number; label: string } => {
     return (
@@ -46,6 +50,7 @@ export function defaultOptionValueValidation(
     if (typeof value === "string" && value.trim() !== "") {
       try {
         const parsedValue = JSON.parse(value as string);
+
         if (Array.isArray(parsedValue)) return parsedValue;
       } catch (e) {
         return value.split(",").map((s) => s.trim());
@@ -228,6 +233,7 @@ const PROPERTIES = {
         getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).compute(
           (schemaItem) => {
             if (schemaItem.fieldType !== FieldType.MULTISELECT) return true;
+
             return !schemaItem.serverSideFiltering;
           },
         ),
@@ -347,6 +353,7 @@ const PROPERTIES = {
           getSchemaItem<MultiSelectFieldProps["schemaItem"]>(...args).compute(
             (schemaItem) => {
               if (schemaItem.fieldType !== FieldType.MULTISELECT) return true;
+
               return !schemaItem.serverSideFiltering;
             },
           ),

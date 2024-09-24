@@ -5,7 +5,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { select } from "redux-saga/effects";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import type { CopiedWidgetData } from "./types";
 import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
@@ -44,6 +44,7 @@ export function* addPastedWidgets(
     oldWidgetMap[each.widgetId] = each;
     // Clone old widget to create new one.
     const newWidget = cloneDeep(each);
+
     newWidget.widgetId = generateReactKey();
 
     // Map old and new widgets
@@ -103,6 +104,7 @@ export function* addPastedWidgets(
    * Add widgets after original widget and update new parent.
    */
   const parentWidget: FlattenedWidgetProps = widgets[newParentId];
+
   widgets = {
     ...widgets,
     [newParentId]: {
@@ -134,13 +136,16 @@ function updateLayoutProps(
   if (Comp.rendersWidgets) {
     // If the layout renders widgets, replace widgetIds with new values
     const widgetLayouts = layout.layout as WidgetLayoutProps[];
+
     layout.layout = widgetLayouts.map((item: WidgetLayoutProps) => {
       item.widgetId = widgetIdMap[item.widgetId] || item.widgetId;
+
       return item;
     });
   } else {
     // If the layout renders layouts, parse them recursively
     const layoutProps = layout.layout as LayoutProps[];
+
     layout.layout = layoutProps.map((item: LayoutProps) => {
       return updateLayoutProps(item, widgetIdMap);
     });
@@ -153,13 +158,16 @@ export function getParentLayout(
   parent: FlattenedWidgetProps,
 ): LayoutProps | null {
   if (!parent || !parent.layout) return null;
+
   // TODO: @Preet - remove this hard coding.
   return parent.layout[0];
 }
 
 export function getWidgetHierarchy(type: string, id: string): number {
   if (widgetHierarchy[type]) return widgetHierarchy[type];
+
   if (id === MAIN_CONTAINER_WIDGET_ID) return widgetHierarchy.MAIN_CANVAS;
+
   return widgetHierarchy.OTHER;
 }
 
@@ -167,8 +175,10 @@ export function splitWidgetsByHierarchy(
   widgets: CopiedWidgetData[],
 ): CopiedWidgetData[][] {
   const widgetOrders: CopiedWidgetData[][] = [[], [], [], []];
+
   widgets.forEach((widget: CopiedWidgetData) => {
     widgetOrders[widget.hierarchy].push(widget);
   });
+
   return widgetOrders;
 }

@@ -1,7 +1,7 @@
 import metaReducer, { initialState } from "./index";
 import { updateMetaState } from "actions/metaActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 let currentMetaState = initialState;
 
@@ -49,6 +49,7 @@ test("Update widget meta state using evalMetaUpdates", () => {
       value: ["YELLOW"],
     },
   ];
+
   currentMetaState = metaReducer(
     currentMetaState,
     updateMetaState(evalMetaUpdates),

@@ -7,18 +7,26 @@ import type {
 import { SpanKind } from "@opentelemetry/api";
 import { context } from "@opentelemetry/api";
 import { trace } from "@opentelemetry/api";
-import { deviceType } from "react-device-detect";
-
+import {
+  deviceType,
+  browserName,
+  browserVersion,
+  osName,
+  osVersion,
+} from "react-device-detect";
 import { APP_MODE } from "entities/App";
 import { matchBuilderPath, matchViewerPath } from "constants/routes";
+import nanoid from "nanoid";
+import memoizeOne from "memoize-one";
 
 const GENERATOR_TRACE = "generator-tracer";
 
 export type OtlpSpan = Span;
 export type SpanAttributes = Attributes;
 
-const getCommonTelemetryAttributes = () => {
-  const pathname = window.location.pathname;
+const OTLP_SESSION_ID = nanoid();
+
+const getAppMode = memoizeOne((pathname: string) => {
   const isEditorUrl = matchBuilderPath(pathname);
   const isViewerUrl = matchViewerPath(pathname);
 
@@ -28,9 +36,22 @@ const getCommonTelemetryAttributes = () => {
       ? APP_MODE.PUBLISHED
       : "";
 
+  return appMode;
+});
+
+export const getCommonTelemetryAttributes = () => {
+  const pathname = window.location.pathname;
+  const appMode = getAppMode(pathname);
+
   return {
     appMode,
     deviceType,
+    browserName,
+    browserVersion,
+    otlpSessionId: OTLP_SESSION_ID,
+    hostname: window.location.hostname,
+    osName,
+    osVersion,
   };
 };
 
@@ -73,21 +94,51 @@ export function startNestedSpan(
     },
     startTime,
   };
+
   return generatorTrace.startSpan(spanName, spanOptions, parentContext);
 }
 
-export function endSpan(span: Span) {
-  span.end();
+export function endSpan(span?: Span) {
+  span?.end();
 }
 
 export function setAttributesToSpan(
-  span: Span,
-  spanAttributes: SpanAttributes,
+  span?: Span,
+  spanAttributes: SpanAttributes = {},
 ) {
-  span.setAttributes(spanAttributes);
+  span?.setAttributes(spanAttributes);
 }
 
+export const startAndEndSpanForFn = <T>(
+  spanName: string,
+  spanAttributes: SpanAttributes = {},
+  fn: () => T,
+) => {
+  const span = startRootSpan(spanName, spanAttributes);
+  const res: T = fn();
+
+  span.end();
+
+  return res;
+};
+
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function wrapFnWithParentTraceContext(parentSpan: Span, fn: () => any) {
   const parentContext = trace.setSpan(context.active(), parentSpan);
+
   return context.with(parentContext, fn);
+}
+
+export function startAndEndSpan(
+  spanName: string,
+  startTime: number,
+  difference: number,
+  spanAttributes: SpanAttributes = {},
+) {
+  const endTime = startTime + Math.floor(difference);
+
+  const span = startRootSpan(spanName, spanAttributes, startTime);
+
+  span.end(endTime);
 }

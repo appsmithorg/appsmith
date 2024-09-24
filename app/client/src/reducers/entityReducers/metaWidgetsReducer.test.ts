@@ -2,11 +2,11 @@ import type { MetaWidgetsReduxState } from "./metaWidgetsReducer";
 import reducer, {
   initialState as reducerInitialState,
 } from "./metaWidgetsReducer";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { metaWidgetState } from "utils/metaWidgetState";
 import { nestedMetaWidgetInitialState } from "./testData/metaWidgetReducer";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 const modifiedState: MetaWidgetsReduxState = {
   baowuczcgg: {
@@ -331,6 +331,7 @@ describe("meta widget reducer test", () => {
   it("DELETE_META_WIDGETS", () => {
     const creatorId = "u9ibqgimu2";
     const expectedState: Record<string, unknown> = {};
+
     Object.entries(nestedMetaWidgetInitialState).forEach(
       ([widgetId, widgetProps]) => {
         if (widgetProps.creatorId !== creatorId) {

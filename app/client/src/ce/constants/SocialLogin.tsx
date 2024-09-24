@@ -1,7 +1,4 @@
-import {
-  GoogleOAuthURL,
-  GithubOAuthURL,
-} from "@appsmith/constants/ApiConstants";
+import { GoogleOAuthURL, GithubOAuthURL } from "ee/constants/ApiConstants";
 
 import GithubLogo from "assets/images/Github.png";
 import GoogleLogo from "assets/images/Google.png";

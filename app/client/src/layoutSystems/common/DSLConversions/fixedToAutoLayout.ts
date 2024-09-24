@@ -152,10 +152,12 @@ export function fitChildWidgetsIntoLayers(widgets: DSLWidget[] | undefined): {
   let modifiedWidgets: DSLWidget[] = [];
   let widgetsLeft = [...currWidgets];
   let childrenHeight = 0;
+
   //Iterate till widgets are left in the Children array
   while (widgetsLeft.length > 0) {
     const { flexLayer, layerHeight, leftOverWidgets, widgetsInLayer } =
       getNextLayer(widgetsLeft);
+
     widgetsLeft = [...leftOverWidgets];
     modifiedWidgets = modifiedWidgets.concat(widgetsInLayer);
     flexLayers.push(flexLayer);
@@ -167,6 +169,7 @@ export function fitChildWidgetsIntoLayers(widgets: DSLWidget[] | undefined): {
   for (const nonLayerWidget of nonLayerWidgets) {
     const { propertyUpdates, removableDynamicBindingPathList } =
       getPropertyUpdatesBasedOnConfig(nonLayerWidget);
+
     modifiedWidgets.push(
       unHandledWidgets.indexOf(nonLayerWidget.type) < 0
         ? verifyDynamicPathBindingList(
@@ -258,6 +261,7 @@ function getNextLayer(currWidgets: DSLWidget[]): {
   }
 
   const flexLayer = { children: currentLayerChildren };
+
   return {
     flexLayer,
     widgetsInLayer: modifiedWidgetsInLayer,
@@ -281,9 +285,12 @@ export function getTopLeftMostWidget(widgets: DSLWidget[]) {
 
   let topLeftMostWidget: DSLWidget = { ...topMostWidget };
   let index = 0;
+
   for (let i = 0; i < widgets.length; i++) {
     const currWidget = widgets[i];
+
     if (currWidget.topRow >= modifiedTopMostWidget.bottomRow) break;
+
     if (
       currWidget.widgetId === modifiedTopMostWidget.widgetId &&
       !areWidgetsOverlapping(currWidget, modifiedTopMostWidget)
@@ -302,6 +309,7 @@ export function getTopLeftMostWidget(widgets: DSLWidget[]) {
       index = i;
     }
   }
+
   return { topLeftMostWidget, index };
 }
 
@@ -390,6 +398,7 @@ function getWidgetsInLayer(
     if (currIndex !== undefined) {
       leftOverWidgets.splice(currIndex, 1);
     }
+
     maxBottomRow = Math.max(maxBottomRow, nextWidgetInLayer.bottomRow);
     minTopRow = Math.min(minTopRow, nextWidgetInLayer.topRow);
 
@@ -405,6 +414,7 @@ function getWidgetsInLayer(
   }
 
   const alignmentMap = processGroupedWidgets(groupedWidgets);
+
   return {
     widgetsInLayer,
     leftOverWidgets,
@@ -427,9 +437,12 @@ function getNextWidgetInLayer(
   currCheckWidget: DSLWidget,
 ) {
   let nextWidgetInLayer: DSLWidget | undefined, currIndex;
+
   for (let i = 0; i < leftOverWidgets.length; i++) {
     const currWidget = leftOverWidgets[i];
+
     if (currWidget.topRow >= maxBottomRow) break;
+
     if (!areWidgetsOverlapping(currWidget, currCheckWidget)) continue;
 
     if (
@@ -501,6 +514,7 @@ export function processGroupedWidgets(
   }[],
 ) {
   let condensedGroupedWidgets = [...groupedWidgets];
+
   if (groupedWidgets.length > 3) {
     condensedGroupedWidgets = getCondensedGroupedWidgets(groupedWidgets);
   }
@@ -517,6 +531,7 @@ export function processGroupedWidgets(
         GridDefaults.DEFAULT_GRID_COLUMNS,
       );
       const alignment = getLayerAlignmentBasedOnScore(alignmentScore);
+
       widgetAlignments = createAlignmentMapFromGroupedWidgets(
         condensedGroupedWidgets[0],
         alignment,
@@ -539,6 +554,7 @@ export function processGroupedWidgets(
         GridDefaults.DEFAULT_GRID_COLUMNS,
       );
       const alignment2 = getLayerAlignmentBasedOnScore(alignmentScore2);
+
       widgetAlignments = createAlignmentMapFromGroupedWidgets(
         condensedGroupedWidgets[0],
         alignment2,
@@ -592,6 +608,7 @@ export function getCondensedGroupedWidgets(
   if (groupedWidgets.length <= 3) return groupedWidgets;
 
   let gapsArray = [];
+
   for (let i = 1; i < groupedWidgets.length; i++) {
     gapsArray.push({
       gap: groupedWidgets[i].leftColumn - groupedWidgets[i - 1].rightColumn,
@@ -623,6 +640,8 @@ export function getCondensedGroupedWidgets(
   let count = 0;
   let gapIndex = gapsArray[count].index;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let tempWidgetIds: any[] = [],
     groupLeftColumn = groupedWidgets[0].leftColumn,
     groupRightColumn = groupedWidgets[0].rightColumn;
@@ -739,6 +758,7 @@ function getPropertyUpdatesBasedOnConfig(widget: DSLWidget) {
   //Add widget specific property Defaults, for autoLayout widget
   const { disabledPropsDefaults } =
     WidgetFactory.getWidgetAutoLayoutConfig(widget.type) || {};
+
   if (disabledPropsDefaults) {
     propertyUpdates = {
       ...propertyUpdates,
@@ -774,6 +794,7 @@ function handleSpecialCaseWidgets(dsl: DSLWidget): DSLWidget {
         ],
       },
     ];
+
     dsl.children[0].flexLayers = flexLayers;
     dsl.children[0].responsiveBehavior = ResponsiveBehavior.Fill;
     dsl.children[0].positioning = Positioning.Vertical;
@@ -783,11 +804,14 @@ function handleSpecialCaseWidgets(dsl: DSLWidget): DSLWidget {
 
   return dsl;
 }
+
 /**
  * Removes null values from object
  * @param object
  * @returns
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function removeNullValuesFromObject<T extends { [key: string]: any }>(
   object: T,
 ): T {
@@ -819,9 +843,11 @@ function verifyDynamicPathBindingList(
     return widget;
 
   const dynamicBindingPathList: DynamicPath[] = [];
+
   for (const dynamicBindingPath of widget.dynamicBindingPathList) {
     //if the values are not dynamic, remove from the dynamic binding path list
     const dynamicValue = get(widget, dynamicBindingPath.key);
+
     if (!dynamicValue || !isDynamicValue(dynamicValue)) {
       continue;
     }
@@ -832,5 +858,6 @@ function verifyDynamicPathBindingList(
   }
 
   widget.dynamicBindingPathList = dynamicBindingPathList;
+
   return widget;
 }

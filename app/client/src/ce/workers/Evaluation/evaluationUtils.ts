@@ -13,13 +13,13 @@ import type {
   DataTree,
   ConfigTree,
 } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import _, { difference, find, get, has, isEmpty, isNil, set } from "lodash";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import { PluginType } from "entities/Action";
 import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import type {
   JSActionEntityConfig,
   PrivateWidgets,
@@ -29,10 +29,10 @@ import type {
   WidgetEntity,
   DataTreeEntityConfig,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
-import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
+import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import type { Difference } from "microdiff";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
@@ -59,6 +59,7 @@ export class CrashingError extends Error {}
 
 export const convertPathToString = (arrPath: Array<string | number>) => {
   let string = "";
+
   arrPath.forEach((segment) => {
     if (isInt(segment)) {
       string = string + "[" + segment + "]";
@@ -66,9 +67,11 @@ export const convertPathToString = (arrPath: Array<string | number>) => {
       if (string.length !== 0) {
         string = string + ".";
       }
+
       string = string + segment;
     }
   });
+
   return string;
 };
 
@@ -84,6 +87,7 @@ export function getEntityNameAndPropertyPath(fullPath: string): {
   propertyPath: string;
 } {
   const indexOfFirstDot = fullPath.indexOf(".");
+
   if (indexOfFirstDot === -1) {
     // No dot was found so path is the entity name itself
     return {
@@ -91,8 +95,10 @@ export function getEntityNameAndPropertyPath(fullPath: string): {
       propertyPath: "",
     };
   }
+
   const entityName = fullPath.substring(0, indexOfFirstDot);
   const propertyPath = fullPath.substring(indexOfFirstDot + 1);
+
   return { entityName, propertyPath };
 }
 
@@ -102,6 +108,7 @@ export function translateCollectionDiffs(
   event: DataTreeDiffEvent,
 ) {
   const dataTreeDiffs: DataTreeDiff[] = [];
+
   if (Array.isArray(data)) {
     data.forEach((diff, idx) => {
       dataTreeDiffs.push({
@@ -114,6 +121,7 @@ export function translateCollectionDiffs(
   } else if (isTrueObject(data)) {
     Object.keys(data).forEach((diffKey) => {
       const path = `${propertyPath}.${diffKey}`;
+
       dataTreeDiffs.push({
         event,
         payload: {
@@ -122,6 +130,7 @@ export function translateCollectionDiffs(
       });
     });
   }
+
   return dataTreeDiffs;
 }
 
@@ -135,6 +144,8 @@ const isUninterestingChangeForDependencyUpdate = (path: string) => {
 };
 
 export const translateDiffEventToDataTreeDiffEvent = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   difference: Diff<any, any>,
   unEvalDataTree: DataTree,
 ): DataTreeDiff | DataTreeDiff[] => {
@@ -145,9 +156,11 @@ export const translateDiffEventToDataTreeDiffEvent = (
     },
     event: DataTreeDiffEvent.NOOP,
   };
+
   if (!difference.path) {
     return result;
   }
+
   const propertyPath = convertPathToString(difference.path);
 
   // add propertyPath to NOOP event
@@ -159,12 +172,15 @@ export const translateDiffEventToDataTreeDiffEvent = (
   //we do not need evaluate these paths because these are internal paths
   const isUninterestingPathForUpdateTree =
     isUninterestingChangeForDependencyUpdate(propertyPath);
+
   if (!!isUninterestingPathForUpdateTree) {
     return result;
   }
+
   const { entityName } = getEntityNameAndPropertyPath(propertyPath);
   const entity = unEvalDataTree[entityName];
   const isJsAction = isJSAction(entity);
+
   switch (difference.kind) {
     case "N": {
       result.event = DataTreeDiffEvent.NEW;
@@ -210,6 +226,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
           difference.lhs,
           DataTreeDiffEvent.DELETE,
         );
+
         result = result.concat(dataTreeDeleteDiffs);
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
@@ -218,6 +235,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
           result.event = DataTreeDiffEvent.NEW;
           result.payload = { propertyPath };
         }
+
         if (difference.rhs === undefined && !isNil(difference.lhs)) {
           result = [
             {
@@ -291,6 +309,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
           );
         }
       }
+
       break;
     }
     case "A": {
@@ -306,6 +325,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
   }
+
   return result;
 };
 
@@ -315,8 +335,10 @@ export const translateDiffArrayIndexAccessors = (
   event: DataTreeDiffEvent,
 ) => {
   const result: DataTreeDiff[] = [];
+
   array.forEach((data, index) => {
     const path = `${propertyPath}[${index}]`;
+
     result.push({
       event,
       payload: {
@@ -324,6 +346,7 @@ export const translateDiffArrayIndexAccessors = (
       },
     });
   });
+
   return result;
 };
 /*
@@ -337,6 +360,7 @@ export const addDependantsOfNestedPropertyPaths = (
 ): Set<string> => {
   const withNestedPaths: Set<string> = new Set();
   const dependantNodes = Object.keys(inverseMap);
+
   parentPaths.forEach((propertyPath) => {
     withNestedPaths.add(propertyPath);
     dependantNodes
@@ -349,6 +373,7 @@ export const addDependantsOfNestedPropertyPaths = (
         });
       });
   });
+
   return withNestedPaths;
 };
 
@@ -427,13 +452,19 @@ export function isDataTreeEntity(entity: unknown) {
   return !!entity && typeof entity === "object" && "ENTITY_TYPE" in entity;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const serialiseToBigInt = (value: any) =>
   JSON.stringify(value, (_, v) => (typeof v === "bigint" ? v.toString() : v));
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const removeFunctionsAndSerialzeBigInt = (value: any) =>
   JSON.parse(serialiseToBigInt(value));
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
 // Check issue https://github.com/appsmithorg/appsmith/issues/719
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const removeFunctions = (value: any) => {
   if (_.isFunction(value)) {
     return "Function call";
@@ -456,6 +487,7 @@ export const makeParentsDependOnChildren = (
       depMap = makeParentsDependOnChild(depMap, path, allkeys);
     });
   });
+
   return depMap;
 };
 
@@ -466,23 +498,28 @@ export const makeParentsDependOnChild = (
 ): DependencyMap => {
   const result: DependencyMap = depMap;
   let curKey = child;
+
   if (!allkeys[curKey]) {
     logWarn(
       `makeParentsDependOnChild - ${curKey} is not present in dataTree.`,
       "This might result in a cyclic dependency.",
     );
   }
+
   let matches: Array<string> | null;
+
   // Note: The `=` is intentional
   // Stops looping when match is null
   while ((matches = curKey.match(IMMEDIATE_PARENT_REGEX)) !== null) {
     const parentKey = matches[1];
     // Todo: switch everything to set.
     const existing = new Set(result[parentKey] || []);
+
     existing.add(curKey);
     result[parentKey] = Array.from(existing);
     curKey = parentKey;
   }
+
   return result;
 };
 
@@ -506,34 +543,66 @@ export const getImmediateParentsOfPropertyPaths = (
 };
 
 export const getAllPaths = (
-  records: any,
+  records: Record<string, unknown> | unknown,
   curKey = "",
   result: Record<string, true> = {},
 ): Record<string, true> => {
   // Add the key if it exists
   if (curKey) result[curKey] = true;
+
   if (Array.isArray(records)) {
     for (let i = 0; i < records.length; i++) {
       const tempKey = curKey ? `${curKey}[${i}]` : `${i}`;
+
       getAllPaths(records[i], tempKey, result);
     }
   } else if (isTrueObject(records)) {
     for (const key of Object.keys(records)) {
       const tempKey = curKey ? `${curKey}.${key}` : `${key}`;
+
       getAllPaths(records[key], tempKey, result);
     }
   }
+
   return result;
+};
+export const getAllPathsBasedOnDiffPaths = (
+  records: Record<string, unknown> | unknown,
+  diff: DataTreeDiff[],
+  // this argument would be mutable
+  previousResult: Record<string, true> = {},
+): Record<string, true> => {
+  const newResult = previousResult;
+
+  diff.forEach((curr) => {
+    const { event, payload } = curr;
+
+    if (event === DataTreeDiffEvent.DELETE) {
+      delete newResult[payload.propertyPath];
+    }
+
+    if (event === DataTreeDiffEvent.NEW || event === DataTreeDiffEvent.EDIT) {
+      const newDataSegments = get(records, payload.propertyPath);
+
+      // directly mutates on the result so we don't have to merge it back to the result
+      getAllPaths(newDataSegments, payload.propertyPath, newResult);
+    }
+  });
+
+  return newResult;
 };
 export const trimDependantChangePaths = (
   changePaths: Set<string>,
   dependencyMap: DependencyMap,
 ): Array<string> => {
   const trimmedPaths = [];
+
   for (const path of changePaths) {
     let foundADependant = false;
+
     if (path in dependencyMap) {
       const dependants = dependencyMap[path];
+
       for (const dependantPath of dependants) {
         if (changePaths.has(dependantPath)) {
           foundADependant = true;
@@ -541,10 +610,12 @@ export const trimDependantChangePaths = (
         }
       }
     }
+
     if (!foundADependant) {
       trimmedPaths.push(path);
     }
   }
+
   return trimmedPaths;
 };
 
@@ -559,9 +630,11 @@ export function getSafeToRenderDataTree(
     if (!isWidget(entity)) {
       return tree;
     }
+
     const entityConfig = configTree[entityKey] as WidgetEntityConfig;
 
     const safeToRenderEntity = { ...entity };
+
     // Set user input values to their parsed values
     Object.entries(entityConfig.validationPaths).forEach(
       ([property, validation]) => {
@@ -573,6 +646,7 @@ export function getSafeToRenderDataTree(
           entityConfig,
           property,
         );
+
         _.set(safeToRenderEntity, property, parsed);
       },
     );
@@ -582,6 +656,7 @@ export function getSafeToRenderDataTree(
     ).forEach((property) => {
       _.set(safeToRenderEntity, property, undefined);
     });
+
     return { ...tree, [entityKey]: safeToRenderEntity };
   }, tree);
 }
@@ -602,9 +677,11 @@ export const addErrorToEntityProperty = ({
   const isPrivateEntityPath =
     getAllPrivateWidgetsInDataTree(configTree)[entityName];
   const logBlackList = get(configTree, `${entityName}.logBlackList`, {});
+
   if (propertyPath && !(propertyPath in logBlackList) && !isPrivateEntityPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
     const existingErrors = get(evalProps, errorPath, []) as EvaluationError[];
+
     set(evalProps, errorPath, existingErrors.concat(errors));
   }
 };
@@ -618,6 +695,7 @@ export const resetValidationErrorsForEntityProperty = ({
 }) => {
   const { entityName, propertyPath } =
     getEntityNameAndPropertyPath(fullPropertyPath);
+
   if (propertyPath) {
     const errorPath = `${entityName}.${EVAL_ERROR_PATH}['${propertyPath}']`;
     const existingErrorsExceptValidation = (
@@ -625,6 +703,7 @@ export const resetValidationErrorsForEntityProperty = ({
     ).filter(
       (error) => error.errorType !== PropertyEvaluationErrorType.VALIDATION,
     );
+
     _.set(evalProps, errorPath, existingErrorsExceptValidation);
   }
 };
@@ -653,15 +732,20 @@ export const isDynamicLeaf = (
   configTree: ConfigTree,
 ) => {
   const [entityName, ...propPathEls] = _.toPath(propertyPath);
+
   // Framework feature: Top level items are never leaves
   if (entityName === propertyPath) return false;
+
   // Ignore if this was a delete op
   if (!unEvalTree.hasOwnProperty(entityName)) return false;
 
   const entityConfig = configTree[entityName];
   const entity = unEvalTree[entityName];
+
   if (!isWidgetActionOrJsObject(entity)) return false;
+
   const relativePropertyPath = convertPathToString(propPathEls);
+
   return (
     (!isEmpty(entityConfig.reactivePaths) &&
       relativePropertyPath in entityConfig.reactivePaths) ||
@@ -684,6 +768,7 @@ export const addWidgetPropertyDependencies = ({
       const existingDependenciesSet = new Set(
         dependencies[`${widgetName}.${overriddenPropertyKey}`] || [],
       );
+
       // add meta dependency
       overridingPropertyKeyMap.META &&
         existingDependenciesSet.add(
@@ -700,6 +785,7 @@ export const addWidgetPropertyDependencies = ({
       ];
     },
   );
+
   return dependencies;
 };
 
@@ -708,9 +794,11 @@ export const isPrivateEntityPath = (
   fullPropertyPath: string,
 ) => {
   const entityName = fullPropertyPath.split(".")[0];
+
   if (Object.keys(privateWidgets).indexOf(entityName) !== -1) {
     return true;
   }
+
   return false;
 };
 
@@ -721,6 +809,7 @@ export const getAllPrivateWidgetsInDataTree = (
 
   Object.keys(configTree).forEach((entityName) => {
     const entityConfig = configTree[entityName] as WidgetEntityConfig;
+
     if (isWidget(entityConfig) && !_.isEmpty(entityConfig.privateWidgets)) {
       privateWidgets = { ...privateWidgets, ...entityConfig.privateWidgets };
     }
@@ -736,6 +825,7 @@ export const getDataTreeWithoutPrivateWidgets = (
   const privateWidgets = getAllPrivateWidgetsInDataTree(configTree);
   const privateWidgetNames = Object.keys(privateWidgets);
   const treeWithoutPrivateWidgets = _.omit(dataTree, privateWidgetNames);
+
   return treeWithoutPrivateWidgets;
 };
 
@@ -744,6 +834,7 @@ const getDataTreeWithoutSuppressedAutoComplete = (
 ): DataTree => {
   const entityIds = Object.keys(dataTree).filter((entityName) => {
     const entity = dataTree[entityName];
+
     return (
       isWidget(entity) && shouldSuppressAutoComplete(entity as WidgetEntity)
     );
@@ -810,6 +901,7 @@ export const overrideWidgetProperties = (params: {
   const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
 
   const configEntity = configTree[entityName] as WidgetEntityConfig;
+
   if (propertyPath in configEntity.overridingPropertyPaths) {
     const clonedValue = klona(value);
     const overridingPropertyPaths =
@@ -823,21 +915,28 @@ export const overrideWidgetProperties = (params: {
 
     overridingPropertyPaths.forEach((overriddenPropertyPath) => {
       const overriddenPropertyPathArray = overriddenPropertyPath.split(".");
+
       if (pathsNotToOverride.includes(overriddenPropertyPath)) return;
+
       const fullPath = [entityName, ...overriddenPropertyPathArray];
+
       _.set(currentTree, fullPath, clonedValue);
+
       if (safeTree) _.set(safeTree, fullPath, klona(value));
 
       if (shouldUpdateGlobalContext) {
         _.set(self, fullPath, clonedValue);
       }
+
       overriddenProperties?.push(overriddenPropertyPath);
+
       // evalMetaUpdates has all updates from property which overrides meta values.
       if (
         propertyPath.split(".")[0] !== "meta" &&
         overriddenPropertyPathArray[0] === "meta"
       ) {
         const metaPropertyPath = overriddenPropertyPathArray.slice(1);
+
         evalMetaUpdates.push({
           widgetId: entity.widgetId,
           metaPropertyPath,
@@ -853,12 +952,16 @@ export const overrideWidgetProperties = (params: {
     // below we handle logic to reset meta values to default values.
     const propertyOverridingKeyMap =
       configEntity.propertyOverrideDependency[propertyPath];
+
     if (propertyOverridingKeyMap.DEFAULT) {
       const defaultValue = entity[propertyOverridingKeyMap.DEFAULT];
+
       if (defaultValue !== undefined) {
         const clonedDefaultValue = klona(defaultValue);
         const fullPath = [entityName, ...propertyPath.split(".")];
+
         _.set(currentTree, fullPath, clonedDefaultValue);
+
         if (safeTree) _.set(safeTree, fullPath, klona(defaultValue));
 
         if (shouldUpdateGlobalContext) {
@@ -905,6 +1008,7 @@ const widgetPathsNotToOverride = (
     const overriddenMetaPaths = overriddenPropertyPaths.filter(
       (path) => path.split(".")[0] === "meta",
     );
+
     // If widget is newly added but has pre-existing meta values, this meta values take precedence and should not be overridden
     pathsNotToOverride = [...overriddenMetaPaths];
     // paths which these meta values override should also not get overridden
@@ -917,6 +1021,7 @@ const widgetPathsNotToOverride = (
       }
     });
   }
+
   return pathsNotToOverride;
 };
 
@@ -926,8 +1031,10 @@ const isWidgetDefaultPropertyPath = (
 ) => {
   for (const property of Object.keys(widget.propertyOverrideDependency)) {
     const overrideDependency = widget.propertyOverrideDependency[property];
+
     if (overrideDependency.DEFAULT === propertyPath) return true;
   }
+
   return false;
 };
 
@@ -944,6 +1051,7 @@ export function getStaleMetaStateIds(args: {
   metaWidgets: string[];
 }) {
   const { entity, entityConfig, isNewWidget, metaWidgets, propertyPath } = args;
+
   return !isNewWidget &&
     isWidgetDefaultPropertyPath(entityConfig, propertyPath) &&
     isMetaWidgetTemplate(entity)
@@ -956,17 +1064,20 @@ export function convertJSFunctionsToString(
   configTree: ConfigTree,
 ) {
   const collections = klona(jscollections);
+
   Object.keys(collections).forEach((collectionName) => {
     const jsCollection = collections[collectionName];
     const jsCollectionConfig = configTree[
       collectionName
     ] as JSActionEntityConfig;
     const jsFunctions = jsCollectionConfig.meta;
+
     for (const funcName in jsFunctions) {
       if (jsCollection[funcName] instanceof String) {
         if (has(jsCollection, [funcName, "data"])) {
           set(jsCollection, [`${funcName}.data`], {});
         }
+
         set(jsCollection, funcName, jsCollection[funcName].toString());
       }
     }
@@ -998,6 +1109,7 @@ export const convertMicroDiffToDeepDiff = (
 ): Diff<unknown, unknown>[] =>
   microDiffDifferences.map((microDifference) => {
     const { path, type } = microDifference;
+
     //convert microDiff format to deepDiff format
     if (type === "CREATE") {
       return {
@@ -1006,6 +1118,7 @@ export const convertMicroDiffToDeepDiff = (
         rhs: microDifference.value,
       };
     }
+
     if (type === "REMOVE") {
       return {
         kind: "D",
@@ -1013,6 +1126,7 @@ export const convertMicroDiffToDeepDiff = (
         lhs: microDifference.oldValue,
       };
     }
+
     return {
       kind: "E",
       path,

@@ -5,7 +5,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import type {
   ApplicationResponsePayload,
   ApplicationPagePayload,
-} from "@appsmith/api/ApplicationApi";
+} from "ee/api/ApplicationApi";
 import type { Datasource } from "entities/Datasource";
 
 export interface Template {

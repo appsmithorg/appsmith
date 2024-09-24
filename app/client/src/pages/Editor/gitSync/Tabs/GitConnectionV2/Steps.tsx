@@ -1,4 +1,4 @@
-import { Button, Divider, Text } from "design-system";
+import { Button, Divider, Text } from "@appsmith/ads";
 import noop from "lodash/noop";
 import React, { Fragment } from "react";
 import styled from "styled-components";

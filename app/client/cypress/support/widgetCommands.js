@@ -1399,12 +1399,6 @@ Cypress.Commands.add("editTableSelectCell", (x, y) => {
   );
 });
 
-Cypress.Commands.add("makeColumnEditable", (column) => {
-  cy.get(
-    `[data-rbd-draggable-id="${column}"] .t--card-checkbox input+span`,
-  ).click();
-});
-
 Cypress.Commands.add("enterTableCellValue", (x, y, text) => {
   cy.get(
     `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,

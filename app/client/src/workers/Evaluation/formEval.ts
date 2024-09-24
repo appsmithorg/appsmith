@@ -6,14 +6,14 @@ import type {
   FormConfigEvalObject,
   DynamicValuesConfig,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { ActionConfig } from "entities/Action";
 import type { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import type { FormConfigType } from "components/formControls/BaseControl";
 import { isArray, isEmpty, isString, merge, uniq } from "lodash";
 import { extractEvalConfigFromFormConfig } from "components/formControls/utils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { isTrueObject } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isTrueObject } from "ee/workers/Evaluation/evaluationUtils";
 import type { DatasourceConfiguration } from "entities/Datasource";
 
 export enum ConditionType {
@@ -42,12 +42,17 @@ export const MATCH_ACTION_CONFIG_PROPERTY =
   /\b(actionConfiguration\.\w+.(?:(\w+.)){1,})\b/g;
 export function matchExact(r: RegExp, str: string) {
   const match = str.match(r);
+
   return match || [];
 }
 
 // Recursive function to generate the evaluation state for form config
 const generateInitialEvalState = (formConfig: FormConfigType) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const conditionals: Record<string, any> = {};
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const conditionTypes: Record<string, any> = {};
   let dependencyPaths: string[] = [];
 
@@ -67,6 +72,7 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
   // Any element is only added to the eval state if they have a conditional statement present, if not they are allowed to be rendered
   if ("conditionals" in formConfig && !!formConfig.conditionals) {
     const allConditionTypes = Object.keys(formConfig.conditionals);
+
     if (
       allConditionTypes.includes(ConditionType.HIDE) ||
       allConditionTypes.includes(ConditionType.SHOW)
@@ -138,6 +144,7 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
         dynamicDependencyPathList,
         evaluatedConfig: { params: {} },
       };
+
       conditionTypes.fetchDynamicValues = dynamicValues;
       conditionals.fetchDynamicValues =
         formConfig.conditionals.fetchDynamicValues.condition;
@@ -164,6 +171,7 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
           uniq(evalConfigPaths),
         ),
       };
+
       conditionTypes.evaluateFormConfig = evaluateFormConfig;
       conditionals.evaluateFormConfig = "{{true}}";
     }
@@ -171,6 +179,7 @@ const generateInitialEvalState = (formConfig: FormConfigType) => {
 
   // keep the configProperty in the formConfig values.
   let configPropertyPath;
+
   if (!!formConfig.configProperty) {
     configPropertyPath = formConfig.configProperty;
   }
@@ -232,6 +241,7 @@ function generateEvalFormConfigPaths(
       if (isString(value)) {
         if (isDynamicValue(value)) {
           paths.push(key);
+
           // if parent key is empty, then there is a very good chance it's coming from the root form config.
           // and in that case we can just set it to it.
           if (!parentKey) parentKey = key;
@@ -260,10 +270,15 @@ function generateEvalFormConfigPaths(
 
 function evaluateDynamicValuesConfig(
   actionConfiguration: ActionConfig,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: Record<string, any>,
 ) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const evaluatedConfig: Record<string, any> = { ...config };
   const configArray = Object.entries(config);
+
   if (configArray.length > 0) {
     configArray.forEach(([key, value]) => {
       if (typeof value === "object") {
@@ -274,6 +289,7 @@ function evaluateDynamicValuesConfig(
       } else if (typeof value === "string" && value.length > 0) {
         if (isDynamicValue(value)) {
           let evaluatedValue = "";
+
           try {
             evaluatedValue = eval(value);
           } catch (e) {
@@ -285,6 +301,7 @@ function evaluateDynamicValuesConfig(
       }
     });
   }
+
   return evaluatedConfig;
 }
 
@@ -295,15 +312,19 @@ function evaluateFormConfigElements(
   datasourceConfiguration?: DatasourceConfiguration,
 ) {
   const paths = Object.keys(config);
+
   if (paths.length > 0) {
     paths.forEach((path) => {
       const { expression } = config[path];
+
       try {
         const evaluatedVal = eval(expression);
+
         config[path].output = evaluatedVal;
       } catch (e) {}
     });
   }
+
   return config;
 }
 
@@ -319,9 +340,11 @@ function evaluate(
     try {
       if (currentEvalState[key].hasOwnProperty("conditionals")) {
         const conditionBlock = currentEvalState[key].conditionals;
+
         if (!!conditionBlock) {
           Object.keys(conditionBlock).forEach((conditionType: string) => {
             const output = eval(conditionBlock[conditionType]);
+
             if (conditionType === ConditionType.HIDE) {
               currentEvalState[key].visible = !output;
             } else if (conditionType === ConditionType.SHOW) {
@@ -397,6 +420,7 @@ function evaluate(
                 currentEvalState[key].evaluateFormConfig as EvaluatedFormConfig
               ).updateEvaluatedConfig = output;
               currentEvalState[key].visible = output;
+
               if (output && !!currentEvalState[key].evaluateFormConfig)
                 (
                   currentEvalState[key]
@@ -415,6 +439,7 @@ function evaluate(
       }
     } catch (e) {}
   });
+
   return currentEvalState;
 }
 
@@ -434,6 +459,7 @@ function getFormEvaluation(
     let conditionToBeEvaluated = {};
     // dynamic conditions always need evaluations
     let dynamicConditionsToBeFetched = {};
+
     for (const [key, value] of Object.entries(currentFormIdEvalState)) {
       if (
         value &&
@@ -549,8 +575,9 @@ export function setFormEvaluationSaga(
       formId,
       hasRouteChanged,
     } = payload;
+
     // In case the formData is not ready or the form is not of type UQI, return empty state
-    if (!actionConfiguration || !actionConfiguration.formData) {
+    if (!actionConfiguration) {
       return currentEvalState;
     } else {
       return getFormEvaluation(

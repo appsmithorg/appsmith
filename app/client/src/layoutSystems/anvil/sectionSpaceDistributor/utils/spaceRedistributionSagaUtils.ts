@@ -65,6 +65,7 @@ export const redistributeSectionSpace = (
   if (evenlyDistributedLayout) {
     const updatedEvenDistributionSpace =
       maxColumnLimit / spaceDistributedArray.length;
+
     return new Array(spaceDistributedArray.length).fill(
       updatedEvenDistributionSpace,
     );
@@ -80,6 +81,7 @@ export const redistributeSectionSpace = (
 
   // Determine the direction and adjust space until the target is reached
   const changeFactor = isAddingZone ? -1 : 1;
+
   while (spaceRightNow !== SectionColumns) {
     if (leftIndex !== -1) {
       if (
@@ -89,12 +91,15 @@ export const redistributeSectionSpace = (
         --leftIndex;
         continue;
       }
+
       spaceDistributedArray[leftIndex] += changeFactor;
       spaceRightNow += changeFactor;
     }
+
     if (spaceRightNow === SectionColumns) {
       break;
     }
+
     if (rightIndex !== spaceDistributedArray.length) {
       if (
         spaceDistributedArray[rightIndex] + changeFactor <
@@ -103,9 +108,11 @@ export const redistributeSectionSpace = (
         ++rightIndex;
         continue;
       }
+
       spaceDistributedArray[rightIndex] += changeFactor;
       spaceRightNow += changeFactor;
     }
+
     if (spaceRightNow === SectionColumns) {
       break;
     }
@@ -125,6 +132,7 @@ export const getDefaultSpaceDistributed = (zones: string[]) => {
     (distributedSpace, each: string) => {
       // Setting the distributed space for each zone based on the total number of columns
       distributedSpace[each] = SectionColumns / zones.length;
+
       return distributedSpace;
     },
     {} as { [key: string]: number }, // Initializing the accumulator as an object with zone identifiers as keys and distributed space as values
@@ -161,8 +169,10 @@ const multiZoneSpaceDistribution = (
   const requiredSpaceForAllZones = zonesToAdd.reduce((spaceCount, eachZone) => {
     // Retrieve properties of each zone
     const zoneProps = widgetsAfterUpdate[eachZone];
+
     // Add the flexGrow property or use a common space value
     spaceCount += zoneProps.flexGrow || commonSpace;
+
     return spaceCount;
   }, 0);
 
@@ -200,8 +210,10 @@ const multiZoneSpaceDistribution = (
     (distributedSpace, eachZone) => {
       // Retrieve properties of each zone
       const zoneProps = widgetsAfterUpdate[eachZone];
+
       // Set the distributed space for the zone to its flexGrow property or common space
       distributedSpace[eachZone] = zoneProps.flexGrow || commonSpace;
+
       return distributedSpace;
     },
     {} as { [key: string]: number },
@@ -231,6 +243,7 @@ const multiZoneSpaceDistribution = (
     },
     {} as { [key: string]: number },
   );
+
   // Merge the updated distributed space with the existing distributed space
   return {
     ...distributedSpaceOfExistingZones,
@@ -292,6 +305,7 @@ export function* updateSectionsDistributedSpace(
         -zoneProps.flexGrow || commonSpace,
         index,
       );
+
       updatedZoneOrder = updatedZoneOrder.filter((_, i) => i !== index);
       updatedDistributedSpace = updatedZoneOrder.reduce(
         (result, each, index) => {
@@ -327,6 +341,7 @@ export function* updateSectionsDistributedSpace(
         zoneProps.flexGrow || commonSpace,
         index,
       );
+
       updatedZoneOrder.splice(index, 0, zonesToAdd[0]);
       updatedDistributedSpace = updatedZoneOrder.reduce(
         (result, each, index) => {
@@ -355,6 +370,7 @@ export function* updateSectionsDistributedSpace(
     ...updatedWidgets[sectionWidgetId],
     spaceDistributed: updatedDistributedSpace,
   };
+
   return updatedWidgets;
 }
 
@@ -447,8 +463,14 @@ function getZoneChangeAndRelativeSize(
   zoneChangeFactor: number,
   maxColumnLimit = SectionColumns,
 ): {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   zoneChange: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isSmallestZoneLargeRelatively: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   largestZoneSpace: any;
 } {
   // Constants for determining zone sizes and thresholds
@@ -475,6 +497,7 @@ function getZoneChangeAndRelativeSize(
     zoneChangeFactor >= spaceWelcomed && zoneChangeFactor > 0
       ? spaceWelcomed
       : zoneChangeFactor;
+
   return { zoneChange, isSmallestZoneLargeRelatively, largestZoneSpace };
 }
 
@@ -611,6 +634,7 @@ export const redistributeSpaceWithDynamicMinWidth = (
   const newlyAdjustedValues = spaceDistributedArray.map(
     (value) => value * adjustmentRatio,
   );
+
   adjustZoneSpaces(
     spaceDistributedArray,
     zoneChangeFactor,

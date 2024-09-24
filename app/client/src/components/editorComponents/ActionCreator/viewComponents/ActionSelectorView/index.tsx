@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react";
-import type { TreeDropdownOption } from "design-system-old";
-import { TreeDropdown } from "design-system-old";
-import { Input } from "design-system";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
+import { TreeDropdown } from "@appsmith/ads-old";
+import { Input } from "@appsmith/ads";
 import { debounce } from "lodash";
 import { FIELD_CONFIG } from "../../Field/FieldConfig";
 import { AppsmithFunction, FieldType } from "../../constants";
@@ -22,10 +22,13 @@ function filterChildren(
     const doesMatch = [option.label, option.value].some((val) =>
       val.toLowerCase().includes(searchText.toLowerCase()),
     );
+
     if (doesMatch) return true;
+
     if (option.children) {
       return filterChildren(option.children, searchText).length > 0;
     }
+
     return false;
   });
 }
@@ -62,6 +65,8 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
 
   const fieldConfig = FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actionType = (selectedOption.type || selectedOption.value) as any;
 
   const { action } = getActionInfo(valueWithoutMoustache, actionType, true);
@@ -78,6 +83,7 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
       function onIntersection(entries: IntersectionObserverEntry[]) {
         entries.forEach((entry) => {
           const childSubmenu = entry.target.querySelector(".bp3-overlay");
+
           if (childSubmenu) {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
@@ -105,8 +111,10 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
 
   const filteredOptions = useMemo(() => {
     if (!debouncedValue) return options;
+
     const optionsToFilter =
       debouncedValue.length >= 3 ? flattenOptions(options) : options;
+
     return sortOnChildrenLength(
       filterChildren(optionsToFilter, debouncedValue),
     );

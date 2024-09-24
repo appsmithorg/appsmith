@@ -4,7 +4,7 @@ import {
   SIGNPOSTING_TOOLTIP,
   SIGNPOSTING_LAST_STEP_TOOLTIP,
   SIGNPOSTING_SUCCESS_POPUP,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -15,7 +15,7 @@ import {
   getPageActions,
   getCanvasWidgets,
   getSavedDatasources,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { showSignpostingTooltip } from "actions/onboardingActions";
 import { SIGNPOSTING_STEP } from "./Utils";
 import { isWidgetActionConnectionPresent } from "selectors/onboardingSelectors";
@@ -48,6 +48,7 @@ function TooltipContent(props: { showSignpostingTooltip: boolean }) {
     };
 
     document.addEventListener("mousemove", handleEvent, true);
+
     return () => {
       document.removeEventListener("mousemove", handleEvent, true);
     };
@@ -69,15 +70,19 @@ function TooltipContent(props: { showSignpostingTooltip: boolean }) {
   if (datasources.length) {
     completedTasks++;
   }
+
   if (actions.length) {
     completedTasks++;
   }
+
   if (Object.keys(widgets).length > 1) {
     completedTasks++;
   }
+
   if (isConnectionPresent) {
     completedTasks++;
   }
+
   if (isDeployed) {
     completedTasks++;
   }

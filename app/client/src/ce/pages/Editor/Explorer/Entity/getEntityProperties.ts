@@ -1,18 +1,15 @@
-import {
-  ENTITY_TYPE,
-  type JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE, type JSActionEntity } from "ee/entities/DataTree/types";
 import WidgetFactory from "WidgetProvider/factory";
 import type {
   DataTreeEntityObject,
   JSActionEntityConfig,
   WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import { isFunction } from "lodash";
-import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { entityDefinitions } from "ee/utils/autocomplete/EntityDefinitions";
 import ConfigTreeActions from "utils/configTree";
 import store from "store";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 
 export interface EntityProperty {
   propertyName: string;
@@ -33,9 +30,11 @@ export const getPropsForJSActionEntity = (
     | undefined;
 
   const variableNames = jsActionEntityConfig?.variables;
+
   if (variableNames && variableNames.length > 0) {
     for (let i = 0; i < variableNames.length; i++) {
       const variableName = variableNames[i];
+
       properties[variableName] = jsActionEntity[variableName];
     }
   }
@@ -44,9 +43,11 @@ export const getPropsForJSActionEntity = (
   const jsCollection = jsActions.find((js) => js.config.name === entityName);
 
   const actions = jsCollection?.config.actions;
+
   if (actions && actions.length > 0)
     for (let i = 0; i < jsCollection.config.actions.length; i++) {
       const action = jsCollection.config.actions[i];
+
       properties[action.name + "()"] = "Function";
       properties[action.name + ".data"] = jsCollection?.data?.[action.id];
     }
@@ -62,9 +63,11 @@ const getJSActionBindings = (
 ) => {
   const jsCollection = entity as JSActionEntity;
   const properties = getPropsForJSActionEntity(jsCollection, entityName);
+
   if (properties) {
     entityProperties = Object.keys(properties).map((actionProperty: string) => {
       const value = properties[actionProperty];
+
       return {
         propertyName: actionProperty,
         entityName: entityName,
@@ -73,6 +76,7 @@ const getJSActionBindings = (
       };
     });
   }
+
   return entityProperties;
 };
 
@@ -84,17 +88,22 @@ enum ActionEntityPublicProperties {
 }
 
 const getActionBindings = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   entity: any,
   entityProperties: EntityProperty[],
   entityType: string,
   entityName: string,
 ) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const config = (entityDefinitions.ACTION as any)(entity as any);
 
   entityProperties = Object.keys(config || {})
     .filter((k) => k.indexOf("!") === -1)
     .map((actionProperty) => {
       let value = entity[actionProperty];
+
       if (
         actionProperty === ActionEntityPublicProperties.run ||
         actionProperty === ActionEntityPublicProperties.clear
@@ -102,6 +111,7 @@ const getActionBindings = (
         value = "Function";
         actionProperty = actionProperty + "()";
       }
+
       return {
         propertyName: actionProperty,
         entityName: entityName,
@@ -121,9 +131,11 @@ function getWidgetBindings(
   const widgetEntity = entity as WidgetEntity;
   const type = widgetEntity.type;
   let config = WidgetFactory.getAutocompleteDefinitions(type);
+
   if (!config) return entityProperties;
 
   if (isFunction(config)) config = config(widgetEntity);
+
   const settersConfig = WidgetFactory.getWidgetSetterConfig(type)?.__setters;
 
   entityProperties = Object.keys(config)
@@ -137,6 +149,7 @@ function getWidgetBindings(
         entityType,
       };
     });
+
   return entityProperties;
 }
 
@@ -150,6 +163,7 @@ export function getEntityProperties({
   entityName: string;
 }) {
   let entityProperties: EntityProperty[] = [];
+
   if (entityType in getEntityPropertiesMap) {
     entityProperties = getEntityPropertiesMap[entityType](
       entity,
@@ -158,6 +172,7 @@ export function getEntityProperties({
       entityName,
     );
   }
+
   return entityProperties;
 }
 
@@ -165,6 +180,8 @@ export const getEntityPropertiesMap: Record<
   string,
   (
     entity: DataTreeEntityObject,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     entityProperties: any,
     entityType: string,
     entityName: string,

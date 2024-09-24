@@ -37,6 +37,7 @@ export enum Widgets {
   Text,
   WDSTable,
 }
+
 type AppModes = "Edit" | "View";
 
 interface RunQueryParams {
@@ -44,6 +45,7 @@ interface RunQueryParams {
   expectedStatus?: boolean;
   waitTimeInterval?: number;
 }
+
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private table = ObjectsRegistry.Table;
@@ -167,7 +169,6 @@ export class DataSources {
     dbName +
     "']/ancestor::div[contains(@class, 't--mock-datasource')][1]";
   private _createBlankGraphQL = ".t--createBlankApiGraphqlCard";
-  private _createBlankCurl = ".t--createBlankCurlCard";
   private _graphQLHeaderKey = "input[name='headers[0].key']";
   private _graphQLHeaderValue = "input[name='headers[0].value']";
   _graphqlQueryEditor = ".t--graphql-query-editor";
@@ -200,7 +201,7 @@ export class DataSources {
     ".t--datasource-name:contains('" + dsName + "')";
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
-
+  _dsTabSchema = "[data-testid='t--tab-schema']";
   private _pageSelectionMenu = "[data-testId='t--page-selection']";
 
   private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
@@ -212,8 +213,6 @@ export class DataSources {
     widgetType +
     "')]";
 
-  private _curlTextArea =
-    "//label[text()='Paste CURL Code Here']/parent::form/div";
   _noSchemaAvailable = (dbName: string) =>
     "//div[text()='" +
     dbName +
@@ -681,19 +680,6 @@ export class DataSources {
     );
   }
 
-  public FillCurlNImport(value: string) {
-    this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._createBlankCurl);
-    this.ImportCurlNRun(value);
-  }
-
-  public ImportCurlNRun(value: string) {
-    this.agHelper.UpdateTextArea(this._curlTextArea, value);
-    this.agHelper.Sleep(500); //Clicking import after value settled
-    this.agHelper.ClickButton("Import");
-    this.apiPage.RunAPI();
-  }
-
   public FillFirestoreDSForm(environment = this.dataManager.defaultEnviorment) {
     this.agHelper.TypeText(
       this.locator._inputFieldByName("Database URL") +
@@ -898,7 +884,7 @@ export class DataSources {
         this.agHelper.AssertContains(
           responseStatus === 200
             ? "datasource deleted successfully"
-            : "action(s) using it",
+            : "Cannot delete datasource",
         );
       });
   }
@@ -1015,6 +1001,7 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("@getConsolidatedData", 200);
     this.assertHelper.AssertNetworkStatus("getWorkspace");
   }
+
   public ReconnectModalValidation(
     dbName: string,
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
@@ -1129,13 +1116,11 @@ export class DataSources {
       });
   }
 
-  ToggleUsePreparedStatement(
-    enable = true || false,
-    toNavigateToSettings = false,
-  ) {
-    toNavigateToSettings && this.apiPage.SelectPaneTab("Settings");
+  ToggleUsePreparedStatement(enable = true || false) {
+    this.apiPage.SelectPaneTab("Settings");
     if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
     else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
+    this.apiPage.SelectPaneTab("Query");
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
@@ -1386,7 +1371,7 @@ export class DataSources {
     expectedTableName = search,
   ) {
     this.agHelper.Sleep(2500); //for query editor to load
-    this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
+    this.agHelper.ClearNType(this._datasourceStructureSearchInput, search);
     this.agHelper.Sleep(1000); //for search result to load
     this.VerifyTableSchemaOnQueryEditor(expectedTableName);
   }

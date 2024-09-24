@@ -7,7 +7,7 @@ import React from "react";
 import { MockPageDSL } from "test/testCommon";
 import { DEFAULT_ENTITY_EXPLORER_WIDTH } from "constants/AppConstants";
 import { runSagaMiddleware } from "store";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import * as explorerSelector from "selectors/explorerSelector";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
@@ -17,28 +17,29 @@ import WidgetsEditorEntityExplorer from "../WidgetsEditorEntityExplorer";
 
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
+
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 pushState.mockImplementation((state: any, title: any, url: any) => {
   window.document.title = title;
   window.location.pathname = url;
 });
 
-jest.mock("@appsmith/utils/permissionHelpers", () => {
+jest.mock("ee/utils/permissionHelpers", () => {
   return {
     __esModule: true,
-    ...jest.requireActual("@appsmith/utils/permissionHelpers"),
+    ...jest.requireActual("ee/utils/permissionHelpers"),
   };
 });
 
-jest.mock("@appsmith/pages/Editor/Explorer/helpers", () => ({
+jest.mock("ee/pages/Editor/Explorer/helpers", () => ({
   __esModule: true,
-  ...jest.requireActual("@appsmith/pages/Editor/Explorer/helpers"),
+  ...jest.requireActual("ee/pages/Editor/Explorer/helpers"),
 }));
 
-jest.mock("@appsmith/utils/BusinessFeatures/permissionPageHelpers", () => ({
+jest.mock("ee/utils/BusinessFeatures/permissionPageHelpers", () => ({
   __esModule: true,
-  ...jest.requireActual(
-    "@appsmith/utils/BusinessFeatures/permissionPageHelpers",
-  ),
+  ...jest.requireActual("ee/utils/BusinessFeatures/permissionPageHelpers"),
 }));
 
 jest.mock("selectors/explorerSelector", () => ({
@@ -58,13 +59,13 @@ describe("Entity Explorer tests", () => {
   beforeEach(() => {
     urlBuilder.updateURLParams(
       {
-        applicationId: "appId",
+        baseApplicationId: "appId",
         applicationSlug: "appSlug",
         applicationVersion: 2,
       },
       [
         {
-          pageId: "pageId",
+          basePageId: "pageId",
           pageSlug: "pageSlug",
         },
       ],
@@ -72,7 +73,11 @@ describe("Entity Explorer tests", () => {
   });
 
   it("Should render Widgets tree in entity explorer", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const children: any = buildChildren([{ type: "TABS_WIDGET" }]);
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
@@ -81,14 +86,18 @@ describe("Entity Explorer tests", () => {
         <WidgetsEditorEntityExplorer />
       </MockPageDSL>,
     );
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const widgetsTree: any = component.queryByText("Widgets", {
       selector: "div.t--entity-name",
     });
+
     act(() => {
       fireEvent.click(widgetsTree);
       jest.runAllTimers();
     });
     const tabsWidget = component.queryByText(children[0].widgetName);
+
     expect(tabsWidget).toBeTruthy();
   });
 
@@ -97,14 +106,19 @@ describe("Entity Explorer tests", () => {
       widgetSelectionsActions,
       "selectWidgetInitAction",
     );
+
     beforeEach(() => {
       spyWidgetSelection.mockClear();
     });
 
     it("Select widget on entity explorer", () => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const children: any = buildChildren([
         { type: "TABS_WIDGET", widgetId: "tabsWidgetId" },
       ]);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dsl: any = widgetCanvasFactory.build({
         children,
       });
@@ -113,7 +127,10 @@ describe("Entity Explorer tests", () => {
           <WidgetsEditorEntityExplorer />
         </MockPageDSL>,
       );
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tabsWidget: any = component.queryByText(children[0].widgetName);
+
       act(() => {
         fireEvent.click(tabsWidget);
         jest.runAllTimers();
@@ -128,6 +145,8 @@ describe("Entity Explorer tests", () => {
     });
 
     it("CMD + click Multi Select widget on entity explorer", () => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const children: any = buildChildren([
         {
           type: "CHECKBOX_WIDGET",
@@ -136,6 +155,8 @@ describe("Entity Explorer tests", () => {
         },
         { type: "SWITCH_WIDGET", parentId: "0", widgetId: "switchWidgetId" },
       ]);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dsl: any = widgetCanvasFactory.build({
         children,
       });
@@ -144,12 +165,18 @@ describe("Entity Explorer tests", () => {
           <WidgetsEditorEntityExplorer />
         </MockPageDSL>,
       );
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const checkBox: any = component.queryByText(children[0].widgetName);
+
       act(() => {
         fireEvent.click(checkBox);
         jest.runAllTimers();
       });
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const switchWidget: any = component.queryByText(children[1].widgetName);
+
       expect(spyWidgetSelection).toHaveBeenCalledWith(
         SelectionRequestType.One,
         ["checkboxWidgetId"],
@@ -172,6 +199,8 @@ describe("Entity Explorer tests", () => {
     });
 
     it("Shift + Click Multi Select widget on entity explorer", () => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const children: any = buildChildren([
         {
           type: "CHECKBOX_WIDGET",
@@ -181,6 +210,8 @@ describe("Entity Explorer tests", () => {
         { type: "SWITCH_WIDGET", parentId: "0", widgetId: "switchWidgetId" },
         { type: "BUTTON_WIDGET", parentId: "0", widgetId: "buttonWidgetId" },
       ]);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dsl: any = widgetCanvasFactory.build({
         children,
       });
@@ -190,7 +221,11 @@ describe("Entity Explorer tests", () => {
         </MockPageDSL>,
       );
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const checkboxWidget: any = component.queryByText(children[0].widgetName);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const buttonWidget: any = component.queryByText(children[2].widgetName);
 
       act(() => {
@@ -223,6 +258,8 @@ describe("Entity Explorer tests", () => {
     it("Shift + Click Deselect Non Siblings", () => {
       const containerId = "containerWidgetId";
       const canvasId = "canvasWidgetId";
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const children: any = buildChildren([
         {
           type: "CHECKBOX_WIDGET",
@@ -248,6 +285,8 @@ describe("Entity Explorer tests", () => {
           widgetId: canvasId,
         },
       ]);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const containerChildren: any = buildChildren([
         {
           type: "CONTAINER_WIDGET",
@@ -261,6 +300,8 @@ describe("Entity Explorer tests", () => {
           widgetId: "chartWidgetId",
         },
       ]);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dsl: any = widgetCanvasFactory.build({
         children: containerChildren,
       });
@@ -269,6 +310,8 @@ describe("Entity Explorer tests", () => {
           <WidgetsEditorEntityExplorer />
         </MockPageDSL>,
       );
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const containerWidget: any = component.queryByText(
         containerChildren[0].widgetName,
       );
@@ -285,13 +328,18 @@ describe("Entity Explorer tests", () => {
         undefined,
       );
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const collapsible: any = component.container.querySelector(
         `.t--entity-collapse-toggle[id="arrow-right-s-line"]`,
       );
 
       fireEvent.click(collapsible);
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const buttonWidget: any = component.queryByText(children[2].widgetName);
+
       act(() => {
         fireEvent.click(buttonWidget, {
           shiftKey: true,
@@ -306,7 +354,10 @@ describe("Entity Explorer tests", () => {
         undefined,
       );
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const checkBoxWidget: any = component.queryByText(children[0].widgetName);
+
       act(() => {
         fireEvent.click(checkBoxWidget, {
           shiftKey: true,
@@ -319,9 +370,12 @@ describe("Entity Explorer tests", () => {
         undefined,
         undefined,
       );
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const chartWidget: any = component.queryByText(
         containerChildren[1].widgetName,
       );
+
       act(() => {
         fireEvent.click(chartWidget, {
           shiftKey: true,

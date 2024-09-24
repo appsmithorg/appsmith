@@ -1,18 +1,18 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { call, put } from "redux-saga/effects";
 import type { APIResponseError, ApiResponse } from "api/ApiResponses";
-import type { UpdateTenantConfigRequest } from "@appsmith/api/TenantApi";
-import { TenantApi } from "@appsmith/api/TenantApi";
+import type { UpdateTenantConfigRequest } from "ee/api/TenantApi";
+import { TenantApi } from "ee/api/TenantApi";
 import { validateResponse } from "sagas/ErrorSagas";
 import { safeCrashAppRequest } from "actions/errorActions";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
-import { toast } from "design-system";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { ERROR_CODES } from "ee/constants/ApiConstants";
+import { defaultBrandingConfig as CE_defaultBrandingConfig } from "ee/reducers/tenantReducer";
+import { toast } from "@appsmith/ads";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
@@ -20,6 +20,7 @@ export function* fetchCurrentTenantConfigSaga(action?: {
   payload?: { tenantConfig?: ApiResponse };
 }) {
   const tenantConfig = action?.payload?.tenantConfig;
+
   try {
     const response: ApiResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
@@ -28,8 +29,12 @@ export function* fetchCurrentTenantConfigSaga(action?: {
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: any = response.data;
+
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
         payload: data,
@@ -71,6 +76,8 @@ export function* updateTenantConfigSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const payload = response.data as any;
 
       if (hasSingleSessionUserSetting || hasShowRolesAndGroupsSetting) {
@@ -117,6 +124,7 @@ export function* updateTenantConfigSaga(
     }
   } catch (error) {
     const errorObj = error as APIResponseError;
+
     yield put({
       type: ReduxActionErrorTypes.UPDATE_TENANT_CONFIG_ERROR,
       payload: {

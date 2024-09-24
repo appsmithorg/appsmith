@@ -11,9 +11,15 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { ICON_NAMES } from "WidgetProvider/constants";
 
 function defaultValueValidation(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   props: JSONFormWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lodash: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
   propertyPath: string,
 ): ValidationResponse {
@@ -81,6 +87,7 @@ function defaultValueValidation(
 
   let parsed = value;
   let isValid = lodash.isString(parsed);
+
   if (!isValid) {
     try {
       parsed = lodash.toString(parsed);
@@ -107,9 +114,15 @@ function defaultValueValidation(
 }
 
 export function minValueValidation(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   min: any,
   props: JSONFormWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lodash: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
   propertyPath: string,
 ) {
@@ -118,6 +131,7 @@ export function minValueValidation(
   const schemaItem = lodash.get(props, parentPath);
   const max = schemaItem.maxNum;
   const value = min;
+
   min = Number(min);
 
   if (lodash?.isNil(value) || value === "") {
@@ -158,9 +172,15 @@ export function minValueValidation(
 }
 
 export function maxValueValidation(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   max: any,
   props: JSONFormWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lodash: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
   propertyPath: string,
 ) {
@@ -169,6 +189,7 @@ export function maxValueValidation(
   const schemaItem = lodash.get(props, parentPath);
   const min = schemaItem.minNum;
   const value = max;
+
   max = Number(max);
 
   if (lodash?.isNil(value) || value === "") {

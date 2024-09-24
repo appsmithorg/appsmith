@@ -1,52 +1,46 @@
-import {
-  ENTITY_TYPE,
-  PLATFORM_ERROR,
-} from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   DataTreeDiffEvent,
   getDataTreeForAutocomplete,
   getEntityNameAndPropertyPath,
   isAction,
   isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { call, put, select } from "redux-saga/effects";
-import type { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { AnyReduxAction } from "ee/constants/ReduxActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import {
-  createMessage,
-  JS_EXECUTION_FAILURE,
-} from "@appsmith/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { createMessage, JS_EXECUTION_FAILURE } from "ee/constants/messages";
 import log from "loglevel";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { isWidgetPropertyNamePath } from "utils/widgetEvalUtils";
-import type { ActionEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { ActionEntityConfig } from "ee/entities/DataTree/types";
 import type { SuccessfulBindings } from "utils/SuccessfulBindingsMap";
 import SuccessfulBindingMap from "utils/SuccessfulBindingsMap";
-import { logActionExecutionError } from "./ActionExecution/errorUtils";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
-import { getCollectionNameToDisplay } from "@appsmith/utils/actionExecutionUtils";
+import { getCollectionNameToDisplay } from "ee/utils/actionExecutionUtils";
+import { showToastOnExecutionError } from "./ActionExecution/errorUtils";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -63,12 +57,27 @@ export function* logJSVarCreatedEvent(
   });
 }
 
-export function* dynamicTriggerErrorHandler(errors: any[]) {
-  if (errors.length > 0) {
-    for (const error of errors) {
-      const errorMessage =
-        error.errorMessage.message.message || error.errorMessage.message;
-      yield call(logActionExecutionError, errorMessage, true);
+export function* showExecutionErrors(errors: EvaluationError[]) {
+  const appMode: APP_MODE = yield select(getAppMode);
+
+  for (const error of errors) {
+    const errorMessage = get(
+      error,
+      "errorMessage.message.message",
+      error.errorMessage.message,
+    );
+
+    yield call(
+      showToastOnExecutionError,
+      errorMessage,
+      appMode === APP_MODE.EDIT,
+    );
+
+    // Add it to the logs tab when in edit mode
+    if (appMode === APP_MODE.EDIT) {
+      AppsmithConsole.error({
+        text: errorMessage,
+      });
     }
   }
 }
@@ -83,7 +92,9 @@ export function* logSuccessfulBindings(
   undefinedEvalValuesMap: Record<string, boolean>,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
+
   if (appMode === APP_MODE.PUBLISHED) return;
+
   if (!evaluationOrder) return;
 
   const successfulBindingPaths: SuccessfulBindings = !successfulBindingsMap
@@ -100,6 +111,7 @@ export function* logSuccessfulBindings(
     const entityConfig = configTree[entityName] as
       | WidgetEntityConfig
       | ActionEntityConfig;
+
     if (isAction(entity) || isWidget(entity)) {
       const unevalValue = get(unEvalTree, evaluatedPath);
       let isUndefined = false;
@@ -120,6 +132,7 @@ export function* logSuccessfulBindings(
         if (successfulBindingPaths[evaluatedPath]) {
           delete successfulBindingPaths[evaluatedPath];
         }
+
         return;
       }
 
@@ -128,6 +141,7 @@ export function* logSuccessfulBindings(
        */
       if (isNewWidgetAdded) {
         successfulBindingPaths[evaluatedPath] = unevalValue;
+
         return;
       }
 
@@ -138,6 +152,7 @@ export function* logSuccessfulBindings(
       ) as EvaluationError[];
 
       const hasErrors = errors.length > 0;
+
       if (!hasErrors) {
         if (!isCreateFirstTree) {
           /**Log the binding only if it doesn't already exist */
@@ -194,13 +209,18 @@ export function* updateTernDefinitions(
     isCreateFirstTree ||
     some(updates, (update) => {
       if (update.event === DataTreeDiffEvent.NEW) return true;
+
       if (update.event === DataTreeDiffEvent.DELETE) return true;
+
       if (update.event === DataTreeDiffEvent.EDIT) return false;
+
       const { entityName } = getEntityNameAndPropertyPath(
         update.payload.propertyPath,
       );
       const entity = dataTree[entityName];
+
       if (!entity || !isWidget(entity)) return false;
+
       return isWidgetPropertyNamePath(
         entity as WidgetEntity,
         update.payload.propertyPath,
@@ -209,8 +229,10 @@ export function* updateTernDefinitions(
 
   if (!shouldUpdate) {
     endSpan(span);
+
     return;
   }
+
   const start = performance.now();
 
   // remove private and suppressAutoComplete widgets from dataTree used for autocompletion
@@ -223,8 +245,10 @@ export function* updateTernDefinitions(
     jsData,
     configTree,
   );
+
   CodemirrorTernService.updateDef("DATA_TREE", def, entityInfo);
   const end = performance.now();
+
   log.debug("Tern", { updates });
   log.debug("Tern definitions updated took ", (end - start).toFixed(2));
   endSpan(span);
@@ -233,6 +257,8 @@ export function* updateTernDefinitions(
 export function* handleJSFunctionExecutionErrorLog(
   action: JSAction,
   collection: JSCollection,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any[],
 ) {
   const { id: collectionId, name: collectionName } = collection;
@@ -254,8 +280,10 @@ export function* handleJSFunctionExecutionErrorLog(
             messages: errors.map((error) => {
               // TODO: Remove this check once we address uncaught promise errors
               let errorMessage = error.errorMessage;
+
               if (!errorMessage) {
                 const errMsgArr = error.message.split(":");
+
                 errorMessage = errMsgArr.length
                   ? {
                       name: errMsgArr[0],
@@ -266,6 +294,7 @@ export function* handleJSFunctionExecutionErrorLog(
                       message: error.message,
                     };
               }
+
               return {
                 message: errorMessage,
                 type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,

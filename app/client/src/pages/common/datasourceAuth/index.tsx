@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -10,10 +10,9 @@ import {
   toggleSaveActionFlag,
   updateDatasourceAuthState,
 } from "actions/datasourceActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { useParams, useLocation, useHistory } from "react-router";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import { useLocation, useHistory } from "react-router";
 import type { Datasource } from "entities/Datasource";
 import { AuthType, AuthenticationStatus } from "entities/Datasource";
 import {
@@ -25,8 +24,8 @@ import {
   SAVE_BUTTON_TEXT,
   TEST_BUTTON_TEXT,
   createMessage,
-} from "@appsmith/constants/messages";
-import { Button, toast } from "design-system";
+} from "ee/constants/messages";
+import { Button, toast } from "@appsmith/ads";
 import type { ClientCredentials } from "entities/Datasource/RestAPIForm";
 import {
   GrantType,
@@ -34,16 +33,16 @@ import {
 } from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { integrationEditorURL } from "ee/RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import type { AppsmithLocationState } from "utils/history";
 import type { PluginType } from "entities/Action";
-import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasManageDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { resetCurrentPluginIdForCreateNewApp } from "actions/onboardingActions";
-import { getParentEntityDetailsFromParams } from "@appsmith/entities/Engine/actionHelpers";
+import { useParentEntityDetailsFromParams } from "ee/entities/Engine/actionHelpers";
 
 interface Props {
   datasource: Datasource;
@@ -185,22 +184,16 @@ function DatasourceAuth({
   );
 
   const currentEnvDetails = useSelector(getCurrentEnvironmentDetails);
-
   // hooks
   const dispatch = useDispatch();
   const location = useLocation();
-  const parentEntityIdObject = useParams<ExplorerURLParams>();
   const history = useHistory<AppsmithLocationState>();
 
-  const { entityType, parentEntityId } = useMemo(
-    () =>
-      getParentEntityDetailsFromParams(
-        parentEntityIdObject,
-        parentEntityIdProp,
-        isInsideReconnectModal,
-      ),
-    [isInsideReconnectModal, parentEntityIdProp, parentEntityIdObject],
-  );
+  const { baseParentEntityId, entityType, parentEntityId } =
+    useParentEntityDetailsFromParams(
+      parentEntityIdProp,
+      isInsideReconnectModal,
+    );
 
   useEffect(() => {
     if (
@@ -220,18 +213,21 @@ function DatasourceAuth({
         (queryIsImport &&
           queryDatasourceId === datasourceId &&
           !showFilePicker);
+
       if (status && shouldNotify) {
         const display_message = search.get("display_message");
+
         if (status !== AuthorizationStatus.SUCCESS) {
           const message =
             status === AuthorizationStatus.APPSMITH_ERROR
               ? OAUTH_AUTHORIZATION_APPSMITH_ERROR
               : OAUTH_AUTHORIZATION_FAILED;
+
           toast.show(display_message || message, { kind: "error" });
           AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
             applicationId: applicationId,
             datasourceId: datasourceId,
-            pageId: parentEntityId,
+            pageId: baseParentEntityId,
             oAuthPassOrFailVerdict: status,
             workspaceId: datasource?.workspaceId,
             datasourceName: datasource?.name,
@@ -275,7 +271,7 @@ function DatasourceAuth({
   // Handles datasource testing
   const handleDatasourceTest = () => {
     AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
-      pageId: parentEntityId,
+      pageId: baseParentEntityId,
       appId: applicationId,
       datasourceId: datasourceId,
       environmentId: currentEnvironment,
@@ -289,13 +285,14 @@ function DatasourceAuth({
   const handleDefaultAuthDatasourceSave = () => {
     dispatch(toggleSaveActionFlag(true));
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
-      pageId: parentEntityId,
+      pageId: baseParentEntityId,
       appId: applicationId,
       environmentId: currentEnvironment,
       environmentName: currentEnvDetails.name,
       pluginName: pluginName || "",
       pluginPackageName: pluginPackageName || "",
     });
+
     // After saving datasource, only redirect to the 'new integrations' page
     // if datasource is not used to generate a page
     if (datasource.id === TEMP_DATASOURCE_ID) {
@@ -316,6 +313,7 @@ function DatasourceAuth({
   // Handles Oauth datasource saving
   const handleOauthDatasourceSave = () => {
     dispatch(toggleSaveActionFlag(true));
+
     if (datasource.id === TEMP_DATASOURCE_ID) {
       dispatch(
         createDatasourceFromForm(
@@ -346,6 +344,7 @@ function DatasourceAuth({
         ),
       );
     }
+
     AnalyticsUtil.logEvent("DATASOURCE_AUTHORIZE_CLICK", {
       dsName: datasource?.name,
       orgId: datasource?.workspaceId,
@@ -385,10 +384,11 @@ function DatasourceAuth({
                 dispatch(resetCurrentPluginIdForCreateNewApp());
               } else {
                 const URL = integrationEditorURL({
-                  pageId: parentEntityId,
+                  basePageId: baseParentEntityId,
                   selectedTab: INTEGRATION_TABS.NEW,
                   params: getQueryParams(),
                 });
+
                 history.push(URL);
               }
             } else {

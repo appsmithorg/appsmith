@@ -2,7 +2,7 @@ import {
   CONTAINER_GRID_PADDING,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import type { WidgetSpace } from "constants/CanvasEditorConstants";
@@ -11,7 +11,7 @@ import { widgetOperationParams } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "layoutSystems/common/dropTarget/DropTargetComponent";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
@@ -80,6 +80,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const draggingCanvas = useSelector(
     getWidgetByID(dragDetails.draggedOn || ""),
   );
+
   useEffect(() => {
     if (
       dragDetails.draggedOn &&
@@ -173,6 +174,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         direction === LayoutDirection.Vertical &&
           alignItems === AlignItems.Stretch,
       );
+
       return {
         ...each,
         updateWidgetParams,
@@ -186,6 +188,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         alignment: dropPayload.alignment,
       },
     };
+
     dispatch({
       type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
       payload: {
@@ -207,6 +210,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   };
 
   const rowRef = useRef(snapRows);
+
   useEffect(() => {
     rowRef.current = snapRows;
   }, [snapRows, isDragging]);

@@ -16,7 +16,7 @@ import { Colors } from "constants/Colors";
 import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { NumberInputStepButtonPosition } from "../constants";
 import { InputTypes } from "../constants";
 
@@ -293,20 +293,25 @@ const InputComponentWrapper = styled((props) => (
       if (!labelPosition && !checkInputTypeText(inputType)) {
         return "center";
       }
+
       if (labelPosition === LabelPosition.Top) {
         return "flex-start";
       }
+
       if (compactMode) {
         return "center";
       }
+
       if (labelPosition === LabelPosition.Left) {
         if (inputType === InputTypes.TEXT) {
           return "center";
         } else if (inputType === InputTypes.MULTI_LINE_TEXT) {
           return "flex-start";
         }
+
         return "center";
       }
+
       return "flex-start";
     }};
 
@@ -496,9 +501,11 @@ class BaseInputComponent extends React.Component<
 
   onKeyDownTextArea = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
+
     if (isEnterKey && e.metaKey) {
       e.preventDefault();
     }
+
     if (typeof this.props.onKeyDown === "function") {
       this.props.onKeyDown(e);
     }

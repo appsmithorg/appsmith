@@ -27,6 +27,7 @@ describe("CustomWidgetBuilderService - ", () => {
     it("should test that its creating a builder", () => {
       const widgetId = "123";
       const builder = CustomWidgetBuilderService.createBuilder(widgetId);
+
       expect(builder).toBeDefined();
       expect(mockBuilder).toHaveBeenCalled();
     });
@@ -35,6 +36,7 @@ describe("CustomWidgetBuilderService - ", () => {
   describe("isConnected", () => {
     it("should test that its checking if the builder is connected", () => {
       const widgetId = "123";
+
       CustomWidgetBuilderService.createBuilder(widgetId);
       isConnected.mockReturnValue(false);
 
@@ -49,6 +51,7 @@ describe("CustomWidgetBuilderService - ", () => {
   describe("focus", () => {
     it("should test that its focusing the builder", () => {
       const widgetId = "123";
+
       CustomWidgetBuilderService.createBuilder(widgetId);
 
       CustomWidgetBuilderService.focus(widgetId);
@@ -60,6 +63,7 @@ describe("CustomWidgetBuilderService - ", () => {
   describe("closeBuilder", () => {
     it("should test that its closing the builder", () => {
       const widgetId = "123";
+
       CustomWidgetBuilderService.createBuilder(widgetId);
 
       expect(CustomWidgetBuilderService.getBuilder(widgetId)).toBeDefined();
@@ -79,6 +83,8 @@ describe("Builder - ", () => {
 
   const closeWindow = jest.fn().mockImplementation(() => {
     if (builder?.builderWindow) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (builder.builderWindow as any).closed = true;
     }
   });

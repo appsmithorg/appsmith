@@ -13,6 +13,7 @@ let locale = "en-US";
 
 jest.mock("utils/helpers", () => {
   const originalModule = jest.requireActual("utils/helpers");
+
   return {
     __esModule: true,
     ...originalModule,
@@ -31,6 +32,8 @@ describe("Utilities - ", () => {
     ].forEach((d) => {
       expect(countryToFlag(d[0])).toBe(d[1]);
     });
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     String.fromCodePoint = undefined as any;
     [
       ["IN", "IN"],

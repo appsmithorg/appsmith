@@ -22,6 +22,8 @@ interface InputTextProp {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   placeholder?: string;
@@ -41,6 +43,7 @@ function InputText(props: InputTextProp) {
     theme,
     value,
   } = props;
+
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
@@ -130,6 +133,7 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
         bindingPrefix.length,
         propertyValue.length - this.wrapperCode.suffix.length,
       )}`;
+
       return JSToString(value);
     } else {
       return propertyValue;

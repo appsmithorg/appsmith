@@ -11,14 +11,14 @@ import {
   WELCOME_FORM_PASSWORD_FIELD_NAME,
   WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
   WELCOME_FORM_PROFICIENCY_LEVEL,
-} from "@appsmith/constants/forms";
+} from "ee/constants/forms";
 import type { FormErrors } from "redux-form";
 import { formValueSelector, getFormSyncErrors, reduxForm } from "redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
-import type { AppState } from "@appsmith/reducers";
-import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
+import type { AppState } from "ee/reducers";
+import { SUPER_USER_SUBMIT_PATH } from "ee/constants/ApiConstants";
 import { useState } from "react";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import {
   WELCOME_FORM_USE_CASE_ERROR_MESSAGE,
   WELCOME_FORM_EMAIL_ERROR_MESSAGE,
@@ -27,7 +27,7 @@ import {
   WELCOME_FORM_GENERIC_ERROR_MESSAGE,
   WELCOME_FORM_PASSWORDS_NOT_MATCHING_ERROR_MESSAGE,
   WELCOME_FORM_PROFICIENCY_ERROR_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 const PageWrapper = styled.div`
   width: 100%;
@@ -60,6 +60,7 @@ export const secondPageValues = ["proficiency", "useCase"];
 
 const validate = (values: DetailsFormValues) => {
   const errors: DetailsFormValues = {};
+
   if (!values.firstName) {
     errors.firstName = createMessage(WELCOME_FORM_GENERIC_ERROR_MESSAGE);
   }
@@ -98,10 +99,12 @@ function SetupForm(props: SetupFormProps) {
 
   const onSubmit = () => {
     if (isSubmitted) return;
+
     const form: HTMLFormElement = formRef.current as HTMLFormElement;
     const verifyPassword: HTMLInputElement = document.querySelector(
       `[name="verifyPassword"]`,
     ) as HTMLInputElement;
+
     if (verifyPassword) verifyPassword.removeAttribute("name");
 
     const firstName: HTMLInputElement = document.querySelector(
@@ -114,6 +117,7 @@ function SetupForm(props: SetupFormProps) {
 
     if (firstName && lastName) {
       const fullName = document.createElement("input");
+
       fullName.type = "text";
       fullName.name = "name";
       fullName.style.display = "none";
@@ -122,6 +126,7 @@ function SetupForm(props: SetupFormProps) {
     }
 
     const proficiencyInput = document.createElement("input");
+
     proficiencyInput.type = "text";
     proficiencyInput.name = "proficiency";
     proficiencyInput.style.display = "none";
@@ -129,6 +134,7 @@ function SetupForm(props: SetupFormProps) {
     form.appendChild(proficiencyInput);
 
     const useCaseInput = document.createElement("input");
+
     useCaseInput.type = "text";
     useCaseInput.name = "useCase";
     useCaseInput.style.display = "none";
@@ -136,6 +142,7 @@ function SetupForm(props: SetupFormProps) {
     form.appendChild(useCaseInput);
 
     const anonymousDataInput = document.createElement("input");
+
     anonymousDataInput.type = "checkbox";
     anonymousDataInput.value = isAirgappedFlag ? "false" : "true";
     anonymousDataInput.checked = isAirgappedFlag ? false : true;
@@ -145,17 +152,21 @@ function SetupForm(props: SetupFormProps) {
     const signupForNewsletter: HTMLInputElement = document.querySelector(
       `[name="signupForNewsletter"]`,
     ) as HTMLInputElement;
+
     if (signupForNewsletter)
       signupForNewsletter.value = signupForNewsletter.checked.toString();
+
     form.submit();
     //if form is already submitted once do not submit it again
     setIsSubmitted(true);
+
     return true;
   };
 
   useEffect(() => {
     //add enter key event listener
     document.addEventListener("keydown", onKeyDown);
+
     return () => {
       document.removeEventListener("keydown", onKeyDown);
     };
@@ -165,6 +176,8 @@ function SetupForm(props: SetupFormProps) {
     setIsFirstPage(!isFirstPage);
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onKeyDown = (event: any) => {
     if (event.key === "Enter") {
       if (props.valid) {
@@ -179,6 +192,7 @@ function SetupForm(props: SetupFormProps) {
       } else {
         // The fields to be marked as touched so that we can display the errors
         const toTouch = [];
+
         // We fetch the fields which are invalid based on field name
         for (const key in props.formSyncErrors) {
           if (
@@ -187,6 +201,7 @@ function SetupForm(props: SetupFormProps) {
           )
             props.formSyncErrors.hasOwnProperty(key) && toTouch.push(key);
         }
+
         props.touch(...toTouch);
       }
     }
@@ -219,6 +234,7 @@ function SetupForm(props: SetupFormProps) {
 }
 
 const selector = formValueSelector(WELCOME_FORM_NAME);
+
 export default connect((state: AppState) => {
   return {
     name: selector(state, WELCOME_FORM_NAME_FIELD_NAME),

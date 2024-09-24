@@ -31,17 +31,23 @@ export function renderChildWidget({
   widgetId: string;
   renderMode: RenderModes;
   layoutSystemProps: LayoutSystemProps;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultWidgetProps: Record<string, any>;
   noPad: boolean;
 }): React.ReactNode | null {
   if (!childWidgetData) return null;
+
   const childWidget = {
     ...defaultWidgetProps,
     ...childWidgetData,
     ...layoutSystemProps,
   };
+
   if (noPad) childWidget.noContainerOffset = true;
+
   childWidget.parentId = widgetId;
+
   return WidgetFactory.createWidget(childWidget, renderMode);
 }
 

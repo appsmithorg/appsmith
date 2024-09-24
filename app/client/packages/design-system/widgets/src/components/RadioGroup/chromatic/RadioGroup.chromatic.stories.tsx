@@ -1,6 +1,6 @@
 import React from "react";
-import type { Checkbox } from "@design-system/widgets";
-import { RadioGroup } from "@design-system/widgets";
+import type { Checkbox } from "@appsmith/wds";
+import { RadioGroup } from "@appsmith/wds";
 import type { Meta, StoryObj } from "@storybook/react";
 import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
 

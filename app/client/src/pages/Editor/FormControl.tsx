@@ -9,7 +9,7 @@ import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { getFormValues, change } from "redux-form";
 import FormControlFactory from "utils/formControl/FormControlFactory";
 
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { Action } from "entities/Action";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getConfigErrors } from "selectors/formSelectors";
@@ -17,20 +17,20 @@ import ToggleComponentToJson from "components/editorComponents/form/ToggleCompon
 import FormConfig from "./FormConfig";
 import { QUERY_BODY_FIELDS } from "constants/QueryEditorConstants";
 import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
-import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import history from "utils/history";
 import {
   getAction,
   getDatasourceStructureById,
   getPluginNameFromId,
   getPluginTemplates,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { get } from "lodash";
 import { SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE } from "constants/Datasource";
 import TemplateMenu from "./QueryEditor/TemplateMenu";
 import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
 import type { Datasource, DatasourceStructure } from "entities/Datasource";
-import { getCurrentEditingEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEditingEnvironmentId } from "ee/selectors/environmentSelectors";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -54,10 +54,12 @@ function FormControl(props: FormControlProps) {
 
   const viewType = getViewType(formValues, props.config.configProperty);
   let formValueForEvaluatingHiddenObj = formValues;
+
   if (!!formValues && formValues.hasOwnProperty("datasourceStorages")) {
     formValueForEvaluatingHiddenObj = (formValues as Datasource)
       .datasourceStorages[currentEditingEnvId];
   }
+
   const hidden = isHidden(formValueForEvaluatingHiddenObj, props.config.hidden);
   const configErrors: EvaluationError[] = useSelector(
     (state: AppState) =>
@@ -68,8 +70,12 @@ function FormControl(props: FormControlProps) {
     shallowEqual,
   );
   const dsId =
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ((formValues as Action)?.datasource as any)?.id ||
     (formValues as Datasource)?.id;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pluginTemplates: Record<string, any> = useSelector((state: AppState) =>
     getPluginTemplates(state),
   );
@@ -97,9 +103,11 @@ function FormControl(props: FormControlProps) {
 
   const updateQueryParams = () => {
     const params = getQueryParams();
+
     if (params.showTemplate) {
       params.showTemplate = "false";
     }
+
     history.replace({
       ...window.location,
       search: convertObjectToQueryParams(params),
@@ -110,6 +118,7 @@ function FormControl(props: FormControlProps) {
   if (isQueryBodyField && actionValues) {
     // get the misc data object
     const miscFormData = actionValues?.actionConfiguration?.formData?.misc;
+
     // if the misc data object is available and if the status of the form to raw conversion is successful
     if (
       !!miscFormData &&
@@ -117,6 +126,7 @@ function FormControl(props: FormControlProps) {
       miscFormData.formToNativeQuery?.status === "SUCCESS"
     ) {
       const configPathValue = get(actionValues, props.config?.configProperty);
+
       if (
         !convertFormToRaw &&
         typeof configPathValue === "undefined" &&
@@ -148,6 +158,7 @@ function FormControl(props: FormControlProps) {
       const defaultTemplate = !!pluginTemplate
         ? pluginTemplate[SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE]
         : "";
+
       dispatch(
         change(
           props?.formName || QUERY_EDITOR_FORM_NAME,
@@ -168,6 +179,7 @@ function FormControl(props: FormControlProps) {
   };
 
   const viewTypes: ViewTypes[] = [];
+
   if (
     "alternateViewTypes" in props.config &&
     Array.isArray(props.config.alternateViewTypes)

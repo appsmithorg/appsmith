@@ -34,11 +34,12 @@ export default class AstController extends BaseController {
         script,
         evalVersion,
       );
+
       return super.sendResponse(res, data);
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        this.serverErrorMessage,
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR,
       );
@@ -65,7 +66,7 @@ export default class AstController extends BaseController {
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        this.serverErrorMessage,
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR,
       );
@@ -89,11 +90,12 @@ export default class AstController extends BaseController {
         isJSObject,
         evalVersion,
       );
+
       return super.sendEntityResponse(res, data.body, data.isSuccess);
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        this.serverErrorMessage,
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR,
       );

@@ -12,7 +12,7 @@ import {
   PROVISIONING_UPGRADE_PAGE_FOOTER,
   PROVISIONING_UPGRADE_PAGE_SUB_HEADING,
   USER_PROVISIONING_FOR_ENTERPRISES,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 
@@ -64,5 +64,6 @@ export function ProvisioningUpgradePage() {
     isEnterprise: true,
   };
   const props = { header, carousel, footer };
+
   return <UpgradePage {...props} />;
 }

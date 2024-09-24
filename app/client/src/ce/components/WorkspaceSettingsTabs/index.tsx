@@ -5,10 +5,10 @@ import {
   useLocation,
   useHistory,
 } from "react-router-dom";
-import MemberSettings from "@appsmith/pages/workspace/Members";
+import MemberSettings from "ee/pages/workspace/Members";
 import { GeneralSettings } from "pages/workspace/General";
-import { Tabs, Tab, TabsList, TabPanel } from "design-system";
-import { navigateToTab } from "@appsmith/pages/workspace/helpers";
+import { Tabs, Tab, TabsList, TabPanel } from "@appsmith/ads";
+import { navigateToTab } from "ee/pages/workspace/helpers";
 import styled from "styled-components";
 
 import * as Sentry from "@sentry/react";
@@ -71,13 +71,17 @@ export const WorkspaceSettingsTabs = ({
     if (!workspacePermissions) {
       return false;
     }
+
     // If user doesn't have manage workspace permissions & is on settings page, redirect to applications
     if (currentTab === TABS.GENERAL && !hasManageWorkspacePermissions)
       return true;
+
     // If user doesn't have manage members permissions & is on members page, redirect to applications
     if (currentTab === TABS.MEMBERS && !isMemberofTheWorkspace) return true;
+
     // If the redirect flag is set to true by EE application, redirect to applications
     if (eeTabRedirect) return true;
+
     return false;
   }, [
     workspacePermissions,
@@ -104,6 +108,8 @@ export const WorkspaceSettingsTabs = ({
   const MemberSettingsComponent = (
     <SentryRoute
       component={useCallback(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (props: any) => (
           <MemberSettings {...props} searchValue={searchValue} />
         ),

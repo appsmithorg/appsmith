@@ -1,5 +1,5 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getDragDetails, getWidgets } from "sagas/selectors";
 import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";

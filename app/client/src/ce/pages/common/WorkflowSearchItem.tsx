@@ -1,4 +1,4 @@
-import type { Workflow } from "@appsmith/constants/WorkflowConstants";
+import type { Workflow } from "ee/constants/WorkflowConstants";
 
 interface Props {
   workflowsList: Workflow[];
@@ -7,6 +7,7 @@ interface Props {
 const WorkflowSearchItem = (props: Props) => {
   // eslint-disable-next-line
   const { workflowsList } = props;
+
   return null;
 };
 

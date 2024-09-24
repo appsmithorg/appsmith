@@ -2,7 +2,7 @@ import type { TParsedJSProperty } from "@shared/ast";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { jsLintEntityParser } from "./entityParser";
-import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
+import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
 import type { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
 
 export interface EntityDiffGenerator {
@@ -23,6 +23,7 @@ export class DefaultDiffGenerator implements EntityDiffGenerator {
     if (!entity) {
       return {};
     }
+
     return { [entity.getName()]: entity.getRawEntity() };
   }
 }
@@ -40,6 +41,7 @@ export class JSLintDiffGenerator implements EntityDiffGenerator {
     }
 
     const entityForDiff: Record<string, string> = {};
+
     for (const [propertyName, propertyValue] of Object.entries(
       entity.getRawEntity(),
     )) {
@@ -48,17 +50,21 @@ export class JSLintDiffGenerator implements EntityDiffGenerator {
         entity.getRawEntity(),
         entity.getConfig(),
       );
+
       if (!parsedEntityConfig) continue;
+
       entityForDiff[propertyName] = this.getHashedConfigString(
         propertyValue,
         parsedEntityConfig[propertyName] as TParsedJSProperty,
       );
     }
+
     return { [entity.getName()]: entityForDiff };
   }
 
   getHashedConfigString(propertyValue: string, config: TParsedJSProperty) {
     if (!config || !config.position || !config.value) return propertyValue;
+
     const { endColumn, endLine, startColumn, startLine } = config.position;
 
     return config.value + `${startColumn}${endColumn}${startLine}${endLine}`;

@@ -3,10 +3,10 @@ import { AppIDEFocusStrategy } from "./AppIDEFocusStrategy";
 import { NavigationMethod } from "utils/history";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { all, take } from "redux-saga/effects";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
-const pageId1 = "0123456789abcdef00000000",
-  pageId2 = "0123456789abcdef00000001";
+const basePageId1 = "0123456789abcdef00000000";
+const basePageId2 = "0123456789abcdef00000001";
 
 describe("AppIDEFocusStrategy", () => {
   describe("getEntitiesForSet", () => {
@@ -30,8 +30,8 @@ describe("AppIDEFocusStrategy", () => {
           getState: () => ({ state: "test" }),
         },
         AppIDEFocusStrategy.getEntitiesForSet,
-        `/app/appSlug/pageSlug-${pageId1}/edit`,
-        `/app/appSlug/pageSlug-${pageId1}/edit/widgets`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/widgets`,
         { invokedBy: NavigationMethod.EntityExplorer },
       ).toPromise();
 
@@ -44,8 +44,8 @@ describe("AppIDEFocusStrategy", () => {
           getState: () => ({ state: "test" }),
         },
         AppIDEFocusStrategy.getEntitiesForSet,
-        `/app/appSlug/pageSlug-${pageId1}/edit/widgets/1`,
-        `/app/appSlug/pageSlug-${pageId1}/edit/widgets`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/widgets/1`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/widgets`,
         { invokedBy: undefined },
       ).toPromise();
 
@@ -58,8 +58,8 @@ describe("AppIDEFocusStrategy", () => {
           getState: () => state,
         },
         AppIDEFocusStrategy.getEntitiesForSet,
-        `/app/appSlug/pageSlug-${pageId1}/edit/widgets/1`,
-        `/app/appSlug/pageSlug-${pageId2}/edit/widgets`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/widgets/1`,
+        `/app/appSlug/pageSlug-${basePageId2}/edit/widgets`,
         { invokedBy: undefined },
       ).toPromise();
 
@@ -72,11 +72,11 @@ describe("AppIDEFocusStrategy", () => {
             params: {
               applicationSlug: "appSlug",
               entity: "widgets",
-              pageId: pageId2,
+              basePageId: basePageId2,
               pageSlug: "pageSlug-",
             },
           },
-          key: `/app/appSlug/pageSlug-${pageId2}/edit/widgets#main`,
+          key: `/app/appSlug/pageSlug-${basePageId2}/edit/widgets#main`,
         },
       ]);
     });
@@ -88,8 +88,8 @@ describe("AppIDEFocusStrategy", () => {
           getState: () => state,
         },
         AppIDEFocusStrategy.getEntitiesForSet,
-        `/app/appSlug/pageSlug-${pageId1}/edit/datasource/data_id`,
-        `/app/appSlug/pageSlug-${pageId1}/edit`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/datasource/data_id`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit`,
         { invokedBy: undefined },
       ).toPromise();
 
@@ -97,10 +97,10 @@ describe("AppIDEFocusStrategy", () => {
         entityInfo: {
           appState: "EDITOR",
           entity: "EDITOR",
-          id: `EDITOR.${pageId1}`,
+          id: `EDITOR.${basePageId1}`,
           params: {},
         },
-        key: `EDITOR_STATE.${pageId1}#main`,
+        key: `EDITOR_STATE.${basePageId1}#main`,
       });
 
       const pageIdChangeResult = await runSaga(
@@ -108,8 +108,8 @@ describe("AppIDEFocusStrategy", () => {
           getState: () => state,
         },
         AppIDEFocusStrategy.getEntitiesForSet,
-        `/app/appSlug/pageSlug-${pageId1}/edit/widgets/1`,
-        `/app/appSlug/pageSlug-${pageId2}/edit`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/widgets/1`,
+        `/app/appSlug/pageSlug-${basePageId2}/edit`,
         { invokedBy: undefined },
       ).toPromise();
 
@@ -117,10 +117,10 @@ describe("AppIDEFocusStrategy", () => {
         entityInfo: {
           appState: "EDITOR",
           entity: "EDITOR",
-          id: `EDITOR.${pageId2}`,
+          id: `EDITOR.${basePageId2}`,
           params: {},
         },
-        key: `EDITOR_STATE.${pageId2}#main`,
+        key: `EDITOR_STATE.${basePageId2}#main`,
       });
     });
 
@@ -131,8 +131,8 @@ describe("AppIDEFocusStrategy", () => {
           getState: () => state,
         },
         AppIDEFocusStrategy.getEntitiesForSet,
-        `/app/appSlug/pageSlug-${pageId1}/edit/datasource/data_id`,
-        `/app/appSlug/pageSlug-${pageId1}/edit/datasource/data_id2`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/datasource/data_id`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/datasource/data_id2`,
         { invokedBy: undefined },
       ).toPromise();
 
@@ -145,11 +145,11 @@ describe("AppIDEFocusStrategy", () => {
             params: {
               applicationSlug: "appSlug",
               datasourceId: "data_id2",
-              pageId: pageId1,
+              basePageId: basePageId1,
               pageSlug: "pageSlug-",
             },
           },
-          key: `/app/appSlug/pageSlug-${pageId1}/edit/datasource/data_id2#main`,
+          key: `/app/appSlug/pageSlug-${basePageId1}/edit/datasource/data_id2#main`,
         },
       ]);
     });
@@ -157,14 +157,15 @@ describe("AppIDEFocusStrategy", () => {
 
   describe("getEntitiesForStore", () => {
     const state = getIDETestState({ branch: "main" });
+
     it("stores state of parent as well", async () => {
       const result = await runSaga(
         {
           getState: () => state,
         },
         AppIDEFocusStrategy.getEntitiesForStore,
-        `/app/appSlug/pageSlug-${pageId1}/edit/datasource/data_id`,
-        `/app/appSlug/pageSlug-${pageId1}/edit/datasource/data_id2`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/datasource/data_id`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/datasource/data_id2`,
       ).toPromise();
 
       expect(result).toContainEqual({
@@ -182,8 +183,8 @@ describe("AppIDEFocusStrategy", () => {
           getState: () => state,
         },
         AppIDEFocusStrategy.getEntitiesForStore,
-        `/app/appSlug/pageSlug-${pageId1}/edit/jsObjects/js_id`,
-        `/app/appSlug/pageSlug-${pageId1}/edit/widgets/widget_id`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/jsObjects/js_id`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/widgets/widget_id`,
       ).toPromise();
 
       expect(result).toContainEqual({
@@ -191,7 +192,7 @@ describe("AppIDEFocusStrategy", () => {
           appState: "EDITOR",
           entity: "EDITOR",
         }),
-        key: `EDITOR_STATE.${pageId1}#main`,
+        key: `EDITOR_STATE.${basePageId1}#main`,
       });
     });
 
@@ -201,8 +202,8 @@ describe("AppIDEFocusStrategy", () => {
           getState: () => state,
         },
         AppIDEFocusStrategy.getEntitiesForStore,
-        `/app/appSlug/pageSlug-${pageId1}/edit/jsObjects`,
-        `/app/appSlug/pageSlug-${pageId1}/edit/jsObjects/js_id`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/jsObjects`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/jsObjects/js_id`,
       ).toPromise();
 
       expect(result).not.toContainEqual({
@@ -217,8 +218,8 @@ describe("AppIDEFocusStrategy", () => {
           getState: () => state,
         },
         AppIDEFocusStrategy.getEntitiesForStore,
-        `/app/appSlug/pageSlug-${pageId1}/edit/jsObjects/js_id2`,
-        `/app/appSlug/pageSlug-${pageId1}/edit/jsObjects/js_id`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/jsObjects/js_id2`,
+        `/app/appSlug/pageSlug-${basePageId1}/edit/jsObjects/js_id`,
       ).toPromise();
 
       expect(resultWithNoParent).toContainEqual({
@@ -234,8 +235,8 @@ describe("AppIDEFocusStrategy", () => {
   describe("Wait for Path Load", () => {
     it("waits for page fetch success when page changes", () => {
       const pageChangeGen = AppIDEFocusStrategy.waitForPathLoad(
-        `/app/appSlug/pageSlug1-${pageId1}/edit`,
-        `/app/appSlug/pageSlug2-${pageId2}/edit`,
+        `/app/appSlug/pageSlug1-${basePageId1}/edit`,
+        `/app/appSlug/pageSlug2-${basePageId2}/edit`,
       );
 
       expect(pageChangeGen.next().value).toEqual(
@@ -245,8 +246,8 @@ describe("AppIDEFocusStrategy", () => {
 
     it("does not wait for page fetch success when page does not change", () => {
       const pageChangeGen = AppIDEFocusStrategy.waitForPathLoad(
-        `/app/appSlug/pageSlug1-${pageId1}/edit/widgets/1`,
-        `/app/appSlug/pageSlug1-${pageId1}/edit/widgets/2`,
+        `/app/appSlug/pageSlug1-${basePageId1}/edit/widgets/1`,
+        `/app/appSlug/pageSlug1-${basePageId1}/edit/widgets/2`,
       );
 
       expect(pageChangeGen.next().value).toEqual(undefined);

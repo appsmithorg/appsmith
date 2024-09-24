@@ -1,12 +1,9 @@
-import {
-  getCurrentPageId,
-  getJSCollectionById,
-} from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import PaneNavigation from "../PaneNavigation";
 import type { JSCollection } from "entities/JSCollection";
 import { call, delay, put, select } from "redux-saga/effects";
 import history from "utils/history";
-import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
+import { jsCollectionIdURL } from "ee/RouteBuilder";
 import type { EntityInfo, IJSPaneNavigationConfig } from "../types";
 import { setJsPaneConfigSelectedTab } from "actions/jsPaneActions";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
@@ -15,7 +12,8 @@ import {
   setCodeEditorCursorAction,
   setFocusableInputField,
 } from "actions/editorContextActions";
-import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
+import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
+import { getJSCollection } from "ee/selectors/entitiesSelector";
 
 export default class JSObjectsPaneNavigation extends PaneNavigation {
   jsCollection!: JSCollection;
@@ -31,24 +29,21 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
 
   *init() {
     if (!this?.entityInfo) throw Error(`Initialisation failed`);
+
     const jsCollection: JSCollection | undefined = yield select(
-      getJSCollectionById,
-      {
-        match: {
-          params: {
-            collectionId: this.entityInfo?.id,
-          },
-        },
-      },
+      getJSCollection,
+      this.entityInfo?.id,
     );
 
     if (!jsCollection)
       throw Error(`Couldn't find jsCollection with id: ${this.entityInfo.id}`);
+
     this.jsCollection = jsCollection;
   }
 
   *getConfig() {
     if (!this.entityInfo.propertyPath) return {};
+
     const tab: IJSPaneNavigationConfig["tab"] = yield call(
       this.getTab,
       this.entityInfo.propertyPath,
@@ -61,6 +56,7 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
 
   *navigate() {
     const config: IJSPaneNavigationConfig = yield call(this.getConfig);
+
     yield call(this.navigateToUrl);
 
     yield delay(NAVIGATION_DELAY);
@@ -90,6 +86,7 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
     ) {
       return JSEditorTab.SETTINGS;
     }
+
     return JSEditorTab.CODE;
   }
 
@@ -98,16 +95,18 @@ export default class JSObjectsPaneNavigation extends PaneNavigation {
       return action.name === this.entityInfo.propertyPath;
     });
     let functionName;
+
     if (matchesActionName) {
       functionName = this.entityInfo.propertyPath;
     }
 
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
     const url = jsCollectionIdURL({
-      pageId,
-      collectionId: this.entityInfo.id,
+      basePageId,
+      baseCollectionId: this.jsCollection.baseId,
       functionName,
     });
+
     history.push(url);
   }
 }

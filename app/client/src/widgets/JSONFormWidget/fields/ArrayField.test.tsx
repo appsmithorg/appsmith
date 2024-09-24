@@ -144,6 +144,7 @@ describe("ArrayField", () => {
           genres: schemaItem.defaultValue,
         },
       });
+
       return (
         <ThemeProvider
           theme={
@@ -155,6 +156,8 @@ describe("ArrayField", () => {
                   active: "#302D2D",
                 },
               },
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any
           }
         >
@@ -189,6 +192,7 @@ describe("ArrayField", () => {
       );
     };
     const { container } = render(<TestComponent />);
+
     expect(
       container.getElementsByClassName("t--jsonformfield-genres-item").length,
     ).toBe(2);
@@ -207,6 +211,8 @@ describe("ArrayField", () => {
           name: "Crime",
           id: 80,
         },
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ] as any;
 
       const methods = useForm({
@@ -214,6 +220,7 @@ describe("ArrayField", () => {
           genres: schemaItem.defaultValue,
         },
       });
+
       return (
         <ThemeProvider
           theme={
@@ -225,6 +232,8 @@ describe("ArrayField", () => {
                   active: "#302D2D",
                 },
               },
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any
           }
         >
@@ -259,6 +268,7 @@ describe("ArrayField", () => {
       );
     };
     const { container } = render(<TestComponent />);
+
     expect(
       container.getElementsByClassName("t--jsonformfield-genres-item").length,
     ).toBe(2);

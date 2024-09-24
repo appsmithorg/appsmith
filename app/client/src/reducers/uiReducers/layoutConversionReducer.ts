@@ -1,6 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 
 export enum AlertType {
   SUCCESS = "SUCCESS",
@@ -38,6 +38,7 @@ const layoutConversionReducer = createImmerReducer(initialState, {
     action: ReduxAction<{ conversionState: CONVERSION_STATES; error: Error }>,
   ) => {
     state.conversionState = action.payload.conversionState;
+
     if (action.payload.error) {
       state.conversionError = action.payload.error;
     }

@@ -5,14 +5,14 @@ import {
   ERROR_500,
   GENERIC_API_EXECUTION_ERROR,
   SERVER_API_TIMEOUT_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import axios from "axios";
 import {
   API_STATUS_CODES,
   ERROR_CODES,
   SERVER_ERROR_CODES,
-} from "@appsmith/constants/ApiConstants";
+} from "ee/constants/ApiConstants";
 import log from "loglevel";
 import type { ActionExecutionResponse } from "api/ActionAPI";
 import store from "store";
@@ -21,17 +21,18 @@ import { AUTH_LOGIN_URL } from "constants/routes";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import getQueryParamsObject from "utils/getQueryParamsObject";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAppsmithConfigs } from "ee/configs";
 import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { isAirgapped } from "ee/utils/airgapHelpers";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { UNUSED_ENV_ID } from "constants/EnvironmentContants";
-import { ID_EXTRACTION_REGEX } from "@appsmith/constants/routes/appRoutes";
+import { ID_EXTRACTION_REGEX } from "ee/constants/routes/appRoutes";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
+
 export const axiosConnectionAbortedCode = "ECONNABORTED";
 const appsmithConfig = getAppsmithConfigs();
 
@@ -60,6 +61,8 @@ export const ENV_ENABLED_ROUTES_REGEX = new RegExp(
   `^(${ENV_ENABLED_ROUTES.join("|")})($|/)`,
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
   ...response.data,
   clientMeta: {
@@ -70,6 +73,7 @@ const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
 
 const is404orAuthPath = () => {
   const pathName = window.location.pathname;
+
   return /^\/404/.test(pathName) || /^\/user\/\w+/.test(pathName);
 };
 
@@ -79,9 +83,11 @@ export const blockedApiRoutesForAirgapInterceptor = async (
   const { url } = config;
 
   const isAirgappedInstance = isAirgapped();
+
   if (isAirgappedInstance && url && BLOCKED_ROUTES_REGEX.test(url)) {
     return Promise.resolve({ data: null, status: 200 });
   }
+
   return config;
 };
 
@@ -93,15 +99,18 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
 
   // Add header for CSRF protection.
   const methodUpper = config.method?.toUpperCase();
+
   if (methodUpper && methodUpper !== "GET" && methodUpper !== "HEAD") {
     config.headers["X-Requested-By"] = "Appsmith";
   }
 
   const state = store.getState();
   const branch = getCurrentGitBranch(state) || getQueryParamsObject().branch;
+
   if (branch && config.headers) {
     config.headers.branchName = branch;
   }
+
   if (config.url?.indexOf("/git/") !== -1) {
     config.timeout = 1000 * 120; // increase timeout for git specific APIs
   }
@@ -116,6 +125,7 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   }
 
   const anonymousId = AnalyticsUtil.getAnonymousId();
+
   appsmithConfig.segment.enabled &&
     anonymousId &&
     (config.headers["x-anonymous-user-id"] = anonymousId);
@@ -134,6 +144,7 @@ export const apiSuccessResponseInterceptor = (
       return makeExecuteActionResponse(response);
     }
   }
+
   if (
     response.headers[CONTENT_TYPE_HEADER_KEY] === "application/json" &&
     !response.data.responseMeta
@@ -142,10 +153,13 @@ export const apiSuccessResponseInterceptor = (
       contexts: { response: response.data },
     });
   }
+
   return response.data;
 };
 
 // Handle different api failure scenarios
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const apiFailureResponseInterceptor = async (error: any) => {
   // this can be extended to other errors we want to catch.
   // in this case it is 413.
@@ -181,6 +195,7 @@ export const apiFailureResponseInterceptor = async (error: any) => {
   if (error.config && error.config.url.match(executeActionRegex)) {
     return makeExecuteActionResponse(error.response);
   }
+
   // Return error if any timeout happened in other api calls
   if (
     error.code === axiosConnectionAbortedCode &&
@@ -207,6 +222,7 @@ export const apiFailureResponseInterceptor = async (error: any) => {
     // that falls out of the range of 2xx
     if (!is404orAuthPath()) {
       const currentUrl = `${window.location.href}`;
+
       if (error.response.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {
         // Redirect to login and set a redirect url.
         store.dispatch(
@@ -217,6 +233,7 @@ export const apiFailureResponseInterceptor = async (error: any) => {
           }),
         );
         Sentry.captureException(error);
+
         return Promise.reject({
           ...error,
           code: ERROR_CODES.REQUEST_NOT_AUTHORISED,
@@ -224,13 +241,16 @@ export const apiFailureResponseInterceptor = async (error: any) => {
           show: false,
         });
       }
+
       const errorData = error.response.data.responseMeta ?? {};
+
       if (
         errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
         (SERVER_ERROR_CODES.RESOURCE_NOT_FOUND.includes(errorData.error.code) ||
           SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE.includes(errorData.error.code))
       ) {
         Sentry.captureException(error);
+
         return Promise.reject({
           ...error,
           code: ERROR_CODES.PAGE_NOT_FOUND,
@@ -239,12 +259,15 @@ export const apiFailureResponseInterceptor = async (error: any) => {
         });
       }
     }
+
     if (error.response.data.responseMeta) {
       return Promise.resolve(error.response.data);
     }
+
     Sentry.captureException(new Error("Api responded without response meta"), {
       contexts: { response: error.response.data },
     });
+
     return Promise.reject(error.response.data);
   } else if (error.request) {
     // The request was made but no response was received
@@ -255,7 +278,9 @@ export const apiFailureResponseInterceptor = async (error: any) => {
     // Something happened in setting up the request that triggered an Error
     log.error("Error", error.message);
   }
+
   log.debug(error.config);
+
   return Promise.resolve(error);
 };
 

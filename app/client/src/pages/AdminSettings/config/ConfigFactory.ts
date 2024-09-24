@@ -2,8 +2,8 @@ import type {
   AdminConfigType,
   Category,
   Setting,
-} from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+} from "ee/pages/AdminSettings/config/types";
+import { SettingTypes } from "ee/pages/AdminSettings/config/types";
 export class ConfigFactory {
   static settingsMap: Record<string, Setting> = {};
   static settings: Setting[] = [];
@@ -34,6 +34,7 @@ export class ConfigFactory {
     if (config.controlType === SettingTypes.PAGE) {
       ConfigFactory.wrapperCategories[config.type] = config;
     }
+
     if (config.canSave) {
       ConfigFactory.savableCategories.push(config.type);
     }
@@ -64,6 +65,7 @@ export class ConfigFactory {
 
   static validate(name: string, value: string) {
     const setting = ConfigFactory.settingsMap[name];
+
     if (setting?.validate) {
       return setting.validate(value, setting);
     }

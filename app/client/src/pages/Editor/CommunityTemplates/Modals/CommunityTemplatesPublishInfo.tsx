@@ -2,10 +2,10 @@ import {
   COMMUNITY_TEMPLATES,
   LEARN_MORE,
   createMessage,
-} from "@appsmith/constants/messages";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { Button, Icon, Text } from "design-system";
+} from "ee/constants/messages";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { Button, Icon, Text } from "@appsmith/ads";
 import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
@@ -25,6 +25,7 @@ const CommunityTemplatesPublishInfo = ({
     onPublishClick();
   };
   const dispatch = useDispatch();
+
   useEffect(() => {
     dispatch({
       type: ReduxActionTypes.SET_PUBLISHED_APP_TO_COMMUNITY_PORTAL,
@@ -117,6 +118,7 @@ const UnPublishedAppInstructions = ({
 };
 
 let windowReference: Window | null = null;
+
 function openUrlInNewPage(url: string) {
   // If the tab is opened focus and reload else open in new tab
   if (!windowReference || windowReference.closed) {

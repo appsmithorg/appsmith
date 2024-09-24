@@ -3,7 +3,7 @@ import type { Ref } from "react";
 import React from "react";
 import styled from "styled-components";
 
-import { createMessage, ENTER_AUDIO_URL } from "@appsmith/constants/messages";
+import { createMessage, ENTER_AUDIO_URL } from "ee/constants/messages";
 
 export interface AudioComponentProps {
   url?: string;
@@ -43,6 +43,7 @@ export default function AudioComponent(props: AudioComponentProps) {
     playing,
     url,
   } = props;
+
   return url ? (
     <ReactPlayer
       config={{

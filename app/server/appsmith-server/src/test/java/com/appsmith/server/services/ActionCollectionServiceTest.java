@@ -224,7 +224,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        StepVerifier.create(layoutCollectionService.createCollection(actionCollectionDTO, null))
+        StepVerifier.create(layoutCollectionService.createCollection(actionCollectionDTO))
                 .assertNext(actionCollectionDTO1 -> {
                     assertThat(actionCollectionDTO1.getApplicationId()).isEqualTo(testApp.getId());
                     assertThat(actionCollectionDTO1.getWorkspaceId()).isEqualTo(testApp.getWorkspaceId());
@@ -263,7 +263,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setDeletedAt(Instant.now());
-        layoutCollectionService.createCollection(actionCollectionDTO, null).block();
+        layoutCollectionService.createCollection(actionCollectionDTO).block();
         ActionCollection createdActionCollection = actionCollectionRepository
                 .findByApplicationId(createdApplication.getId(), READ_ACTIONS, null)
                 .blockFirst();
@@ -302,7 +302,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setPluginType(PluginType.JS);
         actionCollectionDTO.setDeletedAt(Instant.now());
-        layoutCollectionService.createCollection(actionCollectionDTO, null).block();
+        layoutCollectionService.createCollection(actionCollectionDTO).block();
         ActionCollection createdActionCollection = actionCollectionRepository
                 .findByApplicationId(createdApplication.getId(), READ_ACTIONS, null)
                 .blockFirst();
@@ -345,7 +345,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setPluginType(PluginType.JS);
 
         Mono<ActionCollection> actionCollectionMono = layoutCollectionService
-                .createCollection(actionCollectionDTO, null)
+                .createCollection(actionCollectionDTO)
                 .flatMap(
                         createdCollection -> actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS));
 
@@ -422,9 +422,8 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO1.setPluginType(PluginType.JS);
         actionCollectionDTO1.setBody("export default { x: 1 }");
 
-        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService
-                .createCollection(actionCollectionDTO1, null)
-                .block();
+        final ActionCollectionDTO createdActionCollectionDTO1 =
+                layoutCollectionService.createCollection(actionCollectionDTO1).block();
 
         ActionCollectionDTO actionCollectionDTO2 = new ActionCollectionDTO();
         actionCollectionDTO2.setName("testCollection2");
@@ -440,9 +439,8 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO2.setPluginType(PluginType.JS);
         actionCollectionDTO2.setBody("export default { x: testCollection1.testAction1() }");
 
-        final ActionCollectionDTO createdActionCollectionDTO2 = layoutCollectionService
-                .createCollection(actionCollectionDTO2, null)
-                .block();
+        final ActionCollectionDTO createdActionCollectionDTO2 =
+                layoutCollectionService.createCollection(actionCollectionDTO2).block();
 
         RefactorEntityNameDTO refactorActionNameDTO = new RefactorEntityNameDTO();
         refactorActionNameDTO.setEntityType(EntityType.JS_ACTION);
@@ -458,9 +456,8 @@ public class ActionCollectionServiceTest {
         refactorActionNameDTO.setOldName("testAction1");
         refactorActionNameDTO.setNewName("newTestAction1");
 
-        final LayoutDTO layoutDTO = refactoringService
-                .refactorEntityName(refactorActionNameDTO, null)
-                .block();
+        final LayoutDTO layoutDTO =
+                refactoringService.refactorEntityName(refactorActionNameDTO).block();
 
         assert createdActionCollectionDTO2 != null;
         final Mono<ActionCollection> actionCollectionMono =
@@ -517,9 +514,8 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO1.setPluginType(PluginType.JS);
         actionCollectionDTO1.setBody("export default { x: 1 }");
 
-        final ActionCollectionDTO createdActionCollectionDTO1 = layoutCollectionService
-                .createCollection(actionCollectionDTO1, null)
-                .block();
+        final ActionCollectionDTO createdActionCollectionDTO1 =
+                layoutCollectionService.createCollection(actionCollectionDTO1).block();
 
         ActionCollectionDTO actionCollectionDTO2 = new ActionCollectionDTO();
         actionCollectionDTO2.setName("testCollection2");
@@ -535,9 +531,8 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO2.setPluginType(PluginType.JS);
         actionCollectionDTO2.setBody("export default { x: Api1.run() }");
 
-        final ActionCollectionDTO createdActionCollectionDTO2 = layoutCollectionService
-                .createCollection(actionCollectionDTO2, null)
-                .block();
+        final ActionCollectionDTO createdActionCollectionDTO2 =
+                layoutCollectionService.createCollection(actionCollectionDTO2).block();
 
         RefactorEntityNameDTO refactorActionNameDTO = new RefactorEntityNameDTO();
         refactorActionNameDTO.setEntityType(EntityType.JS_ACTION);
@@ -553,9 +548,8 @@ public class ActionCollectionServiceTest {
         refactorActionNameDTO.setOldName("run");
         refactorActionNameDTO.setNewName("newRun");
 
-        final LayoutDTO layoutDTO = refactoringService
-                .refactorEntityName(refactorActionNameDTO, null)
-                .block();
+        final LayoutDTO layoutDTO =
+                refactoringService.refactorEntityName(refactorActionNameDTO).block();
 
         assert createdActionCollectionDTO2 != null;
         final Mono<ActionCollection> actionCollectionMono =
@@ -614,9 +608,8 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService
-                .createCollection(actionCollectionDTO, null)
-                .block();
+        ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
         assert createdActionCollectionDTO != null;
         assert createdActionCollectionDTO.getId() != null;
         String createdActionCollectionId = createdActionCollectionDTO.getId();
@@ -626,7 +619,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.getActions().get(0).getActionConfiguration().setBody("updatedBody");
 
         ActionCollectionDTO updatedActionCollectionDTO = layoutCollectionService
-                .updateUnpublishedActionCollection(createdActionCollectionId, actionCollectionDTO, null)
+                .updateUnpublishedActionCollection(createdActionCollectionId, actionCollectionDTO)
                 .block();
         assert updatedActionCollectionDTO != null;
         assert updatedActionCollectionDTO.getId() != null;
@@ -690,9 +683,8 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        final ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService
-                .createCollection(actionCollectionDTO, null)
-                .block();
+        final ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
         assert createdActionCollectionDTO != null;
 
         final Mono<List<ActionCollectionViewDTO>> viewModeCollectionsMono = applicationPageService

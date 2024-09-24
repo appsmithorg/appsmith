@@ -32,18 +32,25 @@ const totalWidth = 31;
 const flexLayers: FlexLayer[] = [];
 
 type ValueType =
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   | Promise<any>
-  | SelectEffect
+  | SelectEffect // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   | CallEffect<any>
-  | CallEffect<void>
-  | AllEffect<any>
-  | PutEffect<any>
+  | CallEffect<void> // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | AllEffect<any> // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | PutEffect<any> // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   | any;
 
 type GeneratorType = Generator<ValueType, void, unknown>;
 
 describe("pasteBuildingBlockWidgetsSaga", () => {
   const copiedWidgetsResponse = { widgets: copiedWidgets, flexLayers };
+
   it("1. should handle pasting into a valid parent widget", () => {
     const generator: GeneratorType = pasteBuildingBlockWidgetsSaga(
       gridPosition,
@@ -53,6 +60,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
 
     // Step 1: call getCopiedWidgets()
     let result = generator.next();
+
     expect(result.value).toEqual(getCopiedWidgets());
 
     // Step 2: select getWidgets
@@ -61,6 +69,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
 
     // Step 3: select getIsAutoLayoutMobileBreakPoint
     const initialCanvasWidgets = {}; // Mock initial canvas widgets
+
     result = generator.next(initialCanvasWidgets);
     expect(result.value).toEqual(select(getIsAutoLayoutMobileBreakPoint));
 
@@ -148,6 +157,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
     generator.next();
     // Introduce an error by throwing one manually
     const error = new Error("Something went wrong");
+
     try {
       generator.throw(error);
     } catch (err) {

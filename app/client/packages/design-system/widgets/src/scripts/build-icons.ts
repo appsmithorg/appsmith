@@ -3,13 +3,12 @@ import fs from "fs-extra";
 import prettier from "prettier";
 import kebabCase from "lodash/kebabCase";
 
-import * as ICONS from "@tabler/icons-react";
+import { icons } from "@tabler/icons-react";
 
 let content = `export const ICONS = {`;
 
-Object.keys(ICONS)
+Object.keys(icons)
   .filter((name) => name !== "createReactComponent")
-  .filter((name) => !name.endsWith("Filled"))
   .map((name) => {
     content += `\n  "${kebabCase(name).replace("icon-", "")}": "${name}",`;
   });

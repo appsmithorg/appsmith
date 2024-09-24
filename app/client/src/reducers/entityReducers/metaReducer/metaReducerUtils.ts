@@ -2,13 +2,13 @@ import type {
   WidgetEntity,
   WidgetEntityConfig,
   PropertyOverrideDependency,
-} from "@appsmith/entities/DataTree/types";
-import { klona } from "klona";
+} from "ee/entities/DataTree/types";
 import type { MetaState, WidgetMetaState } from ".";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import produce from "immer";
 import { set, unset } from "lodash";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 export function getMetaWidgetResetObj(
   evaluatedWidget: WidgetEntity | undefined,
@@ -20,18 +20,25 @@ export function getMetaWidgetResetObj(
   // evaluatedWidget is widget data inside dataTree, this will have latest default values of widget
   if (evaluatedWidget) {
     const { propertyOverrideDependency } = evaluatedWidgetConfig;
+
     // propertyOverrideDependency has defaultProperty name for each meta property of widget
     Object.entries(
       propertyOverrideDependency as PropertyOverrideDependency,
     ).map(([propertyName, dependency]) => {
       const defaultPropertyValue =
         dependency.DEFAULT && evaluatedWidget[dependency.DEFAULT];
+
       if (defaultPropertyValue !== undefined) {
         // cloning data to avoid mutation
-        resetMetaObj[propertyName] = klona(defaultPropertyValue);
+
+        resetMetaObj[propertyName] = klonaRegularWithTelemetry(
+          defaultPropertyValue,
+          "metaReducerUtils.getMetaWidgetResetObj",
+        );
       }
     });
   }
+
   return resetMetaObj;
 }
 
@@ -48,7 +55,10 @@ export function setMetaValuesOnResetFromEval(
 
   if (!evalMetaUpdates.length) return state;
 
-  const newMetaState = klona(state);
+  const newMetaState = klonaRegularWithTelemetry(
+    state,
+    "metaReducerUtils.setMetaValuesOnResetFromEval",
+  );
 
   evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
     if (value === undefined) {
@@ -76,6 +86,7 @@ export function getNextMetaStateWithUpdates(
     evalMetaUpdates.forEach(({ metaPropertyPath, value, widgetId }) => {
       set(draftMetaState, [widgetId, ...metaPropertyPath], value);
     });
+
     return draftMetaState;
   });
 

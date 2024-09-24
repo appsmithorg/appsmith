@@ -1,7 +1,7 @@
 import type {
   TYPOGRAPHY_VARIANTS,
   TYPOGRAPHY_FONT_WEIGHTS,
-} from "@design-system/theming";
+} from "@appsmith/wds-theming";
 import type { ReactNode } from "react";
 import type { COLORS } from "../../../shared";
 
@@ -40,6 +40,8 @@ export interface TextProps {
   title?: string;
   /** Sets the HTML [id](https://developer.mozilla.org/en-US/docs/Web/API/Element/id) for the element. */
   id?: string;
-  /** extra style properties to pass to the componetn */
+  /** extra style properties to pass to the component */
   style?: React.CSSProperties;
+  /** The word-break CSS property sets whether line breaks appear wherever the text would otherwise overflow its content box. */
+  wordBreak?: "break-word" | "break-all";
 }

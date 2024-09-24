@@ -11,6 +11,8 @@ export function defaultOptionValueValidation(
   _: LoDashStatic,
 ): ValidationResponse {
   let isValid = false;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let parsed: any[] = [];
   let message = { name: "", message: "" };
 
@@ -23,6 +25,8 @@ export function defaultOptionValueValidation(
   /*
    * Function to check if the object has `label` and `value`
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const hasLabelValue = (obj: any) => {
     return (
       _.isPlainObject(obj) &&
@@ -51,6 +55,7 @@ export function defaultOptionValueValidation(
        * when value is "['green', 'red']", "[{label: 'green', value: 'green'}]"
        */
       const parsedValue = JSON.parse(value);
+
       // Only parse value if resulting value is an array or string
       if (Array.isArray(parsedValue) || _.isString(parsedValue)) {
         value = parsedValue;

@@ -1,23 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { ImageInput } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
-import { Text } from "design-system";
-import {
-  createMessage,
-  APP_NAVIGATION_SETTING,
-} from "@appsmith/constants/messages";
+import { Text } from "@appsmith/ads";
+import { createMessage, APP_NAVIGATION_SETTING } from "ee/constants/messages";
 import type { UpdateSetting } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { NavigationSetting } from "constants/AppConstants";
 import { logoImageValidation } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/utils";
 import {
   getIsDeletingNavigationLogo,
   getIsUploadingNavigationLogo,
-} from "@appsmith/selectors/applicationSelectors";
-import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { DeleteLogoButton } from "@appsmith/pages/Editor/NavigationSettings/DeleteLogoButton";
+} from "ee/selectors/applicationSelectors";
+import { getTenantConfig } from "ee/selectors/tenantSelectors";
+import { getAppsmithConfigs } from "ee/configs";
+import { DeleteLogoButton } from "ee/pages/Editor/NavigationSettings/DeleteLogoButton";
 
 export interface ButtonGroupSettingProps {
   updateSetting: UpdateSetting;
@@ -38,16 +35,20 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
   useEffect(() => {
     if (logoAssetId?.length) {
       setLogoUrl(`/api/v1/assets/${logoAssetId}`);
+
       return;
     } else if (cloudHosting) {
       setLogoUrl(null);
+
       return;
     } else if (!cloudHosting && tenantConfig?.brandLogoUrl) {
       setLogoUrl(tenantConfig.brandLogoUrl);
+
       return;
     }
 
     setLogoUrl(null);
+
     return;
   }, [logoAssetId, tenantConfig, cloudHosting]);
 

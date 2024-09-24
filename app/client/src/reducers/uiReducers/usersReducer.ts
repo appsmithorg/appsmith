@@ -1,15 +1,15 @@
 import _ from "lodash";
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 
 import type { User } from "constants/userConstants";
 import { DefaultCurrentUserDetails } from "constants/userConstants";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 import type { OverriddenFeatureFlags } from "utils/hooks/useFeatureFlagOverride";
 
 const initialState: UsersReduxState = {
@@ -44,29 +44,19 @@ const usersReducer = createReducer(initialState, {
       fetchingUser: true,
     },
   }),
-  [ReduxActionTypes.PROP_PANE_MOVED]: (
-    state: UsersReduxState,
-    action: ReduxAction<PropertyPanePositionConfig>,
-  ) => ({
-    ...state,
-    propPanePreferences: {
-      isMoved: true,
-      position: {
-        ...action.payload.position,
-      },
-    },
-  }),
   [ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS]: (
     state: UsersReduxState,
     action: ReduxAction<User>,
   ) => {
     const users = [...state.users];
     const userIndex = _.findIndex(users, { username: action.payload.username });
+
     if (userIndex > -1) {
       users[userIndex] = action.payload;
     } else {
       users.push(action.payload);
     }
+
     return {
       ...state,
       loadingStates: {
@@ -83,11 +73,13 @@ const usersReducer = createReducer(initialState, {
   ) => {
     const users = [...state.users];
     const userIndex = _.findIndex(users, { username: action.payload.username });
+
     if (userIndex > -1) {
       users[userIndex] = action.payload;
     } else {
       users.push(action.payload);
     }
+
     return {
       ...state,
       loadingStates: {
@@ -116,11 +108,13 @@ const usersReducer = createReducer(initialState, {
   ) => {
     const users = [...state.list];
     const userIndex = _.findIndex(users, { username: action.payload.username });
+
     if (userIndex > -1) {
       users[userIndex] = action.payload;
     } else {
       users.push(action.payload);
     }
+
     return {
       ...state,
       loadingStates: {
@@ -141,13 +135,6 @@ const usersReducer = createReducer(initialState, {
   [ReduxActionErrorTypes.FETCH_USER_ERROR]: (state: UsersReduxState) => ({
     ...state,
     loadingStates: { ...state.loadingStates, fetchingUser: false },
-  }),
-  [ReduxActionTypes.SET_CURRENT_USER_SUCCESS]: (
-    state: UsersReduxState,
-    action: ReduxAction<User>,
-  ) => ({
-    ...state,
-    current: action.payload,
   }),
   [ReduxActionTypes.LOGOUT_USER_SUCCESS]: (
     state: UsersReduxState,

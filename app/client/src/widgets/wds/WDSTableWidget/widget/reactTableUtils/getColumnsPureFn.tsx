@@ -11,12 +11,18 @@ import type { ReactTableColumnProps } from "../../component/Constants";
 import memoizeOne from "memoize-one";
 
 export type getColumns = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderCell: any,
   columnWidthMap: { [key: string]: number } | undefined,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   orderedTableColumns: any,
   componentWidth: number,
   renderMode: RenderMode,
 ) => ReactTableColumnProps[];
+
+const BORDER_WIDTH = 1;
 
 //TODO: (Vamsi) need to unit test this function
 
@@ -33,6 +39,8 @@ export const getColumnsPureFn: getColumns = (
   let totalColumnWidth = 0;
 
   if (isArray(orderedTableColumns)) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     orderedTableColumns.forEach((column: any) => {
       const isHidden = !column.isVisible;
 
@@ -43,6 +51,8 @@ export const getColumnsPureFn: getColumns = (
             ? column.label
             : DEFAULT_COLUMN_NAME,
         alias: column.alias,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         accessor: (row: any) => row[column.alias],
         width: columnWidthMap[column.id] || DEFAULT_COLUMN_WIDTH,
         minWidth: COLUMN_MIN_WIDTH,
@@ -84,6 +94,7 @@ export const getColumnsPureFn: getColumns = (
   }
 
   const lastColumnIndex = columns.length - 1;
+
   if (totalColumnWidth < componentWidth) {
     /*
       This "if" block is responsible for upsizing the last column width
@@ -93,8 +104,11 @@ export const getColumnsPureFn: getColumns = (
       const lastColumnWidth =
         columns[lastColumnIndex].width || DEFAULT_COLUMN_WIDTH;
       const remainingWidth = componentWidth - totalColumnWidth;
+
       // Adding the remaining width i.e. space left towards the right, to the last column width
-      columns[lastColumnIndex].width = lastColumnWidth + remainingWidth;
+      // Note: subtracting 2 * BORDER_WIDTH to account for the border width, as componentWidth includes the border width as well
+      columns[lastColumnIndex].width =
+        lastColumnWidth + remainingWidth - 2 * BORDER_WIDTH;
     }
   } else if (totalColumnWidth > componentWidth) {
     /*
@@ -102,9 +116,11 @@ export const getColumnsPureFn: getColumns = (
       if the last column spills over resulting in horizontal scroll
     */
     const extraWidth = totalColumnWidth - componentWidth;
+
     if (columns[lastColumnIndex]) {
       const lastColWidth =
         columns[lastColumnIndex].width || DEFAULT_COLUMN_WIDTH;
+
       /*
       Below if condition explanation:
       Condition 1: (lastColWidth > COLUMN_MIN_WIDTH)
@@ -115,6 +131,7 @@ export const getColumnsPureFn: getColumns = (
     */
       if (lastColWidth > COLUMN_MIN_WIDTH && extraWidth < lastColWidth) {
         const availableWidthForLastColumn = lastColWidth - extraWidth;
+
         /*
         Below we are making sure last column width doesn't go lower than COLUMN_MIN_WIDTH again
         as availableWidthForLastColumn might go lower than COLUMN_MIN_WIDTH in some cases
@@ -133,6 +150,7 @@ export const getColumnsPureFn: getColumns = (
       columns,
       (col) => col.sticky === StickyType.RIGHT,
     );
+
     if (rightFrozenColumnIdx !== -1) {
       columns.splice(rightFrozenColumnIdx, 0, ...hiddenColumns);
     } else {
@@ -153,6 +171,7 @@ export const getMemoiseGetColumnsWithLocalStorageFn = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     (widgetLocalStorageState) => {
       memoisedGetColumns.clear();
+
       return memoisedGetColumns as getColumns;
     },
     isEqual,

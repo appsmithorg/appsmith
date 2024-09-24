@@ -43,6 +43,8 @@ export const useRenderBlocksOnCanvas = (
       scrollParent &&
       isCurrentDraggedCanvas
     ) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
       const topOffset = getAbsolutePixels(stickyCanvasRef.current.style.top);
       const leftOffset = getAbsolutePixels(stickyCanvasRef.current.style.left);
@@ -89,13 +91,17 @@ export const useRenderBlocksOnCanvas = (
       snapColumnSpace,
       snapRowSpace,
     );
+
     if (
       slidingArenaRef.current &&
       isCurrentDraggedCanvas &&
       canvasIsDragging &&
       stickyCanvasRef.current
     ) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
+
       canvasCtx.save();
       canvasCtx.clearRect(
         0,
@@ -106,6 +112,7 @@ export const useRenderBlocksOnCanvas = (
       canvasCtx.beginPath();
       isCurrUpdatingRows = false;
       canvasCtx.transform(canvasZoomLevel, 0, 0, canvasZoomLevel, 0, 0);
+
       if (canvasIsDragging) {
         modifiedRectanglesToDraw.forEach((each) => {
           drawBlockOnCanvas(each, scrollParent);
@@ -124,6 +131,7 @@ export const useRenderBlocksOnCanvas = (
           isMainContainer || isWidgetScrolling
             ? scrollParent?.scrollTop || 0
             : 0;
+
         if (
           !isMainContainer &&
           totalScrollTop &&
@@ -136,10 +144,12 @@ export const useRenderBlocksOnCanvas = (
         if (canvasCtx.roundRect)
           canvasCtx.roundRect(posX, posY - val, width, height, 4);
         else canvasCtx.rect(posX, posY - val, width, height);
+
         canvasCtx.fill();
         canvasCtx.stroke();
         canvasCtx.save();
       }
+
       canvasCtx.restore();
     }
 

@@ -1,9 +1,8 @@
 import type { PageErrorMessageProps } from "pages/common/ErrorPages/Components/PageErrorMessage";
 
-export function createMessage(
-  format: (...strArgs: any[]) => string,
-  ...args: any[]
-) {
+export // TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createMessage(format: (...strArgs: any[]) => string, ...args: any[]) {
   return format(...args);
 }
 
@@ -365,8 +364,8 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
   `${dsName} datasource updated successfully`;
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
-export const EDIT_DATASOURCE = () => "Edit datasource";
-export const SAVE_DATASOURCE = () => "Save as datasource";
+export const EDIT_DATASOURCE = () => "Edit";
+export const SAVE_DATASOURCE = () => "Save";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
@@ -826,6 +825,7 @@ export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 export const CONFIGURE_GIT = () => "Configure Git";
 export const IMPORT_APP = () => "Import app via Git";
 export const SETTINGS_GIT = () => "Settings";
+export const IMPORT_APP_CTA = () => "Import app";
 
 export const GIT_CONNECTION = () => "Git connection";
 export const GIT_IMPORT = () => "Git import";
@@ -1724,7 +1724,7 @@ export const END_DESCRIPTION = () =>
   "Inspect properties of queries, components, etc.";
 export const END_BUTTON_TEXT = () => "Start building an app";
 
-export const CONTEXT_EDIT_NAME = () => "Edit name";
+export const CONTEXT_RENAME = () => "Rename";
 export const CONTEXT_SHOW_BINDING = () => "Show bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
@@ -2312,9 +2312,17 @@ export const EDITOR_PANE_TEXTS = {
   query_create_tab_title: () => "Create new query from",
   widgets_create_tab_title: () => "Drag & drop UI elements",
   js_create_tab_title: () => "Create JS object from",
-  queries_create_from_existing: () => "From existing datasource",
-  queries_create_new: () => "New API",
+  js_create_modules: () => "JS modules (Beta)",
+  queries_create_from_existing: () => "Datasources",
+  queries_create_new: () => "Quick actions",
+  queries_create_modules: () => "Query modules (Beta)",
   loading_building_blocks: () => "Loading building blocks",
+  empty_search_result: (type: string) => `No ${type} match your search`,
+  search_objects: {
+    jsObject: () => "JS object",
+    queries: () => "queries",
+    datasources: () => "datasources",
+  },
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
@@ -2493,3 +2501,11 @@ export const PAGE_ENTITY_NAME = "Page";
 
 export const EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON = () =>
   "Create a datasource to power your app with data.";
+
+export const FIELD_REQUIRED_MESSAGE = () => `This field is required`;
+
+export const PREPARED_STATEMENT_WARNING = {
+  MESSAGE: () =>
+    "Prepared Statements are currently enabled, which may be causing the query error. Turn them off and try running the query again",
+  LINK: () => "Open settings",
+};

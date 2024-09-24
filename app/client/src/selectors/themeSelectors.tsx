@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { Theme } from "constants/DefaultTheme";
 import { dark, light, theme } from "constants/DefaultTheme";
 
@@ -19,6 +19,7 @@ export const getThemeDetails = (
 
 export const getTheme = (themeMode: ThemeMode) => {
   const colors = themeMode === ThemeMode.LIGHT ? light : dark;
+
   return { ...theme, colors: { ...theme.colors, ...colors } };
 };
 

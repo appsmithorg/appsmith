@@ -10,6 +10,8 @@ describe("paste destination utils tests", () => {
   });
   it("should correctly identify the parent hierarchy for a copied widget when no widget is selected", () => {
     const { allWidgets, copiedWidgets } = generateMockDataWithSectionAndZone();
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const selectedWidget: any = allWidgets[MAIN_CONTAINER_WIDGET_ID];
     const generator = getDestinedParent(
       allWidgets,
@@ -17,6 +19,7 @@ describe("paste destination utils tests", () => {
       selectedWidget,
     );
     const result = generator.next().value;
+
     expect(result.parentOrder).toEqual([MAIN_CONTAINER_WIDGET_ID]);
     // correctly identifies the parent hierarchy for a single copied widget
     expect(result.alignment).toEqual(FlexLayerAlignment.Start);
@@ -37,6 +40,7 @@ describe("paste destination utils tests", () => {
       selectedWidget,
     );
     const result = generator.next().value;
+
     // correctly identifies the parent hierarchy for copied widgets
     expect(result.parentOrder).toEqual(["widget-mock", "zone-mock"]);
     expect(result.alignment).toEqual(FlexLayerAlignment.Start);

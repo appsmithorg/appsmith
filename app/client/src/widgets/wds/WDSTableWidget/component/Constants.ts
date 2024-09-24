@@ -123,6 +123,8 @@ export interface ReactTableFilter {
   column: string;
   operator: Operator;
   condition: Condition;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
 }
 
@@ -249,6 +251,8 @@ export interface TableColumnProps {
   id: string;
   Header: string;
   alias: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   accessor: any;
   width?: number;
   minWidth: number;
@@ -261,6 +265,8 @@ export interface TableColumnProps {
   sticky?: StickyType;
 }
 export interface ReactTableColumnProps extends TableColumnProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Cell: (props: any) => JSX.Element;
 }
 
@@ -370,76 +376,120 @@ export interface ColumnProperties
 }
 
 export const ConditionFunctions: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: (a: any, b: any) => boolean;
 } = {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isExactly: (a: any, b: any) => {
     return a.toString() === b.toString();
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   empty: (a: any) => {
     return a === "" || a === undefined || a === null;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   notEmpty: (a: any) => {
     return a !== "" && a !== undefined && a !== null;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   notEqualTo: (a: any, b: any) => {
     return a.toString() !== b.toString();
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isEqualTo: (a: any, b: any) => {
     return a.toString() === b.toString();
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lessThan: (a: any, b: any) => {
     const numericB = Number(b);
     const numericA = Number(a);
+
     return numericA < numericB;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lessThanEqualTo: (a: any, b: any) => {
     const numericB = Number(b);
     const numericA = Number(a);
+
     return numericA <= numericB;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   greaterThan: (a: any, b: any) => {
     const numericB = Number(b);
     const numericA = Number(a);
+
     return numericA > numericB;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   greaterThanEqualTo: (a: any, b: any) => {
     const numericB = Number(b);
     const numericA = Number(a);
+
     return numericA >= numericB;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   contains: (a: any, b: any) => {
     if (isString(a) && isString(b)) {
       return a.includes(b);
     }
+
     return false;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   doesNotContain: (a: any, b: any) => {
     if (isString(a) && isString(b)) {
       return !a.includes(b);
     }
+
     return false;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   startsWith: (a: any, b: any) => {
     if (isString(a) && isString(b)) {
       return a.indexOf(b) === 0;
     }
+
     return false;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   endsWith: (a: any, b: any) => {
     if (isString(a) && isString(b)) {
       return a.length === a.lastIndexOf(b) + b.length;
     }
+
     return false;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   is: (a: any, b: any) => {
     return moment(a).isSame(moment(b), "d");
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isNot: (a: any, b: any) => {
     return !moment(a).isSame(moment(b), "d");
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isAfter: (a: any, b: any) => {
     return !moment(a).isAfter(moment(b), "d");
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isBefore: (a: any, b: any) => {
     return !moment(a).isBefore(moment(b), "d");
   },

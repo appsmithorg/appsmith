@@ -1,45 +1,36 @@
 import { debounce } from "lodash";
 import styled from "styled-components";
 import { isValidColor } from "utils/helpers";
-import { FONT_METRICS } from "@design-system/theming";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useRef, useState } from "react";
 import type { ThemeSetting } from "constants/AppConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { updateApplication } from "@appsmith/actions/applicationActions";
-import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
-import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
+import { updateApplication } from "ee/actions/applicationActions";
+import type { UpdateApplicationPayload } from "ee/api/ApplicationApi";
+import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 import {
   LeftIcon,
   StyledInputGroup,
 } from "components/propertyControls/ColorPickerComponentV2";
-import { SegmentedControl, Tooltip, Select, Option, Icon } from "design-system";
+import { SegmentedControl, Tooltip, Icon } from "@appsmith/ads";
 
 import styles from "./styles.module.css";
 
 import {
   THEME_SETTINGS_BORDER_RADIUS_OPTIONS,
   THEME_SETTINGS_DENSITY_OPTIONS,
-  THEME_SETTINGS_ICON_STYLE_OPTIONS,
   THEME_SETTINGS_SIZING_OPTIONS,
   THEME_SETTINGS_COLOR_MODE_OPTIONS,
   THEME_SETTING_COLOR_PRESETS,
 } from "./constants";
 import SettingSection from "../ThemePropertyPane/SettingSection";
+import { AppMaxWidthSelect } from "./components/AppMaxWidthSelect";
 
 const SubText = styled.p`
   font-size: var(--ads-v2-font-size-4);
   line-height: 1rem;
   font-weight: var(--ads-v2-font-weight-normal);
   color: var(--ads-v2-color-fg);
-`;
-
-const FontText = styled.div`
-  border-radius: var(--ads-v2-border-radius);
-  border: 1px solid var(--ads-v2-color-border);
-  font-size: 11px;
-  height: 18px;
-  width: 18px;
 `;
 
 const buttonGroupOptions = THEME_SETTINGS_BORDER_RADIUS_OPTIONS.map(
@@ -83,7 +74,7 @@ function WDSThemePropertyPane() {
 
       dispatch(updateApplication(applicationId, payload));
     },
-    [updateApplication],
+    [updateApplication, dispatch],
   );
 
   const debouncedOnColorChange = useCallback(
@@ -139,7 +130,10 @@ function WDSThemePropertyPane() {
             type="text"
             value={accentColor}
           />
-          <div className={styles["presets-list"]}>
+          <div
+            className={styles["presets-list"]}
+            data-testid="t--anvil-theme-settings-accent-color-list"
+          >
             {THEME_SETTING_COLOR_PRESETS[theme.colorMode].map((color) => (
               <button
                 data-selected={theme.accentColor === color ? "" : undefined}
@@ -181,47 +175,6 @@ function WDSThemePropertyPane() {
         </section>
       </SettingSection>
 
-      <SettingSection
-        className="px-4 py-3 border-t "
-        isDefaultOpen
-        title="Typography"
-      >
-        <section className="space-y-2">
-          <Select
-            dropdownClassName="t--theme-font-dropdown"
-            onSelect={(value: string) => {
-              updateTheme({
-                ...theme,
-                fontFamily: value,
-              });
-            }}
-            value={theme.fontFamily}
-          >
-            {Object.keys({
-              "System Default": "System Default",
-              ...FONT_METRICS,
-            })
-              .filter((item) => {
-                return (
-                  ["-apple-system", "BlinkMacSystemFont", "Segoe UI"].includes(
-                    item,
-                  ) === false
-                );
-              })
-              .map((option, index) => (
-                <Option key={index} value={option}>
-                  <div className="flex items-center w-full space-x-2 cursor-pointer">
-                    <FontText className="flex items-center justify-center">
-                      Aa
-                    </FontText>
-                    <div className="leading-normal">{option}</div>
-                  </div>
-                </Option>
-              ))}
-          </Select>
-        </section>
-      </SettingSection>
-
       {/* Dimensions */}
       <SettingSection
         className="px-4 py-3 border-t"
@@ -231,6 +184,7 @@ function WDSThemePropertyPane() {
         <section className="space-y-2">
           <SubText>Density</SubText>
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-density"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -245,6 +199,7 @@ function WDSThemePropertyPane() {
         <section className="space-y-2">
           <SubText>Sizing</SubText>
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-sizing"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -266,6 +221,7 @@ function WDSThemePropertyPane() {
       >
         <section className="space-y-2">
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-corners"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -279,24 +235,22 @@ function WDSThemePropertyPane() {
         </section>
       </SettingSection>
 
-      {/* Icon Style */}
+      {/* Layout Style */}
       <SettingSection
         className="px-4 py-3 border-t"
         isDefaultOpen
-        title="Icons"
+        title="Layout"
       >
         <section className="space-y-2">
-          <SubText>Icon Style</SubText>
-          <SegmentedControl
-            isFullWidth={false}
-            onChange={(value: string) => {
+          <SubText>Max app width</SubText>
+          <AppMaxWidthSelect
+            onSelect={(value) => {
               updateTheme({
                 ...theme,
-                iconStyle: value as ThemeSetting["iconStyle"],
+                appMaxWidth: value as ThemeSetting["appMaxWidth"],
               });
             }}
-            options={THEME_SETTINGS_ICON_STYLE_OPTIONS}
-            value={theme.iconStyle}
+            value={theme.appMaxWidth}
           />
         </section>
       </SettingSection>

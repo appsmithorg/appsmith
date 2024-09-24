@@ -11,11 +11,12 @@ export default class DSLController extends BaseController {
   migrateDSL(req: Request, res: Response) {
     try {
       const latestDSL = migrateDSLToLatest(req.body);
+
       super.sendResponse(res, latestDSL);
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        this.serverErrorMessage,
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR,
       );
@@ -28,7 +29,7 @@ export default class DSLController extends BaseController {
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        this.serverErrorMessage,
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR,
       );

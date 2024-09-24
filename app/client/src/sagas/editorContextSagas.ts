@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   setPanelPropertySectionState,
   setPanelSelectedPropertyTabIndex,
@@ -29,6 +29,7 @@ function* setEditorFieldFocus(action: ReduxAction<CodeEditorFocusState>) {
     if (!ignoredEntities.includes(entityInfo.entity)) {
       yield put(setFocusableInputField(key));
     }
+
     yield put(setCodeEditorCursorAction(key, cursorPosition));
   }
 }

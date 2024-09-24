@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import type { AppState } from "ee/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   Button,
   Text,
@@ -10,7 +10,7 @@ import {
   ModalContent,
   ModalBody,
   ModalFooter,
-} from "design-system";
+} from "@appsmith/ads";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
 import { setCrudInfoModalData } from "actions/crudInfoModalActions";
 
@@ -19,14 +19,14 @@ import {
   GEN_CRUD_INFO_DIALOG_SUBTITLE,
   GEN_CRUD_SUCCESS_MESSAGE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
 import {
   ProgressiveImage,
   Container as ProgressiveImageContainer,
-} from "design-system-old";
+} from "@appsmith/ads-old";
 import SuccessTick from "pages/common/SuccessTick";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 
 interface Props {
   crudInfoModalOpen: boolean;
@@ -145,6 +145,7 @@ function GenCRUDSuccessModal(props: Props) {
     const timerId = setTimeout(() => {
       setStep(STEP.SHOW_INFO);
     }, DELAY_TIME);
+
     return () => {
       if (timerId) clearTimeout(timerId);
     };

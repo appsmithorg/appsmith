@@ -7,10 +7,5 @@ import reactor.core.publisher.Mono;
 public interface ApiImporterCE {
 
     Mono<ActionDTO> importAction(
-            Object input,
-            CreatorContextType contextType,
-            String contextId,
-            String name,
-            String workspaceId,
-            String branchName);
+            Object input, CreatorContextType contextType, String branchedContextId, String name, String workspaceId);
 }

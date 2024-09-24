@@ -2,9 +2,9 @@ import type {
   DataTreeEntityConfig,
   JSActionEntityConfig,
   JSActionEntity as TJSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
+import { EvaluationSubstitutionType } from "ee/entities/DataTree/types";
 import type { TParsedJSProperty } from "@shared/ast";
 import { isJSFunctionProperty } from "@shared/ast";
 import { parseJSObject } from "@shared/ast";
@@ -56,6 +56,7 @@ export class JSLintEntityParser implements EntityParser {
   };
   parse(entity: TJSActionEntity, entityConfig: JSActionEntityConfig) {
     const jsEntityBody = entity.body || "";
+
     if (
       this.#parsedJSCache &&
       jsEntityBody === this.#parsedJSCache.parsedEntity.body
@@ -76,7 +77,9 @@ export class JSLintEntityParser implements EntityParser {
         parsedObject,
       )) {
         const { position, rawContent, type, value } = parsedPropertyDetails;
+
         parsedJSEntity[propertyName] = value;
+
         if (isJSFunctionProperty(parsedPropertyDetails)) {
           parsedJSEntityConfig[propertyName] = {
             isMarkedAsync: parsedPropertyDetails.isMarkedAsync,
@@ -93,6 +96,7 @@ export class JSLintEntityParser implements EntityParser {
         }
       }
     }
+
     // Save parsed entity to cache
     this.#parsedJSCache = {
       parsedEntity: parsedJSEntity,
@@ -101,8 +105,10 @@ export class JSLintEntityParser implements EntityParser {
 
     // update entity and entity config
     const requiredProps = ["actionId", "body", "ENTITY_TYPE"];
+
     for (const property of Object.keys(entity)) {
       if (requiredProps.includes(property)) continue;
+
       delete entity[property];
       delete entityConfig.reactivePaths[property];
     }
@@ -116,10 +122,12 @@ export class JSLintEntityParser implements EntityParser {
       const propertyConfig = parsedJSEntityConfig[
         propertyName
       ] as TParsedJSProperty;
+
       if (propertyConfig && isJSFunctionProperty(propertyConfig)) {
         entity[`${propertyName}.data`] = {};
       }
     }
+
     return this.#parsedJSCache;
   }
 
@@ -139,6 +147,7 @@ export class JSLintEntityParser implements EntityParser {
 
     if (this.#isValidJSBody(jsBody)) {
       const { parsedObject: parsedProperties, success } = parseJSObject(jsBody);
+
       if (success) {
         // When a parsed object has duplicate keys, the jsobject is invalid and its body (not individual properties) needs to be linted
         // so we return an empty object
@@ -147,12 +156,14 @@ export class JSLintEntityParser implements EntityParser {
         );
         const uniqueKeys = uniq(allPropertyKeys);
         const hasUniqueKeys = allPropertyKeys.length === uniqueKeys.length;
+
         if (hasUniqueKeys) {
           response = {
             success: true,
             parsedObject: parsedProperties.reduce(
               (acc: Record<string, TParsedJSProperty>, property) => {
                 const updatedProperties = { ...acc, [property.key]: property };
+
                 return updatedProperties;
               },
               {},
@@ -161,6 +172,7 @@ export class JSLintEntityParser implements EntityParser {
         }
       }
     }
+
     return response;
   };
 }

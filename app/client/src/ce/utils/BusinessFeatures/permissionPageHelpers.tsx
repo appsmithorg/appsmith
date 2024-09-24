@@ -1,46 +1,46 @@
 /* eslint-disable @typescript-eslint/no-restricted-imports */
 import { hasCreateWorkspacePermission as hasCreateWorkspacePermission_CE } from "ce/utils/permissionHelpers";
-import { hasCreateWorkspacePermission as hasCreateWorkspacePermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasCreateWorkspacePermission as hasCreateWorkspacePermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasCreateDatasourcePermission as hasCreateDatasourcePermission_CE } from "ce/utils/permissionHelpers";
-import { hasCreateDatasourcePermission as hasCreateDatasourcePermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasCreateDatasourcePermission as hasCreateDatasourcePermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasManageDatasourcePermission as hasManageDatasourcePermission_CE } from "ce/utils/permissionHelpers";
-import { hasManageDatasourcePermission as hasManageDatasourcePermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasManageDatasourcePermission as hasManageDatasourcePermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasManageWorkspaceDatasourcePermission as hasManageWorkspaceDatasourcePermission_CE } from "ce/utils/permissionHelpers";
-import { hasManageWorkspaceDatasourcePermission as hasManageWorkspaceDatasourcePermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasManageWorkspaceDatasourcePermission as hasManageWorkspaceDatasourcePermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasDeleteDatasourcePermission as hasDeleteDatasourcePermission_CE } from "ce/utils/permissionHelpers";
-import { hasDeleteDatasourcePermission as hasDeleteDatasourcePermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasDeleteDatasourcePermission as hasDeleteDatasourcePermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasCreateDatasourceActionPermission as hasCreateDatasourceActionPermission_CE } from "ce/utils/permissionHelpers";
-import { hasCreateDatasourceActionPermission as hasCreateDatasourceActionPermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasCreateDatasourceActionPermission as hasCreateDatasourceActionPermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasCreatePagePermission as hasCreatePagePermission_CE } from "ce/utils/permissionHelpers";
-import { hasCreatePagePermission as hasCreatePagePermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasCreatePagePermission as hasCreatePagePermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasManagePagePermission as hasManagePagePermission_CE } from "ce/utils/permissionHelpers";
-import { hasManagePagePermission as hasManagePagePermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasManagePagePermission as hasManagePagePermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasDeletePagePermission as hasDeletePagePermission_CE } from "ce/utils/permissionHelpers";
-import { hasDeletePagePermission as hasDeletePagePermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasDeletePagePermission as hasDeletePagePermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasCreateActionPermission as hasCreateActionPermission_CE } from "ce/utils/permissionHelpers";
-import { hasCreateActionPermission as hasCreateActionPermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasCreateActionPermission as hasCreateActionPermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasManageActionPermission as hasManageActionPermission_CE } from "ce/utils/permissionHelpers";
-import { hasManageActionPermission as hasManageActionPermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasManageActionPermission as hasManageActionPermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasDeleteActionPermission as hasDeleteActionPermission_CE } from "ce/utils/permissionHelpers";
-import { hasDeleteActionPermission as hasDeleteActionPermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasDeleteActionPermission as hasDeleteActionPermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasExecuteActionPermission as hasExecuteActionPermission_CE } from "ce/utils/permissionHelpers";
-import { hasExecuteActionPermission as hasExecuteActionPermission_EE } from "@appsmith/utils/permissionHelpers";
+import { hasExecuteActionPermission as hasExecuteActionPermission_EE } from "ee/utils/permissionHelpers";
 
 import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_CE } from "ce/utils/permissionHelpers";
-import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_EE } from "@appsmith/utils/permissionHelpers";
-import { EditorNames } from "@appsmith/hooks";
+import { hasAuditLogsReadPermission as hasAuditLogsReadPermission_EE } from "ee/utils/permissionHelpers";
+import { EditorNames } from "ee/hooks";
 
 export const getHasCreateWorkspacePermission = (
   isEnabled: boolean,

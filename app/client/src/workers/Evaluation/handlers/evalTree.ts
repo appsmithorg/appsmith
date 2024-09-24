@@ -6,14 +6,14 @@ import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
-import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
-import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
+import { makeEntityConfigsAsObjProperties } from "ee/workers/Evaluation/dataTreeUtils";
+import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
+import { serialiseToBigInt } from "ee/workers/Evaluation/evaluationUtils";
 import {
   CrashingError,
   getSafeToRenderDataTree,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
@@ -38,9 +38,13 @@ import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 export const CANVAS = "canvas";
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export let canvasWidgetsMeta: Record<string, any>;
 export let metaWidgetsCache: MetaWidgetsReduxState;
 export let canvasWidgets: CanvasWidgetsReduxState;
@@ -58,6 +62,8 @@ export function evalTree(
   let isCreateFirstTree = false;
   let dataTree: DataTree = {};
   let errors: EvalError[] = [];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let logs: any[] = [];
   let dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
@@ -82,6 +88,7 @@ export function evalTree(
   } = data;
 
   const unevalTree = __unevalTree__.unEvalTree;
+
   configTree = __unevalTree__.configTree as ConfigTree;
   canvasWidgets = widgets;
   canvasWidgetsMeta = widgetsMeta;
@@ -137,13 +144,16 @@ export function evalTree(
           allActionValidationConfig,
         );
       }
+
       if (shouldReplay && replayMap) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
+
       dataTreeEvaluator = new DataTreeEvaluator(
         widgetTypeConfigMap,
         allActionValidationConfig,
       );
+
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         dataTreeEvaluator.setAllActionValidationConfig(
           allActionValidationConfig,
@@ -160,6 +170,7 @@ export function evalTree(
             configTree,
           ),
       );
+
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;
       jsUpdates = setupFirstTreeResponse.jsUpdates;
@@ -182,7 +193,9 @@ export function evalTree(
           allActionValidationConfig,
         );
       }
+
       isCreateFirstTree = false;
+
       if (shouldReplay && replayMap) {
         replayMap[CANVAS]?.update({ widgets, theme });
       }
@@ -228,12 +241,15 @@ export function evalTree(
       );
       staleMetaIds = updateResponse.staleMetaIds;
     }
+
     dependencies = dataTreeEvaluator.inverseDependencies;
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();
     logs = dataTreeEvaluator.logs;
+
     if (shouldReplay && replayMap) {
       if (replayMap[CANVAS]?.logs) logs = logs.concat(replayMap[CANVAS]?.logs);
+
       replayMap[CANVAS]?.clearLogs();
     }
 
@@ -243,6 +259,7 @@ export function evalTree(
       errors = dataTreeEvaluator.errors;
       logs = dataTreeEvaluator.logs;
     }
+
     if (!(error instanceof CrashingError)) {
       errors.push({
         type: EvalErrorTypes.UNKNOWN_ERROR,
@@ -251,6 +268,7 @@ export function evalTree(
       // eslint-disable-next-line
       console.error(error);
     }
+
     dataTree = getSafeToRenderDataTree(
       makeEntityConfigsAsObjProperties(unevalTree, {
         sanitizeDataTree: false,
@@ -271,6 +289,7 @@ export function evalTree(
     webworkerTelemetry,
     () => {
       let updates;
+
       if (isNewTree) {
         try {
           //for new tree send the whole thing, don't diff at all
@@ -296,6 +315,7 @@ export function evalTree(
           completeEvalOrder,
         );
       }
+
       return updates;
     },
   );
@@ -335,6 +355,7 @@ export const evalTreeTransmissionErrorHandler: TransmissionErrorHandler = (
   responseData: unknown,
 ) => {
   const sanitizedData = JSON.parse(JSON.stringify(responseData));
+
   sendMessage.call(self, {
     messageId,
     messageType: MessageType.RESPONSE,
@@ -347,5 +368,6 @@ export function clearCache() {
   clearAllIntervals();
   JSObjectCollection.clear();
   DataStore.clear();
+
   return true;
 }

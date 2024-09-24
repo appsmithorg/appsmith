@@ -9,7 +9,7 @@ import {
   commitToRepoInit,
   fetchGitStatusSuccess,
 } from "actions/gitSyncActions";
-import { COMMITTING_AND_PUSHING_CHANGES } from "@appsmith/constants/messages";
+import { COMMITTING_AND_PUSHING_CHANGES } from "ee/constants/messages";
 
 describe("Tests for git deploy modal", () => {
   it("Should show progress bar for JS Library diffs", () => {
@@ -20,6 +20,7 @@ describe("Tests for git deploy modal", () => {
         </ThemeProvider>
       </Provider>,
     );
+
     store.dispatch(
       fetchGitStatusSuccess({
         modified: ["application.json"],
@@ -58,6 +59,7 @@ describe("Tests for git deploy modal", () => {
       }),
     );
     const diffText = component.getByText("1 js lib added");
+
     expect(diffText).toBeDefined();
     store.dispatch(
       commitToRepoInit({
@@ -66,6 +68,7 @@ describe("Tests for git deploy modal", () => {
       }),
     );
     const progressBar = component.getByText(COMMITTING_AND_PUSHING_CHANGES());
+
     expect(progressBar).toBeDefined();
   });
 });

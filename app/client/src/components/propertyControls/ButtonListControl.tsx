@@ -5,14 +5,14 @@ import { generateReactKey } from "utils/generators";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
-import { Button, Flex } from "design-system";
+import { Button, Flex } from "@appsmith/ads";
 import { ButtonPlacementTypes } from "components/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import {
   createMessage,
   BUTTON_WIDGET_DEFAULT_LABEL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 interface State {
   focusedIndex: number | null;
@@ -59,14 +59,20 @@ class ButtonListControl extends BaseControl<
     return orderBy(menuItems, ["index"], ["asc"]);
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateItems = (items: Array<Record<string, any>>) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const menuItems = items.reduce((obj: any, each: any, index: number) => {
       obj[each.id] = {
         ...each,
         index,
       };
+
       return obj;
     }, {});
+
     this.updateProperty(this.props.propertyName, menuItems);
   };
 
@@ -96,6 +102,8 @@ class ButtonListControl extends BaseControl<
           items={this.getMenuItems()}
           onEdit={this.onEdit}
           propertyPath={this.props.dataTreePath}
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           renderComponent={(props: any) =>
             DraggableListCard({
               ...props,
@@ -144,33 +152,44 @@ class ButtonListControl extends BaseControl<
           isVisible: isVisible,
         };
       }
+
       return item;
     });
+
     this.updateProperty(this.props.propertyName, updatedMenuItems);
   };
 
   deleteOption = (index: number) => {
     const menuItemsArray = this.getMenuItems();
+
     if (menuItemsArray.length === 1) return;
+
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updatedArray = menuItemsArray.filter((eachItem: any, i: number) => {
       return i !== index;
     });
     const updatedObj = updatedArray.reduce(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (obj: any, each: any, index: number) => {
         obj[each.id] = {
           ...each,
           index,
         };
+
         return obj;
       },
       {},
     );
+
     this.updateProperty(this.props.propertyName, updatedObj);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
     const menuItemsArray = this.getMenuItems();
     const itemId = menuItemsArray[index].id;
+
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,
@@ -236,6 +255,8 @@ class ButtonListControl extends BaseControl<
       // if the widget is a WDS_INLINE_BUTTONS_WIDGET, and button already have filled button variant in groupButtons,
       // then we should add a secondary button ( outlined button ) instead of simple button
       const filledButtonVariant = groupButtonsArray.find(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (groupButton: any) => groupButton.buttonVariant === "filled",
       );
 

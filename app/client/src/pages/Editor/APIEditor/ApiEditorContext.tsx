@@ -1,4 +1,4 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { PaginationField } from "api/ActionAPI";
 import React, { createContext, useMemo } from "react";
 
@@ -12,6 +12,8 @@ interface ApiEditorContextContextProps {
   handleDeleteClick: () => void;
   handleRunClick: (paginationField?: PaginationField) => void;
   actionRightPaneBackLink?: React.ReactNode;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settingsConfig: any;
   saveActionName?: (
     params: SaveActionNameParams,

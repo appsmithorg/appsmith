@@ -1,4 +1,4 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import React, { createContext, useMemo } from "react";
 
 interface SaveActionNameParams {
@@ -10,7 +10,7 @@ interface QueryEditorContextContextProps {
   moreActionsMenu?: React.ReactNode;
   onCreateDatasourceClick?: () => void;
   onEntityNotFoundBackClick?: () => void;
-  changeQueryPage?: (queryId: string) => void;
+  changeQueryPage?: (baseQueryId: string) => void;
   actionRightPaneBackLink?: React.ReactNode;
   saveActionName?: (
     params: SaveActionNameParams,

@@ -11,7 +11,7 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import type { AllChartData, ChartData } from "widgets/ChartWidget/constants";
 import { generateReactKey } from "utils/generators";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -89,6 +89,8 @@ interface RenderComponentProps {
   updateOption: (index: string, key: string, value: string) => void;
   evaluated: {
     seriesName: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: Array<{ x: string; y: string }> | any;
     color: string;
   };
@@ -153,9 +155,11 @@ function DataControlComponent(props: RenderComponentProps) {
               event: React.ChangeEvent<HTMLTextAreaElement> | string,
             ) => {
               let value: string = event as string;
+
               if (typeof event !== "string") {
                 value = event.target.value;
               }
+
               updateOption(index, "seriesName", value);
             },
           }}
@@ -176,9 +180,11 @@ function DataControlComponent(props: RenderComponentProps) {
                 event: React.ChangeEvent<HTMLTextAreaElement> | string,
               ) => {
                 let value: string = event as string;
+
                 if (typeof event !== "string") {
                   value = event.target.value;
                 }
+
                 updateOption(index, "color", value);
               }}
               color={item.color || ""}
@@ -204,9 +210,11 @@ function DataControlComponent(props: RenderComponentProps) {
               event: React.ChangeEvent<HTMLTextAreaElement> | string,
             ) => {
               let value: string = event as string;
+
               if (typeof event !== "string") {
                 value = event.target.value;
               }
+
               updateOption(index, "data", value);
             },
           }}

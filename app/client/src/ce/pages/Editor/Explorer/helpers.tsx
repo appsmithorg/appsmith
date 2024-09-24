@@ -7,18 +7,20 @@ import {
   DATA_SOURCES_EDITOR_ID_PATH,
   matchBuilderPath,
   matchViewerPath,
-  BUILDER_VIEWER_PATH_PREFIX,
+  VIEWER_PATH,
+  VIEWER_CUSTOM_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 
 import {
   SAAS_EDITOR_API_ID_PATH,
   SAAS_EDITOR_DATASOURCE_ID_PATH,
 } from "pages/Editor/SaaSEditor/constants";
-import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { PluginType } from "entities/Action";
 import localStorage from "utils/localStorage";
-import { EDITOR_PATHS } from "@appsmith/entities/IDE/utils";
+import { EDITOR_PATHS } from "ee/entities/IDE/utils";
 import type { Match } from "path-to-regexp";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
@@ -37,7 +39,7 @@ export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
 };
 
 export interface ExplorerURLParams {
-  pageId: string;
+  basePageId: string;
 }
 
 export interface ExplorerFileEntity {
@@ -52,51 +54,58 @@ export const matchBasePath = (pathname: string) => {
     strict: false,
     exact: false,
   });
+
   return basePathMatch;
 };
 
 export const getActionIdFromURL = () => {
   const baseMatch = matchBasePath(window.location.pathname);
+
   if (!baseMatch) return;
+
   const { path: basePath } = baseMatch;
-  const apiMatch = matchPath<{ apiId: string }>(window.location.pathname, {
+  const apiMatch = matchPath<{ baseApiId: string }>(window.location.pathname, {
     path: `${basePath}${API_EDITOR_ID_PATH}`,
   });
-  if (apiMatch?.params?.apiId) {
-    return apiMatch.params.apiId;
+
+  if (apiMatch?.params?.baseApiId) {
+    return apiMatch.params.baseApiId;
   }
-  const match = matchPath<{ queryId: string }>(window.location.pathname, {
+
+  const match = matchPath<{ baseQueryId: string }>(window.location.pathname, {
     path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
-  if (match?.params?.queryId) {
-    return match.params.queryId;
+
+  if (match?.params?.baseQueryId) {
+    return match.params.baseQueryId;
   }
-  const saasMatch = matchPath<{ apiId: string }>(window.location.pathname, {
+
+  const saasMatch = matchPath<{ baseApiId: string }>(window.location.pathname, {
     path: `${basePath}${SAAS_EDITOR_API_ID_PATH}`,
   });
-  if (saasMatch?.params?.apiId) {
-    return saasMatch.params.apiId;
+
+  if (saasMatch?.params?.baseApiId) {
+    return saasMatch.params.baseApiId;
   }
 };
 
 export function getAppViewerPageIdFromPath(path: string): string | null {
-  const regexes = [
-    `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\\-):pageId`, // VIEWER_PATH
-    `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\\-):pageId`, // VIEWER_CUSTOM_PATH
-    `/applications/:applicationId/pages/:pageId`, // VIEWER_PATH_DEPRECATED
-  ];
+  const regexes = [VIEWER_PATH, VIEWER_CUSTOM_PATH, VIEWER_PATH_DEPRECATED];
+
   for (const regex of regexes) {
-    const match = matchPath<{ pageId: string }>(path, { path: regex });
-    if (match?.params.pageId) {
-      return match.params.pageId;
+    const match = matchPath<{ basePageId: string }>(path, { path: regex });
+
+    if (match?.params.basePageId) {
+      return match.params.basePageId;
     }
   }
+
   return null;
 }
 
 export const matchEditorPath = (
   path: string,
-): Match<{ applicationId: string; pageId: string }> => {
+): Match<{ baseApplicationId: string; basePageId: string }> => {
   return matchBuilderPath(path, { end: false });
 };
 export const isEditorPath = (path: string) => {
@@ -109,48 +118,59 @@ export const isViewerPath = (path: string) => {
 
 export const getJSCollectionIdFromURL = () => {
   const baseMatch = matchBasePath(window.location.pathname);
+
   if (!baseMatch) return;
+
   const { path: basePath } = baseMatch;
-  const functionMatch = matchPath<{ collectionId: string }>(
+  const functionMatch = matchPath<{ baseCollectionId: string }>(
     window.location.pathname,
     {
       path: `${basePath}${JS_COLLECTION_ID_PATH}`,
     },
   );
-  if (functionMatch?.params?.collectionId) {
-    return functionMatch?.params?.collectionId;
+
+  if (functionMatch?.params?.baseCollectionId) {
+    return functionMatch?.params?.baseCollectionId;
   }
 };
 
 export const getQueryIdFromURL = () => {
   const baseMatch = matchBasePath(window.location.pathname);
+
   if (!baseMatch) return;
+
   const { path: basePath } = baseMatch;
-  const match = matchPath<{ queryId: string }>(window.location.pathname, {
+  const match = matchPath<{ baseQueryId: string }>(window.location.pathname, {
     path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
-  if (match?.params?.queryId) {
-    return match.params.queryId;
+
+  if (match?.params?.baseQueryId) {
+    return match.params.baseQueryId;
   }
 };
 
 export const useDatasourceIdFromURL = () => {
   const location = useLocation();
   const baseMatch = matchBasePath(location.pathname);
+
   if (!baseMatch) return;
+
   const { path: basePath } = baseMatch;
   const match = matchPath<{ datasourceId: string }>(location.pathname, {
     path: `${basePath}${DATA_SOURCES_EDITOR_ID_PATH}`,
   });
+
   if (match?.params?.datasourceId) {
     return match.params.datasourceId;
   }
+
   const saasMatch = matchPath<{ datasourceId: string }>(
     window.location.pathname,
     {
       path: `${basePath}${SAAS_EDITOR_DATASOURCE_ID_PATH}`,
     },
   );
+
   if (saasMatch?.params?.datasourceId) {
     return saasMatch.params.datasourceId;
   }
@@ -172,8 +192,11 @@ export const getExplorerStatus = (
 ): boolean | null => {
   const storageItemName = EXPLORER_STORAGE_PREFIX + resourceId;
   const data = localStorage.getItem(storageItemName);
+
   if (data === null) return null;
+
   const parsedData: ExplorerStateType = JSON.parse(data);
+
   return parsedData[entityName];
 };
 
@@ -185,9 +208,11 @@ export const saveExplorerStatus = (
   const storageItemName = EXPLORER_STORAGE_PREFIX + appId;
   const state = localStorage.getItem(storageItemName);
   let data = {} as ExplorerStateType;
+
   if (state !== null) {
     data = JSON.parse(state);
   }
+
   data[entityName] = value;
   localStorage.setItem(storageItemName, JSON.stringify(data));
 };

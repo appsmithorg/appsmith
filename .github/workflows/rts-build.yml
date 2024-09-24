@@ -32,7 +32,7 @@ defaults:
 
 jobs:
   build:
-    runs-on: appsmith-self-hosted-deployment-runner
+    runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||

@@ -4,7 +4,7 @@ import _debounce from "lodash/debounce";
 import styled from "styled-components";
 import ErrorLogItem, { getLogItemProps } from "./ErrorLogItem";
 import { BlankState } from "../helpers";
-import { createMessage, NO_ERRORS } from "@appsmith/constants/messages";
+import { createMessage, NO_ERRORS } from "ee/constants/messages";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { Log } from "entities/AppsmithConsole";
 import { setResponsePaneScrollPosition } from "actions/debuggerActions";
@@ -33,6 +33,7 @@ const ErrorLog = (props: {
   const errorScrollRef = useRef<HTMLDivElement>(null);
   //get scroll position of the error logs.
   const scrollPosition = useSelector(getScrollPosition);
+
   // Update the scroll position of the error logs.
   useEffect(() => {
     errorScrollRef.current?.scroll(0, scrollPosition);
@@ -40,6 +41,7 @@ const ErrorLog = (props: {
   // This function is used to store the scroll position of the error logs.
   const logScrollPosition = (e: SyntheticEvent) => {
     const target = e.target as HTMLTextAreaElement;
+
     dispatch(setResponsePaneScrollPosition(target.scrollTop));
   };
   // This function is used to debounce the scroll event of the error logs.
@@ -53,6 +55,7 @@ const ErrorLog = (props: {
     const logItemProps = getLogItemProps(error);
     const messages = error.messages || [];
     const logItems = [];
+
     if (messages.length) {
       messages.forEach((message) => {
         logItemProps.messages = [message];
@@ -65,6 +68,7 @@ const ErrorLog = (props: {
         <ErrorLogItem key={`debugger-${index}`} {...logItemProps} />,
       );
     }
+
     return logItems;
   };
 

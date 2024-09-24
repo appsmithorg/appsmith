@@ -71,6 +71,7 @@ public class SnowflakePlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            log.debug(Thread.currentThread().getName() + ": execute() called for Snowflake plugin.");
             String query = actionConfiguration.getBody();
 
             if (!StringUtils.hasLength(query)) {
@@ -80,6 +81,7 @@ public class SnowflakePlugin extends BasePlugin {
             }
 
             return Mono.fromCallable(() -> {
+                        log.debug(Thread.currentThread().getName() + ": Execute Snowflake Query");
                         Connection connectionFromPool;
 
                         try {
@@ -104,13 +106,13 @@ public class SnowflakePlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug(
-                                "Before executing snowflake query [{}] Hikari Pool stats : active - {} , idle - {} , awaiting - {} , total - {}",
+                        log.debug(String.format(
+                                "Before executing snowflake query [%s] Hikari Pool stats: active - %d, idle - %d, awaiting - %d, total - %d",
                                 query,
                                 activeConnections,
                                 idleConnections,
                                 threadsAwaitingConnection,
-                                totalConnections);
+                                totalConnections));
 
                         try {
                             // Connection staleness is checked as part of this method call.
@@ -123,19 +125,17 @@ public class SnowflakePlugin extends BasePlugin {
                             activeConnections = poolProxy.getActiveConnections();
                             totalConnections = poolProxy.getTotalConnections();
                             threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            log.debug(
-                                    "After executing snowflake query, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
-                                    activeConnections,
-                                    idleConnections,
-                                    threadsAwaitingConnection,
-                                    totalConnections);
+                            log.debug(String.format(
+                                    "After executing snowflake query, Hikari Pool stats active - %d, idle - %d, awaiting - %d, total - %d",
+                                    activeConnections, idleConnections, threadsAwaitingConnection, totalConnections));
 
                             if (connectionFromPool != null) {
                                 try {
                                     // Return the connection back to the pool
                                     connectionFromPool.close();
                                 } catch (SQLException e) {
-                                    log.debug("Execute Error returning Snowflake connection to pool", e);
+                                    log.error("Execute Error returning Snowflake connection to pool");
+                                    e.printStackTrace();
                                 }
                             }
                         }
@@ -155,8 +155,10 @@ public class SnowflakePlugin extends BasePlugin {
         @Override
         public Mono<HikariDataSource> createConnectionClient(
                 DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            log.debug(Thread.currentThread().getName() + ": createConnectionClient() called for Snowflake plugin.");
             return getHikariConfig(datasourceConfiguration, properties)
                     .flatMap(config -> Mono.fromCallable(() -> {
+                                log.debug(Thread.currentThread().getName() + ": creating Snowflake connection client");
                                 // Set up the connection URL
                                 String jdbcUrl = getJDBCUrl(datasourceConfiguration);
                                 config.setJdbcUrl(jdbcUrl);
@@ -189,12 +191,6 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("maximunPoolSize", String.valueOf(MAXIMUM_POOL_SIZE));
             properties.setProperty(
                     SNOWFLAKE_DB_LOGIN_TIMEOUT_PROPERTY_KEY, String.valueOf(SNOWFLAKE_DB_LOGIN_TIMEOUT_VALUE_SEC));
-            /**
-             * Setting the value for setInitializationFailTimeout to -1 to
-             * bypass any connection attempt and validation during startup
-             * @see https://www.javadoc.io/doc/com.zaxxer/HikariCP/latest/com/zaxxer/hikari/HikariConfig.html
-             */
-            properties.setProperty("initializationFailTimeout", String.valueOf(-1));
             properties.setProperty("connectionTimeoutMillis", String.valueOf(CONNECTION_TIMEOUT_MILLISECONDS));
             return properties;
         }
@@ -202,6 +198,8 @@ public class SnowflakePlugin extends BasePlugin {
         @Override
         public Properties addAuthParamsToConnectionConfig(
                 DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            log.debug(Thread.currentThread().getName()
+                    + ": addAuthParamsToConnectionConfig() called for Snowflake plugin.");
             // Only for username password auth, we need to set these properties, for others
             // like key-pair auth, authentication specific properties need to be set on config itself
             AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
@@ -241,6 +239,7 @@ public class SnowflakePlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            log.debug(Thread.currentThread().getName() + ": validateDatasource() called for Snowflake plugin.");
             Set<String> invalids = new HashSet<>();
 
             if (StringUtils.isEmpty(datasourceConfiguration.getUrl())) {
@@ -309,9 +308,10 @@ public class SnowflakePlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(HikariDataSource connection) {
-
+            log.debug(Thread.currentThread().getName() + ": testDatasource() called for Snowflake plugin.");
             return Mono.just(connection)
                     .flatMap(connectionPool -> {
+                        log.debug(Thread.currentThread().getName() + ": Testing Snowflake Datasource");
                         Connection connectionFromPool;
                         try {
                             /**
@@ -351,6 +351,7 @@ public class SnowflakePlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 HikariDataSource connection, DatasourceConfiguration datasourceConfiguration) {
+            log.debug(Thread.currentThread().getName() + ": getStructure() called for Snowflake plugin.");
             final DatasourceStructure structure = new DatasourceStructure();
             final Map<String, DatasourceStructure.Table> tablesByName = new LinkedHashMap<>();
             final Map<String, DatasourceStructure.Key> keyRegistry = new HashMap<>();
@@ -380,12 +381,9 @@ public class SnowflakePlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        log.debug(
-                                "Before getting snowflake structure Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
-                                activeConnections,
-                                idleConnections,
-                                threadsAwaitingConnection,
-                                totalConnections);
+                        log.debug(String.format(
+                                "Before getting snowflake structure Hikari Pool stats active - %d, idle - %d, awaiting - %d, total - %d",
+                                activeConnections, idleConnections, threadsAwaitingConnection, totalConnections));
 
                         try {
                             // Connection staleness is checked as part of this method call.
@@ -423,33 +421,30 @@ public class SnowflakePlugin extends BasePlugin {
                                 table.getKeys().sort(Comparator.naturalOrder());
                             }
                         } catch (SQLException throwable) {
-                            log.error(
-                                    "Exception caught while fetching structure of Snowflake datasource. Cause: ",
-                                    throwable);
+                            log.debug("Exception caught while fetching structure of Snowflake datasource. Cause:");
+                            throwable.printStackTrace();
                             throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
                                     SnowflakeErrorMessages.GET_STRUCTURE_ERROR_MSG,
                                     throwable.getMessage(),
                                     "SQLSTATE: " + throwable.getSQLState());
                         } finally {
-
+                            log.debug(Thread.currentThread().getName() + ": Get Structure Snowflake");
                             idleConnections = poolProxy.getIdleConnections();
                             activeConnections = poolProxy.getActiveConnections();
                             totalConnections = poolProxy.getTotalConnections();
                             threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                            log.debug(
-                                    "After snowflake structure, Hikari Pool stats active - {} , idle - {} , awaiting - {} , total - {} ",
-                                    activeConnections,
-                                    idleConnections,
-                                    threadsAwaitingConnection,
-                                    totalConnections);
+                            log.debug(String.format(
+                                    "After snowflake structure, Hikari Pool stats active - %d, idle - %d, awaiting - %d, total - %d",
+                                    activeConnections, idleConnections, threadsAwaitingConnection, totalConnections));
 
                             if (connectionFromPool != null) {
                                 try {
                                     // Return the connection back to the pool
                                     connectionFromPool.close();
                                 } catch (SQLException e) {
-                                    log.debug("Error returning snowflake connection to pool during get structure", e);
+                                    log.error("Error returning snowflake connection to pool during get structure");
+                                    e.printStackTrace();
                                 }
                             }
                         }
@@ -532,9 +527,6 @@ public class SnowflakePlugin extends BasePlugin {
             config.setMinimumIdle(Integer.parseInt(properties.get("minimumIdle").toString()));
             config.setMaximumPoolSize(
                     Integer.parseInt(properties.get("maximunPoolSize").toString()));
-
-            config.setInitializationFailTimeout(
-                    Long.parseLong(properties.get("initializationFailTimeout").toString()));
             config.setConnectionTimeout(
                     Long.parseLong(properties.get("connectionTimeoutMillis").toString()));
             return config;

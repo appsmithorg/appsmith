@@ -4,10 +4,7 @@ import Collapsible from "./collapsible";
 import Help from "./help";
 import LiveModel from "./liveModel";
 import Events from "./events";
-import {
-  CUSTOM_WIDGET_FEATURE,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
 
 export default function References() {
   return (

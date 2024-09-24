@@ -55,6 +55,7 @@ export const emptyChartData = (props: ChartWidgetProps) => {
         return false;
       }
     }
+
     return true;
   }
 };
@@ -149,6 +150,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     return {
       getEditorCallouts(props: WidgetProps): WidgetCallout[] {
         const callouts: WidgetCallout[] = [];
+
         if (props.chartType == "CUSTOM_FUSION_CHART") {
           callouts.push({
             message: messages.customFusionChartDeprecationMessage,
@@ -160,6 +162,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
             ],
           });
         }
+
         return callouts;
       },
     };
@@ -181,6 +184,8 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedDataPoint: undefined,

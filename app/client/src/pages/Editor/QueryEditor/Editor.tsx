@@ -12,28 +12,25 @@ import {
   setActionResponseDisplayFormat,
   setActionProperty,
 } from "actions/pluginActionActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "api/PluginApi";
 import type { Datasource } from "entities/Datasource";
 import {
   getPluginIdsOfPackageNames,
   getPlugins,
-  getAction,
+  getActionByBaseId,
   getActionResponses,
   getDatasourceByPluginId,
   getDBAndRemoteDatasources,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { PLUGIN_PACKAGE_DBS } from "constants/QueryEditorConstants";
 import type { QueryAction, SaaSAction } from "entities/Action";
 import Spinner from "components/editorComponents/Spinner";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { initFormEvaluations } from "actions/evaluationActions";
 import { getUIComponent } from "./helpers";
 import type { Diff } from "deep-diff";
@@ -42,7 +39,7 @@ import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
-import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { QueryEditorContext } from "./QueryEditorContext";
 
 const EmptyStateContainer = styled.div`
@@ -59,7 +56,11 @@ interface ReduxDispatchProps {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
   initFormEvaluation: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     editorConfig: any,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     settingConfig: any,
     formId: string,
   ) => void;
@@ -84,12 +85,19 @@ interface ReduxStateProps {
   runErrorMessage: Record<string, string>;
   pluginId: string | undefined;
   pluginIds: Array<string> | undefined;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   responses: any;
   isCreating: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfig: any;
   uiComponent: UIComponentTypes;
   applicationId: string;
   actionId: string;
+  baseActionId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actionObjectDiff?: any;
   isSaas: boolean;
   datasourceId?: string;
@@ -100,6 +108,8 @@ interface ReduxStateProps {
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
 type OwnProps = StateAndRouteProps & {
   isEditorInitialized: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settingsConfig: any;
 };
 type Props = ReduxDispatchProps & ReduxStateProps & OwnProps;
@@ -110,13 +120,14 @@ class QueryEditor extends React.Component<Props> {
 
   constructor(props: Props) {
     super(props);
+
     // Call the first evaluations when the page loads
     // call evaluations only for queries and not google sheets (which uses apiId)
-    if (this.props.match.params.queryId) {
+    if (this.props.match.params.baseQueryId) {
       this.props.initFormEvaluation(
         this.props.editorConfig,
         this.props.settingsConfig,
-        this.props.match.params.queryId,
+        this.props.match.params.baseQueryId,
       );
     }
   }
@@ -125,21 +136,19 @@ class QueryEditor extends React.Component<Props> {
     // if the current action is non existent, do not dispatch change query page action
     // this action should only be dispatched when switching from an existent action.
     if (!this.props.pluginId) return;
-    this.context?.changeQueryPage?.(this.props.actionId);
+
+    this.context?.changeQueryPage?.(this.props.baseActionId);
 
     // fixes missing where key issue by populating the action with a where object when the component is mounted.
     if (this.props.isSaas) {
       const { path = "", value = "" } = {
         ...getPathAndValueFromActionDiffObject(this.props.actionObjectDiff),
       };
+
       if (value && path) {
         this.props.setActionProperty(this.props.actionId, path, value);
       }
     }
-
-    PerformanceTracker.stopTracking(PerformanceTransactionName.OPEN_ACTION, {
-      actionType: "QUERY",
-    });
   }
 
   handleDeleteClick = () => {
@@ -156,10 +165,7 @@ class QueryEditor extends React.Component<Props> {
     const pluginName = this.props.plugins.find(
       (plugin) => plugin.id === this.props.pluginId,
     )?.name;
-    PerformanceTracker.startTracking(
-      PerformanceTransactionName.RUN_QUERY_CLICK,
-      { actionId: this.props.actionId },
-    );
+
     AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
       actionId: this.props.actionId,
       dataSourceSize: dataSources.length,
@@ -173,19 +179,14 @@ class QueryEditor extends React.Component<Props> {
   };
 
   componentDidUpdate(prevProps: Props) {
-    if (prevProps.isRunning === true && this.props.isRunning === false) {
-      PerformanceTracker.stopTracking(
-        PerformanceTransactionName.RUN_QUERY_CLICK,
-      );
-    }
     // Update the page when the queryID is changed by changing the
     // URL or selecting new query from the query pane
     // reusing same logic for changing query panes for switching query editor datasources, since the operations are similar.
     if (
-      prevProps.actionId !== this.props.actionId ||
+      prevProps.baseActionId !== this.props.baseActionId ||
       prevProps.pluginId !== this.props.pluginId
     ) {
-      this.context?.changeQueryPage?.(this.props.actionId);
+      this.context?.changeQueryPage?.(this.props.baseActionId);
     }
   }
 
@@ -250,22 +251,29 @@ class QueryEditor extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
-  const { apiId, queryId } = props.match.params;
-  const actionId = queryId || apiId || "";
+  const { baseApiId, baseQueryId } = props.match.params;
+  const baseActionId = baseQueryId || baseApiId || "";
   const { runErrorMessage } = state.ui.queryPane;
   const { plugins } = state.entities;
 
   const { editorConfigs } = plugins;
 
-  const action = getAction(state, actionId) as QueryAction | SaaSAction;
+  const action = getActionByBaseId(state, baseActionId) as
+    | QueryAction
+    | SaaSAction;
+  const actionId = action?.id;
+
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as
     | QueryAction
     | SaaSAction;
   let pluginId;
+
   if (action) {
     pluginId = action.pluginId;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let editorConfig: any;
 
   if (editorConfigs && pluginId) {
@@ -293,25 +301,27 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
 
   const allPlugins = getPlugins(state);
   let uiComponent = UIComponentTypes.DbEditorForm;
+
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
   const currentEnvDetails = getCurrentEnvironmentDetails(state);
 
   return {
     actionId,
+    baseActionId,
     currentEnvironmentId: currentEnvDetails?.id || "",
     currentEnvironmentName: currentEnvDetails?.name || "",
     pluginId,
     plugins: allPlugins,
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
-    dataSources: !!apiId
+    dataSources: !!baseApiId
       ? getDatasourceByPluginId(state, action?.pluginId)
       : getDBAndRemoteDatasources(state),
     responses: getActionResponses(state),
     isRunning: state.ui.queryPane.isRunning[actionId],
     isDeleting: state.ui.queryPane.isDeleting[actionId],
-    isSaas: !!apiId,
+    isSaas: !!baseApiId,
     formData,
     editorConfig,
     isCreating: state.ui.apiPane.isCreating,
@@ -322,12 +332,18 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   runAction: (actionId: string) => dispatch(runAction(actionId)),
   initFormEvaluation: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     editorConfig: any,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     settingsConfig: any,
     formId: string,
   ) => {

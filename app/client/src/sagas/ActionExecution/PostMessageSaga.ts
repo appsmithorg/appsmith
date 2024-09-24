@@ -1,6 +1,6 @@
 import { call, spawn } from "redux-saga/effects";
 import {
-  logActionExecutionError,
+  showToastOnExecutionError,
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { isEmpty } from "lodash";
@@ -8,6 +8,7 @@ import type { TPostWindowMessageDescription } from "workers/Evaluation/fns/postW
 
 export function* postMessageSaga(action: TPostWindowMessageDescription) {
   const { payload } = action;
+
   yield spawn(executePostMessage, payload);
 }
 
@@ -15,6 +16,7 @@ export function* executePostMessage(
   payload: TPostWindowMessageDescription["payload"],
 ) {
   const { message, source, targetOrigin } = payload;
+
   try {
     if (isEmpty(targetOrigin)) {
       throw new TriggerFailureError("Please enter a target origin URL.");
@@ -23,6 +25,7 @@ export function* executePostMessage(
         const src = document.getElementById(
           `iframe-${source}`,
         ) as HTMLIFrameElement;
+
         if (src && src.contentWindow) {
           src.contentWindow.postMessage(message, targetOrigin);
         } else {
@@ -35,6 +38,6 @@ export function* executePostMessage(
       }
     }
   } catch (error) {
-    yield call(logActionExecutionError, (error as Error).message, true);
+    yield call(showToastOnExecutionError, (error as Error).message);
   }
 }

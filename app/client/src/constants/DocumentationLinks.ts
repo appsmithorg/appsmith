@@ -1,4 +1,4 @@
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 export enum DocsLink {
   CAPTURE_DATA = "CAPTURE_DATA",
@@ -23,9 +23,11 @@ const LinkData: Record<DocsLink, string> = {
 
 export const openDoc = (type: DocsLink, link?: string, subType?: string) => {
   let linkToOpen = LinkData[type];
+
   if (link && link.length) {
     linkToOpen = link;
   }
+
   AnalyticsUtil.logEvent("OPEN_DOCS", { source: type, queryType: subType });
   window.open(linkToOpen, "_blank");
 };

@@ -7,7 +7,7 @@ import { getDataTree } from "./dataTreeSelectors";
 import {
   getExistingPageNames,
   selectInstalledLibraries,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import {
   getErrorForApiName,
   getErrorForJSObjectName,
@@ -25,18 +25,23 @@ export const getUsedActionNames = createSelector(
   getParentWidget,
   selectInstalledLibraries,
   (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     pageNames: Record<string, any>,
     dataTree: DataTree,
     parentWidget: FlattenedWidgetProps | undefined,
     installedLibraries: JSLibrary[],
   ) => {
     const map: Record<string, boolean> = {};
+
     // The logic has been copied from Explorer/Entity/Name.tsx Component.
     // Todo(abhinav): abstraction leak
     if (
       parentWidget &&
       parentWidget.type === WidgetFactory.widgetTypes.TABS_WIDGET
     ) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Object.values(parentWidget.tabsObj).forEach((tab: any) => {
         map[tab.label] = true;
       });
@@ -50,6 +55,7 @@ export const getUsedActionNames = createSelector(
       const libAccessors = ([] as string[]).concat(
         ...installedLibraries.map((lib) => lib.accessor),
       );
+
       for (const accessor of libAccessors) {
         map[accessor] = true;
       }

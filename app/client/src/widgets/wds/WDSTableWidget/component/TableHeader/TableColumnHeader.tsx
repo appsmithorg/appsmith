@@ -1,4 +1,4 @@
-import { Checkbox } from "@design-system/widgets";
+import { Checkbox } from "@appsmith/wds";
 import React, { memo } from "react";
 import { getDragHandlers } from "widgets/wds/WDSTableWidget/widget/utilities";
 import { HeaderCell } from "../cellComponents/HeaderCell";
@@ -16,6 +16,8 @@ export interface TableColumnHeaderProps {
   handleReorderColumn: (columnOrder: string[]) => void;
   accentColor: string;
   borderRadius: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   headerGroups: any;
   canFreezeColumn?: boolean;
   editMode: boolean;
@@ -26,6 +28,8 @@ export interface TableColumnHeaderProps {
   columns: ReactTableColumnProps[];
   width: number;
   subPage: ReactTableRowType<Record<string, unknown>>[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prepareRow: any;
   headerWidth?: number;
   rowSelectionState: 0 | 1 | 2 | null;
@@ -53,6 +57,8 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
 
   return (
     <thead onMouseLeave={props.enableDrag} onMouseOver={props.disableDrag}>
+      {/* TODO: Fix this the next time the file is edited */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {props.headerGroups.map((headerGroup: any, index: number) => {
         const headerRowProps = {
           ...headerGroup.getHeaderGroupProps(),
@@ -82,6 +88,8 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
               </CellCheckboxWrapper>
             )}
 
+            {/* TODO: Fix this the next time the file is edited */}
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {headerGroup.headers.map((column: any, columnIndex: number) => {
               const stickyRightModifier = !column.isHidden
                 ? columnIndex !== 0 &&
@@ -125,7 +133,6 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
           </tr>
         );
       })}
-
       {props.headerGroups.length === 0 &&
         renderEmptyRows(
           1,

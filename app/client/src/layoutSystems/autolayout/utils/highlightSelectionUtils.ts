@@ -14,6 +14,8 @@ export interface Point {
  */
 export const getHighlightPayload = (
   highlights: HighlightInfo[],
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   e: any,
   val?: Point,
 ): HighlightInfo | undefined => {
@@ -28,7 +30,9 @@ export const getHighlightPayload = (
    * Filter highlights that  span the current mouse position.
    */
   let filteredHighlights: HighlightInfo[] = [];
+
   filteredHighlights = getViableDropPositions(highlights, pos);
+
   if (!filteredHighlights || !filteredHighlights?.length) return;
 
   // Sort filtered highlights in ascending order of distance from mouse position.
@@ -51,6 +55,7 @@ function getViableDropPositions(
   pos: Point,
 ): HighlightInfo[] {
   if (!arr) return arr || [];
+
   const DEFAULT_DROP_RANGE = 10;
   const verticalHighlights = arr.filter(
     (highlight: HighlightInfo) => highlight.isVertical,
@@ -59,6 +64,7 @@ function getViableDropPositions(
     (highlight: HighlightInfo) => !highlight.isVertical,
   );
   const selection: HighlightInfo[] = [];
+
   verticalHighlights.forEach((highlight: HighlightInfo) => {
     if (pos.y >= highlight.posY && pos.y <= highlight.posY + highlight.height)
       if (
@@ -73,6 +79,7 @@ function getViableDropPositions(
         selection.push(highlight);
   });
   const hasVerticalSelection = selection.length > 0;
+
   horizontalHighlights.forEach((highlight: HighlightInfo) => {
     if (pos.x >= highlight.posX && pos.x <= highlight.posX + highlight.width)
       if (
@@ -91,14 +98,17 @@ function getViableDropPositions(
       )
         selection.push(highlight);
   });
+
   return selection;
 }
 
 function calculateDistance(a: HighlightInfo, b: Point): number {
   let distX = 0,
     distY = 0;
+
   if (a.isVertical) {
     distX = b.x - a.posX;
+
     if (b.y < a.posY) {
       distY = b.y - a.posY;
     } else if (b.y > a.posY + a.height) {
@@ -108,6 +118,7 @@ function calculateDistance(a: HighlightInfo, b: Point): number {
     }
   } else {
     distY = b.y - a.posY;
+
     if (b.x < a.posX) {
       distX = b.x - a.posX;
     } else if (b.x > a.posX + a.width) {
@@ -116,5 +127,6 @@ function calculateDistance(a: HighlightInfo, b: Point): number {
       distX = 0;
     }
   }
+
   return Math.hypot(distX, distY);
 }

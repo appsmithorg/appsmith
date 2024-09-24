@@ -11,13 +11,10 @@ import Centered from "components/designSystems/appsmith/CenteredWrapper";
 import AppPage from "./AppPage";
 import { getCanvasWidth, getCurrentPageName } from "selectors/editorSelectors";
 import RequestConfirmationModal from "pages/Editor/RequestConfirmationModal";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
-import { builderURL } from "@appsmith/RouteBuilder";
-import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
+import { builderURL } from "ee/RouteBuilder";
+import { getCanvasWidgetsStructure } from "ee/selectors/entitiesSelector";
 import equal from "fast-deep-equal/es6";
 
 const Section = styled.section`
@@ -53,7 +50,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
           Please add widgets to this page in the&nbsp;
           <Link
             to={builderURL({
-              pageId: props.match.params.pageId as string,
+              basePageId: props.match.params.basePageId as string,
             })}
           >
             Appsmith Editor
@@ -94,8 +91,8 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
     <Section>
       <AppPage
         appName={currentApplication?.name}
+        basePageId={match.params.basePageId}
         canvasWidth={canvasWidth}
-        pageId={match.params.pageId}
         pageName={currentPageName}
         widgetsStructure={widgetsStructure}
       />

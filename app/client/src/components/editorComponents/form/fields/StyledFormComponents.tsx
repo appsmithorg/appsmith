@@ -8,8 +8,8 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
     //SWITCH and CHECKBOX display label text and form input aligned side by side
     props?.config?.controlType !== "SWITCH" &&
     props?.config?.controlType !== "CHECKBOX"
-      ? "block;"
-      : "inline-block;"}
+      ? "block"
+      : "inline-block"};
   font-weight: normal;
   color: var(--ads-v2-color-fg-muted);
   font-size: 12px;
@@ -19,7 +19,12 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
     props?.config?.controlType !== "CHECKBOX"
       ? "1px"
       : "0px"};
-  margin-top: 5px;
+  margin-top: ${(props) =>
+    //SWITCH and CHECKBOX display label text and form input aligned side by side but not for others
+    props?.config?.controlType === "SWITCH" ||
+    props?.config?.controlType === "CHECKBOX"
+      ? "0px"
+      : "5px"};
   margin-bottom: ${(props) =>
     //SWITCH and CHECKBOX display label text and form input aligned side by side but not for others
     props?.config?.controlType !== "SWITCH" &&
@@ -30,15 +35,15 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
 `;
 
 const FormSubtitleText = styled.span<{ config?: ControlProps }>`
-display: ${(props) =>
-  //SWITCH and CHECKBOX display label text and form input aligned side by side
-  props?.config?.controlType !== "SWITCH" &&
-  props?.config?.controlType !== "CHECKBOX"
-    ? "block;"
-    : "inline;"}
-font-weight: normal;
-color: var(--ads-v2-color-fg-muted);
-font-size: 12px;
+  display: ${(props) =>
+    //SWITCH and CHECKBOX display label text and form input aligned side by side
+    props?.config?.controlType !== "SWITCH" &&
+    props?.config?.controlType !== "CHECKBOX"
+      ? "block"
+      : "inline"};
+  font-weight: normal;
+  color: var(--ads-v2-color-fg-muted);
+  font-size: 12px;
 `;
 
 //Styled help text, intended to be used with Form Fields
@@ -99,6 +104,8 @@ const FormInputSwitchToJsonButton = styled.button`
 //Styled form label tag, intended to be used with Form Fields
 const StyledFormLabel = styled.label<{
   config?: ControlProps;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraStyles?: any;
 }>`
   display: inline-block;
@@ -148,6 +155,8 @@ const FormEncrytedSection = styled.div`
 interface FormLabelProps {
   config?: ControlProps;
   children: JSX.Element | React.ReactNode;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraStyles?: any;
 }
 

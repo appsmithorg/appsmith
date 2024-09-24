@@ -24,17 +24,25 @@ const dsl = {
 describe("traverseDSLAndMigrate", () => {
   it("should check that migration function is getting called for each widget in the tree", () => {
     const migrateFn = jest.fn();
+
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     traverseDSLAndMigrate(dsl as any as DSLWidget, migrateFn);
     expect(migrateFn).toHaveBeenCalledTimes(4);
   });
 
   it("should check that tree structure remain intact", () => {
     const copyDSL = cloneDeep(dsl);
+
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     traverseDSLAndMigrate(dsl as any as DSLWidget, noop);
     expect(dsl).toEqual(copyDSL);
   });
 
   it("should check that migration function updates are written in the tree", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     traverseDSLAndMigrate(dsl as any as DSLWidget, (widget) => {
       widget.type = "widget";
     });

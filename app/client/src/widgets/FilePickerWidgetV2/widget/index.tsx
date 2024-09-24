@@ -6,7 +6,6 @@ import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { klona } from "klona";
 import _, { findIndex } from "lodash";
 import log from "loglevel";
 
@@ -31,6 +30,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 
@@ -426,6 +426,8 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedFiles: [],
@@ -500,6 +502,7 @@ class FilePickerWidget extends BaseWidget<
     };
 
     const uppy = await this.loadAndInitUppyOnce();
+
     uppy.setOptions(uppyState);
   };
 
@@ -563,6 +566,8 @@ class FilePickerWidget extends BaseWidget<
       });
     }
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     uppy.on("file-removed", (file: UppyFile, reason: any) => {
       /**
        * The below line will not update the selectedFiles meta prop when cancel-all event is triggered.
@@ -578,6 +583,7 @@ class FilePickerWidget extends BaseWidget<
          */
         const fileMap = this.props.selectedFiles!.reduce((acc, cur) => {
           acc[cur.id] = cur.data;
+
           return acc;
         }, {});
 
@@ -597,6 +603,7 @@ class FilePickerWidget extends BaseWidget<
             size: currentFile.size,
             dataFormat: this.props.fileDataType,
           }));
+
         this.props.updateWidgetMetaProperty(
           "selectedFiles",
           updatedFiles ?? [],
@@ -610,8 +617,12 @@ class FilePickerWidget extends BaseWidget<
 
     uppy.on("files-added", (files: UppyFile[]) => {
       // Deep cloning the selectedFiles
+
       const selectedFiles = this.props.selectedFiles
-        ? klona(this.props.selectedFiles)
+        ? (klonaRegularWithTelemetry(
+            this.props.selectedFiles,
+            "initializeUppyEventListeners.selectedFiles",
+          ) as Array<unknown>)
         : [];
 
       const fileCount = this.props.selectedFiles?.length || 0;
@@ -619,6 +630,7 @@ class FilePickerWidget extends BaseWidget<
         return new Promise((resolve) => {
           (async () => {
             let data: unknown;
+
             if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
               data = await parseFileData(
                 file.data,
@@ -640,6 +652,7 @@ class FilePickerWidget extends BaseWidget<
               size: file.size,
               dataFormat: this.props.fileDataType,
             };
+
             resolve(newFile);
           })();
         });
@@ -651,6 +664,8 @@ class FilePickerWidget extends BaseWidget<
         }
 
         if (selectedFiles.length !== 0) {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           files.forEach((fileItem: any) => {
             if (!fileItem?.meta?.isInitializing) {
               selectedFiles.push(fileItem);
@@ -698,6 +713,7 @@ class FilePickerWidget extends BaseWidget<
 
     const { selectedFiles: previousSelectedFiles = [] } = prevProps;
     const { selectedFiles = [] } = this.props;
+
     if (previousSelectedFiles.length && selectedFiles.length === 0) {
       (await this.loadAndInitUppyOnce()).reset();
     } else if (
@@ -707,14 +723,21 @@ class FilePickerWidget extends BaseWidget<
     ) {
       await this.reinitializeUppy(this.props);
     }
+
     this.clearFilesFromMemory(prevProps.selectedFiles);
   }
 
   // Reclaim the memory used by blobs.
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   clearFilesFromMemory(previousFiles: any[] = []) {
     const { selectedFiles: newFiles = [] } = this.props;
+
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     previousFiles.forEach((file: any) => {
       let { data: blobUrl } = file;
+
       if (isBlobUrl(blobUrl)) {
         if (findIndex(newFiles, (f) => f.data === blobUrl) === -1) {
           blobUrl = blobUrl.split("?")[0];
@@ -729,6 +752,8 @@ class FilePickerWidget extends BaseWidget<
      * Since on unMount the uppy instance closes and it's internal state is lost along with the files present in it.
      * Below we add the files again to the uppy instance so that the files are retained.
      */
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.props.selectedFiles?.forEach((fileItem: any) => {
       uppy.addFile({
         name: fileItem.name,
@@ -803,11 +828,14 @@ class FilePickerWidget extends BaseWidget<
 
             if (!isUppyLoadedByThisPoint)
               this.setState({ isWaitingForUppyToLoad: true });
+
             const uppy = await this.loadAndInitUppyOnce();
+
             if (!isUppyLoadedByThisPoint)
               this.setState({ isWaitingForUppyToLoad: false });
 
             const dashboardPlugin = uppy.getPlugin("Dashboard") as Dashboard;
+
             dashboardPlugin.openModal();
             this.setState({ isUppyModalOpen: true });
           }}
@@ -833,6 +861,8 @@ interface FilePickerWidgetProps extends WidgetProps {
   label: string;
   maxNumFiles?: number;
   maxFileSize?: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectedFiles?: any[];
   allowedFileTypes: string[];
   onFilesSelected?: string;

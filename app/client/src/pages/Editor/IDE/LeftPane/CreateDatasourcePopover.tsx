@@ -1,13 +1,13 @@
-import { Button, Popover, PopoverTrigger } from "design-system";
+import { Button, Popover, PopoverTrigger } from "@appsmith/ads";
 import React from "react";
 import history from "utils/history";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import type { AppState } from "ee/reducers";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 const CreateDatasourcePopover = () => {
   const userWorkspacePermissions = useSelector(
@@ -20,9 +20,11 @@ const CreateDatasourcePopover = () => {
     isFeatureEnabled,
     userWorkspacePermissions,
   );
+
   if (!canCreateDatasource) {
     return null;
   }
+
   return (
     <Popover open={false}>
       <PopoverTrigger>

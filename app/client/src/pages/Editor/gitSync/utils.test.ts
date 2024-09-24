@@ -6,7 +6,7 @@ import {
   isValidGitRemoteUrl,
   removeSpecialChars,
 } from "./utils";
-import { ApplicationVersion } from "@appsmith/actions/applicationActions";
+import { ApplicationVersion } from "ee/actions/applicationActions";
 
 const validUrls = [
   "git@github.com:user/project.git",
@@ -76,6 +76,7 @@ describe("gitSync utils", () => {
         "origin/whateverelse",
       );
       const expected = true;
+
       expect(actual).toEqual(expected);
     });
 
@@ -85,18 +86,21 @@ describe("gitSync utils", () => {
         "origin/whateverelse",
       );
       const expected = false;
+
       expect(actual).toEqual(expected);
     });
 
     it("returns empty string if param:local is empty string", () => {
       const actual = getIsStartingWithRemoteBranches("a", "");
       const expected = "";
+
       expect(actual).toEqual(expected);
     });
 
     it("returns empty string if param:remote is empty string", () => {
       const actual = getIsStartingWithRemoteBranches("", "");
       const expected = "";
+
       expect(actual).toEqual(expected);
     });
   });
@@ -106,6 +110,7 @@ describe("gitSync utils", () => {
       it(`${validUrl} is a valid git remote URL`, () => {
         const actual = isValidGitRemoteUrl(validUrl);
         const expected = true;
+
         expect(actual).toEqual(expected);
       });
     });
@@ -116,6 +121,7 @@ describe("gitSync utils", () => {
       it(`${invalidUrl} is a valid git remote URL`, () => {
         const actual = isValidGitRemoteUrl(invalidUrl);
         const expected = false;
+
         expect(actual).toEqual(expected);
       });
     });
@@ -126,6 +132,7 @@ describe("gitSync utils", () => {
       const branches = ["origin/", "origin/_", "origin/a", "origin/origin"];
       const actual = branches.every(isRemoteBranch);
       const expected = true;
+
       expect(actual).toEqual(expected);
     });
 
@@ -142,6 +149,7 @@ describe("gitSync utils", () => {
       ];
       const actual = branches.every(isRemoteBranch);
       const expected = false;
+
       expect(actual).toEqual(expected);
     });
   });
@@ -151,6 +159,7 @@ describe("gitSync utils", () => {
       const branches = ["origin/", "origin/_", "origin/a", "origin/origin"];
       const actual = branches.every(isLocalBranch);
       const expected = false;
+
       expect(actual).toEqual(expected);
     });
 
@@ -167,6 +176,7 @@ describe("gitSync utils", () => {
       ];
       const actual = branches.every(isLocalBranch);
       const expected = true;
+
       expect(actual).toEqual(expected);
     });
   });
@@ -213,6 +223,7 @@ describe("gitSync utils", () => {
 
       inputs.forEach((input, index) => {
         const result = removeSpecialChars(input);
+
         expect(result).toStrictEqual(expected[index]);
       });
     });
@@ -223,8 +234,10 @@ describe("gitSync utils", () => {
         appIsExample: false,
         applicationVersion: ApplicationVersion.DEFAULT,
         defaultPageId: "",
+        defaultBasePageId: "",
         slug: "",
         id: "",
+        baseId: "",
         isAutoUpdate: false,
         isManualUpdate: false,
         name: "",
@@ -237,6 +250,7 @@ describe("gitSync utils", () => {
         isAutoUpdate: false,
         isManualUpdate: false,
       };
+
       expect(actual).toEqual(expected);
     });
     it("returns migration change only data", () => {
@@ -244,7 +258,9 @@ describe("gitSync utils", () => {
         appIsExample: false,
         applicationVersion: ApplicationVersion.DEFAULT,
         defaultPageId: "",
+        defaultBasePageId: "",
         id: "",
+        baseId: "",
         slug: "",
         isAutoUpdate: true,
         isManualUpdate: false,
@@ -258,6 +274,7 @@ describe("gitSync utils", () => {
         isAutoUpdate: true,
         isManualUpdate: false,
       };
+
       expect(actual).toEqual(expected);
     });
     it("returns migration and user change data", () => {
@@ -265,7 +282,9 @@ describe("gitSync utils", () => {
         appIsExample: false,
         applicationVersion: ApplicationVersion.DEFAULT,
         defaultPageId: "",
+        defaultBasePageId: "",
         id: "",
+        baseId: "",
         slug: "",
         isAutoUpdate: true,
         isManualUpdate: true,
@@ -279,6 +298,7 @@ describe("gitSync utils", () => {
         isAutoUpdate: true,
         isManualUpdate: true,
       };
+
       expect(actual).toEqual(expected);
     });
     it("returns user changes only data", () => {
@@ -286,7 +306,9 @@ describe("gitSync utils", () => {
         appIsExample: false,
         applicationVersion: ApplicationVersion.DEFAULT,
         defaultPageId: "",
+        defaultBasePageId: "",
         id: "",
+        baseId: "",
         slug: "",
         isAutoUpdate: false,
         isManualUpdate: true,
@@ -300,6 +322,7 @@ describe("gitSync utils", () => {
         isAutoUpdate: false,
         isManualUpdate: true,
       };
+
       expect(actual).toEqual(expected);
     });
   });

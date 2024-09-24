@@ -1,4 +1,4 @@
-import { APPSMITH_NAMESPACED_FUNCTIONS as EE_APPSMITH_NAMESPACED_FUNCTIONS } from "@appsmith/entities/Engine/actionHelpers";
+import { APPSMITH_NAMESPACED_FUNCTIONS as EE_APPSMITH_NAMESPACED_FUNCTIONS } from "ee/entities/Engine/actionHelpers";
 
 export enum APPSMITH_GLOBAL_FUNCTIONS {
   navigateTo = "navigateTo",
@@ -86,6 +86,7 @@ export const NAVIGATE_TO_TAB_OPTIONS = {
 
 export const NEW_MODAL_LABEL = "New Modal";
 const SELECT_OPTIONS_LABEL = "Select file type (optional)";
+
 export const DEFAULT_LABELS = [NEW_MODAL_LABEL, SELECT_OPTIONS_LABEL];
 
 export const DEFAULT_SELECTOR_VIEW_TEXT = "Select Action";

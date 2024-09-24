@@ -3,7 +3,7 @@ import { CompareTokens } from "./CompareTokens";
 
 const meta: Meta<typeof CompareTokens> = {
   component: CompareTokens,
-  title: "Testing/CompareTokens",
+  title: "WDS/Testing/CompareTokens",
 };
 
 export default meta;

@@ -1,10 +1,11 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { AppState } from "@appsmith/reducers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export const useAutoHeightUIState = () => {
   const dispatch = useDispatch();
+
   return {
     isAutoHeightWithLimitsChanging: useSelector(
       (state: AppState) => state.ui.autoHeightUI.isAutoHeightWithLimitsChanging,

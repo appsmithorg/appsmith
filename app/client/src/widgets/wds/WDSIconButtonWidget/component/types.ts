@@ -1,4 +1,4 @@
-import type { IconButtonProps } from "@design-system/widgets";
+import type { IconButtonProps } from "@appsmith/wds";
 
 export interface IconButtonComponentProps extends IconButtonProps {
   tooltip?: string;

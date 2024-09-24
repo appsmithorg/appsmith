@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Option, Select, Text, Icon } from "design-system";
+import { Option, Select, Text, Icon } from "@appsmith/ads";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { isNil } from "lodash";
@@ -73,6 +73,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     if (this.props.defaultValue) {
       if (this.props.isMultiSelect) {
         const defaultValueSet = new Set(this.props.defaultValue);
+
         defaultSelected = options
           .filter((option) => defaultValueSet.has(option.value))
           .map((option) => option.value);
@@ -87,6 +88,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
     if (this.props.isMultiSelect) {
       const propertyValueSet = new Set(this.props.propertyValue);
+
       selected = options
         .filter((option) => propertyValueSet.has(option.value))
         .map((option) => option.value);
@@ -183,9 +185,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   onSelect = (value?: string): void => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
+
       if (this.props.isMultiSelect) {
         if (Array.isArray(selectedValue)) {
           const index = selectedValue.indexOf(value);
+
           if (index >= 0) {
             selectedValue = [
               ...selectedValue.slice(0, index),
@@ -200,6 +204,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       } else {
         selectedValue = value;
       }
+
       this.updateProperty(this.props.propertyName, selectedValue);
     }
   };
@@ -207,9 +212,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   onDeselect = (value?: string) => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
+
       if (this.props.isMultiSelect) {
         if (Array.isArray(selectedValue)) {
           const index = selectedValue.indexOf(value);
+
           if (index >= 0) {
             selectedValue = [
               ...selectedValue.slice(0, index),
@@ -222,10 +229,13 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       } else {
         selectedValue = "";
       }
+
       this.updateProperty(this.props.propertyName, selectedValue);
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isOptionSelected = (selectedOption: any) => {
     return selectedOption.value === this.props.propertyValue;
   };
@@ -236,6 +246,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
   static canDisplayValueInUI(
     config: DropDownControlProps,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ): boolean {
     const options =
@@ -246,15 +258,18 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     const allowedValues = new Set(
       options?.map((x: { value: string | number }) => x.value.toString()),
     );
+
     if (config.isMultiSelect) {
       try {
         const values = JSON.parse(value);
+
         for (const x of values) {
           if (!allowedValues.has(x.toString())) return false;
         }
       } catch {
         return false;
       }
+
       return true;
     } else {
       return allowedValues.has(value);
@@ -263,6 +278,8 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 }
 
 export interface DropDownControlProps extends ControlProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: any[] | ((props: ControlProps["widgetProperties"]) => any[]);
   defaultValue?: string;
   virtual?: boolean;

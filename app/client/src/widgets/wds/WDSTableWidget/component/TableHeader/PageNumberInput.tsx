@@ -1,5 +1,5 @@
 import { Keys } from "@blueprintjs/core";
-import { TextInput } from "@design-system/widgets";
+import { TextInput } from "@appsmith/wds";
 import React, { useCallback, useEffect, useState } from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -54,6 +54,8 @@ function PageNumberInputComponent(props: {
       onChange={(value) => {
         setPageNumber(value);
       }}
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onKeyDown={(e: any) => {
         if (e.keyCode === Keys.ENTER) {
           handleUpdatePageNo(e);
@@ -64,4 +66,5 @@ function PageNumberInputComponent(props: {
     />
   );
 }
+
 export const PageNumberInput = React.memo(PageNumberInputComponent);

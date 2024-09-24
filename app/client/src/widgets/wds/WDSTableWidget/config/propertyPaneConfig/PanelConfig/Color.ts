@@ -1,5 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { COLORS } from "@design-system/widgets";
+import { COLORS } from "@appsmith/wds";
 import capitalize from "lodash/capitalize";
 import {
   ColumnTypes,

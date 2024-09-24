@@ -5,23 +5,21 @@ import {
   createDatasourceFromForm,
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
-import type { AppState } from "@appsmith/reducers";
-import CurlLogo from "assets/images/Curl-logo.svg";
+import type { AppState } from "ee/reducers";
 import PlusLogo from "assets/images/Plus-logo.svg";
+import GraphQLLogo from "assets/images/Graphql-logo.svg";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { PluginPackageName, PluginType } from "entities/Action";
 import { getQueryParams } from "utils/URLUtils";
-import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSelector";
+import { getGenerateCRUDEnabledPluginMap } from "ee/selectors/entitiesSelector";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
-import { curlImportPageURL } from "@appsmith/RouteBuilder";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { Spinner } from "design-system";
-import { useEditorType } from "@appsmith/hooks";
-import { useParentEntityInfo } from "@appsmith/hooks/datasourceEditorHooks";
-import { createNewApiActionBasedOnEditorType } from "@appsmith/actions/helpers";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { Spinner } from "@appsmith/ads";
+import { useEditorType } from "ee/hooks";
+import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import { createNewApiActionBasedOnEditorType } from "ee/actions/helpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 export const StyledContainer = styled.div`
   flex: 1;
@@ -120,18 +118,20 @@ export const CardContentWrapper = styled.div`
 `;
 
 interface ApiHomeScreenProps {
-  history: {
-    replace: (data: string) => void;
-    push: (data: string) => void;
-  };
   location: {
     search: string;
   };
   pageId: string;
   plugins: Plugin[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createDatasourceFromForm: (data: any) => void;
   isCreating: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showUnsupportedPluginDialog: (callback: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasourceFromForm: (data: any) => void;
   showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
   createNewApiActionBasedOnEditorType: (
@@ -155,14 +155,8 @@ export const API_ACTION = {
 };
 
 function NewApiScreen(props: Props) {
-  const {
-    history,
-    isCreating,
-    isOnboardingScreen,
-    pageId,
-    plugins,
-    showSaasAPIs,
-  } = props;
+  const { isCreating, isOnboardingScreen, pageId, plugins, showSaasAPIs } =
+    props;
   const editorType = useEditorType(location.pathname);
   const { editorId, parentEntityId, parentEntityType } =
     useParentEntityInfo(editorType);
@@ -173,6 +167,7 @@ function NewApiScreen(props: Props) {
 
   useEffect(() => {
     const plugin = plugins.find((p) => p.name === "REST API");
+
     setAuthAPiPlugin(plugin);
   }, [plugins]);
 
@@ -209,11 +204,14 @@ function NewApiScreen(props: Props) {
 
   // On click of any API card, handleOnClick action should be called to check if user came from generate-page flow.
   // if yes then show UnsupportedDialog for the API which are not supported to generate CRUD page.
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOnClick = (actionType: string, params?: any) => {
     const queryParams = getQueryParams();
     const isGeneratePageInitiator = getIsGeneratePageInitiator(
       queryParams.isGeneratePageMode,
     );
+
     if (
       isGeneratePageInitiator &&
       !params?.skipValidPluginCheck &&
@@ -223,33 +221,15 @@ function NewApiScreen(props: Props) {
       props?.showUnsupportedPluginDialog(() =>
         handleOnClick(actionType, { skipValidPluginCheck: true, ...params }),
       );
+
       return;
     }
+
     switch (actionType) {
       case API_ACTION.CREATE_NEW_API:
       case API_ACTION.CREATE_NEW_GRAPHQL_API:
         handleCreateNew(actionType);
         break;
-      case API_ACTION.IMPORT_CURL: {
-        AnalyticsUtil.logEvent("IMPORT_API_CLICK", {
-          importSource: CURL,
-        });
-        AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
-          source: CURL,
-        });
-
-        delete queryParams.isGeneratePageMode;
-        const curlImportURL = curlImportPageURL({
-          pageId,
-          params: {
-            from: "datasources",
-            ...queryParams,
-          },
-        });
-
-        history.push(curlImportURL);
-        break;
-      }
       case API_ACTION.CREATE_DATASOURCE_FORM: {
         props.createTempDatasourceFromForm({
           pluginId: params.pluginId,
@@ -289,6 +269,7 @@ function NewApiScreen(props: Props) {
                 />
                 <p className="textBtn">REST API</p>
               </CardContentWrapper>
+              {/*@ts-expect-error Fix this the next time the file is edited*/}
               {isCreating && <Spinner className="cta" size={25} />}
             </ApiCard>
             <ApiCard
@@ -299,7 +280,7 @@ function NewApiScreen(props: Props) {
                 <img
                   alt="New"
                   className="curlImage t--plusImage content-icon"
-                  src={PlusLogo}
+                  src={GraphQLLogo}
                 />
                 <p className="textBtn">GraphQL API</p>
               </CardContentWrapper>
@@ -347,21 +328,6 @@ function NewApiScreen(props: Props) {
             </CardContentWrapper>
           </ApiCard>
         ))}
-        {!showSaasAPIs && (
-          <ApiCard
-            className="t--createBlankCurlCard"
-            onClick={() => handleOnClick(API_ACTION.IMPORT_CURL)}
-          >
-            <CardContentWrapper>
-              <img
-                alt="CURL"
-                className="curlImage t--curlImage content-icon"
-                src={CurlLogo}
-              />
-              <p className="textBtn">CURL import</p>
-            </CardContentWrapper>
-          </ApiCard>
-        )}
       </ApiCardsContainer>
     </StyledContainer>
   );

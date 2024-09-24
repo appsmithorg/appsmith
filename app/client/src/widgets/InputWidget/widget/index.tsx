@@ -2,7 +2,7 @@ import {
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type {
@@ -49,11 +49,16 @@ import { InputTypes } from "../constants";
 import IconSVG from "../icon.svg";
 
 export function defaultValueValidation(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   props: InputWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ): ValidationResponse {
   const { inputType } = props;
+
   if (
     inputType === "INTEGER" ||
     inputType === "NUMBER" ||
@@ -95,6 +100,7 @@ export function defaultValueValidation(
       messages: [{ name: "", message: "" }],
     };
   }
+
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -107,8 +113,10 @@ export function defaultValueValidation(
       ],
     };
   }
+
   let parsed = value;
   const isValid = _.isString(parsed);
+
   if (!isValid) {
     try {
       parsed = _.toString(parsed);
@@ -125,6 +133,7 @@ export function defaultValueValidation(
       };
     }
   }
+
   return {
     isValid,
     parsed: parsed,
@@ -684,6 +693,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         sectionName: "Icon Options",
         hidden: (props: InputWidgetProps) => {
           const { inputType } = props;
+
           return inputType === "CURRENCY" || inputType === "PHONE_NUMBER";
         },
         dependencies: ["inputType"],
@@ -823,6 +833,8 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,
@@ -873,6 +885,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         type: EventType.ON_TEXT_CHANGE,
       },
     });
+
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -880,6 +893,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   onCurrencyTypeChange = (code?: string) => {
     const currencyCountryCode = code;
+
     if (this.props.renderMode === RenderModes.CANVAS) {
       super.updateWidgetProperty("currencyCountryCode", currencyCountryCode);
     } else {
@@ -892,6 +906,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
 
   onISDCodeChange = (code?: string) => {
     const countryCode = code;
+
     if (this.props.renderMode === RenderModes.CANVAS) {
       super.updateWidgetProperty("phoneNumberCountryCode", countryCode);
     } else {
@@ -937,6 +952,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
   ) => {
     const { isValid, onSubmit } = this.props;
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
+
     if (isEnterKey && onSubmit && isValid) {
       super.executeAction({
         triggerPropertyName: "onSubmit",
@@ -953,11 +969,14 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
     if (this.props.isFocused || this.props.inputType !== InputTypes.CURRENCY) {
       return this.props.text !== undefined ? this.props.text : "";
     }
+
     if (this.props.text === "" || this.props.text === undefined) return "";
+
     const valueToFormat = String(this.props.text);
 
     const locale = getLocale();
     const decimalSeparator = getDecimalSeparator(locale);
+
     return formatCurrencyNumber(
       this.props.decimalsInCurrency,
       valueToFormat,
@@ -976,13 +995,17 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       ? this.props.selectedPhoneNumberCountryCode
       : this.props.phoneNumberCountryCode;
     const conditionalProps: Partial<InputComponentProps> = {};
+
     conditionalProps.errorMessage = this.props.errorMessage;
+
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
+
     if (this.props.inputType === "TEXT" && this.props.maxChars) {
       // pass maxChars only for Text type inputs, undefined for other types
       conditionalProps.maxChars = this.props.maxChars;
+
       if (
         this.props.defaultText &&
         this.props.defaultText.toString().length > this.props.maxChars
@@ -994,8 +1017,11 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
         );
       }
     }
+
     if (this.props.maxNum) conditionalProps.maxNum = this.props.maxNum;
+
     if (this.props.minNum) conditionalProps.minNum = this.props.minNum;
+
     const { componentHeight } = this.props;
     const minInputSingleLineHeight =
       this.props.label || this.props.tooltip

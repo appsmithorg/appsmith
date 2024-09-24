@@ -206,6 +206,7 @@ const Content = styled.div<{
   font-size: ${({ fontSize }) =>
     fontSizeUtility(fontSize) || DEFAULT_FONT_SIZE};
 `;
+
 export interface TextComponentProps extends ComponentProps {
   accentColor: string;
   text?: string;
@@ -240,8 +241,11 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
   textRef = React.createRef() as TextRef;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getTruncate = (element: any) => {
     const { isTruncated } = this.state;
+
     // add ELLIPSIS_HEIGHT and check content content is overflowing or not
     return (
       element.scrollHeight >
@@ -251,8 +255,10 @@ class TextComponent extends React.Component<TextComponentProps, State> {
 
   componentDidMount = () => {
     const textRef = get(this.textRef, "current.textRef");
+
     if (textRef && this.props.overflow === OverflowTypes.TRUNCATE) {
       const isTruncated = this.getTruncate(textRef);
+
       this.setState({ isTruncated });
     }
   };
@@ -261,8 +267,10 @@ class TextComponent extends React.Component<TextComponentProps, State> {
     if (!equal(prevProps, this.props)) {
       if (this.props.overflow === OverflowTypes.TRUNCATE) {
         const textRef = get(this.textRef, "current.textRef");
+
         if (textRef) {
           const isTruncated = this.getTruncate(textRef);
+
           this.setState({ isTruncated });
         }
       } else if (

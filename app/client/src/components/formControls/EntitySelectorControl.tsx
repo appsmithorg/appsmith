@@ -102,6 +102,8 @@ const EntitySelectorWrapper = styled.div<{
   `}
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function EntitySelectorComponent(props: any) {
   const { configProperty, schema } = props;
   const targetRef = useRef<HTMLDivElement>(null);
@@ -110,8 +112,11 @@ function EntitySelectorComponent(props: any) {
   const size = useResponsiveBreakpoints(targetRef, [{ small: 576 }]);
 
   const visibleSchemas = schema.filter(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (singleSchema: any) => !singleSchema.hidden,
   );
+
   return (
     <EntitySelectorContainer
       className={`t--${configProperty}`}
@@ -120,6 +125,8 @@ function EntitySelectorComponent(props: any) {
     >
       {visibleSchemas &&
         visibleSchemas.length > 0 &&
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         visibleSchemas.map((singleSchema: any, index: number) => {
           return (
             allowedControlTypes.includes(singleSchema.controlType) &&

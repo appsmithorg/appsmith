@@ -1,7 +1,7 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { redirectAuthorizationCode } from "actions/datasourceActions";
-import type { CalloutKind } from "design-system";
-import { Callout } from "design-system";
+import type { CalloutKind } from "@appsmith/ads";
+import { Callout } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import { ActionType } from "entities/Datasource";
 import React from "react";
@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getPlugin,
   getPluginTypeFromDatasourceId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import styled from "styled-components";
 import {
   GOOGLE_SHEETS_AUTHORIZE_DATASOURCE,
@@ -17,8 +17,8 @@ import {
   createMessage,
   GOOGLE_SHEETS_ASK_FOR_SUPPORT,
   DATASOURCE_INTERCOM_TEXT,
-} from "@appsmith/constants/messages";
-import { getAppsmithConfigs } from "@appsmith/configs";
+} from "ee/constants/messages";
+import { getAppsmithConfigs } from "ee/configs";
 import { DocsLink, openDoc } from "constants/DocumentationLinks";
 import type { Plugin } from "api/PluginApi";
 const { intercomAppID } = getAppsmithConfigs();
@@ -36,6 +36,8 @@ interface AuthMessageProps {
   datasource: Datasource;
   description: string;
   pageId?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   style?: any;
   calloutType?: CalloutKind;
   isInViewMode?: boolean;
@@ -59,10 +61,15 @@ export default function AuthMessage(props: AuthMessageProps) {
   const plugin: Plugin | undefined = useSelector((state) =>
     getPlugin(state, pluginId),
   );
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOauthAuthorization: any = () => {
     if (!pluginType || !pageId) return;
+
     dispatch(redirectAuthorizationCode(pageId, datasource.id, pluginType));
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDocumentationClick: any = (e: React.MouseEvent) => {
     e.stopPropagation();
     openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);

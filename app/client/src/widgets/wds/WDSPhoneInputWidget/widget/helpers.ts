@@ -1,14 +1,15 @@
-import {
-  createMessage,
-  FIELD_REQUIRED_ERROR,
-} from "@appsmith/constants/messages";
+import { createMessage, FIELD_REQUIRED_ERROR } from "ee/constants/messages";
 import type { ISDCodeProps } from "constants/ISDCodes_v2";
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function validateInput(props: any) {
   const value = props.parsedText ?? "";
   const isInvalid = "isValid" in props && !props.isValid && !!props.isDirty;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const conditionalProps: any = {};
 
   conditionalProps.errorMessage = props.errorMessage;
@@ -26,6 +27,7 @@ export function validateInput(props: any) {
 export const countryToFlag = (dialCode: string) => {
   const country = ISDCodeOptions.find((item) => item.dial_code === dialCode);
   const isoCode = country ? country.code : "";
+
   return typeof String.fromCodePoint !== "undefined"
     ? isoCode
         .toUpperCase()

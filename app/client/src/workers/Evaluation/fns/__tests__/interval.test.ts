@@ -2,12 +2,12 @@ jest.useFakeTimers();
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
-import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { ActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { overrideWebAPIs } from "../overrides";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
-import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 
 const dataTree: DataTree = {
@@ -68,6 +68,7 @@ describe("Tests for interval functions", () => {
   it("Should call the callback function after the interval", async () => {
     const callback = jest.fn();
     const interval = evalContext.setInterval(callback, 1000);
+
     jest.advanceTimersByTime(1000);
     expect(callback).toBeCalledTimes(1);
     evalContext.clearInterval(interval);
@@ -76,6 +77,7 @@ describe("Tests for interval functions", () => {
   it("Should not call the callback function after the interval is cleared", async () => {
     const callback = jest.fn();
     const interval = evalContext.setInterval(callback, 1000);
+
     jest.advanceTimersByTime(1000);
     expect(callback).toBeCalledTimes(1);
     evalContext.clearInterval(interval);
@@ -85,15 +87,19 @@ describe("Tests for interval functions", () => {
 
   it("Callback should have access to outer scope variables", async () => {
     const stalker = jest.fn();
+
     function runTest() {
       let count = 0;
       const interval = evalContext.setInterval(() => {
         count++;
         stalker(count);
       }, 1000);
+
       return interval;
     }
+
     const interval = runTest();
+
     jest.advanceTimersByTime(3000);
     evalContext.clearInterval(interval);
     expect(stalker).toBeCalledTimes(3);
@@ -104,12 +110,14 @@ describe("Tests for interval functions", () => {
 
   it("It should have access to platform fns inside callbacks", async () => {
     const showAlertMock = jest.fn();
+
     //@ts-expect-error no types for this
     self.showAlert = showAlertMock;
     const interval = evalContext.setInterval(() => {
       //@ts-expect-error no types for this
       self.showAlert("Hello World");
     }, 1000);
+
     jest.advanceTimersByTime(2000);
     evalContext.clearInterval(interval);
     expect(showAlertMock).toBeCalledTimes(2);
@@ -119,6 +127,7 @@ describe("Tests for interval functions", () => {
   it("clearInterval should remove only the mentioned interval, and not all the intervals", async () => {
     const callback = jest.fn();
     const interval1 = evalContext.setInterval(callback, 1000);
+
     evalContext.setInterval(callback, 1000, "intervalId1");
     evalContext.setInterval(callback, 1000, "intervalId2");
     jest.advanceTimersByTime(1000);

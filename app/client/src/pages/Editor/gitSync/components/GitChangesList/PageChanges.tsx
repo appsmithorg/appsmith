@@ -4,7 +4,7 @@ import {
   CollapsibleHeader,
   Icon,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import React, { useMemo } from "react";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import { ExpandableChange, ExpandableChangeKind } from "./ExpandableChange";
@@ -58,11 +58,13 @@ function SinglePageChange({ page, status }: SinglePageChangeProps) {
         query.startsWith(page),
       ),
     };
+
     return flags;
   }, [status]);
 
   const titleText = useMemo(() => {
     let text = `${page} `;
+
     if (changeFlags.isPageAdded) {
       text += "added";
     } else if (changeFlags.isPageRemoved) {
@@ -79,6 +81,7 @@ function SinglePageChange({ page, status }: SinglePageChangeProps) {
     ) {
       text += "modified";
     }
+
     return text;
   }, [page, changeFlags]);
 

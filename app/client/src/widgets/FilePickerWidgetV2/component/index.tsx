@@ -26,10 +26,13 @@ function FilePickerComponent(props: FilePickerComponentProps) {
     />
   );
 }
+
 export interface FilePickerComponentProps extends ComponentProps {
   label: string;
   openModal: () => void;
   isLoading: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   files?: any[];
   buttonColor: string;
   borderRadius: string;

@@ -3,7 +3,7 @@ import { Severity } from "entities/AppsmithConsole";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
@@ -14,7 +14,7 @@ import {
   addErrorToEntityProperty,
   getEntityNameAndPropertyPath,
   resetValidationErrorsForEntityProperty,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import { validate } from "workers/Evaluation/validations";
 import type { EvalProps } from ".";
 import type { ValidationResponse } from "constants/WidgetValidation";
@@ -40,6 +40,7 @@ export function validateAndParseWidgetProperty({
     // TODO find a way to validate triggers
     return unEvalPropertyValue;
   }
+
   const widgetConfig = configTree[widget.widgetName] as WidgetEntityConfig;
   const validation = widgetConfig.validationPaths[propertyPath];
 
@@ -66,6 +67,7 @@ export function validateAndParseWidgetProperty({
           severity: Severity.ERROR,
         };
       }) ?? [];
+
     // Add validation errors
     addErrorToEntityProperty({
       errors: evalErrors,
@@ -90,6 +92,7 @@ export function validateWidgetProperty(
       parsed: value,
     };
   }
+
   return validate(config, value, props, propertyPath);
 }
 
@@ -103,5 +106,6 @@ export function validateActionProperty(
       parsed: value,
     };
   }
+
   return validate(config, value, {}, "");
 }

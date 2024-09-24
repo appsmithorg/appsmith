@@ -113,8 +113,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
         SerialiseArtifactObjective serialiseArtifactObjective =
                 objective == null ? SerialiseArtifactObjective.SHARE : objective;
 
-        boolean isGitSync = SerialiseArtifactObjective.VERSION_CONTROL.equals(serialiseArtifactObjective)
-                || SerialiseArtifactObjective.KNOWLEDGE_BASE_GENERATION.equals(serialiseArtifactObjective);
+        boolean isGitSync = SerialiseArtifactObjective.VERSION_CONTROL.equals(serialiseArtifactObjective);
 
         // We need edit permission for git-related tasks, otherwise export permissions are required
         AclPermission permission =
@@ -130,7 +129,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
 
         // Find the transaction artifact with appropriate permission
         Mono<? extends Artifact> exportableArtifactMono = artifactBasedExportService
-                .findExistingArtifactByIdAndBranchName(artifactId, branchName, permission)
+                .findExistingArtifactByIdAndBranchName(artifactId, null, permission)
                 .map(transactionArtifact -> {
                     // Since we have moved the setting of artifactId from the repository, the MetaDTO needs to assigned
                     // from here
@@ -285,8 +284,8 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                 artifactId, branchName, SerialiseArtifactObjective.SHARE, artifactType);
     }
 
-    public Mono<ExportFileDTO> getArtifactFile(String artifactId, String branchName, ArtifactType artifactType) {
-        return exportByArtifactIdAndBranchName(artifactId, branchName, artifactType)
+    public Mono<ExportFileDTO> getArtifactFile(String branchedArtifactId, ArtifactType artifactType) {
+        return exportByArtifactId(branchedArtifactId, SerialiseArtifactObjective.SHARE, artifactType)
                 .doOnNext(artifactExchangeJson -> artifactExchangeJson.setModifiedResources(null))
                 .map(artifactExchangeJson -> {
                     String stringifiedFile = gson.toJson(artifactExchangeJson);

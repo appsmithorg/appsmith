@@ -13,11 +13,8 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { call } from "redux-saga/effects";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import {
-  addNewWidgetToDsl,
-  getCreateWidgetPayload,
-} from "../../widgetAdditionUtils";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { anvilWidgets } from "widgets/wds/constants";
+import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
 
 export function* createSectionAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,
@@ -29,10 +26,13 @@ export function* createSectionAndAddWidget(
    * Step 1: Create Section widget.
    */
   const widgetId: string = generateReactKey();
-  const updatedWidgets: CanvasWidgetsReduxState = yield call(
-    addNewWidgetToDsl,
+  const updatedWidgets: CanvasWidgetsReduxState = yield addNewAnvilWidgetToDSL(
     allWidgets,
-    getCreateWidgetPayload(widgetId, anvilWidgets.SECTION_WIDGET, parentId),
+    {
+      widgetId,
+      type: anvilWidgets.SECTION_WIDGET,
+      parentId,
+    },
   );
 
   /**
@@ -66,6 +66,7 @@ export function splitWidgets(
 ): WidgetLayoutProps[][] {
   const zones: WidgetLayoutProps[] = [];
   const nonZones: WidgetLayoutProps[] = [];
+
   widgets.forEach((widget: WidgetLayoutProps) => {
     if (widget.widgetType === anvilWidgets.ZONE_WIDGET) {
       zones.push(widget);
@@ -73,6 +74,7 @@ export function splitWidgets(
       nonZones.push(widget);
     }
   });
+
   return [zones, nonZones];
 }
 
@@ -87,21 +89,18 @@ function* addZoneToSection(
   const { widgetId: zoneWidgetId } = zone;
   const { widgetId: sectionWidgetId } = canvasProps;
   let canvasWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+
   if (!canvasWidgets[zoneWidgetId]) {
     /**
      * Zone does not exist.
      * => New widget.
      * => Create it and add to section.
      */
-    canvasWidgets = yield call(
-      addNewWidgetToDsl,
-      canvasWidgets,
-      getCreateWidgetPayload(
-        zoneWidgetId,
-        anvilWidgets.ZONE_WIDGET,
-        sectionWidgetId,
-      ),
-    );
+    canvasWidgets = yield addNewAnvilWidgetToDSL(canvasWidgets, {
+      widgetId: zoneWidgetId,
+      type: anvilWidgets.ZONE_WIDGET,
+      parentId: sectionWidgetId,
+    });
   } else {
     /**
      * Add zone widgetIds to canvas.children.
@@ -203,6 +202,7 @@ export function* addWidgetsToSection(
         { ...highlight, rowIndex: highlight.rowIndex + itemsAdded },
         sectionProps.widgetId,
       );
+
     sectionProps.children = [
       ...(sectionProps?.children || []),
       data.zone.widgetId,

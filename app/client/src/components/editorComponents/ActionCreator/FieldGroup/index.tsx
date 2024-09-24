@@ -60,6 +60,7 @@ function FieldGroup(props: FieldGroupProps) {
   if (fields.length === 0) return null;
 
   const remainingFields = fields.slice(1);
+
   return (
     <>
       {Field({
@@ -72,9 +73,12 @@ function FieldGroup(props: FieldGroupProps) {
       })}
 
       <ul className="flex flex-col mt-2 gap-2">
+        {/* TODO: Fix this the next time the file is edited */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {remainingFields.map((field: any, index: number) => {
           if (Array.isArray(field)) {
             const selectorField = field[0];
+
             return (
               <li key={index}>
                 <FieldGroup
@@ -85,12 +89,15 @@ function FieldGroup(props: FieldGroupProps) {
                   label={selectorField.label}
                   modalDropdownList={props.modalDropdownList}
                   onValueChange={(
+                    // TODO: Fix this the next time the file is edited
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     value: any,
                     isUpdatedViaKeyboard: boolean,
                   ) => {
                     const parentValue =
                       selectorField.getParentValue &&
                       selectorField.getParentValue(value);
+
                     props.onValueChange(
                       parentValue || value,
                       isUpdatedViaKeyboard,

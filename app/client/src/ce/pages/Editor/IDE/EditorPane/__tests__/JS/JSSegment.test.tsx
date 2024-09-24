@@ -5,7 +5,7 @@ import { Provider } from "react-redux";
 import type { Store } from "redux";
 import { createStore } from "redux";
 import { updateCurrentPage } from "actions/pageActions";
-import rootReducer from "@appsmith/reducers";
+import rootReducer from "ee/reducers";
 import * as redux from "react-redux";
 
 // Custom wrapper to provide any store to the provider
@@ -35,6 +35,7 @@ describe("JS Segment", () => {
     });
     const useDispatchSpy = jest.spyOn(redux, "useDispatch");
     const mockDispatchFn = jest.fn();
+
     useDispatchSpy.mockReturnValue(mockDispatchFn);
     const wrapper = getWrapper(store);
 

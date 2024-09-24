@@ -1,31 +1,28 @@
 import React from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { createMessage, NO_USERS_INVITED } from "@appsmith/constants/messages";
-import {
-  isPermitted,
-  PERMISSION_TYPE,
-} from "@appsmith/utils/permissionHelpers";
-import { Avatar, Icon, Spinner, Text, Tooltip } from "design-system";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { createMessage, NO_USERS_INVITED } from "ee/constants/messages";
+import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
+import { Avatar, Icon, Spinner, Text, Tooltip } from "@appsmith/ads";
 import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import { importSvg } from "design-system-old";
-import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
-import InviteUsersForm from "@appsmith/pages/workspace/InviteUsersForm";
-import { ENTITY_TYPE } from "@appsmith/constants/workspaceConstants";
+import { importSvg } from "@appsmith/ads-old";
+import type { WorkspaceUserRoles } from "ee/constants/workspaceConstants";
+import InviteUsersForm from "ee/pages/workspace/InviteUsersForm";
+import { ENTITY_TYPE } from "ee/constants/workspaceConstants";
 import {
   getAllAppUsers,
   getApplicationLoadingStates,
-} from "@appsmith/selectors/applicationSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+} from "ee/selectors/applicationSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import {
   getAllUsersOfWorkspace,
   selectedWorkspaceLoadingStates,
-} from "@appsmith/selectors/selectedWorkspaceSelectors";
-import type { AppState } from "@appsmith/reducers";
+} from "ee/selectors/selectedWorkspaceSelectors";
+import type { AppState } from "ee/reducers";
 
 const NoEmailConfigImage = importSvg(
   async () => import("assets/images/email-not-configured.svg"),
@@ -97,6 +94,8 @@ export const ManageUsersContainer = styled.div`
   padding: 12px 0;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function WorkspaceInviteUsers(props: any) {
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const userRef = React.createRef<HTMLDivElement>();
@@ -169,6 +168,7 @@ function WorkspaceInviteUsers(props: any) {
                     ? user.roles?.[0]?.entityType === ENTITY_TYPE.APPLICATION
                     : user.roles?.[0]?.entityType === ENTITY_TYPE.WORKSPACE) &&
                   user.roles?.[0]?.id;
+
                 return showUser ? (
                   <User
                     key={user?.userGroupId ? user.userGroupId : user.username}

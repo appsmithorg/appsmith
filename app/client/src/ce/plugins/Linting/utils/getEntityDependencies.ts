@@ -2,8 +2,8 @@ import {
   addWidgetPropertyDependencies,
   convertPathToString,
   getEntityNameAndPropertyPath,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+} from "ee/workers/Evaluation/evaluationUtils";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import type { DependencyMap as TDependencyMap } from "utils/DynamicBindingUtils";
 import { getPropertyPath } from "utils/DynamicBindingUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
@@ -17,7 +17,7 @@ import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { ActionEntity } from "plugins/Linting/lib/entity/ActionEntity";
 import type { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
 import type { WidgetEntity } from "plugins/Linting/lib/entity/WidgetEntity";
-import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
+import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
 
 export const getDependencies: Record<
   string,
@@ -47,6 +47,7 @@ export function getEntityDependencies(
 ): TDependencyMap | undefined {
   const entityType = entity.getType();
   const getDependenciesMethod = getDependencies[entityType];
+
   return getDependenciesMethod && getDependenciesMethod(entity);
 }
 
@@ -72,11 +73,13 @@ function getWidgetDependencies(widgetEntity: WidgetEntity): TDependencyMap {
       propertyPath,
       widgetEntity,
     );
+
     dependencies = mergeMaps(dependencies, dynamicPathDependency);
   }
 
   return dependencies;
 }
+
 function getJSDependencies(jsEntity: JSEntity): TDependencyMap {
   let dependencies: TDependencyMap = {};
   const jsActionConfig = jsEntity.getConfig();
@@ -87,19 +90,25 @@ function getJSDependencies(jsEntity: JSEntity): TDependencyMap {
       reactivePath,
       jsEntity,
     );
+
     dependencies = mergeMaps(dependencies, reactivePathDependency);
   }
+
   const jsEntityInternalDependencyMap =
     getEntityInternalDependencyMap(jsEntity);
+
   dependencies = mergeMaps(dependencies, jsEntityInternalDependencyMap);
+
   return dependencies;
 }
+
 function getActionDependencies(actionEntity: ActionEntity): TDependencyMap {
   let dependencies: TDependencyMap = {};
   const actionConfig = actionEntity.getConfig();
 
   const actionInternalDependencyMap =
     getEntityInternalDependencyMap(actionEntity);
+
   dependencies = mergeMaps(dependencies, actionInternalDependencyMap);
 
   const dynamicBindingPathList = getEntityDynamicBindingPathList(actionConfig);
@@ -110,6 +119,7 @@ function getActionDependencies(actionEntity: ActionEntity): TDependencyMap {
       propertyPath,
       actionEntity,
     );
+
     dependencies = mergeMaps(dependencies, dynamicPathDependency);
   }
 
@@ -131,6 +141,7 @@ export function getDependencyFromEntityPath(
   const dynamicPathDependency: TDependencyMap = {
     [`${entityName}.${propertyPath}`]: validJSSnippets,
   };
+
   return dynamicPathDependency;
 }
 
@@ -149,8 +160,10 @@ function getEntityInternalDependencyMap(entity: IEntity) {
     const fullPathDependencies = pathDependencies.map(
       (dependentPath) => `${entityName}.${dependentPath}`,
     );
+
     dependencies[fullPropertyPath] = fullPathDependencies;
   }
+
   return dependencies;
 }
 
@@ -160,11 +173,13 @@ export function getEntityPathDependencies(
 ) {
   const entityType = entity.getType();
   const getPathDependenciesMethod = getPathDependencies[entityType];
+
   return (
     getPathDependenciesMethod &&
     getPathDependenciesMethod(entity, fullPropertyPath)
   );
 }
+
 function getWidgetPropertyPathDependencies(
   widgetEntity: WidgetEntity,
   fullPropertyPath: string,
@@ -190,6 +205,7 @@ function getWidgetPropertyPathDependencies(
 
   return dynamicPathDependency;
 }
+
 function getJSPropertyPathDependencies(
   jsEntity: JSEntity,
   fullPropertyPath: string,
@@ -202,14 +218,17 @@ function getJSPropertyPathDependencies(
     Object.keys(jsActionReactivePaths).find(
       (path) => path === entityPropertyPath,
     ) !== undefined;
+
   if (!isPathAReactivePath) return {};
 
   const reactivePathDependency = getDependencyFromEntityPath(
     entityPropertyPath,
     jsEntity,
   );
+
   return reactivePathDependency;
 }
+
 function getActionPropertyPathDependencies(
   actionEntity: ActionEntity,
   fullPropertyPath: string,
@@ -239,9 +258,11 @@ export function extractReferencesFromPath(
   tree: Record<string, unknown>,
 ) {
   if (!PathUtils.isDynamicLeaf(entity, fullPropertyPath)) return [];
+
   const entityPropertyPath = getPropertyPath(fullPropertyPath);
   const rawEntity = entity.getRawEntity() as DataTreeEntity;
   const propertyPathContent = get(rawEntity, entityPropertyPath);
+
   if (!isString(propertyPathContent)) return [];
 
   const { jsSnippets } = getDynamicBindings(propertyPathContent, rawEntity);
@@ -252,6 +273,7 @@ export function extractReferencesFromPath(
       extractReferencesFromJSSnippet(jsSnippet, tree),
     ),
   );
+
   return referencesInPropertyPath;
 }
 
@@ -263,6 +285,7 @@ export function extractReferencesFromJSSnippet(
   const prunedReferences = flatten(
     references.map((reference) => getPrunedReference(reference, tree)),
   );
+
   return uniq(prunedReferences);
 }
 
@@ -273,17 +296,21 @@ function getPrunedReference(
   if (has(tree, reference)) {
     return [reference];
   }
+
   const subpaths = toPath(reference);
   let currentString = "";
   const references = [];
+
   // We want to keep going till we reach top level
   while (subpaths.length > 0) {
     currentString = convertPathToString(subpaths);
     references.push(currentString);
+
     // We've found the dep, add it and return
     if (has(tree, currentString)) {
       return references;
     }
+
     subpaths.pop();
   }
 

@@ -1,9 +1,9 @@
 import type {
   WidgetEntity,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import type { EntityDefinitionsOptions } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import type { EntityDefinitionsOptions } from "ee/utils/autocomplete/EntityDefinitions";
 import { isFunction } from "lodash";
 import type { Def } from "tern";
 import WidgetFactory from "WidgetProvider/factory";
@@ -26,8 +26,13 @@ export const getWidgetChildrenPeekData = (
       | "ICON_WIDGET"
       | "SKELETON_WIDGET"
       | "TABS_MIGRATOR_WIDGET"
-    > = dataTreeWidget.type as any;
+    > = // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      dataTreeWidget.type as any;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let config: any = WidgetFactory.getAutocompleteDefinitions(type);
+
     if (config) {
       if (isFunction(config)) config = config(dataTreeWidget);
 
@@ -50,6 +55,7 @@ export const getWidgetChildrenPeekData = (
         if (widgetConfig.__setters) {
           setterNames = Object.keys(widgetConfig.__setters);
         }
+
         if (setterNames.includes(prop)) {
           // eslint-disable-next-line @typescript-eslint/no-empty-function
           peekData[prop] = function () {}; // tern inference required here
@@ -59,5 +65,6 @@ export const getWidgetChildrenPeekData = (
       });
     }
   }
+
   return { peekData };
 };

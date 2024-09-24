@@ -7,11 +7,11 @@ import {
   MenuSubTrigger,
   MenuSubContent,
   MenuSeparator,
-} from "design-system";
+} from "@appsmith/ads";
 import type { noop } from "lodash";
 
-import type { CommonComponentProps } from "design-system-old";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import type { CommonComponentProps } from "@appsmith/ads-old";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { MenuTypes } from "./types";
 
 export interface MenuItemData {
@@ -50,7 +50,9 @@ export function NavigationMenuItem({
 
   const handleClick = (e: React.SyntheticEvent, item: MenuItemData) => {
     setIsPopoverOpen(false);
+
     if (item.onClick) item.onClick(e);
+
     AnalyticsUtil.logEvent("APP_MENU_OPTION_CLICK", {
       option: item.text,
     });

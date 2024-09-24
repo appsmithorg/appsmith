@@ -39,6 +39,8 @@ const canvasStructure: CanvasStructure = {
   ],
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const simpleDSL: any = {
   widgetId: "x",
   widgetName: "x",
@@ -91,6 +93,8 @@ describe("Immutable Canvas structures", () => {
     expect(nextState).toBe(canvasStructure);
   });
   it("updates the diff appropriately", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dsl: any = {
       widgetId: "x",
       widgetName: "x",
@@ -160,6 +164,7 @@ describe("Immutable Canvas structures", () => {
       canvasStructure,
       dsl,
     );
+
     expect(nextState).not.toBe(expectedCanvasStructure);
     expect(JSON.stringify(nextState)).toBe(
       JSON.stringify(expectedCanvasStructure),

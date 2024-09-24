@@ -516,6 +516,8 @@ class SwitchGroupWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedValuesArray: undefined,
@@ -576,6 +578,7 @@ class SwitchGroupWidget extends BaseWidget<
     // TODO(abhinav): Not sure why we have to do this.
     // Check with the App Viewers Pod
     let _options = options;
+
     if (isString(options)) {
       try {
         _options = JSON.parse(options as string);
@@ -613,6 +616,7 @@ class SwitchGroupWidget extends BaseWidget<
     return (event: React.FormEvent<HTMLElement>) => {
       let { selectedValuesArray } = this.props;
       const isChecked = (event.target as HTMLInputElement).checked;
+
       if (isChecked) {
         selectedValuesArray = [...selectedValuesArray, value];
       } else {

@@ -3,6 +3,8 @@ import { error } from "loglevel";
 export default class WidgetQueryGeneratorRegistry {
   private static queryGeneratorMap = new Map();
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static register(id: string, queryGenerator: any) {
     if (WidgetQueryGeneratorRegistry.queryGeneratorMap.has(id)) {
       error("There is already a widget query generator with the given id:", id);
@@ -22,6 +24,7 @@ export default class WidgetQueryGeneratorRegistry {
 
     if (!queryAdaptor) {
       error("Couldn't find the query generator with the given id:", id);
+
       return;
     }
 

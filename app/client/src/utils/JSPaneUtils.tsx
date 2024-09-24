@@ -1,6 +1,6 @@
 //check difference for after body change and parsing
 import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
 
@@ -45,12 +45,14 @@ export const getDifferenceInJSCollection = (
   const toBeUpdatedActions: JSAction[] = [];
   const nameChangedActions = [];
   const toBeAddedActions: Partial<JSAction>[] = [];
+
   //check if body is changed and update if exists or
   // add to new array so it can be added to main collection
   if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
       const action = parsedBody.actions[i];
       const preExisted = jsAction.actions.find((js) => js.name === action.name);
+
       if (preExisted) {
         if (preExisted.actionConfiguration.body !== action.body) {
           toBeUpdatedActions.push({
@@ -67,6 +69,7 @@ export const getDifferenceInJSCollection = (
       }
     }
   }
+
   //create deleted action list
   if (jsAction.actions && jsAction.actions.length > 0 && parsedBody.actions) {
     for (let i = 0; i < jsAction.actions.length; i++) {
@@ -74,25 +77,30 @@ export const getDifferenceInJSCollection = (
       const existed = parsedBody.actions.find(
         (js: ParsedJSSubAction) => js.name === preAction.name,
       );
+
       if (!existed) {
         toBearchivedActions.push(preAction);
       }
     }
   }
+
   //check if new is name changed from deleted actions
   if (toBearchivedActions.length && newActions.length) {
     for (let i = 0; i < newActions.length; i++) {
       const nameChange = toBearchivedActions.find(
         (js) => js.actionConfiguration.body === newActions[i].body,
       );
+
       if (nameChange) {
         const updateExisting = jsAction.actions.find(
           (js) => js.id === nameChange.id,
         );
+
         if (updateExisting) {
           const indexOfArchived = toBearchivedActions.findIndex((js) => {
             js.id === updateExisting.id;
           });
+
           //will be part of new nameChangedActions for now
           toBeUpdatedActions.push({
             ...updateExisting,
@@ -129,28 +137,35 @@ export const getDifferenceInJSCollection = (
           jsArguments: action.arguments || [],
         },
       };
+
       toBeAddedActions.push(obj);
     }
   }
+
   if (toBearchivedActions.length > 0) {
     for (let i = 0; i < toBearchivedActions.length; i++) {
       const action = toBearchivedActions[i];
       const deleteArchived = jsAction.actions.findIndex((js) => {
         action.id === js.id;
       });
+
       jsAction.actions.splice(deleteArchived, 1);
     }
   }
+
   //change in variables. In cases the variable list is not present, jsAction.variables will be undefined
   // we are setting to empty array to avoid undefined errors further in the code (especially in case of workflows main file)
   const varList = jsAction.variables || [];
   let changedVariables: Array<Variable> = [];
+
   if (parsedBody.variables.length) {
     for (let i = 0; i < parsedBody.variables.length; i++) {
       const newVar = parsedBody.variables[i];
       const existedVar = varList.find((item) => item.name === newVar.name);
+
       if (!!existedVar) {
         const existedValue = existedVar.value;
+
         if (
           (!!existedValue &&
             existedValue.toString() !==
@@ -166,6 +181,7 @@ export const getDifferenceInJSCollection = (
   } else {
     changedVariables = varList;
   }
+
   //delete variable
   if (varList && varList.length > 0 && parsedBody.variables) {
     for (let i = 0; i < varList.length; i++) {
@@ -173,14 +189,17 @@ export const getDifferenceInJSCollection = (
       const existed = parsedBody.variables.find(
         (jsVar: Variable) => jsVar.name === preVar.name,
       );
+
       if (!existed) {
         const newvarList = varList.filter(
           (deletedVar) => deletedVar.name !== preVar.name,
         );
+
         changedVariables = changedVariables.concat(newvarList);
       }
     }
   }
+
   return {
     newActions: toBeAddedActions,
     updateActions: toBeUpdatedActions,

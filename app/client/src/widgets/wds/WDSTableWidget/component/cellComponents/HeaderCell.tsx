@@ -3,14 +3,7 @@ import React, { useCallback, memo } from "react";
 
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
-import {
-  Flex,
-  Icon,
-  IconButton,
-  Menu,
-  MenuTrigger,
-  Text,
-} from "@design-system/widgets";
+import { Flex, Icon, IconButton, Menu, MenuTrigger, Text } from "@appsmith/wds";
 
 interface HeaderProps {
   canFreezeColumn?: boolean;
@@ -23,6 +16,8 @@ interface HeaderProps {
   columnOrder?: string[];
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   column: any;
   editMode?: boolean;
   isSortable?: boolean;
@@ -50,6 +45,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
   const { column, isSortable } = props;
 
   const headerProps = { ...column.getHeaderProps() };
+
   headerProps["style"] = {
     ...headerProps.style,
     display: "flex",
@@ -60,12 +56,16 @@ const HeaderCellComponent = (props: HeaderProps) => {
   };
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
+
     let columnIndex = props.columnIndex;
+
     if (props.isAscOrder === true) {
       columnIndex = -1;
     }
+
     const sortOrder =
       props.isAscOrder === undefined ? false : !props.isAscOrder;
+
     props.sortTableColumn(columnIndex, sortOrder);
   };
 
@@ -214,4 +214,5 @@ const HeaderCellComponent = (props: HeaderProps) => {
     </th>
   );
 };
+
 export const HeaderCell = memo(HeaderCellComponent);

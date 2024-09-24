@@ -4,7 +4,7 @@ import {
   isATriggerPath,
   isDynamicLeaf,
   isJSAction,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 
 export default function sortLintingPathsByType(
   pathsToLint: string[],
@@ -28,6 +28,7 @@ export default function sortLintingPathsByType(
 
     // We are only interested in dynamic leaves
     if (!isDynamicLeaf(unevalTree, fullPropertyPath, configTree)) continue;
+
     if (isATriggerPath(entityConfig, propertyPath)) {
       triggerPaths.add(fullPropertyPath);
       continue;

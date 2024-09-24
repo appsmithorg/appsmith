@@ -1,6 +1,6 @@
-import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
 import { PluginType } from "entities/Action";
-import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { ActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import initLocalStorage from "../overrides/localStorage";
@@ -29,6 +29,7 @@ describe("Tests localStorage implementation in worker", () => {
     } as ActionEntity,
   };
   const workerEventMock = jest.fn();
+
   self.postMessage = workerEventMock;
   self["$isDataField"] = false;
   const evalContext = createEvaluationContext({
@@ -42,6 +43,7 @@ describe("Tests localStorage implementation in worker", () => {
   it("setItem()", () => {
     const key = "some";
     const value = "thing";
+
     jest.useFakeTimers();
     evalContext.localStorage.setItem(key, value);
     jest.runAllTimers();

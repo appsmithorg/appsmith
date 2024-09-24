@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
@@ -59,8 +59,10 @@ export const WidgetFeaturePropertyEnhancements: Record<
     const config = widget.getConfig();
 
     const newProperties: Partial<WidgetProps> = {};
+
     newProperties.dynamicHeight =
       features?.dynamicHeight?.defaultValue || DynamicHeight.AUTO_HEIGHT;
+
     if (config.isCanvas) {
       newProperties.dynamicHeight = DynamicHeight.AUTO_HEIGHT;
       newProperties.minDynamicHeight =
@@ -75,7 +77,9 @@ export const WidgetFeaturePropertyEnhancements: Record<
       newProperties.maxDynamicHeight =
         defaults.maxDynamicHeight || WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
     }
+
     if (defaults.overflow) newProperties.overflow = "NONE";
+
     return newProperties;
   },
 };
@@ -109,6 +113,7 @@ function findAndUpdatePropertyPaneControlConfig(
         }
       });
     }
+
     return sectionConfig;
   });
 }
@@ -130,6 +135,7 @@ export const WidgetFeaturePropertyPaneEnhancements: Record<
         props.dynamicHeight === DynamicHeight.AUTO_HEIGHT
       );
     }
+
     let update = findAndUpdatePropertyPaneControlConfig(config, {
       shouldScrollContents: {
         hidden: hideWhenDynamicHeightIsEnabled,
@@ -148,6 +154,7 @@ export const WidgetFeaturePropertyPaneEnhancements: Record<
         dependencies: ["dynamicHeight"],
       },
     });
+
     if (widgetType === "MODAL_WIDGET") {
       update = findAndUpdatePropertyPaneControlConfig(update, {
         dynamicHeight: {
@@ -164,6 +171,7 @@ export const WidgetFeaturePropertyPaneEnhancements: Record<
         },
       });
     }
+
     return update;
   },
 };
@@ -202,7 +210,9 @@ function updateMinMaxDynamicHeight(
         propertyValue: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
       });
     }
+
     const maxDynamicHeight = parseInt(props.maxDynamicHeight, 10);
+
     if (
       isNaN(maxDynamicHeight) ||
       maxDynamicHeight === WidgetHeightLimits.MAX_HEIGHT_IN_ROWS ||
@@ -226,6 +236,7 @@ function updateMinMaxDynamicHeight(
     const minHeightInRows = props.isCanvas
       ? WidgetHeightLimits.MIN_CANVAS_HEIGHT_IN_ROWS
       : WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+
     updates.push(
       {
         propertyPath: "minDynamicHeight",
@@ -264,24 +275,28 @@ function updateMinMaxDynamicHeight(
         propertyValue: props.topRow,
       });
     }
+
     if (!props.shouldScrollContents) {
       updates.push({
         propertyPath: "shouldScrollContents",
         propertyValue: true,
       });
     }
+
     if (props.overflow !== undefined) {
       updates.push({
         propertyPath: "overflow",
         propertyValue: "NONE",
       });
     }
+
     if (props.scrollContents === true) {
       updates.push({
         propertyPath: "scrollContents",
         propertyValue: false,
       });
     }
+
     if (props.fixedFooter === true) {
       updates.push({
         propertyPath: "fixedFooter",

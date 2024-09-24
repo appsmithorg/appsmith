@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import React from "react";
 import type { HeaderProps } from "./types";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 
 export const HeaderContainer = styled.div`
   padding: 32px 32px 20px;
@@ -30,6 +30,7 @@ export function HeaderComponent(props: HeaderProps) {
       </Text>
     </div>
   ));
+
   return (
     <HeaderContainer
       className="upgrade-page-header-container"

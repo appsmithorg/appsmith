@@ -225,6 +225,7 @@ describe(
       agHelper.GetNClick(propPane._checkbox, 1, true);
       PageList.VerifyIsCurrentPage("Page2");
       agHelper.GetNClick(locators._exitPreviewMode);
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
 
       // Deploy mode
       deployMode.DeployApp();

@@ -1,4 +1,4 @@
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 import { groupAndSortEntitySegmentList } from "./appIDESelectors";
 import { PluginType } from "entities/Action";
 
@@ -57,6 +57,7 @@ describe("groupAndSortEntitySegmentList", () => {
 
   it("should handle empty input", () => {
     const result = groupAndSortEntitySegmentList([]);
+
     expect(result).toEqual([]);
   });
 

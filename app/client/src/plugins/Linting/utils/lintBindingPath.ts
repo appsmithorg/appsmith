@@ -1,7 +1,7 @@
 import type { LintError } from "utils/DynamicBindingUtils";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { getScriptToEval, getScriptType } from "workers/Evaluation/evaluate";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import type { lintBindingPathProps } from "../types";
 import getLintingErrors from "./getLintingErrors";
 import { getJSToLint } from "./getJSToLint";
@@ -11,6 +11,7 @@ export default function lintBindingPath({
   entity,
   fullPropertyPath,
   globalData,
+  webworkerTelemetry,
 }: lintBindingPathProps) {
   let lintErrors: LintError[] = [];
   const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
@@ -37,10 +38,13 @@ export default function lintBindingPath({
           data: globalData,
           originalBinding,
           scriptType,
+          webworkerTelemetry,
         });
+
         lintErrors = lintErrors.concat(lintErrorsFromSnippet);
       }
     });
   }
+
   return lintErrors;
 }

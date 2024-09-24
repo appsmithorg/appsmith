@@ -18,7 +18,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { LayoutSystemTypes } from "layoutSystems/types";
 
@@ -75,9 +75,13 @@ export default {
   triggeredItemView: "{{{}}}",
   enhancements: {
     child: {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       autocomplete: (parentProps: any) => {
         return parentProps.childAutoComplete;
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       shouldHideProperty: (parentProps: any, propertyName: string) => {
         if (propertyName === "dynamicHeight") return true;
 
@@ -387,6 +391,7 @@ export default {
           layoutSystemType: LayoutSystemTypes,
         ) => {
           if (!parentId) return { widgets };
+
           const widget = { ...widgets[widgetId] };
 
           widget.dynamicHeight = DynamicHeight.FIXED;
@@ -396,6 +401,7 @@ export default {
           }
 
           widgets[widgetId] = widget;
+
           return { widgets };
         },
       },

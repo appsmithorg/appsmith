@@ -9,14 +9,14 @@ import {
   FocusStoreHierarchy,
   identifyEntityFromPath,
 } from "navigation/FocusEntity";
-import { EditorState } from "@appsmith/entities/IDE/constants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { EditorState } from "ee/entities/IDE/constants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   datasourcesEditorURL,
   jsCollectionListURL,
   queryListURL,
   widgetListURL,
-} from "@appsmith/RouteBuilder";
+} from "ee/RouteBuilder";
 import AppIDEFocusElements from "../FocusElements/AppIDE";
 
 function shouldSetState(
@@ -31,6 +31,7 @@ function shouldSetState(
   ) {
     return false;
   }
+
   if (
     state &&
     state.invokedBy &&
@@ -57,6 +58,7 @@ function shouldSetState(
   ) {
     return false;
   }
+
   // While switching from selected widget state to canvas,
   // it should not be restored stored state for canvas
   return !(
@@ -70,23 +72,26 @@ function shouldSetState(
 const isPageChange = (prevPath: string, currentPath: string) => {
   const prevFocusEntityInfo = identifyEntityFromPath(prevPath);
   const currFocusEntityInfo = identifyEntityFromPath(currentPath);
+
   if (
-    prevFocusEntityInfo.params.pageId === "" ||
-    currFocusEntityInfo.params.pageId === ""
+    prevFocusEntityInfo.params.basePageId === "" ||
+    currFocusEntityInfo.params.basePageId === ""
   ) {
     return false;
   }
+
   return (
-    prevFocusEntityInfo.params.pageId !== currFocusEntityInfo.params.pageId
+    prevFocusEntityInfo.params.basePageId !==
+    currFocusEntityInfo.params.basePageId
   );
 };
 
-export const createEditorFocusInfoKey = (pageId: string, branch?: string) =>
-  `EDITOR_STATE.${pageId}#${branch}`;
-export const createEditorFocusInfo = (pageId: string, branch?: string) => ({
-  key: createEditorFocusInfoKey(pageId, branch),
+export const createEditorFocusInfoKey = (basePageId: string, branch?: string) =>
+  `EDITOR_STATE.${basePageId}#${branch}`;
+export const createEditorFocusInfo = (basePageId: string, branch?: string) => ({
+  key: createEditorFocusInfoKey(basePageId, branch),
   entityInfo: {
-    id: `EDITOR.${pageId}`,
+    id: `EDITOR.${basePageId}`,
     appState: EditorState.EDITOR,
     entity: FocusEntity.EDITOR,
     params: {},
@@ -103,6 +108,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     if (!shouldSetState(previousPath, currentPath, state)) {
       return [];
     }
+
     const branch: string | undefined = yield select(getCurrentGitBranch);
     const entities: Array<{ entityInfo: FocusEntityInfo; key: string }> = [];
     const prevEntityInfo = identifyEntityFromPath(previousPath);
@@ -111,12 +117,13 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     // Only set the editor state if switching between pages or app states
     if (
       currentEntityInfo.entity === FocusEntity.CANVAS &&
-      (prevEntityInfo.params.pageId !== currentEntityInfo.params.pageId ||
+      (prevEntityInfo.params.basePageId !==
+        currentEntityInfo.params.basePageId ||
         prevEntityInfo.appState !== currentEntityInfo.appState)
     ) {
-      if (currentEntityInfo.params.pageId) {
+      if (currentEntityInfo.params.basePageId) {
         entities.push(
-          createEditorFocusInfo(currentEntityInfo.params.pageId, branch),
+          createEditorFocusInfo(currentEntityInfo.params.basePageId, branch),
         );
       }
     }
@@ -125,6 +132,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       entityInfo: currentEntityInfo,
       key: `${currentPath}#${branch}`,
     });
+
     return entities;
   },
   *getEntitiesForStore(path: string, currentPath: string) {
@@ -136,11 +144,13 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     // If the entity has a parent defined, store the state of the parent as well.
     if (prevFocusEntityInfo.entity in FocusStoreHierarchy) {
       const parentEntity = FocusStoreHierarchy[prevFocusEntityInfo.entity];
+
       if (parentEntity && parentEntity !== currentFocusEntityInfo.entity) {
         const parentPath = AppIDEFocusStrategy.getEntityParentUrl(
           prevFocusEntityInfo,
           parentEntity,
         );
+
         entities.push({
           entityInfo: {
             entity: parentEntity,
@@ -159,17 +169,17 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       prevFocusEntityInfo.appState === EditorState.EDITOR &&
       prevFocusEntityInfo.entity !== FocusEntity.NONE &&
       (prevFocusEntityInfo.entity !== currentFocusEntityInfo.entity ||
-        prevFocusEntityInfo.params.pageId !==
-          currentFocusEntityInfo.params.pageId)
+        prevFocusEntityInfo.params.basePageId !==
+          currentFocusEntityInfo.params.basePageId)
     ) {
       entities.push({
         entityInfo: {
           entity: FocusEntity.EDITOR,
-          id: `EDITOR.${prevFocusEntityInfo.params.pageId}`,
+          id: `EDITOR.${prevFocusEntityInfo.params.basePageId}`,
           appState: EditorState.EDITOR,
           params: prevFocusEntityInfo.params,
         },
-        key: `EDITOR_STATE.${prevFocusEntityInfo.params.pageId}#${branch}`,
+        key: `EDITOR_STATE.${prevFocusEntityInfo.params.basePageId}#${branch}`,
       });
     }
 
@@ -190,26 +200,31 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     parentEntity: FocusEntity,
   ): string => {
     let parentUrl: string = "";
+
     if (parentEntity === FocusEntity.WIDGET_LIST) {
       parentUrl = widgetListURL({
-        pageId: entityInfo.params.pageId,
+        basePageId: entityInfo.params.basePageId,
       });
     }
+
     if (parentEntity === FocusEntity.DATASOURCE_LIST) {
       parentUrl = datasourcesEditorURL({
-        pageId: entityInfo.params.pageId,
+        basePageId: entityInfo.params.basePageId,
       });
     }
+
     if (parentEntity === FocusEntity.JS_OBJECT_LIST) {
       parentUrl = jsCollectionListURL({
-        pageId: entityInfo.params.pageId,
+        basePageId: entityInfo.params.basePageId,
       });
     }
+
     if (parentEntity === FocusEntity.QUERY_LIST) {
       parentUrl = queryListURL({
-        pageId: entityInfo.params.pageId,
+        basePageId: entityInfo.params.basePageId,
       });
     }
+
     // We do not have to add any query params because this url is used as the key
     return parentUrl.split("?")[0];
   },

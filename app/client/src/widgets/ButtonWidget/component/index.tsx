@@ -13,7 +13,7 @@ import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 import ReCAPTCHA from "react-google-recaptcha";
 import { Colors } from "constants/Colors";
@@ -34,7 +34,7 @@ import {
 import { DragContainer } from "./DragContainer";
 import { buttonHoverActiveStyles } from "./utils";
 import type { ThemeProp } from "WidgetProvider/constants";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 
 const RecaptchaWrapper = styled.div`
   position: relative;
@@ -281,6 +281,8 @@ interface ButtonComponentProps extends ComponentProps {
 }
 
 interface RecaptchaV2ComponentPropType {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: any;
   className?: string;
   isDisabled?: boolean;
@@ -299,7 +301,9 @@ function RecaptchaV2Component(
   };
   const handleBtnClick = async (event: React.MouseEvent<HTMLElement>) => {
     if (props.isDisabled) return;
+
     if (props.isLoading) return;
+
     if (isInvalidKey) {
       // Handle incorrent google recaptcha site key
       props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
@@ -308,12 +312,14 @@ function RecaptchaV2Component(
       try {
         await recaptchaRef?.current?.reset();
         const token = await recaptchaRef?.current?.executeAsync();
+
         if (token) {
           props.clickWithRecaptcha(token);
         } else {
           // Handle incorrent google recaptcha site key
           props.handleError(event, createMessage(GOOGLE_RECAPTCHA_KEY_ERROR));
         }
+
         handleRecaptchaLoading(false);
       } catch (err) {
         handleRecaptchaLoading(false);
@@ -322,6 +328,7 @@ function RecaptchaV2Component(
       }
     }
   };
+
   return (
     <RecaptchaWrapper className={props.className} onClick={handleBtnClick}>
       {props.children}
@@ -336,6 +343,8 @@ function RecaptchaV2Component(
 }
 
 interface RecaptchaV3ComponentPropType {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: any;
   className?: string;
   isDisabled?: boolean;
@@ -354,14 +363,21 @@ function RecaptchaV3Component(
 
   const handleBtnClick = (event: React.MouseEvent<HTMLElement>) => {
     if (props.isDisabled) return;
+
     if (props.isLoading) return;
+
     if (status === ScriptStatus.READY) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).grecaptcha.ready(() => {
         try {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (window as any).grecaptcha
             .execute(props.googleRecaptchaKey, {
               action: "submit",
-            })
+            }) // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .then((token: any) => {
               props.clickWithRecaptcha(token);
             })
@@ -384,13 +400,16 @@ function RecaptchaV3Component(
   };
 
   let validGoogleRecaptchaKey = props.googleRecaptchaKey;
+
   if (validGoogleRecaptchaKey && !checkValidJson(validGoogleRecaptchaKey)) {
     validGoogleRecaptchaKey = undefined;
   }
+
   const status = useScript(
     `https://www.google.com/recaptcha/api.js?render=${validGoogleRecaptchaKey}`,
     AddScriptTo.HEAD,
   );
+
   return (
     <div className={props.className} onClick={handleBtnClick}>
       {props.children}
@@ -404,6 +423,8 @@ const Wrapper = styled.div`
 
 function BtnWrapper(
   props: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     children: any;
     className?: string;
     isDisabled?: boolean;
@@ -414,6 +435,7 @@ function BtnWrapper(
   const hasOnClick = Boolean(
     props.onClick && !props.isLoading && !props.isDisabled,
   );
+
   if (!props.googleRecaptchaKey) {
     return (
       <Wrapper
@@ -433,6 +455,7 @@ function BtnWrapper(
       });
       props.onClick && !props.isLoading && props.onClick(event);
     };
+
     if (props.recaptchaType === RecaptchaTypes.V2) {
       return <RecaptchaV2Component {...props} handleError={handleError} />;
     } else {
@@ -476,6 +499,7 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
       />
     </BtnWrapper>
   );
+
   if (props.tooltip) {
     return (
       <ToolTipWrapper>

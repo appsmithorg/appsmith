@@ -16,6 +16,9 @@ export enum NodeTypes {
   AssignmentPattern = "AssignmentPattern",
   Literal = "Literal",
   Property = "Property",
+  RestElement = "RestElement",
+  ObjectPattern = "ObjectPattern",
+  ArrayPattern = "ArrayPattern",
   // Declaration - https://github.com/estree/estree/blob/master/es5.md#declarations
   FunctionDeclaration = "FunctionDeclaration",
   ExportDefaultDeclaration = "ExportDefaultDeclaration",

@@ -1,8 +1,8 @@
 import type { ReactElement } from "react";
 import React, { useState, useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getEditorConfig } from "@appsmith/selectors/entitiesSelector";
-import type { AppState } from "@appsmith/reducers";
+import { getEditorConfig } from "ee/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";
 import { SelectWrapper, Label, Bold } from "./styles";
@@ -13,8 +13,8 @@ import type {
   UseSpreadSheetsReturn,
   UseSheetColumnHeadersReturn,
 } from "./hooks";
-import type { DropdownOption } from "design-system-old";
-import { getTypographyByKey, Text, TextType } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
+import { getTypographyByKey, Text, TextType } from "@appsmith/ads-old";
 import { debounce } from "lodash";
 import {
   createMessage,
@@ -22,8 +22,8 @@ import {
   GEN_CRUD_COLUMN_HEADER_TITLE,
   GEN_CRUD_NO_COLUMNS,
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
-} from "@appsmith/constants/messages";
-import { Icon, Option, Select, Input, Tooltip } from "design-system";
+} from "ee/constants/messages";
+import { Icon, Option, Select, Input, Tooltip } from "@appsmith/ads";
 
 interface Props {
   googleSheetPluginId: string;
@@ -38,6 +38,8 @@ interface Props {
     onSubmit: () => void;
     disabled: boolean;
     isLoading: boolean;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }) => ReactElement<any, any>;
   sheetsListProps: UseSheetListReturn;
   spreadSheetsProps: UseSpreadSheetsReturn;
@@ -93,6 +95,7 @@ const RowHeading = styled.p`
 // to check for only whole numbers.
 export function isNumberValidator(value: string) {
   const isValid = (/^\d+$/.test(value) && Number(value) > 0) || value === "";
+
   return {
     isValid: isValid,
     message: !isValid ? "Only numeric value allowed" : "",
@@ -136,9 +139,10 @@ function GoogleSheetForm(props: Props) {
     getEditorConfig(state, googleSheetPluginId),
   );
 
-  const [sheetQueryRequest, setSheetQueryRequest] = useState<
-    Record<any, string>
-  >({});
+  const [sheetQueryRequest, setSheetQueryRequest] =
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    useState<Record<any, string>>({});
 
   useEffect(() => {
     // Check if google sheet editor config is fetched.
@@ -155,19 +159,25 @@ function GoogleSheetForm(props: Props) {
 
   useEffect(() => {
     if (googleSheetEditorConfig && googleSheetEditorConfig[0]) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const requestObject: Record<any, string> = {};
       const configs = googleSheetEditorConfig[0]?.children;
+
       if (Array.isArray(configs)) {
         for (let index = 0; index < configs.length; index += 2) {
           const keyConfig = configs[index];
           const valueConfig = configs[index + 1];
+
           if (keyConfig && valueConfig) {
             const key = keyConfig?.initialValue;
             const value = valueConfig?.initialValue;
+
             if (key && value !== undefined) requestObject[key] = value;
           }
         }
       }
+
       setSheetQueryRequest(requestObject);
     }
   }, [googleSheetEditorConfig]);
@@ -218,6 +228,7 @@ function GoogleSheetForm(props: Props) {
   ) => {
     if (sheetValue && sheetObj) {
       setSelectedSheet(sheetObj);
+
       if (selectedDatasource.id && selectedSpreadsheet.value) {
         fetchColumnHeaderList({
           selectedDatasourceId: selectedDatasource.id,
@@ -234,6 +245,7 @@ function GoogleSheetForm(props: Props) {
   const onSubmit = () => {
     if (selectedSpreadsheet.value) {
       const columns: string[] = [];
+
       columnHeaderList.forEach(({ value }) => {
         if (value) columns.push(value);
       });
@@ -247,6 +259,7 @@ function GoogleSheetForm(props: Props) {
           sheetName: selectedSheet.value,
         },
       };
+
       generatePageAction(payload);
     }
   };

@@ -1,15 +1,15 @@
 import React, { useLayoutEffect } from "react";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm, Field } from "redux-form";
-import { RESET_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { RESET_PASSWORD_FORM_NAME } from "ee/constants/forms";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { Button, Callout, Icon, Link } from "design-system";
+import { Button, Callout, Icon, Link } from "@appsmith/ads";
 import Spinner from "components/editorComponents/Spinner";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
@@ -30,17 +30,19 @@ import {
   RESET_PASSWORD_RESET_SUCCESS,
   RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import Container from "./Container";
-import type { CalloutProps } from "design-system/build/Callout/Callout.types";
+import type { CalloutProps } from "@appsmith/ads";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};
+
   if (!values.password || isEmptyString(values.password)) {
     errors.password = createMessage(FORM_VALIDATION_EMPTY_PASSWORD);
   } else if (!isStrongPassword(values.password)) {
     errors.password = createMessage(FORM_VALIDATION_INVALID_PASSWORD);
   }
+
   return errors;
 };
 
@@ -82,10 +84,12 @@ export function ResetPassword(props: ResetPasswordProps) {
 
   let message = "";
   let messageActions = undefined;
+
   if (showExpiredMessage || showInvalidMessage) {
     const messageActionText = createMessage(
       RESET_PASSWORD_FORGOT_PASSWORD_LINK,
     );
+
     messageActions = [
       {
         to: FORGOT_PASSWORD_URL,
@@ -94,9 +98,11 @@ export function ResetPassword(props: ResetPasswordProps) {
       },
     ];
   }
+
   if (showExpiredMessage) {
     message = createMessage(RESET_PASSWORD_EXPIRED_TOKEN);
   }
+
   if (showInvalidMessage) {
     message = createMessage(RESET_PASSWORD_INVALID_TOKEN);
   }
@@ -105,6 +111,7 @@ export function ResetPassword(props: ResetPasswordProps) {
     const messageActionText = createMessage(
       RESET_PASSWORD_RESET_SUCCESS_LOGIN_LINK,
     );
+
     message = createMessage(RESET_PASSWORD_RESET_SUCCESS);
     messageActions = [
       {
@@ -114,8 +121,10 @@ export function ResetPassword(props: ResetPasswordProps) {
       },
     ];
   }
+
   if (showFailureMessage) {
     message = error;
+
     if (
       message
         .toLowerCase()
@@ -126,6 +135,7 @@ export function ResetPassword(props: ResetPasswordProps) {
       const messageActionText = createMessage(
         RESET_PASSWORD_FORGOT_PASSWORD_LINK,
       );
+
       messageActions = [
         {
           to: FORGOT_PASSWORD_URL,
@@ -211,6 +221,7 @@ export function ResetPassword(props: ResetPasswordProps) {
 export default connect(
   (state: AppState, props: ResetPasswordProps) => {
     const queryParams = new URLSearchParams(props.location.search);
+
     return {
       initialValues: {
         token: queryParams.get("token") || undefined,
@@ -219,6 +230,8 @@ export default connect(
       validatingToken: getIsValidatingToken(state),
     };
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (dispatch: any) => ({
     verifyToken: (token: string) =>
       dispatch({

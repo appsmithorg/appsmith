@@ -2,7 +2,7 @@ import Api from "./Api";
 import type { AxiosPromise } from "axios";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Datasource } from "entities/Datasource";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 class OAuthApi extends Api {
   static url = "v1/saas";
@@ -15,6 +15,7 @@ class OAuthApi extends Api {
     isImport?: boolean,
   ): Promise<AxiosPromise<ApiResponse<string>>> {
     const isImportQuery = isImport ? "?importForGit=true" : "";
+
     return Api.post(`${OAuthApi.url}/${datasourceId}/oauth${isImportQuery}`, {
       contextId,
       contextType,

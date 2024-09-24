@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 
 import { Button } from "../";
 
-describe("@design-system/widgets/Button", () => {
+describe("@appsmith/wds/Button", () => {
   it("renders children when passed", () => {
     render(<Button>Click me</Button>);
     expect(screen.getByRole("button")).toHaveTextContent("Click me");
@@ -35,6 +35,7 @@ describe("@design-system/widgets/Button", () => {
 
     // eslint-disable-next-line testing-library/no-node-access
     const icon = screen.getByRole("button").querySelector("[data-icon]");
+
     expect(icon).toBeInTheDocument();
   });
 
@@ -43,12 +44,14 @@ describe("@design-system/widgets/Button", () => {
     // Note: using testid=t--fallack-icon as the icon is rendered lazily and the fallback component
     // has a testid
     const icon = screen.getByTestId("t--fallback-icon");
+
     expect(icon).toBeInTheDocument();
   });
 
   it("sets icon position attribute based on the prop ", () => {
     render(<Button iconPosition="end" />);
     const button = screen.getByRole("button");
+
     expect(button).toHaveAttribute("data-icon-position", "end");
   });
 });

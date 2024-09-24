@@ -9,10 +9,10 @@ import {
 import { useSelector } from "react-redux";
 import EntityAddButton from "../Entity/AddButton";
 import keyBy from "lodash/keyBy";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import { AddButtonWrapper, EntityClassNames } from "../Entity";
-import { useCloseMenuOnScroll } from "@appsmith/pages/Editor/Explorer/hooks";
+import { useCloseMenuOnScroll } from "ee/pages/Editor/Explorer/hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 import {
   Menu,
@@ -22,7 +22,7 @@ import {
   Tooltip,
   SearchInput,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -37,6 +37,8 @@ const SubMenuContainer = styled.div`
 interface SubMenuProps {
   canCreate: boolean;
   className: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleClick: (item: any) => void;
   openMenu: boolean;
   onMenuClose: () => void;
@@ -61,6 +63,8 @@ export function ExplorerMenuContent({
   setQuery,
 }: ExplorerMenuContentProps) {
   const filteredFileOperations = fileOperations?.filter(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (item: any) => item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
   );
 
@@ -96,6 +100,8 @@ export function ExplorerMenuContent({
         value={query}
       />
       <div className="ops-container">
+        {/* TODO: Fix this the next time the file is edited */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {filteredFileOperations?.map((item: any, idx: number) => {
           const icon =
             item.icon ||

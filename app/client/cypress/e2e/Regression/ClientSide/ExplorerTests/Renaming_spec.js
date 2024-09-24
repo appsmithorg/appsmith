@@ -31,7 +31,7 @@ describe(
       cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
         cy.get(".t--context-menu").click({ force: true });
       });
-      cy.selectAction("Edit name");
+      cy.selectAction("Rename");
       cy.get(explorer.editEntity).last().type(firstApiName, { force: true });
       cy.validateMessage(firstApiName);
       agHelper.PressEnter();
@@ -96,7 +96,7 @@ describe("Entity Naming conflict test", { tags: ["@tag.IDE"] }, function () {
     cy.get(`.t--entity-item:contains(${secondApiName})`).within(() => {
       cy.get(".t--context-menu").click({ force: true });
     });
-    cy.selectAction("Edit name");
+    cy.selectAction("Rename");
 
     cy.get(explorer.editEntity).last().type(firstApiName, { force: true });
     entityExplorer.ValidateDuplicateMessageToolTip(firstApiName);

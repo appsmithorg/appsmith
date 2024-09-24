@@ -1,4 +1,4 @@
-import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlag } from "ee/entities/FeatureFlag";
 import {
   setFeatureFlagOverridesAction,
   updateFeatureFlagOverrideAction,
@@ -38,8 +38,10 @@ export const useFeatureFlagOverride = () => {
           ) {
             acc[flagName] = flagValues[flagName];
           }
+
           return acc;
         }, {} as OverriddenFeatureFlags);
+
         if (filteredFlagValues) {
           dispatch(setFeatureFlagOverridesAction(filteredFlagValues));
         }
@@ -51,6 +53,8 @@ export const useFeatureFlagOverride = () => {
    * Sets up a global function to toggle the feature flag override.
    */
   useEffect(() => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).overrideFeatureFlag = (
       featureFlagValues: OverriddenFeatureFlags,
     ) => {
@@ -61,6 +65,7 @@ export const useFeatureFlagOverride = () => {
           AvailableFeaturesToOverride.includes(flagName) &&
           isBoolean(flagValue),
       );
+
       if (areAllFlagsValid) {
         dispatch(updateFeatureFlagOverrideAction(featureFlagValues));
         setFeatureFlagOverrideValues(featureFlagValues);

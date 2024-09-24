@@ -19,7 +19,7 @@ import _ from "lodash";
 import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { InputType } from "../constants";
 import { InputTypes } from "../constants";
 
@@ -293,15 +293,19 @@ class InputComponent extends React.Component<
     super(props);
     this.state = { showPassword: false };
     const separators = getSeparators();
+
     this.groupSeparator = separators.groupSeparator;
     this.decimalSeparator = separators.decimalSeparator;
   }
 
   componentDidMount() {
     if (this.props.inputType === InputTypes.CURRENCY) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const element: any = document.querySelectorAll(
         `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button`,
       );
+
       if (element !== null) {
         element[0].addEventListener("click", this.onIncrementButtonClick);
         element[1].addEventListener("click", this.onDecrementButtonClick);
@@ -314,9 +318,12 @@ class InputComponent extends React.Component<
       this.props.inputType === InputTypes.CURRENCY &&
       this.props.inputType !== prevProps.inputType
     ) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const element: any = document.querySelectorAll(
         `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button`,
       );
+
       if (element !== null) {
         element[0].addEventListener("click", this.onIncrementButtonClick);
         element[1].addEventListener("click", this.onDecrementButtonClick);
@@ -326,9 +333,12 @@ class InputComponent extends React.Component<
 
   componentWillUnmount() {
     if (this.props.inputType === InputTypes.CURRENCY) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const element: any = document.querySelectorAll(
         `.${getBaseWidgetClassName(this.props.widgetId)} .bp3-button`,
       );
+
       if (element !== null) {
         element[0].removeEventListener("click", this.onIncrementButtonClick);
         element[1].removeEventListener("click", this.onDecrementButtonClick);
@@ -341,6 +351,7 @@ class InputComponent extends React.Component<
       .split(this.groupSeparator)
       .join("");
     const stepSize = this.props.stepSize || 1;
+
     this.props.onValueChange(
       String(Number(deFormattedValue) + stepSize * type),
     );
@@ -381,6 +392,7 @@ class InputComponent extends React.Component<
           this.decimalSeparator,
         );
         const indexOfDecimal = valueAsString.length - fractionDigits - 1;
+
         if (
           valueAsString.includes(this.decimalSeparator) &&
           currentIndexOfDecimal <= indexOfDecimal
@@ -391,6 +403,7 @@ class InputComponent extends React.Component<
             this.decimalSeparator,
             this.groupSeparator,
           );
+
           this.props.onValueChange(value);
         } else {
           this.props.onValueChange(valueAsString);
@@ -406,6 +419,7 @@ class InputComponent extends React.Component<
       const selectedISDCode = getSelectedISDCode(
         this.props.phoneNumberCountryCode,
       );
+
       return (
         <ISDCodeDropdown
           accentColor={this.props.accentColor}
@@ -421,6 +435,7 @@ class InputComponent extends React.Component<
       const selectedCurrencyCountryCode = getSelectedCurrency(
         this.props.currencyCountryCode,
       );
+
       return (
         <CurrencyTypeDropdown
           accentColor={this.props.accentColor}
@@ -435,6 +450,7 @@ class InputComponent extends React.Component<
     } else if (this.props.iconName && this.props.iconAlign === "left") {
       return this.props.iconName;
     }
+
     return this.props.leftIcon;
   };
 
@@ -464,9 +480,11 @@ class InputComponent extends React.Component<
   onKeyDownTextArea = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const isEnterKey = e.key === "Enter" || e.keyCode === 13;
     const { disableNewLineOnPressEnterKey } = this.props;
+
     if (isEnterKey && disableNewLineOnPressEnterKey && !e.shiftKey) {
       e.preventDefault();
     }
+
     if (typeof this.props.onKeyDown === "function") {
       this.props.onKeyDown(e);
     }
@@ -494,6 +512,7 @@ class InputComponent extends React.Component<
       this.props.inputType === InputTypes.CURRENCY
         ? this.props.decimalsInCurrency || 0
         : 0;
+
     return (
       <StyledNumericInput
         allowNumericCharactersOnly

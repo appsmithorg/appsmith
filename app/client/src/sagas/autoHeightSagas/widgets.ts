@@ -38,10 +38,10 @@ import {
 } from "selectors/autoHeightSelectors";
 import { getLayoutTree } from "./layoutTree";
 import WidgetFactory from "WidgetProvider/factory";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { TreeNode } from "utils/autoHeight/constants";
 import { directlyMutateDOMNodes } from "utils/autoHeight/mutateDOM";
-import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import { getAppMode } from "ee/selectors/entitiesSelector";
 import { APP_MODE } from "entities/App";
 import {
   getDimensionMap,
@@ -57,12 +57,12 @@ import {
   In most cases, when we run the getMinHeightBasedOnChildren, we add the CANVAS_EXTENSION_OFFSET and the offset
   from the widget configuration. This means that we can DRY this by moving them into the getMinHeightBasedOnChildren function
 
-  The computations we do when a widget changes for its parent, is pretty much the same as the ones we do in container 
+  The computations we do when a widget changes for its parent, is pretty much the same as the ones we do in container
   computations saga, so we can potentially re-use that code.
 
   Adding to widgetsToUpdate can be done using one function and shrink this saga by a large amount
 
-  
+
 
 /**
  * Saga to update a widget's auto height
@@ -112,6 +112,7 @@ export function* updateWidgetAutoHeightSaga(
       tree: Record<string, TreeNode>;
       canvasLevelsMap: Record<string, number>;
     } = yield getLayoutTree(false);
+
     dynamicHeightLayoutTree = result.tree;
   }
 
@@ -136,6 +137,7 @@ export function* updateWidgetAutoHeightSaga(
   for (const widgetId in updates) {
     // Get the widget from the reducer.
     const widget: FlattenedWidgetProps = stateWidgets[widgetId];
+
     // If this widget exists (not sure why this needs to be here)
     if (widget && !widget.detachFromLayout) {
       // Get the boundaries for possible min and max dynamic height.
@@ -143,7 +145,9 @@ export function* updateWidgetAutoHeightSaga(
         getWidgetMinAutoHeight(widget) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
 
       if (widget.type === "TABS_WIDGET") shouldRecomputeContainers = true;
+
       const config = WidgetFactory.widgetConfigMap.get(widget.type);
+
       if (config && config.needsHeightForContent) {
         shouldEval = true;
       }
@@ -160,6 +164,7 @@ export function* updateWidgetAutoHeightSaga(
         if (shouldCollapse) {
           // setting the min to be 0, will take care of things with the same algorithm
           minDynamicHeightInPixels = 0;
+
           // We also need a way to reset this widget if it is fixed, this is because,
           // for fixed widgets, auto height doesn't trigger, and there is a chance
           // that the widget will remain the same zero height even after they become
@@ -191,6 +196,7 @@ export function* updateWidgetAutoHeightSaga(
       if (newHeightInPixels < minDynamicHeightInPixels) {
         newHeightInPixels = minDynamicHeightInPixels;
       }
+
       // If the new height is above the max threshold
       if (newHeightInPixels > maxDynamicHeightInPixels) {
         newHeightInPixels = maxDynamicHeightInPixels;
@@ -334,6 +340,7 @@ export function* updateWidgetAutoHeightSaga(
           // Get the current canvas Widget props
           const parentCanvasWidget: FlattenedWidgetProps =
             stateWidgets[parentCanvasWidgetId];
+
           // If this canvas widget has a parent then it is not the MainContainer
           if (parentCanvasWidget.parentId) {
             // Get the parent widget. This could be Tabs, Modal, Container, Form, etc.
@@ -346,6 +353,7 @@ export function* updateWidgetAutoHeightSaga(
             // For a tabs widget, it will be the currently open tab's canvas
             const childWidgetId: string | undefined =
               yield getChildOfContainerLikeWidget(parentContainerLikeWidget);
+
             // Skip computations for the parent container like widget
             // if this child canvas is not the one currently visible
             if (childWidgetId !== parentCanvasWidget.widgetId) continue;
@@ -473,6 +481,7 @@ export function* updateWidgetAutoHeightSaga(
                   expectedBottomRow: layoutData.topRow + minHeightInRows,
                   parentId: parentContainerLikeWidget.parentId,
                 };
+
                 // If this is not a widget which is outside of the layout,
                 // We must check if it has a parent
                 // It most likely will, as this widget cannot be the MainContainer
@@ -503,6 +512,7 @@ export function* updateWidgetAutoHeightSaga(
                   // parentCanvasWidgetGroupedByLevel
                   const _level =
                     canvasLevelMap[parentContainerLikeWidget.parentId];
+
                   // So, we add it, if it is not the MainContainer.
                   // This way it will be used in parentCanvasWidgetsToConsider
                   // MainContainer was added when we initialised this variable,
@@ -521,6 +531,7 @@ export function* updateWidgetAutoHeightSaga(
         }
       }
     }
+
     // Let's consider the minimum Canvas Height
     const mainContainerMinHeight =
       stateWidgets[MAIN_CONTAINER_WIDGET_ID].minHeight;
@@ -590,6 +601,7 @@ export function* updateWidgetAutoHeightSaga(
   if (Object.keys(widgetsToUpdate).length > 0) {
     let enhancedWidgetUpdates = widgetsToUpdate;
     const isAutoLayout: boolean = yield select(getIsAutoLayout);
+
     if (isAutoLayout) {
       // Enhance widget updates based on breakpoint
       const dimensionMap: {
@@ -599,17 +611,22 @@ export function* updateWidgetAutoHeightSaga(
         bottomRow: string;
       } = yield select(getDimensionMap);
       const dimensions = Object.keys(dimensionMap);
+
       enhancedWidgetUpdates = Object.keys(widgetsToUpdate).reduce(
         (allWidgetsToUpdate, updatingWidget) => {
           const widget = widgetsToUpdate[updatingWidget];
           const enhancedUpdates = widget.map((eachUpdate) => {
             if (dimensions.includes(eachUpdate.propertyPath)) {
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               eachUpdate.propertyPath = (dimensionMap as any)[
                 eachUpdate.propertyPath
               ];
             }
+
             return eachUpdate;
           });
+
           return {
             ...allWidgetsToUpdate,
             [updatingWidget]: enhancedUpdates,
@@ -635,6 +652,7 @@ export function* updateWidgetAutoHeightSaga(
         ),
       );
     }
+
     directlyMutateDOMNodes(
       enhancedWidgetUpdates as Record<
         string,

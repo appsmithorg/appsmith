@@ -1,14 +1,14 @@
 import { setLayoutConversionStateAction } from "actions/autoLayoutActions";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import type { AppState } from "@appsmith/reducers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import type { PageWidgetsReduxState } from "reducers/uiReducers/pageWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getPageWidgets } from "@appsmith/selectors/entitiesSelector";
+import { getPageWidgets } from "ee/selectors/entitiesSelector";
 import { convertNormalizedDSLToFixed } from "layoutSystems/common/DSLConversions/autoToFixedLayout";
 import convertToAutoLayout from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
 import type { DSLWidget } from "WidgetProvider/constants";
@@ -18,14 +18,14 @@ import {
 } from "./SnapshotSagas";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
-import { saveAllPagesSaga } from "@appsmith/sagas/PageSagas";
-import { updateApplicationLayout } from "@appsmith/actions/applicationActions";
+import { saveAllPagesSaga } from "ee/sagas/PageSagas";
+import { updateApplicationLayout } from "ee/actions/applicationActions";
 import {
   getCurrentApplicationId,
   getPageList,
 } from "selectors/editorSelectors";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { nestDSL } from "@shared/dsl";
 
 /**
@@ -35,6 +35,7 @@ import { nestDSL } from "@shared/dsl";
 function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
   let appId = "";
   let snapshotSaveSuccess = false;
+
   try {
     const pageList: Page[] = yield select(getPageList);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
@@ -89,8 +90,11 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
     );
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     let error: Error = e;
+
     if (error) {
       error.message = `Layout conversion error - while converting from auto-layout to fixed layout: ${error.message}`;
     } else {
@@ -104,6 +108,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
     if (snapshotSaveSuccess) {
       yield call(deleteApplicationSnapshotSaga);
     }
+
     //update conversion form state to error
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
@@ -123,6 +128,7 @@ function* convertFromAutoToFixedSaga(action: ReduxAction<SupportedLayouts>) {
 function* convertFromFixedToAutoSaga() {
   let appId = "";
   let snapshotSaveSuccess = false;
+
   try {
     const pageList: Page[] = yield select(getPageList);
     const pageWidgetsList: PageWidgetsReduxState = yield select(getPageWidgets);
@@ -170,8 +176,11 @@ function* convertFromFixedToAutoSaga() {
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
     );
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     let error: Error = e;
+
     if (error) {
       error.message = `Layout conversion error - while converting from fixed layout to auto-layout: ${error.message}`;
     } else {
@@ -181,10 +190,12 @@ function* convertFromFixedToAutoSaga() {
     }
 
     log.error(error);
+
     //update conversion form state to error
     if (snapshotSaveSuccess) {
       yield call(deleteApplicationSnapshotSaga);
     }
+
     yield put(
       setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_ERROR, error),
     );

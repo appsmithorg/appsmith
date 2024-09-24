@@ -107,6 +107,7 @@ export const useCanvasDragging = (
     reflowSpaces: ReflowInterface;
     resetReflow: () => void;
   }>();
+
   reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
 
   const { setDraggingCanvas, setDraggingNewWidget, setDraggingState } =
@@ -151,6 +152,8 @@ export const useCanvasDragging = (
       let canvasIsDragging = false;
       let isUpdatingRows = false;
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const scrollObj: any = {};
 
       let currentReflowParams: {
@@ -175,8 +178,12 @@ export const useCanvasDragging = (
       const resetCanvasState = () => {
         throttledStopReflowing();
         reflow.current?.resetReflow();
+
         if (stickyCanvasRef.current && slidingArenaRef.current) {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
+
           canvasCtx.clearRect(
             0,
             0,
@@ -186,6 +193,7 @@ export const useCanvasDragging = (
           slidingArenaRef.current.style.zIndex = "";
           canvasIsDragging = false;
         }
+
         if (isDragging) {
           setDraggingCanvas(MAIN_CONTAINER_WIDGET_ID);
         }
@@ -220,6 +228,7 @@ export const useCanvasDragging = (
               reflowedPositionsUpdatesWidgets,
             );
           }
+
           startPoints.top = defaultHandlePositions.top;
           startPoints.left = defaultHandlePositions.left;
           resetCanvasState();
@@ -237,11 +246,14 @@ export const useCanvasDragging = (
                   isDragging: false,
                 });
               }
+
               setDraggingCanvas();
             }
           }, 0);
         };
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onFirstMoveOnCanvas = (e: any, over = false) => {
           if (
             !isResizing &&
@@ -255,16 +267,20 @@ export const useCanvasDragging = (
               startPoints.top =
                 relativeStartPoints.top || defaultHandlePositions.top;
             }
+
             if (!isCurrentDraggedCanvas) {
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
               setDraggingCanvas(widgetId);
             }
+
             canvasIsDragging = true;
             slidingArenaRef.current.style.zIndex = "2";
             onMouseMove(e, over);
           }
         };
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const triggerReflow = (e: any, firstMove: boolean) => {
           const canReflow =
             !currentRectanglesToDraw[0].detachFromLayout && !dropDisabled;
@@ -286,6 +302,7 @@ export const useCanvasDragging = (
             lastSnappedPosition.bottom === currentBlock.bottom &&
             lastSnappedPosition.right === currentBlock.right
           );
+
           if (canReflow && reflow.current) {
             if (needsReflow) {
               currentDirection.current = getMoveDirection(
@@ -293,6 +310,7 @@ export const useCanvasDragging = (
                 currentBlock,
                 currentDirection.current,
               );
+
               if (firstMove) {
                 currentDirection.current = getEdgeDirection(
                   e.offsetX,
@@ -301,12 +319,15 @@ export const useCanvasDragging = (
                   currentDirection.current,
                 );
               }
+
               lastSnappedPosition = { ...currentBlock };
               let immediateExitContainer;
+
               if (lastDraggedCanvas.current) {
                 immediateExitContainer = lastDraggedCanvas.current;
                 lastDraggedCanvas.current = undefined;
               }
+
               currentReflowParams = reflow.current?.reflowSpaces(
                 resizedPositions,
                 currentDirection.current,
@@ -346,9 +367,12 @@ export const useCanvasDragging = (
             rowRef.current,
             widgetIdsToExclude,
           );
+
           rowRef.current = newRows ? newRows : rowRef.current;
         };
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onMouseMove = (e: any, firstMove = false) => {
           if (isDragging && canvasIsDragging && slidingArenaRef.current) {
             const delta = {
@@ -359,10 +383,12 @@ export const useCanvasDragging = (
             const drawingBlocks = blocksToDraw.map((each) => {
               let buildingBlockRows;
               let buildingBlockColumns;
+
               if (each.type === BUILDING_BLOCK_EXPLORER_TYPE) {
                 buildingBlockRows = dragDetails.newWidget.rows;
                 buildingBlockColumns = dragDetails.newWidget.columns;
               }
+
               return modifyBlockDimension(
                 {
                   ...each,
@@ -380,6 +406,7 @@ export const useCanvasDragging = (
             });
             const newRows = updateRelativeRows(drawingBlocks, rowRef.current);
             const rowDelta = newRows ? newRows - rowRef.current : 0;
+
             rowRef.current = newRows ? newRows : rowRef.current;
             currentRectanglesToDraw = drawingBlocks.map((each) => ({
               ...each,
@@ -399,6 +426,7 @@ export const useCanvasDragging = (
                   each.detachFromLayout,
                 ),
             }));
+
             if (rowDelta && slidingArenaRef.current) {
               isUpdatingRows = true;
               canScroll.current = false;
@@ -406,6 +434,7 @@ export const useCanvasDragging = (
             } else if (!isUpdatingRows) {
               triggerReflow(e, firstMove);
             }
+
             isUpdatingRows = renderBlocks(
               currentRectanglesToDraw,
               currentReflowParams.spacePositionMap,
@@ -427,7 +456,10 @@ export const useCanvasDragging = (
         };
         const renderNewRows = debounce((delta) => {
           isUpdatingRows = true;
+
           if (slidingArenaRef.current && stickyCanvasRef.current) {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
 
             currentRectanglesToDraw = blocksToDraw.map((each) => {
@@ -443,6 +475,7 @@ export const useCanvasDragging = (
                 canExtend,
                 false,
               );
+
               return {
                 ...block,
                 isNotColliding:
@@ -517,6 +550,7 @@ export const useCanvasDragging = (
           setTimeout(() => {
             const { lastMouseMoveEvent, lastScrollHeight, lastScrollTop } =
               scrollObj;
+
             if (
               lastMouseMoveEvent &&
               typeof lastScrollHeight === "number" &&
@@ -528,12 +562,15 @@ export const useCanvasDragging = (
                 scrollParent?.scrollHeight +
                 scrollParent?.scrollTop -
                 (lastScrollHeight + lastScrollTop);
+
               onMouseMove({
                 offsetX: lastMouseMoveEvent.offsetX,
                 offsetY: lastMouseMoveEvent.offsetY + delta,
               });
             }
           }, 0);
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onMouseOver = (e: any) => {
           onFirstMoveOnCanvas(e, true);
         };
@@ -577,6 +614,7 @@ export const useCanvasDragging = (
             scrollParent
           ) {
             initializeListeners();
+
             if (
               (isChildOfCanvas || isNewWidgetInitialTargetCanvas) &&
               slidingArenaRef.current
@@ -585,6 +623,7 @@ export const useCanvasDragging = (
             }
           }
         };
+
         startDragging();
 
         return () => {
@@ -614,6 +653,7 @@ export const useCanvasDragging = (
       }
     }
   }, [isDragging, isResizing, blocksToDraw, snapRows, canExtend]);
+
   return {
     showCanvas: isDragging && !isResizing,
   };

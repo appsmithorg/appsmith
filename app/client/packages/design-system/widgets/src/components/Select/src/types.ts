@@ -1,14 +1,13 @@
-import type { Key } from "@react-types/shared";
 import type {
   SelectProps as SpectrumSelectProps,
   ValidationResult,
 } from "react-aria-components";
-import type { IconProps, SIZES } from "@design-system/widgets";
+import type { SIZES, FieldListPopoverItem } from "@appsmith/wds";
 
-export interface SelectProps<T extends object>
-  extends Omit<SpectrumSelectProps<T>, "slot"> {
+export interface SelectProps
+  extends Omit<SpectrumSelectProps<FieldListPopoverItem>, "slot"> {
   /** Item objects in the collection. */
-  items: Iterable<SelectItem>;
+  items: FieldListPopoverItem[];
   /** The content to display as the label. */
   label?: string;
   /** The content to display as the description. */
@@ -19,15 +18,9 @@ export interface SelectProps<T extends object>
    *
    * @default medium
    */
-  size?: Omit<keyof typeof SIZES, "large">;
+  size?: Omit<keyof typeof SIZES, "xSmall" | "large">;
   /** loading state for the input */
   isLoading?: boolean;
   /** A ContextualHelp element to place next to the label. */
   contextualHelp?: string;
-}
-
-export interface SelectItem {
-  id: Key;
-  label: string;
-  icon?: IconProps["name"];
 }

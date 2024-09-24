@@ -8,7 +8,7 @@ import {
 } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { TResetWidgetDescription } from "workers/Evaluation/fns/resetWidget";
 import AppsmithConsole from "utils/AppsmithConsole";
 
@@ -31,6 +31,7 @@ export default function* resetWidgetActionSaga(
     getWidgetByName,
     widgetName,
   );
+
   if (!widget) {
     throw new TriggerFailureError(`Widget ${payload.widgetName} not found`);
   }

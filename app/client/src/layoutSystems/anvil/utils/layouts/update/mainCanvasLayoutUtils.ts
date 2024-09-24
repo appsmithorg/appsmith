@@ -11,12 +11,9 @@ import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { call } from "redux-saga/effects";
 
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { anvilWidgets } from "widgets/wds/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import {
-  addNewWidgetToDsl,
-  getCreateWidgetPayload,
-} from "../../widgetAdditionUtils";
+import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
 
 /**
  * This function adds a detached widget to the main canvas.
@@ -30,15 +27,15 @@ export function* addDetachedWidgetToMainCanvas(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidget: { widgetId: string; type: string },
 ) {
-  const updatedWidgets: CanvasWidgetsReduxState = yield call(
-    addNewWidgetToDsl,
+  const updatedWidgets: CanvasWidgetsReduxState = yield addNewAnvilWidgetToDSL(
     allWidgets,
-    getCreateWidgetPayload(
-      draggedWidget.widgetId,
-      draggedWidget.type,
-      MAIN_CONTAINER_WIDGET_ID,
-    ),
+    {
+      widgetId: draggedWidget.widgetId,
+      type: draggedWidget.type,
+      parentId: MAIN_CONTAINER_WIDGET_ID,
+    },
   );
+
   return updatedWidgets;
 }
 
@@ -77,6 +74,7 @@ export function* addWidgetsToMainCanvasLayout(
         { ...highlight, rowIndex: highlight.rowIndex + index },
         section,
       );
+
     mainCanvasWidget = res.canvas;
     mainCanvasLayout = res.canvasLayout;
     canvasWidgets = {
@@ -104,6 +102,7 @@ export function* addWidgetsToMainCanvasLayout(
       draggedWidgets,
       highlight.canvasId,
     );
+
     mainCanvasWidget = {
       ...mainCanvasWidget,
       children: [...mainCanvasWidget.children, res.section.widgetId],
@@ -151,6 +150,7 @@ export function* addWidgetsToMainCanvasLayout(
 function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
   const sections: WidgetLayoutProps[] = [];
   const nonSections: WidgetLayoutProps[] = [];
+
   widgets.forEach((widget: WidgetLayoutProps) => {
     if (widget.widgetType === anvilWidgets.SECTION_WIDGET) {
       sections.push(widget);
@@ -158,6 +158,7 @@ function splitWidgets(widgets: WidgetLayoutProps[]): WidgetLayoutProps[][] {
       nonSections.push(widget);
     }
   });
+
   return [sections, nonSections];
 }
 

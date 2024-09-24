@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { createSelector } from "reselect";
 
 export const getLastSelectedWidget = (state: AppState) =>
@@ -9,6 +9,7 @@ export const getSelectedWidgets = (state: AppState) =>
 
 export const getDefaultSelectedWidgetIds = (state: AppState) => {
   const widgets = Object.keys(state.entities.canvasWidgets);
+
   // We check for more than 1 because MainContainer is always present
   if (widgets.length > 1) {
     return [widgets[1]];
@@ -62,9 +63,6 @@ export const getDatasourceCollapsibleState = createSelector(
     return datasourceCollapsibleState[key];
   },
 );
-
-export const getIsImportingCurl = (state: AppState) =>
-  state.ui.imports.isImportingCurl;
 
 export const getIsConsolidatedPageLoading = (state: AppState) =>
   state.ui.consolidatedPageLoad.isLoading;

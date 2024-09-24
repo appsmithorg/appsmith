@@ -4,6 +4,8 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import type { CurrencyInputWidgetProps } from "../../../widget/types";
 
 export function defaultValueValidation(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   props: CurrencyInputWidgetProps,
   _: LoDashStatic,
@@ -27,8 +29,10 @@ export function defaultValueValidation(
       .format(1.1)
       .replace(/\p{Number}/gu, "");
   }
+
   const decimalSeperator = getLocaleDecimalSeperator();
   const defaultDecimalSeperator = ".";
+
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -45,6 +49,8 @@ export function defaultValueValidation(
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let parsed: any = Number(value);
   let isValid, messages;
 

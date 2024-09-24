@@ -12,7 +12,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   LIST_WIDGET_V2_TOTAL_RECORD_TOOLTIP,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 const MIN_ITEM_SPACING = 0;
 const MAX_ITEM_SPACING = 16;
@@ -28,6 +28,8 @@ const isValidListData = (
 export const primaryColumnValidation = (
   inputValue: unknown,
   props: ListWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ) => {
   const { dynamicPropertyPathList = [], listData = [] } = props;
@@ -86,6 +88,8 @@ export const primaryColumnValidation = (
       const areKeysUnique = _.uniq(inputValue).length === listData.length;
 
       const isDataTypeUnique =
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         _.uniqBy(inputValue, (item: any) => item.toString()).length ===
         listData.length;
 
@@ -123,8 +127,12 @@ export const primaryColumnValidation = (
 };
 
 export function defaultSelectedItemValidation(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   props: ListWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
 ): ValidationResponse {
   const TYPE_ERROR_MESSAGE = {
@@ -174,6 +182,7 @@ const getPrimaryKeyFromDynamicValue = (
     return JSON.parse(value);
   } catch (error) {
     log.error(error);
+
     return "";
   }
 };
@@ -217,6 +226,7 @@ export const primaryKeyOptions = (props: ListWidgetProps) => {
       }
     });
   }
+
   return options;
 };
 

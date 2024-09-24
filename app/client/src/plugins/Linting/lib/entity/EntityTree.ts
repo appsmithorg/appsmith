@@ -3,11 +3,11 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
+import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
 import type { Diff } from "deep-diff";
-import EntityFactory from "@appsmith/plugins/Linting/lib/entity";
+import EntityFactory from "ee/plugins/Linting/lib/entity";
 import { PathUtils } from "plugins/Linting/utils/pathUtils";
-import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isJSAction } from "ee/workers/Evaluation/evaluationUtils";
 import type { EntityParser } from "plugins/Linting/utils/entityParser";
 import {
   DefaultEntityParser,
@@ -31,10 +31,13 @@ export abstract class EntityTree {
   abstract buildTree(unEvalTree: DataTree, configTree: ConfigTree): void;
   computeDifferences(newTree: EntityTree) {
     const differences: Diff<unknown>[] = [];
+
     if (!newTree) return differences;
+
     const entityNames = Object.keys(this.getRawTree());
     const newEntityNames = Object.keys(newTree.getRawTree());
     const allEntityNames = union(entityNames, newEntityNames);
+
     for (const entityName of allEntityNames) {
       const entity = this.getEntityByName(entityName);
       const newEntity = newTree.getEntityByName(entityName);
@@ -47,10 +50,14 @@ export abstract class EntityTree {
         });
         continue;
       }
+
       const difference = newEntity.computeDifference(entity);
+
       if (!difference) continue;
+
       differences.push(...difference);
     }
+
     return differences;
   }
 
@@ -60,9 +67,11 @@ export abstract class EntityTree {
 
   getRawTree() {
     const rawTree: DataTree = {};
+
     for (const [name, entity] of this.tree.entries()) {
       rawTree[name] = entity.getRawEntity() as DataTreeEntity;
     }
+
     return rawTree as DataTree;
   }
 
@@ -72,6 +81,7 @@ export abstract class EntityTree {
 
   getEntities() {
     const entities = Array.from(this.tree.values());
+
     return entities;
   }
 }
@@ -91,6 +101,7 @@ class LintEntityClassLoader implements EntityClassLoader {
         DiffGenerator: JSLintDiffGenerator,
       };
     }
+
     return {
       Parser: DefaultEntityParser,
       DiffGenerator: DefaultDiffGenerator,
@@ -106,8 +117,10 @@ export class LintEntityTree extends EntityTree {
   buildTree(unEvalTree: DataTree, configTree: ConfigTree): void {
     const entities = Object.entries(unEvalTree);
     const classLoader = new LintEntityClassLoader();
+
     for (const [name, entity] of entities) {
       const config = configTree[name];
+
       this.tree.set(name, EntityFactory.getEntity(entity, config, classLoader));
     }
   }

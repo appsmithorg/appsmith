@@ -2,8 +2,8 @@ import { get, set, split, unset } from "lodash";
 import { klona } from "klona";
 
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type { UpdateWidgetsPayload } from "./canvasWidgetsReducer";
@@ -75,6 +75,7 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
     (propertyUpdates || []).forEach(({ path, value }) => {
       const [widgetId, ...propertyPathChunks] = split(path, ".");
       const propertyPath = propertyPathChunks.join(".");
+
       set(state[widgetId], propertyPath, value);
     });
 
@@ -112,6 +113,7 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
         unset(state[widgetId], propertyPath);
       });
     }
+
     return state;
   },
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (state: MetaWidgetsReduxState) => {
@@ -133,6 +135,7 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
         const path = `${widgetId}.${propertyPath}`;
         // Get original value in reducer
         const originalPropertyValue = get(state, path);
+
         // If the original and new values are different
         if (propertyValue !== originalPropertyValue)
           // Set the new values

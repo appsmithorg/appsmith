@@ -6,13 +6,13 @@ import {
   type AppsmithEntity,
   type JSActionEntity,
   ENTITY_TYPE,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
 import { isFunction } from "lodash";
-import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { entityDefinitions } from "ee/utils/autocomplete/EntityDefinitions";
 import type { Def } from "tern";
 import type { DataTreeDefEntityInformation } from "utils/autocomplete/CodemirrorTernService";
 import WidgetFactory from "WidgetProvider/factory";
@@ -43,6 +43,7 @@ export type EntityDefGeneratorMap = Record<
 export const entityDefGeneratorMap: EntityDefGeneratorMap = {
   [ENTITY_TYPE.ACTION]: (props) => {
     const { def, entity, entityMap, entityName, extraDefsToDefine } = props;
+
     def[entityName] = entityDefinitions.ACTION(
       entity as ActionEntity,
       extraDefsToDefine,
@@ -55,6 +56,7 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
   },
   [ENTITY_TYPE.APPSMITH]: (props) => {
     const { def, entity, entityMap, extraDefsToDefine } = props;
+
     def.appsmith = entityDefinitions.APPSMITH(
       entity as AppsmithEntity,
       extraDefsToDefine,
@@ -84,6 +86,7 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
         `${entityName}.${funcName}`,
         extraDefsToDefine,
       );
+
       jsPropertiesDef[funcName] = funcTypeDef;
       // To also show funcName.data in autocompletion hint, we explictly add it here
       jsPropertiesDef[`${funcName}.data`] = funcTypeDef.data;
@@ -93,6 +96,7 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
       for (let i = 0; i < entityConfig?.variables?.length; i++) {
         const varKey = entityConfig?.variables[i];
         const varValue = (entity as JSActionEntity)[varKey];
+
         jsPropertiesDef[varKey] = generateTypeDef(varValue, extraDefsToDefine);
       }
     }

@@ -12,6 +12,8 @@ import {
 
 function withAnalytics(WrappedControl: typeof BaseControl) {
   return class AnalyticsHOC extends React.PureComponent<ControlProps> {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     containerRef = React.createRef<any>();
 
     constructor(props: ControlProps) {
@@ -34,6 +36,7 @@ function withAnalytics(WrappedControl: typeof BaseControl) {
 
     handleKbdEvent = (e: Event) => {
       const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
+
       if (!event.detail?.propertyName) {
         e.stopPropagation();
         this.containerRef.current?.dispatchEvent(
@@ -67,6 +70,7 @@ class PropertyControlRegistry {
       (Control: typeof BaseControl & { getControlType: () => string }) => {
         const ControlWithAnalytics = withAnalytics(Control);
         const controlType = ControlWithAnalytics.getControlType();
+
         PropertyControlFactory.registerControlBuilder(
           controlType,
           {

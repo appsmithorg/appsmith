@@ -1,43 +1,49 @@
 {
   "editor": [
     {
-      "controlType": "SECTION",
+      "controlType": "SECTION_V2",
       "identifier": "SELECTOR",
       "children": [
         {
-          "label": "Command",
-          "description": "Choose method you would like to use",
-          "configProperty": "actionConfiguration.formData.command.data",
-          "controlType": "DROP_DOWN",
-          "initialValue": "GET_COLLECTION",
-          "options": [
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SELECTOR-Z1",
+          "children": [
             {
-              "label": "List Documents",
-              "value": "GET_COLLECTION"
-            },
-            {
-              "label": "Create document",
-              "value": "CREATE_DOCUMENT"
-            },
-            {
-              "label": "Update document",
-              "value": "UPDATE_DOCUMENT"
-            },
-            {
-              "label": "Delete document",
-              "value": "DELETE_DOCUMENT"
-            },
-            {
-              "label": "Get Document",
-              "value": "GET_DOCUMENT"
-            },
-            {
-              "label": "Upsert Document",
-              "value": "SET_DOCUMENT"
-            },
-            {
-              "label": "Add document to collection",
-              "value": "ADD_TO_COLLECTION"
+              "label": "Command",
+              "description": "Choose method you would like to use",
+              "configProperty": "actionConfiguration.formData.command.data",
+              "controlType": "DROP_DOWN",
+              "initialValue": "GET_COLLECTION",
+              "options": [
+                {
+                  "label": "List Documents",
+                  "value": "GET_COLLECTION"
+                },
+                {
+                  "label": "Create document",
+                  "value": "CREATE_DOCUMENT"
+                },
+                {
+                  "label": "Update document",
+                  "value": "UPDATE_DOCUMENT"
+                },
+                {
+                  "label": "Delete document",
+                  "value": "DELETE_DOCUMENT"
+                },
+                {
+                  "label": "Get Document",
+                  "value": "GET_DOCUMENT"
+                },
+                {
+                  "label": "Upsert Document",
+                  "value": "SET_DOCUMENT"
+                },
+                {
+                  "label": "Add document to collection",
+                  "value": "ADD_TO_COLLECTION"
+                }
+              ]
             }
           ]
         }

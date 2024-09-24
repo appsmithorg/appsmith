@@ -48,7 +48,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 
 class MultiSelectWidget extends BaseWidget<
@@ -167,6 +167,7 @@ class MultiSelectWidget extends BaseWidget<
         const dynamicPropertyPathList: DynamicPath[] = [
           ...(widget.dynamicPropertyPathList || []),
         ];
+
         if (queryConfig.select) {
           modify = {
             sourceData: queryConfig.select.data,
@@ -773,6 +774,8 @@ class MultiSelectWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedOptions: undefined,
@@ -784,9 +787,12 @@ class MultiSelectWidget extends BaseWidget<
   componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
     // Check if defaultOptionValue is string
     let isStringArray = false;
+
     if (
       this.props.defaultOptionValue &&
       this.props.defaultOptionValue.some(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (value: any) => isString(value) || isFinite(value),
       )
     ) {
@@ -893,6 +899,7 @@ class MultiSelectWidget extends BaseWidget<
         type: EventType.ON_OPTION_CHANGE,
       },
     });
+
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -903,8 +910,10 @@ class MultiSelectWidget extends BaseWidget<
     if (!this.props.selectedOptionLabels || !this.props.selectedOptionValues) {
       return [];
     }
+
     const labels = [...this.props.selectedOptionLabels];
     const values = [...this.props.selectedOptionValues];
+
     return values.map((value, index) => ({
       value,
       label: labels[index],

@@ -24,6 +24,8 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
    */
   static canDisplayValueInUI(
     config: OneClickBindingControlProps,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ): boolean {
     // {{query1.data}} || sample data
@@ -54,6 +56,7 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
       this.props.widgetProperties.__evaluation__?.errors?.[
         this.props.propertyName
       ];
+
     if (errorObj?.[0]?.errorMessage) {
       return errorObj[0].errorMessage.message;
     } else {

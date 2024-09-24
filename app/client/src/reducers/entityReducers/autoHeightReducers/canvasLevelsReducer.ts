@@ -1,6 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { AutoHeightLayoutTreePayload } from "./autoHeightLayoutTreeReducer";
 
 export type CanvasLevelsPayload = Record<string, number>;
@@ -17,6 +17,7 @@ const canvasLevelsReducer = createImmerReducer(initialState, {
     action: ReduxAction<AutoHeightLayoutTreePayload>,
   ) => {
     const { canvasLevelMap } = action.payload;
+
     for (const widgetId in canvasLevelMap) {
       if (state[widgetId] !== canvasLevelMap[widgetId])
         state[widgetId] = canvasLevelMap[widgetId];

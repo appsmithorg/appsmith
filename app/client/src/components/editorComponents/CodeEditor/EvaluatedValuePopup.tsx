@@ -21,13 +21,13 @@ import type { Indices } from "constants/Layers";
 import { Layers } from "constants/Layers";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { setEvalPopupState } from "actions/editorContextActions";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { modText } from "utils/helpers";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { getPathNavigationUrl } from "selectors/navigationSelectors";
-import { Button, Icon, Link, toast, Tooltip } from "design-system";
+import { Button, Icon, Link, toast, Tooltip } from "@appsmith/ads";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { DEBUGGER_TAB_KEYS } from "../Debugger/helpers";
 
@@ -200,6 +200,7 @@ const AsyncFunctionErrorView = styled.div`
 
 function CollapseToggle(props: { isOpen: boolean }) {
   const { isOpen } = props;
+
   return (
     <StyledIcon
       className={isOpen ? "open-collapse" : ""}
@@ -209,6 +210,8 @@ function CollapseToggle(props: { isOpen: boolean }) {
 }
 
 function copyContent(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   content: any,
   onCopyContentText = `Evaluated value copied to clipboard`,
 ) {
@@ -227,6 +230,8 @@ interface Props {
   isOpen: boolean;
   hasError: boolean;
   expected?: CodeEditorExpected;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   children: JSX.Element;
   errors: EvaluationError[];
@@ -247,6 +252,8 @@ interface PopoverContentProps {
   expected?: CodeEditorExpected;
   errors: EvaluationError[];
   useValidationMessage?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue: any;
   theme: EditorTheme;
   onMouseEnter: () => void;
@@ -278,13 +285,16 @@ export function PreparedStatementViewer(props: {
   evaluatedValue: PreparedStatementValue;
 }) {
   const { parameters, value } = props.evaluatedValue;
+
   if (!value) {
     Sentry.captureException("Prepared Statement got no value", {
       level: Severity.Debug,
       extra: { props },
     });
+
     return <div />;
   }
+
   const stringSegments = value.split(/\$\d+/);
   const $params = [...value.matchAll(/\$\d+/g)].map((matches) => matches[0]);
 
@@ -310,6 +320,8 @@ export function PreparedStatementViewer(props: {
 
 export function CurrentValueViewer(props: {
   theme: EditorTheme;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue: any;
   hideLabel?: boolean;
   preparedStatementViewer?: boolean;
@@ -323,6 +335,7 @@ export function CurrentValueViewer(props: {
   onCopyContentText?: string;
 }) {
   const [openEvaluatedValue, setOpenEvaluatedValue] = useState(true);
+
   return (
     <ControlledCurrentValueViewer
       {...props}
@@ -335,6 +348,8 @@ export function CurrentValueViewer(props: {
 const ControlledCurrentValueViewer = memo(
   function ControlledCurrentValueViewer(props: {
     theme: EditorTheme;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     evaluatedValue: any;
     openEvaluatedValue: boolean;
     setOpenEvaluatedValue?: (a: boolean) => void;
@@ -366,6 +381,7 @@ const ControlledCurrentValueViewer = memo(
         {"undefined"}
       </CodeWrapper>
     );
+
     if (props.evaluatedValue !== undefined) {
       if (
         isObject(props.evaluatedValue) ||
@@ -392,11 +408,15 @@ const ControlledCurrentValueViewer = memo(
             },
             collapsed: 2,
             collapseStringsAfterLength,
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             shouldCollapse: (field: any) => {
               const index = field.name * 1;
+
               return index >= 2;
             },
           };
+
           content = (
             <ReactJson src={props.evaluatedValue} {...reactJsonProps} />
           );
@@ -411,6 +431,7 @@ const ControlledCurrentValueViewer = memo(
         );
       }
     }
+
     return (
       <>
         {!props.hideLabel && (
@@ -488,9 +509,11 @@ function PopoverContent(props: PopoverContentProps) {
     setOpenExpectedExample(!openExpectedExample);
 
   let error: EvaluationError | undefined;
+
   if (hasError) {
     error = errors[0];
   }
+
   const openDebugger = () => {
     dispatch(showDebugger());
     dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
@@ -611,11 +634,15 @@ function EvaluatedValuePopup(props: Props) {
   const [placement, offset]: [Placement, string] = useMemo(() => {
     const placement: Placement = "left-start";
     let offset = "0, 15";
+
     if (!wrapperRef.current) return [placement, "0, 0"];
+
     if (props.popperPlacement) return [props.popperPlacement, "0, 0"];
+
     const { left, right } = wrapperRef.current.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const halfViewportWidth = viewportWidth / 2;
+
     // TODO: Remove this temporary fix
     if (left < halfViewportWidth) {
       if (right < halfViewportWidth) {
@@ -632,6 +659,7 @@ function EvaluatedValuePopup(props: Props) {
       // If the target is on the right half of the screen, show the popper on the left with offset eg. property pane
       offset = "0, 15";
     }
+
     return [placement, offset];
   }, [wrapperRef.current, props.popperPlacement]);
 
@@ -673,6 +701,7 @@ function EvaluatedValuePopup(props: Props) {
           }}
           onMouseLeave={() => {
             const id = setTimeout(() => setContentHovered(false), 500);
+
             setTimeoutId(id);
           }}
           preparedStatementViewer={

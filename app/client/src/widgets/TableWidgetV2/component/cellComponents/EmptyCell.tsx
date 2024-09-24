@@ -44,6 +44,7 @@ export const renderEmptyRows = (
           ...style,
         },
       };
+
       return (
         <div {...rowProps} className="tr" key={index}>
           {multiRowSelection &&
@@ -67,6 +68,7 @@ export const renderEmptyRows = (
                     : MULTISELECT_CHECKBOX_WIDTH +
                       columns[cellIndex].columnProperties.width;
               }
+
               return (
                 <div
                   {...cellProps}
@@ -102,6 +104,8 @@ export const renderEmptyRows = (
         <EmptyRow className="tr" key={index} style={style}>
           {multiRowSelection &&
             renderBodyCheckBoxCell(false, accentColor, borderRadius)}
+          {/* TODO: Fix this the next time the file is edited */}
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {tableColumns.map((column: any, colIndex: number) => {
             const distanceFromEdge: {
               left?: number;

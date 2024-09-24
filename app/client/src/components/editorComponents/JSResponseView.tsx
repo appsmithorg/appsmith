@@ -4,7 +4,7 @@ import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
 import styled from "styled-components";
 import { every, includes } from "lodash";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { JSEditorRouteParams } from "constants/routes";
 import {
   createMessage,
@@ -14,14 +14,14 @@ import {
   EXECUTING_FUNCTION,
   NO_JS_FUNCTION_RETURN_VALUE,
   UPDATING_JS_COLLECTION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import type { JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { Flex, Text } from "design-system";
+import { Flex, Text } from "@appsmith/ads";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import type { BottomTab } from "./EntityBottomTabs";
@@ -37,14 +37,14 @@ import {
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Log, SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { setJsPaneDebuggerState } from "actions/jsPaneActions";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import ErrorLogs from "./Debugger/Errors";
-import { isBrowserExecutionAllowed } from "@appsmith/utils/actionExecutionUtils";
-import JSRemoteExecutionView from "@appsmith/components/JSRemoteExecutionView";
+import { isBrowserExecutionAllowed } from "ee/utils/actionExecutionUtils";
+import JSRemoteExecutionView from "ee/components/JSRemoteExecutionView";
 import { IDEBottomView, ViewHideBehaviour } from "../../IDE";
 
 const ResponseTabWrapper = styled.div`
@@ -88,11 +88,13 @@ type Props = ReduxStateProps &
     isLoading: boolean;
     onButtonClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
     jsCollectionData: JSCollectionData | undefined;
+    debuggerLogsDefaultName?: string;
   };
 
 function JSResponseView(props: Props) {
   const {
     currentFunction,
+    debuggerLogsDefaultName,
     disabled,
     errorCount,
     errors,
@@ -117,6 +119,7 @@ function JSResponseView(props: Props) {
   // error found while trying to parse JS Object
   const hasJSObjectParseError = errors.length > 0;
   const isSaving = useSelector(getIsSavingEntity);
+
   useEffect(() => {
     setResponseStatus(
       getJSResponseViewState(
@@ -146,8 +149,10 @@ function JSResponseView(props: Props) {
     name: "",
     id: "",
   };
+
   try {
     let errorObject: Log | undefined;
+
     //get JS execution error from redux store.
     if (
       jsCollectionData &&
@@ -164,17 +169,21 @@ function JSResponseView(props: Props) {
           )
         ) {
           errorObject = error;
+
           return false;
         }
+
         return true;
       });
     }
+
     // update error message.
     if (errorObject) {
       if (errorObject.source) {
         // update action source.
         actionSource = errorObject.source;
       }
+
       if (errorObject.messages) {
         // update error message.
         errorMessage =
@@ -270,7 +279,9 @@ function JSResponseView(props: Props) {
     {
       key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={jsObject?.name} />,
+      panelComponent: (
+        <DebuggerLogs searchQuery={debuggerLogsDefaultName || jsObject?.name} />
+      ),
     },
   ];
 
@@ -325,6 +336,7 @@ function JSResponseView(props: Props) {
 
 const mapStateToProps = (state: AppState) => {
   const errorCount = state.ui.debugger.context.errorCount;
+
   return {
     errorCount,
   };

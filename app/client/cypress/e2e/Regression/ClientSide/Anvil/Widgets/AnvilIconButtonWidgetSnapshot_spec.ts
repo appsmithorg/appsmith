@@ -4,24 +4,28 @@ import {
   anvilSnapshot,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe(
+// TODO: Enable when issue(github.com/appsmithorg/appsmith/issues/36419) is solved.
+describe.skip(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Icon Button Widget`,
-  { tags: ["@tag.Anvil"] },
+  { tags: ["@tag.Anvil", "@tag.Visual"] },
   () => {
     before(() => {
       agHelper.AddDsl("anvilIconButtonWidget");
     });
 
     it("1. Canvas Mode", () => {
-      anvilSnapshot.verifyCanvasMode("IconButtonWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("IconButtonWidget");
+      anvilSnapshot.setTheme("dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("IconButtonWidget", "dark");
+      anvilSnapshot.setTheme("light");
     });
 
     it("2. Preview Mode", () => {
-      anvilSnapshot.verifyPreviewMode("IconButtonWidget");
+      anvilSnapshot.matchSnapshotForPreviewMode("IconButtonWidget");
     });
 
     it("3. Deploy Mode", () => {
-      anvilSnapshot.verifyDeployMode("IconButtonWidget");
+      anvilSnapshot.matchSnapshotForDeployMode("IconButtonWidget");
     });
   },
 );

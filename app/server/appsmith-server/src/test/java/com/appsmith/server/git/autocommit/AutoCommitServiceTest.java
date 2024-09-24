@@ -15,6 +15,7 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
+import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.git.autocommit.helpers.AutoCommitEligibilityHelper;
@@ -106,7 +107,7 @@ public class AutoCommitServiceTest {
     @MockBean
     GitPrivateRepoHelper gitPrivateRepoHelper;
 
-    @SpyBean
+    @MockBean
     AutoCommitEligibilityHelper autoCommitEligibilityHelper;
 
     @MockBean
@@ -193,20 +194,26 @@ public class AutoCommitServiceTest {
     }
 
     private void mockAutoCommitTriggerResponse(Boolean serverMigration, Boolean clientMigration) {
-        doReturn(Mono.just(getMockedDsl()))
-                .when(commonGitFileUtils)
-                .getPageDslVersionNumber(anyString(), any(), any(), anyBoolean(), any());
 
-        Integer serverVersion = jsonSchemaVersions.getServerVersion();
-        Integer dslVersionNumber = clientMigration ? DSL_VERSION_NUMBER + 1 : DSL_VERSION_NUMBER;
-        Integer serverSchemaVersionNumber = serverMigration ? serverVersion - 1 : serverVersion;
+        Boolean isAutocommitRequired = serverMigration || clientMigration;
+        doReturn(Mono.just(new AutoCommitTriggerDTO(isAutocommitRequired, clientMigration, serverMigration)))
+                .when(autoCommitEligibilityHelper)
+                .isAutoCommitRequired(anyString(), any(), any());
 
-        doReturn(Mono.just(dslVersionNumber)).when(dslMigrationUtils).getLatestDslVersion();
-
-        // server as true
-        doReturn(Mono.just(serverSchemaVersionNumber))
-                .when(commonGitFileUtils)
-                .getMetadataServerSchemaMigrationVersion(anyString(), any(), anyBoolean(), any());
+        //        doReturn(Mono.just(getMockedDsl()))
+        //                .when(commonGitFileUtils)
+        //                .getPageDslVersionNumber(anyString(), any(), any(), anyBoolean(), any());
+        //
+        //        Integer serverVersion = jsonSchemaVersions.getServerVersion();
+        //        Integer dslVersionNumber = clientMigration ? DSL_VERSION_NUMBER + 1 : DSL_VERSION_NUMBER;
+        //        Integer serverSchemaVersionNumber = serverMigration ? serverVersion - 1 : serverVersion;
+        //
+        //        doReturn(Mono.just(dslVersionNumber)).when(dslMigrationUtils).getLatestDslVersion();
+        //
+        //        // server as true
+        //        doReturn(Mono.just(serverSchemaVersionNumber))
+        //                .when(commonGitFileUtils)
+        //                .getMetadataServerSchemaMigrationVersion(anyString(), any(), anyBoolean(), any());
     }
 
     @BeforeEach
@@ -217,8 +224,11 @@ public class AutoCommitServiceTest {
         baseRepoSuffix = Paths.get(WORKSPACE_ID, DEFAULT_APP_ID, REPO_NAME);
 
         // used for fetching application on autocommit service and gitAutoCommitHelper.autocommit
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
+                .thenReturn(Mono.just(testApplication));
+
+        Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(testApplication));
 
         // create page-dto
@@ -234,14 +244,10 @@ public class AutoCommitServiceTest {
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
                 .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_eligibility_enabled))
-                .thenReturn(Mono.just(TRUE));
-
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(TRUE));
 
-        Mockito.when(commonGitService.fetchRemoteChanges(
-                        any(Application.class), any(Application.class), anyString(), anyBoolean()))
+        Mockito.when(commonGitService.fetchRemoteChanges(any(Application.class), any(Application.class), anyBoolean()))
                 .thenReturn(Mono.just(branchTrackingStatus));
 
         Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(0);
@@ -278,7 +284,8 @@ public class AutoCommitServiceTest {
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
-                .migrateApplicationJsonToLatestSchema(any(ApplicationJson.class));
+                .migrateApplicationJsonToLatestSchema(
+                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString());
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);
@@ -300,7 +307,7 @@ public class AutoCommitServiceTest {
         Mockito.when(redisUtils.getAutoCommitProgress(DEFAULT_APP_ID)).thenReturn(Mono.empty());
 
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -374,7 +381,7 @@ public class AutoCommitServiceTest {
 
         // this would trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -430,7 +437,7 @@ public class AutoCommitServiceTest {
 
         // this would not trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -463,9 +470,10 @@ public class AutoCommitServiceTest {
 
         Mockito.when(redisUtils.getAutoCommitProgress(DEFAULT_APP_ID)).thenReturn(Mono.just(70));
 
+        mockAutoCommitTriggerResponse(TRUE, TRUE);
         // this would not trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -484,9 +492,11 @@ public class AutoCommitServiceTest {
 
         Mockito.when(redisUtils.getAutoCommitProgress(DEFAULT_APP_ID)).thenReturn(Mono.just(70));
 
+        mockAutoCommitTriggerResponse(TRUE, TRUE);
+
         // this would not trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -502,13 +512,16 @@ public class AutoCommitServiceTest {
     public void testAutoCommit_whenNoGitMetadata_returnsNonGitApp() {
         testApplication.setGitApplicationMetadata(null);
         // used for fetching application on autocommit service and gitAutoCommitHelper.autocommit
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
+                .thenReturn(Mono.just(testApplication));
+
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(testApplication));
 
         // this would not trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -533,7 +546,7 @@ public class AutoCommitServiceTest {
 
         // this would not trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -559,7 +572,8 @@ public class AutoCommitServiceTest {
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
-                .migrateApplicationJsonToLatestSchema(any(ApplicationJson.class));
+                .migrateApplicationJsonToLatestSchema(
+                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString());
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);
@@ -581,7 +595,7 @@ public class AutoCommitServiceTest {
         Mockito.when(redisUtils.getAutoCommitProgress(DEFAULT_APP_ID)).thenReturn(Mono.empty());
 
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> assertThat(autoCommitResponseDTO.getAutoCommitResponse())
@@ -592,7 +606,7 @@ public class AutoCommitServiceTest {
         Mockito.when(redisUtils.getRunningAutoCommitBranchName(DEFAULT_APP_ID)).thenReturn(Mono.just(BRANCH_NAME));
         Mockito.when(redisUtils.getAutoCommitProgress(DEFAULT_APP_ID)).thenReturn(Mono.just(20));
 
-        StepVerifier.create(autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME))
+        StepVerifier.create(autoCommitService.autoCommitApplication(testApplication.getId()))
                 .assertNext(autoCommitResponseDTO -> {
                     assertThat(autoCommitResponseDTO.getAutoCommitResponse())
                             .isEqualTo(AutoCommitResponseDTO.AutoCommitResponse.IN_PROGRESS);
@@ -632,7 +646,8 @@ public class AutoCommitServiceTest {
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
-                .migrateApplicationJsonToLatestSchema(any(ApplicationJson.class));
+                .migrateApplicationJsonToLatestSchema(
+                        any(ApplicationJson.class), Mockito.anyString(), Mockito.anyString());
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);
@@ -651,23 +666,23 @@ public class AutoCommitServiceTest {
 
         // redis-utils fixing
         Mockito.when(redisUtils.getRunningAutoCommitBranchName(DEFAULT_APP_ID)).thenReturn(Mono.empty());
-
         Mockito.when(redisUtils.getAutoCommitProgress(DEFAULT_APP_ID)).thenReturn(Mono.empty());
 
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> assertThat(autoCommitResponseDTO.getAutoCommitResponse())
                         .isEqualTo(AutoCommitResponseDTO.AutoCommitResponse.PUBLISHED))
                 .verifyComplete();
 
+        testApplication.getGitApplicationMetadata().setBranchName("another-branch-name");
+
         // redis-utils fixing
         Mockito.when(redisUtils.getRunningAutoCommitBranchName(DEFAULT_APP_ID)).thenReturn(Mono.just(BRANCH_NAME));
-
         Mockito.when(redisUtils.getAutoCommitProgress(DEFAULT_APP_ID)).thenReturn(Mono.just(20));
 
-        StepVerifier.create(autoCommitService.autoCommitApplication(testApplication.getId(), DEFAULT_BRANCH_NAME))
+        StepVerifier.create(autoCommitService.autoCommitApplication(testApplication.getId()))
                 .assertNext(autoCommitResponseDTO -> {
                     assertThat(autoCommitResponseDTO.getAutoCommitResponse())
                             .isEqualTo(AutoCommitResponseDTO.AutoCommitResponse.LOCKED);

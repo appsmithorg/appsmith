@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -87,6 +87,7 @@ const updateHeight = (
 ) => {
   if (ref.current) {
     const height = currentRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
+
     ref.current.style.height = `${height}px`;
     ref.current
       .closest(".scroll-parent")
@@ -148,11 +149,13 @@ function useUpdateRows(
       occupiedSpacesByChildren,
       widgetId,
     );
+
     // If the current number of rows in the drop target is less
     // than the expected number of rows in the drop target
     if (rowRef.current < newRows) {
       // Set the new value locally
       rowRef.current = newRows;
+
       // If the parent container like widget has auto height enabled
       // We'd like to immediately update the parent's height
       // based on the auto height computations
@@ -174,8 +177,10 @@ function useUpdateRows(
           updateHeight(dropTargetRef, rowRef.current);
         }
       }
+
       return newRows;
     }
+
     return false;
   };
   // memoizing context values
@@ -255,9 +260,11 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       props.isMobile,
       isAutoLayoutActive,
     );
+
     // If the current ref is not set to the new snaprows we've received (based on bottomRow)
     if (rowRef.current !== snapRows && !isDragging && !isResizing) {
       rowRef.current = snapRows;
+
       if (!isAutoLayoutActive || !props.isListWidgetCanvas) {
         updateHeight(dropTargetRef, snapRows);
       }

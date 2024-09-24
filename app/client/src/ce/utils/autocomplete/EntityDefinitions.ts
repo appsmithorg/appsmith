@@ -1,9 +1,6 @@
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import {
-  ENTITY_TYPE,
-  type AppsmithEntity,
-} from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE, type AppsmithEntity } from "ee/entities/DataTree/types";
 import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import type { Def } from "tern";
@@ -12,10 +9,10 @@ import type {
   ActionEntityConfig,
   DataTreeEntityConfig,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { eeAppsmithAutocompleteDefs } from "@appsmith/utils/autocomplete/helpers";
+import { eeAppsmithAutocompleteDefs } from "ee/utils/autocomplete/helpers";
 
 export const entityDefinitions = {
   APPSMITH: (entity: AppsmithEntity, extraDefsToDefine: ExtraDef) => {
@@ -23,6 +20,7 @@ export const entityDefinitions = {
       _.omit(entity, "ENTITY_TYPE", EVALUATION_PATH),
       extraDefsToDefine,
     );
+
     if (
       typeof generatedTypeDef === "object" &&
       typeof generatedTypeDef.geolocation === "object"
@@ -92,6 +90,7 @@ export const entityDefinitions = {
         ...eeAppsmithAutocompleteDefs(generatedTypeDef),
       };
     }
+
     return generatedTypeDef;
   },
   ACTION: (entity: ActionEntity, extraDefsToDefine: ExtraDef) => {
@@ -119,6 +118,7 @@ export const entityDefinitions = {
     } else {
       dataCustomDef = { ...dataCustomDef, ...dataDef };
     }
+
     return {
       "!doc":
         "Object that contains the properties required to run queries and access the query data.",
@@ -278,6 +278,8 @@ export const GLOBAL_FUNCTIONS = {
   },
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ternDocsInfo: Record<string, any> = {
   showAlert: {
     exampleArgs: [
@@ -337,7 +339,9 @@ export const getEachEntityInformation = {
     entityInformation: FieldEntityInformation,
   ): FieldEntityInformation => {
     const actionEntity = entity as ActionEntityConfig;
+
     entityInformation.entityId = actionEntity.actionId;
+
     return entityInformation;
   },
   [ENTITY_TYPE.WIDGET]: (
@@ -347,11 +351,15 @@ export const getEachEntityInformation = {
   ): FieldEntityInformation => {
     const widgetEntity = entity as WidgetEntityConfig;
     const isTriggerPath = widgetEntity.triggerPaths[propertyPath];
+
     entityInformation.entityId = widgetEntity.widgetId;
+
     if (isTriggerPath)
       entityInformation.expectedType = AutocompleteDataType.FUNCTION;
+
     entityInformation.isTriggerPath = isTriggerPath;
     entityInformation.widgetType = widgetEntity.type;
+
     return entityInformation;
   },
   [ENTITY_TYPE.JSACTION]: (
@@ -362,6 +370,7 @@ export const getEachEntityInformation = {
     propertyPath: string,
   ): FieldEntityInformation => {
     entityInformation.isTriggerPath = true;
+
     return entityInformation;
   },
 };

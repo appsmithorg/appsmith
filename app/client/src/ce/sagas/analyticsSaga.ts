@@ -1,19 +1,17 @@
 import { getCurrentUser } from "selectors/usersSelectors";
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
 import { call, select } from "redux-saga/effects";
 import type { APP_MODE } from "entities/App";
-import {
-  getCurrentApplication,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { getAppMode } from "@appsmith/selectors/entitiesSelector";
-import type { AppState } from "@appsmith/reducers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { getAppMode } from "ee/selectors/entitiesSelector";
+import type { AppState } from "ee/reducers";
 import { getWidget } from "sagas/selectors";
-import { getUserSource } from "@appsmith/utils/AnalyticsUtil";
+import { getUserSource } from "ee/utils/AnalyticsUtil";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 export interface UserAndAppDetails {
   pageId: string;
@@ -61,6 +59,7 @@ export function* logDynamicTriggerExecution({
   triggerMeta: TriggerMeta;
 }) {
   if (triggerMeta.triggerKind !== TriggerKind.EVENT_EXECUTION) return;
+
   const isUnsuccessfulExecution = isArray(errors) && errors.length > 0;
   const {
     appId,
@@ -81,6 +80,7 @@ export function* logDynamicTriggerExecution({
   const isJSToggled = !!dynamicPropertyPathList?.find(
     (property) => property.key === triggerMeta.triggerPropertyName,
   );
+
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
     type: "JS_EXPRESSION",
     unevalValue: dynamicTrigger,

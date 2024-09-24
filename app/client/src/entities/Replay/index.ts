@@ -4,25 +4,34 @@ import type { Diff } from "deep-diff";
 import { diff as deepDiff, applyChange, revertChange } from "deep-diff";
 
 import { getPathsFromDiff } from "./replayUtils";
-import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 
 const _DIFF_ = "diff";
+
 type ReplayType = "UNDO" | "REDO";
 
 export default abstract class ReplayEntity<T> {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private diffMap: any;
   private undoManager: UndoManager;
   protected entity: T;
   private replayEntityType: ENTITY_TYPE;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logs: any[] = [];
   protected abstract processDiff(
     diff: Diff<T, T>,
+    // TODO: Fix this the next time the file is edited
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     replay: any,
     isUndo: boolean,
   ): any;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   constructor(entity: T, replayEntityType: ENTITY_TYPE) {
     const doc = new Doc();
+
     this.diffMap = doc.get("map", Map);
     this.entity = entity;
     this.diffMap.set(_DIFF_, []);
@@ -83,6 +92,7 @@ export default abstract class ReplayEntity<T> {
 
       const replay = this.applyDiffs(diffs, replayType);
       const stop = performance.now();
+
       this.logs.push({
         log: `replay ${replayType}`,
         undoTime: `${stop - start} ms`,
@@ -113,11 +123,14 @@ export default abstract class ReplayEntity<T> {
   update(entity: T) {
     const startTime = performance.now();
     const diffs = deepDiff(this.entity, entity);
+
     if (diffs && diffs.length) {
       this.entity = entity;
       this.diffMap.set(_DIFF_, diffs);
     }
+
     const endTime = performance.now();
+
     this.logs.push({
       log: "replay updating",
       updateTime: `${endTime - startTime} ms`,
@@ -135,6 +148,8 @@ export default abstract class ReplayEntity<T> {
    * @param isUndo
    */
   applyDiffs(diffs: Array<Diff<T, T>>, replayType: ReplayType) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const replay: any = {};
     const isUndo = replayType === "UNDO";
     const applyDiff = isUndo ? revertChange : applyChange;
@@ -143,6 +158,7 @@ export default abstract class ReplayEntity<T> {
       if (!Array.isArray(diff.path) || diff.path.length === 0) {
         continue;
       }
+
       try {
         this.processDiff(diff, replay, isUndo);
         applyDiff(this.entity, true, diff);

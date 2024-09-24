@@ -2,9 +2,9 @@ import { fork, put, select, call } from "redux-saga/effects";
 import type { RouteChangeActionPayload } from "actions/focusHistoryActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import type { BackgroundTheme } from "sagas/ThemeSaga";
 import { changeAppBackground } from "sagas/ThemeSaga";
@@ -19,9 +19,9 @@ import { getSafeCrash } from "selectors/errorSelectors";
 import { flushErrors } from "actions/errorActions";
 import type { NavigationMethod } from "utils/history";
 import UsagePulse from "usagePulse";
-import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
-import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import type { EditorViewMode } from "ee/entities/IDE/constants";
+import { IDE_TYPE } from "ee/entities/IDE/constants";
 import { updateIDETabsOnRouteChangeSaga } from "sagas/IDESaga";
 import { getIDEViewMode } from "selectors/ideSelectors";
 
@@ -31,6 +31,7 @@ export function* handleRouteChange(
   action: ReduxAction<RouteChangeActionPayload>,
 ) {
   const { pathname, state } = action.payload.location;
+
   try {
     yield fork(clearErrors);
     yield fork(watchForTrackableUrl, action.payload);
@@ -45,10 +46,12 @@ export function* handleRouteChange(
         previousPath,
         state,
       );
+
       if (ideType === IDE_TYPE.App) {
         yield fork(logNavigationAnalytics, action.payload);
         yield fork(appBackgroundHandler);
         const entityInfo = identifyEntityFromPath(pathname);
+
         yield fork(updateRecentEntitySaga, entityInfo);
         yield fork(updateIDETabsOnRouteChangeSaga, entityInfo);
         yield fork(setSelectedWidgetsSaga, state?.invokedBy);
@@ -63,6 +66,7 @@ export function* handleRouteChange(
 
 function* appBackgroundHandler() {
   const currentTheme: BackgroundTheme = yield select(getCurrentThemeDetails);
+
   changeAppBackground(currentTheme);
 }
 
@@ -75,6 +79,7 @@ function* appBackgroundHandler() {
  * */
 function* clearErrors() {
   const isCrashed: boolean = yield select(getSafeCrash);
+
   if (isCrashed) {
     yield put(flushErrors());
   }
@@ -114,6 +119,7 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   );
   const ideViewMode: EditorViewMode = yield select(getIDEViewMode);
   const { height, width } = window.screen;
+
   AnalyticsUtil.logEvent("ROUTE_CHANGE", {
     toPath: pathname,
     fromPath: previousPath || undefined,
@@ -133,12 +139,15 @@ function* setSelectedWidgetsSaga(invokedBy?: NavigationMethod) {
   const entityInfo = identifyEntityFromPath(pathname);
   let widgets: string[] = [];
   let lastSelectedWidget = MAIN_CONTAINER_WIDGET_ID;
+
   if (entityInfo.entity === FocusEntity.PROPERTY_PANE) {
     widgets = entityInfo.id.split(",");
+
     if (widgets.length) {
       lastSelectedWidget = widgets[widgets.length - 1];
     }
   }
+
   yield put(setSelectedWidgets(widgets, invokedBy));
   yield put(setLastSelectedWidget(lastSelectedWidget));
 }

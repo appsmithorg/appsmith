@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import reducer from "./canvasLevelsReducer";
 
 describe("Canvas Levels Reducer", () => {
@@ -39,6 +39,7 @@ describe("Canvas Levels Reducer", () => {
       0: 0,
       1: 1,
     };
+
     expect(reducer(state, { type, payload: payload2 })).toEqual(expected);
   });
 });

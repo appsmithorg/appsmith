@@ -20,9 +20,6 @@ import { getWidgetByID } from "sagas/selectors";
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 import { useReflow } from "utils/hooks/useReflow";
 
@@ -44,16 +41,7 @@ export function FixedLayoutResizable(props: ResizableProps) {
       occupiedSpacesBySiblingWidgets,
     );
   };
-  // Performance tracking start
-  const sentryPerfTags = props.zWidgetType
-    ? [{ name: "widget_type", value: props.zWidgetType }]
-    : [];
-  PerformanceTracker.startTracking(
-    PerformanceTransactionName.SHOW_RESIZE_HANDLES,
-    { widgetId: props.zWidgetId },
-    true,
-    sentryPerfTags,
-  );
+
   const reflowSelector = getReflowSelector(props.widgetId);
 
   const equal = (
@@ -78,12 +66,6 @@ export function FixedLayoutResizable(props: ResizableProps) {
   );
   const widget = useSelector(getWidgetByID(props.widgetId));
 
-  useEffect(() => {
-    PerformanceTracker.stopTracking(
-      PerformanceTransactionName.SHOW_RESIZE_HANDLES,
-    );
-  }, []);
-  //end
   const [pointerEvents, togglePointerEvents] = useState(true);
   const dimensionReflectionProps = {
     reflectDimension: true,
@@ -337,6 +319,7 @@ export function FixedLayoutResizable(props: ResizableProps) {
       component: props.handles.bottomLeft,
     });
   }
+
   const onResizeStop = () => {
     togglePointerEvents(true);
     props.onStop(
@@ -399,6 +382,7 @@ export function FixedLayoutResizable(props: ResizableProps) {
       props.showResizeBoundary ? "show-boundary" : ""
     } ${pointerEvents ? "" : "pointer-event-none"}`;
   }, [props.className, pointerEvents, props.showResizeBoundary]);
+
   return (
     <Spring
       config={{

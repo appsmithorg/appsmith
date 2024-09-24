@@ -1,11 +1,12 @@
 import { getTestPayloadFromCollectionData } from "./actionExecutionUtils";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { PluginType } from "entities/Action";
 import configureStore from "redux-mock-store";
 
 describe("getTestPayloadFromCollectionData", () => {
   beforeAll(() => {
     const store = configureStore()({});
+
     jest.spyOn(store, "getState").mockReturnValue({});
   });
 
@@ -18,6 +19,7 @@ describe("getTestPayloadFromCollectionData", () => {
       isLoading: false,
       config: {
         id: "",
+        baseId: "",
         applicationId: "",
         workspaceId: "",
         name: "",
@@ -29,6 +31,7 @@ describe("getTestPayloadFromCollectionData", () => {
       activeJSActionId: "123",
       data: {},
     };
+
     expect(getTestPayloadFromCollectionData(collectionData)).toBe("");
   });
 
@@ -37,6 +40,7 @@ describe("getTestPayloadFromCollectionData", () => {
       isLoading: false,
       config: {
         id: "",
+        baseId: "",
         applicationId: "",
         workspaceId: "",
         name: "",
@@ -52,6 +56,7 @@ describe("getTestPayloadFromCollectionData", () => {
         },
       },
     };
+
     expect(getTestPayloadFromCollectionData(collectionData)).toBe(
       "test payload",
     );

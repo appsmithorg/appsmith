@@ -1,9 +1,6 @@
 import { createSelector } from "reselect";
-import type { AppState } from "@appsmith/reducers";
-import type {
-  Workspace,
-  WorkspaceRole,
-} from "@appsmith/constants/workspaceConstants";
+import type { AppState } from "ee/reducers";
+import type { Workspace, WorkspaceRole } from "ee/constants/workspaceConstants";
 
 export const getRolesFromState = (state: AppState) => {
   return state.ui.workspaces.roles;
@@ -31,6 +28,7 @@ export const getWorkspaceFromId = (state: AppState, workspaceId: string) => {
   const filteredWorkspaces = state.ui.workspaces.list.filter(
     (el) => el.id === workspaceId,
   );
+
   return !!filteredWorkspaces && filteredWorkspaces.length > 0
     ? filteredWorkspaces[0]
     : undefined;
@@ -50,7 +48,11 @@ export const getRoles = createSelector(
   },
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getRolesForField = createSelector(getAllRoles, (roles?: any) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return roles.map((role: any) => {
     return {
       id: role.id,

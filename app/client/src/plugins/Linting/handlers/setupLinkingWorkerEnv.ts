@@ -1,6 +1,9 @@
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
+import type { LintRequest } from "../types";
 
-export const setupLintingWorkerEnv = (featureFlags: FeatureFlags) => {
+export const setupLintingWorkerEnv = ({
+  data: featureFlags,
+}: LintRequest<FeatureFlags>) => {
   WorkerEnv.setFeatureFlags(featureFlags);
 };

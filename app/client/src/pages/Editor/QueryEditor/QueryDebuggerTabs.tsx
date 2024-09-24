@@ -4,14 +4,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import { Text, TextType } from "design-system-old";
+import { Text, TextType } from "@appsmith/ads-old";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import {
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
   DEBUGGER_RESPONSE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Schema from "components/editorComponents/Debugger/Schema";
@@ -23,7 +23,7 @@ import QueryResponseTab from "./QueryResponseTab";
 import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { DatasourceStructureContext } from "entities/Datasource";
@@ -31,7 +31,7 @@ import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
 import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
 import { actionResponseDisplayDataFormats } from "../utils";
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import { IDEBottomView, ViewHideBehaviour } from "../../../IDE";
 
 const ResultsCount = styled.div`
@@ -62,6 +62,8 @@ function QueryDebuggerTabs({
   runErrorMessage,
   showSchema,
 }: QueryDebuggerTabsProps) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let output: Record<string, any>[] | null = null;
   const dispatch = useDispatch();
 
@@ -162,6 +164,8 @@ function QueryDebuggerTabs({
         ];
       }
     } else {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       output = actionResponse.body as any;
     }
   }
@@ -204,6 +208,7 @@ function QueryDebuggerTabs({
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <QueryResponseTab
+          actionName={actionName}
           actionSource={actionSource}
           currentActionConfig={currentActionConfig}
           isRunning={isRunning}

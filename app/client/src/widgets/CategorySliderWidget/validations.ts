@@ -4,6 +4,8 @@ import type { CategorySliderWidgetProps, SliderOption } from "./widget";
 export function optionsCustomValidation(
   options: unknown,
   props: CategorySliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ): ValidationResponse {
   const validationUtil = (
@@ -32,9 +34,11 @@ export function optionsCustomValidation(
 
     for (let i = 0; i < options.length; i++) {
       const { label, value } = options[i];
+
       if (!valueType) {
         valueType = typeof value;
       }
+
       //Checks the uniqueness all the values in the options
       if (!uniqueLabels.hasOwnProperty(value)) {
         uniqueLabels[value] = "";
@@ -115,6 +119,7 @@ export function optionsCustomValidation(
       },
     ],
   };
+
   try {
     if (_.isString(options)) {
       options = JSON.parse(options as string);
@@ -133,6 +138,8 @@ export function optionsCustomValidation(
 export function defaultOptionValidation(
   value: unknown,
   props: CategorySliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ): ValidationResponse {
   //Checks if the value is not of object type in {{}}

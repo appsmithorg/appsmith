@@ -72,6 +72,8 @@ interface TreeStructureProps {
 }
 
 const TreeStructure = React.forwardRef(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (props: TreeStructureProps, ref: any) => {
     return (
       <TreeStructureWrapper ref={ref}>{props.children}</TreeStructureWrapper>

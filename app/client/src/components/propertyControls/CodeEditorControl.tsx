@@ -27,7 +27,9 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     const props: Partial<ControlProps> = {};
 
     if (dataTreePath) props.dataTreePath = dataTreePath;
+
     if (evaluatedValue) props.evaluatedValue = evaluatedValue;
+
     if (expected) props.expected = expected;
 
     return (
@@ -48,6 +50,8 @@ class CodeEditorControl extends BaseControl<ControlProps> {
     );
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange: EventOrValueHandler<ChangeEvent<any>> = (
     value: string | ChangeEvent,
   ) => {

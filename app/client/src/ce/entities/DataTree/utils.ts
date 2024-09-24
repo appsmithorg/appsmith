@@ -4,15 +4,15 @@ import type {
   WidgetEntity,
   ActionEntity,
   JSActionEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
-import { OverridingPropertyType } from "@appsmith/entities/DataTree/types";
+import { OverridingPropertyType } from "ee/entities/DataTree/types";
 import {
   isAction,
   isJSAction,
   isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { Module } from "@appsmith/constants/ModuleConstants";
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { Module } from "ee/constants/ModuleConstants";
 interface SetOverridingPropertyParams {
   key: string;
   value: string;
@@ -34,6 +34,7 @@ export const setOverridingProperty = ({
       [OverridingPropertyType.META]: undefined,
     };
   }
+
   switch (type) {
     case OverridingPropertyType.DEFAULT:
       propertyOverrideDependency[propertyName][OverridingPropertyType.DEFAULT] =
@@ -52,14 +53,17 @@ export const setOverridingProperty = ({
     const updatedOverridingProperty = new Set(
       overridingPropertyPaths[overridingPropertyKey],
     );
+
     overridingPropertyPaths[overridingPropertyKey] = [
       ...updatedOverridingProperty.add(propertyName),
     ];
   } else {
     overridingPropertyPaths[overridingPropertyKey] = [propertyName];
   }
+
   // if property dependent on metaProperty also has defaultProperty then defaultProperty will also override metaProperty on eval.
   const defaultPropertyName = propertyOverrideDependency[propertyName].DEFAULT;
+
   if (type === OverridingPropertyType.META && defaultPropertyName) {
     overridingPropertyPaths[defaultPropertyName].push(overridingPropertyKey);
   }

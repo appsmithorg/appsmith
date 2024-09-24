@@ -1,13 +1,13 @@
 import styled from "styled-components";
 import React from "react";
-import { Button, Text } from "design-system";
+import { Button, Text } from "@appsmith/ads";
 import type { FooterProps } from "./types";
 import {
   AVAILABLE_ON_BUSINESS,
   AVAILABLE_ON_ENTERPRISE,
   createMessage,
   UPGRADE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 const FooterContainer = styled.div`
   position: absolute;
@@ -38,6 +38,7 @@ const FooterContainer = styled.div`
 
 export function FooterComponent(props: FooterProps) {
   const { isEnterprise = false, message, onClick, showHeading = true } = props;
+
   return (
     <FooterContainer
       className="upgrade-page-footer-container"

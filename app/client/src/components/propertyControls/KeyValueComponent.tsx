@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import { ControlWrapper, InputGroup } from "./StyledControls";
-import type { SegmentedControlOption } from "design-system";
-import { Button } from "design-system";
+import type { SegmentedControlOption } from "@appsmith/ads";
+import { Button } from "@appsmith/ads";
 import { generateReactKey } from "utils/generators";
 import { debounce } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -16,6 +16,7 @@ function updateOptionLabel<T>(
     if (index !== optionIndex) {
       return option;
     }
+
     return {
       ...option,
       label: updatedLabel,
@@ -32,6 +33,7 @@ function updateOptionValue<T>(
     if (index !== optionIndex) {
       return option;
     }
+
     return {
       ...option,
       value: updatedValue,
@@ -46,6 +48,8 @@ const StyledBox = styled.div`
 type UpdatePairFunction = (
   pair: SegmentedControlOption[],
   isUpdatedViaKeyboard?: boolean,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) => any;
 
 interface KeyValueComponentProps {
@@ -70,8 +74,10 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
   >([]);
   const [typing, setTyping] = useState<boolean>(false);
   const { pairs } = props;
+
   useEffect(() => {
     let { pairs } = props;
+
     pairs = Array.isArray(pairs) ? pairs.slice() : [];
 
     const newRenderPairs: SegmentedControlOptionWithKey[] = pairs.map(
@@ -95,6 +101,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
   function updateKey(index: number, updatedKey: string) {
     let { pairs } = props;
+
     pairs = Array.isArray(pairs) ? pairs : [];
     const updatedPairs = updateOptionLabel(pairs, index, updatedKey);
     const updatedRenderPairs = updateOptionLabel(
@@ -109,6 +116,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
   function updateValue(index: number, updatedValue: string) {
     let { pairs } = props;
+
     pairs = Array.isArray(pairs) ? pairs : [];
     const updatedPairs = updateOptionValue(pairs, index, updatedValue);
     const updatedRenderPairs = updateOptionValue(
@@ -123,6 +131,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
   function deletePair(index: number, isUpdatedViaKeyboard = false) {
     let { pairs } = props;
+
     pairs = Array.isArray(pairs) ? pairs : [];
 
     const newPairs = pairs.filter((o, i) => i !== index);
@@ -134,29 +143,41 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
   function addPair(e: React.MouseEvent) {
     let { pairs } = props;
+
     pairs = Array.isArray(pairs) ? pairs.slice() : [];
     pairs.push({
       label: getNextEntityName(
         "Option",
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         pairs.map((pair: any) => pair.label),
       ),
       value: getNextEntityName(
         "OPTION",
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         pairs.map((pair: any) => pair.value),
       ),
     });
     const updatedRenderPairs = renderPairs.slice();
+
     updatedRenderPairs.push({
       label: getNextEntityName(
         "Option",
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         renderPairs.map((pair: any) => pair.label),
       ),
       value: getNextEntityName(
         "OPTION",
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         renderPairs.map((pair: any) => pair.value),
       ),
       key: getNextEntityName(
         "OPTION",
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         renderPairs.map((pair: any) => pair.value),
       ),
     });
@@ -186,6 +207,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
               }}
               onFocus={onInputFocus}
               placeholder={"Name"}
+              // @ts-expect-error fix this the next time the file is edited
               value={pair.label}
             />
             <StyledBox />
@@ -201,6 +223,8 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
             />
             <StyledBox />
             <Button
+              // At least one pair must be present
+              isDisabled={renderPairs.length <= 1}
               isIconButton
               kind="tertiary"
               onClick={(e: React.MouseEvent) => {

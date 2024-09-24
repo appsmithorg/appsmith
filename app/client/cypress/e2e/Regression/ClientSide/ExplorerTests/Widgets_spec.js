@@ -28,7 +28,7 @@ describe(
       });
       _.entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Text1",
-        action: "Edit name",
+        action: "Rename",
       });
       cy.EditApiNameFromExplorer("TextUpdated");
       _.entityExplorer.ActionContextMenuByEntityName({

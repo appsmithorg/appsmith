@@ -4,7 +4,7 @@ import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/l
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { anvilWidgets } from "widgets/anvil/constants";
+import { anvilWidgets } from "widgets/wds/constants";
 import {
   updateSectionWithDefaultSpaceDistribution,
   updateSectionsDistributedSpace,
@@ -16,8 +16,10 @@ export function* updateAndSaveAnvilLayout(
   options?: { isRetry: boolean; shouldReplay: boolean },
 ) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+
   if (!isAnvilLayout || !widgets) {
     yield put(updateAndSaveLayout(widgets, options));
+
     return;
   }
 
@@ -32,6 +34,7 @@ export function* updateAndSaveAnvilLayout(
 
   for (const each of sections) {
     const children: string[] | undefined = each.children;
+
     /**
      * If a section doesn't have any children,
      * => delete it.
@@ -39,6 +42,7 @@ export function* updateAndSaveAnvilLayout(
     if (!children || !children?.length) {
       let parent: FlattenedWidgetProps =
         updatedWidgets[each.parentId || MAIN_CONTAINER_WIDGET_ID];
+
       if (parent) {
         parent = {
           ...parent,

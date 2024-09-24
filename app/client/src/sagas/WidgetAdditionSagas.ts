@@ -1,10 +1,10 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+} from "ee/constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { WidgetBlueprint } from "WidgetProvider/constants";
 import {
   BlueprintOperationTypes,
@@ -18,7 +18,7 @@ import {
   BUILDING_BLOCK_EXPLORER_TYPE,
   RenderModes,
 } from "constants/WidgetConstants";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import produce from "immer";
 import { klona as clone } from "klona/full";
@@ -53,7 +53,6 @@ import {
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { getWidget, getWidgets } from "./selectors";
 import { addBuildingBlockToCanvasSaga } from "./BuildingBlockSagas/BuildingBlockAdditionSagas";
-import { getCurrentlyOpenAnvilDetachedWidgets } from "layoutSystems/anvil/integrations/modalSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -63,12 +62,15 @@ export interface GeneratedWidgetPayload {
 }
 
 interface WidgetAddTabChild {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tabs: any;
   widgetId: string;
 }
 
 function* getEntityNames() {
   const evalTree: DataTree = yield select(getDataTree);
+
   return Object.keys(evalTree);
 }
 
@@ -87,13 +89,8 @@ function* getChildWidgetProps(
   ]);
   const themeDefaultConfig =
     WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
-  const widgetSessionValues = getWidgetSessionValues(type, parent);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-  const detachedWidgets: string[] = yield select(
-    getCurrentlyOpenAnvilDetachedWidgets,
-  );
-  const isModalOpen = detachedWidgets && detachedWidgets.length > 0;
 
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
@@ -104,6 +101,7 @@ function* getChildWidgetProps(
       ...entityNames,
     ]);
   }
+
   if (type === "CANVAS_WIDGET") {
     columns =
       (parent.rightColumn - parent.leftColumn) * parent.parentColumnSpace;
@@ -122,15 +120,10 @@ function* getChildWidgetProps(
     }
   }
 
-  // in case we are creating zone inside zone, we want to use the parent's column space, we want
-  // to make sure the elevateBackground is set to false
-  if (type === "ZONE_WIDGET" && isModalOpen) {
-    props = { ...props, elevatedBackground: false };
-  }
-
   const isAutoLayout = isStack(widgets, parent);
   const isFillWidget =
     restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
+
   if (isAutoLayout && isFillWidget) columns = 64;
 
   const widgetProps = {
@@ -142,7 +135,6 @@ function* getChildWidgetProps(
     widgetId: newWidgetId,
     renderMode: RenderModes.CANVAS,
     ...themeDefaultConfig,
-    ...widgetSessionValues,
   };
 
   const { minWidth } = getWidgetMinMaxDimensionsInPixel(
@@ -168,6 +160,7 @@ function* getChildWidgetProps(
   );
 
   let { disableResizeHandles } = WidgetFactory.getWidgetAutoLayoutConfig(type);
+
   if (isFunction(disableResizeHandles)) {
     disableResizeHandles = disableResizeHandles(widget);
   }
@@ -186,6 +179,26 @@ function* getChildWidgetProps(
   }
 
   widget.widgetId = newWidgetId;
+  // Remove props that don't belong in the DSL and can be accessed using
+  // the widget type's static methods and configurations
+  // Fixes #21825
+  widget.rows = undefined;
+  widget.columns = undefined;
+  widget.name = undefined;
+  widget.iconSVG = undefined;
+  widget.thumbnailSVG = undefined;
+  widget.hideCard = undefined;
+  widget.isDeprecated = undefined;
+  widget.needsMeta = undefined;
+  widget.searchTags = undefined;
+  widget.tags = undefined;
+  widget.displayName = undefined;
+  widget.onCanvasUI = undefined;
+  widget.eagerRender = undefined;
+  widget.needsHeightForContent = undefined;
+  widget.features = undefined;
+  widget.replacement = undefined;
+
   /**
    * un-evaluated childStylesheet used by widgets; so they are to be excluded
    * from the dynamicBindingPathList and they are not included as a part of
@@ -216,6 +229,7 @@ function* getChildWidgetProps(
       ...dynamicBindingPathList,
       ...params.dynamicBindingPathList,
     ];
+
     widget.dynamicBindingPathList = mergedDynamicBindingPathLists;
   } else {
     widget.dynamicBindingPathList = clone(dynamicBindingPathList);
@@ -229,6 +243,8 @@ export function* generateChildWidgets(
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   propsBlueprint?: WidgetBlueprint,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   // Get the props for the widget
   const widget = yield getChildWidgetProps(parent, params, widgets);
@@ -268,6 +284,7 @@ export function* generateChildWidgets(
         );
       }),
     );
+
     // Start children array from scratch
     widget.children = [];
     childPropsList.forEach((props: GeneratedWidgetPayload) => {
@@ -385,6 +402,7 @@ export function* addChildSaga(
 ) {
   try {
     const start = performance.now();
+
     toast.dismiss();
     const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const { newWidgetId, type, widgetId } = addChildAction.payload;
@@ -403,6 +421,7 @@ export function* addChildSaga(
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
+
     yield put(
       updateAndSaveLayout(updatedWidgets, {
         shouldReplay: addChildAction.payload.shouldReplay,
@@ -423,6 +442,7 @@ export function* addChildSaga(
       payload: {
         action: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -442,6 +462,7 @@ const getChildTabData = (
   const rows =
     (tabProps.bottomRow - tabProps.topRow - GRID_DENSITY_MIGRATION_V1) *
     tabProps.parentRowSpace;
+
   return {
     type: WidgetTypes.CANVAS_WIDGET,
     columns: columns,
@@ -475,6 +496,8 @@ function* addNewTabChildSaga(
   const newTabId = generateReactKey({ prefix: "tab" });
   const newTabLabel = getNextEntityName(
     "Tab ",
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tabsArray.map((tab: any) => tab.label),
   );
 
@@ -488,6 +511,8 @@ function* addNewTabChildSaga(
       isVisible: true,
     },
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const newTabProps: any = getChildTabData(tabProps, {
     id: newTabId,
     label: newTabLabel,
@@ -498,6 +523,7 @@ function* addNewTabChildSaga(
     getUpdateDslAfterCreatingChild,
     isAutoLayout ? { ...newTabProps, topRow: 0 } : newTabProps,
   );
+
   updatedWidgets[widgetId]["tabsObj"] = tabs;
   yield put(updateAndSaveLayout(updatedWidgets));
 }
@@ -518,6 +544,7 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
       payload: {
         action: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -528,52 +555,4 @@ export default function* widgetAdditionSagas() {
     takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILD, addUIEntitySaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD, addNewTabChildSaga),
   ]);
-}
-
-/**
- * retrieves the values from session storage for the widget properties
- * for hydration of the widget when we create widget on drop
- */
-export function getWidgetSessionValues(
-  type: string,
-  parent: FlattenedWidgetProps,
-) {
-  // For WDS_INLINE_BUTTONS_WIDGET, we want to hydation only to work when we add more items to the inline button group.
-  // So we don't want to hydrate the values when we drop the widget on the canvas.
-  if (["WDS_INLINE_BUTTONS_WIDGET"].includes(type)) return;
-
-  let widgetType = type;
-  const configMap = WidgetFactory.widgetConfigMap.get(type);
-
-  const widgetSessionValues: any = {};
-
-  // in case we are dropping WDS_ICON_BUTTON_WIDGET, we want to reuse the values of BUTTON_WIDGET
-  if (type === "WDS_ICON_BUTTON_WIDGET") {
-    widgetType = "WDS_BUTTON_WIDGET";
-  }
-
-  for (const key in configMap) {
-    if (configMap[key] != undefined) {
-      let sessionStorageKey = `${widgetType}.${key}`;
-
-      if (type === "ZONE_WIDGET") {
-        sessionStorageKey = `${widgetType}.${parent.widgetId}.${key}`;
-      }
-
-      let valueFromSession: any = sessionStorage.getItem(sessionStorageKey);
-
-      // parse "true" as true and "false" as false
-      if (valueFromSession === "true") {
-        valueFromSession = true;
-      } else if (valueFromSession === "false") {
-        valueFromSession = false;
-      }
-
-      if (valueFromSession !== undefined && valueFromSession !== null) {
-        widgetSessionValues[key] = valueFromSession;
-      }
-    }
-  }
-
-  return widgetSessionValues;
 }

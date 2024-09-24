@@ -1,16 +1,16 @@
 import React from "react";
 import styled from "styled-components";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
+import { SettingTypes } from "ee/pages/AdminSettings/config/types";
 import TextInput from "./TextInput";
 import Toggle from "./Toggle";
 import TextComponent from "./Text";
 import Button from "./Button";
 import { getFormValues } from "redux-form";
-import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
+import { SETTINGS_FORM_NAME } from "ee/constants/forms";
 import { useDispatch, useSelector } from "react-redux";
-import { createMessage, LEARN_MORE } from "@appsmith/constants/messages";
-import { Callout, Text } from "design-system";
+import { createMessage, LEARN_MORE } from "ee/constants/messages";
+import { Callout, Text } from "@appsmith/ads";
 import CopyUrlForm from "./CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
@@ -125,6 +125,7 @@ export default function Group({
             ) {
               return null;
             }
+
             switch (setting.controlType) {
               case SettingTypes.RADIO:
                 return (

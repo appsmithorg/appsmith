@@ -1,9 +1,7 @@
 import { createReducer } from "utils/ReducerUtils";
-import type {
-  ReduxAction,
-  ShowPropertyPanePayload,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { ShowPropertyPanePayload } from "actions/propertyPaneActions";
 
 const initialState: TableFilterPaneReduxState = {
   isVisible: false,
@@ -23,12 +21,14 @@ const tableFilterPaneReducer = createReducer(initialState, {
     ) {
       return state;
     }
+
     const { callForDragOrResize, widgetId } = action.payload;
     // If callForDragOrResize is true, an action has started or ended.
     // If the action has started, isVisibleBeforeAction should be undefined
     // If the action has ended, isVisibleBeforeAction should be the visible state
     // of the property pane to use.
     let isVisibleBeforeAction = undefined;
+
     if (callForDragOrResize && state.isVisibleBeforeAction === undefined) {
       isVisibleBeforeAction = state.isVisible;
     }
@@ -37,6 +37,7 @@ const tableFilterPaneReducer = createReducer(initialState, {
     // If isVisibleBeforeAction is undefined, show property pane
     // If isVisibleBeforeAction is defined, set visibility to its value
     let isVisible = true;
+
     if (callForDragOrResize && state.isVisibleBeforeAction === undefined) {
       isVisible = false;
     } else if (

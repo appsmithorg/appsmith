@@ -1,13 +1,13 @@
 import type {
   ReduxAction,
   ReduxActionType,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import WidgetFactory from "WidgetProvider/factory";
 import type {
   BatchUpdateDynamicPropertyUpdates,
@@ -52,7 +52,7 @@ import {
 } from "redux-saga/effects";
 import {
   getCanvasWidth,
-  getCurrentPageId,
+  getCurrentBasePageId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
@@ -72,7 +72,7 @@ import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import {
   ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT,
   ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT,
@@ -83,13 +83,13 @@ import {
   WIDGET_COPY,
   WIDGET_CUT,
   createMessage,
-} from "@appsmith/constants/messages";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
-import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/constants/messages";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
+import { getAllPaths } from "ee/workers/Evaluation/evaluationUtils";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   getAllPathsFromPropertyConfig,
@@ -200,6 +200,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
     const mainCanvasWidth: number = yield select(getCanvasWidth);
+
     widget = {
       ...widget,
       leftColumn,
@@ -239,21 +240,28 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       [widgetId],
       bottomRow,
     );
+
     // If it is a fixed canvas, update bottomRow directly.
     if (
       updatedCanvasBottomRow &&
       layoutSystemType === LayoutSystemTypes.FIXED
     ) {
       const canvasWidget = movedWidgets[parentId];
+
       movedWidgets[parentId] = {
         ...canvasWidget,
         bottomRow: updatedCanvasBottomRow,
       };
     }
+
     // If it is an auto-layout canvas, then use positionUtils to update canvas bottomRow.
     let updatedWidgetsAfterResizing = movedWidgets;
+
     if (layoutSystemType === LayoutSystemTypes.AUTO) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+
       updatedWidgetsAfterResizing = updatePositionsOfParentAndSiblings(
         movedWidgets,
         parentId,
@@ -264,6 +272,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
         metaProps,
       );
     }
+
     log.debug("resize computations took", performance.now() - start, "ms");
     yield put(stopReflowAction());
     yield put(updateAndSaveLayout(updatedWidgetsAfterResizing));
@@ -279,6 +288,7 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
       payload: {
         action: WidgetReduxActionTypes.WIDGET_RESIZE,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -310,10 +320,12 @@ export function* reflowWidgets(
   for (const reflowedWidgetId of reflowWidgetKeys) {
     const reflowWidget = reflowingWidgets[reflowedWidgetId];
     const canvasWidget = { ...currentWidgets[reflowedWidgetId] };
+
     if (reflowWidget.X !== undefined && reflowWidget.width !== undefined) {
       const leftColumn =
         canvasWidget.leftColumn + reflowWidget.X / snapColumnSpace;
       const rightColumn = leftColumn + reflowWidget.width / snapColumnSpace;
+
       currentWidgets[reflowedWidgetId] = {
         ...canvasWidget,
         leftColumn,
@@ -325,6 +337,7 @@ export function* reflowWidgets(
     ) {
       const topRow = canvasWidget.topRow + reflowWidget.Y / snapRowSpace;
       const bottomRow = topRow + reflowWidget.height / snapRowSpace;
+
       currentWidgets[reflowedWidgetId] = { ...canvasWidget, topRow, bottomRow };
     }
   }
@@ -365,6 +378,7 @@ function getDynamicTriggerPathListUpdate(
       effect: DynamicPathUpdateEffectEnum.REMOVE,
     };
   }
+
   return {
     propertyPath,
     effect: DynamicPathUpdateEffectEnum.NOOP,
@@ -388,9 +402,12 @@ const DYNAMIC_BINDING_IGNORED_LIST = [
 function getDynamicBindingPathListUpdate(
   widget: WidgetProps,
   propertyPath: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
 ): DynamicPathUpdate {
   let stringProp = propertyValue;
+
   if (_.isObject(propertyValue)) {
     // Stringify this because composite controls may have bindings in the sub controls
     stringProp = JSON.stringify(propertyValue);
@@ -409,6 +426,7 @@ function getDynamicBindingPathListUpdate(
   }
 
   const isDynamic = isDynamicValue(stringProp);
+
   if (!isDynamic && isPathADynamicBinding(widget, propertyPath)) {
     return {
       propertyPath,
@@ -420,6 +438,7 @@ function getDynamicBindingPathListUpdate(
       effect: DynamicPathUpdateEffectEnum.ADD,
     };
   }
+
   return {
     propertyPath,
     effect: DynamicPathUpdateEffectEnum.NOOP,
@@ -437,6 +456,7 @@ function applyDynamicPathUpdates(
   } else if (update.effect === DynamicPathUpdateEffectEnum.REMOVE) {
     currentList = _.reject(currentList, { key: update.propertyPath });
   }
+
   return currentList;
 }
 
@@ -451,6 +471,7 @@ function* updateWidgetPropertySaga(
   const updates: Record<string, unknown> = {
     [propertyPath]: propertyValue,
   };
+
   // Push these updates via the batch update
   yield call(
     batchUpdateWidgetPropertySaga,
@@ -476,6 +497,7 @@ export function removeDynamicBindingProperties(
       propertyPath, // primaryColumns.customColumn1.isVisible
       `derivedColumns.${tableProperty}`, // derivedColumns.customColumn1.isVisible
     ];
+
     return _.reject(dynamicBindingPathList, ({ key }) =>
       tablePropertyPathsToRemove.includes(key),
     );
@@ -505,11 +527,13 @@ export function* handleUpdateWidgetDynamicProperty(
     const keyExists =
       dynamicPropertyPathList.findIndex((path) => path.key === propertyPath) >
       -1;
+
     if (!keyExists) {
       dynamicPropertyPathList.push({
         key: propertyPath,
       });
     }
+
     widget = set(widget, propertyPath, convertToString(propertyValue));
   } else {
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
@@ -545,8 +569,10 @@ export function* handleUpdateWidgetDynamicProperty(
       widget = set(widget, propertyPath, parsed);
     }
   }
+
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
   widget.dynamicBindingPathList = dynamicBindingPathList;
+
   return widget;
 }
 
@@ -563,6 +589,7 @@ export function* batchUpdateWidgetDynamicPropertySaga(
 
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const widgets = { ...stateWidgets, [widgetId]: widget };
+
   // Save the layout
   yield put(updateAndSaveLayout(widgets));
 }
@@ -589,6 +616,7 @@ export function* setWidgetDynamicPropertySaga(
   widget = yield call(handleUpdateWidgetDynamicProperty, widget, update);
 
   const propertyValue = get(widget, propertyPath);
+
   if (!propertyValue && isDynamic) {
     // Empty binding should not be set for table and json widgets' data property
     // As these are getting populated with slash command menu on focus
@@ -615,6 +643,7 @@ export function getPropertiesToUpdate(
 } {
   // Create a
   const widgetWithUpdates = _.cloneDeep(widget);
+
   Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
     set(widgetWithUpdates, propertyPath, propertyValue);
   });
@@ -641,6 +670,7 @@ export function getPropertiesToUpdate(
 
   Object.keys(updatePaths).forEach((propertyPath) => {
     const propertyValue = getValueFromTree(updates, propertyPath);
+
     // only check if
     if (!_.isString(propertyValue)) {
       return;
@@ -685,13 +715,16 @@ export function getPropertiesToUpdate(
 
 export function* getIsContainerLikeWidget(widget: FlattenedWidgetProps) {
   const children = widget.children;
+
   if (Array.isArray(children) && children.length > 0) {
     const firstChild: FlattenedWidgetProps = yield select(
       getWidget,
       children[0],
     );
+
     if (firstChild.type === "CANVAS_WIDGET") return true;
   }
+
   return false;
 }
 
@@ -708,6 +741,7 @@ export function* getPropertiesUpdatedWidget(
   if (!stateWidget) return;
 
   let widget = cloneDeep(stateWidget);
+
   try {
     if (Object.keys(modify).length > 0) {
       const {
@@ -756,10 +790,12 @@ function* batchUpdateWidgetPropertySaga(
 ) {
   const start = performance.now();
   const { shouldReplay, widgetId } = action.payload;
+
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
     return;
   }
+
   const updatedWidgetAndActionsToDispatch: {
     updatedWidget: WidgetProps;
     actionToDispatch?: ReduxActionType;
@@ -769,6 +805,7 @@ function* batchUpdateWidgetPropertySaga(
     ...stateWidgets,
     [widgetId]: updatedWidgetAndActionsToDispatch.updatedWidget,
   };
+
   log.debug(
     "Batch widget property update calculations took: ",
     action,
@@ -777,6 +814,7 @@ function* batchUpdateWidgetPropertySaga(
   );
   // Save the layout
   yield put(updateAndSaveLayout(widgets, { shouldReplay }));
+
   if (updatedWidgetAndActionsToDispatch.actionToDispatch) {
     yield put({
       type: updatedWidgetAndActionsToDispatch.actionToDispatch,
@@ -829,6 +867,7 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
       updatedWidgetIds,
     }),
   );
+
   for (const updatedWidgetAndActions of updatedWidgetsAndActionsToDispatch) {
     if (updatedWidgetAndActions.actionToDispatch) {
       yield put({
@@ -882,6 +921,7 @@ function* deleteWidgetPropertySaga(
   action: ReduxAction<DeleteWidgetPropertyPayload>,
 ) {
   const { propertyPaths, widgetId } = action.payload;
+
   if (!widgetId) {
     // Handling the case where sometimes widget id is not passed through here
     return;
@@ -893,8 +933,10 @@ function* deleteWidgetPropertySaga(
 //TODO(abhinav): Move this to helpers and add tests
 const unsetPropertyPath = (obj: Record<string, unknown>, path: string) => {
   const regex = /(.*)\[\d+\]$/;
+
   if (regex.test(path)) {
     const matches = path.match(regex);
+
     if (
       matches &&
       Array.isArray(matches) &&
@@ -903,6 +945,7 @@ const unsetPropertyPath = (obj: Record<string, unknown>, path: string) => {
     ) {
       _.unset(obj, path);
       const arr = _.get(obj, matches[1]);
+
       if (arr && Array.isArray(arr)) {
         _.set(obj, matches[1], arr.filter(Boolean));
       }
@@ -910,6 +953,7 @@ const unsetPropertyPath = (obj: Record<string, unknown>, path: string) => {
   } else {
     _.unset(obj, path);
   }
+
   return obj;
 };
 
@@ -931,6 +975,7 @@ function* resetChildrenMetaSaga(action: ReduxAction<{ widgetId: string }>) {
       childrenList[childIndex];
     const evaluatedWidgetConfig =
       childWidget && configTree[childWidget?.widgetName];
+
     yield put(
       resetWidgetMetaProperty(
         childId,
@@ -955,6 +1000,7 @@ function* updateCanvasSize(
   const newBottomRow = Math.round(
     snapRows * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   );
+
   /* Update the canvas's rows, ONLY if it has changed since the last render */
   if (originalSnapRows !== newBottomRow) {
     // TODO(abhinav): This considers that the topRow will always be zero
@@ -978,6 +1024,7 @@ function* createSelectedWidgetsCopy(
   flexLayers: FlexLayer[],
 ) {
   if (!selectedWidgets || !selectedWidgets.length) return;
+
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
 
   const widgetListsToStore: {
@@ -994,6 +1041,7 @@ function* createSelectedWidgetsCopy(
       flexLayers,
     }),
   );
+
   return saveResult;
 }
 
@@ -1008,10 +1056,12 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
   const allWidgets: { [widgetId: string]: FlattenedWidgetProps } =
     yield select(getWidgets);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
+
   if (!selectedWidgets) {
     toast.show(createMessage(ERROR_WIDGET_COPY_NO_WIDGET_SELECTED), {
       kind: "info",
     });
+
     return;
   }
 
@@ -1031,6 +1081,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
 
     return;
   }
+
   const selectedWidgetProps = selectedWidgets.map((each) => allWidgets[each]);
 
   const canvasId = selectedWidgetProps?.[0]?.parentId || "";
@@ -1049,6 +1100,7 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
     const eventName = action.payload.isShortcut
       ? "WIDGET_COPY_VIA_SHORTCUT"
       : "WIDGET_COPY";
+
     AnalyticsUtil.logEvent(eventName, {
       widgetName: each.widgetName,
       widgetType: each.type,
@@ -1105,6 +1157,7 @@ export function calculateNewWidgetPosition(
     newPastingPositionMap[widget.widgetId]
   ) {
     const newPastingPosition = newPastingPositionMap[widget.widgetId];
+
     return {
       topRow: newPastingPosition.top,
       bottomRow: newPastingPosition.bottom,
@@ -1116,6 +1169,7 @@ export function calculateNewWidgetPosition(
   const nextAvailableRow = parentBottomRow
     ? parentBottomRow
     : nextAvailableRowInContainer(parentId, canvasWidgets);
+
   return {
     leftColumn: shouldPersistColumnPosition ? widget.leftColumn : 0,
     rightColumn: shouldPersistColumnPosition
@@ -1317,6 +1371,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
           widgetList.forEach((widget) => {
             // Create a copy of the widget properties
             const newWidget = cloneDeep(widget);
+
             newWidget.widgetId = generateReactKey();
             // Add the new widget id so that it maps the previous widget id
             widgetIdMap[widget.widgetId] = newWidget.widgetId;
@@ -1358,10 +1413,14 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
             if (widget.tabsObj && widget.type === "TABS_WIDGET") {
               try {
                 const tabs = Object.values(widget.tabsObj);
+
                 if (Array.isArray(tabs)) {
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   widget.tabsObj = tabs.reduce((obj: any, tab: any) => {
                     tab.widgetId = widgetIdMap[tab.widgetId];
                     obj[tab.id] = tab;
+
                     return obj;
                   }, {});
                 }
@@ -1397,6 +1456,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
                     }
                   }
                 }
+
                 // Use the new widget name we used to replace the column properties above.
                 widget.widgetName = newWidgetName;
               } catch (error) {
@@ -1414,17 +1474,20 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
                 // If the defaultOptionValue exist
                 if (widget.defaultOptionValue) {
                   const value = widget.defaultOptionValue;
+
                   // replace All occurrence of old widget name
                   widget.defaultOptionValue = isString(value)
                     ? value.replaceAll(`${oldWidgetName}.`, `${newWidgetName}.`)
                     : value;
                 }
+
                 // Use the new widget name we used to replace the defaultValue properties above.
                 widget.widgetName = newWidgetName;
               } catch (error) {
                 log.debug("Error updating widget properties", error);
               }
             }
+
             // If it is the copied widget, update position properties
             if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
               //when the widget is a modal widget, it has to paste on the main container
@@ -1434,6 +1497,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
                   : pastingIntoWidgetId;
               const { bottomRow, leftColumn, rightColumn, topRow } =
                 newWidgetPosition;
+
               widget.leftColumn = leftColumn;
               widget.topRow = topRow;
               widget.bottomRow = bottomRow;
@@ -1450,6 +1514,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
                 const originalWidgetId: string = widgetList[i].widgetId;
                 const originalWidgetIndex: number =
                   widgetChildren.indexOf(originalWidgetId);
+
                 parentChildren = [
                   ...widgetChildren.slice(0, originalWidgetIndex + 1),
                   ...parentChildren,
@@ -1464,6 +1529,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
                   children: parentChildren,
                 },
               };
+
               // If the copied widget's boundaries exceed the parent's
               // Make the parent scrollable
               if (
@@ -1473,11 +1539,13 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
                 !widget.detachFromLayout
               ) {
                 const parentOfPastingWidget = widgets[pastingParentId].parentId;
+
                 if (
                   parentOfPastingWidget &&
                   widget.parentId !== MAIN_CONTAINER_WIDGET_ID
                 ) {
                   const parent = widgets[parentOfPastingWidget];
+
                   widgets[parentOfPastingWidget] = {
                     ...parent,
                     shouldScrollContents: true,
@@ -1494,8 +1562,10 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
                   ? newWidget.widgetId === widgetIdMap[widget.parentId]
                   : false,
               )?.widgetId;
+
               if (newParentId) widget.parentId = newParentId;
             }
+
             // Generate a new unique widget name
             if (!shouldGroup) {
               widget.widgetName = newWidgetName;
@@ -1510,6 +1580,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
              */
             if (widget.parentId) {
               const pastingIntoWidget = widgets[widget.parentId];
+
               if (
                 pastingIntoWidget &&
                 isStack(widgets, pastingIntoWidget) &&
@@ -1517,8 +1588,11 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
                   !flexLayers ||
                   flexLayers.length <= 0)
               ) {
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const metaProps: Record<string, any> =
                   yield select(getWidgetsMeta);
+
                 if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
                   widgets = pasteWidgetInFlexLayers(
                     widgets,
@@ -1541,7 +1615,9 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
               }
             }
           }
+
           newlyCreatedWidgetIds.push(widgetIdMap[copiedWidgetId]);
+
           // 1. updating template in the copied widget and deleting old template associations
           // 2. updating dynamicBindingPathList in the copied grid widget
           for (let i = 0; i < newWidgetList.length; i++) {
@@ -1574,6 +1650,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
       flexLayers.length > 0
     ) {
       const newFlexLayers = getNewFlexLayers(flexLayers, widgetIdMap);
+
       reflowedWidgets[pastingIntoWidgetId] = {
         ...reflowedWidgets[pastingIntoWidgetId],
         flexLayers: [
@@ -1581,7 +1658,10 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
           ...newFlexLayers,
         ],
       };
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
+
       reflowedWidgets = updateWidgetPositions(
         reflowedWidgets,
         pastingIntoWidgetId,
@@ -1603,12 +1683,13 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
       ),
       reflowedWidgets,
     );
+
     yield call(updateAndSaveAnvilLayout, updatedWidgets);
 
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
 
     if (copiedWidgetGroups && copiedWidgetGroups.length > 0) {
-      history.push(builderURL({ pageId }));
+      history.push(builderURL({ basePageId }));
     }
 
     yield put({
@@ -1634,6 +1715,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
       payload: {
         action: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
         error,
+        logToDebugger: true,
       },
     });
   }
@@ -1643,10 +1725,12 @@ function* cutWidgetSaga() {
   const allWidgets: { [widgetId: string]: FlattenedWidgetProps } =
     yield select(getWidgets);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
+
   if (!selectedWidgets) {
     toast.show(createMessage(ERROR_WIDGET_CUT_NO_WIDGET_SELECTED), {
       kind: "info",
     });
+
     return;
   }
 
@@ -1663,6 +1747,7 @@ function* cutWidgetSaga() {
     toast.show(createMessage(ERROR_WIDGET_CUT_NOT_ALLOWED), {
       kind: "info",
     });
+
     return;
   }
 
@@ -1682,6 +1767,7 @@ function* cutWidgetSaga() {
 
   selectedWidgetProps.forEach((each) => {
     const eventName = "WIDGET_CUT_VIA_SHORTCUT"; // cut only supported through a shortcut
+
     AnalyticsUtil.logEvent(eventName, {
       widgetName: each.widgetName,
       widgetType: each.type,
@@ -1716,6 +1802,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
     action.payload.props.setWidgetIdForWalkthrough === "true"
   );
   const widgetConfig = action.payload;
+
   delete widgetConfig.props?.setWidgetIdForWalkthrough;
 
   if (!widgetConfig.type) return;
@@ -1727,6 +1814,7 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
   const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree);
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+
   try {
     let newWidget = {
       newWidgetId: generateReactKey(),
@@ -1813,7 +1901,9 @@ export function* groupWidgetsSaga() {
   const isMultipleWidgetsSelected = selectedWidgetIDs.length > 1;
   // Grouping functionality has been temporarily disabled for auto-layout canvas.
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
+
   if (isAutoLayout) return;
+
   if (isMultipleWidgetsSelected) {
     try {
       yield put({
@@ -1842,6 +1932,7 @@ function* widgetBatchUpdatePropertySaga() {
   while (true) {
     // @ts-expect-error: Type mismatch
     const action: unknown = yield take(batchUpdateWidgetPropertyChannel);
+
     // @ts-expect-error: Type mismatch
     yield call(batchUpdateWidgetPropertySaga, action);
   }
@@ -1877,9 +1968,11 @@ function* verifyPasteFeasibilitySaga(
         currentLayoutSystemType === LayoutSystemTypes.ANVIL
           ? ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT
           : ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT;
+
       toast.show(createMessage(message), {
         kind: "warning",
       });
+
       return;
     }
 
@@ -1897,8 +1990,11 @@ function* verifyPasteFeasibilitySaga(
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+
   if (!isAnvilLayout) {
     yield call(saga, action);
   }

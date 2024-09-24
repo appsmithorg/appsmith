@@ -2,12 +2,13 @@ import React, { useDispatch } from "react-redux";
 import { DebuggerEntityLink, type EntityLinkProps } from "./DebuggerEntityLink";
 import { useCallback } from "react";
 import { navigateToEntity } from "actions/editorActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 
 export default function JSCollectionLink(props: EntityLinkProps) {
   const dispatch = useDispatch();
   let position: { ch: number; line: number } | undefined;
+
   if (props.message) {
     if (props.message.character && props.message.lineNumber) {
       position = {
@@ -16,6 +17,7 @@ export default function JSCollectionLink(props: EntityLinkProps) {
       };
     }
   }
+
   const onClick = useCallback(() => {
     if (props.id) {
       dispatch(
@@ -41,6 +43,7 @@ export default function JSCollectionLink(props: EntityLinkProps) {
     props.errorSubType,
     props.appsmithErrorCode,
   ]);
+
   return (
     <DebuggerEntityLink
       entityType={props.type}

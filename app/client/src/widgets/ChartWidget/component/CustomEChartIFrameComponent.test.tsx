@@ -57,6 +57,8 @@ const defaultProps: ChartComponentConnectedProps = {
   needsOverlay: false,
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any;
 
 describe("CustomEChartIFrameComponent", () => {
@@ -75,12 +77,14 @@ describe("CustomEChartIFrameComponent", () => {
       <CustomEChartIFrameComponent {...defaultProps} />,
     );
     const iFrameElement = container.querySelector("iframe");
+
     expect(iFrameElement).toBeInTheDocument();
     expect(iFrameElement).toHaveAttribute("sandbox", "allow-scripts");
 
     const overlay = container.querySelector(
       "div[data-testid='iframe-overlay']",
     );
+
     expect(overlay).not.toBeInTheDocument();
   });
 
@@ -88,15 +92,18 @@ describe("CustomEChartIFrameComponent", () => {
     const props: ChartComponentConnectedProps = JSON.parse(
       JSON.stringify(defaultProps),
     );
+
     props.needsOverlay = true;
 
     const { container } = render(<CustomEChartIFrameComponent {...props} />);
     const iFrameElement = container.querySelector("iframe");
+
     expect(iFrameElement).toBeInTheDocument();
 
     const overlay = container.querySelector(
       "div[data-testid='iframe-overlay']",
     );
+
     expect(overlay).toBeInTheDocument();
   });
 });

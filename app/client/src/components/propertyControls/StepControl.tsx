@@ -1,7 +1,7 @@
 import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import { NumberInput } from "design-system";
+import { NumberInput } from "@appsmith/ads";
 import type { DSEventDetail } from "utils/AppsmithUtils";
 import {
   DSEventTypes,
@@ -43,6 +43,7 @@ class StepControl extends BaseControl<StepControlProps> {
 
   getStepTypeControls = () => {
     const { stepType } = this.props;
+
     if (stepType === "ZOOM_PERCENTAGE") {
       return {
         min: MIN,
@@ -51,6 +52,7 @@ class StepControl extends BaseControl<StepControlProps> {
         suffix: "%",
       };
     }
+
     return {
       min: MIN,
       max: MAX,
@@ -60,6 +62,7 @@ class StepControl extends BaseControl<StepControlProps> {
 
   render() {
     const { max, min, steps, suffix } = this.getStepTypeControls();
+
     return (
       <NumberInput
         max={max}
@@ -67,6 +70,7 @@ class StepControl extends BaseControl<StepControlProps> {
         // TODO: UI builders -> confirm isUpdatedViaKeyboard is needed going forward
         onChange={(value: string | undefined, isUpdatedViaKeyboard = false) => {
           const v = value ? parseFloat(value.replace(/[^0-9.-]+/g, "")) : 0;
+
           this.updateProperty(this.props.propertyName, v, isUpdatedViaKeyboard);
         }}
         ref={this.componentRef}
@@ -81,11 +85,15 @@ class StepControl extends BaseControl<StepControlProps> {
     return "STEP";
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: StepControlProps, value: any): boolean {
     let steps = 1;
+
     if (config.stepType === "ZOOM_PERCENTAGE") {
       steps = 5;
     }
+
     return value >= MIN && value <= MAX && value % steps === 0;
   }
 }

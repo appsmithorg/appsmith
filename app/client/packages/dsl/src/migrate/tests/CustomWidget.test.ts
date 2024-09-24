@@ -40,6 +40,7 @@ describe("Migrate Custom widget dynamic height", () => {
     let outputDSL = migrateCustomWidgetDynamicHeight(inputDSL);
     let outputChartWidgetDSL = (outputDSL.children &&
       outputDSL.children[0]) as WidgetProps;
+
     expect(outputChartWidgetDSL.dynamicHeight).toEqual("FIXED");
 
     outputChartWidgetDSL.dynamicHeight = "autoheight";

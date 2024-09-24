@@ -1,4 +1,4 @@
-import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { LintError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
@@ -11,14 +11,18 @@ import {
 import { Severity } from "entities/AppsmithConsole";
 import { getJSToLint } from "./getJSToLint";
 import getLintingErrors from "./getLintingErrors";
+import type { WebworkerTelemetryAttribute } from "../types";
 
 export default function lintJSObjectBody(
   jsObjectName: string,
   globalData: DataTree,
+  webworkerTelemetry: Record<string, WebworkerTelemetryAttribute>,
 ): LintError[] {
   const jsObject = globalData[jsObjectName];
   const rawJSObjectbody = (jsObject as unknown as JSActionEntity).body;
+
   if (!rawJSObjectbody) return [];
+
   if (!rawJSObjectbody.startsWith(JS_OBJECT_START_STATEMENT)) {
     return [
       {
@@ -38,13 +42,16 @@ export default function lintJSObjectBody(
       },
     ];
   }
+
   const scriptType = getScriptType(false, false);
   const jsbodyToLint = getJSToLint(jsObject, rawJSObjectbody, "body"); // remove "export default"
   const scriptToLint = getScriptToEval(jsbodyToLint, scriptType);
+
   return getLintingErrors({
     script: scriptToLint,
     data: globalData,
     originalBinding: jsbodyToLint,
     scriptType,
+    webworkerTelemetry,
   });
 }

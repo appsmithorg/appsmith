@@ -4,7 +4,7 @@ import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
 import type { AnvilConfig } from "WidgetProvider/constants";
-import { Checkbox, ToggleGroup } from "@design-system/widgets";
+import { Checkbox, ToggleGroup } from "@appsmith/wds";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -72,6 +72,8 @@ class WDSCheckboxGroupWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedValues: undefined,
@@ -94,17 +96,20 @@ class WDSCheckboxGroupWidget extends BaseWidget<
   }
 
   onChange = (selectedValues: OptionProps["value"][]) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      pushBatchMetaUpdates("isDirty", true);
     }
 
-    this.props.updateWidgetMetaProperty("selectedValues", selectedValues, {
+    pushBatchMetaUpdates("selectedValues", selectedValues, {
       triggerPropertyName: "onCheckChange",
       dynamicString: this.props.onCheckChange,
       event: {
         type: EventType.ON_CHECKBOX_GROUP_SELECTION_CHANGE,
       },
     });
+    commitBatchMetaUpdates();
   };
 
   getWidgetView() {

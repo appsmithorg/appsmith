@@ -61,6 +61,7 @@ export const PROPERTY_SELECTOR = {
   TextFieldName: "Text",
   tableData: ".t--property-control-tabledata",
   tableColumnNames: '[data-rbd-draggable-id] input[type="text"]',
+  jsToggle : '.t--js-toggle',
 };
 
 export const WIDGETSKIT = {
@@ -174,4 +175,10 @@ export const buttongroupwidgetlocators = {
   buttonMenuOptions: (text: string) =>
     `//*[contains(@class,'bp3-menu-item')]//*[text()='${text}']`,
   button: "//*[contains(@class,'t--widget-buttongroupwidget')]//button",
+};
+
+export const multiSelectWidgetLocators = {
+  multiSelectWidgetTrigger: ".t--widget-multiselectwidgetv2 .rc-select-selector",
+  multiSelectWidgetSelectedOptionContent: ".rc-select-selection-item > .rc-select-selection-item-content",
+  multiSelectWidgetDropdownOptionCheckbox: ".multi-select-dropdown .rc-select-item-option-selected .bp3-control-indicator"
 };

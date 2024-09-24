@@ -1,7 +1,7 @@
 import type {
   JSActionEntity as TJSActionEntity,
   JSActionEntityConfig as TJSActionEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import {
   defaultDiffGenerator,
   type EntityDiffGenerator,
@@ -9,10 +9,7 @@ import {
 import type { EntityParser } from "plugins/Linting/utils/entityParser";
 import type { TParsedJSProperty } from "@shared/ast";
 import { isJSFunctionProperty } from "@shared/ast";
-import {
-  ENTITY_TYPE,
-  type IEntity,
-} from "@appsmith/plugins/Linting/lib/entity/types";
+import { ENTITY_TYPE, type IEntity } from "ee/plugins/Linting/lib/entity/types";
 import type { Diff } from "deep-diff";
 
 export class JSEntity implements IEntity {
@@ -60,18 +57,22 @@ export class JSEntity implements IEntity {
       this.entity,
       this.config,
     );
+
     for (const propertyName of Object.keys(parsedEntityConfig)) {
       const jsPropertyConfig = parsedEntityConfig[
         propertyName
       ] as TParsedJSProperty;
       const jsPropertyFullName = `${this.getName()}.${propertyName}`;
+
       if (!isJSFunctionProperty(jsPropertyConfig)) continue;
+
       jsFunctions.push({
         name: jsPropertyFullName,
         body: parsedEntity[propertyName],
         isMarkedAsync: jsPropertyConfig.isMarkedAsync,
       });
     }
+
     return jsFunctions;
   }
 }

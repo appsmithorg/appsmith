@@ -1,6 +1,6 @@
 import { PluginType } from "entities/Action";
 import { generateDataTreeJSAction } from "./dataTreeJSAction";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 
 describe("generateDataTreeJSAction", () => {
   it("generate js collection in data tree", () => {
@@ -193,6 +193,7 @@ describe("generateDataTreeJSAction", () => {
       },
     };
     const resultData = generateDataTreeJSAction(jsCollection);
+
     expect(resultData.unEvalEntity).toStrictEqual(expectedData);
     expect(resultData.configEntity).toStrictEqual(expectedConfig);
   });
@@ -391,6 +392,7 @@ describe("generateDataTreeJSAction", () => {
     };
 
     const result = generateDataTreeJSAction(jsCollection);
+
     expect(result.unEvalEntity).toStrictEqual(expectedData);
     expect(result.configEntity).toStrictEqual(expectedConfig);
   });

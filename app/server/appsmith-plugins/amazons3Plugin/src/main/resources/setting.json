@@ -28,7 +28,7 @@
           "subtitle": "Maximum time after which the query will return",
           "configProperty": "actionConfiguration.timeoutInMillisecond",
           "controlType": "INPUT_TEXT",
-          "dataType": "NUMBER"
+          "dataType": "NUMBER",
           "width": "270px"
         }
       ]

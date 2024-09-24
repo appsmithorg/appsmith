@@ -2,13 +2,12 @@ import type { AxiosPromise } from "axios";
 import Api from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
 import type { GitConfig } from "entities/GitSync";
-import ApplicationApi from "@appsmith/api/ApplicationApi";
+import ApplicationApi from "ee/api/ApplicationApi";
 
 export interface CommitPayload {
   applicationId: string;
   commitMessage: string;
   doPush: boolean;
-  branch: string;
 }
 
 export interface MergeBranchPayload {
@@ -34,13 +33,7 @@ export interface ConnectToGitPayload {
 
 interface GitStatusParam {
   applicationId: string;
-  branch: string;
   compareRemote: boolean;
-}
-
-interface GitRemoteStatusParam {
-  applicationId: string;
-  branch: string;
 }
 
 export enum AutocommitResponseEnum {
@@ -69,17 +62,13 @@ class GitSyncAPI extends Api {
 
   static async commit({
     applicationId,
-    branch,
     commitMessage,
     doPush,
   }: CommitPayload): Promise<AxiosPromise<ApiResponse>> {
-    return Api.post(
-      `${GitSyncAPI.baseURL}/commit/app/${applicationId}?branchName=${branch}`,
-      {
-        commitMessage,
-        doPush,
-      },
-    );
+    return Api.post(`${GitSyncAPI.baseURL}/commit/app/${applicationId}`, {
+      commitMessage,
+      doPush,
+    });
   }
 
   static async merge({
@@ -108,9 +97,12 @@ class GitSyncAPI extends Api {
     return Api.get(`${GitSyncAPI.baseURL}/pull/app/${applicationId}`);
   }
 
-  static async connect(payload: ConnectToGitPayload, applicationId: string) {
+  static async connect(
+    payload: ConnectToGitPayload,
+    baseApplicationId: string,
+  ) {
     return Api.post(
-      `${GitSyncAPI.baseURL}/connect/app/${applicationId}`,
+      `${GitSyncAPI.baseURL}/connect/app/${baseApplicationId}`,
       payload,
     );
   }
@@ -125,7 +117,9 @@ class GitSyncAPI extends Api {
 
   static async fetchBranches(applicationId: string, pruneBranches?: boolean) {
     const queryParams = {} as { pruneBranches?: boolean };
+
     if (pruneBranches) queryParams.pruneBranches = true;
+
     return Api.get(
       `${GitSyncAPI.baseURL}/branch/app/${applicationId}`,
       queryParams,
@@ -150,42 +144,30 @@ class GitSyncAPI extends Api {
     );
   }
 
-  static async getLocalConfig(applicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/profile/app/${applicationId}`);
+  static async getLocalConfig(baseApplicationId: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/profile/app/${baseApplicationId}`);
   }
 
-  static async setLocalConfig(payload: GitConfig, applicationId: string) {
+  static async setLocalConfig(payload: GitConfig, baseApplicationId: string) {
     return Api.put(
-      `${GitSyncAPI.baseURL}/profile/app/${applicationId}`,
+      `${GitSyncAPI.baseURL}/profile/app/${baseApplicationId}`,
       payload,
     );
   }
 
   static async getGitStatus({
     applicationId,
-    branch,
     compareRemote = true,
   }: GitStatusParam) {
-    return Api.get(
-      `${GitSyncAPI.baseURL}/status/app/${applicationId}`,
-      { compareRemote },
-      { headers: { branchName: branch } },
-    );
+    return Api.get(`${GitSyncAPI.baseURL}/status/app/${applicationId}`, {
+      compareRemote,
+    });
   }
 
-  static async getGitRemoteStatus({
-    applicationId,
-    branch,
-  }: GitRemoteStatusParam) {
-    return Api.get(
-      `${GitSyncAPI.baseURL}/fetch/remote/app/${applicationId}`,
-      {},
-      { headers: { branchName: branch } },
+  static async revokeGit(baseApplicationId: string) {
+    return Api.post(
+      `${GitSyncAPI.baseURL}/disconnect/app/${baseApplicationId}`,
     );
-  }
-
-  static async revokeGit({ applicationId }: { applicationId: string }) {
-    return Api.post(`${GitSyncAPI.baseURL}/disconnect/app/${applicationId}`);
   }
 
   static async importApp(payload: ConnectToGitPayload, workspaceId: string) {
@@ -193,27 +175,30 @@ class GitSyncAPI extends Api {
   }
 
   static async getSSHKeyPair(
-    applicationId: string,
+    baseApplicationId: string,
   ): Promise<AxiosPromise<ApiResponse>> {
-    return Api.get(ApplicationApi.baseURL + "/ssh-keypair/" + applicationId);
+    return Api.get(
+      ApplicationApi.baseURL + "/ssh-keypair/" + baseApplicationId,
+    );
   }
 
   static async generateSSHKeyPair(
-    applicationId: string,
+    baseApplicationId: string,
     keyType: string,
     isImporting?: boolean,
   ): Promise<AxiosPromise<ApiResponse>> {
     const url = isImporting
       ? `v1/git/import/keys?keyType=${keyType}`
-      : `${ApplicationApi.baseURL}/ssh-keypair/${applicationId}?keyType=${keyType}`;
+      : `${ApplicationApi.baseURL}/ssh-keypair/${baseApplicationId}?keyType=${keyType}`;
+
     return isImporting ? Api.get(url) : Api.post(url);
   }
 
   static async deleteBranch(
-    applicationId: string,
+    baseApplicationId: string,
     branchName: string,
   ): Promise<AxiosPromise<ApiResponse>> {
-    return Api.delete(GitSyncAPI.baseURL + "/branch/app/" + applicationId, {
+    return Api.delete(GitSyncAPI.baseURL + "/branch/app/" + baseApplicationId, {
       branchName,
     });
   }
@@ -222,41 +207,39 @@ class GitSyncAPI extends Api {
     return Api.put(`${GitSyncAPI.baseURL}/discard/app/${applicationId}`);
   }
 
-  static async getProtectedBranches(applicationId: string) {
+  static async getProtectedBranches(baseApplicationId: string) {
     return Api.get(
-      `${GitSyncAPI.baseURL}/branch/app/${applicationId}/protected`,
+      `${GitSyncAPI.baseURL}/branch/app/${baseApplicationId}/protected`,
     );
   }
 
   static async updateProtectedBranches(
-    applicationId: string,
+    baseApplicationId: string,
     branchNames: string[],
   ) {
     return Api.post(
-      `${GitSyncAPI.baseURL}/branch/app/${applicationId}/protected`,
+      `${GitSyncAPI.baseURL}/branch/app/${baseApplicationId}/protected`,
       { branchNames },
     );
   }
 
-  static async getGitMetadata(applicationId: string) {
-    return Api.get(`${GitSyncAPI.baseURL}/metadata/app/${applicationId}`);
+  static async getGitMetadata(baseApplicationId: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/metadata/app/${baseApplicationId}`);
   }
 
-  static async toggleAutocommit(applicationId: string) {
+  static async toggleAutocommit(baseApplicationId: string) {
     return Api.patch(
-      `${GitSyncAPI.baseURL}/auto-commit/toggle/app/${applicationId}`,
+      `${GitSyncAPI.baseURL}/auto-commit/toggle/app/${baseApplicationId}`,
     );
   }
 
-  static async triggerAutocommit(applicationId: string, branchName: string) {
-    return Api.post(
-      `${GitSyncAPI.baseURL}/auto-commit/app/${applicationId}?branchName=${branchName}`,
-    );
+  static async triggerAutocommit(applicationId: string) {
+    return Api.post(`${GitSyncAPI.baseURL}/auto-commit/app/${applicationId}`);
   }
 
-  static async getAutocommitProgress(applicationId: string) {
+  static async getAutocommitProgress(baseApplicationId: string) {
     return Api.get(
-      `${GitSyncAPI.baseURL}/auto-commit/progress/app/${applicationId}`,
+      `${GitSyncAPI.baseURL}/auto-commit/progress/app/${baseApplicationId}`,
     );
   }
 }

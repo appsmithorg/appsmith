@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import {
   checkContainersForAutoHeightAction,
   setAutoHeightLayoutTreeAction,
@@ -26,6 +26,7 @@ export function* getLayoutTree(layoutUpdated: boolean) {
   const previousTree: Record<string, TreeNode> = yield select(
     getAutoHeightLayoutTree,
   );
+
   for (const canvasWidgetId in occupiedSpaces) {
     if (Object.keys(occupiedSpaces[canvasWidgetId]).length > 0) {
       const treeForThisCanvas = generateTree(
@@ -33,14 +34,17 @@ export function* getLayoutTree(layoutUpdated: boolean) {
         !shouldCollapse && layoutUpdated,
         previousTree,
       );
+
       tree = Object.assign({}, tree, treeForThisCanvas);
     }
   }
+
   log.debug(
     "Auto Height: Tree generation time taken:",
     performance.now() - start,
     "ms",
   );
+
   return { canvasLevelMap, tree };
 }
 
@@ -54,6 +58,7 @@ export function* generateTreeForAutoHeightComputations(
   const { canvasLevelMap, tree } = yield getLayoutTree(
     action.payload.layoutUpdated,
   );
+
   yield put(setAutoHeightLayoutTreeAction(tree, canvasLevelMap));
   const { shouldCheckContainersForAutoHeightUpdates } = action.payload;
 

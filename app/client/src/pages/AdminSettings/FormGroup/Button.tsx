@@ -1,6 +1,6 @@
-import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
+import { SETTINGS_FORM_NAME } from "ee/constants/forms";
 import React from "react";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { getFormValues } from "redux-form";
 import styled from "styled-components";
@@ -27,6 +27,7 @@ const formValuesSelector = getFormValues(SETTINGS_FORM_NAME);
 export default function ButtonComponent({ setting }: SettingComponentProps) {
   const dispatch = useDispatch();
   const settings = useSelector(formValuesSelector);
+
   return (
     <ButtonWrapper>
       <FormGroup setting={setting}>

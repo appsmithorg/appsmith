@@ -2,7 +2,7 @@ import { flattenModule, installLibrary, uninstallLibrary } from "../jsLibrary";
 import {
   EVAL_WORKER_ASYNC_ACTION,
   EVAL_WORKER_SYNC_ACTION,
-} from "@appsmith/workers/Evaluation/evalWorkerActions";
+} from "ee/workers/Evaluation/evalWorkerActions";
 import * as mod from "../../../common/JSLibrary/ternDefinitionGenerator";
 
 jest.mock("../../../common/JSLibrary/ternDefinitionGenerator");
@@ -36,6 +36,7 @@ describe("Tests to assert install/uninstall flows", function () {
       method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
       webworkerTelemetry: {},
     });
+
     //
     expect(self.importScripts).toHaveBeenCalled();
     expect(mod.makeTernDefs).toHaveBeenCalledWith({});
@@ -60,6 +61,7 @@ describe("Tests to assert install/uninstall flows", function () {
       method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
       webworkerTelemetry: {},
     });
+
     expect(res).toEqual({
       success: true,
       defs: {
@@ -81,6 +83,7 @@ describe("Tests to assert install/uninstall flows", function () {
       method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
       webworkerTelemetry: {},
     });
+
     expect(res).toEqual({
       success: true,
       defs: {
@@ -99,6 +102,7 @@ describe("Tests to assert install/uninstall flows", function () {
       method: EVAL_WORKER_SYNC_ACTION.UNINSTALL_LIBRARY,
       webworkerTelemetry: {},
     });
+
     expect(res).toEqual({ success: true });
     expect(self.lodash).toBeUndefined();
   });

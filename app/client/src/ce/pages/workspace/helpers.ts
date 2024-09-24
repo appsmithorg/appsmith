@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 import type { RouteChildrenProps, RouteComponentProps } from "react-router-dom";
 import type { DefaultOptionType } from "rc-select/lib/Select";
@@ -7,6 +7,8 @@ export interface InviteUsersToWorkspaceByRoleValues {
   users?: string;
   permissionGroupId?: string;
   permissionGroupName?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   roles?: any[];
 }
 export interface InviteUsersToWorkspaceFormValues {
@@ -19,8 +21,14 @@ export interface InviteUsersProps {
   workspaceId?: string;
   isApplicationPage?: boolean;
   placeholder?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customProps?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selected?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: any;
   isMultiSelectDropdown?: boolean;
   checkIfInvitedUsersFromDifferentDomain?: () => void;
@@ -32,7 +40,11 @@ export interface CreateWorkspaceFormValues {
 
 export const createWorkspaceSubmitHandler = async (
   values: CreateWorkspaceFormValues,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
     dispatch({
@@ -50,12 +62,16 @@ export const createWorkspaceSubmitHandler = async (
 
 export const inviteUsersToWorkspaceSubmitHandler = async (
   values: InviteUsersToWorkspaceFormValues,
-  dispatch: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dispatch: any, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const data = values.usersByRole.map((value) => ({
     permissionGroupId: value.permissionGroupId,
     emails: value.users ? value.users.split(",") : [],
   }));
+
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.INVITE_USERS_TO_WORKSPACE_INIT,
@@ -71,8 +87,14 @@ export const inviteUsersToWorkspaceSubmitHandler = async (
 };
 
 export const inviteUsersToWorkspace = async (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const data = {
     permissionGroupId: values.permissionGroupId,
@@ -82,6 +104,7 @@ export const inviteUsersToWorkspace = async (
       recaptchaToken: values.recaptchaToken,
     }),
   };
+
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.INVITE_USERS_TO_WORKSPACE_INIT,
@@ -111,5 +134,6 @@ export function navigateToTab(
   } else {
     newUrl = `${location.pathname}/${tabKey}`;
   }
+
   history.push(newUrl);
 }

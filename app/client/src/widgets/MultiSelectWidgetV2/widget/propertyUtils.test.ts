@@ -397,6 +397,8 @@ describe("valueKeyValidation", () => {
           d,
           {
             sourceData: [{ test: 1 }, { test: 2 }],
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any as MultiSelectWidgetProps,
           _ as LoDashStatic,
         ),
@@ -419,6 +421,8 @@ describe("valueKeyValidation", () => {
         "test",
         {
           sourceData: [{ test: 1 }, { test: 2 }],
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as MultiSelectWidgetProps,
         _ as LoDashStatic,
       ),
@@ -440,6 +444,8 @@ describe("valueKeyValidation", () => {
           d,
           {
             sourceData: [{ test: 1 }, { test: 2 }],
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any as MultiSelectWidgetProps,
           _ as LoDashStatic,
         ),
@@ -464,6 +470,8 @@ describe("valueKeyValidation", () => {
           d,
           {
             sourceData: [{ test: 1 }, { test: 2 }],
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any as MultiSelectWidgetProps,
           _ as LoDashStatic,
         ),
@@ -484,6 +492,8 @@ describe("valueKeyValidation", () => {
         ["blue", "blue", "yellow"],
         {
           sourceData: [{ test: 1 }, { test: 2 }],
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as MultiSelectWidgetProps,
         _ as LoDashStatic,
       ),
@@ -503,6 +513,8 @@ describe("valueKeyValidation", () => {
         "yellow",
         {
           sourceData: [{ test: 1 }, { test: 2 }],
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as MultiSelectWidgetProps,
         _ as LoDashStatic,
       ),
@@ -523,6 +535,8 @@ describe("valueKeyValidation", () => {
         true,
         {
           sourceData: [{ test: 1 }, { test: 2 }],
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as MultiSelectWidgetProps,
         _ as LoDashStatic,
       ),
@@ -544,6 +558,8 @@ describe("valueKeyValidation", () => {
         1,
         {
           sourceData: [{ test: 1 }, { test: 2 }],
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as MultiSelectWidgetProps,
         _ as LoDashStatic,
       ),
@@ -565,6 +581,8 @@ describe("valueKeyValidation", () => {
         {},
         {
           sourceData: [{ test: 1 }, { test: 2 }],
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any as MultiSelectWidgetProps,
         _ as LoDashStatic,
       ),

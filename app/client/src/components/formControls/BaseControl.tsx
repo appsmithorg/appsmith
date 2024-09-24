@@ -2,9 +2,9 @@ import { Component } from "react";
 import type { ControlType } from "constants/PropertyControlConstants";
 import type { InputType } from "components/constants";
 import type { ConditonalObject } from "reducers/evaluationReducers/formEvaluationReducer";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import type { ViewTypes } from "./utils";
-import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlag } from "ee/entities/FeatureFlag";
 // eslint-disable-next-line @typescript-eslint/ban-types
 abstract class BaseControl<P extends ControlProps, S = {}> extends Component<
   P,
@@ -38,6 +38,8 @@ export interface ConditionObject {
 export interface Condition {
   path: string;
   comparison: ComparisonOperations;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   flagValue: FeatureFlag;
 }
@@ -61,6 +63,8 @@ export interface ControlData {
   tooltipText?: string | Record<string, string>;
   configProperty: string;
   controlType: ControlType;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue?: any;
   isValid: boolean;
   validationMessage?: string;
@@ -77,6 +81,8 @@ export interface ControlData {
   conditionals?: ConditonalObject; // Object that contains the conditionals config
   hidden?: HiddenType;
   placeholderText?: string | Record<string, string>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema?: any;
   errorText?: string;
   showError?: boolean;
@@ -88,7 +94,11 @@ export interface ControlData {
   logicalTypes?: string[];
   comparisonTypes?: string[];
   nestedLevels?: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customStyles?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sectionStyles?: any;
   propertyName?: string;
   identifier?: string;

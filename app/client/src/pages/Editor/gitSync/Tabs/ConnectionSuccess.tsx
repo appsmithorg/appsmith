@@ -13,7 +13,7 @@ import {
   GIT_CONNECT_SUCCESS_DEFAULT_BRANCH,
   GIT_CONNECT_SUCCESS_REPO_NAME,
   GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   Button,
   Icon,
@@ -22,12 +22,12 @@ import {
   Text,
   Link,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 
@@ -59,6 +59,7 @@ function ConnectionSuccessTitle() {
 
 function ConnectionSuccessBody() {
   const gitMetadata = useSelector(getCurrentAppGitMetaData);
+
   return (
     <>
       <div className="flex gap-x-4 mb-6">

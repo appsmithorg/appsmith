@@ -1,6 +1,6 @@
-import type { AppIconName } from "design-system-old";
+import type { AppIconName } from "@appsmith/ads-old";
 import type { AppColorCode } from "constants/DefaultTheme";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 
 import { truncateString, howMuchTimeBeforeText } from "utils/helpers";
@@ -21,9 +21,14 @@ export const CREATE_APPLICATION_FORM_NAME_FIELD = "applicationName";
 
 export const createApplicationFormSubmitHandler = async (
   values: CreateApplicationFormValues,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Promise<any> => {
   const { applicationName, workspaceId } = values;
+
   return new Promise((resolve, reject) => {
     dispatch({
       type: ReduxActionTypes.CREATE_APPLICATION_INIT,
@@ -54,5 +59,6 @@ export const generateEditedByText = ({
   //assuming modifiedAt will be always available
   editedOn = howMuchTimeBeforeText(editedOn);
   editedOn = editedOn !== "" ? editedOn + " ago" : "";
+
   return editedBy + " edited " + editedOn;
 };

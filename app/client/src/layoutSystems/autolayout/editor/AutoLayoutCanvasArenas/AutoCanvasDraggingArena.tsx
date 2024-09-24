@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getNearestParentCanvas } from "utils/generators";
@@ -89,6 +89,7 @@ export function AutoCanvasDraggingArena({
     }),
     [canExtend, snapColumnSpace, snapRowSpace, snapRows],
   );
+
   return showDraggingCanvas ? (
     <StickyCanvasArena
       canvasId={`canvas-dragging-${widgetId}`}

@@ -197,9 +197,7 @@
     {
       "name": "fast-xml-parser",
       "uidString": "XMLParser_https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/4.3.2/fxparser.min.js",
-      "accessor": [
-        "XMLParser"
-      ],
+      "accessor": ["XMLParser"],
       "url": "https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/4.3.2/fxparser.min.js",
       "version": "4.3.2",
       "defs": "{\"!name\":\"LIB/XMLParser\",\"XMLParser\":{\"!type\":\"fn()\",\"prototype\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"addEntity\":{\"!type\":\"fn()\",\"prototype\":{}}}}}",
@@ -210,9 +208,7 @@
     {
       "name": "jsonwebtoken",
       "uidString": "jsonwebtoken_/libraries/jsonwebtoken@8.5.1.js",
-      "accessor": [
-        "jsonwebtoken"
-      ],
+      "accessor": ["jsonwebtoken"],
       "url": "/libraries/jsonwebtoken@8.5.1.js",
       "version": "8.5.1",
       "defs": "{\"!name\":\"LIB/jsonwebtoken\",\"jsonwebtoken\":{\"decode\":{\"!type\":\"fn()\",\"prototype\":{}},\"verify\":{\"!type\":\"fn()\",\"prototype\":{}},\"sign\":{\"!type\":\"fn()\",\"prototype\":{}},\"JsonWebTokenError\":{\"!type\":\"fn()\",\"prototype\":{\"toString\":{\"!type\":\"fn()\"},\"message\":{\"!type\":\"string\"},\"stack\":{\"!type\":\"string\"}}},\"NotBeforeError\":{\"!type\":\"fn()\",\"prototype\":{}},\"TokenExpiredError\":{\"!type\":\"fn()\",\"prototype\":{}}}}",
@@ -356,21 +352,13 @@
                   "showStepArrows": false,
                   "isVisible": true,
                   "version": 2.0,
-                  "tags": [
-                    "Suggested",
-                    "Inputs"
-                  ],
+                  "tags": ["Suggested", "Inputs"],
                   "isLoading": false,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "mobileBottomRow": 8.0,
                   "widgetName": "Input1",
                   "displayName": "Input",
-                  "searchTags": [
-                    "form",
-                    "text input",
-                    "number",
-                    "textarea"
-                  ],
+                  "searchTags": ["form", "text input", "number", "textarea"],
                   "bottomRow": 8.0,
                   "parentRowSpace": 10.0,
                   "autoFocus": false,
@@ -422,21 +410,13 @@
                   "showStepArrows": false,
                   "isVisible": true,
                   "version": 2.0,
-                  "tags": [
-                    "Suggested",
-                    "Inputs"
-                  ],
+                  "tags": ["Suggested", "Inputs"],
                   "isLoading": false,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "mobileBottomRow": 43.0,
                   "widgetName": "Input2",
                   "displayName": "Input",
-                  "searchTags": [
-                    "form",
-                    "text input",
-                    "number",
-                    "textarea"
-                  ],
+                  "searchTags": ["form", "text input", "number", "textarea"],
                   "bottomRow": 42.0,
                   "parentRowSpace": 10.0,
                   "autoFocus": false,
@@ -488,21 +468,13 @@
                   "showStepArrows": false,
                   "isVisible": true,
                   "version": 2.0,
-                  "tags": [
-                    "Suggested",
-                    "Inputs"
-                  ],
+                  "tags": ["Suggested", "Inputs"],
                   "isLoading": false,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "mobileBottomRow": 57.0,
                   "widgetName": "Input3",
                   "displayName": "Input",
-                  "searchTags": [
-                    "form",
-                    "text input",
-                    "number",
-                    "textarea"
-                  ],
+                  "searchTags": ["form", "text input", "number", "textarea"],
                   "bottomRow": 49.0,
                   "parentRowSpace": 10.0,
                   "autoFocus": false,
@@ -535,10 +507,7 @@
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "displayName": "Icon button",
                   "iconSVG": "/static/media/icon.b08054586989b185a0801e9a34f8ad49.svg",
-                  "searchTags": [
-                    "click",
-                    "submit"
-                  ],
+                  "searchTags": ["click", "submit"],
                   "topRow": 36.0,
                   "bottomRow": 40.0,
                   "parentRowSpace": 10.0,
@@ -566,9 +535,7 @@
                   "isVisible": true,
                   "version": 1.0,
                   "parentId": "0",
-                  "tags": [
-                    "Buttons"
-                  ],
+                  "tags": ["Buttons"],
                   "renderMode": "CANVAS",
                   "isLoading": false,
                   "mobileTopRow": 36.0,
@@ -669,10 +636,7 @@
                   "enableClientSideSearch": true,
                   "version": 2.0,
                   "totalRecordsCount": "{{Total_record_public_users1.data[0].count}}",
-                  "tags": [
-                    "Suggested",
-                    "Display"
-                  ],
+                  "tags": ["Suggested", "Display"],
                   "isLoading": false,
                   "childStylesheet": {
                     "button": {
@@ -698,11 +662,9 @@
                     }
                   },
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "columnUpdatedAt": 1.714726905161E12,
+                  "columnUpdatedAt": 1.714726905161e12,
                   "primaryColumnId": "id",
-                  "defaultSelectedRowIndices": [
-                    0.0
-                  ],
+                  "defaultSelectedRowIndices": [0.0],
                   "mobileBottomRow": 36.0,
                   "widgetName": "Table1",
                   "defaultPageSize": 0.0,
@@ -1307,21 +1269,13 @@
                   "showStepArrows": false,
                   "isVisible": true,
                   "version": 2.0,
-                  "tags": [
-                    "Suggested",
-                    "Inputs"
-                  ],
+                  "tags": ["Suggested", "Inputs"],
                   "isLoading": false,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "mobileBottomRow": 8.0,
                   "widgetName": "Input1",
                   "displayName": "Input",
-                  "searchTags": [
-                    "form",
-                    "text input",
-                    "number",
-                    "textarea"
-                  ],
+                  "searchTags": ["form", "text input", "number", "textarea"],
                   "bottomRow": 8.0,
                   "parentRowSpace": 10.0,
                   "autoFocus": false,
@@ -1373,21 +1327,13 @@
                   "showStepArrows": false,
                   "isVisible": true,
                   "version": 2.0,
-                  "tags": [
-                    "Suggested",
-                    "Inputs"
-                  ],
+                  "tags": ["Suggested", "Inputs"],
                   "isLoading": false,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "mobileBottomRow": 43.0,
                   "widgetName": "Input2",
                   "displayName": "Input",
-                  "searchTags": [
-                    "form",
-                    "text input",
-                    "number",
-                    "textarea"
-                  ],
+                  "searchTags": ["form", "text input", "number", "textarea"],
                   "bottomRow": 42.0,
                   "parentRowSpace": 10.0,
                   "autoFocus": false,
@@ -1439,21 +1385,13 @@
                   "showStepArrows": false,
                   "isVisible": true,
                   "version": 2.0,
-                  "tags": [
-                    "Suggested",
-                    "Inputs"
-                  ],
+                  "tags": ["Suggested", "Inputs"],
                   "isLoading": false,
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
                   "mobileBottomRow": 57.0,
                   "widgetName": "Input3",
                   "displayName": "Input",
-                  "searchTags": [
-                    "form",
-                    "text input",
-                    "number",
-                    "textarea"
-                  ],
+                  "searchTags": ["form", "text input", "number", "textarea"],
                   "bottomRow": 49.0,
                   "parentRowSpace": 10.0,
                   "autoFocus": false,
@@ -1486,10 +1424,7 @@
                   "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                   "displayName": "Icon button",
                   "iconSVG": "/static/media/icon.b08054586989b185a0801e9a34f8ad49.svg",
-                  "searchTags": [
-                    "click",
-                    "submit"
-                  ],
+                  "searchTags": ["click", "submit"],
                   "topRow": 36.0,
                   "bottomRow": 40.0,
                   "parentRowSpace": 10.0,
@@ -1517,9 +1452,7 @@
                   "isVisible": true,
                   "version": 1.0,
                   "parentId": "0",
-                  "tags": [
-                    "Buttons"
-                  ],
+                  "tags": ["Buttons"],
                   "renderMode": "CANVAS",
                   "isLoading": false,
                   "mobileTopRow": 36.0,
@@ -1620,10 +1553,7 @@
                   "enableClientSideSearch": true,
                   "version": 2.0,
                   "totalRecordsCount": "{{Total_record_public_users1.data[0].count}}",
-                  "tags": [
-                    "Suggested",
-                    "Display"
-                  ],
+                  "tags": ["Suggested", "Display"],
                   "isLoading": false,
                   "childStylesheet": {
                     "button": {
@@ -1649,11 +1579,9 @@
                     }
                   },
                   "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-                  "columnUpdatedAt": 1.714726905161E12,
+                  "columnUpdatedAt": 1.714726905161e12,
                   "primaryColumnId": "id",
-                  "defaultSelectedRowIndices": [
-                    0.0
-                  ],
+                  "defaultSelectedRowIndices": [0.0],
                   "mobileBottomRow": 36.0,
                   "widgetName": "Table1",
                   "defaultPageSize": 0.0,
@@ -2234,9 +2162,7 @@
         "executeOnLoad": false,
         "clientSideExecution": true,
         "isValid": false,
-        "invalids": [
-          "No configurations found in this action"
-        ],
+        "invalids": ["No configurations found in this action"],
         "messages": [],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -2262,9 +2188,7 @@
         "executeOnLoad": false,
         "clientSideExecution": true,
         "isValid": false,
-        "invalids": [
-          "No configurations found in this action"
-        ],
+        "invalids": ["No configurations found in this action"],
         "messages": [],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -2300,9 +2224,7 @@
         "executeOnLoad": false,
         "clientSideExecution": true,
         "isValid": false,
-        "invalids": [
-          "No configurations found in this action"
-        ],
+        "invalids": ["No configurations found in this action"],
         "messages": [],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -2328,9 +2250,7 @@
         "executeOnLoad": false,
         "clientSideExecution": true,
         "isValid": false,
-        "invalids": [
-          "No configurations found in this action"
-        ],
+        "invalids": ["No configurations found in this action"],
         "messages": [],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -2363,9 +2283,7 @@
         "pageId": "Page2",
         "contextType": "PAGE",
         "isValid": false,
-        "invalids": [
-          "No configurations found in this action"
-        ],
+        "invalids": ["No configurations found in this action"],
         "messages": [],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -2388,9 +2306,7 @@
         "pageId": "Page2",
         "contextType": "PAGE",
         "isValid": false,
-        "invalids": [
-          "No configurations found in this action"
-        ],
+        "invalids": ["No configurations found in this action"],
         "messages": [],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -2611,9 +2527,7 @@
         "pageId": "Page1",
         "contextType": "PAGE",
         "isValid": false,
-        "invalids": [
-          "No configurations found in this action"
-        ],
+        "invalids": ["No configurations found in this action"],
         "messages": [],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -2636,9 +2550,7 @@
         "pageId": "Page1",
         "contextType": "PAGE",
         "isValid": false,
-        "invalids": [
-          "No configurations found in this action"
-        ],
+        "invalids": ["No configurations found in this action"],
         "messages": [],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,

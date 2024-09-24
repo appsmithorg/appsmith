@@ -2,7 +2,7 @@ import React from "react";
 import {
   UI_ELEMENT_PANEL_SEARCH_TEXT,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import "@testing-library/jest-dom";
 import { fireEvent, waitFor } from "@testing-library/react";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
@@ -46,12 +46,14 @@ describe("UIEntitySidebar", () => {
   ) => {
     /* eslint-disable @typescript-eslint/no-var-requires */
     const { useUIExplorerItems } = require("../hooks");
+
     useUIExplorerItems.mockImplementation(() => items);
   };
 
   const mockDragDropBuildingBlocksFF = (val: boolean) => {
     /* eslint-disable @typescript-eslint/no-var-requires */
     const { useFeatureFlag } = require("utils/hooks/useFeatureFlag");
+
     useFeatureFlag.mockImplementation(() => val);
   };
 
@@ -59,6 +61,7 @@ describe("UIEntitySidebar", () => {
     mockUIExplorerItems();
     const { getAllByTestId, getByPlaceholderText, getByText } =
       renderUIEntitySidebar(true, false);
+
     expect(
       getByPlaceholderText(createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT)),
     ).toBeInTheDocument();
@@ -81,6 +84,7 @@ describe("UIEntitySidebar", () => {
     const input = getByPlaceholderText(
       createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT),
     );
+
     fireEvent.change(input, { target: { value: "example text" } });
     await waitFor(() => {
       expect(queryByTestId("ui-entity-tag-group")).toBeNull();
@@ -112,6 +116,7 @@ describe("UIEntitySidebar", () => {
     const input = getByPlaceholderText(
       createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT),
     );
+
     fireEvent.change(input, { target: { value: "table" } });
     await waitFor(() => {
       // one from building blocks and one from normal widgets
@@ -121,27 +126,11 @@ describe("UIEntitySidebar", () => {
     });
   });
 
-  it("5. should hide `Suggested` when drag drop building blocks feature flag is enabled", () => {
+  it("5. should show `Suggested` when drag drop building blocks feature flag is enabled", () => {
     mockUIExplorerItems();
     mockDragDropBuildingBlocksFF(true);
-    const { queryByText } = renderUIEntitySidebar(true, true);
-    expect(queryByText(WIDGET_TAGS.SUGGESTED_WIDGETS)).toBeNull();
-  });
+    const { getByText } = renderUIEntitySidebar(true, true);
 
-  it("6. should have `Building Blocks` section open when no widgets exist", () => {
-    mockUIExplorerItems();
-    const { getAllByTestId, getByText } = renderUIEntitySidebar(true, true);
-    expect(getByText(WIDGET_TAGS.BUILDING_BLOCKS)).not.toBeNull();
-    const groups = getAllByTestId("ui-entity-tag-group");
-    for (const group of groups) {
-      if (
-        group.getElementsByClassName("t--widget-card-draggable-buildingblock")
-          .length
-      ) {
-        expect(group.getAttribute("data-collapsed")).toBe("false");
-      } else {
-        expect(group.getAttribute("data-collapsed")).toBe("true");
-      }
-    }
+    expect(getByText(WIDGET_TAGS.SUGGESTED_WIDGETS)).toBeInTheDocument();
   });
 });

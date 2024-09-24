@@ -1,6 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 
 import type { FlattenedDSL } from "@shared/dsl";
 import { flattenDSL } from "@shared/dsl";
@@ -27,6 +27,7 @@ const pageWidgetsReducer = createImmerReducer(initialState, {
   ) => {
     action.payload.forEach((entry) => {
       const dsl = flattenDSL(entry.dsl);
+
       state[entry.pageId] = { dsl, layoutId: entry.layoutId };
     });
   },
@@ -42,6 +43,7 @@ const pageWidgetsReducer = createImmerReducer(initialState, {
       delete state[action.payload.pageId];
     } else {
       const dsl = flattenDSL(action.payload.dsl);
+
       state[action.payload.pageId] = { dsl, layoutId: action.payload.layoutId };
     }
   },

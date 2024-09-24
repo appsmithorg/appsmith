@@ -11,21 +11,21 @@ import { diff } from "deep-diff";
 import { MongoDefaultActionConfig } from "constants/DatasourceEditorConstants";
 import type { Action } from "@sentry/react/dist/types";
 import { klona } from "klona/full";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import _ from "lodash";
 import { getType, Types } from "utils/TypeHelpers";
-import {
-  FIELD_REQUIRED_ERROR,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { InputTypes } from "components/constants";
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 // This function checks if the form is dirty
 // We needed this in the cases where datasources are created from APIs and the initial value
 // already has url set. If user presses back button, we need to show the confirmation dialog
 export const getIsFormDirty = (
   isFormDirty: boolean,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formData: any,
   isNewDatasource: boolean,
   isRestPlugin: boolean,
@@ -42,9 +42,12 @@ export const getIsFormDirty = (
   if (!isFormDirty && isNewDatasource && isRestPlugin && url.length === 0) {
     return true;
   }
+
   return isFormDirty;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getTrimmedData = (formData: any) => {
   const dataType = getType(formData);
   const isArrayorObject = (type: ReturnType<typeof getType>) =>
@@ -53,6 +56,7 @@ export const getTrimmedData = (formData: any) => {
   if (isArrayorObject(dataType)) {
     Object.keys(formData).map((key) => {
       const valueType = getType(formData[key]);
+
       if (isArrayorObject(valueType)) {
         getTrimmedData(formData[key]);
       } else if (valueType === Types.STRING) {
@@ -60,13 +64,18 @@ export const getTrimmedData = (formData: any) => {
       }
     });
   }
+
   return formData;
 };
 
 export const normalizeValues = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formData: any,
   configDetails: Record<string, string>,
 ) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const checked: Record<string, any> = {};
   const configProperties = Object.keys(configDetails);
 
@@ -105,9 +114,13 @@ export const normalizeValues = (
 
 export const validate = (
   requiredFields: Record<string, FormConfigType>,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any,
   currentEnvId?: string,
 ) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors = {} as any;
 
   Object.keys(requiredFields).forEach((fieldConfigProperty) => {
@@ -119,7 +132,9 @@ export const validate = (
     ) {
       return;
     }
+
     const fieldConfig = requiredFields[fieldConfigProperty];
+
     if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
       const configProperty = (fieldConfig.configProperty as string).split(
         "[*].",
@@ -127,6 +142,8 @@ export const validate = (
       const arrayValues = _.get(values, configProperty[0], []);
       const keyValueArrayErrors: Record<string, string>[] = [];
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       arrayValues.forEach((value: any, index: number) => {
         const objectKeys = Object.keys(value);
         const keyValueErrors: Record<string, string> = {};
@@ -138,6 +155,7 @@ export const validate = (
           keyValueErrors[objectKeys[0]] = createMessage(FIELD_REQUIRED_ERROR);
           keyValueArrayErrors[index] = keyValueErrors;
         }
+
         if (
           !value[objectKeys[1]] ||
           (isString(value[objectKeys[1]]) && !value[objectKeys[1]].trim())
@@ -168,13 +186,18 @@ export const evaluateCondtionWithType = (
 ) => {
   if (conditions) {
     let flag;
+
     //this is where each conditions gets evaluated
     if (conditions.length > 1) {
       if (type === "AND") {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         flag = conditions.reduce((acc: any, item: boolean) => {
           return acc && item;
         }, conditions[0]);
       } else if (type === "OR") {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         flag = conditions.reduce((acc: any, item: boolean) => {
           return acc || item;
         }, undefined);
@@ -182,35 +205,48 @@ export const evaluateCondtionWithType = (
     } else {
       flag = conditions[0];
     }
+
     return flag;
   }
 };
 
 export const isHiddenConditionsEvaluation = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any,
   hidden?: HiddenType,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any => {
   if (!!hidden && !isBoolean(hidden)) {
     //if nested condtions are there recursively from bottom to top call this function on each condtion
     let conditionType, conditions;
+
     if ("conditionType" in hidden) {
       conditionType = hidden.conditionType;
     }
+
     if ("conditions" in hidden) {
       conditions = hidden.conditions;
     }
+
     if (Array.isArray(conditions)) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       conditions = conditions.map((rule: any) => {
         return isHiddenConditionsEvaluation(values, rule);
       });
     } else {
       return caculateIsHidden(values, hidden);
     }
+
     return evaluateCondtionWithType(conditions, conditionType);
   }
 };
 
 export const caculateIsHidden = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any,
   hiddenConfig?: HiddenType,
   featureFlags?: FeatureFlags,
@@ -219,17 +255,21 @@ export const caculateIsHidden = (
   if (!!hiddenConfig && !isBoolean(hiddenConfig)) {
     let valueAtPath;
     let value, comparison;
+
     if ("path" in hiddenConfig) {
       valueAtPath = get(values, hiddenConfig.path);
     }
+
     if ("value" in hiddenConfig) {
       value = hiddenConfig.value;
     }
+
     if ("comparison" in hiddenConfig) {
       comparison = hiddenConfig.comparison;
     }
 
     let flagValue: keyof FeatureFlags = FEATURE_FLAG.TEST_FLAG;
+
     if ("flagValue" in hiddenConfig) {
       flagValue = hiddenConfig.flagValue;
     }
@@ -264,6 +304,8 @@ export const caculateIsHidden = (
 };
 
 export const isHidden = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any,
   hiddenConfig?: HiddenType,
   featureFlags?: FeatureFlags,
@@ -277,6 +319,7 @@ export const isHidden = (
       return caculateIsHidden(values, hiddenConfig, featureFlags, viewMode);
     }
   }
+
   return !!hiddenConfig;
 };
 
@@ -296,12 +339,15 @@ export const alternateViewTypeInputConfig = () => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getViewType = (values: any, configProperty: string) => {
   if (
     configProperty.startsWith("actionConfiguration.formData") &&
     configProperty.endsWith(".data")
   ) {
     const pathForViewType = configProperty.replace(".data", ".viewType");
+
     return get(values, pathForViewType, ViewTypes.COMPONENT);
   } else {
     return ViewTypes.COMPONENT;
@@ -309,10 +355,14 @@ export const getViewType = (values: any, configProperty: string) => {
 };
 
 export const switchViewType = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any,
   configProperty: string,
   viewType: string,
   formName: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   changeFormValue: (formName: string, path: string, value: any) => void,
 ) => {
   const newViewType =
@@ -339,6 +389,7 @@ export const switchViewType = (
     );
   } else {
     changeFormValue(formName, pathForJsonData, currentData);
+
     if (!!componentData) {
       changeFormValue(formName, configProperty, componentData);
     }
@@ -353,6 +404,8 @@ export const switchViewType = (
 
 // Function that extracts the initial value from the JSON configs
 export const getConfigInitialValues = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: Record<string, any>[],
   multipleViewTypesSupported = false,
   // Used in case when we want to not have encrypted fields in the response since we need to compare
@@ -360,12 +413,16 @@ export const getConfigInitialValues = (
   // With this param we can remove false negatives during comparison.
   includeEncryptedFields = true,
 ) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const configInitialValues: Record<string, any> = {};
 
   // We expect the JSON configs to be an array of objects
   if (!Array.isArray(config)) return configInitialValues;
 
   // Function to loop through the configs and extract the initial values
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const parseConfig = (section: any): any => {
     if ("initialValue" in section) {
       if (section.controlType === "KEYVALUE_ARRAY") {
@@ -383,10 +440,12 @@ export const getConfigInitialValues = (
         ) {
           return;
         }
+
         set(configInitialValues, section.configProperty, section.initialValue);
       }
     } else if (section.controlType === "WHERE_CLAUSE") {
       let logicalTypes = [];
+
       if ("logicalTypes" in section && section.logicalTypes.length > 0) {
         logicalTypes = section.logicalTypes;
       } else {
@@ -401,11 +460,13 @@ export const getConfigInitialValues = (
           },
         ];
       }
+
       set(
         configInitialValues,
         `${section.configProperty}.condition`,
         logicalTypes[0].value,
       );
+
       if (
         multipleViewTypesSupported &&
         section.configProperty.includes(".data")
@@ -422,11 +483,16 @@ export const getConfigInitialValues = (
         );
       }
     }
+
     if ("children" in section) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       section.children.forEach((childSection: any) => {
         parseConfig(childSection);
       });
     } else if ("schema" in section) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       section.schema.forEach((childSection: any) => {
         parseConfig(childSection);
       });
@@ -440,6 +506,7 @@ export const getConfigInitialValues = (
         section.configProperty.replace(".data", ".viewType"),
         "component",
       );
+
       if (section.configProperty in configInitialValues) {
         set(
           configInitialValues,
@@ -450,6 +517,8 @@ export const getConfigInitialValues = (
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config.forEach((section: any) => {
     parseConfig(section);
   });
@@ -463,9 +532,11 @@ export const actionPathFromName = (
 ): string => {
   const ActionConfigStarts = "actionConfiguration.";
   let path = name;
+
   if (path.startsWith(ActionConfigStarts)) {
     path = "config." + path.slice(ActionConfigStarts.length);
   }
+
   return `${actionName}.${path}`;
 };
 
@@ -491,13 +562,17 @@ export const allowedControlTypes = ["DROP_DOWN", "QUERY_DYNAMIC_INPUT_TEXT"];
 
 const extractExpressionObject = (
   config: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   path: any,
   parentPath: string,
 ): FormConfigEvalObject => {
   const bindingPaths: FormConfigEvalObject = {};
   const expressions = config.match(DATA_BIND_REGEX_GLOBAL);
+
   if (Array.isArray(expressions) && expressions.length > 0) {
     const completePath = parentPath.length > 0 ? `${parentPath}.${path}` : path;
+
     expressions.forEach((exp) => {
       bindingPaths[completePath] = {
         expression: exp,
@@ -505,6 +580,7 @@ const extractExpressionObject = (
       };
     });
   }
+
   return bindingPaths;
 };
 
@@ -516,7 +592,9 @@ export const extractEvalConfigFromFormConfig = (
 ) => {
   paths.forEach((path: string) => {
     if (!(path in formConfig)) return;
+
     const config = get(formConfig, path, "");
+
     if (typeof config === "string") {
       bindingsFound = {
         ...bindingsFound,
@@ -540,10 +618,13 @@ export const extractEvalConfigFromFormConfig = (
 
 // Extract the output of conditionals attached to the form from the state
 export const extractConditionalOutput = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   section: any,
   formEvaluationState: FormEvalOutput,
 ): ConditionalOutput => {
   let conditionalOutput: ConditionalOutput = {};
+
   if (
     section.hasOwnProperty("propertyName") &&
     formEvaluationState.hasOwnProperty(section.propertyName)
@@ -561,6 +642,7 @@ export const extractConditionalOutput = (
   ) {
     conditionalOutput = formEvaluationState[section.identifier];
   }
+
   return conditionalOutput;
 };
 
@@ -571,6 +653,7 @@ export const checkIfSectionCanRender = (
   // By default, allow the section to render. This is to allow for the case where no conditional is provided.
   // The evaluation state disallows the section to render if the condition is not met. (Checkout formEval.ts)
   let allowToRender = true;
+
   if (
     conditionalOutput.hasOwnProperty("visible") &&
     typeof conditionalOutput.visible === "boolean"
@@ -589,6 +672,7 @@ export const checkIfSectionCanRender = (
   ) {
     allowToRender = conditionalOutput.evaluateFormConfig.updateEvaluatedConfig;
   }
+
   return allowToRender;
 };
 
@@ -599,16 +683,20 @@ export const checkIfSectionIsEnabled = (
   // By default, the section is enabled. This is to allow for the case where no conditional is provided.
   // The evaluation state disables the section if the condition is not met. (Checkout formEval.ts)
   let enabled = true;
+
   if (
     conditionalOutput.hasOwnProperty("enabled") &&
     typeof conditionalOutput.enabled === "boolean"
   ) {
     enabled = conditionalOutput.enabled;
   }
+
   return enabled;
 };
 
 // Function to modify the section config based on the output of evaluations
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const modifySectionConfig = (section: any, enabled: boolean): any => {
   if (!enabled) {
     section.disabled = true;
@@ -620,6 +708,8 @@ export const modifySectionConfig = (section: any, enabled: boolean): any => {
 };
 
 export const updateEvaluatedSectionConfig = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   section: any,
   conditionalOutput: ConditionalOutput,
   enabled = true,
@@ -631,8 +721,17 @@ export const updateEvaluatedSectionConfig = (
 
   // leaving the commented code as a reminder of the above observation.
   // const updatedSection = { ...section };
-  const updatedSection = klona(section);
+
+  const updatedSection = startAndEndSpanForFn(
+    "klona",
+    {
+      codeSegment: "utils.updateEvaluatedSectionConfig",
+    },
+    () => klona(section),
+  );
+
   let evaluatedConfig: FormConfigEvalObject = {};
+
   if (
     conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
     !!conditionalOutput.evaluateFormConfig &&
@@ -647,6 +746,7 @@ export const updateEvaluatedSectionConfig = (
       conditionalOutput.evaluateFormConfig.evaluateFormConfigObject;
 
     const paths = Object.keys(evaluatedConfig);
+
     paths.forEach((path: string) => {
       set(updatedSection, path, evaluatedConfig[path].output);
     });

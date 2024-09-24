@@ -5,10 +5,10 @@ import styled from "styled-components";
 import {
   getPageTitle,
   getHTMLPageTitle,
-} from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
+} from "ee/utils/BusinessFeatures/brandingPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getTenantConfig } from "ee/selectors/tenantSelectors";
 import { useSelector } from "react-redux";
 
 export const Wrapper = styled.section<{ isFixed?: boolean }>`

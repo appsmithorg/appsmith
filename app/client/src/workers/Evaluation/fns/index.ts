@@ -42,8 +42,8 @@ import type {
   TRunDescription,
 } from "./actionFns";
 import run, { clear } from "./actionFns";
-import { isAppsmithEntity } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import { isAppsmithEntity } from "ee/workers/Evaluation/evaluationUtils";
+import type { ActionEntity } from "ee/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type {
   TGetGeoLocationActionType,
@@ -59,7 +59,7 @@ import {
   watchGeoLocation,
 } from "./geolocationFns";
 import { getFnWithGuards, isAsyncGuard } from "./utils/fnGuard";
-import { isRunNClearFnQualifierEntity } from "@appsmith/workers/Evaluation/fns/utils/isRunNClearFnQualifierEntity";
+import { isRunNClearFnQualifierEntity } from "ee/workers/Evaluation/fns/utils/isRunNClearFnQualifierEntity";
 
 export const getPlatformFunctions = () => {
   return platformFns;
@@ -122,8 +122,10 @@ const entityFns = [
     qualifier: (entity: DataTreeEntity) => isRunNClearFnQualifierEntity(entity),
     fn: (entity: DataTreeEntity, entityName: string) => {
       const actionEntity = entity as ActionEntity;
+
       // @ts-expect-error: name is not defined on ActionEntity
       actionEntity.name = entityName;
+
       return getFnWithGuards(
         run.bind(actionEntity as ActionEntity),
         `${entityName}.run`,

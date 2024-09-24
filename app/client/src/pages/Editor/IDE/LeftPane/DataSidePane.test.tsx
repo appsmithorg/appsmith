@@ -5,7 +5,7 @@ import DataSidePane from "./DataSidePane";
 import { datasourceFactory } from "test/factories/DatasourceFactory";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PostgresFactory } from "test/factories/Actions/Postgres";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { render } from "test/testUtils";
 
 const productsDS = datasourceFactory().build({
@@ -39,6 +39,7 @@ describe("DataSidePane", () => {
       actions: [usersAction1, usersAction2, ordersAction1],
       datasources: [productsDS, usersDS, ordersDS],
     }) as AppState;
+
     render(<DataSidePane />, {
       url: "app/untitled-application-1/page1/edit/datasource/users-ds-id",
       initialState: state,

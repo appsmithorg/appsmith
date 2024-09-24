@@ -16,7 +16,7 @@ const createStory = (
   componentList: string,
 ) => {
   return `import { Meta } from "@storybook/addon-docs";
-import { Flex } from "@design-system/widgets";
+import { Flex } from "@appsmith/wds";
 ${importList}
 <Meta title="Appsmith Icons/${title}" />
 
@@ -61,6 +61,7 @@ async function generateStory(title: string, description: string) {
 
     files.forEach((file) => {
       const name = file.replace(".tsx", "");
+
       importList += createImportListString(name, title);
       componentList += createComponentListString(name);
     });

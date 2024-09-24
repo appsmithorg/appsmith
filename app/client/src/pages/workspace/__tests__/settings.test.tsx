@@ -5,6 +5,8 @@ import { render, screen } from "test/testUtils";
 import Settings from "../settings";
 import * as reactRedux from "react-redux";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 
 const mockWorkspaceData = {
@@ -174,17 +176,20 @@ describe("<Settings />", () => {
   it("is rendered", () => {
     renderComponent();
     const settings = screen.queryAllByTestId("t--settings-wrapper");
+
     expect(settings).toHaveLength(1);
   });
   it("displays correct title", () => {
     renderComponent();
     const title = screen.getAllByTestId("t--page-title");
+
     expect(title).toHaveLength(1);
     expect(title[0].textContent).toBe(`${mockWorkspaceData.name}`);
   });
   it("displays tabs", () => {
     renderComponent();
     const tabList = screen.getAllByRole("tab");
+
     expect(tabList.length).toBeGreaterThanOrEqual(2);
     expect(tabList.length).toBeLessThanOrEqual(3);
   });

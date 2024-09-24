@@ -14,15 +14,15 @@ import {
   getSimilarTemplatesInit,
   getTemplateInformation,
 } from "actions/templateActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import history from "utils/history";
 import { TEMPLATES_PATH } from "constants/routes";
 import { Colors } from "constants/Colors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import TemplateDescription from "./Template/TemplateDescription";
 import SimilarTemplates from "./Template/SimilarTemplates";
-import { templateIdUrl } from "@appsmith/RouteBuilder";
+import { templateIdUrl } from "ee/RouteBuilder";
 import TemplateViewHeader from "./TemplateViewHeader";
 import { registerEditorWidgets } from "utils/editor/EditorUtils";
 
@@ -159,6 +159,7 @@ export function TemplateView({
   useEffect(() => {
     dispatch(getTemplateInformation(templateId));
     dispatch(getSimilarTemplatesInit(templateId));
+
     if (containerRef.current) {
       containerRef.current.scrollTo({ top: 0 });
     }
@@ -219,6 +220,7 @@ export function TemplateView({
 
 function TemplateViewContainer() {
   const params = useParams<{ templateId: string }>();
+
   return (
     <PageWrapper>
       <TemplateView templateId={params.templateId} />

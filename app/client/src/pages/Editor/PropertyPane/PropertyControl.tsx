@@ -4,11 +4,11 @@ import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
 import { ControlWrapper } from "components/propertyControls/StyledControls";
-import { ToggleButton, Tooltip, Button } from "design-system";
+import { ToggleButton, Tooltip, Button } from "@appsmith/ads";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import {
   batchUpdateMultipleWidgetProperties,
@@ -33,16 +33,16 @@ import {
 import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import type { ControlData } from "components/propertyControls/BaseControl";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   JS_TOGGLE_DISABLED_MESSAGE,
   JS_TOGGLE_SWITCH_JS_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   getPropertyControlFocusElement,
   shouldFocusOnPropertyControl,
@@ -56,12 +56,12 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import clsx from "clsx";
 import styled from "styled-components";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import classNames from "classnames";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { savePropertyInSessionStorageIfRequired } from "./helpers";
 import { getParentWidget } from "selectors/widgetSelectors";
 
@@ -133,12 +133,14 @@ const PropertyControl = memo((props: Props) => {
   useEffect(() => {
     // This is required because layered panels like Column Panel have Animation of 300ms
     const focusTimeout = props.isPanelProperty ? 300 : 0;
+
     if (shouldFocusPropertyPath) {
       setTimeout(() => {
         if (shouldFocusOnPropertyControl(controlRef.current)) {
           const focusableElement = getPropertyControlFocusElement(
             controlRef.current,
           );
+
           focusableElement?.scrollIntoView({
             block: "center",
             behavior: "smooth",
@@ -286,9 +288,12 @@ const PropertyControl = memo((props: Props) => {
   const getWidgetsOwnUpdatesOnPropertyChange = useCallback(
     (
       propertyName: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any,
     ): UpdateWidgetPropertyPayload | undefined => {
       let propertiesToUpdate: Array<PropertyUpdates> | undefined;
+
       // To support updating multiple properties of same widget.
       if (updateHook) {
         propertiesToUpdate = updateHook(
@@ -345,6 +350,7 @@ const PropertyControl = memo((props: Props) => {
           },
           state: allUpdates,
         });
+
         return {
           widgetId: widgetProperties.widgetId,
           updates: {
@@ -357,10 +363,12 @@ const PropertyControl = memo((props: Props) => {
           },
         };
       }
+
       if (!propertiesToUpdate) {
         const modify: Record<string, unknown> = {
           [propertyName]: propertyValue,
         };
+
         AppsmithConsole.info({
           logType: LOG_TYPE.WIDGET_UPDATE,
           text: "Widget properties were updated",
@@ -388,6 +396,8 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const getOtherWidgetPropertyChanges = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (propertyName: string, propertyValue: any) => {
       let otherWidgetPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
 
@@ -411,9 +421,11 @@ const PropertyControl = memo((props: Props) => {
         ) {
           const allUpdates: Record<string, unknown> = {};
           const triggerPaths: string[] = [];
+
           hookPropertiesUpdates.forEach(
             ({ isDynamicTrigger, propertyPath, propertyValue }) => {
               allUpdates[propertyPath] = propertyValue;
+
               if (isDynamicTrigger) triggerPaths.push(propertyPath);
             },
           );
@@ -425,15 +437,18 @@ const PropertyControl = memo((props: Props) => {
               triggerPaths,
             },
           };
+
           otherWidgetPropertiesToUpdates.push(parentEnhancementUpdates);
         }
       }
+
       if (updateRelatedWidgetProperties) {
         const relatedWidgetUpdates = updateRelatedWidgetProperties(
           propertyName,
           propertyValue,
           widgetProperties,
         );
+
         if (
           Array.isArray(relatedWidgetUpdates) &&
           relatedWidgetUpdates.length
@@ -442,6 +457,7 @@ const PropertyControl = memo((props: Props) => {
             otherWidgetPropertiesToUpdates.concat(relatedWidgetUpdates);
         }
       }
+
       return otherWidgetPropertiesToUpdates;
     },
     [
@@ -456,6 +472,8 @@ const PropertyControl = memo((props: Props) => {
   const getPropertyUpdatesWithAssociatedWidgetUpdates = useCallback(
     (
       propertyName: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any,
     ): UpdateWidgetPropertyPayload[] => {
       const selfUpdates: UpdateWidgetPropertyPayload | undefined =
@@ -484,6 +502,8 @@ const PropertyControl = memo((props: Props) => {
 
   const onBatchUpdateWithAssociatedWidgetUpdates = useCallback(
     (
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       updates: { propertyName: string; propertyValue: any }[],
       isUpdatedViaKeyboard?: boolean,
     ) => {
@@ -509,17 +529,21 @@ const PropertyControl = memo((props: Props) => {
             const findWidgetIndex = acc.findIndex(
               (val) => val.widgetId === curr.widgetId,
             );
+
             if (findWidgetIndex >= 0) {
               //merge updates of the same widget
               const mergeCopy = merge({}, acc[findWidgetIndex], curr);
+
               acc[findWidgetIndex] = mergeCopy;
             } else {
               acc.push(curr);
             }
+
             return acc;
           },
           [],
         );
+
       if (consolidatedUpdates && consolidatedUpdates.length) {
         // updating properties of a widget(s) should be done only once when property value changes.
         // to make sure dsl updates are atomic which is a necessity for undo/redo.
@@ -543,6 +567,8 @@ const PropertyControl = memo((props: Props) => {
   const onPropertyChange = useCallback(
     (
       propertyName: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any,
       isUpdatedViaKeyboard?: boolean,
       isDynamicPropertyPath?: boolean,
@@ -600,6 +626,8 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const openPanel = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (panelProps: any) => {
       if (props.panelConfig) {
         dispatch(
@@ -679,6 +707,7 @@ const PropertyControl = memo((props: Props) => {
 
       onDeleteProperties([props.propertyName]);
     }
+
     resetEditing();
 
     AnalyticsUtil.logEvent("CUSTOM_WIDGET_EDIT_EVENT_SAVE_CLICKED", {
@@ -751,7 +780,9 @@ const PropertyControl = memo((props: Props) => {
       additionalDynamicData: {},
       label,
     };
+
     config.expected = getExpectedValue(props.validation);
+
     if (widgetProperties.isPropertyDynamicTrigger) {
       config.validationMessage = "";
       config.expected = {
@@ -767,6 +798,7 @@ const PropertyControl = memo((props: Props) => {
     const className = label.split(" ").join("").toLowerCase();
 
     let additionAutocomplete: AdditionalDynamicDataTree | undefined;
+
     if (additionalAutoComplete) {
       additionAutocomplete = additionalAutoComplete(widgetProperties);
     } else if (childWidgetAutoCompleteEnhancementFn) {
@@ -815,6 +847,7 @@ const PropertyControl = memo((props: Props) => {
     const customJSControl = getCustomJSControl();
 
     let isToggleDisabled = false;
+
     if (
       isDynamic // JS toggle button is ON
     ) {
@@ -824,10 +857,12 @@ const PropertyControl = memo((props: Props) => {
         propertyValue !== ""
       ) {
         let value = propertyValue;
+
         // extract out the value from binding, if there is custom JS control (Table & JSONForm widget)
         if (customJSControl && isDynamicValue(value)) {
           const extractValue =
             PropertyControlFactory.inputComputedValueMap.get(customJSControl);
+
           if (extractValue)
             value = extractValue(value, widgetProperties.widgetName);
         }
@@ -866,6 +901,7 @@ const PropertyControl = memo((props: Props) => {
         isToggleDisabled,
         connectDataClicked,
       );
+
       if (switchMode) {
         toggleDynamicProperty(propertyName, true);
       }
@@ -905,6 +941,7 @@ const PropertyControl = memo((props: Props) => {
                   )}
                   onChange={(e) => {
                     const value = e.target.value;
+
                     // Non-word characters are replaced with underscores for valid property naming
                     setEditedName(value.split(/\W+/).join("_"));
                   }}
@@ -932,7 +969,7 @@ const PropertyControl = memo((props: Props) => {
                   onClick={() => {
                     onEditSave();
                   }}
-                  size="small"
+                  size="sm"
                   startIcon="check-line"
                 />
               </div>
@@ -948,7 +985,7 @@ const PropertyControl = memo((props: Props) => {
                   onClick={() => {
                     resetEditing();
                   }}
-                  size="small"
+                  size="sm"
                   startIcon="close-x"
                 />
               </div>
@@ -963,7 +1000,7 @@ const PropertyControl = memo((props: Props) => {
                 }
               >
                 <PropertyHelpLabel
-                  className="w-full"
+                  className="fit-content"
                   label={label}
                   theme={props.theme}
                   tooltip={helpText}
@@ -1033,7 +1070,7 @@ const PropertyControl = memo((props: Props) => {
                         },
                       );
                     }}
-                    size="small"
+                    size="sm"
                     startIcon="pencil-line"
                   />
                 )}
@@ -1056,6 +1093,7 @@ const PropertyControl = memo((props: Props) => {
 
                         onBatchUpdateProperties(updates);
                       }
+
                       onDeleteProperties([config.propertyName]);
 
                       AnalyticsUtil.logEvent(
@@ -1065,7 +1103,7 @@ const PropertyControl = memo((props: Props) => {
                         },
                       );
                     }}
-                    size="small"
+                    size="sm"
                     startIcon="trash"
                   />
                 )}
@@ -1107,14 +1145,18 @@ const PropertyControl = memo((props: Props) => {
       );
     } catch (e) {
       log.error(e);
+
       return null;
     }
   }
+
   return null;
 });
 
 PropertyControl.displayName = "PropertyControl";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (PropertyControl as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };

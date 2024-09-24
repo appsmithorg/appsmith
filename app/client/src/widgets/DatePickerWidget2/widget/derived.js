@@ -8,6 +8,7 @@ export default {
         ? moment(new Date(props.selectedDate))
         : props.selectedDate;
     let dateValid = true;
+
     if (!!props.minDate && !!props.maxDate) {
       dateValid = !!selectedDate
         ? selectedDate.isBetween(minDate, maxDate)
@@ -23,6 +24,7 @@ export default {
     } else {
       dateValid = props.isRequired ? !!selectedDate : true;
     }
+
     return dateValid;
   },
   //

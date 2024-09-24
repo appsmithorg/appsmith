@@ -29,6 +29,9 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   pointer-events: all;
   z-index: 1000;
   left: ${({ left }) => left}px;
+  // Note: we are using translateX to center the handle instead of adjusting left property
+  // (by subtracting half of the width of the handle) because translate is better with interpolating the sub-pixel values (pixel snapping issue)
+  transform: translateX(-50%);
   &:hover {
     background: var(--space-distribution-handle-bg);
   }
@@ -48,6 +51,7 @@ const updateDistributionHandlePosition = (
 ) => {
   if (ref.current && entries.length) {
     const target = entries[0].target as HTMLElement;
+
     if (target && target.parentElement) {
       // making this change to compute offset left coz offsetLeft of the dom api does not provide decimal values
       // which is causing the handle to jump on clicking it the first time
@@ -64,12 +68,8 @@ const updateDistributionHandlePosition = (
       // Calculate the midpoint between zones by subtracting half of the zoneGap from the offsetLeft
       const midPointBetweenZones = offsetLeft - zoneGap / 2;
 
-      // Calculate the left position of the handle, adjusting for its width
-      const handleWidthAdjustedLeft =
-        midPointBetweenZones - SpaceDistributorHandleDimensions.width / 2;
-
       // Set the left position of the handle element using its reference
-      ref.current.style.left = handleWidthAdjustedLeft + "px";
+      ref.current.style.left = midPointBetweenZones + "px";
     }
   }
 };
@@ -95,14 +95,14 @@ export const SpaceDistributionHandle = ({
   const isCurrentHandleDistributingSpace = useRef(false);
 
   // Calculate the left position of the distribution handle
-  const leftPositionOfHandle =
-    left - (SpaceDistributorHandleDimensions.width + zoneGap) * 0.5;
+  const leftPositionOfHandle = left - zoneGap * 0.5;
 
   // Destructure the parent zones array of zone ids
   const [leftZone, rightZone] = parentZones;
 
   // Create a ref for ResizeObserver for the right zone
   const resizeObserverRef = useRef<ResizeObserver>();
+
   resizeObserverRef.current = new ResizeObserver((entries) => {
     // Update the position of the distribution handle on resize
     requestAnimationFrame(() =>

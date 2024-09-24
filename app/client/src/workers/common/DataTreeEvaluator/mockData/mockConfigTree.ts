@@ -1,4 +1,4 @@
-import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "ee/entities/DataTree/types";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 export const configTree = {

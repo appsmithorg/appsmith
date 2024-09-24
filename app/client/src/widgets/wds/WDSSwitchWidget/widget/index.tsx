@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch } from "@design-system/widgets";
+import { Switch } from "@appsmith/wds";
 import type { SetterConfig } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -61,6 +61,8 @@ class WDSSwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       isSwitchedOn: undefined,
@@ -78,17 +80,20 @@ class WDSSwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   }
 
   onChange = (isSwitchedOn: boolean) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
     if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+      pushBatchMetaUpdates("isDirty", true);
     }
 
-    this.props.updateWidgetMetaProperty("isSwitchedOn", isSwitchedOn, {
+    pushBatchMetaUpdates("isSwitchedOn", isSwitchedOn, {
       triggerPropertyName: "onChange",
       dynamicString: this.props.onChange,
       event: {
         type: EventType.ON_SWITCH_CHANGE,
       },
     });
+    commitBatchMetaUpdates();
   };
 
   getWidgetView() {
@@ -98,6 +103,7 @@ class WDSSwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
         id={this.props.widgetId}
         isDisabled={this.props.isDisabled}
         isInvalid={this.props.isValid === "invalid"}
+        isSelected={this.props.isSwitchedOn}
         key={this.props.widgetId}
         labelPosition={this.props.labelPosition}
         onChange={this.onChange}

@@ -16,12 +16,12 @@ import {
 } from "actions/focusHistoryActions";
 import type { AppsmithLocationState } from "utils/history";
 import type { Action } from "entities/Action";
-import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
+import { getAction, getPlugin } from "ee/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
-import { getIDEFocusStrategy } from "@appsmith/navigation/FocusStrategy";
-import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import { getIDEFocusStrategy } from "ee/navigation/FocusStrategy";
+import { IDE_TYPE } from "ee/entities/IDE/constants";
 
 export interface FocusPath {
   key: string;
@@ -39,11 +39,15 @@ export interface FocusStrategy {
     previousPath: string,
     currentPath: string,
     state: AppsmithLocationState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => Generator<any, Array<FocusPath>, any>;
   /** based on the route change, what states need to be stored for the previous route **/
   getEntitiesForStore: (
     path: string,
     currentPath: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => Generator<any, Array<FocusPath>, any>;
   /** For entities with hierarchy, return the parent entity path for storing its state  **/
   getEntityParentUrl: (
@@ -54,6 +58,8 @@ export interface FocusStrategy {
   waitForPathLoad: (
     currentPath: string,
     previousPath: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => Generator<any, void, any>;
 }
 
@@ -88,6 +94,7 @@ class FocusRetention {
     state: AppsmithLocationState,
   ) {
     this.updateFocusStrategy(currentPath);
+
     /* STORE THE UI STATE OF PREVIOUS URL */
     if (previousPath) {
       const toStore: Array<FocusPath> = yield call(
@@ -95,10 +102,12 @@ class FocusRetention {
         previousPath,
         currentPath,
       );
+
       for (const storePath of toStore) {
         yield call(this.storeStateOfPath, storePath, previousPath);
       }
     }
+
     /* RESTORE THE UI STATE OF THE NEW URL */
     yield call(this.focusStrategy.waitForPathLoad, currentPath, previousPath);
     const setPaths: Array<FocusPath> = yield call(
@@ -107,6 +116,7 @@ class FocusRetention {
       currentPath,
       state,
     );
+
     for (const setPath of setPaths) {
       yield call(this.setStateOfPath, setPath.key, setPath.entityInfo);
     }
@@ -116,16 +126,20 @@ class FocusRetention {
     const branch: string | undefined = yield select(getCurrentGitBranch);
     const removeKeys: string[] = [];
     const focusEntityInfo = identifyEntityFromPath(url);
+
     removeKeys.push(`${url}#${branch}`);
 
     const parentElement = FocusStoreHierarchy[focusEntityInfo.entity];
+
     if (parentElement) {
       const parentPath = this.focusStrategy.getEntityParentUrl(
         focusEntityInfo,
         parentElement,
       );
+
       removeKeys.push(`${parentPath}#${branch}`);
     }
+
     for (const key of removeKeys) {
       yield put(removeFocusHistory(key));
     }
@@ -133,6 +147,7 @@ class FocusRetention {
 
   private updateFocusStrategy(currentPath: string) {
     const ideType = getIDETypeByUrl(currentPath);
+
     this.focusStrategy = getIDEFocusStrategy(ideType);
   }
 
@@ -142,14 +157,20 @@ class FocusRetention {
   ): Generator<StrictEffect, void, FocusState | undefined> {
     const selectors =
       this.focusStrategy.focusElements[focusPath.entityInfo.entity];
+
     if (!selectors) return;
+
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const state: Record<string, any> = {};
+
     for (const selectorInfo of selectors) {
       state[selectorInfo.name] = yield call(
         this.getState,
         selectorInfo,
         fromPath,
       );
+
       if (selectorInfo.persist) {
         this.persistState(
           focusPath.key,
@@ -158,6 +179,7 @@ class FocusRetention {
         );
       }
     }
+
     yield put(
       storeFocusHistory(focusPath.key, {
         entityInfo: focusPath.entityInfo,
@@ -170,6 +192,7 @@ class FocusRetention {
     const focusHistory: FocusState = yield select(getCurrentFocusInfo, key);
 
     const selectors = this.focusStrategy.focusElements[entityInfo.entity];
+
     if (!selectors) return;
 
     if (focusHistory) {
@@ -185,9 +208,11 @@ class FocusRetention {
         this.getEntitySubType,
         entityInfo,
       );
+
       for (const selectorInfo of selectors) {
         const { defaultValue, persist, subTypes } = selectorInfo;
         const persistedState = this.retrievePersistState(key, selectorInfo);
+
         if (persist && persistedState) {
           yield call(this.setState, selectorInfo, persistedState);
         } else if (subType && subTypes && subType in subTypes) {
@@ -201,6 +226,7 @@ class FocusRetention {
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             const stateDefaultValue: unknown = yield select(defaultValue);
+
             yield call(this.setState, selectorInfo, stateDefaultValue);
           } else {
             yield call(this.setState, selectorInfo, defaultValue);
@@ -213,8 +239,10 @@ class FocusRetention {
   private *getEntitySubType(entityInfo: FocusEntityInfo) {
     if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
       const action: Action | undefined = yield select(getAction, entityInfo.id);
+
       if (action) {
         const plugin: Plugin = yield select(getPlugin, action.pluginId);
+
         return plugin.packageName;
       }
     }
@@ -244,6 +272,7 @@ class FocusRetention {
 
   retrievePersistState(key: string, config: FocusElementConfig) {
     const state = localStorage.getItem(`FocusHistory.${key}.${config.name}`);
+
     if (state) {
       return JSON.parse(state);
     }

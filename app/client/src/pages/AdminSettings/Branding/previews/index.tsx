@@ -18,7 +18,11 @@ export interface PreviewsProps {
 const Previews = (props: PreviewsProps) => {
   const { favicon, logo } = props;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [logoPreview, setLogoPreview] = useState<any>(null);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [faviconPreview, setFaviconPreview] = useState<any>(null);
 
   useEffect(() => {
@@ -32,6 +36,7 @@ const Previews = (props: PreviewsProps) => {
 
     if (typeof logo !== "string") {
       const reader = new FileReader();
+
       reader.readAsDataURL(logo);
 
       reader.onloadend = function () {
@@ -51,6 +56,7 @@ const Previews = (props: PreviewsProps) => {
 
     if (typeof favicon !== "string") {
       const reader = new FileReader();
+
       reader.readAsDataURL(favicon);
 
       reader.onloadend = function () {

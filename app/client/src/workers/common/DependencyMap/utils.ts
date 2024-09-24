@@ -7,9 +7,9 @@ import {
   getEntityNameAndPropertyPath,
   isJSActionConfig,
   isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTreeEntity,
@@ -40,6 +40,7 @@ export const extractInfoFromBinding = (
     self.evaluationVersion,
     invalidEntityIdentifiers,
   );
+
   return getPrunedReferences(references, allKeys);
 };
 
@@ -53,26 +54,34 @@ export const getPrunedReferences = (
     // If the identifier exists directly, add it and return
     if (allKeys.hasOwnProperty(reference)) {
       prunedReferences.add(reference);
+
       return;
     }
+
     const subpaths = toPath(reference);
     let current = "";
+
     // We want to keep going till we reach top level, but not add top level
     // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
     // This is mainly to avoid a lot of unnecessary evals, if we feel this is wrong
     // we can remove the length requirement, and it will still work
     while (subpaths.length > 1) {
       current = convertPathToString(subpaths);
+
       // We've found the dep, add it and return
       if (allKeys.hasOwnProperty(current)) {
         prunedReferences.add(current);
+
         return;
       }
+
       subpaths.pop();
     }
+
     // If no valid reference is derived, add reference as is
     prunedReferences.add(reference);
   });
+
   return Array.from(prunedReferences);
 };
 
@@ -88,6 +97,7 @@ export const extractInfoFromBindings = (
     (bindingsInfo: BindingsInfo, binding) => {
       try {
         const references = extractInfoFromBinding(binding, allKeys);
+
         return {
           ...bindingsInfo,
           references: union(bindingsInfo.references, references),
@@ -100,6 +110,7 @@ export const extractInfoFromBindings = (
             script: binding,
           },
         };
+
         return {
           ...bindingsInfo,
           errors: union(bindingsInfo.errors, [newEvalError]),
@@ -117,6 +128,7 @@ export const extractInfoFromBindings = (
  */
 export const mergeArrays = <T>(currentArr: T[], updateArr: T[]): T[] => {
   if (!currentArr) return updateArr;
+
   return union(currentArr, updateArr);
 };
 
@@ -141,9 +153,11 @@ export function isADynamicTriggerPath(
   if (isWidget(entity)) {
     const dynamicTriggerPathlist = entityConfig?.dynamicTriggerPathList;
     const isTriggerPath = find(dynamicTriggerPathlist, { key: propertyPath });
+
     if (isTriggerPath) {
       return true;
     }
+
     return false;
   }
 }
@@ -151,6 +165,7 @@ export function isADynamicTriggerPath(
 export function isJSFunction(configTree: ConfigTree, fullPath: string) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
   const entityConfig = configTree[entityName];
+
   return (
     isJSActionConfig(entityConfig) &&
     propertyPath &&

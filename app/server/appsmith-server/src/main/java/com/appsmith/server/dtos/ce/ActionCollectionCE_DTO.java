@@ -3,7 +3,6 @@ package com.appsmith.server.dtos.ce;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Git;
@@ -26,8 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -38,6 +35,10 @@ public class ActionCollectionCE_DTO {
     @Transient
     @JsonView(Views.Public.class)
     private String id;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    private String baseId;
 
     @Transient
     @JsonView(Views.Public.class)
@@ -92,11 +93,6 @@ public class ActionCollectionCE_DTO {
     @JsonView({Views.Public.class, Git.class})
     List<JSValue> variables;
 
-    // This will be used to store the defaultPageId but other fields like branchName, applicationId will act as
-    // transient
-    @JsonView(Views.Internal.class)
-    DefaultResources defaultResources;
-
     // Instead of storing the entire action object, we only populate this field while interacting with the client side
     @Transient
     @JsonView(Views.Public.class)
@@ -118,19 +114,14 @@ public class ActionCollectionCE_DTO {
 
     public void populateTransientFields(ActionCollection actionCollection) {
         this.setId(actionCollection.getId());
+        this.setBaseId(actionCollection.getBaseIdOrFallback());
         this.setApplicationId(actionCollection.getApplicationId());
         this.setWorkspaceId(actionCollection.getWorkspaceId());
         this.setUserPermissions(actionCollection.userPermissions);
-        if (this.getDefaultResources() == null) {
-            this.setDefaultResources(actionCollection.getDefaultResources());
-        } else {
-            copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
-        }
     }
 
     public void sanitiseForExport() {
         this.resetTransientFields();
-        this.setDefaultResources(null);
         this.setUserPermissions(Set.of());
     }
 
@@ -141,6 +132,7 @@ public class ActionCollectionCE_DTO {
 
     protected void resetTransientFields() {
         this.setId(null);
+        this.setBaseId(null);
         this.setWorkspaceId(null);
         this.setApplicationId(null);
         this.setErrorReports(null);

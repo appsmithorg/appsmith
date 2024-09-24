@@ -13,6 +13,7 @@ describe("Validates Derived Properties", () => {
     const expected = { id: 2 };
 
     let result = getSelectedItem(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -48,6 +49,7 @@ describe("Validates Derived Properties", () => {
     ];
 
     let result = getItems(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 

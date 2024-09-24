@@ -1,6 +1,6 @@
-import type { DataTreeEntityObject } from "@appsmith/entities/DataTree/types";
-import type { EntityMap } from "@appsmith/utils/autocomplete/entityDefGeneratorMap";
-import { entityDefGeneratorMap } from "@appsmith/utils/autocomplete/entityDefGeneratorMap";
+import type { DataTreeEntityObject } from "ee/entities/DataTree/types";
+import type { EntityMap } from "ee/utils/autocomplete/entityDefGeneratorMap";
+import { entityDefGeneratorMap } from "ee/utils/autocomplete/entityDefGeneratorMap";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type { Def } from "tern";
 
@@ -25,6 +25,7 @@ export const dataTreeTypeDefCreator = (
 
   Object.entries(dataTree).forEach(([entityName, entity]) => {
     const entityType = (entity as DataTreeEntityObject).ENTITY_TYPE;
+
     if (entityType && entityDefGeneratorMap[entityType]) {
       entityDefGeneratorMap[entityType]({
         entity,

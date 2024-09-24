@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -14,7 +14,7 @@ import {
 } from "widgets/WidgetUtils";
 import { getChildOfContainerLikeWidget } from "./helpers";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { getLayoutTree } from "./layoutTree";
 import { getWidgetsForBreakpoint } from "selectors/editorSelectors";
@@ -32,8 +32,11 @@ export function* dynamicallyUpdateContainersSaga(
   ).filter((widget: FlattenedWidgetProps) => {
     const isCanvasWidget = widget.type === "CANVAS_WIDGET";
     const parent = widget.parentId ? stateWidgets[widget.parentId] : undefined;
+
     if (parent?.type === "LIST_WIDGET") return false;
+
     if (parent === undefined) return false;
+
     return isCanvasWidget;
   });
 
@@ -52,6 +55,7 @@ export function* dynamicallyUpdateContainersSaga(
       const dataTree: DataTree = yield select(getDataTree);
       // Get this parentContainerWidget from the DataTree
       const dataTreeWidget = dataTree[parentContainerWidget.widgetName];
+
       // If the widget exists, is not visible and we can collapse widgets
       if (
         dataTreeWidget &&
@@ -108,6 +112,7 @@ export function* dynamicallyUpdateContainersSaga(
               true,
               dynamicHeightLayoutTree,
             );
+
           // Add a canvas extension offset
           maxBottomRowBasedOnChildren += GridDefaults.CANVAS_EXTENSION_OFFSET;
 
@@ -134,6 +139,7 @@ export function* dynamicallyUpdateContainersSaga(
         if (maxBottomRow < minDynamicHeightInRows) {
           maxBottomRow = minDynamicHeightInRows;
         }
+
         // If the new height is above the max threshold
         if (maxBottomRow > maxDynamicHeightInRows) {
           maxBottomRow = maxDynamicHeightInRows;
@@ -177,6 +183,7 @@ export function* dynamicallyUpdateContainersSaga(
       });
     }
   }
+
   log.debug(
     "Auto height: Container computations time taken:",
     performance.now() - start,

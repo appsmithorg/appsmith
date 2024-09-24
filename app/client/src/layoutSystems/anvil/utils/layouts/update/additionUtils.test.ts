@@ -24,6 +24,7 @@ describe("Layouts - additionUtils tests", () => {
         false,
       ).layout;
       const childLayoutOne: LayoutProps = layout.layout[0] as LayoutProps;
+
       expect(
         getAffectedLayout([layout], [layout.layoutId, childLayoutOne.layoutId]),
       ).toEqual(childLayoutOne);
@@ -33,6 +34,7 @@ describe("Layouts - additionUtils tests", () => {
         {},
         false,
       ).layout;
+
       expect(getAffectedLayout([layout], [])).toBeUndefined();
     });
   });
@@ -95,6 +97,7 @@ describe("Layouts - additionUtils tests", () => {
         updatedChildLayoutOne,
         [layoutOne.layoutId, layoutTwo.layoutId, childLayoutOne.layoutId],
       );
+
       expect(
         ((res[0].layout[2] as LayoutProps).layout[0] as LayoutProps).layout
           .length,
@@ -106,9 +109,11 @@ describe("Layouts - additionUtils tests", () => {
       const template: LayoutComponentProps = generateLayoutComponentMock({
         layoutId: "",
       }).layout;
+
       expect(template.layoutId.length).toEqual(0);
       const highlight: AnvilHighlightInfo = mockAnvilHighlightInfo();
       const res: LayoutProps = addWidgetsToTemplate(template, highlight, []);
+
       expect(res.layoutId.length).toBeGreaterThan(0);
     });
     it("should add widgets to the layout json", () => {
@@ -126,6 +131,7 @@ describe("Layouts - additionUtils tests", () => {
           },
         ],
       );
+
       expect(res.layout.length).toEqual(1);
       expect((res.layout[0] as WidgetLayoutProps).widgetId).toEqual("1");
     });
@@ -168,6 +174,7 @@ describe("Layouts - additionUtils tests", () => {
           },
         ],
       );
+
       /**
        * Row
        *  Row
@@ -189,17 +196,22 @@ describe("Layouts - additionUtils tests", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock().layout;
       const res: WidgetLayoutProps[] | LayoutProps[] =
         prepareWidgetsForAddition(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           {} as any,
           layout,
           mockAnvilHighlightInfo(),
           [],
         );
+
       expect(res.length).toEqual(0);
     });
     it("should return the list of widgets if Component doesn't have a childTemplate", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock().layout;
       const res: WidgetLayoutProps[] | LayoutProps[] =
         prepareWidgetsForAddition(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { getChildTemplate: () => null } as any,
           layout,
           mockAnvilHighlightInfo(),
@@ -211,6 +223,7 @@ describe("Layouts - additionUtils tests", () => {
             },
           ],
         );
+
       expect(res.length).toEqual(1);
     });
     it("should return updated childTemplate if present", () => {
@@ -218,6 +231,8 @@ describe("Layouts - additionUtils tests", () => {
         generateLayoutComponentMock().layout;
       const res: WidgetLayoutProps[] | LayoutProps[] =
         prepareWidgetsForAddition(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           { getChildTemplate: () => ({ ...layoutProps, layout: [] }) } as any,
           layoutProps,
           mockAnvilHighlightInfo(),
@@ -229,6 +244,7 @@ describe("Layouts - additionUtils tests", () => {
             },
           ],
         );
+
       expect((res[0] as LayoutProps).layoutId.length).toBeGreaterThan(0);
       expect(
         extractWidgetIdsFromLayoutProps(res[0] as LayoutProps).includes("1"),

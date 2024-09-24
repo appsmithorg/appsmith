@@ -2,8 +2,8 @@ import {
   getEntityNameAndPropertyPath,
   isWidget,
   overrideWidgetProperties,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+} from "ee/workers/Evaluation/evaluationUtils";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import { evalTreeWithChanges } from "./evalTreeWithChanges";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import { get, set } from "lodash";
@@ -11,7 +11,7 @@ import { validate } from "./validations";
 import type {
   DataTreeEntityConfig,
   WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTree,
@@ -19,7 +19,7 @@ import type {
 } from "entities/DataTree/dataTreeTypes";
 import { getFnWithGuards, isAsyncGuard } from "./fns/utils/fnGuard";
 import { shouldAddSetter } from "./evaluate";
-import { EVAL_WORKER_SYNC_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 
 class Setters {
   /** stores the setter method accessor as key and true as value
@@ -58,6 +58,7 @@ class Setters {
       const error = new Error(
         `The value passed to ${entityName}.${setterMethodName}() evaluates to undefined.`,
       );
+
       error.name = entityName + "." + setterMethodName + " failed";
       throw error;
     }
@@ -71,6 +72,7 @@ class Setters {
         ...validationConfig,
         params: { ...(validationConfig.params || {}) },
       };
+
       config.params.strict = true;
 
       const { isValid, messages, parsed } = validate(
@@ -79,6 +81,7 @@ class Setters {
         entity as Record<string, unknown>,
         propertyPath,
       );
+
       parsedValue = parsed;
 
       if (!isValid) {
@@ -86,6 +89,7 @@ class Setters {
         const error = new Error(
           `${entityName + "." + setterMethodName}: ${message}`,
         );
+
         error.name = entityName + "." + setterMethodName + " failed";
         throw error;
       }
@@ -130,6 +134,7 @@ class Setters {
         method: EVAL_WORKER_SYNC_ACTION.EVAL_TREE_WITH_CHANGES,
         webworkerTelemetry: {},
       });
+
       return res;
     });
   }
@@ -144,6 +149,7 @@ class Setters {
 
     const fn = async (value: unknown) => {
       if (!dataTreeEvaluator) return;
+
       return this.applySetterMethod(path, value, setterMethodName);
     };
 
@@ -171,7 +177,10 @@ class Setters {
     entityName: string,
     entity: DataTreeEntity,
   ) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const setterMethodMap: Record<string, any> = {};
+
     if (!entityConfig) return setterMethodMap;
 
     if (entityConfig.__setters) {
@@ -196,6 +205,7 @@ class Setters {
 
   init(configTree: ConfigTree, dataTree: DataTree) {
     const configTreeEntries = Object.entries(configTree);
+
     for (const [entityName, entityConfig] of configTreeEntries) {
       const entity = dataTree[entityName];
 
@@ -205,4 +215,5 @@ class Setters {
 }
 
 const setters = new Setters();
+
 export default setters;

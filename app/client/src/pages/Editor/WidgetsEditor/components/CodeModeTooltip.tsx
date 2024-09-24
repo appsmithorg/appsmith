@@ -1,15 +1,12 @@
-import { Tooltip } from "design-system";
+import { Tooltip } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
 import { modText } from "utils/helpers";
 import { useSelector } from "react-redux";
 import { getWidgetSelectionBlock } from "selectors/ui";
 import { retrieveCodeWidgetNavigationUsed } from "utils/storage";
-import {
-  CANVAS_VIEW_MODE_TOOLTIP,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { CANVAS_VIEW_MODE_TOOLTIP, createMessage } from "ee/constants/messages";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
-import { EditorState } from "@appsmith/entities/IDE/constants";
+import { EditorState } from "ee/entities/IDE/constants";
 
 /**
  * CodeModeTooltip
@@ -21,6 +18,7 @@ const CodeModeTooltip = (props: { children: React.ReactElement }) => {
   const isWidgetSelectionBlock = useSelector(getWidgetSelectionBlock);
   const editorState = useCurrentAppState();
   const [shouldShow, setShouldShow] = useState<boolean>(false);
+
   useEffect(() => {
     retrieveCodeWidgetNavigationUsed()
       .then((timesUsed) => {
@@ -32,8 +30,11 @@ const CodeModeTooltip = (props: { children: React.ReactElement }) => {
         setShouldShow(true);
       });
   }, [isWidgetSelectionBlock]);
+
   if (!isWidgetSelectionBlock) return props.children;
+
   if (editorState !== EditorState.EDITOR) return props.children;
+
   return (
     <Tooltip
       content={createMessage(CANVAS_VIEW_MODE_TOOLTIP, `${modText()}`)}

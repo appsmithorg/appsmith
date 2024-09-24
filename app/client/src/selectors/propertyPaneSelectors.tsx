@@ -1,7 +1,7 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { find, get, set } from "lodash";
 import { createSelector } from "reselect";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
@@ -16,9 +16,9 @@ import {
   isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { generateClassName } from "utils/generators";
-import { getGoogleMapsApiKey } from "@appsmith/selectors/tenantSelectors";
+import { getGoogleMapsApiKey } from "ee/selectors/tenantSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
 import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 import { getRenderMode } from "./editorSelectors";
@@ -73,16 +73,22 @@ export const getWidgetPropsForPropertyPane = createSelector(
   getLayoutSystemType,
   (state) => {
     const currentWidget = getCurrentWidgetProperties(state);
+
     if (!currentWidget) return;
+
     const evaluatedWidget = find(getDataTree(state), {
       widgetId: currentWidget.widgetId,
     }) as WidgetEntity;
+
     if (!evaluatedWidget) return;
+
     return evaluatedWidget[EVALUATION_PATH];
   },
   (
     widget: WidgetProps | undefined,
     layoutSystemType,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     evaluatedValue: any,
   ): WidgetProps | undefined => {
     if (!widget) return undefined;
@@ -91,9 +97,11 @@ export const getWidgetPropsForPropertyPane = createSelector(
       ...widget,
       layoutSystemType,
     };
+
     if (evaluatedValue) {
       widgetProperties[EVALUATION_PATH] = evaluatedValue;
     }
+
     return widgetProperties;
   },
 );
@@ -112,9 +120,11 @@ export const selectedWidgetsPresentInCanvas = createSelector(
   getSelectedWidgets,
   (canvasWidgets, selectedWidgets) => {
     const widgets = [];
+
     for (const widget of selectedWidgets) {
       if (widget in canvasWidgets) widgets.push(widget);
     }
+
     return widgets;
   },
 );
@@ -129,6 +139,8 @@ const populateWidgetProperties = (
     dependencies = [...dependencies, ...dynamicDependencies(widget)];
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const widgetProperties: any = {};
 
   if (!widget) return widgetProperties;
@@ -156,6 +168,8 @@ const populateWidgetProperties = (
   return widgetProperties;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAndSetPath = (from: any, to: any, path: string) => {
   if (!from || !to) return;
 
@@ -261,6 +275,7 @@ export const getIsPropertyPaneVisible = createSelector(
       ? lastSelectedWidget === pane.widgetId || widgets.includes(pane.widgetId)
       : false;
     const multipleWidgetsSelected = !!(widgets && widgets.length >= 2);
+
     return !!(
       isWidgetSelected &&
       !multipleWidgetsSelected &&
@@ -326,6 +341,7 @@ export const getShouldFocusPanelPropertySearch = createSelector(
   getCurrentWidgetName,
   (propertyPanel, widgetName) => {
     if (!widgetName) return false;
+
     return Object.keys(propertyPanel)
       .map((x) => x.split(".")[0])
       .includes(widgetName);

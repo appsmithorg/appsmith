@@ -9,10 +9,11 @@ import {
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import { useRouteMatch } from "react-router";
-import { SentryRoute } from "@appsmith/AppRouter";
+import { SentryRoute } from "ee/AppRouter";
 
 const RightPane = () => {
   const { path } = useRouteMatch();
+
   return (
     <SentryRoute
       component={PropertyPaneWrapper}

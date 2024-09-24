@@ -1,8 +1,8 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { FetchPageRequest } from "api/PageApi";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { FormConfigType } from "components/formControls/BaseControl";
+import type { FetchPageActionPayload } from "actions/pageActions";
 
 // Type for the object that will store the dynamic values for each component
 export interface DynamicValues {
@@ -10,6 +10,8 @@ export interface DynamicValues {
   isLoading: boolean;
   hasStarted: boolean;
   hasFetchFailed: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
   config: DynamicValuesConfig;
   evaluatedConfig: DynamicValuesConfig;
@@ -18,6 +20,8 @@ export interface DynamicValues {
 
 export interface DynamicValuesConfig {
   url?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: Record<string, any>;
 }
 
@@ -27,6 +31,8 @@ export interface EvaluatedFormConfig {
   evaluateFormConfigObject: FormConfigEvalObject;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ConditonalObject = Record<string, any>;
 
 // Type for the object that will store the evaluation output for each component
@@ -65,10 +71,11 @@ const formEvaluation = createReducer(initialState, {
   ): FormEvaluationState => action.payload,
   [ReduxActionTypes.FETCH_PAGE_INIT]: (
     state: FormEvaluationState,
-    action: ReduxAction<FetchPageRequest>,
+    action: ReduxAction<FetchPageActionPayload>,
   ) => {
     // Init the state on first page load
     if (!!action.payload && action.payload.isFirstLoad) return initialState;
+
     // Do not touch state on subsequent page loads
     return state;
   },

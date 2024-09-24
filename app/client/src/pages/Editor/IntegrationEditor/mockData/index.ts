@@ -1,5 +1,5 @@
-import { getDefaultEnvId } from "@appsmith/api/ApiUtils";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getDefaultEnvId } from "ee/api/ApiUtils";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { PluginPackageName } from "entities/Action";
 
@@ -40,6 +40,7 @@ export const mockPlugins = [
 ];
 
 const defaultEnvId = getDefaultEnvId();
+
 export const mockDatasources = [
   {
     id: "623ab2519b867130d3ed1c27",

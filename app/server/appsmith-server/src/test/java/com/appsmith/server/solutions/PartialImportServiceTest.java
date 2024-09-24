@@ -4,7 +4,6 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -332,13 +331,8 @@ public class PartialImportServiceTest {
         PageDTO savedPage = new PageDTO();
         savedPage.setName("Page 2");
         savedPage.setApplicationId(application.getId());
-        DefaultResources defaultResources = new DefaultResources();
-        defaultResources.setApplicationId(application.getId());
-        defaultResources.setBranchName("master");
-        savedPage.setDefaultResources(defaultResources);
-        savedPage = applicationPageService
-                .createPageWithBranchName(savedPage, "master")
-                .block();
+        savedPage.setBranchName("master");
+        savedPage = applicationPageService.createPage(savedPage).block();
 
         Part filePart = createFilePart("test_assets/ImportExportServiceTest/partial-export-valid-without-widget.json");
 
@@ -494,8 +488,8 @@ public class PartialImportServiceTest {
         buildingBlockDTO1.setTemplateId("templatedId1");
 
         Mono<Tuple3<BuildingBlockResponseDTO, List<ActionCollection>, List<NewAction>>> result = partialImportService
-                .importBuildingBlock(buildingBlockDTO, null)
-                .flatMap(s -> partialImportService.importBuildingBlock(buildingBlockDTO1, null))
+                .importBuildingBlock(buildingBlockDTO)
+                .flatMap(s -> partialImportService.importBuildingBlock(buildingBlockDTO1))
                 .flatMap(buildingBlockResponseDTO -> {
                     return Mono.zip(
                             Mono.just(buildingBlockResponseDTO),

@@ -1,5 +1,5 @@
 import { getCompensatorsForHierarchy } from "../utils/dndCompensatorUtils";
-import { useThemeContext } from "@design-system/theming";
+import { useThemeContext } from "@appsmith/wds-theming";
 
 export const useAnvilDnDCompensators = (
   canActivate: boolean,
@@ -29,6 +29,7 @@ export const useAnvilDnDCompensators = (
   // same zIndex with an increment of 1 is set for the highlight(AnvilDnDHighlight) to make sure it is always on top of the dnd listener(AnvilDnDListener).
   const zIndex =
     canActivate && currentHierarchy < draggedWidgetHierarchy - 1 ? 0 : 1;
+
   return {
     edgeCompensatorValues,
     layoutCompensatorValues,

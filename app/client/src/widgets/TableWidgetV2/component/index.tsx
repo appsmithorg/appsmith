@@ -71,6 +71,8 @@ interface ReactTableComponentProps {
   columnWidthMap?: { [key: string]: number };
   handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchTableData: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
@@ -174,6 +176,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
         } else {
           const column = columns[columnIndex];
           const columnType = column.metaProperties?.type || ColumnTypes.TEXT;
+
           if (
             columnType !== ColumnTypes.IMAGE &&
             columnType !== ColumnTypes.VIDEO

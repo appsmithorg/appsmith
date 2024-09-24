@@ -1,7 +1,7 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import type { Log } from "entities/AppsmithConsole";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { omit, isUndefined, isEmpty } from "lodash";
 import equal from "fast-deep-equal";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
@@ -34,6 +34,7 @@ const removeRepeatedLogsAndMerge = (
       acc.push(incomingLog);
     } else {
       const lastLog = acc[acc.length - 1];
+
       if (
         equal(
           omit(lastLog, ["occurrenceCount"]),
@@ -47,6 +48,7 @@ const removeRepeatedLogsAndMerge = (
         acc.push(incomingLog);
       }
     }
+
     return acc;
   }, currentLogs);
 
@@ -78,6 +80,7 @@ const debuggerReducer = createImmerReducer(initialState, {
     // Remove Logs without IDs
     const validDebuggerErrors = payload.reduce((validLogs, currentLog) => {
       if (!currentLog.id) return validLogs;
+
       return {
         ...validLogs,
         [currentLog.id]: currentLog,
@@ -148,7 +151,9 @@ const debuggerReducer = createImmerReducer(initialState, {
   ) => {
     const { id, isExpanded } = action.payload;
     const errors = JSON.parse(JSON.stringify(state.errors));
+
     errors[id] = { ...errors[id], isExpanded };
+
     return {
       ...state,
       errors,

@@ -11,6 +11,8 @@ import * as Sentry from "@sentry/react";
  * A. It calculates the diff between merged values and state.entities.action and saves the same in state.entities.action
  * There is another key form that holds the formData
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getPathAndValueFromActionDiffObject(actionObjectDiff: any) {
   if (!actionObjectDiff) {
     return {
@@ -20,6 +22,7 @@ export function getPathAndValueFromActionDiffObject(actionObjectDiff: any) {
   } else {
     let path = "";
     let value = "";
+
     // Loop through the diff objects in difference Array
     for (let i = 0; i < actionObjectDiff.length; i++) {
       //kind = N indicates a newly added property/element
@@ -41,6 +44,7 @@ export function getPathAndValueFromActionDiffObject(actionObjectDiff: any) {
               } else if (typeof item === "string" && !acc) {
                 acc += `${item}`;
               } else acc += `${path}[${item}]`;
+
               return acc;
             } catch (error) {
               Sentry.captureException({
@@ -54,6 +58,7 @@ export function getPathAndValueFromActionDiffObject(actionObjectDiff: any) {
         // get value from diff object
         value = actionObjectDiff[i]?.rhs;
       }
+
       return { path, value };
     }
   }

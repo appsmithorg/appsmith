@@ -14,14 +14,14 @@ import {
   LOGS_FILTER_OPTION_ERROR,
   LOGS_FILTER_OPTION_SYSTEM,
   NO_LOGS,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
 import type { Theme } from "constants/DefaultTheme";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { IconName } from "@blueprintjs/core";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getDebuggerSelectedFilter } from "selectors/debuggerSelectors";
 import { setDebuggerSelectedFilter } from "actions/debuggerActions";
 
@@ -95,13 +95,17 @@ function DebuggerLogs(props: Props) {
 
   useEffect(() => {
     const list = listRef.current;
+
     if (!list) return;
+
     list.addEventListener("scroll", handleScroll);
+
     return () => list.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
     const list = listRef.current;
+
     if (list) {
       setTimeout(() => {
         list.scrollTop = list.scrollHeight - list.clientHeight;

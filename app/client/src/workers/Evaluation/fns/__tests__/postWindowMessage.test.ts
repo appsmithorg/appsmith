@@ -1,4 +1,4 @@
-import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
 import TriggerEmitter, { BatchKey } from "../utils/TriggerEmitter";
 import { evalContext } from "../mock";
 
@@ -6,6 +6,8 @@ const pingMock = jest.fn();
 
 jest.mock("../utils/Messenger.ts", () => ({
   WorkerMessenger: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ping: (payload: any) => pingMock(JSON.stringify(payload)),
   },
 }));
@@ -30,6 +32,7 @@ describe("Post window message works", () => {
       key7: [1, 2, 3, [4, 5, 6]],
     };
     const batchSpy = jest.fn();
+
     TriggerEmitter.on(BatchKey.process_batched_triggers, batchSpy);
     expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
       undefined,

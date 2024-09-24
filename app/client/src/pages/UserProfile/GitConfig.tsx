@@ -5,19 +5,16 @@ import {
   AUTHOR_EMAIL,
   AUTHOR_NAME,
   SUBMIT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Classes } from "@blueprintjs/core";
-import { Button, Input, toast } from "design-system";
+import { Button, Input, toast } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
 } from "selectors/gitSyncSelectors";
-import {
-  fetchGlobalGitConfigInit,
-  updateGlobalGitConfigInit,
-} from "actions/gitSyncActions";
-import { emailValidator } from "design-system-old";
+import { updateGlobalGitConfigInit } from "actions/gitSyncActions";
+import { emailValidator } from "@appsmith/ads-old";
 
 export default function GitConfig() {
   const dispatch = useDispatch();
@@ -34,11 +31,13 @@ export default function GitConfig() {
 
   const setAuthorName = (value: string) => {
     setAuthorNameInState(value);
+
     if (authorName) setAreFormValuesUpdated(true);
   };
 
   const setAuthorEmail = (value: string) => {
     setAuthorEmailInState(value);
+
     if (authorEmail) setAreFormValuesUpdated(true);
   };
 
@@ -59,11 +58,6 @@ export default function GitConfig() {
       toast.show("Please enter valid user details");
     }
   };
-
-  useEffect(() => {
-    // onMount Fetch Global config
-    dispatch(fetchGlobalGitConfigInit());
-  }, []);
 
   return (
     <Wrapper>

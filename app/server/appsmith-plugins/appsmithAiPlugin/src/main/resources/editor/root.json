@@ -1,44 +1,50 @@
 {
   "editor": [
     {
-      "controlType": "SECTION",
+      "controlType": "SECTION_V2",
       "identifier": "SELECTOR",
       "children": [
         {
-          "label": "Action",
-          "description": "Choose the action you would like to use",
-          "configProperty": "actionConfiguration.formData.usecase.data",
-          "controlType": "DROP_DOWN",
-          "isRequired": true,
-          "initialValue": "TEXT_GENERATE",
-          "options": [
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SELECTOR-Z1",
+          "children": [
             {
-              "label": "Generate text",
-              "value": "TEXT_GENERATE"
-            },
-            {
-              "label": "Classify text",
-              "value": "TEXT_CLASSIFY"
-            },
-            {
-              "label": "Summarise text",
-              "value": "TEXT_SUMMARY"
-            },
-            {
-              "label": "Extract entities from text",
-              "value": "TEXT_ENTITY_EXTRACT"
-            },
-            {
-              "label": "Classify Image",
-              "value": "IMAGE_CLASSIFY"
-            },
-            {
-              "label": "Describe Image",
-              "value": "IMAGE_CAPTION"
-            },
-            {
-              "label": "Extract entities from image",
-              "value": "IMAGE_ENTITY_EXTRACT"
+              "label": "Action",
+              "description": "Choose the action you would like to use",
+              "configProperty": "actionConfiguration.formData.usecase.data",
+              "controlType": "DROP_DOWN",
+              "isRequired": true,
+              "initialValue": "TEXT_GENERATE",
+              "options": [
+                {
+                  "label": "Generate text",
+                  "value": "TEXT_GENERATE"
+                },
+                {
+                  "label": "Classify text",
+                  "value": "TEXT_CLASSIFY"
+                },
+                {
+                  "label": "Summarise text",
+                  "value": "TEXT_SUMMARY"
+                },
+                {
+                  "label": "Extract entities from text",
+                  "value": "TEXT_ENTITY_EXTRACT"
+                },
+                {
+                  "label": "Classify Image",
+                  "value": "IMAGE_CLASSIFY"
+                },
+                {
+                  "label": "Describe Image",
+                  "value": "IMAGE_CAPTION"
+                },
+                {
+                  "label": "Extract entities from image",
+                  "value": "IMAGE_ENTITY_EXTRACT"
+                }
+              ]
             }
           ]
         }

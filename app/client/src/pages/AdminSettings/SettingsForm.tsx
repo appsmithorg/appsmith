@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import { saveSettings } from "@appsmith/actions/settingsAction";
-import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { saveSettings } from "ee/actions/settingsAction";
+import { SETTINGS_FORM_NAME } from "ee/constants/forms";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { useParams, withRouter } from "react-router";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { InjectedFormProps } from "redux-form";
 import { formValueSelector, reduxForm } from "redux-form";
 import {
@@ -19,21 +19,18 @@ import Group from "./FormGroup/group";
 import RestartBanner from "./RestartBanner";
 import SaveAdminSettings from "./SaveSettings";
 import { DisconnectService } from "./DisconnectService";
-import AdminConfig from "@appsmith/pages/AdminSettings/config";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import AdminConfig from "ee/pages/AdminSettings/config";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
+import { SettingTypes } from "ee/pages/AdminSettings/config/types";
 import {
   createMessage,
   DISCONNECT_AUTH_ERROR,
   DISCONNECT_SERVICE_SUBHEADER,
   DISCONNECT_SERVICE_WARNING,
   MANDATORY_FIELDS_ERROR,
-} from "@appsmith/constants/messages";
-import {
-  isTenantConfig,
-  saveAllowed,
-} from "@appsmith/utils/adminSettingsHelpers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import { isTenantConfig, saveAllowed } from "ee/utils/adminSettingsHelpers";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   Wrapper,
   BottomSpace,
@@ -43,13 +40,13 @@ import {
   SettingsFormWrapper,
 } from "./components";
 import { BackButton } from "components/utils/helperComponents";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   getIsFormLoginEnabled,
   getThirdPartyAuths,
-} from "@appsmith/selectors/tenantSelectors";
-import { updateTenantConfig } from "@appsmith/actions/tenantActions";
-import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
+} from "ee/selectors/tenantSelectors";
+import { updateTenantConfig } from "ee/actions/tenantActions";
+import { tenantConfigConnection } from "ee/constants/tenantConstants";
 
 interface FormProps {
   settings: Record<string, string>;
@@ -73,6 +70,8 @@ function getSettingsConfig(category: string, subCategory?: string) {
 export function SettingsForm(
   props: InjectedFormProps & RouteComponentProps & FormProps,
 ) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params = useParams() as any;
   const { category, selected: subCategory } = params;
   const settingsDetails = getSettingsConfig(category, subCategory);
@@ -108,17 +107,22 @@ export function SettingsForm(
     const isEnvAndTenantSettings =
       updatedTenantSettings.length !== 0 &&
       updatedTenantSettings.length !== settingsKeyLength;
+
     if (isOnlyEnvSettings) {
       // only env settings
       dispatch(saveSettings(props.settings));
     } else {
       // only tenant settings
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const config: any = {};
+
       for (const each in props.settings) {
         if (tenantConfigConnection.includes(each)) {
           config[each] = props.settings[each];
         }
       }
+
       dispatch(
         updateTenantConfig({
           tenantConfiguration: config,
@@ -126,6 +130,7 @@ export function SettingsForm(
           needsRefresh: details?.needsRefresh,
         }),
       );
+
       // both env and tenant settings
       if (isEnvAndTenantSettings) {
         const filteredSettings = Object.keys(props.settings)
@@ -135,6 +140,7 @@ export function SettingsForm(
               [key]: props.settings[key],
             });
           }, {});
+
         dispatch(saveSettings(filteredSettings));
       }
     }
@@ -183,20 +189,25 @@ export function SettingsForm(
     return !(requiredFields.length > 0);
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onClear = (event?: React.FocusEvent<any, any>) => {
     if (event?.type === "click") {
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_RESET", {
         method: pageTitle,
       });
     }
+
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
+
       if (
         setting &&
         (setting.controlType == SettingTypes.TOGGLE ||
           setting.controlType == SettingTypes.CHECKBOX)
       ) {
         const settingsStr = props.settingsConfig[settingName].toString();
+
         if (settingName.toLowerCase().includes("enable")) {
           props.settingsConfig[settingName] =
             settingsStr === "" || settingsStr === "true";
@@ -227,9 +238,12 @@ export function SettingsForm(
   };
 
   const disconnect = (currentSettings: AdminConfig) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updatedSettings: any = {};
     const connectedMethodsCount =
       socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
+
     if (connectedMethodsCount >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {
         if (
@@ -310,41 +324,56 @@ export function SettingsForm(
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const validate = (values: Record<string, any>) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors: any = {};
+
   _.filter(values, (value, name) => {
     const err_message = AdminConfig.validate(name, value);
+
     if (err_message) {
       errors[name] = err_message;
     }
   });
+
   return errors;
 };
 
 const selector = formValueSelector(SETTINGS_FORM_NAME);
+
 export default withRouter(
   connect((state: AppState) => {
     const settingsConfig = getSettings(state);
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newProps: any = {
       settings: {},
       settingsConfig,
       isSaving: getSettingsSavingState(state),
       showReleaseNotes: getShowReleaseNotes(state),
     };
+
     _.forEach(AdminConfig.settingsMap, (setting, name) => {
       const fieldValue = selector(state, name);
       const doNotUpdate =
         setting.controlType === SettingTypes.CHECKBOX &&
         !settingsConfig[name] &&
         !fieldValue;
+
       //We are not performing type check here as inputs we take are stored as string
       //But server stores as numeric, string etc..
       if (fieldValue != settingsConfig[name] && !doNotUpdate) {
         newProps.settings[name] = fieldValue;
       }
     });
+
     return newProps;
   }, null)(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     reduxForm<any, any>({
       validate,
       form: SETTINGS_FORM_NAME,

@@ -4,13 +4,13 @@ import {
   GITHUB_SIGNUP_SETUP_DOC,
   GOOGLE_SIGNUP_SETUP_DOC,
 } from "constants/ThirdPartyConstants";
-import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
+import type { AdminConfigType } from "ee/pages/AdminSettings/config/types";
 import {
   CategoryType,
   SettingCategories,
   SettingSubtype,
   SettingTypes,
-} from "@appsmith/pages/AdminSettings/config/types";
+} from "ee/pages/AdminSettings/config/types";
 import type { AuthMethodType } from "pages/AdminSettings/Authentication/AuthPage";
 import { AuthPage } from "pages/AdminSettings/Authentication/AuthPage";
 import Google from "assets/images/Google.png";
@@ -22,7 +22,7 @@ import { useSelector } from "react-redux";
 import {
   getThirdPartyAuths,
   getIsFormLoginEnabled,
-} from "@appsmith/selectors/tenantSelectors";
+} from "ee/selectors/tenantSelectors";
 import {
   FORM_LOGIN_DESC,
   GITHUB_AUTH_DESC,
@@ -30,12 +30,13 @@ import {
   OIDC_AUTH_DESC,
   SAML_AUTH_DESC,
   createMessage,
-} from "@appsmith/constants/messages";
-import { isSAMLEnabled, isOIDCEnabled } from "@appsmith/utils/planHelpers";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+} from "ee/constants/messages";
+import { isSAMLEnabled, isOIDCEnabled } from "ee/utils/planHelpers";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import store from "store";
 const featureFlags = selectFeatureFlags(store.getState());
-import { getAppsmithConfigs } from "@appsmith/configs";
+
+import { getAppsmithConfigs } from "ee/configs";
 const { mailEnabled } = getAppsmithConfigs();
 
 const FormAuth: AdminConfigType = {
@@ -72,9 +73,11 @@ const FormAuth: AdminConfigType = {
         if (!settings) {
           return true;
         }
+
         if (settings.emailVerificationEnabled) {
           return false;
         }
+
         return !mailEnabled;
       },
     },
@@ -91,9 +94,11 @@ const FormAuth: AdminConfigType = {
         if (!settings) {
           return false;
         }
+
         if (settings.emailVerificationEnabled) {
           return false;
         }
+
         return !mailEnabled;
       },
     },
@@ -109,6 +114,7 @@ const FormAuth: AdminConfigType = {
         if (!settings) {
           return false;
         }
+
         return settings.emailVerificationEnabled && mailEnabled;
       },
     },
@@ -124,9 +130,11 @@ const FormAuth: AdminConfigType = {
         if (!settings) {
           return false;
         }
+
         if (!mailEnabled && settings.emailVerificationEnabled) {
           return true;
         }
+
         return false;
       },
     },
@@ -310,10 +318,12 @@ const AuthMethods = [
 function AuthMain() {
   FormAuthCallout.isConnected = useSelector(getIsFormLoginEnabled);
   const socialLoginList = useSelector(getThirdPartyAuths);
+
   GoogleAuth.isConnected = GoogleAuthCallout.isConnected =
     socialLoginList.includes("google");
   GithubAuth.isConnected = GithubAuthCallout.isConnected =
     socialLoginList.includes("github");
+
   return <AuthPage authMethods={AuthMethods} />;
 }
 

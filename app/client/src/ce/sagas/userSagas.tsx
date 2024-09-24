@@ -2,11 +2,11 @@ import { call, put, race, select, take } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { reset } from "redux-form";
 import type {
   CreateUserRequest,
@@ -16,8 +16,8 @@ import type {
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
   LeaveWorkspaceRequest,
-} from "@appsmith/api/UserApi";
-import UserApi from "@appsmith/api/UserApi";
+} from "ee/api/UserApi";
+import UserApi from "ee/api/UserApi";
 import { AUTH_LOGIN_URL, SETUP } from "constants/routes";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
@@ -40,11 +40,8 @@ import {
   fetchProductAlertFailure,
   fetchFeatureFlagsInit,
 } from "actions/userActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { INVITE_USERS_TO_WORKSPACE_FORM } from "ee/constants/forms";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
@@ -68,34 +65,35 @@ import {
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
 import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { getAppsmithConfigs } from "ee/configs";
 import { getSegmentState } from "selectors/analyticsSelectors";
 import {
   segmentInitUncertain,
   segmentInitSuccess,
 } from "actions/analyticsActions";
 import type { SegmentState } from "reducers/uiReducers/analyticsReducer";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "ee/entities/FeatureFlag";
 import UsagePulse from "usagePulse";
-import { toast } from "design-system";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { toast } from "@appsmith/ads";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import {
   USER_PROFILE_PICTURE_UPLOAD_FAILED,
   UPDATE_USER_DETAILS_FAILED,
-} from "@appsmith/constants/messages";
-import { createMessage } from "design-system-old/build/constants/messages";
+} from "ee/constants/messages";
+import { createMessage } from "@appsmith/ads-old";
 import type {
   ProductAlert,
   ProductAlertConfig,
 } from "reducers/uiReducers/usersReducer";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
 ) {
   const { email, password, reject, resolve } = action.payload;
+
   try {
     const request: CreateUserRequest = { email, password };
     const response: CreateUserResponse = yield callAPI(
@@ -104,12 +102,15 @@ export function* createUserSaga(
     );
     //TODO(abhinav): DRY this
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (!isValidResponse) {
       const errorMessage = getResponseErrorMessage(response);
+
       yield call(reject, { _error: errorMessage });
     } else {
       //@ts-expect-error: response is of type unknown
       const { email, id, name } = response.data;
+
       yield put({
         type: ReduxActionTypes.CREATE_USER_SUCCESS,
         payload: {
@@ -133,6 +134,7 @@ export function* createUserSaga(
 
 export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
   if (skipWithAnonymousId && AnalyticsUtil.getAnonymousId()) return;
+
   const currentUser: User | undefined = yield select(getCurrentUser);
   const segmentState: SegmentState | undefined = yield select(getSegmentState);
   const appsmithConfig = getAppsmithConfigs();
@@ -153,10 +155,8 @@ export function* getCurrentUserSaga(action?: {
   payload?: { userProfile?: ApiResponse };
 }) {
   const userProfile = action?.payload?.userProfile;
+
   try {
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.USER_ME_API,
-    );
     const response: ApiResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
       userProfile,
@@ -172,10 +172,6 @@ export function* getCurrentUserSaga(action?: {
       });
     }
   } catch (error) {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.USER_ME_API,
-      { failed: true },
-    );
     yield put({
       type: ReduxActionErrorTypes.FETCH_USER_DETAILS_ERROR,
       payload: {
@@ -191,6 +187,7 @@ export function* runUserSideEffectsSaga() {
   const currentUser: User = yield select(getCurrentUser);
   const { enableTelemetry } = currentUser;
   const isAirgappedInstance = isAirgapped();
+
   if (enableTelemetry) {
     const promise = initializeAnalyticsAndTrackers();
 
@@ -210,6 +207,7 @@ export function* runUserSideEffectsSaga() {
   }
 
   const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
+
   if (!isFFFetched) {
     yield call(fetchFeatureFlagsInit);
     yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
@@ -237,8 +235,6 @@ export function* runUserSideEffectsSaga() {
   if (currentUser.emptyInstance) {
     history.replace(SETUP);
   }
-
-  PerformanceTracker.stopAsyncTracking(PerformanceTransactionName.USER_ME_API);
 }
 
 export function* forgotPasswordSaga(
@@ -253,9 +249,11 @@ export function* forgotPasswordSaga(
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (!isValidResponse) {
       const errorMessage: string | undefined =
         yield getResponseErrorMessage(response);
+
       yield call(reject, { _error: errorMessage });
     } else {
       yield put({
@@ -276,6 +274,7 @@ export function* resetPasswordSaga(
   action: ReduxActionWithPromise<TokenPasswordUpdateRequest>,
 ) {
   const { email, password, reject, resolve, token } = action.payload;
+
   try {
     const request: TokenPasswordUpdateRequest = {
       email,
@@ -284,9 +283,11 @@ export function* resetPasswordSaga(
     };
     const response: ApiResponse = yield callAPI(UserApi.resetPassword, request);
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (!isValidResponse) {
       const errorMessage: string | undefined =
         yield getResponseErrorMessage(response);
+
       yield call(reject, { _error: errorMessage });
     } else {
       yield put({
@@ -310,6 +311,7 @@ export function* invitedUserSignupSaga(
   action: ReduxActionWithPromise<TokenPasswordUpdateRequest>,
 ) {
   const { email, password, reject, resolve, token } = action.payload;
+
   try {
     const request: TokenPasswordUpdateRequest = { email, password, token };
     const response: ApiResponse = yield callAPI(
@@ -317,9 +319,11 @@ export function* invitedUserSignupSaga(
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (!isValidResponse) {
       const errorMessage: string | undefined =
         yield getResponseErrorMessage(response);
+
       yield call(reject, { _error: errorMessage });
     } else {
       yield put(invitedUserSignupSuccess());
@@ -337,14 +341,19 @@ interface InviteUserPayload {
   permissionGroupId: string;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* inviteUser(payload: InviteUserPayload, reject: any) {
   const response: ApiResponse = yield callAPI(UserApi.inviteUser, payload);
   const isValidResponse: boolean = yield validateResponse(response);
+
   if (!isValidResponse) {
     let errorMessage = `${payload.email}:  `;
+
     errorMessage += getResponseErrorMessage(response);
     yield call(reject, { _error: errorMessage });
   }
+
   yield;
 }
 
@@ -359,6 +368,7 @@ export function* inviteUsers(
   }>,
 ) {
   const { data, reject, resolve } = action.payload;
+
   try {
     const response: ApiResponse<{ id: string; username: string }[]> =
       yield callAPI(UserApi.inviteUser, {
@@ -367,11 +377,14 @@ export function* inviteUsers(
         recaptchaToken: data.recaptchaToken,
       });
     const isValidResponse: boolean = yield validateResponse(response, false);
+
     if (!isValidResponse) {
       let errorMessage = `${data.usernames}:  `;
+
       errorMessage += getResponseErrorMessage(response);
       yield call(reject, { _error: errorMessage });
     }
+
     yield put({
       type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
       payload: {
@@ -379,6 +392,7 @@ export function* inviteUsers(
       },
     });
     const { data: responseData } = response;
+
     yield put({
       type: ReduxActionTypes.INVITED_USERS_TO_WORKSPACE,
       payload: {
@@ -426,6 +440,7 @@ export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
           (error as Error).message ?? createMessage(UPDATE_USER_DETAILS_FAILED),
       },
     };
+
     yield put({
       type: ReduxActionErrorTypes.UPDATE_USER_DETAILS_ERROR,
       payload,
@@ -443,6 +458,7 @@ export function* verifyResetPasswordTokenSaga(
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse && response.data) {
       yield put({
         type: ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_SUCCESS,
@@ -465,6 +481,7 @@ export function* verifyUserInviteSaga(action: ReduxAction<VerifyTokenRequest>) {
     const request: VerifyTokenRequest = action.payload;
     const response: ApiResponse = yield call(UserApi.verifyUserInvite, request);
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put(verifyInviteSuccess());
     }
@@ -479,10 +496,12 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
     const redirectURL = action.payload?.redirectURL;
     const response: ApiResponse = yield call(UserApi.logoutUser);
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       UsagePulse.stopTrackingActivity();
       AnalyticsUtil.reset();
       const currentUser: User | undefined = yield select(getCurrentUser);
+
       yield put(logoutUserSuccess(!!currentUser?.emptyInstance));
       localStorage.clear();
       yield put(flushErrorsAndRedirect(redirectURL || AUTH_LOGIN_URL));
@@ -495,6 +514,7 @@ export function* logoutSaga(action: ReduxAction<{ redirectURL: string }>) {
 
 export function* waitForFetchUserSuccess() {
   const currentUser: string | undefined = yield select(getCurrentUser);
+
   if (!currentUser) {
     yield take(ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS);
   }
@@ -507,6 +527,7 @@ export function* removePhoto(
     const response: ApiResponse = yield call(UserApi.deletePhoto);
     //@ts-expect-error: response is of type unknown
     const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
+
     if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
     log.error(error);
@@ -520,11 +541,14 @@ export function* updatePhoto(
     const response: ApiResponse = yield call(UserApi.uploadPhoto, {
       file: action.payload.file,
     });
+
     if (!response.responseMeta.success) {
       throw response.responseMeta.error;
     }
+
     //@ts-expect-error: response is of type unknown
     const photoId = response.data?.profilePhotoAssetId; //get updated photo id of iploaded image
+
     if (action.payload.callback) action.payload.callback(photoId);
   } catch (error) {
     log.error(error);
@@ -533,10 +557,13 @@ export function* updatePhoto(
       show: true,
       error: {
         message:
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (error as any).message ??
           createMessage(USER_PROFILE_PICTURE_UPLOAD_FAILED),
       },
     };
+
     yield put({
       type: ReduxActionErrorTypes.USER_PROFILE_PICTURE_UPLOAD_FAILED,
       payload,
@@ -548,6 +575,7 @@ export function* fetchFeatureFlags(action?: {
   payload?: { featureFlags?: ApiResponse<FeatureFlags> };
 }) {
   const featureFlags = action?.payload?.featureFlags;
+
   try {
     const response: ApiResponse<FeatureFlags> = yield call(
       getFromServerWhenNoPrefetchedResult,
@@ -556,6 +584,7 @@ export function* fetchFeatureFlags(action?: {
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put(
         fetchFeatureFlagsSuccess({
@@ -572,11 +601,13 @@ export function* fetchFeatureFlags(action?: {
 
 export function* updateFirstTimeUserOnboardingSage() {
   const enable: boolean | null = yield call(getEnableStartSignposting);
+
   if (enable) {
     const applicationIds: string[] =
       yield getFirstTimeUserOnboardingApplicationIds() || [];
     const introModalVisibility: string | null =
       yield getFirstTimeUserOnboardingIntroModalVisibility();
+
     yield put({
       type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
       payload: applicationIds,
@@ -596,6 +627,7 @@ export function* leaveWorkspaceSaga(
     const { workspaceId } = action.payload;
     const response: ApiResponse = yield call(UserApi.leaveWorkspace, request);
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_WORKSPACE_SUCCESS,
@@ -615,6 +647,7 @@ export function* fetchProductAlertSaga(action?: {
   payload?: { productAlert?: ApiResponse<ProductAlert> };
 }) {
   const productAlert = action?.payload?.productAlert;
+
   try {
     const response: ApiResponse<ProductAlert> = yield call(
       getFromServerWhenNoPrefetchedResult,
@@ -623,10 +656,13 @@ export function* fetchProductAlertSaga(action?: {
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       const message = response.data;
+
       if (message.messageId) {
         const config = getMessageConfig(message.messageId);
+
         yield put(fetchProductAlertSuccess({ message, config }));
       }
     } else {
@@ -643,9 +679,11 @@ export const getMessageConfig = (id: string): ProductAlertConfig => {
     localStorage.getItem(PRODUCT_ALERT_CONFIG_STORAGE_KEY) || "{}";
   const alertConfig: Record<string, ProductAlertConfig> =
     JSON.parse(storedConfig);
+
   if (id in alertConfig) {
     return alertConfig[id];
   }
+
   return {
     snoozeTill: new Date(),
     dismissed: false,

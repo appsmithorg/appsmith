@@ -57,6 +57,15 @@ public class NewPage extends BranchAwareDomain implements Context {
         return !layouts.isEmpty() ? layouts.get(0) : null;
     }
 
+    @JsonView(Views.Internal.class)
+    @Override
+    public String getUnpublishedName() {
+        if (this.getUnpublishedPage() == null) {
+            return null;
+        }
+        return this.getUnpublishedPage().getName();
+    }
+
     public static class Fields extends BranchAwareDomain.Fields {
         public static String unpublishedPage_layouts = unpublishedPage + "." + PageDTO.Fields.layouts;
         public static String unpublishedPage_name = unpublishedPage + "." + PageDTO.Fields.name;

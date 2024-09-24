@@ -17,7 +17,6 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.onload.internal.OnLoadExecutablesUtil;
@@ -26,12 +25,14 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -47,6 +48,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.LayoutSpan.FIND_ALL_ON_LOAD_EXECUTABLES;
+import static com.appsmith.external.constants.spans.LayoutSpan.FIND_AND_UPDATE_LAYOUT;
+import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_EXECUTABLES_EXECUTE_ONLOAD;
+import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_LAYOUT_DSL_METHOD;
+import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_LAYOUT_METHOD;
+import static com.appsmith.external.constants.spans.PageSpan.GET_PAGE_BY_ID;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
 
@@ -59,11 +66,10 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     private final SessionUserService sessionUserService;
     private final NewPageService newPageService;
     private final AnalyticsService analyticsService;
-    private final ResponseUtils responseUtils;
     private final PagePermission pagePermission;
     private final ApplicationService applicationService;
-
     private final ObjectMapper objectMapper;
+    private final ObservationRegistry observationRegistry;
 
     private final String layoutOnLoadActionErrorToastMessage =
             "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
@@ -124,6 +130,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         try {
             dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
                     dsl, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
+
         } catch (Throwable t) {
             return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, dsl, false, t, creatorType)
                     .then(Mono.error(t));
@@ -157,6 +164,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                         flatmapOnLoadExecutables,
                         executablesUsedInDSL,
                         creatorType)
+                .name(FIND_ALL_ON_LOAD_EXECUTABLES)
+                .tap(Micrometer.observation(observationRegistry))
                 .onErrorResume(AppsmithException.class, error -> {
                     log.info(error.getMessage());
                     validOnLoadExecutables.set(FALSE);
@@ -183,6 +192,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     return onLoadExecutablesUtil
                             .updateExecutablesExecuteOnLoad(
                                     flatmapOnLoadExecutables, creatorId, executableUpdatesRef, messagesRef, creatorType)
+                            .name(UPDATE_EXECUTABLES_EXECUTE_ONLOAD)
+                            .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(allOnLoadExecutables);
                 })
                 // Now update the page layout with the page load executables and the graph.
@@ -194,7 +205,10 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     // valid when last stored in the database.
                     layout.setValidOnPageLoadActions(validOnLoadExecutables.get());
 
-                    return onLoadExecutablesUtil.findAndUpdateLayout(creatorId, creatorType, layoutId, layout);
+                    return onLoadExecutablesUtil
+                            .findAndUpdateLayout(creatorId, creatorType, layoutId, layout)
+                            .name(FIND_AND_UPDATE_LAYOUT)
+                            .tap(Micrometer.observation(observationRegistry));
                 })
                 .map(savedLayout -> {
                     savedLayout.setDsl(this.unescapeMongoSpecialCharacters(savedLayout));
@@ -221,33 +235,21 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     if (evaluationVersion == null) {
                         evaluationVersion = EVALUATION_VERSION;
                     }
-                    return updateLayoutDsl(pageId, layoutId, layout, evaluationVersion, CreatorContextType.PAGE);
+                    return updateLayoutDsl(pageId, layoutId, layout, evaluationVersion, CreatorContextType.PAGE)
+                            .name(UPDATE_LAYOUT_DSL_METHOD);
                 });
     }
 
     @Override
-    public Mono<LayoutDTO> updateLayout(
-            String defaultPageId, String defaultApplicationId, String layoutId, Layout layout, String branchName) {
-        if (!StringUtils.hasLength(branchName)) {
-            return updateLayout(defaultPageId, defaultApplicationId, layoutId, layout);
-        }
-        return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(branchedPage ->
-                        updateLayout(branchedPage.getId(), branchedPage.getApplicationId(), layoutId, layout))
-                .map(responseUtils::updateLayoutDTOWithDefaultResources);
-    }
-
-    @Override
     public Mono<Integer> updateMultipleLayouts(
-            String defaultApplicationId, String branchName, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO) {
+            String baseApplicationId, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO) {
         List<Mono<LayoutDTO>> monoList = new ArrayList<>();
         for (UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayout :
                 updateMultiplePageLayoutDTO.getPageLayouts()) {
             final Layout layout = new Layout();
             layout.setDsl(pageLayout.getLayout().dsl());
-            Mono<LayoutDTO> updatedLayoutMono = this.updateLayout(
-                    pageLayout.getPageId(), defaultApplicationId, pageLayout.getLayoutId(), layout, branchName);
+            Mono<LayoutDTO> updatedLayoutMono =
+                    this.updateLayout(pageLayout.getPageId(), baseApplicationId, pageLayout.getLayoutId(), layout);
             monoList.add(updatedLayoutMono);
         }
         return Flux.merge(monoList).then(Mono.just(monoList.size()));
@@ -291,13 +293,17 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         return Mono.justOrEmpty(pageId)
                 // fetch the unpublished page
                 .flatMap(id -> newPageService.findPageById(id, pagePermission.getEditPermission(), false))
+                .name(GET_PAGE_BY_ID)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMapMany(page -> {
                     if (page.getLayouts() == null) {
                         return Mono.empty();
                     }
                     return Flux.fromIterable(page.getLayouts()).flatMap(layout -> {
                         layout.setDsl(this.unescapeMongoSpecialCharacters(layout));
-                        return this.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout);
+                        return this.updateLayout(page.getId(), page.getApplicationId(), layout.getId(), layout)
+                                .name(UPDATE_LAYOUT_METHOD)
+                                .tap(Micrometer.observation(observationRegistry));
                     });
                 })
                 .collectList()
@@ -339,7 +345,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
 
         AtomicReference<Boolean> validOnLoadExecutables = new AtomicReference<>(Boolean.TRUE);
 
-        // setting the layoutOnLoadActionActionErrors to empty to remove the existing errors before new DAG calculation.
+        // setting the layoutOnLoadActionActionErrors to empty to remove the existing
+        // errors before new DAG calculation.
         layout.setLayoutOnLoadActionErrors(new ArrayList<>());
 
         return onLoadExecutablesUtil
@@ -379,13 +386,15 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
             String widgetType = dsl.getAsString(FieldName.WIDGET_TYPE);
             if (widgetType.equals(FieldName.TABLE_WIDGET)) {
                 // UnEscape Table widget keys
-                // Since this is a table widget, it wouldnt have children. We can safely return from here with updated
+                // Since this is a table widget, it wouldnt have children. We can safely return
+                // from here with updated
                 // dsl
                 return WidgetSpecificUtils.unEscapeTableWidgetPrimaryColumns(dsl);
             }
         }
 
-        // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
+        // Fetch the children of the current node in the DSL and recursively iterate
+        // over them to extract bindings
         ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
         ArrayList<Object> newChildren = new ArrayList<>();
         if (children != null) {
@@ -407,9 +416,11 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
 
     /**
      * Walks the DSL and extracts all the widget names from it.
-     * A widget is expected to have a few properties defining its own behaviour, with any mustache bindings present
+     * A widget is expected to have a few properties defining its own behaviour,
+     * with any mustache bindings present
      * in them aggregated in the field dynamicBindingsPathList.
-     * A widget may also have other widgets as children, each of which will follow the same structure
+     * A widget may also have other widgets as children, each of which will follow
+     * the same structure
      * Refer to FieldName.DEFAULT_PAGE_LAYOUT for a template
      *
      * @param dsl
@@ -438,27 +449,33 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         String widgetId = dsl.getAsString(FieldName.WIDGET_ID);
         String widgetType = dsl.getAsString(FieldName.WIDGET_TYPE);
 
-        // Since we are parsing this widget in this, add it to the global set of widgets found so far in the DSL.
+        // Since we are parsing this widget in this, add it to the global set of widgets
+        // found so far in the DSL.
         widgetNames.add(widgetName);
 
-        // Start by picking all fields where we expect to find dynamic bindings for this particular widget
+        // Start by picking all fields where we expect to find dynamic bindings for this
+        // particular widget
         ArrayList<Object> dynamicallyBoundedPathList = (ArrayList<Object>) dsl.get(FieldName.DYNAMIC_BINDING_PATH_LIST);
 
-        // Widgets will not have FieldName.DYNAMIC_BINDING_PATH_LIST if there are no bindings in that widget.
+        // Widgets will not have FieldName.DYNAMIC_BINDING_PATH_LIST if there are no
+        // bindings in that widget.
         // Hence we skip over the extraction of the bindings from that widget.
         if (dynamicallyBoundedPathList != null) {
-            // Each of these might have nested structures, so we iterate through them to find the leaf node for each
+            // Each of these might have nested structures, so we iterate through them to
+            // find the leaf node for each
             for (Object x : dynamicallyBoundedPathList) {
                 final String fieldPath = String.valueOf(((Map) x).get(FieldName.KEY));
                 String[] fields = fieldPath.split("[].\\[]");
-                // For nested fields, the parent dsl to search in would shift by one level every iteration
+                // For nested fields, the parent dsl to search in would shift by one level every
+                // iteration
                 Object parent = dsl;
                 Iterator<String> fieldsIterator = Arrays.stream(fields)
                         .filter(fieldToken -> !fieldToken.isBlank())
                         .iterator();
                 boolean isLeafNode = false;
                 Object oldParent;
-                // This loop will end at either a leaf node, or the last identified JSON field (by throwing an
+                // This loop will end at either a leaf node, or the last identified JSON field
+                // (by throwing an
                 // exception)
                 // Valid forms of the fieldPath for this search could be:
                 // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
@@ -525,7 +542,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     // Only extract mustache keys from leaf nodes
                     if (isLeafNode) {
 
-                        // We found the path. But if the path does not have any mustache bindings, throw the error
+                        // We found the path. But if the path does not have any mustache bindings, throw
+                        // the error
                         if (!MustacheHelper.laxIsBindingPresentInString((String) parent)) {
                             try {
                                 String bindingAsString = objectMapper.writeValueAsString(parent);
@@ -566,7 +584,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         // Escape the widget keys if required and update dsl and escapedWidgetNames
         removeSpecialCharactersFromKeys(dsl, escapedWidgetNames);
 
-        // Fetch the children of the current node in the DSL and recursively iterate over them to extract bindings
+        // Fetch the children of the current node in the DSL and recursively iterate
+        // over them to extract bindings
         ArrayList<Object> children = (ArrayList<Object>) dsl.get(FieldName.CHILDREN);
         ArrayList<Object> newChildren = new ArrayList<>();
         if (children != null) {

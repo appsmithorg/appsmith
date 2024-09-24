@@ -7,6 +7,7 @@ import { KEYBOARD_SHORTCUTS_BY_PLATFORM } from "./keyboardShortcutConstants";
 
 export const getCodeCommentKeyMap = () => {
   const platformOS = getPlatformOS() || "default";
+
   return KEYBOARD_SHORTCUTS_BY_PLATFORM[platformOS].codeComment;
 };
 
@@ -60,6 +61,7 @@ function firstNonWhitespace(str: string, mode: TEditorModes) {
       ? JS_FIELD_BEGIN
       : nonWhitespace,
   );
+
   return found === -1 ? 0 : found;
 }
 
@@ -83,10 +85,11 @@ function performLineCommenting(
   to: CodeMirror.Position,
   options = noOptions,
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  // eslint-disable-next-line @typescript-eslint/no-this-alias, @typescript-eslint/no-explicit-any
   const self: CodeMirror.Editor = this as any;
   const mode = self.getMode();
   const firstLine = self.getLine(from.line);
+
   if (firstLine === null || probablyInsideString(self, from, firstLine)) return;
 
   // When mode is TEXT, the name is null string, we skip commenting
@@ -101,6 +104,7 @@ function performLineCommenting(
       options.fullLines = true;
       self.blockComment(from, to, options);
     }
+
     return;
   }
 
@@ -151,6 +155,7 @@ function performLineCommenting(
     } else {
       for (let i = from.line; i < end; ++i) {
         const line = self.getLine(i);
+
         if (blankLines || nonWhitespace.test(line)) {
           // Handle JS field lines starting with {{
           if (line.startsWith(JS_FIELD_BEGIN)) {
@@ -187,13 +192,16 @@ function performLineUncommenting(
   const lines: string[] = [];
   const padding = options.padding || " ";
   let didCommentCode;
+
   lineComment: {
     if (!lineString) break lineComment;
+
     for (let i = start; i <= end; ++i) {
       const line = self.getLine(i);
       const found = line.indexOf(lineString);
 
       if (found == -1 && nonWhitespace.test(line)) break lineComment;
+
       if (
         found > -1 &&
         // Handle JS fields with {{}}
@@ -201,16 +209,21 @@ function performLineUncommenting(
         nonWhitespace.test(line.slice(0, found))
       )
         break lineComment;
+
       lines.push(line);
     }
+
     self.operation(function () {
       for (let i = start; i <= end; ++i) {
         const line = lines[i - start];
         const pos = line.indexOf(lineString);
         let endPos = pos + lineString.length;
+
         if (pos < 0) continue;
+
         if (line.slice(endPos, endPos + padding.length) == padding)
           endPos += padding.length;
+
         didCommentCode = true;
         self.replaceRange(
           "",
@@ -219,17 +232,22 @@ function performLineUncommenting(
         );
       }
     });
+
     if (didCommentCode) return true;
   }
 
   // Try block comments
   const startString = options.blockCommentStart || mode.blockCommentStart;
   const endString = options.blockCommentEnd || mode.blockCommentEnd;
+
   if (!startString || !endString) return false;
+
   const blockCommentLead = options.blockCommentLead || mode.blockCommentLead;
   const startLine = self.getLine(start);
   const open = startLine.indexOf(startString);
+
   if (open == -1) return false;
+
   const endLine = end === start ? startLine : self.getLine(end);
   const close = endLine.indexOf(
     endString,
@@ -237,6 +255,7 @@ function performLineUncommenting(
   );
   const insideStart = CodeMirror.Pos(start, open + 1),
     insideEnd = CodeMirror.Pos(end, close + 1);
+
   if (
     close === -1 ||
     !/comment/.test(self.getTokenTypeAt(insideStart)) ||
@@ -254,19 +273,23 @@ function performLineUncommenting(
       : startLine
           .slice(0, from.ch)
           .indexOf(endString, lastStart + startString.length);
+
   if (
     lastStart !== -1 &&
     firstEnd !== -1 &&
     firstEnd + endString.length != from.ch
   )
     return false;
+
   // Positions of the first endString after the end of the selection, and the last startString before it.
   firstEnd = endLine.indexOf(endString, to.ch);
   const almostLastStart = endLine
     .slice(to.ch)
     .lastIndexOf(startString, firstEnd - to.ch);
+
   lastStart =
     firstEnd === -1 || almostLastStart === -1 ? -1 : to.ch + almostLastStart;
+
   if (firstEnd !== -1 && lastStart != -1 && lastStart !== to.ch) return false;
 
   self.operation(function () {
@@ -282,27 +305,34 @@ function performLineUncommenting(
       CodeMirror.Pos(end, close + endString.length),
     );
     let openEnd = open + startString.length;
+
     if (
       padding &&
       startLine.slice(openEnd, openEnd + padding.length) == padding
     )
       openEnd += padding.length;
+
     self.replaceRange(
       "",
       CodeMirror.Pos(start, open),
       CodeMirror.Pos(start, openEnd),
     );
+
     if (blockCommentLead) {
       for (let i = start + 1; i <= end; ++i) {
         const line = self.getLine(i);
         const found = line.indexOf(blockCommentLead);
+
         if (found == -1 || nonWhitespace.test(line.slice(0, found))) continue;
+
         let foundEnd = found + blockCommentLead.length;
+
         if (
           padding &&
           line.slice(foundEnd, foundEnd + padding.length) == padding
         )
           foundEnd += padding.length;
+
         self.replaceRange(
           "",
           CodeMirror.Pos(i, found),
@@ -311,6 +341,7 @@ function performLineUncommenting(
       }
     }
   });
+
   return true;
 }
 

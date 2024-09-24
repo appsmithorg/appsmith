@@ -5,7 +5,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { Variable, JSAction } from "entities/JSCollection";
 import type { PluginType } from "entities/Action";
 import type { FetchActionsPayload } from "api/ActionAPI";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 export type JSCollectionCreateUpdateResponse = ApiResponse<JSCollection>;
 
@@ -43,6 +43,8 @@ export interface CreateJSCollectionRequest {
 export interface SetFunctionPropertyPayload {
   action: JSAction;
   propertyName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
 }
 export interface RefactorAction {
@@ -81,13 +83,18 @@ class JSActionAPI extends API {
         jsConfig.actions?.map((action) => ({
           ...action,
           entityReferenceType: undefined,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           datasource: (action as any).datasource && {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ...(action as any).datasource,
             isValid: undefined,
             new: undefined,
           },
         })) ?? undefined,
     };
+
     return API.post(JSActionAPI.url, payload);
   }
 
@@ -100,13 +107,18 @@ class JSActionAPI extends API {
         jsConfig.actions?.map((action) => ({
           ...action,
           entityReferenceType: undefined,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           datasource: (action as any).datasource && {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ...(action as any).datasource,
             isValid: undefined,
             new: undefined,
           },
         })) ?? undefined,
     };
+
     return API.post(JSActionAPI.url, payload);
   }
 
@@ -128,13 +140,18 @@ class JSActionAPI extends API {
         jsConfig.actions?.map((action) => ({
           ...action,
           entityReferenceType: undefined,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           datasource: (action as any).datasource && {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ...(action as any).datasource,
             isValid: undefined,
             new: undefined,
           },
         })) ?? undefined,
     };
+
     return API.put(`${JSActionAPI.url}/${jsConfig.id}`, payload);
   }
 
@@ -176,7 +193,11 @@ class JSActionAPI extends API {
             (action) => ({
               ...action,
               entityReferenceType: undefined,
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               datasource: (action as any).datasource && {
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 ...(action as any).datasource,
                 isValid: undefined,
                 new: undefined,
@@ -185,6 +206,7 @@ class JSActionAPI extends API {
           ) ?? undefined,
       },
     };
+
     return API.put(JSActionAPI.url + "/refactorAction", payload);
   }
 }

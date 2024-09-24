@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useContext, useMemo } from "react";
 import { useSelector } from "react-redux";
 import type { Hit as IHit } from "react-instantsearch-core";
 import styled, { css } from "styled-components";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import Highlight from "./Highlight";
 import ActionLink, { StyledActionLink } from "./ActionLink";
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -22,12 +22,12 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { keyBy, noop } from "lodash";
 import { getPageList } from "selectors/editorSelectors";
 import { PluginType } from "entities/Action";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 
 const overflowCSS = css`
   overflow: hidden;
@@ -46,7 +46,7 @@ export const SearchItemContainer = styled.div<{
       : "default"};
   display: flex;
   align-items: center;
-  padding: ${(props) => props.theme.spaces[4]}px};
+  padding: ${(props) => props.theme.spaces[4] + "px"};
   transition: 0.3s background-color ease;
   border-radius: var(--ads-v2-border-radius);
   background-color: ${(props) =>
@@ -129,6 +129,7 @@ const WidgetIconWrapper = styled.span<{ isActiveItem: boolean }>`
 const usePageName = (pageId: string) => {
   const pages = useSelector(getPageList);
   const page = pages.find((page) => page.pageId === pageId);
+
   return page?.pageName;
 };
 
@@ -142,6 +143,7 @@ function WidgetItem(props: {
   const title = getItemTitle(item);
   const pageName = usePageName(item.pageId);
   const subText = `${pageName}`;
+
   return (
     <>
       <WidgetIconWrapper
@@ -234,6 +236,7 @@ function DatasourceItem(props: {
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon = getPluginIcon(pluginGroups[item.pluginId]);
   const title = getItemTitle(item);
+
   return (
     <>
       {icon}
@@ -366,12 +369,15 @@ const ActionOperation = styled.div<{ isActive: boolean }>`
   }
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ActionOperationItem({ isActiveItem, item }: any) {
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon = item.pluginId && getPluginIcon(pluginGroups[item.pluginId]);
+
   return (
     <ActionOperation isActive={isActiveItem}>
       <div className="action-icon">

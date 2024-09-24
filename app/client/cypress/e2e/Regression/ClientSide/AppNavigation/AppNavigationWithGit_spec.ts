@@ -12,7 +12,7 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "General checks for app navigation with Git",
-  { tags: ["@tag.IDE", "@tag.Git"] },
+  { tags: ["@tag.IDE", "@tag.Git", "@tag.Sanity"] },
   function () {
     it("Issue #32050 - Branch parameter should not be removed when navigating from the inline nav more dropdown", () => {
       gitSync.CreateNConnectToGit();
@@ -28,6 +28,7 @@ describe(
           appSettings.locators._navigationSettings._navStyle,
           "Inline",
         );
+        AppSidebar.navigate(AppSidebarButton.Editor);
         agHelper.GetNClick(locators._previewModeToggle("edit"));
         agHelper.GetNClick(appSettings.locators._topInlineMoreButton);
         agHelper.GetNClickByContains(

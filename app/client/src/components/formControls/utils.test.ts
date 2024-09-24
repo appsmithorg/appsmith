@@ -15,10 +15,12 @@ import {
 import type { HiddenType } from "./BaseControl";
 import { set } from "lodash";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 describe("isHidden test", () => {
   it("Test for isHidden true", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const hiddenTrueInputs: any = [
       { values: { name: "Name" }, hidden: true },
       {
@@ -87,12 +89,16 @@ describe("isHidden test", () => {
       },
     ];
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     hiddenTrueInputs.forEach((input: any) => {
       expect(isHidden(input.values, input.hidden)).toBeTruthy();
     });
   });
 
   it("Test for isHidden false", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const hiddenFalseInputs: any = [
       { values: { name: "Name" }, hidden: false },
       {
@@ -209,6 +215,8 @@ describe("isHidden test", () => {
       },
     ];
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     hiddenFalseInputs.forEach((input: any) => {
       expect(isHidden(input.values, input.hidden)).toBeFalsy();
     });
@@ -353,6 +361,7 @@ describe("caculateIsHidden test", () => {
       value: "Different Name",
       flagValue: FEATURE_FLAG.TEST_FLAG,
     };
+
     expect(caculateIsHidden(values, hiddenTruthy)).toBeTruthy();
     expect(caculateIsHidden(values, hiddenFalsy)).toBeFalsy();
   });
@@ -427,12 +436,15 @@ describe("json/form viewTypes test", () => {
         output: ViewTypes.COMPONENT,
       },
     ];
+
     testCases.forEach((testCase) => {
       expect(getViewType(testValues, testCase.input)).toEqual(testCase.output);
     });
   });
 
   it("should change the viewType", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const outputValues: any[] = [
       {
         actionConfiguration: {
@@ -550,6 +562,8 @@ describe("json/form viewTypes test", () => {
     const customSetterFunction = (
       formName: string,
       path: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       value: any,
     ) => {
       set(outputValues[Number(formName.split("-")[1])], path, value);
@@ -576,6 +590,8 @@ describe("json/form viewTypes test", () => {
         },
       },
     };
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const expectedOutputValues: any[] = [
       {
         actionConfiguration: {
@@ -735,8 +751,10 @@ describe("json/form viewTypes test", () => {
         viewType: ViewTypes.COMPONENT,
       },
     ];
+
     testCases.forEach((testCase, index) => {
       const formName = `testForm-${index}`;
+
       switchViewType(
         inputValue,
         testCase.path,
@@ -789,8 +807,10 @@ describe("UQI form render methods", () => {
         identifier: "identifier",
       },
     ];
+
     testCases.forEach((testCase, index) => {
       const output = extractConditionalOutput(testCase, formEvaluation);
+
       expect(output).toEqual(expectedOutputs[index]);
     });
   });
@@ -826,8 +846,10 @@ describe("UQI form render methods", () => {
         output: true,
       },
     ];
+
     testCases.forEach((testCase) => {
       const output = checkIfSectionCanRender(formEvaluation[testCase.input]);
+
       expect(output).toEqual(testCase.output);
     });
   });
@@ -855,13 +877,17 @@ describe("UQI form render methods", () => {
         output: true,
       },
     ];
+
     testCases.forEach((testCase) => {
       const output = checkIfSectionIsEnabled(formEvaluation[testCase.input]);
+
       expect(output).toEqual(testCase.output);
     });
   });
 
   it("check if valid form config", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const testCases: any[] = [
       {
         input: {},
@@ -904,6 +930,7 @@ describe("UQI form render methods", () => {
 
     testCases.forEach((testCase) => {
       const output = isValidFormConfig(testCase.input);
+
       expect(output).toEqual(testCase.output);
     });
   });
@@ -955,12 +982,15 @@ describe("UQI form render methods", () => {
         testCase.input.sectionObject,
         formEvaluation[testCase.input.path],
       );
+
       expect(output).toEqual(testCase.output);
     });
   });
 });
 
 // Constant evaluation object used for testing
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const formEvaluation: Record<string, any> = {
   propertyName: {
     conditionals: {},

@@ -1,5 +1,5 @@
-import type { Package } from "@appsmith/constants/PackageConstants";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import type { Package } from "ee/constants/PackageConstants";
+import type { Workspace } from "ee/constants/workspaceConstants";
 
 export interface PackageCardListProps {
   isMobile: boolean;

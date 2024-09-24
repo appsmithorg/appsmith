@@ -1,7 +1,6 @@
 import {
   setApiPaneConfigSelectedTabIndex,
   setApiPaneDebuggerState,
-  setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
 import {
   setAllEntityCollapsibleStates,
@@ -15,7 +14,6 @@ import {
 import {
   getApiPaneConfigSelectedTabIndex,
   getApiPaneDebuggerState,
-  getApiRightPaneSelectedTab,
 } from "selectors/apiPaneSelectors";
 import {
   getAllEntityCollapsibleStates,
@@ -81,13 +79,13 @@ import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import {
   getSelectedDatasourceId,
   getSelectedEntityUrl,
-} from "@appsmith/navigation/FocusSelectors";
+} from "ee/navigation/FocusSelectors";
 import {
   setSelectedDatasource,
   setSelectedEntityUrl,
   setSelectedJSObject,
   setSelectedQuery,
-} from "@appsmith/navigation/FocusSetters";
+} from "ee/navigation/FocusSetters";
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
@@ -169,12 +167,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       name: FocusElement.InputField,
       selector: getFocusableInputField,
       setter: setFocusableInputField,
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.ApiRightPaneTabs,
-      selector: getApiRightPaneSelectedTab,
-      setter: setApiRightPaneSelectedTab,
     },
     {
       type: FocusElementConfigType.Redux,

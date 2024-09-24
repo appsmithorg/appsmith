@@ -5,6 +5,8 @@ import type { ChartComponentProps } from ".";
 import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
 import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const parseOnDataPointClickParams = (evt: any, chartType: ChartType) => {
   switch (chartType) {
     case "CUSTOM_FUSION_CHART": {
@@ -23,6 +25,7 @@ export const parseOnDataPointClickForCustomEChart = (
   evt: Record<string, unknown>,
 ): ChartSelectedDataPoint => {
   const rawEventData = omit(cloneDeep(evt), "event");
+
   return {
     x: undefined,
     y: undefined,
@@ -75,6 +78,7 @@ export const labelKeyForChart = (
   } else {
     labelKey = chartType == "BAR_CHART" ? "x" : "y";
   }
+
   return labelKey;
 };
 
@@ -85,6 +89,7 @@ export const getTextWidth = (text: string, font: string) => {
   if (context) {
     context.font = font;
     const metrics = context.measureText(text);
+
     return metrics.width;
   } else {
     return 0;
@@ -109,6 +114,7 @@ export const getBasicEChartOptions = (props: ChartComponentProps) => {
       ...dataset,
     },
   };
+
   return options;
 };
 
@@ -143,6 +149,7 @@ export const isBasicEChart = (type: ChartType) => {
     "BAR_CHART",
     "COLUMN_CHART",
   ];
+
   return types.includes(type);
 };
 

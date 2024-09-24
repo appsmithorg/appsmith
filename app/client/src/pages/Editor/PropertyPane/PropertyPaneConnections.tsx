@@ -1,12 +1,9 @@
 import React, { memo, useMemo, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import {
-  isAction,
-  isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isAction, isWidget } from "ee/workers/Evaluation/evaluationUtils";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
 import {
@@ -15,10 +12,10 @@ import {
 } from "components/editorComponents/Debugger/helpers";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import type { Log } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { showDebugger } from "actions/debuggerActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
 import {
   interactionAnalyticsEvent,
@@ -27,7 +24,7 @@ import {
 import equal from "fast-deep-equal";
 import { mapValues, pick } from "lodash";
 import { createSelector } from "reselect";
-import type { TooltipPlacement } from "design-system";
+import type { TooltipPlacement } from "@appsmith/ads";
 import {
   Button,
   Menu,
@@ -37,7 +34,7 @@ import {
   MenuSeparator,
   Text,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 
 interface DropdownOption {
   label?: string;
@@ -146,6 +143,8 @@ const useDependencyList = (name: string) => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function OptionNode(props: any) {
   const getEntityInfo = useGetEntityInfo(props.option.label);
   const entityInfo = getEntityInfo();
@@ -158,6 +157,7 @@ function OptionNode(props: any) {
         dispatch(showDebugger(true));
       }
     }
+
     navigateToEntity(props.option.label);
     AnalyticsUtil.logEvent("ASSOCIATED_ENTITY_CLICK", {
       source: "PROPERTY_PANE",
@@ -167,6 +167,7 @@ function OptionNode(props: any) {
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (!props.isSelectedNode && !props.isHighlighted) return;
+
     if (
       (props.isSelectedNode || props.isHighlighted) &&
       (e.key === " " || e.key === "Enter")
@@ -176,6 +177,7 @@ function OptionNode(props: any) {
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
+
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
@@ -254,6 +256,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
       INTERACTION_ANALYTICS_EVENT,
       handleKbdEvent,
     );
+
     return () => {
       topLayerRef.current?.removeEventListener(
         INTERACTION_ANALYTICS_EVENT,
@@ -264,6 +267,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
 
   const handleKbdEvent = (e: Event) => {
     const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
+
     if (!event.detail?.propertyName) {
       e.stopPropagation();
       topLayerRef.current?.dispatchEvent(

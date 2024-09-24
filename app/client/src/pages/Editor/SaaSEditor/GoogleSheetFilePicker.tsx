@@ -4,11 +4,11 @@ import { FilePickerActionStatus } from "entities/Datasource";
 import { useDispatch } from "react-redux";
 import { filePickerCallbackAction } from "actions/datasourceActions";
 import { GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS } from "constants/Datasource";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {
   createMessage,
   GOOGLE_SHEETS_FILE_PICKER_TITLE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 interface Props {
   datasourceId: string;
@@ -22,6 +22,8 @@ function GoogleSheetFilePicker({
   gsheetToken,
 }: Props) {
   const [scriptLoadedFlag] = useState<boolean>(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).googleAPIsLoaded,
   );
   const [pickerInitiated, setPickerInitiated] = useState<boolean>(false);
@@ -31,7 +33,11 @@ function GoogleSheetFilePicker({
   const dispatch = useDispatch();
 
   // objects gapi and google are set, when google apis script is loaded
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const gapi: any = (window as any).gapi;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const google: any = (window as any).google;
 
   useEffect(() => {
@@ -55,11 +61,13 @@ function GoogleSheetFilePicker({
         document.querySelector(".picker-dialog-bg");
       const elements: NodeListOf<HTMLElement> =
         document.querySelectorAll(".picker-dialog");
+
       // When the reconnect modal the ads modal disables pointer events everywhere else.
       // To enable selection from the google sheets picker we set pointer events auto to it.
       if (!!element) {
         element.style.pointerEvents = "auto";
       }
+
       elements.forEach((element) => {
         element.style.pointerEvents = "auto";
       });
@@ -110,6 +118,7 @@ function GoogleSheetFilePicker({
   // It takes google sheet token and project id as inputs
   const createPicker = async (accessToken: string, projectID: string) => {
     const view = new google.picker.DocsView(google.picker.ViewId.SPREADSHEETS);
+
     view.setMimeTypes("application/vnd.google-apps.spreadsheet");
     view.setMode(google.picker.DocsViewMode.LIST);
     const title = createMessage(GOOGLE_SHEETS_FILE_PICKER_TITLE);
@@ -122,10 +131,13 @@ function GoogleSheetFilePicker({
       .setTitle(title)
       .setCallback(pickerCallback)
       .build();
+
     picker.setVisible(true);
     setPickerVisible(true);
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const addAnalyticalEvents = (data: any) => {
     switch (data?.action) {
       case FilePickerActionStatus.LOADED:
@@ -144,15 +156,21 @@ function GoogleSheetFilePicker({
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pickerCallback = async (data: any) => {
     addAnalyticalEvents(data);
+
     if (
       data.action === FilePickerActionStatus.CANCEL ||
       data.action === FilePickerActionStatus.PICKED
     ) {
       removeClassFromDocumentRoot(GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS);
       setPickerVisible(false);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const fileIds = data?.docs?.map((element: any) => element.id) || [];
+
       dispatch(
         filePickerCallbackAction({
           action: data.action,

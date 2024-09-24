@@ -317,6 +317,9 @@ public class PolicyGeneratorCE {
             Set<Policy> policySet,
             Class<? extends BaseDomain> sourceEntity,
             Class<? extends BaseDomain> destinationEntity) {
+        if (policySet == null) {
+            return new HashSet<>();
+        }
         Set<Policy> policies = policySet.stream()
                 .map(policy -> {
                     AclPermission aclPermission =

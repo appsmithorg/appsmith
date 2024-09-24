@@ -1,9 +1,11 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
+import { SettingTypes } from "ee/pages/AdminSettings/config/types";
 import Link from "./Link";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 const linkClickHandler = jest.fn();
 const setting: Setting = {
@@ -16,8 +18,10 @@ const setting: Setting = {
   url: "",
 };
 const dispatch = jest.fn();
+
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
+
   return {
     ...originalModule,
     useDispatch: () => dispatch,
@@ -37,12 +41,14 @@ describe("Link", () => {
   it("is rendered", () => {
     renderComponent();
     const link = screen.queryAllByTestId("admin-settings-link");
+
     expect(link).toHaveLength(1);
   });
 
   it("is rendered with label", () => {
     renderComponent();
     const linkLabel = screen.queryAllByTestId("admin-settings-link-label");
+
     expect(linkLabel).toHaveLength(1);
     expect(linkLabel[0].textContent).toBe(setting.label);
   });
@@ -50,6 +56,7 @@ describe("Link", () => {
   it("is rendered with click handler", () => {
     renderComponent();
     const linkAnchor = screen.queryAllByTestId("admin-settings-link-anchor");
+
     expect(linkAnchor).toHaveLength(1);
     expect(linkClickHandler).not.toHaveBeenCalled();
     linkAnchor[0].click();
@@ -58,9 +65,11 @@ describe("Link", () => {
 
   it("is rendered with href", () => {
     const url = "http://test.appsmith.com";
+
     setting.url = url;
     renderComponent();
     const linkAnchor = screen.queryAllByTestId("admin-settings-link-anchor");
+
     expect(linkAnchor).toHaveLength(1);
     expect(linkAnchor[0].getAttribute("href")).toBe(url);
     expect(linkAnchor[0].getAttribute("target")).toBe("_blank");

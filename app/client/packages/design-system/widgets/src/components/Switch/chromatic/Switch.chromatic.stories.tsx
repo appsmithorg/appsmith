@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch } from "@design-system/widgets";
+import { Switch } from "@appsmith/wds";
 import type { Meta, StoryObj } from "@storybook/react";
 import { StoryGrid, DataAttrWrapper } from "@design-system/storybook";
 

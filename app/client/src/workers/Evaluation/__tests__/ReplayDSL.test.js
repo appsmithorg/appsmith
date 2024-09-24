@@ -30,6 +30,7 @@ describe("Checks ReplayDSL functionality", () => {
     replayDSL.replay("UNDO");
 
     const currentDSL = replayDSL.dsl;
+
     expect(currentDSL).toStrictEqual({});
   });
 
@@ -37,6 +38,7 @@ describe("Checks ReplayDSL functionality", () => {
     replayDSL.replay("REDO");
 
     const currentDSL = replayDSL.dsl;
+
     expect(currentDSL).toStrictEqual(updatedWidgets);
   });
 

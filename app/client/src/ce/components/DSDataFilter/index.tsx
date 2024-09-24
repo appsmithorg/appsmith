@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Link, Tag, Text, Tooltip } from "design-system";
-import { BUSINESS_TAG, createMessage } from "@appsmith/constants/messages";
+import { Link, Tag, Text, Tooltip } from "@appsmith/ads";
+import { BUSINESS_TAG, createMessage } from "ee/constants/messages";
 import { capitalizeFirstLetter } from "utils/helpers";
-import {
-  getRampLink,
-  showProductRamps,
-} from "@appsmith/selectors/rampSelectors";
+import { getRampLink, showProductRamps } from "ee/selectors/rampSelectors";
 import {
   RAMP_NAME,
   RampFeature,
@@ -15,7 +12,7 @@ import {
 import { useSelector } from "react-redux";
 import type { EnvironmentType } from "constants/EnvironmentContants";
 import { environmentList } from "constants/EnvironmentContants";
-import { DisabledTooltipContent } from "@appsmith/components/SwitchEnvironment";
+import { DisabledTooltipContent } from "ee/components/SwitchEnvironment";
 
 export const Container = styled.div`
   display: flex;
@@ -89,6 +86,7 @@ export function DSDataFilter({
       !isInsideReconnectModal;
 
     if (showFilterPane !== isRenderAllowed) setShowFilterPane(isRenderAllowed);
+
     // If there are no environments, do nothing
     if (!environmentList.length) return;
   }, [environmentList.length, viewMode, isInsideReconnectModal]);
@@ -97,6 +95,7 @@ export function DSDataFilter({
 
   const renderOption = (env: EnvironmentType, isDisabled: boolean) => {
     const disabledState = isDisabled;
+
     return (
       <FilterComponentContainer
         disabled={disabledState}
@@ -126,6 +125,7 @@ export function DSDataFilter({
     <Container>
       {environmentList.map((env: EnvironmentType) => {
         const isDisabled = !env.selected;
+
         return isDisabled ? (
           <Tooltip content={DisabledTooltipContent(rampLink)} placement="right">
             {renderOption(env, isDisabled)}

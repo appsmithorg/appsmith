@@ -6,7 +6,7 @@ import type {
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import { generateQuickCommands } from "./generateQuickCommands";
 import type { Datasource } from "entities/Datasource";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import log from "loglevel";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
@@ -14,12 +14,12 @@ import {
   shouldShowSlashCommandMenu,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import type { SlashCommandPayload } from "entities/Action";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";
-import { getAIContext } from "@appsmith/components/editorComponents/GPT/trigger";
+import { getAIContext } from "ee/components/editorComponents/GPT/trigger";
 import type { Plugin } from "api/PluginApi";
 
 export const getShowHintOptions = (
@@ -35,6 +35,7 @@ export const getShowHintOptions = (
     displayText: "",
   };
   const cursor = editor.getCursor();
+
   return {
     hint: () => {
       const hints = {
@@ -46,14 +47,17 @@ export const getShowHintOptions = (
         to: editor.getCursor(),
         selectedHint: list[0]?.isHeader ? 1 : 0,
       };
+
       function handleSelection(selected: CommandsCompletion) {
         currentSelection = selected;
       }
+
       function handlePick(selected: CommandsCompletion) {
         if (selected.action && typeof selected.action === "function") {
           const callback = (completion: string) => {
             editor.replaceRange(completion, cursor);
           };
+
           selected.action(callback);
         }
 
@@ -68,6 +72,7 @@ export const getShowHintOptions = (
         try {
           const { data, ...rest } = selected;
           const { name, type } = data as NavigationData;
+
           AnalyticsUtil.logEvent("SLASH_COMMAND", {
             ...rest,
             type,
@@ -79,19 +84,27 @@ export const getShowHintOptions = (
         CodeMirror.off(hints, "pick", handlePick);
         CodeMirror.off(hints, "select", handleSelection);
       }
+
       CodeMirror.on(hints, "pick", handlePick);
       CodeMirror.on(hints, "select", handleSelection);
+
       return hints;
     },
     extraKeys: {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Up: (cm: CodeMirror.Editor, handle: any) => {
         handle.moveFocus(-1);
+
         if (currentSelection.isHeader === true) {
           handle.moveFocus(-1);
         }
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Down: (cm: CodeMirror.Editor, handle: any) => {
         handle.moveFocus(1);
+
         if (currentSelection.isHeader === true) {
           handle.moveFocus(1);
         }
@@ -108,6 +121,7 @@ export const slashCommandHintHelper: HintHelper = (
   const entitiesForSuggestions: NavigationData[] = Object.values(
     entitiesForNavigation || {},
   );
+
   return {
     showHint: (
       editor: CodeMirror.Editor,
@@ -180,9 +194,11 @@ export const slashCommandHintHelper: HintHelper = (
         editor,
         focusEditor,
       );
+
       editor.showHint(
         getShowHintOptions(list, editor, focusEditor, searchText),
       );
+
       return true;
     },
     fireOnFocus: true,

@@ -10,11 +10,11 @@ describe("URLBuilder", () => {
     urlBuilder.resetURLParams();
   });
 
-  it("should correctly set and use currentPageId in build function when currentPageId is set", () => {
-    const testPageId = "testPageId";
+  it("should correctly set and use currentBasePageId in build function when currentBasePageId is set", () => {
+    const testBasePageId = "testBasePageId";
     const testMode = APP_MODE.EDIT;
 
-    urlBuilder.setCurrentPageId(testPageId);
+    urlBuilder.setCurrentBasePageId(testBasePageId);
 
     const builderParams = {
       suffix: "testSuffix",
@@ -24,92 +24,94 @@ describe("URLBuilder", () => {
       persistExistingParams: true,
     };
 
-    URLBuilder.prototype.generateBasePath = jest.fn((pageId, mode) => {
-      expect(pageId).toBe(testPageId); // Ensure the current page id is used
+    URLBuilder.prototype.generateBasePath = jest.fn((basePageId, mode) => {
+      expect(basePageId).toBe(testBasePageId); // Ensure the current page id is used
       expect(mode).toBe(testMode);
-      return `mockedBasePath/${pageId}/${mode}`;
+
+      return `mockedBasePath/${basePageId}/${mode}`;
     });
 
     const result = urlBuilder.build(builderParams, testMode);
 
     expect(URLBuilder.prototype.generateBasePath).toHaveBeenCalledWith(
-      testPageId,
+      testBasePageId,
       testMode,
     );
 
     expect(result).toEqual(
-      "mockedBasePath/testPageId/EDIT/testSuffix?param1=value1&param2=value2&branch=testBranch#testHash",
+      "mockedBasePath/testBasePageId/EDIT/testSuffix?param1=value1&param2=value2&branch=testBranch#testHash",
     );
   });
 
-  it("should correctly set and use pageId in build function when currentPageId is set to null", () => {
-    const testPageId = "testPageId";
+  it("should correctly set and use basePageId in build function when currentBasePageId is set to null", () => {
+    const testBasePageId = "testBasePageId";
     const testMode = APP_MODE.EDIT;
 
-    // Set currentPageId to null
-    urlBuilder.setCurrentPageId(null);
+    // Set currentBasePageId to null
+    urlBuilder.setCurrentBasePageId(null);
 
     const builderParams = {
       suffix: "testSuffix",
       branch: "testBranch",
       hash: "testHash",
       params: { param1: "value1", param2: "value2" },
-      pageId: testPageId, // Set the pageId to be used
+      basePageId: testBasePageId, // Set the basePageId to be used
       persistExistingParams: true,
     };
 
-    URLBuilder.prototype.generateBasePath = jest.fn((pageId, mode) => {
-      expect(pageId).toBe(testPageId); // Ensure the passed pageId is used
+    URLBuilder.prototype.generateBasePath = jest.fn((basePageId, mode) => {
+      expect(basePageId).toBe(testBasePageId); // Ensure the passed basePageId is used
       expect(mode).toBe(testMode);
-      return `mockedBasePath/${pageId}/${mode}`;
+
+      return `mockedBasePath/${basePageId}/${mode}`;
     });
 
     const result = urlBuilder.build(builderParams, testMode);
 
     expect(URLBuilder.prototype.generateBasePath).toHaveBeenCalledWith(
-      testPageId,
+      testBasePageId,
       testMode,
     );
 
     expect(result).toEqual(
-      "mockedBasePath/testPageId/EDIT/testSuffix?param1=value1&param2=value2&branch=testBranch#testHash",
+      "mockedBasePath/testBasePageId/EDIT/testSuffix?param1=value1&param2=value2&branch=testBranch#testHash",
     );
   });
 
-  it("should correctly set and use pageId in build function when currentPageId is set", () => {
-    const currentPageId = "currentPageId";
-    const testPageId = "testPageId";
+  it("should correctly set and use basePageId in build function when currentBasePageId is set", () => {
+    const currentBasePageId = "currentBasePageId";
+    const testBasePageId = "testBasePageId";
     const testMode = APP_MODE.EDIT;
 
-    urlBuilder.setCurrentPageId(currentPageId);
+    urlBuilder.setCurrentBasePageId(currentBasePageId);
 
     const builderParams = {
       suffix: "testSuffix",
       branch: "testBranch",
       hash: "testHash",
       params: { param1: "value1", param2: "value2" },
-      pageId: testPageId, // This should override the current page id
+      basePageId: testBasePageId, // This should override the current page id
       persistExistingParams: true,
     };
 
-    URLBuilder.prototype.generateBasePath = jest.fn((pageId, mode) => {
-      return `mockedBasePath/${pageId}/${mode}`;
+    URLBuilder.prototype.generateBasePath = jest.fn((basePageId, mode) => {
+      return `mockedBasePath/${basePageId}/${mode}`;
     });
 
     const result = urlBuilder.build(builderParams, testMode);
 
     expect(URLBuilder.prototype.generateBasePath).toHaveBeenCalledWith(
-      testPageId,
+      testBasePageId,
       testMode,
     );
 
     expect(result).toEqual(
-      "mockedBasePath/testPageId/EDIT/testSuffix?param1=value1&param2=value2&branch=testBranch#testHash",
+      "mockedBasePath/testBasePageId/EDIT/testSuffix?param1=value1&param2=value2&branch=testBranch#testHash",
     );
   });
 
-  it("should throw an error when pageId is missing", () => {
-    urlBuilder.setCurrentPageId(null);
+  it("should throw an error when basePageId is missing", () => {
+    urlBuilder.setCurrentBasePageId(null);
 
     expect(() => {
       urlBuilder.build({}, APP_MODE.EDIT);
@@ -141,7 +143,10 @@ describe(".getQueryStringfromObject", () => {
   test.each(cases.map((x) => [x.index, x.input, x.expected]))(
     "test case %d",
     (_, input, expected) => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = getQueryStringfromObject(input as any);
+
       expect(result).toStrictEqual(expected);
     },
   );

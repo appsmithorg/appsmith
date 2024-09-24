@@ -4,13 +4,13 @@ import { all, call, put, select, takeLeading } from "redux-saga/effects";
 import { getSelectedWidgetWhenPasting } from "sagas/WidgetOperationUtils";
 import { getWidgets } from "sagas/selectors";
 import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
-import { builderURL } from "@appsmith/RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { builderURL } from "ee/RouteBuilder";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import {
   type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import history from "utils/history";
@@ -47,6 +47,7 @@ function* pasteAnvilModalWidgets(
     {},
     {},
   );
+
   return res;
 }
 
@@ -57,6 +58,9 @@ export function* pasteWidgetSagas() {
     }: {
       widgets: CopiedWidgetData[];
     } = yield getCopiedWidgets();
+
+    if (!copiedWidgets.length) return;
+
     const modalWidgets = copiedWidgets.filter(
       (widget) => widget.hierarchy === widgetHierarchy.WDS_MODAL_WIDGET,
     );
@@ -65,10 +69,9 @@ export function* pasteWidgetSagas() {
     );
     const originalWidgets: CopiedWidgetData[] = [...nonModalWidgets];
 
-    if (!originalWidgets.length) return;
-
     const selectedWidget: FlattenedWidgetProps =
       yield getSelectedWidgetWhenPasting();
+
     if (!selectedWidget) return;
 
     let allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -100,6 +103,7 @@ export function* pasteWidgetSagas() {
         widgetIdMap,
         reverseWidgetIdMap,
       );
+
       allWidgets = res.widgets;
       widgetIdMap = res.widgetIdMap;
       reverseWidgetIdMap = res.reverseWidgetIdMap;
@@ -112,10 +116,12 @@ export function* pasteWidgetSagas() {
         widgetIdMap,
         reverseWidgetIdMap,
       );
+
       allWidgets = res.widgets;
       widgetIdMap = res.widgetIdMap;
       reverseWidgetIdMap = res.reverseWidgetIdMap;
     }
+
     if (modalWidgets.length > 0) {
       // paste into main canvas
       const res: PastePayload = yield call(
@@ -123,6 +129,7 @@ export function* pasteWidgetSagas() {
         allWidgets,
         modalWidgets,
       );
+
       allWidgets = res.widgets;
       widgetIdMap = { ...widgetIdMap, ...res.widgetIdMap };
       reverseWidgetIdMap = { ...reverseWidgetIdMap, ...res.reverseWidgetIdMap };
@@ -133,10 +140,10 @@ export function* pasteWidgetSagas() {
      */
     yield call(updateAndSaveAnvilLayout, allWidgets);
 
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
 
     if (originalWidgets?.length) {
-      history.push(builderURL({ pageId }));
+      history.push(builderURL({ basePageId }));
     }
 
     const widgetsToSelect = copiedWidgets.map(
@@ -157,13 +164,17 @@ export function* pasteWidgetSagas() {
       payload: {
         action: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
         error,
+        logToDebugger: true,
       },
     });
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+
   if (isAnvilLayout) {
     yield call(saga, action);
   }

@@ -1,6 +1,6 @@
 import equal from "fast-deep-equal/es6";
 import React from "react";
-import { DraggableList } from "design-system-old";
+import { DraggableList } from "@appsmith/ads-old";
 
 export interface BaseItemProps {
   id: string;
@@ -55,10 +55,13 @@ export class DroppableComponent<
 
   shouldComponentUpdate(
     prevProps: DroppableComponentProps<TItem>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     prevState: any,
   ) {
     const presentOrder = this.props.items.map(this.getVisibleObject);
     const previousOrder = prevProps.items.map(this.getVisibleObject);
+
     return (
       !equal(presentOrder, previousOrder) ||
       this.props.focusedIndex !== prevProps.focusedIndex ||
@@ -85,7 +88,9 @@ export class DroppableComponent<
     newIndex: number,
   ) => {
     const newOrderedItems = itemsOrder.map((each) => this.props.items[each]);
+
     this.props.updateItems(newOrderedItems);
+
     if (this.props.updateFocus && originalIndex !== newIndex) {
       this.props.updateFocus(newIndex, true);
     }
@@ -95,6 +100,8 @@ export class DroppableComponent<
     this.setState({ isDragging });
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderItem = ({ index, item }: any) => {
     const {
       deleteOption,

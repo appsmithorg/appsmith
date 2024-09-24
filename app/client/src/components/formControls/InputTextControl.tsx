@@ -2,14 +2,14 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import styled from "styled-components";
 import type { InputType } from "components/constants";
-import type { InputTypes as DSInputType } from "design-system";
+import type { InputTypes as DSInputType } from "@appsmith/ads";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field, formValueSelector } from "redux-form";
 import { connect } from "react-redux";
-import { Input } from "design-system";
+import { Input } from "@appsmith/ads";
 
 export const StyledInfo = styled.span`
   font-weight: normal;
@@ -50,6 +50,8 @@ function renderComponent(
     placeholder: string;
     dataType?: DSInputType;
     disabled?: boolean;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     reference: any;
     validator?: (value: string) => { isValid: boolean; message: string };
   } & {
@@ -74,6 +76,8 @@ function renderComponent(
 }
 
 class InputTextControl extends BaseControl<InputControlProps> {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fieldRef: any;
 
   state = {
@@ -87,6 +91,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
 
   onClickSecretDisplayIndicator = () => {
     if (!this.state.secretDisplayVisible) return;
+
     this.setState({
       secretDisplayVisible: false,
     });
@@ -140,6 +145,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
 
     return (
       <FieldWrapper
+        className="uqi-input-text"
         data-testid={configProperty}
         style={customStyles || {}}
         width={width || ""}
@@ -207,9 +213,11 @@ export interface InputControlProps extends ControlProps {
 const mapStateToProps = (state: AppState, props: InputControlProps) => {
   const valueSelector = formValueSelector(props.formName);
   let isSecretExistsData;
+
   if (props.isSecretExistsPath) {
     isSecretExistsData = valueSelector(state, props.isSecretExistsPath);
   }
+
   return {
     isSecretExistsData,
   };

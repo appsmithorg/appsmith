@@ -1,7 +1,7 @@
 import { useLocation } from "react-router";
 import { DEBUGGER_TAB_KEYS } from "../helpers";
 import { setCanvasDebuggerState } from "actions/debuggerActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { setJsPaneDebuggerState } from "actions/jsPaneActions";
@@ -13,10 +13,10 @@ import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
 import { getCanvasDebuggerState } from "selectors/debuggerSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 interface Config {
   set: (
@@ -38,15 +38,17 @@ const queryDebuggerConfig: Config = {
 const getConfig = (focusInfo: FocusEntityInfo): Config => {
   switch (focusInfo.entity) {
     case FocusEntity.QUERY:
-      if (focusInfo.params.apiId) {
+      if (focusInfo.params.baseApiId) {
         if (focusInfo.params.pluginPackageName) {
           return queryDebuggerConfig;
         }
+
         return {
           set: setApiPaneDebuggerState,
           get: getApiPaneDebuggerState,
         };
       }
+
       return queryDebuggerConfig;
     case FocusEntity.JS_OBJECT:
       return {
@@ -70,6 +72,7 @@ const useDebuggerTriggerClick = () => {
       : canvasDebuggerConfig;
 
   const state = useSelector(config.get);
+
   return () => {
     // If debugger is already open and selected tab is error tab then we will close debugger.
     if (state.open && state.selectedTab === DEBUGGER_TAB_KEYS.ERROR_TAB) {
@@ -81,10 +84,12 @@ const useDebuggerTriggerClick = () => {
           config.set({ open: true, selectedTab: DEBUGGER_TAB_KEYS.ERROR_TAB }),
         );
       }
+
       // Select error tab if debugger is open and selected tab is not error tab.
       // And also when we are opening debugger.
       dispatch(config.set({ selectedTab: DEBUGGER_TAB_KEYS.ERROR_TAB }));
     }
+
     if (!state.open) {
       AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
         source: "TRIGGER",

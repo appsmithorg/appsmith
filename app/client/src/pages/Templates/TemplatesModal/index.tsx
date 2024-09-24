@@ -14,10 +14,10 @@ import {
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import TemplateDetailedView from "./TemplateDetailedView";
 import { isEmpty } from "lodash";
-import type { AppState } from "@appsmith/reducers";
-import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
+import type { AppState } from "ee/reducers";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@appsmith/ads";
 import TemplateModalHeader from "./Header";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import TemplatesListLayoutSwitcher from "./TemplatesListLayoutSwitcher";
 
 const ModalContentWrapper = styled(ModalContent)`
@@ -29,6 +29,7 @@ const ModalBodyWrapper = styled(ModalBody)`
   width: 100%;
   overflow-y: hidden;
 `;
+
 function TemplatesModal() {
   const templatesModalInfo = useSelector(templateModalSelector);
   const dispatch = useDispatch();
@@ -41,6 +42,7 @@ function TemplatesModal() {
 
   useEffect(() => {
     setShowTemplateDetails("");
+
     if (templatesModalInfo.isOpen) {
       dispatch({
         type: ReduxActionTypes.RESET_TEMPLATE_FILTERS,

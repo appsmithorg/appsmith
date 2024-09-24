@@ -38,6 +38,8 @@ export const getPropertiesToUpdateForReset = (
     const stylesheetValue = WidgetFactory.getWidgetStylesheetConfigMap(
       widget.type,
     );
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const modifications: any = {};
 
     if (stylesheetValue) {
@@ -108,8 +110,11 @@ export const getPropertiesToUpdateForReset = (
               const fieldStylesheet = getFieldStylesheet(
                 widget.widgetName,
                 schemaItem.fieldType,
+                // TODO: Fix this the next time the file is edited
+                /* eslint-disable @typescript-eslint/no-explicit-any */
                 (WidgetFactory.getWidgetStylesheetConfigMap(widget.type) || {})
                   .childStylesheet as any,
+                /* eslint-enable @typescript-eslint/no-explicit-any */
               );
 
               Object.keys(fieldStylesheet).map((fieldPropertyKey) => {

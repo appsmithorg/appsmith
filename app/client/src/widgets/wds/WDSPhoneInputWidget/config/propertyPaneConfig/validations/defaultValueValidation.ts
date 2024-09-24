@@ -2,6 +2,8 @@ import type { LoDashStatic } from "lodash";
 import type { PhoneInputWidgetProps } from "../../../widget/types";
 
 export function defaultValueValidation(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   props: PhoneInputWidgetProps,
   _: LoDashStatic,
@@ -11,6 +13,7 @@ export function defaultValueValidation(
     message: "This value must be string",
   };
   const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
+
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -18,7 +21,9 @@ export function defaultValueValidation(
       messages: [STRING_ERROR_MESSAGE],
     };
   }
+
   let parsed = value;
+
   if (!_.isString(value)) {
     try {
       parsed = _.toString(value);
@@ -30,6 +35,7 @@ export function defaultValueValidation(
       };
     }
   }
+
   return {
     isValid: _.isString(parsed),
     parsed: parsed,

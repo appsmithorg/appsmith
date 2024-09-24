@@ -36,6 +36,8 @@ export interface MapComponentProps {
   updateMarker: (lat: number, long: number, index: number) => void;
   saveMarker: (lat?: number, long?: number) => void;
   selectMarker: (lat?: number, long?: number, title?: string) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   enableDrag: (e: any) => void;
   unselectMarker: () => void;
   borderRadius: string;

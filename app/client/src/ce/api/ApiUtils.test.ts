@@ -10,8 +10,8 @@ import {
   createMessage,
   ERROR_0,
   SERVER_API_TIMEOUT_ERROR,
-} from "@appsmith/constants/messages";
-import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+} from "ee/constants/messages";
+import { ERROR_CODES } from "ee/constants/ApiConstants";
 import * as Sentry from "@sentry/react";
 
 describe("axios api interceptors", () => {
@@ -21,6 +21,7 @@ describe("axios api interceptors", () => {
         url: "https://app.appsmith.com/v1/api/actions/execute",
       };
       const interceptedRequest = apiRequestInterceptor(request);
+
       expect(interceptedRequest).toHaveProperty("timer");
     });
   });
@@ -64,6 +65,7 @@ describe("axios api interceptors", () => {
 
       const interceptedResponse: ActionExecutionResponse =
         apiSuccessResponseInterceptor(response);
+
       expect(interceptedResponse).toBe("Test data");
     });
   });
@@ -76,6 +78,7 @@ describe("axios api interceptors", () => {
     it("checks for no internet errors", () => {
       jest.spyOn(navigator, "onLine", "get").mockReturnValue(false);
       const interceptedResponse = apiFailureResponseInterceptor({});
+
       expect(interceptedResponse).rejects.toStrictEqual({
         message: createMessage(ERROR_0),
       });
@@ -89,6 +92,7 @@ describe("axios api interceptors", () => {
         message: "timeout of 10000ms exceeded",
       };
       const interceptedResponse = apiFailureResponseInterceptor(error);
+
       expect(interceptedResponse).rejects.toStrictEqual({
         message: createMessage(SERVER_API_TIMEOUT_ERROR),
         code: ERROR_CODES.REQUEST_TIMEOUT,
@@ -108,6 +112,7 @@ describe("axios api interceptors", () => {
           timer: 0,
         },
       };
+
       apiSuccessResponseInterceptor(response);
       expect(sentrySpy).toHaveBeenCalled();
 

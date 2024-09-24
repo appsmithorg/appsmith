@@ -2,12 +2,8 @@ import type { Log } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
-import { getTypographyByKey } from "design-system-old";
-import {
-  createMessage,
-  OPEN_THE_DEBUGGER,
-  PRESS,
-} from "@appsmith/constants/messages";
+import { getTypographyByKey } from "@appsmith/ads-old";
+import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "ee/constants/messages";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { isChildPropertyPath } from "utils/DynamicBindingUtils";
 import {
@@ -15,7 +11,7 @@ import {
   matchApiPath,
   matchQueryPath,
 } from "constants/routes";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { modText } from "utils/helpers";
 import { union } from "lodash";
 
@@ -85,6 +81,8 @@ const truncate = (input: string, suffix = "", truncLen = 100) => {
 };
 
 // Converts the data from the log object to a string
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createLogTitleString(data: any[]) {
   try {
     // convert mixed array to string
@@ -93,28 +91,37 @@ export function createLogTitleString(data: any[]) {
       if (typeof curr === "boolean") {
         return `${acc} ${curr}`;
       }
+
       if (curr === null || curr === undefined) {
         return `${acc} undefined`;
       }
+
       if (curr instanceof Promise) {
         return `${acc} Promise ${curr.constructor.name}`;
       }
+
       if (typeof curr === "string") {
         return `${acc} ${truncate(curr)}`;
       }
+
       if (typeof curr === "number") {
         return `${acc} ${truncate(curr.toString())}`;
       }
+
       if (typeof curr === "function") {
         return `${acc} func() ${curr.name}`;
       }
+
       if (typeof curr === "object") {
         let suffix = "}";
+
         if (Array.isArray(curr)) {
           suffix = "]";
         }
+
         return `${acc} ${truncate(JSON.stringify(curr, null, "\t"), suffix)}`;
       }
+
       acc = `${acc} -`;
     }, "");
   } catch (error) {
@@ -149,6 +156,9 @@ export function getDependenciesFromInverseDependencies(
 
   Object.entries(deps).forEach(([dependant, dependencies]) => {
     const { entityName: entity } = getEntityNameAndPropertyPath(dependant);
+
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (dependencies as any).map((dependency: any) => {
       const { entityName: entityDependency } =
         getEntityNameAndPropertyPath(dependency);
@@ -200,6 +210,7 @@ export function getDependencyChain(
       if (!isChildPropertyPath(entityName, dependentPath)) {
         currentChain.push(dependentPath);
       }
+
       if (dependentPath !== entityName) {
         currentChain = union(
           currentChain,
@@ -207,6 +218,7 @@ export function getDependencyChain(
         );
       }
     }
+
     return currentChain;
   }
 }

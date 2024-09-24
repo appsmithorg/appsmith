@@ -1,7 +1,7 @@
 import { PluginType } from "entities/Action";
-import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
-import { getPropsForJSActionEntity } from "@appsmith/pages/Editor/Explorer/Entity/getEntityProperties";
-import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
+import { getPropsForJSActionEntity } from "ee/pages/Editor/Explorer/Entity/getEntityProperties";
+import type { JSActionEntity } from "ee/entities/DataTree/types";
 
 const jsObject: JSCollectionData = {
   isLoading: false,
@@ -167,6 +167,7 @@ describe("getPropsForJSActionEntity", () => {
       jsObjectEntity as JSActionEntity,
       "JSObject3",
     );
+
     expect(expectedProperties).toStrictEqual(result);
   });
 });

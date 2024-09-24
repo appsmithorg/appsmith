@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import {
   CollapsibleGroup,
@@ -83,6 +83,7 @@ export function useEntityDependencies(actionName: string) {
     entityDependencies &&
     (entityDependencies?.directDependencies.length > 0 ||
       entityDependencies?.inverseDependencies.length > 0);
+
   return {
     hasDependencies,
     entityDependencies,
@@ -90,11 +91,9 @@ export function useEntityDependencies(actionName: string) {
 }
 
 function ActionSidebar({
-  actionRightPaneBackLink,
   additionalSections,
 }: {
   additionalSections?: React.ReactNode;
-  actionRightPaneBackLink: React.ReactNode;
 }) {
   if (!additionalSections) {
     return null;
@@ -103,7 +102,6 @@ function ActionSidebar({
   return (
     <Wrapper>
       <SideBar>
-        {actionRightPaneBackLink}
         <CollapsibleGroupContainer>
           {additionalSections && (
             <CollapsibleGroup height={"100%"}>

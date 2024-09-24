@@ -1,11 +1,11 @@
-import { Icon, SearchInput, Spinner, Text } from "design-system";
+import { Icon, SearchInput, Spinner, Text } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import WorkspaceSearchItems from "pages/common/SearchBar/WorkspaceSearchItems";
 import ApplicationSearchItem from "pages/common/SearchBar/ApplicationSearchItem";
-import PackageSearchItem from "@appsmith/pages/common/PackageSearchItem";
-import WorkflowSearchItem from "@appsmith/pages/common/WorkflowSearchItem";
+import PackageSearchItem from "ee/pages/common/PackageSearchItem";
+import WorkflowSearchItem from "ee/pages/common/WorkflowSearchItem";
 import { useRouteMatch } from "react-router";
 
 const SearchContainer = styled.div<{ isMobile?: boolean }>`
@@ -33,6 +33,8 @@ const SearchListContainer = styled.div`
   }
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DesktopEntitySearchField = (props: any) => {
   const isMobile = useIsMobileDevice();
 
@@ -55,6 +57,7 @@ const DesktopEntitySearchField = (props: any) => {
   const isHomePage = useRouteMatch("/applications")?.isExact;
 
   if (!isHomePage) return null;
+
   return (
     <SearchContainer isMobile={isMobile}>
       <SearchInput

@@ -13,6 +13,7 @@ interface Position {
  */
 export function getPosition({ max, min, value }: Position) {
   const position = ((value - min) / (max - min)) * 100;
+
   return Math.min(Math.max(position, 0), 100);
 }
 
@@ -46,9 +47,12 @@ export function getChangeValue({
   return Math.max(Math.min(nextValue, max), min);
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getClientPosition(event: any) {
   if ("TouchEvent" in window && event instanceof window.TouchEvent) {
     const touch = event.touches[0];
+
     return touch.clientX;
   }
 
@@ -60,6 +64,8 @@ export function clamp(value: number, min: number, max: number) {
 }
 
 interface MarkedFilled {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mark: { value: number; label?: any };
   offset?: number;
   value: number;

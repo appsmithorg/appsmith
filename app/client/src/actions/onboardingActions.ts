@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 
 export const toggleInOnboardingWidgetSelection = (payload: boolean) => {
@@ -32,14 +32,14 @@ export const disableStartSignpostingAction = () => {
 
 export const firstTimeUserOnboardingInit = (
   applicationId: string | undefined,
-  pageId: string,
+  basePageId: string,
   suffix?: string,
 ) => {
   return {
     type: ReduxActionTypes.FIRST_TIME_USER_ONBOARDING_INIT,
     payload: {
-      applicationId: applicationId,
-      pageId: pageId,
+      applicationId,
+      basePageId,
       suffix,
     },
   };

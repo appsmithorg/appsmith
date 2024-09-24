@@ -1,5 +1,5 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import { createReducer } from "utils/ReducerUtils";
 
@@ -85,11 +85,13 @@ const onboardingReducer = createReducer(initialState, {
       (stepState) => stepState.step === action.payload.step,
     );
     const newArray = [...state.stepState];
+
     if (index >= 0) {
       newArray[index] = action.payload;
     } else {
       newArray.push(action.payload);
     }
+
     return {
       ...state,
       stepState: newArray,
@@ -105,6 +107,7 @@ const onboardingReducer = createReducer(initialState, {
             read: true,
           };
         }
+
         return step;
       }),
     };

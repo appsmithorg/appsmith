@@ -21,6 +21,7 @@ describe(
       agHelper.GetNClick(propPane._navigateToType("URL"));
       cy.get("label")
         .contains("Enter URL")
+        .parent()
         .siblings("div")
         .within(() => {
           cy.get(".t--code-editor-wrapper").type(testdata.externalPage);

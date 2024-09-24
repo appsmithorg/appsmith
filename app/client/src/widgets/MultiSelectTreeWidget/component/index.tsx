@@ -102,6 +102,7 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
       />
     );
   }
+
   return getSvg(treeNode.expanded);
 };
 
@@ -177,20 +178,26 @@ function MultiTreeSelectComponent({
 
   useEffect(() => {
     const parentWidth = width - WidgetContainerDiff;
+
     if (compactMode && labelRef.current) {
       const labelWidth = labelRef.current.getBoundingClientRect().width;
       const widthDiff = parentWidth - labelWidth - labelMargin;
+
       setMemoDropDownWidth(
         widthDiff > dropDownWidth ? widthDiff : dropDownWidth,
       );
+
       return;
     }
+
     setMemoDropDownWidth(
       parentWidth > dropDownWidth ? parentWidth : dropDownWidth,
     );
   }, [compactMode, dropDownWidth, width, labelText]);
   const dropdownRender = useCallback(
     (
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <>

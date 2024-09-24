@@ -24,6 +24,8 @@ export function InputText(props: {
   onBlur?: () => void;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
   onFocus?: () => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   placeholder?: string;
@@ -124,6 +126,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
 
   isNumberType(): boolean {
     const { inputType } = this.props;
+
     switch (inputType) {
       case "CURRENCY":
       case "INTEGER":
@@ -137,9 +140,11 @@ class InputTextControl extends BaseControl<InputControlProps> {
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = event;
+
     if (typeof event !== "string") {
       value = event.target.value;
     }
+
     this.updateProperty(this.props.propertyName, value, true);
   };
 
@@ -153,6 +158,8 @@ export interface InputControlProps extends ControlProps {
   inputType: InputType;
   validationMessage?: string;
   isDisabled?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any;
   onFocus?: () => void;
   onBlur?: () => void;

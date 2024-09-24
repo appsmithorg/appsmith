@@ -9,12 +9,12 @@ import {
   isCursorOnEmptyToken,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { isEmpty, isString } from "lodash";
-import type { getAllDatasourceTableKeys } from "@appsmith/selectors/entitiesSelector";
+import type { getAllDatasourceTableKeys } from "ee/selectors/entitiesSelector";
 import {
   filterCompletions,
   getHintDetailsFromClassName,
 } from "./utils/sqlHint";
-import { isAISlashCommand } from "@appsmith/components/editorComponents/GPT/trigger";
+import { isAISlashCommand } from "ee/components/editorComponents/GPT/trigger";
 
 export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
   editor.setOption("extraKeys", {
@@ -29,6 +29,7 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
       CodemirrorTernService.showDocs(cm);
     },
   });
+
   return {
     showHint: (
       editor: CodeMirror.Editor,
@@ -61,8 +62,10 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
 
         return true;
       }
+
       // @ts-expect-error: Types are not available
       editor.closeHint();
+
       return shouldShow;
     },
   };
@@ -99,13 +102,16 @@ export class SqlHintHelper {
     return {
       showHint: (editor: CodeMirror.Editor): boolean => {
         const { completions, showHints } = this.handleCompletions(editor);
+
         if (!showHints) return false;
+
         editor.showHint({
           hint: () => {
             editor.on("mousedown", () => {
               // @ts-expect-error: Types are not available
               editor.closeHint();
             });
+
             return completions;
           },
           completeSingle: false,
@@ -117,6 +123,7 @@ export class SqlHintHelper {
             },
           },
         });
+
         return true;
       },
     };
@@ -124,33 +131,40 @@ export class SqlHintHelper {
 
   generateTables(tableKeys: typeof this.datasourceTableKeys) {
     const tables: Record<string, string[]> = {};
+
     for (const tableKey of Object.keys(tableKeys)) {
       tables[`${tableKey}`] = [];
     }
+
     return tables;
   }
 
   isSqlMode(editor: CodeMirror.Editor) {
     const editorMode = editor.getModeAt(editor.getCursor());
+
     return editorMode?.name === EditorModes.SQL;
   }
 
   addCustomAttributesToCompletions(completions: Hints): Hints {
     completions.list = completions.list.map((completion) => {
       if (isString(completion)) return completion;
+
       completion.render = (LiElement, _data, { className, text }) => {
         const { hintType, iconBgType, iconText } = getHintDetailsFromClassName(
           text,
           className,
         );
+
         LiElement.setAttribute("hinttype", hintType);
         LiElement.setAttribute("icontext", iconText);
         LiElement.classList.add("cm-sql-hint");
         LiElement.classList.add(`cm-sql-hint-${iconBgType}`);
         LiElement.innerHTML = text;
       };
+
       return completion;
     });
+
     return completions;
   }
 
@@ -159,15 +173,21 @@ export class SqlHintHelper {
     const completions: Hints = CodeMirror.hint.sql(editor, {
       tables: this.tables,
     });
+
     return completions;
   }
 
   handleCompletions(editor: CodeMirror.Editor): ReturnType<HandleCompletions> {
     const noHints = { showHints: false, completions: null } as const;
+
     if (isCursorOnEmptyToken(editor) || !this.isSqlMode(editor)) return noHints;
+
     let completions: Hints = this.getCompletions(editor);
+
     if (isEmpty(completions.list)) return noHints;
+
     completions = filterCompletions(completions);
+
     return {
       completions: this.addCustomAttributesToCompletions(completions),
       showHints: true,

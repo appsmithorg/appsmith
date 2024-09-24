@@ -2,7 +2,7 @@ import {
   CONTAINER_GRID_PADDING,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
@@ -16,10 +16,10 @@ import { DropTargetContext } from "layoutSystems/common/dropTarget/DropTargetCom
 import equal from "fast-deep-equal/es6";
 import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
 import { useDispatch, useSelector } from "react-redux";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
@@ -94,6 +94,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     getWidgetByID(dragDetails.draggedOn || ""),
   );
   const isReflowing = useSelector(getIsReflowing);
+
   useEffect(() => {
     if (
       dragDetails.draggedOn &&
@@ -147,6 +148,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
       currentOffset.x - parentOffset.x,
       currentOffset.y - parentOffset.y,
     );
+
     return {
       X: leftColumn * parentColumnWidth,
       Y: topRow * parentRowHeight,
@@ -184,6 +186,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     const reflowedBlocks: WidgetDraggingBlock[] =
       reflowedPositionsUpdatesWidgets.map((each) => {
         const widget = allWidgets[each.id];
+
         return {
           left: each.left * snapColumnSpace,
           top: each.top * snapRowSpace,
@@ -202,6 +205,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     const cannotDrop = allUpdatedBlocks.some((each) => {
       return !each.isNotColliding;
     });
+
     if (!cannotDrop) {
       const draggedBlocksToUpdate = allUpdatedBlocks
         .sort(
@@ -232,6 +236,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
             updateWidgetParams,
           };
         });
+
       dispatchDrop(draggedBlocksToUpdate);
     }
   };
@@ -246,6 +251,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
       const movedWidgets = draggedBlocksToUpdate.filter(
         (each) => each.updateWidgetParams.operation !== "ADD_CHILD",
       );
+
       if (newWidget) {
         addNewWidget(newWidget, movedWidgets);
       }
@@ -271,6 +277,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     movedWidgets: WidgetDraggingUpdateParams[],
   ) => {
     const { updateWidgetParams } = newWidget;
+
     if (movedWidgets && movedWidgets.length) {
       dispatch({
         type: ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
@@ -310,6 +317,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   };
 
   const rowRef = useRef(snapRows);
+
   useEffect(() => {
     rowRef.current = snapRows;
   }, [snapRows, isDragging]);
@@ -356,6 +364,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const occSpaces: OccupiedSpace[] = isChildOfCanvas
     ? filteredChildOccupiedSpaces
     : currentOccSpaces;
+
   return {
     blocksToDraw,
     defaultHandlePositions,

@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 const StyledImageBanner = styled.div`

@@ -7,6 +7,7 @@ import {
   hideByColumnType,
   selectColumnOptionsValidation,
 } from "../../propertyUtils";
+import { TableSelectColumnOptionKeys } from "widgets/TableWidgetV2/component/Constants";
 
 export default {
   sectionName: "Select properties",
@@ -35,6 +36,35 @@ export default {
       dependencies: ["primaryColumns"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT]);
+      },
+    },
+    {
+      propertyName: "sortBy",
+      defaultValue: "value",
+      helpText: "Choose whether to sort the select cell by the value or label",
+      label: "Sort by",
+      controlType: "DROP_DOWN",
+      isBindProperty: true,
+      isJSConvertible: false,
+      isTriggerProperty: false,
+      options: [
+        {
+          label: "Label",
+          value: TableSelectColumnOptionKeys.LABEL,
+        },
+        {
+          label: "Value",
+          value: TableSelectColumnOptionKeys.VALUE,
+        },
+      ],
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          allowedValues: [
+            TableSelectColumnOptionKeys.LABEL,
+            TableSelectColumnOptionKeys.VALUE,
+          ],
+        },
       },
     },
     {

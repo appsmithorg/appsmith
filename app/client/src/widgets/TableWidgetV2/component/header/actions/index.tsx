@@ -92,6 +92,7 @@ const SearchComponentWrapper = styled.div<{
     box-shadow: none !important;
   }
 `;
+
 export interface ActionsPropsType {
   updatePageNo: (pageNo: number, event?: EventType) => void;
   nextPageClick: () => void;
@@ -108,6 +109,8 @@ export interface ActionsPropsType {
   widgetName: string;
   widgetId: string;
   searchKey: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];
@@ -269,6 +272,7 @@ function Actions(props: ActionsPropsType) {
               onClick={() => {
                 const pageNo =
                   props.currentPageIndex > 0 ? props.currentPageIndex - 1 : 0;
+
                 !(props.currentPageIndex === 0) &&
                   props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
               }}
@@ -297,6 +301,7 @@ function Actions(props: ActionsPropsType) {
                   props.currentPageIndex < props.pageCount - 1
                     ? props.currentPageIndex + 1
                     : 0;
+
                 !(props.currentPageIndex === props.pageCount - 1) &&
                   props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
               }}

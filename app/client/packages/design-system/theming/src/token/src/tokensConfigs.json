@@ -9,13 +9,13 @@
     "userDensityRatio": 0.2
   },
   "outerSpacing": {
-    "V": 2.25,
+    "V": 1.75,
     "R": 2,
-    "N": 2,
+    "N": 1.75,
     "stepsUp": 8,
     "stepsDown": 0,
-    "userSizingRatio": 0.8,
-    "userDensityRatio": 1.75
+    "userSizingRatio": 0.05,
+    "userDensityRatio": 2.25
   },
   "innerSpacing": {
     "V": 1.4,
@@ -39,35 +39,41 @@
     "density": {
       "tight": {
         "1": "0.8px",
-        "2": "1.25px",
-        "3": "1.7px"
+        "2": "0.8px",
+        "3": "1.25px",
+        "4": "1.7px"
       },
       "regular": {
         "1": "1px",
-        "2": "1.45px",
-        "3": "1.8px"
+        "2": "1px",
+        "3": "1.45px",
+        "4": "1.8px"
       },
       "loose": {
         "1": "1.3px",
-        "2": "1.6px",
-        "3": "1.9px"
+        "2": "1.3px",
+        "3": "1.6px",
+        "4": "1.9px"
       }
     },
     "sizing": {
       "small": {
-        "1": "12px",
-        "2": "16px",
-        "3": "24px"
+        "1": "10px",
+        "2": "12px",
+        "3": "16px",
+        "4": "24px"
       },
       "regular": {
-        "1": "16px",
-        "2": "24px",
-        "3": "32px"
+        "1": "14px",
+        "2": "16px",
+        "3": "24px",
+        "4": "32px"
       },
       "big": {
-        "1": "24px",
-        "2": "32px",
-        "3": "40px"
+        "1": "20px",
+        "2": "24px",
+        "3": "32px",
+        "4": "40px"
       }
     }
   }

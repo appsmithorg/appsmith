@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   createMessage,
   CREATE_NEW_OMNIBAR_PLACEHOLDER,
   OMNIBAR_PLACEHOLDER,
   OMNIBAR_PLACEHOLDER_NAV,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { SearchCategory } from "./utils";
 import { isMenu, SEARCH_CATEGORY_ID } from "./utils";
-import { Button, Icon } from "design-system";
+import { Button, Icon } from "@appsmith/ads";
 
 const Container = styled.div`
   background: var(--ads-v2-color-bg);
@@ -74,6 +74,7 @@ const getPlaceHolder = (categoryId: SEARCH_CATEGORY_ID) => {
     case SEARCH_CATEGORY_ID.ACTION_OPERATION:
       return CREATE_NEW_OMNIBAR_PLACEHOLDER;
   }
+
   return OMNIBAR_PLACEHOLDER;
 };
 
@@ -87,6 +88,8 @@ interface SearchBoxProps {
   query: string;
   setQuery: (query: string) => void;
   category: SearchCategory;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setCategory: (category: any) => void;
 }
 
@@ -96,9 +99,11 @@ const useListenToChange = (modalOpen: boolean) => {
   useEffect(() => {
     setListenToChange(false);
     let timer: ReturnType<typeof setTimeout>;
+
     if (modalOpen) {
       timer = setTimeout(() => setListenToChange(true), 100);
     }
+
     return () => clearTimeout(timer);
   }, [modalOpen]);
 
@@ -113,6 +118,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
     (query) => {
       // to prevent key combo to open modal from triggering query update
       if (!listenToChange) return;
+
       setQuery(query);
       (document.querySelector("#global-search") as HTMLInputElement)?.focus();
     },
@@ -141,6 +147,7 @@ function SearchBox({ category, query, setCategory, setQuery }: SearchBoxProps) {
           onChange={(e) => updateSearchQuery(e.currentTarget.value)}
           onKeyDown={(e) => {
             handleKeyDown(e);
+
             if (e.key === "Backspace" && !query)
               setCategory({ id: SEARCH_CATEGORY_ID.INIT });
           }}

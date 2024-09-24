@@ -1,9 +1,9 @@
 import { PluginType } from "entities/Action";
-import type { ActionEntity } from "@appsmith/entities/DataTree/types";
+import type { ActionEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { createEvaluationContext } from "../evaluate";
-import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
+import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
 import { overrideWebAPIs } from "../fns/overrides";
 
 describe("Expects appsmith setTimeout to pass the following criteria", () => {
@@ -13,12 +13,14 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
   self.postMessage = jest.fn();
   it("returns a number a timerId", () => {
     const timerId = setTimeout(jest.fn(), 1000);
+
     expect(timerId).toBeDefined();
     expect(typeof timerId).toBe("number");
   });
   it("Passes arguments into callback", () => {
     const cb = jest.fn();
     const args = [1, 2, "3", [4]];
+
     setTimeout(cb, 1000, ...args);
     expect(cb.mock.calls.length).toBe(0);
     jest.runAllTimers();
@@ -37,6 +39,7 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
         }
       },
     };
+
     setTimeout(obj.getVar, 1000);
     expect(cb.mock.calls.length).toBe(0);
     jest.runAllTimers();
@@ -55,6 +58,7 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
         }
       },
     };
+
     setTimeout(obj.getVar.bind(obj), 1000);
     expect(cb.mock.calls.length).toBe(0);
     jest.runAllTimers();
@@ -73,6 +77,7 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
         }
       },
     };
+
     setTimeout(obj.getVar.bind(obj), 1000);
     expect(cb.mock.calls.length).toBe(0);
     jest.runAllTimers();
@@ -81,6 +86,7 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
   it("Checks the behavior of clearTimeout", () => {
     const cb = jest.fn();
     const timerId = setTimeout(cb, 1000);
+
     expect(cb.mock.calls.length).toBe(0);
     clearTimeout(timerId);
     jest.runAllTimers();
@@ -108,6 +114,7 @@ describe("Expects appsmith setTimeout to pass the following criteria", () => {
         logBlackList: {},
       } as ActionEntity,
     };
+
     self["$isDataField"] = false;
     const evalContext = createEvaluationContext({
       dataTree,

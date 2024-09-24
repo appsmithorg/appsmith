@@ -308,6 +308,8 @@ class FilePickerWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedFiles: [],
@@ -372,6 +374,7 @@ class FilePickerWidget extends BaseWidget<
     };
 
     const uppy = await this.loadAndInitUppyOnce();
+
     uppy.setOptions(uppyState);
   };
 
@@ -431,30 +434,38 @@ class FilePickerWidget extends BaseWidget<
       });
     }
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     uppy.on("file-removed", (file: any) => {
       const updatedFiles = this.props.selectedFiles
         ? this.props.selectedFiles.filter((dslFile) => {
             return file.id !== dslFile.id;
           })
         : [];
+
       this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
     });
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     uppy.on("files-added", (files: any[]) => {
       const dslFiles = this.props.selectedFiles
         ? [...this.props.selectedFiles]
         : [];
       const fileReaderPromises = files.map(async (file) => {
         const reader = new FileReader();
+
         return new Promise((resolve) => {
           reader.readAsDataURL(file.data);
           reader.onloadend = () => {
             const base64data = reader.result;
             const binaryReader = new FileReader();
+
             binaryReader.readAsBinaryString(file.data);
             binaryReader.onloadend = () => {
               const rawData = binaryReader.result;
               const textReader = new FileReader();
+
               textReader.readAsText(file.data);
               textReader.onloadend = () => {
                 const text = textReader.result;
@@ -569,6 +580,7 @@ class FilePickerWidget extends BaseWidget<
           const uppy = await this.loadAndInitUppyOnce();
 
           const dashboardPlugin = uppy.getPlugin("Dashboard") as Dashboard;
+
           dashboardPlugin.closeModal();
         }}
         files={this.props.selectedFiles || []}
@@ -587,13 +599,17 @@ class FilePickerWidget extends BaseWidget<
           // Copying the `isUppyLoaded` value because `isUppyLoaded` *will* always be true
           // by the time `await this.initUppyInstanceOnce()` resolves.
           const isUppyLoadedByThisPoint = isUppyLoaded;
+
           if (!isUppyLoadedByThisPoint)
             this.setState({ isWaitingForUppyToLoad: true });
+
           const uppy = await this.loadAndInitUppyOnce();
+
           if (!isUppyLoadedByThisPoint)
             this.setState({ isWaitingForUppyToLoad: false });
 
           const dashboardPlugin = uppy.getPlugin("Dashboard") as Dashboard;
+
           dashboardPlugin.openModal();
         }}
         widgetId={this.props.widgetId}
@@ -611,6 +627,8 @@ export interface FilePickerWidgetProps extends WidgetProps {
   label: string;
   maxNumFiles?: number;
   maxFileSize?: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectedFiles?: any[];
   allowedFileTypes: string[];
   onFilesSelected?: string;

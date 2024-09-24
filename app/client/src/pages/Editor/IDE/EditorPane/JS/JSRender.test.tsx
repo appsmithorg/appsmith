@@ -1,15 +1,12 @@
 import localStorage from "utils/localStorage";
 import { render } from "test/testUtils";
 import { Route } from "react-router-dom";
-import { BUILDER_PATH } from "@appsmith/constants/routes/appRoutes";
+import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
 import IDE from "pages/Editor/IDE/index";
 import React from "react";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
 import { PageFactory } from "test/factories/PageFactory";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
 
@@ -17,7 +14,8 @@ const FeatureFlags = {
   rollout_side_by_side_enabled: true,
 };
 
-const pageId = "0123456789abcdef00000000";
+const basePageId = "0123456789abcdef00000000";
+
 describe("IDE Render: JS", () => {
   localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   describe("JS Blank State", () => {
@@ -27,7 +25,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects`,
+          url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects`,
           featureFlags: FeatureFlags,
         },
       );
@@ -51,7 +49,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects`,
+          url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -76,7 +74,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/add`,
+          url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects/add`,
           featureFlags: FeatureFlags,
         },
       );
@@ -100,7 +98,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/add`,
+          url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -121,14 +119,16 @@ describe("IDE Render: JS", () => {
   describe("JS Edit Render", () => {
     it("Renders JS routes in Full screen", () => {
       const page = PageFactory.build();
-      const JS = JSObjectFactory.build({ id: "js_id", pageId: page.pageId });
+      const js1 = JSObjectFactory.build({
+        pageId: page.pageId,
+      });
 
       const state = getIDETestState({
         pages: [page],
-        js: [JS],
+        js: [js1],
         tabs: {
           [EditorEntityTab.QUERIES]: [],
-          [EditorEntityTab.JS]: ["js_id"],
+          [EditorEntityTab.JS]: [js1.baseId],
         },
       });
 
@@ -137,7 +137,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id`,
+          url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js1.baseId}`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -161,15 +161,14 @@ describe("IDE Render: JS", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByRole("button", {
-        name: createMessage(EDITOR_PANE_TEXTS.js_add_button),
-      });
+      getByTestId("t--add-item");
     });
 
     it("Renders JS routes in Split Screen", async () => {
       const page = PageFactory.build();
       const js2 = JSObjectFactory.build({
         id: "js_id2",
+        baseId: "js_base_id2",
         pageId: page.pageId,
       });
       const state = getIDETestState({
@@ -177,7 +176,7 @@ describe("IDE Render: JS", () => {
         pages: [page],
         tabs: {
           [EditorEntityTab.QUERIES]: [],
-          [EditorEntityTab.JS]: ["js_id2"],
+          [EditorEntityTab.JS]: [js2.baseId],
         },
         ideView: EditorViewMode.SplitScreen,
       });
@@ -187,7 +186,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id2`,
+          url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js2.baseId}`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -217,16 +216,17 @@ describe("IDE Render: JS", () => {
 
     it("Renders JS add routes in Full Screen", () => {
       const page = PageFactory.build();
-      const JS3 = JSObjectFactory.build({
+      const js3 = JSObjectFactory.build({
         id: "js_id3",
+        baseId: "js_base_id3",
         pageId: page.pageId,
       });
       const state = getIDETestState({
-        js: [JS3],
+        js: [js3],
         pages: [page],
         tabs: {
           [EditorEntityTab.QUERIES]: [],
-          [EditorEntityTab.JS]: ["js_id3"],
+          [EditorEntityTab.JS]: [js3.baseId],
         },
       });
 
@@ -235,7 +235,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id3/add`,
+          url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js3.baseId}/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -257,13 +257,17 @@ describe("IDE Render: JS", () => {
 
     it("Renders JS add routes in Split Screen", () => {
       const page = PageFactory.build();
-      const js3 = JSObjectFactory.build({ id: "js_id4", pageId: page.pageId });
+      const js4 = JSObjectFactory.build({
+        id: "js_id4",
+        baseId: "js_base_id4",
+        pageId: page.pageId,
+      });
       const state = getIDETestState({
-        js: [js3],
+        js: [js4],
         pages: [page],
         tabs: {
           [EditorEntityTab.QUERIES]: [],
-          [EditorEntityTab.JS]: ["js_id4"],
+          [EditorEntityTab.JS]: [js4.baseId],
         },
         ideView: EditorViewMode.SplitScreen,
       });
@@ -273,7 +277,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id4/add`,
+          url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js4.baseId}/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -296,13 +300,16 @@ describe("IDE Render: JS", () => {
       const page = PageFactory.build();
       const Main_JS = JSObjectFactory.build({
         id: "js_id",
+        baseId: "js_base_id",
         name: "Main",
         pageId: page.pageId,
       });
+
       Main_JS.isMainJSCollection = true;
 
       const Normal_JS = JSObjectFactory.build({
         id: "js_id2",
+        baseId: "js_base_id2",
         name: "Normal",
         pageId: page.pageId,
       });
@@ -312,7 +319,7 @@ describe("IDE Render: JS", () => {
         js: [Main_JS, Normal_JS],
         tabs: {
           [EditorEntityTab.QUERIES]: [],
-          [EditorEntityTab.JS]: ["js_id"],
+          [EditorEntityTab.JS]: [Main_JS.baseId],
         },
       });
 
@@ -321,7 +328,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id`,
+          url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${Main_JS.baseId}`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -329,6 +336,7 @@ describe("IDE Render: JS", () => {
 
       // Normal JS object should be editable
       const normalJsObjectEntity = getByTestId("t--entity-item-Normal");
+
       expect(normalJsObjectEntity.classList.contains("editable")).toBe(true);
 
       // should have `t--context-menu` as a child of the normalJsObjectEntity
@@ -338,6 +346,7 @@ describe("IDE Render: JS", () => {
 
       // Main JS object should not be editable
       const mainJsObjectEntity = getByTestId("t--entity-item-Main");
+
       expect(mainJsObjectEntity.classList.contains("editable")).toBe(false);
       // should not have `t--context-menu` as a child of the mainJsObjectEntity
       expect(mainJsObjectEntity.querySelector(".t--context-menu")).toBeNull();

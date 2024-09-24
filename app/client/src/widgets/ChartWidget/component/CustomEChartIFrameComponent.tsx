@@ -42,6 +42,7 @@ export function CustomEChartIFrameComponent(
 
   const postMessageFn = (data: CustomEChartIFrameMessageData) => {
     const iFrameWindow = iFrameRef.current?.contentWindow;
+
     iFrameWindow?.postMessage(data, "*");
   };
 
@@ -53,10 +54,12 @@ export function CustomEChartIFrameComponent(
     }
 
     const message: CustomEChartIFrameMessage = event.data;
+
     switch (message.type) {
       case "click-event": {
         const messageData: CustomEChartClickEventData =
           message.data as CustomEChartClickEventData;
+
         dataClickCallbackHelper(messageData.event, props, "CUSTOM_ECHART");
         break;
       }
@@ -73,6 +76,7 @@ export function CustomEChartIFrameComponent(
       case "error": {
         const errorMessage: CustomEChartErrorData =
           message.data as CustomEChartErrorData;
+
         setErrorMsg(errorMessage.message);
         setErrorStack(errorMessage.stack);
         break;
@@ -97,7 +101,11 @@ export function CustomEChartIFrameComponent(
   function onMessageCallback(
     e: MessageEvent,
     echartsInstance: echarts.ECharts,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     _: any,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     echarts: any,
   ) {
     const config: CustomEChartIFrameMessageData = e.data;
@@ -157,6 +165,8 @@ export function CustomEChartIFrameComponent(
 
   function parseConfigurationForCallbackFns(
     chartConfig: Record<string, unknown>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     _: any,
   ) {
     const config: Record<string, unknown> = _.cloneDeep(chartConfig);
@@ -169,20 +179,28 @@ export function CustomEChartIFrameComponent(
 
       _.set(config, fnKeys[i], fn);
     }
+
     return config;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function stringifyFns(fns: ((...args: any[]) => any)[]) {
     let output: string = "";
+
     for (const fn of fns) {
       output += fn.toString();
       output += "\n";
     }
+
     return output;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function initializeECharts(echarts: any) {
     const echartsElement = document.getElementById("chartdiv");
+
     return echarts.init(echartsElement, undefined);
   }
 
@@ -233,6 +251,7 @@ export function CustomEChartIFrameComponent(
 
   useEffect(() => {
     window.addEventListener("message", onMessage);
+
     return () => {
       window.removeEventListener("message", onMessage);
     };

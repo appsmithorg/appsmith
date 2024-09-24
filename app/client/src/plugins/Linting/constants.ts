@@ -75,6 +75,8 @@ export enum CustomLintErrorCode {
 
 export const CUSTOM_LINT_ERRORS: Record<
   CustomLintErrorCode,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (...args: any[]) => string
 > = {
   [CustomLintErrorCode.INVALID_ENTITY_PROPERTY]: (
@@ -94,6 +96,7 @@ export const CUSTOM_LINT_ERRORS: Record<
   ) => {
     const hasMultipleBindings = dataFieldBindings.length > 1;
     const bindings = dataFieldBindings.join(" , ");
+
     return isMarkedAsync
       ? `Cannot bind async functions to data fields. Convert this to a sync function or remove references to "${fullName}" on the following data ${
           hasMultipleBindings ? "fields" : "field"
@@ -115,6 +118,7 @@ export const CUSTOM_LINT_ERRORS: Record<
     const lintErrorMessage = !isValidProperty
       ? `${objectName} doesn't have a property named ${propertyName}`
       : `Direct mutation of widget properties is not supported. ${suggestionSentence}`;
+
     return lintErrorMessage;
   },
   [CustomLintErrorCode.INVALID_APPSMITH_STORE_PROPERTY_SETTER]: () => {

@@ -1,7 +1,7 @@
 import React from "react";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import ExplorerActionEntity from "pages/Editor/Explorer/Actions/ActionEntity";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import type { EntityItem } from "ee/entities/IDE/constants";
 
 export interface QueryListItemProps {
   item: EntityItem;
@@ -12,9 +12,10 @@ export interface QueryListItemProps {
 
 export const QueryListItem = (props: QueryListItemProps) => {
   const { isActive, item, parentEntityId, parentEntityType } = props;
+
   return (
     <ExplorerActionEntity
-      id={item.key}
+      baseId={item.key}
       isActive={isActive}
       key={item.key}
       parentEntityId={parentEntityId}

@@ -1,7 +1,7 @@
 import {
   getPluginDatasourceComponentFromId,
   getPluginNameFromId,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { SCHEMALESS_PLUGINS } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import { useSelector } from "react-redux";

@@ -2,13 +2,13 @@ import evaluate, {
   createEvaluationContext,
   evaluateAsync,
 } from "workers/Evaluation/evaluate";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { RenderModes } from "constants/WidgetConstants";
 import setupEvalEnv from "../handlers/setupEvalEnv";
 import { resetJSLibraries } from "workers/common/JSLibrary/resetJSLibraries";
-import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { convertAllDataTypesToString } from "../errorModifier";
 import { get } from "lodash";
 
@@ -41,6 +41,7 @@ describe("evaluateSync", () => {
   const dataTree: DataTree = {
     Input1: widget,
   };
+
   beforeAll(() => {
     setupEvalEnv({
       method: EVAL_WORKER_ACTIONS.SETUP,
@@ -54,17 +55,20 @@ describe("evaluateSync", () => {
   it("unescapes string before evaluation", () => {
     const js = '\\"Hello!\\"';
     const response = evaluate(js, {}, false);
+
     expect(response.result).toBe("Hello!");
   });
   it("evaluate string post unescape in v1", () => {
     const js = '[1, 2, 3].join("\\\\n")';
     const response = evaluate(js, {}, false);
+
     expect(response.result).toBe("1\n2\n3");
   });
   it("evaluate string without unescape in v2", () => {
     self.evaluationVersion = 2;
     const js = '[1, 2, 3].join("\\n")';
     const response = evaluate(js, {}, false);
+
     expect(response.result).toBe("1\n2\n3");
   });
   it("throws error for undefined js", () => {
@@ -73,6 +77,7 @@ describe("evaluateSync", () => {
   });
   it("Returns for syntax errors", () => {
     const response1 = evaluate("wrongJS", {}, false);
+
     expect(response1).toStrictEqual({
       result: undefined,
       errors: [
@@ -96,6 +101,7 @@ describe("evaluateSync", () => {
       ],
     });
     const response2 = evaluate("{}.map()", {}, false);
+
     expect(response2).toStrictEqual({
       result: undefined,
       errors: [
@@ -125,11 +131,13 @@ describe("evaluateSync", () => {
   it("evaluates value from data tree", () => {
     const js = "Input1.text";
     const response = evaluate(js, dataTree, false);
+
     expect(response.result).toBe("value");
   });
   it("disallows unsafe function calls", () => {
     const js = "setImmediate(() => {}, 100)";
     const response = evaluate(js, dataTree, false);
+
     expect(response).toStrictEqual({
       result: undefined,
       errors: [
@@ -159,17 +167,20 @@ describe("evaluateSync", () => {
   it("has access to extra library functions", () => {
     const js = "_.add(1,2)";
     const response = evaluate(js, dataTree, false);
+
     expect(response.result).toBe(3);
   });
   it("evaluates functions with callback data", () => {
     const js = "(arg1, arg2) => arg1.value + arg2";
     const callbackData = [{ value: "test" }, "1"];
     const response = evaluate(js, dataTree, false, {}, callbackData);
+
     expect(response.result).toBe("test1");
   });
   it("handles EXPRESSIONS with new lines", () => {
     let js = "\n";
     let response = evaluate(js, dataTree, false);
+
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
@@ -179,6 +190,7 @@ describe("evaluateSync", () => {
   it("handles TRIGGERS with new lines", () => {
     let js = "\n";
     let response = evaluate(js, dataTree, false, undefined, undefined);
+
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
@@ -188,6 +200,7 @@ describe("evaluateSync", () => {
   it("handles ANONYMOUS_FUNCTION with new lines", () => {
     let js = "\n";
     let response = evaluate(js, dataTree, false, undefined, undefined);
+
     expect(response.errors.length).toBe(0);
 
     js = "\n\n\n";
@@ -198,6 +211,7 @@ describe("evaluateSync", () => {
     const js = "this.contextVariable";
     const thisContext = { contextVariable: "test" };
     const response = evaluate(js, dataTree, false, { thisContext });
+
     expect(response.result).toBe("test");
     // there should not be any error when accessing "this" variables
     expect(response.errors).toHaveLength(0);
@@ -207,6 +221,7 @@ describe("evaluateSync", () => {
     const js = "contextVariable";
     const globalContext = { contextVariable: "test" };
     const response = evaluate(js, dataTree, false, { globalContext });
+
     expect(response.result).toBe("test");
     expect(response.errors).toHaveLength(0);
   });
@@ -215,8 +230,10 @@ describe("evaluateSync", () => {
 describe("evaluateAsync", () => {
   it("runs and completes", async () => {
     const js = "(() => new Promise((resolve) => { resolve(123) }))()";
+
     self.postMessage = jest.fn();
     const response = await evaluateAsync(js, {}, {});
+
     expect(response).toStrictEqual({
       errors: [],
       result: 123,
@@ -225,8 +242,10 @@ describe("evaluateAsync", () => {
   it("runs and returns errors", async () => {
     jest.restoreAllMocks();
     const js = "(() => new Promise((resolve) => { randomKeyword }))()";
+
     self.postMessage = jest.fn();
     const result = await evaluateAsync(js, {}, {});
+
     expect(result).toStrictEqual({
       errors: [
         {
@@ -279,6 +298,7 @@ describe("convertAllDataTypesToString", () => {
     "test case %d",
     (_, input, expected) => {
       const result = convertAllDataTypesToString(input);
+
       expect(result).toStrictEqual(expected);
     },
   );
@@ -552,6 +572,7 @@ describe("createEvaluationContext", () => {
       type: "TEXT_WIDGET",
     },
   } as unknown as DataTree;
+
   it("Validate that overrideContext values with deeper nested paths are correctly set in EVAL_CONTEXT using the set function", () => {
     const context = {
       thisContext: {
@@ -607,6 +628,7 @@ describe("createEvaluationContext", () => {
       evalArguments: undefined,
       isTriggerBased: true,
     });
+
     expect(evalContext).toBeDefined();
     expect(evalContext.ARGUMENTS).toBeUndefined();
     expect(evalContext.THIS_CONTEXT).toEqual({});
@@ -632,6 +654,7 @@ describe("createEvaluationContext", () => {
       context,
       isTriggerBased: false,
     });
+
     expect(evalContext.THIS_CONTEXT).toEqual(context.thisContext);
   });
 

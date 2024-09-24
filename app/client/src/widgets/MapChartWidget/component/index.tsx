@@ -75,6 +75,8 @@ export default function EchartComponent(props: MapChartComponentProps) {
   }, [chartContainer]);
 
   useEffect(() => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handler = (event: any) => {
       const id = event.data.name;
 
@@ -151,6 +153,7 @@ export default function EchartComponent(props: MapChartComponentProps) {
       className={clsx({
         "bp3-skeleton": isLoading,
       })}
+      data-testid="t--map-chart-container"
       onClick={(e) => e.stopPropagation()}
     >
       <div ref={chartContainer} />
@@ -163,6 +166,8 @@ export interface MapChartComponentProps {
   colorRange: MapColorObject[];
   data: MapData[];
   isVisible: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onDataPointClick: (evt: any) => void;
   showLabels: boolean;
   type: MapTypes;

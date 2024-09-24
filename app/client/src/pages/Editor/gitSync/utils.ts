@@ -1,8 +1,8 @@
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   CHANGES_SINCE_LAST_DEPLOYMENT,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 export const getIsStartingWithRemoteBranches = (
   local: string,
@@ -61,6 +61,7 @@ export const getIsActiveItem = (
  */
 export const removeSpecialChars = (input: string): string => {
   const separatorRegex = /(?![/-])\W+/;
+
   return input.split(separatorRegex).join("_");
 };
 
@@ -75,6 +76,7 @@ export function changeInfoSinceLastCommit(
   const isAutoUpdate = !!currentApplication?.isAutoUpdate;
   const isManualUpdate = !!currentApplication?.isManualUpdate;
   const changeReasonText = createMessage(CHANGES_SINCE_LAST_DEPLOYMENT);
+
   return { isAutoUpdate, isManualUpdate, changeReasonText };
 }
 

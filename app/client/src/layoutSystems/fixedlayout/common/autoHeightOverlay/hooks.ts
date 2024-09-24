@@ -11,7 +11,7 @@ import DynamicHeightCallbackHandler from "utils/CallbackHandler/DynamicHeightCal
 import { useAutoHeightLimitsDispatch, useAutoHeightLimitsState } from "./store";
 import type { onMouseHoverCallbacksProps } from "./types";
 import { getSnappedValues } from "./utils";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { useSelector } from "react-redux";
 import {
@@ -295,6 +295,7 @@ export function useDragCallbacksForHandles({
         selectedWidget !== widgetId &&
         selectWidget(SelectionRequestType.One, [widgetId]);
     }
+
     // Property pane closes after a resize/drag
     showPropertyPane && showPropertyPane();
   }, [widgetId]);
@@ -392,6 +393,7 @@ export function useDragCallbacksForHandles({
         maxHeight: maxY + maxdY,
         minHeight: minY + mindY,
       });
+
       return true;
     }
 

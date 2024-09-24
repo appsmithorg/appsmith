@@ -2,9 +2,9 @@ import React from "react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
-import { RadioGroup } from "@design-system/widgets";
+import { RadioGroup } from "@appsmith/wds";
 
-describe("@design-system/widgets/RadioGroup", () => {
+describe("@appsmith/wds/RadioGroup", () => {
   const items = [
     { label: "Value 1", value: "value-1" },
     { label: "Value 2", value: "value-2" },
@@ -20,13 +20,16 @@ describe("@design-system/widgets/RadioGroup", () => {
 
     // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
     const label = container.querySelector("label") as HTMLElement;
+
     expect(label).toHaveTextContent("Radio Group");
 
     const radioGroup = screen.getByRole("radiogroup");
+
     expect(radioGroup).toHaveAttribute("aria-labelledby");
     expect(radioGroup.getAttribute("aria-labelledby")).toBe(label.id);
 
     const options = screen.getAllByRole("radio");
+
     expect(options[0]).toHaveAttribute("value", "value-1");
     expect(options[1]).toHaveAttribute("value", "value-2");
 
@@ -51,6 +54,7 @@ describe("@design-system/widgets/RadioGroup", () => {
     );
 
     const radioGroup = screen.getByTestId("t--radio-group");
+
     expect(radioGroup).toBeInTheDocument();
   });
 
@@ -60,6 +64,7 @@ describe("@design-system/widgets/RadioGroup", () => {
     );
 
     const options = screen.getAllByRole("radio");
+
     expect(options[0]).toBeChecked();
     expect(options[1]).not.toBeChecked();
   });
@@ -76,6 +81,7 @@ describe("@design-system/widgets/RadioGroup", () => {
     );
 
     const options = screen.getAllByRole("radio");
+
     await userEvent.click(options[0]);
     expect(onChangeSpy).toHaveBeenCalled();
   });
@@ -84,6 +90,7 @@ describe("@design-system/widgets/RadioGroup", () => {
     render(<RadioGroup isDisabled items={items} label="Radio  Group Label" />);
 
     const options = screen.getAllByRole("radio");
+
     expect(options[0]).toBeDisabled();
     expect(options[1]).toBeDisabled();
   });

@@ -1,12 +1,19 @@
-import type { Diff, DiffArray } from "deep-diff";
+import type {
+  Diff,
+  DiffArray,
+  DiffDeleted,
+  DiffEdit,
+  DiffNew,
+} from "deep-diff";
 import { isEmpty, partition } from "lodash";
 
 export function groupDifferencesByType(differences: Diff<unknown>[]): {
-  edits: Diff<unknown>[];
-  additions: Diff<unknown>[];
-  deletions: Diff<unknown>[];
+  edits: DiffEdit<unknown, unknown>[];
+  additions: DiffNew<unknown>[];
+  deletions: DiffDeleted<unknown>[];
 } {
   if (isEmpty(differences)) return { edits: [], additions: [], deletions: [] };
+
   const [edits, others] = partition(differences, (diff) => diff.kind === "E");
   const [additions, deletionsAndArrayChanges] = partition(
     others,
@@ -20,7 +27,9 @@ export function groupDifferencesByType(differences: Diff<unknown>[]): {
   const refinedChanges = (arrayChanges as DiffArray<unknown>[]).reduce(
     (acc, currentDiff) => {
       if (!currentDiff.path) return acc;
+
       const { index, item, path } = currentDiff;
+
       return [
         ...acc,
         {
