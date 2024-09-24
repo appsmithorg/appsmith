@@ -131,18 +131,23 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         datasourceContextMap.remove(datasourceContextIdentifier);
     }
 
-    private Boolean checkIsMockMongoDatasource(Plugin plugin, DatasourceStorage datasourceStorage) {
+    private Mono<Boolean> checkIsMockMongoDatasource(Plugin plugin, DatasourceStorage datasourceStorage) {
         String datasourceId = datasourceStorage.getDatasourceId();
         if (datasourceId == null) {
-            return FALSE;
+            return Mono.just(FALSE);
         }
-        datasourceService.findById(datasourceId).map(datasource -> {
-            if (datasource.getIsMock() && PluginConstants.PackageName.MONGO_PLUGIN.equals(plugin.getPackageName())) {
-                return TRUE;
-            }
-            return FALSE;
-        });
-        return FALSE;
+
+        return datasourceService
+                .findById(datasourceId)
+                .map(datasource -> {
+                    if (datasource.getIsMock()
+                            && PluginConstants.PackageName.MONGO_PLUGIN.equals(plugin.getPackageName())) {
+                        log.info("Datasource is a mock mongo datasource");
+                        return TRUE;
+                    }
+                    return FALSE;
+                })
+                .defaultIfEmpty(FALSE); // In case findById returns empty (i.e., no datasource found)
     }
 
     /**
@@ -194,6 +199,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                             datasourceContextMonoMap.remove(datasourceContextIdentifier);
                             datasourceContextMap.remove(datasourceContextIdentifier);
                             // performing LRU cache cleanup to delete old records
+                            log.info("Calling cleanup on LRU cache");
                             datasourcePluginContextMapLRUCache.cleanUp();
                         }
 
@@ -235,26 +241,25 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                         datasourceContext)
                                 .cache(); /* Cache the value so that further evaluations don't result in new connections */
 
-                        if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
-                            datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
-                            datasourceContextMonoMap.put(datasourceContextIdentifier, datasourceContextMonoCache);
-                            // if the datasource is a mock mongo datasource, we want to cache the context to the LRU
-                            // cache for auto cleanup
-                            if (checkIsMockMongoDatasource(plugin, datasourceStorage)) {
-                                DatasourcePluginContext<Object> datasourcePluginContext =
-                                        new DatasourcePluginContext<>();
-                                datasourcePluginContext.setConnection(datasourceContext.getConnection());
-                                datasourcePluginContext.setPluginId(plugin.getId());
-                                datasourcePluginContextMapLRUCache.put(
-                                        datasourceContextIdentifier, datasourcePluginContext);
-                            }
-                        }
-                        log.debug(
-                                Thread.currentThread().getName()
-                                        + ": Cached new datasource context for datasource id {}, environment id {}",
-                                datasourceContextIdentifier.getDatasourceId(),
-                                datasourceContextIdentifier.getEnvironmentId());
-                        return datasourceContextMonoCache;
+                        return checkIsMockMongoDatasource(plugin, datasourceStorage)
+                                .flatMap(isMockMongoDatasource -> {
+                                    if (datasourceContextIdentifier.isKeyValid()
+                                            && shouldCacheContextForThisPlugin(plugin)) {
+                                        datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
+                                        datasourceContextMonoMap.put(
+                                                datasourceContextIdentifier, datasourceContextMonoCache);
+
+                                        if (isMockMongoDatasource) {
+                                            DatasourcePluginContext<Object> datasourcePluginContext =
+                                                    new DatasourcePluginContext<>();
+                                            datasourcePluginContext.setConnection(datasourceContext.getConnection());
+                                            datasourcePluginContext.setPluginId(plugin.getId());
+                                            datasourcePluginContextMapLRUCache.put(
+                                                    datasourceContextIdentifier, datasourcePluginContext);
+                                        }
+                                    }
+                                    return datasourceContextMonoCache;
+                                });
                     }
                 })
                 .flatMap(obj -> obj)
@@ -483,6 +488,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             return Mono.empty();
         }
         // performing cleanup for the LRU cache to delete all stale entries
+        log.info("Calling cleanup on LRU cache");
         datasourcePluginContextMapLRUCache.cleanUp();
         return pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
