@@ -1,1 +1,0 @@
-export const MY_ICONBUTTON_WIDGET_CONSTANT = "";
