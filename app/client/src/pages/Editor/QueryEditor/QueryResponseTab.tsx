@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactJson from "react-json-view";
 import {
@@ -13,7 +13,12 @@ import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/co
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { JsonWrapper } from "components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
-import { Callout, Flex, SegmentedControl } from "@appsmith/ads";
+import {
+  Callout,
+  Flex,
+  SegmentedControl,
+  type CalloutLinkProps,
+} from "@appsmith/ads";
 import styled from "styled-components";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -32,6 +37,12 @@ import ActionExecutionInProgressView from "components/editorComponents/ActionExe
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import BindDataButton from "./BindDataButton";
 import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
+import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import {
+  createMessage,
+  PREPARED_STATEMENT_WARNING,
+} from "ee/constants/messages";
 
 const HelpSection = styled.div``;
 
@@ -155,6 +166,7 @@ const QueryResponseTab = (props: Props) => {
 
   let error = runErrorMessage;
   let hintMessages: Array<string> = [];
+  let showPreparedStatementWarning = false;
 
   // Query is executed even once during the session, show the response data.
   if (actionResponse) {
@@ -190,7 +202,30 @@ const QueryResponseTab = (props: Props) => {
       error = "";
       hintMessages = actionResponse.messages;
     }
+
+    const { pluginSpecifiedTemplates } =
+      currentActionConfig.actionConfiguration;
+
+    if (
+      error &&
+      pluginSpecifiedTemplates &&
+      pluginSpecifiedTemplates.length > 0 &&
+      pluginSpecifiedTemplates[0].value === true
+    ) {
+      showPreparedStatementWarning = true;
+    }
   }
+
+  const navigateToSettings = useCallback(() => {
+    dispatch(setQueryPaneConfigSelectedTabIndex(EDITOR_TABS.SETTINGS));
+  }, []);
+
+  const preparedStatementCalloutLinks: CalloutLinkProps[] = [
+    {
+      onClick: navigateToSettings,
+      children: createMessage(PREPARED_STATEMENT_WARNING.LINK),
+    },
+  ];
 
   if (isRunning) {
     return (
@@ -203,6 +238,15 @@ const QueryResponseTab = (props: Props) => {
 
   return (
     <ResponseContentWrapper isError={!!error}>
+      {showPreparedStatementWarning && (
+        <Callout
+          data-testid="t--prepared-statement-warning"
+          kind="warning"
+          links={preparedStatementCalloutLinks}
+        >
+          {createMessage(PREPARED_STATEMENT_WARNING.MESSAGE)}
+        </Callout>
+      )}
       {error && (
         <ResponseTabErrorContainer>
           <ResponseTabErrorContent>
