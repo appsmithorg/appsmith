@@ -52,7 +52,7 @@ function getLinterVersion() {
   const flagValues = WorkerEnv.getFeatureFlags();
   const flagName = FEATURE_FLAG.rollout_eslint_enabled;
 
-  if (flagName in flagValues && flagValues[flagName]) {
+  if (!!flagValues && flagName in flagValues && flagValues[flagName]) {
     linterVersion = LINTER_VERSION.ESLINT;
   }
 
