@@ -76,7 +76,7 @@ parts.push(`
   # skip logs for health check
   skip_log /api/v1/health
 
-  # skip logs for js map files
+  # skip logs for sourcemap files
   @mapfiles {
     path_regexp mapfiles ^/static/js.*\.map$
   }
