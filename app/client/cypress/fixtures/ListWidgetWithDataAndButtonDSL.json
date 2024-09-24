@@ -407,7 +407,7 @@
       },
       "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
       "widgetName": "List1",
-      "listData": "[\n  {\n    \"step\": \"#1\",\n    \"task\": \"https://www.appsmith.com\",\n    \"status\": \"✅\",\n    \"action\": \"'\"\n  },\n  {\n    \"step\": \"#2\",\n    \"task\": \"https://www.appsmith.com/m\",\n    \"status\": \"--\",\n    \"action\": \"\"\n  },\n  {\n    \"step\": \"#3\",\n    \"task\": \"https://www.mozilla.org/\",\n    \"status\": \"--\",\n    \"action\": \"\"\n  }\n]",
+      "listData": "[\n  {\n    \"step\": \"#1\",\n    \"task\": \"https://www.appsmith.com\",\n    \"status\": \"✅\",\n    \"action\": \"'\"\n  },\n  {\n    \"step\": \"#2\",\n    \"task\": \"https://www.appsmith.com\",\n    \"status\": \"--\",\n    \"action\": \"\"\n  },\n  {\n    \"step\": \"#3\",\n    \"task\": \"https://www.mozilla.org/\",\n    \"status\": \"--\",\n    \"action\": \"\"\n  }\n]",
       "isCanvas": true,
       "displayName": "List",
       "iconSVG": "/static/media/icon.9925ee17dee37bf1ba7374412563a8a7.svg",
