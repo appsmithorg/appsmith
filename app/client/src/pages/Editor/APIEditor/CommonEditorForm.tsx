@@ -147,8 +147,6 @@ export interface CommonFormProps {
   actionName: string;
   apiId: string;
   apiName: string;
-  headersCount: number;
-  paramsCount: number;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settingsConfig: any;
@@ -218,11 +216,9 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     closeEditorLink,
     formName,
     handleSubmit,
-    headersCount,
     hintMessages,
     isRunning,
     onRunClick,
-    paramsCount,
     pluginId,
     responseDataTypes,
     responseDisplayFormat,
@@ -341,9 +337,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                   datasourceHeaders={props.datasourceHeaders}
                   datasourceParams={props.datasourceParams}
                   formName={formName}
-                  headersCount={headersCount}
                   paginationUiComponent={props.paginationUIComponent}
-                  paramsCount={paramsCount}
                   pushFields={isChangePermitted}
                   showSettings
                   theme={EditorTheme.LIGHT}
