@@ -37,6 +37,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 @Slf4j
 public class DatasourceContextServiceCEImpl implements DatasourceContextServiceCE {
 
@@ -45,6 +48,12 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     protected final Map<DatasourceContextIdentifier, Object> datasourceContextSynchronizationMonitorMap;
     protected final Map<DatasourceContextIdentifier, DatasourceContext<?>> datasourceContextMap;
 
+    /**
+     * This cache is used to store the datasource context for a limited time and then destroy the least recently used
+     * connection.The cleanup process is performed after every 2 hours.
+     * The purpose of this is to prevent the large number of open dangling connections to the movies mockDB.
+     * The removalListener method is called when the connection is removed from the cache.
+     */
     protected final Cache<DatasourceContextIdentifier, DatasourcePluginContext> datasourcePluginContextMapLRUCache =
             CacheBuilder.newBuilder()
                     .removalListener(createRemovalListener())
@@ -97,7 +106,6 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 datasourceContextIdentifier.getEnvironmentId());
 
         // Close connection and remove entry from both cache maps
-        // confirm if this is the right way to close the connection or need to choose from datasourceContextMonoMap
         final Object connection =
                 datasourceContextMap.get(datasourceContextIdentifier).getConnection();
 
@@ -121,6 +129,20 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         // Remove the entries from both maps
         datasourceContextMonoMap.remove(datasourceContextIdentifier);
         datasourceContextMap.remove(datasourceContextIdentifier);
+    }
+
+    private Boolean checkIsMockMongoDatasource(Plugin plugin, DatasourceStorage datasourceStorage) {
+        String datasourceId = datasourceStorage.getDatasourceId();
+        if (datasourceId == null) {
+            return FALSE;
+        }
+        datasourceService.findById(datasourceId).map(datasource -> {
+            if (datasource.getIsMock() && PluginConstants.PackageName.MONGO_PLUGIN.equals(plugin.getPackageName())) {
+                return TRUE;
+            }
+            return FALSE;
+        });
+        return FALSE;
     }
 
     /**
@@ -212,15 +234,20 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                         and we just return the context object as is. */
                                         datasourceContext)
                                 .cache(); /* Cache the value so that further evaluations don't result in new connections */
-                        DatasourcePluginContext<Object> datasourcePluginContext = new DatasourcePluginContext<>();
-                        datasourcePluginContext.setConnection(datasourceContext.getConnection());
-                        datasourcePluginContext.setPluginId(plugin.getId());
 
                         if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
                             datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
                             datasourceContextMonoMap.put(datasourceContextIdentifier, datasourceContextMonoCache);
-                            datasourcePluginContextMapLRUCache.put(
-                                    datasourceContextIdentifier, datasourcePluginContext);
+                            // if the datasource is a mock mongo datasource, we want to cache the context to the LRU
+                            // cache for auto cleanup
+                            if (checkIsMockMongoDatasource(plugin, datasourceStorage)) {
+                                DatasourcePluginContext<Object> datasourcePluginContext =
+                                        new DatasourcePluginContext<>();
+                                datasourcePluginContext.setConnection(datasourceContext.getConnection());
+                                datasourcePluginContext.setPluginId(plugin.getId());
+                                datasourcePluginContextMapLRUCache.put(
+                                        datasourceContextIdentifier, datasourcePluginContext);
+                            }
                         }
                         log.debug(
                                 Thread.currentThread().getName()
@@ -255,7 +282,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                     .setAuthentication(updatableConnection.getAuthenticationDTO(
                             datasourceStorage.getDatasourceConfiguration().getAuthentication()));
             datasourceStorageMono = datasourceStorageService.updateDatasourceStorage(
-                    datasourceStorage, datasourceStorage.getEnvironmentId(), Boolean.FALSE, false);
+                    datasourceStorage, datasourceStorage.getEnvironmentId(), FALSE, false);
         }
         return datasourceStorageMono.thenReturn(connection);
     }
