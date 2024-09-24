@@ -110,7 +110,6 @@ parts.push(`
   @file file
   handle @file {
     import file_server
-    skip_log
   }
 
   handle /static/* {
