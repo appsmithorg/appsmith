@@ -42,6 +42,7 @@ describe("DropDownControl.canDisplayValue", () => {
     },
   ];
   const config = { ...requiredParams, options };
+
   it("Should return true when a value in the option is passed", () => {
     expect(DropDownControl.canDisplayValueInUI(config, "0")).toEqual(true);
     expect(DropDownControl.canDisplayValueInUI(config, "1")).toEqual(true);
@@ -73,6 +74,7 @@ describe("DropDownControl[isMultiSelect].canDisplayValue", () => {
     },
   ];
   const config = { ...requiredParams, options, isMultiSelect: true };
+
   it("Should return true when a value in the option is passed", () => {
     expect(DropDownControl.canDisplayValueInUI(config, "[0]")).toEqual(true);
     expect(DropDownControl.canDisplayValueInUI(config, "[1]")).toEqual(true);

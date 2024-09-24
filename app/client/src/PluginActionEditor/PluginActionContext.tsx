@@ -20,7 +20,7 @@ interface PluginActionContextType {
 const PluginActionContext = createContext<PluginActionContextType | null>(null);
 
 interface ChildrenProps {
-  children: ReactNode[];
+  children: ReactNode | ReactNode[];
 }
 
 export const PluginActionContextProvider = (
@@ -53,10 +53,12 @@ export const PluginActionContextProvider = (
 // Without this, consumers of the context would need to keep doing a null check
 export const usePluginActionContext = () => {
   const context = useContext(PluginActionContext);
+
   if (!context) {
     throw new Error(
       "usePluginActionContext must be used within usePluginActionContextProvider",
     );
   }
+
   return context;
 };

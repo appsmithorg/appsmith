@@ -1,7 +1,6 @@
 import {
   setApiPaneConfigSelectedTabIndex,
   setApiPaneDebuggerState,
-  setApiRightPaneSelectedTab,
 } from "actions/apiPaneActions";
 import {
   setAllEntityCollapsibleStates,
@@ -15,7 +14,6 @@ import {
 import {
   getApiPaneConfigSelectedTabIndex,
   getApiPaneDebuggerState,
-  getApiRightPaneSelectedTab,
 } from "selectors/apiPaneSelectors";
 import {
   getAllEntityCollapsibleStates,
@@ -169,12 +167,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       name: FocusElement.InputField,
       selector: getFocusableInputField,
       setter: setFocusableInputField,
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.ApiRightPaneTabs,
-      selector: getApiRightPaneSelectedTab,
-      setter: setApiRightPaneSelectedTab,
     },
     {
       type: FocusElementConfigType.Redux,

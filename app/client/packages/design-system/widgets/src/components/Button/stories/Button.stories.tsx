@@ -57,14 +57,41 @@ export const Semantic: Story = {
  */
 export const Sizes: Story = {
   render: () => (
-    <Flex alignItems="start" gap="spacing-4">
-      {Object.keys(SIZES)
-        .filter((size) => !["large"].includes(size))
-        .map((size) => (
-          <Button icon="star" key={size} size={size}>
-            {size}
-          </Button>
-        ))}
+    <Flex direction="column" gap="spacing-6">
+      <Flex alignItems="start" gap="spacing-4">
+        {Object.keys(SIZES)
+          .filter((size) => !["large"].includes(size))
+          .map((size) => (
+            <Button icon="star" key={size} size={size} />
+          ))}
+      </Flex>
+      <Flex alignItems="start" gap="spacing-4">
+        {Object.keys(SIZES)
+          .filter((size) => !["large"].includes(size))
+          .map((size) => (
+            <Button icon="star" key={size} size={size}>
+              {size}
+            </Button>
+          ))}
+      </Flex>
+      <Flex alignItems="start" gap="spacing-4">
+        {Object.keys(SIZES)
+          .filter((size) => !["large"].includes(size))
+          .map((size) => (
+            <Button icon="star" iconPosition="end" key={size} size={size}>
+              {size}
+            </Button>
+          ))}
+      </Flex>
+      <Flex alignItems="start" gap="spacing-4">
+        {Object.keys(SIZES)
+          .filter((size) => !["large"].includes(size))
+          .map((size) => (
+            <Button key={size} size={size}>
+              {size}
+            </Button>
+          ))}
+      </Flex>
     </Flex>
   ),
 };

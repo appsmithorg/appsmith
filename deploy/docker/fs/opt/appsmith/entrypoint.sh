@@ -372,7 +372,7 @@ configure_supervisord() {
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
-    if [[ $isUriLocal -eq 0 ]]; then
+    if [[ $isUriLocal -eq 0 && $isMongoUrl -eq 1 ]]; then
       cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
@@ -477,6 +477,14 @@ function setup_auto_heal(){
    fi
 }
 
+function setup_monitoring(){
+   if [[ ${APPSMITH_MONITORING-} = 1 ]]; then
+     # By default APPSMITH_MONITORING=0
+     # To enable auto heal set APPSMITH_MONITORING=1
+     bash /opt/appsmith/JFR-recording-24-hours.sh $APPSMITH_LOG_DIR 2>&1 &
+   fi
+}
+
 print_appsmith_info(){
   tr '\n' ' ' < /opt/appsmith/info.json
 }
@@ -500,9 +508,6 @@ if [[ -z "${DYNO}" ]]; then
     tlog "Initializing MongoDB"
     init_mongodb
     init_replica_set
-  elif [[ $isPostgresUrl -eq 1 ]]; then
-    tlog "Initializing Postgres"
-    # init_postgres
   fi
 else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
@@ -530,6 +535,7 @@ mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,p
 
 setup_auto_heal
 capture_infra_details
+setup_monitoring || echo true
 
 # Handle CMD command
 exec "$@"

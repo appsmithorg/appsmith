@@ -79,6 +79,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       widgetIdMap,
       reverseWidgetIdMap,
     );
+
     return res;
   }
 
@@ -92,6 +93,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         },
       });
     }
+
     this.props.updateWidgetMetaProperty("isVisible", false);
     this.selectWidgetRequest(SelectionRequestType.Empty);
     this.unfocusWidget();
@@ -116,11 +118,13 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         this.props.isVisible
       );
     }
+
     return this.props.isVisible;
   };
 
   getModalClassNames = () => {
     const { disableWidgetInteraction, type, widgetId } = this.props;
+
     return `${getAnvilWidgetDOMId(widgetId)} ${widgetTypeClassname(type)} ${
       disableWidgetInteraction ? styles.disableModalInteraction : ""
     }`;
@@ -133,6 +137,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       ? this.props.submitButtonText || "Submit"
       : undefined;
     const modalClassNames = `${this.getModalClassNames()}`;
+
     return (
       <Modal
         dataAttributes={{

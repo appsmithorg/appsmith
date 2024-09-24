@@ -48,6 +48,7 @@ function TooltipContent(props: { showSignpostingTooltip: boolean }) {
     };
 
     document.addEventListener("mousemove", handleEvent, true);
+
     return () => {
       document.removeEventListener("mousemove", handleEvent, true);
     };
@@ -69,15 +70,19 @@ function TooltipContent(props: { showSignpostingTooltip: boolean }) {
   if (datasources.length) {
     completedTasks++;
   }
+
   if (actions.length) {
     completedTasks++;
   }
+
   if (Object.keys(widgets).length > 1) {
     completedTasks++;
   }
+
   if (isConnectionPresent) {
     completedTasks++;
   }
+
   if (isDeployed) {
     completedTasks++;
   }

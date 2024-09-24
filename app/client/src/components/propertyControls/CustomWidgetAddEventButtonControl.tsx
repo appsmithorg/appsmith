@@ -83,6 +83,7 @@ class ButtonControl extends BaseControl<
       this.props.widgetProperties,
       this.state.eventName,
     );
+
     this.batchUpdateProperties(updates);
     this.reset();
     AnalyticsUtil.logEvent("CUSTOM_WIDGET_ADD_EVENT_SAVE_CLICKED", {

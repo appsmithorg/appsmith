@@ -66,8 +66,10 @@ export const getUsagePulsePayload = (
         fallback = nanoid() as string;
         localStorage.setItem(FALLBACK_KEY, fallback);
       }
+
       data["anonymousUserId"] = fallback;
     }
   }
+
   return data;
 };

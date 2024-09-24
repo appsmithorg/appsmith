@@ -31,6 +31,7 @@ const focusHistoryReducer = createImmerReducer(initialState, {
     action: { payload: { key: string; focusState: FocusState } },
   ) => {
     const { focusState, key } = action.payload;
+
     state.history[key] = focusState;
   },
   [ReduxActionTypes.REMOVE_FOCUS_HISTORY]: (
@@ -38,6 +39,7 @@ const focusHistoryReducer = createImmerReducer(initialState, {
     action: { payload: { key: string } },
   ) => {
     const { key } = action.payload;
+
     delete state.history[key];
   },
 });

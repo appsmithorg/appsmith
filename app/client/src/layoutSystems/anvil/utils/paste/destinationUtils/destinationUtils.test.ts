@@ -19,6 +19,7 @@ describe("paste destination utils tests", () => {
       selectedWidget,
     );
     const result = generator.next().value;
+
     expect(result.parentOrder).toEqual([MAIN_CONTAINER_WIDGET_ID]);
     // correctly identifies the parent hierarchy for a single copied widget
     expect(result.alignment).toEqual(FlexLayerAlignment.Start);
@@ -39,6 +40,7 @@ describe("paste destination utils tests", () => {
       selectedWidget,
     );
     const result = generator.next().value;
+
     // correctly identifies the parent hierarchy for copied widgets
     expect(result.parentOrder).toEqual(["widget-mock", "zone-mock"]);
     expect(result.alignment).toEqual(FlexLayerAlignment.Start);

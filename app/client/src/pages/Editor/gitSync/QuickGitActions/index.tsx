@@ -36,6 +36,7 @@ import {
   getIsFetchingGitStatus,
   getIsGitConnected,
   getIsPollingAutocommit,
+  getIsPullingProgress,
   getPullFailed,
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
@@ -103,6 +104,7 @@ function QuickActionButton({
   tooltipText,
 }: QuickActionButtonProps) {
   const content = capitalizeFirstLetter(tooltipText);
+
   return (
     <QuickActionButtonContainer
       className={className}
@@ -141,6 +143,7 @@ const getPullBtnStatus = (
   const { behindCount, isClean } = gitStatus || {};
   let message = createMessage(NO_COMMITS_TO_PULL);
   let disabled = behindCount === 0;
+
   if (!isClean && !isProtected) {
     disabled = true;
     message = createMessage(CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES);
@@ -250,6 +253,7 @@ function ConnectGitPlaceholder() {
     if (!isConnectToGitPermitted) {
       return <CenterDiv>{createMessage(CONTACT_ADMIN_FOR_GIT)}</CenterDiv>;
     }
+
     return (
       <>
         <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
@@ -303,9 +307,11 @@ export default function QuickGitActions() {
   const { disabled: pullDisabled, message: pullTooltipMessage } =
     getPullBtnStatus(gitStatus, !!pullFailed, isProtectedMode);
 
-  const isPullInProgress = useSelector(getIsDiscardInProgress);
+  const isDiscardInProgress = useSelector(getIsDiscardInProgress);
+  const isPullInProgress = useSelector(getIsPullingProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
-  const showPullLoadingState = isPullInProgress || isFetchingGitStatus;
+  const showPullLoadingState =
+    isDiscardInProgress || isPullInProgress || isFetchingGitStatus;
   const changesToCommit = useSelector(getCountOfChangesToCommit);
 
   const isAutocommitFeatureEnabled = useFeatureFlag(
@@ -342,6 +348,7 @@ export default function QuickGitActions() {
       AnalyticsUtil.logEvent("GS_PULL_GIT_CLICK", {
         source: "BOTTOM_BAR_GIT_PULL_BUTTON",
       });
+
       if (isProtectedMode) {
         dispatch(
           discardChanges({
@@ -372,6 +379,7 @@ export default function QuickGitActions() {
     changesToCommit,
     isProtectedMode,
   });
+
   return isGitConnected ? (
     <Container>
       <BranchButton />

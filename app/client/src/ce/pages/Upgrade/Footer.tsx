@@ -38,6 +38,7 @@ const FooterContainer = styled.div`
 
 export function FooterComponent(props: FooterProps) {
   const { isEnterprise = false, message, onClick, showHeading = true } = props;
+
   return (
     <FooterContainer
       className="upgrade-page-footer-container"

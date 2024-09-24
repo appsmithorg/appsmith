@@ -79,9 +79,11 @@ interface StaticChangeProps {
 
 export default function StaticChange({ kind, status }: StaticChangeProps) {
   const { condition, iconName, message } = allStaticChangeDefs[kind](status);
+
   if (!condition) {
     return null;
   }
+
   return (
     <div
       className="flex items-center space-x-1.5"

@@ -81,6 +81,7 @@ class SelectComponent extends React.Component<
     } else {
       this.handleOnDropdownOpen();
     }
+
     this.setState({ isOpen: !this.state.isOpen });
   };
 
@@ -95,6 +96,7 @@ class SelectComponent extends React.Component<
         "label",
         activeItem?.label,
       ]);
+
       this.setState({ activeItemIndex });
     }
   };
@@ -107,11 +109,13 @@ class SelectComponent extends React.Component<
         item.label?.toString().toLowerCase().includes(query.toLowerCase()) ||
         String(item.value).toLowerCase().includes(query.toLowerCase()),
     );
+
     return filter;
   }
 
   onItemSelect = (item: DropdownOption): void => {
     this.props.onOptionSelected(item);
+
     // If Popover is open, then toggle visibility.
     // Required when item selection is made via keyboard input.
     if (this.state.isOpen) this.togglePopoverVisibility();
@@ -126,12 +130,14 @@ class SelectComponent extends React.Component<
     const optionIndex = findIndex(this.props.options, (option) => {
       return option.value === currentOption.value;
     });
+
     return optionIndex === this.props.selectedIndex;
   };
 
   onQueryChange = debounce((filterValue: string) => {
     console.log(">> inside query change")
     if (equal(filterValue, this.props.filterText)) return;
+
     this.props.onFilterChange(filterValue);
     this.listRef?.current?.scrollTo(0);
   }, DEBOUNCE_TIMEOUT);
@@ -141,14 +147,17 @@ class SelectComponent extends React.Component<
     itemProps: IItemRendererProps,
   ) => {
     if (!this.state.isOpen) return null;
+
     if (!itemProps.modifiers.matchesPredicate) {
       return null;
     }
+
     const isSelected: boolean = this.isOptionSelected(option);
     // For tabbable menuItems
     const isFocused = itemProps.modifiers.active;
     const focusClassName = `${isFocused && "has-focus"}`;
     const selectedClassName = `${isSelected && "menu-item-active"}`;
+
     return (
       <MenuItem
         accentColor={this.props.accentColor}
@@ -181,12 +190,15 @@ class SelectComponent extends React.Component<
   handleCloseList = () => {
     if (this.state.isOpen) {
       this.togglePopoverVisibility();
+
       if (!this.props.selectedIndex) return;
+
       return this.handleActiveItemChange(
         this.props.options[this.props.selectedIndex],
       );
     } else {
       this.handleOnDropdownClose();
+
       /**
        * Clear the search input on closing the widget
        * and when serverSideFiltering is off
@@ -213,14 +225,18 @@ class SelectComponent extends React.Component<
     props: IItemListRendererProps<any>,
   ): JSX.Element | null => {
     if (!this.state.isOpen) return null;
+
     let activeItemIndex = this.props.selectedIndex || null;
+
     if (props.activeItem && activeItemIndex === null) {
       activeItemIndex = props.filteredItems?.findIndex(
         (item) => item.value === props.activeItem?.value,
       );
     }
+
     if (!props.filteredItems || !props.filteredItems.length)
       return this.noResultsUI;
+
     return this.renderList(
       props.filteredItems,
       activeItemIndex,
@@ -270,13 +286,16 @@ class SelectComponent extends React.Component<
 
   getDropdownWidth = () => {
     const parentWidth = this.props.width - WidgetContainerDiff;
+
     if (this.props.compactMode && this.labelRef.current) {
       const labelWidth = this.labelRef.current.getBoundingClientRect().width;
       const widthDiff = parentWidth - labelWidth - labelMargin;
+
       return widthDiff > this.props.dropDownWidth
         ? widthDiff
         : this.props.dropDownWidth;
     }
+
     return parentWidth > this.props.dropDownWidth
       ? parentWidth
       : this.props.dropDownWidth;
@@ -308,6 +327,7 @@ class SelectComponent extends React.Component<
         isNil(this.state.activeItemIndex)
       )
         return undefined;
+
       if (!isEmpty(this.props.options))
         return this.props.options[this.state.activeItemIndex];
     };
@@ -414,6 +434,7 @@ class SelectComponent extends React.Component<
                 if (!this.props.selectedIndex) {
                   return this.handleActiveItemChange(null);
                 }
+
                 return this.handleActiveItemChange(
                   this.props.options[this.props.selectedIndex],
                 );

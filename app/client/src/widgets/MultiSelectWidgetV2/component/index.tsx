@@ -136,6 +136,7 @@ function MultiSelectComponent({
     ) {
       setIsSelectAll(true);
     }
+
     if (isSelectAll && filteredOptions.length !== value.length) {
       setIsSelectAll(false);
     }
@@ -147,6 +148,7 @@ function MultiSelectComponent({
       () => onFilterChange(filter),
       DEBOUNCE_TIMEOUT,
     );
+
     return () => clearTimeout(timeOutId);
   }, [filter]);
 
@@ -156,6 +158,7 @@ function MultiSelectComponent({
       if (serverSideFiltering) {
         return setFilteredOptions(options);
       }
+
       const filtered = options.filter((option) => {
         return (
           String(option.label).toLowerCase().indexOf(filter.toLowerCase()) >=
@@ -163,6 +166,7 @@ function MultiSelectComponent({
           String(option.value).toLowerCase().indexOf(filter.toLowerCase()) >= 0
         );
       });
+
       setFilteredOptions(filtered);
     },
     serverSideFiltering ? [options] : [filter, options],
@@ -201,29 +205,38 @@ function MultiSelectComponent({
           key: val.value,
         }),
       );
+
       onChange(allSelectedOptions);
+
       return;
     }
+
     return onChange([]);
   };
 
   const checkOptionsAndValue = () => {
     const emptyFalseArr = [false];
+
     if (value.length === 0 || filteredOptions.length === 0)
       return emptyFalseArr;
+
     return filteredOptions.map((x) => value.some((y) => y.value === x.value));
   };
 
   useEffect(() => {
     const parentWidth = width - WidgetContainerDiff;
+
     if (compactMode && labelRef.current) {
       const labelWidth = labelRef.current.getBoundingClientRect().width;
       const widthDiff = parentWidth - labelWidth - labelMargin;
+
       setMemoDropDownWidth(
         widthDiff > dropDownWidth ? widthDiff : dropDownWidth,
       );
+
       return;
     }
+
     setMemoDropDownWidth(
       parentWidth > dropDownWidth ? parentWidth : dropDownWidth,
     );

@@ -7,6 +7,7 @@ export const useAnvilWidgetElevationSetter = (
 ) => {
   const anvilWidgetElevation = useAnvilWidgetElevation();
   const { setWidgetElevation } = anvilWidgetElevation || {};
+
   useEffect(() => {
     if (setWidgetElevation) {
       setWidgetElevation(widgetId, elevatedBackground);

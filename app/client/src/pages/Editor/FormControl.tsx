@@ -54,10 +54,12 @@ function FormControl(props: FormControlProps) {
 
   const viewType = getViewType(formValues, props.config.configProperty);
   let formValueForEvaluatingHiddenObj = formValues;
+
   if (!!formValues && formValues.hasOwnProperty("datasourceStorages")) {
     formValueForEvaluatingHiddenObj = (formValues as Datasource)
       .datasourceStorages[currentEditingEnvId];
   }
+
   const hidden = isHidden(formValueForEvaluatingHiddenObj, props.config.hidden);
   const configErrors: EvaluationError[] = useSelector(
     (state: AppState) =>
@@ -101,9 +103,11 @@ function FormControl(props: FormControlProps) {
 
   const updateQueryParams = () => {
     const params = getQueryParams();
+
     if (params.showTemplate) {
       params.showTemplate = "false";
     }
+
     history.replace({
       ...window.location,
       search: convertObjectToQueryParams(params),
@@ -114,6 +118,7 @@ function FormControl(props: FormControlProps) {
   if (isQueryBodyField && actionValues) {
     // get the misc data object
     const miscFormData = actionValues?.actionConfiguration?.formData?.misc;
+
     // if the misc data object is available and if the status of the form to raw conversion is successful
     if (
       !!miscFormData &&
@@ -121,6 +126,7 @@ function FormControl(props: FormControlProps) {
       miscFormData.formToNativeQuery?.status === "SUCCESS"
     ) {
       const configPathValue = get(actionValues, props.config?.configProperty);
+
       if (
         !convertFormToRaw &&
         typeof configPathValue === "undefined" &&
@@ -152,6 +158,7 @@ function FormControl(props: FormControlProps) {
       const defaultTemplate = !!pluginTemplate
         ? pluginTemplate[SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE]
         : "";
+
       dispatch(
         change(
           props?.formName || QUERY_EDITOR_FORM_NAME,
@@ -172,6 +179,7 @@ function FormControl(props: FormControlProps) {
   };
 
   const viewTypes: ViewTypes[] = [];
+
   if (
     "alternateViewTypes" in props.config &&
     Array.isArray(props.config.alternateViewTypes)

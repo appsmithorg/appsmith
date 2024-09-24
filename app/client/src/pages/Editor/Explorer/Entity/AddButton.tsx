@@ -41,6 +41,7 @@ export const EntityAddButton = (props: {
     props.onClick && props.onClick();
     e.stopPropagation();
   };
+
   if (!props.onClick) return null;
   else {
     return (

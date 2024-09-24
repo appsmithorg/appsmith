@@ -9,6 +9,7 @@ function ColorBlock({ color }: ColorBlockProps) {
   const colorHex = getComputedStyle(document.documentElement).getPropertyValue(
     color,
   );
+
   return (
     <Wrapper>
       <Color color={colorHex} />

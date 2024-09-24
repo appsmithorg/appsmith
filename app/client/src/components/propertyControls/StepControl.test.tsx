@@ -38,6 +38,7 @@ describe("StepControl.canDisplayValue", () => {
 
   it("Checks for true cases for 'ZOOM_PERCENTAGE' value of stepType", () => {
     const config = { ...requiredParams, stepType: "ZOOM_PERCENTAGE" };
+
     // @ts-expect-error: config does not have all keys
     expect(StepControl.canDisplayValueInUI(config, 5)).toEqual(true);
     // @ts-expect-error: config does not have all keys
@@ -48,6 +49,7 @@ describe("StepControl.canDisplayValue", () => {
 
   it("Checks for false cases for 'ZOOM_PERCENTAGE' value of stepType", () => {
     const config = { ...requiredParams, stepType: "ZOOM_PERCENTAGE" };
+
     // @ts-expect-error: config does not have all keys
     expect(StepControl.canDisplayValueInUI(config, 1)).toEqual(false);
     // @ts-expect-error: config does not have all keys

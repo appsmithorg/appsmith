@@ -80,6 +80,7 @@ function AddPageContextMenu({
         key: "CREATE_PAGE",
       },
     ];
+
     if (enableGenerateCrud) {
       items.push({
         title: createMessage(GENERATE_PAGE_ACTION_TITLE),
@@ -117,6 +118,7 @@ function AddPageContextMenu({
 
   const onMenuItemClick = (item: (typeof ContextMenuItems)[number]) => {
     if (onItemSelected) onItemSelected();
+
     handleOpenChange(false);
     item.onClick();
     AnalyticsUtil.logEvent("ENTITY_EXPLORER_ADD_PAGE_CLICK", {

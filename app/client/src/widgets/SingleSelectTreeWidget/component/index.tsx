@@ -101,6 +101,7 @@ const switcherIcon = (treeNode: TreeNodeProps) => {
       />
     );
   }
+
   return getSvg(treeNode.expanded);
 };
 
@@ -192,14 +193,18 @@ function SingleSelectTreeComponent({
 
   useEffect(() => {
     const parentWidth = width - WidgetContainerDiff;
+
     if (compactMode && labelRef.current) {
       const labelWidth = labelRef.current.getBoundingClientRect().width;
       const widthDiff = parentWidth - labelWidth - labelMargin;
+
       setMemoDropDownWidth(
         widthDiff > dropDownWidth ? widthDiff : dropDownWidth,
       );
+
       return;
     }
+
     setMemoDropDownWidth(
       parentWidth > dropDownWidth ? parentWidth : dropDownWidth,
     );

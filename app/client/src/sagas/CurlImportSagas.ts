@@ -19,6 +19,7 @@ import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors
 export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
   const { contextId, contextType, name, type } = action.payload;
   let { curl } = action.payload;
+
   try {
     curl = transformCurlImport(curl);
     const workspaceId: string = yield select(getCurrentWorkspaceId);
@@ -48,6 +49,7 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         convertToBaseParentEntityIdSelector,
         contextId,
       );
+
       history.push(
         apiEditorIdURL({
           baseParentEntityId: baseParentEntityId,

@@ -10,6 +10,7 @@ export default {
   hidden: (props: TableWidgetProps, propertyPath: string) => {
     const columnType = get(props, `${propertyPath}.columnType`, "");
     const isEditable = get(props, `${propertyPath}.isEditable`, "");
+
     return columnType !== ColumnTypes.DATE || !isEditable;
   },
   children: [

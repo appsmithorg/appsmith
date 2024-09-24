@@ -1,17 +1,15 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "UPDATE",
-  "controlType": "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command.data === 'UPDATE_ONE' || actionConfiguration.formData.command.data === 'UPDATE_MANY'}}"
+    "show": "{{(actionConfiguration.formData.command.data === 'UPDATE_ONE' || actionConfiguration.formData.command.data === 'UPDATE_MANY') && (!!actionConfiguration.formData.sheetName.data && actionConfiguration.formData.entityType.data === 'ROWS')}}"
   },
+  "label": "Row objects",
+  "description": "",
   "children": [
     {
-      "controlType": "SECTION",
-      "label": "Row objects",
-      "description": "",
-      "conditionals": {
-        "show": "{{!!actionConfiguration.formData.sheetName.data && actionConfiguration.formData.entityType.data === 'ROWS'}}"
-      },
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "UPDATE-Z1",
       "children": [
         {
           "label": "Update row object",

@@ -24,6 +24,7 @@ export default class WidgetQueryGeneratorRegistry {
 
     if (!queryAdaptor) {
       error("Couldn't find the query generator with the given id:", id);
+
       return;
     }
 

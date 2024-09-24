@@ -122,6 +122,7 @@ const getTableFilters = (filters: ReactTableFilter[] | undefined) => {
   if (!filters || filters.length === 0) {
     return defaultFilters;
   }
+
   return filters;
 };
 
@@ -132,6 +133,7 @@ function TableFilterPaneContent(props: TableFilterProps) {
 
   useEffect(() => {
     const updatedFiltersState = getTableFilters(props.filters);
+
     //if props has been updated update the filters state
     if (updatedFiltersState !== filters) {
       updateFilters(updatedFiltersState);
@@ -141,9 +143,11 @@ function TableFilterPaneContent(props: TableFilterProps) {
   const addFilter = () => {
     const updatedFilters = filters ? [...filters] : [];
     let operator: Operator = OperatorTypes.OR;
+
     if (updatedFilters.length >= 2) {
       operator = updatedFilters[1].operator;
     }
+
     // New id is generated for new filter here
     updatedFilters.push({
       ...DEFAULT_FILTER,
@@ -212,18 +216,22 @@ function TableFilterPaneContent(props: TableFilterProps) {
               ) => {
                 // here updated filters store in state, not in redux
                 const updatedFilters = filters ? cloneDeep(filters) : [];
+
                 updatedFilters[index] = filter;
+
                 if (isOperatorChange) {
                   /*
                     This if-block updates the operator for all filters after
                     second filter if the second filter operator is changed
                   */
                   let index = 2;
+
                   while (index < updatedFilters.length) {
                     updatedFilters[index].operator = updatedFilters[1].operator;
                     index++;
                   }
                 }
+
                 updateFilters(updatedFilters);
               }}
               borderRadius={props.borderRadius}
@@ -240,15 +248,18 @@ function TableFilterPaneContent(props: TableFilterProps) {
               removeFilter={(index: number) => {
                 const updatedFilters = cloneDeep(filters);
                 let newFilters: Array<ReactTableFilter> = [];
+
                 if (updatedFilters) {
                   if (index === 1 && updatedFilters.length > 2) {
                     updatedFilters[2].operator = updatedFilters[1].operator;
                   }
+
                   newFilters = [
                     ...updatedFilters.slice(0, index),
                     ...updatedFilters.slice(index + 1),
                   ];
                 }
+
                 // removed filter directly update redux
                 // with redux update, useEffect will update local state too
                 props.applyFilter(newFilters);

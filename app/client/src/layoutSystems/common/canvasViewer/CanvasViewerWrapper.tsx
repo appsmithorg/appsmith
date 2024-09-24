@@ -25,6 +25,7 @@ export const CanvasViewerWrapper = ({
     background: "none",
     position: "relative",
   };
+
   return (
     <div className={getCanvasClassName()} style={style}>
       {children}

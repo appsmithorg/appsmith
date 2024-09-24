@@ -107,6 +107,7 @@ class SearchComponent extends React.Component<
       | React.ChangeEvent<HTMLTextAreaElement>,
   ) => {
     const search = event.target.value;
+
     this.setState({ localValue: search });
     this.onDebouncedSearch(search);
   };

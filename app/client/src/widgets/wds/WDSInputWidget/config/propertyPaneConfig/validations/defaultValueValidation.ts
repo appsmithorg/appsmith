@@ -16,6 +16,7 @@ export function defaultValueValidation(
     message: "This value must be number",
   };
   const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
+
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -35,6 +36,7 @@ export function defaultValueValidation(
   }
 
   let parsed;
+
   switch (inputType) {
     case "NUMBER":
       parsed = Number(value);
@@ -64,6 +66,7 @@ export function defaultValueValidation(
     case "PASSWORD":
     case "EMAIL":
       parsed = value;
+
       if (!_.isString(parsed)) {
         try {
           parsed = _.toString(parsed);
@@ -75,6 +78,7 @@ export function defaultValueValidation(
           };
         }
       }
+
       return {
         isValid: _.isString(parsed),
         parsed: parsed,

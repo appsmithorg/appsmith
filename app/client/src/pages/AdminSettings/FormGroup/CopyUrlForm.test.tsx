@@ -37,15 +37,18 @@ describe("Redirect URL Form", () => {
     renderComponent();
     window.prompt = jest.fn();
     const fieldTitle = screen.getAllByText(/Redirect URL/);
+
     expect(fieldTitle).toBeDefined();
     const inputEl = screen.getByTestId(
       `${values.fieldName}-input`,
     ) as HTMLInputElement;
     const value = `${window.location.origin}/link-to-be-copied`;
+
     expect(inputEl?.value).toBeDefined();
     expect(inputEl?.value).toEqual(value);
     expect(inputEl?.hasAttribute("disabled"));
     const copyIcon = screen.getByTestId("redirectUrl-copy-icon");
+
     expect(copyIcon).toBeDefined();
     copyIcon?.click();
     expect(copy).toHaveBeenCalledWith(value);

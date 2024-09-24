@@ -51,6 +51,7 @@ describe("<TemplateFilters />", () => {
   it("renders TemplateFilters component correctly", () => {
     render(<BaseComponentRender />);
     const filterItems = screen.getAllByTestId("t--templates-filter-item");
+
     expect(
       screen.getByTestId("t--application-search-input"),
     ).toBeInTheDocument();
@@ -82,6 +83,7 @@ describe("<TemplateFilters />", () => {
       </Provider>,
     );
     const filterItems = screen.getAllByTestId("t--templates-filter-item");
+
     fireEvent.click(filterItems[1]); // Click on the second filter item
     await waitFor(() => {
       expect(store.getActions()).toEqual(
@@ -103,6 +105,7 @@ describe("<TemplateFilters />", () => {
     const firstFilterElement = screen.getAllByTestId(
       "t--templates-filter-item",
     )[1];
+
     fireEvent.click(firstFilterElement);
     // Wait for the debounced search input action to complete
     await waitFor(() => {
@@ -113,6 +116,7 @@ describe("<TemplateFilters />", () => {
           filterList: ["Operations"],
         },
       };
+
       expect(store.getActions()).toEqual(
         expect.arrayContaining([expectedAction]),
       );
@@ -122,6 +126,7 @@ describe("<TemplateFilters />", () => {
   it("dispatches setTemplateSearchQuery action on text input", async () => {
     render(<BaseComponentRender />);
     const searchInput = screen.getByTestId("t--application-search-input");
+
     fireEvent.change(searchInput, { target: { value: "test query" } });
     await waitFor(() => {
       expect(store.getActions()).toEqual(
@@ -138,6 +143,7 @@ describe("<TemplateFilters />", () => {
   it("dispatches filterTemplates action on multiple filter selection", async () => {
     render(<BaseComponentRender />);
     const filterItems = screen.getAllByTestId("t--templates-filter-item");
+
     fireEvent.click(filterItems[1]);
     fireEvent.click(filterItems[2]);
     await waitFor(() => {

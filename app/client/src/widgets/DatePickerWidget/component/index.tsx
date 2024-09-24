@@ -77,6 +77,7 @@ class DatePickerComponent extends React.Component<
 
   componentDidUpdate(prevProps: DatePickerComponentProps) {
     const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+
     if (
       this.props.selectedDate !== this.state.selectedDate &&
       !moment(this.props.selectedDate, dateFormat).isSame(
@@ -89,6 +90,7 @@ class DatePickerComponent extends React.Component<
   }
   getValidDate = (date: string, format: string) => {
     const _date = moment(date, format);
+
     return _date.isValid() ? _date.toDate() : undefined;
   };
 
@@ -119,6 +121,7 @@ class DatePickerComponent extends React.Component<
       isValid && this.state.selectedDate
         ? this.parseDate(this.state.selectedDate)
         : null;
+
     return (
       <StyledControlGroup
         fill
@@ -169,8 +172,10 @@ class DatePickerComponent extends React.Component<
     let isValid = true;
     const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
     const parsedCurrentDate = moment(date);
+
     if (this.props.minDate) {
       const parsedMinDate = moment(this.props.minDate, dateFormat);
+
       if (
         this.props.minDate &&
         parsedMinDate.isValid() &&
@@ -179,8 +184,10 @@ class DatePickerComponent extends React.Component<
         isValid = false;
       }
     }
+
     if (this.props.maxDate) {
       const parsedMaxDate = moment(this.props.maxDate, dateFormat);
+
       if (
         isValid &&
         this.props.maxDate &&
@@ -190,11 +197,13 @@ class DatePickerComponent extends React.Component<
         isValid = false;
       }
     }
+
     return isValid;
   };
 
   formatDate = (date: Date): string => {
     const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
+
     return moment(date).format(dateFormat);
   };
 
@@ -222,6 +231,7 @@ class DatePickerComponent extends React.Component<
       const { onDateSelected } = this.props;
 
       const date = selectedDate ? this.formatDate(selectedDate) : "";
+
       this.setState({ selectedDate: date });
 
       onDateSelected(date);

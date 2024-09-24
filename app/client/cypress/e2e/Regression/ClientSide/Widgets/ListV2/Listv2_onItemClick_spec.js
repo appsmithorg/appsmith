@@ -30,7 +30,7 @@ function deleteAllWidgetsInContainer() {
 
 describe(
   "List widget v2 onItemClick",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Sanity"] },
   () => {
     it("1. List widget V2 with onItemClick", () => {
       cy.dragAndDropToCanvas("listwidgetv2", {

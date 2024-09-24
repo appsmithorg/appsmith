@@ -2,6 +2,7 @@
 export default {
   isValid: (props, moment, _) => {
     let hasValidValue, value;
+
     try {
       value = Number(props.value);
       hasValidValue = Number.isFinite(value);
@@ -12,6 +13,7 @@ export default {
     if (!props.isRequired && (props.text === "" || props.text === undefined)) {
       return true;
     }
+
     if (props.isRequired && !hasValidValue) {
       return false;
     }
@@ -21,6 +23,7 @@ export default {
     }
 
     let parsedRegex = null;
+
     if (props.regex) {
       /*
        * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
@@ -44,6 +47,7 @@ export default {
         }
       }
     }
+
     if (parsedRegex) {
       return parsedRegex.test(props.text);
     } else {

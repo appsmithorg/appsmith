@@ -78,6 +78,7 @@ function Dashboard({
           onChange(file);
           // TO trigger edit modal
           const dashboard = uppy.getPlugin("uppy-img-upload-dashboard");
+
           setTimeout(() => {
             (dashboard as any).openFileEditor(file);
           });
@@ -119,6 +120,7 @@ const isFileContentAnImageType = async (file: File) => {
     // get first 4 bytes of the file
     const blob = (file as any).data.slice(0, 4);
     const reader = new FileReader();
+
     reader.onloadend = () => {
       if (reader.result) {
         // convert content to a unsigned int array to read it's value
@@ -126,6 +128,7 @@ const isFileContentAnImageType = async (file: File) => {
         const initialBytesOfFile = new Uint8Array(
           reader.result as ArrayBufferLike,
         ).reduce((prev, curr) => prev + curr.toString(16), "");
+
         /*
           compare initialBytesOfFile with magic numbers to identify file signature
           file signatures reference: https://en.wikipedia.org/wiki/List_of_file_signatures

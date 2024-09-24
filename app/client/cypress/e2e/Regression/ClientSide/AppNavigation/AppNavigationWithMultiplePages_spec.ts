@@ -18,7 +18,7 @@ let currentUrl: string;
 
 describe(
   "Page orientation and navigation related usecases ",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.Sanity"] },
   function () {
     it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
       AppSidebar.navigate(AppSidebarButton.Settings);

@@ -22,17 +22,22 @@ export const getAppStoreName = (appId: string, branch?: string) =>
 export const getPersistentAppStore = (appId: string, branch?: string) => {
   const appStoreName = getAppStoreName(appId, branch);
   let storeString = "{}";
+
   // Check if localStorage exists
   if (localStorage.isSupported()) {
     const appStore = localStorage.getItem(appStoreName);
+
     if (appStore) storeString = appStore;
   }
+
   let store;
+
   try {
     store = JSON.parse(storeString);
   } catch (e) {
     store = {};
   }
+
   return store;
 };
 
@@ -89,7 +94,6 @@ export interface ThemeSetting {
   density: number;
   sizing: number;
   fontFamily: string;
-  iconStyle: "FILLED" | "OUTLINED";
   appMaxWidth: AppMaxWidth;
 }
 
@@ -129,7 +133,6 @@ export const defaultThemeSetting: ThemeSetting = {
   borderRadius: "6px",
   density: 1,
   sizing: 1,
-  iconStyle: "OUTLINED",
   appMaxWidth: APP_MAX_WIDTH.Large,
 };
 

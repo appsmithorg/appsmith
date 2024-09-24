@@ -102,6 +102,7 @@ function convertAutoWidgetToFixed(
   isMobile: boolean,
 ): CanvasWidgetsReduxState {
   const currWidget = { ...widgets[widgetId] };
+
   if (!currWidget) return widgets;
 
   let currWidgets = { ...widgets };
@@ -139,6 +140,7 @@ function getFixedCanvasWidget(
   isMobile: boolean,
 ): CanvasWidgetsReduxState {
   const canvasWidget = { ...widgets[canvasId] };
+
   if (
     !canvasWidget ||
     !canvasWidget.children ||

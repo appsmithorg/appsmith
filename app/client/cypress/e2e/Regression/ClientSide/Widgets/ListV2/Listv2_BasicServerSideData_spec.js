@@ -198,9 +198,7 @@ describe(
       cy.get(queryLocators.queryNameField).type("Query2");
 
       // switching off Use Prepared Statement toggle
-      cy.get(queryLocators.switch).last().click({
-        force: true,
-      });
+      _.dataSources.ToggleUsePreparedStatement(false);
 
       //.1: Click on Write query area
       _.dataSources.EnterQuery("SELECT * FROM users LIMIT 20;");

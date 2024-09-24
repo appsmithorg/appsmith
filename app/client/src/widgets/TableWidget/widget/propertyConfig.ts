@@ -195,6 +195,7 @@ export default [
                       `${baseProperty}.columnType`,
                       "",
                     );
+
                     return columnType !== "url";
                   },
                   dependencies: [
@@ -405,6 +406,7 @@ export default [
                       `${baseProperty}.columnType`,
                       "",
                     );
+
                     return columnType !== "date";
                   },
                   dependencies: [
@@ -543,6 +545,7 @@ export default [
                       `${baseProperty}.columnType`,
                       "",
                     );
+
                     return columnType !== "date";
                   },
                   dependencies: [
@@ -596,6 +599,7 @@ export default [
                       `${baseProperty}.columnType`,
                       "",
                     );
+
                     return columnType !== "image";
                   },
                   dependencies: [

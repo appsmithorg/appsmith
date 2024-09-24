@@ -944,10 +944,12 @@ describe("Test all the migrations are running", () => {
      * Mocks the implementation
      */
     const version = migration.version ?? 0;
+
     mockFnObj[version] = [];
 
     migration.functionLookup.forEach((lookup) => {
       const { functionName, moduleObj } = lookup;
+
       if (moduleObj) {
         mockFnObj[version].push({
           spyOnFunc: jest
@@ -958,6 +960,7 @@ describe("Test all the migrations are running", () => {
                * to avoid the recursion in the second migration(updateContainers)
                */
               dsl && delete dsl.children;
+
               return {
                 version: dsl?.version,
                 validationFuncName: functionName,
@@ -978,6 +981,7 @@ describe("Test all the migrations are running", () => {
     functionLookup.forEach(
       (lookup: { moduleObj: any; functionName: string }, index: number) => {
         const { functionName, moduleObj } = lookup;
+
         if (moduleObj) {
           const mockObj = mockFnObj[dslVersion][index].spyOnFunc;
           const calls = mockObj.mock?.calls;

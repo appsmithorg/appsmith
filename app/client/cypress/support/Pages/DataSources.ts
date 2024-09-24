@@ -201,7 +201,7 @@ export class DataSources {
     ".t--datasource-name:contains('" + dsName + "')";
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
-
+  _dsTabSchema = "[data-testid='t--tab-schema']";
   private _pageSelectionMenu = "[data-testId='t--page-selection']";
 
   private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
@@ -1116,13 +1116,11 @@ export class DataSources {
       });
   }
 
-  ToggleUsePreparedStatement(
-    enable = true || false,
-    toNavigateToSettings = false,
-  ) {
-    toNavigateToSettings && this.apiPage.SelectPaneTab("Settings");
+  ToggleUsePreparedStatement(enable = true || false) {
+    this.apiPage.SelectPaneTab("Settings");
     if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
     else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
+    this.apiPage.SelectPaneTab("Query");
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
@@ -1373,7 +1371,7 @@ export class DataSources {
     expectedTableName = search,
   ) {
     this.agHelper.Sleep(2500); //for query editor to load
-    this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
+    this.agHelper.ClearNType(this._datasourceStructureSearchInput, search);
     this.agHelper.Sleep(1000); //for search result to load
     this.VerifyTableSchemaOnQueryEditor(expectedTableName);
   }

@@ -41,6 +41,7 @@ function SocialLoginButton(props: {
   const queryParams = new URLSearchParams(location.search);
   let url = props.url;
   const redirectUrl = queryParams.get("redirectUrl");
+
   if (redirectUrl != null) {
     url += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
@@ -57,6 +58,7 @@ function SocialLoginButton(props: {
       kind="secondary"
       onClick={() => {
         let eventName: EventName = "LOGIN_CLICK";
+
         if (props.type === "SIGNUP") {
           eventName = "SIGNUP_CLICK";
         }
@@ -89,6 +91,7 @@ function ThirdPartyAuth(props: {
       return <SocialLoginButton key={item.name} {...item} type={props.type} />;
     },
   );
+
   return <ThirdPartyAuthWrapper>{socialLoginButtons}</ThirdPartyAuthWrapper>;
 }
 

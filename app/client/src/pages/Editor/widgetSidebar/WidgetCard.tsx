@@ -117,6 +117,7 @@ function WidgetCard(props: CardProps) {
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (props.details.type === BUILDING_BLOCK_EXPLORER_TYPE) {
       AnalyticsUtil.logEvent("DRAG_BUILDING_BLOCK_INITIATED", {
         applicationId,
@@ -132,6 +133,7 @@ function WidgetCard(props: CardProps) {
         widgetName: props.details.displayName,
       });
     }
+
     setDraggingNewWidget &&
       setDraggingNewWidget(true, {
         ...props.details,

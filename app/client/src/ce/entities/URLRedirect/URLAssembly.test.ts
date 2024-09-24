@@ -27,6 +27,7 @@ describe("URLBuilder", () => {
     URLBuilder.prototype.generateBasePath = jest.fn((basePageId, mode) => {
       expect(basePageId).toBe(testBasePageId); // Ensure the current page id is used
       expect(mode).toBe(testMode);
+
       return `mockedBasePath/${basePageId}/${mode}`;
     });
 
@@ -61,6 +62,7 @@ describe("URLBuilder", () => {
     URLBuilder.prototype.generateBasePath = jest.fn((basePageId, mode) => {
       expect(basePageId).toBe(testBasePageId); // Ensure the passed basePageId is used
       expect(mode).toBe(testMode);
+
       return `mockedBasePath/${basePageId}/${mode}`;
     });
 
@@ -144,6 +146,7 @@ describe(".getQueryStringfromObject", () => {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = getQueryStringfromObject(input as any);
+
       expect(result).toStrictEqual(expected);
     },
   );

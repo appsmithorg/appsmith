@@ -55,11 +55,13 @@ export function AnvilWidgetName(props: {
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       e.stopPropagation();
+
       // If we're dragging a focused widget, we need to select it before dragging
       // Otherwise, the currently selected widget(s) will instead be dragged.
       if (nameComponentState === "focus") {
         selectWidget(SelectionRequestType.One, [widgetId]);
       }
+
       setDraggingState(generateDragState());
     },
     [
@@ -88,6 +90,7 @@ export function AnvilWidgetName(props: {
   ) as HTMLDivElement | null;
 
   const cleanup = useRef(() => {});
+
   useEffect(() => {
     if (
       widgetElement &&
@@ -103,6 +106,7 @@ export function AnvilWidgetName(props: {
         nameComponentState,
       );
     }
+
     return () => {
       cleanup.current();
     };
@@ -121,8 +125,10 @@ export function AnvilWidgetName(props: {
     widgetType === SKELETON_WIDGET_TYPE
   )
     return null;
+
   // Don't show widget name component if the widget DOM element isn't found
   if (!widgetElement) return null;
+
   // Don't render any DOM nodes if the widget is not selected or focused
   if (nameComponentState === "none") return null;
 
