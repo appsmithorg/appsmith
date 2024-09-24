@@ -638,18 +638,24 @@ export class Table {
     this.agHelper.GetNClick(colSettings);
   }
 
-  public ClickOnEditIcon(rowIndex: number, colIndex: number) {
+  public ClickOnEditIcon(
+    rowIndex: number,
+    colIndex: number,
+    isSelectColumn: boolean = false,
+  ) {
     this.agHelper.HoverElement(this._tableRow(rowIndex, colIndex, "v2"));
     this.agHelper.GetNClick(
       this._tableRow(rowIndex, colIndex, "v2") + " " + this._editCellIconDiv,
       0,
       true,
     );
-    this.agHelper.AssertElementVisibility(
-      this._tableRow(rowIndex, colIndex, "v2") +
-        " " +
-        this._editCellEditorInput,
-    );
+    if (!isSelectColumn) {
+      this.agHelper.AssertElementVisibility(
+        this._tableRow(rowIndex, colIndex, "v2") +
+          " " +
+          this._editCellEditorInput,
+      );
+    }
   }
 
   public EditTableCell(
