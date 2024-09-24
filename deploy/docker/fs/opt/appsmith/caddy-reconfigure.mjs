@@ -70,7 +70,7 @@ parts.push(`
 
 (all-config) {
   log {
-    output stdout
+    output file /var/log/caddy/access.log
   }
   skip_log /api/v1/health
 
