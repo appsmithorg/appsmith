@@ -135,7 +135,6 @@ class SelectComponent extends React.Component<
   };
 
   onQueryChange = debounce((filterValue: string) => {
-    console.log(">> inside query change")
     if (equal(filterValue, this.props.filterText)) return;
 
     this.props.onFilterChange(filterValue);
@@ -430,7 +429,6 @@ class SelectComponent extends React.Component<
               onClose: this.handleCloseList,
               // onActiveItemChange is called twice abd puts the focus on the first item https://github.com/palantir/blueprint/issues/4192
               onOpening: () => {
-                console.log(">>> opend...")
                 if (!this.props.selectedIndex) {
                   return this.handleActiveItemChange(null);
                 }
