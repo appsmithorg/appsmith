@@ -74,13 +74,13 @@ parts.push(`
   }
 
   # skip logs for health check
-	skip_log /api/v1/health
+  skip_log /api/v1/health
 
-	# skip logs for js map files
-	@mapfiles {
-		path_regexp mapfiles ^/static/js.*\.map$
-	}
-	skip_log @mapfiles
+  # skip logs for js map files
+  @mapfiles {
+    path_regexp mapfiles ^/static/js.*\.map$
+  }
+  skip_log @mapfiles
 
   # The internal request ID header should never be accepted from an incoming request.
   request_header -X-Appsmith-Request-Id
