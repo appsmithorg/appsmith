@@ -147,13 +147,13 @@ export async function installLibrary(
         // mapping default functionality to library name accessor
         self[uniqueName] = self["default"];
         // deleting the reference of default key from the self object
-        self["default"] = undefined;
+        delete self["default"];
         // mapping all the references of differentiating keys from the self object to the self[uniqueName] key object
         differentiatingKeys.map((key) => {
           if (key !== "default") {
             self[uniqueName][key] = self[key];
             // deleting the references from the self object
-            self[key] = undefined;
+            delete self[key];
           }
         });
         // pushing the uniqueName to the accessor array
