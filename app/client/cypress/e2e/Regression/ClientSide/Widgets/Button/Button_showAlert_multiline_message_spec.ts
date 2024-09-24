@@ -16,7 +16,6 @@ describe(
     it("Verify showAlert message renders correctly with newline characters", () => {
       propPane.EnterJSContext("onClick", "showAlert(`sai\n\nprabhu`)");
       agHelper.ClickButton("Submit");
-      cy.wait(500);
       cy.get(".Toastify", { timeout: 1000 }).should(
         "have.text",
         "sai\n\nprabhu",
