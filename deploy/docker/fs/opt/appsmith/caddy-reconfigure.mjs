@@ -92,6 +92,10 @@ parts.push(`
     X-Appsmith-Request-Id {http.request.uuid}
   }
 
+  header /static/* {
+    Cache-Control "public, max-age=31536000, immutable"
+  }
+
   request_body {
     max_size ${process.env.APPSMITH_CODEC_SIZE || 150}MB
   }

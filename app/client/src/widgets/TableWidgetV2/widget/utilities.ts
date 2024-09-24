@@ -19,7 +19,6 @@ import {
   DEFAULT_BUTTON_COLOR,
   DEFAULT_COLUMN_WIDTH,
   TABLE_COLUMN_ORDER_KEY,
-  ORIGINAL_INDEX_KEY,
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
 import type { TableWidgetProps } from "../constants";
@@ -65,13 +64,7 @@ export const getOriginalRowIndex = (
   }
 
   if (!!primaryKey && tableData) {
-    const selectedRow = tableData.find(
-      (row) => row[primaryColumnId] === primaryKey,
-    );
-
-    if (selectedRow) {
-      index = selectedRow[ORIGINAL_INDEX_KEY] as number;
-    }
+    index = tableData.findIndex((row) => row[primaryColumnId] === primaryKey);
   }
 
   return index;

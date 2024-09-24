@@ -825,6 +825,7 @@ export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 export const CONFIGURE_GIT = () => "Configure Git";
 export const IMPORT_APP = () => "Import app via Git";
 export const SETTINGS_GIT = () => "Settings";
+export const IMPORT_APP_CTA = () => "Import app";
 
 export const GIT_CONNECTION = () => "Git connection";
 export const GIT_IMPORT = () => "Git import";
@@ -2502,3 +2503,9 @@ export const EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON = () =>
   "Create a datasource to power your app with data.";
 
 export const FIELD_REQUIRED_MESSAGE = () => `This field is required`;
+
+export const PREPARED_STATEMENT_WARNING = {
+  MESSAGE: () =>
+    "Prepared Statements are currently enabled, which may be causing the query error. Turn them off and try running the query again",
+  LINK: () => "Open settings",
+};

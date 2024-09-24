@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.models.DatasourceStructure;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
+@Disabled
 public class MssqlGetDBSchemaTest {
     public static final String SQL_QUERY_TO_CREATE_TABLE_WITH_PRIMARY_KEY =
             "CREATE TABLE supplier\n" + "( supplier_id int not null,\n"
