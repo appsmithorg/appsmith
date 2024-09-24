@@ -1,5 +1,5 @@
 import React from "react";
-import { usePluginActionContext } from "PluginActionEditor";
+import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { useSelector } from "react-redux";

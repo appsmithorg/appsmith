@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { isArray, isString } from "lodash";
-import { isHtml } from "components/editorComponents/utils";
+import { isHtml } from "../utils";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { SegmentedControlContainer } from "pages/Editor/QueryEditor/EditorJSONtoForm";
 import { Flex, SegmentedControl } from "@appsmith/ads";

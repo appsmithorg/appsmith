@@ -27,7 +27,7 @@ import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { getIsSavingEntity } from "selectors/editorSelectors";
-import { getJSResponseViewState } from "./utils";
+import { getJSResponseViewState, JSResponseState } from "./utils";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { NoResponse } from "PluginActionEditor/components/PluginActionResponse/components/NoResponse";
 import {
@@ -65,15 +65,6 @@ const NoReturnValueWrapper = styled.div`
   padding-left: ${(props) => props.theme.spaces[12]}px;
   padding-top: ${(props) => props.theme.spaces[6]}px;
 `;
-
-export enum JSResponseState {
-  IsExecuting = "IsExecuting",
-  IsDirty = "IsDirty",
-  IsUpdating = "IsUpdating",
-  NoResponse = "NoResponse",
-  ShowResponse = "ShowResponse",
-  NoReturnValue = "NoReturnValue",
-}
 
 interface ReduxStateProps {
   errorCount: number;
