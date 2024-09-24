@@ -200,6 +200,19 @@ export const DateCell = (props: DateComponentProps) => {
   const [isValid, setIsValid] = useState(true);
   const [showRequiredError, setShowRequiredError] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const convertInputFormatToMomentFormat = (inputFormat: string) => {
+    let momentAdjustedInputFormat = inputFormat;
+
+    if (inputFormat === DateInputFormat.MILLISECONDS) {
+      momentAdjustedInputFormat = MomentDateInputFormat.MILLISECONDS;
+    } else if (inputFormat === DateInputFormat.EPOCH) {
+      momentAdjustedInputFormat = MomentDateInputFormat.SECONDS;
+    }
+
+    return momentAdjustedInputFormat;
+  };
+
   const isCellCompletelyValid = useMemo(
     () => isEditableCellValid && isValid,
     [isEditableCellValid, isValid],
@@ -222,14 +235,8 @@ export const DateCell = (props: DateComponentProps) => {
   }, [value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
-    let momentAdjustedInputFormat = inputFormat;
-
-    // If the input format is milliseconds or epoch, convert the date to the required format
-    if (inputFormat === DateInputFormat.MILLISECONDS) {
-      momentAdjustedInputFormat = MomentDateInputFormat.MILLISECONDS;
-    } else if (inputFormat === DateInputFormat.EPOCH) {
-      momentAdjustedInputFormat = MomentDateInputFormat.SECONDS;
-    }
+    const momentAdjustedInputFormat =
+      convertInputFormatToMomentFormat(inputFormat);
 
     const formattedDate = date
       ? moment(date).format(momentAdjustedInputFormat)
