@@ -204,10 +204,10 @@ const QueryResponseTab = (props: Props) => {
 
     const { actionConfiguration } = currentActionConfig;
     const hasPluginSpecifiedTemplates =
-      actionConfiguration.pluginSpecifiedTemplates?.[0]?.value === true;
+      actionConfiguration?.pluginSpecifiedTemplates?.[0]?.value === true;
     // oracle have different key for prepared statements
     const hasPreparedStatement =
-      actionConfiguration.formData?.preparedStatement?.data === true;
+      actionConfiguration?.formData?.preparedStatement?.data === true;
 
     if (error && (hasPluginSpecifiedTemplates || hasPreparedStatement)) {
       showPreparedStatementWarning = true;
