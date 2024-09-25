@@ -2,7 +2,8 @@
   "extends": "../../../tsconfig.json",
   "compilerOptions": {
     "baseUrl": "./src",
-    "typeRoots": ["./typings", "./node_modules/@types"]
+    "typeRoots": ["./typings", "./node_modules/@types"],
+    "types": ["jest"]
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules"]
