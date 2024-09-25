@@ -46,7 +46,7 @@ describe(
     it("2. Shows when API failed to load on page load.", function () {
       cy.fixture("testdata").then(function (dataSet: any) {
         apiPage.CreateAndFillApi(
-          "https://abc.com/" + dataSet.methods,
+          "http://host.docker.internal:5001" + dataSet.methods,
           "PageLoadApi2",
         );
       });
@@ -54,10 +54,7 @@ describe(
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
         "Container3",
       ]);
-      propPane.UpdatePropertyFieldValue(
-        "Table data",
-        `{{PageLoadApi2.data.data}}`,
-      );
+      propPane.UpdatePropertyFieldValue("Table data", `{{PageLoadApi2.data}}`);
       agHelper.RefreshPage();
       debuggerHelper.AssertDebugError(
         'The action "PageLoadApi2" has failed.',
