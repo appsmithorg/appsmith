@@ -11,7 +11,7 @@ import {
   type ReduxAction,
 } from "ee/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
+import { WDS_V2_WIDGET_MAP } from "modules/ui-builder/ui/wds/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getMainCanvasLastRowHighlight } from "../anvilDraggingSagas/helpers";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";

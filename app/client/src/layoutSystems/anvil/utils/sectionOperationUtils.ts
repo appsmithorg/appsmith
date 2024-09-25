@@ -13,7 +13,7 @@ import { generateReactKey } from "utils/generators";
 import type BaseLayoutComponent from "../layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "../layoutComponents/LayoutFactory";
 import { defaultHighlightRenderInfo } from "../utils/constants";
-import { anvilWidgets } from "widgets/wds/constants";
+import { anvilWidgets } from "modules/ui-builder/ui/wds/constants";
 import { getUpdatedListOfWidgetsAfterAddingNewWidget } from "../integrations/sagas/anvilWidgetAdditionSagas";
 
 /**
