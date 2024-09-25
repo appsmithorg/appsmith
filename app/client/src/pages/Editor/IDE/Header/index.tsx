@@ -73,7 +73,7 @@ import { EditorTitle } from "./EditorTitle";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { EditorState } from "ee/entities/IDE/constants";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import { IDEHeader, IDEHeaderTitle } from "IDE";
 import { APPLICATIONS_URL } from "constants/routes";
 import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";

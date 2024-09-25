@@ -3,11 +3,12 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@design-system/headless";
+} from "@appsmith/wds-headless";
 import { Button } from "react-aria-components";
 
 export const ControlledPopover = () => {
   const [isOpen, setIsOpen] = useState(false);
+
   return (
     <Popover isOpen={isOpen} setOpen={setIsOpen}>
       <PopoverTrigger>

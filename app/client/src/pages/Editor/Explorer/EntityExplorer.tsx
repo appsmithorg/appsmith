@@ -1,9 +1,6 @@
 import React, { useRef, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import { NonIdealState, Classes } from "@blueprintjs/core";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Colors } from "constants/Colors";
@@ -66,10 +63,6 @@ const NoResult = styled(NonIdealState)`
 
 function EntityExplorer({ isActive }: { isActive: boolean }) {
   const dispatch = useDispatch();
-  PerformanceTracker.startTracking(PerformanceTransactionName.ENTITY_EXPLORER);
-  useEffect(() => {
-    PerformanceTracker.stopTracking();
-  });
   const explorerRef = useRef<HTMLDivElement | null>(null);
   const isFirstTimeUserOnboardingEnabled = useSelector(
     getIsFirstTimeUserOnboardingEnabled,
@@ -81,6 +74,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     AnalyticsUtil.logEvent("EXPLORER_WIDGET_CLICK");
     history.push(builderURL({ basePageId }));
     dispatch(forceOpenWidgetPanel(true));
+
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }

@@ -2,26 +2,15 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import MenuItemContainer from "./components/MenuItemContainer";
 import MenuItem from "./components/MenuItem";
-import type {
-  ApplicationPayload,
-  Page,
-} from "ee/constants/ReduxActionConstants";
 import useThrottledRAF from "utils/hooks/useThrottledRAF";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { useSelector } from "react-redux";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { Container, ScrollBtnContainer } from "./TopStacked.styled";
+import type { NavigationProps } from "./constants";
 
-// TODO - @Dhruvik - ImprovedAppNav
-// Replace with NavigationProps if nothing changes
-// appsmith/app/client/src/pages/AppViewer/Navigation/constants.ts
-interface TopStackedProps {
-  currentApplicationDetails?: ApplicationPayload;
-  pages: Page[];
-}
-
-export function TopStacked(props: TopStackedProps) {
+export function TopStacked(props: NavigationProps) {
   const { currentApplicationDetails, pages } = props;
   const selectedTheme = useSelector(getSelectedAppTheme);
   const navColorStyle =
@@ -48,6 +37,7 @@ export function TopStacked(props: TopStackedProps) {
 
   // Mark default page as first page
   const appPages = pages;
+
   if (appPages.length > 1) {
     appPages.forEach((item, i) => {
       if (item.isDefault) {
@@ -60,6 +50,7 @@ export function TopStacked(props: TopStackedProps) {
   const setShowScrollArrows = useCallback(() => {
     if (tabsRef.current) {
       const { offsetWidth, scrollLeft, scrollWidth } = tabsRef.current;
+
       setShouldShowLeftArrow(scrollLeft > 0);
       setShouldShowRightArrow(scrollLeft + offsetWidth < scrollWidth);
     }
@@ -67,8 +58,10 @@ export function TopStacked(props: TopStackedProps) {
 
   const measuredTabsRef = useCallback((node) => {
     tabsRef.current = node;
+
     if (node !== null) {
       const { offsetWidth, scrollWidth } = node;
+
       setTabsScrollable(scrollWidth > offsetWidth);
       setShowScrollArrows();
     }
@@ -100,9 +93,11 @@ export function TopStacked(props: TopStackedProps) {
 
   useEffect(() => {
     let clear;
+
     if (isScrolling) {
       clear = requestAF();
     }
+
     return clear;
   }, [isScrolling, isScrollingLeft]);
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import type { AppIconName } from "../AppIcon";
 import AppIcon, { AppIconCollection } from "../AppIcon";
-import { Size } from "../Button";
+import { Size } from "../AppIcon";
 import type { CommonComponentProps } from "../types/common";
 import { Classes } from "../constants/classes";
 
@@ -66,10 +66,12 @@ function IconSelector(props: IconSelectorProps) {
         iconPalette[0] === props.iconPalette[0]
       ) {
         const _iconPalette = iconPalette ? [...iconPalette] : [];
+
         _iconPalette?.splice(_iconPalette.indexOf(props.selectedIcon), 1);
         _iconPalette?.splice(0, 0, props.selectedIcon);
         setIconPalette(_iconPalette);
       }
+
       // icon position change ends here
       setSelected(props.selectedIcon);
     }
@@ -79,6 +81,7 @@ function IconSelector(props: IconSelectorProps) {
     if (props.iconPalette && props.iconPalette[0]) {
       return props.iconPalette[0];
     }
+
     return AppIconCollection[0];
   }
 

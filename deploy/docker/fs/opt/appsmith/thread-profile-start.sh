@@ -5,6 +5,6 @@ set -o pipefail
 set -o nounset
 set -o noglob
 
-location=/appsmith-stacks/heap_dumps/ad-hoc/$(date "+%Y_%m_%d_%H_%S")/thread-profile;
+location=/appsmith-stacks/heap_dumps/ad-hoc/${HOSTNAME}/thread-profile/profile-$(date "+%Y_%m_%d_%H_%S");
 mkdir -p $location; 
-jcmd $(pgrep -f -- "-jar\sserver.jar") JFR.start name=profile filename=$location/profile-${HOSTNAME}.jfr
+jcmd $(pgrep -f -- "-jar\sserver.jar") JFR.start name=profile filename=$location.jfr

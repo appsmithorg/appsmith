@@ -13,7 +13,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
+describe("Navigate To feature", { tags: ["@tag.JS", "@tag.Sanity"] }, () => {
   it("1. Navigates to page name clicked from the page name tab of navigate to", () => {
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 600);

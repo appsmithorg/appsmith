@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { ThemeProvider } from "styled-components";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import {

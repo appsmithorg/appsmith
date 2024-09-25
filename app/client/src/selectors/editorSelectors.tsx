@@ -11,7 +11,6 @@ import type {
 } from "reducers/entityReducers/pageListReducer";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 
-import type { Page } from "ee/constants/ReduxActionConstants";
 import { ApplicationVersion } from "ee/actions/applicationActions";
 import type {
   OccupiedSpace,
@@ -42,12 +41,13 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
-import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
+import { WDS_V2_WIDGET_MAP } from "modules/ui-builder/ui/wds/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 import { protectedModeSelector } from "./gitSyncSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import type { Page } from "entities/Page";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -186,6 +186,7 @@ export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
     (acc, page: Page) => {
       // Comeback
       acc[page.pageId] = page.slug || "";
+
       return acc;
     },
     {} as Record<string, string>,
@@ -208,6 +209,7 @@ export const selectApplicationVersion = (state: AppState) =>
 export const selectPageSlugById = (pageId: string) =>
   createSelector(getPageList, (pages) => {
     const page = pages.find((page) => page.pageId === pageId);
+
     return page?.slug || PLACEHOLDER_PAGE_SLUG;
   });
 
@@ -222,6 +224,7 @@ export const selectURLSlugs = createSelector(
     );
     const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
     const customSlug = currentPage?.customSlug;
+
     return { applicationSlug, pageSlug, customSlug };
   },
 );
@@ -243,11 +246,13 @@ export const getViewModePageList = createSelector(
       const currentPage = pageList.find(
         (page) => page.pageId === currentPageId,
       );
+
       if (!!currentPage?.isHidden) {
         return [currentPage];
       }
 
       const visiblePages = pageList.filter((page) => !page.isHidden);
+
       return visiblePages;
     }
 
@@ -332,15 +337,18 @@ export const getWidgetCards = createSelector(
       const isAnvilWidget = Object.values(WDS_V2_WIDGET_MAP).includes(
         config.type,
       );
+
       if (isAnvilLayout) {
         return isAnvilWidget;
       }
+
       return !isAnvilWidget;
     });
     const cards = layoutSystemBasesWidgets.filter((config) => {
       if (isAirgapped()) {
         return config.widgetName !== "Map" && !config.hideCard;
       }
+
       return !config.hideCard;
     });
 
@@ -348,6 +356,7 @@ export const getWidgetCards = createSelector(
       const {
         detachFromLayout = false,
         displayName,
+        displayOrder,
         iconSVG,
         isSearchWildcard,
         key,
@@ -375,6 +384,7 @@ export const getWidgetCards = createSelector(
         columns,
         detachFromLayout,
         displayName,
+        displayOrder,
         icon: iconSVG,
         thumbnail: thumbnailSVG,
         IconCmp,
@@ -391,6 +401,7 @@ export const getWidgetCards = createSelector(
   },
 );
 const getIsMobileBreakPoint = (state: AppState) => state.ui.mainCanvas.isMobile;
+
 export const getIsAutoLayoutMobileBreakPoint = createSelector(
   getIsAutoLayout,
   getIsMobileBreakPoint,
@@ -425,23 +436,29 @@ const addWidgetDimensionProxy = (
     get(target: any, prop: any) {
       if (dimensions.includes(prop)) {
         const actualMap = dimensionMap[prop];
+
         if (!!target[actualMap]) {
           return target[actualMap];
         }
       }
+
       return Reflect.get(target, prop);
     },
   };
+
   return Object.keys(widgets).reduce((allWidgets, each) => {
     const widget = { ...allWidgets[each] };
     const proxyWidget = new Proxy(widget, proxyHandler);
+
     allWidgets = {
       ...allWidgets,
       [each]: proxyWidget,
     };
+
     return allWidgets;
   }, widgets);
 };
+
 export const getWidgetsForBreakpoint = createSelector(
   getDimensionMap,
   getIsAutoLayoutMobileBreakPoint,
@@ -495,6 +512,7 @@ const getOccupiedSpacesForContainer = (
       bottom: widget.bottomRow,
       right: widget.rightColumn,
     };
+
     return occupiedSpace;
   });
 };
@@ -510,6 +528,7 @@ const getWidgetSpacesForContainer = (
     rightColumn: rightColumnMap,
     topRow: topRowMap,
   } = dimensionMap;
+
   return widgets.map((widget) => {
     const hasAutoHeight = isAutoHeightEnabledForWidget(widget);
     const fixedHeight = hasAutoHeight
@@ -526,6 +545,7 @@ const getWidgetSpacesForContainer = (
       isDropTarget: checkIsDropTarget(widget.type),
       fixedHeight,
     };
+
     return occupiedSpace;
   });
 };
@@ -545,7 +565,9 @@ const generateOccupiedSpacesMap = (
   const occupiedSpaces: {
     [containerWidgetId: string]: WidgetSpace[];
   } = {};
+
   if (!fetchNow) return {};
+
   // Get all widgets with type "CONTAINER_WIDGET" and has children
   const containerWidgets: FlattenedWidgetProps[] = Object.values(
     widgets,
@@ -562,6 +584,7 @@ const generateOccupiedSpacesMap = (
           containerWidget.children.indexOf(widgetId) > -1 &&
           !widgets[widgetId].detachFromLayout,
       );
+
       // Get the occupied spaces in this container
       // Assign it to the containerWidgetId key in occupiedSpaces
       occupiedSpaces[containerWidgetId] = getWidgetSpacesForContainer(
@@ -571,6 +594,7 @@ const generateOccupiedSpacesMap = (
       );
     });
   }
+
   // Return undefined if there are no occupiedSpaces.
   return Object.keys(occupiedSpaces).length > 0 ? occupiedSpaces : {};
 };
@@ -602,6 +626,7 @@ export const getOccupiedSpaces = createSelector(
             containerWidget.children.indexOf(widgetId) > -1 &&
             !widgets[widgetId].detachFromLayout,
         );
+
         // Get the occupied spaces in this container
         // Assign it to the containerWidgetId key in occupiedSpaces
         occupiedSpaces[containerWidgetId] = getOccupiedSpacesForContainer(
@@ -656,20 +681,26 @@ export const getOccupiedSpacesGroupedByParentCanvas = createSelector(
         // Get the nesting level of this Canvas:
         let parentId = canvasWidget.parentId;
         let level = 0;
+
         while (parentId) {
           const parent = widgets[parentId];
+
           if (parent.type === "CANVAS_WIDGET") level++;
+
           parentId = parent.parentId;
         }
+
         canvasLevelMap[canvasWidget.widgetId] = level;
         // Initialise the occupied spaces with an empty array
         occupiedSpaces[canvasWidgetId] = {};
+
         // If this canvas widget has children
         if (canvasWidget.children && canvasWidget.children.length > 0) {
           // Iterate through all children
           canvasWidget.children.forEach((childWidgetId: string) => {
             // Get the widget props
             const widget = widgets[childWidgetId];
+
             // If the widget is not detached from layout, which means
             // They actually exist by being displayed within the canvas
             // (unlike a modal widget or another canvas widget)
@@ -736,6 +767,7 @@ const generateOccupiedSpacesForContainer = (
     containerId,
     childWidgets.map((widgetId) => widgets[widgetId]),
   );
+
   return occupiedSpaces;
 };
 
@@ -781,6 +813,7 @@ const generateWidgetSpacesForContainer = (
     childWidgets.map((widgetId) => widgets[widgetId]),
     dimensionMap,
   );
+
   return occupiedSpaces;
 };
 
@@ -851,6 +884,7 @@ export const getJSCollectionDataById = createSelector(
     const action = jsActions.find(
       (action) => action.config.id === collectionId,
     );
+
     if (action) {
       return action;
     } else {
@@ -870,6 +904,7 @@ export const getJSCollectionDataByBaseId = createSelector(
     const action = jsActions.find(
       (action) => action.config.baseId === baseCollectionId,
     );
+
     if (action) {
       return action;
     } else {
@@ -936,6 +971,7 @@ export const showCanvasTopSectionSelector = createSelector(
     const state = JSON.parse(
       localStorage.getItem(LOCAL_STORAGE_KEYS.CANVAS_CARDS_STATE) ?? "{}",
     );
+
     if (
       !state[pageId] ||
       Object.keys(canvasWidgets).length > 1 ||

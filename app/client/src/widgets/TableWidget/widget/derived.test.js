@@ -15,6 +15,7 @@ describe("Validates Derived Properties", () => {
     const expected = [];
 
     let result = getTableColumns(input, moment, _);
+
     expect(result).toStrictEqual(expected);
 
     result = getTableColumns(
@@ -80,6 +81,7 @@ describe("Validates Derived Properties", () => {
     ];
 
     let result = getTableColumns(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
   it("generated columns does not modify primary columns", () => {
@@ -170,6 +172,7 @@ describe("Validates Derived Properties", () => {
     ];
 
     let result = getTableColumns(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -279,6 +282,7 @@ describe("Validates Derived Properties", () => {
     ];
 
     let result = getTableColumns(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
   it("generated columns does not remove derived columns in primary columns", () => {
@@ -405,6 +409,7 @@ describe("Validates Derived Properties", () => {
     ];
 
     let result = getTableColumns(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -548,6 +553,7 @@ describe("Validates Derived Properties", () => {
     ];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -563,6 +569,7 @@ describe("Validates Derived Properties", () => {
     const expected = [];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -714,6 +721,7 @@ describe("Validates Derived Properties", () => {
     ];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -873,6 +881,7 @@ describe("Validates Derived Properties", () => {
     ];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -1032,6 +1041,7 @@ describe("Validates Derived Properties", () => {
     ];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -1169,6 +1179,7 @@ describe("Validates Derived Properties", () => {
     const expected = [];
 
     let result = getFilteredTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 
@@ -1246,6 +1257,7 @@ describe("Validates Derived Properties", () => {
       },
     ];
     let result = getSanitizedTableData(input, moment, _);
+
     expect(result).toStrictEqual(expected);
   });
 });
@@ -1263,6 +1275,7 @@ describe("Validate getSelectedRow function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getSelectedRow(input, moment, _)).toStrictEqual({
       id: 234,
       name: "Jane Doe",
@@ -1282,6 +1295,7 @@ describe("Validate getSelectedRow function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getSelectedRows(input, moment, _)).toStrictEqual([]);
   });
 
@@ -1297,6 +1311,7 @@ describe("Validate getSelectedRow function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getSelectedRow(input, moment, _)).toStrictEqual({
       id: 234,
       name: "Jane Doe",
@@ -1470,6 +1485,7 @@ describe("Validate getSelectedRow function", () => {
         { id: 123, name: "John Doe", extra: "Extra1", __originalIndex__: 1 },
       ],
     };
+
     expect(getTriggeredRow(input, moment, _)).toStrictEqual({
       id: 1234,
       name: "Jim Doe",

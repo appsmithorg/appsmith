@@ -361,6 +361,7 @@ describe("caculateIsHidden test", () => {
       value: "Different Name",
       flagValue: FEATURE_FLAG.TEST_FLAG,
     };
+
     expect(caculateIsHidden(values, hiddenTruthy)).toBeTruthy();
     expect(caculateIsHidden(values, hiddenFalsy)).toBeFalsy();
   });
@@ -435,6 +436,7 @@ describe("json/form viewTypes test", () => {
         output: ViewTypes.COMPONENT,
       },
     ];
+
     testCases.forEach((testCase) => {
       expect(getViewType(testValues, testCase.input)).toEqual(testCase.output);
     });
@@ -749,8 +751,10 @@ describe("json/form viewTypes test", () => {
         viewType: ViewTypes.COMPONENT,
       },
     ];
+
     testCases.forEach((testCase, index) => {
       const formName = `testForm-${index}`;
+
       switchViewType(
         inputValue,
         testCase.path,
@@ -803,8 +807,10 @@ describe("UQI form render methods", () => {
         identifier: "identifier",
       },
     ];
+
     testCases.forEach((testCase, index) => {
       const output = extractConditionalOutput(testCase, formEvaluation);
+
       expect(output).toEqual(expectedOutputs[index]);
     });
   });
@@ -840,8 +846,10 @@ describe("UQI form render methods", () => {
         output: true,
       },
     ];
+
     testCases.forEach((testCase) => {
       const output = checkIfSectionCanRender(formEvaluation[testCase.input]);
+
       expect(output).toEqual(testCase.output);
     });
   });
@@ -869,8 +877,10 @@ describe("UQI form render methods", () => {
         output: true,
       },
     ];
+
     testCases.forEach((testCase) => {
       const output = checkIfSectionIsEnabled(formEvaluation[testCase.input]);
+
       expect(output).toEqual(testCase.output);
     });
   });
@@ -920,6 +930,7 @@ describe("UQI form render methods", () => {
 
     testCases.forEach((testCase) => {
       const output = isValidFormConfig(testCase.input);
+
       expect(output).toEqual(testCase.output);
     });
   });
@@ -971,6 +982,7 @@ describe("UQI form render methods", () => {
         testCase.input.sectionObject,
         formEvaluation[testCase.input.path],
       );
+
       expect(output).toEqual(testCase.output);
     });
   });

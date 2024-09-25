@@ -88,7 +88,7 @@ const listData = [
 
 describe(
   "List widget V2 page number and page size",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Sanity"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("listv2PaginationDsl");
@@ -169,7 +169,7 @@ describe(
       cy.get(queryLocators.queryNameField).type("Query1");
 
       // switching off Use Prepared Statement toggle
-      cy.get(queryLocators.switch).last().click({ force: true });
+      _.dataSources.ToggleUsePreparedStatement(false);
 
       _.dataSources.EnterQuery(
         "SELECT * FROM users OFFSET {{List1.pageNo * 1}} LIMIT {{List1.pageSize}};",

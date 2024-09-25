@@ -3,8 +3,8 @@ import React, { forwardRef } from "react";
 import type {
   TooltipTriggerRef as HeadlessTooltipTriggerRef,
   TooltipTriggerProps as HeadlessTooltipTriggerProps,
-} from "@design-system/headless";
-import { TooltipTrigger as HeadlessTooltipTrigger } from "@design-system/headless";
+} from "@appsmith/wds-headless";
+import { TooltipTrigger as HeadlessTooltipTrigger } from "@appsmith/wds-headless";
 
 export const _TooltipTrigger = function TooltipTrigger(
   props: HeadlessTooltipTriggerProps,

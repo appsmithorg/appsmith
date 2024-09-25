@@ -75,7 +75,7 @@ const FileImportCard = styled.div<{ fillCardWidth: boolean }>`
       height: 100%;
       justify-content: flex-start;
 
-      .cs-icon {
+      .ads-v2-icon {
         border-radius: 50%;
         width: ${(props) => props.theme.spaces[12] + 2}px;
         height: ${(props) => props.theme.spaces[12] + 2}px;
@@ -146,7 +146,7 @@ const StatusbarWrapper = styled.div`
   align-items: center;
   justify-content: center;
 
-  .cs-icon {
+  .ads-v2-icon {
     margin: auto;
     border-radius: var(--ads-v2-border-radius-circle);
     width: 32px;
@@ -174,6 +174,7 @@ function GitImportCard(props: { children?: ReactNode; handler?: () => void }) {
   }, []);
   const message = createMessage(IMPORT_APP_FROM_GIT_MESSAGE);
   const title = createMessage(IMPORT_APP_FROM_GIT_TITLE);
+
   return (
     <CardWrapper onClick={onClick}>
       <Icon name={"fork"} size="md" />

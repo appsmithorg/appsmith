@@ -70,17 +70,25 @@ export function shouldSelectOrFocus(widgetId: string) {
       isWidgetFocused,
       isDistributingSpace,
     ) => {
-      const baseCondition = isEditorOpen && !isDragging && !isDistributingSpace;
+      const baseCondition = isEditorOpen && !isDragging;
       let onCanvasUIState: NameComponentStates = "none";
+
       if (baseCondition) {
         if (isWidgetSelected) onCanvasUIState = "select";
+
+        // when dragging the resizing handle, the action also makes
+        // the widget selected but we want to show it as focused while distributing space
+        if (isWidgetSelected && isDistributingSpace) onCanvasUIState = "focus";
+
         // A widget can be focused and selected at the same time.
         // I'm not sure if these should be mutually exclusive states.
         if (isWidgetFocused && !isWidgetSelected) onCanvasUIState = "focus";
       }
+
       if (highlightShown && highlightShown.canvasId === widgetId) {
         onCanvasUIState = "focus";
       }
+
       return onCanvasUIState;
     },
   );

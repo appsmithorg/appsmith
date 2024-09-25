@@ -8,13 +8,13 @@ export default {
     if (typeof props.optionLabel === "string") {
       labels = sourceData.map((d) => d[props.optionLabel]);
     } else if (_.isArray(props.optionLabel)) {
-      labels = props.optionLabel;
+      labels = sourceData.map((d, i) => d[props.optionLabel[i]]);
     }
 
     if (typeof props.optionValue === "string") {
       values = sourceData.map((d) => d[props.optionValue]);
     } else if (_.isArray(props.optionValue)) {
-      values = props.optionValue;
+      values = sourceData.map((d, i) => d[props.optionValue[i]]);
     }
 
     return sourceData.map((d, i) => ({
@@ -35,10 +35,12 @@ export default {
     let value = props.value?.value ?? props.value;
 
     const valueIndex = _.findIndex(options, (option) => option.value === value);
+
     if (valueIndex === -1) {
       if (!isServerSideFiltered) {
         value = "";
       }
+
       if (
         isServerSideFiltered &&
         !_.isPlainObject(props.value) &&
@@ -60,6 +62,7 @@ export default {
       (option) =>
         option.label === label && option.value === props.selectedOptionValue,
     );
+
     if (labelIndex === -1) {
       if (
         !_.isNil(props.selectedOptionValue) &&
@@ -69,6 +72,7 @@ export default {
           options,
           (option) => option.value === props.selectedOptionValue,
         );
+
         if (selectedOption) {
           label = selectedOption.label;
         }

@@ -1,5 +1,4 @@
-import { JSResponseState } from "./JSResponseView";
-import { getJSResponseViewState } from "./utils";
+import { getJSResponseViewState, JSResponseState } from "./utils";
 
 const TEST_JS_FUNCTION_ID = "627ccff468e1fa5185b7f901";
 const TEST_JS_FUNCTION_BASE_ID = "627ccff468e1fa5185b7f912";

@@ -18,6 +18,7 @@ export const groupAndSortEntitySegmentList = (
 ): EditorSegmentList => {
   const groups = groupBy(items, (item) => {
     if (item.group) return item.group;
+
     return "NA";
   });
 
@@ -51,6 +52,7 @@ export const selectJSSegmentEditorTabs = (state: AppState) => {
   const tabs = getJSTabs(state);
 
   const keyedItems = keyBy(items, "key");
+
   return tabs
     .map((tab) => {
       return keyedItems[tab];
@@ -63,5 +65,6 @@ export const selectQuerySegmentEditorTabs = (state: AppState) => {
   const tabs = getQueryTabs(state);
 
   const keyedItems = keyBy(items, "key");
+
   return tabs.map((tab) => keyedItems[tab]).filter(Boolean);
 };

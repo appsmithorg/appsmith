@@ -44,6 +44,7 @@ function updateHeight<T extends HTMLElement | null>({
 }) {
   if (autoResize) {
     const height = proxyElementRef.current?.scrollHeight;
+
     if (height) {
       if (elementRef.current !== null) {
         elementRef.current.style.height = `${height}px`;

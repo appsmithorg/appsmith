@@ -72,6 +72,8 @@ public class RestApiPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            log.debug(Thread.currentThread().getName()
+                    + ": executeParameterized() called for RestAPI plugin. Executing the API call.");
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -131,6 +133,8 @@ public class RestApiPlugin extends BasePlugin {
                 ActionConfiguration actionConfiguration,
                 List<Map.Entry<String, String>> insertedParams) {
 
+            log.debug(Thread.currentThread().getName()
+                    + ": executeCommon() called for RestAPI plugin. Executing the API call.");
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
@@ -209,10 +213,9 @@ public class RestApiPlugin extends BasePlugin {
                         errorResult.setRequest(requestCaptureFilter.populateRequestFields(
                                 actionExecutionRequest, isBodySentWithApiRequest, datasourceConfiguration));
                         errorResult.setIsExecutionSuccess(false);
-                        log.debug(
-                                "An error has occurred while trying to run the API query for url: {}, path : {}",
-                                datasourceConfiguration.getUrl(),
-                                actionConfiguration.getPath());
+                        log.debug(String.format(
+                                "An error has occurred while trying to run the API query for url: %s, path: %s",
+                                datasourceConfiguration.getUrl(), actionConfiguration.getPath()));
                         error.printStackTrace();
                         if (!(error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(

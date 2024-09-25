@@ -47,16 +47,19 @@ export const migratePropertiesForDynamicHeight = (currentDSL: DSLWidget) => {
     "CURRENCY_INPUT_WIDGET",
     "JSON_FORM_WIDGET",
   ];
+
   if (widgetsWithDynamicHeight.includes(currentDSL.type)) {
     currentDSL = {
       ...currentDSL,
       ...WidgetFeatureProps["dynamicHeight"],
     };
   }
+
   if (Array.isArray(currentDSL.children)) {
     currentDSL.children = currentDSL.children.map(
       migratePropertiesForDynamicHeight,
     );
   }
+
   return currentDSL;
 };

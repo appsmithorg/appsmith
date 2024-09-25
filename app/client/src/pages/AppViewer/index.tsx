@@ -28,7 +28,10 @@ import { useSelector } from "react-redux";
 import BrandingBadge from "./BrandingBadge";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
-import { setupPublishedPage } from "actions/pageActions";
+import {
+  setupPublishedPage,
+  fetchPublishedPageResourcesAction,
+} from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
@@ -36,18 +39,17 @@ import { initAppViewerAction } from "actions/initActions";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import useWidgetFocus from "utils/hooks/useWidgetFocus/useWidgetFocus";
 import HtmlTitle from "./AppViewerHtmlTitle";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   getAppThemeSettings,
   getCurrentApplication,
 } from "ee/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import type { FontFamily } from "@design-system/theming";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
-} from "@design-system/theming";
+} from "@appsmith/wds-theming";
 import { KBViewerFloatingButton } from "ee/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
 import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import { getHideWatermark } from "ee/selectors/tenantSelectors";
@@ -107,21 +109,15 @@ function AppViewer(props: Props) {
   );
   const isAnvilLayout = useSelector(getIsAnvilLayout);
   const themeSetting = useSelector(getAppThemeSettings);
-  const themeProps = {
-    borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
-    seedColor: selectedTheme.properties.colors.primaryColor,
-    fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
-  };
   const wdsThemeProps = {
     borderRadius: themeSetting.borderRadius,
     seedColor: themeSetting.accentColor,
     colorMode: themeSetting.colorMode.toLowerCase(),
-    fontFamily: themeSetting.fontFamily as FontFamily,
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
-    iconStyle: themeSetting.iconStyle.toLowerCase(),
-  };
-  const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : themeProps);
+  } as Parameters<typeof useTheme>[0];
+  const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
+
   const focusRef = useWidgetFocus();
   const isAutoLayout = useSelector(getIsAutoLayout);
 
@@ -141,6 +137,7 @@ function AppViewer(props: Props) {
     const prevLocation = prevValues?.location;
     const prevPageBaseId = prevValues?.basePageId;
     let isBranchUpdated = false;
+
     if (prevBranch && prevLocation) {
       isBranchUpdated = getIsBranchUpdated(props.location, prevLocation);
     }
@@ -166,8 +163,12 @@ function AppViewer(props: Props) {
         const pageId = pages.find(
           (page) => page.basePageId === basePageId,
         )?.pageId;
+
         if (pageId) {
           dispatch(setupPublishedPage(pageId, true));
+
+          // Used for fetching page resources
+          dispatch(fetchPublishedPageResourcesAction(basePageId));
         }
       }
     }

@@ -73,6 +73,7 @@ interface DataSourceOptionType extends RenderDropdownOptionType {
   dataTestid: string;
   optionWidth: string;
 }
+
 function DataSourceOption({
   dataTestid,
   isHighlighted,
@@ -96,6 +97,7 @@ function DataSourceOption({
     : isSelectedNode
       ? ""
       : dataTestid;
+
   return (
     <Tooltip
       content="Not supported for template generation"
@@ -114,6 +116,7 @@ function DataSourceOption({
           if (isNotSupportedDatasource) {
             return;
           }
+
           if (optionClickHandler) {
             optionClickHandler(dropdownOption as DropdownOption);
           }

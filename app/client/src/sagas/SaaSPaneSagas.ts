@@ -1,8 +1,6 @@
 import { all, put, select, takeEvery } from "redux-saga/effects";
-import type {
-  ApplicationPayload,
-  ReduxAction,
-} from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import history from "utils/history";
 import {
@@ -36,8 +34,10 @@ function* handleDatasourceCreatedSaga(
 ) {
   const { isDBCreated, payload } = actionPayload;
   const plugin: Plugin | undefined = yield select(getPlugin, payload.pluginId);
+
   // Only look at SAAS plugins
   if (!plugin) return;
+
   if (plugin.type !== PluginType.SAAS) return;
 
   const currentApplicationIdForCreateNewApp: string | undefined = yield select(
@@ -105,8 +105,11 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   const plugin: Plugin | undefined = yield select(getPlugin, pluginId);
 
   if (!plugin) return;
+
   if (plugin.type !== "SAAS") return;
+
   const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
+
   history.push(
     saasEditorApiIdURL({
       basePageId,

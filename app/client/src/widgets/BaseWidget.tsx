@@ -181,6 +181,7 @@ abstract class BaseWidget<
     const res: PastePayload = yield call(function* () {
       return { widgets: allWidgets, widgetIdMap, reverseWidgetIdMap };
     });
+
     return res;
   }
 
@@ -204,6 +205,7 @@ abstract class BaseWidget<
    */
   executeAction(actionPayload: ExecuteTriggerPayload): void {
     const { executeAction } = this.context;
+
     executeAction &&
       executeAction({
         ...actionPayload,
@@ -226,6 +228,7 @@ abstract class BaseWidget<
 
   disableDrag(disable: boolean) {
     const { disableDrag } = this.context;
+
     disableDrag && disable !== undefined && disableDrag(disable);
   }
 
@@ -237,12 +240,14 @@ abstract class BaseWidget<
     widgetProperties: any,
   ): void {
     const { updateWidget } = this.context;
+
     updateWidget && updateWidget(operationName, widgetId, widgetProperties);
   }
 
   deleteWidgetProperty(propertyPaths: string[]): void {
     const { deleteWidgetProperty } = this.context;
     const { widgetId } = this.props;
+
     if (deleteWidgetProperty && widgetId) {
       deleteWidgetProperty(widgetId, propertyPaths);
     }
@@ -254,6 +259,7 @@ abstract class BaseWidget<
   ): void {
     const { batchUpdateWidgetProperty } = this.context;
     const { widgetId } = this.props;
+
     if (batchUpdateWidgetProperty && widgetId) {
       batchUpdateWidgetProperty(widgetId, updates, shouldReplay);
     }
@@ -269,6 +275,7 @@ abstract class BaseWidget<
 
   resetChildrenMetaProperty(widgetId: string) {
     const { resetChildrenMetaProperty } = this.context;
+
     if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
   }
 
@@ -277,6 +284,7 @@ abstract class BaseWidget<
     payload?: string[],
   ) => {
     const { selectWidgetRequest } = this.context;
+
     if (selectWidgetRequest) {
       selectWidgetRequest(selectionRequestType, payload);
     }
@@ -284,6 +292,7 @@ abstract class BaseWidget<
 
   unfocusWidget = () => {
     const { unfocusWidget } = this.context;
+
     if (unfocusWidget) {
       unfocusWidget();
     }
@@ -380,6 +389,7 @@ abstract class BaseWidget<
 
   updateOneClickBindingOptionsVisibility(visibility: boolean) {
     const { updateOneClickBindingOptionsVisibility } = this.context;
+
     if (visibility) {
       this.selectWidgetRequest(SelectionRequestType.One, [this.props.widgetId]);
     }
@@ -571,6 +581,7 @@ export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
   displayName: string;
+  displayOrder?: number;
   icon: string;
   thumbnail?: string;
   isBeta?: boolean;

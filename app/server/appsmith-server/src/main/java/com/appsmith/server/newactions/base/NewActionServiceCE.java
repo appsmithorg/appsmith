@@ -80,6 +80,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
+    Flux<ActionViewDTO> getActionsForViewModeByPageId(String pageId);
+
     ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO, boolean viewMode);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);

@@ -92,6 +92,7 @@ describe("pasteSagas", () => {
         ],
       },
     };
+
     // mock the return values of the functions
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -122,20 +123,24 @@ describe("pasteSagas", () => {
         [select(getCurrentBasePageId), basePageId],
       ])
       .run();
+
     // check the effects
     expect(effects.put).toHaveLength(3);
     const updateLayoutPut = effects.put[0].payload.action;
+
     expect(updateLayoutPut.type).toBe(ReduxActionTypes.UPDATE_LAYOUT);
     // check if a new widget is added to main canvas based on widget count on update
     expect(Object.keys(updateLayoutPut.payload.widgets).length).toBe(
       Object.keys(allWidgets).length + 1,
     );
     const recordRecentlyAddedWidgetPut = effects.put[1].payload.action;
+
     expect(recordRecentlyAddedWidgetPut.type).toBe(
       ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
     );
     expect(recordRecentlyAddedWidgetPut.payload.length).toEqual(1);
     const selectWidgetInitActionPut = effects.put[2].payload.action;
+
     expect(selectWidgetInitActionPut.type).toBe(
       ReduxActionTypes.SELECT_WIDGET_INIT,
     );
@@ -200,6 +205,7 @@ describe("pasteSagas", () => {
         ],
       },
     };
+
     // Mock the return values of the functions
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -236,9 +242,11 @@ describe("pasteSagas", () => {
         [select(getCurrentBasePageId), basePageId],
       ])
       .run();
+
     // Check the effects
     expect(effects.put).toHaveLength(3);
     const updateLayoutPut = effects.put[0].payload.action;
+
     expect(updateLayoutPut.type).toBe(ReduxActionTypes.UPDATE_LAYOUT);
     // check if a new widget is added to main canvas based on widget count on update
     expect(Object.keys(updateLayoutPut.payload.widgets).length).toBe(
@@ -250,6 +258,7 @@ describe("pasteSagas", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (widget: any) => widget.type === "WDS_MODAL_WIDGET",
     );
+
     // Check if all modals are added to Main canvas
     expect(
       allUpdatedModals.every(

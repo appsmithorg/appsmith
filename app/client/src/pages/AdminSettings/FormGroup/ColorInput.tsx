@@ -94,6 +94,7 @@ const LeftIcon = (
   props: Omit<ColorInputProps, "value"> & { value: string },
 ) => {
   const { onChange, value } = props;
+
   return (
     <StyledColorInputIcon onChange={onChange} type="color" value={value} />
   );
@@ -120,12 +121,14 @@ export const ColorInput = (props: ColorInputProps) => {
 
       logEvent && logEvent(selectedIndex);
       let color = undefined;
+
       try {
         color = Color.parse(e.target.value);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error(error);
       }
+
       // if user is touching the primary color
       // then we need to update the shades
       if (selectedIndex === "primary" && color) {

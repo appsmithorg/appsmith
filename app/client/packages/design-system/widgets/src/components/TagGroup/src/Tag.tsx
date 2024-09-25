@@ -4,7 +4,7 @@ import {
   Tag as HeadlessTag,
   Button as HeadlessButton,
 } from "react-aria-components";
-import { getTypographyClassName } from "@design-system/theming";
+import { getTypographyClassName } from "@appsmith/wds-theming";
 import type { TagProps as HeadlessTagProps } from "react-aria-components";
 
 import styles from "./styles.module.css";

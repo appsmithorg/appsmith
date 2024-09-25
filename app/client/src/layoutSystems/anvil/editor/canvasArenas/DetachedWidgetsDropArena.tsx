@@ -3,7 +3,7 @@ import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import styled from "styled-components";
-import { Popover, PopoverModalContent } from "@design-system/headless";
+import { Popover, PopoverModalContent } from "@appsmith/wds-headless";
 import { DropModalHereMessage } from "layoutSystems/anvil/common/messages";
 import styles from "./styles.module.css";
 import type { AnvilGlobalDnDStates } from "../canvas/hooks/useAnvilGlobalDnDStates";
@@ -45,6 +45,7 @@ export const DetachedWidgetsDropArena = (props: {
       layoutOrder: [props.anvilGlobalDragStates.mainCanvasLayoutId],
     });
   };
+
   return props.anvilGlobalDragStates.activateOverlayWidgetDrop ? (
     <DetachedWidgetsDropArenaWrapper
       data-testid="t--anvil-detached-widgets-drop-arena"

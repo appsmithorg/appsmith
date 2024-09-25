@@ -7,6 +7,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,7 +20,8 @@ public class UpdateLayoutServiceImpl extends UpdateLayoutServiceCEImpl implement
             AnalyticsService analyticsService,
             PagePermission pagePermission,
             ApplicationService applicationService,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            ObservationRegistry observationRegistry) {
         super(
                 onLoadExecutablesUtil,
                 sessionUserService,
@@ -27,6 +29,7 @@ public class UpdateLayoutServiceImpl extends UpdateLayoutServiceCEImpl implement
                 analyticsService,
                 pagePermission,
                 applicationService,
-                objectMapper);
+                objectMapper,
+                observationRegistry);
     }
 }

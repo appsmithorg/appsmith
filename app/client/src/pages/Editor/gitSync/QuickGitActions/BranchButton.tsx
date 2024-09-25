@@ -63,6 +63,7 @@ function BranchButton() {
       modifiers={{ offset: { enabled: true, options: { offset: [7, 10] } } }}
       onInteraction={(nextState: boolean) => {
         setIsOpen(nextState);
+
         if (nextState) {
           AnalyticsUtil.logEvent("GS_OPEN_BRANCH_LIST_POPUP", {
             source: "BOTTOM_BAR_ACTIVE_BRANCH_NAME",

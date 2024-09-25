@@ -19,7 +19,7 @@ import {
   fetchActions,
 } from "actions/pluginActionActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -36,9 +36,6 @@ import {
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import history from "utils/history";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import type { AppEnginePayload } from ".";
 import AppEngine, {
   ActionsNotFoundError,
@@ -107,18 +104,6 @@ export default class AppEditorEngine extends AppEngine {
     endSpan(editorSetupSpan);
   }
 
-  public startPerformanceTracking() {
-    PerformanceTracker.startAsyncTracking(
-      PerformanceTransactionName.INIT_EDIT_APP,
-    );
-  }
-
-  public stopPerformanceTracking() {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.INIT_EDIT_APP,
-    );
-  }
-
   private *loadPageThemesAndActions(
     toLoadPageId: string,
     applicationId: string,
@@ -181,6 +166,7 @@ export default class AppEditorEngine extends AppEngine {
       "AppEditorEngine.waitForFetchUserSuccess",
       rootSpan,
     );
+
     yield call(waitForFetchUserSuccess);
     endSpan(waitForUserSpan);
 
@@ -188,6 +174,7 @@ export default class AppEditorEngine extends AppEngine {
       "AppEditorEngine.waitForSegmentInit",
       rootSpan,
     );
+
     yield call(waitForSegmentInit, true);
     endSpan(waitForSegmentInitSpan);
 
@@ -195,6 +182,7 @@ export default class AppEditorEngine extends AppEngine {
       "AppEditorEngine.waitForFetchEnvironments",
       rootSpan,
     );
+
     yield call(waitForFetchEnvironments);
     endSpan(waitForFetchEnvironmentsSpan);
 
@@ -294,6 +282,7 @@ export default class AppEditorEngine extends AppEngine {
         currentTabs,
       });
     }
+
     if (isFirstTimeUserOnboardingComplete) {
       yield put({
         type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
@@ -338,6 +327,7 @@ export default class AppEditorEngine extends AppEngine {
     const loadGitSpan = startNestedSpan("AppEditorEngine.loadGit", rootSpan);
 
     const branchInStore: string = yield select(getCurrentGitBranch);
+
     yield put(
       restoreRecentEntitiesRequest({
         applicationId,

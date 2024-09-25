@@ -52,6 +52,7 @@ const SegmentedControl = React.forwardRef(
         case "ArrowRight":
         case "Right":
           const rightIndex = index === options.length - 1 ? 0 : index + 1;
+
           segmentRefs[rightIndex]?.focus();
           setFocusedIndex(rightIndex);
           break;
@@ -59,6 +60,7 @@ const SegmentedControl = React.forwardRef(
         case "ArrowLeft":
         case "Left":
           const leftIndex = index === 0 ? options.length - 1 : index - 1;
+
           segmentRefs[leftIndex]?.focus();
           setFocusedIndex(leftIndex);
           break;
@@ -74,6 +76,7 @@ const SegmentedControl = React.forwardRef(
       if (controlledValue === undefined) {
         setSelectedValue(value);
       }
+
       onChange && onChange(value, isUpdatedViaKeyboard);
     };
 

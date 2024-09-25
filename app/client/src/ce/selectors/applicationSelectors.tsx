@@ -5,7 +5,7 @@ import type {
   ApplicationsReduxState,
   creatingApplicationMap,
 } from "ee/reducers/uiReducers/applicationsReducer";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import Fuse from "fuse.js";
 import type { GitApplicationMetadata } from "ee/api/ApplicationApi";
 import { getApplicationsOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
@@ -76,6 +76,7 @@ export const getApplicationList = createSelector(
       keyword.trim().length > 0
     ) {
       const fuzzy = new Fuse(applications, fuzzySearchOptions);
+
       return fuzzy.search(keyword) as ApplicationPayload[];
     } else if (
       applications &&
@@ -83,6 +84,7 @@ export const getApplicationList = createSelector(
     ) {
       return applications;
     }
+
     return [];
   },
 );
@@ -207,6 +209,7 @@ export const getApplicationByIdFromWorkspaces = createSelector(
     const application: ApplicationPayload | undefined = applications.find(
       (app) => app.id === applicationId,
     );
+
     return application;
   },
 );

@@ -7,7 +7,7 @@ import { Link, Text } from "@appsmith/ads";
 export const HelpPopoverStyle = createGlobalStyle`
   .bp3-portal {
     .delete-menu-item {
-      .cs-icon, .cs-text {
+      .ads-v2-icon, .cs-text {
         color: var(--appsmith-color-red-500) !important;
         svg {
           path {
@@ -45,8 +45,10 @@ export function BackButton({ goTo }: { goTo?: string }) {
   const onBack = () => {
     if (goTo) {
       history.push(goTo);
+
       return;
     }
+
     history.goBack();
   };
 

@@ -37,14 +37,17 @@ export const isEnvironmentConfigured = (
     !!datasource &&
     !!datasource.datasourceStorages &&
     datasource.datasourceStorages[environment]?.isConfigured;
+
   return !!isConfigured ? isConfigured : false;
 };
 
 // function to check if the datasource is configured for any environment
 export const doesAnyDsConfigExist = (datasource: Datasource | null) => {
   let isConfigured = false;
+
   if (!!datasource && !!datasource.datasourceStorages) {
     const envsList = Object.keys(datasource.datasourceStorages);
+
     if (envsList.length === 0) {
       isConfigured = false;
     } else {
@@ -53,6 +56,7 @@ export const doesAnyDsConfigExist = (datasource: Datasource | null) => {
       isConfigured = true;
     }
   }
+
   return isConfigured;
 };
 
@@ -65,6 +69,7 @@ export const isEnvironmentValid = (
     datasource &&
     datasource.datasourceStorages &&
     datasource.datasourceStorages[environment]?.isValid;
+
   return isValid ? isValid : false;
 };
 

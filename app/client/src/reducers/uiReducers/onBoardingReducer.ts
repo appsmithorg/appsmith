@@ -85,11 +85,13 @@ const onboardingReducer = createReducer(initialState, {
       (stepState) => stepState.step === action.payload.step,
     );
     const newArray = [...state.stepState];
+
     if (index >= 0) {
       newArray[index] = action.payload;
     } else {
       newArray.push(action.payload);
     }
+
     return {
       ...state,
       stepState: newArray,
@@ -105,6 +107,7 @@ const onboardingReducer = createReducer(initialState, {
             read: true,
           };
         }
+
         return step;
       }),
     };

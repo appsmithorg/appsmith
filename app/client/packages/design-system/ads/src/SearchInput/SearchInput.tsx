@@ -24,6 +24,7 @@ const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
     return (
       <StyledSearchInput
         {...rest}
+        aria-label={placeholder || "Search"}
         className={clsx(SearchInputClassName, className)}
         endIcon={value ? "close-circle-line" : undefined}
         endIconProps={{

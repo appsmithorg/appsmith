@@ -30,6 +30,7 @@ function defaultDateValidation(
   moment?: any,
 ): ValidationResponse {
   const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
+
   if (value === null) {
     return {
       isValid: true,
@@ -37,6 +38,7 @@ function defaultDateValidation(
       messages: [{ name: "", message: "" }],
     };
   }
+
   if (value === undefined) {
     return {
       isValid: false,
@@ -78,6 +80,7 @@ function minDateValidation(
   moment?: any,
 ): ValidationResponse {
   const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
+
   if (value === undefined) {
     return {
       isValid: false,
@@ -92,6 +95,7 @@ function minDateValidation(
       ],
     };
   }
+
   const parsedMinDate = moment(value as string, dateFormat);
   let isValid = parsedMinDate.isValid();
 
@@ -102,6 +106,7 @@ function minDateValidation(
       messages: [{ name: "", message: "" }],
     };
   }
+
   const parsedDefaultDate = moment(props.defaultDate, dateFormat);
 
   if (
@@ -111,6 +116,7 @@ function minDateValidation(
   ) {
     isValid = false;
   }
+
   if (!isValid) {
     return {
       isValid: isValid,
@@ -125,6 +131,7 @@ function minDateValidation(
       ],
     };
   }
+
   return {
     isValid: isValid,
     parsed: value,
@@ -143,6 +150,7 @@ function maxDateValidation(
   moment?: any,
 ): ValidationResponse {
   const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
+
   if (value === undefined) {
     return {
       isValid: false,
@@ -157,8 +165,10 @@ function maxDateValidation(
       ],
     };
   }
+
   const parsedMaxDate = moment(value as string, dateFormat);
   let isValid = parsedMaxDate.isValid();
+
   if (!props.defaultDate) {
     return {
       isValid: isValid,
@@ -166,6 +176,7 @@ function maxDateValidation(
       messages: [{ name: "", message: "" }],
     };
   }
+
   const parsedDefaultDate = moment(props.defaultDate, dateFormat);
 
   if (
@@ -175,6 +186,7 @@ function maxDateValidation(
   ) {
     isValid = false;
   }
+
   if (!isValid) {
     return {
       isValid: isValid,
@@ -189,12 +201,14 @@ function maxDateValidation(
       ],
     };
   }
+
   return {
     isValid: isValid,
     parsed: value,
     messages: [{ name: "", message: "" }],
   };
 }
+
 class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static type = "DATE_PICKER_WIDGET";
 
@@ -438,17 +452,21 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
           this.props.defaultDate,
           this.props.dateFormat,
         );
+
         if (!defaultDate.isValid()) {
           super.updateWidgetProperty("defaultDate", "");
         } else {
           if (this.props.minDate) {
             const minDate = moment(this.props.minDate, this.props.dateFormat);
+
             if (!minDate.isValid() || defaultDate.isBefore(minDate)) {
               super.updateWidgetProperty("defaultDate", "");
             }
           }
+
           if (this.props.maxDate) {
             const maxDate = moment(this.props.maxDate, this.props.dateFormat);
+
             if (!maxDate.isValid() || defaultDate.isAfter(maxDate)) {
               super.updateWidgetProperty("defaultDate", "");
             }

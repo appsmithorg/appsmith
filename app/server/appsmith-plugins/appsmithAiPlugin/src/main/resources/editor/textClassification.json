@@ -1,74 +1,83 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "TEXT_CLASSIFY",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.usecase.data === 'TEXT_CLASSIFY'}}"
   },
   "children": [
     {
-      "label": "Try out these examples",
-      "Description": "Try out these examples",
-      "subtitle": "",
-      "configProperty": "",
-      "controlType": "FORM_TEMPLATE",
-      "isRequired": false,
-      "options": [
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "TEXT-CLASSIFY-Z1",
+      "children": [
         {
-          "label": "Customer support",
-          "value": {
-            "actionConfiguration.formData.textClassify.input.data": "[\"Hello, I recently made a purchase on your platform, but I encountered an issue during the payment process. The transaction didnt go through, and Im unsure of the cause. Could you please assist? Best, Alice\",\n“Hi Alice, We apologize for any inconvenience. To assist you better, could you provide us with the error message you received, if any? Also, please check if your payment method is valid. Thanks, Support Team\",\n\"I didnt receive any specific error message; the transaction just failed. My payment method should be working fine as I used it elsewhere without any problems. Regards, Alice\",\n\"Thank you for the information, Alice. We will look into this matter and update you as soon as we have more information. In the meantime, could you try a different payment method? Best, Support Team\"]",
-            "actionConfiguration.formData.textClassify.instructions.data": "If no label fits the input, apply “General” label",
-            "actionConfiguration.formData.textClassify.labels.data": "Technical, Urgent, Billing, Account, Upgrade, Bug, Refund"
-          }
-        },
-        {
-          "label": "Product review",
-          "value": {
-            "actionConfiguration.formData.textClassify.input.data": "Received my laptop stand from Macazon after a significant delay in delivery, which was a bit disappointing. Upon unboxing, I noticed the build seemed sturdy, but unfortunately, the stand doesn't function as expected. It's supposed to be adjustable, but the mechanism is quite stiff, making it challenging to change angles or heights.",
-            "actionConfiguration.formData.textClassify.instructions.data": "Strictly apply only one label",
-            "actionConfiguration.formData.textClassify.labels.data": "Positive, Neutral, Negative"
-          }
-        },
-        {
-          "label": "GitHub Issue",
-          "value": {
-            "actionConfiguration.formData.textClassify.input.data": "When console statement is long then the text is truncated when printed on the debugger as seen in the screenshot\n\nSteps To Reproduce\nAdd following statement to the editor and execute the function to observe truncation\nconsole.log('This is a long statement to display truncation issue present on the debugger. You can see this statement not being printed in whole')",
-            "actionConfiguration.formData.textClassify.instructions.data": "",
-            "actionConfiguration.formData.textClassify.labels.data": "Bug, Feature Request, Enhancement"
-          }
+          "label": "Try out these examples",
+          "Description": "Try out these examples",
+          "subtitle": "",
+          "configProperty": "",
+          "controlType": "FORM_TEMPLATE",
+          "isRequired": false,
+          "options": [
+            {
+              "label": "Customer support",
+              "value": {
+                "actionConfiguration.formData.textClassify.input.data": "[\"Hello, I recently made a purchase on your platform, but I encountered an issue during the payment process. The transaction didnt go through, and Im unsure of the cause. Could you please assist? Best, Alice\",\n“Hi Alice, We apologize for any inconvenience. To assist you better, could you provide us with the error message you received, if any? Also, please check if your payment method is valid. Thanks, Support Team\",\n\"I didnt receive any specific error message; the transaction just failed. My payment method should be working fine as I used it elsewhere without any problems. Regards, Alice\",\n\"Thank you for the information, Alice. We will look into this matter and update you as soon as we have more information. In the meantime, could you try a different payment method? Best, Support Team\"]",
+                "actionConfiguration.formData.textClassify.instructions.data": "If no label fits the input, apply “General” label",
+                "actionConfiguration.formData.textClassify.labels.data": "Technical, Urgent, Billing, Account, Upgrade, Bug, Refund"
+              }
+            },
+            {
+              "label": "Product review",
+              "value": {
+                "actionConfiguration.formData.textClassify.input.data": "Received my laptop stand from Macazon after a significant delay in delivery, which was a bit disappointing. Upon unboxing, I noticed the build seemed sturdy, but unfortunately, the stand doesn't function as expected. It's supposed to be adjustable, but the mechanism is quite stiff, making it challenging to change angles or heights.",
+                "actionConfiguration.formData.textClassify.instructions.data": "Strictly apply only one label",
+                "actionConfiguration.formData.textClassify.labels.data": "Positive, Neutral, Negative"
+              }
+            },
+            {
+              "label": "GitHub Issue",
+              "value": {
+                "actionConfiguration.formData.textClassify.input.data": "When console statement is long then the text is truncated when printed on the debugger as seen in the screenshot\n\nSteps To Reproduce\nAdd following statement to the editor and execute the function to observe truncation\nconsole.log('This is a long statement to display truncation issue present on the debugger. You can see this statement not being printed in whole')",
+                "actionConfiguration.formData.textClassify.instructions.data": "",
+                "actionConfiguration.formData.textClassify.labels.data": "Bug, Feature Request, Enhancement"
+              }
+            }
+          ]
         }
       ]
     },
     {
-      "label": "Input",
-      "Description": "Provide some text for AI to classify",
-      "subtitle": "Provide some text for AI to classify",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "configProperty": "actionConfiguration.formData.textClassify.input.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "isRequired": true
-    },
-    {
-      "label": "Labels",
-      "Description": "Provide a comma separated list of labels to classify the Input on",
-      "subtitle": "Provide a comma separated list of labels to classify the Input on",
-      "configProperty": "actionConfiguration.formData.textClassify.labels.data",
-      "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "isRequired": true,
-      "customStyles": {
-        "width": "872px"
-      }
-    },
-    {
-      "label": "Additional Instructions",
-      "Description": "Provide additional instructions for the AI to tweak the text classification",
-      "subtitle": "Provide additional instructions for the AI to tweak the text classification",
-      "configProperty": "actionConfiguration.formData.textClassify.instructions.data",
-      "controlType": "QUERY_DYNAMIC_TEXT",
-      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
-      "initialValue": "",
-      "isRequired": false
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "TEXT-CLASSIFY-Z2",
+      "children": [
+        {
+          "label": "Input",
+          "Description": "Provide some text for AI to classify",
+          "subtitle": "Provide some text for AI to classify",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "configProperty": "actionConfiguration.formData.textClassify.input.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "isRequired": true
+        },
+        {
+          "label": "Labels",
+          "Description": "Provide a comma separated list of labels to classify the Input on",
+          "subtitle": "Provide a comma separated list of labels to classify the Input on",
+          "configProperty": "actionConfiguration.formData.textClassify.labels.data",
+          "placeholderText": "Write a list of comma separated text values or use {{ }} to reference a dynamic value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "isRequired": true
+        },
+        {
+          "label": "Additional Instructions",
+          "Description": "Provide additional instructions for the AI to tweak the text classification",
+          "subtitle": "Provide additional instructions for the AI to tweak the text classification",
+          "configProperty": "actionConfiguration.formData.textClassify.instructions.data",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+          "initialValue": "",
+          "isRequired": false
+        }
+      ]
     }
   ]
 }

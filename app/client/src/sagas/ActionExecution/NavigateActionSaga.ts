@@ -1,7 +1,8 @@
 import { call, put, select } from "redux-saga/effects";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
-import { ReduxActionTypes, type Page } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
@@ -56,6 +57,7 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
 
     if (target === NavigationTargetType.SAME_WINDOW) {
       history.push(path);
+
       if (currentPageId === page.pageId) {
         yield call(setDataUrl);
         yield put({
@@ -65,6 +67,7 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(path, "_blank");
     }
+
     AppsmithConsole.info({
       text: `navigateTo('${page.pageName}') was triggered`,
       state: {
@@ -83,9 +86,11 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
 
       // Default to https protocol to support navigation to URLs like www.google.com
       url = `https://${url}`;
+
       if (!isValidURL(url))
         throw new TriggerFailureError("Enter a valid URL or page name");
     }
+
     if (target === NavigationTargetType.SAME_WINDOW) {
       window.location.assign(url);
     } else if (target === NavigationTargetType.NEW_WINDOW) {

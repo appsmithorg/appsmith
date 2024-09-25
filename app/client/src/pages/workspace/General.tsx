@@ -115,6 +115,7 @@ export function GeneralSettings() {
   const currentWorkspace = useSelector(getFetchedWorkspaces).filter(
     (el) => el.id === workspaceId,
   )[0];
+
   function saveChanges(settings: SaveWorkspaceRequest) {
     dispatch(saveWorkspace(settings));
   }
@@ -157,9 +158,11 @@ export function GeneralSettings() {
         const uploadPercentage = Math.round(
           (progressEvent.loaded / progressEvent.total) * 100,
         );
+
         if (uploadPercentage === 100) {
           onUpload(currentWorkspace.logoUrl || "");
         }
+
         setProgress(uploadPercentage);
       }
     };

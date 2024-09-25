@@ -53,7 +53,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
@@ -772,6 +771,25 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     }
 
     /**
+     * This function deep copies the actionConfiguration object to send the original object to mixpanel which contains
+     * the actual user query with bindings
+     * @param actionConfiguration
+     * @return
+     */
+    private ActionConfiguration deepCopyActionConfiguration(ActionConfiguration actionConfiguration) {
+        try {
+            // Convert the ActionConfiguration object to JSON string
+            String json = objectMapper.writeValueAsString(actionConfiguration);
+
+            // Convert the JSON string back to an ActionConfiguration object
+            return objectMapper.readValue(json, ActionConfiguration.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
      * Handles the execution logic, call to pluginExecutor with the payload post retrieval and validation of action, datasource, and plugin
      *
      * @param executeActionDTO
@@ -799,9 +817,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     ActionConfiguration rawActionConfiguration = null;
                     if (actionDTO != null && actionDTO.getActionConfiguration() != null) {
                         // deep copying the actionConfiguration to avoid any changes in the original object
-                        Gson gson = commonConfig.gsonInstance();
-                        rawActionConfiguration = gson.fromJson(
-                                gson.toJson(actionDTO.getActionConfiguration()), ActionConfiguration.class);
+                        rawActionConfiguration = this.deepCopyActionConfiguration(actionDTO.getActionConfiguration());
                     }
 
                     log.debug(
@@ -1135,10 +1151,12 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         eventData.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS, REDACTED_DATA);
                     }
                     if (executeActionDto != null) {
-                        if (commonConfig.isCloudHosting()) {
-                            // Only send this parameter if cloud hosting is true as it contains user's evaluated params
-                            data.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP, executeActionDto.getParams());
+                        // Remove the value from the executeActionDto.params before sending to mixpanel as it contains
+                        // user submitted data
+                        if (executeActionDto.getParams() != null) {
+                            executeActionDto.getParams().forEach(param -> param.setValue(REDACTED_DATA));
                         }
+                        data.put(FieldName.ACTION_EXECUTION_REQUEST_PARAMS_VALUE_MAP, executeActionDto.getParams());
                         data.put(
                                 FieldName.ACTION_EXECUTION_INVERT_PARAMETER_MAP,
                                 executeActionDto.getInvertParameterMap());

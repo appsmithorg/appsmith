@@ -11,11 +11,12 @@ import {
 import { toast } from "@appsmith/ads";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { LightModeTheme } from "@design-system/theming";
+import { LightModeTheme } from "@appsmith/wds-theming";
 
 const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;
 const DEFAULT_BRANDING_PRIMARY_COLOR = "#E15615";
+
 export const APPSMITH_BRAND_PRIMARY_COLOR =
   getComputedStyle(document.documentElement).getPropertyValue(
     "--ads-v2-color-bg-brand",
@@ -77,6 +78,7 @@ export function createBrandColorsFromPrimaryColor(
           "--ads-v2-color-bg-brand-emphasis-plus",
         )
       : lightTheme.bgAccentActive.toString({ format: "hex" });
+
   return {
     primary: brand,
     background: bgColor,
@@ -129,6 +131,7 @@ export const logoImageValidator = (
 
   // case 4: check image dimension
   const image = new Image();
+
   image.src = window.URL.createObjectURL(file);
 
   callback && callback(e);
@@ -183,6 +186,7 @@ export const faivconImageValidator = (
 
   // case 4: check image dimension
   const image = new Image();
+
   image.src = window.URL.createObjectURL(file);
 
   image.onload = function () {

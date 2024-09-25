@@ -16,6 +16,7 @@ jobs:
       runId: ${{steps.args.outputs.runId}}
       matrix_count: ${{steps.matrix.outputs.matrix_count}}
       run_count: ${{ steps.countArgs.outputs.run_count }}
+      is-pg-build: ${{steps.args.outputs.is-pg-build}}
     steps:
       - name: Checkout the head commit of the branch
         uses: actions/checkout@v4
@@ -29,6 +30,7 @@ jobs:
         id: args
         run: |
           echo "pr=${{ github.event.client_payload.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "is-pg-build=${{ github.event.client_payload.pull_request.base.ref == 'pg' }}" >> $GITHUB_OUTPUT
           checkArg=${{ github.event.client_payload.slash_command.args.named.runId }}
           if [[ -z "$checkArg" ]]; then
               echo "runId=0" >> $GITHUB_OUTPUT
@@ -106,6 +108,7 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       skip-tests: "true"
+      is-pg-build: ${{fromJson(needs.file-check.outputs.is-pg-build)}}
 
   client-build:
     name: client-build
@@ -146,6 +149,7 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       run_count: ${{fromJson(needs.file-check.outputs.run_count)}}
+    
 
   ci-test-limited-existing-docker-image:
     needs: [file-check]
@@ -252,26 +256,67 @@ jobs:
           echo "$new_failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Add a comment on the PR with new CI failures
-        if: needs.ci-test-limited.result != 'success' && needs.file-check.outputs.pr != '0'
-        uses: peter-evans/create-or-update-comment@v3
+      - name: Download the client build artifact
+        uses: actions/download-artifact@v4
         with:
-          issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
-          body: |
-            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
-            The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
-            To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
+          name: cypress-repeat-logs
+          path: app/client
+      
+      - name: Download the ci_test_status
+        uses: actions/download-artifact@v4
+        with:
+          name: ci_test_status
+          path: app/client
+  
+      - name: Read and Set File Content as ENV Variable
+        id: set-summary-content
+        run: |
+            summary_content=$(cat app/client/cy-repeat-summary.txt | tr '\n' ' ')
+            echo "summary_content=$summary_content" >> $GITHUB_ENV   
+      
+      - name: Check CI Test Result
+        id: check-ci-test
+        run: |
+            # Check if the ci_test_failed flag is set
+            if [ -f app/client/ci_test_status.txt ]; then
+                if grep -q "ci_test_failed=true" app/client/ci_test_status.txt; then
+                  echo "Tests failed. Please review the test results."
+                  echo "ci_test_failed=true" >> $GITHUB_ENV
+                else
+                  echo "Tests passed."
+                  echo "ci_test_failed=false" >> $GITHUB_ENV
+                fi
+            else
+                echo "ci_test_status.txt file not found."
+                echo "ci_test_failed=unknown" >> $GITHUB_ENV
+            fi      
 
-      - name: Add a comment on the PR when ci-test-limited is success
-        if: needs.ci-test-limited.result == 'success' && needs.file-check.outputs.pr != '0'
+      - name: Add a comment on the PR with new CI failures
+        if: env.ci_test_failed != 'true' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
           body: |
-            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
-            All cypress tests have passed 🎉🎉🎉
+                Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+                Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank">Click here!</a>
+                The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
+                To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
+                ```
+                ${{ env.summary_content }}
+                ```
+    
+      - name: Add a comment on the PR when ci-test-limited is successful
+        if: env.ci_test_failed == 'true' && needs.file-check.outputs.pr != '0'
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
+          body: |
+                Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+                Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
+                All Cypress tests have passed 🎉🎉🎉
+                ```
+                ${{ env.summary_content }}
+                ```
 
       - name: Check ci-test-limited set status
         if: needs.ci-test-limited.result != 'success'
@@ -369,9 +414,44 @@ jobs:
           echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$new_failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+       
+      - name: Download the client build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cypress-repeat-logs
+          path: app/client
+
+      - name: Download the ci_test_status
+        uses: actions/download-artifact@v4
+        with:
+          name: ci_test_status
+          path: app/client    
+  
+      - name: Read and Set File Content as ENV Variable
+        id: set-summary-content
+        run: |
+            summary_content=$(cat app/client/cy-repeat-summary.txt | tr '\n' ' ')
+            echo "summary_content=$summary_content" >> $GITHUB_ENV     
+    
+      - name: Check CI Test Result
+        id: check-ci-test
+        run: |
+            # Check if the ci_test_failed flag is set
+            if [ -f app/client/ci_test_status.txt ]; then
+                if grep -q "ci_test_failed=true" app/client/ci_test_status.txt; then
+                  echo "Tests failed. Please review the test results."
+                  echo "ci_test_failed=true" >> $GITHUB_ENV
+                else
+                  echo "Tests passed."
+                  echo "ci_test_failed=false" >> $GITHUB_ENV
+                fi
+            else
+                echo "ci_test_status.txt file not found."
+                echo "ci_test_failed=unknown" >> $GITHUB_ENV
+            fi      
 
       - name: Add a comment on the PR with new CI failures
-        if: needs.ci-test-limited-existing-docker-image.result != 'success' && needs.file-check.outputs.pr != '0'
+        if: env.ci_test_failed != 'true' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
@@ -380,9 +460,12 @@ jobs:
             Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
             The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
             To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
+            ```
+            ${{ env.summary_content }}
+            ```
 
       - name: Add a comment on the PR when ci-test-limited-existing-docker-image is success
-        if: needs.ci-test-limited-existing-docker-image.result == 'success' && needs.file-check.outputs.pr != '0'
+        if: env.ci_test_failed == 'true' && needs.file-check.outputs.pr != '0'
         uses: peter-evans/create-or-update-comment@v3
         with:
           issue-number: ${{fromJson(needs.file-check.outputs.pr)}}
@@ -390,7 +473,10 @@ jobs:
             Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
             Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
             All cypress tests have passed 🎉🎉🎉
-
+            ```
+            ${{ env.summary_content }}
+            ```
+            
       - name: Check ci-test-limited-existing-docker-image set status
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
         run: exit 1

@@ -2,6 +2,7 @@ import {
   agHelper,
   apiPage,
   assertHelper,
+  dataManager,
   deployMode,
   entityItems,
   jsEditor,
@@ -128,8 +129,8 @@ describe(
       agHelper.AddDsl("multiPartFormDataDsl");
 
       apiPage.CreateAndFillApi(
-        "https://api.cloudinary.com/v1_1/appsmithautomationcloud/image/upload?upload_preset=fbbhg4xu",
-        "CloudinaryUploadApi",
+        dataManager.dsValues[dataManager.defaultEnviorment].multipartAPI,
+        "MultipartAPI",
         30000,
         "POST",
       );
@@ -145,7 +146,7 @@ describe(
             myVar1: [],
             myVar2: {},
             upload: async () => {
-                await CloudinaryUploadApi.run().then(()=> showAlert('Image uploaded to Cloudinary successfully', 'success')).catch(err => showAlert(err.message, 'error'));
+                await MultipartAPI.run().then(()=> showAlert('Image uploaded to multipart successfully', 'success')).catch(err => showAlert(err.message, 'error'));
                 await resetWidget('FilePicker1', true);
             }
         }`,
@@ -161,15 +162,9 @@ describe(
       propPane.EnterJSContext("onFilesSelected", `{{JSObject1.upload()}}`);
 
       EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
-      propPane.UpdatePropertyFieldValue(
-        "Image",
-        "{{CloudinaryUploadApi.data.url}}",
-      );
+      propPane.UpdatePropertyFieldValue("Image", "{{MultipartAPI.data.url}}");
 
-      EditorNavigation.SelectEntityByName(
-        "CloudinaryUploadApi",
-        EntityType.Api,
-      );
+      EditorNavigation.SelectEntityByName("MultipartAPI", EntityType.Api);
 
       apiPage.ToggleOnPageLoadRun(false); //Bug 12476
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
@@ -177,9 +172,7 @@ describe(
       agHelper.ClickButton("Select Files");
       agHelper.UploadFile(imageNameToUpload);
       assertHelper.AssertNetworkExecutionSuccess("@postExecute"); //validating Cloudinary api call
-      agHelper.ValidateToastMessage(
-        "Image uploaded to Cloudinary successfully",
-      );
+      agHelper.ValidateToastMessage("Image uploaded to multipart successfully");
       agHelper.Sleep();
       cy.xpath(apiPage._imageSrc)
         .find("img")
@@ -191,32 +184,6 @@ describe(
         });
       agHelper.AssertElementVisibility(locators._buttonByText("Select Files")); //verifying if reset!
       deployMode.NavigateBacktoEditor();
-    });
-
-    it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
-      const imageNameToUpload = "AAAFlowerVase.jpeg";
-      EditorNavigation.SelectEntityByName(
-        "CloudinaryUploadApi",
-        EntityType.Api,
-      );
-      apiPage.EnterBodyFormData(
-        "MULTIPART_FORM_DATA",
-        "file",
-        "{{FilePicker1.files[0]}}",
-        "Array",
-        true,
-      );
-      EditorNavigation.SelectEntityByName("FilePicker1", EntityType.Widget);
-      agHelper.ClickButton("Select Files");
-      agHelper.UploadFile(imageNameToUpload);
-      assertHelper.AssertNetworkExecutionSuccess("@postExecute", false);
-
-      deployMode.DeployApp(locators._buttonByText("Select Files"));
-      agHelper.ClickButton("Select Files");
-      agHelper.UploadFile(imageNameToUpload);
-      assertHelper.AssertNetworkExecutionSuccess("@postExecute", false);
-      agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute");
-      agHelper.AssertElementVisibility(locators._buttonByText("Select Files")); //verifying if reset in case of failure!
     });
   },
 );

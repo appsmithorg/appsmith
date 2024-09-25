@@ -1,1 +1,0 @@
-export { WDSPhoneInputWidget } from "./widget";

@@ -65,6 +65,7 @@ public class AppsmithAiPlugin extends BasePlugin {
 
         @Override
         public Mono<APIConnection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
+            log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for AppsmithAI plugin.");
             ApiKeyAuth apiKeyAuth = new ApiKeyAuth();
             apiKeyAuth.setValue("test-key");
             return ApiKeyAuthentication.create(apiKeyAuth)
@@ -78,6 +79,7 @@ public class AppsmithAiPlugin extends BasePlugin {
         @Override
         public Mono<TriggerResultDTO> trigger(
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            log.debug(Thread.currentThread().getName() + ": trigger() called for AppsmithAI plugin.");
             SourceDetails sourceDetails = SourceDetails.createSourceDetails(request);
             String requestType = request.getRequestType();
             if (UPLOAD_FILES.equals(requestType)) {
@@ -143,6 +145,7 @@ public class AppsmithAiPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            log.debug(Thread.currentThread().getName() + ": executeParameterized() called for AppsmithAI plugin.");
             // Get input from action configuration
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -162,6 +165,7 @@ public class AppsmithAiPlugin extends BasePlugin {
                 List<Map.Entry<String, String>> insertedParams,
                 ExecuteActionDTO executeActionDTO) {
 
+            log.debug(Thread.currentThread().getName() + ": executeCommon() called for AppsmithAI plugin.");
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
@@ -199,11 +203,13 @@ public class AppsmithAiPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration, boolean isEmbedded) {
+            log.debug(Thread.currentThread().getName() + ": validateDatasource() called for AppsmithAI plugin.");
             return Set.of();
         }
 
         @Override
         public Mono<DatasourceStorage> preSaveHook(DatasourceStorage datasourceStorage) {
+            log.debug(Thread.currentThread().getName() + ": preSaveHook() called for AppsmithAI plugin.");
             return aiServerService
                     .associateDatasource(createAssociateDTO(datasourceStorage))
                     .thenReturn(datasourceStorage);
@@ -211,6 +217,7 @@ public class AppsmithAiPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStorage> preDeleteHook(DatasourceStorage datasourceStorage) {
+            log.debug(Thread.currentThread().getName() + ": preDeleteHook() called for AppsmithAI plugin.");
             DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
             if (hasFiles(datasourceConfiguration)) {
                 return aiServerService

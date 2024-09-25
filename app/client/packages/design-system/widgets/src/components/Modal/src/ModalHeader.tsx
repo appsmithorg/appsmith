@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from "react";
-import { usePopoverContext } from "@design-system/headless";
+import { usePopoverContext } from "@appsmith/wds-headless";
 
 import { Text } from "../../Text";
 import { IconButton } from "../../IconButton";
@@ -18,6 +18,7 @@ export const ModalHeader = (props: ModalHeaderProps) => {
   // if this component is mounted inside it.
   useLayoutEffect(() => {
     setLabelId(id);
+
     return () => setLabelId(undefined);
   }, [id, setLabelId]);
 

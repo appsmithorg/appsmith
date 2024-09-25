@@ -59,6 +59,7 @@ export function* logDynamicTriggerExecution({
   triggerMeta: TriggerMeta;
 }) {
   if (triggerMeta.triggerKind !== TriggerKind.EVENT_EXECUTION) return;
+
   const isUnsuccessfulExecution = isArray(errors) && errors.length > 0;
   const {
     appId,
@@ -79,6 +80,7 @@ export function* logDynamicTriggerExecution({
   const isJSToggled = !!dynamicPropertyPathList?.find(
     (property) => property.key === triggerMeta.triggerPropertyName,
   );
+
   AnalyticsUtil.logEvent("EXECUTE_ACTION", {
     type: "JS_EXPRESSION",
     unevalValue: dynamicTrigger,

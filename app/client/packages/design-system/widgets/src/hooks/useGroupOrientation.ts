@@ -4,7 +4,7 @@ import {
   useResizeObserver,
   useValueEffect,
 } from "@react-aria/utils";
-import type { POSITION } from "@design-system/widgets";
+import type { POSITION } from "@appsmith/wds";
 import type { Orientation } from "@react-types/shared";
 
 export interface GroupAria {
@@ -35,6 +35,7 @@ export function useGroupOrientation(
 
         for (const [i, item] of options.entries()) {
           const itemWidth = item.getBoundingClientRect().width;
+
           calculatedSize += itemWidth;
 
           if (i !== 0) {
@@ -85,5 +86,6 @@ export function useGroupOrientation(
 
 function toNumber(value: string) {
   const parsed = parseInt(value, 10);
+
   return isNaN(parsed) ? 0 : parsed;
 }

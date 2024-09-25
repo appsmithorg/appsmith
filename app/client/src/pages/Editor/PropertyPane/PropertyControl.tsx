@@ -133,12 +133,14 @@ const PropertyControl = memo((props: Props) => {
   useEffect(() => {
     // This is required because layered panels like Column Panel have Animation of 300ms
     const focusTimeout = props.isPanelProperty ? 300 : 0;
+
     if (shouldFocusPropertyPath) {
       setTimeout(() => {
         if (shouldFocusOnPropertyControl(controlRef.current)) {
           const focusableElement = getPropertyControlFocusElement(
             controlRef.current,
           );
+
           focusableElement?.scrollIntoView({
             block: "center",
             behavior: "smooth",
@@ -291,6 +293,7 @@ const PropertyControl = memo((props: Props) => {
       propertyValue: any,
     ): UpdateWidgetPropertyPayload | undefined => {
       let propertiesToUpdate: Array<PropertyUpdates> | undefined;
+
       // To support updating multiple properties of same widget.
       if (updateHook) {
         propertiesToUpdate = updateHook(
@@ -347,6 +350,7 @@ const PropertyControl = memo((props: Props) => {
           },
           state: allUpdates,
         });
+
         return {
           widgetId: widgetProperties.widgetId,
           updates: {
@@ -359,10 +363,12 @@ const PropertyControl = memo((props: Props) => {
           },
         };
       }
+
       if (!propertiesToUpdate) {
         const modify: Record<string, unknown> = {
           [propertyName]: propertyValue,
         };
+
         AppsmithConsole.info({
           logType: LOG_TYPE.WIDGET_UPDATE,
           text: "Widget properties were updated",
@@ -415,9 +421,11 @@ const PropertyControl = memo((props: Props) => {
         ) {
           const allUpdates: Record<string, unknown> = {};
           const triggerPaths: string[] = [];
+
           hookPropertiesUpdates.forEach(
             ({ isDynamicTrigger, propertyPath, propertyValue }) => {
               allUpdates[propertyPath] = propertyValue;
+
               if (isDynamicTrigger) triggerPaths.push(propertyPath);
             },
           );
@@ -429,15 +437,18 @@ const PropertyControl = memo((props: Props) => {
               triggerPaths,
             },
           };
+
           otherWidgetPropertiesToUpdates.push(parentEnhancementUpdates);
         }
       }
+
       if (updateRelatedWidgetProperties) {
         const relatedWidgetUpdates = updateRelatedWidgetProperties(
           propertyName,
           propertyValue,
           widgetProperties,
         );
+
         if (
           Array.isArray(relatedWidgetUpdates) &&
           relatedWidgetUpdates.length
@@ -446,6 +457,7 @@ const PropertyControl = memo((props: Props) => {
             otherWidgetPropertiesToUpdates.concat(relatedWidgetUpdates);
         }
       }
+
       return otherWidgetPropertiesToUpdates;
     },
     [
@@ -517,17 +529,21 @@ const PropertyControl = memo((props: Props) => {
             const findWidgetIndex = acc.findIndex(
               (val) => val.widgetId === curr.widgetId,
             );
+
             if (findWidgetIndex >= 0) {
               //merge updates of the same widget
               const mergeCopy = merge({}, acc[findWidgetIndex], curr);
+
               acc[findWidgetIndex] = mergeCopy;
             } else {
               acc.push(curr);
             }
+
             return acc;
           },
           [],
         );
+
       if (consolidatedUpdates && consolidatedUpdates.length) {
         // updating properties of a widget(s) should be done only once when property value changes.
         // to make sure dsl updates are atomic which is a necessity for undo/redo.
@@ -691,6 +707,7 @@ const PropertyControl = memo((props: Props) => {
 
       onDeleteProperties([props.propertyName]);
     }
+
     resetEditing();
 
     AnalyticsUtil.logEvent("CUSTOM_WIDGET_EDIT_EVENT_SAVE_CLICKED", {
@@ -763,7 +780,9 @@ const PropertyControl = memo((props: Props) => {
       additionalDynamicData: {},
       label,
     };
+
     config.expected = getExpectedValue(props.validation);
+
     if (widgetProperties.isPropertyDynamicTrigger) {
       config.validationMessage = "";
       config.expected = {
@@ -779,6 +798,7 @@ const PropertyControl = memo((props: Props) => {
     const className = label.split(" ").join("").toLowerCase();
 
     let additionAutocomplete: AdditionalDynamicDataTree | undefined;
+
     if (additionalAutoComplete) {
       additionAutocomplete = additionalAutoComplete(widgetProperties);
     } else if (childWidgetAutoCompleteEnhancementFn) {
@@ -827,6 +847,7 @@ const PropertyControl = memo((props: Props) => {
     const customJSControl = getCustomJSControl();
 
     let isToggleDisabled = false;
+
     if (
       isDynamic // JS toggle button is ON
     ) {
@@ -836,10 +857,12 @@ const PropertyControl = memo((props: Props) => {
         propertyValue !== ""
       ) {
         let value = propertyValue;
+
         // extract out the value from binding, if there is custom JS control (Table & JSONForm widget)
         if (customJSControl && isDynamicValue(value)) {
           const extractValue =
             PropertyControlFactory.inputComputedValueMap.get(customJSControl);
+
           if (extractValue)
             value = extractValue(value, widgetProperties.widgetName);
         }
@@ -878,6 +901,7 @@ const PropertyControl = memo((props: Props) => {
         isToggleDisabled,
         connectDataClicked,
       );
+
       if (switchMode) {
         toggleDynamicProperty(propertyName, true);
       }
@@ -917,6 +941,7 @@ const PropertyControl = memo((props: Props) => {
                   )}
                   onChange={(e) => {
                     const value = e.target.value;
+
                     // Non-word characters are replaced with underscores for valid property naming
                     setEditedName(value.split(/\W+/).join("_"));
                   }}
@@ -975,7 +1000,7 @@ const PropertyControl = memo((props: Props) => {
                 }
               >
                 <PropertyHelpLabel
-                  className="w-full"
+                  className="fit-content"
                   label={label}
                   theme={props.theme}
                   tooltip={helpText}
@@ -1068,6 +1093,7 @@ const PropertyControl = memo((props: Props) => {
 
                         onBatchUpdateProperties(updates);
                       }
+
                       onDeleteProperties([config.propertyName]);
 
                       AnalyticsUtil.logEvent(
@@ -1119,9 +1145,11 @@ const PropertyControl = memo((props: Props) => {
       );
     } catch (e) {
       log.error(e);
+
       return null;
     }
   }
+
   return null;
 });
 

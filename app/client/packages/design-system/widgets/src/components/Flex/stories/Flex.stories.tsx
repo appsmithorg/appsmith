@@ -1,6 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Flex, Text } from "@design-system/widgets";
+import { Flex, Text } from "@appsmith/wds";
 import styles from "./styles.module.css";
 
 /**
@@ -11,7 +11,7 @@ import styles from "./styles.module.css";
  */
 const meta: Meta<typeof Flex> = {
   component: Flex,
-  title: "Design-system/Widgets/Flex",
+  title: "WDS/Widgets/Flex",
 };
 
 export default meta;

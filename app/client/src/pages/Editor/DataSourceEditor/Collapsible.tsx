@@ -9,7 +9,7 @@ const SectionLabel = styled.div`
   letter-spacing: -0.17px;
   color: var(--ads-v2-color-fg);
   display: flex;
-  .cs-icon {
+  .ads-v2-icon {
     margin-left: ${(props) => props.theme.spaces[2]}px;
   }
 `;

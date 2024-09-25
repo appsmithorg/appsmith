@@ -60,6 +60,7 @@ export function useInlineButtons<T>(
 
         for (const [i, item] of listItems.entries()) {
           const itemWidth = item.getBoundingClientRect().width;
+
           calculatedSize += itemWidth;
 
           if (i !== 0) {
@@ -108,5 +109,6 @@ export function useInlineButtons<T>(
 
 function toNumber(value: string) {
   const parsed = parseInt(value, 10);
+
   return isNaN(parsed) ? 0 : parsed;
 }

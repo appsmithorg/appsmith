@@ -1,7 +1,7 @@
 import type { Action } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
 import type { JSAction, JSCollection } from "entities/JSCollection";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import store from "store";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getDatasource } from "ee/selectors/entitiesSelector";
@@ -19,12 +19,15 @@ export const getActionProperties = (
   keyConfig: Record<string, string>,
 ) => {
   const actionProperties: Record<string, unknown> = {};
+
   Object.keys(keyConfig).forEach((key) => {
     const value = get(action, key);
+
     if (!isNil(value)) {
       actionProperties[keyConfig[key]] = get(action, key);
     }
   });
+
   return actionProperties;
 };
 
@@ -72,6 +75,7 @@ export function getActionExecutionAnalytics(
 
   if (!!currentApp) {
     appMode = getAppMode(state);
+
     return {
       ...resultObj,
       isExampleApp: currentApp.appIsExample,
@@ -99,9 +103,12 @@ export const getTestPayloadFromCollectionData = (
   collectionData: JSCollectionData | undefined,
 ): string => {
   if (!collectionData) return "";
+
   const activeJSActionId = collectionData?.activeJSActionId;
   const testPayload: Record<string, unknown> | undefined = collectionData?.data
     ?.testPayload as Record<string, unknown>;
+
   if (!activeJSActionId || !testPayload) return "";
+
   return (testPayload[activeJSActionId] as string) || "";
 };

@@ -157,6 +157,7 @@ describe("AppIDEFocusStrategy", () => {
 
   describe("getEntitiesForStore", () => {
     const state = getIDETestState({ branch: "main" });
+
     it("stores state of parent as well", async () => {
       const result = await runSaga(
         {

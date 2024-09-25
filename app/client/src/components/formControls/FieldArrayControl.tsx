@@ -77,7 +77,7 @@ function NestedComponents(props: any) {
         props.fields.length > 0 &&
         props.fields.map((field: string, index: number) => {
           return (
-            <SecondaryBox key={index}>
+            <SecondaryBox className="array-control-secondary-box" key={index}>
               {/* TODO: Fix this the next time the file is edited */}
               {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {props.schema.map((sch: any, idx: number) => {
@@ -89,6 +89,7 @@ function NestedComponents(props: any) {
                     ...(props.customStyles ?? {}),
                   },
                 };
+
                 return (
                   <FormControl
                     config={sch}
@@ -100,6 +101,7 @@ function NestedComponents(props: any) {
               <CenteredIconButton
                 alignSelf={"start"}
                 data-testid={`t--where-clause-delete-[${index}]`}
+                isIconButton
                 kind="tertiary"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
@@ -135,6 +137,7 @@ export default function FieldArrayControl(props: FieldArrayControlProps) {
     formName,
     schema,
   } = props;
+
   return (
     <FieldArray
       component={NestedComponents}

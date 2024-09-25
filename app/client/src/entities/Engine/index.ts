@@ -1,6 +1,6 @@
 import { fetchApplication } from "ee/actions/applicationActions";
 import { setAppMode, updateAppStore } from "actions/pageActions";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -78,8 +78,6 @@ export default abstract class AppEngine {
     rootSpan: Span,
   ): any;
   abstract loadGit(applicationId: string, rootSpan: Span): any;
-  abstract startPerformanceTracking(): any;
-  abstract stopPerformanceTracking(): any;
   abstract completeChore(rootSpan: Span): any;
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
@@ -110,12 +108,15 @@ export default abstract class AppEngine {
         ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
       ],
     );
+
     if (!apiCalls) {
       throw new PageNotFoundError(`Cannot find page with pageId: ${page?.id}`);
     }
+
     const application: ApplicationPayload = yield select(getCurrentApplication);
     const currentGitBranch: ReturnType<typeof getCurrentGitBranch> =
       yield select(getCurrentGitBranch);
+
     yield put(
       updateAppStore(
         getPersistentAppStore(application.id, branch || currentGitBranch),
@@ -125,11 +126,13 @@ export default abstract class AppEngine {
     const defaultPageBaseId: string = yield select(getDefaultBasePageId);
     const toLoadPageId: string = page?.id || defaultPageId;
     const toLoadBasePageId: string = page?.baseId || defaultPageBaseId;
+
     this._urlRedirect = URLGeneratorFactory.create(
       application.applicationVersion,
       this._mode,
     );
     endSpan(loadAppDataSpan);
+
     return { toLoadPageId, toLoadBasePageId, applicationId: application.id };
   }
 
@@ -139,6 +142,7 @@ export default abstract class AppEngine {
     const setupEngineSpan = startNestedSpan("AppEngine.setupEngine", rootSpan);
 
     const { branch } = payload;
+
     yield put(updateBranchLocally(branch || ""));
     yield put(setAppMode(this._mode));
     yield put(restoreIDEEditorViewMode());
@@ -169,6 +173,7 @@ export default abstract class AppEngine {
       endSpan(loadAppUrlSpan);
 
       if (!newURL) return;
+
       history.replace(newURL);
     } catch (e) {
       log.error(e);

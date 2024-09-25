@@ -24,6 +24,7 @@ import FormControl from "../FormControl";
 import type { ControlProps } from "components/formControls/BaseControl";
 import { Spinner } from "@appsmith/ads";
 import type { QueryAction, SaaSAction } from "entities/Action";
+import { Section, Zone } from "../ActionForm";
 
 interface Props {
   // TODO: Fix this the next time the file is edited
@@ -78,7 +79,10 @@ const FormRender = (props: Props) => {
   const renderConfig = () => {
     try {
       // Selectively rendering form based on uiComponent prop
-      if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+      if (
+        uiComponent === UIComponentTypes.UQIDbEditorForm ||
+        uiComponent === UIComponentTypes.DbEditorForm
+      ) {
         // If the formEvaluation is not ready yet, just show loading state.
         if (
           props.hasOwnProperty("formEvaluationState") &&
@@ -99,6 +103,7 @@ const FormRender = (props: Props) => {
     } catch (e) {
       log.error(e);
       Sentry.captureException(e);
+
       return (
         <ErrorComponent
           errorMessage={createMessage(INVALID_FORM_CONFIGURATION)}
@@ -113,6 +118,7 @@ const FormRender = (props: Props) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
     let enabled = true;
+
     if (!!section) {
       // If the section is a nested component, recursively check for conditional statements
       if (
@@ -127,48 +133,56 @@ const FormRender = (props: Props) => {
             subSection,
             props.formEvaluationState,
           );
+
           if (!checkIfSectionCanRender(conditionalOutput)) {
             subSection.hidden = true;
           } else {
             subSection.hidden = false;
           }
+
           enabled = checkIfSectionIsEnabled(conditionalOutput);
           subSection = updateEvaluatedSectionConfig(
             subSection,
             conditionalOutput,
             enabled,
           );
+
           if (!isValidFormConfig(subSection)) return null;
+
           return subSection;
         });
       }
+
       // If the component is not allowed to render, return null
       const conditionalOutput = extractConditionalOutput(
         section,
         props.formEvaluationState,
       );
+
       if (!checkIfSectionCanRender(conditionalOutput)) return null;
+
       section = updateEvaluatedSectionConfig(section, conditionalOutput);
       enabled = checkIfSectionIsEnabled(conditionalOutput);
+
       if (!isValidFormConfig(section)) return null;
     }
+
     if (section.hasOwnProperty("controlType")) {
       // If component is type section, render it's children
-      if (
-        section.controlType === "SECTION" &&
-        section.hasOwnProperty("children")
-      ) {
-        // TODO: Fix this the next time the file is edited
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return section.children.map((section: any, idx: number) => {
-          return renderEachConfigV2(formName, section, idx);
-        });
+      if (Object.hasOwn(section, "children")) {
+        return rederNodeWithChildren(section, formName);
       }
+
       try {
         const { configProperty } = section;
         const modifiedSection = modifySectionConfig(section, enabled);
+
         return (
-          <FieldWrapper key={`${configProperty}_${idx}`}>
+          // TODO: Remove classname once action redesign epic is done
+          <FieldWrapper
+            className="uqi-form-wrapper"
+            key={`${configProperty}_${idx}`}
+          >
             <FormControl config={modifiedSection} formName={formName} />
           </FieldWrapper>
         );
@@ -182,7 +196,35 @@ const FormRender = (props: Props) => {
         renderEachConfigV2(formName, section, idx);
       });
     }
+
     return null;
+  };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rederNodeWithChildren = (section: any, formName: string) => {
+    if (!Object.hasOwn(section, "children")) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const children = section.children.map((section: any, idx: number) =>
+      renderEachConfigV2(formName, section, idx),
+    );
+
+    switch (section.controlType) {
+      case "SECTION_V2":
+        return <Section>{children}</Section>;
+
+      case "SINGLE_COLUMN_ZONE":
+      case "DOUBLE_COLUMN_ZONE": {
+        const layout =
+          section.controlType === "SINGLE_COLUMN_ZONE"
+            ? "single_column"
+            : "double_column";
+
+        return <Zone layout={layout}>{children}</Zone>;
+      }
+      default:
+        return children;
+    }
   };
 
   // Recursive call to render forms pre UQI
@@ -194,13 +236,18 @@ const FormRender = (props: Props) => {
       return section.children.map(
         (formControlOrSection: ControlProps, idx: number) => {
           if (isHidden(formData, section.hidden, undefined, false)) return null;
+
           if (formControlOrSection.hasOwnProperty("children")) {
             return renderEachConfig(formName)(formControlOrSection);
           } else {
             try {
               const { configProperty } = formControlOrSection;
+
               return (
-                <FieldWrapper key={`${configProperty}_${idx}`}>
+                <FieldWrapper
+                  className="uqi-form-wrapper"
+                  key={`${configProperty}_${idx}`}
+                >
                   <FormControl
                     config={formControlOrSection}
                     formName={formName}
@@ -211,6 +258,7 @@ const FormRender = (props: Props) => {
               log.error(e);
             }
           }
+
           return null;
         },
       );

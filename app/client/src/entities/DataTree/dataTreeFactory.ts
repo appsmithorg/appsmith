@@ -57,10 +57,12 @@ export class DataTreeFactory {
         editorConfig,
         dependencyConfig,
       );
+
       dataTree[action.config.name] = unEvalEntity;
       configTree[action.config.name] = configEntity;
     });
     const endActions = performance.now();
+
     endSpan(actionsSpan);
 
     const startJsActions = performance.now();
@@ -71,10 +73,12 @@ export class DataTreeFactory {
 
     jsActions.forEach((js) => {
       const { configEntity, unEvalEntity } = generateDataTreeJSAction(js);
+
       dataTree[js.config.name] = unEvalEntity;
       configTree[js.config.name] = configEntity;
     });
     const endJsActions = performance.now();
+
     endSpan(jsActionsSpan);
 
     const startWidgets = performance.now();
@@ -83,6 +87,7 @@ export class DataTreeFactory {
     if (!isEmpty(moduleInputs)) {
       const { configEntity, unEvalEntity } =
         generateDataTreeModuleInputs(moduleInputs);
+
       if (!!configEntity && !!unEvalEntity) {
         dataTree.inputs = unEvalEntity;
         configTree.inputs = configEntity;
@@ -95,6 +100,7 @@ export class DataTreeFactory {
           moduleInstance,
           moduleInstanceEntities,
         );
+
         if (!!configEntity && !!unEvalEntity) {
           dataTree[moduleInstance.name] = unEvalEntity;
           configTree[moduleInstance.name] = configEntity;
@@ -116,6 +122,7 @@ export class DataTreeFactory {
     });
 
     const endWidgets = performance.now();
+
     endSpan(widgetsSpan);
 
     dataTree.appsmith = {
@@ -139,10 +146,12 @@ export class DataTreeFactory {
         widgetsMeta[widget.metaWidgetId || widget.widgetId],
         loadingEntities,
       );
+
       dataTree[widget.widgetName] = unEvalEntity;
       configTree[widget.widgetName] = configEntity;
     });
     const endMetaWidgets = performance.now();
+
     endSpan(metaWidgetsSpan);
     endSpan(rootSpan);
 
@@ -157,6 +166,7 @@ export class DataTreeFactory {
     };
 
     log.debug("### Create unevalTree timing", out);
+
     return { unEvalTree: dataTree, configTree };
   }
 }

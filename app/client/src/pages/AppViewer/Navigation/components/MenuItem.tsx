@@ -1,5 +1,5 @@
 import React from "react";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { APP_MODE } from "entities/App";
@@ -10,9 +10,7 @@ import { builderURL, viewerURL } from "ee/RouteBuilder";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { trimQueryString } from "utils/helpers";
-import { Icon } from "@appsmith/ads-old";
 import MenuText from "./MenuText";
-import classNames from "classnames";
 import { StyledMenuItem } from "./MenuItem.styled";
 import { NavigationMethod } from "utils/history";
 
@@ -20,15 +18,9 @@ interface MenuItemProps {
   page: Page;
   query: string;
   navigationSetting?: NavigationSetting;
-  isMinimal?: boolean;
 }
 
-const MenuItem = ({
-  isMinimal,
-  navigationSetting,
-  page,
-  query,
-}: MenuItemProps) => {
+const MenuItem = ({ navigationSetting, page, query }: MenuItemProps) => {
   const appMode = useSelector(getAppMode);
   const pageURL = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
@@ -61,28 +53,11 @@ const MenuItem = ({
         state: { invokedBy: NavigationMethod.AppNavigation },
       }}
     >
-      {navigationSetting?.itemStyle !== NAVIGATION_SETTINGS.ITEM_STYLE.TEXT && (
-        <Icon
-          className={classNames({
-            "page-icon": true,
-            "mr-2":
-              navigationSetting?.itemStyle ===
-                NAVIGATION_SETTINGS.ITEM_STYLE.TEXT_ICON && !isMinimal,
-            "mx-auto": isMinimal,
-          })}
-          name="file-line"
-          // @ts-expect-error Fix this the next time the file is edited
-          size="large"
-        />
-      )}
-      {navigationSetting?.itemStyle !== NAVIGATION_SETTINGS.ITEM_STYLE.ICON &&
-        !isMinimal && (
-          <MenuText
-            name={page.pageName}
-            navColorStyle={navColorStyle}
-            primaryColor={primaryColor}
-          />
-        )}
+      <MenuText
+        name={page.pageName}
+        navColorStyle={navColorStyle}
+        primaryColor={primaryColor}
+      />
     </StyledMenuItem>
   );
 };

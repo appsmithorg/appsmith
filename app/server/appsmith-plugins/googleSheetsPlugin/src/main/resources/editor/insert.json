@@ -1,24 +1,31 @@
 {
+  "controlType": "SECTION_V2",
   "identifier": "INSERT",
-  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'INSERT_ONE' || actionConfiguration.formData.command.data === 'INSERT_MANY'}}"
   },
   "children": [
     {
-      "label": "Spreadsheet Name",
-      "tooltipText": "The name of the sheet to be created",
-      "propertyName": "file_create_spreadsheetName",
-      "configProperty": "actionConfiguration.formData.spreadsheetName.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-      "isRequired": true,
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "INSERT-Z1",
       "conditionals": {
         "show": "{{actionConfiguration.formData.entityType.data === 'SPREADSHEET'}}"
       },
-      "placeholderText": "Goals"
+      "children": [
+        {
+          "label": "Spreadsheet Name",
+          "tooltipText": "The name of the sheet to be created",
+          "propertyName": "file_create_spreadsheetName",
+          "configProperty": "actionConfiguration.formData.spreadsheetName.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "isRequired": true,
+          "placeholderText": "Goals"
+        }
+      ]
     },
     {
-      "controlType": "SECTION",
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "INSERT-Z2",
       "label": "Row objects",
       "description": "",
       "conditionals": {

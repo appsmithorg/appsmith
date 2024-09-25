@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
-import { debounce, random } from "lodash";
+import { debounce, random, sortBy } from "lodash";
 import type {
   WidgetCardsGroupedByTags,
   WidgetTags,
@@ -40,6 +40,7 @@ import {
   EditorViewMode,
 } from "ee/entities/IDE/constants";
 import { FocusEntity } from "navigation/FocusEntity";
+import { objectKeys } from "@appsmith/utils";
 
 export const draggableElement = (
   id: string,
@@ -129,9 +130,11 @@ export const draggableElement = (
     oldYPos = e.clientY;
     const calculatedTop = element.offsetTop - newYPos;
     const calculatedLeft = element.offsetLeft - newXPos;
+
     element.style.top = calculatedTop + "px";
     element.style.left = calculatedLeft + "px";
     const validFirstDrag = !isDragged && newXPos !== 0 && newYPos !== 0;
+
     if (validFirstDrag) {
       resizeObserver.observe(element);
       isDragged = true;
@@ -153,8 +156,10 @@ export const draggableElement = (
 
   const updateElementPosition = () => {
     const calculatedPositionData = calculateNewPosition();
+
     if (calculatedPositionData.updatePosition) {
       const { left, top } = calculatedPositionData;
+
       onPositionChange({
         left: left,
         top: top,
@@ -189,9 +194,11 @@ export const draggableElement = (
         cypressSelectorDragHandle,
       );
     }
+
     if (initPostion) {
       setElementPosition();
     }
+
     dragHandler.addEventListener("mousedown", dragMouseDown);
     // stop clicks from propogating to widget editor.
     // TODO: Fix this the next time the file is edited
@@ -218,6 +225,7 @@ const createDragHandler = (
 ) => {
   const oldDragHandler = document.getElementById(`${id}-draghandler`);
   const dragElement = document.createElement("div");
+
   dragElement.setAttribute("id", `${id}-draghandler`);
   dragElement.style.position = renderDragBlockPositions?.position ?? "absolute";
   dragElement.style.left = renderDragBlockPositions?.left ?? "135px";
@@ -232,6 +240,7 @@ const createDragHandler = (
     ? el.replaceChild(dragElement, oldDragHandler)
     : el.appendChild(dragElement);
   ReactDOM.render(dragHandle(), dragElement);
+
   return dragElement;
 };
 
@@ -246,6 +255,7 @@ export const getNestedValue = (obj: Record<string, any>, path = "") => {
 
 export const useQuery = () => {
   const { search } = useLocation();
+
   return useMemo(() => new URLSearchParams(search), [search]);
 };
 
@@ -261,6 +271,7 @@ export function isWidgetDeprecated(WidgetType: WidgetType) {
   const currentWidgetConfig = WidgetFactory.widgetConfigMap.get(WidgetType);
   const isDeprecated = !!currentWidgetConfig?.isDeprecated;
   let widgetReplacedWith;
+
   if (isDeprecated && currentWidgetConfig?.replacement) {
     widgetReplacedWith = WidgetFactory.widgetConfigMap.get(
       currentWidgetConfig.replacement,
@@ -297,6 +308,7 @@ export function useHref<T extends URLBuilderParams>(
   const [href, setHref] = useState("");
   // Current pageId selector serves as delay to generate urls
   const pageId = useSelector(getCurrentPageId);
+
   useEffect(() => {
     if (pageId) setHref(urlBuilderFn(params));
   }, [params, urlBuilderFn, pageId]);
@@ -329,6 +341,15 @@ export const groupWidgetCardsByTags = (widgetCards: WidgetCardProps[]) => {
         }
       });
     }
+  });
+
+  objectKeys(groupedCards).forEach((tag) => {
+    if (tag === WIDGET_TAGS.SUGGESTED_WIDGETS) return;
+
+    groupedCards[tag] = sortBy(groupedCards[tag], [
+      "displayOrder",
+      "displayName",
+    ]);
   });
 
   return groupedCards;
@@ -429,9 +450,11 @@ export function getModuleIcon(
 
 export function getPluginImagesFromPlugins(plugins: Plugin[]) {
   const pluginImages: Record<string, string> = {};
+
   plugins.forEach((plugin) => {
     pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
   });
+
   return pluginImages;
 }
 

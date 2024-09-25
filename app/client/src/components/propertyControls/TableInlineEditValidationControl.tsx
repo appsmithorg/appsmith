@@ -77,6 +77,7 @@ export function InputText(props: InputTextProp) {
     theme,
     value,
   } = props;
+
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
@@ -113,7 +114,7 @@ const getBindingSuffix = (tableId: string) => {
     (
       ${tableId}.isAddRowInProgress,
       ${tableId}.isAddRowInProgress ? -1 : ${tableId}.editableCell.index,
-      ${tableId}.isAddRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.index] ||
+      ${tableId}.isAddRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.${ORIGINAL_INDEX_KEY}] ||
         Object.keys(${tableId}.processedTableData[0])
           .filter(key => ["${ORIGINAL_INDEX_KEY}", "${PRIMARY_COLUMN_KEY_VALUE}"].indexOf(key) === -1)
           .reduce((prev, curr) => {
@@ -148,6 +149,7 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentRow: { [key: string]: any } = {};
+
     Object.values(columns).forEach((column) => {
       currentRow[column.alias || column.originalId] = undefined;
     });
@@ -213,16 +215,19 @@ class TableInlineEditValidationControl extends BaseControl<TableInlineEditValida
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
+
     return `${bindingPrefix}${stringToEvaluate}${getBindingSuffix(tableId)}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = "";
+
     if (typeof event !== "string") {
       value = event.target?.value;
     } else {
       value = event;
     }
+
     if (isString(value)) {
       const output = this.getComputedValue(
         value,

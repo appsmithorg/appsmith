@@ -4,7 +4,7 @@ import { render, screen } from "@testing-library/react";
 
 import { Text } from "../";
 
-describe("@design-system/widgets/Text", () => {
+describe("@appsmith/wds/Text", () => {
   it("should render the text", () => {
     render(<Text>My Text</Text>);
 
@@ -16,6 +16,7 @@ describe("@design-system/widgets/Text", () => {
 
     // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
     const text = container.querySelector("div") as HTMLElement;
+
     expect(text).toHaveAttribute("data-testid", "t--text");
   });
 });

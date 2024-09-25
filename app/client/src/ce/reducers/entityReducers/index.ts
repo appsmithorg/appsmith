@@ -5,7 +5,6 @@ import canvasWidgetsStructureReducer from "reducers/entityReducers/canvasWidgets
 import metaWidgetsReducer from "reducers/entityReducers/metaWidgetsReducer";
 import datasourceReducer from "reducers/entityReducers/datasourceReducer";
 import jsActionsReducer from "ee/reducers/entityReducers/jsActionsReducer";
-import jsExecutionsReducer from "reducers/entityReducers/jsExecutionsReducer";
 import metaReducer from "reducers/entityReducers/metaReducer";
 import pageListReducer from "reducers/entityReducers/pageListReducer";
 import pluginsReducer from "reducers/entityReducers/pluginsReducer";
@@ -25,7 +24,6 @@ export const entityReducerObject = {
   actions: actionsReducer,
   datasources: datasourceReducer,
   pageList: pageListReducer,
-  jsExecutions: jsExecutionsReducer,
   plugins: pluginsReducer,
   meta: metaReducer,
   app: appReducer,

@@ -55,6 +55,7 @@ export function defaultOptionValueValidation(
        * when value is "['green', 'red']", "[{label: 'green', value: 'green'}]"
        */
       const parsedValue = JSON.parse(value);
+
       // Only parse value if resulting value is an array or string
       if (Array.isArray(parsedValue) || _.isString(parsedValue)) {
         value = parsedValue;

@@ -17,6 +17,7 @@ const values = {
   subHeader: "some subheader value",
   warning: "some warning",
 };
+
 useSelector.mockReturnValue(values);
 
 function renderComponent() {
@@ -38,6 +39,7 @@ describe("Disconnect Service", () => {
   it("is rendered", () => {
     renderComponent();
     const disconnectBtn = screen.queryAllByTestId("disconnect-service-button");
+
     expect(disconnectBtn).toHaveLength(1);
     expect(disconnectBtn[0].textContent).toEqual(
       createMessage(DISCONNECT_AUTH_METHOD),

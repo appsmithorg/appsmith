@@ -29,9 +29,11 @@ export const convertToBaseParentEntityIdSelector = (
   parentEntityId: string,
 ) => {
   let baseParentEntityId = convertToBasePageIdSelector(state, parentEntityId);
+
   if (!baseParentEntityId) {
     baseParentEntityId = parentEntityId;
   }
+
   return baseParentEntityId;
 };
 
@@ -40,6 +42,7 @@ export const getPageIdToBasePageIdMap = createSelector(
   (pageList: PageListReduxState) =>
     pageList.pages.reduce((acc: Record<string, string>, page) => {
       acc[page.pageId] = page.basePageId;
+
       return acc;
     }, {}),
 );
@@ -49,6 +52,7 @@ export const getBasePageIdToPageIdMap = createSelector(
   (pageList: PageListReduxState) =>
     pageList.pages.reduce((acc: Record<string, string>, page) => {
       acc[page.basePageId] = page.pageId;
+
       return acc;
     }, {}),
 );

@@ -39,9 +39,11 @@ export function evaluateHiddenProperty(
   shouldHidePropertyFn?: (propertyName: string) => boolean | undefined,
 ) {
   const finalConfig: PropertyPaneConfig[] = [];
+
   for (const conf of config) {
     const sectionConfig = conf as PropertyPaneSectionConfig;
     const controlConfig = conf as PropertyPaneControlConfig;
+
     if (sectionConfig.sectionName) {
       const isSectionHidden =
         sectionConfig.hidden &&
@@ -49,12 +51,14 @@ export function evaluateHiddenProperty(
           widgetProps,
           sectionConfig.propertySectionPath || "",
         );
+
       if (!isSectionHidden) {
         const children = evaluateHiddenProperty(
           sectionConfig.children,
           widgetProps,
           shouldHidePropertyFn,
         );
+
         if (children.length > 0) {
           finalConfig.push({
             ...sectionConfig,
@@ -73,11 +77,13 @@ export function evaluateHiddenProperty(
           controlConfig.hidden(widgetProps, controlConfig.propertyName)) ||
         (shouldHidePropertyFn &&
           shouldHidePropertyFn(controlConfig.propertyName));
+
       if (!isControlHidden) {
         finalConfig.push(conf);
       }
     }
   }
+
   return finalConfig;
 }
 
@@ -87,6 +93,7 @@ export function updateConfigPaths(
 ) {
   return config.map((_childConfig) => {
     const childConfig = Object.assign({}, _childConfig);
+
     // TODO(abhinav): Figure out a better way to differentiate between section and control
     if (
       (childConfig as PropertyPaneSectionConfig).sectionName &&
@@ -99,6 +106,7 @@ export function updateConfigPaths(
         (childConfig as PropertyPaneControlConfig).propertyName
       }`;
     }
+
     return childConfig;
   });
 }
@@ -108,6 +116,7 @@ export function renderWidgetCallouts(props: WidgetProps): JSX.Element[] {
 
   if (getEditorCallouts) {
     const callouts: WidgetCallout[] = getEditorCallouts(props);
+
     return callouts.map((callout, index) => {
       const links = callout.links?.map((link) => {
         return {
@@ -115,6 +124,7 @@ export function renderWidgetCallouts(props: WidgetProps): JSX.Element[] {
           to: link.url,
         };
       });
+
       return (
         <Callout
           data-testid="t--deprecation-warning"
