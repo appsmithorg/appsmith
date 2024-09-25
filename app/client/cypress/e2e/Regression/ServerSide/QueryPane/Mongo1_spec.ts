@@ -53,7 +53,7 @@ describe(
       GenerateCRUDNValidateDeployPage(
         "<p>Monica's old friend Rachel moves in with her after leaving her fiancé.</p>",
         `1994-09-22T00:00:00+00:00`,
-        "https://www.appsmith.com",
+        "http://www.tvmaze.com/episodes/40646/friends-1x01-the-one-where-it-all-began",
         11,
       );
 
