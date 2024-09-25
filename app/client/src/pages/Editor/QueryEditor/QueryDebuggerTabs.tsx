@@ -242,13 +242,19 @@ function QueryDebuggerTabs({
       onHideClick={onToggle}
       setHeight={setQueryResponsePaneHeight}
     >
-      {output && !!output.length && (
+       {output && !!output.length && (
         <ResultsCount>
-          <Text type={TextType.P3}>
+          <Text data-testid="result-text" type={TextType.P3}>
             Result:
-            <Text type={TextType.H5}>{` ${output.length} Record${
-              output.length > 1 ? "s" : ""
-            }`}</Text>
+            {actionResponse?.isExecutionSuccess ? (
+              <Text type={TextType.H5}>{` ${output.length} Record${
+                output.length > 1 ? "s" : ""
+              }`}</Text>
+            ) : (
+              <Text type={TextType.H5} color="red">
+                {" Error"}
+              </Text>
+            )}
           </Text>
         </ResultsCount>
       )}
