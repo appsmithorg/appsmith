@@ -244,7 +244,7 @@ function QueryDebuggerTabs({
     >
        {output && !!output.length && (
         <ResultsCount>
-          <Text className="result-text" type={TextType.P3}>
+          <Text data-testid="result-text" type={TextType.P3}>
             Result:
             {actionResponse?.isExecutionSuccess ? (
               <Text type={TextType.H5}>{` ${output.length} Record${

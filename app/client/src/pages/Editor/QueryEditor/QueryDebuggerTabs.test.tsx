@@ -1,16 +1,16 @@
 import React from "react";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "styled-components";
 import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
 import { lightTheme } from "selectors/themeSelectors";
 import { BrowserRouter as Router } from "react-router-dom";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import "@testing-library/jest-dom/extend-expect";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
-import type { ActionResponse } from "api/ActionAPI";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ActionResponse } from "api/ActionAPI";
 
 const mockStore = configureStore([]);
 
@@ -80,8 +80,6 @@ const storeState = {
 };
 
 describe("ApiResponseView", () => {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let store: any;
 
   beforeEach(() => {
@@ -116,7 +114,7 @@ describe("ApiResponseView", () => {
   });
 
   it("should show record count as result if the query response returns records", () => {
-    const { container } = render(
+    render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
           <Router>
@@ -137,14 +135,14 @@ describe("ApiResponseView", () => {
     );
 
     const expectedResultText = "Result: 2 Records";
-    const resultTextElement = container.querySelector(".result-text");
+    const resultTextElement = screen.getByTestId("result-text");
 
     expect(resultTextElement).toBeInTheDocument();
     expect(resultTextElement?.textContent).toContain(expectedResultText);
   });
 
   it("should show error as result if the query response returns the error", () => {
-    const { container } = render(
+    render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
           <Router>
@@ -165,7 +163,7 @@ describe("ApiResponseView", () => {
     );
 
     const expectedResultText = "Result: Error";
-    const resultTextElement = container.querySelector(".result-text");
+    const resultTextElement = screen.getByTestId("result-text");
 
     expect(resultTextElement).toBeInTheDocument();
     expect(resultTextElement?.textContent).toContain(expectedResultText);
