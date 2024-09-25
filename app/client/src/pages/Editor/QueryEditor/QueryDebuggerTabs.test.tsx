@@ -6,11 +6,11 @@ import { ThemeProvider } from "styled-components";
 import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
 import { lightTheme } from "selectors/themeSelectors";
 import { BrowserRouter as Router } from "react-router-dom";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import "@testing-library/jest-dom/extend-expect";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
-import { ActionResponse } from "api/ActionAPI";
+import type { ActionResponse } from "api/ActionAPI";
+import { ENTITY_TYPE } from "ce/entities/AppsmithConsole/utils";
+import { EditorViewMode } from "ce/entities/IDE/constants";
 
 const mockStore = configureStore([]);
 
