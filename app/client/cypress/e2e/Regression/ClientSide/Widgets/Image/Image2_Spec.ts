@@ -16,12 +16,15 @@ describe(
   { tags: ["@tag.Widget", "@tag.Image"] },
   function () {
     const image = (src: string) => 'img[src="' + src + '"]';
-    const jpgImg = "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg?itok=yG4bpfFs";
+    const jpgImg =
+      "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg?itok=yG4bpfFs";
     const gifImg =
       "https://www.appsmith.com/_next/image?url=https%3A%2F%2Fimages.ctfassets.net%2Flpvian6u6i39%2F5dIHs6B4O8JrcziD01Tzpr%2F080ac2887506afab72a160b897364607%2Fimage-11.gif&w=1080&q=75";
     const svgImg = "https://community.appsmith.com/appsmith-community-logo.svg";
-    const webpImg = "https://www.appsmith.com/assets/images/animations/widgets/img_0.webp";
-    const pngImg = "https://community.appsmith.com/sites/default/files/styles/16_9_card/public/septembercoding-min%20%281%29.png?itok=unYUZ0zm";
+    const webpImg =
+      "https://www.appsmith.com/assets/images/animations/widgets/img_0.webp";
+    const pngImg =
+      "https://community.appsmith.com/sites/default/files/styles/16_9_card/public/septembercoding-min%20%281%29.png?itok=unYUZ0zm";
 
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.IMAGE);

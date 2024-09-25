@@ -195,8 +195,7 @@ describe(
       });
 
       // Changing Column data type from "Date" to "Image"
-      const imageVal =
-        "http://host.docker.internal:4200/453-200x300.jpg";
+      const imageVal = "http://host.docker.internal:4200/453-200x300.jpg";
 
       cy.changeColumnType("Image");
       // "Moement "date" to "Image"
