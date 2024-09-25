@@ -45,7 +45,7 @@
           "imageShape": "RECTANGLE",
           "leftColumn": 12,
           "dynamicBindingPathList": [],
-          "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+          "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
           "key": "rmhpjhzzn1",
           "image": "",
           "rightColumn": 29,
