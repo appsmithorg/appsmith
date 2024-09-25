@@ -72,6 +72,7 @@
   "callApi": ".t--property-control-onpagechange .t--open-dropdown-Select-Action",
   "singleSelectMenuItem": ".bp3-menu-item.single-select div",
   "singleSelectWidgetMenuItem": ".menu-item-link",
+  "singleSelectWidgetButtonControl": ".bp3-button.select-button",
   "singleSelectActiveMenuItem": ".menu-item-active div",
   "selectInputSearch": ".select-popover-wrapper .bp3-input",
   "multiSelectMenuItem": "rc-select-item.rc-select-item-option div",
