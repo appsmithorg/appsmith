@@ -23,9 +23,11 @@ const LinkData: Record<DocsLink, string> = {
 
 export const openDoc = (type: DocsLink, link?: string, subType?: string) => {
   let linkToOpen = LinkData[type];
+
   if (link && link.length) {
     linkToOpen = link;
   }
+
   AnalyticsUtil.logEvent("OPEN_DOCS", { source: type, queryType: subType });
   window.open(linkToOpen, "_blank");
 };

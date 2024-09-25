@@ -17,6 +17,7 @@ const canvasLevelsReducer = createImmerReducer(initialState, {
     action: ReduxAction<AutoHeightLayoutTreePayload>,
   ) => {
     const { canvasLevelMap } = action.payload;
+
     for (const widgetId in canvasLevelMap) {
       if (state[widgetId] !== canvasLevelMap[widgetId])
         state[widgetId] = canvasLevelMap[widgetId];

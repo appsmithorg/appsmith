@@ -23,7 +23,7 @@ on:
 
   # trigger for pushes to master and pg
   push:
-    branches: [master, pg]
+    branches: [master]
     paths:
       - "app/client/**"
       - "app/server/**"
@@ -58,6 +58,18 @@ jobs:
             echo "tags=" >> $GITHUB_OUTPUT
             echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]" >> $GITHUB_OUTPUT
           fi
+
+  invoke-tbp-workflow-for-pg:
+    needs: [setup]
+    if: github.event_name != 'push' && github.ref == 'refs/heads/release'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger TBP on pg branch
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: test-build-docker-image.yml
+          inputs: '{ "tags": "${{needs.setup.outputs.tags}}", "ted_tag": "${{inputs.ted_tag}}" }'
+          ref: refs/heads/pg
 
   server-build:
     needs: [setup]
@@ -100,7 +112,7 @@ jobs:
   ci-test:
     needs: [setup, build-docker-image]
     # Only run if the build step is successful
-    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pg' )
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master')
     name: ci-test
     uses: ./.github/workflows/ci-test-custom-script.yml
     secrets: inherit
@@ -113,17 +125,18 @@ jobs:
   server-unit-tests:
     name: server-unit-tests
     needs: [build-docker-image]
-    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pg' )
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master')
     uses: ./.github/workflows/server-build.yml
     secrets: inherit
     with:
       pr: 0
       skip-tests: false
+      is-pg-build: ${{ github.ref == 'refs/heads/pg' }}
 
   client-unit-tests:
     name: client-unit-tests
     needs: [build-docker-image]
-    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/pg' )
+    if: success() && ( github.event_name != 'push' || github.ref == 'refs/heads/master')
     uses: ./.github/workflows/client-unit-tests.yml
     secrets: inherit
     with:
@@ -420,6 +433,12 @@ jobs:
         run: |
           if [[ -f scripts/generate_info_json.sh ]]; then
             scripts/generate_info_json.sh
+          fi
+
+      - name: Place server artifacts-es
+        run: |
+          if [[ -f scripts/prepare_server_artifacts.sh ]]; then
+            scripts/prepare_server_artifacts.sh
           fi
 
       - name: Set up Depot CLI

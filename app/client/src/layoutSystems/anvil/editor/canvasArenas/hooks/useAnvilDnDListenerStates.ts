@@ -15,7 +15,7 @@ import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import type { AnvilGlobalDnDStates } from "../../canvas/hooks/useAnvilGlobalDnDStates";
 import { getWidgets } from "sagas/selectors";
 import { useMemo } from "react";
-import { WDSZoneWidget } from "widgets/wds/WDSZoneWidget";
+import { WDSZoneWidget } from "modules/ui-builder/ui/wds/WDSZoneWidget";
 import { useAnvilWidgetElevation } from "../../canvas/providers/AnvilWidgetElevationProvider";
 
 interface AnvilDnDListenerStatesProps {
@@ -67,15 +67,19 @@ const checkIfWidgetTypeDraggedIsAllowedToDrop = (
   if (allowedWidgetTypes.length === 0) {
     return true;
   }
+
   let draggedWidgetTypes: string[] = [];
+
   if (isNewWidget) {
     const { newWidget } = dragDetails;
+
     draggedWidgetTypes.push(newWidget.type);
   } else {
     draggedWidgetTypes = selectedWidgets.map(
       (eachWidgetId) => allWidgets[eachWidgetId].type,
     );
   }
+
   return areWidgetsWhitelisted(draggedWidgetTypes, allowedWidgetTypes);
 };
 
@@ -148,8 +152,10 @@ export const useAnvilDnDListenerStates = ({
       const isAnyZoneElevated = allSiblingsWidgetIds.some(
         (each) => !!elevatedWidgets[each],
       );
+
       return isAnyZoneElevated;
     }
+
     return !!elevatedWidgets[widgetId];
   }, [widgetProps, elevatedWidgets, allSiblingsWidgetIds]);
 

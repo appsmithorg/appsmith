@@ -20,6 +20,7 @@
     if (event.data.model) {
       window.appsmith.model = event.data.model;
     }
+
     if (event.data.dimensions) {
       window.appsmith.ui = event.data.dimensions;
     }

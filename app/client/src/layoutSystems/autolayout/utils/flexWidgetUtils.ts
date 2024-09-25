@@ -28,6 +28,7 @@ export function setRightColumn(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   if (val === null) return widget;
+
   return isMobile
     ? { ...widget, mobileRightColumn: val }
     : { ...widget, rightColumn: val };
@@ -51,6 +52,7 @@ export function setLeftColumn(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   if (val === null) return widget;
+
   return isMobile
     ? { ...widget, mobileLeftColumn: val }
     : { ...widget, leftColumn: val };
@@ -74,6 +76,7 @@ export function setTopRow(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   if (val === null) return widget;
+
   return isMobile
     ? { ...widget, mobileTopRow: val }
     : { ...widget, topRow: val };
@@ -91,6 +94,7 @@ export // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setBottomRow(widget: any, val: number | null, isMobile: boolean): any {
   if (val === null) return widget;
+
   return isMobile
     ? { ...widget, mobileBottomRow: val }
     : { ...widget, bottomRow: val };
@@ -149,6 +153,7 @@ export function getWidgetHeight(widget: any, isMobile: boolean): number {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getWidgetRows(widget: any, isMobile: boolean): number {
   const divisor = widget.parentRowSpace === 1 ? 10 : 1;
+
   return getBottomRow(widget, isMobile) / divisor - getTopRow(widget, isMobile);
 }
 
@@ -166,6 +171,7 @@ function getMinMaxSize(
 ): MinMaxSize | undefined {
   // Get the widget size configuration.
   const sizeConfig = getCurrentSizeConfig(widget, canvasWidth);
+
   if (!sizeConfig) return;
 
   // Get the minimum & maximum size for the widget at this breakpoint.
@@ -183,20 +189,25 @@ export function getCurrentSizeConfig(
 ): WidgetSizeConfig | undefined {
   // Get the widget size configuration.
   const sizeConfig = WidgetFactory.getWidgetAutoLayoutConfig(widget.type);
+
   if (!sizeConfig || !sizeConfig?.widgetSize?.length) return;
 
   // Find the most suitable breakpoint for the canvas width.
   const sizes: WidgetSizeConfig[] = sizeConfig?.widgetSize;
   let index = 0;
+
   while (index < sizes?.length && canvasWidth > sizes[index].viewportMinWidth) {
     index += 1;
   }
+
   return sizes[index - 1];
 }
 
 function getPxValue(val: string | number, factor: number): number | undefined {
   const arr: string[] = typeof val === "string" ? val.split("px") : [];
+
   if (arr.length) return parseInt(arr[0]);
+
   if (typeof val === "number") return val * factor;
 }
 
@@ -219,7 +230,9 @@ export function getWidgetMinMaxDimensionsInPixel(
   };
 
   if (!widget) return returnValue;
+
   const minMaxSize = getMinMaxSize(widget, canvasWidth);
+
   if (!minMaxSize) return returnValue;
 
   returnValue.minWidth = getPxValue(
@@ -247,5 +260,6 @@ export function getWidgetMinMaxDimensionsInPixel(
 
 export function isAutoLayout() {
   const appState = store.getState();
+
   return !!getIsAutoLayout(appState);
 }

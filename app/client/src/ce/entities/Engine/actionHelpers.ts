@@ -88,5 +88,6 @@ export const useParentEntityDetailsFromParams = (
     : baseParentEntityIdQuery;
 
   const entityType = ActionParentEntityType.PAGE;
+
   return { baseParentEntityId, parentEntityId, entityType };
 };

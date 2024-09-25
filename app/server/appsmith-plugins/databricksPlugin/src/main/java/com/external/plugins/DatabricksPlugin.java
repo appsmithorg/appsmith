@@ -59,11 +59,11 @@ public class DatabricksPlugin extends BasePlugin {
 
     private static final String TABLES_QUERY =
             """
-        SELECT TABLE_SCHEMA as schema_name, table_name,
-        column_name, data_type, is_nullable,
-        column_default
-        FROM system.INFORMATION_SCHEMA.COLUMNS where table_schema <> 'information_schema'
-        """;
+            SELECT TABLE_SCHEMA as schema_name, table_name,
+            column_name, data_type, is_nullable,
+            column_default
+            FROM system.INFORMATION_SCHEMA.COLUMNS where table_schema <> 'information_schema'
+            """;
 
     public DatabricksPlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -79,15 +79,14 @@ public class DatabricksPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
-            String printMessage = Thread.currentThread().getName() + ": execute() called for Databricks plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": execute() called for Databricks plugin.");
             String query = actionConfiguration.getBody();
 
             List<Map<String, Object>> rowsList = new ArrayList<>(INITIAL_ROWLIST_CAPACITY);
             final List<String> columnsList = new ArrayList<>();
 
             return (Mono<ActionExecutionResult>) Mono.fromCallable(() -> {
-                        System.out.println(Thread.currentThread().getName()
+                        log.debug(Thread.currentThread().getName()
                                 + ": creating action execution result from Databricks plugin.");
                         try {
 
@@ -108,8 +107,7 @@ public class DatabricksPlugin extends BasePlugin {
                         } catch (SQLException error) {
                             error.printStackTrace();
                             // This should not happen ideally.
-                            System.out.println(
-                                    "Error checking validity of Databricks connection : " + error.getMessage());
+                            log.error("Error checking validity of Databricks connection : " + error.getMessage());
                         }
 
                         ActionExecutionResult result = new ActionExecutionResult();
@@ -183,9 +181,7 @@ public class DatabricksPlugin extends BasePlugin {
         @Override
         public Mono<Connection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
 
-            String printMessage =
-                    Thread.currentThread().getName() + ": datasourceCreate() called for Databricks plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceCreate() called for Databricks plugin.");
             // Ensure the databricks JDBC driver is loaded.
             try {
                 Class.forName(JDBC_DRIVER);
@@ -249,8 +245,7 @@ public class DatabricksPlugin extends BasePlugin {
             }
 
             return (Mono<Connection>) Mono.fromCallable(() -> {
-                        System.out.println(
-                                Thread.currentThread().getName() + ": creating connection from Databricks plugin.");
+                        log.debug(Thread.currentThread().getName() + ": creating connection from Databricks plugin.");
                         Connection connection = DriverManager.getConnection(url, p);
 
                         // Execute statements to default catalog and schema for all queries on this datasource.
@@ -301,16 +296,14 @@ public class DatabricksPlugin extends BasePlugin {
 
         @Override
         public void datasourceDestroy(Connection connection) {
-            String printMessage =
-                    Thread.currentThread().getName() + ": datasourceDestroy() called for Databricks plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": datasourceDestroy() called for Databricks plugin.");
             try {
                 if (connection != null) {
                     connection.close();
                 }
             } catch (SQLException e) {
                 // This should not happen ideally.
-                System.out.println("Error closing Databricks connection : " + e.getMessage());
+                log.error("Error closing Databricks connection : " + e.getMessage());
             }
         }
 
@@ -322,10 +315,9 @@ public class DatabricksPlugin extends BasePlugin {
         @Override
         public Mono<DatasourceStructure> getStructure(
                 Connection connection, DatasourceConfiguration datasourceConfiguration) {
-            String printMessage = Thread.currentThread().getName() + ": getStructure() called for Databricks plugin.";
-            System.out.println(printMessage);
+            log.debug(Thread.currentThread().getName() + ": getStructure() called for Databricks plugin.");
             return Mono.fromSupplier(() -> {
-                        System.out.println(Thread.currentThread().getName()
+                        log.debug(Thread.currentThread().getName()
                                 + ": fetching datasource structure from Databricks plugin.");
                         final DatasourceStructure structure = new DatasourceStructure();
                         final Map<String, DatasourceStructure.Table> tablesByName =

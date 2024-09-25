@@ -338,4 +338,7 @@ export class CommonLocators {
   errorPageDescription = ".t--error-page-description";
   _selectClearButton_testId = "selectbutton.btn.cancel";
   _selectClearButton_dataTestId = `[data-testid="${this._selectClearButton_testId}"]`;
+  _saveDatasource = `[data-testid='t--store-as-datasource']`;
+  _propertyCollapseBody = ".bp3-collapse-body";
+  _propertyCollapse = ".bp3-collapse";
 }

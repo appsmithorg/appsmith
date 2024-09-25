@@ -60,7 +60,9 @@ export const migrateInitialValues = (currentDSL: DSLWidget) => {
     } else if (child.children && child.children.length > 0) {
       child = migrateInitialValues(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

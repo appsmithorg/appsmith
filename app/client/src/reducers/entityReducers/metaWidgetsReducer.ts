@@ -75,6 +75,7 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
     (propertyUpdates || []).forEach(({ path, value }) => {
       const [widgetId, ...propertyPathChunks] = split(path, ".");
       const propertyPath = propertyPathChunks.join(".");
+
       set(state[widgetId], propertyPath, value);
     });
 
@@ -112,6 +113,7 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
         unset(state[widgetId], propertyPath);
       });
     }
+
     return state;
   },
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (state: MetaWidgetsReduxState) => {
@@ -133,6 +135,7 @@ const metaWidgetsReducer = createImmerReducer(initialState, {
         const path = `${widgetId}.${propertyPath}`;
         // Get original value in reducer
         const originalPropertyValue = get(state, path);
+
         // If the original and new values are different
         if (propertyValue !== originalPropertyValue)
           // Set the new values

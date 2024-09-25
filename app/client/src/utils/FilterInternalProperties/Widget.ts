@@ -32,6 +32,7 @@ export const getWidgetChildrenPeekData = (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let config: any = WidgetFactory.getAutocompleteDefinitions(type);
+
     if (config) {
       if (isFunction(config)) config = config(dataTreeWidget);
 
@@ -54,6 +55,7 @@ export const getWidgetChildrenPeekData = (
         if (widgetConfig.__setters) {
           setterNames = Object.keys(widgetConfig.__setters);
         }
+
         if (setterNames.includes(prop)) {
           // eslint-disable-next-line @typescript-eslint/no-empty-function
           peekData[prop] = function () {}; // tern inference required here
@@ -63,5 +65,6 @@ export const getWidgetChildrenPeekData = (
       });
     }
   }
+
   return { peekData };
 };

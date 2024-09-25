@@ -42,6 +42,7 @@ export const generateDataTreeAction = (
   }
 
   const dependencyMap: DependencyMap = {};
+
   Object.entries(dependencyConfig).forEach(([dependent, dependencies]) => {
     dependencyMap[getDataTreeActionConfigPath(dependent)] = dependencies.map(
       getDataTreeActionConfigPath,

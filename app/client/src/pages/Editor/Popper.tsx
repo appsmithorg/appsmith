@@ -139,12 +139,14 @@ export default (props: PopperProps) => {
         className="drag-handle-block"
         onMouseEnter={(e) => {
           e.stopPropagation();
+
           if (props?.dragFn) {
             props.dragFn(true);
           }
         }}
         onMouseLeave={(e) => {
           e.stopPropagation();
+
           if (props?.dragFn) {
             props.dragFn(false);
           }
@@ -182,9 +184,11 @@ export default (props: PopperProps) => {
             // TODO: Fix this the next time the file is edited
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const elementRef: any = popperData.instance.popper;
+
             if (isDraggable && position) {
               const initPositon =
                 position || elementRef.getBoundingClientRect();
+
               elementRef.style.transform = "unset";
               elementRef.style.top = initPositon.top + "px";
               elementRef.style.left = initPositon.left + "px";
@@ -209,6 +213,7 @@ export default (props: PopperProps) => {
           },
         },
       );
+
       if (isDraggable) {
         disablePopperEvents && _popper.disableEventListeners();
         draggableElement(
@@ -241,6 +246,7 @@ export default (props: PopperProps) => {
     props.placement,
     disablePopperEvents,
   ]);
+
   return createPortal(
     props.isOpen && (
       <PopperWrapper

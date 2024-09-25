@@ -29,7 +29,7 @@ import {
 import store from "store";
 
 import * as Sentry from "@sentry/react";
-import { axiosConnectionAbortedCode } from "ee/api/ApiUtils";
+import { AXIOS_CONNECTION_ABORTED_CODE } from "ee/constants/ApiConstants";
 import { getLoginUrl } from "ee/utils/adminSettingsHelpers";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import showToast from "sagas/ToastSagas";
@@ -55,6 +55,7 @@ export const getDefaultActionError = (action: string) =>
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
     const response: ApiResponse = yield call(apiCall, requestPayload);
+
     return response;
   } catch (error) {
     return error;
@@ -103,7 +104,7 @@ export function* validateResponse(
   }
 
   // letting `apiFailureResponseInterceptor` handle it this case
-  if (response?.code === axiosConnectionAbortedCode) {
+  if (response?.code === AXIOS_CONNECTION_ABORTED_CODE) {
     return false;
   }
 
@@ -112,7 +113,16 @@ export function* validateResponse(
   }
 
   if (!response.responseMeta && response.status) {
-    throw Error(getErrorMessage(response.status, response.resourceType));
+    yield put({
+      type: ReduxActionErrorTypes.API_ERROR,
+      payload: {
+        error: new Error(
+          getErrorMessage(response.status, response.resourceType),
+        ),
+        logToSentry,
+        show,
+      },
+    });
   }
 
   if (response.responseMeta.success) {
@@ -189,12 +199,15 @@ const getErrorMessageFromActionType = (
   error: ErrorPayloadType,
 ): string => {
   const actionErrorMessage = get(error, "message");
+
   if (actionErrorMessage === undefined) {
     if (type in ActionErrorDisplayMap) {
       return ActionErrorDisplayMap[type](error);
     }
+
     return createMessage(DEFAULT_ERROR_MESSAGE);
   }
+
   return actionErrorMessage;
 };
 
@@ -218,22 +231,20 @@ export interface ErrorActionPayload {
 export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
   const effects = [ErrorEffectTypes.LOG_TO_CONSOLE];
   const { payload, type } = errorAction;
-  const {
-    error,
-    logToDebugger,
-    logToSentry,
-    show = true,
-    sourceEntity,
-  } = payload || {};
+  const { error, logToDebugger, logToSentry, show, sourceEntity } =
+    payload || {};
   const appMode: APP_MODE = yield select(getAppMode);
 
   // "show" means show a toast. We check if the error has been asked to not been shown
-  // By making the default behaviour "true" we are ensuring undefined actions still pass through this check
-  if (show) {
+  // By checking undefined, undecided actions still pass through this check
+  if (show === undefined) {
     // We want to show toasts for certain actions only so we avoid issues or if it is outside edit mode
     if (shouldShowToast(type) || appMode !== APP_MODE.EDIT) {
       effects.push(ErrorEffectTypes.SHOW_ALERT);
     }
+    // If true is passed, show the error no matter what
+  } else if (show) {
+    effects.push(ErrorEffectTypes.SHOW_ALERT);
   }
 
   if (logToDebugger) {
@@ -278,6 +289,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
             );
           }
         }
+
         break;
       }
       case ErrorEffectTypes.SAFE_CRASH: {
@@ -305,6 +317,7 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
 
 function logErrorSaga(action: ReduxAction<{ error: ErrorPayloadType }>) {
   log.debug(`Error in action ${action.type}`);
+
   if (action.payload) log.error(action.payload.error, action);
 }
 
@@ -314,6 +327,7 @@ export function embedRedirectURL() {
   const ssoLoginUrl = ssoTriggerQueryParam
     ? getLoginUrl(ssoTriggerQueryParam || "")
     : null;
+
   if (ssoLoginUrl) {
     window.location.href = `${ssoLoginUrl}?redirectUrl=${encodeURIComponent(
       window.location.href,
@@ -324,6 +338,7 @@ export function embedRedirectURL() {
     )}`;
   }
 }
+
 /**
  * this saga do some logic before actually setting safeCrash to true
  */
@@ -338,6 +353,7 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: ERROR_CODES }>) {
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
     embedRedirectURL();
+
     return false;
   }
 
@@ -358,6 +374,7 @@ export function* flushErrorsAndRedirectSaga(
   if (safeCrash) {
     yield put(flushErrors());
   }
+
   if (!action.payload.url) return;
 
   history.push(action.payload.url);

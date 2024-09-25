@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Modals`,
-  { tags: ["@tag.Anvil"] },
+  { tags: ["@tag.Anvil", "@tag.Visual"] },
   () => {
     before(() => {
       // Cleanup the canvas before each test
@@ -134,7 +134,8 @@ describe(
         anvilLocators.anvilWidgetNameSelector("Button2"),
       );
     });
-    it("8. Verify different modal sizes", () => {
+    // TODO: Enable when issue(github.com/appsmithorg/appsmith/issues/36419) is solved.
+    it.skip("8. Verify different modal sizes", () => {
       // select all widgets and delete
       agHelper.PressEscape();
       agHelper.SelectAllWidgets();

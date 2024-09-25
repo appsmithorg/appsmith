@@ -113,6 +113,7 @@ export const InputGroup = React.forwardRef((props: InputGroupProps, ref) => {
 
   React.useEffect(() => {
     window.addEventListener("keydown", handleKeydown);
+
     return () => {
       window.removeEventListener("keydown", handleKeydown);
     };
@@ -127,6 +128,7 @@ export const InputGroup = React.forwardRef((props: InputGroupProps, ref) => {
           inputRef?.current?.focus();
           e.preventDefault();
         }
+
         break;
       case "Escape":
         if (document.activeElement === inputRef?.current) {
@@ -134,6 +136,7 @@ export const InputGroup = React.forwardRef((props: InputGroupProps, ref) => {
           wrapperRef?.current?.focus();
           e.preventDefault();
         }
+
         break;
       case "Tab":
         if (document.activeElement === wrapperRef?.current) {
@@ -141,6 +144,7 @@ export const InputGroup = React.forwardRef((props: InputGroupProps, ref) => {
             key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
           });
         }
+
         break;
     }
   };

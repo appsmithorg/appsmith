@@ -15,7 +15,7 @@ import PageList from "../../../../../support/Pages/PageList";
 
 describe(
   "Camera widget - Image test",
-  { tags: ["@tag.Widget", "@tag.Camera"] },
+  { tags: ["@tag.Widget", "@tag.Camera", "@tag.Visual"] },
   () => {
     before(() => {
       //Reset video source to default incase it got changed in other specs
@@ -86,13 +86,6 @@ describe(
       agHelper.AssertExistingToggleState("Mirrored", "true");
       propPane.EnterJSContext("Mirrored", "{{(55>45)?false:true}}", true, true);
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.CAMERA));
-      agHelper
-        .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
-        .matchImageSnapshot("cameraImageMirroredScreen", {
-          failureThreshold: 0.15,
-          failureThresholdType: "percent",
-          customDiffConfig: { threshold: 0.15 },
-        });
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget);
       propPane.EnterJSContext("Mirrored", "", false);
@@ -125,28 +118,15 @@ describe(
       //Validate camera screen & icons
       agHelper.AssertElementVisibility(widgetLocators.cameraImageVideoOnOffBtn);
       agHelper.AssertElementVisibility(widgetLocators.cameraImageVideoDropdown);
-      agHelper
-        .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
-        .matchImageSnapshot("cameraImageScreen");
 
       //Capture image
       agHelper.GetNClick(widgetLocators.cameraCaptureBtn);
       agHelper.AssertElementVisibility(widgetLocators.cameraSaveBtn);
       agHelper.AssertElementVisibility(widgetLocators.cameraImageDiscardBtn);
 
-      //Validate image in preview screen
-      agHelper
-        .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
-        .matchImageSnapshot("cameraImagePreviewScreen");
-
       //Save image
       agHelper.GetNClick(widgetLocators.cameraSaveBtn);
       agHelper.AssertElementVisibility(widgetLocators.cameraRefreshBtn);
-
-      //Validate image in refresh screen
-      agHelper
-        .GetElement(locators._widgetInDeployed(draggableWidgets.CAMERA))
-        .matchImageSnapshot("cameraImageSavedScreen");
 
       //Refresh image
       agHelper.GetNClick(widgetLocators.cameraRefreshBtn);

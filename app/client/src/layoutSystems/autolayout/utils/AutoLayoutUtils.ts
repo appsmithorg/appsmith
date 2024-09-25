@@ -68,26 +68,35 @@ export function updateFlexLayersOnDelete(
   metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };
+
   if (
     widgets[MAIN_CONTAINER_WIDGET_ID].layoutSystemType ===
       LayoutSystemTypes.FIXED ||
     widgets[MAIN_CONTAINER_WIDGET_ID].positioning === Positioning.Fixed
   )
     return widgets;
+
   let parent = widgets[parentId];
+
   if (!parent) return widgets;
 
   let flexLayers = [...(parent.flexLayers || [])];
+
   if (!flexLayers.length) return widgets;
+
   let layerIndex = -1; // Find the layer in which the deleted widget exists.
   let index = 0;
   let updatedChildren: LayerChild[] = [];
+
   for (const layer of flexLayers) {
     const children = layer.children || [];
+
     if (!children.length) continue;
+
     const childIndex = children.findIndex(
       (each: LayerChild) => each.id === widgetId,
     );
+
     if (childIndex === -1) {
       index += 1;
       continue;
@@ -99,6 +108,7 @@ export function updateFlexLayersOnDelete(
     layerIndex = index;
     break;
   }
+
   if (layerIndex === -1) return widgets;
 
   flexLayers = [
@@ -145,6 +155,7 @@ export function alterLayoutForMobile(
   if (!isStack(allWidgets, parent)) {
     return widgets;
   }
+
   if (!children || !children.length) return widgets;
 
   for (const child of children) {
@@ -154,6 +165,7 @@ export function alterLayoutForMobile(
         ? canvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH
         : (canvasWidth * (widget.mobileRightColumn || 1)) /
           GridDefaults.DEFAULT_GRID_COLUMNS;
+
     widgets = alterLayoutForMobile(
       widgets,
       child,
@@ -172,6 +184,7 @@ export function alterLayoutForMobile(
       metaProps,
     );
   }
+
   widgets = updateWidgetPositions(
     widgets,
     parentId,
@@ -180,6 +193,7 @@ export function alterLayoutForMobile(
     firstTimeDSLUpdate,
     metaProps,
   );
+
   return widgets;
 }
 
@@ -199,6 +213,7 @@ export function alterLayoutForDesktop(
   if (!isStack(allWidgets, parent)) {
     return widgets;
   }
+
   if (!children || (!children.length && parent.type !== "CANVAS_WIDGET")) {
     return widgets;
   }
@@ -211,6 +226,7 @@ export function alterLayoutForDesktop(
     firstTimeDSLUpdate,
     metaProps,
   );
+
   for (const child of children) {
     widgets = alterLayoutForDesktop(
       widgets,
@@ -220,6 +236,7 @@ export function alterLayoutForDesktop(
       metaProps,
     );
   }
+
   return widgets;
 }
 
@@ -244,6 +261,7 @@ export function pasteWidgetInFlexLayers(
   const parent = widgets[parentId];
   let flexLayers: FlexLayer[] = parent.flexLayers || [];
   let flexLayerIndex = -1;
+
   /**
    * If the new parent is not the same as the original parent,
    * then add a new flex layer.
@@ -270,18 +288,23 @@ export function pasteWidgetInFlexLayers(
      */
     let rowIndex = -1,
       alignment = FlexLayerAlignment.Start;
+
     flexLayerIndex = flexLayers.findIndex((layer: FlexLayer) => {
       const temp = layer.children.findIndex(
         (child: LayerChild) => child.id === originalWidgetId,
       );
+
       if (temp > -1) {
         rowIndex = temp;
         alignment = layer.children[temp].align;
       }
+
       return temp > -1;
     });
+
     if (flexLayerIndex > -1 && rowIndex > -1) {
       let selectedLayer = flexLayers[flexLayerIndex];
+
       selectedLayer = {
         children: [
           ...selectedLayer.children.slice(0, rowIndex + 1),
@@ -296,6 +319,7 @@ export function pasteWidgetInFlexLayers(
       ];
     }
   }
+
   widgets = {
     ...widgets,
     [parentId]: {
@@ -303,6 +327,7 @@ export function pasteWidgetInFlexLayers(
       flexLayers,
     },
   };
+
   return updatePositionsOfParentAndSiblings(
     widgets,
     parentId,
@@ -335,11 +360,14 @@ export function addChildToPastedFlexLayers(
   let widgets = { ...allWidgets };
   const parent = widgets[widget.parentId];
   const flexLayers = parent.flexLayers || [];
+
   if (flexLayers.length > 0) {
     let index = 0;
+
     for (const layer of flexLayers) {
       let children = layer.children;
       let childIndex = 0;
+
       for (const child of children) {
         if (widgetIdMap[child.id] === widget.widgetId) {
           children = [
@@ -348,14 +376,17 @@ export function addChildToPastedFlexLayers(
             ...children.slice(childIndex + 1),
           ];
         }
+
         childIndex += 1;
       }
+
       flexLayers[index] = {
         children,
       };
       index += 1;
     }
   }
+
   widgets = {
     ...widgets,
     [parent.widgetId]: {
@@ -363,6 +394,7 @@ export function addChildToPastedFlexLayers(
       flexLayers,
     },
   };
+
   return updateWidgetPositions(
     widgets,
     parent.widgetId,
@@ -377,8 +409,10 @@ export // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isStack(allWidgets: CanvasWidgetsReduxState, widget: any): boolean {
   let parent = widget.parentId ? allWidgets[widget.parentId] : undefined;
+
   if (parent && parent.type === "CANVAS_WIDGET" && parent.parentId)
     parent = allWidgets[parent.parentId];
+
   return (
     widget.positioning === Positioning.Vertical ||
     ((parent && defaultAutoLayoutWidgets.includes(parent.type)) ||
@@ -398,6 +432,7 @@ export function getLayerIndexOfWidget(
   widgetId: string,
 ): number {
   if (!flexLayers) return -1;
+
   return flexLayers.findIndex((layer: FlexLayer) => {
     return (
       layer.children.findIndex((child: LayerChild) => child.id === widgetId) !==
@@ -428,18 +463,23 @@ export function getFillWidgetLengthForLayer(
     fillCount = 0;
   const { leftColumn: leftColumnMap, rightColumn: rightColumnMap } =
     dimensionMap;
+
   for (const child of layer.children) {
     const childWidget = allWidgets[child.id];
+
     if (!childWidget) {
       continue;
     }
+
     if (childWidget.responsiveBehavior !== ResponsiveBehavior.Fill) {
       hugLength += childWidget[rightColumnMap] - childWidget[leftColumnMap];
     } else {
       fillCount += 1;
     }
   }
+
   fillLength = (fillLength - hugLength) / (fillCount || 1);
+
   return fillLength;
 }
 
@@ -455,18 +495,23 @@ export function getAlignmentColumnInfo(
       [FlexLayerAlignment.End]: 0,
       [FlexLayerAlignment.None]: 0,
     };
+
   let start = 0,
     end = 0,
     center = 0;
+
   for (const child of layer.children) {
     const widget = widgets[child.id];
+
     if (!widget) continue;
+
     if (child.align === FlexLayerAlignment.End)
       end += getWidgetWidth(widget, isMobile);
     else if (child.align === FlexLayerAlignment.Center)
       center += getWidgetWidth(widget, isMobile);
     else start += getWidgetWidth(widget, isMobile);
   }
+
   return {
     [FlexLayerAlignment.Start]: start,
     [FlexLayerAlignment.Center]: center,
@@ -500,11 +545,13 @@ function getCanvasWidth(
   isMobile: boolean,
 ): number {
   if (!mainCanvasWidth) return 0;
+
   if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID)
     return mainCanvasWidth - getPadding(canvas);
 
   const stack = [];
   let widget = canvas;
+
   while (widget.parentId) {
     stack.push(widget);
     widget = widgets[widget.parentId];
@@ -514,6 +561,7 @@ function getCanvasWidth(
       break;
     }
   }
+
   stack.push(widget);
 
   let width = mainCanvasWidth;
@@ -528,12 +576,15 @@ function getCanvasWidth(
 
   while (stack.length) {
     const widget = stack.pop();
+
     if (!widget) continue;
+
     const columns = getWidgetWidth(widget, isMobile);
     const padding = getPadding(widget);
     const factor = widget.detachFromLayout
       ? 1
       : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
+
     width = width * factor - padding;
   }
 
@@ -542,6 +593,7 @@ function getCanvasWidth(
 
 function getPadding(canvas: FlattenedWidgetProps): number {
   let padding = 0;
+
   if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID) {
     padding = FLEXBOX_PADDING * 2;
   } else if (canvas.type === "CONTAINER_WIDGET") {
@@ -620,6 +672,7 @@ export function getNewFlexLayers(
         });
       }
     }
+
     newFlexLayers.push({ children: newChildren });
   }
 
@@ -654,25 +707,33 @@ export function getLayerWrappingInfo(
   resIndex = 0,
 ): FlexLayerAlignment[][] {
   if (arr.length === 0) return res;
+
   if (arr.length === 1) {
     res[resIndex].push(arr[0].alignment);
+
     return res;
   }
+
   let index = 0;
   let total = 0;
+
   for (const each of arr) {
     if (total + each.columns > GridDefaults.DEFAULT_GRID_COLUMNS) {
       let x = index;
+
       if (!res[resIndex].length) {
         res[resIndex].push(arr[0].alignment);
         x += 1;
       }
+
       return getLayerWrappingInfo(arr.slice(x), res, resIndex + 1);
     }
+
     total += each.columns;
     index += 1;
     res[resIndex].push(each.alignment);
   }
+
   return res;
 }
 
@@ -689,6 +750,7 @@ export function getAlignmentMarginInfo(
   resIndex = 0,
 ): boolean[] {
   if (!arr.length) return [];
+
   const wrapInfo: FlexLayerAlignment[][] = getLayerWrappingInfo(
     arr,
     res,
@@ -766,5 +828,6 @@ export function isWidgetSizeObserved(widget: FlattenedWidgetProps): boolean {
   const shouldObserveHeight = isFunction(autoDimensionConfig)
     ? autoDimensionConfig(widget).height
     : autoDimensionConfig?.height;
+
   return !!shouldObserveWidth || !!shouldObserveHeight;
 }

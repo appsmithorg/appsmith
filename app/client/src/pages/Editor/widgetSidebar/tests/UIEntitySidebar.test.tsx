@@ -46,12 +46,14 @@ describe("UIEntitySidebar", () => {
   ) => {
     /* eslint-disable @typescript-eslint/no-var-requires */
     const { useUIExplorerItems } = require("../hooks");
+
     useUIExplorerItems.mockImplementation(() => items);
   };
 
   const mockDragDropBuildingBlocksFF = (val: boolean) => {
     /* eslint-disable @typescript-eslint/no-var-requires */
     const { useFeatureFlag } = require("utils/hooks/useFeatureFlag");
+
     useFeatureFlag.mockImplementation(() => val);
   };
 
@@ -59,6 +61,7 @@ describe("UIEntitySidebar", () => {
     mockUIExplorerItems();
     const { getAllByTestId, getByPlaceholderText, getByText } =
       renderUIEntitySidebar(true, false);
+
     expect(
       getByPlaceholderText(createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT)),
     ).toBeInTheDocument();
@@ -81,6 +84,7 @@ describe("UIEntitySidebar", () => {
     const input = getByPlaceholderText(
       createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT),
     );
+
     fireEvent.change(input, { target: { value: "example text" } });
     await waitFor(() => {
       expect(queryByTestId("ui-entity-tag-group")).toBeNull();
@@ -112,6 +116,7 @@ describe("UIEntitySidebar", () => {
     const input = getByPlaceholderText(
       createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT),
     );
+
     fireEvent.change(input, { target: { value: "table" } });
     await waitFor(() => {
       // one from building blocks and one from normal widgets
@@ -125,6 +130,7 @@ describe("UIEntitySidebar", () => {
     mockUIExplorerItems();
     mockDragDropBuildingBlocksFF(true);
     const { getByText } = renderUIEntitySidebar(true, true);
+
     expect(getByText(WIDGET_TAGS.SUGGESTED_WIDGETS)).toBeInTheDocument();
   });
 });

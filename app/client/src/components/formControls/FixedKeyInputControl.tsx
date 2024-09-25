@@ -23,6 +23,7 @@ class FixKeyInputControl extends BaseControl<FixedKeyInputControlProps> {
             if (value) {
               return value.value;
             }
+
             return "";
           }}
           isDisabled={disabled}

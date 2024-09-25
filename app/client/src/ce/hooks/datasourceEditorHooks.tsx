@@ -95,6 +95,7 @@ export const useHeaderActions = (
         // disable button when it doesn't support page generation
         return;
       }
+
       AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
       history.push(
         generateTemplateFormURL({

@@ -21,7 +21,6 @@ import "cypress-network-idle";
 import "cypress-xpath";
 import * as MESSAGES from "../../src/ce/constants/messages.ts";
 import "./ApiCommands";
-// Import commands.js using ES2015 syntax:
 import "./commands";
 import { initLocalstorage, addIndexedDBKey } from "./commands";
 import "./dataSourceCommands";
@@ -31,6 +30,7 @@ import RapidMode from "./RapidMode.ts";
 import "cypress-mochawesome-reporter/register";
 import installLogsCollector from "cypress-terminal-report/src/installLogsCollector";
 import { CURRENT_REPO, REPO } from "../fixtures/REPO";
+import { addMatchImageSnapshotCommand } from "@simonsmith/cypress-image-snapshot/command";
 
 import "./WorkspaceCommands";
 import "./queryCommands";
@@ -48,8 +48,13 @@ const registerCypressGrep = require("@cypress/grep");
 registerCypressGrep();
 installLogsCollector();
 
+addMatchImageSnapshotCommand({
+  comparisonMethod: "ssim",
+  failureThreshold: 0.01,
+  failureThresholdType: "percent",
+});
+
 Cypress.on("uncaught:exception", (error) => {
-  //cy.log(error.message);
   return false; // returning false here prevents Cypress from failing the test
 });
 
@@ -59,7 +64,6 @@ Cypress.on("fail", (error) => {
 });
 
 Cypress.env("MESSAGES", MESSAGES);
-let dataSet; // Declare a variable to hold the test data
 
 before(function () {
   if (RapidMode.config.enabled) {
@@ -70,7 +74,6 @@ before(function () {
       }
     });
 
-    //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
     if (!RapidMode.config.usesDSL) {
       cy.visit(RapidMode.url());
       cy.wait("@getWorkspace");
@@ -82,7 +85,6 @@ before(function () {
   if (RapidMode.config.enabled) {
     return;
   }
-  //console.warn = () => {}; //to remove all warnings in cypress console
   initLocalstorage();
   initLocalstorageRegistry();
   cy.startServerAndRoutes();
@@ -142,7 +144,6 @@ before(function () {
       binding_widget: true,
     });
   }
-  //console.warn = () => {};
 
   cy.CreateNewAppInNewWorkspace(); //Creating new workspace and app
   cy.fixture("TestDataSet1").then(function (data) {
@@ -151,12 +152,10 @@ before(function () {
 });
 
 beforeEach(function () {
-  //cy.window().then((win) => (win.onbeforeunload = undefined));
   if (!navigator.userAgent.includes("Cypress")) {
     window.addEventListener("beforeunload", this.beforeunloadFunction);
   }
   initLocalstorage();
-  //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
   //-- Delete local storage data of entity explorer
   cy.DeleteEntityStateLocalStorage();
@@ -172,10 +171,4 @@ after(function () {
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
   cy.DeleteWorkspaceByApi();
-  //-- LogOut Application---//
-  //cy.LogOut(false);
-  // Commenting until Upgrade Appsmith cases are fixed
-  // const tedUrl = "http://localhost:5001/v1/parent/cmd";
-  // cy.log("Start the appsmith container");
-  // cy.StartContainer(tedUrl, "appsmith"); // start the old container
 });

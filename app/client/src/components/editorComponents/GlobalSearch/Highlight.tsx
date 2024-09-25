@@ -14,7 +14,9 @@ function Highlight({
 
   const regEx = new RegExp(match, "ig");
   const parts = text?.split(regEx);
+
   if (parts?.length === 1) return <span className={className}>{text}</span>;
+
   let lastIndex = 0;
 
   return (
@@ -31,7 +33,9 @@ function Highlight({
             )}
           </React.Fragment>
         );
+
         lastIndex += match.length;
+
         return result;
       })}
     </Text>

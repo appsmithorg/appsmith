@@ -37,10 +37,10 @@ describe(
       });
     });
 
-    it("3. should check that options given in the property pane is appearing on the table", () => {
-      cy.get(".t--property-control-options").should("exist");
+    it("3. should check that JSON options given in the property pane is appearing on the table", () => {
+      cy.get(_.locators._controlOption).should("exist");
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
         `
       [
         {
@@ -80,9 +80,52 @@ describe(
       cy.get(".menu-item-active.has-focus").should("contain", "#1");
     });
 
-    it("4. should check that placeholder property is working", () => {
+    it("4. should check that javascript options given in the property pane is appearing on the table", () => {
+      cy.get(_.locators._controlOption).should("exist");
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
+        `
+      {{[
+        {
+          "label": "#1",
+          "value": "#1"
+        },
+        {
+          "label": "#2",
+          "value": "#2"
+        },
+        {
+          "label": "#3",
+          "value": "#3"
+        }
+      ]}}
+    `,
+      );
+      cy.editTableSelectCell(0, 0);
+
+      [
+        {
+          label: "#1",
+          value: "#1",
+        },
+        {
+          label: "#2",
+          value: "#2",
+        },
+        {
+          label: "#3",
+          value: "#3",
+        },
+      ].forEach((item) => {
+        cy.get(".menu-item-text").contains(item.value).should("exist");
+      });
+
+      cy.get(".menu-item-active.has-focus").should("contain", "#1");
+    });
+
+    it("5. should check that placeholder property is working", () => {
+      cy.updateCodeInput(
+        _.locators._controlOption,
         `
       [
         {
@@ -116,9 +159,9 @@ describe(
       ).should("contain", "choose an item");
     });
 
-    it("5. should check that filterable property is working", () => {
+    it("6. should check that filterable property is working", () => {
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
         `
       {{[
         {
@@ -161,7 +204,7 @@ describe(
       cy.get(".t--canvas-artboard").click({ force: true });
     });
 
-    it("6. should check that on option select is working", () => {
+    it("7. should check that on option select is working", () => {
       _.agHelper.CheckForPageSaveError();
       featureFlagIntercept({ release_table_cell_label_value_enabled: true });
       cy.openPropertyPane("tablewidgetv2");
@@ -174,7 +217,7 @@ describe(
     `,
       );
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
         `
       [
         {
@@ -204,9 +247,9 @@ describe(
       cy.discardTableRow(4, 0);
     });
 
-    it("7. should check that currentRow is accessible in the select options", () => {
+    it("8. should check that currentRow is accessible in the select options", () => {
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
         `
       {{[
         {
@@ -229,7 +272,7 @@ describe(
       cy.get(".menu-item-text").contains("#1").should("not.exist");
     });
 
-    it("8. should check that 'same select option in new row' property is working", () => {
+    it("9. should check that 'same select option in new row' property is working", () => {
       _.propPane.NavigateBackToPropertyPane();
 
       const checkSameOptionsInNewRowWhileEditing = () => {
@@ -246,7 +289,7 @@ describe(
         cy.get(".t--property-control-newrowoptions").should("not.exist");
 
         cy.updateCodeInput(
-          ".t--property-control-options",
+          _.locators._controlOption,
           `
         {{[{
           "label": "male",
@@ -295,7 +338,7 @@ describe(
       checkSameOptionsWhileAddingNewRow();
     });
 
-    it("9. should check that 'new row select options' is working", () => {
+    it("10. should check that 'new row select options' is working", () => {
       const checkNewRowOptions = () => {
         // New row select options should be visible when "Same options in new row" is turned off
         _.propPane.TogglePropertyState("Same options in new row", "Off");
@@ -360,7 +403,7 @@ describe(
       checkNoOptionState();
     });
 
-    it("10. should check that server side filering is working", () => {
+    it("11. should check that server side filering is working", () => {
       _.dataSources.CreateDataSource("Postgres");
       _.dataSources.CreateQueryAfterDSSaved(
         "SELECT * FROM public.astronauts {{this.params.filterText ? `WHERE name LIKE '%${this.params.filterText}%'` : ''}} LIMIT 10;",

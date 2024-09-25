@@ -230,6 +230,7 @@ describe("<ColorPicker /> - Keyboard Navigation", () => {
 
   it("Pressing {Enter} should select the color in focus", async () => {
     const onColorChange = jest.fn();
+
     render(getTestComponent(onColorChange));
     await userEvent.tab();
     await userEvent.keyboard("{Enter}");

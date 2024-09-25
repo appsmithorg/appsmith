@@ -17,4 +17,5 @@ function BannerComponent(props: BannerPropType) {
     />
   ) : null;
 }
+
 export const Banner = React.memo(BannerComponent);

@@ -10,6 +10,7 @@ export default function isLintErrorLoggingEnabledForEntity(
   if (isJSAction(entity)) {
     return true;
   }
+
   if (isWidget(entity)) {
     return !(propertyPath in config.reactivePaths);
   }

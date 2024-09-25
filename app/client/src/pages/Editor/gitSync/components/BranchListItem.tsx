@@ -40,6 +40,7 @@ export function BranchListItem({
   const { isSwitchingBranch, switchingToBranch } = useSelector(
     getBranchSwitchingDetails,
   );
+
   useEffect(() => {
     if (itemRef.current && shouldScrollIntoView) {
       scrollIntoView(itemRef.current, {

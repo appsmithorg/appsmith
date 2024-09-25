@@ -85,6 +85,7 @@ export interface ModalComponentProps {
 export function ModalComponent(props: ModalComponentProps) {
   const modalContentRef: RefObject<HTMLDivElement> =
     useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     return () => {
       // handle modal close events when this component unmounts
@@ -98,6 +99,7 @@ export function ModalComponent(props: ModalComponentProps) {
       modalContentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [props.scrollContents]);
+
   return (
     <Overlay
       canEscapeKeyClose={false}

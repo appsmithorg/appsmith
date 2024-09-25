@@ -4,6 +4,7 @@ import { getCanvasWidth } from "selectors/editorSelectors";
 
 export const useMaxModalWidth = () => {
   const mainCanvasWidth = useSelector(getCanvasWidth);
+
   return (mainCanvasWidth || 0) * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH;
 };
 export const useModalWidth = () => {
@@ -11,5 +12,6 @@ export const useModalWidth = () => {
   const getModalWidth = (width = 0) => {
     return Math.min(maxModalWidth, width);
   };
+
   return getModalWidth;
 };

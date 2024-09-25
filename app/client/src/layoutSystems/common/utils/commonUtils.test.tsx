@@ -18,6 +18,7 @@ describe("Common Utils tests", () => {
         InputWidget.getAutoLayoutConfig();
       const autoDimension: AutoDimensionOptions | undefined =
         getAutoDimensionsConfig(config || {}, mockInputProps());
+
       expect((autoDimension as AutoDimensionValues)?.height).toBeTruthy();
     });
     it("autoDimension.width for button widget should be true", () => {
@@ -28,6 +29,7 @@ describe("Common Utils tests", () => {
           ...mockInputProps(),
           type: "BUTTON_WIDGET",
         });
+
       expect((autoDimension as AutoDimensionValues)?.width).toBeTruthy();
       expect((autoDimension as AutoDimensionValues)?.height).toBeFalsy();
     });
