@@ -308,7 +308,33 @@ export async function loadLibraries(
       try {
         self.importScripts(url);
         const keysAfter = Object.keys(self);
-        const defaultAccessors = difference(keysAfter, keysBefore);
+        let defaultAccessors = difference(keysAfter, keysBefore);
+
+        if (
+          defaultAccessors.length > 0 &&
+          defaultAccessors.includes("default")
+        ) {
+          // Changing default export to library accessors name which was saved when it was installed
+          const uniqueName = accessors[0];
+
+          // mapping default functionality to library name accessor
+          self[uniqueName] = self["default"];
+          // deleting the reference of default key from the self object
+          delete self["default"];
+          // mapping all the references of differentiating keys from the self object to the self[uniqueName] key object
+          defaultAccessors.map((key) => {
+            if (key !== "default") {
+              self[uniqueName][key] = self[key];
+              // deleting the references from the self object
+              delete self[key];
+            }
+          });
+        }
+
+        // Following the same process which was happening earlier
+        const keysAfterDefaultOperation = Object.keys(self);
+
+        defaultAccessors = difference(keysAfterDefaultOperation, keysBefore);
 
         /**
          * Installing 2 different version of lodash tries to add the same accessor on the self object. Let take version a & b for example.
