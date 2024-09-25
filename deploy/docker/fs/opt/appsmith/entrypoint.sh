@@ -435,6 +435,48 @@ init_postgres() {
     runEmbeddedPostgres=0
   fi
 
+  # Create the appsmith schema
+    echo "Initializing PostgreSQL..."
+
+    # Extract credentials from APPSMITH_DB_URL
+    if [[ -n "$APPSMITH_DB_URL" ]]; then
+      # Extract username, password, host, port, and database name
+      DB_PROTOCOL=$(echo "$APPSMITH_DB_URL" | awk -F'://' '{print $1}')
+      if [[ "$DB_PROTOCOL" == "postgres" ]]; then
+        DB_USER=$(echo "$APPSMITH_DB_URL" | sed -n 's#.*://\([^:]*\):.*#\1#p')
+        DB_PASSWORD=$(echo "$APPSMITH_DB_URL" | sed -n 's#.*://[^:]*:\([^@]*\)@.*#\1#p')
+        DB_HOST=$(echo "$APPSMITH_DB_URL" | sed -n 's#.*://[^@]*@\([^:]*\):.*#\1#p')
+        DB_PORT=$(echo "$APPSMITH_DB_URL" | sed -n 's#.*://[^@]*@[^:]*:\([^/]*\)/.*#\1#p')
+        DB_NAME=$(echo "$APPSMITH_DB_URL" | sed -n 's#.*://[^@]*@[^/]*/\([^?]*\).*#\1#p')
+      fi
+    fi
+
+    # Generate a random password if DB_USER or DB_PASSWORD are empty
+    if [[ -z "$DB_USER" || -z "$DB_PASSWORD" ]]; then
+      DB_USER="postgres"
+      DB_PASSWORD=$(openssl rand -base64 12)  # Generate a random password
+      echo "Generated random password for postgres user: $DB_PASSWORD"
+    fi
+
+    # Set defaults for host, port, and database name if not set
+    DB_HOST=${DB_HOST:-localhost}
+    DB_PORT=${DB_PORT:-5432}
+    DB_NAME=${DB_NAME:-appsmith}
+
+    echo "Connecting to PostgreSQL at $DB_HOST:$DB_PORT with user $DB_USER"
+
+    # Create the appsmith schema if it does not exist
+    PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME <<EOF
+    CREATE SCHEMA IF NOT EXISTS appsmith;
+  EOF
+
+    if [ $? -eq 0 ]; then
+      echo "Schema 'appsmith' created or already exists."
+    else
+      echo "Failed to create schema 'appsmith'."
+      exit 1
+    fi
+
 }
 
 safe_init_postgres() {
