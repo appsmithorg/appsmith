@@ -54,30 +54,23 @@ function ApiFormatSegmentedResponse(props: {
     }
   }
 
-  const responseTabs =
-    filteredResponseDataTypes &&
-    filteredResponseDataTypes.map((dataType, index) => {
-      return {
-        index: index,
-        key: dataType.key,
-        title: dataType.title,
-        panelComponent: (
-          <ResponseFormatTabs
-            data={
-              props.actionResponse.body as string | Record<string, unknown>[]
-            }
-            responseType={dataType.key}
-            tableBodyHeight={props.responseTabHeight}
-          />
-        ),
-      };
-    });
+  const responseTabs = filteredResponseDataTypes?.map((dataType, index) => ({
+    index: index,
+    key: dataType.key,
+    title: dataType.title,
+    panelComponent: (
+      <ResponseFormatTabs
+        data={props.actionResponse.body as string | Record<string, unknown>[]}
+        responseType={dataType.key}
+        tableBodyHeight={props.responseTabHeight}
+      />
+    ),
+  }));
 
-  const segmentedControlOptions =
-    responseTabs &&
-    responseTabs.map((item) => {
-      return { value: item.key, label: item.title };
-    });
+  const segmentedControlOptions = responseTabs?.map((item) => ({
+    value: item.key,
+    label: item.title,
+  }));
 
   const onChange = useCallback(
     (value: string) => {
@@ -91,11 +84,9 @@ function ApiFormatSegmentedResponse(props: {
     segmentedControlOptions[0]?.value,
   );
 
-  const selectedTabIndex =
-    filteredResponseDataTypes &&
-    filteredResponseDataTypes.findIndex(
-      (dataType) => dataType.title === responseDisplayFormat?.title,
-    );
+  const selectedTabIndex = filteredResponseDataTypes?.findIndex(
+    (dataType) => dataType.title === responseDisplayFormat?.title,
+  );
 
   const value = useMemo(
     () => ({ value: props.actionResponse.body as string }),

@@ -26,16 +26,18 @@ const headersTransformer = (headers: Record<string, string[]> = {}) => {
   if (headers) {
     Object.entries(headers).forEach(([key, value]) => {
       if (isArray(value) && value.length < 2) {
-        return (responseHeaders = {
+        responseHeaders = {
           ...responseHeaders,
           [key]: value[0],
-        });
+        };
+
+        return;
       }
 
-      return (responseHeaders = {
+      responseHeaders = {
         ...responseHeaders,
         [key]: value,
-      });
+      };
     });
   }
 
