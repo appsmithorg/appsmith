@@ -7,7 +7,7 @@ import EditorNavigation, {
 describe("Api Error Debugger", { tags: ["@tag.IDE"] }, () => {
   before(() => {
     // Create api that causes an error
-    _.apiPage.CreateAndFillApi("https://fakeapi/user");
+    _.apiPage.CreateAndFillApi("http://host.docker.internal:500");
   });
   it("it shows error message", () => {
     _.apiPage.RunAPI(false);
