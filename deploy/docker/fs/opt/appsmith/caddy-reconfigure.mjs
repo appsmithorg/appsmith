@@ -72,7 +72,15 @@ parts.push(`
   log {
     output stdout
   }
+
+  # skip logs for health check
   skip_log /api/v1/health
+
+  # skip logs for sourcemap files
+  @source-map-files {
+    path_regexp ^.*\.(js|css)\.map$
+  }
+  skip_log @source-map-files
 
   # The internal request ID header should never be accepted from an incoming request.
   request_header -X-Appsmith-Request-Id
@@ -110,7 +118,6 @@ parts.push(`
   @file file
   handle @file {
     import file_server
-    skip_log
   }
 
   handle /static/* {
