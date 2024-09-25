@@ -7,7 +7,7 @@ import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import type { AnvilDnDListenerStates } from "./useAnvilDnDListenerStates";
-import { anvilWidgets } from "widgets/wds/constants";
+import { anvilWidgets } from "modules/ui-builder/ui/wds/constants";
 
 export const useAnvilWidgetDrop = (
   canvasId: string,
