@@ -79,7 +79,7 @@ describe(
       // Reinstallation should succeed with the same accessor
       installer.OpenInstaller();
       installer.InstallLibraryViaURL(
-        "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+es",
+        "https://cdn.jsdelivr.net/npm/fast-xml-parser@4.2.7/+esm",
         "fast_xml_parser",
       );
     });

@@ -17,7 +17,7 @@ import EditorNavigation, {
 const ppt =
   "https://ssz.sgp1.digitaloceanspaces.com/3ZEO2582C29EA0KKK2/ppt-on-population-pptxafa26c44-208f-46a3-89cc-8a5c020b6863.pptx";
 const pngImage =
-  "https://community.appsmith.com/sites/default/files/styles/16_9_card/public/septembercoding-min%20%281%29.png?itok=unYUZ0zm";
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb8umIiCU_K6ac-xS-ni4y6SP7XAd8C7Ms3Q&usqp=CAU";
 const jpgImage =
   "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg?itok=yG4bpfFs";
 const pdf =

@@ -32,26 +32,32 @@ describe(
       //_.table.SelectTableRow(1)
 
       _.table.ReadTableRowColumnData(0, 0).then(($cellData) => {
-        expect($cellData).to.eq("http://host.docker.internal:4200/453-200x300.jpg");
+        expect($cellData).to.eq("1376499.jpg");
       });
 
       _.table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-        expect($cellData).to.eq("http://host.docker.internal:4200/453-200x300.jpg");
+        expect($cellData).to.eq("https://wallpaperaccess.com/full/1688623.jpg");
       });
 
       _.table.ReadTableRowColumnData(2, 0).then(($cellData) => {
-        expect($cellData).to.eq("http://host.docker.internal:4200/453-200x300.jpg");
+        expect($cellData).to.eq("2117775.jpg");
       });
 
       _.table.ReadTableRowColumnData(3, 0).then(($cellData) => {
-        expect($cellData).to.eq("http://host.docker.internal:4200/453-200x300.jpg");
+        expect($cellData).to.eq("https://wallpaperaccess.com/full/812632.jpg");
       });
 
       _.table.AssertURLColumnNavigation(
         0,
         0,
-        "http://host.docker.internal:4200/453-200x300.jpg",
+        "https://wallpaperaccess.com/full/1376499.jpg",
       );
+      // _.table.AssertURLColumnNavigation(
+      //   3,
+      //   0,
+      //   "https://wallpaperaccess.com/full/812632.jpg",
+      // );
+
       _.deployMode.NavigateBacktoEditor();
     });
 
@@ -67,26 +73,32 @@ describe(
       _.deployMode.DeployApp();
 
       _.table.ReadTableRowColumnData(0, 0).then(($cellData) => {
-        expect($cellData).to.eq("http://host.docker.internal:4200/453-200x300.jpg");
+        expect($cellData).to.eq("1376499.jpg");
       });
 
       _.table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-        expect($cellData).to.eq("http://host.docker.internal:4200/453-200x300.jpg");
+        expect($cellData).to.eq("https://wallpaperaccess.com/full/1688623.jpg");
       });
 
       _.table.ReadTableRowColumnData(2, 0).then(($cellData) => {
-        expect($cellData).to.eq("http://host.docker.internal:4200/453-200x300.jpg");
+        expect($cellData).to.eq("2117775.jpg");
       });
 
       _.table.ReadTableRowColumnData(3, 0).then(($cellData) => {
-        expect($cellData).to.eq("http://host.docker.internal:4200/453-200x300.jpg");
+        expect($cellData).to.eq("https://wallpaperaccess.com/full/812632.jpg");
       });
 
       _.table.AssertURLColumnNavigation(
         1,
         0,
-        "http://host.docker.internal:4200/453-200x300.jpg",
+        "https://wallpaperaccess.com/full/1688623.jpg",
       );
+      // _.table.AssertURLColumnNavigation(
+      //   2,
+      //   0,
+      //   "https://wallpaperaccess.com/full/2117775.jpg",
+      // );
+
       _.deployMode.NavigateBacktoEditor();
     });
 
@@ -102,26 +114,31 @@ describe(
       _.deployMode.DeployApp();
 
       _.table.ReadTableRowColumnData(0, 0).then(($cellData) => {
-        expect($cellData).to.eq("http://host.docker.internal:4200/453-200x300.jpg");
+        expect($cellData).to.eq("1376499.jpg");
       });
 
       _.table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-        expect($cellData).to.eq("http://host.docker.internal:4200/453-200x300.jpg");
+        expect($cellData).to.eq("https://wallpaperaccess.com/full/1688623.jpg");
       });
 
       _.table.ReadTableRowColumnData(2, 0).then(($cellData) => {
-        expect($cellData).to.eq("http://host.docker.internal:4200/453-200x300.jpg");
+        expect($cellData).to.eq("2117775.jpg");
       });
 
       _.table.ReadTableRowColumnData(3, 0).then(($cellData) => {
-        expect($cellData).to.eq("http://host.docker.internal:4200/453-200x300.jpg");
+        expect($cellData).to.eq("https://wallpaperaccess.com/full/812632.jpg");
       });
 
       _.table.AssertURLColumnNavigation(
         0,
         0,
-        "http://host.docker.internal:4200/453-200x300.jpg",
+        "https://wallpaperaccess.com/full/1376499.jpg",
       );
+      // _.table.AssertURLColumnNavigation(
+      //   3,
+      //   0,
+      //   "https://wallpaperaccess.com/full/812632.jpg",
+      // );
 
       _.deployMode.NavigateBacktoEditor();
     });
