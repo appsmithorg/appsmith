@@ -12,6 +12,10 @@
     grid-template-columns: 1fr;
   }
 
+  &[data-full-size="true"] {
+    height: 100%;
+  }
+
   /*
    This section can be removed once the condition abouve each is resolved
   */

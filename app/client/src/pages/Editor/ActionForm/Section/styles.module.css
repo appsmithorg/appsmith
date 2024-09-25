@@ -13,4 +13,9 @@
   &[data-standalone="false"]:not(:last-child) {
     border-bottom: 1px solid var(--ads-v2-color-border);
   }
+
+  &[data-full-size="true"] {
+    height: 100%;
+    max-width: unset;
+  }
 }
