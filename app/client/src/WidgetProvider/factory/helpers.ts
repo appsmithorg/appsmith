@@ -17,7 +17,7 @@ import {
   WidgetFeaturePropertyPaneEnhancements,
 } from "../../utils/WidgetFeatures";
 import { generateReactKey } from "utils/generators";
-import { DEFAULT_WIDGET_ON_CANVAS_UI } from "widgets/wds/constants";
+import { DEFAULT_WIDGET_ON_CANVAS_UI } from "modules/ui-builder/ui/wds/constants";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export enum PropertyPaneConfigTypes {

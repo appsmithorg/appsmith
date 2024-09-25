@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import FormRow from "../../../../../../components/editorComponents/FormRow";
-import FormLabel from "../../../../../../components/editorComponents/FormLabel";
+import FormRow from "components/editorComponents/FormRow";
+import FormLabel from "components/editorComponents/FormLabel";
 import { Button, Icon, Text, Tooltip } from "@appsmith/ads";
 import {
   API_PANE_AUTO_GENERATED_HEADER,
