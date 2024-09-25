@@ -309,7 +309,7 @@ describe(
         .type("Adding Description Suggestion via script");
       cy.get(locators._inputWidgetv1InDeployed)
         .eq(4)
-        .type("https://github.com/appsmithorg/appsmith/issues/12532");
+        .type("http://host.docker.internal:5001");
       agHelper.SelectFromMultiSelect(["Epic", "Task"], 1);
       cy.xpath(table._visibleTextSpan("Labels")).click();
       cy.get(locators._inputWidgetv1InDeployed)
