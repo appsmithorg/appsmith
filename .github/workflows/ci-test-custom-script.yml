@@ -206,14 +206,11 @@ jobs:
             echo "::error::APPSMITH_DB_URL not found in the environment file"
             exit 1
           fi
-          if [[ $db_url == *"postgres"* ]]; then
-            echo "::set-output name=db_type::postgres"
+          if [[ $db_url == "postgresql"* ]]; then
             echo "Database type: Postgres. Ensure PostgreSQL-specific configurations are in place."
-          elif [[ $db_url == *"mongo"* ]]; then
-            echo "::set-output name=db_type::mongodb"
+          elif [[ $db_url == "mongo"* ]]; then
             echo "Database type: MongoDB. Verify MongoDB connection settings if issues arise."
           else
-            echo "::set-output name=db_type::unknown"
             echo "::warning::Unknown database type. Please verify the database configuration."
           fi
 
