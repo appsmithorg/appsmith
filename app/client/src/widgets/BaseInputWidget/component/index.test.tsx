@@ -47,7 +47,7 @@ describe("BaseInputComponent TestCases", () => {
     const numericInputIcon = container.getElementsByClassName(
       "bp3-icon bp3-icon-add",
     )[0];
-    
+
     expect(numericInputIcon).toBeInTheDocument();
   });
 });
