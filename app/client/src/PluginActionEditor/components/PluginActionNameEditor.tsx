@@ -2,13 +2,17 @@ import React from "react";
 import { useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
-import { getActionByBaseId } from "ee/selectors/entitiesSelector";
+import { getActionByBaseId, getPlugin } from "ee/selectors/entitiesSelector";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { PluginType } from "entities/Action";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import styled from "styled-components";
+import type { AppState } from "ee/reducers";
+import { getSavingStatusForActionName } from "selectors/actionSelectors";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { ActionUrlIcon } from "pages/Editor/Explorer/ExplorerIcons";
 
 export interface SaveActionNameParams {
   id: string;
@@ -57,12 +61,27 @@ const PluginActionNameEditor = (props: PluginActionNameEditorProps) => {
     currentActionConfig?.userPermissions,
   );
 
+  const currentPlugin = useSelector((state: AppState) =>
+    getPlugin(state, currentActionConfig?.pluginId || ""),
+  );
+
+  const saveStatus = useSelector((state) =>
+    getSavingStatusForActionName(state, currentActionConfig?.id || ""),
+  );
+
+  const iconUrl = getAssetUrl(currentPlugin?.iconLocation) || "";
+
+  const icon = ActionUrlIcon(iconUrl);
+
   return (
     <ActionNameEditorWrapper>
       <ActionNameEditor
+        actionConfig={currentActionConfig}
         disabled={!isChangePermitted}
         enableFontStyling={plugin?.type === PluginType.API}
+        icon={icon}
         saveActionName={props.saveActionName}
+        saveStatus={saveStatus}
       />
     </ActionNameEditorWrapper>
   );
