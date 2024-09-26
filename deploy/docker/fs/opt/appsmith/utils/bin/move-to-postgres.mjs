@@ -52,8 +52,9 @@ if (mongoDumpFile) {
   spawn("mongorestore", [mongoDbUrl, "--archive=" + mongoDumpFile, "--gzip", "--noIndexRestore"]);
 }
 
-const mongoClient = await new MongoClient(mongoDbUrl);
+const mongoClient = new MongoClient(mongoDbUrl);
 mongoClient.on("error", console.error);
+await mongoClient.connect();
 const mongoDb = mongoClient.db();
 
 // Make sure EXPORT_ROOT directory is empty
