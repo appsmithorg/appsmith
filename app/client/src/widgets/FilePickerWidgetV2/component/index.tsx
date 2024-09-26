@@ -35,6 +35,7 @@ function FilePickerComponent(props: FilePickerComponentProps) {
     </>
   );
 }
+
 export interface FilePickerComponentProps extends ComponentProps {
   label: string;
   openModal: () => void;

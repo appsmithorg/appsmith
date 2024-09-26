@@ -7,7 +7,9 @@ import {
   DATA_SOURCES_EDITOR_ID_PATH,
   matchBuilderPath,
   matchViewerPath,
-  BUILDER_VIEWER_PATH_PREFIX,
+  VIEWER_PATH,
+  VIEWER_CUSTOM_PATH,
+  VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 
 import {
@@ -52,45 +54,52 @@ export const matchBasePath = (pathname: string) => {
     strict: false,
     exact: false,
   });
+
   return basePathMatch;
 };
 
 export const getActionIdFromURL = () => {
   const baseMatch = matchBasePath(window.location.pathname);
+
   if (!baseMatch) return;
+
   const { path: basePath } = baseMatch;
   const apiMatch = matchPath<{ baseApiId: string }>(window.location.pathname, {
     path: `${basePath}${API_EDITOR_ID_PATH}`,
   });
+
   if (apiMatch?.params?.baseApiId) {
     return apiMatch.params.baseApiId;
   }
+
   const match = matchPath<{ baseQueryId: string }>(window.location.pathname, {
     path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
+
   if (match?.params?.baseQueryId) {
     return match.params.baseQueryId;
   }
+
   const saasMatch = matchPath<{ baseApiId: string }>(window.location.pathname, {
     path: `${basePath}${SAAS_EDITOR_API_ID_PATH}`,
   });
+
   if (saasMatch?.params?.baseApiId) {
     return saasMatch.params.baseApiId;
   }
 };
 
 export function getAppViewerPageIdFromPath(path: string): string | null {
-  const regexes = [
-    `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\\-):basePageId`, // VIEWER_PATH
-    `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\\-):basePageId`, // VIEWER_CUSTOM_PATH
-    `/applications/:baseApplicationId/pages/:basePageId`, // VIEWER_PATH_DEPRECATED
-  ];
+  const regexes = [VIEWER_PATH, VIEWER_CUSTOM_PATH, VIEWER_PATH_DEPRECATED];
+
   for (const regex of regexes) {
     const match = matchPath<{ basePageId: string }>(path, { path: regex });
+
     if (match?.params.basePageId) {
       return match.params.basePageId;
     }
   }
+
   return null;
 }
 
@@ -109,7 +118,9 @@ export const isViewerPath = (path: string) => {
 
 export const getJSCollectionIdFromURL = () => {
   const baseMatch = matchBasePath(window.location.pathname);
+
   if (!baseMatch) return;
+
   const { path: basePath } = baseMatch;
   const functionMatch = matchPath<{ baseCollectionId: string }>(
     window.location.pathname,
@@ -117,6 +128,7 @@ export const getJSCollectionIdFromURL = () => {
       path: `${basePath}${JS_COLLECTION_ID_PATH}`,
     },
   );
+
   if (functionMatch?.params?.baseCollectionId) {
     return functionMatch?.params?.baseCollectionId;
   }
@@ -124,11 +136,14 @@ export const getJSCollectionIdFromURL = () => {
 
 export const getQueryIdFromURL = () => {
   const baseMatch = matchBasePath(window.location.pathname);
+
   if (!baseMatch) return;
+
   const { path: basePath } = baseMatch;
   const match = matchPath<{ baseQueryId: string }>(window.location.pathname, {
     path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
+
   if (match?.params?.baseQueryId) {
     return match.params.baseQueryId;
   }
@@ -137,20 +152,25 @@ export const getQueryIdFromURL = () => {
 export const useDatasourceIdFromURL = () => {
   const location = useLocation();
   const baseMatch = matchBasePath(location.pathname);
+
   if (!baseMatch) return;
+
   const { path: basePath } = baseMatch;
   const match = matchPath<{ datasourceId: string }>(location.pathname, {
     path: `${basePath}${DATA_SOURCES_EDITOR_ID_PATH}`,
   });
+
   if (match?.params?.datasourceId) {
     return match.params.datasourceId;
   }
+
   const saasMatch = matchPath<{ datasourceId: string }>(
     window.location.pathname,
     {
       path: `${basePath}${SAAS_EDITOR_DATASOURCE_ID_PATH}`,
     },
   );
+
   if (saasMatch?.params?.datasourceId) {
     return saasMatch.params.datasourceId;
   }
@@ -172,8 +192,11 @@ export const getExplorerStatus = (
 ): boolean | null => {
   const storageItemName = EXPLORER_STORAGE_PREFIX + resourceId;
   const data = localStorage.getItem(storageItemName);
+
   if (data === null) return null;
+
   const parsedData: ExplorerStateType = JSON.parse(data);
+
   return parsedData[entityName];
 };
 
@@ -185,9 +208,11 @@ export const saveExplorerStatus = (
   const storageItemName = EXPLORER_STORAGE_PREFIX + appId;
   const state = localStorage.getItem(storageItemName);
   let data = {} as ExplorerStateType;
+
   if (state !== null) {
     data = JSON.parse(state);
   }
+
   data[entityName] = value;
   localStorage.setItem(storageItemName, JSON.stringify(data));
 };

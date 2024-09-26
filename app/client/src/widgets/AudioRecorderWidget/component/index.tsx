@@ -8,7 +8,7 @@ import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { darkenHover } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import type { ThemeProp } from "WidgetProvider/constants";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const RecorderDefaultIcon = importSvg(
   async () => import("assets/icons/widget/recorder/recorder_default.svg"),
@@ -475,6 +475,7 @@ function RecorderRight(props: RecorderRightProps) {
 
   const handleTimeUpdate = () => {
     const totalSeconds = Math.ceil(audioRef.current.currentTime);
+
     setCurrentDays(Math.floor(totalSeconds / (60 * 60 * 24)));
     setCurrentHours(Math.floor((totalSeconds % (60 * 60 * 24)) / (60 * 60)));
     setCurrentMinutes(Math.floor((totalSeconds % (60 * 60)) / 60));
@@ -596,6 +597,7 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
 
   useEffect(() => {
     const recorderContainerElement = recorderContainerRef.current;
+
     if (recorderContainerElement) {
       setContainerWidth(recorderContainerElement.clientWidth);
     }
@@ -712,6 +714,7 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
     if (!isReadyPlayerTimer) {
       setIsReadyPlayerTimer(true);
     }
+
     setPlayerStatus(PlayerStatusTypes.PLAY);
   };
 

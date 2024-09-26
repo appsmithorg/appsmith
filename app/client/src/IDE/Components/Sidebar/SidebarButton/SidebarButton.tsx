@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Flex, Icon, Text, Tooltip } from "design-system";
+import { Flex, Icon, Text, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 
 import { Condition } from "../../../enums";
@@ -74,6 +74,7 @@ function SidebarButton(props: SidebarButtonProps) {
       onClick(urlSuffix);
     }
   }, [selected, onClick, urlSuffix]);
+
   return (
     <Container>
       <Tooltip

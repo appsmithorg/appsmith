@@ -1,5 +1,5 @@
 import type { Workspace } from "ee/constants/workspaceConstants";
-import { Icon, Text } from "design-system";
+import { Icon, Text } from "@appsmith/ads";
 import React from "react";
 import { useHistory } from "react-router";
 import styled from "styled-components";
@@ -23,7 +23,9 @@ interface Props {
 const WorkspaceSearchItems = (props: Props) => {
   const { setIsDropdownOpen, workspacesList } = props;
   const history = useHistory();
+
   if (!workspacesList || workspacesList?.length === 0) return null;
+
   return (
     <div className="mb-2">
       <Text className="!mb-2 !block" kind="body-s">

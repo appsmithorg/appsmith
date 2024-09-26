@@ -15,7 +15,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
-import { Text, TextType } from "design-system-old";
+import { Text, TextType } from "@appsmith/ads-old";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
 const QueryHeader = styled.div`

@@ -19,9 +19,9 @@ export const config: AdminConfigType = {
       category: SettingCategories.ADVANCED,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,
-      label: "MongoDB URI",
+      label: "Appsmith DB URL",
       subText:
-        "* Appsmith internally uses MongoDB. Change to an external MongoDB for clustering",
+        "* Persistence database URL for Appsmith instance. Change this to an external database for clustering",
     },
     {
       id: "APPSMITH_REDIS_URL",

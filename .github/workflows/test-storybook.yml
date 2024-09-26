@@ -38,18 +38,12 @@ jobs:
 
       - name: Install Dependencies
         working-directory: ./app/client/packages/storybook
-        run: yarn install --immutable
+        run: |
+          yarn install --immutable
+          npx playwright install --with-deps
 
       - name: Storybook Tests
-        id: Test Storybook
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: app/client/package.json
-
-      - name: Install Playwright
-        run: npx playwright install --with-deps
-
-      - name: Serve Storybook and run tests
-        with:
-          workingDir: ./app/client/packages/storybook
-          buildScriptName: "test-storybook:ci"
+        working-directory: ./app/client/packages/storybook
+        run: |
+          yarn build-storybook
+          yarn test-storybook:ci

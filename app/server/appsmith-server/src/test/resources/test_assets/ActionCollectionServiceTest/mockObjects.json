@@ -13,9 +13,7 @@
             "children": []
           },
           "layoutOnLoadActions": [],
-          "widgetNames": [
-            "MainContainer"
-          ],
+          "widgetNames": ["MainContainer"],
           "allOnPageLoadActionNames": [],
           "actionsUsedInDynamicBindings": [],
           "policies": []
@@ -32,9 +30,7 @@
             "widgetName": "MainContainer",
             "children": []
           },
-          "widgetNames": [
-            "MainContainer"
-          ],
+          "widgetNames": ["MainContainer"],
           "policies": []
         }
       ]

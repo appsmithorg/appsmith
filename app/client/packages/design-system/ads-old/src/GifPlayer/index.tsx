@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import Icon, { IconSize } from "../Icon";
+import { Icon } from "@appsmith/ads";
 import Text, { TextType } from "../Text";
 import { Classes } from "../constants/classes";
 
@@ -55,12 +55,13 @@ const Overlay = styled.div`
 
 function GifPlayer(props: GifPlayerProps) {
   const [startGif, setStartGif] = useState(false);
+
   return !startGif ? (
     <ThumbnailContainer onClick={() => setStartGif(!startGif)}>
       <Overlay />
       <img src={props.thumbnail} />
       <PlayButton>
-        <Icon name="play" size={IconSize.XXXL} />
+        <Icon name="play" size="lg" />
         <Text color={"var(--ads-v2-color-fg)"} type={TextType.P3}>
           Click to play
         </Text>

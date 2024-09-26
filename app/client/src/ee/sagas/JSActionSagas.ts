@@ -2,7 +2,7 @@ export * from "ce/sagas/JSActionSagas";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   fetchJSCollectionsSaga,
   createJSCollectionSaga,

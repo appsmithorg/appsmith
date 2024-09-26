@@ -2,6 +2,8 @@ import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
+import { showPropertyPane } from "actions/propertyPaneActions";
+import { closePropertyPane } from "actions/widgetActions";
 
 export const useShowPropertyPane = () => {
   const dispatch = useDispatch();
@@ -13,20 +15,16 @@ export const useShowPropertyPane = () => {
       // Don't show property pane in comment mode
       if (isSnipingMode) return;
 
-      dispatch(
-        // If widgetId is not provided, we don't show the property pane.
-        // However, if callForDragOrResize is provided, it will be a start or end of a drag or resize action
-        // callForDragOrResize payload is handled in SHOW_PROPERTY_PANE action.
-        // Ergo, when either widgetId or callForDragOrResize are provided, SHOW_PROPERTY_PANE
-        // Else, HIDE_PROPERTY_PANE
-        {
-          type:
-            widgetId || callForDragOrResize
-              ? ReduxActionTypes.SHOW_PROPERTY_PANE
-              : ReduxActionTypes.HIDE_PROPERTY_PANE,
-          payload: { widgetId, callForDragOrResize, force },
-        },
-      );
+      // If widgetId is not provided, we don't show the property pane.
+      // However, if callForDragOrResize is provided, it will be a start or end of a drag or resize action
+      // callForDragOrResize payload is handled in SHOW_PROPERTY_PANE action.
+      // Ergo, when either widgetId or callForDragOrResize are provided, SHOW_PROPERTY_PANE
+      // Else, HIDE_PROPERTY_PANE
+      if (widgetId || callForDragOrResize) {
+        dispatch(showPropertyPane({ widgetId, callForDragOrResize, force }));
+      } else {
+        dispatch(closePropertyPane(force));
+      }
     },
     [dispatch, isSnipingMode],
   );
@@ -58,6 +56,7 @@ export const useShowTableFilterPane = () => {
 
 export const useToggleEditWidgetName = () => {
   const dispatch = useDispatch();
+
   return useCallback(
     (widgetId: string, enable: boolean) => {
       dispatch({
@@ -86,6 +85,7 @@ export const useCanvasSnapRowsUpdateHook = () => {
     },
     [dispatch],
   );
+
   return updateCanvasSnapRows;
 };
 
@@ -103,6 +103,7 @@ export interface SetDraggingStateActionPayload {
 
 export const useWidgetDragResize = () => {
   const dispatch = useDispatch();
+
   // TODO(abhinav/Satish): Performance bottleneck
   return {
     setDraggingNewWidget: useCallback(
@@ -114,6 +115,7 @@ export const useWidgetDragResize = () => {
         } else {
           document.body.classList.remove("dragging");
         }
+
         dispatch({
           type: ReduxActionTypes.SET_NEW_WIDGET_DRAGGING,
           payload: { isDragging, newWidgetProps },
@@ -134,6 +136,7 @@ export const useWidgetDragResize = () => {
         } else {
           document.body.classList.remove("dragging");
         }
+
         dispatch({
           type: ReduxActionTypes.SET_WIDGET_DRAGGING,
           payload: {
@@ -181,11 +184,14 @@ export const useWindowSizeHooks = () => {
       height: window.innerHeight,
     });
   };
+
   useEffect(() => {
     window.addEventListener("resize", onResize);
+
     return () => {
       window.removeEventListener("resize", onResize);
     };
   }, []);
+
   return windowSize;
 };

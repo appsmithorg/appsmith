@@ -30,7 +30,7 @@ import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
 import type { AppState } from "ee/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import type { ListItemProps } from "design-system";
+import type { ListItemProps } from "@appsmith/ads";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
 import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 
@@ -42,13 +42,16 @@ export const useQueryAdd = () => {
     if (currentEntityInfo.entity === FocusEntity.QUERY_ADD) {
       return;
     }
+
     let url = "";
+
     url = getQueryUrl(currentEntityInfo);
     history.push(url);
   }, [currentEntityInfo]);
 
   const closeAddQuery = useCallback(() => {
     let url = "";
+
     url = getQueryUrl(currentEntityInfo, false);
     history.push(url);
   }, [currentEntityInfo]);
@@ -170,6 +173,7 @@ export const useAddQueryListItems = () => {
         fileOperation.entityExplorerTitle ||
         fileOperation.dsName ||
         fileOperation.title;
+
       title =
         fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE
           ? fileOperation.title
@@ -179,6 +183,7 @@ export const useAddQueryListItems = () => {
         fileOperation.icon ||
         (fileOperation.pluginId &&
           getPluginEntityIcon(pluginGroups[fileOperation.pluginId]));
+
       return {
         startIcon: icon,
         wrapperClassName: className,

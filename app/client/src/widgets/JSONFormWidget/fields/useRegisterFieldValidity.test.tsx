@@ -1,5 +1,5 @@
 import React from "react";
-import { renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react-hooks";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { FormContextProvider } from "../FormContext";
@@ -25,9 +25,228 @@ const initialFieldState = {
   },
 };
 
-describe("useRegisterFieldInvalid", () => {
+describe("useRegisterFieldInvalid - setMetaInternalFieldState", () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.resetAllMocks();
+  });
+
+  afterEach(() => {
+    jest.runAllTimers();
+    jest.useRealTimers();
+  });
+
+  it("calls clearErrors when isValid is true and error is present", () => {
+    const mocksetMetaInternalFieldState = jest.fn();
+    const mockClearErrors = jest.fn();
+    const mockSetError = jest.fn();
+    const mockGetFieldState = jest
+      .fn()
+      .mockReturnValue({ error: { message: "Some error" } });
+
+    function Wrapper({ children }: { children: React.ReactNode }) {
+      const methods = useForm();
+
+      return (
+        <FormContextProvider
+          executeAction={jest.fn}
+          renderMode="CANVAS"
+          setMetaInternalFieldState={mocksetMetaInternalFieldState}
+          updateFormData={jest.fn}
+          updateWidgetMetaProperty={jest.fn}
+          updateWidgetProperty={jest.fn}
+        >
+          <FormProvider
+            {...methods}
+            clearErrors={mockClearErrors}
+            getFieldState={mockGetFieldState}
+            setError={mockSetError}
+          >
+            {children}
+          </FormProvider>
+        </FormContextProvider>
+      );
+    }
+
+    const fieldName = "testField";
+
+    act(() => {
+      renderHook(
+        () =>
+          useRegisterFieldValidity({
+            isValid: true,
+            fieldName,
+            fieldType: FieldType.TEXT_INPUT,
+          }),
+        {
+          wrapper: Wrapper,
+        },
+      );
+
+      jest.runAllTimers();
+    });
+
+    expect(mockClearErrors).toBeCalledWith(fieldName);
+    expect(mockSetError).not.toBeCalled();
+  });
+
+  it("does not call clearErrors when isValid is false", () => {
+    const mocksetMetaInternalFieldState = jest.fn();
+    const mockClearErrors = jest.fn();
+    const mockSetError = jest.fn();
+    const mockGetFieldState = jest
+      .fn()
+      .mockReturnValue({ error: { message: "Some error" } });
+
+    function Wrapper({ children }: { children: React.ReactNode }) {
+      const methods = useForm();
+
+      return (
+        <FormContextProvider
+          executeAction={jest.fn}
+          renderMode="CANVAS"
+          setMetaInternalFieldState={mocksetMetaInternalFieldState}
+          updateFormData={jest.fn}
+          updateWidgetMetaProperty={jest.fn}
+          updateWidgetProperty={jest.fn}
+        >
+          <FormProvider
+            {...methods}
+            clearErrors={mockClearErrors}
+            getFieldState={mockGetFieldState}
+            setError={mockSetError}
+          >
+            {children}
+          </FormProvider>
+        </FormContextProvider>
+      );
+    }
+
+    const fieldName = "testField";
+
+    act(() => {
+      renderHook(
+        () =>
+          useRegisterFieldValidity({
+            isValid: false,
+            fieldName,
+            fieldType: FieldType.TEXT_INPUT,
+          }),
+        {
+          wrapper: Wrapper,
+        },
+      );
+      jest.runAllTimers();
+    });
+
+    expect(mockClearErrors).not.toBeCalled();
+  });
+
+  it("does not call clearErrors when there is no existing error", () => {
+    const mocksetMetaInternalFieldState = jest.fn();
+    const mockClearErrors = jest.fn();
+    const mockSetError = jest.fn();
+    const mockGetFieldState = jest.fn().mockReturnValue({ error: null });
+
+    function Wrapper({ children }: { children: React.ReactNode }) {
+      const methods = useForm();
+
+      return (
+        <FormContextProvider
+          executeAction={jest.fn}
+          renderMode="CANVAS"
+          setMetaInternalFieldState={mocksetMetaInternalFieldState}
+          updateFormData={jest.fn}
+          updateWidgetMetaProperty={jest.fn}
+          updateWidgetProperty={jest.fn}
+        >
+          <FormProvider
+            {...methods}
+            clearErrors={mockClearErrors}
+            getFieldState={mockGetFieldState}
+            setError={mockSetError}
+          >
+            {children}
+          </FormProvider>
+        </FormContextProvider>
+      );
+    }
+
+    const fieldName = "testField";
+
+    act(() => {
+      renderHook(
+        () =>
+          useRegisterFieldValidity({
+            isValid: true,
+            fieldName,
+            fieldType: FieldType.TEXT_INPUT,
+          }),
+        {
+          wrapper: Wrapper,
+        },
+      );
+
+      jest.runAllTimers();
+    });
+
+    expect(mockClearErrors).not.toBeCalled();
+    expect(mockSetError).not.toBeCalled();
+  });
+
+  it("calls setError when isValid is false and error is not present", () => {
+    const mocksetMetaInternalFieldState = jest.fn();
+    const mockClearErrors = jest.fn();
+    const mockSetError = jest.fn();
+
+    function Wrapper({ children }: { children: React.ReactNode }) {
+      const methods = useForm();
+
+      return (
+        <FormContextProvider
+          executeAction={jest.fn}
+          renderMode="CANVAS"
+          setMetaInternalFieldState={mocksetMetaInternalFieldState}
+          updateFormData={jest.fn}
+          updateWidgetMetaProperty={jest.fn}
+          updateWidgetProperty={jest.fn}
+        >
+          <FormProvider
+            {...methods}
+            clearErrors={mockClearErrors}
+            setError={mockSetError}
+          >
+            {children}
+          </FormProvider>
+        </FormContextProvider>
+      );
+    }
+
+    const fieldName = "testField";
+
+    act(() => {
+      renderHook(
+        () =>
+          useRegisterFieldValidity({
+            isValid: false,
+            fieldName,
+            fieldType: FieldType.TEXT_INPUT,
+          }),
+        {
+          wrapper: Wrapper,
+        },
+      );
+    });
+
+    jest.runAllTimers();
+
+    expect(mockSetError).toBeCalledTimes(1);
+    expect(mockClearErrors).not.toBeCalledWith(fieldName);
+  });
+
   it("updates fieldState and error state with the updated isValid value", () => {
     const mocksetMetaInternalFieldState = jest.fn();
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function Wrapper({ children }: any) {
@@ -100,6 +319,7 @@ describe("useRegisterFieldInvalid", () => {
 
   it("does not trigger meta update if field validity is same", () => {
     const mocksetMetaInternalFieldState = jest.fn();
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function Wrapper({ children }: any) {

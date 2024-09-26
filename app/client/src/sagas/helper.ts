@@ -9,7 +9,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Log } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import {
   ReduxActionTypes,
   type ReduxActionType,
@@ -20,25 +20,28 @@ import set from "lodash/set";
 import log from "loglevel";
 import { isPlainObject, isString } from "lodash";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
-import { klona } from "klona/lite";
-import { apiFailureResponseInterceptor } from "ee/api/ApiUtils";
+import { apiFailureResponseInterceptor } from "api/interceptors";
+import { klonaLiteWithTelemetry } from "utils/helpers";
 
 // function to extract all objects that have dynamic values
 export const extractFetchDynamicValueFormConfigs = (
   evalOutput: FormEvalOutput,
 ) => {
   let output: Record<string, ConditionalOutput> = {};
+
   Object.entries(evalOutput).forEach(([key, value]) => {
     if ("fetchDynamicValues" in value && !!value.fetchDynamicValues) {
       output = { ...output, [key]: value };
     }
   });
+
   return output;
 };
 
 // Function to extract all the objects that have to fetch dynamic values
 export const extractQueueOfValuesToBeFetched = (evalOutput: FormEvalOutput) => {
   let output: Record<string, ConditionalOutput> = {};
+
   Object.entries(evalOutput).forEach(([key, value]) => {
     if (
       "fetchDynamicValues" in value &&
@@ -49,6 +52,7 @@ export const extractQueueOfValuesToBeFetched = (evalOutput: FormEvalOutput) => {
       output = { ...output, [key]: value };
     }
   });
+
   return output;
 };
 
@@ -83,6 +87,7 @@ const logCyclicDependecyErrors = (
         },
       );
     }
+
     AppsmithConsole.addLogs(
       layoutErrors.reduce((acc: Log[], error: LayoutOnLoadActionErrors) => {
         acc.push({
@@ -108,6 +113,7 @@ const logCyclicDependecyErrors = (
           },
           isExpanded: false,
         });
+
         return acc;
       }, []),
     );
@@ -141,15 +147,21 @@ export const enhanceRequestPayloadWithEventData = (
   try {
     switch (type) {
       case ReduxActionTypes.COPY_ACTION_INIT:
-        const actionObject = klona(payload) as Action;
+        const actionObject = klonaLiteWithTelemetry(
+          payload,
+          "helpers.enhanceRequestPayloadWithEventData",
+        ) as Action;
+
         const path = `${RequestPayloadAnalyticsPath}.originalActionId`;
         const originalActionId = get(actionObject, path, actionObject.id);
+
         if (originalActionId !== undefined)
           return set(actionObject, path, originalActionId);
     }
   } catch (e) {
     log.error("Failed to enhance payload with event data", e);
   }
+
   return payload;
 };
 
@@ -162,6 +174,7 @@ export const cleanValuesInObjectForHashing = (
   obj: Record<string, unknown>,
 ): Record<string, unknown> => {
   const cleanObj: Record<string, unknown> = {};
+
   for (const key in obj) {
     if (isString(obj[key])) {
       cleanObj[key] = (obj[key] as string)
@@ -178,6 +191,7 @@ export const cleanValuesInObjectForHashing = (
       cleanObj[key] = obj[key];
     }
   }
+
   return cleanObj;
 };
 
@@ -223,7 +237,10 @@ export function* getFromServerWhenNoPrefetchedResult(
           },
           status,
         },
-      });
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+
       return resp;
     }
 

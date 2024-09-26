@@ -8,14 +8,14 @@ import {
   Menu,
   MenuTrigger,
   TextInput,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 
 /**
  * TextInput is a component that allows users to input text.
  */
 const meta: Meta<typeof TextInput> = {
   component: TextInput,
-  title: "Design-system/Widgets/TextInput",
+  title: "WDS/Widgets/TextInput",
 };
 
 export default meta;
@@ -38,7 +38,7 @@ export const Sizes: Story = {
   render: () => (
     <Flex alignItems="start" gap="spacing-4">
       {Object.keys(SIZES)
-        .filter((size) => !["large"].includes(size))
+        .filter((size) => !["xSmall", "large"].includes(size))
         .map((size) => (
           <TextInput
             key={size}
@@ -131,7 +131,7 @@ export const Validation: Story = {
         alert("Form submitted");
       }}
     >
-      <Flex direction="column" gap="spacing-2" width="sizing-60">
+      <Flex direction="column" gap="spacing-5" width="sizing-60">
         <TextInput description="description" isRequired label="Validation" />
         <Button type="submit">Submit</Button>
       </Flex>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Input, toast, Text } from "design-system";
+import { Button, Input, toast, Text } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
@@ -16,8 +16,8 @@ import UserProfileImagePicker from "./UserProfileImagePicker";
 import { Wrapper, FieldWrapper, LabelWrapper } from "./StyledComponents";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
-import { createMessage } from "design-system-old";
-import { notEmptyValidator } from "design-system-old";
+import { createMessage } from "@appsmith/ads-old";
+import { notEmptyValidator } from "@appsmith/ads-old";
 import { getIsFormLoginEnabled } from "ee/selectors/tenantSelectors";
 
 const nameValidator = (
@@ -27,15 +27,18 @@ const nameValidator = (
   message: string;
 } => {
   const notEmpty = notEmptyValidator(value);
+
   if (!notEmpty.isValid) {
     return notEmpty;
   }
+
   if (!new RegExp(`^[${ALL_LANGUAGE_CHARACTERS_REGEX} 0-9.'-]+$`).test(value)) {
     return {
       isValid: false,
       message: createMessage(USER_DISPLAY_NAME_CHAR_CHECK_FAILED),
     };
   }
+
   return {
     isValid: true,
     message: "",

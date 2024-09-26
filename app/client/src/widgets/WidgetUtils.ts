@@ -1,5 +1,3 @@
-// import React, { JSXElementConstructor } from "react";
-// import { IconProps, IconWrapper } from "constants/IconConstants";
 import type React from "react";
 import { Alignment, Classes } from "@blueprintjs/core";
 import { Classes as DTClasses } from "@blueprintjs/datetime";
@@ -66,6 +64,7 @@ export function getWidgetDimensions(props: WidgetPositionProps) {
 
 export function getSnapSpaces(props: WidgetPositionProps) {
   const { componentWidth } = getWidgetDimensions(props);
+
   return {
     snapRowSpace: GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     snapColumnSpace: componentWidth
@@ -90,6 +89,7 @@ export const hexToRgb = (
   b: number;
 } => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+
   return result
     ? {
         r: parseInt(result[1], 16),
@@ -108,11 +108,11 @@ export const WidgetContainerDiff = 8;
 export const labelMargin = 5;
 export const hexToRgba = (color: string, alpha: number) => {
   const value = hexToRgb(color);
+
   return `rgba(${value.r}, ${value.g}, ${value.b}, ${alpha});`;
 };
 
 const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";
-// const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
 
 export const generateReactKey = ({
   prefix = "",
@@ -127,6 +127,7 @@ export const getCustomTextColor = (theme: Theme, backgroundColor?: string) => {
   if (!backgroundColor)
     return theme.colors.button[ButtonStyleTypes.PRIMARY.toLowerCase()].primary
       .textColor;
+
   const isDark = percentageBrightness < 70;
 
   if (isDark) {
@@ -494,6 +495,7 @@ export const replaceRgbaMigrationConstant = (
   if (boxShadowColor) {
     return boxShadow.replace("rgba(0, 0, 0, 0.25)", boxShadowColor);
   }
+
   return boxShadow;
 };
 
@@ -505,6 +507,7 @@ export const replaceRgbaMigrationConstant = (
  */
 export const boxShadowUtility = (boxShadow: string, boxShadowColor: string) => {
   const newBoxShadowColor = boxShadowColor || rgbaMigrationConstantV56;
+
   switch (boxShadow) {
     case BoxShadowTypes.VARIANT1:
       return `0px 0px 4px 3px ${newBoxShadowColor}`;
@@ -569,6 +572,7 @@ export const boxShadowMigration = (
     isBoxShadowColorDynamic
   ) {
     const constantBoxShadow = boxShadowUtility(boxShadow, "");
+
     return replaceRgbaMigrationConstant(
       constantBoxShadow as string,
       boxShadowColor,
@@ -620,10 +624,12 @@ export const sanitizeKey = (key: string, options?: SanitizeOptions) => {
 
   // Step 4 Check if key starts with number
   const [firstCharacter] = sanitizedKey;
+
   if (/\d/.test(firstCharacter)) sanitizedKey = `_${sanitizedKey}`;
 
   // Step 5 handle checking with existing keys if present
   const { existingKeys = [] } = options || {};
+
   if (existingKeys.length) {
     const exactMatch = existingKeys.includes(sanitizedKey);
 
@@ -661,9 +667,11 @@ export const parseSchemaItem = (
 ) => {
   // Update the theme stuff for this schema
   callback(schemaItem, propertyPath);
+
   if (schemaItem && !isEmpty(schemaItem.children)) {
     Object.values(schemaItem.children).forEach((schemaItem) => {
       const childPropertyPath = `${propertyPath}.children.${schemaItem.identifier}`;
+
       parseSchemaItem(schemaItem, childPropertyPath, callback);
     });
   }
@@ -757,12 +765,15 @@ interface DropdownOption {
 
 export const flat = (array: DropdownOption[]) => {
   let result: { value: string | number; label: string }[] = [];
+
   array.forEach((a) => {
     result.push({ value: a.value, label: a.label });
+
     if (Array.isArray(a.children)) {
       result = result.concat(flat(a.children));
     }
   });
+
   return result;
 };
 
@@ -936,6 +947,7 @@ const findReactInstanceProps = (domElement: any) => {
       return domElement[key];
     }
   }
+
   return null;
 };
 

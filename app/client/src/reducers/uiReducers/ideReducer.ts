@@ -68,6 +68,7 @@ const ideReducer = createImmerReducer(initialState, {
       ["tabs", action.payload.parentId, EditorEntityTab.JS],
       [] as string[],
     );
+
     remove(tabs, (tab) => tab === action.payload.id);
   },
   [ReduxActionTypes.CLOSE_QUERY_ACTION_TAB_SUCCESS]: (
@@ -79,6 +80,7 @@ const ideReducer = createImmerReducer(initialState, {
       ["tabs", action.payload.parentId, EditorEntityTab.QUERIES],
       [] as string[],
     );
+
     remove(tabs, (tab) => tab === action.payload.id);
   },
   [ReduxActionTypes.RESET_ANALYTICS_FOR_SIDE_BY_SIDE_HOVER]: (

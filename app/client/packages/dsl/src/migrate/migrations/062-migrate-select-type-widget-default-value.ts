@@ -31,6 +31,7 @@ export function MigrateSelectTypeWidgetDefaultValue(currentDSL: DSLWidget) {
     } else if (child.children && child.children.length > 0) {
       child = MigrateSelectTypeWidgetDefaultValue(child);
     }
+
     return child;
   });
 

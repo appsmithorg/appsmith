@@ -4,7 +4,7 @@ import type { ControlData, ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { borderRadiusOptions } from "constants/ThemeConstants";
 import type { DSEventDetail } from "utils/AppsmithUtils";
-import { SegmentedControl, Tooltip } from "design-system";
+import { SegmentedControl, Tooltip } from "@appsmith/ads";
 import {
   DSEventTypes,
   DS_EVENT,

@@ -14,6 +14,7 @@ import {
   fakerHelper,
   homePage,
   inviteModal,
+  dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   AppSidebar,
@@ -110,6 +111,7 @@ describe(
         cy.log("isPartialImport : ", isPartialImport);
         if (isPartialImport) {
           agHelper.WaitUntilEleAppear(reconnectDatasourceModal.SkipToAppBtn);
+          agHelper.WaitUntilEleAppear(dataSources._saveDs);
           agHelper.GetNClick(reconnectDatasourceModal.SkipToAppBtn, 0, true);
           agHelper.WaitUntilEleDisappear(reconnectDatasourceModal.SkipToAppBtn);
         }

@@ -45,7 +45,7 @@ import {
 } from "../constants";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { isAirgapped } from "ee/utils/airgapHelpers";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import { getVideoConstraints } from "../../utils";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
@@ -306,6 +306,7 @@ function ControlPanel(props: ControlPanelProps) {
       };
 
       document.addEventListener("click", handleClickOutside, false);
+
       return () => {
         document.removeEventListener("click", handleClickOutside, false);
       };
@@ -715,6 +716,7 @@ export interface TimerProps {
 
 function Timer(props: TimerProps) {
   const { days, hours, minutes, seconds } = props;
+
   return (
     <TimerContainer>
       {!!days && <span>{`${getFormattedDigit(days)}:`}</span>}
@@ -733,6 +735,7 @@ export interface DeviceMenuProps {
 
 function DeviceMenu(props: DeviceMenuProps) {
   const { items, onItemClick } = props;
+
   return (
     <Menu>
       {items.map((item: MediaDeviceInfo) => {
@@ -786,11 +789,14 @@ function DevicePopover(props: DevicePopoverProps) {
       if (disabled) {
         return <CameraMutedIcon />;
       }
+
       return <CameraIcon />;
     }
+
     if (disabled) {
       return <MicrophoneMutedIcon />;
     }
+
     return <MicrophoneIcon />;
   };
 
@@ -903,8 +909,10 @@ function CameraComponent(props: CameraComponentProps) {
 
     if (mode === CameraModeTypes.CAMERA) {
       setMediaCaptureStatus(MediaCaptureStatusTypes.IMAGE_DEFAULT);
+
       return;
     }
+
     setMediaCaptureStatus(MediaCaptureStatusTypes.VIDEO_DEFAULT);
 
     return () => {
@@ -949,6 +957,7 @@ function CameraComponent(props: CameraComponentProps) {
       MediaCaptureStatusTypes.VIDEO_PLAYING_AFTER_SAVE,
       MediaCaptureStatusTypes.VIDEO_PAUSED_AFTER_SAVE,
     ];
+
     setIsPhotoViewerReady(photoReadyStates.includes(mediaCaptureStatus));
     setIsVideoPlayerReady(videoReadyStates.includes(mediaCaptureStatus));
   }, [mediaCaptureStatus]);
@@ -984,6 +993,7 @@ function CameraComponent(props: CameraComponentProps) {
           deviceId: mediaDeviceInfo.deviceId,
         });
       }
+
       if (mediaDeviceInfo.kind === "videoinput") {
         const constraints = getVideoConstraints(
           videoConstraints,
@@ -991,6 +1001,7 @@ function CameraComponent(props: CameraComponentProps) {
           "", // when switching camera device we don't want to set the default camera ( facing mode )
           mediaDeviceInfo.deviceId,
         );
+
         setVideoConstraints(constraints);
       }
     },
@@ -1005,6 +1016,7 @@ function CameraComponent(props: CameraComponentProps) {
   const captureImage = useCallback(() => {
     if (webcamRef.current) {
       const capturedImage = webcamRef.current.getScreenshot();
+
       setImage(capturedImage);
     }
   }, [webcamRef, setImage]);
@@ -1015,8 +1027,10 @@ function CameraComponent(props: CameraComponentProps) {
 
     if (mode === CameraModeTypes.CAMERA) {
       setImage(null);
+
       return;
     }
+
     onRecordingStop(null);
   }, [mode]);
 
@@ -1063,6 +1077,7 @@ function CameraComponent(props: CameraComponentProps) {
       reset(0, false);
       setIsReadyPlayerTimer(true);
     }
+
     videoElementRef.current?.play();
   }, [videoElementRef]);
 
@@ -1101,6 +1116,7 @@ function CameraComponent(props: CameraComponentProps) {
     if (typeof error === "string") {
       setError(error);
     }
+
     setError((error as DOMException).message);
   }, []);
 
@@ -1116,10 +1132,12 @@ function CameraComponent(props: CameraComponentProps) {
           />
         );
       }
+
       return (
         <Timer days={days} hours={hours} minutes={minutes} seconds={seconds} />
       );
     }
+
     return null;
   };
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { Alignment } from "@blueprintjs/core";
-import type { SegmentedControlOption } from "design-system";
-import { SegmentedControl } from "design-system";
+import type { SegmentedControlOption } from "@appsmith/ads";
+import { SegmentedControl } from "@appsmith/ads";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { DSEventDetail } from "utils/AppsmithUtils";
@@ -58,6 +58,7 @@ class LabelAlignmentOptionsControl extends BaseControl<LabelAlignmentOptionsCont
 
   public render() {
     const { options, propertyValue } = this.props;
+
     return (
       <SegmentedControl
         isFullWidth={this.props.fullWidth}

@@ -2,7 +2,7 @@ import React from "react";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
-import { AvatarGroup } from "design-system";
+import { AvatarGroup } from "@appsmith/ads";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { getAllUsersOfWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
@@ -29,6 +29,7 @@ export default function SharedUserList() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return users.map((user: any) => {
       const name = user.name || user.username;
+
       return {
         label:
           user.username +

@@ -7,7 +7,7 @@ import { componentWillAppendToBody } from "react-append-to-body";
 import _, { debounce } from "lodash";
 import { zIndexLayers } from "constants/CanvasEditorConstants";
 import { objectCollapseAnalytics, textSelectAnalytics } from "./Analytics";
-import { Divider } from "design-system";
+import { Divider } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
 import { filterInternalProperties } from "utils/FilterInternalProperties";
@@ -39,10 +39,13 @@ const getPropertyData = (src: unknown, propertyPath: string[]) => {
 
 const getDataTypeHeader = (data: unknown) => {
   const dataType = typeof data;
+
   if (dataType === "object") {
     if (Array.isArray(data)) return "array";
+
     if (data === null) return "null";
   }
+
   return dataType;
 };
 
@@ -79,6 +82,7 @@ export function PeekOverlayPopUpContent(
     };
 
     window.addEventListener("wheel", wheelCallback);
+
     return () => {
       window.removeEventListener("wheel", wheelCallback);
     };
@@ -86,7 +90,9 @@ export function PeekOverlayPopUpContent(
 
   useEffect(() => {
     if (!dataWrapperRef.current) return;
+
     dataWrapperRef.current.addEventListener("copy", textSelectAnalytics);
+
     return () =>
       dataWrapperRef.current?.removeEventListener("copy", textSelectAnalytics);
   }, [dataWrapperRef, dataWrapperRef.current]);
@@ -98,9 +104,12 @@ export function PeekOverlayPopUpContent(
 
   const getLeftPosition = (position: DOMRect) => {
     let left = position.right - 300;
+
     if (left < 0) left = 8;
+
     return left;
   };
+
   return (
     <div
       className={`absolute ${zIndexLayers.PEEK_OVERLAY}`}

@@ -5,10 +5,7 @@ import { getSocialLoginButtonProps } from "ee/utils/signupHelpers";
 import type { EventName } from "ee/utils/analyticsUtilTypes";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import { isTenantConfig } from "ee/utils/adminSettingsHelpers";
 import { useSelector } from "react-redux";
 import { getTenantConfig } from "ee/selectors/tenantSelectors";
@@ -44,6 +41,7 @@ function SocialLoginButton(props: {
   const queryParams = new URLSearchParams(location.search);
   let url = props.url;
   const redirectUrl = queryParams.get("redirectUrl");
+
   if (redirectUrl != null) {
     url += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
@@ -60,15 +58,11 @@ function SocialLoginButton(props: {
       kind="secondary"
       onClick={() => {
         let eventName: EventName = "LOGIN_CLICK";
+
         if (props.type === "SIGNUP") {
           eventName = "SIGNUP_CLICK";
         }
-        PerformanceTracker.startTracking(
-          eventName === "SIGNUP_CLICK"
-            ? PerformanceTransactionName.SIGN_UP
-            : PerformanceTransactionName.LOGIN_CLICK,
-          { name: props.name.toUpperCase() },
-        );
+
         AnalyticsUtil.logEvent(eventName, {
           loginMethod: props.name.toUpperCase(),
         });
@@ -97,6 +91,7 @@ function ThirdPartyAuth(props: {
       return <SocialLoginButton key={item.name} {...item} type={props.type} />;
     },
   );
+
   return <ThirdPartyAuthWrapper>{socialLoginButtons}</ThirdPartyAuthWrapper>;
 }
 

@@ -37,7 +37,7 @@ import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import TemplatesModal from "pages/Templates/TemplatesModal";
 import ReconnectDatasourceModal from "./gitSync/ReconnectDatasourceModal";
-import { Spinner } from "design-system";
+import { Spinner } from "@appsmith/ads";
 import SignpostingOverlay from "pages/Editor/FirstTimeUserOnboarding/Overlay";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
@@ -48,8 +48,9 @@ import ReconfigureCDKeyModal from "ee/components/gitComponents/ReconfigureCDKeyM
 import DisableCDModal from "ee/components/gitComponents/DisableCDModal";
 import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
 import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
+import { IDE_HEADER_HEIGHT } from "IDE";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -77,8 +78,11 @@ interface EditorProps {
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
 
 class Editor extends Component<Props> {
+  prevPageId: string | null = null;
+
   componentDidMount() {
     const { basePageId } = this.props.match.params || {};
+
     urlBuilder.setCurrentBasePageId(basePageId);
 
     editorInitializer().then(() => {
@@ -110,7 +114,25 @@ class Editor extends Component<Props> {
 
   componentDidUpdate(prevProps: Props) {
     const { baseApplicationId, basePageId } = this.props.match.params || {};
-    const { basePageId: prevPageBaseId } = prevProps.match.params || {};
+    const { basePageId: prevBasePageId } = prevProps.match.params || {};
+
+    const pageId = this.props.pages.find(
+      (page) => page.basePageId === basePageId,
+    )?.pageId;
+
+    const prevPageId = prevProps.pages.find(
+      (page) => page.basePageId === prevBasePageId,
+    )?.pageId;
+
+    // caching value for prevPageId as it is required in future lifecycles
+    if (prevPageId) {
+      this.prevPageId = prevPageId;
+    }
+
+    const isPageIdUpdated = pageId !== this.prevPageId;
+    const isBasePageIdUpdated = basePageId !== prevBasePageId;
+    const isPageUpdated = isPageIdUpdated || isBasePageIdUpdated;
+
     const isBranchUpdated = getIsBranchUpdated(
       this.props.location,
       prevProps.location,
@@ -124,8 +146,6 @@ class Editor extends Component<Props> {
       prevProps.location.search,
       GIT_BRANCH_QUERY_KEY,
     );
-
-    const isPageIdUpdated = basePageId !== prevPageBaseId;
 
     // to prevent re-init during connect
     if (prevBranch && isBranchUpdated && basePageId) {
@@ -141,20 +161,10 @@ class Editor extends Component<Props> {
        * If we don't check for `prevPageId`: fetch page is re triggered
        * when redirected to the default page
        */
-      if (
-        prevPageBaseId &&
-        basePageId &&
-        isPageIdUpdated &&
-        this.props.pages.length
-      ) {
-        const pageId = this.props.pages.find(
-          (page) => page.basePageId === basePageId,
-        )?.pageId;
-        if (pageId) {
-          this.props.updateCurrentPage(pageId);
-          this.props.setupPage(pageId);
-          urlBuilder.setCurrentBasePageId(basePageId);
-        }
+      if (pageId && this.prevPageId && isPageUpdated) {
+        this.props.updateCurrentPage(pageId);
+        this.props.setupPage(pageId);
+        urlBuilder.setCurrentBasePageId(basePageId);
       }
     }
   }
@@ -168,12 +178,13 @@ class Editor extends Component<Props> {
     if (!this.props.isEditorInitialized || this.props.loadingGuidedTour) {
       return (
         <CenteredWrapper
-          style={{ height: `calc(100vh - ${theme.smallHeaderHeight})` }}
+          style={{ height: `calc(100vh - ${IDE_HEADER_HEIGHT}px)` }}
         >
           <Spinner size="lg" />
         </CenteredWrapper>
       );
     }
+
     return (
       <ThemeProvider theme={theme}>
         <div>

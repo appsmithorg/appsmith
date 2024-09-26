@@ -3,7 +3,7 @@ import type { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { createMessage, IMAGE_LOAD_ERROR } from "ee/constants/messages";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const RotateLeftIcon = importSvg(
   async () => import("assets/icons/widget/image/rotate-left.svg"),
@@ -174,9 +174,11 @@ class ImageComponent extends React.Component<
       maxZoomLevel !== undefined && maxZoomLevel > 1 && !this.isPanning;
     const isZoomingIn = this.state.zoomingState === ZoomingState.MAX_ZOOMED_OUT;
     let cursor = "inherit";
+
     if (zoomActive) {
       cursor = isZoomingIn ? "zoom-in" : "zoom-out";
     }
+
     if (this.props.onClick) cursor = "pointer";
 
     const hasOnClick = Boolean(zoomActive || this.props.onClick);
@@ -196,8 +198,10 @@ class ImageComponent extends React.Component<
         } else {
           zoomOut(event);
         }
+
         this.props.onClick && this.props.onClick(event);
       }
+
       this.isPanning = false;
     };
 
@@ -372,6 +376,7 @@ class ImageComponent extends React.Component<
 
   onMouseEnter = () => {
     const { defaultImageUrl, imageUrl } = this.props;
+
     if (defaultImageUrl || imageUrl) {
       this.setState({ showImageControl: true });
     }

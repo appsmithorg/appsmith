@@ -5,7 +5,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import ActionAPI from "api/ActionAPI";
-import { Button, Spinner, Text } from "design-system";
+import { Button, Spinner, Text } from "@appsmith/ads";
 import styled from "styled-components";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import LoadingOverlayScreen from "./LoadingOverlayScreen";
@@ -63,9 +63,7 @@ const ActionExecutionInProgressView = ({
           <Button
             className={`t--cancel-action-button`}
             kind="secondary"
-            onClick={() => {
-              handleCancelActionExecution();
-            }}
+            onClick={handleCancelActionExecution}
             size="md"
           >
             {createMessage(ACTION_EXECUTION_CANCEL)}

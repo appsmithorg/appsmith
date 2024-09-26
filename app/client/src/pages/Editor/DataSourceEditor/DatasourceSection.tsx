@@ -19,8 +19,8 @@ import { EnvConfigSection } from "ee/components/EnvConfigSection";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { isMultipleEnvEnabled } from "ee/utils/planHelpers";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import { Text } from "design-system";
-import { Table } from "design-system-old";
+import { Text } from "@appsmith/ads";
+import { Table } from "@appsmith/ads-old";
 
 const Key = styled.div`
   color: var(--ads-v2-color-fg-muted);
@@ -99,6 +99,7 @@ const renderKVArray = (
         { configProperty, label }: { configProperty: string; label: string },
       ) => {
         const configPropertyKey = configProperty.split("[*].")[1];
+
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         values.forEach((value: any, index: number) => {
@@ -112,10 +113,12 @@ const renderKVArray = (
             value: value[configPropertyKey],
           });
         });
+
         return acc;
       },
       [],
     );
+
     return renderValues.map((renderValue, index: number) => (
       <FieldWrapper key={`${firstConfigProperty}.${index}`}>
         {renderValue.map(({ key, label, value }) => (
@@ -151,6 +154,7 @@ export function renderDatasourceSection(
           )
         )
           return null;
+
         if ("children" in section) {
           if (isKVArray(section.children)) {
             return renderKVArray(
@@ -177,6 +181,7 @@ export function renderDatasourceSection(
             const customConfigProperty =
               `datasourceStorages.${currentEnvironment}.` + configProperty;
             const reactKey = datasource.id + "_" + label;
+
             if (controlType === "FIXED_KEY_INPUT") {
               return (
                 <FieldWrapper key={reactKey}>
@@ -195,6 +200,7 @@ export function renderDatasourceSection(
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   (el: any) => el.value === value,
                 );
+
                 if (option && option.label) {
                   value = option.label;
                 }
@@ -327,6 +333,7 @@ class RenderDatasourceInformation extends React.Component<RenderDatasourceSectio
       if (!datasourceStorages) {
         return null;
       }
+
       return renderDatasourceSection(config, currentEnv, datasource, viewMode);
     }
 
@@ -351,6 +358,7 @@ const mapStateToProps = (state: AppState, ownProps: any) => {
     ? false
     : isMultipleEnvEnabled(selectFeatureFlags(state));
   const currentEnvironmentId = getCurrentEnvironmentId(state);
+
   return {
     currentEnv: isEnvEnabled ? currentEnvironmentId : getDefaultEnvId(),
     isEnvEnabled,

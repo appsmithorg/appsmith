@@ -10,7 +10,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Post window message", { tags: ["@tag.JS"] }, () => {
+describe("Post window message", { tags: ["@tag.JS", "@tag.Sanity"] }, () => {
   it("1. Posts message to an iframe within Appsmith", () => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.IFRAME, 200, 300);

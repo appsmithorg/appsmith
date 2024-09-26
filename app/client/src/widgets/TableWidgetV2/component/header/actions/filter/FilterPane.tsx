@@ -19,7 +19,7 @@ import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
 const DragHandleIcon = importSvg(
@@ -168,4 +168,5 @@ const mapDispatchToProps = (dispatch: any) => {
     },
   };
 };
+
 export default connect(mapStateToProps, mapDispatchToProps)(TableFilterPane);

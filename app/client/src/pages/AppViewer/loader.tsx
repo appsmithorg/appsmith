@@ -39,6 +39,7 @@ class AppViewerLoader extends React.PureComponent<Props, { Page: any }> {
 
   render() {
     const { Page } = this.state;
+
     return Page ? <Page {...this.props} /> : <PageLoadingBar />;
   }
 
@@ -50,6 +51,7 @@ class AppViewerLoader extends React.PureComponent<Props, { Page: any }> {
     } = this.props;
     const { baseApplicationId, basePageId } = params;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
+
     // onMount initPage
     if (baseApplicationId || basePageId) {
       initAppViewer({
@@ -62,6 +64,7 @@ class AppViewerLoader extends React.PureComponent<Props, { Page: any }> {
   }
   componentWillUnmount() {
     const { clearCache } = this.props;
+
     clearCache();
   }
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import List from "./List";
 import styled from "styled-components";
-import { Flex } from "design-system";
+import { Flex } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
@@ -19,6 +19,7 @@ const QueriesContainer = styled(Flex)`
 
 const QueryExplorer = () => {
   const ideViewMode = useSelector(getIDEViewMode);
+
   if (ideViewMode === EditorViewMode.FullScreen) {
     return (
       <QueriesContainer
@@ -31,6 +32,7 @@ const QueryExplorer = () => {
       </QueriesContainer>
     );
   }
+
   return null;
 };
 

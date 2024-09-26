@@ -1,7 +1,7 @@
 import React from "react";
-import { List, ListItem, Icon } from "design-system";
+import { List, ListItem, Icon } from "@appsmith/ads";
 import type { StoryObj } from "@storybook/react";
-import type { ListItemProps, ListProps } from "design-system";
+import type { ListItemProps, ListProps } from "@appsmith/ads";
 
 export default {
   title: "ADS/Components/List",
@@ -153,6 +153,7 @@ const ListItemArgTypes = {
 function ListItemTemplate(args: JSX.IntrinsicAttributes & ListItemProps) {
   return <ListItem {...args} />;
 }
+
 export const ListItemLargeStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemLargeStory.storyName = "List item size large";
 ListItemLargeStory.argTypes = ListItemArgTypes;

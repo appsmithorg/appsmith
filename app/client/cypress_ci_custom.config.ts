@@ -1,3 +1,4 @@
+import { addMatchImageSnapshotPlugin } from "@simonsmith/cypress-image-snapshot/plugin";
 import { defineConfig } from "cypress";
 import fs from "fs";
 
@@ -24,7 +25,7 @@ export default defineConfig({
   viewportWidth: 1400,
   scrollBehavior: "center",
   retries: {
-    runMode: 1,
+    runMode: 0,
     openMode: 0,
   },
   e2e: {
@@ -34,6 +35,7 @@ export default defineConfig({
       grepOmitFiltered: true,
     },
     setupNodeEvents(on, config) {
+      addMatchImageSnapshotPlugin(on);
       require("cypress-mochawesome-reporter/plugin")(on);
       on(
         "after:spec",

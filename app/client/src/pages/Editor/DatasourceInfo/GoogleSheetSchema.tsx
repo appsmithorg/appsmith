@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type { DropdownOption } from "design-system-old";
-import { Button, SearchInput } from "design-system";
+import type { DropdownOption } from "@appsmith/ads-old";
+import { Button, SearchInput } from "@appsmith/ads";
 import {
   useSheetData,
   useSheetsList,
@@ -130,6 +130,7 @@ function GoogleSheetSchema(props: Props) {
     try {
       const element = document.querySelector(elementId);
       const container = document.querySelector(containerId);
+
       if (element && container) {
         const elementRect = element.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
@@ -157,6 +158,7 @@ function GoogleSheetSchema(props: Props) {
         ),
       );
     }
+
     if (!isEmpty(spreadSheet) && collapseSpreadsheet) {
       dispatch(
         setEntityCollapsibleState(`${datasourceId}-${spreadSheet}`, false),
@@ -232,8 +234,10 @@ function GoogleSheetSchema(props: Props) {
       setSelectedSpreadsheet((ss) => {
         setSelectedSheet((s) => {
           collapseAccordions(datasource?.id || "", ss.value, s.value);
+
           return {};
         });
+
         return {};
       });
     }

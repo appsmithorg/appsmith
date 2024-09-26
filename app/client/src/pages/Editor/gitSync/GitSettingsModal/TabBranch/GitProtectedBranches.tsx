@@ -7,7 +7,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import { updateGitProtectedBranchesInit } from "actions/gitSyncActions";
-import { Button, Link, Option, Select, Text } from "design-system";
+import { Button, Link, Option, Select, Text } from "@appsmith/ads";
 import { xor } from "lodash";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -64,6 +64,7 @@ function GitProtectedBranches() {
 
   const branchNames = useMemo(() => {
     const returnVal: string[] = [];
+
     for (const unfilteredBranch of unfilteredBranches) {
       if (unfilteredBranch.branchName === defaultBranch) {
         returnVal.unshift(unfilteredBranch.branchName);
@@ -72,6 +73,7 @@ function GitProtectedBranches() {
           REMOTE_BRANCH_PREFIX,
           "",
         );
+
         if (!returnVal.includes(localBranchName)) {
           returnVal.push(
             unfilteredBranch.branchName.replace(REMOTE_BRANCH_PREFIX, ""),
@@ -81,6 +83,7 @@ function GitProtectedBranches() {
         returnVal.push(unfilteredBranch.branchName);
       }
     }
+
     return returnVal;
   }, [unfilteredBranches, defaultBranch]);
 
@@ -120,16 +123,19 @@ function GitProtectedBranches() {
       branches_removed: [] as string[],
       protected_branches: selectedValues,
     };
+
     for (const val of selectedValues) {
       if (!protectedBranches.includes(val)) {
         eventData.branches_added.push(val);
       }
     }
+
     for (const val of protectedBranches) {
       if (!selectedValues.includes(val)) {
         eventData.branches_removed.push(val);
       }
     }
+
     AnalyticsUtil.logEvent("GS_PROTECTED_BRANCHES_UPDATE", eventData);
   };
 

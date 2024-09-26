@@ -2,7 +2,7 @@ import { Component } from "react";
 import type { ControlType } from "constants/PropertyControlConstants";
 import type { InputType } from "components/constants";
 import type { ConditonalObject } from "reducers/evaluationReducers/formEvaluationReducer";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import type { ViewTypes } from "./utils";
 import type { FeatureFlag } from "ee/entities/FeatureFlag";
 // eslint-disable-next-line @typescript-eslint/ban-types

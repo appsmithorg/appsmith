@@ -6,7 +6,7 @@ import {
   ModalFooter,
   ModalContent,
   Button,
-} from "@design-system/widgets";
+} from "@appsmith/wds";
 import type { ModalProps } from "../src/types";
 // Since the Modal is rendered at the root of the Provider, we need to add Unstyled as a wrapper
 // so that Storybook does not break styles.

@@ -1,4 +1,4 @@
-import type { Token } from "@design-system/theming";
+import type { Token } from "@appsmith/wds-theming";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
 import { EMPTY_MODAL_PADDING } from "../AnvilModalDropArena";
@@ -29,6 +29,7 @@ const extractFloatValuesOutOfToken = (token: Token) => {
   if (token) {
     return parseFloat(token.value + "");
   }
+
   return 0;
 };
 
@@ -78,6 +79,7 @@ const getMainCanvasCompensators = (
     left: 0,
     top: 0,
   };
+
   return {
     widgetCompensatorValues,
     edgeCompensatorValues,
@@ -105,6 +107,7 @@ const getSectionCompensators = (
     left: mainCanvasSpacing + (isElevatedWidget ? sectionSpacing : 0),
     top: isElevatedWidget ? sectionSpacing : 0,
   };
+
   return {
     widgetCompensatorValues,
     edgeCompensatorValues,
@@ -129,6 +132,7 @@ const getModalCompensators = (
     left: isEmptyLayout ? EMPTY_MODAL_PADDING : 0,
     top: isEmptyLayout ? EMPTY_MODAL_PADDING : modalSpacing.top,
   };
+
   return {
     widgetCompensatorValues,
     edgeCompensatorValues: widgetCompensatorValues,
@@ -165,6 +169,7 @@ const getZoneCompensators = (
         left: 0,
         top: 0,
       };
+
   return {
     widgetCompensatorValues,
     edgeCompensatorValues,
@@ -201,8 +206,10 @@ export const getCompensatorsForHierarchy = (
       },
     };
   }
+
   const { mainCanvasSpacing, modalSpacing, sectionSpacing, zoneSpacing } =
     getWidgetSpacingCSSVariableValues(outerSpacingTokens);
+
   /**
    * Get compensators based on hierarchy
    * widgetCompensatorValues - compensates for the widget's additional dragging space outside widget and its layout ( Section Widget)
@@ -302,6 +309,7 @@ const getEdgeCompensatingOffsetValues = (
     isRightEdge,
     leftGap,
   );
+
   return {
     topOffset,
     leftOffset,
@@ -337,5 +345,6 @@ export const getPositionCompensatedHighlight = (
     posX: left + compensatingOffsetValues.leftOffset,
     posY: top + compensatingOffsetValues.topOffset,
   };
+
   return positionUpdatedHighlightInfo;
 };

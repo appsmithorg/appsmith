@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "design-system";
+import { Link } from "@appsmith/ads";
 import styled from "styled-components";
 
 const FooterWrapper = styled.div`

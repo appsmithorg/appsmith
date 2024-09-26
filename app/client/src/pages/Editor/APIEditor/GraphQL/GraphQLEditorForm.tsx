@@ -24,6 +24,7 @@ import VariableEditor from "./VariableEditor";
 import Pagination from "./Pagination";
 import { ApiEditorContext } from "../ApiEditorContext";
 import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
+import { GRAPHQL_HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 
 const ResizeableDiv = styled.div`
   display: flex;
@@ -139,6 +140,7 @@ function GraphQLEditorForm(props: Props) {
       closeEditorLink={closeEditorLink}
       defaultTabSelected={2}
       formName={API_EDITOR_FORM_NAME}
+      httpsMethods={GRAPHQL_HTTP_METHOD_OPTIONS}
       paginationUIComponent={
         <Pagination
           actionName={actionName}
@@ -179,6 +181,7 @@ export default connect(
     const actionConfigurationParams =
       selector(state, "actionConfiguration.queryParameters") || [];
     let datasourceFromAction = selector(state, "datasource");
+
     if (datasourceFromAction && datasourceFromAction.hasOwnProperty("id")) {
       datasourceFromAction = state.entities.datasources.list.find(
         (d) => d.id === datasourceFromAction.id,
@@ -200,50 +203,13 @@ export default connect(
 
     const currentActionDatasourceId = selector(state, "datasource.id");
 
-    const headers = selector(state, "actionConfiguration.headers");
-    let headersCount = 0;
-
-    if (Array.isArray(headers)) {
-      const validHeaders = headers.filter(
-        (value) => value.key && value.key !== "",
-      );
-      headersCount += validHeaders.length;
-    }
-
-    if (Array.isArray(datasourceHeaders)) {
-      const validHeaders = datasourceHeaders.filter(
-        // TODO: Fix this the next time the file is edited
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (value: any) => value.key && value.key !== "",
-      );
-      headersCount += validHeaders.length;
-    }
-
-    const params = selector(state, "actionConfiguration.queryParameters");
-    let paramsCount = 0;
-
-    if (Array.isArray(params)) {
-      const validParams = params.filter(
-        (value) => value.key && value.key !== "",
-      );
-      paramsCount = validParams.length;
-    }
-
-    if (Array.isArray(datasourceParams)) {
-      const validParams = datasourceParams.filter(
-        // TODO: Fix this the next time the file is edited
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (value: any) => value.key && value.key !== "",
-      );
-      paramsCount += validParams.length;
-    }
-
     const actionConfigurationBody =
       selector(state, "actionConfiguration.body") || "";
 
     let hasResponse = false;
     let suggestedWidgets;
     const actionResponse = getActionData(state, apiId);
+
     if (actionResponse) {
       hasResponse =
         !isEmpty(actionResponse.statusCode) &&
@@ -266,8 +232,6 @@ export default connect(
       currentActionDatasourceId,
       datasourceHeaders,
       datasourceParams,
-      headersCount,
-      paramsCount,
       hintMessages,
       datasources: state.entities.datasources.list.filter(
         (d) => d.pluginId === props.pluginId,

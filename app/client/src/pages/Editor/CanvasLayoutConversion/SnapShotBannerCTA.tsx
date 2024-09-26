@@ -25,7 +25,7 @@ import {
   ModalBody,
   Callout,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { getReadableSnapShotDetails } from "../../../layoutSystems/autolayout/utils/AutoLayoutUtils";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import styled from "styled-components";
@@ -33,6 +33,7 @@ import styled from "styled-components";
 const BannerWrapper = styled.div`
   z-index: calc(var(--on-canvas-ui-z-index) + 1);
 `;
+
 export function SnapShotBannerCTA() {
   const [showModal, setShowModal] = useState(false);
 

@@ -4,7 +4,7 @@ import type {
   StringsFromNavigationSetting,
 } from "constants/AppConstants";
 import StyledPropertyHelpLabel from "./StyledPropertyHelpLabel";
-import { Switch } from "design-system";
+import { Switch } from "@appsmith/ads";
 import type { UpdateSetting } from ".";
 import kebabCase from "lodash/kebabCase";
 import { logEvent } from "./utils";

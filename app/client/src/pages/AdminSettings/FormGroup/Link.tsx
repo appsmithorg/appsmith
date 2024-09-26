@@ -1,5 +1,5 @@
 import { Icon } from "@blueprintjs/core";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { createMessage, LEARN_MORE } from "ee/constants/messages";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -42,6 +42,7 @@ export default function Link({ setting }: SettingComponentProps) {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const linkProps: Record<string, string | (() => any)> = {};
+
   if (setting.url) {
     linkProps.href = setting.url;
     linkProps.target = "_blank";
@@ -52,6 +53,7 @@ export default function Link({ setting }: SettingComponentProps) {
       }
     };
   }
+
   return (
     <LinkWrapper
       className={`${setting.isHidden ? "hide" : ""} t--read-more-link`}

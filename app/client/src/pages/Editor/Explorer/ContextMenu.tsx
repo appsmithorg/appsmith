@@ -10,7 +10,7 @@ import {
   MenuSubContent,
   Tooltip,
   MenuSeparator,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   createMessage,
   ENTITY_MORE_ACTIONS_TOOLTIP,
@@ -57,6 +57,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       setTimeout(() => {
         option.onSelect?.(option);
       }, 0);
+
       if (option.value === "delete" && !option.confirmDelete) {
         handleOpenChange(true);
       } else {
@@ -115,6 +116,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       </Tooltip>
     );
   }
+
   const list = optionTree.map(renderTreeOption);
   const menuItems = (
     <MenuContent

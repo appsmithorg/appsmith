@@ -1,3 +1,5 @@
+import { locators } from "../../../../../support/Objects/ObjectsCore";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
@@ -8,6 +10,9 @@ describe(
   function () {
     before(() => {
       _.agHelper.AddDsl("formdsl1");
+      cy.waitUntil(() =>
+        cy.get(locators._richText_TitleBlock).should("be.visible"),
+      );
     });
 
     beforeEach(() => {
@@ -16,7 +21,7 @@ describe(
     });
 
     it("RichTextEditor-required with empty content show error border for textarea", function () {
-      cy.setTinyMceContent("rte-6h8j08u7ea", "");
+      cy.setTinyMceContent("rte-component-vw4zehojqt", "");
       cy.get(commonlocators.requiredCheckbox).click({ force: true });
       cy.wait(500);
 

@@ -105,6 +105,7 @@ export const handlers = {
         ...action.payload,
       };
     }
+
     draftState.loadingStates.isSavingWorkspaceInfo = false;
     draftState.list = [...workspaces];
   },

@@ -77,6 +77,7 @@ function generatePanelPropertyConfig(
         ],
         hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
           const schemaItem: SchemaItem = get(props, propertyPath, {});
+
           return !(
             schemaItem.fieldType === FieldType.SELECT ||
             schemaItem.fieldType === FieldType.MULTISELECT
@@ -129,6 +130,7 @@ function generatePanelPropertyConfig(
         children: [...INPUT_PROPERTIES.style.icon],
         hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
           const schemaItem: SchemaItem = get(props, propertyPath, {});
+
           return !(
             schemaItem.fieldType === FieldType.TEXT_INPUT ||
             schemaItem.fieldType === FieldType.EMAIL_INPUT ||
@@ -147,6 +149,7 @@ function generatePanelPropertyConfig(
         children: [...COMMON_PROPERTIES.style.borderShadow],
         hidden: (props: JSONFormWidgetProps, propertyPath: string) => {
           const schemaItem: SchemaItem = get(props, propertyPath, {});
+
           return (
             schemaItem.fieldType === FieldType.ARRAY ||
             schemaItem.fieldType === FieldType.OBJECT ||

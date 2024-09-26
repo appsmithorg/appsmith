@@ -4,7 +4,7 @@ import { change, formValueSelector } from "redux-form";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import type { DropdownOption } from "design-system-old";
+import type { DropdownOption } from "@appsmith/ads-old";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
@@ -21,10 +21,11 @@ import {
 } from "utils/editor/EditorBindingPaths";
 import { log } from "loglevel";
 import { PaginationSubComponent } from "components/formControls/utils";
-import { Select, Option, Checkbox, Text, Tooltip, Link } from "design-system";
+import { Select, Option, Checkbox, Text, Tooltip, Link } from "@appsmith/ads";
 
 const PAGINATION_PREFIX =
   "actionConfiguration.pluginSpecifiedTemplates[2].value";
+
 interface PaginationProps {
   actionName: string;
   onTestClick: (test?: "PREV" | "NEXT") => void;
@@ -137,13 +138,17 @@ const graphqlParseVariables = (queryBody: string) => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const variables: any = {};
+
   try {
     const variableString = queryBody.match(/\((\$[^)]*?)\)/);
+
     if (variableString && variableString?.length >= 2) {
       variableString[1].split(",").forEach((variableWithType: string) => {
         let [name = "", vtype = ""] = variableWithType.trim().split(":");
+
         name = name.trim().substring(1);
         vtype = vtype.trim();
+
         if (name.length > 0 && vtype.length > 0) {
           variables[name] = {
             name,
@@ -231,6 +236,7 @@ function PaginationTypeBasedWrapper({
     .split(".")
     .slice(1)
     .join(".")}`;
+
   return (
     <PaginationFieldContainer>
       <PaginationFieldWrapper data-location-id={dataReplayId}>
@@ -443,6 +449,7 @@ function Pagination(props: PaginationProps) {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
+
                     Object.keys(values).forEach((key: string) => {
                       setPaginationValue(
                         `${LIMITBASED_PREFIX}.${PaginationSubComponent.Limit}`,
@@ -483,6 +490,7 @@ function Pagination(props: PaginationProps) {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
+
                     Object.keys(values).forEach((key: string) => {
                       setPaginationValue(
                         `${LIMITBASED_PREFIX}.${PaginationSubComponent.Offset}`,
@@ -544,6 +552,7 @@ function Pagination(props: PaginationProps) {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
+
                     Object.keys(values).forEach((key: string) => {
                       setPaginationValue(
                         `${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Limit}`,
@@ -584,6 +593,7 @@ function Pagination(props: PaginationProps) {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
+
                     Object.keys(values).forEach((key: string) => {
                       setPaginationValue(
                         `${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Cursor}`,
@@ -629,6 +639,7 @@ function Pagination(props: PaginationProps) {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
+
                     Object.keys(values).forEach((key: string) => {
                       setPaginationValue(
                         `${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Limit}`,
@@ -682,6 +693,7 @@ function Pagination(props: PaginationProps) {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onSelectVariable={(_: any, dropdownOption: any) => {
                     const values = variablesList[dropdownOption.value];
+
                     Object.keys(values).forEach((key: string) => {
                       setPaginationValue(
                         `${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Cursor}`,

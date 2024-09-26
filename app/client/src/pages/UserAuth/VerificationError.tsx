@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Container from "./Container";
-import { Button, Callout, Icon, Link, Text } from "design-system";
+import { Button, Callout, Icon, Link, Text } from "@appsmith/ads";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import {
   createMessage,
@@ -41,6 +41,7 @@ const VerificationError = (
   const code = queryParams.get("code");
   const message = queryParams.get("message");
   const [resendVerificationLink, enabled] = useResendEmailVerification(email);
+
   useEffect(() => {
     AnalyticsUtil.logEvent("EMAIL_VERIFICATION_FAILED", {
       errorCode: code,

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updatePhoto, removePhoto, updatePhotoId } from "actions/userActions";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import { DisplayImageUpload } from "design-system-old";
+import { DisplayImageUpload } from "@appsmith/ads-old";
 
 import type Uppy from "@uppy/core";
 import { ReduxActionErrorTypes } from "ee/constants/ReduxActionConstants";
@@ -65,6 +65,7 @@ function FormDisplayImage() {
         message: USER_DISPLAY_PICTURE_FILE_INVALID(),
       },
     };
+
     dispatch({
       type: ReduxActionErrorTypes.USER_IMAGE_INVALID_FILE_CONTENT,
       payload,

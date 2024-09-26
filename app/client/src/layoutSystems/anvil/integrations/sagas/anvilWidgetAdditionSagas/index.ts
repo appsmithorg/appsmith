@@ -11,7 +11,7 @@ import {
   type ReduxAction,
 } from "ee/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
+import { WDS_V2_WIDGET_MAP } from "modules/ui-builder/ui/wds/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getMainCanvasLastRowHighlight } from "../anvilDraggingSagas/helpers";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
@@ -149,6 +149,7 @@ export function* getUpdatedListOfWidgetsAfterAddingNewWidget(
         highlight,
         updatedWidgets[canvasId],
       );
+
       updatedWidgets = res.canvasWidgets;
     } else {
       // The typical operation when adding widgets to a zone
@@ -160,6 +161,7 @@ export function* getUpdatedListOfWidgetsAfterAddingNewWidget(
       );
     }
   }
+
   return updatedWidgets;
 }
 
@@ -239,6 +241,7 @@ function* addWidgetToGenericLayout(
     updatedWidgets,
     newWidgetContext,
   );
+
   /**
    * Also add it to parent's layout.
    */

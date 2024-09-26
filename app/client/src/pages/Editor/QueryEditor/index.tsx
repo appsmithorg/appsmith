@@ -36,11 +36,12 @@ import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToMo
 import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
 import { PluginType } from "entities/Action";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
+import { AppPluginActionEditor } from "../AppPluginActionEditor";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
@@ -99,6 +100,7 @@ function QueryEditor(props: QueryEditorProps) {
       entityId: action?.id || "",
       moduleType: MODULE_TYPE.QUERY,
     };
+
     return (
       <>
         <MoreActionsMenu
@@ -153,6 +155,7 @@ function QueryEditor(props: QueryEditorProps) {
     );
     // Event for datasource creation click
     const entryPoint = DatasourceCreateEntryPoints.QUERY_EDITOR;
+
     AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
       entryPoint,
     });
@@ -187,6 +190,14 @@ function QueryEditor(props: QueryEditorProps) {
       />
     );
   }, [action?.name, isConverting]);
+
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
+  );
+
+  if (isActionRedesignEnabled) {
+    return <AppPluginActionEditor />;
+  }
 
   return (
     <QueryEditorContextProvider

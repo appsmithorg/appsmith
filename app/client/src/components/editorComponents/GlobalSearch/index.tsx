@@ -117,6 +117,7 @@ const searchQuerySelector = (state: AppState) => state.ui.globalSearch.query;
 
 const getQueryIndexForSorting = (item: SearchItem, query: string) => {
   const title = getItemTitle(item) || "";
+
   return title.toLowerCase().indexOf(query.toLowerCase());
 };
 
@@ -139,15 +140,21 @@ const getSortedResults = (
     if (queryIndexA === queryIndexB) {
       const idxA = recentEntityIndex(a);
       const idxB = recentEntityIndex(b);
+
       if (idxA > -1 && idxB > -1) return idxA - idxB;
+
       if (idxA > -1) return -1;
       else if (idxB > -1) return 1;
+
       const pageA = getItemPage(a);
       const pageB = getItemPage(b);
       const isAInCurrentPage = pageA === currentPageId;
       const isBInCurrentPage = pageB === currentPageId;
+
       if (isAInCurrentPage) return -1;
+
       if (isBInCurrentPage) return 1;
+
       return 0;
     } else {
       if (queryIndexA === -1 && queryIndexB !== -1) return 1;
@@ -159,6 +166,7 @@ const getSortedResults = (
 
 const filterCategoryList = getFilterCategoryList();
 const emptyObj = {};
+
 function GlobalSearch() {
   const currentPageId = useSelector(getCurrentPageId) as string;
   const modalOpen = useSelector(isModalOpenSelector);
@@ -189,6 +197,7 @@ function GlobalSearch() {
       setQuery("");
       setCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]);
     }
+
     dispatch(toggleShowGlobalSearchModal());
   };
 
@@ -202,6 +211,7 @@ function GlobalSearch() {
 
   useEffect(() => {
     setTimeout(() => document.getElementById("global-search")?.focus());
+
     if (isNavigation(category) && recentEntities.length > 1) {
       setActiveItemIndex(1);
     } else {
@@ -227,6 +237,7 @@ function GlobalSearch() {
 
   const filteredDatasources = useMemo(() => {
     if (!query) return datasourcesList;
+
     return datasourcesList.filter((datasource) =>
       isMatching(datasource.name, query),
     );
@@ -241,6 +252,7 @@ function GlobalSearch() {
     (entity: any) => {
       const id =
         entity.id || entity.widgetId || entity.config?.id || entity.pageId;
+
       return recentEntityIds.indexOf(id);
     },
     [recentEntityIds],
@@ -283,12 +295,14 @@ function GlobalSearch() {
   const searchResults = useMemo(() => {
     if (isMenu(category) && !query) {
       const shouldRemoveActionCreation = !filteredFileOperations.length;
+
       return filterCategoryList.filter(
         (cat: SearchCategory) =>
           !isMenu(cat) &&
           (isActionOperation(cat) ? !shouldRemoveActionCreation : true),
       );
     }
+
     if (isActionOperation(category)) {
       return filteredFileOperations;
     }
@@ -332,6 +346,7 @@ function GlobalSearch() {
 
   const getNextActiveItem = (nextIndex: number) => {
     const max = Math.max(searchResults.length - 1, 0);
+
     if (nextIndex < 0) return max;
     else if (nextIndex > max) return 0;
     else return nextIndex;
@@ -340,6 +355,7 @@ function GlobalSearch() {
   const handleUpKey = () => {
     let nextIndex = getNextActiveItem(activeItemIndex - 1);
     const activeItem = searchResults[nextIndex];
+
     if (
       activeItem &&
       (activeItem?.kind === SEARCH_ITEM_TYPES.sectionTitle ||
@@ -347,12 +363,14 @@ function GlobalSearch() {
     ) {
       nextIndex = getNextActiveItem(nextIndex - 1);
     }
+
     setActiveItemIndex(nextIndex);
   };
 
   const handleDownKey = () => {
     let nextIndex = getNextActiveItem(activeItemIndex + 1);
     const activeItem = searchResults[nextIndex];
+
     if (
       activeItem &&
       (activeItem?.kind === SEARCH_ITEM_TYPES.sectionTitle ||
@@ -360,6 +378,7 @@ function GlobalSearch() {
     ) {
       nextIndex = getNextActiveItem(nextIndex + 1);
     }
+
     setActiveItemIndex(nextIndex);
   };
 
@@ -391,6 +410,7 @@ function GlobalSearch() {
       pluginType,
       plugin,
     );
+
     toggleShow();
     url && history.push(url, { invokedBy: NavigationMethod.Omnibar });
   };
@@ -399,6 +419,7 @@ function GlobalSearch() {
     const { config } = item;
     const { baseId: baseCollectionId, pageId } = config;
     const basePageId = pageIdToBasePageIdMap[pageId];
+
     history.push(
       jsCollectionIdURL({
         basePageId,
@@ -412,6 +433,7 @@ function GlobalSearch() {
   const handleDatasourceClick = (item: SearchItem) => {
     toggleShow();
     const basePageId = pageIdToBasePageIdMap[item.pageId];
+
     history.push(
       datasourcesEditorIdURL({
         basePageId: basePageId,
@@ -468,6 +490,7 @@ function GlobalSearch() {
         );
       else if (item.redirect)
         item.redirect(currentPageId, DatasourceCreateEntryPoints.OMNIBAR);
+
       dispatch(toggleShowGlobalSearchModal());
     },
   };

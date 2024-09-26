@@ -12,8 +12,8 @@ import {
   getEntityNameAndPropertyPath,
   isEntityAction,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type { TreeDropdownOption } from "design-system-old";
-import { Icon } from "design-system";
+import type { TreeDropdownOption } from "@appsmith/ads-old";
+import { Icon } from "@appsmith/ads";
 import { PluginType } from "entities/Action";
 import type { JSAction, Variable } from "entities/JSCollection";
 import keyBy from "lodash/keyBy";
@@ -184,9 +184,11 @@ function getActionEntityFields(
     value,
     position: isCallbackStyle ? 2 : 0,
   });
+
   if (isChainedAction) {
     function getter(value: string) {
       value = getCodeFromMoustache(value);
+
       if (isCallbackStyle) {
         if (activeTabApiAndQueryCallback.id === "onSuccess") {
           return callBackFieldGetter(value, 0);
@@ -196,6 +198,7 @@ function getActionEntityFields(
       } else {
         const { catch: catchBlock, then: thenBlock } =
           getThenCatchBlocksFromQuery(value, 2);
+
         if (activeTabApiAndQueryCallback.id === "onSuccess") {
           return `{{${thenBlock ?? "() => {\n  // showAlert('success');\n}"}}}`;
         } else {
@@ -209,6 +212,7 @@ function getActionEntityFields(
     function setter(changeValue: string, currentValue: string) {
       changeValue = getCodeFromMoustache(changeValue);
       currentValue = getCodeFromMoustache(currentValue);
+
       if (isCallbackStyle) {
         if (activeTabApiAndQueryCallback.id === "onSuccess") {
           return callBackFieldSetter(changeValue, currentValue, 0);
@@ -222,6 +226,7 @@ function getActionEntityFields(
             changeValue,
             evaluationVersion,
           );
+
           if (modified) {
             return `{{${modified}}}`;
           } else {
@@ -233,6 +238,7 @@ function getActionEntityFields(
             changeValue,
             evaluationVersion,
           );
+
           if (modified) {
             return `{{${modified}}}`;
           } else {
@@ -298,6 +304,7 @@ function getJSFunctionExecutionFields(
       });
     });
   }
+
   return fields;
 }
 
@@ -333,6 +340,7 @@ function getFieldsForSelectedAction(
     position: number;
     func: string;
   }> = [];
+
   matches.forEach((match) => {
     functionMatchesWithPositions.push({
       position: value.indexOf(match),
@@ -382,6 +390,7 @@ export function useModalDropdownList(handleClose: () => void) {
       className: "t--create-modal-btn",
       onSelect: (option: TreeDropdownOption, setter?: GenericFunction) => {
         const modalName = nextModalName;
+
         if (setter) {
           setter({
             value: `${modalName}.name`,
@@ -518,6 +527,7 @@ function getApiAndQueryOptions(
     });
     queryModuleInstances.forEach((instance) => {
       const module = modules[instance.config.sourceModuleId];
+
       (queryOptions.children as TreeDropdownOption[]).push({
         label: instance.config.name,
         id: instance.config.id,
@@ -557,6 +567,7 @@ export function getJSOptions(
             type: APPSMITH_INTEGRATIONS.jsFunction,
           });
         };
+
         dispatch(createNewJSCollectionFromActionCreator(callback));
       }
     },
@@ -600,6 +611,7 @@ export function getJSOptions(
               icon: <Icon name="js-function" size="md" />,
               args: argValue,
             };
+
             (jsObject.children as TreeDropdownOption[]).push(
               jsFunction as unknown as TreeDropdownOption,
             );
@@ -611,6 +623,7 @@ export function getJSOptions(
 
     jsModuleInstances.forEach((jsModuleInstance) => {
       if (!jsModuleInstance) return;
+
       if (
         jsModuleInstance.config.actions &&
         jsModuleInstance.config.actions.length > 0
@@ -648,6 +661,7 @@ export function getJSOptions(
               icon: <Icon name="js-function" size="md" />,
               args: argValue,
             };
+
             (jsObject.children as TreeDropdownOption[]).push(
               jsFunction as unknown as TreeDropdownOption,
             );

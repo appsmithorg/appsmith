@@ -13,7 +13,9 @@ export interface UpdateActionProps {
 }
 export default function (request: EvalWorkerSyncRequest) {
   const actionsDataToUpdate: UpdateActionProps[] = request.data;
+
   handleActionsDataUpdate(actionsDataToUpdate);
+
   return true;
 }
 
@@ -21,6 +23,7 @@ export function handleActionsDataUpdate(actionsToUpdate: UpdateActionProps[]) {
   if (!dataTreeEvaluator) {
     return {};
   }
+
   const evalTree = dataTreeEvaluator.getEvalTree();
 
   for (const actionToUpdate of actionsToUpdate) {
@@ -31,15 +34,19 @@ export function handleActionsDataUpdate(actionsToUpdate: UpdateActionProps[]) {
       data = DataStore.getActionData(dataPathRef);
       DataStore.deleteActionData(dataPathRef);
     }
+
     // update the evaltree
     set(evalTree, `${entityName}.[${dataPath}]`, data);
     // Update context
     set(self, `${entityName}.[${dataPath}]`, data);
     // Update the datastore
     const path = `${entityName}.${dataPath}`;
+
     DataStore.setActionData(path, data);
   }
+
   const updatedProperties: string[][] = [];
+
   actionsToUpdate.forEach(({ dataPath, entityName }) => {
     updatedProperties.push([entityName, dataPath]);
   });

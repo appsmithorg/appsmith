@@ -6,7 +6,7 @@ import type { CellLayoutProperties } from "./Constants";
 import { ColumnTypes } from "./Constants";
 import styled from "styled-components";
 import equal from "fast-deep-equal/es6";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const OpenNewTabIcon = importSvg(
   async () => import("assets/icons/control/open-new-tab.svg"),
@@ -46,14 +46,17 @@ interface Props {
 function LinkWrapper(props: Props) {
   const ref = createRef<HTMLDivElement>();
   const [useToolTip, updateToolTip] = useState(false);
+
   useEffect(() => {
     const element = ref.current;
+
     if (element && element.offsetWidth < element.scrollWidth) {
       updateToolTip(true);
     } else {
       updateToolTip(false);
     }
   }, [props.children, ref.current]);
+
   return (
     <CellWrapper
       cellProperties={props.cellProperties}
@@ -95,8 +98,10 @@ function LinkWrapper(props: Props) {
 function AutoToolTipComponent(props: Props) {
   const ref = createRef<HTMLDivElement>();
   const [useToolTip, updateToolTip] = useState(false);
+
   useEffect(() => {
     const element = ref.current;
+
     if (element && element.offsetWidth < element.scrollWidth) {
       updateToolTip(true);
     } else {
@@ -107,6 +112,7 @@ function AutoToolTipComponent(props: Props) {
   if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;
   }
+
   return (
     <ColumnWrapper>
       <CellWrapper
@@ -137,6 +143,7 @@ function AutoToolTipComponent(props: Props) {
     </ColumnWrapper>
   );
 }
+
 export default memo(
   AutoToolTipComponent,
   (prev, next) =>

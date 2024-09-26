@@ -4,13 +4,13 @@ import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
-import type { SetProgress } from "design-system-old";
-import { FilePickerV2, FileType } from "design-system-old";
+import type { SetProgress } from "@appsmith/ads-old";
+import { FilePickerV2, FileType } from "@appsmith/ads-old";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";
 import { Field } from "redux-form";
 import { useEffect, useCallback } from "react";
 import { replayHighlightClass } from "globalStyles/portals";
-import { Button, Modal, ModalBody, ModalContent } from "design-system";
+import { Button, Modal, ModalBody, ModalContent } from "@appsmith/ads";
 
 const StyledDiv = styled.div`
   flex: 1;
@@ -39,6 +39,7 @@ const FilePickerContainer = styled.div`
     border-radius: 0 var(--ads-v2-border-radius) var(--ads-v2-border-radius) 0 !important;
   }
 `;
+
 type RenderFilePickerProps = FilePickerControlProps & {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
@@ -75,9 +76,11 @@ function RenderFilePicker(props: RenderFilePickerProps) {
   useEffect(() => {
     if (appFileToBeUploaded?.file) {
       const reader = new FileReader();
+
       reader.readAsDataURL(appFileToBeUploaded?.file);
       reader.onloadend = () => {
         const base64data = reader.result;
+
         props.input?.onChange({
           name: appFileToBeUploaded?.file.name,
           base64Content: base64data,
@@ -128,6 +131,7 @@ function RenderFilePicker(props: RenderFilePickerProps) {
     </>
   );
 }
+
 class FilePickerControl extends BaseControl<FilePickerControlProps> {
   constructor(props: FilePickerControlProps) {
     super(props);
@@ -138,6 +142,7 @@ class FilePickerControl extends BaseControl<FilePickerControlProps> {
 
   render() {
     const { configProperty, disabled } = this.props;
+
     return (
       <Field
         component={RenderFilePicker}

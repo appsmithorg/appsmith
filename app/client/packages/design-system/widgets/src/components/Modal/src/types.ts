@@ -1,7 +1,7 @@
 import type {
   PopoverModalContentProps,
   PopoverProps,
-} from "@design-system/headless";
+} from "@appsmith/wds-headless";
 import type { ReactNode } from "react";
 
 export interface ModalProps

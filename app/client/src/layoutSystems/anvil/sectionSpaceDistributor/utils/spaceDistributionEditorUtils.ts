@@ -21,6 +21,7 @@ import {
  */
 export const convertFlexGrowToFlexBasis = (flexGrow: number) => {
   const columns = SectionColumns / flexGrow;
+
   // We calculate the total gap count and distribute it proportionally between the zones.
   return `calc(100% / ${columns} - (${columns} - 1) * var(--outer-spacing-4) / ${columns})`;
 };
@@ -47,6 +48,7 @@ const getElementsBoundingBoxValue = (ele: HTMLElement) => {
   const paddingValue = convertPixelValuesToNumber(computedStyle.padding);
   const borderValue = convertPixelValuesToNumber(computedStyle.border);
   const marginValue = convertPixelValuesToNumber(computedStyle.margin);
+
   return 2 * (paddingValue + borderValue + marginValue);
 };
 
@@ -55,9 +57,11 @@ const getElementsBoundingBoxValue = (ele: HTMLElement) => {
  */
 export const getAnvilZoneBoundaryOffset = (zoneId: string) => {
   const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
+
   if (zoneDom) {
     return getElementsBoundingBoxValue(zoneDom) + 2;
   }
+
   return 0;
 };
 
@@ -69,6 +73,7 @@ export const computePropsForSpaceDistribution = (spaceToWorkWith: number) => {
   const minLimitBounceBackThreshold = ZoneMinShrinkablePixels / columnWidth;
   const minimumShrinkableSpacePerBlock =
     ZoneMinColumnWidth - minLimitBounceBackThreshold;
+
   return {
     columnWidth,
     minimumShrinkableSpacePerBlock,
@@ -110,6 +115,7 @@ export const getMouseSpeedTrackingCallback = (
   let lastMouseY: number | null = null;
   let lastTimestamp: number | null = null;
   let mouseStoppedTimer: ReturnType<typeof setTimeout> | null = null;
+
   return function (event: MouseEvent) {
     const currentMouseX = event.clientX;
     const currentMouseY = event.clientY;
@@ -122,11 +128,14 @@ export const getMouseSpeedTrackingCallback = (
       const timeElapsed = (currentTimestamp - lastTimestamp) / 1000; // Convert to seconds
 
       const speed = distance / timeElapsed;
+
       currentMouseSpeed.current = speed;
+
       if (mouseStoppedTimer) {
         // Reset the timer when the mouse moves
         clearTimeout(mouseStoppedTimer);
       }
+
       mouseStoppedTimer = setTimeout(resetSpeed, 1000);
     }
 
@@ -149,6 +158,7 @@ export const resetDistributionHandleCSS = (
     ref.current.style.left = "";
     ref.current.style.display = "none";
   }
+
   if (propPaneHandle) {
     propPaneHandle.style.transition = "";
     propPaneHandle.classList.remove("active");
@@ -164,15 +174,19 @@ export const resetCSSOnZones = (spaceDistributed: {
   Object.keys(spaceDistributed).forEach((zoneId) => {
     const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
     const zonePropDom = document.getElementById(getPropertyPaneZoneId(zoneId));
+
     if (zoneDom) {
       zoneDom.style.flexBasis = "";
       zoneDom.style.transition = "flex-basis 0.3s ease";
+
       if (zonePropDom) {
         zonePropDom.style.flexBasis = "";
         zonePropDom.style.transition = "flex-basis 0.3s ease";
       }
+
       setTimeout(() => {
         zoneDom.style.transition = "";
+
         if (zonePropDom) {
           zonePropDom.style.transition = "";
         }

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { Link, Tag, Text, Tooltip } from "design-system";
+import { Link, Tag, Text, Tooltip } from "@appsmith/ads";
 import { BUSINESS_TAG, createMessage } from "ee/constants/messages";
 import { capitalizeFirstLetter } from "utils/helpers";
 import { getRampLink, showProductRamps } from "ee/selectors/rampSelectors";
@@ -86,6 +86,7 @@ export function DSDataFilter({
       !isInsideReconnectModal;
 
     if (showFilterPane !== isRenderAllowed) setShowFilterPane(isRenderAllowed);
+
     // If there are no environments, do nothing
     if (!environmentList.length) return;
   }, [environmentList.length, viewMode, isInsideReconnectModal]);
@@ -94,6 +95,7 @@ export function DSDataFilter({
 
   const renderOption = (env: EnvironmentType, isDisabled: boolean) => {
     const disabledState = isDisabled;
+
     return (
       <FilterComponentContainer
         disabled={disabledState}
@@ -123,6 +125,7 @@ export function DSDataFilter({
     <Container>
       {environmentList.map((env: EnvironmentType) => {
         const isDisabled = !env.selected;
+
         return isDisabled ? (
           <Tooltip content={DisabledTooltipContent(rampLink)} placement="right">
             {renderOption(env, isDisabled)}

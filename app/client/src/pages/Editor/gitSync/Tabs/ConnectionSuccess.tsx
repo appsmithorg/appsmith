@@ -22,7 +22,7 @@ import {
   Text,
   Link,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
@@ -59,6 +59,7 @@ function ConnectionSuccessTitle() {
 
 function ConnectionSuccessBody() {
   const gitMetadata = useSelector(getCurrentAppGitMetaData);
+
   return (
     <>
       <div className="flex gap-x-4 mb-6">

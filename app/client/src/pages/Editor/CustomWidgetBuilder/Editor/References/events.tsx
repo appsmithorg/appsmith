@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState } from "react";
 import styles from "./styles.module.css";
-import { Icon, Text } from "design-system";
+import { Icon, Text } from "@appsmith/ads";
 import {
   EditorModes,
   EditorSize,

@@ -168,9 +168,11 @@ export const parseSchemaItem = (
 ) => {
   // Update the theme stuff for this schema
   callback(schemaItem, propertyPath);
+
   if (schemaItem && !isEmpty(schemaItem.children)) {
     Object.values(schemaItem.children).forEach((schemaItem: any) => {
       const childPropertyPath = `${propertyPath}.children.${schemaItem.identifier}`;
+
       parseSchemaItem(schemaItem, childPropertyPath, callback);
     });
   }
@@ -188,6 +190,7 @@ export const addPropertyToDynamicPropertyPathList = (
   const isPropertyPathPresent = (child.dynamicPropertyPathList || []).find(
     (property: { key: string }) => property.key === propertyName,
   );
+
   if (!isPropertyPathPresent) {
     child.dynamicPropertyPathList = [
       ...(child.dynamicPropertyPathList || []),
@@ -302,6 +305,7 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
         default:
           child.textSize = THEMEING_TEXT_SIZES.sm;
       }
+
       if (child.hasOwnProperty("primaryColumns")) {
         Object.keys(child.primaryColumns).forEach((key: string) => {
           /**
@@ -312,12 +316,15 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
             child.hasOwnProperty("derivedColumns") &&
             key in child.derivedColumns;
           const derivedColumn = child.derivedColumns[key];
+
           switch (column.textSize) {
             case TextSizes.PARAGRAPH2:
               column.textSize = THEMEING_TEXT_SIZES.xs;
+
               if (isDerivedColumn) {
                 derivedColumn.textSize = THEMEING_TEXT_SIZES.xs;
               }
+
               addPropertyToDynamicPropertyPathList(
                 `primaryColumns.${key}.textSize`,
                 child,
@@ -325,21 +332,27 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
               break;
             case TextSizes.PARAGRAPH:
               column.textSize = THEMEING_TEXT_SIZES.sm;
+
               if (isDerivedColumn) {
                 derivedColumn.textSize = THEMEING_TEXT_SIZES.sm;
               }
+
               break;
             case TextSizes.HEADING3:
               column.textSize = THEMEING_TEXT_SIZES.base;
+
               if (isDerivedColumn) {
                 derivedColumn.textSize = THEMEING_TEXT_SIZES.base;
               }
+
               break;
             case TextSizes.HEADING2:
               column.textSize = THEMEING_TEXT_SIZES.md;
+
               if (isDerivedColumn) {
                 derivedColumn.textSize = THEMEING_TEXT_SIZES.md;
               }
+
               addPropertyToDynamicPropertyPathList(
                 `primaryColumns.${key}.textSize`,
                 child,
@@ -347,9 +360,11 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
               break;
             case TextSizes.HEADING1:
               column.textSize = THEMEING_TEXT_SIZES.lg;
+
               if (isDerivedColumn) {
                 derivedColumn.textSize = THEMEING_TEXT_SIZES.lg;
               }
+
               addPropertyToDynamicPropertyPathList(
                 `primaryColumns.${key}.textSize`,
                 child,
@@ -362,28 +377,36 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
            */
           if (!column.borderRadius) {
             column.borderRadius = THEMING_BORDER_RADIUS.none;
+
             if (isDerivedColumn) {
               derivedColumn.borderRadius = THEMING_BORDER_RADIUS.none;
             }
           }
+
           switch (column.borderRadius) {
             case ButtonBorderRadiusTypes.SHARP:
               column.borderRadius = THEMING_BORDER_RADIUS.none;
+
               if (isDerivedColumn) {
                 derivedColumn.borderRadius = THEMING_BORDER_RADIUS.none;
               }
+
               break;
             case ButtonBorderRadiusTypes.ROUNDED:
               column.borderRadius = THEMING_BORDER_RADIUS.rounded;
+
               if (isDerivedColumn) {
                 derivedColumn.borderRadius = THEMING_BORDER_RADIUS.rounded;
               }
+
               break;
             case ButtonBorderRadiusTypes.CIRCLE:
               column.borderRadius = THEMING_BORDER_RADIUS.circle;
+
               if (isDerivedColumn) {
                 derivedColumn.borderRadius = THEMING_BORDER_RADIUS.circle;
               }
+
               break;
           }
 
@@ -401,6 +424,7 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
             );
           } else {
             column.boxShadow = "none";
+
             if (isDerivedColumn) {
               derivedColumn.boxShadow = "none";
             }
@@ -411,80 +435,100 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
               if (!isBoxShadowColorDynamic) {
                 // Checks is boxShadowColor is not dynamic
                 column.boxShadow = `0px 0px 4px 3px ${newBoxShadowColor}`;
+
                 if (isDerivedColumn) {
                   derivedColumn.boxShadow = `0px 0px 4px 3px ${newBoxShadowColor}`;
                 }
+
                 delete column.boxShadowColor;
               } else {
                 // Dynamic
                 column.boxShadow = `0px 0px 4px 3px ${rgbaMigrationConstantV56}`;
+
                 if (isDerivedColumn) {
                   derivedColumn.boxShadow = `0px 0px 4px 3px ${rgbaMigrationConstantV56}`;
                 }
               }
+
               break;
             case BoxShadowTypes.VARIANT2:
               if (!isBoxShadowColorDynamic) {
                 // Checks is boxShadowColor is not dynamic
                 column.boxShadow = `3px 3px 4px ${newBoxShadowColor}`;
+
                 if (isDerivedColumn) {
                   derivedColumn.boxShadow = `3px 3px 4px ${newBoxShadowColor}`;
                 }
+
                 delete column.boxShadowColor;
               } else {
                 // Dynamic
                 column.boxShadow = `3px 3px 4px ${rgbaMigrationConstantV56}`;
+
                 if (isDerivedColumn) {
                   derivedColumn.boxShadow = `3px 3px 4px ${rgbaMigrationConstantV56}`;
                 }
               }
+
               break;
             case BoxShadowTypes.VARIANT3:
               if (!isBoxShadowColorDynamic) {
                 // Checks is boxShadowColor is not dynamic
                 column.boxShadow = `0px 1px 3px ${newBoxShadowColor}`;
+
                 if (isDerivedColumn) {
                   derivedColumn.boxShadow = `0px 1px 3px ${newBoxShadowColor}`;
                 }
+
                 delete column.boxShadowColor;
               } else {
                 // Dynamic
                 column.boxShadow = `0px 1px 3px ${rgbaMigrationConstantV56}`;
+
                 if (isDerivedColumn) {
                   derivedColumn.boxShadow = `0px 1px 3px ${rgbaMigrationConstantV56}`;
                 }
               }
+
               break;
             case BoxShadowTypes.VARIANT4:
               if (!isBoxShadowColorDynamic) {
                 // Checks is boxShadowColor is not dynamic
                 column.boxShadow = `2px 2px 0px ${newBoxShadowColor}`;
+
                 if (isDerivedColumn) {
                   derivedColumn.boxShadow = `2px 2px 0px ${newBoxShadowColor}`;
                 }
+
                 delete column.boxShadowColor;
               } else {
                 column.boxShadow = `2px 2px 0px ${rgbaMigrationConstantV56}`;
+
                 if (isDerivedColumn) {
                   derivedColumn.boxShadow = `2px 2px 0px ${rgbaMigrationConstantV56}`;
                 }
               }
+
               break;
             case BoxShadowTypes.VARIANT5:
               if (!isBoxShadowColorDynamic) {
                 // Checks is boxShadowColor is not dynamic
                 column.boxShadow = `-2px -2px 0px ${newBoxShadowColor}`;
+
                 if (isDerivedColumn) {
                   derivedColumn.boxShadow = `-2px -2px 0px ${newBoxShadowColor}`;
                 }
+
                 delete column.boxShadowColor;
               } else {
                 // Dynamic
                 column.boxShadow = `-2px -2px 0px ${rgbaMigrationConstantV56}`;
+
                 if (isDerivedColumn) {
                   derivedColumn.boxShadow = `-2px -2px 0px ${rgbaMigrationConstantV56}`;
                 }
               }
+
               break;
           }
         });
@@ -496,6 +540,7 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
      */
     if (child.type === "JSON_FORM_WIDGET") {
       const parentLevelProperties = ["submitButtonStyles", "resetButtonStyles"];
+
       parentLevelProperties.forEach((propertyName: string) => {
         const propertyPathBorderRadius = `${propertyName}.borderRadius`;
         const propertyPathBoxShadow = `${propertyName}.boxShadow`;
@@ -503,6 +548,7 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
 
         if (has(child, propertyPathBorderRadius)) {
           const jsonFormBorderRadius = get(child, propertyPathBorderRadius);
+
           switch (jsonFormBorderRadius) {
             case ButtonBorderRadiusTypes.SHARP:
               set(child, propertyPathBorderRadius, THEMING_BORDER_RADIUS.none);
@@ -538,6 +584,7 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
             (has(child, propertyPathBoxShadowColor) &&
               get(child, propertyPathBoxShadowColor)) ||
             "rgba(0, 0, 0, 0.25)";
+
           switch (jsonFormBoxShadow) {
             case BoxShadowTypes.VARIANT1:
               set(
@@ -607,6 +654,7 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
        */
       if (has(child, "schema")) {
         const clonedSchema = clone(child.schema);
+
         parseSchemaItem(
           clonedSchema[ROOT_SCHEMA_KEY],
           `schema.${ROOT_SCHEMA_KEY}`,
@@ -750,6 +798,7 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
     if (child.type === "TEXT_WIDGET") {
       child.fontFamily = "System Default";
     }
+
     // Adds childStyleSheets
     switch (child.type) {
       case "BUTTON_GROUP_WIDGET":
@@ -766,6 +815,7 @@ export const migrateStylingPropertiesForTheming = (currentDSL: DSLWidget) => {
     if (child.children && child.children.length > 0) {
       child = migrateStylingPropertiesForTheming(child);
     }
+
     return child;
   });
 

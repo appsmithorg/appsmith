@@ -36,6 +36,10 @@ const {
   otlpServiceName,
 } = newRelic;
 
+// This base domain is used to filter out the Smartlook requests from the browser agent
+// There are some requests made to subdomains of smartlook.cloud which will also be filtered out
+const smartlookBaseDomain = "smartlook.cloud";
+
 const tracerProvider = new WebTracerProvider({
   resource: new Resource({
     [SEMRESATTRS_SERVICE_NAME]: otlpServiceName,
@@ -69,6 +73,7 @@ const processor = new BatchSpanProcessor(
 
 const W3C_OTLP_TRACE_HEADER = "traceparent";
 const CUSTOM_OTLP_TRACE_HEADER = "traceparent-otlp";
+
 //We are overriding the default header "traceparent" used for trace context because the browser
 // agent shares the same header's distributed tracing
 class CustomW3CTraceContextPropagator extends W3CTraceContextPropagator {
@@ -125,7 +130,11 @@ registerInstrumentations({
   meterProvider,
   instrumentations: [
     new PageLoadInstrumentation({
-      ignoreResourceUrls: [browserAgentEndpoint, otlpEndpoint],
+      ignoreResourceUrls: [
+        browserAgentEndpoint,
+        otlpEndpoint,
+        smartlookBaseDomain,
+      ],
     }),
   ],
 });

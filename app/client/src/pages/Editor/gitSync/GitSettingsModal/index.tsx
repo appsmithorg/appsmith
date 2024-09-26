@@ -6,7 +6,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { setGitSettingsModalOpenAction } from "actions/gitSyncActions";
 
-import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@appsmith/ads";
 import styled from "styled-components";
 import Menu from "../Menu";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";

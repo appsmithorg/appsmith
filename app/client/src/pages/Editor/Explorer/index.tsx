@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { SegmentedControl } from "design-system";
+import { SegmentedControl } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 import type { AppState } from "ee/reducers";
@@ -47,6 +47,7 @@ function ExplorerContent() {
 
   useEffect(() => {
     const currentIndex = openWidgetPanel ? 1 : 0;
+
     if (currentIndex !== activeSwitchIndex) {
       setActiveSwitchIndex(currentIndex);
     }
@@ -70,6 +71,7 @@ function ExplorerContent() {
       AnalyticsUtil.logEvent("EXPLORER_WIDGET_CLICK");
       dispatch(forceOpenWidgetPanel(true));
       dispatch(setExplorerSwitchIndex(1));
+
       if (isFirstTimeUserOnboardingEnabled) {
         dispatch(toggleInOnboardingWidgetSelection(true));
       }

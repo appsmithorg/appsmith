@@ -286,10 +286,11 @@ public class NewPageServiceTest {
                             .findFirst()
                             .get();
 
-                    firstPage
-                            .getPolicies()
-                            .forEach(policy -> policy.setPermission(
-                                    pagePermission.getReadPermission().getValue()));
+                    Set<Policy> pagePolicies = firstPage.getPolicies().stream()
+                            .peek(policy -> policy.setPermission(
+                                    pagePermission.getReadPermission().getValue()))
+                            .collect(Collectors.toUnmodifiableSet());
+                    firstPage.setPolicies(pagePolicies);
                     return newPageRepository.save(firstPage).thenMany(Flux.fromIterable(savedPages));
                 })
                 .map(NewPage::getId)
@@ -394,8 +395,8 @@ public class NewPageServiceTest {
                 })
                 .verifyComplete();
 
-        Mono<ApplicationPagesDTO> viewModeTrueMono = newPageService.createApplicationPagesDTO(
-                applicationService.findById(applicationId).block(), allPages, true, true);
+        Mono<ApplicationPagesDTO> viewModeTrueMono = Mono.defer(() -> newPageService.createApplicationPagesDTO(
+                applicationService.findById(applicationId).block(), allPages, true, true));
 
         StepVerifier.create(viewModeTrueMono).verifyErrorSatisfies(error -> {
             assertThat(error).isInstanceOf(AppsmithException.class);

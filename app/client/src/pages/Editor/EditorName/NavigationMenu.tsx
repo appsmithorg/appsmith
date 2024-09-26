@@ -3,7 +3,7 @@ import React from "react";
 import type { noop } from "lodash";
 
 import type { MenuItemData } from "./NavigationMenuItem";
-import { MenuContent } from "design-system";
+import { MenuContent } from "@appsmith/ads";
 import { NavigationMenuItem } from "./NavigationMenuItem";
 
 interface NavigationMenuProps {
@@ -13,6 +13,7 @@ interface NavigationMenuProps {
 
 export function NavigationMenu(props: NavigationMenuProps) {
   const { menuItems, setIsPopoverOpen } = props;
+
   return (
     <MenuContent width="214px">
       {menuItems?.map((item, idx) => {

@@ -56,6 +56,7 @@ export function performInitialChecks(
   const commonWidgets: DraggedWidget[] = draggedWidgets.filter(
     (each: DraggedWidget) => childWidgetIds.includes(each.widgetId),
   );
+
   if (
     maxChildLimit &&
     layout?.length + draggedWidgets.length - commonWidgets.length * 2 >
@@ -71,6 +72,7 @@ export function performInitialChecks(
     const draggedTypes: string[] = draggedWidgets.map(
       (each: DraggedWidget) => each.type,
     );
+
     if (!areWidgetsWhitelisted(draggedTypes, allowedWidgetTypes)) {
       return defaultHighlightPayload;
     }
@@ -115,6 +117,7 @@ export function deriveHighlights(
   if (res) return res;
 
   const getDimensions: GetDimensions = getRelativeDimensions(widgetPositions);
+
   // If layout is empty, return an initial set of highlights to demarcate the starting position.
   if (!layoutProps.layout?.length) {
     return getInitialHighlights(
@@ -150,6 +153,7 @@ export function deriveHighlights(
       hasFillWidget,
     );
   }
+
   // Calculate highlights for child widgets.
   return getHighlightsForWidgets(
     layoutProps,

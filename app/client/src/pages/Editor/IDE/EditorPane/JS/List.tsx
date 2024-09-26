@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Flex, Text } from "design-system";
+import { Flex, Text } from "@appsmith/ads";
 import styled from "styled-components";
 
 import type { EditorSegmentList } from "ee/selectors/appIDESelectors";

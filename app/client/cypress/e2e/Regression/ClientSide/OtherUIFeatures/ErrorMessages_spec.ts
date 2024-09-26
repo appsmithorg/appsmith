@@ -3,7 +3,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Sanitise toast error messages", () => {
+describe("Sanitise toast error messages", { tags: ["@tag.JS"] }, () => {
   before(() => {
     _.jsEditor.CreateJSObject(
       `export default {
@@ -33,13 +33,21 @@ describe("Sanitise toast error messages", () => {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.EnterJSContext("onClick", "{{a.kjbfjdfbkds()}}");
     _.agHelper.ClickButton("Submit");
-    _.agHelper.WaitUntilToastDisappear("a is not defined");
+    _.debuggerHelper.AssertDebugError("'a' is not defined.", "", true, false);
   });
 
   it("2. Does not show type error label when js obj function does not exist", () => {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     _.propPane.EnterJSContext("onClick", "{{JSObject1.myFun1efef()}}");
+    // Assert the lint error that shows up
+    _.debuggerHelper.AssertDebugError(
+      `"myFun1efef" doesn't exist in JSObject1`,
+      "",
+      false,
+      false,
+    );
     _.agHelper.ClickButton("Submit");
+    // Assert the execution error that shows up
     _.agHelper.WaitUntilToastDisappear("Object1.myFun1efef is not a function");
   });
 

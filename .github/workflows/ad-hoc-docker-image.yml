@@ -1,0 +1,113 @@
+name: Ad-hoc Docker Image
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch to build image out of
+        required: false
+        type: string
+        default: master
+      tag:
+        description: Tag to use for image
+        required: false
+        type: string
+        default: ad-hoc
+
+jobs:
+  server-build:
+    name: server-build
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      branch: ${{ inputs.branch }}
+      skip-tests: true
+
+  client-build:
+    name: client-build
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      branch: ${{ inputs.branch }}
+
+  rts-build:
+    name: rts-build
+    uses: ./.github/workflows/rts-build.yml
+    secrets: inherit
+    with:
+      branch: ${{ inputs.branch }}
+
+  package:
+    needs: [server-build, client-build, rts-build]
+    runs-on: ubuntu-latest
+    # Set permissions since we're using OIDC token authentication between Depot and GitHub
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      # Check out the specified branch in case this workflow is called by another workflow
+      - name: Checkout the specified branch
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: ${{ inputs.branch }}
+
+      - name: Download the react build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: client-build
+          path: app/client
+
+      - name: Unpack the client build artifact
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          mkdir -p app/client/build
+          tar -xvf app/client/build.tar -C app/client/build
+
+      - name: Download the server build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: server-build
+          path: app/server/dist
+
+      - name: Download the rts build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: rts-dist
+          path: app/client/packages/rts/dist
+
+      - name: Untar the rts folder
+        run: |
+          tar -xvf app/client/packages/rts/dist/rts-dist.tar -C app/client/packages/rts/
+          echo "Cleaning up the tar files"
+          rm app/client/packages/rts/dist/rts-dist.tar
+
+      - name: Generate info.json
+        run: |
+          if [[ -f scripts/generate_info_json.sh ]]; then
+            scripts/generate_info_json.sh
+          fi
+
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and push environment specific image to Docker Hub
+        if: success()
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build-args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:nightly
+          tags: |
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{ inputs.tag }}

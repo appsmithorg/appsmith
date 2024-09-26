@@ -8,7 +8,7 @@ import {
 import type { RouteComponentProps } from "react-router";
 import { useHistory } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { HighlightText, Table } from "design-system-old";
+import { HighlightText, Table } from "@appsmith/ads-old";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -16,8 +16,8 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "ee/actions/workspaceActions";
-import type { SelectOptionProps } from "design-system";
-import { Avatar, Button, Option, Select, Text } from "design-system";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Avatar, Button, Option, Select, Text } from "@appsmith/ads";
 import styled from "styled-components";
 import DeleteConfirmationModal from "pages/workspace/DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
@@ -237,6 +237,7 @@ export default function MemberSettings(props: PageProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onDeleteMember = (data?: any) => {
     if (!userToBeDeleted && !data) return null;
+
     dispatch(
       deleteWorkspaceUser(
         userToBeDeleted?.workspaceId || data?.workspaceId,
@@ -271,6 +272,7 @@ export default function MemberSettings(props: PageProps) {
       const userBeingDeleted = allUsers.find(
         (user) => user.username === userToBeDeleted.username,
       );
+
       if (!userBeingDeleted) {
         setUserToBeDeleted(null);
         onCloseConfirmationModal();
@@ -314,6 +316,7 @@ export default function MemberSettings(props: PageProps) {
   useEffect(() => {
     if (searchValue) {
       const filteredUsers = getFilteredUsers();
+
       setFilteredData(filteredUsers);
     } else {
       setFilteredData(membersData);
@@ -330,6 +333,7 @@ export default function MemberSettings(props: PageProps) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: function UserCell(props: any) {
         const member = props.cell.row.original;
+
         return (
           <EachUser>
             <>
@@ -390,6 +394,7 @@ export default function MemberSettings(props: PageProps) {
             role.value?.split(" - ")[0] ===
             cellProps.cell.value?.split(" - ")[0],
         );
+
         if (data.username === currentUser?.username) {
           return (
             <StyledText renderAs="p">
@@ -397,6 +402,7 @@ export default function MemberSettings(props: PageProps) {
             </StyledText>
           );
         }
+
         return (
           <Select
             className="t--user-status"
@@ -521,6 +527,7 @@ export default function MemberSettings(props: PageProps) {
                     role.value === member.permissionGroupName.split(" - ")[0],
                 ) || roles[0];
               const isOwner = member.username === currentUser?.username;
+
               return (
                 <UserCard key={index}>
                   <>

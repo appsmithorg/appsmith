@@ -22,7 +22,7 @@ import {
   ModalFooter,
   Text,
   Tooltip,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   getConflictFoundDocUrlDeploy,
   getGitCommitAndPushError,
@@ -90,6 +90,7 @@ function SubmitWrapper(props: {
     const triggerSubmit = isMacOrIOS()
       ? e.metaKey && e.key === "Enter"
       : e.ctrlKey && e.key === "Enter";
+
     if (triggerSubmit) props.onSubmit();
   };
 
@@ -132,6 +133,7 @@ function Deploy() {
       isAutoUpdate,
       isManualUpdate,
     });
+
     if (currentBranch) {
       dispatch(
         commitToRepoInit({
@@ -146,6 +148,7 @@ function Deploy() {
     AnalyticsUtil.logEvent("GS_PULL_GIT_CLICK", {
       source: "GIT_DEPLOY_MODAL",
     });
+
     if (currentBranch) {
       dispatch(gitPullInit());
     }
@@ -238,10 +241,12 @@ function Deploy() {
   }, [discardError]);
 
   const scrollWrapperRef = React.createRef<HTMLDivElement>();
+
   useEffect(() => {
     if (scrollWrapperRef.current) {
       setTimeout(() => {
         const top = scrollWrapperRef.current?.scrollHeight || 0;
+
         scrollWrapperRef.current?.scrollTo({
           top: top,
         });

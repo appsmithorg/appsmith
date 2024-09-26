@@ -1,17 +1,17 @@
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { initEditorAction } from "actions/initActions";
 import { setAppMode, updateCurrentPage } from "actions/pageActions";
 import { APP_MODE } from "entities/App";
 import { useDispatch } from "react-redux";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getCanvasWidgetsPayload } from "@appsmith/sagas/PageSagas";
+import { getCanvasWidgetsPayload } from "ee/sagas/PageSagas";
 import { editorInitializer } from "utils/editor/EditorUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
-import type { AppState } from "@appsmith/reducers";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
-import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
+import type { AppState } from "ee/reducers";
+import type { WidgetEntity } from "ee/entities/DataTree/types";
+import urlBuilder from "ee/entities/URLRedirect/URLAssembly";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
+import type { Page } from "entities/Page";
 
 const pageId = "0123456789abcdef00000000";
 

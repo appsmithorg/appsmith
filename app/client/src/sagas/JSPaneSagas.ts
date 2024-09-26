@@ -86,7 +86,6 @@ import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUt
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
-import { toast } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import {
   getJSActionPathNameToDisplay,
@@ -186,6 +185,7 @@ function* handleJSCollectionCreatedSaga(
 ) {
   const { baseId: baseCollectionId, pageId } = actionPayload.payload;
   const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
+
   history.push(
     jsCollectionIdURL({
       basePageId,
@@ -200,9 +200,11 @@ function* handleJSCollectionCreatedSaga(
 function* handleEachUpdateJSCollection(update: JSUpdate) {
   const jsActionId = update.id;
   const workspaceId: string = yield select(getCurrentWorkspaceId);
+
   if (jsActionId) {
     const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
     const parsedBody = update.parsedBody;
+
     if (parsedBody && !!jsAction) {
       const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
@@ -230,23 +232,29 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
         let deletedActions: JSAction[] = [];
         let updateCollection = false;
         const changedVariables = data.changedVariables;
+
         if (changedVariables.length) {
           jsActionTobeUpdated.variables = parsedBody.variables;
           updateCollection = true;
         }
+
         if (data.newActions.length) {
           newActions = data.newActions;
+
           for (let i = 0; i < data.newActions.length; i++) {
             jsActionTobeUpdated.actions.push({
               ...data.newActions[i],
               workspaceId: workspaceId,
             });
           }
+
           updateCollection = true;
         }
+
         if (data.updateActions.length > 0) {
           updateActions = data.updateActions;
           let changedActions = [];
+
           for (let i = 0; i < data.updateActions.length; i++) {
             changedActions = jsActionTobeUpdated.actions.map(
               (js: JSAction) =>
@@ -255,9 +263,11 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
                 ) || js,
             );
           }
+
           updateCollection = true;
           jsActionTobeUpdated.actions = changedActions;
         }
+
         if (data.deletedActions.length > 0) {
           deletedActions = data.deletedActions;
           const nonDeletedActions = jsActionTobeUpdated.actions.filter(
@@ -267,6 +277,7 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
               });
             },
           );
+
           updateCollection = true;
           jsActionTobeUpdated.actions = nonDeletedActions;
         }
@@ -310,11 +321,14 @@ function* updateJSCollection(data: {
 }) {
   let jsAction = {};
   const jsActionId = getJSCollectionIdFromURL();
+
   if (jsActionId) {
     jsAction = yield select(getJSCollection, jsActionId);
   }
+
   try {
     const { deletedActions, jsCollection, newActions } = data;
+
     if (jsCollection) {
       yield put(jsSaveActionStart({ id: jsCollection.id }));
       const response: JSCollectionCreateUpdateResponse = yield call(
@@ -322,6 +336,7 @@ function* updateJSCollection(data: {
         jsCollection,
       );
       const isValidResponse: boolean = yield validateResponse(response);
+
       if (isValidResponse) {
         if (newActions && newActions.length) {
           pushLogsForObjectUpdate(
@@ -330,6 +345,7 @@ function* updateJSCollection(data: {
             createMessage(JS_FUNCTION_CREATE_SUCCESS),
           );
         }
+
         if (deletedActions && deletedActions.length) {
           pushLogsForObjectUpdate(
             deletedActions,
@@ -369,11 +385,19 @@ function* handleJSObjectNameChangeSuccessSaga(
     getJSCollection,
     actionId,
   );
+
   yield take(ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS);
+
   if (!actionObj) {
-    // Error case, log to sentry
-    toast.show(createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""), {
-      kind: "error",
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_JS_COLLECTION_NAME_ERROR,
+      payload: {
+        actionId,
+        show: true,
+        error: {
+          message: createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, ""),
+        },
+      },
     });
 
     return;
@@ -381,13 +405,16 @@ function* handleJSObjectNameChangeSuccessSaga(
 
   if (actionObj.pluginType === PluginType.JS) {
     const params = getQueryParams();
+
     if (params.editName) {
       params.editName = "false";
     }
+
     const basePageId: string = yield select(
       convertToBasePageIdSelector,
       actionObj.pageId,
     );
+
     history.push(
       jsCollectionIdURL({
         basePageId,
@@ -409,6 +436,7 @@ export function* handleExecuteJSFunctionSaga(data: {
   const { action, collection, onPageLoad, openDebugger = false } = data;
   const { id: collectionId } = collection;
   const actionId = action.id;
+
   yield put(
     executeJSFunctionInit({
       collection,
@@ -416,6 +444,7 @@ export function* handleExecuteJSFunctionSaga(data: {
     }),
   );
   const isEntitySaving: boolean = yield select(getIsSavingEntity);
+
   /**
    * Only start executing when no entity in the application is saving
    * This ensures that execution doesn't get carried out on stale values
@@ -449,6 +478,7 @@ export function* handleExecuteJSFunctionSaga(data: {
         collection,
         onPageLoad,
       );
+
       result = response.result;
       isDirty = response.isDirty;
     }
@@ -550,6 +580,7 @@ export function* handleStartExecuteJSFunctionSaga(
   const { action, collection, from, openDebugger } = data.payload;
   const actionId = action.id;
   const JSActionPathName = getJSActionPathNameToDisplay(action, collection);
+
   if (action.confirmBeforeExecute) {
     const modalPayload = {
       name: JSActionPathName,
@@ -596,6 +627,7 @@ function* handleUpdateJSCollectionBody(
     getJSCollection,
     actionPayload.payload.id,
   );
+
   // @ts-expect-error: Object jsCollection is possibly undefined
   jsCollection["body"] = actionPayload.payload.body;
   try {
@@ -608,6 +640,7 @@ function* handleUpdateJSCollectionBody(
           jsCollection.body,
         );
       const isValidResponse: boolean = yield validateResponse(response);
+
       if (isValidResponse) {
         // since server is not sending the info about whether the js collection is main or not
         // we are retaining it manually
@@ -615,6 +648,7 @@ function* handleUpdateJSCollectionBody(
           ...jsCollection,
           isMainJSCollection: !!jsCollection.isMainJSCollection,
         };
+
         yield put(
           updateJSCollectionBodySuccess({
             data: updatedJSCollection,
@@ -629,6 +663,7 @@ function* handleUpdateJSCollectionBody(
       payload: { error, data: jsCollection },
     });
   }
+
   if (!actionPayload.payload.isReplay)
     yield put(
       updateReplayEntity(
@@ -651,6 +686,7 @@ function* handleRefactorJSActionNameSaga(
   const { actionCollection, refactorAction } = data.payload;
   const { pageId } = refactorAction;
   const layoutId: string | undefined = yield select(getCurrentLayoutId);
+
   if (!pageId || !layoutId) {
     return;
   }
@@ -660,6 +696,7 @@ function* handleRefactorJSActionNameSaga(
     layoutId,
     actionCollection: actionCollection,
   };
+
   // call to refactor action
   try {
     yield put(jsSaveActionStart({ id: actionCollection.id }));
@@ -676,6 +713,7 @@ function* handleRefactorJSActionNameSaga(
         type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS,
         payload: { collectionId: actionCollection.id },
       });
+
       if (currentPageId === refactorAction.pageId) {
         yield updateCanvasWithDSL(
           // @ts-expect-error: response is of type unknown
@@ -699,8 +737,11 @@ function* setFunctionPropertySaga(
   data: ReduxAction<SetFunctionPropertyPayload>,
 ) {
   const { action, propertyName, value } = data.payload;
+
   if (!action.id) return;
+
   const actionId = action.id;
+
   if (propertyName === "executeOnLoad") {
     yield put({
       type: ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_INIT,
@@ -710,8 +751,10 @@ function* setFunctionPropertySaga(
         shouldExecute: value,
       },
     });
+
     return;
   }
+
   yield put(updateJSFunction({ ...data.payload }));
 }
 
@@ -719,9 +762,12 @@ function* handleUpdateJSFunctionPropertySaga(
   data: ReduxAction<SetFunctionPropertyPayload>,
 ) {
   const { action, propertyName, value } = data.payload;
+
   if (!action.id) return;
+
   const actionId = action.id;
   let collection: JSCollection;
+
   if (action.collectionId) {
     collection = yield select(getJSCollection, action.collectionId);
 
@@ -730,15 +776,19 @@ function* handleUpdateJSFunctionPropertySaga(
       const updatedActions = actions.map((jsAction: JSAction) => {
         if (jsAction.id === actionId) {
           set(jsAction, propertyName, value);
+
           return jsAction;
         }
+
         return jsAction;
       });
+
       collection.actions = updatedActions;
       const response: ApiResponse<JSCollectionCreateUpdateResponse> =
         yield call(updateJSCollectionAPICall, collection);
 
       const isValidResponse: boolean = yield validateResponse(response);
+
       if (isValidResponse) {
         yield put({
           type: ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_SUCCESS,
@@ -771,6 +821,7 @@ function* toggleFunctionExecuteOnLoadSaga(
       shouldExecute,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_SUCCESS,
@@ -802,12 +853,14 @@ function* handleCreateNewJSFromActionCreator(
   // Side by Side ramp. Switch to SplitScreen mode to allow user to edit JS function
   // created while having context of the canvas
   const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
+
   if (isSideBySideEnabled) {
     yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
   }
 
   // Create the JS Object with the given function name
   const pageId: string = yield select(getCurrentPageId);
+
   yield put(createNewJSCollection(pageId, "ACTION_SELECTOR", functionName));
 
   // Wait for it to be created
@@ -817,6 +870,7 @@ function* handleCreateNewJSFromActionCreator(
 
   // Call the payload callback with the binding value of the new function created
   const bindingValue = JSAction.payload.name + "." + functionName;
+
   action.payload(bindingValue);
 }
 

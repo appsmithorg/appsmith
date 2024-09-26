@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { BUILDING_BLOCK_EXPLORER_TYPE } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -117,6 +117,7 @@ function WidgetCard(props: CardProps) {
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (props.details.type === BUILDING_BLOCK_EXPLORER_TYPE) {
       AnalyticsUtil.logEvent("DRAG_BUILDING_BLOCK_INITIATED", {
         applicationId,
@@ -136,9 +137,7 @@ function WidgetCard(props: CardProps) {
     setDraggingNewWidget &&
       setDraggingNewWidget(true, {
         ...props.details,
-        widgetId: generateReactKey({
-          prefix: props.details.type === "ZONE_WIDGET" ? "zone-" : "component-",
-        }),
+        widgetId: generateReactKey(),
       });
   };
 

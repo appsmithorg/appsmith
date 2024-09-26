@@ -6,9 +6,9 @@ import {
   GENERAL_SETTINGS_NAME_EMPTY_MESSAGE,
 } from "ee/constants/messages";
 import classNames from "classnames";
-import type { AppIconName } from "design-system-old";
-import { Input, Text } from "design-system";
-import { IconSelector } from "design-system-old";
+import type { AppIconName } from "@appsmith/ads-old";
+import { Input, Text } from "@appsmith/ads";
+import { IconSelector } from "@appsmith/ads-old";
 import { debounce } from "lodash";
 import React, { useCallback, useState } from "react";
 import { useEffect } from "react";
@@ -69,9 +69,11 @@ function GeneralSettings() {
       const isAppNameUpdated = applicationName !== application?.name;
 
       const payload: UpdateApplicationPayload = { currentApp: true };
+
       if (isAppNameUpdated && isAppNameValid) {
         payload.name = applicationName;
       }
+
       icon ? (payload.icon = icon) : null;
 
       (isAppNameUpdated || icon) &&

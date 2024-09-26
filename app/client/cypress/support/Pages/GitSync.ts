@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
-const GITHUB_API_BASE = "https://api.github.com";
+
 //const GITEA_API_BASE = "http://35.154.225.218";
 export class GitSync {
   public agHelper = ObjectsRegistry.AggregateHelper;
@@ -65,6 +65,7 @@ export class GitSync {
     "[data-testid='t--git-protected-branches-select']";
   public _branchProtectionUpdateBtn =
     "[data-testid='t--git-protected-branches-update-btn']";
+  public _autocommitStatusbar = "[data-testid='t--autocommit-statusbar']";
   public _disconnectGitBtn = "[data-testid='t--git-disconnect-btn']";
   public _mergeLoader = "[data-testid='t--git-merge-loader']";
 

@@ -3,7 +3,7 @@ import * as Sentry from "@sentry/react";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import { getAllTemplates, getTemplateFilters } from "actions/templateActions";
 import { setHeaderMeta } from "actions/themeActions";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { isEmpty } from "lodash";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import React, { useEffect } from "react";

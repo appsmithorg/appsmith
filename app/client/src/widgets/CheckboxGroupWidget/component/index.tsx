@@ -100,6 +100,7 @@ function SelectAll(props: SelectAllProps) {
     inline,
     onChange,
   } = props;
+
   return (
     <StyledCheckbox
       accentColor={accentColor}
@@ -151,6 +152,7 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
   borderRadius: string;
   minWidth?: number;
 }
+
 function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
   const {
     accentColor,
@@ -187,6 +189,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
       : SelectAllStates.UNCHECKED;
 
   let optionCount = (options || []).length;
+
   if (isSelectAll) {
     optionCount += 1;
   }

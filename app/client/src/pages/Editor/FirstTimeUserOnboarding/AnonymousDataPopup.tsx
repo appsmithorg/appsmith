@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Callout } from "design-system";
+import { Callout } from "@appsmith/ads";
 import {
   ADMIN_SETTINGS,
   LEARN_MORE,
@@ -62,6 +62,7 @@ export default function AnonymousDataPopup() {
     } else if (link === TELEMETRY_DOCS_PAGE_URL) {
       AnalyticsUtil.logEvent("LEARN_MORE_TELEMETRY_CALLOUT");
     }
+
     window.open(link, "_blank");
   };
 
@@ -71,9 +72,11 @@ export default function AnonymousDataPopup() {
       isFirstTimeUserOnboardingEnabled &&
       isAdmin &&
       !isOnboardingCompleted;
+
     if (shouldPopupShow) {
       const isAnonymousDataPopupAlreadyOpen =
         await getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown();
+
       //true if the modal was already shown else show the modal and set to already shown, also hide the modal after 10 secs
       if (isAnonymousDataPopupAlreadyOpen) {
         dispatch(showAnonymousDataPopup(false));

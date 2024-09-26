@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Text } from "design-system";
+import { Button, Text } from "@appsmith/ads";
 import type { AppState } from "ee/reducers";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
@@ -37,6 +37,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
 
   const onClick = () => {
     const { widgetId, widgetTitle, widgetType } = props;
+
     history.push(
       integrationEditorURL({
         basePageId,
@@ -52,6 +53,7 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
 
     // Event for datasource creation click
     const entryPoint = DatasourceCreateEntryPoints.PROPERTY_PANE_CONNECT_DATA;
+
     AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
       entryPoint,
     });

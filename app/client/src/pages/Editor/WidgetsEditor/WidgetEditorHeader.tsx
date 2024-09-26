@@ -12,6 +12,7 @@ import React from "react";
  */
 export const WidgetEditorHeader = () => {
   const missingModuleNotification = useMissingModuleNotification();
+
   return (
     <>
       {missingModuleNotification}

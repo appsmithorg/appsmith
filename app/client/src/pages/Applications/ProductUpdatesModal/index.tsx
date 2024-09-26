@@ -8,7 +8,7 @@ import { resetReleasesCount } from "actions/releasesActions";
 import type { Release } from "./ReleaseComponent";
 import ReleaseComponent from "./ReleaseComponent";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@appsmith/ads";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 
 const Container = styled.div`
@@ -43,6 +43,7 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
 
   useEffect(() => {
     if (!props.isOpen) return;
+
     setIsOpen(true);
     dispatch(resetReleasesCount());
     ReleasesAPI.markAsRead();

@@ -1,4 +1,4 @@
-import { Icon, SearchInput, Spinner, Text } from "design-system";
+import { Icon, SearchInput, Spinner, Text } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
@@ -57,6 +57,7 @@ const DesktopEntitySearchField = (props: any) => {
   const isHomePage = useRouteMatch("/applications")?.isExact;
 
   if (!isHomePage) return null;
+
   return (
     <SearchContainer isMobile={isMobile}>
       <SearchInput

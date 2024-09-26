@@ -3,6 +3,7 @@ import configureStore from "redux-mock-store";
 
 const PAGE_ID = "0123456789abcdef00000000";
 const BASE_PAGE_ID = "0123456789abcdef00000022";
+
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const initialState: any = {
@@ -131,5 +132,6 @@ export function getStore(step: number) {
       state.ui.onBoarding.firstTimeUserOnboardingComplete = true;
       break;
   }
+
   return mockStore(state);
 }

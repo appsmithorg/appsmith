@@ -5,7 +5,7 @@ import {
   MenuContent,
   MenuItem,
   MenuTrigger,
-} from "design-system";
+} from "@appsmith/ads";
 import React, { useCallback, useState } from "react";
 import { useSelector } from "react-redux";
 

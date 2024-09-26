@@ -1,4 +1,4 @@
-import { Button, Popover, PopoverTrigger } from "design-system";
+import { Button, Popover, PopoverTrigger } from "@appsmith/ads";
 import React from "react";
 import history from "utils/history";
 import { builderURL } from "ee/RouteBuilder";
@@ -20,9 +20,11 @@ const CreateDatasourcePopover = () => {
     isFeatureEnabled,
     userWorkspacePermissions,
   );
+
   if (!canCreateDatasource) {
     return null;
   }
+
   return (
     <Popover open={false}>
       <PopoverTrigger>

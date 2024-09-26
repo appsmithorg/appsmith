@@ -2,12 +2,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { CurrentUserDetailsRequestPayload } from "constants/userConstants";
-import type {
-  TokenPasswordUpdateRequest,
-  UpdateUserRequest,
-  VerifyTokenRequest,
-} from "ee/api/UserApi";
+import type { UpdateUserRequest, VerifyTokenRequest } from "ee/api/UserApi";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type {
   ProductAlert,
@@ -34,10 +29,6 @@ export const logoutUserError = (error: any) => ({
     error,
   },
 });
-export const setCurrentUserDetails = () => ({
-  type: ReduxActionTypes.SET_CURRENT_USER_INIT,
-  payload: CurrentUserDetailsRequestPayload,
-});
 
 export const verifyInviteSuccess = () => ({
   type: ReduxActionTypes.VERIFY_INVITE_SUCCESS,
@@ -53,15 +44,6 @@ export const verifyInvite = (payload: VerifyTokenRequest) => ({
 export const verifyInviteError = (error: any) => ({
   type: ReduxActionErrorTypes.VERIFY_INVITE_ERROR,
   payload: { error },
-});
-
-export const invitedUserSignup = (
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  payload: TokenPasswordUpdateRequest & { resolve: any; reject: any },
-) => ({
-  type: ReduxActionTypes.INVITED_USER_SIGNUP_INIT,
-  payload,
 });
 
 export const invitedUserSignupSuccess = () => ({

@@ -29,18 +29,16 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { ApiEditorContextProvider } from "./ApiEditorContext";
 import type { PaginationField } from "api/ActionAPI";
 import { get, keyBy } from "lodash";
-import PerformanceTracker, {
-  PerformanceTransactionName,
-} from "utils/PerformanceTracker";
 import ConvertToModuleInstanceCTA from "ee/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
 import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import Disabler from "pages/common/Disabler";
 import ConvertEntityNotification from "ee/pages/common/ConvertEntityNotification";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
+import { AppPluginActionEditor } from "pages/Editor/AppPluginActionEditor";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
@@ -50,6 +48,7 @@ function getPageName(pages: any, basePageId: string) {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const page = pages.find((page: any) => page.basePageId === basePageId);
+
   return page ? page.pageName : "";
 }
 
@@ -107,6 +106,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       entityId: action?.id || "",
       moduleType: MODULE_TYPE.QUERY,
     };
+
     return (
       <>
         <MoreActionsMenu
@@ -140,12 +140,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const handleRunClick = useCallback(
     (paginationField?: PaginationField) => {
       const pluginName = plugins.find((plugin) => plugin.id === pluginId)?.name;
-      PerformanceTracker.startTracking(
-        PerformanceTransactionName.RUN_API_CLICK,
-        {
-          apiId: action?.id,
-        },
-      );
+
       AnalyticsUtil.logEvent("RUN_API_CLICK", {
         apiName,
         apiID: action?.id,
@@ -185,6 +180,14 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
 
     return <ConvertEntityNotification icon={icon} name={action?.name || ""} />;
   }, [action?.name, isConverting]);
+
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
+  );
+
+  if (isActionRedesignEnabled) {
+    return <AppPluginActionEditor />;
+  }
 
   return (
     <ApiEditorContextProvider

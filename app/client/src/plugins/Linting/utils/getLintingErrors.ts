@@ -36,6 +36,8 @@ import setters from "workers/Evaluation/setters";
 import { isMemberExpressionNode } from "@shared/ast/src";
 import { generate } from "astring";
 import getInvalidModuleInputsError from "ee/plugins/Linting/utils/getInvalidModuleInputsError";
+import { objectKeys } from "@appsmith/utils";
+import { profileFn } from "UITelemetry/generateWebWorkerTraces";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -59,15 +61,18 @@ function generateLintingGlobalData(data: Record<string, unknown>) {
   for (const dataKey in data) {
     globalData[dataKey] = true;
   }
+
   // Add all js libraries
   const libAccessors = ([] as string[]).concat(
     ...JSLibraries.map((lib) => lib.accessor),
   );
+
   libAccessors.forEach((accessor) => (globalData[accessor] = true));
   // Add all supported web apis
-  Object.keys(SUPPORTED_WEB_APIS).forEach(
+  objectKeys(SUPPORTED_WEB_APIS).forEach(
     (apiName) => (globalData[apiName] = true),
   );
+
   return globalData;
 }
 
@@ -78,6 +83,7 @@ function sanitizeJSHintErrors(
   return lintErrors.reduce((result: JSHintError[], lintError) => {
     // Ignored errors should not be reported
     if (IGNORED_LINT_ERRORS.includes(lintError.code)) return result;
+
     /** Some error messages reference line numbers,
      * Eg. Expected '{a}' to match '{b}' from line {c} and instead saw '{d}'
      * these line numbers need to be re-calculated based on the binding location.
@@ -87,10 +93,12 @@ function sanitizeJSHintErrors(
     const matchedLines = message.match(/line \d/gi);
     const lineNumbersInErrorMessage = new Set<number>();
     let isInvalidErrorMessage = false;
+
     if (matchedLines) {
       matchedLines.forEach((lineStatement) => {
         const digitString = lineStatement.split(" ")[1];
         const digit = Number(digitString);
+
         if (isNumber(digit)) {
           if (digit < scriptPos.line) {
             // referenced line number is outside the scope of user's script
@@ -101,7 +109,9 @@ function sanitizeJSHintErrors(
         }
       });
     }
+
     if (isInvalidErrorMessage) return result;
+
     if (lineNumbersInErrorMessage.size) {
       Array.from(lineNumbersInErrorMessage).forEach((lineNumber) => {
         message = message.replaceAll(
@@ -110,10 +120,12 @@ function sanitizeJSHintErrors(
         );
       });
     }
+
     result.push({
       ...lintError,
       reason: message,
     });
+
     return result;
   }, []);
 }
@@ -180,12 +192,23 @@ export default function getLintingErrors({
   originalBinding,
   script,
   scriptType,
+  webworkerTelemetry,
 }: getLintingErrorsProps): LintError[] {
   const scriptPos = getEvaluationScriptPosition(scriptType);
   const lintingGlobalData = generateLintingGlobalData(data);
   const lintingOptions = lintOptions(lintingGlobalData);
 
-  jshint(script, lintingOptions);
+  profileFn(
+    "Linter",
+    // adding some metrics to compare the performance changes with eslint
+    {
+      linter: "JSHint",
+      linesOfCodeLinted: originalBinding.split("\n").length,
+      codeSizeInChars: originalBinding.length,
+    },
+    webworkerTelemetry,
+    () => jshint(script, lintingOptions),
+  );
   const sanitizedJSHintErrors = sanitizeJSHintErrors(jshint.errors, scriptPos);
   const jshintErrors: LintError[] = sanitizedJSHintErrors.map((lintError) =>
     convertJsHintErrorToAppsmithLintError(
@@ -203,6 +226,7 @@ export default function getLintingErrors({
     originalBinding,
     options?.isJsObject,
   );
+
   return jshintErrors.concat(customLintErrors);
 }
 
@@ -224,6 +248,7 @@ function getInvalidWidgetPropertySetterErrors({
 
   for (const { object, parentNode, property } of assignmentExpressions) {
     if (!isIdentifierNode(object)) continue;
+
     const assignmentExpressionString = generate(parentNode);
     const objectName = object.name;
     const propertyName = isLiteralNode(property)
@@ -231,6 +256,7 @@ function getInvalidWidgetPropertySetterErrors({
       : property.name;
 
     const entity = data[objectName];
+
     if (!entity || !isWidget(entity)) continue;
 
     const isValidProperty = propertyName in entity;
@@ -269,6 +295,7 @@ function getInvalidWidgetPropertySetterErrors({
           : objectStartCol,
     });
   }
+
   return invalidWidgetPropertySetterErrors;
 }
 
@@ -290,7 +317,9 @@ function getInvalidAppsmithStoreSetterErrors({
 
   for (const { object, parentNode } of appsmithStoreMutationExpressions) {
     if (!isMemberExpressionNode(object)) continue;
+
     const assignmentExpressionString = generate(parentNode);
+
     if (!assignmentExpressionString.startsWith("appsmith.store")) continue;
 
     const lintErrorMessage =
@@ -326,6 +355,7 @@ function getInvalidAppsmithStoreSetterErrors({
           : objectStartCol,
     });
   }
+
   return assignmentExpressionErrors;
 }
 
@@ -351,6 +381,7 @@ function getInvalidEntityPropertyErrors(
       const lintErrorMessage = CUSTOM_LINT_ERRORS[
         CustomLintErrorCode.INVALID_ENTITY_PROPERTY
       ](object.name, propertyName, data[object.name], isJSObject);
+
       return {
         errorType: PropertyEvaluationErrorType.LINT,
         raw: script,
@@ -391,12 +422,14 @@ function getCustomErrorsFromScript(
   let assignmentExpressions: AssignmentExpressionData[] = [];
   let callExpressions: CallExpressionData[] = [];
   let memberCallExpressions: MemberCallExpressionData[] = [];
+
   try {
     const value = extractExpressionsFromCode(
       script,
       data,
       self.evaluationVersion,
     );
+
     invalidTopLevelMemberExpressions =
       value.invalidTopLevelMemberExpressionsArray;
     assignmentExpressions = value.assignmentExpressionsData;
@@ -471,10 +504,12 @@ function getRefinedW117Error(
   if (undefinedVar === "await") {
     return "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?";
   }
+
   // Handle case where platform functions are used in data fields
   if (APPSMITH_GLOBAL_FUNCTIONS.hasOwnProperty(undefinedVar)) {
     return asyncActionInSyncFieldLintMessage(isJsObject);
   }
+
   return originalReason;
 }
 
@@ -540,5 +575,6 @@ function getActionModalStringValueErrors({
       }
     }
   }
+
   return actionModalLintErrors;
 }

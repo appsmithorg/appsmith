@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import Entity from "./Entity";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 const ECContainer = styled.div`
   display: flex;
@@ -28,6 +28,7 @@ export function EmptyComponent(props: {
   addFunction?: () => void;
 }) {
   const showAddCta = props.addFunction && props.addBtnText;
+
   return (
     <ECContainer>
       <ECMainText>{props.mainText}</ECMainText>

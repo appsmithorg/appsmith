@@ -9,11 +9,13 @@ export function useLocalStorage(key: string, initialValue?: unknown) {
     try {
       // Get from local storage by key
       const item = localStorage.getItem(key);
+
       // Parse stored json or if none return initialValue
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
       // If error also return initialValue
       log.error(error);
+
       return initialValue;
     }
   });
@@ -27,6 +29,7 @@ export function useLocalStorage(key: string, initialValue?: unknown) {
       // Allow value to be a function so we have same API as useState
       const valueToStore =
         value instanceof Function ? value(storedValue) : value;
+
       // Save state
       setStoredValue(valueToStore);
       // Save to local storage

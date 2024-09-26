@@ -1,5 +1,5 @@
 import React from "react";
-import { Popover, PopoverModalContent } from "@design-system/headless";
+import { Popover, PopoverModalContent } from "@appsmith/wds-headless";
 import styles from "./styles.module.css";
 import type { ModalProps } from "./types";
 import clsx from "clsx";

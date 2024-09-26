@@ -11,7 +11,7 @@ import {
   Spinner,
   Select,
   Option,
-} from "design-system";
+} from "@appsmith/ads";
 import { ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import {
   CANCEL,
@@ -55,6 +55,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
     // is getting controlled from outside, then we always load workspaces
     if (isModalOpen) {
       getApplicationsListAndOpenModal();
+
       return;
     }
   }, [isModalOpen]);
@@ -88,6 +89,7 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   const workspaceList = useMemo(() => {
     const filteredUserWorkspaces = workspaces.filter((item) => {
       const permitted = hasCreateNewAppPermission(item.userPermissions ?? []);
+
       return permitted;
     });
 

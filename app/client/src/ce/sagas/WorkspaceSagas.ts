@@ -39,7 +39,7 @@ import {
   createMessage,
   DELETE_WORKSPACE_SUCCESSFUL,
 } from "ee/constants/messages";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getWorkspaceEntitiesActions } from "ee/utils/workspaceHelpers";
 import type { SearchApiResponse } from "ee/types/ApiResponseTypes";
@@ -53,12 +53,15 @@ export function* fetchAllWorkspacesSaga(
       WorkspaceApi.fetchAllWorkspaces,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       const workspaces: Workspace[] = response.data;
+
       yield put({
         type: ReduxActionTypes.FETCH_ALL_WORKSPACES_SUCCESS,
         payload: workspaces,
       });
+
       if (action?.payload?.workspaceId || action?.payload?.fetchEntities) {
         yield call(fetchEntitiesOfWorkspaceSaga, action);
       }
@@ -84,10 +87,12 @@ export function* fetchEntitiesOfWorkspaceSaga(
     );
     const { errorActions, initActions, successActions } =
       getWorkspaceEntitiesActions(workspaceId);
+
     yield put({
       type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
       payload: { ...activeWorkspace },
     });
+
     if (workspaceId) {
       yield call(failFastApiCalls, initActions, successActions, errorActions);
     }
@@ -112,6 +117,7 @@ export function* fetchWorkspaceSaga(
     );
     const isValidResponse: boolean = yield request.skipValidation ||
       validateResponse(response);
+
     if (isValidResponse && response) {
       yield put({
         type: ReduxActionTypes.FETCH_WORKSPACE_SUCCESS,
@@ -136,12 +142,14 @@ export function* fetchAllUsersSaga(action: ReduxAction<FetchAllUsersRequest>) {
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       const users = response.data.map((user) => ({
         ...user,
         isDeleting: false,
         isChangingRole: false,
       }));
+
       yield put({
         type: ReduxActionTypes.FETCH_ALL_USERS_SUCCESS,
         payload: users,
@@ -171,6 +179,7 @@ export function* changeWorkspaceUserRoleSaga(
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.CHANGE_WORKSPACE_USER_ROLE_SUCCESS,
@@ -197,8 +206,10 @@ export function* deleteWorkspaceUserSaga(
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       const currentUser: User | undefined = yield select(getCurrentUser);
+
       if (currentUser?.username == action.payload.username) {
         history.replace(APPLICATIONS_URL);
       } else {
@@ -209,6 +220,7 @@ export function* deleteWorkspaceUserSaga(
           },
         });
       }
+
       //@ts-expect-error: response is of type unknown
       toast.show(`${response.data.username} has been removed successfully`, {
         kind: "success",
@@ -232,6 +244,7 @@ export function* fetchAllRolesSaga(action: ReduxAction<FetchAllRolesRequest>) {
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_ALL_ROLES_SUCCESS,
@@ -253,6 +266,7 @@ export function* saveWorkspaceSaga(action: ReduxAction<SaveWorkspaceRequest>) {
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.SAVE_WORKSPACE_SUCCESS,
@@ -277,6 +291,7 @@ export function* deleteWorkspaceSaga(action: ReduxAction<string>) {
       workspaceId,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_WORKSPACE_SUCCESS,
@@ -301,6 +316,7 @@ export function* createWorkspaceSaga(
   action: ReduxActionWithPromise<CreateWorkspaceRequest>,
 ) {
   const { name, reject, resolve } = action.payload;
+
   try {
     const request: CreateWorkspaceRequest = { name };
     const response: ApiResponse = yield callAPI(
@@ -308,9 +324,11 @@ export function* createWorkspaceSaga(
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (!isValidResponse) {
       const errorMessage: string | undefined =
         yield getResponseErrorMessage(response);
+
       yield call(reject, { _error: errorMessage });
     } else {
       yield put({
@@ -323,6 +341,7 @@ export function* createWorkspaceSaga(
     // get created workspace in focus
     // @ts-expect-error: response is of type unknown
     const workspaceId = response.data.id;
+
     history.push(`${window.location.pathname}?workspaceId=${workspaceId}`);
   } catch (error) {
     yield call(reject, { _error: (error as Error).message });
@@ -345,11 +364,13 @@ export function* uploadWorkspaceLogoSaga(
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === request.id,
       );
+
       if (currentWorkspace.length > 0) {
         yield put({
           type: ReduxActionTypes.SAVE_WORKSPACE_SUCCESS,
@@ -377,11 +398,13 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
       request,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       const allWorkspaces: Workspace[] = yield select(getFetchedWorkspaces);
       const currentWorkspace = allWorkspaces.filter(
         (el: Workspace) => el.id === request.id,
       );
+
       if (currentWorkspace.length > 0) {
         yield put({
           type: ReduxActionTypes.SAVE_WORKSPACE_SUCCESS,
@@ -410,6 +433,7 @@ export function* searchWorkspaceEntitiesSaga(action: ReduxAction<any>) {
       { keyword: action.payload },
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS,

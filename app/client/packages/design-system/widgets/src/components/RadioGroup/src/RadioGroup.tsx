@@ -1,12 +1,12 @@
 import React, { forwardRef, useRef } from "react";
 import { RadioGroup as HeadlessRadioGroup, Radio } from "react-aria-components";
 import {
-  Label,
+  FieldLabel,
   Flex,
   Text,
-  ErrorMessage,
   useGroupOrientation,
-} from "@design-system/widgets";
+  FieldError,
+} from "@appsmith/wds";
 import styles from "./styles.module.css";
 import type { ForwardedRef } from "react";
 import type { RadioGroupProps } from "./types";
@@ -37,7 +37,7 @@ const _RadioGroup = (
       ref={ref}
       {...rest}
     >
-      <Label
+      <FieldLabel
         contextualHelp={contextualHelp}
         isDisabled={isDisabled}
         isRequired={isRequired}
@@ -56,7 +56,7 @@ const _RadioGroup = (
           </Radio>
         ))}
       </Flex>
-      <ErrorMessage text={errorMessage} />
+      <FieldError errorMessage={errorMessage} />
     </HeadlessRadioGroup>
   );
 };

@@ -3,6 +3,7 @@ import { DependencyMapUtils } from "../DependencyMapUtils";
 
 describe("Tests for DependencyMap", () => {
   const dataDependencyMap = new DependencyMap();
+
   it("should be able to add a node", () => {
     dataDependencyMap.addNodes({
       a: true,
@@ -2454,10 +2455,13 @@ describe("Tests for DependencyMapUtils", () => {
   for (const [path, deps] of Object.entries(dependencies)) {
     dependencyMap.addDependency(path, deps);
   }
+
   DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
 
   const result = DependencyMapUtils.sortDependencies(dependencyMap);
+
   expect(result.success).toBe(true);
+
   if (result.success) {
     expect(result.sortedDependencies).toStrictEqual([
       "appsmith.theme.borderRadius.appBorderRadius",
@@ -2708,9 +2712,82 @@ describe("Tests for DependencyMapUtils", () => {
       "Api1",
     ]);
   }
+
+  describe("linkAffectedChildNodesToParent", () => {
+    const createSomeDependencyMap = () => {
+      const dependencyMap = new DependencyMap();
+
+      dependencyMap.addNodes({
+        tableWidget: true,
+        apiData: true,
+        "tableWidget.tableData": true,
+        "apiData.data": true,
+        "apiData.allData": true,
+        "apiData.allData.paginatedData": true,
+      });
+      dependencyMap.addDependency("tableWidget", ["tableWidget.tableData"]);
+
+      return dependencyMap;
+    };
+
+    test("should link child node to its parentNode as a dependant", () => {
+      const dependencyMap = createSomeDependencyMap();
+
+      dependencyMap.addDependency("tableWidget.tableData", ["apiData.data"]);
+      // although "apiData.data" was attached as a dependency to "tableWidget.tableData", it's parent "apiData" also needs to be linked to "apiData.data"
+      expect(dependencyMap.rawDependencies.get("apiData")).toEqual(undefined);
+      const affectedNodes = new Set(["apiData.data"]);
+
+      DependencyMapUtils.linkAffectedChildNodesToParent(
+        dependencyMap,
+        affectedNodes,
+      );
+      // after linkAffectedChildNodesToParent execution "apiData" does get linked to "apiData.data"
+      expect(dependencyMap.rawDependencies.get("apiData")).toEqual(
+        new Set(["apiData.data"]),
+      );
+    });
+    test("should not link child node to its parentNode as a dependant when the child node is not affected ", () => {
+      const dependencyMap = createSomeDependencyMap();
+
+      dependencyMap.addDependency("tableWidget.tableData", ["apiData.data"]);
+      // although "apiData.data" was attached as a dependency to "tableWidget.tableData", it's parent "apiData" also needs to be linked to "apiData.data"
+      expect(dependencyMap.rawDependencies.get("apiData")).toEqual(undefined);
+      const emptyAffectedNodes = new Set([]);
+
+      DependencyMapUtils.linkAffectedChildNodesToParent(
+        dependencyMap,
+        emptyAffectedNodes,
+      );
+      expect(dependencyMap.rawDependencies.get("apiData")).toEqual(undefined);
+    });
+
+    test("should link child node to its grand parent node as a dependant", () => {
+      const dependencyMap = createSomeDependencyMap();
+
+      dependencyMap.addDependency("tableWidget.tableData", [
+        "apiData.allData.paginatedData",
+      ]);
+      expect(dependencyMap.rawDependencies.get("apiData")).toEqual(undefined);
+      const affectedNodes = new Set(["apiData.allData.paginatedData"]);
+
+      DependencyMapUtils.linkAffectedChildNodesToParent(
+        dependencyMap,
+        affectedNodes,
+      );
+      // after linkAffectedChildNodesToParent execution "apiData.allData.paginatedData" get linked to "apiData.data" and its parent "apiData.data" gets linked to "apiData"
+      expect(dependencyMap.getDirectDependencies("apiData")).toEqual([
+        "apiData.allData",
+      ]);
+      expect(dependencyMap.getDirectDependencies("apiData.allData")).toEqual([
+        "apiData.allData.paginatedData",
+      ]);
+    });
+  });
   describe("makeParentsDependOnChild", () => {
     const createSomeDependencyMap = () => {
       const dependencyMap = new DependencyMap();
+
       dependencyMap.addNodes({
         tableWidget: true,
         apiData: true,
@@ -2722,14 +2799,17 @@ describe("Tests for DependencyMapUtils", () => {
         "apiData.data",
       ]);
       dependencyMap.addDependency("apiData", []);
+
       return dependencyMap;
     };
+
     afterEach(() => {
       jest.clearAllMocks();
     });
     test("should trigger addDependency when the child node isn't there ", () => {
       const dependencyMap = createSomeDependencyMap();
       const spy = jest.spyOn(dependencyMap, "addDependency");
+
       DependencyMapUtils.makeParentsDependOnChild(
         dependencyMap,
         "apiData.data",
@@ -2742,6 +2822,7 @@ describe("Tests for DependencyMapUtils", () => {
     });
     test("should not trigger addDependency when the child node is there ", () => {
       const dependencyMap = createSomeDependencyMap();
+
       //ensure that the child node is a depedency
       dependencyMap.addDependency("apiData", ["apiData.data"]);
 
@@ -2749,6 +2830,7 @@ describe("Tests for DependencyMapUtils", () => {
         "apiData.data",
       ]);
       const spy = jest.spyOn(dependencyMap, "addDependency");
+
       DependencyMapUtils.makeParentsDependOnChild(
         dependencyMap,
         "apiData.data",

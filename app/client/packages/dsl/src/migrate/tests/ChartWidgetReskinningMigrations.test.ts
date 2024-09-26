@@ -178,6 +178,7 @@ describe("Chart Widget Reskinning Migration - ", () => {
     const migratedDsl = migrateChartWidgetReskinningData(
       currentDslWithoutCustomConfig as unknown as DSLWidget,
     );
+
     expect(migratedDsl).toEqual(expectedDslWithoutCustomConfig);
   });
 });

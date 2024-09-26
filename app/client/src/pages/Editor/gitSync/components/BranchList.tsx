@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import styled, { useTheme } from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -37,7 +37,7 @@ import {
   Button,
   SearchInput,
   Text,
-} from "design-system";
+} from "@appsmith/ads";
 import { get } from "lodash";
 import {
   isLocalBranch,
@@ -283,10 +283,12 @@ export default function BranchList(props: {
 
   const handleCreateNewBranch = () => {
     if (isCreatingNewBranch) return;
+
     AnalyticsUtil.logEvent("GS_CREATE_NEW_BRANCH", {
       source: "BRANCH_LIST_POPUP_FROM_BOTTOM_BAR",
     });
     const branch = searchText;
+
     setIsCreatingNewBranch(true);
     dispatch(
       createNewBranchInit({
@@ -296,6 +298,7 @@ export default function BranchList(props: {
         },
         onSuccessCallback: () => {
           setIsCreatingNewBranch(false);
+
           if (typeof props.setIsPopupOpen === "function")
             props.setIsPopupOpen(false);
         },

@@ -17,6 +17,7 @@ import { getType, Types } from "utils/TypeHelpers";
 import { FIELD_REQUIRED_ERROR, createMessage } from "ee/constants/messages";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { InputTypes } from "components/constants";
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 // This function checks if the form is dirty
 // We needed this in the cases where datasources are created from APIs and the initial value
@@ -41,6 +42,7 @@ export const getIsFormDirty = (
   if (!isFormDirty && isNewDatasource && isRestPlugin && url.length === 0) {
     return true;
   }
+
   return isFormDirty;
 };
 
@@ -54,6 +56,7 @@ export const getTrimmedData = (formData: any) => {
   if (isArrayorObject(dataType)) {
     Object.keys(formData).map((key) => {
       const valueType = getType(formData[key]);
+
       if (isArrayorObject(valueType)) {
         getTrimmedData(formData[key]);
       } else if (valueType === Types.STRING) {
@@ -61,6 +64,7 @@ export const getTrimmedData = (formData: any) => {
       }
     });
   }
+
   return formData;
 };
 
@@ -128,7 +132,9 @@ export const validate = (
     ) {
       return;
     }
+
     const fieldConfig = requiredFields[fieldConfigProperty];
+
     if (fieldConfig.controlType === "KEYVALUE_ARRAY") {
       const configProperty = (fieldConfig.configProperty as string).split(
         "[*].",
@@ -149,6 +155,7 @@ export const validate = (
           keyValueErrors[objectKeys[0]] = createMessage(FIELD_REQUIRED_ERROR);
           keyValueArrayErrors[index] = keyValueErrors;
         }
+
         if (
           !value[objectKeys[1]] ||
           (isString(value[objectKeys[1]]) && !value[objectKeys[1]].trim())
@@ -179,6 +186,7 @@ export const evaluateCondtionWithType = (
 ) => {
   if (conditions) {
     let flag;
+
     //this is where each conditions gets evaluated
     if (conditions.length > 1) {
       if (type === "AND") {
@@ -197,6 +205,7 @@ export const evaluateCondtionWithType = (
     } else {
       flag = conditions[0];
     }
+
     return flag;
   }
 };
@@ -212,12 +221,15 @@ export const isHiddenConditionsEvaluation = (
   if (!!hidden && !isBoolean(hidden)) {
     //if nested condtions are there recursively from bottom to top call this function on each condtion
     let conditionType, conditions;
+
     if ("conditionType" in hidden) {
       conditionType = hidden.conditionType;
     }
+
     if ("conditions" in hidden) {
       conditions = hidden.conditions;
     }
+
     if (Array.isArray(conditions)) {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -227,6 +239,7 @@ export const isHiddenConditionsEvaluation = (
     } else {
       return caculateIsHidden(values, hidden);
     }
+
     return evaluateCondtionWithType(conditions, conditionType);
   }
 };
@@ -242,17 +255,21 @@ export const caculateIsHidden = (
   if (!!hiddenConfig && !isBoolean(hiddenConfig)) {
     let valueAtPath;
     let value, comparison;
+
     if ("path" in hiddenConfig) {
       valueAtPath = get(values, hiddenConfig.path);
     }
+
     if ("value" in hiddenConfig) {
       value = hiddenConfig.value;
     }
+
     if ("comparison" in hiddenConfig) {
       comparison = hiddenConfig.comparison;
     }
 
     let flagValue: keyof FeatureFlags = FEATURE_FLAG.TEST_FLAG;
+
     if ("flagValue" in hiddenConfig) {
       flagValue = hiddenConfig.flagValue;
     }
@@ -302,6 +319,7 @@ export const isHidden = (
       return caculateIsHidden(values, hiddenConfig, featureFlags, viewMode);
     }
   }
+
   return !!hiddenConfig;
 };
 
@@ -329,6 +347,7 @@ export const getViewType = (values: any, configProperty: string) => {
     configProperty.endsWith(".data")
   ) {
     const pathForViewType = configProperty.replace(".data", ".viewType");
+
     return get(values, pathForViewType, ViewTypes.COMPONENT);
   } else {
     return ViewTypes.COMPONENT;
@@ -370,6 +389,7 @@ export const switchViewType = (
     );
   } else {
     changeFormValue(formName, pathForJsonData, currentData);
+
     if (!!componentData) {
       changeFormValue(formName, configProperty, componentData);
     }
@@ -420,10 +440,12 @@ export const getConfigInitialValues = (
         ) {
           return;
         }
+
         set(configInitialValues, section.configProperty, section.initialValue);
       }
     } else if (section.controlType === "WHERE_CLAUSE") {
       let logicalTypes = [];
+
       if ("logicalTypes" in section && section.logicalTypes.length > 0) {
         logicalTypes = section.logicalTypes;
       } else {
@@ -438,11 +460,13 @@ export const getConfigInitialValues = (
           },
         ];
       }
+
       set(
         configInitialValues,
         `${section.configProperty}.condition`,
         logicalTypes[0].value,
       );
+
       if (
         multipleViewTypesSupported &&
         section.configProperty.includes(".data")
@@ -459,6 +483,7 @@ export const getConfigInitialValues = (
         );
       }
     }
+
     if ("children" in section) {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -481,6 +506,7 @@ export const getConfigInitialValues = (
         section.configProperty.replace(".data", ".viewType"),
         "component",
       );
+
       if (section.configProperty in configInitialValues) {
         set(
           configInitialValues,
@@ -506,9 +532,11 @@ export const actionPathFromName = (
 ): string => {
   const ActionConfigStarts = "actionConfiguration.";
   let path = name;
+
   if (path.startsWith(ActionConfigStarts)) {
     path = "config." + path.slice(ActionConfigStarts.length);
   }
+
   return `${actionName}.${path}`;
 };
 
@@ -541,8 +569,10 @@ const extractExpressionObject = (
 ): FormConfigEvalObject => {
   const bindingPaths: FormConfigEvalObject = {};
   const expressions = config.match(DATA_BIND_REGEX_GLOBAL);
+
   if (Array.isArray(expressions) && expressions.length > 0) {
     const completePath = parentPath.length > 0 ? `${parentPath}.${path}` : path;
+
     expressions.forEach((exp) => {
       bindingPaths[completePath] = {
         expression: exp,
@@ -550,6 +580,7 @@ const extractExpressionObject = (
       };
     });
   }
+
   return bindingPaths;
 };
 
@@ -561,7 +592,9 @@ export const extractEvalConfigFromFormConfig = (
 ) => {
   paths.forEach((path: string) => {
     if (!(path in formConfig)) return;
+
     const config = get(formConfig, path, "");
+
     if (typeof config === "string") {
       bindingsFound = {
         ...bindingsFound,
@@ -591,6 +624,7 @@ export const extractConditionalOutput = (
   formEvaluationState: FormEvalOutput,
 ): ConditionalOutput => {
   let conditionalOutput: ConditionalOutput = {};
+
   if (
     section.hasOwnProperty("propertyName") &&
     formEvaluationState.hasOwnProperty(section.propertyName)
@@ -608,6 +642,7 @@ export const extractConditionalOutput = (
   ) {
     conditionalOutput = formEvaluationState[section.identifier];
   }
+
   return conditionalOutput;
 };
 
@@ -618,6 +653,7 @@ export const checkIfSectionCanRender = (
   // By default, allow the section to render. This is to allow for the case where no conditional is provided.
   // The evaluation state disallows the section to render if the condition is not met. (Checkout formEval.ts)
   let allowToRender = true;
+
   if (
     conditionalOutput.hasOwnProperty("visible") &&
     typeof conditionalOutput.visible === "boolean"
@@ -636,6 +672,7 @@ export const checkIfSectionCanRender = (
   ) {
     allowToRender = conditionalOutput.evaluateFormConfig.updateEvaluatedConfig;
   }
+
   return allowToRender;
 };
 
@@ -646,12 +683,14 @@ export const checkIfSectionIsEnabled = (
   // By default, the section is enabled. This is to allow for the case where no conditional is provided.
   // The evaluation state disables the section if the condition is not met. (Checkout formEval.ts)
   let enabled = true;
+
   if (
     conditionalOutput.hasOwnProperty("enabled") &&
     typeof conditionalOutput.enabled === "boolean"
   ) {
     enabled = conditionalOutput.enabled;
   }
+
   return enabled;
 };
 
@@ -682,8 +721,17 @@ export const updateEvaluatedSectionConfig = (
 
   // leaving the commented code as a reminder of the above observation.
   // const updatedSection = { ...section };
-  const updatedSection = klona(section);
+
+  const updatedSection = startAndEndSpanForFn(
+    "klona",
+    {
+      codeSegment: "utils.updateEvaluatedSectionConfig",
+    },
+    () => klona(section),
+  );
+
   let evaluatedConfig: FormConfigEvalObject = {};
+
   if (
     conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
     !!conditionalOutput.evaluateFormConfig &&
@@ -698,6 +746,7 @@ export const updateEvaluatedSectionConfig = (
       conditionalOutput.evaluateFormConfig.evaluateFormConfigObject;
 
     const paths = Object.keys(evaluatedConfig);
+
     paths.forEach((path: string) => {
       set(updatedSection, path, evaluatedConfig[path].output);
     });

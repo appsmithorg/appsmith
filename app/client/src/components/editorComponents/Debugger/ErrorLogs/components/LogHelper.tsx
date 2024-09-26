@@ -1,5 +1,5 @@
 import type { PluginErrorDetails } from "api/ActionAPI";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";
 import React from "react";
@@ -28,6 +28,7 @@ export default function LogHelper(props: {
       downstreamErrorCode: props.pluginErrorDetails?.downstreamErrorCode,
     });
   };
+
   return (
     <ContextWrapper
       onClick={(e) => {

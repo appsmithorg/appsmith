@@ -117,22 +117,30 @@ export function SplitButton(props: {
       $ColorCSSVar={props.colorCSSVar}
       $isLeftToggleDisabled={props.leftToggle.disable}
       $isRightToggleDisabled={props.rightToggle.disable}
+      data-testid="t--splitbutton"
     >
       {!props.leftToggle.disable && (
         <span
           aria-expanded="false"
           aria-haspopup="true"
+          data-testid="t--splitbutton-left-toggle"
           onClick={props.leftToggle.onClick}
           title={props.leftToggle.title}
         >
           <UpArrowSVG />
         </span>
       )}
-      <button onClick={props.onClick}>{props.text}</button>
+      <button
+        data-testid="t--splitbutton-clickable-button"
+        onClick={props.onClick}
+      >
+        {props.text}
+      </button>
       {!props.rightToggle.disable && (
         <span
           aria-expanded="false"
           aria-haspopup="true"
+          data-testid="t--splitbutton-right-toggle"
           onClick={props.rightToggle.onClick}
           title={props.rightToggle.title}
         >

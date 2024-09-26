@@ -2,10 +2,10 @@ import React from "react";
 import styled from "styled-components";
 import NoSearchDataImage from "assets/images/no_search_data.png";
 import { NO_SEARCH_DATA_TEXT } from "ee/constants/messages";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { isAirgapped } from "ee/utils/airgapHelpers";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import { DISCORD_URL } from "constants/ThirdPartyConstants";
 
 const DiscordIcon = importSvg(
@@ -50,6 +50,7 @@ const StyledDiscordIcon = styled(DiscordIcon)`
 
 function ResultsNotFound() {
   const isAirgappedInstance = isAirgapped();
+
   return (
     <Container>
       <img alt="No data" src={NoSearchDataImage} />

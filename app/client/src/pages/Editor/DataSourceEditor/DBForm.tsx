@@ -15,7 +15,7 @@ import type { JSONtoFormProps } from "./JSONtoForm";
 import { JSONtoForm } from "./JSONtoForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
-import { Callout } from "design-system";
+import { Callout } from "@appsmith/ads";
 import store from "store";
 
 const { cloudHosting } = getAppsmithConfigs();
@@ -53,6 +53,7 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     const plugin = appState.entities.plugins.list.find(
       (plugin) => plugin.id === this.props.datasource?.pluginId,
     );
+
     if (!!plugin)
       openDoc(DocsLink.WHITELIST_IP, plugin?.documentationLink, plugin?.name);
     else openDoc(DocsLink.WHITELIST_IP);

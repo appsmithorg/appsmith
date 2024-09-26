@@ -1,4 +1,4 @@
-import { Icon, Tooltip } from "design-system";
+import { Icon, Tooltip } from "@appsmith/ads";
 import React, { useContext } from "react";
 import { CustomWidgetBuilderContext } from "../..";
 import styles from "./styles.module.css";

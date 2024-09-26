@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import classNames from "classnames";
-import { Button, Spinner } from "design-system";
+import { Button, Spinner } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import {
   getIsDeletingNavigationLogo,

@@ -1,5 +1,5 @@
-import type { SelectOptionProps } from "design-system";
-import { Text, Option, Select } from "design-system";
+import type { SelectOptionProps } from "@appsmith/ads";
+import { Text, Option, Select } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
 import type { DropdownOnSelect } from "./SelectField";
 
@@ -43,6 +43,7 @@ function DropdownWrapper(props: DropdownWrapperProps) {
         ...selectedOption,
         option,
       ];
+
       props.input && props.input.onChange && props.input.onChange(updatedItems);
       props.onOptionSelect && props.onOptionSelect(value, updatedItems);
     } else {
@@ -59,6 +60,7 @@ function DropdownWrapper(props: DropdownWrapperProps) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (option: any) => option.value !== value,
     );
+
     props.input && props.input.onChange && props.input.onChange(updatedItems);
     props.removeSelectedOption && props.removeSelectedOption(updatedItems);
   };

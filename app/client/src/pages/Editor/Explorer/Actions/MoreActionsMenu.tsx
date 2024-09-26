@@ -25,7 +25,7 @@ import {
   MenuSubContent,
   MenuSubTrigger,
   MenuTrigger,
-} from "design-system";
+} from "@appsmith/ads";
 import { useToggle } from "@mantine/hooks";
 import { convertToPageIdSelector } from "selectors/pageListSelectors";
 

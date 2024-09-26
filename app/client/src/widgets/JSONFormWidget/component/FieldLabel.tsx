@@ -8,7 +8,7 @@ import { IconWrapper } from "constants/IconConstants";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import type { AlignWidget } from "WidgetProvider/constants";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 
 const HelpIcon = importSvg(async () => import("assets/icons/control/help.svg"));
 
@@ -124,6 +124,7 @@ function FieldLabel({
   const labelStyleProps = useMemo(() => {
     // labelStyles contains styles as comma separated values eg. "BOLD,UNDERLINE"
     const styles = labelStyle?.split(",");
+
     return {
       color: labelTextColor,
       fontSize: labelTextSize || BASE_LABEL_TEXT_SIZE,

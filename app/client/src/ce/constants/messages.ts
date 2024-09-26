@@ -364,8 +364,8 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
   `${dsName} datasource updated successfully`;
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
-export const EDIT_DATASOURCE = () => "Edit datasource";
-export const SAVE_DATASOURCE = () => "Save as datasource";
+export const EDIT_DATASOURCE = () => "Edit";
+export const SAVE_DATASOURCE = () => "Save";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
@@ -555,7 +555,9 @@ export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
 export const DEBUGGER_RESPONSE = () => "Response";
+export const DEBUGGER_HEADERS = () => "Headers";
 export const DEBUGGER_LOGS = () => "Logs";
+
 export const INSPECT_ENTITY = () => "Inspect entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
 export const VALUE_IS_INVALID = (propertyPath: string) =>
@@ -825,6 +827,7 @@ export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 export const CONFIGURE_GIT = () => "Configure Git";
 export const IMPORT_APP = () => "Import app via Git";
 export const SETTINGS_GIT = () => "Settings";
+export const IMPORT_APP_CTA = () => "Import app";
 
 export const GIT_CONNECTION = () => "Git connection";
 export const GIT_IMPORT = () => "Git import";
@@ -2500,3 +2503,11 @@ export const PAGE_ENTITY_NAME = "Page";
 
 export const EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON = () =>
   "Create a datasource to power your app with data.";
+
+export const FIELD_REQUIRED_MESSAGE = () => `This field is required`;
+
+export const PREPARED_STATEMENT_WARNING = {
+  MESSAGE: () =>
+    "Prepared Statements are currently enabled, which may be causing the query error. Turn them off and try running the query again",
+  LINK: () => "Open settings",
+};

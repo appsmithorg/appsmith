@@ -2,8 +2,8 @@
  * TODO: (Balaji) Move all the types to different file
  */
 import { IconNames } from "@blueprintjs/icons";
-import type { SpacingDimension } from "@design-system/widgets";
-import type { Responsive, SizingDimension } from "@design-system/widgets";
+import type { SpacingDimension } from "@appsmith/wds";
+import type { Responsive, SizingDimension } from "@appsmith/wds";
 import type { Theme } from "constants/DefaultTheme";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import type { WidgetTags } from "constants/WidgetConstants";
@@ -82,6 +82,7 @@ export interface AnvilConfig {
 
 export interface WidgetBaseConfiguration {
   name: string;
+  displayOrder?: number;
   iconSVG?: string;
   thumbnailSVG?: string;
   hideCard?: boolean;
@@ -242,6 +243,7 @@ const staticProps = omit(
   "topRowBeforeCollapse",
   "bottomRowBeforeCollapse",
 );
+
 export type CanvasWidgetStructure = Pick<
   WidgetProps,
   keyof typeof staticProps

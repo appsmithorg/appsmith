@@ -1,6 +1,6 @@
 import React from "react";
-import { Text, TextType } from "design-system-old";
-import { Icon, Tooltip } from "design-system";
+import { Text, TextType } from "@appsmith/ads-old";
+import { Icon, Tooltip } from "@appsmith/ads";
 import type { Datasource } from "entities/Datasource";
 import styled from "styled-components";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
@@ -50,10 +50,11 @@ const DsTitle = styled.div`
     text-overflow: ellipsis;
     padding-right: 4px;
   }
-  .cs-icon {
+  .ads-v2-icon {
     margin-left: ${(props) => props.theme.spaces[2]}px;
   }
 `;
+
 function ListItemWrapper(props: {
   currentEnvironment: string;
   ds: Datasource;
@@ -69,6 +70,7 @@ function ListItemWrapper(props: {
         currentEnvironment,
       )
     : isEnvironmentConfigured(ds, currentEnvironment);
+
   return (
     <ListItem
       className={`t--ds-list ${selected ? "active" : ""}`}

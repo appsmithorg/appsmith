@@ -7,7 +7,7 @@ import {
 } from "ee/actions/workspaceActions";
 import type { SaveWorkspaceRequest } from "ee/api/WorkspaceApi";
 import { debounce } from "lodash";
-import { Input } from "design-system";
+import { Input } from "@appsmith/ads";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getCurrentError,
@@ -15,8 +15,8 @@ import {
 } from "ee/selectors/workspaceSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import type { SetProgress, UploadCallback } from "design-system-old";
-import { FilePickerV2, FileType, Text, TextType } from "design-system-old";
+import type { SetProgress, UploadCallback } from "@appsmith/ads-old";
+import { FilePickerV2, FileType, Text, TextType } from "@appsmith/ads-old";
 import { Classes } from "@blueprintjs/core";
 import { useMediaQuery } from "react-responsive";
 import {
@@ -115,6 +115,7 @@ export function GeneralSettings() {
   const currentWorkspace = useSelector(getFetchedWorkspaces).filter(
     (el) => el.id === workspaceId,
   )[0];
+
   function saveChanges(settings: SaveWorkspaceRequest) {
     dispatch(saveWorkspace(settings));
   }
@@ -157,9 +158,11 @@ export function GeneralSettings() {
         const uploadPercentage = Math.round(
           (progressEvent.loaded / progressEvent.total) * 100,
         );
+
         if (uploadPercentage === 100) {
           onUpload(currentWorkspace.logoUrl || "");
         }
+
         setProgress(uploadPercentage);
       }
     };

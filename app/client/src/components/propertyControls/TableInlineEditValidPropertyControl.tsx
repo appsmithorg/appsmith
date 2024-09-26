@@ -28,7 +28,7 @@ const getBindingSuffix = (tableId: string, columnName: string) => {
     ))
     (
       (${tableId}.isAddRowInProgress ? ${tableId}.newRow.${columnName} : ${tableId}.columnEditableCellValue.${columnName}) || "",
-      ${tableId}.isAddRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.index] ||
+      ${tableId}.isAddRowInProgress ? ${tableId}.newRow : (${tableId}.processedTableData[${tableId}.editableCell.${ORIGINAL_INDEX_KEY}] ||
         Object.keys(${tableId}.processedTableData[0])
           .filter(key => ["${ORIGINAL_INDEX_KEY}", "${PRIMARY_COLUMN_KEY_VALUE}"].indexOf(key) === -1)
           .reduce((prev, curr) => {
@@ -41,6 +41,7 @@ const getBindingSuffix = (tableId: string, columnName: string) => {
   }}
   `;
 };
+
 class TableInlineEditValidPropertyControl extends TableInlineEditValidationControlProperty {
   render() {
     const {
@@ -63,9 +64,11 @@ class TableInlineEditValidPropertyControl extends TableInlineEditValidationContr
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentRow: { [key: string]: any } = {};
+
     Object.values(columns).forEach((column) => {
       currentRow[column.alias || column.originalId] = undefined;
     });
+
     // Load default value in evaluated value
     if (value && !propertyValue) {
       this.onTextChange(value);

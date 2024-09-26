@@ -7,7 +7,7 @@ import { isAirgapped } from "ee/utils/airgapHelpers";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { validateResponse, type ErrorActionPayload } from "./ErrorSagas";
 import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type {
   PublishCommunityTemplateRequest,
   PublishCommunityTemplateResponse,
@@ -24,7 +24,9 @@ const isAirgappedInstance = isAirgapped();
 
 function* updateUserDetails(payload: PublishCommunityTemplatePayload) {
   if (!payload.shouldUpdateEmail && !payload.shouldUpdateName) return;
+
   const request: UpdateUserRequest = {};
+
   payload.shouldUpdateEmail && (request.email = payload.authorEmail);
   payload.shouldUpdateName && (request.name = payload.authorName);
 
@@ -50,6 +52,7 @@ function* handleFailure(error: unknown) {
         createMessage(COMMUNITY_TEMPLATES.publishFormPage.publishedFailedError),
     },
   };
+
   yield put({
     type: ReduxActionErrorTypes.PUBLISH_APP_AS_COMMUNITY_TEMPLATE_ERROR,
     payload,
@@ -71,8 +74,11 @@ function* publishCommunityTemplateSaga(
       workspaceId,
       ...action.payload,
     };
+
     if ("authorName" in requestObj) delete requestObj.authorName;
+
     if ("shouldUpdateEmail" in requestObj) delete requestObj.shouldUpdateEmail;
+
     if ("shouldUpdateName" in requestObj) delete requestObj.shouldUpdateName;
 
     const response: PublishCommunityTemplateResponse = yield call(

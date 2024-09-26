@@ -3,15 +3,15 @@ import React, { forwardRef } from "react";
 import type { CommonComponentProps } from "../types/common";
 import { Classes } from "../constants/classes";
 import styled from "styled-components";
-import type { IconName } from "../Icon";
-import Icon, { IconSize } from "../Icon";
+import type { IconNames } from "@appsmith/ads";
+import { Icon } from "@appsmith/ads";
 import TooltipComponent from "../Tooltip";
 import Text, { TextType, FontWeight } from "../Text";
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import type { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
 
 export type MenuItemProps = CommonComponentProps & {
-  icon?: IconName;
+  icon?: IconNames;
   text: string;
   label?: ReactNode;
   href?: string;
@@ -85,6 +85,7 @@ const MenuItem = forwardRef(
 const MenuItemContent = forwardRef(
   (props: MenuItemProps, ref: Ref<HTMLAnchorElement>) => {
     const { onSelect } = props;
+
     return (
       <ItemRow
         className={props.className}
@@ -98,14 +99,7 @@ const MenuItemContent = forwardRef(
         type={props.type}
       >
         <IconContainer className={props.containerClassName}>
-          {props.icon ? (
-            <Icon
-              isLoading={props.isLoading}
-              loaderWithIconWrapper
-              name={props.icon}
-              size={IconSize.LARGE}
-            />
-          ) : null}
+          {props.icon ? <Icon name={props.icon} size="md" /> : null}
           {props.text && (
             <Text type={TextType.H5} weight={FontWeight.NORMAL}>
               {props.ellipsize
@@ -119,6 +113,7 @@ const MenuItemContent = forwardRef(
     );
   },
 );
+
 MenuItemContent.displayName = "MenuItemContent";
 MenuItem.displayName = "MenuItem";
 

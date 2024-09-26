@@ -66,6 +66,7 @@ function useUpdateEmbedSnippet() {
   const onChange = (setting: any) => {
     if (application) {
       const updatedSetting = { ...embedSetting, ...setting };
+
       setEmbedSetting((state) => {
         return {
           ...state,
@@ -110,15 +111,18 @@ function useUpdateEmbedSnippet() {
     const allowHidingShareSettingsInEmbedView =
       featureFlags.release_embed_hide_share_settings_enabled;
     const fullUrl = new URL(window.location.origin.toString() + url);
+
     if (embedSetting?.showNavigationBar) {
       if (allowHidingShareSettingsInEmbedView) {
         fullUrl.searchParams.append("embed", "true");
         fullUrl.searchParams.append("navbar", "true");
       }
+
       return fullUrl.toString();
     }
 
     fullUrl.searchParams.append("embed", "true");
+
     return fullUrl.toString();
   }, [defaultBasePageId, embedSetting?.showNavigationBar]);
 

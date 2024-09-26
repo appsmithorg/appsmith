@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import type { GroupedListProps } from "./types";
 import { DEFAULT_GROUP_LIST_SIZE } from "./constants";
-import { Flex, List, Text } from "design-system";
+import { Flex, List, Text } from "@appsmith/ads";
 import styled from "styled-components";
 
 interface GroupProps {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Callout } from "design-system";
+import { Callout } from "@appsmith/ads";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -19,8 +19,10 @@ import {
   createMessage,
 } from "ee/constants/messages";
 
+export const PROTECTED_CALLOUT_HEIGHT = 70;
+
 const StyledCallout = styled(Callout)`
-  height: 70px;
+  height: ${PROTECTED_CALLOUT_HEIGHT}px;
   overflow-y: hidden;
 `;
 
@@ -38,6 +40,7 @@ function ProtectedCallout() {
     const remainingBranches = protectedBranches.filter(
       (protectedBranch) => protectedBranch !== currentBranch,
     );
+
     dispatch(
       updateGitProtectedBranchesInit({
         protectedBranches: remainingBranches,

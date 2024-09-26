@@ -14,7 +14,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-} from "design-system";
+} from "@appsmith/ads";
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,
@@ -49,18 +49,21 @@ class RequestConfirmationModal extends React.Component<Props> {
 
   onConfirm = (modalInfo: ModalInfo) => {
     const { dispatch } = this.props;
+
     dispatch(acceptActionConfirmationModal(modalInfo.name));
     this.handleClose(modalInfo);
   };
 
   handleClose = (modalInfo: ModalInfo) => {
     const { dispatch } = this.props;
+
     dispatch(showActionConfirmationModal({ ...modalInfo, modalOpen: false }));
     dispatch(cancelActionConfirmationModal(modalInfo.name));
   };
 
   componentDidUpdate() {
     const { modals } = this.props;
+
     if (!!modals) {
       this.addEventListener();
     } else {

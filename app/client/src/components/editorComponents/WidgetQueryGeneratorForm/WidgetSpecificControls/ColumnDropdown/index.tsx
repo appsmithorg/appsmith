@@ -1,4 +1,4 @@
-import { Option, Select } from "design-system";
+import { Option, Select } from "@appsmith/ads";
 import type { DefaultOptionType } from "rc-select/lib/Select";
 import React, { memo } from "react";
 import { DropdownOption } from "../../CommonControls/DatasourceDropdown/DropdownOption";

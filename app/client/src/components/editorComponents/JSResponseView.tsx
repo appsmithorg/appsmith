@@ -19,7 +19,7 @@ import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import type { JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { Flex, Text } from "design-system";
+import { Flex, Text } from "@appsmith/ads";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -27,13 +27,13 @@ import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { getIsSavingEntity } from "selectors/editorSelectors";
-import { getJSResponseViewState } from "./utils";
+import { getJSResponseViewState, JSResponseState } from "./utils";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
+import { NoResponse } from "PluginActionEditor/components/PluginActionResponse/components/NoResponse";
 import {
-  NoResponse,
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
-} from "./ApiResponseView";
+} from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Log, SourceEntity } from "entities/AppsmithConsole";
@@ -45,7 +45,7 @@ import { EditorViewMode } from "ee/entities/IDE/constants";
 import ErrorLogs from "./Debugger/Errors";
 import { isBrowserExecutionAllowed } from "ee/utils/actionExecutionUtils";
 import JSRemoteExecutionView from "ee/components/JSRemoteExecutionView";
-import { IDEBottomView, ViewHideBehaviour } from "../../IDE";
+import { IDEBottomView, ViewHideBehaviour } from "IDE";
 
 const ResponseTabWrapper = styled.div`
   display: flex;
@@ -65,15 +65,6 @@ const NoReturnValueWrapper = styled.div`
   padding-left: ${(props) => props.theme.spaces[12]}px;
   padding-top: ${(props) => props.theme.spaces[6]}px;
 `;
-
-export enum JSResponseState {
-  IsExecuting = "IsExecuting",
-  IsDirty = "IsDirty",
-  IsUpdating = "IsUpdating",
-  NoResponse = "NoResponse",
-  ShowResponse = "ShowResponse",
-  NoReturnValue = "NoReturnValue",
-}
 
 interface ReduxStateProps {
   errorCount: number;
@@ -119,6 +110,7 @@ function JSResponseView(props: Props) {
   // error found while trying to parse JS Object
   const hasJSObjectParseError = errors.length > 0;
   const isSaving = useSelector(getIsSavingEntity);
+
   useEffect(() => {
     setResponseStatus(
       getJSResponseViewState(
@@ -148,8 +140,10 @@ function JSResponseView(props: Props) {
     name: "",
     id: "",
   };
+
   try {
     let errorObject: Log | undefined;
+
     //get JS execution error from redux store.
     if (
       jsCollectionData &&
@@ -166,17 +160,21 @@ function JSResponseView(props: Props) {
           )
         ) {
           errorObject = error;
+
           return false;
         }
+
         return true;
       });
     }
+
     // update error message.
     if (errorObject) {
       if (errorObject.source) {
         // update action source.
         actionSource = errorObject.source;
       }
+
       if (errorObject.messages) {
         // update error message.
         errorMessage =
@@ -222,8 +220,8 @@ function JSResponseView(props: Props) {
                   <>
                     {responseStatus === JSResponseState.NoResponse && (
                       <NoResponse
-                        isButtonDisabled={disabled}
-                        isQueryRunning={isLoading}
+                        isRunDisabled={disabled}
+                        isRunning={isLoading}
                         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
                         onRunClick={onButtonClick}
@@ -329,6 +327,7 @@ function JSResponseView(props: Props) {
 
 const mapStateToProps = (state: AppState) => {
   const errorCount = state.ui.debugger.context.errorCount;
+
   return {
     errorCount,
   };

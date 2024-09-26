@@ -1,4 +1,4 @@
-import { Flex, Icon, Text } from "design-system";
+import { Flex, Icon, Text } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 

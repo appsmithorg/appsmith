@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Button, Divider, Text, Tooltip } from "design-system";
+import { Button, Divider, Text, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -165,6 +165,7 @@ function getSuggestedNextActionAndCompletedTasks(
   isDeployed: boolean,
 ) {
   let suggestedNextAction;
+
   if (!datasources.length) {
     suggestedNextAction = createMessage(
       () => ONBOARDING_CHECKLIST_ACTIONS.CONNECT_A_DATASOURCE,
@@ -186,20 +187,25 @@ function getSuggestedNextActionAndCompletedTasks(
       () => ONBOARDING_CHECKLIST_ACTIONS.DEPLOY_APPLICATIONS,
     );
   }
+
   let completedTasks = 0;
 
   if (datasources.length) {
     completedTasks++;
   }
+
   if (actions.length) {
     completedTasks++;
   }
+
   if (Object.keys(widgets).length > 1) {
     completedTasks++;
   }
+
   if (isConnectionPresent) {
     completedTasks++;
   }
+
   if (isDeployed) {
     completedTasks++;
   }
@@ -222,6 +228,7 @@ function CheckListItem(props: {
     getSignpostingStepStateByStep(state, props.step),
   );
   const tickMarkRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (props.completed) {
       const anim = lazyLottie.loadAnimation({
@@ -231,6 +238,7 @@ function CheckListItem(props: {
         loop: false,
         autoplay: false,
       });
+
       if (!stepState?.read) {
         anim.play();
       } else {
@@ -366,7 +374,9 @@ export default function OnboardingChecklist() {
 
   const onconnectYourWidget = () => {
     const action = actions[0];
+
     dispatch(showSignpostingModal(false));
+
     if (action && applicationId && basePageId) {
       dispatch(
         bindDataOnCanvas({
@@ -378,6 +388,7 @@ export default function OnboardingChecklist() {
     } else {
       history.push(builderURL({ basePageId }));
     }
+
     AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CONNECT_WIDGET_CLICK");
   };
 
@@ -525,6 +536,7 @@ export default function OnboardingChecklist() {
             );
             // Event for datasource creation click
             const entryPoint = DatasourceCreateEntryPoints.NEW_APP_CHECKLIST;
+
             AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
               entryPoint,
             });

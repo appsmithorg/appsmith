@@ -18,12 +18,12 @@ import {
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Classes } from "design-system-old";
+import { Classes } from "@appsmith/ads-old";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { createMessage, API_PANE_NO_BODY } from "ee/constants/messages";
-import { Select, Option } from "design-system";
+import { Select, Option } from "@appsmith/ads";
 
 const PostBodyContainer = styled.div`
   display: flex;

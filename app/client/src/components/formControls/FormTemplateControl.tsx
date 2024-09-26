@@ -3,8 +3,8 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { ControlType } from "constants/PropertyControlConstants";
 import styled from "styled-components";
-import { Button, Flex } from "design-system";
-import type { ButtonProps } from "design-system";
+import { Button, Flex } from "@appsmith/ads";
+import type { ButtonProps } from "@appsmith/ads";
 import { change, getFormValues } from "redux-form";
 import { connect } from "react-redux";
 import { get, omit } from "lodash";
@@ -157,6 +157,7 @@ const mapStateToProps = (
   ownProps: FormTemplateControlProps,
 ): ReduxStateProps => {
   const formValues: Partial<Action> = getFormValues(ownProps.formName)(state);
+
   return { formValues };
 };
 

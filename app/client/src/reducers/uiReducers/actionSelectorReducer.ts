@@ -31,7 +31,9 @@ const actionSelectorReducer = createReducer(initialState, {
     action: ReduxAction<string>,
   ) => {
     const newState = { ...state };
+
     delete newState[action.payload];
+
     return newState;
   },
 });

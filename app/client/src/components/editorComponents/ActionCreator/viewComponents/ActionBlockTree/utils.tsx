@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon } from "design-system";
+import { Icon } from "@appsmith/ads";
 import { AppsmithFunction, FieldType } from "../../constants";
 import type { ActionTree } from "../../types";
 import { FIELD_GROUP_CONFIG } from "../../FieldGroup/FieldGroupConfig";
@@ -126,6 +126,7 @@ function getActionHeading(
     case AppsmithFunction.download:
       const fileName =
         FIELD_CONFIG[FieldType.DOWNLOAD_FILE_NAME_FIELD].getter(code);
+
       return fileName ? fileName : "Add data to download";
 
     case AppsmithFunction.jsFunction:

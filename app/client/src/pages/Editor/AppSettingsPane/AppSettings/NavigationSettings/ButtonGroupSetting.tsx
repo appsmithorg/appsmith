@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { TextType, Text } from "design-system-old";
-import type { SegmentedControlOption } from "design-system";
-import { SegmentedControl } from "design-system";
+import { TextType, Text } from "@appsmith/ads-old";
+import type { SegmentedControlOption } from "@appsmith/ads";
+import { SegmentedControl } from "@appsmith/ads";
 import type {
   NavigationSetting,
   StringsFromNavigationSetting,

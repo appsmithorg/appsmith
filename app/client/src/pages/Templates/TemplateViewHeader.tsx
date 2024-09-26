@@ -5,7 +5,7 @@ import {
   GO_BACK,
   createMessage,
 } from "ee/constants/messages";
-import { Button, Link, Text } from "design-system";
+import { Button, Link, Text } from "@appsmith/ads";
 import { useQuery } from "pages/Editor/utils";
 import React from "react";
 import { useSelector } from "react-redux";

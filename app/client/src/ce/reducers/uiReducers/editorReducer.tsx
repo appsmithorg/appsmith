@@ -1,8 +1,5 @@
 import { createReducer } from "utils/ReducerUtils";
-import type {
-  ReduxAction,
-  UpdateCanvasPayload,
-} from "ee/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -13,6 +10,7 @@ import type {
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { UpdatePageResponse } from "api/PageApi";
+import type { UpdateCanvasPayload } from "actions/pageActions";
 
 export const initialState: EditorReduxState = {
   widgetConfigBuilt: false,
@@ -72,6 +70,7 @@ export const handlers = {
     if (action.payload.id === state.currentPageId) {
       return { ...state, currentPageName: action.payload.name };
     }
+
     return state;
   },
   [ReduxActionTypes.FETCH_PAGE_INIT]: (state: EditorReduxState) => ({
@@ -98,6 +97,7 @@ export const handlers = {
   [ReduxActionTypes.PUBLISH_APPLICATION_INIT]: (state: EditorReduxState) => {
     state.loadingStates.publishing = true;
     state.loadingStates.publishingError = false;
+
     return { ...state };
   },
   [ReduxActionErrorTypes.PUBLISH_APPLICATION_ERROR]: (
@@ -105,26 +105,31 @@ export const handlers = {
   ) => {
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = true;
+
     return { ...state };
   },
   [ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS]: (state: EditorReduxState) => {
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = false;
     state.loadingStates.published = moment().format();
+
     return { ...state };
   },
   [ReduxActionTypes.SAVE_PAGE_INIT]: (state: EditorReduxState) => {
     state.loadingStates.saving = true;
     state.loadingStates.savingError = false;
+
     return { ...state };
   },
   [ReduxActionTypes.SAVE_PAGE_SUCCESS]: (state: EditorReduxState) => {
     state.loadingStates.saving = false;
+
     return { ...state };
   },
   [ReduxActionErrorTypes.SAVE_PAGE_ERROR]: (state: EditorReduxState) => {
     state.loadingStates.saving = false;
     state.loadingStates.savingError = true;
+
     return { ...state };
   },
   [ReduxActionTypes.SET_LAST_UPDATED_TIME]: (
@@ -146,8 +151,10 @@ export const handlers = {
       pageActions,
       pageWidgetId,
     } = action.payload;
+
     state.loadingStates.publishing = false;
     state.loadingStates.publishingError = false;
+
     return {
       ...state,
       currentPageName,
@@ -162,39 +169,47 @@ export const handlers = {
   [ReduxActionTypes.CLONE_PAGE_INIT]: (state: EditorReduxState) => {
     state.loadingStates.cloningPage = true;
     state.loadingStates.cloningPageError = false;
+
     return { ...state };
   },
   [ReduxActionErrorTypes.CLONE_PAGE_ERROR]: (state: EditorReduxState) => {
     state.loadingStates.cloningPageError = true;
     state.loadingStates.cloningPage = false;
+
     return { ...state };
   },
   [ReduxActionTypes.CLONE_PAGE_SUCCESS]: (state: EditorReduxState) => {
     state.loadingStates.cloningPage = false;
+
     return { ...state };
   },
   [ReduxActionTypes.CREATE_PAGE_INIT]: (state: EditorReduxState) => {
     state.loadingStates.creatingPage = true;
     state.loadingStates.creatingPageError = false;
+
     return { ...state };
   },
   [ReduxActionErrorTypes.CREATE_PAGE_ERROR]: (state: EditorReduxState) => {
     state.loadingStates.creatingPageError = true;
     state.loadingStates.creatingPage = false;
+
     return { ...state };
   },
   [ReduxActionTypes.CREATE_PAGE_SUCCESS]: (state: EditorReduxState) => {
     state.loadingStates.creatingPage = false;
+
     return { ...state };
   },
   [ReduxActionTypes.UPDATE_WIDGET_NAME_INIT]: (state: EditorReduxState) => {
     state.loadingStates.updatingWidgetName = true;
     state.loadingStates.updateWidgetNameError = false;
+
     return { ...state };
   },
   [ReduxActionTypes.UPDATE_WIDGET_NAME_SUCCESS]: (state: EditorReduxState) => {
     state.loadingStates.updatingWidgetName = false;
     state.loadingStates.updateWidgetNameError = false;
+
     return { ...state };
   },
   [ReduxActionErrorTypes.UPDATE_WIDGET_NAME_ERROR]: (
@@ -202,6 +217,7 @@ export const handlers = {
   ) => {
     state.loadingStates.updatingWidgetName = false;
     state.loadingStates.updateWidgetNameError = true;
+
     return { ...state };
   },
   [ReduxActionTypes.SET_SNIPING_MODE]: (

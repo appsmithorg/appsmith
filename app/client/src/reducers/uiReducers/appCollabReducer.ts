@@ -45,7 +45,9 @@ const appCollabReducer = createReducer(initialState, {
     action: ReduxAction<any>,
   ) => {
     const clonedPointerData = cloneDeep(state.pointerData);
+
     delete clonedPointerData[action.payload];
+
     return {
       ...state,
       clonedPointerData,

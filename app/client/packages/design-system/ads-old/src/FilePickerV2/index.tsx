@@ -3,18 +3,17 @@ import styled from "styled-components";
 import type { DropTargetMonitor } from "react-dnd";
 import { DndProvider, useDrop } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
-import Button, { Category, IconPositions, Size } from "../Button";
-import type { IconName } from "../Icon";
-import Icon, { IconSize } from "../Icon";
+import { Button } from "@appsmith/ads";
+import type { IconNames } from "@appsmith/ads";
+import { Icon } from "@appsmith/ads";
 import Text, { TextType } from "../Text";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import TooltipComponent from "../Tooltip";
 import {
   createMessage,
   ERROR_FILE_TOO_LARGE,
   REMOVE_FILE_TOOL_TIP,
 } from "../constants/messages";
-import { Classes } from "../constants/classes";
 import { importSvg } from "../utils/icon-loadables";
 
 const UploadSuccessIcon = importSvg(
@@ -51,7 +50,7 @@ export interface FilePickerProps {
   logoUploadError?: string;
   fileType: FileType;
   delayedUpload?: boolean;
-  uploadIcon?: IconName;
+  uploadIcon?: IconNames;
   title?: string;
   description?: string;
   containerClickable?: boolean; // when container is clicked, it'll work as button
@@ -172,20 +171,10 @@ export const ContainerDiv = styled.div<{
       bottom: 0;
       border-radius: 0 0 var(--ads-v2-border-radius) var(--ads-v2-border-radius);
     }
-    a {
+    .ads-v2-button {
       width: 110px;
       margin: var(--ads-spaces-13) var(--ads-spaces-3) var(--ads-spaces-3) auto;
-      color: var(--ads-v2-color-fg);
-      border-radius: var(--ads-v2-border-radius);
-      border-color: var(--ads-v2-color-border);
-      text-transform: capitalize;
-      background: var(--ads-v2-color-bg);
-      .${Classes.ICON} {
-        margin-right: calc(var(--ads-spaces-2) - 1px);
-      }
-      &:hover {
-        background: var(--ads-v2-color-bg-subtle);
-      }
+      display: flex;
     }
   }
 
@@ -262,6 +251,7 @@ function FilePickerComponent(props: FilePickerProps) {
 
   function ButtonClick(event: React.MouseEvent<HTMLElement>) {
     event.preventDefault();
+
     if (inputRef.current) {
       inputRef.current.click();
     }
@@ -270,9 +260,11 @@ function FilePickerComponent(props: FilePickerProps) {
   function onDrop(monitor: DropTargetMonitor) {
     if (monitor) {
       const files = monitor.getItem().files;
+
       if (!files) {
         return;
       }
+
       handleFileUpload(files);
     }
   }
@@ -281,8 +273,10 @@ function FilePickerComponent(props: FilePickerProps) {
     if (progressRef.current) {
       progressRef.current.style.width = `${uploadPercentage}%`;
     }
+
     if (uploadPercentage === 100) {
       setIsUploaded(true);
+
       if (fileDescRef.current && bgRef.current && fileType === FileType.IMAGE) {
         fileDescRef.current.style.display = "none";
         bgRef.current.style.opacity = "1";
@@ -305,21 +299,27 @@ function FilePickerComponent(props: FilePickerProps) {
   function handleOtherFileUpload(files: FileList | null) {
     const file = files && files[0];
     let fileSize = 0;
+
     if (!file) {
       return;
     }
+
     fileSize = Math.floor(file.size / 1024);
     setFileInfo({ name: file.name, size: fileSize });
+
     if (props.delayedUpload) {
       setIsUploaded(true);
       setProgress(100);
     }
+
     if (fileDescRef.current) {
       fileDescRef.current.style.display = "flex";
     }
+
     if (fileContainerRef.current) {
       fileContainerRef.current.style.display = "none";
     }
+
     fileUploader && fileUploader(file, setProgress, onUpload);
   }
 
@@ -330,6 +330,7 @@ function FilePickerComponent(props: FilePickerProps) {
     if (!file) {
       return;
     }
+
     fileSize = Math.floor(file.size / 1024);
     setFileInfo({ name: file.name, size: fileSize });
 
@@ -340,9 +341,11 @@ function FilePickerComponent(props: FilePickerProps) {
         )})`;
         bgRef.current.style.opacity = "0.5";
       }
+
       if (fileDescRef.current) {
         fileDescRef.current.style.display = "block";
       }
+
       if (fileContainerRef.current) {
         fileContainerRef.current.style.display = "none";
       }
@@ -359,13 +362,17 @@ function FilePickerComponent(props: FilePickerProps) {
   function removeFile() {
     if (fileContainerRef.current) {
       setFileUrl("");
+
       if (fileDescRef.current) {
         fileDescRef.current.style.display = "none";
       }
+
       fileContainerRef.current.style.display = "flex";
+
       if (bgRef.current) {
         bgRef.current.style.backgroundImage = "url('')";
       }
+
       setIsUploaded(false);
       onFileRemoved && onFileRemoved();
     }
@@ -376,6 +383,7 @@ function FilePickerComponent(props: FilePickerProps) {
   useEffect(() => {
     if (props.url) {
       const urlKeys = props.url.split("/");
+
       if (urlKeys[urlKeys.length - 1] !== "null") {
         setFileUrl(props.url);
       } else {
@@ -388,13 +396,16 @@ function FilePickerComponent(props: FilePickerProps) {
   useEffect(() => {
     if (fileUrl && !isUploaded && fileType === FileType.IMAGE) {
       setIsUploaded(true);
+
       if (bgRef.current) {
         bgRef.current.style.backgroundImage = `url(${fileUrl})`;
         bgRef.current.style.opacity = "1";
       }
+
       if (fileDescRef.current) {
         fileDescRef.current.style.display = "none";
       }
+
       if (fileContainerRef.current) {
         fileContainerRef.current.style.display = "none";
       }
@@ -407,7 +418,7 @@ function FilePickerComponent(props: FilePickerProps) {
     <div className="button-wrapper" ref={fileContainerRef}>
       <UploadIconWrapper>
         <Icon
-          fillColor={
+          color={
             props.iconFillColor ||
             "var(--ads-file-picker-v2-upload-icon-fill-color)"
           }
@@ -434,12 +445,13 @@ function FilePickerComponent(props: FilePickerProps) {
         />
         {!props.containerClickable && (
           <Button
-            category={Category.secondary}
             className="browse-button"
+            kind="secondary"
             onClick={(el: React.MouseEvent<HTMLElement>) => ButtonClick(el)}
-            size={Size.medium}
-            text="Browse"
-          />
+            size="sm"
+          >
+            Browse
+          </Button>
         )}
       </form>
     </div>
@@ -466,13 +478,14 @@ function FilePickerComponent(props: FilePickerProps) {
       <div className="remove-button">
         <div className="overlay" />
         <Button
-          category={Category.secondary}
-          icon="delete"
-          iconPosition={IconPositions.left}
+          data-testid="t--remove-logo"
+          kind="secondary"
           onClick={() => removeFile()}
-          size={Size.medium}
-          text="Remove"
-        />
+          size="sm"
+          startIcon="delete"
+        >
+          Remove
+        </Button>
       </div>
     </>
   );
@@ -493,7 +506,7 @@ function FilePickerComponent(props: FilePickerProps) {
           </Text>
           <TooltipComponent content={REMOVE_FILE_TOOL_TIP()} position="top">
             <IconWrapper className="icon-wrapper" onClick={() => removeFile()}>
-              <Icon name="close" size={IconSize.XL} />
+              <Icon name="close" size="lg" />
             </IconWrapper>
           </TooltipComponent>
         </div>

@@ -4,11 +4,11 @@ import { useSelector } from "react-redux";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { createMessage, NO_USERS_INVITED } from "ee/constants/messages";
 import { isPermitted, PERMISSION_TYPE } from "ee/utils/permissionHelpers";
-import { Avatar, Icon, Spinner, Text, Tooltip } from "design-system";
+import { Avatar, Icon, Spinner, Text, Tooltip } from "@appsmith/ads";
 import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import { importSvg } from "design-system-old";
+import { importSvg } from "@appsmith/ads-old";
 import type { WorkspaceUserRoles } from "ee/constants/workspaceConstants";
 import InviteUsersForm from "ee/pages/workspace/InviteUsersForm";
 import { ENTITY_TYPE } from "ee/constants/workspaceConstants";
@@ -168,6 +168,7 @@ function WorkspaceInviteUsers(props: any) {
                     ? user.roles?.[0]?.entityType === ENTITY_TYPE.APPLICATION
                     : user.roles?.[0]?.entityType === ENTITY_TYPE.WORKSPACE) &&
                   user.roles?.[0]?.id;
+
                 return showUser ? (
                   <User
                     key={user?.userGroupId ? user.userGroupId : user.username}

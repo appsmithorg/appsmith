@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ImageInput } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/ImageInput";
-import { Text } from "design-system";
+import { Text } from "@appsmith/ads";
 import { createMessage, APP_NAVIGATION_SETTING } from "ee/constants/messages";
 import type { UpdateSetting } from "pages/Editor/AppSettingsPane/AppSettings/NavigationSettings";
 import { useDispatch, useSelector } from "react-redux";
@@ -35,16 +35,20 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
   useEffect(() => {
     if (logoAssetId?.length) {
       setLogoUrl(`/api/v1/assets/${logoAssetId}`);
+
       return;
     } else if (cloudHosting) {
       setLogoUrl(null);
+
       return;
     } else if (!cloudHosting && tenantConfig?.brandLogoUrl) {
       setLogoUrl(tenantConfig.brandLogoUrl);
+
       return;
     }
 
     setLogoUrl(null);
+
     return;
   }, [logoAssetId, tenantConfig, cloudHosting]);
 

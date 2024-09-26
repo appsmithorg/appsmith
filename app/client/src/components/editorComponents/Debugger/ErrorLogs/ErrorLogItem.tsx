@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import styled from "styled-components";
-import { Classes, getTypographyByKey } from "design-system-old";
+import { Classes, getTypographyByKey } from "@appsmith/ads-old";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import LogCollapseData from "./components/LogCollapseData";
@@ -15,7 +15,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import moment from "moment";
 import LogHelper from "./components/LogHelper";
 import { toggleExpandErrorLogItem } from "actions/debuggerActions";
-import { Button, Icon } from "design-system";
+import { Button, Icon } from "@appsmith/ads";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -133,11 +133,14 @@ export const getUpdateTimestamp = (state?: Record<string, any>) => {
   if (state) {
     //clone state to avoid mutating the original state.
     const copyState = JSON.parse(JSON.stringify(state));
+
     copyState.requestedAt = moment(copyState.requestedAt).format(
       "YYYY-MM-DD HH:mm:ss",
     );
+
     return copyState;
   }
+
   return state;
 };
 
@@ -204,6 +207,7 @@ const ErrorLogItem = (props: LogItemProps) => {
           downstreamErrorCode: props.pluginErrorDetails?.downstreamErrorCode,
         });
       }
+
       //update to redux store
       dispatch(toggleExpandErrorLogItem(props.id, !props.isExpanded));
     }

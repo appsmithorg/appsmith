@@ -10,12 +10,13 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import * as log from "loglevel";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
+
   if (view) {
     for (const template of view) {
       //TODO(abhinav): Can we keep rows and size mandatory?
@@ -48,6 +49,7 @@ export function* buildWidgetBlueprint(
     blueprint.view,
     widgetId,
   );
+
   return widgetProps;
 }
 
@@ -107,6 +109,7 @@ export function* executeWidgetBlueprintOperations(
   widgetId: string,
 ) {
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+
   operations.forEach((operation: BlueprintOperation) => {
     const widget: WidgetProps & { children?: string[] | WidgetProps[] } = {
       ...widgets[widgetId],
@@ -119,6 +122,7 @@ export function* executeWidgetBlueprintOperations(
             (childId: string) => widgets[childId],
           ) as WidgetProps[];
         }
+
         const updatePropertyPayloads: UpdatePropertyArgs[] | undefined = (
           operation.fn as BlueprintOperationModifyPropsFn
         )(
@@ -127,6 +131,7 @@ export function* executeWidgetBlueprintOperations(
           get(widgets, widget.parentId || "", undefined),
           layoutSystemType,
         );
+
         updatePropertyPayloads &&
           updatePropertyPayloads.forEach((params: UpdatePropertyArgs) => {
             widgets[params.widgetId][params.propertyName] =
@@ -137,6 +142,7 @@ export function* executeWidgetBlueprintOperations(
   });
 
   const result: { [widgetId: string]: FlattenedWidgetProps } = yield widgets;
+
   return result;
 }
 
@@ -177,6 +183,7 @@ export function* executeWidgetBlueprintChildOperations(
     ({ message: currMessage, widgets } = (
       operation.fn as BlueprintOperationChildOperationsFn
     )(widgets, widgetId, parentId, widgetPropertyMaps, layoutSystemType));
+
     //set message if one of the widget has any message to show
     if (currMessage) message = currMessage;
   }

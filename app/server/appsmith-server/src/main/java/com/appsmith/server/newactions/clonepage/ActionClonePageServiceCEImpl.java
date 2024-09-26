@@ -12,6 +12,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -33,6 +34,14 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
                     actionDTO.setBranchName(clonePageMetaDTO.getBranchName());
 
                     actionDTO.setPageId(clonePageMetaDTO.getClonedPageDTO().getId());
+
+                    boolean isJsAction = StringUtils.hasLength(actionDTO.getCollectionId());
+
+                    if (isJsAction) {
+                        String newCollectionId =
+                                clonePageMetaDTO.getOldToNewCollectionIds().get(actionDTO.getCollectionId());
+                        actionDTO.setCollectionId(newCollectionId);
+                    }
                     /*
                      * - Now create the new action from the template of the source action.
                      * - Use CLONE_PAGE context to make sure that page / application clone quirks are
@@ -45,7 +54,7 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
                     // Indicates that source of action creation is clone page action
                     cloneActionDTO.setSource(ActionCreationSourceTypeEnum.CLONE_PAGE);
                     copyNestedNonNullProperties(actionDTO, cloneActionDTO);
-                    return layoutActionService.createAction(cloneActionDTO, eventContext, Boolean.FALSE);
+                    return layoutActionService.createAction(cloneActionDTO, eventContext, isJsAction);
                 })
                 .then();
     }

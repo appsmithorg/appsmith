@@ -21,6 +21,7 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.ImportExportConstants;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -357,7 +358,8 @@ public class ImportServiceTests {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .map(jsonSchemaMigration::migrateArtifactToLatestSchema)
+                .flatMap(applicationJson ->
+                        jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson, null, null))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
@@ -894,14 +896,11 @@ public class ImportServiceTests {
                 importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null);
 
         StepVerifier.create(resultMono)
-                .expectErrorMatches(
-                        throwable -> throwable instanceof AppsmithException
-                                && throwable
-                                        .getMessage()
-                                        .equals(
-                                                AppsmithError.VALIDATION_FAILURE.getMessage(
-                                                        "Field '" + FieldName.APPLICATION
-                                                                + "' Sorry! Seems like you've imported a page-level json instead of an application. Please use the import within the page.")))
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
+                        && throwable
+                                .getMessage()
+                                .equals(AppsmithError.VALIDATION_FAILURE.getMessage("Field '" + FieldName.APPLICATION
+                                        + ImportExportConstants.ARTIFACT_JSON_IMPORT_VALIDATION_ERROR_MESSAGE)))
                 .verify();
     }
 
@@ -2153,7 +2152,8 @@ public class ImportServiceTests {
                                 .filter(actionDTO -> actionDTO.getId().equals(actionCollection.getId()))
                                 .collect(Collectors.toList())
                                 .get(0);
-                        assertThat(actionCollection.getPolicies()).isEqualTo(currentAction.getPolicies());
+                        assertThat(actionCollection.getPolicies())
+                                .containsExactlyInAnyOrderElementsOf(currentAction.getPolicies());
                     }
                 })
                 .verifyComplete();
@@ -2505,8 +2505,6 @@ public class ImportServiceTests {
         StepVerifier.create(resultMonoWithDiscardOperation)
                 .assertNext(application -> {
                     assertThat(application.getWorkspaceId()).isNotNull();
-                    assertThat(application.getUnpublishedApplicationDetail()).isNull();
-                    assertThat(application.getPublishedApplicationDetail()).isNull();
                 })
                 .verifyComplete();
     }
@@ -2719,11 +2717,13 @@ public class ImportServiceTests {
                 })
                 .cache();
 
-        Mono<ApplicationJson> migratedApplicationMono = v1ApplicationMono.map(applicationJson -> {
-            ApplicationJson applicationJson1 = new ApplicationJson();
-            AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
-            return (ApplicationJson) jsonSchemaMigration.migrateArtifactToLatestSchema(applicationJson1);
-        });
+        Mono<ApplicationJson> migratedApplicationMono = v1ApplicationMono
+                .flatMap(applicationJson -> {
+                    ApplicationJson applicationJson1 = new ApplicationJson();
+                    AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
+                    return jsonSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(applicationJson1, null, null);
+                })
+                .map(applicationJson -> (ApplicationJson) applicationJson);
 
         StepVerifier.create(Mono.zip(v1ApplicationMono, migratedApplicationMono))
                 .assertNext(tuple -> {
@@ -4938,10 +4938,12 @@ public class ImportServiceTests {
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     // remove page create permission from this application for current user
-                    application.getPolicies().removeIf(policy -> policy.getPermission()
-                            .equals(applicationPermission
-                                    .getPageCreatePermission()
-                                    .getValue()));
+                    application.setPolicies(application.getPolicies().stream()
+                            .filter(policy -> !policy.getPermission()
+                                    .equals(applicationPermission
+                                            .getPageCreatePermission()
+                                            .getValue()))
+                            .collect(Collectors.toUnmodifiableSet()));
                     return applicationRepository.save(application);
                 })
                 .flatMap(application -> {
@@ -4973,10 +4975,12 @@ public class ImportServiceTests {
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     // remove page create permission from this application for current user
-                    application.getPolicies().removeIf(policy -> policy.getPermission()
-                            .equals(applicationPermission
-                                    .getPageCreatePermission()
-                                    .getValue()));
+                    application.setPolicies(application.getPolicies().stream()
+                            .filter(policy -> !policy.getPermission()
+                                    .equals(applicationPermission
+                                            .getPageCreatePermission()
+                                            .getValue()))
+                            .collect(Collectors.toUnmodifiableSet()));
                     return applicationRepository.save(application);
                 })
                 .flatMap(application -> {

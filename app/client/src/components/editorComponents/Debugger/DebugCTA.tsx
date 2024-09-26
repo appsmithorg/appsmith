@@ -4,12 +4,12 @@ import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getTypographyByKey } from "design-system-old";
+import { getTypographyByKey } from "@appsmith/ads-old";
 import type { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
-import { Button } from "design-system";
+import { Button } from "@appsmith/ads";
 
 const EVDebugButton = styled(Button)`
   ${getTypographyByKey("btnSmall")};

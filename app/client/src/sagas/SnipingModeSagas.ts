@@ -20,7 +20,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { setSnipingMode } from "actions/propertyPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { toast } from "design-system";
+import { toast } from "@appsmith/ads";
 import type { PropertyUpdates } from "WidgetProvider/constants";
 import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
 import { getModuleInstanceById } from "ee/selectors/moduleInstanceSelectors";
@@ -52,13 +52,17 @@ export function* bindDataToWidgetSaga(
     toast.show(SNIPING_SELECT_WIDGET_AGAIN(), {
       kind: "warning",
     });
+
     return;
   }
+
   const { widgetId } = action.payload;
 
   let isValidProperty = true;
+
   // Pranav has an Open PR for this file so just returning for now
   if (!actionName) return;
+
   const { getSnipingModeUpdates } = WidgetFactory.getWidgetMethods(
     selectedWidget.type,
   );
@@ -98,6 +102,7 @@ export function* bindDataToWidgetSaga(
     const updatesMap: Record<string, string> = updates?.reduce(
       (acc: Record<string, string>, update) => {
         acc[update.propertyPath] = update.propertyValue as string;
+
         return acc;
       },
       {},

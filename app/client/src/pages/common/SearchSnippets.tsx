@@ -1,6 +1,6 @@
 import React from "react";
 import { createMessage, SNIPPET_TOOLTIP } from "ee/constants/messages";
-import { Button, Tooltip } from "design-system";
+import { Button, Tooltip } from "@appsmith/ads";
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",

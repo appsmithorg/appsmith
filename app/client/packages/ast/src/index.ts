@@ -267,6 +267,7 @@ const isFunctionDeclaration = (node: Node): node is FunctionDeclarationNode => {
 const isFunctionExpression = (node: Node): node is FunctionExpressionNode => {
   return node.type === NodeTypes.FunctionExpression;
 };
+
 export const isArrowFunctionExpression = (
   node: Node,
 ): node is ArrowFunctionExpressionNode => {
@@ -361,6 +362,7 @@ export const wrapCode = (code: string) => {
 //Used slice for a quick resolve of critical bug
 const unwrapCode = (code: string) => {
   const unwrapedCode = code.slice(32);
+
   return unwrapedCode.slice(0, -10);
 };
 
@@ -399,6 +401,7 @@ export interface IdentifierInfo {
   references: string[];
   functionalParams: string[];
   variables: string[];
+  isError: boolean;
 }
 export const extractIdentifierInfoFromCode = (
   code: string,
@@ -406,6 +409,7 @@ export const extractIdentifierInfoFromCode = (
   invalidIdentifiers?: Record<string, unknown>,
 ): IdentifierInfo => {
   let ast: Node = { end: 0, start: 0, type: "" };
+
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
     /* wrapCode - Wrapping code in a function, since all code/script get wrapped with a function during evaluation.
@@ -418,6 +422,7 @@ export const extractIdentifierInfoFromCode = (
       let result = function() { return 123; }() -> is valid
     */
     const wrappedCode = wrapCode(sanitizedScript);
+
     ast = getAST(wrappedCode);
     const { functionalParams, references, variableDeclarations }: NodeList =
       ancestorWalk(ast);
@@ -425,16 +430,19 @@ export const extractIdentifierInfoFromCode = (
       // To remove references derived from declared variables and function params,
       // We extract the topLevelIdentifier Eg. Api1.name => Api1
       const topLevelIdentifier = toPath(reference)[0];
+
       return !(
         functionalParams.has(topLevelIdentifier) ||
         variableDeclarations.has(topLevelIdentifier) ||
         has(invalidIdentifiers, topLevelIdentifier)
       );
     });
+
     return {
       references: referencesArr,
       functionalParams: Array.from(functionalParams),
       variables: Array.from(variableDeclarations),
+      isError: false,
     };
   } catch (e) {
     if (e instanceof SyntaxError) {
@@ -443,8 +451,10 @@ export const extractIdentifierInfoFromCode = (
         references: [],
         functionalParams: [],
         variables: [],
+        isError: true,
       };
     }
+
     throw e;
   }
 };
@@ -462,6 +472,7 @@ export const entityRefactorFromCode = (
   //If script is a JSObject then replace export default to decalartion.
   if (isJSObject) script = jsObjectToCode(script);
   else script = wrapCode(script);
+
   let ast: Node = { end: 0, start: 0, type: "" };
   //Copy of script to refactor
   let refactorScript = script;
@@ -471,6 +482,7 @@ export const entityRefactorFromCode = (
   let refactorOffset = 0;
   //Count of refactors on the script
   let refactorCount = 0;
+
   try {
     ast = getAST(script);
     const {
@@ -488,16 +500,19 @@ export const entityRefactorFromCode = (
       // To remove references derived from declared variables and function params,
       // We extract the topLevelIdentifier Eg. Api1.name => Api1
       const topLevelIdentifier = toPath(reference)[0];
+
       return !(
         functionalParams.has(topLevelIdentifier) ||
         variableDeclarations.has(topLevelIdentifier) ||
         has(invalidIdentifiers, topLevelIdentifier)
       );
     });
+
     //Traverse through all identifiers in the script
     identifierArray.forEach((identifier) => {
       if (identifier.name === oldNameArr[0]) {
         let index = 0;
+
         while (index < referencesArr.length) {
           if (identifier.name === referencesArr[index].split(".")[0]) {
             //Replace the oldName by newName
@@ -515,12 +530,14 @@ export const entityRefactorFromCode = (
               oldNameArr.length > 1 &&
               propertyNode &&
               oldNameArr[1] === propertyNode.name;
+
             //Condition to validate if Identifier || Property should be updated??
             if (oldNameArr.length === 1 || propertyCondFlag) {
               //Condition to extend end index in case of property match
               if (propertyCondFlag && propertyNode) {
                 endIndex = propertyNode.end;
               }
+
               refactorScript =
                 refactorScript.substring(0, identifier.start + refactorOffset) +
                 newName +
@@ -531,13 +548,16 @@ export const entityRefactorFromCode = (
               break;
             }
           }
+
           index++;
         }
       }
     });
+
     //If script is a JSObject then revert decalartion to export default.
     if (isJSObject) refactorScript = jsCodeToObject(refactorScript);
     else refactorScript = unwrapCode(refactorScript);
+
     return {
       isSuccess: true,
       body: { script: refactorScript, refactorCount },
@@ -547,6 +567,7 @@ export const entityRefactorFromCode = (
       // Syntax error. Ignore and return empty list
       return { isSuccess: false, body: { error: "Syntax Error" } };
     }
+
     throw e;
   }
 };
@@ -565,6 +586,7 @@ export const getFunctionalParamsFromNode = (
   code = "",
 ): Set<functionParam> => {
   const functionalParams = new Set<functionParam>();
+
   node.params.forEach((paramNode) => {
     if (isIdentifierNode(paramNode)) {
       functionalParams.add({
@@ -574,6 +596,7 @@ export const getFunctionalParamsFromNode = (
     } else if (isAssignmentPatternNode(paramNode)) {
       if (isIdentifierNode(paramNode.left)) {
         const paramName = paramNode.left.name;
+
         if (!needValue || !code) {
           functionalParams.add({ paramName, defaultValue: undefined });
         } else {
@@ -586,6 +609,7 @@ export const getFunctionalParamsFromNode = (
             typeof paramNode.right.value === "string"
               ? paramNode.right.value
               : `{{${defaultValueInString}}}`;
+
           functionalParams.add({
             paramName,
             defaultValue,
@@ -621,6 +645,7 @@ export const getFunctionalParamsFromNode = (
       }
     }
   });
+
   return functionalParams;
 };
 
@@ -629,11 +654,13 @@ const constructFinalMemberExpIdentifier = (
   child = "",
 ): string => {
   const propertyAccessor = getPropertyAccessor(node.property);
+
   if (isIdentifierNode(node.object)) {
     return `${node.object.name}${propertyAccessor}${child}`;
   } else {
     const propertyAccessor = getPropertyAccessor(node.property);
     const nestedChild = `${propertyAccessor}${child}`;
+
     return constructFinalMemberExpIdentifier(
       node.object as MemberExpressionNode,
       nestedChild,
@@ -726,9 +753,11 @@ export const extractExpressionsFromCode = (
   const variableDeclarations = new Set<string>();
   let functionalParams = new Set<string>();
   let ast: Node = { end: 0, start: 0, type: "" };
+
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
     const wrappedCode = wrapCode(sanitizedScript);
+
     ast = getAST(wrappedCode, { locations: true });
   } catch (e) {
     if (e instanceof SyntaxError) {
@@ -740,6 +769,7 @@ export const extractExpressionsFromCode = (
         memberCallExpressionData: [],
       };
     }
+
     throw e;
   }
   simple(ast, {
@@ -749,7 +779,9 @@ export const extractExpressionsFromCode = (
       // We are only interested in top-level MemberExpression nodes
       // Eg. for Api1.data.name, we are only interested in Api1.data
       if (!isIdentifierNode(object)) return;
+
       if (!(object.name in data) || !isTrueObject(data[object.name])) return;
+
       // For computed member expressions (assessed via [], eg. JSObject1["name"] ),
       // We are only interested in strings
       if (
@@ -762,6 +794,7 @@ export const extractExpressionsFromCode = (
           property,
         } as MemberExpressionData);
       }
+
       // We ignore computed member expressions if property is an identifier (JSObject[name])
       // This is because we can't statically determine what the value of the identifier might be.
       if (
@@ -782,6 +815,7 @@ export const extractExpressionsFromCode = (
     },
     FunctionDeclaration(node: Node) {
       if (!isFunctionDeclaration(node)) return;
+
       functionalParams = new Set([
         ...functionalParams,
         ...getFunctionalParamNamesFromNode(node),
@@ -789,6 +823,7 @@ export const extractExpressionsFromCode = (
     },
     FunctionExpression(node: Node) {
       if (!isFunctionExpression(node)) return;
+
       functionalParams = new Set([
         ...functionalParams,
         ...getFunctionalParamNamesFromNode(node),
@@ -796,6 +831,7 @@ export const extractExpressionsFromCode = (
     },
     ArrowFunctionExpression(node: Node) {
       if (!isArrowFunctionExpression(node)) return;
+
       functionalParams = new Set([
         ...functionalParams,
         ...getFunctionalParamNamesFromNode(node),
@@ -882,8 +918,10 @@ const ancestorWalk = (ast: Node): NodeList => {
       let candidateTopLevelNode: IdentifierNode | MemberExpressionNode =
         node as IdentifierNode;
       let depth = ancestors.length - 2; // start "depth" with first parent
+
       while (depth > 0) {
         const parent = ancestors[depth];
+
         if (
           isMemberExpressionNode(parent) &&
           /* Member expressions that are "computed" (with [ ] search)
@@ -904,15 +942,18 @@ const ancestorWalk = (ast: Node): NodeList => {
           break;
         }
       }
+
       //If parent is a Member expression then attach property to the Node.
       //else push Identifier Node.
       const parentNode = ancestors[ancestors.length - 2];
+
       if (isMemberExpressionNode(parentNode)) {
         identifierList.push({
           ...(node as IdentifierNode),
           property: parentNode.property as IdentifierNode,
         });
       } else identifierList.push(node as RefactorIdentifierNode);
+
       if (isIdentifierNode(candidateTopLevelNode)) {
         // If the node is an Identifier, just save that
         references.add(candidateTopLevelNode.name);
@@ -922,6 +963,7 @@ const ancestorWalk = (ast: Node): NodeList => {
         const memberExpIdentifier = constructFinalMemberExpIdentifier(
           candidateTopLevelNode,
         );
+
         references.add(memberExpIdentifier);
       }
     },
@@ -936,6 +978,7 @@ const ancestorWalk = (ast: Node): NodeList => {
       // params in function declarations are also counted as references so we keep
       // track of them and remove them from the final list of references
       if (!isFunctionDeclaration(node)) return;
+
       functionalParams = new Set([
         ...functionalParams,
         ...getFunctionalParamNamesFromNode(node),
@@ -945,6 +988,7 @@ const ancestorWalk = (ast: Node): NodeList => {
       // params in function expressions are also counted as references so we keep
       // track of them and remove them from the final list of references
       if (!isFunctionExpression(node)) return;
+
       functionalParams = new Set([
         ...functionalParams,
         ...getFunctionalParamNamesFromNode(node),
@@ -954,12 +998,14 @@ const ancestorWalk = (ast: Node): NodeList => {
       // params in arrow function expressions are also counted as references so we keep
       // track of them and remove them from the final list of references
       if (!isArrowFunctionExpression(node)) return;
+
       functionalParams = new Set([
         ...functionalParams,
         ...getFunctionalParamNamesFromNode(node),
       ]);
     },
   });
+
   return {
     references,
     functionalParams,
@@ -992,6 +1038,7 @@ export const isFunctionPresent = (
     });
 
     let isFunction = false;
+
     simple(ast, {
       FunctionDeclaration() {
         isFunction = true;
@@ -1016,25 +1063,33 @@ export function getMemberExpressionObjectFromProperty(
   evaluationVersion = 2,
 ) {
   if (!propertyName) return [];
+
   const memberExpressionObjects = new Set<string>();
   let ast: Node = { end: 0, start: 0, type: "" };
+
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
     const wrappedCode = wrapCode(sanitizedScript);
+
     ast = getAST(wrappedCode, { locations: true });
     simple(ast, {
       MemberExpression(node: Node) {
         const { object, property } = node as MemberExpressionNode;
+
         if (!isLiteralNode(property) && !isIdentifierNode(property)) return;
+
         const propName = isLiteralNode(property)
           ? property.value
           : property.name;
+
         if (!isNil(propName) && getStringValue(propName) === propertyName) {
           const memberExpressionObjectString = generate(object);
+
           memberExpressionObjects.add(memberExpressionObjectString);
         }
       },
     });
+
     return Array.from(memberExpressionObjects);
   } catch (e) {
     return [];

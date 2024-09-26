@@ -8,7 +8,7 @@ import {
 import { adminSettingsCategoryUrl } from "ee/RouteBuilder";
 import { useParams } from "react-router";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Link, Text } from "design-system";
+import { Link, Text } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -124,6 +124,7 @@ export function Categories({
       "access-control": "AccessControl",
       provisioning: "Provisioning",
     };
+
     AnalyticsUtil.logEvent("ADMIN_SETTINGS_CLICK", {
       source: source[page],
     });
@@ -135,6 +136,7 @@ export function Categories({
         type: ReduxActionTypes.FETCH_ADMIN_SETTINGS,
       });
     }
+
     if (showUpgradeTag) {
       triggerAnalytics(category);
     }
@@ -148,6 +150,7 @@ export function Categories({
             ? currentSubCategory == config.slug
             : currentCategory == config.slug;
         const showUpgradeTag = config?.isFeatureEnabled === false;
+
         return (
           <CategoryItem key={config.slug}>
             <StyledLink
