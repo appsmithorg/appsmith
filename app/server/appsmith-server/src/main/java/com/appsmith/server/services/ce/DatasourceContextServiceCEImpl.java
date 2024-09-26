@@ -106,8 +106,10 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 datasourceContextIdentifier.getEnvironmentId());
 
         // Close connection and remove entry from both cache maps
-        final Object connection =
-                datasourceContextMap.get(datasourceContextIdentifier).getConnection();
+        final Object connection = datasourceContextMap.containsKey(datasourceContextIdentifier)
+                        && datasourceContextMap.get(datasourceContextIdentifier) != null
+                ? datasourceContextMap.get(datasourceContextIdentifier).getConnection()
+                : null;
 
         Mono<Plugin> pluginMono =
                 pluginService.findById(datasourcePluginContext.getPluginId()).cache();
@@ -129,25 +131,6 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         // Remove the entries from both maps
         datasourceContextMonoMap.remove(datasourceContextIdentifier);
         datasourceContextMap.remove(datasourceContextIdentifier);
-    }
-
-    private Mono<Boolean> checkIsMockMongoDatasource(Plugin plugin, DatasourceStorage datasourceStorage) {
-        String datasourceId = datasourceStorage.getDatasourceId();
-        if (datasourceId == null) {
-            return Mono.just(FALSE);
-        }
-
-        return datasourceService
-                .findById(datasourceId)
-                .map(datasource -> {
-                    if (datasource.getIsMock()
-                            && PluginConstants.PackageName.MONGO_PLUGIN.equals(plugin.getPackageName())) {
-                        log.info("Datasource is a mock mongo datasource");
-                        return TRUE;
-                    }
-                    return FALSE;
-                })
-                .defaultIfEmpty(FALSE); // In case findById returns empty (i.e., no datasource found)
     }
 
     /**
@@ -243,12 +226,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                         datasourceContext)
                                 .cache(); /* Cache the value so that further evaluations don't result in new connections */
 
-                        Mono<Boolean> checkIsMockMongoDatasourceMono =
-                                checkIsMockMongoDatasource(plugin, datasourceStorage);
-                        return Mono.zip(checkIsMockMongoDatasourceMono, connectionMonoCache)
-                                .flatMap(tuple -> {
-                                    Boolean isMockMongoDatasource = tuple.getT1();
-                                    Object connection = tuple.getT2();
+                        return connectionMonoCache
+                                .flatMap(connection -> {
                                     datasourceContext.setConnection(connection);
                                     if (datasourceContextIdentifier.isKeyValid()
                                             && shouldCacheContextForThisPlugin(plugin)) {
@@ -256,7 +235,11 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                         datasourceContextMonoMap.put(
                                                 datasourceContextIdentifier, datasourceContextMonoCache);
 
-                                        if (isMockMongoDatasource) {
+                                        if (TRUE.equals(datasourceStorage.getIsMock())
+                                                && PluginConstants.PackageName.MONGO_PLUGIN.equals(
+                                                        plugin.getPackageName())) {
+                                            log.info(
+                                                    "Datasource is a mock mongo DB. Adding the connection to LRU cache!");
                                             DatasourcePluginContext<Object> datasourcePluginContext =
                                                     new DatasourcePluginContext<>();
                                             datasourcePluginContext.setConnection(datasourceContext.getConnection());
@@ -266,7 +249,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                         }
                                     }
                                     return datasourceContextMonoCache;
-                                });
+                                })
+                                .switchIfEmpty(datasourceContextMonoCache);
                     }
                 })
                 .flatMap(obj -> obj)

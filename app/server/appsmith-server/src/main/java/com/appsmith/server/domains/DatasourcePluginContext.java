@@ -10,9 +10,9 @@ import java.time.Instant;
 @Setter
 @ToString
 public class DatasourcePluginContext<T> {
-    T connection;
-    String pluginId;
-    Instant creationTime;
+    private T connection;
+    private String pluginId;
+    private Instant creationTime;
 
     public DatasourcePluginContext() {
         creationTime = Instant.now();
