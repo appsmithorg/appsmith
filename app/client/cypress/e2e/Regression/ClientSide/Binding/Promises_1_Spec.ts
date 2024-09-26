@@ -64,7 +64,7 @@ describe("Validate basic Promises", { tags: ["@tag.Binding"] }, () => {
     deployMode.NavigateBacktoEditor();
     agHelper.AddDsl("promisesBtnImgDsl", locators._buttonByText("Submit"));
     apiPage.CreateAndFillApi(
-      "https://picsum.photos/200/300",
+      "http://host.docker.internal:4200/453-200x300.jpg",
       "RandomImy",
       30000,
     );

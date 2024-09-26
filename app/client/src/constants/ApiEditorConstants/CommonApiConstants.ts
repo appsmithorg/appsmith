@@ -85,28 +85,13 @@ export const HTTP_METHODS_DEFAULT_FORMAT_TYPES: Record<HTTP_METHOD, string> = {
   PATCH: POST_BODY_FORMAT_OPTIONS.JSON,
 };
 
-export const DEFAULT_PROVIDER_OPTION = "Business Software";
 export const CONTENT_TYPE_HEADER_KEY = "content-type";
 
-export enum ApiResponseTypes {
+export enum ResponseDisplayFormats {
   JSON = "JSON",
   TABLE = "TABLE",
   RAW = "RAW",
 }
-
-// export const ApiResponseTypesOptions:
-export const API_RESPONSE_TYPE_OPTIONS: {
-  [key in keyof typeof ApiResponseTypes]: string;
-} = {
-  JSON: "JSON",
-  TABLE: "TABLE",
-  RAW: "RAW",
-};
-export const POST_BODY_FORMATS = Object.values(POST_BODY_FORMAT_OPTIONS).map(
-  (option) => {
-    return option;
-  },
-);
 
 export const POST_BODY_FORMAT_OPTIONS_ARRAY = Object.values(
   POST_BODY_FORMAT_OPTIONS,
@@ -133,6 +118,4 @@ export interface MULTI_PART_DROPDOWN_OPTION {
 export const MULTI_PART_DROPDOWN_OPTIONS: MULTI_PART_DROPDOWN_OPTION[] =
   Object.values(MultiPartOptionTypes).map((value) => ({ label: value, value }));
 
-export const DEFAULT_MULTI_PART_DROPDOWN_WIDTH = "77px";
-export const DEFAULT_MULTI_PART_DROPDOWN_HEIGHT = "100%";
 export const DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER = "Type";

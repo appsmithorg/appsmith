@@ -128,9 +128,31 @@ export async function installLibrary(
       // Find keys add that were installed to the global scope.
       const keysAfterInstallation = Object.keys(self);
 
-      accessors.push(
-        ...difference(keysAfterInstallation, envKeysBeforeInstallation),
+      let differentiatingKeys = difference(
+        keysAfterInstallation,
+        envKeysBeforeInstallation,
       );
+
+      // Changing default export to library specific name, if default exported
+      const uniqueName = generateUniqueAccessor(
+        url,
+        takenAccessors,
+        takenNamesMap,
+      );
+
+      movetheDefaultExportedLibraryToAccessorKey(
+        differentiatingKeys,
+        uniqueName,
+      );
+
+      // Following the same process which was happening earlier
+      const keysAfterDefaultOperation = Object.keys(self);
+
+      differentiatingKeys = difference(
+        keysAfterDefaultOperation,
+        envKeysBeforeInstallation,
+      );
+      accessors.push(...differentiatingKeys);
 
       /**
        * Check the list of installed library to see if their values have changed.
@@ -278,7 +300,18 @@ export async function loadLibraries(
       try {
         self.importScripts(url);
         const keysAfter = Object.keys(self);
-        const defaultAccessors = difference(keysAfter, keysBefore);
+        let defaultAccessors = difference(keysAfter, keysBefore);
+
+        // Changing default export to library accessors name which was saved when it was installed, if default export present
+        movetheDefaultExportedLibraryToAccessorKey(
+          defaultAccessors,
+          accessors[0],
+        );
+
+        // Following the same process which was happening earlier
+        const keysAfterDefaultOperation = Object.keys(self);
+
+        defaultAccessors = difference(keysAfterDefaultOperation, keysBefore);
 
         /**
          * Installing 2 different version of lodash tries to add the same accessor on the self object. Let take version a & b for example.
@@ -416,4 +449,25 @@ export function flattenModule(module: Record<string, any>) {
   }
 
   return libModule;
+}
+
+// This function will update the self keys only when the diffAccessors has default included in it.
+function movetheDefaultExportedLibraryToAccessorKey(
+  diffAccessors: string[],
+  uniqAccessor: string,
+) {
+  if (diffAccessors.length > 0 && diffAccessors.includes("default")) {
+    // mapping default functionality to library name accessor
+    self[uniqAccessor] = self["default"];
+    // deleting the reference of default key from the self object
+    delete self["default"];
+    // mapping all the references of differentiating keys from the self object to the self[uniqAccessor] key object
+    diffAccessors.map((key) => {
+      if (key !== "default") {
+        self[uniqAccessor][key] = self[key];
+        // deleting the references from the self object
+        delete self[key];
+      }
+    });
+  }
 }

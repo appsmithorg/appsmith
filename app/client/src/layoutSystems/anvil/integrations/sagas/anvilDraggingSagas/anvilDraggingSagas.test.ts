@@ -6,9 +6,9 @@ import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import { expectSaga } from "redux-saga-test-plan";
 import { getWidgets } from "sagas/selectors";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
-import { WDSSectionWidget } from "widgets/wds/WDSSectionWidget";
-import { WDSZoneWidget } from "widgets/wds/WDSZoneWidget";
-import { WDSButtonWidget } from "widgets/wds/WDSButtonWidget";
+import { WDSSectionWidget } from "modules/ui-builder/ui/wds/WDSSectionWidget";
+import { WDSZoneWidget } from "modules/ui-builder/ui/wds/WDSZoneWidget";
+import { WDSButtonWidget } from "modules/ui-builder/ui/wds/WDSButtonWidget";
 import {
   getCanvasWidth,
   getIsAutoLayoutMobileBreakPoint,
@@ -20,7 +20,7 @@ import { registerLayoutComponents } from "layoutSystems/anvil/utils/layouts/layo
 import { getIsAnvilLayout } from "../../selectors";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { WDSModalWidget } from "widgets/wds/WDSModalWidget";
+import { WDSModalWidget } from "modules/ui-builder/ui/wds/WDSModalWidget";
 import { generateMockDataWithTwoSections } from "./mockData.helper";
 import type { AnvilMoveWidgetsPayload } from "../../actions/actionTypes";
 import {
