@@ -1,7 +1,6 @@
 package com.appsmith.server.git.autocommit.helpers;
 
 import com.appsmith.external.dtos.ModifiedResources;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -10,12 +9,10 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.testhelpers.git.GitFileSystemTestHelper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -23,7 +20,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -34,10 +30,8 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitCommandConstantsCE.AUTO_COMMIT_ELIGIBILITY;
-import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -52,9 +46,6 @@ public class AutoCommitEligibilityHelperTest {
 
     @MockBean
     DSLMigrationUtils dslMigrationUtils;
-
-    @MockBean
-    FeatureFlagService featureFlagService;
 
     @MockBean
     GitRedisUtils gitRedisUtils;
@@ -103,9 +94,6 @@ public class AutoCommitEligibilityHelperTest {
 
     @BeforeEach
     public void beforeEach() {
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
-                .thenReturn(Mono.just(Boolean.TRUE));
-
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(RANDOM_DSL_VERSION_NUMBER));
 
         Mockito.when(gitRedisUtils.addFileLock(DEFAULT_APPLICATION_ID, AUTO_COMMIT_ELIGIBILITY))
@@ -209,11 +197,6 @@ public class AutoCommitEligibilityHelperTest {
 
     @Test
     public void isAutoCommitRequired_whenOnlyServerIsEligible_verifyDTOReturnTrue() {
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
-
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
-                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
         GitArtifactMetadata gitArtifactMetadata = createGitMetadata();
         PageDTO pageDTO = createPageDTO(RANDOM_DSL_VERSION_NUMBER);
@@ -265,12 +248,6 @@ public class AutoCommitEligibilityHelperTest {
     @Test
     public void isServerMigrationRequired_whenJsonSchemaIsAhead_returnsTrue() {
         GitArtifactMetadata gitArtifactMetadata = createGitMetadata();
-
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
-
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
-                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
         // this leads to server migration requirement as true
         Mockito.doReturn(Mono.just(jsonSchemaVersions.getServerVersion() - 1))
@@ -377,12 +354,6 @@ public class AutoCommitEligibilityHelperTest {
 
     @Test
     public void isServerMigrationRequired_fileSystemOperation_returnsTrue() throws GitAPIException, IOException {
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
-
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
-                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
-
         ApplicationJson applicationJson = new ApplicationJson();
 
         Application application = new Application();

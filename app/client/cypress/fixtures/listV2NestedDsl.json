@@ -145,7 +145,7 @@
                                                     }
                                                 ],
                                                 "leftColumn": 0,
-                                                "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                                                "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                                                 "key": "crx5qmd37r",
                                                 "image": "{{currentItem.img}}",
                                                 "isDeprecated": false,
@@ -428,7 +428,7 @@
                                                                                     }
                                                                                 ],
                                                                                 "leftColumn": 0,
-                                                                                "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                                                                                "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                                                                                 "key": "crx5qmd37r",
                                                                                 "image": "{{currentItem.img}}",
                                                                                 "isDeprecated": false,
@@ -711,7 +711,7 @@
                                                                                                                     }
                                                                                                                 ],
                                                                                                                 "leftColumn": 0,
-                                                                                                                "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                                                                                                                "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                                                                                                                 "key": "crx5qmd37r",
                                                                                                                 "image": "{{currentItem.img}}",
                                                                                                                 "isDeprecated": false,
@@ -963,17 +963,17 @@
                                                                                     {
                                                                                         "id": "001",
                                                                                         "name": "Blue",
-                                                                                        "img": "https://assets.appsmith.com/widgets/default.png"
+                                                                                        "img": "http://host.docker.internal:4200/clouddefaultImage.png"
                                                                                     },
                                                                                     {
                                                                                         "id": "002",
                                                                                         "name": "Green",
-                                                                                        "img": "https://assets.appsmith.com/widgets/default.png"
+                                                                                        "img": "http://host.docker.internal:4200/clouddefaultImage.png"
                                                                                     },
                                                                                     {
                                                                                         "id": "003",
                                                                                         "name": "Red",
-                                                                                        "img": "https://assets.appsmith.com/widgets/default.png"
+                                                                                        "img": "http://host.docker.internal:4200/clouddefaultImage.png"
                                                                                     }
                                                                                 ],
                                                                                 "displayName": "List",
@@ -1094,17 +1094,17 @@
                                                     {
                                                         "id": "001",
                                                         "name": "Blue",
-                                                        "img": "https://assets.appsmith.com/widgets/default.png"
+                                                        "img": "http://host.docker.internal:4200/clouddefaultImage.png"
                                                     },
                                                     {
                                                         "id": "002",
                                                         "name": "Green",
-                                                        "img": "https://assets.appsmith.com/widgets/default.png"
+                                                        "img": "http://host.docker.internal:4200/clouddefaultImage.png"
                                                     },
                                                     {
                                                         "id": "003",
                                                         "name": "Red",
-                                                        "img": "https://assets.appsmith.com/widgets/default.png"
+                                                        "img": "http://host.docker.internal:4200/clouddefaultImage.png"
                                                     }
                                                 ],
                                                 "displayName": "List",
@@ -1224,17 +1224,17 @@
                     {
                         "id": "001",
                         "name": "Blue",
-                        "img": "https://assets.appsmith.com/widgets/default.png"
+                        "img": "http://host.docker.internal:4200/clouddefaultImage.png"
                     },
                     {
                         "id": "002",
                         "name": "Green",
-                        "img": "https://assets.appsmith.com/widgets/default.png"
+                        "img": "http://host.docker.internal:4200/clouddefaultImage.png"
                     },
                     {
                         "id": "003",
                         "name": "Red",
-                        "img": "https://assets.appsmith.com/widgets/default.png"
+                        "img": "http://host.docker.internal:4200/clouddefaultImage.png"
                     }
                 ],
                 "displayName": "List",
