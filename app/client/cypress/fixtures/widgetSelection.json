@@ -194,7 +194,7 @@
         "imageShape": "RECTANGLE",
         "leftColumn": 6,
         "borderRadius": "0px",
-        "defaultImage": "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png"
+        "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png"
       },
       {
         "labelTextSize": "0.875rem",
