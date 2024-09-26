@@ -4,6 +4,7 @@ import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { useSelector } from "react-redux";
 import {
   getActionByBaseId,
+  getActionResponses,
   getDatasource,
   getEditorConfig,
   getPlugin,
@@ -39,6 +40,8 @@ const PluginActionEditor = (props: ChildrenProps) => {
 
   const editorConfig = useSelector((state) => getEditorConfig(state, pluginId));
 
+  const actionResponses = useSelector(getActionResponses);
+
   if (!isEditorInitialized) {
     return (
       <CenteredWrapper>
@@ -71,9 +74,12 @@ const PluginActionEditor = (props: ChildrenProps) => {
     );
   }
 
+  const actionResponse = actionResponses[action.id];
+
   return (
     <PluginActionContextProvider
       action={action}
+      actionResponse={actionResponse}
       datasource={datasource}
       editorConfig={editorConfig}
       plugin={plugin}

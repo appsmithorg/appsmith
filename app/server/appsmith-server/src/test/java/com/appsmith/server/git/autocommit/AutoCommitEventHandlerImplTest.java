@@ -1,7 +1,6 @@
 package com.appsmith.server.git.autocommit;
 
 import com.appsmith.external.dtos.GitLogDTO;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
@@ -13,7 +12,6 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.events.AutoCommitEvent;
-import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
@@ -21,7 +19,6 @@ import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.testhelpers.git.GitFileSystemTestHelper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -30,7 +27,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -45,13 +41,11 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.git.autocommit.AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT;
-import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -88,9 +82,6 @@ public class AutoCommitEventHandlerImplTest {
 
     @SpyBean
     GitExecutor gitExecutor;
-
-    @MockBean
-    FeatureFlagService featureFlagService;
 
     @Autowired
     GitFileSystemTestHelper gitFileSystemTestHelper;
@@ -475,56 +466,6 @@ public class AutoCommitEventHandlerImplTest {
     }
 
     @Test
-    public void autocommitServerMigration_WhenSerialisationLogicChanges_CommitSuccess()
-            throws URISyntaxException, IOException, GitAPIException {
-
-        AutoCommitEvent autoCommitEvent = createEvent();
-        autoCommitEvent.setIsServerSideEvent(TRUE);
-        ApplicationJson applicationJson =
-                gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
-
-        Path baseRepoSuffix = Paths.get(
-                autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
-
-        doReturn(Mono.just("success"))
-                .when(gitExecutor)
-                .pushApplication(
-                        baseRepoSuffix,
-                        autoCommitEvent.getRepoUrl(),
-                        autoCommitEvent.getPublicKey(),
-                        autoCommitEvent.getPrivateKey(),
-                        autoCommitEvent.getBranchName());
-
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), FALSE));
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
-                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
-
-        gitFileSystemTestHelper.setupGitRepository(autoCommitEvent, applicationJson);
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
-
-        StepVerifier.create(autoCommitEventHandler
-                        .autoCommitServerMigration(autoCommitEvent)
-                        .zipWhen(a -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
-                .assertNext(tuple2 -> {
-                    assertThat(tuple2.getT1()).isTrue();
-                    assertThat(tuple2.getT2()).isEqualTo(100);
-                })
-                .verifyComplete();
-
-        StepVerifier.create(gitExecutor.getCommitHistory(baseRepoSuffix))
-                .assertNext(gitLogDTOs -> {
-                    assertThat(gitLogDTOs).isNotEmpty();
-                    assertThat(gitLogDTOs.size()).isEqualTo(3);
-                    Set<String> commitMessages =
-                            gitLogDTOs.stream().map(GitLogDTO::getCommitMessage).collect(Collectors.toSet());
-                    assertThat(commitMessages)
-                            .contains(String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()));
-                })
-                .verifyComplete();
-    }
-
-    @Test
     public void autocommitServerMigration_WhenSerialisationLogicDoesNotChange_CommitFailure()
             throws URISyntaxException, IOException, GitAPIException {
 
@@ -532,11 +473,6 @@ public class AutoCommitEventHandlerImplTest {
         autoCommitEvent.setIsServerSideEvent(TRUE);
         ApplicationJson applicationJson =
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
-
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), FALSE));
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
-                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
         gitFileSystemTestHelper.setupGitRepository(autoCommitEvent, applicationJson);
         StepVerifier.create(autoCommitEventHandler
