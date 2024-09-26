@@ -530,6 +530,7 @@ class BaseInputComponent extends React.Component<
     const locale = this.props.shouldUseLocale ? getLocale() : undefined;
     const leftIcon = this.getLeftIcon();
     const conditionalProps: Record<string, number> = {};
+    
     if (!isNil(this.props.maxNum)) {
       conditionalProps.max = this.props.maxNum;
     }
