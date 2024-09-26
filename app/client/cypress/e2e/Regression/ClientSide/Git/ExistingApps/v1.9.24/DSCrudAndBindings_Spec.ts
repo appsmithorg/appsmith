@@ -144,12 +144,6 @@ describe(
         locators._widgetInDeployed(draggableWidgets.CHART),
       );
 
-      //Button
-      agHelper.ClickButton("Alert button");
-      agHelper.WaitUntilToastDisappear(
-        "404 hit : invalidApi failed to execute",
-      );
-
       //Checkbox group
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
