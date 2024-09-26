@@ -1,5 +1,5 @@
 import React from "react";
-import { render, fireEvent, act } from "@testing-library/react";
+import { render, fireEvent, screen } from "@testing-library/react";
 import SearchComponent from "../SearchComponent";
 import "@testing-library/jest-dom";
 
@@ -30,12 +30,12 @@ describe("SearchComponent", () => {
       enableClientSideSearch: true,
       value: "test",
     });
-    const inputElement = getByPlaceholderText("Search...") as HTMLInputElement;
-    const clearButton = getByTestId("cross-icon");
+    const inputElement = screen.getByPlaceholderText(
+      "Search...",
+    ) as HTMLInputElement;
+    const clearButton = screen.getByTestId("cross-icon");
 
-    act(() => {
-      fireEvent.click(clearButton);
-    });
+    fireEvent.click(clearButton);
 
     expect(inputElement).toHaveFocus();
     expect(inputElement.value).toBe("");
@@ -47,7 +47,10 @@ describe("SearchComponent", () => {
       value: "initial",
     });
 
-    const inputElement = getByPlaceholderText("Search...") as HTMLInputElement;
+    const inputElement = screen.getByPlaceholderText(
+      "Search...",
+    ) as HTMLInputElement;
+
     expect(inputElement.value).toBe("initial");
 
     rerender(
