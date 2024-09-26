@@ -75,17 +75,22 @@ class SelectComponent extends React.Component<
     }
   };
 
+  togglePopoverVisibilityFromButton = () => {
+    this.togglePopoverVisibility(true);
+  };
+
   togglePopoverVisibility = (isButtonClick = false) => {
-    if (!isButtonClick && this.state.isOpen) {
+    // This is an edge case, this method gets called twice if user closes it by clicking on the `SelectButton`
+    // which in turn triggers handleOnDropdownClose twice, to solve we have this exception to tell if click event is from button
+    if (isButtonClick && this.state.isOpen) return;
+
+    if (this.state.isOpen) {
       this.handleOnDropdownClose();
-      this.setState({ isOpen: false });
-    } else if (isButtonClick) {
+    } else {
       this.handleOnDropdownOpen();
-      this.setState((prev) => ({
-        ...prev,
-        isOpen: !prev.isOpen,
-      }));
     }
+
+    this.setState({ isOpen: !this.state.isOpen });
   };
 
   handleActiveItemChange = (activeItem: DropdownOption | null) => {
@@ -458,7 +463,7 @@ class SelectComponent extends React.Component<
               hideCancelIcon={this.props.hideCancelIcon}
               isRequired={this.props.isRequired}
               spanRef={this.spanRef}
-              togglePopoverVisibility={() => this.togglePopoverVisibility(true)}
+              togglePopoverVisibility={this.togglePopoverVisibilityFromButton}
               tooltipText={tooltipText}
               value={this.props.value?.toString()}
             />
