@@ -26,7 +26,9 @@ export const migrateCurrencyInputWidgetDefaultCurrencyCode = (
     } else if (child.children && child.children.length > 0) {
       child = migrateCurrencyInputWidgetDefaultCurrencyCode(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

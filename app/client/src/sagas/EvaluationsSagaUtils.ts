@@ -10,11 +10,13 @@ export const parseUpdatesAndDeleteUndefinedUpdates = (
   updates: string,
 ): DiffWithNewTreeState[] => {
   let parsedUpdates = [];
+
   try {
     //Parse updates from a string
     parsedUpdates = JSON.parse(updates);
   } catch (e) {
     log.error("Failed to parse updates", e, updates);
+
     return [];
   }
 
@@ -30,20 +32,24 @@ export const parseUpdatesAndDeleteUndefinedUpdates = (
         if (kind === "N") {
           return acc;
         }
+
         //convert undefined updates to delete updates
         if (kind === "E") {
           acc.deleteUpdates.push({ kind: "D", path });
+
           return acc;
         }
       }
 
       acc.regularUpdates.push(curr);
+
       return acc;
     },
     { regularUpdates: [], deleteUpdates: [] },
   );
 
   const consolidatedUpdates = [...regularUpdates, ...deleteUpdates];
+
   return consolidatedUpdates;
 };
 
@@ -62,6 +68,7 @@ const mergeAffectedJSObjects = (
       if (acc.isAllAffected) {
         return acc;
       }
+
       acc = {
         isAllAffected:
           acc.isAllAffected || affectedJSObjectsFn(action).isAllAffected,
@@ -73,6 +80,7 @@ const mergeAffectedJSObjects = (
     { ids: [], isAllAffected: false } as AffectedJSObjects,
   );
 };
+
 // Infer from an action the JSObjects that are affected by a Redux action.
 export function getAffectedJSObjectIdsFromAction(
   action: ReduxAction<unknown> | BufferedReduxAction<unknown>,

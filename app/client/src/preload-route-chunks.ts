@@ -23,16 +23,19 @@ const isPreloadingDisabled =
   "true";
 
 const currentMode = getModeForPathname(window.location.pathname);
+
 if (
   !isPreloadingDisabled &&
   window.__APPSMITH_CHUNKS_TO_PRELOAD &&
   currentMode
 ) {
   const BASE_URL = getBaseURL();
+
   window.__APPSMITH_CHUNKS_TO_PRELOAD[currentMode]
     .map((url) => BASE_URL + url)
     .forEach((url) => {
       const link = document.createElement("link");
+
       link.rel = "preload";
       link.as = getPreloadValueForFile(url);
       link.href = url;

@@ -43,11 +43,12 @@ const parts = []
 parts.push(`
 {
   debug
-  admin 127.0.0.1:2019
+  admin 0.0.0.0:2019
   persist_config off
   acme_ca_root /etc/ssl/certs/ca-certificates.crt
   servers {
     trusted_proxies static 0.0.0.0/0
+    metrics
   }
   ${isRateLimitingEnabled ? "order rate_limit before basicauth" : ""}
 }
@@ -71,7 +72,15 @@ parts.push(`
   log {
     output stdout
   }
+
+  # skip logs for health check
   skip_log /api/v1/health
+
+  # skip logs for sourcemap files
+  @source-map-files {
+    path_regexp ^.*\.(js|css)\.map$
+  }
+  skip_log @source-map-files
 
   # The internal request ID header should never be accepted from an incoming request.
   request_header -X-Appsmith-Request-Id
@@ -91,6 +100,10 @@ parts.push(`
     X-Appsmith-Request-Id {http.request.uuid}
   }
 
+  header /static/* {
+    Cache-Control "public, max-age=31536000, immutable"
+  }
+
   request_body {
     max_size ${process.env.APPSMITH_CODEC_SIZE || 150}MB
   }
@@ -105,7 +118,6 @@ parts.push(`
   @file file
   handle @file {
     import file_server
-    skip_log
   }
 
   handle /static/* {

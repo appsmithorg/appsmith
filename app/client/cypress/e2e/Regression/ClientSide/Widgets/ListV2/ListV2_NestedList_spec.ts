@@ -9,6 +9,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Nested List widget V2 ",
@@ -40,8 +41,11 @@ describe(
         "List3",
       ]);
       agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{v}`);
-      agHelper.ValidateToastMessage(
+      _.debuggerHelper.OpenDebugger();
+      _.debuggerHelper.ClickLogsTab();
+      _.debuggerHelper.DoesConsoleLogExist(
         "Cannot have more than 3 levels of nesting in the list widget",
+        true,
       );
     });
 

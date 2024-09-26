@@ -21,6 +21,7 @@ describe("Tests tern definition generator", () => {
       return "Hello";
     },
   };
+
   it("Correctly determines tern def types based", () => {
     const expected = {
       var1: { "!type": "string" },
@@ -32,6 +33,7 @@ describe("Tests tern definition generator", () => {
       var7: { "!type": "fn()" },
     };
     const defs = makeTernDefs(obj);
+
     expect(defs).toMatchObject(expected);
   });
   it("should look up the prototype chain on objects", () => {
@@ -40,6 +42,7 @@ describe("Tests tern definition generator", () => {
       sayHello: { "!type": "fn()" },
     };
     const defs = makeTernDefs(proto);
+
     expect(defs).toMatchObject(expected);
   });
   it("should look up the prototype property on functions", () => {
@@ -57,6 +60,7 @@ describe("Tests tern definition generator", () => {
       },
     };
     const defs = makeTernDefs(obj);
+
     expect(defs).toMatchObject(expected);
   });
 });

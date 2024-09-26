@@ -46,6 +46,7 @@ export function watchEvents(io: Server) {
     if (room.startsWith(APP_ROOM_PREFIX)) {
       log.debug(`ns:${ROOT_NAMESPACE}# socket ${id} left the room ${room}`);
     }
+
     sendCurrentUsers(io, room, APP_ROOM_PREFIX);
   });
 
@@ -53,6 +54,7 @@ export function watchEvents(io: Server) {
     if (room.startsWith(APP_ROOM_PREFIX)) {
       log.debug(`ns:${ROOT_NAMESPACE}# socket ${id} joined the room ${room}`);
     }
+
     sendCurrentUsers(io, room, APP_ROOM_PREFIX);
   });
 
@@ -64,6 +66,7 @@ export function watchEvents(io: Server) {
       );
       io.of(PAGE_EDIT_NAMESPACE).to(room).emit(LEAVE_EDIT_EVENT_NAME, id);
     }
+
     sendCurrentUsers(io.of(PAGE_EDIT_NAMESPACE), room, PAGE_ROOM_PREFIX);
   });
 
@@ -73,6 +76,7 @@ export function watchEvents(io: Server) {
         `ns:${PAGE_EDIT_NAMESPACE}# socket ${id} joined the room ${room}`,
       );
     }
+
     sendCurrentUsers(io.of(PAGE_EDIT_NAMESPACE), room, PAGE_ROOM_PREFIX);
   });
 }

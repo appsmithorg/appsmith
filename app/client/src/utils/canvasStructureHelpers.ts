@@ -19,15 +19,18 @@ export const compareAndGenerateImmutableCanvasStructure = (
   current: DSL,
 ) => {
   const newStructure = getCanvasStructureFromDSL(current);
+
   if (JSON.stringify(newStructure) === JSON.stringify(original)) {
     return original;
   }
+
   return newStructure;
 };
 
 const getCanvasStructureFromDSL = (dsl: DSL): CanvasStructure => {
   let children = dsl.children;
   let structureChildren: CanvasStructure[] | undefined = undefined;
+
   // Todo(abhinav): abstraction leak
   if (dsl.type === "TABS_WIDGET") {
     if (children && children.length > 0) {

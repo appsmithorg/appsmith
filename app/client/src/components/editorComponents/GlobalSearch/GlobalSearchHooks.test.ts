@@ -295,4 +295,58 @@ describe("getFilteredAndSortedFileOperations", () => {
       }),
     );
   });
+
+  it("should not show new js object option if disableJSObjectCreation is true", () => {
+    const fileOptions = useFilteredAndSortedFileOperations({
+      query: "new js",
+      allDatasources: [],
+      recentlyUsedDSMap: {},
+      canCreateActions: true,
+      canCreateDatasource: true,
+      disableJSObjectCreation: true,
+    });
+
+    expect(fileOptions.length).toEqual(1);
+    expect(fileOptions[0]).toEqual(
+      expect.objectContaining({
+        title: "New datasource",
+      }),
+    );
+  });
+
+  it("should show new js object option if disableJSObjectCreation is false", () => {
+    const fileOptions = useFilteredAndSortedFileOperations({
+      query: "new js",
+      allDatasources: [],
+      recentlyUsedDSMap: {},
+      canCreateActions: true,
+      canCreateDatasource: true,
+      disableJSObjectCreation: false,
+    });
+
+    expect(fileOptions.length).toEqual(2);
+    expect(fileOptions[0]).toEqual(
+      expect.objectContaining({
+        title: "New JS Object",
+      }),
+    );
+  });
+
+  it("should show new js object option if disableJSObjectCreation is not set", () => {
+    const fileOptions = useFilteredAndSortedFileOperations({
+      query: "new js",
+      allDatasources: [],
+      recentlyUsedDSMap: {},
+      canCreateActions: true,
+      canCreateDatasource: true,
+      disableJSObjectCreation: false,
+    });
+
+    expect(fileOptions.length).toEqual(2);
+    expect(fileOptions[0]).toEqual(
+      expect.objectContaining({
+        title: "New JS Object",
+      }),
+    );
+  });
 });

@@ -15,19 +15,19 @@ const data = [
   {
     id: "001",
     name: "Blue",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
     same: "1",
   },
   {
     id: "002",
     name: "Green",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
     same: "01",
   },
   {
     id: "003",
     name: "Red",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
     same: 1,
   },
 ];
@@ -91,10 +91,11 @@ describe(
         1,
       );
       //Open debugger by clicking debugger icon in canvas.
-      debuggerHelper.ClickDebuggerIcon();
-      agHelper.GetNAssertContains(
-        debuggerHelper.locators._debuggerList,
+      debuggerHelper.AssertDebugError(
         "This data identifier is evaluating to a duplicate value. Please use an identifier that evaluates to a unique value.",
+        "",
+        true,
+        false,
       );
     });
   },

@@ -32,6 +32,7 @@ describe("Post window message works", () => {
       key7: [1, 2, 3, [4, 5, 6]],
     };
     const batchSpy = jest.fn();
+
     TriggerEmitter.on(BatchKey.process_batched_triggers, batchSpy);
     expect(evalContext.postWindowMessage(message, source, targetOrigin)).toBe(
       undefined,

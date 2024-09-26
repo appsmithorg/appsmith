@@ -74,6 +74,7 @@ public class AnthropicPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            log.debug(Thread.currentThread().getName() + ": testDatasource() called for Anthropic plugin.");
             final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
             if (!StringUtils.hasText(apiKeyAuth.getValue())) {
                 return Mono.error(new AppsmithPluginException(
@@ -110,6 +111,8 @@ public class AnthropicPlugin extends BasePlugin {
                 ExecuteActionDTO executeActionDTO,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
+
+            log.debug(Thread.currentThread().getName() + ": executeParameterized() called for Anthropic plugin.");
             // Get prompt from action configuration
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
@@ -248,6 +251,7 @@ public class AnthropicPlugin extends BasePlugin {
         @Override
         public Mono<TriggerResultDTO> trigger(
                 APIConnection connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            log.debug(Thread.currentThread().getName() + ": trigger() called for Anthropic plugin.");
             final ApiKeyAuth apiKeyAuth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
             if (!StringUtils.hasText(apiKeyAuth.getValue())) {
                 return Mono.error(new AppsmithPluginException(
@@ -309,6 +313,7 @@ public class AnthropicPlugin extends BasePlugin {
 
         @Override
         public Set<String> validateDatasource(DatasourceConfiguration datasourceConfiguration) {
+            log.debug(Thread.currentThread().getName() + ": validateDatasource() called for Anthropic plugin.");
             return RequestUtils.validateApiKeyAuthDatasource(datasourceConfiguration);
         }
 

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 
 import BranchButton from "./BranchButton";
@@ -36,6 +36,7 @@ import {
   getIsFetchingGitStatus,
   getIsGitConnected,
   getIsPollingAutocommit,
+  getIsPullingProgress,
   getPullFailed,
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
@@ -43,8 +44,6 @@ import SpinnerLoader from "pages/common/SpinnerLoader";
 import { getTypographyByKey } from "@appsmith/ads-old";
 import { Button, Icon, Tooltip } from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import AutocommitStatusbar from "./AutocommitStatusbar";
 import { useHasConnectToGitPermission } from "../hooks/gitPermissionHooks";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
@@ -103,6 +102,7 @@ function QuickActionButton({
   tooltipText,
 }: QuickActionButtonProps) {
   const content = capitalizeFirstLetter(tooltipText);
+
   return (
     <QuickActionButtonContainer
       className={className}
@@ -141,6 +141,7 @@ const getPullBtnStatus = (
   const { behindCount, isClean } = gitStatus || {};
   let message = createMessage(NO_COMMITS_TO_PULL);
   let disabled = behindCount === 0;
+
   if (!isClean && !isProtected) {
     disabled = true;
     message = createMessage(CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES);
@@ -250,6 +251,7 @@ function ConnectGitPlaceholder() {
     if (!isConnectToGitPermitted) {
       return <CenterDiv>{createMessage(CONTACT_ADMIN_FOR_GIT)}</CenterDiv>;
     }
+
     return (
       <>
         <div>{createMessage(NOT_LIVE_FOR_YOU_YET)}</div>
@@ -257,6 +259,19 @@ function ConnectGitPlaceholder() {
       </>
     );
   }, [isConnectToGitPermitted]);
+
+  const handleClickOnGitConnect = useCallback(() => {
+    AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+      source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
+    });
+
+    dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: GitSyncModalTab.GIT_CONNECTION,
+      }),
+    );
+  }, [dispatch]);
 
   return (
     <OuterContainer>
@@ -271,18 +286,7 @@ function ConnectGitPlaceholder() {
             className="t--connect-git-bottom-bar"
             isDisabled={!isConnectToGitPermitted}
             kind="secondary"
-            onClick={() => {
-              AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
-                source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
-              });
-
-              dispatch(
-                setIsGitSyncModalOpen({
-                  isOpen: true,
-                  tab: GitSyncModalTab.GIT_CONNECTION,
-                }),
-              );
-            }}
+            onClick={handleClickOnGitConnect}
             size="sm"
           >
             {createMessage(CONNECT_GIT_BETA)}
@@ -303,14 +307,13 @@ export default function QuickGitActions() {
   const { disabled: pullDisabled, message: pullTooltipMessage } =
     getPullBtnStatus(gitStatus, !!pullFailed, isProtectedMode);
 
-  const isPullInProgress = useSelector(getIsDiscardInProgress);
+  const isDiscardInProgress = useSelector(getIsDiscardInProgress);
+  const isPullInProgress = useSelector(getIsPullingProgress);
   const isFetchingGitStatus = useSelector(getIsFetchingGitStatus);
-  const showPullLoadingState = isPullInProgress || isFetchingGitStatus;
+  const showPullLoadingState =
+    isDiscardInProgress || isPullInProgress || isFetchingGitStatus;
   const changesToCommit = useSelector(getCountOfChangesToCommit);
 
-  const isAutocommitFeatureEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_git_autocommit_feature_enabled,
-  );
   const gitMetadata = useSelector(getGitMetadataSelector);
   const isPollingAutocommit = useSelector(getIsPollingAutocommit);
   const isAutocommitEnabled = gitMetadata?.autoCommitConfig?.enabled;
@@ -342,6 +345,7 @@ export default function QuickGitActions() {
       AnalyticsUtil.logEvent("GS_PULL_GIT_CLICK", {
         source: "BOTTOM_BAR_GIT_PULL_BUTTON",
       });
+
       if (isProtectedMode) {
         dispatch(
           discardChanges({
@@ -372,12 +376,11 @@ export default function QuickGitActions() {
     changesToCommit,
     isProtectedMode,
   });
+
   return isGitConnected ? (
     <Container>
       <BranchButton />
-      {isAutocommitFeatureEnabled &&
-      isAutocommitEnabled &&
-      isPollingAutocommit ? (
+      {isAutocommitEnabled && isPollingAutocommit ? (
         <AutocommitStatusbar completed={!isPollingAutocommit} />
       ) : (
         quickActionButtons.map((button) => (

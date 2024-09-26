@@ -89,6 +89,7 @@ function NestedComponents(props: any) {
                     ...(props.customStyles ?? {}),
                   },
                 };
+
                 return (
                   <FormControl
                     config={sch}
@@ -100,6 +101,7 @@ function NestedComponents(props: any) {
               <CenteredIconButton
                 alignSelf={"start"}
                 data-testid={`t--where-clause-delete-[${index}]`}
+                isIconButton
                 kind="tertiary"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
@@ -135,6 +137,7 @@ export default function FieldArrayControl(props: FieldArrayControlProps) {
     formName,
     schema,
   } = props;
+
   return (
     <FieldArray
       component={NestedComponents}

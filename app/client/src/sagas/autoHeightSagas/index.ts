@@ -24,6 +24,7 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* shouldCallAutoHeight(saga: any, action: ReduxAction<unknown>) {
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+
   if (layoutSystemType === LayoutSystemTypes.FIXED) {
     yield call(saga, action);
   }

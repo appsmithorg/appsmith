@@ -11,6 +11,7 @@ import {
 } from "utils/WidgetSizeUtils";
 import { klona } from "klona";
 import type { UpdateCanvasPayload } from "actions/pageActions";
+import type { SetWidgetDynamicPropertyPayload } from "../../actions/controlActions";
 
 /* This type is an object whose keys are widgetIds and values are arrays with property paths
 and property values
@@ -59,12 +60,15 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     const { widgets } = action.payload;
+
     for (const [widgetId, widgetProps] of Object.entries(widgets)) {
       if (widgetProps.type === "CANVAS_WIDGET") {
         const bottomRow = getCanvasBottomRow(widgetId, widgets);
+
         widgets[widgetId].bottomRow = bottomRow;
       }
     }
+
     return widgets;
   },
   [ReduxActionTypes.UPDATE_LAYOUT]: (
@@ -72,12 +76,14 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     let listOfUpdatedWidgets;
+
     // if payload has knowledge of which widgets were changed, use that
     if (action.payload.updatedWidgetIds) {
       listOfUpdatedWidgets = action.payload.updatedWidgetIds;
     } // else diff out the widgets that need to be updated
     else {
       const updatedLayoutDiffs = diff(state, action.payload.widgets);
+
       if (!updatedLayoutDiffs) return state;
 
       listOfUpdatedWidgets = getUpdatedWidgetLists(updatedLayoutDiffs);
@@ -86,6 +92,7 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     //update only the widgets that need to be updated.
     for (const widgetId of listOfUpdatedWidgets) {
       const updatedWidget = action.payload.widgets[widgetId];
+
       if (updatedWidget) {
         state[widgetId] = updatedWidget;
       } else {
@@ -119,6 +126,7 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
         const path = `${widgetId}.${propertyPath}`;
         // Get original value in reducer
         const originalPropertyValue = get(state, path);
+
         // If the original and new values are different
         if (propertyValue !== originalPropertyValue)
           // Set the new values
@@ -131,12 +139,32 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
         Object.keys(action.payload.widgetsToUpdate),
         state,
       );
+
     for (const widgetId in canvasWidgetHeightsToUpdate) {
       state[widgetId].bottomRow = canvasWidgetHeightsToUpdate[widgetId];
     }
   },
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
+  },
+  [ReduxActionTypes.SET_WIDGET_DYNAMIC_PROPERTY]: (
+    state: CanvasWidgetsReduxState,
+    action: ReduxAction<SetWidgetDynamicPropertyPayload>,
+  ) => {
+    const { isDynamic, propertyPath, widgetId } = action.payload;
+    const widget = state[widgetId];
+
+    // When options JS mode is disabled, reset the optionLabel and optionValue to standard values
+    if (
+      widget.type === "WDS_SELECT_WIDGET" &&
+      propertyPath === "options" &&
+      !isDynamic
+    ) {
+      set(state, `${widgetId}.optionLabel`, "label");
+      set(state, `${widgetId}.optionValue`, "value");
+    }
+
+    return state;
   },
 });
 

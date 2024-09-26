@@ -22,6 +22,7 @@ function useWidgetFocus(): (instance: HTMLElement | null) => void {
 
   useEffect(() => {
     if (isAutoLayout) return;
+
     if (!ref.current) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -32,6 +33,7 @@ function useWidgetFocus(): (instance: HTMLElement | null) => void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleClick = (event: any) => {
       const target = event.target as HTMLElement;
+
       if (target.matches(CANVAS_WIDGET)) {
         target.focus();
       }

@@ -32,6 +32,7 @@ export const formatCurrencyNumber = (decimalsInCurrency = 0, value: string) => {
   });
 
   const parsedValue = parseLocaleFormattedStringToNumber(value);
+
   return formatter.format(isNaN(parsedValue) ? 0 : parsedValue);
 };
 
@@ -43,6 +44,7 @@ export const formatCurrencyNumber = (decimalsInCurrency = 0, value: string) => {
 */
 export const limitDecimalValue = (decimals = 0, value = "") => {
   const decimalSeperator = getLocaleDecimalSeperator();
+
   value = value.split(getLocaleThousandSeparator()).join("");
   switch (decimals) {
     case 0:
@@ -54,6 +56,7 @@ export const limitDecimalValue = (decimals = 0, value = "") => {
     case 5:
     case 6:
       const decimalValueArray = value.split(decimalSeperator);
+
       if (decimalValueArray.length > 1) {
         return (
           decimalValueArray[0] +

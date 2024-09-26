@@ -43,7 +43,6 @@ export function getWidgetSessionValues(
   }
 
   for (const key in configMap) {
-    if (configMap[key] === undefined) continue;
     let sessionStorageKey = `${widgetType}.${key}`;
 
     if (type === "ZONE_WIDGET") {
@@ -82,6 +81,7 @@ export function* getUniqueWidgetName(prefix: string) {
     prefix, // The widget name prefix configured by the widget
     entityNames,
   );
+
   return widgetName;
 }
 
@@ -101,6 +101,7 @@ export function* runBlueprintOperationsOnWidgets(
   if (!blueprint?.operations || blueprint.operations.length === 0) {
     return widgets;
   }
+
   // Some widgets need to run a few operations like modifying props or adding an action
   // these operations can be performed on the parent of the widget we're adding
   // therefore, we pass all widgets to executeWidgetBlueprintOperations
@@ -113,6 +114,7 @@ export function* runBlueprintOperationsOnWidgets(
     widgets,
     widgetId,
   );
+
   return updatedWidgets;
 }
 
@@ -137,6 +139,7 @@ export function addChildReferenceToParent(
   };
 
   widgets[parent.widgetId] = parent;
+
   return widgets;
 }
 

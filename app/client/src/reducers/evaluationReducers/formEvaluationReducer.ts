@@ -75,6 +75,7 @@ const formEvaluation = createReducer(initialState, {
   ) => {
     // Init the state on first page load
     if (!!action.payload && action.payload.isFirstLoad) return initialState;
+
     // Do not touch state on subsequent page loads
     return state;
   },

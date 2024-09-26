@@ -74,6 +74,7 @@ describe("<DividerWidget />", () => {
     };
     // Mock store to bypass the error of react-redux
     const store = configureStore()(initialState);
+
     return render(
       <Provider store={store}>
         <ThemeProvider

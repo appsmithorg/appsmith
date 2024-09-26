@@ -1,6 +1,7 @@
 import { EChartsYAxisLayoutBuilder } from "./EChartsYAxisLayoutBuilder";
 
 const font = "14px Nunito Sans";
+
 describe("EChartsYAxisLayoutBuilder", () => {
   describe("maxWidthForLabels", () => {
     it("returns the max width for labels to equal sum of label width in pixels and an offset", () => {
@@ -120,6 +121,7 @@ describe("EChartsYAxisLayoutBuilder", () => {
           overflow: "truncate",
         },
       };
+
       expect(builder.config()).toEqual(expectedOutput);
     });
   });

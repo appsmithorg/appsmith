@@ -7,6 +7,7 @@ export const CONTAINER_SELECTOR =
   ":is(.t--widget-containerwidget, .t--widget-formwidget)";
 const NON_FOCUSABLE_WIDGET_CLASS =
   ".t--widget-textwidget, .t--widget-ratewidget, [disabled], [data-hidden]";
+
 export const JSONFORM_WIDGET = ".t--widget-jsonformwidget";
 export const MODAL_WIDGET = ".t--modal-widget";
 export const CHECKBOXGROUP_WIDGET = ".t--widget-checkboxgroupwidget";
@@ -305,6 +306,7 @@ export function getNextTabbableDescendantForRegularWidgets(
 
   if (isTabbingOutOfJSONForm) {
     const descendents = getTabbableDescendants(currentWidget, shiftKey);
+
     nextTabbableDescendant = getNextTabbableDescendant(descendents, shiftKey);
   }
 

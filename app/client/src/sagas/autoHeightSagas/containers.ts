@@ -32,8 +32,11 @@ export function* dynamicallyUpdateContainersSaga(
   ).filter((widget: FlattenedWidgetProps) => {
     const isCanvasWidget = widget.type === "CANVAS_WIDGET";
     const parent = widget.parentId ? stateWidgets[widget.parentId] : undefined;
+
     if (parent?.type === "LIST_WIDGET") return false;
+
     if (parent === undefined) return false;
+
     return isCanvasWidget;
   });
 
@@ -52,6 +55,7 @@ export function* dynamicallyUpdateContainersSaga(
       const dataTree: DataTree = yield select(getDataTree);
       // Get this parentContainerWidget from the DataTree
       const dataTreeWidget = dataTree[parentContainerWidget.widgetName];
+
       // If the widget exists, is not visible and we can collapse widgets
       if (
         dataTreeWidget &&
@@ -108,6 +112,7 @@ export function* dynamicallyUpdateContainersSaga(
               true,
               dynamicHeightLayoutTree,
             );
+
           // Add a canvas extension offset
           maxBottomRowBasedOnChildren += GridDefaults.CANVAS_EXTENSION_OFFSET;
 
@@ -134,6 +139,7 @@ export function* dynamicallyUpdateContainersSaga(
         if (maxBottomRow < minDynamicHeightInRows) {
           maxBottomRow = minDynamicHeightInRows;
         }
+
         // If the new height is above the max threshold
         if (maxBottomRow > maxDynamicHeightInRows) {
           maxBottomRow = maxDynamicHeightInRows;
@@ -177,6 +183,7 @@ export function* dynamicallyUpdateContainersSaga(
       });
     }
   }
+
   log.debug(
     "Auto height: Container computations time taken:",
     performance.now() - start,

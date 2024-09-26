@@ -30,28 +30,35 @@ import { getCurrentBasePageId } from "selectors/editorSelectors";
 
 export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
   const { entity, id, params } = entityInfo;
+
   if (!params.basePageId) return;
+
   if (
     entity === FocusEntity.JS_OBJECT ||
     entity === FocusEntity.JS_MODULE_INSTANCE
   ) {
     const jsTabs: string[] = yield select(getJSTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, jsTabs);
+
     yield put(setJSTabs(newTabs, params.basePageId));
   }
+
   if (
     entity === FocusEntity.QUERY ||
     entity === FocusEntity.QUERY_MODULE_INSTANCE
   ) {
     const queryTabs: string[] = yield select(getQueryTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, queryTabs);
+
     yield put(setQueryTabs(newTabs, params.basePageId));
   }
 }
 
 function* getUpdatedTabs(newId: string, currentTabs: string[]) {
   if (currentTabs.includes(newId)) return currentTabs;
+
   const newTabs = [...currentTabs, newId];
+
   return newTabs;
 }
 
@@ -59,6 +66,7 @@ export function* handleJSEntityRedirect(deletedId: string) {
   const basePageId: string = yield select(getCurrentBasePageId);
   const jsTabs: EntityItem[] = yield select(selectJSSegmentEditorTabs);
   const redirectAction = getNextEntityAfterRemove(deletedId, jsTabs);
+
   switch (redirectAction.action) {
     case RedirectAction.LIST:
       history.push(jsCollectionListURL({ basePageId }));
@@ -69,7 +77,9 @@ export function* handleJSEntityRedirect(deletedId: string) {
         history.push(jsCollectionAddURL({ basePageId }));
         break;
       }
+
       const { payload } = redirectAction;
+
       history.push(getJSEntityItemUrl(payload, basePageId));
       break;
   }
@@ -79,6 +89,7 @@ export function* handleQueryEntityRedirect(deletedId: string) {
   const basePageId: string = yield select(getCurrentBasePageId);
   const queryTabs: EntityItem[] = yield select(selectQuerySegmentEditorTabs);
   const redirectAction = getNextEntityAfterRemove(deletedId, queryTabs);
+
   switch (redirectAction.action) {
     case RedirectAction.LIST:
       history.push(queryListURL({ basePageId }));
@@ -89,7 +100,9 @@ export function* handleQueryEntityRedirect(deletedId: string) {
         log.error("Redirect item does not have a payload");
         break;
       }
+
       const { payload } = redirectAction;
+
       history.push(getQueryEntityItemUrl(payload, basePageId));
       break;
   }
@@ -129,6 +142,7 @@ export function getNextEntityAfterRemove(
   }
 
   const indexOfTab = tabs.findIndex((item) => item.key === removedId);
+
   switch (indexOfTab) {
     case -1:
       // If no other action is remaining, navigate to the creation url
@@ -165,6 +179,7 @@ function* storeIDEViewChangeSaga(
 
 function* restoreIDEViewModeSaga() {
   const storedState: EditorViewMode = yield call(retrieveIDEViewMode);
+
   if (storedState) {
     yield put(setIdeEditorViewMode(storedState));
   }

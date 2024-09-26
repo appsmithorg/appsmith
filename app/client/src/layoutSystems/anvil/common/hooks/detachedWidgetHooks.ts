@@ -68,6 +68,7 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
       });
       element.addEventListener("mouseover", handleWidgetFocus);
     }
+
     return () => {
       if (element) {
         element.removeEventListener("click", handleWidgetSelect);
@@ -130,9 +131,12 @@ export function useDetachedChildren() {
         widgets.children.find((each) => each.widgetId === widgetId)
       );
     });
+
     return allChildren.filter((child) => !!child) as CanvasWidgetStructure[];
   }, [currentlyOpenWidgets, widgets]);
   const end = performance.now();
+
   log.debug("### Computing detached children took:", end - start, "ms");
+
   return detachedChildren;
 }

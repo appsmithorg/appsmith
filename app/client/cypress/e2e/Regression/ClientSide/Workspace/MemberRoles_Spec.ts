@@ -5,7 +5,7 @@ let workspaceId: any, appid: any;
 
 describe(
   "Create new workspace and invite user & validate all roles",
-  { tags: ["@tag.Workspace"] },
+  { tags: ["@tag.Workspace", "@tag.Sanity"] },
   () => {
     it("1. Create new Workspace, Share with a user from UI & verify", () => {
       if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(true, false);
@@ -202,7 +202,6 @@ describe(
       );
       if (CURRENT_REPO === REPO.EE)
         _.adminSettings.EnableGAC(false, true, "home");
-      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.LeaveWorkspace(workspaceId);
     });
   },

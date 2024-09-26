@@ -11,7 +11,17 @@ declare const self: WorkerGlobalScope;
 
 describe("Tests to assert install/uninstall flows", function () {
   beforeAll(() => {
-    self.importScripts = jest.fn(() => {
+    self.importScripts = jest.fn((url: string) => {
+      if (url.includes("jspdf-autotable")) {
+        const defaultVar = function () {};
+
+        defaultVar.Cell = function () {};
+        self.Cell = function () {};
+        self.default = defaultVar;
+
+        return;
+      }
+
       self.lodash = {};
     });
 
@@ -36,6 +46,7 @@ describe("Tests to assert install/uninstall flows", function () {
       method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
       webworkerTelemetry: {},
     });
+
     //
     expect(self.importScripts).toHaveBeenCalled();
     expect(mod.makeTernDefs).toHaveBeenCalledWith({});
@@ -60,6 +71,7 @@ describe("Tests to assert install/uninstall flows", function () {
       method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
       webworkerTelemetry: {},
     });
+
     expect(res).toEqual({
       success: true,
       defs: {
@@ -81,6 +93,7 @@ describe("Tests to assert install/uninstall flows", function () {
       method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
       webworkerTelemetry: {},
     });
+
     expect(res).toEqual({
       success: true,
       defs: {
@@ -99,6 +112,7 @@ describe("Tests to assert install/uninstall flows", function () {
       method: EVAL_WORKER_SYNC_ACTION.UNINSTALL_LIBRARY,
       webworkerTelemetry: {},
     });
+
     expect(res).toEqual({ success: true });
     expect(self.lodash).toBeUndefined();
   });
@@ -144,6 +158,30 @@ describe("Tests to assert install/uninstall flows", function () {
 
     expect(flatLibrary3).toEqual({
       method: "Hello",
+    });
+  });
+
+  it("should install a library with default export", async function () {
+    const res = await installLibrary({
+      data: {
+        url: "https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.js",
+        takenAccessors: [],
+        takenNamesMap: {},
+      },
+      method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
+      webworkerTelemetry: {},
+    });
+
+    expect(self.importScripts).toHaveBeenCalled();
+    expect(mod.makeTernDefs).toHaveBeenCalledWith({});
+
+    expect(res).toEqual({
+      accessor: ["jspdf_plugin_autotable_js"],
+      defs: {
+        "!name": "LIB/jspdf_plugin_autotable_js",
+        jspdf_plugin_autotable_js: undefined,
+      },
+      success: true,
     });
   });
 });

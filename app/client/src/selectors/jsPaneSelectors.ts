@@ -14,9 +14,11 @@ export const getJsPaneDebuggerState = (state: AppState) =>
 export const getLastJSTab = (state: AppState): FocusEntityInfo | undefined => {
   const tabs = selectJSSegmentEditorTabs(state);
   const basePageId = getCurrentBasePageId(state);
+
   if (tabs.length) {
     const url = getJSEntityItemUrl(tabs[tabs.length - 1], basePageId);
     const urlWithoutQueryParams = url.split("?")[0];
+
     return identifyEntityFromPath(urlWithoutQueryParams);
   }
 };

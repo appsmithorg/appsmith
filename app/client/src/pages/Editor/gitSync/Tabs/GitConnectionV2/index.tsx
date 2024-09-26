@@ -20,6 +20,7 @@ import {
   GENERATE_SSH_KEY_STEP,
   GIT_CONNECT_WAITING,
   GIT_IMPORT_WAITING,
+  IMPORT_APP_CTA,
   PREVIOUS_STEP,
   createMessage,
 } from "ee/constants/messages";
@@ -83,12 +84,6 @@ const steps = [
 
 const possibleSteps = steps.map((s) => s.key);
 
-const nextStepText = {
-  [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: createMessage(CONFIGURE_GIT),
-  [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: createMessage(GENERATE_SSH_KEY_STEP),
-  [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: createMessage(CONNECT_GIT_TEXT),
-};
-
 interface FormDataState {
   gitProvider?: GitProvider;
   gitEmptyRepoExists?: string;
@@ -108,6 +103,14 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
   const [errorData, setErrorData] = useState<any>();
   const isImportingViaGit = useSelector(getIsImportingApplicationViaGit);
   const dispatch = useDispatch();
+
+  const nextStepText = {
+    [GIT_CONNECT_STEPS.CHOOSE_PROVIDER]: createMessage(CONFIGURE_GIT),
+    [GIT_CONNECT_STEPS.GENERATE_SSH_KEY]: createMessage(GENERATE_SSH_KEY_STEP),
+    [GIT_CONNECT_STEPS.ADD_DEPLOY_KEY]: createMessage(
+      isImport ? IMPORT_APP_CTA : CONNECT_GIT_TEXT,
+    ),
+  };
 
   const [formData, setFormData] = useState<FormDataState>({
     gitProvider: undefined,
@@ -169,6 +172,7 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
             authorEmail: "",
             useGlobalProfile: true,
           };
+
           if (formData.remoteUrl) {
             if (!isImport) {
               connectToGit(
@@ -184,7 +188,9 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
                     if (response?.responseMeta?.error?.code === "AE-GIT-4033") {
                       setActiveStep(GIT_CONNECT_STEPS.GENERATE_SSH_KEY);
                     }
+
                     const errorResponse = response || error?.response?.data;
+
                     setErrorData(errorResponse);
                   },
                 },
@@ -203,12 +209,14 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
                   },
                   onErrorCallback(error, response) {
                     const errorResponse = response || error?.response?.data;
+
                     setErrorData(errorResponse);
                   },
                 }),
               );
             }
           }
+
           break;
         }
       }

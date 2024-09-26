@@ -30,11 +30,12 @@ import {
   StyledMenuContainer,
   StyledSidebar,
 } from "./Sidebar.styled";
-import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import NavigationLogo from "ee/pages/AppViewer/NavigationLogo";
 import MenuItemContainer from "./components/MenuItemContainer";
 import BackToAppsButton from "./components/BackToAppsButton";
+import { IDE_HEADER_HEIGHT } from "IDE";
+import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
 
 interface SidebarProps {
   currentApplicationDetails?: ApplicationPayload;
@@ -80,7 +81,6 @@ export function Sidebar(props: SidebarProps) {
   const isPinned = useSelector(getAppSidebarPinned);
   const [isOpen, setIsOpen] = useState(true);
   const { x } = useMouse();
-  const theme = useSelector(getCurrentThemeDetails);
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
@@ -92,6 +92,7 @@ export function Sidebar(props: SidebarProps) {
 
   // Mark default page as first page
   const appPages = pages;
+
   if (appPages.length > 1) {
     appPages.forEach((item, i) => {
       if (item.isDefault) {
@@ -127,10 +128,10 @@ export function Sidebar(props: SidebarProps) {
     const suffix = ")";
 
     if (isPreviewMode) {
-      prefix += `${theme.smallHeaderHeight} - ${theme.bottomBarHeight}`;
+      prefix += `${IDE_HEADER_HEIGHT}px - ${BOTTOM_BAR_HEIGHT}px`;
     } else if (isAppSettingsPaneWithNavigationTabOpen) {
       // We deduct 64px as well since it is the margin coming from "m-8" class from tailwind
-      prefix += `${theme.smallHeaderHeight} - ${theme.bottomBarHeight} - 64px`;
+      prefix += `${IDE_HEADER_HEIGHT}px - ${BOTTOM_BAR_HEIGHT}px - 64px`;
     } else {
       prefix += "0px";
     }

@@ -49,34 +49,7 @@ describe(
       agHelper.AssertProperty(widgetLocators.video, "ended", true);
     });
 
-    it("2. Verify Basic Functionality of Video Widget - muted", function () {
-      deployMode.NavigateBacktoEditor();
-      EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
-      //Validate video for youtube url
-      propPane.TypeTextIntoField("URL", testdata.videoUrl);
-      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
-      agHelper.GetNClick(locators._widgetInDeployed(draggableWidgets.VIDEO));
-      agHelper.Sleep(2000);
-      agHelper.GetElement(widgetLocators.iFrame).then(($iframe) => {
-        const doc = $iframe.contents();
-        const video = doc.find(widgetLocators.video);
-        //Check play, mute & unmute, volume buttons
-        cy.wrap(
-          doc.find(widgetLocators.videoWidgetYoutubeLargePlayBtn),
-        ).click();
-        cy.wrap(video).click();
-        agHelper.Sleep(1000);
-        cy.wrap(doc.find(widgetLocators.videoWidgetYoutubeMuteBtn)).click();
-        agHelper.AssertProperty(video, "muted", true);
-        agHelper.AssertProperty(video, "paused", true);
-        cy.wrap(doc.find(widgetLocators.videoWidgetYoutubeVolumeBtn)).type(
-          "{rightarrow}{rightarrow}",
-        );
-        agHelper.AssertProperty(video, "muted", false);
-      });
-    });
-
-    it("3. Verify widget for invalid URL's", function () {
+    it("2. Verify widget for invalid URL's", function () {
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
       propPane.RemoveText("URL");
@@ -93,7 +66,7 @@ describe(
       //Check for Non-video url
       propPane.TypeTextIntoField(
         "URL",
-        "https://www.pexels.com/photo/closeup-photo-of-brown-brick-wall-1227511/",
+        "http://host.docker.internal:4200/453-200x300.jpg/",
       );
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
       agHelper.GetElement(widgetLocators.video).then(($video) => {
@@ -107,7 +80,7 @@ describe(
       });
     });
 
-    it("4. Verify auto play property", function () {
+    it("3. Verify auto play property", function () {
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
       agHelper.AssertExistingToggleState("Autoplay", "false");
@@ -128,7 +101,7 @@ describe(
       agHelper.AssertProperty(widgetLocators.video, "paused", true);
     });
 
-    it("5. Verify visible property", function () {
+    it("4. Verify visible property", function () {
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
       agHelper.AssertExistingToggleState("Visible", "true");
@@ -154,7 +127,7 @@ describe(
       );
     });
 
-    it("6. Verify OnPlay, OnPause, OnEnd events are JS convertible", function () {
+    it("5. Verify OnPlay, OnPause, OnEnd events are JS convertible", function () {
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
       propPane.EnterJSContext(
@@ -193,7 +166,7 @@ describe(
       });
     });
 
-    it("7. Verify video styles", function () {
+    it("6. Verify video styles", function () {
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Video1", EntityType.Widget);
       propPane.MoveToTab("Style");

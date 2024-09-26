@@ -26,10 +26,12 @@ export const useAnvilDetachedWidgetsDnD = (
       if (!isVisible || e.target !== widgetDomRef.current) {
         return;
       }
+
       // simulate move on the top most edge of the layout
       const detail: AnvilDetachedWidgetsDnDDetail = {
         event: e,
       };
+
       document.dispatchEvent(
         new CustomEvent(DETACHED_WIDGET_MOUSE_MOVE_EVENT, {
           detail,
@@ -43,10 +45,12 @@ export const useAnvilDetachedWidgetsDnD = (
       setDraggingCanvas("");
     }
   }, [isVisible]);
+
   useEffect(() => {
     if (isDragging) {
       const widgetClassName = `.${getAnvilWidgetDOMId(widgetId)}`;
       const widgetDom = document.querySelector(widgetClassName);
+
       if (widgetDom) {
         widgetDomRef.current = widgetDom as HTMLDivElement;
       }
@@ -60,6 +64,7 @@ export const useAnvilDetachedWidgetsDnD = (
       widgetDomRef.current.addEventListener("mouseenter", onMouseMove);
       widgetDomRef.current.addEventListener("mouseleave", onMouseOut);
     }
+
     return () => {
       if (widgetDomRef.current) {
         widgetDomRef.current.removeEventListener("mouseenter", onMouseMove);

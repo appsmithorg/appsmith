@@ -42,12 +42,17 @@ export class NestedPropertyInsideLiteralRule implements AutocompleteRule {
   ): number {
     const { token } = entityInfo;
     const score = 0;
+
     if (!token) return score;
+
     const lexical = token?.state?.lexical;
+
     if (!lexical) return score;
+
     if (lexical.type === "]" && completion.text.split(".").length > 1) {
       return -Infinity;
     }
+
     return score;
   }
 }
@@ -59,14 +64,18 @@ export class AndRule implements AutocompleteRule {
   }
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
+
     for (const rule of this.rules) {
       const localScore = rule.computeScore(completion);
+
       if (localScore <= 0) {
         score = 0;
         break;
       }
+
       score += localScore;
     }
+
     return score;
   }
 }
@@ -85,6 +94,7 @@ class HideInternalDefsRule implements AutocompleteRule {
     if (completion.text.includes("$__") && completion.text.includes("__$")) {
       score = HideInternalDefsRule.threshold;
     }
+
     return score;
   }
 }
@@ -104,12 +114,14 @@ class RemoveBlackListedCompletionRule implements AutocompleteRule {
 
     if (blockedCompletions.includes(completion.text)) {
       score = RemoveBlackListedCompletionRule.threshold;
+
       return score;
     }
 
     if (blockCompletions) {
       for (let index = 0; index < blockCompletions.length; index++) {
         const { subPath } = blockCompletions[index];
+
         if (completion.text === subPath && completion.origin !== "DATA_TREE") {
           score = RemoveBlackListedCompletionRule.threshold;
           break;
@@ -134,6 +146,7 @@ class NoDeepNestedSuggestionsRule implements AutocompleteRule {
 
     if (text.split(".").length > 2)
       score = NoDeepNestedSuggestionsRule.threshold;
+
     return score;
   }
 }
@@ -148,12 +161,15 @@ class NoSelfReferenceRule implements AutocompleteRule {
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     const { entityName, propertyPath } = AutocompleteSorter.currentFieldInfo;
+
     if (!entityName) return score;
+
     if (
       completion.text === entityName ||
       completion.text === [entityName, propertyPath].join(".")
     )
       score = NoSelfReferenceRule.threshold;
+
     return score;
   }
 }
@@ -167,8 +183,10 @@ class GlobalJSRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.GlobalJS;
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
+
     if (completion.origin === "ecmascript" || completion.origin === "base-64")
       score += GlobalJSRule.threshold;
+
     return score;
   }
 }
@@ -182,8 +200,11 @@ class JSLibraryRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.JSLibrary;
   computeScore(completion: Completion<TernCompletionResult>): number {
     const score = 0;
+
     if (!completion.origin) return score;
+
     if (!completion.origin.startsWith("LIB/")) return score;
+
     return JSLibraryRule.threshold;
   }
 }
@@ -197,12 +218,17 @@ class DataTreeFunctionRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.DataTreeFunction;
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
+
     if (!(completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS")) return score;
+
     score += DataTreeFunctionRule.threshold;
     const rankInSortedList =
       DataTreeFunctionSortOrder.indexOf(completion.text) + 1;
+
     if (rankInSortedList === 0) return score;
+
     score += 1 / (DataTreeFunctionRule.threshold * rankInSortedList);
+
     return score;
   }
 }
@@ -215,9 +241,11 @@ class RecentEntityRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.RecentEntityMatch;
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
+
     if (completion.recencyWeight) {
       score += RecentEntityRule.threshold + completion.recencyWeight;
     }
+
     return score;
   }
 }
@@ -232,9 +260,13 @@ class DataTreeRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.DataTreeMatch;
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
+
     if (!(completion.origin === "DATA_TREE")) return score;
+
     score = DataTreeRule.threshold;
+
     if (completion.type === "FUNCTION") return score;
+
     return score + DataTreeRule.threshold / 2;
   }
 }
@@ -249,8 +281,10 @@ class TypeMatchRule implements AutocompleteRule {
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     const currentFieldInfo = AutocompleteSorter.currentFieldInfo;
+
     if (completion.type === currentFieldInfo.expectedType)
       score += TypeMatchRule.threshold;
+
     return score;
   }
 }
@@ -264,7 +298,9 @@ class DataTreeEntityNameRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.DataTreeEntityNameMatch;
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
+
     if (completion.isEntityName) score += DataTreeEntityNameRule.threshold;
+
     return score;
   }
 }
@@ -279,14 +315,18 @@ class PriorityMatchRule implements AutocompleteRule {
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
     const { currentFieldInfo } = AutocompleteSorter;
+
     if (!completion.text) return score;
+
     const relevantText = completion.text.split(".").pop();
     const priorities =
       PriorityOrder[
         currentFieldInfo.expectedType || AutocompleteDataType.UNKNOWN
       ];
+
     if (relevantText && priorities.includes(relevantText))
       score += PriorityMatchRule.threshold;
+
     return score;
   }
 }
@@ -300,11 +340,13 @@ class ScopeMatchRule implements AutocompleteRule {
   static threshold = 1 << RuleWeight.ScopeMatch;
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
+
     if (
       completion.origin?.startsWith("[doc") ||
       completion.origin === "customDataTree"
     )
       score += ScopeMatchRule.threshold;
+
     return score;
   }
 }
@@ -325,21 +367,29 @@ class BlockAsyncFnsRule implements AutocompleteRule {
     entityInfo?: FieldEntityInformation | undefined,
   ): number {
     const score = 0;
+
     if (completion.type !== AutocompleteDataType.FUNCTION) return score;
+
     if (!completion.displayText) return score;
+
     if (entityInfo?.isTriggerPath) {
       // triggerPath = true and expectedType = undefined for JSObjects
       if (!entityInfo.expectedType) return score;
+
       // triggerPath = true and expectedType = FUNCTION or UNKNOWN for trigger fields.
       if (entityInfo.expectedType === AutocompleteDataType.FUNCTION)
         return score;
+
       if (entityInfo.expectedType === AutocompleteDataType.UNKNOWN)
         return score;
     }
+
     const isAsyncFunction =
       completion.data?.type?.endsWith("Promise") ||
       BlockAsyncFnsRule.blackList.includes(completion.displayText);
+
     if (isAsyncFunction) return BlockAsyncFnsRule.threshold;
+
     return score;
   }
 }
@@ -374,11 +424,14 @@ export class AutocompleteSorter {
       ),
       3,
     );
+
     AutocompleteSorter.bestMatchEndIndex = bestMatchEndIndex;
     const sortedCompletions = sortedScoredCompletions.map(
       (comp) => comp.completion,
     );
+
     if (!shouldComputeBestMatch) return sortedCompletions;
+
     return bestMatchEndIndex > 0
       ? [
           createCompletionHeader("Best match"),
@@ -412,6 +465,7 @@ class RemoveDependentEntityBlackListedCompletionRule
     ) {
       for (let index = 0; index < blockCompletions.length; index++) {
         const { subPath } = blockCompletions[index];
+
         if (completion.text === subPath) {
           score = RemoveDependentEntityBlackListedCompletionRule.threshold;
           break;
@@ -455,10 +509,13 @@ export class ScoredCompletion {
 
   private computeScore(currentFieldInfo: FieldEntityInformation) {
     let score = 0;
+
     for (const rule of ScoredCompletion.rules) {
       score += rule.computeScore(this.completion, currentFieldInfo);
+
       if (score === -Infinity) break;
     }
+
     return score;
   }
 }

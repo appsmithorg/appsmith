@@ -89,6 +89,7 @@ describe("IDE URL rendering: UI", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+
     dsl.bottomRow = 250;
 
     const url =

@@ -50,11 +50,13 @@ const usersReducer = createReducer(initialState, {
   ) => {
     const users = [...state.users];
     const userIndex = _.findIndex(users, { username: action.payload.username });
+
     if (userIndex > -1) {
       users[userIndex] = action.payload;
     } else {
       users.push(action.payload);
     }
+
     return {
       ...state,
       loadingStates: {
@@ -71,11 +73,13 @@ const usersReducer = createReducer(initialState, {
   ) => {
     const users = [...state.users];
     const userIndex = _.findIndex(users, { username: action.payload.username });
+
     if (userIndex > -1) {
       users[userIndex] = action.payload;
     } else {
       users.push(action.payload);
     }
+
     return {
       ...state,
       loadingStates: {
@@ -104,11 +108,13 @@ const usersReducer = createReducer(initialState, {
   ) => {
     const users = [...state.list];
     const userIndex = _.findIndex(users, { username: action.payload.username });
+
     if (userIndex > -1) {
       users[userIndex] = action.payload;
     } else {
       users.push(action.payload);
     }
+
     return {
       ...state,
       loadingStates: {

@@ -7,9 +7,11 @@ export const getActionChildrenPeekData = (
   dataTree: DataTree,
 ) => {
   const dataTreeAction = dataTree[actionName] as ActionEntity;
+
   if (dataTreeAction) {
     const definitions = entityDefinitions.ACTION(dataTreeAction, {});
     const peekData: Record<string, unknown> = {};
+
     Object.keys(definitions).forEach((key) => {
       if (key.indexOf("!") === -1) {
         if (key === "data" || key === "isLoading" || key === "responseMeta") {

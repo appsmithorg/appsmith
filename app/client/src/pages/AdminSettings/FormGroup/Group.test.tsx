@@ -28,6 +28,7 @@ function renderComponent() {
   function GroupComponent() {
     return <Group category="test" name="test" settings={settings} />;
   }
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Parent = reduxForm<any, any>({
@@ -76,6 +77,7 @@ describe("Group", () => {
   it("is rendered", () => {
     renderComponent();
     const group = screen.queryAllByTestId("admin-settings-group-wrapper");
+
     expect(group).toHaveLength(1);
   });
 
@@ -93,6 +95,7 @@ describe("Group", () => {
       toggle,
       uneditableField,
     } = getElements();
+
     expect(textInput).toHaveLength(1);
     expect(toggle).toHaveLength(0);
     expect(link).toHaveLength(0);
@@ -118,6 +121,7 @@ describe("Group", () => {
       toggle,
       uneditableField,
     } = getElements();
+
     expect(textInput).toHaveLength(0);
     expect(toggle).toHaveLength(1);
     expect(link).toHaveLength(0);
@@ -143,6 +147,7 @@ describe("Group", () => {
       toggle,
       uneditableField,
     } = getElements();
+
     expect(textInput).toHaveLength(0);
     expect(toggle).toHaveLength(0);
     expect(link).toHaveLength(1);
@@ -168,6 +173,7 @@ describe("Group", () => {
       toggle,
       uneditableField,
     } = getElements();
+
     expect(textInput).toHaveLength(0);
     expect(toggle).toHaveLength(0);
     expect(link).toHaveLength(0);
@@ -193,6 +199,7 @@ describe("Group", () => {
       toggle,
       uneditableField,
     } = getElements();
+
     expect(textInput).toHaveLength(0);
     expect(toggle).toHaveLength(0);
     expect(link).toHaveLength(0);
@@ -218,6 +225,7 @@ describe("Group", () => {
       toggle,
       uneditableField,
     } = getElements();
+
     expect(textInput).toHaveLength(0);
     expect(toggle).toHaveLength(0);
     expect(link).toHaveLength(0);
@@ -243,6 +251,7 @@ describe("Group", () => {
       toggle,
       uneditableField,
     } = getElements();
+
     expect(textInput).toHaveLength(0);
     expect(toggle).toHaveLength(0);
     expect(link).toHaveLength(0);
@@ -268,6 +277,7 @@ describe("Group", () => {
       toggle,
       uneditableField,
     } = getElements();
+
     expect(textInput).toHaveLength(0);
     expect(toggle).toHaveLength(0);
     expect(link).toHaveLength(0);
@@ -293,6 +303,7 @@ describe("Group", () => {
       toggle,
       uneditableField,
     } = getElements();
+
     expect(textInput).toHaveLength(0);
     expect(toggle).toHaveLength(0);
     expect(link).toHaveLength(0);

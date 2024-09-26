@@ -46,9 +46,9 @@ const setterMethodsToTest = [
     property: "url",
     widget: WIDGET.AUDIO,
     actionBinding:
-      "{{Audio1.setURL('https://www.youtube.com/watch?v=JGwWNGJdvx8')}}",
+      "{{Audio1.setURL('http://host.docker.internal:4200/bird.mp4')}}",
     valueBinding: "{{Audio1.url}}",
-    expectedValue: "https://www.youtube.com/watch?v=JGwWNGJdvx8",
+    expectedValue: "http://host.docker.internal:4200/bird.mp4",
   },
   {
     name: "setPlaying",

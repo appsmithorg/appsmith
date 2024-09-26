@@ -11,6 +11,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -201,6 +203,7 @@ public class CacheAspect {
         CacheEvict annotation = method.getAnnotation(CacheEvict.class);
         String cacheName = annotation.cacheName();
         boolean all = annotation.all();
+        String[] keys = annotation.keys(); // Get the array of keys
         Class<?> returnType = method.getReturnType();
 
         if (!returnType.isAssignableFrom(Mono.class)) {
@@ -212,10 +215,55 @@ public class CacheAspect {
             return cacheManager.evictAll(cacheName).then((Mono<?>) joinPoint.proceed());
         }
 
+        // Evict multiple keys
+        if (keys.length > 0) { // If there are specific keys, evict those
+            // Create a Flux from the array of keys and map each key to a Mono of eviction
+
+            // Create the expression parser and evaluation context
+            ExpressionParser parser = new SpelExpressionParser();
+            StandardEvaluationContext context = new StandardEvaluationContext();
+
+            // Bind method arguments to the context
+            String[] parameterNames = signature.getParameterNames();
+            List<Mono<Void>> evictionMonos = new ArrayList<>();
+            for (int i = 0; i < joinPoint.getArgs().length; i++) {
+                context.setVariable(parameterNames[i], joinPoint.getArgs()[i]);
+            }
+
+            // Evaluate each key expression
+            for (String keyExpression : keys) {
+                // Parse and evaluate the expression
+                Expression expression = parser.parseExpression(keyExpression);
+
+                Object keyObj = expression.getValue(context);
+
+                // Handle case where the key value is a List
+                if (keyObj instanceof List) {
+                    List<?> keyList = (List<?>) keyObj;
+                    for (Object key : keyList) {
+                        if (key != null) {
+                            evictionMonos.add(cacheManager.evict(cacheName, key.toString()));
+                        }
+                    }
+                } else {
+                    // Single key handling
+                    if (keyObj != null) {
+                        evictionMonos.add(cacheManager.evict(cacheName, keyObj.toString()));
+                    }
+                }
+            }
+            return Flux.fromIterable(evictionMonos)
+                    .flatMap(voidMono -> voidMono)
+                    .collectList()
+                    .then((Mono<?>) joinPoint.proceed());
+        }
+
+        // Evict single key
         // derive key
         String[] parameterNames = signature.getParameterNames();
         Object[] args = joinPoint.getArgs();
         String key = deriveKey(annotation.key(), parameterNames, args);
+
         // Evict key from the cache then call the original method
         return cacheManager.evict(cacheName, key).then((Mono<?>) joinPoint.proceed());
     }

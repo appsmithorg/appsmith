@@ -40,6 +40,7 @@ describe("SplitButton", () => {
     const clickableButton = screen.getByTestId(
       "t--splitbutton-clickable-button",
     );
+
     expect(clickableButton).toBeInTheDocument();
     await userEvent.click(clickableButton);
     expect(logSpy).toHaveBeenCalledWith("Clicked!");
@@ -48,6 +49,7 @@ describe("SplitButton", () => {
   it("should show and call the click event handler on click of left toggle", async () => {
     render(<SplitButton {...props} />);
     const clickableButton = screen.getByTestId("t--splitbutton-left-toggle");
+
     expect(clickableButton).toBeInTheDocument();
     await userEvent.click(clickableButton);
     expect(logSpy).toHaveBeenCalledWith("Left Toggle Clicked!");
@@ -56,6 +58,7 @@ describe("SplitButton", () => {
   it("should show and call the click event handler on click of right toggle", async () => {
     render(<SplitButton {...props} />);
     const clickableButton = screen.getByTestId("t--splitbutton-right-toggle");
+
     expect(clickableButton).toBeInTheDocument();
     await userEvent.click(clickableButton);
     expect(logSpy).toHaveBeenCalledWith("Right Toggle Clicked!");
@@ -67,6 +70,7 @@ describe("SplitButton", () => {
       leftToggle: { ...props.leftToggle, disable: true },
       rightToggle: { ...props.rightToggle, disable: true },
     };
+
     render(<SplitButton {..._props} />);
     expect(
       screen.queryByTestId("t--splitbutton-left-toggle"),

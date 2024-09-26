@@ -20,6 +20,7 @@ export const getIsDisconnectGitModalOpen = (state: AppState) =>
 
 export const getIsGitRepoSetup = (state: AppState) => {
   const gitMetadata = getCurrentAppGitMetaData(state);
+
   return gitMetadata?.remoteUrl;
 };
 
@@ -118,6 +119,7 @@ export const getFetchingBranches = (state: AppState) =>
 
 export const getCurrentGitBranch = (state: AppState): string | undefined => {
   const { gitApplicationMetadata } = getCurrentApplication(state) || {};
+
   return gitApplicationMetadata?.branchName;
 };
 
@@ -150,6 +152,7 @@ export const getCountOfChangesToCommit = (state: AppState) => {
   } = gitStatus || {};
   const themeCount = modified.includes("theme.json") ? 1 : 0;
   const settingsCount = modified.includes("application.json") ? 1 : 0;
+
   // does not include ahead and behind remote counts
   return (
     modifiedDatasources +

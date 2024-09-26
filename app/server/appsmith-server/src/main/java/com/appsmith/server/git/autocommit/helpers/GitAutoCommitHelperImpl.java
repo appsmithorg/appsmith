@@ -1,7 +1,5 @@
 package com.appsmith.server.git.autocommit.helpers;
 
-import com.appsmith.external.annotations.FeatureFlagged;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -18,7 +16,6 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -28,9 +25,8 @@ import static com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse.
 import static com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse.LOCKED;
 
 @Slf4j
-@Primary
 @Service
-public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl implements GitAutoCommitHelper {
+public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
     private final AutoCommitEventHandler autoCommitEventHandler;
     private final UserDataService userDataService;
@@ -89,7 +85,7 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
         String defaultApplicationId = defaultApplication.getId();
 
         if (!GitUtils.isAutoCommitEnabled(defaultApplication.getGitApplicationMetadata())) {
-            log.debug("auto commit is disabled for application: {}", defaultApplicationId);
+            log.info("Auto commit is disabled for application: {}", defaultApplicationId);
             return Mono.just(Boolean.FALSE);
         }
 
@@ -107,13 +103,18 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
                     Boolean isAutoCommitRunning = tuple.getT2();
 
                     if (isBranchProtected || isAutoCommitRunning) {
-                        log.debug(
-                                "auto commit is not applicable for application: {} branch: {}, isAutoCommitDisabledForBranch: {}",
+                        log.info(
+                                "Auto commit is not applicable for application: {} branch: {}, isAutoCommitDisabledForBranch: {}",
                                 defaultApplicationId,
                                 branchName,
                                 isBranchProtected);
                         return Mono.just(Boolean.FALSE);
                     }
+
+                    log.info(
+                            "Auto commit for application: {} branch: {} is applicable",
+                            defaultApplicationId,
+                            branchName);
 
                     return Mono.just(Boolean.TRUE);
                 })
@@ -121,19 +122,19 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     public Mono<Boolean> autoCommitClientMigration(String defaultApplicationId, String branchName) {
         return autoCommitApplication(defaultApplicationId, branchName, Boolean.TRUE);
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     public Mono<Boolean> autoCommitServerMigration(String defaultApplicationId, String branchName) {
         return autoCommitApplication(defaultApplicationId, branchName, Boolean.FALSE);
     }
 
     public Mono<Boolean> autoCommitApplication(
             String defaultApplicationId, String branchName, Boolean isClientMigration) {
+
+        log.info("Auto commit for application {} and branch {} in the publish flow", defaultApplicationId, branchName);
 
         // if either param is absent, then application is not connected to git.
         if (!StringUtils.hasText(branchName) || !StringUtils.hasText(defaultApplicationId)) {
@@ -155,21 +156,33 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
                 .flatMap(defaultApplication -> {
                     return isAutoCommitAllowed(defaultApplication, finalBranchName)
                             .flatMap(isEligible -> {
+                                log.info(
+                                        "Auto commit for application {}, and branch name {} is not allowed.",
+                                        defaultApplication.getId(),
+                                        branchName);
                                 if (!Boolean.TRUE.equals(isEligible)) {
                                     return Mono.empty();
                                 }
 
+                                log.info(
+                                        "Auto commit for application {}, and branch name {} is applicable",
+                                        defaultApplication.getId(),
+                                        branchName);
                                 return Mono.zip(applicationMono, branchedApplicationMono);
                             });
                 })
                 .flatMap(tuple2 -> {
                     Application defaultApplication = tuple2.getT1();
                     Application branchedApplication = tuple2.getT2();
+                    log.info(
+                            "Auto commit for application {}, and branch name {} is fetching remote changes",
+                            defaultApplication.getId(),
+                            branchName);
                     return commonGitService
                             .fetchRemoteChanges(defaultApplication, branchedApplication, true)
                             .flatMap(branchTrackingStatus -> {
                                 if (branchTrackingStatus.getBehindCount() > 0) {
-                                    log.debug(
+                                    log.info(
                                             "the remote is ahead of the local, aborting autocommit for application {} and branch {}",
                                             defaultApplicationId,
                                             branchName);
@@ -217,9 +230,10 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     public Mono<Boolean> publishAutoCommitEvent(
             AutoCommitTriggerDTO autoCommitTriggerDTO, String defaultApplicationId, String branchName) {
+
+        log.info("Trying to publish auto commit for application {} and branch {}", defaultApplicationId, branchName);
 
         if (!Boolean.TRUE.equals(autoCommitTriggerDTO.getIsAutoCommitRequired())) {
             return Mono.just(Boolean.FALSE);

@@ -47,12 +47,14 @@ function* reDistributeZoneSpaces(
 
   // Iterate through all zone IDs in the section
   const allZoneIds = sectionParent.children || [];
+
   allZoneIds.forEach((zoneId) => {
     let zoneWidget = updatedWidgets[zoneId];
 
     // If the zone widget exists, update its flexGrow based on the distributed spaces
     if (zoneWidget) {
       const spaces = zonesDistributed[zoneId];
+
       if (spaces) {
         zoneWidget = {
           ...zoneWidget,

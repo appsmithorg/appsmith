@@ -80,6 +80,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const draggingCanvas = useSelector(
     getWidgetByID(dragDetails.draggedOn || ""),
   );
+
   useEffect(() => {
     if (
       dragDetails.draggedOn &&
@@ -173,6 +174,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         direction === LayoutDirection.Vertical &&
           alignItems === AlignItems.Stretch,
       );
+
       return {
         ...each,
         updateWidgetParams,
@@ -186,6 +188,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         alignment: dropPayload.alignment,
       },
     };
+
     dispatch({
       type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
       payload: {
@@ -207,6 +210,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   };
 
   const rowRef = useRef(snapRows);
+
   useEffect(() => {
     rowRef.current = snapRows;
   }, [snapRows, isDragging]);

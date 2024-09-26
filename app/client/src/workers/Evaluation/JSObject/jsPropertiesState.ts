@@ -12,6 +12,7 @@ class JsPropertiesState {
   update(jsObjectName: string, properties: TParsedJSProperty[]) {
     for (const jsObjectProperty of properties) {
       const { key, position, rawContent, type } = jsObjectProperty;
+
       if (isJSFunctionProperty(jsObjectProperty)) {
         set(
           this.jsPropertiesState,

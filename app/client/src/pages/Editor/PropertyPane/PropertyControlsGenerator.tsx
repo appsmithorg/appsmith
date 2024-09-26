@@ -51,10 +51,12 @@ const generatePropertyControl = (
   isCollapseAllExceptDataEnabled: boolean,
 ) => {
   if (!propertyPaneConfig) return null;
+
   return propertyPaneConfig.map((config: PropertyPaneConfig) => {
     if ((config as PropertyPaneSectionConfig).sectionName) {
       const sectionConfig: PropertyPaneSectionConfig =
         config as PropertyPaneSectionConfig;
+
       return (
         <PropertySection
           childrenId={sectionConfig.childrenId}
@@ -94,6 +96,7 @@ const generatePropertyControl = (
         />
       );
     }
+
     throw Error("Unknown configuration provided: " + props.type);
   });
 };

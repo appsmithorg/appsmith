@@ -39,6 +39,7 @@ describe("DataSidePane", () => {
       actions: [usersAction1, usersAction2, ordersAction1],
       datasources: [productsDS, usersDS, ordersDS],
     }) as AppState;
+
     render(<DataSidePane />, {
       url: "app/untitled-application-1/page1/edit/datasource/users-ds-id",
       initialState: state,

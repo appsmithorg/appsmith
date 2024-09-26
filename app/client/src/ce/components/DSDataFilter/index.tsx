@@ -86,6 +86,7 @@ export function DSDataFilter({
       !isInsideReconnectModal;
 
     if (showFilterPane !== isRenderAllowed) setShowFilterPane(isRenderAllowed);
+
     // If there are no environments, do nothing
     if (!environmentList.length) return;
   }, [environmentList.length, viewMode, isInsideReconnectModal]);
@@ -94,6 +95,7 @@ export function DSDataFilter({
 
   const renderOption = (env: EnvironmentType, isDisabled: boolean) => {
     const disabledState = isDisabled;
+
     return (
       <FilterComponentContainer
         disabled={disabledState}
@@ -123,6 +125,7 @@ export function DSDataFilter({
     <Container>
       {environmentList.map((env: EnvironmentType) => {
         const isDisabled = !env.selected;
+
         return isDisabled ? (
           <Tooltip content={DisabledTooltipContent(rampLink)} placement="right">
             {renderOption(env, isDisabled)}

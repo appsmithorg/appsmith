@@ -28,6 +28,7 @@ const SwitchWrapped = styled.div`
 export class SwitchField extends React.Component<SwitchFieldProps, any> {
   get value() {
     const { input } = this.props;
+
     if (typeof input.value !== "string") return !!input.value;
     else {
       if (input.value.toLocaleLowerCase() === "false") return false;

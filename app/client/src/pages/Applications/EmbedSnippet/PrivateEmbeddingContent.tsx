@@ -56,6 +56,7 @@ export function PrivateEmbedRampModal() {
     isPrivateEmbedEnabled,
   );
   const canShowRamp = useSelector(showRampSelector);
+
   if (canShowRamp) {
     return (
       <div className="flex justify-between items-start">
@@ -87,6 +88,7 @@ export function PrivateEmbedRampModal() {
       </div>
     );
   }
+
   return null;
 }
 export function PrivateEmbedRampSidebar() {
@@ -105,6 +107,7 @@ export function PrivateEmbedRampSidebar() {
     isPrivateEmbedEnabled,
   );
   const canShowRamp = useSelector(showRampSelector);
+
   if (canShowRamp) {
     return (
       <div className="mt-6" data-testid="t--private-embed-settings-ramp">
@@ -122,6 +125,7 @@ export function PrivateEmbedRampSidebar() {
       </div>
     );
   }
+
   return null;
 }
 

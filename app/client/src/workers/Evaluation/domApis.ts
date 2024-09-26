@@ -99,6 +99,7 @@ const DOM_API_NAMES = [
 const DOM_APIS = DOM_API_NAMES.reduce(
   (acc, key) => {
     acc[key] = true;
+
     return acc;
   },
   {} as Record<string, true | undefined>,

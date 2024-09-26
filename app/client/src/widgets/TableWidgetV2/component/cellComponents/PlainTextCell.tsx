@@ -228,6 +228,7 @@ function PlainTextCell(
         }
       } catch (e) {
         Sentry.captureException(e);
+
         return value;
       }
     } else {

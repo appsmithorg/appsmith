@@ -260,6 +260,7 @@ const CardFooter = styled.div`
   display: flex;
   align-items: center;
   margin: 4px 0 0 0;
+  justify-content: space-between;
   width: ${(props) => props.theme.card.minWidth}px;
 
   @media screen and (min-width: 1500px) {

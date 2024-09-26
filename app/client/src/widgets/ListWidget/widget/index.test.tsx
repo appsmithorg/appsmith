@@ -47,6 +47,7 @@ describe("Autocomplete suggestions test", () => {
 
     const autocompleteDefinitions: AutocompletionDefinitions =
       ListWidget.getAutocompleteDefinitions();
+
     if (typeof autocompleteDefinitions === "function") {
       expect(autocompleteDefinitions(listWidgetProps)).toStrictEqual(output);
     }

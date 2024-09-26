@@ -284,6 +284,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     if (this.props.isDatasourceBeingSaved) {
       this.closeDialogAndUnblockRoutes();
     }
+
     this.setViewModeFromQueryParams();
 
     if (
@@ -314,12 +315,14 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         (this.props.datasource as Datasource).datasourceStorages,
       )[0];
     }
+
     return this.state.filterParams.id;
   };
 
   componentDidMount() {
     const urlObject = new URL(window.location.href);
     const pluginId = urlObject?.searchParams.get("pluginId");
+
     // Create Temp Datasource on component mount,
     // if user hasnt saved datasource for the first time and refreshed the page
     if (
@@ -330,6 +333,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         pluginId,
       });
     }
+
     if (!this.props.viewMode && !!this.props.pluginId) {
       this.blockRoutes();
     }
@@ -360,14 +364,17 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       const search = new URLSearchParams(this.props.location.search);
       const responseStatus = search.get("response_status");
       const responseMessage = search.get("display_message");
+
       if (responseStatus) {
         // Set default error message
         let message = REST_API_AUTHORIZATION_FAILED;
+
         if (responseStatus === "success") {
           message = REST_API_AUTHORIZATION_SUCCESSFUL;
         } else if (responseStatus === "appsmith_error") {
           message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
         }
+
         toast.show(responseMessage || createMessage(message));
       }
     }
@@ -377,6 +384,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   // from outside the datasource route
   setViewModeFromQueryParams() {
     const params = getQueryParams();
+
     if (this.props.viewMode) {
       if (
         (params.viewMode === "false" && !this.state.readUrlParams) ||
@@ -401,9 +409,12 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     const { configProperty, controlType, isRequired } = config;
     const configDetails = this.state.configDetails;
     const requiredFields = this.state.requiredFields;
+
     if (!configProperty || !configProperty.includes(this.getEnvironmentId()))
       return;
+
     configDetails[configProperty] = controlType;
+
     if (isRequired) requiredFields[configProperty] = config;
 
     // if the required fields being rendered has been hidden, then remove them.
@@ -502,6 +513,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         const prevPath =
           this.props.history.location.pathname +
           this.props.history.location.search;
+
         // On reload, it goes from same path to same path, we do not need to show popup in that case
         if (nextPath !== prevPath && this.props.isFormDirty) {
           this.setState(
@@ -514,6 +526,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
             },
             this.routesBlockFormChangeCallback.bind(this),
           );
+
           return false;
         }
       }),
@@ -543,6 +556,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   onDiscard() {
     this.props.resetForm(this.props.formName);
     this.closeDialogAndUnblockRoutes();
+
     if (this.state.switchFilterBlocked) {
       //unblock switch filter
       this.setState({ switchFilterBlocked: false });
@@ -551,6 +565,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       this.props.deleteTempDSFromDraft();
       this.props.datasourceDiscardAction(this.props?.pluginId);
     }
+
     this.state.navigation();
     this.props.datasourceDiscardAction(this.props?.pluginId);
 
@@ -572,6 +587,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     this.props.toggleSaveActionFlag(false);
     this.props.toggleSaveActionFromPopupFlag(false);
     this.setState({ routesBlocked: false });
+
     if (isNavigateBack) {
       this.state.navigation();
     }
@@ -595,6 +611,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       if (!this.props.viewMode) {
         this.props.setCurrentEditingEnvironmentID(id);
       }
+
       if (this.state.filterParams.id !== id) {
         if (
           !isEmpty(this.props.formData) &&
@@ -608,10 +625,12 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
               this.updateFilterSuccess(id, name, userPermissions);
             },
           });
+
           return false;
         } else {
           this.props.resetForm(this.props.formName);
         }
+
         return this.updateFilterSuccess(id, name, userPermissions);
       } else if (
         !isStorageEnvironmentCreated(this.props.formData as Datasource, id)
@@ -619,6 +638,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         return this.updateFilterSuccess(id, name, userPermissions);
       }
     }
+
     return true;
   };
 
@@ -637,6 +657,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         ) {
           acc[envId] = datasourceStorages[envId];
         }
+
         return acc;
       },
       {},
@@ -644,6 +665,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     const initialValues = merge(getConfigInitialValues(this.props.formConfig), {
       properties: [],
     });
+
     if (!datasourceStoragesWithId.hasOwnProperty(id)) {
       // Create the new datasource storage object
       const newDsStorageObject: DatasourceStorage = {
@@ -677,6 +699,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
         },
       });
     }
+
     AnalyticsUtil.logEvent("SWITCH_ENVIRONMENT", {
       fromEnvId: this.state.filterParams.id,
       toEnvId: id,
@@ -695,6 +718,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       requiredFields: {},
     });
     this.blockRoutes();
+
     return true;
   };
 
@@ -745,6 +769,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       (datasource as Datasource).name,
       this.state.filterParams.name,
     );
+
     if (toastMessage.message)
       return (
         <CalloutContainer viewMode={viewMode}>
@@ -762,6 +787,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           </Callout>
         </CalloutContainer>
       );
+
     return null;
   }
 
@@ -770,6 +796,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       this.props;
 
     const shouldViewMode = viewMode && !isInsideReconnectModal;
+
     // Check for specific form types first
     return (
       pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm &&
@@ -868,6 +895,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   renderViewConfigChild = () => {
     const { datasource, formConfig, viewMode } = this.props;
+
     return (
       <ViewModeWrapper data-testid="t--ds-review-section">
         {!isNil(formConfig) && !isNil(datasource) ? (
@@ -883,11 +911,13 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   shouldShowTabs = () => {
     const { isPluginAllowedToPreviewData } = this.props;
+
     return isPluginAllowedToPreviewData;
   };
 
   renderTabsForViewMode = () => {
     const { datasource } = this.props;
+
     return this.shouldShowTabs() ? (
       <DatasourceTabs
         configChild={this.renderViewConfigChild()}
@@ -945,6 +975,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           />
         );
       }
+
       history.push(
         saasEditorDatasourceIdURL({
           basePageId,
@@ -952,6 +983,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           datasourceId,
         }),
       );
+
       return null;
     }
 
@@ -1050,16 +1082,20 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       formData,
       pluginDatasourceForm,
     } = this.props;
+
     if (
       pluginDatasourceForm === DatasourceComponentTypes.RestAPIDatasourceForm
     ) {
       const createMode = datasourceId === TEMP_DATASOURCE_ID;
+
       if (!formData) return true;
+
       return (
         !(formData as ApiDatasourceForm).url ||
         (!createMode && !canManageDatasource)
       );
     }
+
     return validate(
       this.state.requiredFields,
       formData,

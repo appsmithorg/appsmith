@@ -73,8 +73,10 @@ export function defaultValueValidation(
       .format(1.1)
       .replace(/\p{Number}/gu, "");
   }
+
   const decimalSeperator = getLocaleDecimalSeperator();
   const defaultDecimalSeperator = ".";
+
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -462,6 +464,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     ) {
       this.formatText();
     }
+
     // If defaultText property has changed, reset isDirty to false
     if (
       this.props.defaultText !== prevProps.defaultText &&
@@ -492,6 +495,7 @@ class CurrencyInputWidget extends BaseInputWidget<
           minimumFractionDigits: this.props.decimals,
           maximumFractionDigits: this.props.decimals,
         }).format(floatVal);
+
         this.props.updateWidgetMetaProperty("text", formattedValue);
       } catch (e) {
         log.error(e);
@@ -503,6 +507,7 @@ class CurrencyInputWidget extends BaseInputWidget<
   onValueChange = (value: string) => {
     let formattedValue = "";
     const decimalSeperator = getLocaleDecimalSeperator();
+
     try {
       if (value && value.includes(decimalSeperator)) {
         formattedValue = limitDecimalValue(this.props.decimals, value);
@@ -541,6 +546,7 @@ class CurrencyInputWidget extends BaseInputWidget<
           new RegExp("\\" + getLocaleThousandSeparator(), "g"),
           "",
         );
+
         this.props.updateWidgetMetaProperty("text", deFormattedValue);
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
           triggerPropertyName: "onFocus",
@@ -555,8 +561,10 @@ class CurrencyInputWidget extends BaseInputWidget<
             this.props.decimals,
             this.props.text,
           );
+
           this.props.updateWidgetMetaProperty("text", formattedValue);
         }
+
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
           triggerPropertyName: "onBlur",
           dynamicString: this.props.onBlur,
@@ -594,6 +602,7 @@ class CurrencyInputWidget extends BaseInputWidget<
 
     // Since value is always going to be a number therefore, directly converting it to the current locale
     const formattedValue = Intl.NumberFormat(getLocale()).format(value);
+
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
@@ -613,10 +622,13 @@ class CurrencyInputWidget extends BaseInputWidget<
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const currencyCode = this.props.currencyCode;
     const conditionalProps: Partial<CurrencyInputComponentProps> = {};
+
     conditionalProps.errorMessage = this.props.errorMessage;
+
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
     }
+
     const { componentHeight } = this.props;
 
     if (this.props.showStepArrows) {

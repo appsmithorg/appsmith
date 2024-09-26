@@ -5,7 +5,7 @@
   box-sizing: border-box;
 
   &[data-layout="double_column"] {
-    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   }
 
   &[data-layout="single_column"] {
@@ -47,11 +47,49 @@
       }
     }
   }
-  /* Removable section ends here */
-}
+  /* PaginationControl hardcoded width is removed */
+  & :global(.t--form-control-PAGINATION) {
+    & > div {
+      grid-gap: 1rem !important;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
 
-@container uqi-section (max-width: 531px) {
-  .zone[data-layout="double_column"] {
-    grid-template-columns: 1fr;
+      & > div {
+        width: unset !important;
+        margin-right: 0 !important;
+      }
+    }
   }
+  /* SortingControl hardcoded width is removed */
+  & :global(.t--form-control-SORTING) {
+    & :global(.sorting-dropdown-container) {
+      width: unset;
+
+      & > div {
+        width: 100%;
+        flex: 1;
+      }
+    }
+  }
+  /* WhereClauseControl hardcoded width is removed */
+  & :global(.t--form-control-WHERE_CLAUSE) {
+    & > div {
+      padding-right: 0 !important;
+    }
+  }
+  /* DynamicInputTextControl min height and width removed */
+  & :global(.uqi-dynamic-input-text) {
+    width: unset !important;
+    min-height: unset !important;
+  }
+
+  /* Remove when code editor min width is resolved in DynamicTextFeildControl */
+  & :global(.dynamic-text-field-control) {
+    min-width: 260px;
+  }
+
+  /* reset ads select min width */
+  & :global(.ads-v2-select > .rc-select-selector) {
+    min-width: unset;
+  }
+  /* Removable section ends here */
 }

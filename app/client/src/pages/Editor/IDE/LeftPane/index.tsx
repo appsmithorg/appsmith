@@ -20,10 +20,12 @@ export const LeftPaneContainer = styled.div<{ showRightBorder?: boolean }>`
   border-right: ${({ showRightBorder = true }) =>
     showRightBorder ? "1px solid var(--ads-v2-color-border)" : "none"};
   background: var(--ads-v2-color-bg);
+  overflow: hidden;
 `;
 
 const LeftPane = () => {
   const { path } = useRouteMatch();
+
   return (
     <LeftPaneContainer showRightBorder={false}>
       <Switch>
