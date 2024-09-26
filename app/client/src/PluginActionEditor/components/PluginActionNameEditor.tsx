@@ -8,6 +8,7 @@ import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissi
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { PluginType } from "entities/Action";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import styled from "styled-components";
 
 export interface SaveActionNameParams {
   id: string;
@@ -19,6 +20,37 @@ export interface PluginActionNameEditorProps {
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
 }
+
+const ActionNameEditorWrapper = styled.div`
+  & .ads-v2-box {
+    gap: 4px;
+  }
+
+  && .t--action-name-edit-field {
+    padding: 0;
+
+    .bp3-editable-text-content,
+    .bp3-editable-text-input {
+      font-size: 12px;
+    }
+
+    .bp3-editable-text-content {
+      height: unset !important;
+      line-height: unset !important;
+      min-width: 90px !important;
+    }
+  }
+
+  & .t--plugin-icon {
+    width: 16px;
+    height: auto;
+  }
+
+  & .t--plugin-icon-box {
+    height: 24px;
+    width: 24px;
+  }
+`;
 
 const PluginActionNameEditor = (props: PluginActionNameEditorProps) => {
   const { action, plugin } = usePluginActionContext();
@@ -32,13 +64,13 @@ const PluginActionNameEditor = (props: PluginActionNameEditorProps) => {
   );
 
   return (
-    <div>
+    <ActionNameEditorWrapper className="t--action-name-editor-wrapper">
       <ActionNameEditor
         disabled={!isChangePermitted}
         enableFontStyling={plugin?.type === PluginType.API}
         saveActionName={props.saveActionName}
       />
-    </div>
+    </ActionNameEditorWrapper>
   );
 };
 

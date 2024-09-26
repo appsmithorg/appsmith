@@ -87,9 +87,10 @@ function ActionNameEditor(props: ActionNameEditorProps) {
             width="100%"
           >
             {currentPlugin && (
-              <IconBox>
+              <IconBox className="t--plugin-icon-box">
                 <IconWrapper
                   alt={currentPlugin.name}
+                  className="t--plugin-icon"
                   src={getAssetUrl(currentPlugin?.iconLocation)}
                 />
               </IconBox>
