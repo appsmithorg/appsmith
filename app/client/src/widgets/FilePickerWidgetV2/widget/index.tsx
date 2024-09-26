@@ -319,7 +319,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "isVisible",
             label: "Visible",
-            helpText: "Controls visibility of the widget ",
+            helpText: "Controls the visibility of the widget ",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -329,7 +329,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "isDisabled",
             label: "Disable",
-            helpText: "Disables input for this widget",
+            helpText: "Disables input to this widget",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -340,7 +340,7 @@ class FilePickerWidget extends BaseWidget<
             propertyName: "animateLoading",
             label: "Animate loading",
             controlType: "SWITCH",
-            helpText: "Controls the widget's loading state",
+            helpText: "Controls the loading of the widget",
             defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
@@ -391,8 +391,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "borderRadius",
             label: "Border radius",
-            helpText:
-              "Rounds the corners of the icon button's outer border",
+            helpText: "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
 
             isJSConvertible: true,
