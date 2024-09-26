@@ -31,6 +31,12 @@
   padding-inline: var(--inner-spacing-2);
 }
 
+.input:is([data-date-input]) {
+  display: flex;
+  gap: var(--inner-spacing-2);
+  align-items: center;
+}
+
 .inputWrapper:has([data-hovered]) {
   background-color: var(--color-bg-neutral-subtle-hover);
   box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-subtle-hover);
