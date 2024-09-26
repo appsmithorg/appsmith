@@ -10,28 +10,16 @@
   },
   "dependencies": {
     "@floating-ui/react": "^0.24.0",
-    "@react-aria/button": "^3.7.0",
-    "@react-aria/checkbox": "^3.9.0",
     "@react-aria/focus": "^3.11.0",
     "@react-aria/interactions": "^3.14.0",
-    "@react-aria/menu": "^3.11.1",
-    "@react-aria/radio": "^3.6.1",
-    "@react-aria/switch": "^3.5.2",
     "@react-aria/textfield": "^3.11.0",
     "@react-aria/utils": "^3.16.0",
-    "@react-aria/visually-hidden": "^3.8.0",
     "@react-spectrum/utils": "^3.9.0",
-    "@react-stately/checkbox": "^3.4.1",
-    "@react-stately/collections": "^3.10.2",
-    "@react-stately/menu": "^3.5.6",
-    "@react-stately/radio": "^3.8.1",
-    "@react-stately/toggle": "^3.5.1",
-    "@react-types/button": "^3.7.1",
-    "@react-types/checkbox": "^3.4.3",
+    "@react-stately/utils": "^3.10.3",
     "@react-types/label": "^3.7.3",
-    "@react-types/menu": "^3.9.5",
     "@react-types/shared": "^3.23.1",
-    "classnames": "*"
+    "@react-types/textfield": "^3.9.6",
+    "react-aria-components": "^1.3.3"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
