@@ -11,6 +11,8 @@ import {
 } from "ee/constants/messages";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
+import type { SaveActionNameParams } from "PluginActionEditor";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 
 export const NameWrapper = styled.div<{ enableFontStyling?: boolean }>`
   min-width: 50%;
@@ -71,9 +73,10 @@ interface NameEditorProps {
   children: (params: any) => JSX.Element;
   id?: string;
   name?: string;
-  // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dispatchAction: (a: any) => any;
+  onSaveName: (
+    params: SaveActionNameParams,
+  ) => ReduxAction<SaveActionNameParams>;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   suffixErrorMessage?: (params?: any) => string;
@@ -90,10 +93,10 @@ interface NameEditorProps {
 
 function NameEditor(props: NameEditorProps) {
   const {
-    dispatchAction,
     id: entityId,
     idUndefinedErrorMessage,
     name: entityName,
+    onSaveName,
     saveStatus,
     suffixErrorMessage = ACTION_NAME_CONFLICT_ERROR,
   } = props;
@@ -131,8 +134,8 @@ function NameEditor(props: NameEditorProps) {
 
   const handleNameChange = useCallback(
     (name: string) => {
-      if (name !== entityName && !isInvalidNameForEntity(name)) {
-        dispatch(dispatchAction({ id: entityId, name }));
+      if (name !== entityName && !isInvalidNameForEntity(name) && entityId) {
+        dispatch(onSaveName({ id: entityId, name }));
       }
     },
     [dispatch, isInvalidNameForEntity, entityId, entityName],

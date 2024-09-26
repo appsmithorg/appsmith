@@ -8,7 +8,6 @@ import EditableText, {
 import { removeSpecialChars } from "utils/helpers";
 import type { AppState } from "ee/reducers";
 
-import { saveActionName } from "actions/pluginActionActions";
 import { Flex } from "@appsmith/ads";
 import { getActionByBaseId, getPlugin } from "ee/selectors/entitiesSelector";
 import NameEditorComponent, {
@@ -24,11 +23,8 @@ import {
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { SaveActionNameParams } from "PluginActionEditor";
 
-interface SaveActionNameParams {
-  id: string;
-  name: string;
-}
 interface ActionNameEditorProps {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
@@ -38,13 +34,17 @@ interface ActionNameEditorProps {
   */
   enableFontStyling?: boolean;
   disabled?: boolean;
-  saveActionName?: (
+  saveActionName: (
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
 }
 
 function ActionNameEditor(props: ActionNameEditorProps) {
-  const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
+  const params = useParams<{
+    baseApiId?: string;
+    baseQueryId?: string;
+    moduleInstanceId?: string;
+  }>();
 
   const currentActionConfig = useSelector((state: AppState) =>
     getActionByBaseId(state, params.baseApiId || params.baseQueryId || ""),
@@ -60,16 +60,10 @@ function ActionNameEditor(props: ActionNameEditorProps) {
 
   return (
     <NameEditorComponent
-      /**
-       * This component is used by module editor in EE which uses a different
-       * action to save the name of an action. The current callers of this component
-       * pass the existing saveAction action but as fallback the saveActionName is used here
-       * as a guard.
-       */
-      dispatchAction={props.saveActionName || saveActionName}
       id={currentActionConfig?.id}
       idUndefinedErrorMessage={ACTION_ID_NOT_FOUND_IN_URL}
       name={currentActionConfig?.name}
+      onSaveName={props.saveActionName}
       saveStatus={saveStatus}
     >
       {({
