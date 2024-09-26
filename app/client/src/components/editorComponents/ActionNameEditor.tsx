@@ -12,7 +12,6 @@ import { Flex } from "@appsmith/ads";
 import { getActionByBaseId, getPlugin } from "ee/selectors/entitiesSelector";
 import NameEditorComponent, {
   IconBox,
-  IconWrapper,
   NameWrapper,
 } from "components/utils/NameEditorComponent";
 import {
@@ -24,6 +23,12 @@ import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { SaveActionNameParams } from "PluginActionEditor";
+import {
+  ActionUrlIcon,
+  DefaultModuleIcon,
+} from "pages/Editor/Explorer/ExplorerIcons";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 interface ActionNameEditorProps {
   /*
@@ -58,6 +63,12 @@ function ActionNameEditor(props: ActionNameEditorProps) {
     getSavingStatusForActionName(state, currentActionConfig?.id || ""),
   );
 
+  const iconUrl = getAssetUrl(currentPlugin?.iconLocation) || "";
+
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
+  );
+
   return (
     <NameEditorComponent
       id={currentActionConfig?.id}
@@ -88,11 +99,7 @@ function ActionNameEditor(props: ActionNameEditorProps) {
           >
             {currentPlugin && (
               <IconBox className="t--plugin-icon-box">
-                <IconWrapper
-                  alt={currentPlugin.name}
-                  className="t--plugin-icon"
-                  src={getAssetUrl(currentPlugin?.iconLocation)}
-                />
+                {iconUrl ? ActionUrlIcon(iconUrl) : DefaultModuleIcon()}
               </IconBox>
             )}
             <EditableText
@@ -102,6 +109,7 @@ function ActionNameEditor(props: ActionNameEditorProps) {
               editInteractionKind={EditInteractionKind.SINGLE}
               errorTooltipClass="t--action-name-edit-error"
               forceDefault={forceUpdate}
+              iconSize={isActionRedesignEnabled ? "sm" : "md"}
               isEditingDefault={isNew}
               isInvalid={isInvalidNameForEntity}
               onTextChanged={handleNameChange}

@@ -23,32 +23,26 @@ export interface PluginActionNameEditorProps {
 
 const ActionNameEditorWrapper = styled.div`
   & .ads-v2-box {
-    gap: 4px;
+    gap: var(--ads-v2-spaces-2);
   }
 
   && .t--action-name-edit-field {
-    padding: 0;
-
-    .bp3-editable-text-content,
-    .bp3-editable-text-input {
-      font-size: 12px;
-    }
+    font-size: 12px;
 
     .bp3-editable-text-content {
       height: unset !important;
       line-height: unset !important;
-      min-width: 90px !important;
     }
   }
 
-  & .t--plugin-icon {
-    width: 16px;
-    height: auto;
-  }
-
   & .t--plugin-icon-box {
-    height: 24px;
-    width: 24px;
+    height: 12px;
+    width: 12px;
+
+    img {
+      width: 12px;
+      height: auto;
+    }
   }
 `;
 
