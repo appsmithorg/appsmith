@@ -17,7 +17,7 @@ describe(
       "@tag.GitAutocommit",
       "@tag.excludeForAirgap",
       "@tag.Sanity",
-      "@tag.TedMigration"
+      "@tag.TedMigration",
     ],
   },
   function () {

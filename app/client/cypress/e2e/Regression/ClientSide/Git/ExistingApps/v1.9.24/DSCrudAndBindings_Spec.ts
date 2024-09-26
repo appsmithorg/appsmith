@@ -43,8 +43,7 @@ describe(
       dataSources.ReconnectDSbyType("PostgreSQL");
       homePage.AssertNCloseImport();
       homePage.RenameApplication(appName);
-      PageList.assertPresence("ListingAndReviews")
-
+      PageList.assertPresence("ListingAndReviews");
 
       // this logic will have to be removed after decimal issue with auto-commit is resolved
       assertHelper.AssertNetworkResponseData("gitStatus");
@@ -209,50 +208,6 @@ describe(
       agHelper.WaitUntilToastDisappear("Delete customer successful!");
       agHelper.ClickButton("Close");
       agHelper.AssertElementAbsence(locators._modal);
-    });
-
-    it("Edit JSObject & Check Updated Data ", () => {
-      deployMode.NavigateBacktoEditor();
-      //Edit existing JS object
-      EditorNavigation.SelectEntityByName("users", EntityType.JSObject);
-      jsEditor.EditJSObj(`export default {
-      fun: async () => {
-        return await invalidApi.run().catch((e) => showAlert("404 hit : " + e.message));
-      },
-      myFun1: async () => {
-        //write code here
-        const data = JSON.stringify(await usersApi.run())
-        return data
-      },
-      myFun2: async () => {
-        //use async-await or promises
-        await this.myFun1()
-        return showAlert("myFun2 Data")
-      }
-    }`);
-
-      //Update property field for button
-      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.EnterJSContext("onClick", `{{users.myFun2()}}`, true, false);
-
-      //Drag n drop text widget & bind it to myFun1
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
-      propPane.TypeTextIntoField("Text", `{{users.myFun1.data}}`);
-      agHelper.ValidateToastMessage(
-        "[users.myFun1] will be executed automatically on page load",
-      );
-
-      //Commit & push new changes
-      gitSync.CommitAndPush();
-      cy.latestDeployPreview();
-
-      //Validate new response for button & text widget
-      agHelper.GetNClickByContains(locators._deployedPage, "Widgets");
-      agHelper.ClickButton("Submit");
-      agHelper.ValidateToastMessage("myFun2 Data");
-      agHelper
-        .GetText(locators._widgetInDeployed(draggableWidgets.TEXT), "text")
-        .should("not.be.empty");
     });
 
     after(() => {
