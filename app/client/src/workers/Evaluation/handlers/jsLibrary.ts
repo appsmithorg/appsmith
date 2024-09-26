@@ -128,39 +128,31 @@ export async function installLibrary(
       // Find keys add that were installed to the global scope.
       const keysAfterInstallation = Object.keys(self);
 
-      const differentiatingKeys = difference(
+      let differentiatingKeys = difference(
         keysAfterInstallation,
         envKeysBeforeInstallation,
       );
 
-      if (
-        differentiatingKeys.length > 0 &&
-        differentiatingKeys.includes("default")
-      ) {
-        // Changing default export to library specific name
-        const uniqueName = generateUniqueAccessor(
-          url,
-          takenAccessors,
-          takenNamesMap,
-        );
+      // Changing default export to library specific name, if default exported
+      const uniqueName = generateUniqueAccessor(
+        url,
+        takenAccessors,
+        takenNamesMap,
+      );
 
-        // mapping default functionality to library name accessor
-        self[uniqueName] = self["default"];
-        // deleting the reference of default key from the self object
-        delete self["default"];
-        // mapping all the references of differentiating keys from the self object to the self[uniqueName] key object
-        differentiatingKeys.map((key) => {
-          if (key !== "default") {
-            self[uniqueName][key] = self[key];
-            // deleting the references from the self object
-            delete self[key];
-          }
-        });
-        // pushing the uniqueName to the accessor array
-        accessors.push(uniqueName);
-      } else {
-        accessors.push(...differentiatingKeys);
-      }
+      movetheDefaultExportedLibraryToAccessorKey(
+        differentiatingKeys,
+        uniqueName,
+      );
+
+      // Following the same process which was happening earlier
+      const keysAfterDefaultOperation = Object.keys(self);
+
+      differentiatingKeys = difference(
+        keysAfterDefaultOperation,
+        envKeysBeforeInstallation,
+      );
+      accessors.push(...differentiatingKeys);
 
       /**
        * Check the list of installed library to see if their values have changed.
@@ -310,26 +302,11 @@ export async function loadLibraries(
         const keysAfter = Object.keys(self);
         let defaultAccessors = difference(keysAfter, keysBefore);
 
-        if (
-          defaultAccessors.length > 0 &&
-          defaultAccessors.includes("default")
-        ) {
-          // Changing default export to library accessors name which was saved when it was installed
-          const uniqueName = accessors[0];
-
-          // mapping default functionality to library name accessor
-          self[uniqueName] = self["default"];
-          // deleting the reference of default key from the self object
-          delete self["default"];
-          // mapping all the references of differentiating keys from the self object to the self[uniqueName] key object
-          defaultAccessors.map((key) => {
-            if (key !== "default") {
-              self[uniqueName][key] = self[key];
-              // deleting the references from the self object
-              delete self[key];
-            }
-          });
-        }
+        // Changing default export to library accessors name which was saved when it was installed, if default export present
+        movetheDefaultExportedLibraryToAccessorKey(
+          defaultAccessors,
+          accessors[0],
+        );
 
         // Following the same process which was happening earlier
         const keysAfterDefaultOperation = Object.keys(self);
@@ -472,4 +449,25 @@ export function flattenModule(module: Record<string, any>) {
   }
 
   return libModule;
+}
+
+// This function will update the self keys only when the diffAccessors has default included in it.
+function movetheDefaultExportedLibraryToAccessorKey(
+  diffAccessors: string[],
+  uniqAccessor: string,
+) {
+  if (diffAccessors.length > 0 && diffAccessors.includes("default")) {
+    // mapping default functionality to library name accessor
+    self[uniqAccessor] = self["default"];
+    // deleting the reference of default key from the self object
+    delete self["default"];
+    // mapping all the references of differentiating keys from the self object to the self[uniqAccessor] key object
+    diffAccessors.map((key) => {
+      if (key !== "default") {
+        self[uniqAccessor][key] = self[key];
+        // deleting the references from the self object
+        delete self[key];
+      }
+    });
+  }
 }
