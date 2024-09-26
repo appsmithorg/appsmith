@@ -1,0 +1,102 @@
+{
+  "controlType": "SECTION_V2",
+  "identifier": "BODY",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command === 'SEND'}}"
+  },
+  "children": [
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "BODY-Z1",
+      "children": [
+        {
+          "label": "Recepients",
+          "subtitle": "Separate with comma",
+          "configProperty": "actionConfiguration.formData.send.to",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "email@example.com, email2@example.com",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "BODY-Z2",
+      "children": [
+        {
+          "label": "CC",
+          "subtitle": "Separate with comma",
+          "configProperty": "actionConfiguration.formData.send.cc",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "email@example.com, email2@example.com"
+        },
+        {
+          "label": "BCC",
+          "subtitle": "Separate with comma",
+          "configProperty": "actionConfiguration.formData.send.bcc",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "email@example.com, email2@example.com"
+        }
+      ]
+    },
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "BODY-Z3",
+      "children": [
+        {
+          "label": "Subject",
+          "configProperty": "actionConfiguration.formData.send.subject",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "Awesome email subject"
+        }
+      ]
+    },
+    {
+      "controlType": "DOUBLE_COLUMN_ZONE",
+      "identifier": "BODY-Z4",
+      "children": [
+        {
+          "label": "Body type",
+          "configProperty": "actionConfiguration.formData.send.bodyType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "text/plain",
+          "options": [
+            {
+              "label": "Plain text",
+              "value": "text/plain"
+            },
+            {
+              "label": "HTML",
+              "value": "text/html"
+            }
+          ],
+          "evaluationSubstitutionType": "TEMPLATE"
+        }
+      ]
+    },
+    {
+      "controlType": "SINGLE_COLUMN_ZONE",
+      "identifier": "BODY-Z5",
+      "children": [
+        {
+          "label": "Body",
+          "configProperty": "actionConfiguration.body",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "Incredible body text"
+        },
+        {
+          "label": "Attachment(s)",
+          "configProperty": "actionConfiguration.formData.send.attachments",
+          "controlType": "QUERY_DYNAMIC_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "placeholderText": "{{Filepicker.files}}"
+        }
+      ]
+    }
+  ]
+}

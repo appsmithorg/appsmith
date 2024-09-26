@@ -12,6 +12,7 @@ describe("WidgetQueryGeneratorRegistry", () => {
 
   it("should return a falsey value when searching for an non existing generator", () => {
     const nonExistingQueryGeneratopr = "someId";
+
     expect(
       WidgetQueryGeneratorRegistry.get(nonExistingQueryGeneratopr),
     ).toBeFalsy();
@@ -19,6 +20,7 @@ describe("WidgetQueryGeneratorRegistry", () => {
 
   it("should return the same adaptor reference when querying the same pluginId", () => {
     const adaptor = WidgetQueryGeneratorRegistry.get(somepluginId);
+
     expect(adaptor).toBe(WidgetQueryGeneratorRegistry.get(somepluginId));
   });
   it("should not find the registered plugin after clearing the registry", () => {

@@ -71,13 +71,17 @@ export const WorkspaceSettingsTabs = ({
     if (!workspacePermissions) {
       return false;
     }
+
     // If user doesn't have manage workspace permissions & is on settings page, redirect to applications
     if (currentTab === TABS.GENERAL && !hasManageWorkspacePermissions)
       return true;
+
     // If user doesn't have manage members permissions & is on members page, redirect to applications
     if (currentTab === TABS.MEMBERS && !isMemberofTheWorkspace) return true;
+
     // If the redirect flag is set to true by EE application, redirect to applications
     if (eeTabRedirect) return true;
+
     return false;
   }, [
     workspacePermissions,

@@ -31,9 +31,11 @@ export function getFixedTimeDifference(endTime: number, startTime: number) {
 export function isDataField(fullPath: string, configTree: ConfigTree) {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(fullPath);
   const entityConfig = configTree[entityName];
+
   if (entityConfig && "triggerPaths" in entityConfig) {
     return !(propertyPath in entityConfig.triggerPaths);
   }
+
   return false;
 }
 
@@ -48,12 +50,17 @@ export function getAllAsyncJSFunctions(
   allAsyncNodes: string[],
 ) {
   const allAsyncJSFunctions: string[] = [];
+
   for (const [entityName, entity] of Object.entries(unevalTree)) {
     if (!isJSAction(entity)) continue;
+
     const jsEntityState = jsPropertiesState[entityName];
+
     if (!jsEntityState) continue;
+
     for (const [propertyName, propertyState] of Object.entries(jsEntityState)) {
       if (!("isMarkedAsync" in propertyState)) continue;
+
       if (propertyState.isMarkedAsync) {
         allAsyncJSFunctions.push(`${entityName}.${propertyName}`);
         continue;
@@ -62,11 +69,13 @@ export function getAllAsyncJSFunctions(
           `${entityName}.${propertyName}`,
           allAsyncNodes,
         );
+
         reacheableAsyncNodes.length &&
           allAsyncJSFunctions.push(`${entityName}.${propertyName}`);
       }
     }
   }
+
   return allAsyncJSFunctions;
 }
 
@@ -76,6 +85,7 @@ export function isValidEntity(
   if (!isObject(entity)) {
     return false;
   }
+
   return true;
 }
 
@@ -84,10 +94,12 @@ export function getValidEntityType(
   entityConfig: DataTreeEntityConfig,
 ) {
   let entityType;
+
   if (isValidEntity(entity)) {
     entityType =
       (!!entityConfig && entityConfig.ENTITY_TYPE) || entity.ENTITY_TYPE;
   }
+
   return !!entityType ? entityType : "noop";
 }
 
@@ -98,20 +110,26 @@ export function getOnlyAffectedJSObjects(
   affectedJSObjects: AffectedJSObjects,
 ) {
   const { ids, isAllAffected } = affectedJSObjects;
+
   if (isAllAffected) {
     return jsDataTree;
   }
+
   if (!ids || ids.length === 0) {
     return {};
   }
+
   const idsSet = new Set(ids);
+
   return Object.keys(jsDataTree).reduce(
     (acc, jsObjectName) => {
       const { actionId } = jsDataTree[jsObjectName];
+
       //only matching action id will be included in the reduced jsDataTree
       if (idsSet.has(actionId)) {
         acc[jsObjectName] = jsDataTree[jsObjectName];
       }
+
       return acc;
     },
     {} as Record<string, JSActionEntity>,
@@ -125,10 +143,12 @@ export function getIsNewWidgetAdded(
   return translatedDiffs.some((diffEvent) => {
     if (diffEvent.event === DataTreeDiffEvent.NEW) {
       const entity = unEvalTree[diffEvent.payload.propertyPath];
+
       if (isWidget(entity)) {
         return true;
       }
     }
+
     return false;
   });
 }

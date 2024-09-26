@@ -72,6 +72,10 @@ export interface FetchPublishedPageActionPayload {
   pageWithMigratedDsl?: FetchPageResponse;
 }
 
+export interface FetchPublishedPageResourcesPayload {
+  pageId: string;
+}
+
 export const fetchPublishedPageAction = (
   pageId: string,
   bustCache = false,
@@ -181,6 +185,7 @@ export const updateAndSaveLayout = (
   options: updateLayoutOptions = {},
 ) => {
   const { isRetry, shouldReplay, updatedWidgetIds } = options;
+
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
     payload: { widgets, isRetry, shouldReplay, updatedWidgetIds },
@@ -212,6 +217,7 @@ export const createPageAction = (
     orgId,
     instanceId,
   });
+
   return {
     type: ReduxActionTypes.CREATE_PAGE_INIT,
     payload: {
@@ -233,6 +239,7 @@ export const createNewPageFromEntities = (
     orgId,
     instanceId,
   });
+
   return {
     type: ReduxActionTypes.CREATE_NEW_PAGE_FROM_ENTITIES,
     payload: {
@@ -290,6 +297,17 @@ export const clonePageSuccess = ({
   };
 };
 
+// Fetches resources required for published page, currently only used for fetching actions
+// In future we can reuse this for fetching other page level resources in published mode
+export const fetchPublishedPageResourcesAction = (
+  pageId: string,
+): ReduxAction<FetchPublishedPageResourcesPayload> => ({
+  type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_INIT,
+  payload: {
+    pageId,
+  },
+});
+
 // update a page
 
 export interface UpdatePageActionPayload {
@@ -310,6 +328,7 @@ export const updatePageAction = (
       new Error("Attempting to update page without page id"),
     );
   }
+
   return {
     type: ReduxActionTypes.UPDATE_PAGE_INIT,
     payload,

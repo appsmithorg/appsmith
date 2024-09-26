@@ -11,6 +11,7 @@ class CustomDef {
   update(customData?: AdditionalDynamicDataTree) {
     if (customData && !isEmpty(customData)) {
       const customDataDef = customTreeTypeDefCreator(customData);
+
       if (!equal(CustomDef.lastCustomDataDef, customDataDef)) {
         const start = performance.now();
 
@@ -26,6 +27,7 @@ class CustomDef {
       }
     } else if (CustomDef.lastCustomDataDef) {
       const start = performance.now();
+
       CodemirrorTernService.removeDef("customDataTree");
       debug(
         "Tern: removeDef for customDataTree took",

@@ -14,6 +14,7 @@ function runFnDescriptor(
   const actionParams = isTrueObject(onSuccessOrParams)
     ? onSuccessOrParams
     : params;
+
   return {
     type,
     payload: {
@@ -41,11 +42,13 @@ export default async function run(
   params = {},
 ) {
   const executor = promisify(runFnDescriptor.bind(this));
+
   try {
     const response = await executor(onSuccessOrParams, onError, params);
     // response is an array of [data, params, responseMeta]
     // @ts-expect-error: self type is not defined
     const action = self[this.name] as ActionEntity;
+
     if (action) {
       action.data = response[0];
       action.responseMeta = response[2];
@@ -54,8 +57,10 @@ export default async function run(
 
     if (typeof onSuccessOrParams === "function") {
       onSuccessOrParams.apply(this, response);
+
       return;
     }
+
     /*
      * Api execution returns [response, params]
      * Old callback style are passed both response and params
@@ -67,8 +72,10 @@ export default async function run(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onError((e as any).message);
+
       return;
     }
+
     throw e;
   }
 }

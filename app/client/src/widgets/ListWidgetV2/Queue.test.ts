@@ -115,6 +115,7 @@ describe("#metadata", () => {
 
     testCases.forEach(({ expectedOutput, input }) => {
       const output = queue.metadata(input);
+
       expect(output).toEqual(expectedOutput);
     });
   });

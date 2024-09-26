@@ -53,6 +53,7 @@ export const AutoLayoutCanvasView = ({
       direction,
     ],
   );
+
   return (
     <FlexBoxComponent
       direction={direction}

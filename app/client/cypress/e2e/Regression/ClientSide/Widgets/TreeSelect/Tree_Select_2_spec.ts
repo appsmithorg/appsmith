@@ -308,7 +308,7 @@ describe(
       propPane.ToggleJSMode("onOptionChange", true);
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
-        `{{download('https://assets.codepen.io/3/kiwi.svg', 'kiwi.svg', 'image/svg+xml').then(() => {
+        `{{download('http://host.docker.internal:4200/kiwi.svg', 'kiwi.svg', 'image/svg+xml').then(() => {
             showAlert('Download Success', '');
           });}}`,
       );

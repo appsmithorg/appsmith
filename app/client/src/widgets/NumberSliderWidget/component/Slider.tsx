@@ -137,6 +137,7 @@ const SliderComponent = (props: SliderComponentProps) => {
           max,
           step,
         });
+
         setValue(nextValue);
         valueRef.current = nextValue;
       }
@@ -171,6 +172,7 @@ const SliderComponent = (props: SliderComponentProps) => {
           event.preventDefault();
           thumb.current?.focus();
           const nextValue = Math.min(Math.max(_value + step, min), max);
+
           onChangeEnd(nextValue);
           setValue(nextValue);
           break;
@@ -181,6 +183,7 @@ const SliderComponent = (props: SliderComponentProps) => {
           event.preventDefault();
           thumb.current?.focus();
           const nextValue = Math.min(Math.max(_value - step, min), max);
+
           onChangeEnd(nextValue);
           setValue(nextValue);
           break;

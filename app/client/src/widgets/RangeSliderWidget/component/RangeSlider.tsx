@@ -162,6 +162,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     triggerChangeEnd: boolean,
   ) => {
     const clone: Value = [...valueRef.current];
+
     clone[index] = val;
 
     if (index === 0) {
@@ -199,6 +200,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
         max,
         step,
       });
+
       setRangedValue(nextValue, thumbIndex.current || 0, false);
     }
   };
@@ -244,12 +246,14 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
       Math.abs(_value[0] - changeValue) > Math.abs(_value[1] - changeValue)
         ? 1
         : 0;
+
     thumbIndex.current = nearestHandle;
   };
 
   const getFocusedThumbIndex = () => {
     if (focused !== 1 && focused !== 0) {
       setFocused(0);
+
       return 0;
     }
 
@@ -269,6 +273,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
         case "ArrowRight": {
           event.preventDefault();
           const focusedIndex = getFocusedThumbIndex();
+
           thumbs.current[focusedIndex].focus();
           throttledSetRangedValue(
             Math.min(Math.max(valueRef.current[focusedIndex] + step, min), max),
@@ -281,6 +286,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
         case "ArrowLeft": {
           event.preventDefault();
           const focusedIndex = getFocusedThumbIndex();
+
           thumbs.current[focusedIndex].focus();
           throttledSetRangedValue(
             Math.min(Math.max(valueRef.current[focusedIndex] - step, min), max),
@@ -360,6 +366,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
             const nearestValue =
               Math.abs(_value[0] - val) > Math.abs(_value[1] - val) ? 1 : 0;
             const clone: Value = [..._value];
+
             clone[nearestValue] = val;
             _setValue(clone);
           }}

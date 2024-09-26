@@ -50,6 +50,7 @@ const StyledDiscordIcon = styled(DiscordIcon)`
 
 function ResultsNotFound() {
   const isAirgappedInstance = isAirgapped();
+
   return (
     <Container>
       <img alt="No data" src={NoSearchDataImage} />

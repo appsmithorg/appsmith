@@ -122,7 +122,7 @@ describe(
         deployMode.NavigateBacktoEditor();
 
         //verify runAstros triggered on PageLaoad of Edit page!
-        debuggerHelper.ClickDebuggerIcon();
+        debuggerHelper.OpenDebugger();
         debuggerHelper.ClickLogsTab();
         debuggerHelper.DebuggerLogsFilter("JSObject1.runAstros");
         debuggerHelper.DoesConsoleLogExist("JS Function executed successfully");

@@ -139,6 +139,7 @@ function* startCanvasSelectionSaga(
       widgetOccupiedSpaces,
     },
   );
+
   yield take(ReduxActionTypes.STOP_CANVAS_SELECTION);
   yield cancel(selectionTask);
 }

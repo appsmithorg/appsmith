@@ -13,6 +13,7 @@ let container: any = null;
 
 const urlValidator = (value: string) => {
   const validationRegex = "^(http|https)://";
+
   if (value) {
     const regex = new RegExp(validationRegex);
 
@@ -76,9 +77,11 @@ describe("Authenticated API URL validations", () => {
     const inputFormControl = document.querySelectorAll(
       ".t--form-control-INPUT_TEXT",
     );
+
     expect(inputFormControl.length).toBe(1);
 
     const inputBox = inputFormControl[0].querySelectorAll("input");
+
     expect(inputBox.length).toBe(1);
 
     await userEvent.type(inputBox[0], "test value");
@@ -87,6 +90,7 @@ describe("Authenticated API URL validations", () => {
     const errorText = screen.getAllByText(
       "Please enter a valid URL, for example, https://example.com",
     );
+
     expect(errorText).toBeDefined();
   });
 
@@ -95,9 +99,11 @@ describe("Authenticated API URL validations", () => {
     const inputFormControl = document.querySelectorAll(
       ".t--form-control-INPUT_TEXT",
     );
+
     expect(inputFormControl.length).toBe(1);
 
     const inputBox = inputFormControl[0].querySelectorAll("input");
+
     expect(inputBox.length).toBe(1);
 
     await userEvent.type(inputBox[0], "https://example.com");
@@ -106,6 +112,7 @@ describe("Authenticated API URL validations", () => {
     const errorText = screen.queryAllByText(
       "Please enter a valid URL, for example, https://example.com",
     );
+
     expect(errorText.length).toBe(0);
   });
 });

@@ -53,13 +53,11 @@ app/server/appsmith-server/src/test/java/com/appsmith/server/services/FeatureFla
 
 # UI Builders Pod
 app/client/generators/* @appsmithorg/anvil-team
-app/client/src/actions/autoHeightActions.ts @appsmithorg/anvil-team
-app/client/src/actions/autoLayoutActions.ts @appsmithorg/anvil-team
 app/client/src/actions/canvasSelectionActions.ts @appsmithorg/anvil-team
 app/client/src/actions/reflowActions.ts @appsmithorg/anvil-team
 app/client/src/actions/widgetSelectionActions.ts @appsmithorg/anvil-team
 app/client/src/components/propertyControls/* @appsmithorg/anvil-team
-app/client/src/layoutSystems/* @appsmithorg/anvil-team
+app/client/src/layoutSystems/anvil/* @appsmithorg/anvil-team
 app/client/src/pages/Editor/Canvas.tsx @appsmithorg/anvil-team
 app/client/src/pages/Editor/CanvasLayoutConversion/* @appsmithorg/anvil-team
 app/client/src/pages/Editor/PropertyPane/* @appsmithorg/anvil-team
@@ -67,7 +65,6 @@ app/client/src/pages/Editor/WidgetsEditor/* @appsmithorg/anvil-team
 app/client/src/reducers/entityReducers/autoHeightReducers/* @appsmithorg/anvil-team
 app/client/src/reducers/entityReducers/canvasWidgetsReducer.ts @appsmithorg/anvil-team
 app/client/src/reflow/* @appsmithorg/anvil-team
-app/client/src/sagas/AutoLayoutUpdateSagas.tsx @appsmithorg/anvil-team
 app/client/src/sagas/CanvasSagas/* @appsmithorg/anvil-team
 app/client/src/sagas/ReplaySaga.ts @appsmithorg/anvil-team
 app/client/src/sagas/SnapshotSagas.ts @appsmithorg/anvil-team
@@ -78,14 +75,9 @@ app/client/src/sagas/WidgetOperationSagas.tsx @appsmithorg/anvil-team
 app/client/src/sagas/WidgetOperationUtils.ts @appsmithorg/anvil-team
 app/client/src/sagas/WidgetSelectUtils.ts @appsmithorg/anvil-team
 app/client/src/sagas/WidgetSelectionSagas.ts @appsmithorg/anvil-team
-app/client/src/sagas/autoHeightSagas/* @appsmithorg/anvil-team
 app/client/src/sagas/layoutConversionSagas.ts @appsmithorg/anvil-team
-app/client/src/selectors/autoHeightSelectors.ts @appsmithorg/anvil-team
-app/client/src/selectors/autoLayoutSelectors.tsx @appsmithorg/anvil-team
 app/client/src/selectors/canvasSelectors.ts @appsmithorg/anvil-team
 app/client/src/selectors/widgetSelectors.ts @appsmithorg/anvil-team
-app/client/src/utils/autoHeight/* @appsmithorg/anvil-team
-app/client/src/utils/hooks/autoHeightUIHooks.ts @appsmithorg/anvil-team
 app/client/src/utils/hooks/useAllowEditorDragToSelect.ts @appsmithorg/anvil-team
 app/client/src/utils/hooks/useClickToSelectWidget.tsx @appsmithorg/anvil-team
 app/client/src/utils/hooks/useDynamicAppLayout.tsx @appsmithorg/anvil-team

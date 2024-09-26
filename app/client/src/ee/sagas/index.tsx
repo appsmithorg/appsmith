@@ -30,5 +30,6 @@ export function* rootSaga(sagasToRun = sagasArr): any {
     ),
     crashed: take(ReduxActionTypes.SAFE_CRASH_APPSMITH),
   });
+
   if (result.crashed) yield call(rootSaga);
 }

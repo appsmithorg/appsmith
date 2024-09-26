@@ -120,6 +120,7 @@ class WorkspaceApi extends Api {
     request: SaveWorkspaceLogo,
   ): Promise<AxiosPromise<ApiResponse>> {
     const formData = new FormData();
+
     if (request.logo) {
       formData.append("file", request.logo);
     }

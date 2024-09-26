@@ -108,6 +108,7 @@ describe("evaluateAndPushResponse", () => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let pushResponseToMainThreadMock: any;
+
   beforeAll(() => {
     pushResponseToMainThreadMock = jest
       .spyOn(evalTreeWithChanges, "pushResponseToMainThread")
@@ -148,6 +149,7 @@ describe("getAffectedNodesInTheDataTree", () => {
       ],
       ["Text1.text"],
     );
+
     expect(result).toEqual(["Text2.text", "Text1.text"]);
   });
   test("should extract unique paths from unEvalUpdates and evalOrder", () => {
@@ -163,6 +165,7 @@ describe("getAffectedNodesInTheDataTree", () => {
       ],
       ["Text1.text"],
     );
+
     expect(result).toEqual(["Text1.text"]);
   });
 });
@@ -174,11 +177,13 @@ describe("evaluateAndGenerateResponse", () => {
     webworkerResponse: UpdateDataTreeMessageData,
   ) => {
     const updates = JSON.parse(webworkerResponse.workerResponse.updates);
+
     //scrub out all __evaluation__ patches
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return updates.filter((p: any) => !p.rhs.__evaluation__);
   };
+
   beforeEach(() => {
     evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
     evaluator.setupFirstTree(unEvalTree, configTree);
@@ -274,6 +279,7 @@ describe("evaluateAndGenerateResponse", () => {
       );
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
+
       // Text1.label update should be ignored
       expect(parsedUpdates).not.toEqual(
         expect.arrayContaining([
@@ -342,6 +348,7 @@ describe("evaluateAndGenerateResponse", () => {
 
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
+
       expect(parsedUpdates).toEqual(
         expect.arrayContaining([
           {
@@ -371,6 +378,7 @@ describe("evaluateAndGenerateResponse", () => {
         updatedLabelUnevalTree,
         configTree,
       );
+
       //set the unEvalUpdates is empty so that evaluation ignores diffing the node
       updateTreeResponse.unEvalUpdates = [];
 
@@ -382,6 +390,7 @@ describe("evaluateAndGenerateResponse", () => {
       );
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
+
       expect(parsedUpdates).toEqual(
         expect.arrayContaining([
           {
@@ -487,6 +496,7 @@ describe("evaluateAndGenerateResponse", () => {
       );
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
+
       expect(webworkerResponse.workerResponse.unEvalUpdates).toEqual([
         {
           event: DataTreeDiffEvent.NOOP,
@@ -515,6 +525,7 @@ describe("evaluateAndGenerateResponse", () => {
         updatedLabelUnevalTree,
         configTree,
       );
+
       //set the evalOrder is empty so that evaluation ignores diffing the node
       updateTreeResponse.unEvalUpdates = [];
 

@@ -39,6 +39,7 @@ export function useScript(src: string, where = AddScriptTo.BODY): ScriptStatus {
       // constructing the script URL passed to this hook.
       if (!src) {
         setStatus(ScriptStatus.IDLE);
+
         return;
       }
 
@@ -54,6 +55,7 @@ export function useScript(src: string, where = AddScriptTo.BODY): ScriptStatus {
         script.src = src;
         script.async = true;
         script.setAttribute("data-status", ScriptStatus.LOADING);
+
         if (where === AddScriptTo.HEAD) {
           // Add script to head
           document.head.appendChild(script);

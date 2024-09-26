@@ -23,6 +23,7 @@ export default function initLocalStorage(this: any) {
     removeItem,
     clear,
   };
+
   Object.defineProperty(this, "localStorage", {
     enumerable: false,
     value: localStorage,

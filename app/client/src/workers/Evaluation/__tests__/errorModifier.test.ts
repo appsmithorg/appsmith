@@ -128,12 +128,14 @@ describe("Test error modifier", () => {
 
   beforeAll(() => {
     const dependencyMap = new DependencyMap();
+
     errorModifier.init(APP_MODE.EDIT);
     errorModifier.updateAsyncFunctions(dataTree, {}, dependencyMap);
   });
 
   it("TypeError for defined Api in data field ", () => {
     const error = new Error();
+
     error.name = "TypeError";
     error.message = "Api2.run is not a function";
     const { errorMessage: result } = errorModifier.run(
@@ -141,6 +143,7 @@ describe("Test error modifier", () => {
       { userScript: "", source: "" },
       [ActionInDataFieldErrorModifier, TypeErrorModifier],
     );
+
     expect(result).toEqual({
       name: "ValidationError",
       message:
@@ -150,6 +153,7 @@ describe("Test error modifier", () => {
 
   it("TypeError for undefined Api in data field ", () => {
     const error = new Error();
+
     error.name = "TypeError";
     error.message = "Api1.run is not a function";
     const { errorMessage: result } = errorModifier.run(
@@ -157,6 +161,7 @@ describe("Test error modifier", () => {
       { userScript: "", source: "" },
       [ActionInDataFieldErrorModifier, TypeErrorModifier],
     );
+
     expect(result).toEqual({
       name: "TypeError",
       message: "Api1.run is not a function",
@@ -165,6 +170,7 @@ describe("Test error modifier", () => {
 
   it("ReferenceError for platform function in data field", () => {
     const error = new Error();
+
     error.name = "ReferenceError";
     error.message = "storeValue is not defined";
     const { errorMessage: result } = errorModifier.run(
@@ -172,6 +178,7 @@ describe("Test error modifier", () => {
       { userScript: "", source: "" },
       [ActionInDataFieldErrorModifier, TypeErrorModifier],
     );
+
     expect(result).toEqual({
       name: "ValidationError",
       message:
@@ -181,6 +188,7 @@ describe("Test error modifier", () => {
 
   it("ReferenceError for undefined function in data field", () => {
     const error = new Error();
+
     error.name = "ReferenceError";
     error.message = "storeValue2 is not defined";
     const { errorMessage: result } = errorModifier.run(
@@ -188,6 +196,7 @@ describe("Test error modifier", () => {
       { userScript: "", source: "" },
       [ActionInDataFieldErrorModifier, TypeErrorModifier],
     );
+
     expect(result).toEqual({
       name: error.name,
       message: error.message,

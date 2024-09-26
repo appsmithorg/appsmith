@@ -53,6 +53,7 @@ export function TernDocToolTip(props: {
           {examples.map((example: string) => {
             const fnName = displayText;
             const args = example;
+
             return (
               <span
                 className="flex items-center justify-start py-[2px] text-xs whitespace-nowrap"

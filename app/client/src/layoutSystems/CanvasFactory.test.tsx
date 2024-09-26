@@ -20,8 +20,10 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
         dynamicHeight: "FIXED",
       },
     ]);
+
     if (children) {
       const canvasProps = children[0];
+
       jest
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
@@ -44,6 +46,7 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
       });
       const editorDropTarget =
         editorCanvas.container.getElementsByClassName("t--drop-target")[0];
+
       expect(editorDropTarget).toBeTruthy();
       jest
         .spyOn(editorSelectors, "getRenderMode")
@@ -53,6 +56,7 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
       });
       const viewerDropTarget =
         viewerCanvas.container.getElementsByClassName("t--drop-target")[0];
+
       expect(viewerDropTarget).toBeFalsy();
     }
   });
@@ -66,8 +70,10 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
         dynamicHeight: "FIXED",
       },
     ]);
+
     if (children) {
       const canvasProps = children[0];
+
       jest
         .spyOn(editorSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
@@ -90,6 +96,7 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
       });
       const editorDropTarget =
         editorCanvas.container.getElementsByClassName("t--drop-target")[0];
+
       expect(editorDropTarget).toBeTruthy();
       jest
         .spyOn(editorSelectors, "getRenderMode")
@@ -99,6 +106,7 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
       });
       const viewerDropTarget =
         viewerCanvas.container.getElementsByClassName("t--drop-target")[0];
+
       expect(viewerDropTarget).toBeFalsy();
     }
   });

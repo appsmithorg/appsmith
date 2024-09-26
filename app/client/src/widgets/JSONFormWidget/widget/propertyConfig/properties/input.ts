@@ -87,6 +87,7 @@ function defaultValueValidation(
 
   let parsed = value;
   let isValid = lodash.isString(parsed);
+
   if (!isValid) {
     try {
       parsed = lodash.toString(parsed);
@@ -130,6 +131,7 @@ export function minValueValidation(
   const schemaItem = lodash.get(props, parentPath);
   const max = schemaItem.maxNum;
   const value = min;
+
   min = Number(min);
 
   if (lodash?.isNil(value) || value === "") {
@@ -187,6 +189,7 @@ export function maxValueValidation(
   const schemaItem = lodash.get(props, parentPath);
   const min = schemaItem.minNum;
   const value = max;
+
   max = Number(max);
 
   if (lodash?.isNil(value) || value === "") {

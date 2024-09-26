@@ -67,6 +67,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       draggingGroupCenter: action.payload.draggingGroupCenter,
       dragOffset: action.payload.startPoints,
     };
+
     if (action.payload.draggedOn) {
       state.dragDetails.draggedOn = action.payload.draggedOn;
     }
@@ -117,6 +118,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     if (state.focusedWidget !== action.payload.widgetId) {
       state.focusedWidget = action.payload.widgetId;
     }
+
     if (state.altFocus !== action.payload.alt) {
       state.altFocus = !!action.payload.alt;
     }

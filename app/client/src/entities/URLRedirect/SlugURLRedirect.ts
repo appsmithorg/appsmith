@@ -24,6 +24,7 @@ export class SlugURLRedirect extends URLRedirect {
     const { hash, pathname, search } = window.location;
     const isCurrentURLDeprecated =
       isURLDeprecated(pathname) || !basePageIdInUrl;
+
     if (!isCurrentURLDeprecated) {
       newURL =
         getUpdatedRoute(pathname, {
@@ -34,9 +35,12 @@ export class SlugURLRedirect extends URLRedirect {
         }) +
         search +
         hash;
+
       return newURL;
     }
+
     const onlyReplaceBaseURL = this._mode === APP_MODE.EDIT;
+
     if (onlyReplaceBaseURL) {
       newURL =
         fillPathname(pathname, currentApplication, currentPage) + search + hash;
@@ -44,6 +48,7 @@ export class SlugURLRedirect extends URLRedirect {
       // View Mode - generate a new viewer URL - auto updates query params
       newURL = viewerURL({ basePageId, hash });
     }
+
     return newURL;
   }
 }

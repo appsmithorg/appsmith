@@ -117,9 +117,15 @@ describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
     propertySectionState = {
       basic: false,
       general: true,
-      validation: false,
-      formsettings: true,
     };
+
+    if (!Cypress.env("AIRGAPPED")) {
+      propertySectionState = {
+        ...propertySectionState,
+        validation: false,
+        formsettings: true,
+      };
+    }
 
     verifyPropertyPaneContext(
       () => {
@@ -211,12 +217,14 @@ function verifyPropertyPaneSectionState(propertySectionState) {
   for (const [sectionName, shouldSectionOpen] of Object.entries(
     propertySectionState,
   )) {
-    cy.get("body").then(($body) => {
-      const isSectionOpen =
-        $body.find(`${propertySectionClass(sectionName)} .t--chevron-icon`)
-          .length > 0;
-      expect(isSectionOpen).to.equal(shouldSectionOpen);
-    });
+    cy.get(`${propertySectionClass(sectionName)}`)
+      .siblings(_.locators._propertyCollapse)
+      .find(_.locators._propertyCollapseBody)
+      .invoke("attr", "aria-hidden")
+      .then((isSectionOpen) => {
+        const expectedValue = shouldSectionOpen ? "false" : "true"; // Convert boolean to aria-hidden value
+        expect(isSectionOpen).to.equal(expectedValue);
+      });
   }
 }
 

@@ -19,7 +19,6 @@ export class AnvilSnapshot {
     densityOptions: "[data-testid=t--anvil-theme-settings-density] > div",
     sizingOptions: "[data-testid=t--anvil-theme-settings-sizing] > div",
     cornersOptions: "[data-testid=t--anvil-theme-settings-corners] > div",
-    iconStyleOptions: "[data-testid=t--anvil-theme-settings-icon-style] > div",
   };
 
   /**
@@ -40,11 +39,7 @@ export class AnvilSnapshot {
       `anvil_${name}$_${mode}${theme == "dark" ? "_dark" : ""}${size ? `_${size}` : ""}`,
     );
 
-    this.agHelper.GetElement(locator).matchImageSnapshot(snapshotName, {
-      comparisonMethod: "ssim",
-      failureThreshold: 0.01,
-      failureThresholdType: "percent",
-    });
+    this.agHelper.GetElement(locator).matchImageSnapshot(snapshotName);
   }
 
   public matchSnapshotForCanvasMode = (
@@ -164,14 +159,6 @@ export class AnvilSnapshot {
       cy.get(`${this.locators.cornersOptions} [data-value="${corner}"]`).click({
         force: true,
       });
-    });
-  };
-
-  public setIconStyle = (iconStyle: string) => {
-    this.updateThemeOption(() => {
-      cy.get(this.locators.iconStyleOptions)
-        .contains(iconStyle)
-        .click({ force: true });
     });
   };
 

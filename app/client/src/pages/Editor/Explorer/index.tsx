@@ -47,6 +47,7 @@ function ExplorerContent() {
 
   useEffect(() => {
     const currentIndex = openWidgetPanel ? 1 : 0;
+
     if (currentIndex !== activeSwitchIndex) {
       setActiveSwitchIndex(currentIndex);
     }
@@ -70,6 +71,7 @@ function ExplorerContent() {
       AnalyticsUtil.logEvent("EXPLORER_WIDGET_CLICK");
       dispatch(forceOpenWidgetPanel(true));
       dispatch(setExplorerSwitchIndex(1));
+
       if (isFirstTimeUserOnboardingEnabled) {
         dispatch(toggleInOnboardingWidgetSelection(true));
       }

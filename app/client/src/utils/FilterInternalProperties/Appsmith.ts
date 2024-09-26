@@ -10,5 +10,6 @@ export const getAppsmithPeekData = (dataTree: DataTree) => {
     dataTree.appsmith as AppsmithEntity,
     {},
   );
+
   return createObjectPeekData(defs, dataTree.appsmith, {}, "appsmith");
 };

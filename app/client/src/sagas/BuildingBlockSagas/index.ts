@@ -27,6 +27,7 @@ export function* saveBuildingBlockWidgetsToStore(
   const widgetsToPasteInCanvas: CopiedWidgetData[] = yield all(
     flattenedBlockWidgets.map((widget: FlattenedWidgetProps, index: number) => {
       const widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
+
       return {
         hierarchy: getWidgetHierarchy(
           buildingBlockWidgets[index].type,
@@ -77,6 +78,7 @@ export function updateWidgetsNameInNewQueries(
       if (!query.actionConfiguration && !query.jsonPathKeys) {
         return query;
       }
+
       query?.dynamicBindingPathList?.forEach((path: { key: string }) => {
         accessNestedObjectValue(
           query.actionConfiguration,
@@ -88,6 +90,7 @@ export function updateWidgetsNameInNewQueries(
       query.jsonPathKeys = query.jsonPathKeys.map((path: string) =>
         path.replaceAll(oldWidgetName, newWidgetName),
       );
+
       return query;
     });
 }
@@ -100,6 +103,7 @@ export function* addNewlyAddedActionsToRedux(actions: Action[]) {
     }
 
     const existingAction: Action = yield select(getAction, action.id);
+
     if (existingAction) {
       continue;
     }

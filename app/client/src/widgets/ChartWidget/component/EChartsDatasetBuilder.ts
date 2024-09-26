@@ -29,6 +29,7 @@ export class EChartsDatasetBuilder {
     if (this.chartType == "PIE_CHART") {
       // return only first series data
       const firstSeriesKey = Object.keys(this.chartDataProp)[0];
+
       return { [firstSeriesKey]: this.chartDataProp[firstSeriesKey] };
     } else {
       return this.chartDataProp;
@@ -74,6 +75,7 @@ export class EChartsDatasetBuilder {
         if (!categories[categoryName]) {
           categories[categoryName] = {};
         }
+
         categories[categoryName][seriesID] = value;
       }
     });
@@ -84,6 +86,7 @@ export class EChartsDatasetBuilder {
       const values = categories[categoryName];
 
       const categoryDatapoints: unknown[] = [];
+
       categoryDatapoints.push(categoryName);
 
       for (let i = 1; i < dimensions.length; i++) {
@@ -94,8 +97,10 @@ export class EChartsDatasetBuilder {
           categoryDatapoints.push("");
         }
       }
+
       chartDatasource.push(categoryDatapoints);
     });
+
     return { source: chartDatasource };
   }
 }

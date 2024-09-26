@@ -75,12 +75,14 @@ const DatasourceSelector = (props: Props) => {
             image: pluginImages[dataSource.pluginId],
           });
         }
+
         return acc;
       },
       [],
     );
 
   if (!showDatasourceSelector) return null;
+
   return (
     <DropdownSelect>
       <DropdownField

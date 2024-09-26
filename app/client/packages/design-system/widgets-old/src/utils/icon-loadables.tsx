@@ -40,6 +40,7 @@ export function importSvg(
       .then((m) => ({ default: m.ReactComponent }))
       .catch((e) => {
         log.warn("Failed to load SVG icon:", e);
+
         return { default: IconLoadFailFallback };
       }),
   );
@@ -51,6 +52,7 @@ export function importRemixIcon(
   return importIconImpl(async () =>
     importFn().catch((e) => {
       log.warn("Failed to load SVG icon:", e);
+
       return { default: IconLoadFailFallback };
     }),
   );

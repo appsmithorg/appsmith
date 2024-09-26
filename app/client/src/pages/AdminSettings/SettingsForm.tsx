@@ -107,6 +107,7 @@ export function SettingsForm(
     const isEnvAndTenantSettings =
       updatedTenantSettings.length !== 0 &&
       updatedTenantSettings.length !== settingsKeyLength;
+
     if (isOnlyEnvSettings) {
       // only env settings
       dispatch(saveSettings(props.settings));
@@ -115,11 +116,13 @@ export function SettingsForm(
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const config: any = {};
+
       for (const each in props.settings) {
         if (tenantConfigConnection.includes(each)) {
           config[each] = props.settings[each];
         }
       }
+
       dispatch(
         updateTenantConfig({
           tenantConfiguration: config,
@@ -127,6 +130,7 @@ export function SettingsForm(
           needsRefresh: details?.needsRefresh,
         }),
       );
+
       // both env and tenant settings
       if (isEnvAndTenantSettings) {
         const filteredSettings = Object.keys(props.settings)
@@ -136,6 +140,7 @@ export function SettingsForm(
               [key]: props.settings[key],
             });
           }, {});
+
         dispatch(saveSettings(filteredSettings));
       }
     }
@@ -192,14 +197,17 @@ export function SettingsForm(
         method: pageTitle,
       });
     }
+
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
+
       if (
         setting &&
         (setting.controlType == SettingTypes.TOGGLE ||
           setting.controlType == SettingTypes.CHECKBOX)
       ) {
         const settingsStr = props.settingsConfig[settingName].toString();
+
         if (settingName.toLowerCase().includes("enable")) {
           props.settingsConfig[settingName] =
             settingsStr === "" || settingsStr === "true";
@@ -235,6 +243,7 @@ export function SettingsForm(
     const updatedSettings: any = {};
     const connectedMethodsCount =
       socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
+
     if (connectedMethodsCount >= 2) {
       _.forEach(currentSettings, (setting: Setting) => {
         if (
@@ -321,16 +330,20 @@ const validate = (values: Record<string, any>) => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors: any = {};
+
   _.filter(values, (value, name) => {
     const err_message = AdminConfig.validate(name, value);
+
     if (err_message) {
       errors[name] = err_message;
     }
   });
+
   return errors;
 };
 
 const selector = formValueSelector(SETTINGS_FORM_NAME);
+
 export default withRouter(
   connect((state: AppState) => {
     const settingsConfig = getSettings(state);
@@ -342,18 +355,21 @@ export default withRouter(
       isSaving: getSettingsSavingState(state),
       showReleaseNotes: getShowReleaseNotes(state),
     };
+
     _.forEach(AdminConfig.settingsMap, (setting, name) => {
       const fieldValue = selector(state, name);
       const doNotUpdate =
         setting.controlType === SettingTypes.CHECKBOX &&
         !settingsConfig[name] &&
         !fieldValue;
+
       //We are not performing type check here as inputs we take are stored as string
       //But server stores as numeric, string etc..
       if (fieldValue != settingsConfig[name] && !doNotUpdate) {
         newProps.settings[name] = fieldValue;
       }
     });
+
     return newProps;
   }, null)(
     // TODO: Fix this the next time the file is edited

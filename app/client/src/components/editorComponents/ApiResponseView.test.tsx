@@ -9,6 +9,8 @@ import { lightTheme } from "selectors/themeSelectors";
 import { BrowserRouter as Router } from "react-router-dom";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import "@testing-library/jest-dom/extend-expect";
+import { APIFactory } from "test/factories/Actions/API";
+import { noop } from "lodash";
 
 jest.mock("./EntityBottomTabs", () => ({
   __esModule: true,
@@ -68,16 +70,20 @@ describe("ApiResponseView", () => {
   });
 
   it("the container should have class select-text to enable the selection of text for user", () => {
+    const Api1 = APIFactory.build({
+      id: "api_id",
+      baseId: "api_base_id",
+      pageId: "pageId",
+    });
     const { container } = render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
           <Router>
             <ApiResponseView
-              apiName="Api1"
+              currentActionConfig={Api1}
+              disabled={false}
               isRunning={false}
-              onRunClick={() => {}}
-              responseDataTypes={[]}
-              responseDisplayFormat={{ title: "JSON", value: "JSON" }}
+              onRunClick={noop}
             />
           </Router>
         </ThemeProvider>

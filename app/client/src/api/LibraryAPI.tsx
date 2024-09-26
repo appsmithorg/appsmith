@@ -13,6 +13,7 @@ export default class LibraryApi extends Api {
     library: Partial<JSLibrary> & { defs: string },
   ) {
     const url = LibraryApi.getUpdateLibraryBaseURL(applicationId) + "/add";
+
     return Api.patch(url, library);
   }
 
@@ -21,6 +22,7 @@ export default class LibraryApi extends Api {
     library: Partial<JSLibrary>,
   ) {
     const url = LibraryApi.getUpdateLibraryBaseURL(applicationId) + "/remove";
+
     return Api.patch(url, library);
   }
 
@@ -28,6 +30,7 @@ export default class LibraryApi extends Api {
     const url = `${LibraryApi.getUpdateLibraryBaseURL(applicationId)}${
       mode === APP_MODE.PUBLISHED ? "/view" : ""
     }`;
+
     return Api.get(url);
   }
 }

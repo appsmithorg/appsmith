@@ -24,6 +24,7 @@ export const migrateIncorrectDynamicBindingPathLists = (
 
   Object.keys(bindingPaths).forEach((bindingPath) => {
     const pathValue = _.get(migratedDsl, bindingPath);
+
     if (pathValue && _.isString(pathValue)) {
       if (isDynamicValue(pathValue)) {
         dynamicBindingPathList.push({ key: bindingPath });
@@ -38,5 +39,6 @@ export const migrateIncorrectDynamicBindingPathLists = (
       migrateIncorrectDynamicBindingPathLists,
     );
   }
+
   return migratedDsl;
 };

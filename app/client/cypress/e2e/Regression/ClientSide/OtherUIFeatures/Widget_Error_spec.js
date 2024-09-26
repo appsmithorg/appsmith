@@ -6,7 +6,7 @@ const widgetLocators = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
 
-describe("Widget error state", function () {
+describe("Widget error state", { tags: ["@tag.Widget"] }, function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {
@@ -23,7 +23,7 @@ describe("Widget error state", function () {
 
     //Check if the current value is shown in the debugger
 
-    _.debuggerHelper.ClickDebuggerIcon();
+    _.debuggerHelper.OpenDebugger();
     cy.get("[data-testid=t--tab-ERROR]").click();
     //This feature is disabled in updated error log - epic 17720
     // _.debuggerHelper.LogStateContains("Test");
@@ -44,8 +44,8 @@ describe("Widget error state", function () {
     );
 
     // All errors should be expanded by default
-    //Updated count to 1 as the decision not to show triggerexecution/uncaughtpromise error in - epic 17720
-    _.debuggerHelper.AssertVisibleErrorMessagesCount(1);
+    //Updated count to 2 as the decision to show the widget trigger lint errors to show in the debugger
+    _.debuggerHelper.AssertVisibleErrorMessagesCount(2);
 
     // Recent errors are shown at the top of the list
     cy.testJsontext("label", "{{[]}}");
@@ -63,7 +63,7 @@ describe("Widget error state", function () {
     cy.deleteWidget();
     _.debuggerHelper.AssertVisibleErrorMessagesCount(0);
     cy.get("body").type(`{${modifierKey}}z`);
-    _.debuggerHelper.AssertVisibleErrorMessagesCount(2);
+    _.debuggerHelper.AssertVisibleErrorMessagesCount(3);
 
     //Bug-2760: Error log on a widget property not clearing out when the widget property is deleted
     _.entityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 150, 300);

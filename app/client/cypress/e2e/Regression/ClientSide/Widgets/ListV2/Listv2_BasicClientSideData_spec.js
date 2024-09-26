@@ -10,23 +10,23 @@ const simpleListData1 = [
   {
     id: "001",
     name: "Blue",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
   },
   {
     id: "002",
     name: "Green",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
   },
   {
     id: "003",
     name: "Red",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
   },
 ];
 
 describe(
   "List widget v2 - Basic client side data tests",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Sanity"] },
   () => {
     beforeEach(() => {
       _.agHelper.RestoreLocalStorageCache();

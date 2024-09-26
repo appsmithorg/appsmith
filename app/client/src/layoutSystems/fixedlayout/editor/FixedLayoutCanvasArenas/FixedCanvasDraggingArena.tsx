@@ -80,6 +80,7 @@ export function FixedCanvasDraggingArena({
     }),
     [canExtend, snapColumnSpace, snapRowSpace, snapRows],
   );
+
   return showCanvas ? (
     <StickyCanvasArena
       canvasId={`canvas-dragging-${widgetId}`}

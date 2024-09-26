@@ -34,6 +34,7 @@ jest.mock("react-redux", () => {
 // This function mocks DOM HIERARCHY
 function getExampleDOM() {
   const widgetEditor = document.createElement("div");
+
   widgetEditor.setAttribute("id", "widgets-editor");
   widgetEditor.setAttribute("height", "1200px");
   widgetEditor.setAttribute("width", "500px");
@@ -41,6 +42,7 @@ function getExampleDOM() {
   widgetEditor.style.padding = "30px";
 
   const widgetElement = document.createElement("div");
+
   widgetElement.setAttribute("id", "anvil_widget_widgetId");
   widgetElement.setAttribute("height", "200px");
   widgetElement.setAttribute("width", "50px");
@@ -49,6 +51,7 @@ function getExampleDOM() {
   widgetElement.style.margin = "50px";
 
   const widgetComponent = document.createElement("div");
+
   widgetComponent.innerHTML = "<p></p>";
   widgetComponent.setAttribute("id", "anvil_copmponent_widgetId");
 
