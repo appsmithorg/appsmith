@@ -466,9 +466,7 @@ init_postgres() {
     echo "Connecting to PostgreSQL at $DB_HOST:$DB_PORT with user $DB_USER"
 
     # Create the appsmith schema if it does not exist
-    PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME <<EOF
-    CREATE SCHEMA IF NOT EXISTS appsmith;
-  EOF
+    PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c "CREATE SCHEMA IF NOT EXISTS appsmith;"
 
     if [ $? -eq 0 ]; then
       echo "Schema 'appsmith' created or already exists."
