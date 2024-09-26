@@ -166,7 +166,16 @@ function MultiTreeSelectComponent({
   const clearButton = useMemo(
     () =>
       filter ? (
-        <Button icon="cross" minimal onClick={() => setFilter("")} />
+        <Button
+          icon="cross"
+          minimal
+          onClick={() => {
+            if (inputRef.current) {
+              inputRef.current.focus();
+            }
+            setFilter("");
+          }}
+        />
       ) : null,
     [filter],
   );

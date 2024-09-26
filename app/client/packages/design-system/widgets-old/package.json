@@ -7,11 +7,16 @@
   "license": "Apache-2.0",
   "scripts": {
     "lint": "yarn g:lint",
-    "prettier": "yarn g:prettier"
+    "prettier": "yarn g:prettier",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "devDependencies": {
     "@svgr/webpack": "5.5.0",
+    "@testing-library/jest-dom": "^6.5.0",
     "@types/emoji-mart": "3.0.4",
+    "@types/jest": "^29.5.13",
     "@types/loadable__component": "^5.13.4",
     "@types/react-form": "^4.0.2",
     "@types/react-table": "*",
@@ -20,9 +25,12 @@
     "eslint-config-react": "^1.1.7",
     "eslint-plugin-storybook": "^0.6.8",
     "identity-obj-proxy": "3.0.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "playwright": "^1.25.1",
     "postcss": "^8.4.31",
     "postcss-import": "^14.1.0",
+    "ts-jest": "^29.2.5",
     "tsconfig-paths-webpack-plugin": "^3.5.2"
   },
   "peerDependencies": {
