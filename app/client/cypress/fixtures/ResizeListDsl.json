@@ -70,7 +70,7 @@
                 "triggeredItemView": "{{{}}}",
                 "widgetName": "List1",
                 "requiresFlatWidgetChildren": true,
-                "listData": "[\n  {\n    \"id\": \"001\",\n    \"name\": \"Blue\",\n    \"img\": \"https://assets.appsmith.com/widgets/default.png\"\n  },\n  {\n    \"id\": \"002\",\n    \"name\": \"Green\",\n    \"img\": \"https://assets.appsmith.com/widgets/default.png\"\n  },\n  {\n    \"id\": \"003\",\n    \"name\": \"Red\",\n    \"img\": \"https://assets.appsmith.com/widgets/default.png\"\n  },\n\t{\n    \"id\": \"001\",\n    \"name\": \"Blue\",\n    \"img\": \"https://assets.appsmith.com/widgets/default.png\"\n  },\n  {\n    \"id\": \"002\",\n    \"name\": \"Green\",\n    \"img\": \"https://assets.appsmith.com/widgets/default.png\"\n  },\n  {\n    \"id\": \"003\",\n    \"name\": \"Red\",\n    \"img\": \"https://assets.appsmith.com/widgets/default.png\"\n  },\n\t{\n    \"id\": \"001\",\n    \"name\": \"Blue\",\n    \"img\": \"https://assets.appsmith.com/widgets/default.png\"\n  },\n  {\n    \"id\": \"002\",\n    \"name\": \"Green\",\n    \"img\": \"https://assets.appsmith.com/widgets/default.png\"\n  },\n  {\n    \"id\": \"003\",\n    \"name\": \"Red\",\n    \"img\": \"https://assets.appsmith.com/widgets/default.png\"\n  }\n]",
+                "listData": "[\n  {\n    \"id\": \"001\",\n    \"name\": \"Blue\",\n    \"img\": \"http://host.docker.internal:4200/clouddefaultImage.png\"\n  },\n  {\n    \"id\": \"002\",\n    \"name\": \"Green\",\n    \"img\": \"http://host.docker.internal:4200/clouddefaultImage.png\"\n  },\n  {\n    \"id\": \"003\",\n    \"name\": \"Red\",\n    \"img\": \"http://host.docker.internal:4200/clouddefaultImage.png\"\n  },\n\t{\n    \"id\": \"001\",\n    \"name\": \"Blue\",\n    \"img\": \"http://host.docker.internal:4200/clouddefaultImage.png\"\n  },\n  {\n    \"id\": \"002\",\n    \"name\": \"Green\",\n    \"img\": \"http://host.docker.internal:4200/clouddefaultImage.png\"\n  },\n  {\n    \"id\": \"003\",\n    \"name\": \"Red\",\n    \"img\": \"http://host.docker.internal:4200/clouddefaultImage.png\"\n  },\n\t{\n    \"id\": \"001\",\n    \"name\": \"Blue\",\n    \"img\": \"http://host.docker.internal:4200/clouddefaultImage.png\"\n  },\n  {\n    \"id\": \"002\",\n    \"name\": \"Green\",\n    \"img\": \"http://host.docker.internal:4200/clouddefaultImage.png\"\n  },\n  {\n    \"id\": \"003\",\n    \"name\": \"Red\",\n    \"img\": \"http://host.docker.internal:4200/clouddefaultImage.png\"\n  }\n]",
                 "isCanvas": true,
                 "displayName": "List",
                 "iconSVG": "/static/media/icon.9925ee17dee37bf1ba7374412563a8a7.svg",
@@ -193,7 +193,7 @@
                                   }
                                 ],
                                 "leftColumn": 0,
-                                "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                                "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                                 "key": "8pdxjzto4a",
                                 "image": "{{currentItem.img}}",
                                 "isDeprecated": false,

@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
-const GITHUB_API_BASE = "https://api.github.com";
+
 //const GITEA_API_BASE = "http://35.154.225.218";
 export class GitSync {
   public agHelper = ObjectsRegistry.AggregateHelper;

@@ -247,6 +247,12 @@ jobs:
         run: |
           scripts/generate_info_json.sh
 
+      - name: Place server artifacts-es
+        run: |
+          if [[ -f scripts/prepare_server_artifacts.sh ]]; then
+            scripts/prepare_server_artifacts.sh
+          fi
+
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:

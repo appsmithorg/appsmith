@@ -262,7 +262,7 @@
                 "imageShape": "RECTANGLE",
                 "leftColumn": 42.0,
                 "dynamicBindingPathList": [],
-                "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                 "key": "21idekou80",
                 "labelTextSize": "0.875rem",
                 "image": "https://i.ibb.co/bvSrMX7/Group-84601.png",

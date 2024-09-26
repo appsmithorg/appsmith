@@ -2,7 +2,7 @@ import React from "react";
 import {
   PluginActionEditor,
   PluginActionForm,
-  PluginActionResponsePane,
+  PluginActionResponse,
 } from "PluginActionEditor";
 import {
   ConvertToModuleDisabler,
@@ -17,7 +17,7 @@ const AppPluginActionEditor = () => {
         <AppPluginActionToolbar />
         <ConvertToModuleCallout />
         <PluginActionForm />
-        <PluginActionResponsePane />
+        <PluginActionResponse />
       </ConvertToModuleDisabler>
     </PluginActionEditor>
   );
