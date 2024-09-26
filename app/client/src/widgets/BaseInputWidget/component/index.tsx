@@ -565,6 +565,7 @@ class BaseInputComponent extends React.Component<
         onKeyUp={this.onKeyUp}
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
+        rightElement={this.getRightIcon()}
         stepSize={this.props.stepSize}
         value={this.props.value}
         {...conditionalProps}
