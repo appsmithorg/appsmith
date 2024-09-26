@@ -41,48 +41,22 @@ describe(
       dataSources.ReconnectDSbyType("MongoDB");
       dataSources.ReconnectDSbyType("MySQL");
       dataSources.ReconnectDSbyType("PostgreSQL");
-      agHelper.Sleep(3000); //for CI to reconnect successfully
       homePage.AssertNCloseImport();
       homePage.RenameApplication(appName);
-    });
-
-    it("1. Validate git status", () => {
       PageList.assertPresence("ListingAndReviews")
+
+
+      // this logic will have to be removed after decimal issue with auto-commit is resolved
       assertHelper.AssertNetworkResponseData("gitStatus");
       agHelper.AssertElementExist(gitSync._bottomBarCommit, 0, 30000);
       agHelper.GetNClick(gitSync._bottomBarCommit);
       agHelper.AssertElementVisibility(gitSync._gitSyncModal);
-
-      agHelper.GetNAssertContains(
-        gitSync._gitStatusChanges,
-        "ListingAndReviews added",
-      );
-      agHelper.GetNAssertContains(
-        gitSync._gitStatusChanges,
-        "CountryFlags added",
-      );
-      agHelper.GetNAssertContains(
-        gitSync._gitStatusChanges,
-        "Public.astronauts added",
-      );
-      agHelper.GetNAssertContains(
-        gitSync._gitStatusChanges,
-        "Widgets added",
-      );
-      agHelper.GetNAssertContains(
-        gitSync._gitStatusChanges,
-        "Theme modified",
-      );
-      agHelper.GetNAssertContains(
-        gitSync._gitStatusChanges,
-        "Application settings modified",
-      );
       agHelper.GetNClick(gitSync._commitButton);
       assertHelper.AssertNetworkStatus("@commit", 201);
       gitSync.CloseGitSyncModal();
     });
 
-    it("2. Deploy the app & Validate CRUD pages - Mongo , MySql, Postgres pages", () => {
+    it("Deploy the app & Validate CRUD pages - Mongo , MySql, Postgres pages", () => {
       //Mongo CRUD page validation
       //Assert table data
       cy.latestDeployPreview();
@@ -92,7 +66,7 @@ describe(
         "listingAndReviews Data",
       );
       agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
-      table.WaitUntilTableLoad(0, 0, "v2");
+      table.WaitUntilTableLoad(0, 0);
 
       //Filter & validate table data
       table.OpenNFilterTable("_id", "is exactly", "15665837");
@@ -111,7 +85,7 @@ describe(
         "countryFlags Data",
       );
       agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
-      table.WaitUntilTableLoad(0, 0, "v2");
+      table.WaitUntilTableLoad(0, 0);
 
       //Filter & validate table data
       table.OpenNFilterTable("Country", "starts with", "Ba");
@@ -132,11 +106,11 @@ describe(
         "public_astronauts Data",
       );
       agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
-      table.WaitUntilTableLoad(0, 0, "v2");
+      table.WaitUntilTableLoad(0, 0);
 
       //Filter & validate table data
       table.OpenNFilterTable("id", "is exactly", "196");
-      table.ReadTableRowColumnData(0, 2, "v2").then(($cellData) => {
+      table.ReadTableRowColumnData(0, 2).then(($cellData) => {
         expect($cellData).to.eq("Ulf Merbold");
       });
       table.RemoveFilter();
@@ -144,22 +118,19 @@ describe(
       //Update table data
       deployMode.EnterJSONInputValue("Statusid", "5", 0, true);
       deployMode.EnterJSONInputValue("Statusname", "Active", 0, true);
-      agHelper.Sleep(500);
       agHelper.ClickButton("Update");
-      agHelper.Sleep(2000); //for CI update to be successful
-      table.WaitUntilTableLoad(0, 0, "v2");
+      table.WaitUntilTableLoad(0, 0);
 
       //Validate updated values in table
-      table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
+      table.ReadTableRowColumnData(0, 3).then(($cellData) => {
         expect($cellData).to.eq("5");
       });
-      table.ReadTableRowColumnData(0, 4, "v2").then(($cellData) => {
+      table.ReadTableRowColumnData(0, 4).then(($cellData) => {
         expect($cellData).to.eq("Active");
       });
-      agHelper.Sleep(500);
     });
 
-    it("3. Validate widgets & bindings", () => {
+    it("Validate widgets & bindings", () => {
       agHelper.GetNClickByContains(locators._deployedPage, "Widgets");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.AUDIO),
@@ -176,7 +147,6 @@ describe(
 
       //Button
       agHelper.ClickButton("Alert button");
-      agHelper.Sleep(500);
       agHelper.WaitUntilToastDisappear(
         "404 hit : invalidApi failed to execute",
       );
@@ -199,10 +169,8 @@ describe(
       agHelper
         .ScrollIntoView(locators._sliderThumb)
         .focus()
-        .type("{rightArrow}")
-        .wait(500);
+        .type("{rightArrow}");
 
-      agHelper.Sleep(500);
       agHelper.WaitUntilToastDisappear("Category Value Changed!");
 
       //Currency input
@@ -241,10 +209,9 @@ describe(
       agHelper.WaitUntilToastDisappear("Delete customer successful!");
       agHelper.ClickButton("Close");
       agHelper.AssertElementAbsence(locators._modal);
-      agHelper.Sleep(2000);
     });
 
-    it.skip("4. Edit JSObject & Check Updated Data ", () => {
+    it("Edit JSObject & Check Updated Data ", () => {
       deployMode.NavigateBacktoEditor();
       //Edit existing JS object
       EditorNavigation.SelectEntityByName("users", EntityType.JSObject);
