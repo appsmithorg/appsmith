@@ -4,13 +4,17 @@ import { changeApi } from "actions/apiPaneActions";
 import { changeQuery } from "actions/queryPaneActions";
 import { PluginType } from "entities/Action";
 import { usePluginActionContext } from "PluginActionEditor";
+import usePrevious from "utils/hooks/usePrevious";
 
 export const useChangeActionCall = () => {
   const { action, plugin } = usePluginActionContext();
+  const prevActionId = usePrevious(action.id);
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (!plugin?.id || !action) return;
+
+    if (prevActionId === action.id) return;
 
     switch (plugin?.type) {
       case PluginType.API:
@@ -29,5 +33,5 @@ export const useChangeActionCall = () => {
         );
         break;
     }
-  }, [action, plugin, dispatch]);
+  }, [action, plugin, dispatch, prevActionId]);
 };

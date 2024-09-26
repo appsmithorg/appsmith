@@ -81,8 +81,8 @@ import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
 import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
 import type { Plugin, PluginFormPayload } from "api/PluginApi";
-import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
-import { axiosConnectionAbortedCode } from "ee/api/ApiUtils";
+import { ConsolidatedPageLoadApi } from "api";
+import { AXIOS_CONNECTION_ABORTED_CODE } from "ee/constants/ApiConstants";
 import {
   endSpan,
   startNestedSpan,
@@ -254,7 +254,7 @@ export function* getInitResponses({
 
     if (!isValidResponse) {
       // its only invalid when there is a axios related error
-      throw new Error("Error occured " + axiosConnectionAbortedCode);
+      throw new Error("Error occured " + AXIOS_CONNECTION_ABORTED_CODE);
     }
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

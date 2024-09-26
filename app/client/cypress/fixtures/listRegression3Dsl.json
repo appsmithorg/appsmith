@@ -29,7 +29,7 @@
                 "template": {
                     "Image1": {
                         "isVisible": true,
-                        "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                        "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                         "imageShape": "RECTANGLE",
                         "maxZoomLevel": 1,
                         "enableRotation": false,
@@ -268,7 +268,7 @@
                                         "children": [
                                             {
                                                 "isVisible": true,
-                                                "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                                                "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                                                 "imageShape": "RECTANGLE",
                                                 "maxZoomLevel": 1,
                                                 "enableRotation": false,
