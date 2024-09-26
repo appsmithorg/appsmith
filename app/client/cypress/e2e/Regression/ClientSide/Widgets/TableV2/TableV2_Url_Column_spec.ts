@@ -23,13 +23,13 @@ describe(
       table.AssertURLColumnNavigation(
         0,
         0,
-        "https://randomuser.me/api/portraits/med/women/39.jpg",
+        "http://host.docker.internal:4200/453-200x300.jpg",
         "v2",
       );
       table.AssertURLColumnNavigation(
         3,
         0,
-        "https://randomuser.me/api/portraits/med/men/52.jpg",
+        "http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg",
         "v2",
       );
     });
