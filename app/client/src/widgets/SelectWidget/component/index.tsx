@@ -75,14 +75,16 @@ class SelectComponent extends React.Component<
     }
   };
 
-  togglePopoverVisibility = () => {
-    if (this.state.isOpen) {
+  togglePopoverVisibility = (isButtonClick = false) => {
+    if (!isButtonClick && this.state.isOpen) {
       this.handleOnDropdownClose();
-      this.setState(
-        (prev) => {
-          return { ...prev, isOpen: false };
-        },
-      );
+      this.setState({ isOpen: false });
+    } else if (isButtonClick) {
+      this.handleOnDropdownOpen();
+      this.setState((prev) => ({
+        ...prev,
+        isOpen: !prev.isOpen,
+      }));
     }
   };
 
@@ -456,14 +458,7 @@ class SelectComponent extends React.Component<
               hideCancelIcon={this.props.hideCancelIcon}
               isRequired={this.props.isRequired}
               spanRef={this.spanRef}
-              togglePopoverVisibility={() => {
-                if(!this.state.isOpen){
-                  this.handleOnDropdownOpen();
-                  this.setState((prev) => {
-                    return { ...prev, isOpen: !prev.isOpen };
-                  });
-                }
-              }}
+              togglePopoverVisibility={() => this.togglePopoverVisibility(true)}
               tooltipText={tooltipText}
               value={this.props.value?.toString()}
             />
