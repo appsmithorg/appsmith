@@ -1,7 +1,5 @@
 package com.appsmith.server.git.autocommit.helpers;
 
-import com.appsmith.external.annotations.FeatureFlagged;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -18,7 +16,6 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -28,9 +25,8 @@ import static com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse.
 import static com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse.LOCKED;
 
 @Slf4j
-@Primary
 @Service
-public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl implements GitAutoCommitHelper {
+public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
     private final AutoCommitEventHandler autoCommitEventHandler;
     private final UserDataService userDataService;
@@ -126,13 +122,11 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     public Mono<Boolean> autoCommitClientMigration(String defaultApplicationId, String branchName) {
         return autoCommitApplication(defaultApplicationId, branchName, Boolean.TRUE);
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     public Mono<Boolean> autoCommitServerMigration(String defaultApplicationId, String branchName) {
         return autoCommitApplication(defaultApplicationId, branchName, Boolean.FALSE);
     }
@@ -236,7 +230,6 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     public Mono<Boolean> publishAutoCommitEvent(
             AutoCommitTriggerDTO autoCommitTriggerDTO, String defaultApplicationId, String branchName) {
 

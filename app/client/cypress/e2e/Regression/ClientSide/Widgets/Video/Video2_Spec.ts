@@ -66,7 +66,7 @@ describe(
       //Check for Non-video url
       propPane.TypeTextIntoField(
         "URL",
-        "https://www.pexels.com/photo/closeup-photo-of-brown-brick-wall-1227511/",
+        "http://host.docker.internal:4200/453-200x300.jpg/",
       );
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.VIDEO));
       agHelper.GetElement(widgetLocators.video).then(($video) => {

@@ -34,7 +34,6 @@ const APIEditorForm = () => {
         />
       }
       formName={FORM_NAME}
-      headersCount={0}
       httpMethodOptions={HTTP_METHOD_OPTIONS}
       isChangePermitted={isChangePermitted}
       paginationUiComponent={
@@ -45,7 +44,6 @@ const APIEditorForm = () => {
           theme={theme}
         />
       }
-      paramsCount={0}
     />
   );
 };
