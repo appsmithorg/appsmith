@@ -16,7 +16,7 @@ let isBaselineMode = false;
 let mongoDbUrl;
 
 let mongoDumpFile = null;
-const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
+const EXPORT_ROOT = "mongo-data";
 
 for (let i = 2; i < process.argv.length; ++i) {
   const arg = process.argv[i];
@@ -52,9 +52,8 @@ if (mongoDumpFile) {
   spawn("mongorestore", [mongoDbUrl, "--archive=" + mongoDumpFile, "--gzip", "--noIndexRestore"]);
 }
 
-const mongoClient = new MongoClient(mongoDbUrl);
+const mongoClient = await new MongoClient(mongoDbUrl);
 mongoClient.on("error", console.error);
-await mongoClient.connect();
 const mongoDb = mongoClient.db();
 
 // Make sure EXPORT_ROOT directory is empty
@@ -91,7 +90,7 @@ for await (const collectionName of sortedCollectionNames) {
     if (isArchivedObject(doc)) {
       continue;
     }
-    transformFields(doc);
+    transformFields(doc);  // This now handles the _class to type transformation.
     if (doc.policyMap == null) {
       doc.policyMap = {};
     }
@@ -133,7 +132,7 @@ function toJsonSortedKeys(obj) {
 
 function replacer(key, value) {
   // Ref: https://gist.github.com/davidfurlong/463a83a33b70a3b6618e97ec9679e490
-  return value instanceof Object && !Array.isArray(value) ?
+  return value instanceof Object && !(value instanceof Array) ?
     Object.keys(value)
       .sort()
       .reduce((sorted, key) => {
@@ -147,16 +146,39 @@ function replacer(key, value) {
  * Method to transform the data in the object to be compatible with Postgres.
  * Updates:
  * 1. Changes the _id field to id, and removes the _id field.
+ * 2. Replaces the _class field with the appropriate type field.
  * @param {Document} obj - The object to transform.
  * @returns {void} - No return value.
  */
 function transformFields(obj) {
   for (const key in obj) {
-    if (key === "_id") {  // Change the _id field to id
+    if (key === "_id") {
       obj.id = obj._id.toString();
       delete obj._id;
-    } else if (typeof obj[key] === "object") {
+    } else if (key === "_class") {
+      const type = mapClassToType(obj._class);
+      if (type) {
+        obj.type = type;  // Add the type field
+      }
+      delete obj._class;  // Remove the _class field
+    } else if (typeof obj[key] === "object" && obj[key] !== null) {
       transformFields(obj[key]);
     }
+  }
+}
+
+/**
+ * Map the _class field to the appropriate type value. The DatasourceStorage class requires this check
+ * @param {string} _class - The _class field value.
+ * @returns {string|null} - The corresponding type value, or null if no match is found.
+ */
+function mapClassToType(_class) {
+  switch (_class) {
+    case "com.appsmith.external.models.DatasourceStructure$PrimaryKey":
+      return "primary key";
+    case "com.appsmith.external.models.DatasourceStructure$ForeignKey":
+      return "foreign key";
+    default:
+      return null;
   }
 }
