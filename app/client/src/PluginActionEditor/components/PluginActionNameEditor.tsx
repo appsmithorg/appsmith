@@ -64,7 +64,7 @@ const PluginActionNameEditor = (props: PluginActionNameEditorProps) => {
   );
 
   return (
-    <ActionNameEditorWrapper className="t--action-name-editor-wrapper">
+    <ActionNameEditorWrapper>
       <ActionNameEditor
         disabled={!isChangePermitted}
         enableFontStyling={plugin?.type === PluginType.API}
