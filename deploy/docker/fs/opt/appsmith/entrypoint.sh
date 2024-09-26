@@ -439,7 +439,7 @@ init_postgres() {
     echo "Initializing PostgreSQL..."
 
     # Extract credentials from APPSMITH_DB_URL
-    if [[ -n "$APPSMITH_DB_URL" ]]; then
+    if [[ -n "$APPSMITH_DB_URL" && "$APPSMITH_DB_URL" == postgres*://*  ]]; then
       # Extract username, password, host, port, and database name
       DB_PROTOCOL=$(echo "$APPSMITH_DB_URL" | awk -F'://' '{print $1}')
       if [[ "$DB_PROTOCOL" == "postgres" ]]; then
