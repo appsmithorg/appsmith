@@ -163,5 +163,15 @@ describe(
       });
       cy.get(".table-menu-button-popover li a").should("not.exist");
     });
+    it("5. should check that menuitems onClick property has access to currentRow", () => {
+      _.propPane.EnterJSContext("onClick", "");
+      _.propPane.TypeTextIntoField("onClick", "{{currentR");
+      _.agHelper.AssertElementExist(_.locators._hints);
+      _.agHelper.GetNAssertElementText(
+        _.locators._hints,
+        "currentRow",
+        "contain.text",
+      );
+    });
   },
 );

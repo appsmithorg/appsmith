@@ -251,6 +251,7 @@ export default {
                 isBindProperty: true,
                 isTriggerProperty: true,
                 dependencies: ["primaryColumns", "columnOrder"],
+                customJSControl: "TABLE_COMPUTE_VALUE",
               },
             ],
           },
