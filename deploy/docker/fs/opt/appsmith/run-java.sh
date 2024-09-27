@@ -81,6 +81,8 @@ while ! curl --fail --silent localhost:"${APPSMITH_RTS_PORT:-8091}"/rts-api/v1/h
 done
 tlog 'RTS started.'
 
+sh /opt/appsmith/pg-default-schema.sh &
+
 sh /opt/appsmith/run-starting-page-init.sh &
 
 # Ref -Dlog4j2.formatMsgNoLookups=true https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot
