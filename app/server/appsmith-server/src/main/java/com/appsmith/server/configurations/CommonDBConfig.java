@@ -49,10 +49,6 @@ public class CommonDBConfig {
         return extractJdbcProperties(appsmithDbUrl);
     }
 
-    /**
-     * Method to extract Jdbc props from the given DB URL
-     * Expected DB URL: postgresql://{username}:{password}@localhost:{port}/{db_name}
-     */
     public DataSourceProperties extractJdbcProperties(String dbUrl) {
         DataSourceProperties ds = new DataSourceProperties();
         try {
@@ -69,10 +65,23 @@ public class CommonDBConfig {
                 ds.setUsername(userDetails[0]);
                 ds.setPassword(userDetails[1]);
             }
-            // If the port is not mentioned default it to standard 5432
+            // If the port is not mentioned, default it to the standard PostgreSQL port 5432
             int port = uri.getPort() == -1 ? 5432 : uri.getPort();
-            String updatedUrl =
-                    String.format("%s%s://%s:%s%s", JDBC_PREFIX, uri.getScheme(), uri.getHost(), port, uri.getPath());
+
+            // Check if the URL already has query parameters
+            String query = uri.getQuery();
+            String updatedUrl;
+            if (StringUtils.hasLength(query)) {
+                // Append currentSchema=appsmith if there are already parameters
+                updatedUrl = String.format(
+                        "%s%s://%s:%s%s?%s&currentSchema=appsmith",
+                        JDBC_PREFIX, uri.getScheme(), uri.getHost(), port, uri.getPath(), query);
+            } else {
+                // No parameters, just append currentSchema
+                updatedUrl = String.format(
+                        "%s%s://%s:%s%s?currentSchema=appsmith",
+                        JDBC_PREFIX, uri.getScheme(), uri.getHost(), port, uri.getPath());
+            }
             ds.setUrl(updatedUrl);
             return ds;
         } catch (URISyntaxException e) {
