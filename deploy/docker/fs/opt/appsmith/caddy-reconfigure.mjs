@@ -101,7 +101,15 @@ parts.push(`
   }
 
   header /static/* {
-    Cache-Control "public, max-age=31536000, immutable"
+   # Match the response with status 200
+    @successful {
+        status 200
+    }
+
+    # Cache the response for 1 year if the response is successful
+    # @successful {
+        Cache-Control "public, max-age=31536000, immutable"
+    # }
   }
 
   request_body {
