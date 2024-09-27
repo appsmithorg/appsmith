@@ -4,17 +4,11 @@ import {
   dataSources,
   deployMode,
   draggableWidgets,
-  entityExplorer,
   gitSync,
   homePage,
-  jsEditor,
   locators,
-  propPane,
   table,
 } from "../../../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
-  EntityType,
-} from "../../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../../support/Pages/PageList";
 
 describe(
