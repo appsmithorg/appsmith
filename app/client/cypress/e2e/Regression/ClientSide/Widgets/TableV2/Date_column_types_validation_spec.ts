@@ -123,25 +123,25 @@ describe(
       clickAndValidateDateCell(0, 10);
     });
 
-    it.only("12. should allow inline editing of date in 'D MMMM, YYYY' format", () => {
+    it("12. should allow inline editing of date in 'D MMMM, YYYY' format", () => {
       table.EditColumn("ll", "v2");
       setEditableDateFormats("LL");
       clickAndValidateDateCell(0, 11);
     });
 
-    it.only("13. should allow inline editing of date in 'h:mm A D MMMM, YYYY' format", () => {
+    it("13. should allow inline editing of date in 'h:mm A D MMMM, YYYY' format", () => {
       table.EditColumn("dmmmmyyyy", "v2");
       setEditableDateFormats("D MMMM, YYYY");
       clickAndValidateDateCell(0, 12);
     });
 
-    it.only("14. should allow inline editing of date in MM-DD-YYYY format", () => {
+    it("14. should allow inline editing of date in MM-DD-YYYY format", () => {
       table.EditColumn("hmmAdmmmmyyyy", "v2");
       setEditableDateFormats("H:mm A D MMMM, YYYY");
       clickAndValidateDateCell(0, 13);
     });
 
-    it.only("15. should allow inline editing of date in DD-MM-YYYY format", () => {
+    it("15. should allow inline editing of date in DD-MM-YYYY format", () => {
       table.EditColumn("mm1dd1yyyy", "v2");
       setEditableDateFormats("MM-DD-YYYY");
       clickAndValidateDateCell(0, 14);
