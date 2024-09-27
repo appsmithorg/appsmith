@@ -95,6 +95,13 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         };
     }
 
+    private Object getConnectionFromDatasourceContextMap(DatasourceContextIdentifier datasourceContextIdentifier) {
+        return this.datasourceContextMap.containsKey(datasourceContextIdentifier)
+                        && this.datasourceContextMap.get(datasourceContextIdentifier) != null
+                ? this.datasourceContextMap.get(datasourceContextIdentifier).getConnection()
+                : null;
+    }
+
     private void handleRemoval(
             RemovalNotification<DatasourceContextIdentifier, DatasourcePluginContext> removalNotification) {
         final DatasourceContextIdentifier datasourceContextIdentifier = removalNotification.getKey();
@@ -106,27 +113,19 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 datasourceContextIdentifier.getEnvironmentId());
 
         // Close connection and remove entry from both cache maps
-        final Object connection = datasourceContextMap.containsKey(datasourceContextIdentifier)
-                        && datasourceContextMap.get(datasourceContextIdentifier) != null
-                ? datasourceContextMap.get(datasourceContextIdentifier).getConnection()
-                : null;
+        final Object connection = getConnectionFromDatasourceContextMap(datasourceContextIdentifier);
 
         Mono<Plugin> pluginMono =
                 pluginService.findById(datasourcePluginContext.getPluginId()).cache();
         if (connection != null) {
-            try {
-                pluginExecutorHelper
-                        .getPluginExecutor(pluginMono)
-                        .flatMap(
-                                pluginExecutor -> Mono.fromRunnable(() -> pluginExecutor.datasourceDestroy(connection)))
-                        .onErrorResume(e -> {
-                            log.error("Error destroying stale datasource connection", e);
-                            return Mono.empty();
-                        })
-                        .subscribe(); // Trigger the execution
-            } catch (Exception e) {
-                log.info(Thread.currentThread().getName() + ": Error destroying stale datasource connection", e);
-            }
+            pluginExecutorHelper
+                    .getPluginExecutor(pluginMono)
+                    .flatMap(pluginExecutor -> Mono.fromRunnable(() -> pluginExecutor.datasourceDestroy(connection)))
+                    .onErrorResume(e -> {
+                        log.error("Error destroying stale datasource connection", e);
+                        return Mono.empty();
+                    })
+                    .subscribe(); // Trigger the execution
         }
         // Remove the entries from both maps
         datasourceContextMonoMap.remove(datasourceContextIdentifier);
@@ -200,7 +199,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                             + ": Cached resource context mono exists for datasource id {}, environment id {}. Returning the same.",
                                     datasourceContextIdentifier.getDatasourceId(),
                                     datasourceContextIdentifier.getEnvironmentId());
-                            log.debug("Accessing the LRU cache to update the last accessed time");
+                            // Accessing the LRU cache to update the last accessed time
                             datasourcePluginContextMapLRUCache.getIfPresent(datasourceContextIdentifier);
                             return datasourceContextMonoMap.get(datasourceContextIdentifier);
                         }
@@ -391,7 +390,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         } else {
             if (isValidDatasourceContextAvailable(datasourceStorage, datasourceContextIdentifier)) {
                 log.debug("Resource context exists. Returning the same.");
-                log.debug("Accessing the LRU cache to update the last accessed time");
+                // Accessing the LRU cache to update the last accessed time
                 datasourcePluginContextMapLRUCache.getIfPresent(datasourceContextIdentifier);
                 return Mono.just(datasourceContextMap.get(datasourceContextIdentifier));
             }
