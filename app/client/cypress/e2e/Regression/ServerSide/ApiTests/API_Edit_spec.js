@@ -96,7 +96,7 @@ describe(
           force: true,
         })
         .type(
-          "https://www.facebook.com/users/{{Button2.text}}?key=test&val={{Button2.text}}",
+          "http://host.docker.internal:5001/{{Button2.text}}?key=test&val={{Button2.text}}",
           { force: true, parseSpecialCharSequences: false },
         )
         .wait(3000)
@@ -106,7 +106,7 @@ describe(
         .type("{enter}", { parseSpecialCharSequences: true });
 
       cy.validateEvaluatedValue(
-        "https://www.facebook.com/users/Cancel?key=test&val=Cancel",
+        "http://host.docker.internal:5001/Cancel?key=test&val=Cancel",
       );
     });
   },
