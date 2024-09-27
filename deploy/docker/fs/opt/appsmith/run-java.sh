@@ -81,7 +81,9 @@ while ! curl --fail --silent localhost:"${APPSMITH_RTS_PORT:-8091}"/rts-api/v1/h
 done
 tlog 'RTS started.'
 
-sh /opt/appsmith/pg-default-schema.sh &
+if [[ "$mode" == "pg" ]]; then
+  sh /opt/appsmith/pg-default-schema.sh &
+fi
 
 sh /opt/appsmith/run-starting-page-init.sh &
 
