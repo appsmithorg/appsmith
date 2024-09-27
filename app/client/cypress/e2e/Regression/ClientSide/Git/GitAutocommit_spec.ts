@@ -7,7 +7,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 let wsName: string;
-let repoName: string = "TED-autocommit-test-1";
+let repoName: string = "TED-testrepo1";
 
 describe(
   "Git Autocommit",
@@ -17,7 +17,6 @@ describe(
       "@tag.GitAutocommit",
       "@tag.excludeForAirgap",
       "@tag.Sanity",
-      "@tag.TedMigration",
     ],
   },
   function () {
