@@ -26,7 +26,7 @@ describe("transformDataPureFn", () => {
         milliseconds: "invalid_milliseconds",
         iso_8601: "invalid_iso_8601",
         yyyy_mm_dd: "invalid_date",
-        lll: "invalid_lll",
+        lll: "invalid_date",
       },
     ];
 

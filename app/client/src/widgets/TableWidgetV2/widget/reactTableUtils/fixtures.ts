@@ -47,8 +47,8 @@ export const columns = [
 // Mock table data
 export const tableData = [
   {
-    epoch: "1727132400",
-    milliseconds: "1727132400000",
+    epoch: 1727132400,
+    milliseconds: 1727132400000,
     iso_8601: "2024-09-24T00:00:00.000+01:00",
     yyyy_mm_dd: "2024-09-24",
     lll: "September 25, 2024 12:00 AM",
