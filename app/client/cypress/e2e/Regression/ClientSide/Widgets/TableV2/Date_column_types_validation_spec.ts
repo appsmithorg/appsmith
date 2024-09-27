@@ -9,7 +9,6 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
-import { getFormattedTomorrowDates } from "./helpers";
 
 describe(
   "Table widget date column type validation",
@@ -46,14 +45,14 @@ describe(
 
       // Click on specific date within
       agHelper.GetNClick(
-        `${table._dateInputPopover} [aria-label='${getFormattedTomorrowDates().verboseFormat}']`,
+        `${table._dateInputPopover} [aria-label='${table.getFormattedTomorrowDates().verboseFormat}']`,
       );
 
       // Check that date is set in column
       table
         .ReadTableRowColumnData(row, column, "v2")
         .then((val) =>
-          expect(val).to.equal(getFormattedTomorrowDates().isoFormat),
+          expect(val).to.equal(table.getFormattedTomorrowDates().isoFormat),
         );
     };
 
