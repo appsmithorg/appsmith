@@ -2,14 +2,12 @@ import React from "react";
 import { useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
-import { getActionByBaseId, getPlugin } from "ee/selectors/entitiesSelector";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { PluginType } from "entities/Action";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import styled from "styled-components";
-import type { AppState } from "ee/reducers";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ActionUrlIcon } from "pages/Editor/Explorer/ExplorerIcons";
@@ -52,31 +50,24 @@ const ActionNameEditorWrapper = styled.div`
 
 const PluginActionNameEditor = (props: PluginActionNameEditorProps) => {
   const { action, plugin } = usePluginActionContext();
-  const currentActionConfig = useSelector((state) =>
-    action.baseId ? getActionByBaseId(state, action.baseId) : undefined,
-  );
+
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isChangePermitted = getHasManageActionPermission(
     isFeatureEnabled,
-    currentActionConfig?.userPermissions,
-  );
-
-  const currentPlugin = useSelector((state: AppState) =>
-    getPlugin(state, currentActionConfig?.pluginId || ""),
+    action?.userPermissions,
   );
 
   const saveStatus = useSelector((state) =>
-    getSavingStatusForActionName(state, currentActionConfig?.id || ""),
+    getSavingStatusForActionName(state, action?.id || ""),
   );
 
-  const iconUrl = getAssetUrl(currentPlugin?.iconLocation) || "";
-
+  const iconUrl = getAssetUrl(plugin?.iconLocation) || "";
   const icon = ActionUrlIcon(iconUrl);
 
   return (
     <ActionNameEditorWrapper>
       <ActionNameEditor
-        actionConfig={currentActionConfig}
+        actionConfig={action}
         disabled={!isChangePermitted}
         enableFontStyling={plugin?.type === PluginType.API}
         icon={icon}

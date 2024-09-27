@@ -73,7 +73,6 @@ interface NameEditorProps {
   children: (params: any) => JSX.Element;
   id?: string;
   name?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSaveName: (
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
