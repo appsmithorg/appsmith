@@ -58,6 +58,7 @@ init_env_file() {
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
     tlog "Generating default configuration file"
     mkdir -p "$CONF_PATH"
+
     local default_appsmith_mongodb_user="appsmith"
     local generated_appsmith_mongodb_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
@@ -75,9 +76,39 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
-    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
-  fi
 
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
+
+  else
+    # Check if APPSMITH_DB_URL is set and is a PostgreSQL URL
+    if [[ -n "$APPSMITH_DB_URL" && "$APPSMITH_DB_URL" == postgres*://* ]]; then
+      echo "APPSMITH_DB_URL is a valid PostgreSQL URL."
+
+      # Extract the host from APPSMITH_DB_URL
+      DB_HOST=$(echo "$APPSMITH_DB_URL" | sed -n 's#.*://[^@]*@\([^:]*\):.*#\1#p')
+
+      # Check if DB_HOST is localhost or 127.0.0.1
+      if [[ "$DB_HOST" == "localhost" || "$DB_HOST" == "127.0.0.1" ]]; then
+        echo "Local PostgreSQL detected. Regenerating password..."
+
+        # Generate a new password for local PostgreSQL
+        DB_USER="appsmith"
+        DB_PASSWORD=$(openssl rand -base64 12)  # Generate a random password
+        echo "Generated new password for appsmith user: $DB_PASSWORD"
+
+        # Update APPSMITH_DB_URL with the new username and password
+        APPSMITH_DB_URL=$(echo "$APPSMITH_DB_URL" | sed "s#postgres://[^:]*:[^@]*@#postgres://$DB_USER:$DB_PASSWORD@#")
+        echo "APPSMITH_DB_URL updated with new user and password: $APPSMITH_DB_URL"
+
+        # Optionally: Save the updated APPSMITH_DB_URL back to the .env file or environment
+        sed -i "s#APPSMITH_DB_URL=.*#APPSMITH_DB_URL=$APPSMITH_DB_URL#g" "$ENV_PATH"
+      else
+        echo "Remote PostgreSQL detected. No changes made to username or password."
+      fi
+    else
+      echo "APPSMITH_DB_URL is either empty or not a PostgreSQL URL. Skipping database configuration."
+    fi
+  fi
 
   tlog "Load environment configuration"
 
