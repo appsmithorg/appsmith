@@ -49,8 +49,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     protected final Map<DatasourceContextIdentifier, DatasourceContext<?>> datasourceContextMap;
 
     /**
-     * This cache is used to store the datasource context for a limited time and then destroy the least recently used
-     * connection.The cleanup process is performed after every 2 hours.
+     * This cache is used to store the datasource context for a limited time and a limited max number of connections and
+     * then destroy the least recently used connection. The cleanup process is triggered when the cache is accessed and
+     * either the time limit or the max connections are reached.
      * The purpose of this is to prevent the large number of open dangling connections to the movies mockDB.
      * The removalListener method is called when the connection is removed from the cache.
      */
@@ -58,6 +59,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             CacheBuilder.newBuilder()
                     .removalListener(createRemovalListener())
                     .expireAfterAccess(2, TimeUnit.HOURS)
+                    .maximumSize(300) // caches most recently used 300 mock connections per pod
                     .build();
 
     private final DatasourceService datasourceService;
@@ -111,6 +113,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 "Removing Datasource Context from cache and closing the open connection for DatasourceId: {} and environmentId: {}",
                 datasourceContextIdentifier.getDatasourceId(),
                 datasourceContextIdentifier.getEnvironmentId());
+        log.info("LRU Cache Size after eviction: {}", datasourcePluginContextMapLRUCache.size());
 
         // Close connection and remove entry from both cache maps
         final Object connection = getConnectionFromDatasourceContextMap(datasourceContextIdentifier);
@@ -245,6 +248,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                                             datasourcePluginContext.setPluginId(plugin.getId());
                                             datasourcePluginContextMapLRUCache.put(
                                                     datasourceContextIdentifier, datasourcePluginContext);
+                                            log.info(
+                                                    "LRU Cache Size after adding: {}",
+                                                    datasourcePluginContextMapLRUCache.size());
                                         }
                                     }
                                     return datasourceContextMonoCache;
