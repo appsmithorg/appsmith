@@ -117,9 +117,15 @@ describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
     propertySectionState = {
       basic: false,
       general: true,
-      validation: false,
-      formsettings: true,
     };
+
+    if (!Cypress.env("AIRGAPPED")) {
+      propertySectionState = {
+        ...propertySectionState,
+        validation: false,
+        formsettings: true,
+      };
+    }
 
     verifyPropertyPaneContext(
       () => {

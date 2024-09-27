@@ -16,7 +16,7 @@ let isBaselineMode = false;
 let mongoDbUrl;
 
 let mongoDumpFile = null;
-const EXPORT_ROOT = "mongo-data";
+const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
 
 for (let i = 2; i < process.argv.length; ++i) {
   const arg = process.argv[i];
@@ -52,8 +52,9 @@ if (mongoDumpFile) {
   spawn("mongorestore", [mongoDbUrl, "--archive=" + mongoDumpFile, "--gzip", "--noIndexRestore"]);
 }
 
-const mongoClient = await new MongoClient(mongoDbUrl);
+const mongoClient = new MongoClient(mongoDbUrl);
 mongoClient.on("error", console.error);
+await mongoClient.connect();
 const mongoDb = mongoClient.db();
 
 // Make sure EXPORT_ROOT directory is empty
@@ -90,7 +91,7 @@ for await (const collectionName of sortedCollectionNames) {
     if (isArchivedObject(doc)) {
       continue;
     }
-    transformFields(doc);  // This now handles the _class to type transformation.
+    transformFields(doc);
     if (doc.policyMap == null) {
       doc.policyMap = {};
     }
@@ -132,7 +133,7 @@ function toJsonSortedKeys(obj) {
 
 function replacer(key, value) {
   // Ref: https://gist.github.com/davidfurlong/463a83a33b70a3b6618e97ec9679e490
-  return value instanceof Object && !(value instanceof Array) ?
+  return value instanceof Object && !Array.isArray(value) ?
     Object.keys(value)
       .sort()
       .reduce((sorted, key) => {
