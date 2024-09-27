@@ -43,6 +43,7 @@ import com.external.plugins.constants.AmazonS3Action;
 import com.external.plugins.exceptions.S3ErrorMessages;
 import com.external.plugins.exceptions.S3PluginError;
 import com.external.utils.AmazonS3ErrorUtils;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
@@ -262,6 +263,13 @@ public class AmazonS3Plugin extends BasePlugin {
             byte[] payload;
             MultipartFormDataDTO multipartFormDataDTO;
             try {
+                // Multipart data would be parsed using object mapper, these files may be large in the size.
+                // Hence, the length should not be truncated, therefore allowing maximum length.
+                objectMapper
+                        .getFactory()
+                        .setStreamReadConstraints(StreamReadConstraints.builder()
+                                .maxStringLength(Integer.MAX_VALUE)
+                                .build());
                 multipartFormDataDTO = objectMapper.readValue(body, MultipartFormDataDTO.class);
             } catch (IOException e) {
                 throw new AppsmithPluginException(
