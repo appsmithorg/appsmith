@@ -86,7 +86,7 @@ class SearchComponent extends React.Component<
   SearchProps,
   { localValue: string }
 > {
-  private inputRef = React.createRef<HTMLInputElement>(); 
+  private inputRef = React.createRef<HTMLInputElement>();
   onDebouncedSearch = debounce(this.props.onSearch, 400);
   constructor(props: SearchProps) {
     super(props);
@@ -114,8 +114,9 @@ class SearchComponent extends React.Component<
   clearSearch = () => {
     this.setState({ localValue: "" });
     this.onDebouncedSearch("");
+
     if (this.inputRef.current) {
-      this.inputRef.current.focus(); 
+      this.inputRef.current.focus();
     }
   };
 
@@ -123,9 +124,9 @@ class SearchComponent extends React.Component<
     return (
       <SearchComponentWrapper>
         <SearchInputWrapper
-          inputRef={this.inputRef} 
           autoFocus={this.props.autoFocus}
           className={`${this.props.className} t--search-input`}
+          inputRef={this.inputRef}
           leftIcon="search"
           onChange={this.handleSearch}
           placeholder={this.props.placeholder}
