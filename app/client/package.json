@@ -237,6 +237,7 @@
     "typescript": "^5.5.4",
     "unescape-js": "^1.1.4",
     "url-search-params-polyfill": "^8.0.0",
+    "usehooks-ts": "^3.1.0",
     "uuid": "^9.0.0",
     "validate-color": "^2.2.4",
     "webfontloader": "^1.6.28",
