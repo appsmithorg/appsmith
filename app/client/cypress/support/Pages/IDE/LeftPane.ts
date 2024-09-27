@@ -57,7 +57,13 @@ export class LeftPane {
     if (!this.segments) {
       throw Error("No Segments configured");
     }
-    ObjectsRegistry.AggregateHelper.GetNClick(this.locators.segment(name));
+    ObjectsRegistry.AggregateHelper.GetElement(
+      this.locators.segment(name),
+    ).then(($body) => {
+      if ($body.first().attr("data-selected") !== "true") {
+        ObjectsRegistry.AggregateHelper.GetNClick(this.locators.segment(name));
+      }
+    });
   }
 
   public selectItem(
@@ -90,6 +96,7 @@ export class LeftPane {
         }
       });
   }
+
   public selectedItem(
     exists?: "exist" | "not.exist" | "noVerify",
   ): Cypress.Chainable {

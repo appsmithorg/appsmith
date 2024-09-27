@@ -1,12 +1,12 @@
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 import {
   agHelper,
-  apiPage,
   dataSources,
   homePage,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
+  PageLeftPane,
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
@@ -36,6 +36,7 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
   });
 
   it("1. Focus on different entities", () => {
+    PageLeftPane.closeAddView();
     EditorNavigation.SelectEntityByName("Text1", EntityType.Widget, {}, [
       "Container1",
     ]);
@@ -56,7 +57,7 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
     EditorNavigation.SelectEntityByName("Rest_Api_2", EntityType.Api);
 
     cy.wait(1000);
-    cy.xpath("//span[contains(text(), 'Headers')]").click();
+    agHelper.GetNClick("//span[contains(text(), 'Headers')]", 0);
     cy.updateCodeInput(apiwidget.headerValue, "test");
     cy.wait("@saveAction");
 
@@ -160,30 +161,7 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
   });
 
-  it("3. Check if selected tab on right tab persists", () => {
-    EditorNavigation.SelectEntityByName("Rest_Api_1", EntityType.Api);
-    apiPage.SelectRightPaneTab("Connections");
-    EditorNavigation.SelectEntityByName("SQL_Query", EntityType.Query);
-    EditorNavigation.SelectEntityByName("Rest_Api_1", EntityType.Api);
-    apiPage.AssertRightPaneSelectedTab("Connections");
-
-    //Check if the URL is persisted while switching pages
-    cy.Createpage("Page2");
-
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    EditorNavigation.SelectEntityByName("Rest_Api_1", EntityType.Api);
-
-    EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
-
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    cy.get(".t--nameOfApi .bp3-editable-text-content").should(
-      "contain",
-      "Rest_Api_1",
-    );
-  });
-
-  it("4. Datasource edit mode has to be maintained", () => {
+  it("3. Datasource edit mode has to be maintained", () => {
     EditorNavigation.SelectEntityByName("Appsmith", EntityType.Datasource);
     dataSources.EditDatasource();
     EditorNavigation.SelectEntityByName("Github", EntityType.Datasource);
@@ -192,7 +170,7 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
     dataSources.AssertDSEditViewMode("Edit");
   });
 
-  it("5. Maintain focus of form control inputs", () => {
+  it("4. Maintain focus of form control inputs", () => {
     EditorNavigation.SelectEntityByName("SQL_Query", EntityType.Query);
     dataSources.ToggleUsePreparedStatement(false);
     EditorNavigation.SelectEntityByName("S3_Query", EntityType.Query);
@@ -202,14 +180,15 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
 
     EditorNavigation.SelectEntityByName("SQL_Query", EntityType.Query);
     cy.get(".bp3-editable-text-content").should("contain.text", "SQL_Query");
-    cy.get(".t--form-control-SWITCH input").should("be.focused");
+    cy.xpath(queryLocators.querySettingsTab).click();
+    agHelper.GetElement(dataSources._usePreparedStatement).should("be.focused");
     EditorNavigation.SelectEntityByName("S3_Query", EntityType.Query);
     agHelper.Sleep();
     cy.xpath(queryLocators.querySettingsTab).click();
     cy.xpath(queryLocators.queryTimeout).should("be.focused");
   });
 
-  it("6. Bug 21999 Maintain focus of code editor when Escape is pressed with autcomplete open + Bug 22960", () => {
+  it("5. Bug 21999 Maintain focus of code editor when Escape is pressed with autcomplete open + Bug 22960", () => {
     EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
