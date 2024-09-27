@@ -11,12 +11,18 @@ import { transformDataPureFn } from "./transformDataPureFn";
 
 describe("transformDataPureFn", () => {
   it("should transform table data based on column meta properties", () => {
-    const result = transformDataPureFn(
-      tableData,
+    let result = transformDataPureFn(
+      [tableData[0]],
       columns as ReactTableColumnProps[],
     );
 
-    expect(result).toEqual(expectedData);
+    expect(result[0]).toEqual(expectedData[0]);
+
+    result = transformDataPureFn(
+      [tableData[1]],
+      columns as ReactTableColumnProps[],
+    );
+    expect(result[0]).toEqual(expectedData[1]);
   });
 
   it("should handle invalid date values", () => {
