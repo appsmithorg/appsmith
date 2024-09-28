@@ -2,6 +2,7 @@ const CracoAlias = require("craco-alias");
 const CracoBabelLoader = require("craco-babel-loader");
 const path = require("path");
 const webpack = require("webpack");
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   devServer: {
@@ -141,6 +142,7 @@ module.exports = {
             "./src/components/designSystems/blueprintjs/icon/index.js",
           ),
         ),
+        new BundleAnalyzerPlugin()
       ],
     },
   },

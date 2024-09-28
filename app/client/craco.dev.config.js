@@ -11,9 +11,6 @@ module.exports = merge(common, {
       },
     },
   },
-  optimization: {
-    minimize: false,
-  },
   cache: {
     type: "filesystem",
     memoryCacheUnaffected: true,
