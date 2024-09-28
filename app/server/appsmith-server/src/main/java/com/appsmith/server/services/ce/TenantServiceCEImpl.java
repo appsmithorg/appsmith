@@ -3,12 +3,13 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.MigrationStatus;
+import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
+import com.appsmith.server.dtos.InstanceAdminMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -32,6 +33,7 @@ import java.util.Map;
 import static com.appsmith.external.constants.spans.TenantSpan.FETCH_DEFAULT_TENANT_SPAN;
 import static com.appsmith.external.constants.spans.TenantSpan.FETCH_TENANT_CACHE_POST_DESERIALIZATION_ERROR_SPAN;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
+import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_ADMIN_CONFIG;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -47,7 +49,6 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
-    private final CommonConfig commonConfig;
     private final ObservationRegistry observationRegistry;
 
     public TenantServiceCEImpl(
@@ -58,14 +59,12 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             @Lazy EnvManager envManager,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
             CacheableRepositoryHelper cacheableRepositoryHelper,
-            CommonConfig commonConfig,
             ObservationRegistry observationRegistry) {
         super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
-        this.commonConfig = commonConfig;
         this.observationRegistry = observationRegistry;
     }
 
@@ -136,29 +135,41 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> getTenantConfiguration(Mono<Tenant> dbTenantMono) {
-        String adminEmailDomainHash = commonConfig.getAdminEmailDomainHash();
-        Mono<Tenant> clientTenantMono = configService.getInstanceId().map(instanceId -> {
-            final Tenant tenant = new Tenant();
-            tenant.setInstanceId(instanceId);
-            tenant.setAdminEmailDomainHash(adminEmailDomainHash);
+        Mono<String> instanceAdminEmailDomainMono = configService
+                .getByName(INSTANCE_ADMIN_CONFIG)
+                .switchIfEmpty(Mono.just(new Config()))
+                .map(config -> {
+                    if (config.getConfig() == null) {
+                        return "";
+                    }
+                    return InstanceAdminMetaDTO.fromJsonObject(config.getConfig())
+                            .getEmailDomainHash();
+                });
+        Mono<Tenant> clientTenantMono = configService
+                .getInstanceId()
+                .zipWith(instanceAdminEmailDomainMono)
+                .map(tuple2 -> {
+                    final Tenant tenant = new Tenant();
+                    tenant.setInstanceId(tuple2.getT1());
+                    tenant.setAdminEmailDomainHash(tuple2.getT2());
 
-            final TenantConfiguration config = new TenantConfiguration();
-            tenant.setTenantConfiguration(config);
+                    final TenantConfiguration config = new TenantConfiguration();
+                    tenant.setTenantConfiguration(config);
 
-            config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
+                    config.setGoogleMapsKey(System.getenv("APPSMITH_GOOGLE_MAPS_API_KEY"));
 
-            if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
-                config.addThirdPartyAuth("google");
-            }
+                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"))) {
+                        config.addThirdPartyAuth("google");
+                    }
 
-            if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
-                config.addThirdPartyAuth("github");
-            }
+                    if (StringUtils.hasText(System.getenv("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"))) {
+                        config.addThirdPartyAuth("github");
+                    }
 
-            config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
+                    config.setIsFormLoginEnabled(!"true".equals(System.getenv("APPSMITH_FORM_LOGIN_DISABLED")));
 
-            return tenant;
-        });
+                    return tenant;
+                });
 
         return Mono.zip(dbTenantMono, clientTenantMono).flatMap(tuple -> {
             Tenant dbTenant = tuple.getT1();

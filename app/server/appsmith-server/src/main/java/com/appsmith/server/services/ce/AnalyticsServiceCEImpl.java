@@ -8,9 +8,11 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.InstanceAdminMetaDTO;
 import com.appsmith.server.helpers.ExchangeUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -20,7 +22,6 @@ import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +38,12 @@ import static com.appsmith.external.constants.AnalyticsConstants.GOAL;
 import static com.appsmith.external.constants.AnalyticsConstants.IP;
 import static com.appsmith.external.constants.AnalyticsConstants.IP_ADDRESS;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
+import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_ADMIN_CONFIG;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
 import static com.appsmith.server.constants.ce.FieldNameCE.PROFICIENCY;
 import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
+import static com.appsmith.server.helpers.HashUtils.getEmailDomainHash;
+import static com.appsmith.server.helpers.HashUtils.hash;
 
 @Slf4j
 public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
@@ -78,18 +82,6 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     public boolean isActive() {
         return analytics != null;
-    }
-
-    private String hash(String value) {
-        return StringUtils.isEmpty(value) ? "" : DigestUtils.sha256Hex(value);
-    }
-
-    private String getEmailDomainHash(String email) {
-        if (email == null) {
-            return "";
-        }
-
-        return hash(email.contains("@") ? email.split("@", 2)[1] : "");
     }
 
     @Override
@@ -230,14 +222,27 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
         final String finalUserId = userId;
 
+        Mono<String> instanceAdminEmailDomainMono = configService
+                .getByName(INSTANCE_ADMIN_CONFIG)
+                .switchIfEmpty(Mono.just(new Config()))
+                .map(config -> {
+                    if (config.getConfig() == null) {
+                        return "";
+                    }
+                    return InstanceAdminMetaDTO.fromJsonObject(config.getConfig())
+                            .getEmailDomainHash();
+                });
+
         return Mono.zip(
                         ExchangeUtils.getAnonymousUserIdFromCurrentRequest(),
                         ExchangeUtils.getUserAgentFromCurrentRequest(),
-                        configService.getInstanceId().defaultIfEmpty("unknown-instance-id"))
+                        configService.getInstanceId().defaultIfEmpty("unknown-instance-id"),
+                        instanceAdminEmailDomainMono)
                 .map(tuple -> {
                     final String userIdFromClient = tuple.getT1();
                     final String userAgent = tuple.getT2();
                     final String instanceId = tuple.getT3();
+                    final String instanceAdminDomainHash = ObjectUtils.defaultIfNull(tuple.getT4(), "");
                     String userIdToSend = finalUserId;
                     if (FieldName.ANONYMOUS_USER.equals(finalUserId)) {
                         userIdToSend = StringUtils.defaultIfEmpty(userIdFromClient, FieldName.ANONYMOUS_USER);
@@ -259,7 +264,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         analyticsProperties.put(ADMIN_EMAIL_DOMAIN_HASH, domainHash);
                     } else {
                         analyticsProperties.put(EMAIL_DOMAIN_HASH, emailDomainHash);
-                        analyticsProperties.put(ADMIN_EMAIL_DOMAIN_HASH, commonConfig.getAdminEmailDomainHash());
+                        analyticsProperties.put(ADMIN_EMAIL_DOMAIN_HASH, instanceAdminDomainHash);
                     }
                     analyticsProperties.put("originService", "appsmith-server");
                     analyticsProperties.put("instanceId", instanceId);

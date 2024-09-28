@@ -5,6 +5,8 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
+import com.appsmith.server.domains.Config;
+import com.appsmith.server.dtos.InstanceAdminMetaDTO;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -33,6 +35,7 @@ import java.util.Map;
 
 import static com.appsmith.external.constants.AnalyticsConstants.ADMIN_EMAIL_DOMAIN_HASH;
 import static com.appsmith.external.constants.AnalyticsConstants.EMAIL_DOMAIN_HASH;
+import static com.appsmith.server.constants.FieldName.INSTANCE_ADMIN_CONFIG;
 import static java.util.Map.entry;
 import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
@@ -152,13 +155,25 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                 userCountMono,
                 getUserTrackingDetails());
 
+        Mono<String> instanceAdminEmailDomainMono = configService
+                .getByName(INSTANCE_ADMIN_CONFIG)
+                .switchIfEmpty(Mono.just(new Config()))
+                .map(config -> {
+                    if (config.getConfig() == null) {
+                        return "";
+                    }
+                    return InstanceAdminMetaDTO.fromJsonObject(config.getConfig())
+                            .getEmailDomainHash();
+                });
+
         publicPermissionGroupIdMono
                 .flatMap(publicPermissionGroupId -> Mono.zip(
                         configService.getInstanceId().defaultIfEmpty("null"),
                         networkUtils.getExternalAddress(),
                         nonDeletedObjectsCountMono,
                         applicationRepository.getAllApplicationsCountAccessibleToARoleWithPermission(
-                                AclPermission.READ_APPLICATIONS, publicPermissionGroupId)))
+                                AclPermission.READ_APPLICATIONS, publicPermissionGroupId),
+                        instanceAdminEmailDomainMono))
                 .flatMap(statsData -> {
                     Map<String, Object> propertiesMap = new java.util.HashMap<>(Map.ofEntries(
                             entry("instanceId", statsData.getT1()),
@@ -176,8 +191,8 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                             entry("tool", defaultIfEmpty(deploymentProperties.getTool(), "")),
                             entry("hostname", defaultIfEmpty(deploymentProperties.getHostname(), "")),
                             entry("deployedAt", defaultIfEmpty(deploymentProperties.getDeployedAt(), "")),
-                            entry(ADMIN_EMAIL_DOMAIN_HASH, commonConfig.getAdminEmailDomainHash()),
-                            entry(EMAIL_DOMAIN_HASH, commonConfig.getAdminEmailDomainHash())));
+                            entry(ADMIN_EMAIL_DOMAIN_HASH, defaultIfEmpty(statsData.getT5(), "")),
+                            entry(EMAIL_DOMAIN_HASH, defaultIfEmpty(statsData.getT5(), ""))));
 
                     propertiesMap.putAll(statsData.getT3().getT7());
 

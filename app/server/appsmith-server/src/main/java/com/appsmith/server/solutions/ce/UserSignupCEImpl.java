@@ -3,12 +3,14 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserState;
+import com.appsmith.server.dtos.InstanceAdminMetaDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -56,6 +58,7 @@ import static com.appsmith.external.constants.AnalyticsConstants.SUBSCRIBE_MARKE
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
+import static com.appsmith.server.constants.FieldName.INSTANCE_ADMIN_CONFIG;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
@@ -467,12 +470,18 @@ public class UserSignupCEImpl implements UserSignupCE {
                             newsletterSignedUpUserName,
                             ip);
 
-                    return analyticsService
-                            .sendEvent(
+                    Config config = new Config();
+                    config.setName(INSTANCE_ADMIN_CONFIG);
+                    config.setConfig(InstanceAdminMetaDTO.toJsonObject(newsletterSignedUpUserEmail));
+                    Mono<Config> configMono =
+                            configService.getByName(INSTANCE_ADMIN_CONFIG).switchIfEmpty(configService.save(config));
+
+                    return configMono
+                            .then(analyticsService.sendEvent(
                                     AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
                                     instanceId,
                                     analyticsProps,
-                                    false)
+                                    false))
                             .thenReturn(1L)
                             .elapsed()
                             .map(pair -> {

@@ -148,6 +148,7 @@ public class CommonConfig {
         return Instant.now().toEpochMilli();
     }
 
+    @Deprecated(forRemoval = true)
     public String getAdminEmailDomainHash() {
         if (StringUtils.hasLength(adminEmailDomainHash)) {
             return adminEmailDomainHash;
