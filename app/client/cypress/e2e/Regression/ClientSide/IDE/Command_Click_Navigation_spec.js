@@ -79,7 +79,7 @@ describe("1. CommandClickNavigation", { tags: ["@tag.IDE"] }, function () {
     //Assert working on url field
     cy.updateCodeInput(
       ".t--dataSourceField",
-      "https://www.test.com/{{ SQL_Query.data }}",
+      "http://host.docker.internal:5001/{{ SQL_Query.data }}",
     );
     agHelper.Sleep();
 
