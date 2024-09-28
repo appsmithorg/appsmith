@@ -1,10 +1,6 @@
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { SaveActionNameParams } from "PluginActionEditor";
 import React, { createContext, useMemo } from "react";
-
-interface SaveActionNameParams {
-  id: string;
-  name: string;
-}
 
 interface QueryEditorContextContextProps {
   moreActionsMenu?: React.ReactNode;
@@ -12,7 +8,7 @@ interface QueryEditorContextContextProps {
   onEntityNotFoundBackClick?: () => void;
   changeQueryPage?: (baseQueryId: string) => void;
   actionRightPaneBackLink?: React.ReactNode;
-  saveActionName?: (
+  saveActionName: (
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
   closeEditorLink?: React.ReactNode;
