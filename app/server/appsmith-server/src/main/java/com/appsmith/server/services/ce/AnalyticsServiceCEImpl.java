@@ -60,6 +60,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     private final UserDataRepository userDataRepository;
 
+    private static String adminEmailDomainHash;
+
     @Autowired
     public AnalyticsServiceCEImpl(
             @Autowired(required = false) Analytics analytics,
@@ -222,16 +224,19 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
         final String finalUserId = userId;
 
-        Mono<String> instanceAdminEmailDomainMono = configService
-                .getByName(INSTANCE_ADMIN_CONFIG)
-                .switchIfEmpty(Mono.just(new Config()))
-                .map(config -> {
-                    if (config.getConfig() == null) {
-                        return "";
-                    }
-                    return InstanceAdminMetaDTO.fromJsonObject(config.getConfig())
-                            .getEmailDomainHash();
-                });
+        Mono<String> instanceAdminEmailDomainMono = adminEmailDomainHash != null
+                ? Mono.just(adminEmailDomainHash)
+                : configService
+                        .getByName(INSTANCE_ADMIN_CONFIG)
+                        .switchIfEmpty(Mono.just(new Config()))
+                        .map(config -> {
+                            if (config.getConfig() == null) {
+                                return "";
+                            }
+                            adminEmailDomainHash = InstanceAdminMetaDTO.fromJsonObject(config.getConfig())
+                                    .getEmailDomainHash();
+                            return adminEmailDomainHash;
+                        });
 
         return Mono.zip(
                         ExchangeUtils.getAnonymousUserIdFromCurrentRequest(),
