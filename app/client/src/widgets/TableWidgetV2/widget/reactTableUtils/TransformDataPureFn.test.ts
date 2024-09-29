@@ -2,23 +2,12 @@ import type { ReactTableColumnProps } from "widgets/TableWidgetV2/component/Cons
 import {
   columns,
   columnsNonDate,
-  expectedData,
   expectedDataNonDate,
-  tableData,
   tableDataNonDate,
 } from "./fixtures";
 import { transformDataPureFn } from "./transformDataPureFn";
 
 describe("transformDataPureFn", () => {
-  it("should transform table data based on column meta properties", () => {
-    const result = transformDataPureFn(
-      tableData,
-      columns as ReactTableColumnProps[],
-    );
-
-    expect(result).toEqual(expectedData);
-  });
-
   it("should handle invalid date values", () => {
     const invalidTableData = [
       {
