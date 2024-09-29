@@ -259,7 +259,7 @@ export default abstract class GSheets extends BaseQueryGenerator {
     };
   }
 
-  static build(
+  static async build(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
     pluginInitalValues: { actionConfiguration: ActionConfigurationGSheets },

@@ -1,5 +1,4 @@
 import { BaseQueryGenerator } from "../BaseQueryGenerator";
-import { formatDialect, postgresql } from "sql-formatter";
 import type {
   ActionConfigurationSQL,
   WidgetQueryGenerationConfig,
@@ -11,7 +10,7 @@ import { without } from "lodash";
 import { DatasourceConnectionMode } from "entities/Datasource";
 
 export default abstract class PostgreSQL extends BaseQueryGenerator {
-  private static buildSelect(
+  private static async buildSelect(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
   ) {
@@ -87,6 +86,8 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
         { template: "", params: {} },
       );
     //formats sql string
+    const { formatDialect, postgresql } = await import("sql-formatter");
+
     const res = formatDialect(template, {
       params,
       dialect: postgresql,
@@ -205,7 +206,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
     };
   }
 
-  public static build(
+  public static async build(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
     pluginInitalValues: { actionConfiguration: ActionConfigurationSQL },
@@ -213,7 +214,7 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
     const allBuildConfigs = [];
 
     if (widgetConfig.select) {
-      allBuildConfigs.push(this.buildSelect(widgetConfig, formConfig));
+      allBuildConfigs.push(await this.buildSelect(widgetConfig, formConfig));
     }
 
     if (
