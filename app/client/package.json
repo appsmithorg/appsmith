@@ -240,7 +240,6 @@
     "uuid": "^9.0.0",
     "validate-color": "^2.2.4",
     "webfontloader": "^1.6.28",
-    "webpack-bundle-analyzer": "^4.10.2",
     "webpack-retry-chunk-load-plugin": "^3.1.1",
     "yjs": "^13.5.12",
     "zipcelx": "^1.6.2"
