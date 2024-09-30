@@ -49,7 +49,7 @@ describe(
       gitSync.CloseGitSyncModal();
     });
 
-    it("Deploy the app & Validate CRUD pages - Mongo , MySql, Postgres pages", () => {
+    it("1. Deploy the app & Validate CRUD pages - Mongo , MySql, Postgres pages", () => {
       //Mongo CRUD page validation
       //Assert table data
       cy.latestDeployPreview();
@@ -123,7 +123,7 @@ describe(
       });
     });
 
-    it("Validate widgets & bindings", () => {
+    it("2. Validate widgets & bindings", () => {
       agHelper.GetNClickByContains(locators._deployedPage, "Widgets");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.AUDIO),
