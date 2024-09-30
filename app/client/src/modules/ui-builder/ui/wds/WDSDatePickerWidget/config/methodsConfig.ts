@@ -1,6 +1,6 @@
-import { ComboboxSelectIcon, ComboboxSelectThumbnail } from "appsmith-icons";
+import { DatePickerIcon, DatePickerThumbnail } from "appsmith-icons";
 
 export const methodsConfig = {
-  IconCmp: ComboboxSelectIcon,
-  ThumbnailCmp: ComboboxSelectThumbnail,
+  IconCmp: DatePickerIcon,
+  ThumbnailCmp: DatePickerThumbnail,
 };

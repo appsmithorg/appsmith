@@ -33,7 +33,7 @@
 
 .input:is([data-date-input]) {
   display: flex;
-  gap: var(--inner-spacing-1);
+  gap: calc(var(--inner-spacing-1) / 2);
   align-items: center;
 }
 

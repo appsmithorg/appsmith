@@ -3,6 +3,7 @@ export { CheckboxGroupThumbnail } from "./components/Thumbnails/CheckboxGroupThu
 export { CheckboxThumbnail } from "./components/Thumbnails/CheckboxThumbnail";
 export { ComboboxSelectThumbnail } from "./components/Thumbnails/ComboboxSelectThumbnail";
 export { CurrencyInputThumbnail } from "./components/Thumbnails/CurrencyInputThumbnail";
+export { DatePickerThumbnail } from "./components/Thumbnails/DatePickerThumbnail";
 export { EmailInputThumbnail } from "./components/Thumbnails/EmailInputThumbnail";
 export { HeadingThumbnail } from "./components/Thumbnails/HeadingThumbnail";
 export { IconButtonThumbnail } from "./components/Thumbnails/IconButtonThumbnail";
@@ -30,6 +31,7 @@ export { CheckboxGroupIcon } from "./components/Icons/CheckboxGroupIcon";
 export { CheckboxIcon } from "./components/Icons/CheckboxIcon";
 export { ComboboxSelectIcon } from "./components/Icons/ComboboxSelectIcon";
 export { CurrencyInputIcon } from "./components/Icons/CurrencyInputIcon";
+export { DatePickerIcon } from "./components/Icons/DatePickerIcon";
 export { EmailInputIcon } from "./components/Icons/EmailInputIcon";
 export { HeadingIcon } from "./components/Icons/HeadingIcon";
 export { IconButtonIcon } from "./components/Icons/IconButtonIcon";
