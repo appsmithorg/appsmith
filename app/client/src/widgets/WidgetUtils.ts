@@ -1023,11 +1023,9 @@ export function parseDerivedProperties(propertyFns: Record<string, unknown>) {
       const functionBody = functionString.match(/(?<=\{)(.|\n)*(?=\})/)?.[0];
 
       if (functionBody) {
-        // Extract the parameter name (which could be 'props' or a minified version)
         const paramMatch = functionString.match(/\((.*?),/);
         const propsParam = paramMatch ? paramMatch[1].trim() : "props";
 
-        // Replace the parameter name with 'this'
         const modifiedBody = functionBody
           .trim()
           .replace(new RegExp(`${propsParam}\\.`, "g"), "this.");
