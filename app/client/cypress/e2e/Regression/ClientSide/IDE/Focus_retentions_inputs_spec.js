@@ -140,6 +140,10 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
 
     PageLeftPane.selectItem("S3_Query");
 
+    agHelper.WaitUntilEleAppear(
+      ".t--actionConfiguration\\.formData\\.bucket\\.data",
+    );
+
     cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.bucket\\.data",
       { ch: 2, line: 0 },
