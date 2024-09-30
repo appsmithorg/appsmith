@@ -16,6 +16,8 @@ import {
 import { Tooltip } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { SaveActionNameParams } from "PluginActionEditor";
 
 export const searchHighlightSpanClassName = "token";
 export const searchTokenizationDelimiter = "!!";
@@ -84,7 +86,7 @@ export interface EntityNameProps {
   name: string;
   isEditing?: boolean;
   onChange?: (name: string) => void;
-  updateEntityName: (name: string) => void;
+  updateEntityName: (name: string) => ReduxAction<SaveActionNameParams>;
   entityId: string;
   searchKeyword?: string;
   className?: string;
@@ -164,10 +166,10 @@ export const EntityName = React.memo(
 
     return (
       <NameEditorComponent
-        dispatchAction={handleUpdateName}
         id={props.entityId}
         idUndefinedErrorMessage={ACTION_ID_NOT_FOUND_IN_URL}
         name={updatedName}
+        onSaveName={handleUpdateName}
         saveStatus={saveStatus}
         suffixErrorMessage={ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR}
       >

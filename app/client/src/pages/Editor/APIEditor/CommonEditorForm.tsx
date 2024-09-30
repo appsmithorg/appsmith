@@ -35,6 +35,9 @@ import {
   InfoFields,
   RequestTabs,
 } from "PluginActionEditor/components/PluginActionForm/components/CommonEditorForm";
+import { getSavingStatusForActionName } from "selectors/actionSelectors";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { ActionUrlIcon } from "../Explorer/ExplorerIcons";
 
 const Form = styled.form`
   position: relative;
@@ -245,6 +248,18 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     currentActionConfig?.userPermissions,
   );
 
+  const currentPlugin = useSelector((state: AppState) =>
+    getPlugin(state, currentActionConfig?.pluginId || ""),
+  );
+
+  const saveStatus = useSelector((state) =>
+    getSavingStatusForActionName(state, currentActionConfig?.id || ""),
+  );
+
+  const iconUrl = getAssetUrl(currentPlugin?.iconLocation) || "";
+
+  const icon = ActionUrlIcon(iconUrl);
+
   const plugin = useSelector((state: AppState) =>
     getPlugin(state, pluginId ?? ""),
   );
@@ -281,9 +296,12 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
           <FormRow className="form-row-header">
             <NameWrapper className="t--nameOfApi">
               <ActionNameEditor
+                actionConfig={currentActionConfig}
                 disabled={!isChangePermitted}
                 enableFontStyling
+                icon={icon}
                 saveActionName={saveActionName}
+                saveStatus={saveStatus}
               />
             </NameWrapper>
             <ActionButtons className="t--formActionButtons">
