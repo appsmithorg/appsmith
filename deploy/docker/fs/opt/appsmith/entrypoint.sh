@@ -80,31 +80,22 @@ init_env_file() {
     bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
 
   else
-    # Check if APPSMITH_DB_URL is set and is a PostgreSQL URL
-    if [[ -n "$APPSMITH_DB_URL" && "$APPSMITH_DB_URL" == postgres*://* ]]; then
-      echo "APPSMITH_DB_URL is a valid PostgreSQL URL."
+    # Check if APPSMITH_DB_URL is set and is a MongoDB URL and generate a PG URL for backward compatibility
+    if [[ -n "$APPSMITH_DB_URL" && "$APPSMITH_DB_URL" == mongodb*://* ]]; then
+      # Assuming DB variables are already defined
+      DB_HOST="localhost"
+      DB_PORT=${DB_PORT:-5432}   # Default port to 5432 if not set
+      DB_NAME=${DB_NAME:-appsmith}  # Default database name to 'appsmith' if not set
+      DB_USER="appsmith"
+      DB_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13)  # Generate a new password
+      # Construct the PostgreSQL connection URL
+      APPSMITH_POSTGRES_DB_URL="postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME"
 
-      # Extract the host from APPSMITH_DB_URL
-      DB_HOST=$(echo "$APPSMITH_DB_URL" | sed -n 's#.*://[^@]*@\([^:]*\):.*#\1#p')
+      # Optionally, update it in the .env file
+      sed -i "s#APPSMITH_POSTGRES_DB_URL=.*#APPSMITH_POSTGRES_DB_URL=$APPSMITH_POSTGRES_DB_URL#g" "$ENV_PATH"
 
-      # Check if DB_HOST is localhost or 127.0.0.1
-      if [[ "$DB_HOST" == "localhost" || "$DB_HOST" == "127.0.0.1" ]]; then
-        echo "Local PostgreSQL detected. Regenerating password..."
-
-        # Generate a new password for local PostgreSQL
-        DB_USER="appsmith"
-        DB_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13)
-        echo "Generated new password for appsmith user"
-
-        # Update APPSMITH_DB_URL with the new username and password
-        APPSMITH_DB_URL=$(echo "$APPSMITH_DB_URL" | sed "s#postgres://[^:]*:[^@]*@#postgres://$DB_USER:$DB_PASSWORD@#")
-        echo "APPSMITH_DB_URL updated with new user and password  "
-
-        # Optionally: Save the updated APPSMITH_DB_URL back to the .env file or environment
-        sed -i "s#APPSMITH_DB_URL=.*#APPSMITH_DB_URL=$APPSMITH_DB_URL#g" "$ENV_PATH"
-      else
-        echo "Remote PostgreSQL detected. No changes made to username or password."
-      fi
+      # Output the constructed URL for confirmation
+      echo "Constructed APPSMITH_POSTGRES_DB_URL: $APPSMITH_POSTGRES_DB_URL"
     fi
   fi
 
