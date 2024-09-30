@@ -27,7 +27,7 @@ export const getLocaleString = (countryCode: string) => {
 export const formatCurrencyNumber = (
   decimalsInCurrency = 0,
   value: string,
-  countryCode: string,
+  countryCode: string = "en-US",
 ) => {
   const fractionDigits = decimalsInCurrency || 0;
   const hasDecimal = value.includes(getLocaleDecimalSeperator());
