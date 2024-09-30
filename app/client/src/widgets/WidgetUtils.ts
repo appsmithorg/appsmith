@@ -1019,12 +1019,20 @@ export function parseDerivedProperties(propertyFns: Record<string, unknown>) {
 
   for (const [key, value] of Object.entries(propertyFns)) {
     if (typeof value === "function") {
-      const functionBody = value.toString().match(/(?<=\{)(.|\n)*(?=\})/)?.[0];
+      const functionString = value.toString();
+      const functionBody = functionString.match(/(?<=\{)(.|\n)*(?=\})/)?.[0];
 
       if (functionBody) {
-        derivedProperties[key] = functionBody
+        // Extract the parameter name (which could be 'props' or a minified version)
+        const paramMatch = functionString.match(/\((.*?),/);
+        const propsParam = paramMatch ? paramMatch[1].trim() : "props";
+
+        // Replace the parameter name with 'this'
+        const modifiedBody = functionBody
           .trim()
-          .replace(/props\./g, "this.");
+          .replace(new RegExp(`${propsParam}\\.`, "g"), "this.");
+
+        derivedProperties[key] = modifiedBody;
       }
     }
   }
