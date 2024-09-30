@@ -35,7 +35,7 @@ export const propertyPaneContentConfig = [
         propertyName: "timePrecision",
         label: "Time Precision",
         controlType: "DROP_DOWN",
-        helpText: "Sets the different time picker or hide.",
+        helpText: "Sets the time precision or hides the time picker.",
         defaultValue: "day",
         options: [
           {
@@ -72,7 +72,7 @@ export const propertyPaneContentConfig = [
     sectionName: "Label",
     children: [
       {
-        helpText: "Sets the label text of the options widget",
+        helpText: "Sets the label text of the date picker widget",
         propertyName: "label",
         label: "Text",
         controlType: "INPUT_TEXT",
@@ -124,7 +124,7 @@ export const propertyPaneContentConfig = [
     sectionName: "General",
     children: [
       {
-        helpText: "Show help text or details about current input",
+        helpText: "Shows help text or details about the current input",
         propertyName: "labelTooltip",
         label: "Tooltip",
         controlType: "INPUT_TEXT",
