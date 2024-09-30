@@ -11,18 +11,20 @@
     "build:icons": "npx tsx ./src/scripts/build-icons.ts"
   },
   "dependencies": {
-    "@appsmith/utils": "workspace:^",
     "@appsmith/wds-headless": "workspace:^",
     "@appsmith/wds-theming": "workspace:^",
     "@emotion/css": "^11.11.2",
-    "@react-aria/actiongroup": "^3.7.0",
+    "@floating-ui/react": "^0.26.24",
+    "@react-aria/focus": "^3.18.2",
     "@react-aria/utils": "^3.16.0",
     "@react-aria/visually-hidden": "^3.8.0",
+    "@react-spectrum/utils": "^3.11.10",
+    "@react-stately/collections": "^3.10.9",
+    "@react-stately/list": "^3.10.8",
     "@react-types/actiongroup": "^3.4.6",
     "@react-types/shared": "^3.23.1",
     "@tabler/icons-react": "^3.10.0",
     "clsx": "^2.0.0",
-    "colorjs.io": "^0.5.2",
     "lodash": "*",
     "react-aria-components": "^1.2.1"
   },
