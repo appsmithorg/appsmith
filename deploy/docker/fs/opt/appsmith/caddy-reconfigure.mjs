@@ -146,7 +146,7 @@ parts.push(`
 
   ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {
-      key {http.request.remote_ip}
+      key {http.request.client_ip}
       events ${RATE_LIMIT}
       window 1s
     }
