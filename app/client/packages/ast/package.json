@@ -13,7 +13,6 @@
     "build": "rollup -c"
   },
   "dependencies": {
-    "@babel/runtime": "^7.21.0",
     "@rollup/plugin-commonjs": "^22.0.0",
     "@types/escodegen": "^0.0.7",
     "@types/lodash": "^4.14.120",
@@ -32,7 +31,6 @@
     "unescape-js": "^1.1.4"
   },
   "devDependencies": {
-    "@babel/preset-typescript": "^7.17.12",
     "@types/jest": "29.0.3",
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
