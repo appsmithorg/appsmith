@@ -57,7 +57,7 @@ function PluginActionResponse() {
         expandedHeight={`${ActionExecutionResizerHeight}px`}
         isCollapsed={!open}
         onSelect={updateSelectedResponseTab}
-        selectedTabKey={selectedTab || tabs[0].key}
+        selectedTabKey={selectedTab || tabs[0]?.key}
         tabs={tabs}
       />
     </IDEBottomView>
