@@ -62,6 +62,7 @@ describe(
       cy.moveToContentTab();
       // Chage deat search text value to "data"
       cy.backFromPropertyPanel();
+      table.ExpandIfCollapsedSection("search\\&filters");
       cy.testJsontext("defaultsearchtext", "data");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       table.WaitForTableEmpty("v2");

@@ -16,7 +16,7 @@ describe(
 
     it("1.1. should test that allow Add new row property is present", () => {
       cy.openPropertyPane("tablewidgetv2");
-      table.ExpandIfCollapsedSection("addingarow");
+      propPane.ExpandIfCollapsedSection("addingarow");
       cy.get(".t--property-control-allowaddingarow").should("exist");
       cy.get(".t--property-control-allowaddingarow input").should("exist");
       cy.get(".t--add-new-row").should("not.exist");
@@ -154,7 +154,7 @@ describe(
       //disable all header widgets for the table
       ["pagination", "search\\&filters", "general", "addingarow"].forEach(
         (val) => {
-          table.ExpandIfCollapsedSection(val);
+          propPane.ExpandIfCollapsedSection(val);
         },
       );
       [

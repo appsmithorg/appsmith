@@ -35,7 +35,7 @@ describe(
     before(() => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
       // turn on filtering for the table - it is disabled by default in this PR(#34593)
-      _.table.ExpandIfCollapsedSection("search\\&filters");
+      _.propPane.ExpandIfCollapsedSection("search\\&filters");
       _.agHelper.GetNClick(".t--property-control-allowfiltering input");
       _.propPane.EnterJSContext("Table data", tableData);
       cy.editColumn("completed");

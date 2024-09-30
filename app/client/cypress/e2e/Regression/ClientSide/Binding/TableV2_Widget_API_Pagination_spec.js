@@ -30,7 +30,7 @@ describe(
       //Validate Table V2 with API data and then add a column
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
-      table.ExpandIfCollapsedSection("pagination");
+      propPane.ExpandIfCollapsedSection("pagination");
       cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
       cy.get(`.t--widget-tablewidgetv2 .page-item`)
         .first()

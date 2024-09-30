@@ -12,7 +12,7 @@ describe(
 
     it("1. Test multi select column shows when enable Multirowselection is true", function () {
       cy.openPropertyPane("tablewidgetv2");
-      _.table.ExpandIfCollapsedSection("rowselection");
+      _.propPane.ExpandIfCollapsedSection("rowselection");
       cy.get(widgetsPage.toggleEnableMultirowselection)
         .first()
         .click({ force: true });

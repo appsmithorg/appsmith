@@ -17,7 +17,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
       //propPane.EnterJSContext("Table data", JSON.stringify(this.dataSet.TableInput));
       // turn on filtering for the table - it is disabled by default in this PR(#34593)
-      table.ExpandIfCollapsedSection("search\\&filters");
+      propPane.ExpandIfCollapsedSection("search\\&filters");
       agHelper.GetNClick(".t--property-control-allowfiltering input");
       table.AddSampleTableData();
       //propPane.EnterJSContext("Table Data", JSON.stringify(this.dataSet.TableInput));

@@ -30,7 +30,7 @@ describe(
 
     it("2. validation of data displayed in input widgets based on selected row", function () {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-      _.table.ExpandIfCollapsedSection("rowselection");
+      _.propPane.ExpandIfCollapsedSection("rowselection");
       cy.testJsontext("defaultselectedrow", "2");
       cy.readTableV2dataPublish("2", "0").then((tabData) => {
         const tabValue = tabData;
