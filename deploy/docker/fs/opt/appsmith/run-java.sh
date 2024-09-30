@@ -36,6 +36,7 @@ match-proxy-url() {
 if [[ "$mode" == "pg" ]]; then
   extract_postgres_db_params "$APPSMITH_DB_URL"
   waitForPostgresAvailability
+  sh /opt/appsmith/pg-default-schema.sh &
 fi
 
 if match-proxy-url "${HTTP_PROXY-}"; then
@@ -80,10 +81,6 @@ while ! curl --fail --silent localhost:"${APPSMITH_RTS_PORT:-8091}"/rts-api/v1/h
   sleep 1
 done
 tlog 'RTS started.'
-
-if [[ "$mode" == "pg" ]]; then
-  sh /opt/appsmith/pg-default-schema.sh &
-fi
 
 sh /opt/appsmith/run-starting-page-init.sh &
 
