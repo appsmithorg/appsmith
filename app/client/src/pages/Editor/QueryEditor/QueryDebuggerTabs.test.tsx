@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
+import type { AnyAction, Store } from "redux";
 import { ThemeProvider } from "styled-components";
 import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
 import { lightTheme } from "selectors/themeSelectors";
@@ -9,8 +10,8 @@ import { BrowserRouter as Router } from "react-router-dom";
 import "@testing-library/jest-dom/extend-expect";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
 import type { ActionResponse } from "api/ActionAPI";
-import { ENTITY_TYPE } from "ce/entities/AppsmithConsole/utils";
-import { EditorViewMode } from "ce/entities/IDE/constants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 
 const mockStore = configureStore([]);
 
@@ -80,7 +81,7 @@ const storeState = {
 };
 
 describe("ApiResponseView", () => {
-  let store: any;
+  let store: Store<any, AnyAction>;
 
   beforeEach(() => {
     store = mockStore(storeState);
@@ -120,12 +121,12 @@ describe("ApiResponseView", () => {
           <Router>
             <QueryDebuggerTabs
               actionName="Query1"
+              actionResponse={mockSuccessResponse}
               actionSource={{
                 id: "ID1",
                 name: "Query1",
                 type: ENTITY_TYPE.ACTION,
               }}
-              actionResponse={mockSuccessResponse}
               isRunning={false}
               onRunClick={() => {}}
             />
@@ -148,12 +149,12 @@ describe("ApiResponseView", () => {
           <Router>
             <QueryDebuggerTabs
               actionName="Query1"
+              actionResponse={mockFailedResponse}
               actionSource={{
                 id: "ID1",
                 name: "Query1",
                 type: ENTITY_TYPE.ACTION,
               }}
-              actionResponse={mockFailedResponse}
               isRunning={false}
               onRunClick={() => {}}
             />

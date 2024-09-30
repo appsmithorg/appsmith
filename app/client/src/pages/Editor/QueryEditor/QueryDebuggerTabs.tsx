@@ -242,7 +242,7 @@ function QueryDebuggerTabs({
       onHideClick={onToggle}
       setHeight={setQueryResponsePaneHeight}
     >
-       {output && !!output.length && (
+      {output && !!output.length && (
         <ResultsCount>
           <Text data-testid="result-text" type={TextType.P3}>
             Result:
@@ -251,7 +251,7 @@ function QueryDebuggerTabs({
                 output.length > 1 ? "s" : ""
               }`}</Text>
             ) : (
-              <Text type={TextType.H5} color="red">
+              <Text color="red" type={TextType.H5}>
                 {" Error"}
               </Text>
             )}
