@@ -93,21 +93,18 @@ init_env_file() {
 
         # Generate a new password for local PostgreSQL
         DB_USER="appsmith"
-        DB_PASSWORD=$(openssl rand -base64 12)  # Generate a random password
-        echo "Generated new password for appsmith user: $DB_PASSWORD"
+        DB_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13)
+        echo "Generated new password for appsmith user"
 
         # Update APPSMITH_DB_URL with the new username and password
         APPSMITH_DB_URL=$(echo "$APPSMITH_DB_URL" | sed "s#postgres://[^:]*:[^@]*@#postgres://$DB_USER:$DB_PASSWORD@#")
-        echo "APPSMITH_DB_URL updated with new user and password: $APPSMITH_DB_URL"
+        echo "APPSMITH_DB_URL updated with new user and password  "
 
         # Optionally: Save the updated APPSMITH_DB_URL back to the .env file or environment
         sed -i "s#APPSMITH_DB_URL=.*#APPSMITH_DB_URL=$APPSMITH_DB_URL#g" "$ENV_PATH"
       else
         echo "Remote PostgreSQL detected. No changes made to username or password."
       fi
-    else
-      echo "APPSMITH_DB_URL is either empty or not a PostgreSQL URL. Skipping database configuration."
-    fi
   fi
 
   tlog "Load environment configuration"

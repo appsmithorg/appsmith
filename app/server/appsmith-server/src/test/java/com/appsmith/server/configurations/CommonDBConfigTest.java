@@ -44,4 +44,31 @@ class CommonDBConfigTest {
                 dbUrl);
         assertThrows(IllegalArgumentException.class, () -> commonDBConfig.extractJdbcProperties(dbUrl), errorString);
     }
+
+    @Test
+    void testExtractJdbcPropertiesWithQueryParams() {
+        CommonDBConfig commonDBConfig = new CommonDBConfig();
+        String dbUrl = "postgresql://user:password@localhost:5432/mydb?sslmode=require";
+
+        DataSourceProperties dataSourceProperties = commonDBConfig.extractJdbcProperties(dbUrl);
+
+        String expectedUrl = "jdbc:postgresql://localhost:5432/mydb?sslmode=require&currentSchema=appsmith";
+        assertEquals(
+                expectedUrl,
+                dataSourceProperties.getUrl(),
+                "URL with existing query params should append the currentSchema correctly.");
+    }
+
+    @Test
+    void testExtractJdbcPropertiesWithoutQueryParams() {
+        CommonDBConfig commonDBConfig = new CommonDBConfig();
+        String dbUrl = "postgresql://user:password@localhost:5432/mydb";
+        DataSourceProperties dataSourceProperties = commonDBConfig.extractJdbcProperties(dbUrl);
+
+        String expectedUrl = "jdbc:postgresql://localhost:5432/mydb?currentSchema=appsmith";
+        assertEquals(
+                expectedUrl,
+                dataSourceProperties.getUrl(),
+                "URL without query params should append the currentSchema correctly.");
+    }
 }
