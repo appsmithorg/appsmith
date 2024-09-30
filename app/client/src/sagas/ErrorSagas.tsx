@@ -29,7 +29,7 @@ import {
 import store from "store";
 
 import * as Sentry from "@sentry/react";
-import { axiosConnectionAbortedCode } from "ee/api/ApiUtils";
+import { AXIOS_CONNECTION_ABORTED_CODE } from "ee/constants/ApiConstants";
 import { getLoginUrl } from "ee/utils/adminSettingsHelpers";
 import type { PluginErrorDetails } from "api/ActionAPI";
 import showToast from "sagas/ToastSagas";
@@ -104,7 +104,7 @@ export function* validateResponse(
   }
 
   // letting `apiFailureResponseInterceptor` handle it this case
-  if (response?.code === axiosConnectionAbortedCode) {
+  if (response?.code === AXIOS_CONNECTION_ABORTED_CODE) {
     return false;
   }
 

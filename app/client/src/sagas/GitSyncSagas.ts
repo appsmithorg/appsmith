@@ -134,8 +134,6 @@ import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActionsReducer";
 import { toast } from "@appsmith/ads";
 import { gitExtendedSagas } from "ee/sagas/GitExtendedSagas";
-import { selectFeatureFlagCheck } from "ee/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { ApplicationPayload } from "entities/Application";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
@@ -1352,14 +1350,10 @@ function* pollAutocommitProgressSaga(): any {
 }
 
 function* triggerAutocommitSaga() {
-  const isAutocommitFeatureEnabled: boolean = yield select(
-    selectFeatureFlagCheck,
-    FEATURE_FLAG.release_git_autocommit_feature_enabled,
-  );
   const gitMetadata: GitMetadata = yield select(getGitMetadataSelector);
   const isAutocommitEnabled: boolean = !!gitMetadata?.autoCommitConfig?.enabled;
 
-  if (isAutocommitFeatureEnabled && isAutocommitEnabled) {
+  if (isAutocommitEnabled) {
     /* @ts-expect-error: not sure how to do typings of this */
     const pollTask = yield fork(pollAutocommitProgressSaga);
 
