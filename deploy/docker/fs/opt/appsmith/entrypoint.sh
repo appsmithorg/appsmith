@@ -78,25 +78,6 @@ init_env_file() {
     )
 
     bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
-
-  else
-    # Check if APPSMITH_DB_URL is set and is a MongoDB URL and generate a PG URL for backward compatibility
-    if [[ -n "$APPSMITH_DB_URL" && "$APPSMITH_DB_URL" == mongodb*://* ]]; then
-      # Assuming DB variables are already defined
-      DB_HOST="localhost"
-      DB_PORT=${DB_PORT:-5432}   # Default port to 5432 if not set
-      DB_NAME=${DB_NAME:-appsmith}  # Default database name to 'appsmith' if not set
-      DB_USER="appsmith"
-      DB_PASSWORD=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13)  # Generate a new password
-      # Construct the PostgreSQL connection URL
-      APPSMITH_POSTGRES_DB_URL="postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME"
-
-      # Optionally, update it in the .env file
-      sed -i "s#APPSMITH_POSTGRES_DB_URL=.*#APPSMITH_POSTGRES_DB_URL=$APPSMITH_POSTGRES_DB_URL#g" "$ENV_PATH"
-
-      # Output the constructed URL for confirmation
-      echo "Constructed APPSMITH_POSTGRES_DB_URL: $APPSMITH_POSTGRES_DB_URL"
-    fi
   fi
 
   tlog "Load environment configuration"

@@ -113,11 +113,11 @@ init_pg_db() {
 
       # Create schema and user if not exists
       if [ "$SCHEMA_CHECK" != "1" ]; then
+        echo "Creating user '$PG_DB_USER' with password "
+        psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "CREATE USER \"$PG_DB_USER\" WITH PASSWORD '$PG_DB_PASSWORD';"
+
         echo "Schema 'appsmith' does not exist. Creating schema..."
         psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "CREATE SCHEMA appsmith;"
-
-        echo "Creating user '$PG_DB_USER' with password "
-        psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "CREATE USER '$PG_DB_USER' WITH PASSWORD '$PG_DB_PASSWORD';"
       else
         echo "Schema 'appsmith' already exists."
       fi
