@@ -14,14 +14,7 @@
   "license": "ISC",
   "devDependencies": {
     "@react-aria/focus": "^3.10.1",
-    "@react-types/button": "^3.7.0",
-    "@types/loadable__component": "^5.13.4",
-    "@types/react-datepicker": "^4.10.0",
-    "axe-core": "^4.7.2",
-    "concurrently": "^8.2.0",
-    "file-loader": "6.2.0",
-    "normalize.css": "^8.0.1",
-    "remark-gfm": "^3.0.1"
+    "@types/react-datepicker": "^4.10.0"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.2",
@@ -29,7 +22,6 @@
     "@radix-ui/react-hover-card": "^1.0.7",
     "@radix-ui/react-popover": "^1.0.6",
     "@radix-ui/react-tabs": "^1.0.2",
-    "@react-aria/button": "^3.7.0",
     "@react-aria/checkbox": "^3.7.1",
     "@react-aria/focus": "^3.10.1",
     "@react-aria/link": "^3.3.6",
@@ -38,7 +30,9 @@
     "@react-aria/textfield": "^3.8.1",
     "@react-stately/radio": "^3.6.2",
     "@react-stately/toggle": "^3.4.4",
+    "@react-types/textfield": "^3.9.6",
     "@xstyled/styled-components": "^3.8.0",
+    "@xstyled/system": "^3.8.1",
     "csstype": "^3.1.2",
     "date-fns": "^2.29.3",
     "overlayscrollbars": "^2.7.2",

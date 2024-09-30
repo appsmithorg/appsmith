@@ -555,7 +555,9 @@ export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
 export const DEBUGGER_RESPONSE = () => "Response";
+export const DEBUGGER_HEADERS = () => "Headers";
 export const DEBUGGER_LOGS = () => "Logs";
+
 export const INSPECT_ENTITY = () => "Inspect entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
 export const VALUE_IS_INVALID = (propertyPath: string) =>
@@ -2507,3 +2509,9 @@ export const EMPTY_JS_OBJECT_ERROR_MESSAGE = () =>
   "JS object must contain 'export default'.";
 export const JS_OBJECT_DEFAULT_EXPORT_ERROR_MESSAGE = () =>
   "Start object with export default";
+
+export const PREPARED_STATEMENT_WARNING = {
+  MESSAGE: () =>
+    "Prepared Statements are currently enabled, which may be causing the query error. Turn them off and try running the query again",
+  LINK: () => "Open settings",
+};

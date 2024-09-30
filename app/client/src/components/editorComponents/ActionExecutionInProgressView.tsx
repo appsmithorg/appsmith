@@ -63,9 +63,7 @@ const ActionExecutionInProgressView = ({
           <Button
             className={`t--cancel-action-button`}
             kind="secondary"
-            onClick={() => {
-              handleCancelActionExecution();
-            }}
+            onClick={handleCancelActionExecution}
             size="md"
           >
             {createMessage(ACTION_EXECUTION_CANCEL)}

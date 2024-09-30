@@ -42,6 +42,7 @@ import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { AppPluginActionEditor } from "../AppPluginActionEditor";
+import { saveActionName } from "actions/pluginActionActions";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
@@ -126,6 +127,7 @@ function QueryEditor(props: QueryEditorProps) {
   }, [
     action?.id,
     action?.name,
+    action?.pluginType,
     isChangePermitted,
     isDeletePermitted,
     basePageId,
@@ -143,7 +145,7 @@ function QueryEditor(props: QueryEditorProps) {
         changeQuery({ baseQueryId: baseQueryId, basePageId, applicationId }),
       );
     },
-    [basePageId, applicationId],
+    [basePageId, applicationId, dispatch],
   );
 
   const onCreateDatasourceClick = useCallback(() => {
@@ -159,13 +161,7 @@ function QueryEditor(props: QueryEditorProps) {
     AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
       entryPoint,
     });
-  }, [
-    basePageId,
-    history,
-    integrationEditorURL,
-    DatasourceCreateEntryPoints,
-    AnalyticsUtil,
-  ]);
+  }, [basePageId]);
 
   // custom function to return user to integrations page if action is not found
   const onEntityNotFoundBackClick = useCallback(
@@ -176,7 +172,7 @@ function QueryEditor(props: QueryEditorProps) {
           selectedTab: INTEGRATION_TABS.ACTIVE,
         }),
       ),
-    [basePageId, history, integrationEditorURL],
+    [basePageId],
   );
 
   const notification = useMemo(() => {
@@ -189,7 +185,7 @@ function QueryEditor(props: QueryEditorProps) {
         withPadding
       />
     );
-  }, [action?.name, isConverting]);
+  }, [action?.name, isConverting, icon]);
 
   const isActionRedesignEnabled = useFeatureFlag(
     FEATURE_FLAG.release_actions_redesign_enabled,
@@ -207,6 +203,7 @@ function QueryEditor(props: QueryEditorProps) {
       notification={notification}
       onCreateDatasourceClick={onCreateDatasourceClick}
       onEntityNotFoundBackClick={onEntityNotFoundBackClick}
+      saveActionName={saveActionName}
     >
       <Disabler isDisabled={isConverting}>
         <Editor

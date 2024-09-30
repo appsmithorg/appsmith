@@ -19,7 +19,7 @@ const ppt =
 const pngImage =
   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb8umIiCU_K6ac-xS-ni4y6SP7XAd8C7Ms3Q&usqp=CAU";
 const jpgImage =
-  "https://img.frentityExplorerpik.com/frentityExplorer-photo/beautiful-scenery-summit-mount-everest-covered-with-snow-white-clouds_181624-21317.jpg?w=1380&t=st=1691154236~exp=1691154836~hmac=35ce7f92dd16711c69509a0edbb23cedb34e49f960f560c77174994b6d5705a0";
+  "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg?itok=yG4bpfFs";
 const pdf =
   "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf";
 
