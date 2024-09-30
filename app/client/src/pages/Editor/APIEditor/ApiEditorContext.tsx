@@ -1,11 +1,7 @@
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { PaginationField } from "api/ActionAPI";
 import React, { createContext, useMemo } from "react";
-
-interface SaveActionNameParams {
-  id: string;
-  name: string;
-}
+import type { SaveActionNameParams } from "PluginActionEditor";
 
 interface ApiEditorContextContextProps {
   moreActionsMenu?: React.ReactNode;
@@ -15,7 +11,7 @@ interface ApiEditorContextContextProps {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settingsConfig: any;
-  saveActionName?: (
+  saveActionName: (
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
   closeEditorLink?: React.ReactNode;

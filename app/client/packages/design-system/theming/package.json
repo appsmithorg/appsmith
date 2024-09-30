@@ -16,7 +16,8 @@
   "dependencies": {
     "@capsizecss/core": "^3.1.1",
     "@capsizecss/metrics": "^1.2.0",
-    "@emotion/sheet": "^1.2.2",
+    "@emotion/css": "^11.13.0",
+    "colorjs.io": "^0.5.2",
     "lodash": "*"
   }
 }

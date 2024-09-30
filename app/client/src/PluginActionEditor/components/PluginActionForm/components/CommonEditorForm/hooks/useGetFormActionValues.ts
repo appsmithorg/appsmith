@@ -18,7 +18,7 @@ function useGetFormActionValues() {
 
   // In an unlikely scenario where form is not initialised,
   // return empty values to avoid form ui issues
-  if (!isAPIAction(formValues)) {
+  if (!formValues || !isAPIAction(formValues)) {
     return {
       actionHeaders: [],
       actionParams: [],
