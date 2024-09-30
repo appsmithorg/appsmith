@@ -25,7 +25,7 @@ export * from "./components/FieldLabel";
 export * from "./components/FieldError";
 export * from "./components/FieldDescription";
 export * from "./components/FieldListPopover";
-export * from "./components/FieldCalenderPopover";
+export * from "./components/FieldCalendarPopover";
 export * from "./components/Calender";
 export * from "./components/DatePicker";
 

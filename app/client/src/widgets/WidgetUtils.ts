@@ -1009,7 +1009,7 @@ export const checkForOnClick = (e: React.MouseEvent<HTMLElement>) => {
  * }
  * ```
  *
- * Main rule to remember is don't use deconstruct the props like `const { value } = props;` in the derived property function. Directly access props like `props.value`
+ * Main rule to remember is don't deconstruct the props like `const { value } = props;` in the derived property function. Directly access props like `props.value`
  * (Reason is we replace props.value with this.value in the derived property function)
  * @param propertyFns
  * @returns
