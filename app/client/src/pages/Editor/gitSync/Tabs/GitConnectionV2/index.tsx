@@ -32,7 +32,6 @@ const StyledModalBody = styled(ModalBody)`
   overflow-y: initial;
   display: flex;
   flex-direction: column;
-  min-height: min-content;
   max-height: calc(
     100vh - 200px - 32px - 56px - 44px
   ); // 200px offset, 32px outer padding, 56px footer, 44px header
