@@ -27,6 +27,7 @@ describe(
       );
       // validation of data displayed in input widgets based on search value set
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      _.table.ExpandIfCollapsedSection("search\\&filters");
       cy.get(".t--property-control-allowsearching input").click({
         force: true,
       });

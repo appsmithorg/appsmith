@@ -1,5 +1,27 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+# Not fixed
+cypress/e2e/Regression/ClientSide/Binding/TableV2TextPagination_spec.js
+cypress/e2e/Regression/ClientSide/DynamicHeight/JsonForm_spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2_PropertyPane_2_spec.js
+#Fixed
+cypress/e2e/Regression/ClientSide/Binding/InputWidget_TableV2_Sorting_spec.js
+cypress/e2e/Regression/ClientSide/Binding/TableV2_DefaultSearch_Input_spec.js
+cypress/e2e/Regression/ClientSide/Binding/TableV2Widget_selectedRow_Input_widget_spec.js
+cypress/e2e/Regression/ClientSide/Binding/TableV2_ClientSide_Search_spec.js
+cypress/e2e/Regression/ClientSide/Binding/TableV2_Widget_API_Pagination_spec.js
+cypress/e2e/Regression/ClientSide/Binding/TextTableV2_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/AddNewRow1_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/Edge_case_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2Filter1_1_Spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2Filter1_2_Spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2Filter2_1_Spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2Filter2_2_Spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2_DisplayText_spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2_MultiRowSelect_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/columnTypes/checkboxCell_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/columnTypes/switchCell_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/server_side_filtering_spec_1.ts
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*

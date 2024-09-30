@@ -7,6 +7,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 import {
   agHelper,
   entityExplorer,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -32,7 +33,7 @@ describe(
 
     it("2. validation of data displayed in input widgets based on sorting", function () {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-
+      table.ExpandIfCollapsedSection("rowselection");
       cy.testJsontext("defaultselectedrow", "0");
       cy.get(".draggable-header").contains("id").click({ force: true });
       cy.wait(1000);

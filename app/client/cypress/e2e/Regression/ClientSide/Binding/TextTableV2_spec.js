@@ -113,6 +113,7 @@ describe(
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
         "Container3",
       ]);
+      table.ExpandIfCollapsedSection("rowselection");
       cy.testJsontext("defaultselectedrow", "2");
       cy.wait("@updateLayout");
       cy.get(commonlocators.TableV2Row)

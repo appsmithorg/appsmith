@@ -35,8 +35,6 @@ export const FEATURE_FLAG = {
   release_table_cell_label_value_enabled:
     "release_table_cell_label_value_enabled",
   rollout_side_by_side_enabled: "rollout_side_by_side_enabled",
-  ab_learnability_discoverability_collapse_all_except_data_enabled:
-    "ab_learnability_discoverability_collapse_all_except_data_enabled",
   release_layout_conversion_enabled: "release_layout_conversion_enabled",
   release_anvil_toggle_enabled: "release_anvil_toggle_enabled",
   release_ide_animations_enabled: "release_ide_animations_enabled",
@@ -71,7 +69,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_actions_redesign_enabled: false,
   rollout_remove_feature_walkthrough_enabled: true,
   rollout_side_by_side_enabled: false,
-  ab_learnability_discoverability_collapse_all_except_data_enabled: true,
   release_layout_conversion_enabled: false,
   release_anvil_toggle_enabled: false,
   release_ide_animations_enabled: false,

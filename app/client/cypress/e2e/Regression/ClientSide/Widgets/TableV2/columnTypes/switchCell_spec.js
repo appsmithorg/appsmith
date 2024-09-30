@@ -7,6 +7,7 @@ import {
   propPane,
   deployMode,
   draggableWidgets,
+  table,
 } from "../../../../../../support/Objects/ObjectsCore";
 
 const tableData = `[
@@ -41,6 +42,7 @@ describe(
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
       // turn on filtering for the table - it is disabled by default in this PR(#34593)
+      table.ExpandIfCollapsedSection("search\\&filters");
       agHelper.GetNClick(".t--property-control-allowfiltering input");
       propPane.EnterJSContext("Table data", tableData);
       cy.editColumn("completed");

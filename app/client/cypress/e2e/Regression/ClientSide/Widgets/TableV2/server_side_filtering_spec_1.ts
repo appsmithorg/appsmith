@@ -35,6 +35,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 300);
 
       // turn on filtering for the table - it is disabled by default in this PR(#34593)
+      table.ExpandIfCollapsedSection("search\\&filters");
       agHelper.GetNClick(".t--property-control-allowfiltering input");
 
       // Create SQL data-source
