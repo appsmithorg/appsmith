@@ -1,6 +1,6 @@
 import React from "react";
 import { render, fireEvent, screen } from "@testing-library/react";
-import SearchComponent from "../SearchComponent";
+import SearchComponent from ".";
 import "@testing-library/jest-dom";
 
 jest.mock("lodash", () => ({
@@ -26,7 +26,7 @@ describe("SearchComponent", () => {
   };
 
   it("1.should clear the search value and trigger onSearch with an empty value when the cross icon is clicked anh have focused", () => {
-    const { getByPlaceholderText, getByTestId } = renderComponent({
+    renderComponent({
       enableClientSideSearch: true,
       value: "test",
     });
@@ -43,7 +43,7 @@ describe("SearchComponent", () => {
   });
 
   it("2.should reset localValue when component receives a new value prop", () => {
-    const { getByPlaceholderText, rerender } = renderComponent({
+    const { rerender } = renderComponent({
       value: "initial",
     });
 
