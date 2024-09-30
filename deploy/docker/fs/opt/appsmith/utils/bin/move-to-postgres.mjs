@@ -133,7 +133,7 @@ function toJsonSortedKeys(obj) {
 
 function replacer(key, value) {
   // Ref: https://gist.github.com/davidfurlong/463a83a33b70a3b6618e97ec9679e490
-  return value instanceof Object && !(value instanceof Array) ?
+  return value instanceof Object && !Array.isArray(value) ?
     Object.keys(value)
       .sort()
       .reduce((sorted, key) => {
