@@ -357,8 +357,12 @@ jobs:
 
       - name: Place server artifacts-es
         run: |
+          run: |
           if [[ -f scripts/prepare_server_artifacts.sh ]]; then
             scripts/prepare_server_artifacts.sh
+          else
+            echo "No script found to prepare server artifacts"
+            exit 1
           fi
 
       - name: Set up Depot CLI
@@ -440,6 +444,9 @@ jobs:
         run: |
           if [[ -f scripts/prepare_server_artifacts.sh ]]; then
             scripts/prepare_server_artifacts.sh
+          else
+            echo "No script found to prepare server artifacts"
+            exit 1
           fi
 
       - name: Set up Depot CLI
