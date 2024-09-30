@@ -1,4 +1,5 @@
 {
+  "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": ["src/index.tsx"],
   "project": ["src/**/*.{tsx,ts,js}"],
   "ignore": [
@@ -13,6 +14,10 @@
     "src/plugins/Linting/**",
     "src/ee/plugins/Linting/**",
     "src/ce/plugins/Linting/**",
+    "src/ce/sagas/EnvironmentSagas.ts",
+    "src/ce/utils/analyticsHelpers.ts",
+    "src/ce/utils/autocomplete/helpers.ts",
+    "src/ce/utils/workflowHelpers.ts",
     "src/workers/Evaluation/**",
     "src/widgets/ExternalWidget/component/script.js",
     "src/widgets/ListWidgetV2/widget/derived.js",
@@ -20,5 +25,29 @@
     "src/widgets/CustomWidget/component/appsmithConsole.js",
     "src/serviceWorker.ts",
     "src/ee/utils/serviceWorkerUtils.ts"
+  ],
+  "ignoreDependencies": [
+    "craco-alias",
+    "craco-babel-loader",
+    "babel-plugin-lodash",
+    "@types/google.maps",
+    "@types/web",
+    "postcss-url",
+    "@types/dom-view-transitions",
+    "@types/jest",
+    "@sentry/webpack-plugin",
+    "compression-webpack-plugin",
+    "webpack-retry-chunk-load-plugin",
+    "lint-staged",
+    "ts-jest-mock-import-meta",
+    "cypress-log-to-output",
+    "cypress-repeat-pro",
+    "cypress-multi-reporters",
+    "@aws-sdk/client-s3",
+    "@aws-sdk/lib-storage",
+    "@octokit/rest",
+    "@faker-js/faker",
+    "pg",
+    "factory.ts"
   ]
 }
