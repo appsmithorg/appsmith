@@ -1,7 +1,6 @@
 package com.appsmith.server.git.autocommit;
 
 import com.appsmith.external.dtos.GitLogDTO;
-import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
@@ -17,7 +16,6 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.git.autocommit.helpers.AutoCommitEligibilityHelper;
 import com.appsmith.server.git.common.CommonGitService;
 import com.appsmith.server.helpers.CommonGitFileUtils;
@@ -27,7 +25,6 @@ import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.testhelpers.git.GitFileSystemTestHelper;
@@ -39,7 +36,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -54,7 +50,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -79,9 +74,6 @@ public class AutoCommitServiceTest {
 
     @SpyBean
     GitExecutor gitExecutor;
-
-    @MockBean
-    FeatureFlagService featureFlagService;
 
     @MockBean
     DSLMigrationUtils dslMigrationUtils;
@@ -199,21 +191,6 @@ public class AutoCommitServiceTest {
         doReturn(Mono.just(new AutoCommitTriggerDTO(isAutocommitRequired, clientMigration, serverMigration)))
                 .when(autoCommitEligibilityHelper)
                 .isAutoCommitRequired(anyString(), any(), any());
-
-        //        doReturn(Mono.just(getMockedDsl()))
-        //                .when(commonGitFileUtils)
-        //                .getPageDslVersionNumber(anyString(), any(), any(), anyBoolean(), any());
-        //
-        //        Integer serverVersion = jsonSchemaVersions.getServerVersion();
-        //        Integer dslVersionNumber = clientMigration ? DSL_VERSION_NUMBER + 1 : DSL_VERSION_NUMBER;
-        //        Integer serverSchemaVersionNumber = serverMigration ? serverVersion - 1 : serverVersion;
-        //
-        //        doReturn(Mono.just(dslVersionNumber)).when(dslMigrationUtils).getLatestDslVersion();
-        //
-        //        // server as true
-        //        doReturn(Mono.just(serverSchemaVersionNumber))
-        //                .when(commonGitFileUtils)
-        //                .getMetadataServerSchemaMigrationVersion(anyString(), any(), anyBoolean(), any());
     }
 
     @BeforeEach
@@ -237,15 +214,6 @@ public class AutoCommitServiceTest {
         Mockito.when(newPageService.findByApplicationIdAndApplicationMode(
                         DEFAULT_APP_ID, pagePermission.getEditPermission(), ApplicationMode.PUBLISHED))
                 .thenReturn(Flux.just(pageDTO));
-
-        CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
-
-        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
-                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
-
-        Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
-                .thenReturn(Mono.just(TRUE));
 
         Mockito.when(commonGitService.fetchRemoteChanges(any(Application.class), any(Application.class), anyBoolean()))
                 .thenReturn(Mono.just(branchTrackingStatus));

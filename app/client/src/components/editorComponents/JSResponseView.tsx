@@ -27,13 +27,13 @@ import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { getIsSavingEntity } from "selectors/editorSelectors";
-import { getJSResponseViewState } from "./utils";
+import { getJSResponseViewState, JSResponseState } from "./utils";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
+import { NoResponse } from "PluginActionEditor/components/PluginActionResponse/components/NoResponse";
 import {
-  NoResponse,
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
-} from "./ApiResponseView";
+} from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Log, SourceEntity } from "entities/AppsmithConsole";
@@ -45,7 +45,7 @@ import { EditorViewMode } from "ee/entities/IDE/constants";
 import ErrorLogs from "./Debugger/Errors";
 import { isBrowserExecutionAllowed } from "ee/utils/actionExecutionUtils";
 import JSRemoteExecutionView from "ee/components/JSRemoteExecutionView";
-import { IDEBottomView, ViewHideBehaviour } from "../../IDE";
+import { IDEBottomView, ViewHideBehaviour } from "IDE";
 
 const ResponseTabWrapper = styled.div`
   display: flex;
@@ -65,15 +65,6 @@ const NoReturnValueWrapper = styled.div`
   padding-left: ${(props) => props.theme.spaces[12]}px;
   padding-top: ${(props) => props.theme.spaces[6]}px;
 `;
-
-export enum JSResponseState {
-  IsExecuting = "IsExecuting",
-  IsDirty = "IsDirty",
-  IsUpdating = "IsUpdating",
-  NoResponse = "NoResponse",
-  ShowResponse = "ShowResponse",
-  NoReturnValue = "NoReturnValue",
-}
 
 interface ReduxStateProps {
   errorCount: number;
@@ -229,8 +220,8 @@ function JSResponseView(props: Props) {
                   <>
                     {responseStatus === JSResponseState.NoResponse && (
                       <NoResponse
-                        isButtonDisabled={disabled}
-                        isQueryRunning={isLoading}
+                        isRunDisabled={disabled}
+                        isRunning={isLoading}
                         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                         // @ts-ignore
                         onRunClick={onButtonClick}
