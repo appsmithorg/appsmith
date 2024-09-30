@@ -118,10 +118,7 @@ init_pg_db() {
 
         echo "Schema 'appsmith' does not exist. Creating schema..."
         psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "CREATE SCHEMA appsmith;"
-      else
-        echo "Schema 'appsmith' already exists."
       fi
-
     else
       echo "Remote PostgreSQL detected, running as current user."
       PGPASSWORD=$PG_DB_PASSWORD psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U "$PG_DB_USER" -d "$PG_DB_NAME" -c "CREATE SCHEMA IF NOT EXISTS appsmith;"
