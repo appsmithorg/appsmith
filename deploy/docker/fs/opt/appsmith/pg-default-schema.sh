@@ -9,12 +9,12 @@ init_pg_db() {
     echo "APPSMITH_DB_URL is a valid PostgreSQL URL."
 
     # Check if the DB_HOST is local (localhost or 127.0.0.1)
-    if [[ "$DB_HOST" == "localhost" || "$DB_HOST" == "127.0.0.1" ]]; then
+    if [[ "$PG_DB_HOST" == "localhost" || "$PG_DB_HOST" == "127.0.0.1" ]]; then
       echo "Local PostgreSQL detected, switching to postgres user."
-      PGPASSWORD=$DB_PASSWORD su - postgres -c "psql -h $DB_HOST -p $DB_PORT -U $DB_USER -d $DB_NAME -c 'CREATE SCHEMA IF NOT EXISTS appsmith;'"
+      PGPASSWORD=$PG_DB_PASSWORD su - postgres -c "psql -h $PG_DB_HOST -p $PG_DB_PORT -U $PG_DB_USER -d $PG_DB_NAME -c 'CREATE SCHEMA IF NOT EXISTS appsmith;'"
     else
       echo "Remote PostgreSQL detected, running as current user."
-      PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" -c "CREATE SCHEMA IF NOT EXISTS appsmith;"
+      PGPASSWORD=$PG_DB_PASSWORD psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U "$PG_DB_USER" -d "$PG_DB_NAME" -c "CREATE SCHEMA IF NOT EXISTS appsmith;"
     fi
 
     # Check if the schema creation was successful
