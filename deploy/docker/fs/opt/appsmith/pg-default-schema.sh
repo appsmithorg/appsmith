@@ -13,7 +13,7 @@ init_pg_db() {
       echo "Local PostgreSQL detected."
       su - postgres -c "psql -c \"CREATE USER $PG_DB_USER WITH PASSWORD '$PG_DB_PASSWORD';\""
       echo "User '$PG_DB_USER' created or already exists."
-      PGPASSWORD=$PG_DB_PASSWORD su - postgres -c "psql -h $PG_DB_HOST -p $PG_DB_PORT -U $PG_DB_USER -d $PG_DB_NAME -c 'CREATE SCHEMA IF NOT EXISTS appsmith;'"
+      su - postgres -c "psql -h $PG_DB_HOST -p $PG_DB_PORT -d $PG_DB_NAME -c 'CREATE SCHEMA IF NOT EXISTS appsmith;'"
     else
       echo "Remote PostgreSQL detected, running as current user."
       PGPASSWORD=$PG_DB_PASSWORD psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U "$PG_DB_USER" -d "$PG_DB_NAME" -c "CREATE SCHEMA IF NOT EXISTS appsmith;"
