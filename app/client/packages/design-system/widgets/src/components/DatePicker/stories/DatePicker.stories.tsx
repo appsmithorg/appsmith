@@ -60,6 +60,12 @@ export const Loading: Story = {
   },
 };
 
+export const Disabled: Story = {
+  args: {
+    isDisabled: true,
+  },
+};
+
 export const Validation: Story = {
   render: () => (
     <form

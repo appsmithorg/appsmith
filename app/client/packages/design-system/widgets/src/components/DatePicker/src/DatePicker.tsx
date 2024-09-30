@@ -23,6 +23,7 @@ export const DatePicker = (props: DatePickerProps) => {
     contextualHelp,
     description,
     errorMessage,
+    isDisabled,
     isLoading,
     isRequired,
     label,
@@ -35,6 +36,7 @@ export const DatePicker = (props: DatePickerProps) => {
       aria-label={Boolean(label) ? undefined : "DatePicker"}
       className={styles.formField}
       data-size={size}
+      isDisabled={isDisabled}
       isRequired={isRequired}
       {...rest}
     >

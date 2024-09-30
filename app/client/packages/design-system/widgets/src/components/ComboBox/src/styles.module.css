@@ -43,17 +43,17 @@
   box-shadow: 0 0 0 1px var(--color-bd-focus);
 }
 
-.inputWrapper:has([data-hovered]) {
+.inputWrapper:has([data-hovered]):not([data-disabled]) {
   background-color: var(--color-bg-neutral-subtle-hover);
   box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-subtle-hover);
 }
 
-.inputWrapper:has([data-focused]) {
+.inputWrapper:has([data-focused]):not([data-disabled]) {
   background-color: transparent;
   box-shadow: none;
 }
 
-.inputWrapper:has([data-focused]):before {
+.inputWrapper:has([data-focused]):not([data-disabled]):before {
   content: "";
   left: 0;
   width: 100%;
@@ -70,6 +70,10 @@
 
 .inputWrapper:has([data-invalid][data-hovered]) {
   box-shadow: 0 0 0 1px var(--color-bd-negative-hover);
+}
+
+.inputWrapper:has([data-disabled]) {
+  opacity: var(--opacity-disabled);
 }
 
 .formField[data-size="small"] .input {
