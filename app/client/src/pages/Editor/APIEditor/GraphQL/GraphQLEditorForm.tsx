@@ -203,48 +203,6 @@ export default connect(
 
     const currentActionDatasourceId = selector(state, "datasource.id");
 
-    const headers = selector(state, "actionConfiguration.headers");
-    let headersCount = 0;
-
-    if (Array.isArray(headers)) {
-      const validHeaders = headers.filter(
-        (value) => value.key && value.key !== "",
-      );
-
-      headersCount += validHeaders.length;
-    }
-
-    if (Array.isArray(datasourceHeaders)) {
-      const validHeaders = datasourceHeaders.filter(
-        // TODO: Fix this the next time the file is edited
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (value: any) => value.key && value.key !== "",
-      );
-
-      headersCount += validHeaders.length;
-    }
-
-    const params = selector(state, "actionConfiguration.queryParameters");
-    let paramsCount = 0;
-
-    if (Array.isArray(params)) {
-      const validParams = params.filter(
-        (value) => value.key && value.key !== "",
-      );
-
-      paramsCount = validParams.length;
-    }
-
-    if (Array.isArray(datasourceParams)) {
-      const validParams = datasourceParams.filter(
-        // TODO: Fix this the next time the file is edited
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (value: any) => value.key && value.key !== "",
-      );
-
-      paramsCount += validParams.length;
-    }
-
     const actionConfigurationBody =
       selector(state, "actionConfiguration.body") || "";
 
@@ -274,8 +232,6 @@ export default connect(
       currentActionDatasourceId,
       datasourceHeaders,
       datasourceParams,
-      headersCount,
-      paramsCount,
       hintMessages,
       datasources: state.entities.datasources.list.filter(
         (d) => d.pluginId === props.pluginId,
