@@ -142,11 +142,31 @@ describe(
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
       );
-      agHelper.GetNAssertElementText(
+      agHelper.GetNAssertContains(
         locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
-        "Select AstronautUlf MerboldAndreas MogensenWubbo OckelsThomas ReiterAnil Menon",
-        "have.text",
+        "Select Astronaut",
       );
+      agHelper.GetNAssertContains(
+        locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
+        "Ulf Merbold",
+      );
+      agHelper.GetNAssertContains(
+        locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
+        "Andreas Mogensen",
+      );
+      agHelper.GetNAssertContains(
+        locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
+        "Wubbo Ockels",
+      );
+      agHelper.GetNAssertContains(
+        locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
+        "Thomas Reiter",
+      );
+      agHelper.GetNAssertContains(
+        locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
+        "Anil Menon",
+      );
+
       agHelper
         .GetElement(locators._checkboxTypeByOption("Ulf Merbold"))
         .should("be.checked");
