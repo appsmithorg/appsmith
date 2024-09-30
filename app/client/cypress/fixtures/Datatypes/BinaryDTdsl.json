@@ -460,7 +460,7 @@
                     "key": "image"
                   }
                 ],
-                "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                 "key": "pf0s33wwbz",
                 "image": "{{Updateimage.files[0].data}}",
                 "isDeprecated": false,
@@ -1267,7 +1267,7 @@
                     "key": "image"
                   }
                 ],
-                "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                 "key": "pf0s33wwbz",
                 "image": "{{Insertimage.files[0].data}}",
                 "isDeprecated": false,
