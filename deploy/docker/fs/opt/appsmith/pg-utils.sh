@@ -62,7 +62,7 @@ extract_postgres_db_params() {
   local conn_string=$1
 
   # Use node to parse the URI and extract components
-  IFS=' ' read -r USER PASSWORD HOST PORT DB <<<"$(node -e "
+  IFS=' ' read -r USER PASSWORD HOST PORT DB <<<$(node -e "
     const connectionString = process.argv[1];
     const pgUri = connectionString.startsWith(\"postgresql://\")
       ? connectionString
@@ -77,7 +77,7 @@ extract_postgres_db_params() {
     const port = parsedUrl.port || '5432';
 
     console.log(\`\${parsedUrl.username || '-'} \${parsedUrl.password || '-'} \${parsedUrl.hostname} \${port} \${db}\`);
-  " "$conn_string")"
+  " "$conn_string")
 
   # Now, set the environment variables
   export PG_DB_USER="$USER"
