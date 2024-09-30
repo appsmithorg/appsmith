@@ -193,7 +193,7 @@ export const getEntityDynamicBindingPathList = (
     entity.dynamicBindingPathList &&
     Array.isArray(entity.dynamicBindingPathList)
   ) {
-    return [...Array.from(new Set(entity.dynamicBindingPathList))];
+    return [...new Set(entity.dynamicBindingPathList)];
   }
 
   return [];
