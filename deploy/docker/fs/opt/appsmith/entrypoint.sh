@@ -105,6 +105,7 @@ init_env_file() {
       else
         echo "Remote PostgreSQL detected. No changes made to username or password."
       fi
+    fi
   fi
 
   tlog "Load environment configuration"
