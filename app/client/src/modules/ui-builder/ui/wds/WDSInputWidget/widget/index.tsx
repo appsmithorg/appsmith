@@ -7,13 +7,14 @@ import { mergeWidgetConfig } from "utils/helpers";
 import { parseText, validateInput } from "./helper";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
-import derivedProperties from "./parsedDerivedProperties";
 import { WDSBaseInputWidget } from "../../WDSBaseInputWidget";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "modules/ui-builder/ui/wds/WDSBaseInputWidget/component/types";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 import { INPUT_TYPES } from "modules/ui-builder/ui/wds/WDSBaseInputWidget/constants";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
+import derivedPropertyFns from "./derived";
 
 class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   static type = "WDS_INPUT_WIDGET";
@@ -52,8 +53,10 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return merge(super.getDerivedPropertiesMap(), {
-      isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
+      isValid: `{{(() => {${parsedDerivedProperties.isValid}})()}}`,
     });
   }
 

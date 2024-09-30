@@ -33,8 +33,14 @@
 
 .input:is([data-date-input]) {
   display: flex;
-  gap: var(--inner-spacing-2);
+  gap: var(--inner-spacing-1);
   align-items: center;
+}
+
+.input:is([data-date-input]) [data-focused="true"] {
+  background-color: var(--color-bg-accent);
+  color: var(--color-fg-on-accent);
+  box-shadow: 0 0 0 1px var(--color-bd-focus);
 }
 
 .inputWrapper:has([data-hovered]) {

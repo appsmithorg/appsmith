@@ -25,3 +25,5 @@ export interface DatePickerProps
   /** The content to display as the placeholder. */
   placeholder?: string;
 }
+
+export type { DateValue };

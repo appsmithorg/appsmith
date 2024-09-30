@@ -10,7 +10,7 @@ function CalendarHeading(
   const { children, ...domProps } = props;
 
   return (
-    <Text {...domProps} ref={ref}>
+    <Text {...domProps} color="neutral" ref={ref}>
       {children}
     </Text>
   );

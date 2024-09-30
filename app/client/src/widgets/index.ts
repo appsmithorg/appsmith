@@ -87,6 +87,7 @@ import { WDSPasswordInputWidget } from "modules/ui-builder/ui/wds/WDSPasswordInp
 import { WDSNumberInputWidget } from "modules/ui-builder/ui/wds/WDSNumberInputWidget";
 import { WDSMultilineInputWidget } from "modules/ui-builder/ui/wds/WDSMultilineInputWidget";
 import { WDSSelectWidget } from "modules/ui-builder/ui/wds/WDSSelectWidget";
+import { WDSDatePickerWidget } from "modules/ui-builder/ui/wds/WDSDatePickerWidget";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -185,6 +186,7 @@ const WDSWidgets = [
   WDSNumberInputWidget,
   WDSMultilineInputWidget,
   WDSSelectWidget,
+  WDSDatePickerWidget,
 ];
 
 const Widgets = [
