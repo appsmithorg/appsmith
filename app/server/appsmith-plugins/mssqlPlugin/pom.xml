@@ -15,7 +15,7 @@
     <name>mssqlPlugin</name>
 
     <dependencies>
-
+        
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
