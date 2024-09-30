@@ -9,7 +9,11 @@ import DateComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import type { RenderDefaultPropsType } from "./PlainTextCell";
 import styled from "styled-components";
-import { EditableCellActions } from "widgets/TableWidgetV2/constants";
+import {
+  DateInputFormat,
+  EditableCellActions,
+  MomentDateInputFormat,
+} from "widgets/TableWidgetV2/constants";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import moment from "moment";
 import { BasicCell } from "./BasicCell";
@@ -196,6 +200,19 @@ export const DateCell = (props: DateComponentProps) => {
   const [isValid, setIsValid] = useState(true);
   const [showRequiredError, setShowRequiredError] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const convertInputFormatToMomentFormat = (inputFormat: string) => {
+    let momentAdjustedInputFormat = inputFormat;
+
+    if (inputFormat === DateInputFormat.MILLISECONDS) {
+      momentAdjustedInputFormat = MomentDateInputFormat.MILLISECONDS;
+    } else if (inputFormat === DateInputFormat.EPOCH) {
+      momentAdjustedInputFormat = MomentDateInputFormat.SECONDS;
+    }
+
+    return momentAdjustedInputFormat;
+  };
+
   const isCellCompletelyValid = useMemo(
     () => isEditableCellValid && isValid,
     [isEditableCellValid, isValid],
@@ -218,8 +235,15 @@ export const DateCell = (props: DateComponentProps) => {
   }, [value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
+    const momentAdjustedInputFormat =
+      convertInputFormatToMomentFormat(inputFormat);
+
+    const formattedDate = date
+      ? moment(date).format(momentAdjustedInputFormat)
+      : "";
+
     if (isNewRow) {
-      updateNewRowValues(alias, date, date);
+      updateNewRowValues(alias, date, formattedDate);
 
       return;
     }
@@ -234,8 +258,6 @@ export const DateCell = (props: DateComponentProps) => {
     setIsValid(true);
     setShowRequiredError(false);
     setHasFocus(false);
-
-    const formattedDate = date ? moment(date).format(inputFormat) : "";
 
     onDateSave(rowIndex, alias, formattedDate, onDateSelectedString);
   };
