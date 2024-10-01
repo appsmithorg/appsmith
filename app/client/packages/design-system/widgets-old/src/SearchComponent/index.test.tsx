@@ -1,8 +1,8 @@
 import React from "react";
 import { render, fireEvent, act } from "@testing-library/react";
 import SearchComponent from "../SearchComponent";
-import { debounce } from "lodash";
 import "@testing-library/jest-dom"
+
 // Mocking the debounce function to call the function immediately
 jest.mock("lodash", () => ({
   debounce: (fn: any) => fn,
@@ -27,7 +27,7 @@ describe("SearchComponent", () => {
     );
   };
 
-  it("should update localValue and call onSearch when input is changed with client-side search enabled", () => {
+  it("should allow the user to type in the search box and see results immediately when client-side search is enabled", () => {
     const { getByPlaceholderText } = renderComponent({
       enableClientSideSearch: true,
     });
@@ -41,7 +41,7 @@ describe("SearchComponent", () => {
     expect(onSearchMock).toHaveBeenCalledWith("test");
   });
 
-  it("should clear the search value and trigger onSearch with an empty value when the cross icon is clicked", () => {
+  it("should allow the user to clear the search input by clicking the clear button and see updated search results", () => {
     const { getByPlaceholderText, getByTestId } = renderComponent({
       enableClientSideSearch: true,
       value: "test",
@@ -57,7 +57,7 @@ describe("SearchComponent", () => {
     expect(onSearchMock).toHaveBeenCalledWith("");
   });
 
-  it("should reset localValue when component receives a new value prop", () => {
+  it("should update the search input when the user receives new search criteria from outside the component", () => {
     const { getByPlaceholderText, rerender } = renderComponent({
       value: "initial",
     });
@@ -70,7 +70,7 @@ describe("SearchComponent", () => {
     expect(inputElement.value).toBe("updated");
   });
 
-  it("should clear localValue and call onSearch with an empty value if enableClientSideSearch prop changes", () => {
+  it("should clear the search input when the user disables client-side search and see unfiltered results", () => {
     const { getByPlaceholderText, rerender } = renderComponent({
       enableClientSideSearch: true,
       value: "initial",
