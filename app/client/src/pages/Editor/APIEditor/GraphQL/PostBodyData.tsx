@@ -7,7 +7,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import classNames from "classnames";
 import { tailwindLayers } from "constants/Layers";
 
-const ResizeableDiv = styled.div`
+const ResizableDiv = styled.div`
   display: flex;
   height: 100%;
   flex-shrink: 0;
@@ -53,7 +53,7 @@ interface Props {
 function PostBodyData(props: Props) {
   const { actionName } = props;
   const theme = EditorTheme.LIGHT;
-  const sizeableRef = useRef<HTMLDivElement>(null);
+  const resizeableRef = useRef<HTMLDivElement>(null);
   const [variableEditorWidth, setVariableEditorWidth] = React.useState(
     DEFAULT_GRAPHQL_VARIABLE_WIDTH,
   );
@@ -66,7 +66,7 @@ function PostBodyData(props: Props) {
 
   const { onMouseDown, onMouseUp, onTouchStart, resizing } =
     useHorizontalResize(
-      sizeableRef,
+      resizeableRef,
       onVariableEditorWidthChange,
       undefined,
       true,
@@ -93,15 +93,15 @@ function PostBodyData(props: Props) {
           resizing={resizing}
         />
       </div>
-      <ResizeableDiv
-        ref={sizeableRef}
+      <ResizableDiv
+        ref={resizeableRef}
         style={{
           width: `${variableEditorWidth}px`,
           paddingRight: "2px",
         }}
       >
         <VariableEditor actionName={actionName} theme={theme} />
-      </ResizeableDiv>
+      </ResizableDiv>
     </PostBodyContainer>
   );
 }
