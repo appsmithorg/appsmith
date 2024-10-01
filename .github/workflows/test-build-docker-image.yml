@@ -499,3 +499,15 @@ jobs:
             --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
             --header 'Content-Type: application/json; charset=utf-8' \
             --data-raw "$body"
+
+          # This is the ChannelId of the pro-postgres-sync channel.
+          body="$(jq -nc \
+            --arg channel C07JMLWEXDJ \
+            --arg text "$slack_message" \
+            '$ARGS.named'
+          )"
+          curl --version
+          curl -v https://slack.com/api/chat.postMessage \
+            --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
+            --header 'Content-Type: application/json; charset=utf-8' \
+            --data-raw "$body"
