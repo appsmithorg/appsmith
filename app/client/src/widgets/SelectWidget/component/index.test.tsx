@@ -25,7 +25,7 @@ const mockProps: SelectComponentProps = {
 describe("SelectComponent", () => {
   it("should call onDropdownClose only once when select button is clicked twice", () => {
     render(<SelectComponent {...mockProps} />);
-    const dropdownButton = screen.getByRole("button");
+    const dropdownButton = screen.getByTestId("selectbutton.btn.main");
     userEvent.click(dropdownButton);
 
     expect(mockProps.onDropdownOpen).toHaveBeenCalledTimes(1);
