@@ -1,7 +1,12 @@
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import React, { type FormEvent, type ReactNode } from "react";
+import {
+  EventType,
+  type ExecutionResult,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import styles from "./styles.module.css";
 import Markdown from "react-markdown";
+import { Text } from "@appsmith/wds";
 
 import { Button, Spinner, TextArea } from "@appsmith/wds";
 import type {
@@ -29,8 +34,8 @@ export interface WDSAIChatWidgetProps
 
 interface Message {
   id: string;
-  text: string;
-  role: "bot" | "user";
+  content: string;
+  role: "assistant" | "user";
 }
 
 interface State extends WidgetState {
@@ -46,8 +51,8 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
     messages: [
       {
         id: "1",
-        text: "Hello! How can I help you?",
-        role: "bot" as const,
+        content: "Hello! How can I help you?",
+        role: "assistant" as const,
       },
     ],
     prompt: "",
@@ -88,10 +93,6 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
           path: "isVisible",
           type: "boolean",
         },
-        setData: {
-          path: "messages",
-          type: "array",
-        },
       },
     };
   }
@@ -104,9 +105,7 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
     return {};
   }
 
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getMetaPropertiesMap(): Record<string, any> {
+  static getMetaPropertiesMap(): Record<string, unknown> {
     return {};
   }
 
@@ -118,120 +117,65 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
     return {};
   }
 
-  componentDidUpdate(prevProps: WDSAIChatWidgetProps, prevState: State): void {
-    if (prevState.messages.length < this.state.messages.length) {
-      const lastMessage: Message =
-        this.state.messages[this.state.messages.length - 1];
+  handleMessageSubmit = (event?: FormEvent<HTMLFormElement>) => {
+    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
 
-      if (lastMessage.role === "user") {
-        this.sendBotMessage(lastMessage.text);
-      }
-    }
-  }
+    event?.preventDefault();
 
-  async sendBotMessage(message: string): Promise<void> {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer YOUR_TOKEN_HERE`,
-      },
-      // We need to send the body as a string, so we use JSON.stringify.
-      body: JSON.stringify({
-        model: "gpt-4o-2024-08-06",
+    this.setState(
+      (state) => ({
         messages: [
+          ...state.messages,
           {
-            role: "system",
-            content:
-              "Answer in a bro style. For markdown use only lists and bold text. Headers should be bold paragraphs. You can use html in your answer.",
-          },
-          ...this.state.messages.map((message) => ({
-            role: message.role === "bot" ? "assistant" : "user",
-            content: message.text,
-          })),
-          {
+            id: String(Date.now()),
+            content: this.state.prompt,
             role: "user",
-            content: message,
           },
         ],
-        stream: true,
+        prompt: "",
+        isWaitingForResponse: true,
       }),
-    });
+      () => {
+        pushBatchMetaUpdates("messages", this.state.messages);
+        commitBatchMetaUpdates();
 
-    const reader = response.body
-      ?.pipeThrough(new TextDecoderStream())
-      .getReader();
+        super.executeAction({
+          triggerPropertyName: "onClick",
+          dynamicString: `{{${this.props.queryRun}.run()}}`,
+          event: {
+            type: EventType.ON_CLICK,
+            callback: this.handleActionComplete,
+          },
+        });
+      },
+    );
+  };
 
-    this.setState((state) => {
-      return {
+  handleActionComplete = (result: ExecutionResult) => {
+    if (result.success) {
+      this.setState((state) => ({
         messages: [
           ...state.messages,
           {
             id: Math.random().toString(),
-            text: "",
-            role: "bot",
+            content: this.props.queryData.choices[0].message.content,
+            role: "assistant",
           },
         ],
-      };
-    });
-
-    while (reader) {
-      const stream = await reader.read();
-
-      if (stream.done) break;
-
-      const chunks = stream.value
-        .replaceAll(/^data: /gm, "")
-        .split("\n")
-        .filter((c: string) => Boolean(c.length) && c !== "[DONE]")
-        .map((c: string) => JSON.parse(c));
-
-      if (chunks) {
-        for (const chunk of chunks) {
-          const content = chunk.choices[0].delta.content;
-
-          if (!content) continue;
-
-          this.setState((state) => {
-            const lastMessage: Message =
-              state.messages[state.messages.length - 1];
-            const prevMessages = state.messages.slice(0, -1);
-
-            return {
-              messages: [
-                ...prevMessages,
-                {
-                  id: lastMessage.id,
-                  text: lastMessage.text + content,
-                  role: "bot",
-                },
-              ],
-            };
-          });
-        }
-      }
-
-      this.setState({ isWaitingForResponse: false });
+        isWaitingForResponse: false,
+      }));
     }
-  }
+  };
 
-  handleMessageSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const formData = new FormData(event.currentTarget);
-
-    this.setState((state) => ({
-      messages: [
-        ...state.messages,
-        {
-          id: String(Date.now()),
-          text: formData.get("message") as string,
-          role: "user",
-        },
-      ],
-      prompt: "",
-      isWaitingForResponse: true,
-    }));
+  onEnterPress = (e: {
+    keyCode: number;
+    shiftKey: boolean;
+    preventDefault: () => void;
+  }) => {
+    if (e.keyCode == 13 && e.shiftKey) {
+      e.preventDefault();
+      this.handleMessageSubmit();
+    }
   };
 
   getWidgetView(): ReactNode {
@@ -244,25 +188,36 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
               data-role={message.role}
               key={message.id}
             >
-              {message.role === "bot" ? (
+              {message.role === "assistant" ? (
                 <Markdown
-                // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
-                // components={{
-                //   h1: ({ children }) => (
-                //     <Text size="heading">{children}</Text>
-                //   ),
-                //   h2: ({ children }) => (
-                //     <Text size="heading">{children}</Text>
-                //   ),
-                //   h3: ({ children }) => (
-                //     <Text size="heading">{children}</Text>
-                //   ),
-                // }}
+                  // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
+                  components={{
+                    h1: ({ children }) => (
+                      <Text size="heading" wordBreak="break-word">
+                        {children}
+                      </Text>
+                    ),
+                    h2: ({ children }) => (
+                      <Text size="title" wordBreak="break-word">
+                        {children}
+                      </Text>
+                    ),
+                    h3: ({ children }) => (
+                      <Text size="subtitle" wordBreak="break-word">
+                        {children}
+                      </Text>
+                    ),
+                    p: ({ children }) => (
+                      <Text size="body" wordBreak="break-word">
+                        {children}
+                      </Text>
+                    ),
+                  }}
                 >
-                  {message.text}
+                  {message.content}
                 </Markdown>
               ) : (
-                message.text
+                message.content
               )}
             </li>
           ))}
@@ -281,6 +236,7 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
             onChange={(value) => {
               this.setState({ prompt: value });
             }}
+            onKeyDown={this.onEnterPress}
             value={this.state.prompt}
           />
           <Button isDisabled={this.state.prompt.length < 3} type="submit">
