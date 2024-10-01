@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
-import { change, formValueSelector, reduxForm } from "redux-form";
+import { formValueSelector, reduxForm } from "redux-form";
 import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Action } from "entities/Action";
 import PostBodyData from "./PostBodyData";
@@ -9,7 +9,6 @@ import type { AppState } from "ee/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import get from "lodash/get";
-import type { Datasource } from "entities/Datasource";
 import { getAction, getActionResponses } from "ee/selectors/entitiesSelector";
 import type { CommonFormProps } from "./CommonEditorForm";
 import CommonEditorForm from "./CommonEditorForm";
@@ -23,6 +22,8 @@ type APIFormProps = {
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
+const FORM_NAME = API_EDITOR_FORM_NAME;
+
 function ApiEditorForm(props: Props) {
   const { actionName } = props;
   const theme = EditorTheme.LIGHT;
@@ -33,7 +34,7 @@ function ApiEditorForm(props: Props) {
       bodyUIComponent={
         <PostBodyData dataTreePath={`${actionName}.config`} theme={theme} />
       }
-      formName={API_EDITOR_FORM_NAME}
+      formName={FORM_NAME}
       httpsMethods={HTTP_METHOD_OPTIONS}
       paginationUIComponent={
         <Pagination
@@ -47,19 +48,7 @@ function ApiEditorForm(props: Props) {
   );
 }
 
-const selector = formValueSelector(API_EDITOR_FORM_NAME);
-
-interface ReduxDispatchProps {
-  updateDatasource: (datasource: Datasource) => void;
-}
-
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
-  updateDatasource: (datasource) => {
-    dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource));
-  },
-});
+const selector = formValueSelector(FORM_NAME);
 
 export default connect((state: AppState) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
@@ -115,9 +104,9 @@ export default connect((state: AppState) => {
     datasourceParams,
     hintMessages,
   };
-}, mapDispatchToProps)(
+})(
   reduxForm<Action, APIFormProps>({
-    form: API_EDITOR_FORM_NAME,
+    form: FORM_NAME,
     enableReinitialize: true,
   })(ApiEditorForm),
 );

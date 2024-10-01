@@ -1,12 +1,11 @@
 import React from "react";
 import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
-import { change, formValueSelector, reduxForm } from "redux-form";
+import { formValueSelector, reduxForm } from "redux-form";
 import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Action } from "entities/Action";
 import type { AppState } from "ee/reducers";
 import get from "lodash/get";
-import type { Datasource } from "entities/Datasource";
 import {
   getActionByBaseId,
   getActionData,
@@ -23,6 +22,8 @@ type APIFormProps = {
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
+const FORM_NAME = API_EDITOR_FORM_NAME;
+
 /**
  * Graphql Editor form which uses the Common Editor and pass on the differentiating components from the API Editor.
  * @param props using type Props
@@ -35,13 +36,12 @@ function GraphQLEditorForm(props: Props) {
     <CommonEditorForm
       {...props}
       bodyUIComponent={<PostBodyData actionName={actionName} />}
-      defaultTabSelected={2}
-      formName={API_EDITOR_FORM_NAME}
+      formName={FORM_NAME}
       httpsMethods={GRAPHQL_HTTP_METHOD_OPTIONS}
       paginationUIComponent={
         <Pagination
           actionName={actionName}
-          formName={API_EDITOR_FORM_NAME}
+          formName={FORM_NAME}
           onTestClick={props.onRunClick}
           paginationType={props.paginationType}
           query={props.actionConfigurationBody}
@@ -51,19 +51,7 @@ function GraphQLEditorForm(props: Props) {
   );
 }
 
-const selector = formValueSelector(API_EDITOR_FORM_NAME);
-
-interface ReduxDispatchProps {
-  updateDatasource: (datasource: Datasource) => void;
-}
-
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
-  updateDatasource: (datasource) => {
-    dispatch(change(API_EDITOR_FORM_NAME, "datasource", datasource));
-  },
-});
+const selector = formValueSelector(FORM_NAME);
 
 export default connect(
   // TODO: Fix this the next time the file is edited
@@ -110,12 +98,11 @@ export default connect(
       hintMessages,
     };
   },
-  mapDispatchToProps,
 )(
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reduxForm<Action, any>({
-    form: API_EDITOR_FORM_NAME,
+    form: FORM_NAME,
     enableReinitialize: true,
   })(GraphQLEditorForm),
 );
