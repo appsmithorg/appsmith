@@ -98,7 +98,7 @@ export function* createActionsForOneClickBindingSaga(
   }
 }
 
-async function* BindWidgetToDatasource(
+function* BindWidgetToDatasource(
   action: ReduxAction<WidgetQueryGenerationFormConfig>,
 ) {
   const { datasourceId, widgetId } = action.payload;
@@ -136,7 +136,8 @@ async function* BindWidgetToDatasource(
       plugin.packageName,
     );
 
-    const actionConfigurationList = await widgetQueryGenerator.build(
+    const actionConfigurationList = yield call(
+      widgetQueryGenerator.build,
       widgetQueryGenerationConfig,
       action.payload,
       defaultValues,
