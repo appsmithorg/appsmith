@@ -214,7 +214,7 @@
                       "key": "borderRadius"
                     }
                   ],
-                  "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                  "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                   "key": "r8ob443ol9",
                   "image": "",
                   "isDeprecated": false,
