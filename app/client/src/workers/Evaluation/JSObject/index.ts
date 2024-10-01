@@ -242,6 +242,7 @@ export function saveResolvedFunctionsAndJSUpdates(
         },
         message: createMessage(JS_OBJECT_DEFAULT_EXPORT_ERROR_MESSAGE),
       };
+
       dataTreeEvalRef.errors.push(errors);
     } else {
       const errors = {
@@ -253,6 +254,7 @@ export function saveResolvedFunctionsAndJSUpdates(
         message: createMessage(EMPTY_JS_OBJECT_ERROR_MESSAGE),
         show: false,
       };
+
       dataTreeEvalRef.errors.push(errors);
     }
   }

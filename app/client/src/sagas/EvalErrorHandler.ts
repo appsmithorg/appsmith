@@ -288,9 +288,11 @@ export function* evalErrorHandler(
       }
       case EvalErrorTypes.PARSE_JS_ERROR: {
         let errorMessage = error.message;
+
         if (!!error.context) {
           errorMessage = `${error.message}`;
         }
+
         toast.show(errorMessage, {
           kind: "error",
         });

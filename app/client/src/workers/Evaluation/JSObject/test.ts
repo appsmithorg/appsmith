@@ -141,6 +141,7 @@ describe("updateJSCollectionInUnEvalTree", function () {
   });
   it("should raise empty toast message when JSObject is empty", () => {
     const mockFunction = jest.fn();
+
     saveResolvedFunctionsAndJSUpdates(
       { errors: { push: mockFunction } },
       { body: " " },
