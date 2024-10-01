@@ -4,7 +4,12 @@ import { Slide, toast as toastifyToast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.min.css";
 
 import type { ToastProps } from "./Toast.types";
-import { StyledButton, StyledToast, ToastBody } from "./Toast.styles";
+import {
+  StyledButton,
+  StyledPre,
+  StyledToast,
+  ToastBody,
+} from "./Toast.styles";
 import { getIconByKind } from "../Icon/getIconByKind";
 
 /**
@@ -40,7 +45,7 @@ const toast = {
 
     return toastifyToast(
       <ToastBody kind="body-m">
-        {content}
+        <StyledPre>{content}</StyledPre>
         {actionText && (
           <StyledButton
             kind="tertiary"

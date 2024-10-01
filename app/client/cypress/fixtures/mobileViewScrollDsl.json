@@ -65,17 +65,17 @@
           {
             "id": "001",
             "name": "Blue",
-            "img": "https://assets.appsmith.com/widgets/default.png"
+            "img": "http://host.docker.internal:4200/clouddefaultImage.png"
           },
           {
             "id": "002",
             "name": "Green",
-            "img": "https://assets.appsmith.com/widgets/default.png"
+            "img": "http://host.docker.internal:4200/clouddefaultImage.png"
           },
           {
             "id": "003",
             "name": "Red",
-            "img": "https://assets.appsmith.com/widgets/default.png"
+            "img": "http://host.docker.internal:4200/clouddefaultImage.png"
           }
         ],
         "pageSize": 2,
@@ -158,7 +158,7 @@
                     "children": [
                       {
                         "isVisible": true,
-                        "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                        "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                         "imageShape": "RECTANGLE",
                         "maxZoomLevel": 1,
                         "enableRotation": false,

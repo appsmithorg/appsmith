@@ -60,7 +60,7 @@
           "template": {
             "Image2": {
               "isVisible": true,
-              "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+              "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
               "imageShape": "RECTANGLE",
               "maxZoomLevel": 1,
               "enableRotation": false,
@@ -259,7 +259,7 @@
                             }
                           ],
                           "leftColumn": 0,
-                          "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                          "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                           "key": "egbqwm9hx0",
                           "image": "{{currentItem.img}}",
                           "rightColumn": 16,

@@ -15,7 +15,8 @@ describe(
   "Image widget - Rotation & Download",
   { tags: ["@tag.Widget", "@tag.Image"] },
   function () {
-    const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
+    const jpgImg =
+      "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg?itok=yG4bpfFs";
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.IMAGE);
       propPane.UpdatePropertyFieldValue("Image", jpgImg);

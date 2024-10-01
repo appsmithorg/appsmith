@@ -17,10 +17,13 @@ import com.external.plugins.exceptions.MongoPluginErrorMessages;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoSecurityException;
+import com.mongodb.reactivestreams.client.ListCollectionNamesPublisher;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -54,6 +57,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -236,8 +240,28 @@ public class MongoPluginErrorsTest {
         when(mockConnection.getDatabase(any())).thenReturn(mockDatabase);
 
         MongoCommandException mockMongoCmdException = mock(MongoCommandException.class);
-        when(mockDatabase.listCollectionNames()).thenReturn(Mono.error(mockMongoCmdException));
+        // Mock the ListCollectionNamesPublisher
+        ListCollectionNamesPublisher mockPublisher = mock(ListCollectionNamesPublisher.class);
+
+        // Create a mock subscription
+        Subscription mockSubscription = mock(Subscription.class);
+
+        // Simulate an error when calling listCollectionNames
+        when(mockDatabase.listCollectionNames()).thenReturn(mockPublisher);
         when(mockMongoCmdException.getErrorCode()).thenReturn(13);
+        // Mock the subscribe method to simulate an error
+        doAnswer(invocation -> {
+                    // Extract the Subscriber passed to the subscribe method
+                    Subscriber<?> subscriber = invocation.getArgument(0);
+
+                    subscriber.onSubscribe(mockSubscription); // Provide a subscription
+                    // Call the Subscriber's onError method to simulate an error
+                    subscriber.onError(mockMongoCmdException);
+
+                    return null; // Since subscribe returns void
+                })
+                .when(mockPublisher)
+                .subscribe(any());
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<DatasourceStructure> structureMono = pluginExecutor
