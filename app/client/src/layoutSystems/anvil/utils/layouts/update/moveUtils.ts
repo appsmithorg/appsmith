@@ -26,6 +26,7 @@ export function updateWidgetRelationships(
   highlight: AnvilHighlightInfo,
 ): CanvasWidgetsReduxState {
   let widgets: CanvasWidgetsReduxState = { ...allWidgets };
+
   /**
    * Step 1: Update relationships with previous parents.
    */
@@ -52,6 +53,7 @@ export function severTiesFromParents(
   movedWidgets: string[],
 ): CanvasWidgetsReduxState {
   if (!movedWidgets?.length) return allWidgets;
+
   const widgets: CanvasWidgetsReduxState = { ...allWidgets };
 
   /**
@@ -60,11 +62,13 @@ export function severTiesFromParents(
   movedWidgets.forEach((widgetId: string) => {
     // remove from previous parent
     const prevParentId = widgets[widgetId]?.parentId;
+
     if (prevParentId) {
       const prevParent: FlattenedWidgetProps = Object.assign(
         {},
         widgets[prevParentId],
       );
+
       if (prevParent.children) {
         const updatedPrevParent = {
           ...prevParent,
@@ -75,10 +79,12 @@ export function severTiesFromParents(
             widgets[widgetId].type,
           ),
         };
+
         widgets[prevParentId] = updatedPrevParent;
       }
     }
   });
+
   return widgets;
 }
 
@@ -96,6 +102,7 @@ export function linkWidgetsToNewParent(
 ): CanvasWidgetsReduxState {
   const widgets: CanvasWidgetsReduxState = { ...allWidgets };
   const { canvasId } = highlight;
+
   movedWidgets.forEach((widgetId: string) => {
     if (widgets[widgetId]) {
       widgets[widgetId] = {
@@ -104,6 +111,7 @@ export function linkWidgetsToNewParent(
       };
     }
   });
+
   return widgets;
 }
 
@@ -122,6 +130,7 @@ export function moveWidgets(
   highlight: AnvilHighlightInfo,
 ): CanvasWidgetsReduxState {
   let widgets: CanvasWidgetsReduxState = { ...allWidgets };
+
   /**
    * Step 1: Update relationships with previous parents.
    */

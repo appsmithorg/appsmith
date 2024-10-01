@@ -21,11 +21,13 @@ while ((m = regex.exec(widgetPropertyFns as unknown as string)) !== null) {
   }
 
   let key = "";
+
   // The result can be accessed through the `m`-variable.
   m.forEach((match, groupIndex) => {
     if (groupIndex === 1) {
       key = match;
     }
+
     if (groupIndex === 2) {
       derivedProperties[key] = match
         .trim()

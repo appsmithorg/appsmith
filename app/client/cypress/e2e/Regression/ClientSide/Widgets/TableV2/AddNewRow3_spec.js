@@ -3,7 +3,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
   "Actions flow (save, discard)",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Sanity"] },
   () => {
     before(() => {
       cy.startServerAndRoutes();

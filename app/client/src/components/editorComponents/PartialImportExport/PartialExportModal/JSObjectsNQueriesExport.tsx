@@ -42,22 +42,27 @@ const JSObjectsNQueriesExport = ({
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const map: { [key: string]: any } = {};
+
     Object.keys(data).forEach((key) => {
       const ds = appDS.find((ds) => ds.name === key);
+
       if (ds) {
         map[key] = ds.pluginId;
       }
     });
+
     return map;
   }, [appDS]);
 
   const onEntitySelected = (id: string, selected: boolean) => {
     const updatedSelectedNodes = [...selectedQueries];
+
     if (selected) {
       updatedSelectedNodes.push(id);
     } else {
       updatedSelectedNodes.splice(updatedSelectedNodes.indexOf(id), 1);
     }
+
     updateSelectedQueries(updatedSelectedNodes);
   };
 

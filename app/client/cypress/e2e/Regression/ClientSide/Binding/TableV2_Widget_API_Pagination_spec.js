@@ -13,7 +13,7 @@ import {
 
 describe(
   "Test Create Api and Bind to Table widget V2",
-  { tags: ["@tag.Binding"] },
+  { tags: ["@tag.Binding", "@tag.Sanity"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2TextPaginationDsl");

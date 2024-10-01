@@ -14,6 +14,7 @@ const modalActionReducer = createReducer(initialState, {
     const filteredState = state.modals.filter(
       (modalInfo) => modalInfo.name !== action.payload.name,
     );
+
     return { ...state, modals: [...filteredState, action.payload] };
   },
 });

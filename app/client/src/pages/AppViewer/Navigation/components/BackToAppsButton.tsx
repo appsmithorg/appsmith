@@ -48,6 +48,7 @@ const BackToAppsButton = (props: BackToAppsButtonProps) => {
   if (currentUser?.username === ANONYMOUS_USERNAME) {
     return null;
   }
+
   return (
     <Tooltip
       content={createMessage(ALL_APPS)}

@@ -1,17 +1,24 @@
 import React from "react";
 import {
   PluginActionEditor,
-  PluginActionToolbar,
   PluginActionForm,
-  PluginActionResponsePane,
+  PluginActionResponse,
 } from "PluginActionEditor";
+import {
+  ConvertToModuleDisabler,
+  ConvertToModuleCallout,
+} from "./components/ConvertToModule";
+import AppPluginActionToolbar from "./components/AppPluginActionToolbar";
 
 const AppPluginActionEditor = () => {
   return (
     <PluginActionEditor>
-      <PluginActionToolbar />
-      <PluginActionForm />
-      <PluginActionResponsePane />
+      <ConvertToModuleDisabler>
+        <AppPluginActionToolbar />
+        <ConvertToModuleCallout />
+        <PluginActionForm />
+        <PluginActionResponse />
+      </ConvertToModuleDisabler>
     </PluginActionEditor>
   );
 };

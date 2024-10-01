@@ -119,6 +119,7 @@ describe("Drag and Drop widgets into Main container", () => {
     .mockImplementation(() => true);
 
   const pushState = jest.spyOn(window.history, "pushState");
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pushState.mockImplementation((state: any, title: any, url: any) => {
@@ -132,6 +133,7 @@ describe("Drag and Drop widgets into Main container", () => {
       yield all([]);
     };
     const debounceMocked = jest.spyOn(lodash, "debounce");
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     debounceMocked.mockImplementation((fn: any) => fn);
@@ -170,6 +172,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
@@ -185,8 +188,10 @@ describe("Drag and Drop widgets into Main container", () => {
       { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
     const propPane = component.queryByTestId("t--propertypane");
+
     expect(propPane).toBeNull();
     const canvasWidgets = component.queryAllByTestId("test-widget");
+
     expect(canvasWidgets.length).toBe(1);
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -216,6 +221,7 @@ describe("Drag and Drop widgets into Main container", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mainCanvas: any = component.queryByTestId("div-dragarena-0");
+
     act(() => {
       fireEvent(
         mainCanvas,
@@ -264,6 +270,7 @@ describe("Drag and Drop widgets into Main container", () => {
       left: movedTab.style.left,
       top: movedTab.style.top,
     };
+
     expect(finalPositions.left).not.toEqual(initPositions.left);
     expect(finalPositions.top).not.toEqual(initPositions.top);
   });
@@ -285,6 +292,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
@@ -300,8 +308,10 @@ describe("Drag and Drop widgets into Main container", () => {
       { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
     const propPane = component.queryByTestId("t--propertypane");
+
     expect(propPane).toBeNull();
     const canvasWidgets = component.queryAllByTestId("test-widget");
+
     expect(canvasWidgets.length).toBe(1);
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -327,6 +337,7 @@ describe("Drag and Drop widgets into Main container", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mainCanvas: any = component.queryByTestId("div-dragarena-0");
+
     act(() => {
       fireEvent(
         mainCanvas,
@@ -375,6 +386,7 @@ describe("Drag and Drop widgets into Main container", () => {
       left: movedTab.style.left,
       top: movedTab.style.top,
     };
+
     expect(finalPositions.left).toEqual(initPositions.left);
     expect(finalPositions.top).toEqual(initPositions.top);
   });
@@ -512,6 +524,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+
     dsl.bottomRow = 250;
 
     mockGetIsFetchingPage.mockImplementation(() => false);
@@ -529,8 +542,10 @@ describe("Drag and Drop widgets into Main container", () => {
       { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
     const propPane = component.queryByTestId("t--propertypane");
+
     expect(propPane).toBeNull();
     const canvasWidgets = component.queryAllByTestId("test-widget");
+
     expect(canvasWidgets.length).toBe(2);
 
     // TODO: Fix this the next time the file is edited
@@ -559,6 +574,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const dropTarget: any =
       component.container.getElementsByClassName("t--drop-target")[0];
     let initialLength = dropTarget.style.height;
+
     act(() => {
       fireEvent(
         mainCanvas,
@@ -599,6 +615,7 @@ describe("Drag and Drop widgets into Main container", () => {
     expect(initialLength).not.toEqual(updatedLength);
     initialLength = updatedLength;
     const amountMovedY = 300;
+
     act(() => {
       fireEvent(
         mainCanvas,
@@ -631,6 +648,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+
     mockGetIsFetchingPage.mockImplementation(() => false);
     jest
       .spyOn(utilities, "getPagePermissions")
@@ -648,8 +666,10 @@ describe("Drag and Drop widgets into Main container", () => {
       { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
     const propPane = component.queryByTestId("t--propertypane");
+
     expect(propPane).toBeNull();
     const canvasWidgets = component.queryAllByTestId("test-widget");
+
     // empty canvas
     expect(canvasWidgets.length).toBe(0);
 
@@ -664,6 +684,7 @@ describe("Drag and Drop widgets into Main container", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mainCanvas: any = component.queryByTestId("div-dragarena-0");
+
     act(() => {
       fireEvent(
         mainCanvas,
@@ -708,6 +729,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const newlyAddedCanvas = component.container.querySelectorAll(
       "div[type='CONTAINER_WIDGET']",
     );
+
     expect(newlyAddedCanvas.length).toBe(1);
   });
 
@@ -769,6 +791,7 @@ describe("Drag and Drop widgets into Main container", () => {
     );
 
     const canvasWidgets = component.queryAllByTestId("test-widget");
+
     expect(canvasWidgets.length).toBe(1);
 
     const initWidgetPosition = {
@@ -787,6 +810,7 @@ describe("Drag and Drop widgets into Main container", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let mainCanvas: any = component.queryByTestId("div-dragarena-0");
+
     expect(mainCanvas).toBeNull();
 
     // Focus on widget and drag
@@ -849,6 +873,7 @@ describe("Drag in a nested container", () => {
       yield all([]);
     };
     const debounceMocked = jest.spyOn(lodash, "debounce");
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     debounceMocked.mockImplementation((fn: any) => fn);
@@ -890,6 +915,7 @@ describe("Drag in a nested container", () => {
     );
 
     const canvasWidgets = component.queryAllByTestId("test-widget");
+
     expect(canvasWidgets.length).toBe(3);
 
     const initContainerWidgetPosition = {
@@ -908,6 +934,7 @@ describe("Drag in a nested container", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mainCanvas: any = component.queryByTestId("div-dragarena-0");
+
     act(() => {
       fireEvent(
         mainCanvas,
@@ -969,6 +996,7 @@ describe("Drag in a nested container", () => {
     );
 
     const canvasWidgets = component.queryAllByTestId("test-widget");
+
     expect(canvasWidgets.length).toBe(3);
 
     const initTextWidgetPosition = {
@@ -987,6 +1015,7 @@ describe("Drag in a nested container", () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mainCanvas: any = component.queryByTestId("div-dragarena-0");
+
     act(() => {
       fireEvent(
         mainCanvas,
@@ -1062,6 +1091,7 @@ describe("Drag in a nested container", () => {
     };
 
     const canvasWidgets = component.queryAllByTestId("test-widget");
+
     expect(canvasWidgets.length).toBe(3);
 
     act(() => {

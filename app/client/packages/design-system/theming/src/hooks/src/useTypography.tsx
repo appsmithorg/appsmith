@@ -1,29 +1,20 @@
-import { useEffect, useState } from "react";
-import { FONT_METRICS, TYPOGRAPHY_VARIANTS } from "../../token";
+import { useMemo } from "react";
 import { calculateScales } from "./calculateScales";
 import { createStyleObject } from "@capsizecss/core";
 import appleSystem from "@capsizecss/metrics/appleSystem";
 
 import type {
-  FontFamily,
   Typography,
   TypographyVariantMetric,
   TokenScaleConfig,
 } from "../../token";
-
-const getFontMetrics = (fontFamily?: FontFamily) => {
-  return !Boolean(fontFamily) ||
-    fontFamily == null ||
-    fontFamily === "System Default"
-    ? appleSystem
-    : FONT_METRICS[fontFamily];
-};
+import { TYPOGRAPHY_VARIANTS } from "../../token/src/types";
+import { objectKeys } from "@appsmith/utils";
 
 export const getTypography = (
   typography: TokenScaleConfig,
   userDensity = 1,
   userSizing = 1,
-  fontFamily?: FontFamily,
 ) => {
   const { userDensityRatio = 1, userSizingRatio = 1, V, ...rest } = typography;
   const ratio = userDensity * userDensityRatio + userSizing * userSizingRatio;
@@ -37,7 +28,7 @@ export const getTypography = (
       const typographyStyle = createStyleObject({
         capHeight: currentValue,
         lineGap: currentValue,
-        fontMetrics: getFontMetrics(fontFamily),
+        fontMetrics: appleSystem,
       });
 
       metrics.push({
@@ -46,12 +37,13 @@ export const getTypography = (
         before: typographyStyle["::before"],
         after: typographyStyle["::after"],
       });
+
       return metrics;
     },
     [],
   );
 
-  return Object.keys(TYPOGRAPHY_VARIANTS).reduce((prev, current, index) => {
+  return objectKeys(TYPOGRAPHY_VARIANTS).reduce((prev, current, index) => {
     return {
       ...prev,
       [current]: styles[index],
@@ -61,15 +53,12 @@ export const getTypography = (
 
 export const useTypography = (
   config: TokenScaleConfig,
-  fontFamily?: FontFamily,
   userDensity = 1,
   userSizing = 1,
 ) => {
-  const [typography, setTypography] = useState<Typography | null>(null);
-
-  useEffect(() => {
-    setTypography(getTypography(config, userDensity, userSizing, fontFamily));
-  }, [userDensity, userSizing, fontFamily, config]);
+  const typography = useMemo(() => {
+    return getTypography(config, userDensity, userSizing);
+  }, [config, userDensity, userSizing]);
 
   return {
     typography,

@@ -70,7 +70,9 @@ interface Props {
 
 const ApiResponseMeta = (props: Props) => {
   const { actionName, actionResponse } = props;
+
   if (!actionResponse || !actionResponse.statusCode) return null;
+
   return (
     <ResponseMetaWrapper>
       <Flex>

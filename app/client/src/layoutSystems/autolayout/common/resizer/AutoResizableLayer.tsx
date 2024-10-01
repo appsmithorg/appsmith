@@ -17,12 +17,15 @@ export const AutoResizableLayer = (props: BaseWidgetProps) => {
   if (props.resizeDisabled || props.type === "SKELETON_WIDGET") {
     return props.children;
   }
+
   let autoDimensionConfig = WidgetFactory.getWidgetAutoLayoutConfig(
     props.type,
   ).autoDimension;
+
   if (isFunction(autoDimensionConfig)) {
     autoDimensionConfig = autoDimensionConfig(props);
   }
+
   return (
     <ResizableComponent
       {...props}

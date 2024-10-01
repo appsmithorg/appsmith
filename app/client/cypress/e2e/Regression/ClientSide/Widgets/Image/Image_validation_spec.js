@@ -15,7 +15,7 @@ describe(
         .invoke("attr", "src")
         .should(
           "contain",
-          "https://res.cloudinary.com/drako999/image/upload/v1589196259/default.png",
+          "http://host.docker.internal:4200/clouddefaultImage.png",
         );
     });
 

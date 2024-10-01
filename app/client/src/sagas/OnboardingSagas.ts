@@ -49,6 +49,7 @@ function* setFirstTimeUserOnboardingApplicationId(action: ReduxAction<string>) {
 
   const applicationIds: string[] =
     yield getFirstTimeUserOnboardingApplicationIds();
+
   yield put({
     type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
     payload: [...applicationIds, ...action.payload],
@@ -62,6 +63,7 @@ function* removeFirstTimeUserOnboardingApplicationIdSaga(
 
   const applicationIds: string[] =
     yield getFirstTimeUserOnboardingApplicationIds();
+
   yield put({
     type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_IDS,
     payload: applicationIds.filter((id) => id !== action.payload),
@@ -78,6 +80,7 @@ function* endFirstTimeUserOnboardingSaga() {
   const firstTimeUserExperienceAppId: string = yield select(
     getCurrentApplicationId,
   );
+
   yield put(
     removeFirstTimeUserOnboardingApplicationIdAction(
       firstTimeUserExperienceAppId,
@@ -105,6 +108,7 @@ function* firstTimeUserOnboardingInitSaga(
   );
 
   const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
+
   if (!isEditorInitialised) {
     yield take(ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS);
   }
@@ -114,10 +118,12 @@ function* firstTimeUserOnboardingInitSaga(
   // We don't want to show the signposting overlay when we intend to show the
   // telemetry callout
   const currentUser: User | undefined = yield select(getCurrentUser);
+
   if (currentUser?.isSuperUser && !isAirgapped()) {
     const isAnonymousDataPopupAlreadyOpen: unknown = yield call(
       getFirstTimeUserOnboardingTelemetryCalloutIsAlreadyShown,
     );
+
     if (!isAnonymousDataPopupAlreadyOpen) {
       showOverlay = false;
     }
@@ -161,6 +167,7 @@ function* setSignpostingStepStateSaga(
         read: false,
       }
     : {};
+
   yield put(
     signpostingStepUpdate({
       ...action.payload,

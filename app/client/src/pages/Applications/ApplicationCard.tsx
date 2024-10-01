@@ -120,11 +120,13 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   useEffect(() => {
     let colorCode;
+
     if (props.application.color) {
       colorCode = props.application.color;
     } else {
       colorCode = getRandomPaletteColor(theme.colors.appCardColors);
     }
+
     setSelectedColor(colorCode);
   }, [props.application.color]);
 
@@ -138,6 +140,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         "data-testid": "t--share",
       });
     }
+
     // add fork app option to menu
     if (hasEditPermission) {
       moreActionItems.push({
@@ -148,6 +151,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         "data-testid": "t--fork-app",
       });
     }
+
     if (!!props.enableImportExport && hasExportPermission) {
       moreActionItems.push({
         onSelect: exportApplicationAsJSONFile,
@@ -157,6 +161,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         "data-testid": "t--export-app",
       });
     }
+
     setMoreActionItems(moreActionItems);
     addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -200,17 +205,21 @@ export function ApplicationCard(props: ApplicationCardProps) {
     // there is no straightforward way to handle it with axios/fetch
     const id = `t--export-app-link`;
     const existingLink = document.getElementById(id);
+
     existingLink && existingLink.remove();
     const link = document.createElement("a");
 
     const branchName = props.application.gitApplicationMetadata?.branchName;
+
     link.href = getExportAppAPIRoute(applicationId, branchName);
     link.id = id;
     document.body.appendChild(link);
+
     // @ts-expect-error: Types are not available
     if (!window.Cypress) {
       link.click();
     }
+
     setIsMenuOpen(false);
     toast.show(`Successfully exported ${props.application.name}`, {
       kind: "success",
@@ -228,6 +237,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const askForConfirmation = () => {
     setIsDeleting(true);
     const updatedActionItems = [...moreActionItems];
+
     updatedActionItems.pop();
     updatedActionItems.push({
       onSelect: deleteApp,
@@ -243,9 +253,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
       const index = moreActionItems.findIndex(
         (el) => el.startIcon === "delete-bin-line",
       );
+
       if (index >= 0) {
         moreActionItems.pop();
       }
+
       moreActionItems.push({
         onSelect: askForConfirmation,
         children: "Delete",
@@ -265,6 +277,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any = {};
+
   if (showGitBadge) {
     params.branch = showGitBadge;
   }
@@ -274,6 +287,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       setIsMenuOpen(false);
       setShowOverlay(false);
       addDeleteOption();
+
       if (lastUpdatedValue && props.application.name !== lastUpdatedValue) {
         props.update &&
           props.update(applicationId, {
@@ -365,6 +379,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           <div className="menu-items-wrapper">
             {moreActionItems.map((item: MenuItemProps) => {
               const { children, key, ...restMenuItem } = item;
+
               return (
                 <MenuItem
                   {...restMenuItem}
@@ -400,7 +415,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
       props.application.pages.find(
         (page) => page.id === props.application.defaultPageId,
       );
+
     if (!page) return;
+
     urlBuilder.updateURLParams(
       {
         applicationSlug: props.application.slug,
@@ -417,13 +434,17 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const editModeURL = useMemo(() => {
     const basePageId = props.application.defaultBasePageId;
+
     if (!basePageId) return "";
+
     return builderURL({ basePageId, params });
   }, [props.application.defaultBasePageId, params]);
 
   const viewModeURL = useMemo(() => {
     const basePageId = props.application.defaultBasePageId;
+
     if (!basePageId) return "";
+
     return viewerURL({ basePageId, params });
   }, [props.application.defaultBasePageId, params]);
 

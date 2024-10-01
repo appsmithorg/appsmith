@@ -105,6 +105,7 @@ const searchAction: Record<
       AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
         menuItem: CONTEXT_MENU_ACTIONS.INTERCOM,
       });
+
       // Search through the omnibar
       if (intercomAppID && window.Intercom) {
         window.Intercom(

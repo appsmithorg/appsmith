@@ -9,7 +9,7 @@ describe(
   "Block Action Execution when no field is present",
   { tags: ["@tag.Datasource"] },
   () => {
-    const url = "https://www.google.com";
+    const url = "https://www.appsmith.com/";
     it("1. Ensure API Run button is disabled when no url is present", () => {
       apiPage.CreateApi("FirstAPI", "GET");
       apiPage.AssertRunButtonDisability(true);

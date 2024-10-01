@@ -174,9 +174,11 @@ class ImageComponent extends React.Component<
       maxZoomLevel !== undefined && maxZoomLevel > 1 && !this.isPanning;
     const isZoomingIn = this.state.zoomingState === ZoomingState.MAX_ZOOMED_OUT;
     let cursor = "inherit";
+
     if (zoomActive) {
       cursor = isZoomingIn ? "zoom-in" : "zoom-out";
     }
+
     if (this.props.onClick) cursor = "pointer";
 
     const hasOnClick = Boolean(zoomActive || this.props.onClick);
@@ -196,8 +198,10 @@ class ImageComponent extends React.Component<
         } else {
           zoomOut(event);
         }
+
         this.props.onClick && this.props.onClick(event);
       }
+
       this.isPanning = false;
     };
 
@@ -372,6 +376,7 @@ class ImageComponent extends React.Component<
 
   onMouseEnter = () => {
     const { defaultImageUrl, imageUrl } = this.props;
+
     if (defaultImageUrl || imageUrl) {
       this.setState({ showImageControl: true });
     }

@@ -16,18 +16,22 @@ export function makeEntityConfigsAsObjProperties(
 ): DataTree {
   const { evalProps, sanitizeDataTree = true } = option;
   const newDataTree: DataTree = {};
+
   for (const entityName of Object.keys(dataTree)) {
     const entity = dataTree[entityName];
+
     newDataTree[entityName] = isObject(entity)
       ? Object.assign({}, entity)
       : entity;
   }
+
   const dataTreeToReturn = sanitizeDataTree ? klona(newDataTree) : newDataTree;
 
   if (!evalProps) return dataTreeToReturn;
 
   for (const [entityName, entityEvalProps] of Object.entries(evalProps)) {
     if (!entityEvalProps.__evaluation__) continue;
+
     set(
       dataTreeToReturn[entityName],
       "__evaluation__",

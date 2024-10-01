@@ -163,6 +163,7 @@ export const handlers = {
     action: ReduxAction<CreateApplicationFormValues>,
   ) => {
     const updatedCreatingApplication = { ...state.creatingApplication };
+
     updatedCreatingApplication[action.payload.workspaceId] = true;
 
     return {
@@ -178,7 +179,9 @@ export const handlers = {
     }>,
   ) => {
     const updatedCreatingApplication = { ...state.creatingApplication };
+
     updatedCreatingApplication[action.payload.workspaceId] = false;
+
     return {
       ...state,
       creatingApplication: updatedCreatingApplication,
@@ -190,6 +193,7 @@ export const handlers = {
     action: ReduxAction<{ workspaceId: string }>,
   ) => {
     const updatedCreatingApplication = { ...state.creatingApplication };
+
     updatedCreatingApplication[action.payload.workspaceId] = false;
 
     return {
@@ -235,6 +239,7 @@ export const handlers = {
     action: ReduxAction<{ importedApplication: any }>,
   ) => {
     const importedApplication = action.payload;
+
     return {
       ...state,
       importingApplication: false,
@@ -391,6 +396,7 @@ export const handlers = {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const defaultBranch = action.payload.find((branch: any) => branch.default);
+
     if (defaultBranch) {
       return {
         ...state,
@@ -403,6 +409,7 @@ export const handlers = {
         },
       };
     }
+
     return state;
   },
   [ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_SUCCESS]: (

@@ -13,6 +13,7 @@ const TextWrapper = styled.div`
 export default function TextComponent({ setting }: SettingComponentProps) {
   const settingsConfig = useSelector(getSettings);
   const value = setting.name && settingsConfig && settingsConfig[setting.name];
+
   return (
     <FormGroup setting={setting}>
       {value && (

@@ -84,15 +84,18 @@ const ComponentContainerWrapper = ({
   children: ReactNode;
 }) => {
   const [modalPosition, setModalPosition] = useState<string>("fixed");
+
   useEffect(() => {
     setTimeout(() => {
       setModalPosition("unset");
     }, 100);
   }, []);
+
   if (isEditMode) {
     // eslint-disable-next-line react/jsx-no-useless-fragment
     return <>{children}</>;
   }
+
   return (
     <ComponentContainer modalPosition={modalPosition}>
       {children}
@@ -110,6 +113,7 @@ export function ModalOverlayLayer(props: BaseWidgetProps) {
         !!props.isVisible
       );
     }
+
     return !!props.isVisible;
   };
   const isOpen = getModalVisibility();

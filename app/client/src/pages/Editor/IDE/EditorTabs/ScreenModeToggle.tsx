@@ -45,6 +45,7 @@ export const ScreenModeToggle = () => {
     AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
       to: EditorViewMode.SplitScreen,
     });
+
     if ("startViewTransition" in document && isAnimatedIDEEnabled) {
       document.startViewTransition(() => {
         dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));

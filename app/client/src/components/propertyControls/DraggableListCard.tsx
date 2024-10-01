@@ -65,6 +65,7 @@ const StyledCheckbox = styled(Checkbox)`
   margin-top: 4px;
   margin-left: 4px;
 `;
+
 export function DraggableListCard(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
   const [isEditing, setEditing] = useState(false);
@@ -119,6 +120,7 @@ export function DraggableListCard(props: RenderComponentProps) {
 
   const onFocus = () => {
     setEditing(false);
+
     if (updateFocus) {
       updateFocus(index, false);
     }
@@ -127,6 +129,7 @@ export function DraggableListCard(props: RenderComponentProps) {
   const onBlur = () => {
     if (!isDragging) {
       setEditing(false);
+
       if (updateFocus) {
         updateFocus(index, false);
       }
@@ -162,6 +165,7 @@ export function DraggableListCard(props: RenderComponentProps) {
   };
 
   const showDelete = !!item.isDerived || isDelete;
+
   return (
     <ItemWrapper className={item.isDuplicateLabel ? "has-duplicate-label" : ""}>
       {item?.isDragDisabled ? (

@@ -8,32 +8,32 @@ const data = [
   {
     id: "001",
     name: "Blue",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
   },
   {
     id: "002",
     name: "Green",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
   },
   {
     id: "003",
     name: "Red",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
   },
   {
     id: "004",
     name: "Yellow",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
   },
   {
     id: "005",
     name: "Orange",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
   },
   {
     id: "006",
     name: "Indigo",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
   },
 ];
 
@@ -105,7 +105,7 @@ describe(
           const data = JSON.parse(val.text());
           const triggeredItemView = {
             Image1: {
-              image: "https://assets.appsmith.com/widgets/default.png",
+              image: "http://host.docker.internal:4200/clouddefaultImage.png",
               isVisible: true,
             },
             Text1: {
@@ -137,7 +137,7 @@ describe(
           const data = JSON.parse(val.text());
           const SelectedRow = {
             Image1: {
-              image: "https://assets.appsmith.com/widgets/default.png",
+              image: "http://host.docker.internal:4200/clouddefaultImage.png",
               isVisible: true,
             },
             Text1: {
@@ -198,7 +198,7 @@ describe(
           const data = JSON.parse(val.text());
           const triggeredItemView = {
             Image1: {
-              image: "https://assets.appsmith.com/widgets/default.png",
+              image: "http://host.docker.internal:4200/clouddefaultImage.png",
               isVisible: true,
             },
             Text1: {
@@ -230,7 +230,7 @@ describe(
           const data = JSON.parse(val.text());
           const selectedItemView = {
             Image1: {
-              image: "https://assets.appsmith.com/widgets/default.png",
+              image: "http://host.docker.internal:4200/clouddefaultImage.png",
               isVisible: true,
             },
             Text1: {
@@ -313,7 +313,7 @@ describe(
           const data = JSON.parse(val.text());
           const triggeredItemView = {
             Image1: {
-              image: "https://assets.appsmith.com/widgets/default.png",
+              image: "http://host.docker.internal:4200/clouddefaultImage.png",
               isVisible: true,
             },
             Text1: {

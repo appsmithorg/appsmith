@@ -12,7 +12,9 @@ export const migrateCheckboxGroupWidgetInlineProperty = (
     } else if (child.children && child.children.length > 0) {
       child = migrateCheckboxGroupWidgetInlineProperty(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

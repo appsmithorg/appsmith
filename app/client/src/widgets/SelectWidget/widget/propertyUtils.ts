@@ -34,6 +34,7 @@ export function defaultOptionValueValidation(
   if (typeof value === "string") {
     try {
       const parsedValue = JSON.parse(value);
+
       if (_.isObject(parsedValue)) {
         value = parsedValue;
       }

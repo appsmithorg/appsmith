@@ -29,6 +29,7 @@ export function getEvaluationContext(
     (acc, name) => ({ ...acc, [name]: true }),
     {} as { [x: string]: boolean },
   );
+
   Object.assign(evalContext, platformFnNamesMap);
 
   return evalContext;

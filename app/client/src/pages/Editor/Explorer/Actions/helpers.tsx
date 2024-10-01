@@ -106,6 +106,7 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
       const isGraphql = isGraphqlPlugin(plugin);
+
       if (
         plugin &&
         plugin.type === PluginType.API &&
@@ -113,8 +114,10 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
         !isGraphql
       ) {
         const method = action?.actionConfiguration?.httpMethod;
+
         if (method) return ApiMethodIcon(method);
       }
+
       if (plugin && plugin.iconLocation)
         return (
           <EntityIcon

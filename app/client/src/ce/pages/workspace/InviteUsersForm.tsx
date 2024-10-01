@@ -170,6 +170,7 @@ const validate = (values: any) => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors: any = {};
+
   if (!(values.users && values.users.length > 0)) {
     errors["users"] = createMessage(INVITE_USERS_VALIDATION_EMAILS_EMPTY);
   }
@@ -190,6 +191,7 @@ const validate = (values: any) => {
       }
     });
   }
+
   return errors;
 };
 
@@ -205,6 +207,7 @@ export function InviteUserText({
   const rampLink = useSelector(rampLinkSelector);
   const showRampSelector = showProductRamps(RAMP_NAME.INVITE_USER_TO_APP);
   const canShowRamp = useSelector(showRampSelector);
+
   return (
     <Text
       color="var(--ads-v2-color-fg)"
@@ -253,6 +256,7 @@ export function CustomRolesRamp() {
       </RampLink>
     </Text>
   );
+
   return (
     <CustomRoleRampTooltip
       content={rampText}
@@ -395,8 +399,10 @@ function InviteUsersForm(props: any) {
           .map((option: DefaultOptionType) => option.value)
           .join(",")
       : selectedOption[0].value;
+
     validateFormValues({ ...values, role: roles });
     const usersAsStringsArray = values.users.split(",");
+
     // update state to show success message correctly
     updateNumberOfUsersInvited(usersAsStringsArray.length);
     const validEmails = usersAsStringsArray.filter((user: string) =>

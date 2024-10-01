@@ -20,6 +20,7 @@ const mockStore = configureStore([]);
 const mockUseCurrentEditorStatePerTestCase = (segment: EditorEntityTab) => {
   /* eslint-disable @typescript-eslint/no-var-requires */
   const { useCurrentEditorState } = require("pages/Editor/IDE/hooks");
+
   useCurrentEditorState.mockImplementation(() => ({
     segment,
   }));
@@ -32,6 +33,7 @@ jest.mock("ee/utils/airgapHelpers", () => ({
 const mockIsAirGapped = (val: boolean) => {
   /* eslint-disable @typescript-eslint/no-var-requires */
   const { isAirgapped } = require("ee/utils/airgapHelpers");
+
   isAirgapped.mockImplementation(() => val);
 };
 
@@ -50,6 +52,7 @@ describe("OnBoarding - Non-AirGap Edition", () => {
     const title = screen.getByText(
       createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
+
     expect(title).toBeInTheDocument();
   });
 
@@ -67,6 +70,7 @@ describe("OnBoarding - Non-AirGap Edition", () => {
         },
       },
     };
+
     render(BaseComponentRender(previewModeStore));
 
     const buildingBlockOnboardingElement = screen.queryByText(
@@ -75,6 +79,7 @@ describe("OnBoarding - Non-AirGap Edition", () => {
     const onboardingElement = screen.queryByText(
       createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
+
     expect(buildingBlockOnboardingElement).not.toBeInTheDocument();
     expect(onboardingElement).toBeInTheDocument();
   });
@@ -93,6 +98,7 @@ describe("OnBoarding - Non-AirGap Edition", () => {
         },
       },
     };
+
     render(BaseComponentRender(previewModeStore));
 
     const buildingBlockOnboardingElement = screen.queryByText(
@@ -101,6 +107,7 @@ describe("OnBoarding - Non-AirGap Edition", () => {
     const onboardingElement = screen.queryByText(
       createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
+
     expect(buildingBlockOnboardingElement).not.toBeInTheDocument();
     expect(onboardingElement).toBeInTheDocument();
   });
@@ -113,6 +120,7 @@ describe("OnBoarding - AirGap Edition", () => {
     const onboardingElement = screen.getByText(
       createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
+
     expect(onboardingElement).toBeInTheDocument();
   };
 
@@ -160,6 +168,7 @@ describe("OnBoarding - AirGap Edition", () => {
         },
       },
     };
+
     render(BaseComponentRender(previewModeStore));
 
     const buildingBlockOnboardingElement = screen.queryByText(
@@ -168,6 +177,7 @@ describe("OnBoarding - AirGap Edition", () => {
     const onboardingElement = screen.queryByText(
       createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
+
     expect(buildingBlockOnboardingElement).not.toBeInTheDocument();
     expect(onboardingElement).toBeInTheDocument();
   });

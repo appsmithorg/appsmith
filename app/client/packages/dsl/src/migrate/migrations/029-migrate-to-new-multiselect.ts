@@ -6,12 +6,15 @@ export const migrateToNewMultiSelect = (currentDSL: DSLWidget) => {
       currentDSL.type = "MULTI_SELECT_WIDGET";
       delete currentDSL.isFilterable;
     }
+
     delete currentDSL.selectionType;
   }
+
   if (currentDSL.children && currentDSL.children.length) {
     currentDSL.children = currentDSL.children.map((child: DSLWidget) =>
       migrateToNewMultiSelect(child),
     );
   }
+
   return currentDSL;
 };

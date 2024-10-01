@@ -30,6 +30,7 @@ describe("Icon Component", () => {
     );
     // eslint-disable-next-line testing-library/prefer-screen-queries
     const icon = getByTestId(IconClassName);
+
     // eslint-disable-next-line testing-library/no-node-access
     expect(icon.firstChild).toBe(null);
   });

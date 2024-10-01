@@ -159,6 +159,7 @@ export function TemplateView({
   useEffect(() => {
     dispatch(getTemplateInformation(templateId));
     dispatch(getSimilarTemplatesInit(templateId));
+
     if (containerRef.current) {
       containerRef.current.scrollTo({ top: 0 });
     }
@@ -219,6 +220,7 @@ export function TemplateView({
 
 function TemplateViewContainer() {
   const params = useParams<{ templateId: string }>();
+
   return (
     <PageWrapper>
       <TemplateView templateId={params.templateId} />

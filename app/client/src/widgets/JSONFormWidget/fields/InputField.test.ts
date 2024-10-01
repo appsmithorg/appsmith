@@ -23,6 +23,7 @@ describe("Input Field - Number", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -47,6 +48,7 @@ describe("Input Field - Number", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -71,6 +73,7 @@ describe("Input Field - Number", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -95,6 +98,7 @@ describe("Input Field - Number", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -120,6 +124,7 @@ describe("Input Field - Number", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -146,6 +151,7 @@ describe("Input Field - Text/Password/Multiline", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -170,6 +176,7 @@ describe("Input Field - Text/Password/Multiline", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -194,6 +201,7 @@ describe("Input Field - Text/Password/Multiline", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -218,6 +226,7 @@ describe("Input Field - Text/Password/Multiline", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -243,6 +252,7 @@ describe("Input Field - Text/Password/Multiline", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -271,6 +281,7 @@ describe("Input Field - Email", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -297,6 +308,7 @@ describe("Input Field - Email", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -323,6 +335,7 @@ describe("Input Field - Email", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -349,6 +362,7 @@ describe("Input Field - Email", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });
@@ -376,6 +390,7 @@ describe("Input Field - Email", () => {
 
     inputs.forEach((input) => {
       const result = isValid(schemaItem, input.value);
+
       expect(result).toEqual(input.expectedOutput);
     });
   });

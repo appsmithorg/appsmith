@@ -16,6 +16,8 @@ import {
 import { Tooltip } from "@appsmith/ads";
 import { useSelector } from "react-redux";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { SaveActionNameParams } from "PluginActionEditor";
 
 export const searchHighlightSpanClassName = "token";
 export const searchTokenizationDelimiter = "!!";
@@ -57,8 +59,10 @@ export const replace = (
   keyIndex = 1,
 ): JSX.Element[] => {
   const occurrenceIndex = str.indexOf(delimiter);
+
   if (occurrenceIndex === -1)
     return [<span key={`notokenize-${keyIndex}`}>{str}</span>];
+
   const sliced = str.slice(occurrenceIndex + delimiter.length);
   const nextOccurenceIndex = sliced.indexOf(delimiter);
   const rest = str.slice(
@@ -74,6 +78,7 @@ export const replace = (
       {token}
     </span>,
   ].concat(replace(rest, delimiter, className, keyIndex + 1));
+
   return final;
 };
 
@@ -81,7 +86,7 @@ export interface EntityNameProps {
   name: string;
   isEditing?: boolean;
   onChange?: (name: string) => void;
-  updateEntityName: (name: string) => void;
+  updateEntityName: (name: string) => ReduxAction<SaveActionNameParams>;
   entityId: string;
   searchKeyword?: string;
   className?: string;
@@ -105,6 +110,7 @@ export const EntityName = React.memo(
     // Check to show tooltip on hover
     const nameWrapperRef = useRef<HTMLDivElement | null>(null);
     const [showTooltip, setShowTooltip] = useState(false);
+
     useEffect(() => {
       setShowTooltip(!!isEllipsisActive(nameWrapperRef.current));
     }, [updatedName, name]);
@@ -123,8 +129,10 @@ export const EntityName = React.memo(
           searchTokenizationDelimiter,
           searchHighlightSpanClassName,
         );
+
         return final;
       }
+
       return updatedName;
     }, [searchKeyword, updatedName]);
 
@@ -158,10 +166,10 @@ export const EntityName = React.memo(
 
     return (
       <NameEditorComponent
-        dispatchAction={handleUpdateName}
         id={props.entityId}
         idUndefinedErrorMessage={ACTION_ID_NOT_FOUND_IN_URL}
         name={updatedName}
+        onSaveName={handleUpdateName}
         saveStatus={saveStatus}
         suffixErrorMessage={ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR}
       >

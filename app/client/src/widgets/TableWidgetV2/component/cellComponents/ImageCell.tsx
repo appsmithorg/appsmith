@@ -88,6 +88,7 @@ export function ImageCell(props: renderImageType) {
   const imageUrlRegex =
     /(http(s?):)([/|.|\w|\s|-])*\.(?:jpeg|jpg|gif|png)??(?:&?[^=&]*=[^=&]*)*/;
   const base64ImageRegex = /^data:image\/.*;base64/;
+
   return (
     <CellWrapper
       allowCellWrapping={allowCellWrapping}

@@ -13,5 +13,6 @@ export default function getLintSeverity(
     errorMessage === asyncActionInSyncFieldLintMessage(true)
       ? Severity.WARNING
       : Severity.ERROR;
+
   return severity;
 }

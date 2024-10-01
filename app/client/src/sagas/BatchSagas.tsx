@@ -55,6 +55,7 @@ function* storeUpdatesSaga(action: ReduxAction<ReduxAction<any>>) {
   try {
     const priority = BATCH_PRIORITY[action.payload.type].priority;
     const currentPriorityBatch = batches[priority] || [];
+
     currentPriorityBatch.push(action.payload);
     _.set(batches, `[${priority}]`, currentPriorityBatch);
     yield put({ type: ReduxActionTypes.EXECUTE_BATCH });
@@ -66,17 +67,21 @@ function* storeUpdatesSaga(action: ReduxAction<ReduxAction<any>>) {
 function* executeBatchSaga() {
   for (let priority = 0; priority < batches.length; priority++) {
     const batch = batches[priority];
+
     if (Array.isArray(batch) && batch.length) {
       const needsSaga = batch.filter((b) => BATCH_PRIORITY[b.type].needsSaga);
       const canBatch = batch.filter((b) => !BATCH_PRIORITY[b.type].needsSaga);
+
       batches[priority] = [];
       // @ts-expect-error: Types are not available
       yield put(canBatch);
+
       if (needsSaga.length) {
         for (const sagaAction of needsSaga) {
           yield put(sagaAction);
         }
       }
+
       yield put(batchActionSuccess(batch));
     }
   }

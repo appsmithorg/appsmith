@@ -153,6 +153,7 @@ const ListItemArgTypes = {
 function ListItemTemplate(args: JSX.IntrinsicAttributes & ListItemProps) {
   return <ListItem {...args} />;
 }
+
 export const ListItemLargeStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemLargeStory.storyName = "List item size large";
 ListItemLargeStory.argTypes = ListItemArgTypes;
