@@ -36,6 +36,7 @@ match-proxy-url() {
 if [[ "$mode" == "pg" ]]; then
   extract_postgres_db_params "$APPSMITH_DB_URL"
   waitForPostgresAvailability
+  init_pg_db
 fi
 
 if match-proxy-url "${HTTP_PROXY-}"; then
