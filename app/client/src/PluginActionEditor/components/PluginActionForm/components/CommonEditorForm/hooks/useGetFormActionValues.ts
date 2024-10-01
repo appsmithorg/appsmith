@@ -32,7 +32,7 @@ function useGetFormActionValues() {
   const actionConfigurationBody = get(
     formValues,
     "actionConfiguration.body",
-    [],
+    "",
   ) as string;
 
   const actionHeaders = get(
