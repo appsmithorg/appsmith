@@ -1,5 +1,5 @@
 import React from "react";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import SelectComponent, { type SelectComponentProps } from "./index";
 
 const mockProps: SelectComponentProps = {
