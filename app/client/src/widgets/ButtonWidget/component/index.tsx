@@ -154,6 +154,11 @@ export const StyledButton = styled((props) => (
       "boxShadowColor",
       "buttonColor",
       "buttonVariant",
+      "primaryColor",
+      "navColorStyle",
+      "varient",
+      "insideSidebar",
+      "isMinimal",
     ])}
   />
 ))<ThemeProp & ButtonStyleProps>`
