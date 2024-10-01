@@ -81,13 +81,17 @@ describe("Tests fetch calls", { tags: ["@tag.JS"] }, () => {
     propPane.TypeTextIntoField("Label", "getUserID");
     propPane.EnterJSContext(
       "onClick",
-      `{{fetch('http://host.docker.internal:5001/v1/mock-api?records=1')
-        .then(res => res.json())
-        .then(json => {
+      `{{(async () => {
+        try {
+          const response = await fetch('http://host.docker.internal:5001/v1/mock-api?records=1');
+          const json = await response.json();
           const user = json[0]; // Get the first record
-          storeValue('userId', user.id);
+          await storeValue('userId', user.id);
           showAlert("UserId: " + appsmith.store.userId);
-        })}}`,
+        } catch (error) {
+          showAlert("Failed to fetch user data.");
+        }
+      })()}}`,
     );
 
     agHelper.Sleep(2000);
