@@ -25,8 +25,8 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 @ChangeUnit(order = "063", id = "add_instance_admin_details_to_config_collection")
 public class Migration063AddInstanceAdminDetailsToDB {
 
-    MongoTemplate mongoTemplate;
-    CommonConfig commonConfig;
+    private final MongoTemplate mongoTemplate;
+    private final CommonConfig commonConfig;
 
     @RollbackExecution
     public void rollbackExecution() {}
