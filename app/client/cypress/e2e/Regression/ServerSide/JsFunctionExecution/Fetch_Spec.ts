@@ -95,7 +95,7 @@ describe("Tests fetch calls", { tags: ["@tag.JS"] }, () => {
         .catch(error => {
           console.error("Fetch error:", error);
           showAlert("Failed to fetch user data: " + error.message);
-        })}}`
+        })}}`,
     );
 
     agHelper.Sleep(2000);
