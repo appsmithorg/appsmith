@@ -81,19 +81,11 @@ describe("Tests fetch calls", { tags: ["@tag.JS"] }, () => {
     propPane.TypeTextIntoField("Label", "getUserID");
     propPane.EnterJSContext(
       "onClick",
-      `{{(async () => {
-        try {
-          const response = await fetch('http://host.docker.internal:5001/v1/mock-api?records=1');
-          const json = await response.json();
-          const user = json[0]; // Get the first record
-          await storeValue('userId', user.id);
-          showAlert("UserId: " + appsmith.store.userId);
-        } catch (error) {
-          showAlert("Failed to fetch user data.");
-        }
-      })()}}`,
+      `{{fetch('https://jsonplaceholder.typicode.com/todos/1')
+    .then(res => res.json())
+    .then(json => storeValue('userId', json.userId))
+    .then(() => showAlert("UserId: " + appsmith.store.userId))}}`,
     );
-
     agHelper.Sleep(2000);
     agHelper.ClickButton("getUserID");
     agHelper.AssertContains("UserId: 1", "exist");
