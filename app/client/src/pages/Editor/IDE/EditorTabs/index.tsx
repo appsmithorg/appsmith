@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { shallowEqual, useSelector } from "react-redux";
+import React, { useEffect } from "react";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { Flex, ScrollArea, ToggleButton } from "@appsmith/ads";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import {
+  getIDEViewMode,
+  getIsSideBySideEnabled,
+  getListViewActiveState,
+} from "selectors/ideSelectors";
 import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
@@ -19,28 +23,30 @@ import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { List } from "./List";
 import { ScreenModeToggle } from "./ScreenModeToggle";
 import { AddTab } from "./AddTab";
+import { setListViewActiveState } from "actions/ideActions";
 
 const EditorTabs = () => {
-  const [showListView, setShowListView] = useState(false);
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const ideViewMode = useSelector(getIDEViewMode);
   const { segment, segmentMode } = useCurrentEditorState();
   const { closeClickHandler, tabClickHandler } = useIDETabClickHandlers();
   const tabsConfig = TabSelectors[segment];
   const files = useSelector(tabsConfig.tabsSelector, shallowEqual);
+  const isListViewActive = useSelector(getListViewActiveState);
 
   const location = useLocation();
+  const dispatch = useDispatch();
   const currentEntity = identifyEntityFromPath(location.pathname);
 
   // Turn off list view while changing segment, files
   useEffect(() => {
-    setShowListView(false);
+    dispatch(setListViewActiveState(false));
   }, [currentEntity.id, currentEntity.entity, files, segmentMode]);
 
   // Show list view if all tabs is closed
   useEffect(() => {
     if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) {
-      setShowListView(true);
+      dispatch(setListViewActiveState(true));
     }
   }, [files, segmentMode, currentEntity.entity]);
 
@@ -75,16 +81,16 @@ const EditorTabs = () => {
   const handleHamburgerClick = () => {
     if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) return;
 
-    setShowListView(!showListView);
+    dispatch(setListViewActiveState(!isListViewActive));
   };
 
   const onTabClick = (tab: EntityItem) => {
-    setShowListView(false);
+    dispatch(setListViewActiveState(false));
     tabClickHandler(tab);
   };
 
   const newTabClickHandler = () => {
-    setShowListView(false);
+    dispatch(setListViewActiveState(false));
   };
 
   return (
@@ -94,7 +100,7 @@ const EditorTabs = () => {
           <ToggleButton
             data-testid="t--list-toggle"
             icon="hamburger"
-            isSelected={showListView}
+            isSelected={isListViewActive}
             onClick={handleHamburgerClick}
             size="md"
           />
@@ -118,13 +124,13 @@ const EditorTabs = () => {
           >
             <FileTabs
               currentEntity={currentEntity}
-              isListActive={showListView}
+              isListActive={isListViewActive}
               navigateToTab={onTabClick}
               onClose={closeClickHandler}
               tabs={files}
             />
             <AddTab
-              isListActive={showListView}
+              isListActive={isListViewActive}
               newTabClickCallback={newTabClickHandler}
               onClose={closeClickHandler}
             />
@@ -137,7 +143,9 @@ const EditorTabs = () => {
       </Container>
 
       {/* Overflow list */}
-      {showListView && ideViewMode === EditorViewMode.SplitScreen && <List />}
+      {isListViewActive && ideViewMode === EditorViewMode.SplitScreen && (
+        <List />
+      )}
 
       {/* Announcement modal */}
       {ideViewMode === EditorViewMode.SplitScreen && <Announcement />}

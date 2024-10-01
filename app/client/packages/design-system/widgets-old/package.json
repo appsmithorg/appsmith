@@ -31,7 +31,9 @@
     "postcss": "^8.4.31",
     "postcss-import": "^14.1.0",
     "ts-jest": "^29.2.5",
-    "tsconfig-paths-webpack-plugin": "^3.5.2"
+    "tsconfig-paths-webpack-plugin": "^3.5.2",
+    "@types/react-table": "*",
+    "identity-obj-proxy": "3.0.0"
   },
   "peerDependencies": {
     "@blueprintjs/core": "3.33.0",
@@ -61,8 +63,5 @@
         }
       }
     ]
-  },
-  "dependencies": {
-    "emoji-mart": "3.0.1"
   }
 }
