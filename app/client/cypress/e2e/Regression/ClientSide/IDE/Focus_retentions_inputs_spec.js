@@ -105,6 +105,10 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
     //Maintains focus on the API pane
     PageLeftPane.selectItem("Graphql_Query");
 
+    agHelper
+      .GetElement(locators._queryName)
+      .should("have.text", "Graphql_Query");
+
     cy.xpath("//span[contains(text(), 'Body')]/parent::button").should(
       "have.attr",
       "aria-selected",
@@ -114,6 +118,8 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
 
     PageLeftPane.selectItem("Rest_Api_1");
 
+    agHelper.GetElement(locators._queryName).should("have.text", "Rest_Api_1");
+
     cy.xpath("//span[contains(text(), 'Params')]/parent::button").should(
       "have.attr",
       "aria-selected",
@@ -122,6 +128,8 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
     cy.assertCursorOnCodeInput(apiwidget.queryKey, { ch: 0, line: 0 });
 
     PageLeftPane.selectItem("Rest_Api_2");
+
+    agHelper.GetElement(locators._queryName).should("have.text", "Rest_Api_2");
 
     cy.xpath("//span[contains(text(), 'Headers')]/parent::button").should(
       "have.attr",
@@ -133,6 +141,8 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
     //Maintains focus on Query panes
     PageLeftPane.selectItem("SQL_Query");
 
+    agHelper.GetElement(locators._queryName).should("have.text", "SQL_Query");
+
     cy.assertCursorOnCodeInput(".t--actionConfiguration\\.body", {
       ch: 5,
       line: 0,
@@ -140,9 +150,7 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
 
     PageLeftPane.selectItem("S3_Query");
 
-    agHelper.WaitUntilEleAppear(
-      ".t--actionConfiguration\\.formData\\.bucket\\.data",
-    );
+    agHelper.GetElement(locators._queryName).should("have.text", "S3_Query");
 
     cy.assertCursorOnCodeInput(
       ".t--actionConfiguration\\.formData\\.bucket\\.data",
@@ -154,9 +162,13 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
     //Maintains focus on JS Objects
     PageLeftPane.selectItem("JSObject1");
 
+    agHelper.GetElement(locators._queryName).should("have.text", "JSObject1");
+
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
 
     PageLeftPane.selectItem("JSObject2");
+
+    agHelper.GetElement(locators._queryName).should("have.text", "JSObject2");
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
   });
