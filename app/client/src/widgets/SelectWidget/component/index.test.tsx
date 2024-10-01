@@ -1,7 +1,6 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import SelectComponent, { type SelectComponentProps } from "./index";
-import userEvent from "@testing-library/user-event";
 
 const mockProps: SelectComponentProps = {
   borderRadius: "",
@@ -26,10 +25,11 @@ describe("SelectComponent", () => {
   it("should call onDropdownClose only once when select button is clicked twice", () => {
     render(<SelectComponent {...mockProps} />);
     const dropdownButton = screen.getByTestId("selectbutton.btn.main");
-    userEvent.click(dropdownButton);
+
+    fireEvent.click(dropdownButton);
 
     expect(mockProps.onDropdownOpen).toHaveBeenCalledTimes(1);
-    userEvent.click(dropdownButton);
+    fireEvent.click(dropdownButton);
 
     expect(mockProps.onDropdownClose).toHaveBeenCalledTimes(1);
   });
