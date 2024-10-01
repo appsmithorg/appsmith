@@ -78,16 +78,28 @@ describe("Tests fetch calls", { tags: ["@tag.JS"] }, () => {
   it("3. Tests if fetch works with store value", function () {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 200);
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-    propPane.TypeTextIntoField("Label", "getUserID");
+    propPane.TypeTextIntoField("Label", "getUserName");
     propPane.EnterJSContext(
       "onClick",
-      `{{fetch('https://jsonplaceholder.typicode.com/todos/1')
-    .then(res => res.json())
-    .then(json => storeValue('userId', json.userId))
-    .then(() => showAlert("UserId: " + appsmith.store.userId))}}`,
+      `{{fetch('http://host.docker.internal:5001/v1/genderize_agify?name=sagar')
+        .then(res => {
+          if (!res.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return res.json();
+        })
+        .then(json => {
+          const name = json.name; // Get the name
+          showAlert("Name: " + name);
+        })
+        .catch(error => {
+          console.error("Fetch error:", error);
+          showAlert("Failed to fetch user data: " + error.message);
+        })}}`
     );
+
     agHelper.Sleep(2000);
-    agHelper.ClickButton("getUserID");
-    agHelper.AssertContains("UserId: 1", "exist");
+    agHelper.ClickButton("getUserName");
+    agHelper.AssertContains("Name: sagar", "exist");
   });
 });
