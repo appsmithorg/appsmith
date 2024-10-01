@@ -345,12 +345,6 @@ export function* postFetchedPublishedPage(
   response: FetchPageResponse,
   pageId: string,
 ) {
-  // Clear any existing caches
-  yield call(clearEvalCache);
-  // Set url params
-  yield call(setDataUrl);
-
-  yield call(updateCanvasLayout, response);
   // set current page
   yield put(
     updateCurrentPage(
@@ -359,6 +353,12 @@ export function* postFetchedPublishedPage(
       response.data.userPermissions,
     ),
   );
+  // Clear any existing caches
+  yield call(clearEvalCache);
+  // Set url params
+  yield call(setDataUrl);
+
+  yield call(updateCanvasLayout, response);
 }
 
 export function* fetchPublishedPageSaga(
