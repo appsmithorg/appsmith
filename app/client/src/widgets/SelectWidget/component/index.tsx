@@ -197,6 +197,7 @@ class SelectComponent extends React.Component<
   handleCloseList = () => {
     if (this.state.isOpen) {
       this.togglePopoverVisibility();
+      
       if (!this.props.selectedIndex) return;
 
       return this.handleActiveItemChange(
