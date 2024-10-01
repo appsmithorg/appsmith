@@ -6,7 +6,13 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import _ from "lodash";
-import { Button, Spinner, toast, Tooltip } from "@appsmith/ads";
+import {
+  Button,
+  Spinner,
+  toast,
+  Tooltip,
+  type ButtonSizes,
+} from "@appsmith/ads";
 import { INVALID_NAME_ERROR, createMessage } from "ee/constants/messages";
 
 export enum EditInteractionKind {
@@ -39,6 +45,7 @@ interface EditableTextProps {
   minLines?: number;
   customErrorTooltip?: string;
   useFullWidth?: boolean;
+  iconSize?: ButtonSizes;
 }
 
 // using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
@@ -129,6 +136,7 @@ export function EditableText(props: EditableTextProps) {
     errorTooltipClass,
     forceDefault,
     hideEditIcon,
+    iconSize = "md",
     isEditingDefault,
     isInvalid,
     maxLength,
@@ -275,7 +283,7 @@ export function EditableText(props: EditableTextProps) {
                 className="t--action-name-edit-icon"
                 isIconButton
                 kind="tertiary"
-                size="md"
+                size={iconSize}
                 startIcon="pencil-line"
               />
             ))}
