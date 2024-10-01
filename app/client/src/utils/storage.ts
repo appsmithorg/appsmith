@@ -43,6 +43,7 @@ export const STORAGE_KEYS: {
   CODE_WIDGET_NAVIGATION_USED: "CODE_WIDGET_NAVIGATION_USED",
   OVERRIDDEN_FEATURE_FLAGS: "OVERRIDDEN_FEATURE_FLAGS",
   ACTION_TEST_PAYLOAD: "ACTION_TEST_PAYLOAD",
+  LATEST_GIT_BRANCH: "LATEST_GIT_BRANCH",
 };
 
 const store = localforage.createInstance({
@@ -1085,5 +1086,47 @@ export const storeActionTestPayload = async (payload: {
     log.error(error);
 
     return false;
+  }
+};
+
+export const setLatestGitBranchInLocal = async (
+  baseApplicationId: string,
+  branch: string,
+) => {
+  try {
+    const storedBranches: Record<string, string> | null = await store.getItem(
+      STORAGE_KEYS.LATEST_GIT_BRANCH,
+    );
+    const newBranches = {
+      ...(storedBranches ?? {}),
+      [baseApplicationId]: branch,
+    };
+
+    await store.setItem(STORAGE_KEYS.LATEST_GIT_BRANCH, newBranches);
+
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting LATEST_GIT_BRANCH");
+    log.error(error);
+
+    return false;
+  }
+};
+
+export const getLatestGitBranchFromLocal = async (
+  baseApplicationId: string,
+) => {
+  try {
+    const storedBranches: Record<string, string> | null = await store.getItem(
+      STORAGE_KEYS.LATEST_GIT_BRANCH,
+    );
+    const branch = storedBranches?.[baseApplicationId];
+
+    return branch;
+  } catch (error) {
+    log.error("An error occurred while fetching LATEST_GIT_BRANCH");
+    log.error(error);
+
+    return null;
   }
 };

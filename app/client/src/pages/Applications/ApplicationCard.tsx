@@ -53,6 +53,7 @@ import { getCurrentUser } from "actions/authActions";
 import Card, { ContextMenuTrigger } from "components/common/Card";
 import { generateEditedByText } from "./helpers";
 import { noop } from "lodash";
+import { getLatestGitBranchFromLocal } from "utils/storage";
 
 interface ApplicationCardProps {
   application: ApplicationPayload;
@@ -116,7 +117,22 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const dispatch = useDispatch();
 
   const applicationId = props.application?.id;
+  const baseApplicationId = props.application?.baseId;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
+  const [params, setParams] = useState({});
+
+  useEffect(() => {
+    (async () => {
+      const storedLatestBranch =
+        await getLatestGitBranchFromLocal(baseApplicationId);
+
+      if (storedLatestBranch) {
+        setParams({ branch: storedLatestBranch });
+      } else if (showGitBadge) {
+        setParams({ branch: showGitBadge });
+      }
+    })();
+  }, [baseApplicationId, showGitBadge]);
 
   useEffect(() => {
     let colorCode;
@@ -276,11 +292,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
   // should show correct branch of application when edit mode
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const params: any = {};
+  // const params: any = {};
 
-  if (showGitBadge) {
-    params.branch = showGitBadge;
-  }
+  // if (showGitBadge) {
+  //   params.branch = showGitBadge;
+  // }
 
   const handleMenuOnClose = (open: boolean) => {
     if (!open && !isDeleting) {
