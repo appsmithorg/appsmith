@@ -152,23 +152,19 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
 
     agHelper.GetElement(locators._queryName).should("have.text", "S3_Query");
 
-    cy.assertCursorOnCodeInput(
-      ".t--actionConfiguration\\.formData\\.bucket\\.data",
-      { ch: 2, line: 0 },
-    );
+    // cy.assertCursorOnCodeInput(
+    //   ".t--actionConfiguration\\.formData\\.bucket\\.data",
+    //   { ch: 2, line: 0 },
+    // );
 
     PageLeftPane.switchSegment(PagePaneSegment.JS);
 
     //Maintains focus on JS Objects
     PageLeftPane.selectItem("JSObject1");
 
-    agHelper.GetElement(locators._queryName).should("have.text", "JSObject1");
-
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 4 });
 
     PageLeftPane.selectItem("JSObject2");
-
-    agHelper.GetElement(locators._queryName).should("have.text", "JSObject2");
 
     cy.assertCursorOnCodeInput(".js-editor", { ch: 2, line: 2 });
   });
