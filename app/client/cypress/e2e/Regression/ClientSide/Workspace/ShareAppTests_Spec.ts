@@ -9,6 +9,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
+import gitSyncLocators from "../../../../locators/gitSyncLocators";
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe(
@@ -113,6 +114,7 @@ describe(
       agHelper.AssertElementExist(homePage._appEditIcon);
       agHelper.GetNClick(homePage._appEditIcon, 0, true);
       agHelper.AssertElementAbsence(locators._loading);
+      agHelper.AssertElementVisibility(gitSyncLocators.connectGitBottomBar);
       agHelper.GetNClick(inviteModal.locators._shareButton, 0, true);
       agHelper.GetNClick(homePage._sharePublicToggle, 0, true);
       agHelper.GetNClick(locators._dialogCloseButton, 0, true);
