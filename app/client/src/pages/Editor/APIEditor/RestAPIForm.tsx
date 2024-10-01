@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { change, formValueSelector, reduxForm } from "redux-form";
@@ -10,18 +10,11 @@ import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import get from "lodash/get";
 import type { Datasource } from "entities/Datasource";
-import {
-  getAction,
-  getActionData,
-  getActionResponses,
-} from "ee/selectors/entitiesSelector";
-import { isEmpty } from "lodash";
+import { getAction, getActionResponses } from "ee/selectors/entitiesSelector";
 import type { CommonFormProps } from "./CommonEditorForm";
 import CommonEditorForm from "./CommonEditorForm";
 import Pagination from "./Pagination";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
-import { ApiEditorContext } from "./ApiEditorContext";
-import { actionResponseDisplayDataFormats } from "../utils";
 import { HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 
 type APIFormProps = {
@@ -31,7 +24,6 @@ type APIFormProps = {
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
 function ApiEditorForm(props: Props) {
-  const { closeEditorLink } = useContext(ApiEditorContext);
   const { actionName } = props;
   const theme = EditorTheme.LIGHT;
 
@@ -41,7 +33,6 @@ function ApiEditorForm(props: Props) {
       bodyUIComponent={
         <PostBodyData dataTreePath={`${actionName}.config`} theme={theme} />
       }
-      closeEditorLink={closeEditorLink}
       formName={API_EDITOR_FORM_NAME}
       httpsMethods={HTTP_METHOD_OPTIONS}
       paginationUIComponent={
@@ -70,7 +61,7 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   },
 });
 
-export default connect((state: AppState, props: { pluginId: string }) => {
+export default connect((state: AppState) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
   const actionConfigurationHeaders =
     selector(state, "actionConfiguration.headers") || [];
@@ -110,19 +101,6 @@ export default connect((state: AppState, props: { pluginId: string }) => {
 
   const responses = getActionResponses(state);
   const actionResponse = responses[apiId];
-  let hasResponse = false;
-  let suggestedWidgets;
-
-  if (actionResponse) {
-    hasResponse =
-      !isEmpty(actionResponse.statusCode) &&
-      actionResponse.statusCode[0] === "2";
-    suggestedWidgets = actionResponse.suggestedWidgets;
-  }
-
-  const actionData = getActionData(state, apiId);
-  const { responseDataTypes, responseDisplayFormat } =
-    actionResponseDisplayDataFormats(actionData);
 
   return {
     actionName,
@@ -136,15 +114,6 @@ export default connect((state: AppState, props: { pluginId: string }) => {
     datasourceHeaders,
     datasourceParams,
     hintMessages,
-    datasources: state.entities.datasources.list.filter(
-      (d) => d.pluginId === props.pluginId,
-    ),
-    currentPageId: state.entities.pageList.currentPageId,
-    applicationId: state.entities.pageList.applicationId,
-    responseDataTypes,
-    responseDisplayFormat,
-    suggestedWidgets,
-    hasResponse,
   };
 }, mapDispatchToProps)(
   reduxForm<Action, APIFormProps>({
