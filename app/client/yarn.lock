@@ -192,12 +192,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@appsmith/hooks@workspace:packages/hooks":
-  version: 0.0.0-use.local
-  resolution: "@appsmith/hooks@workspace:packages/hooks"
-  languageName: unknown
-  linkType: soft
-
 "@appsmith/utils@workspace:^, @appsmith/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@appsmith/utils@workspace:packages/utils"
