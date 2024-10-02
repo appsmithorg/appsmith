@@ -10,8 +10,8 @@ export const propertyPaneContent = [
         label: "Query to trigger",
         controlType: "INPUT_TEXT",
         placeholderText: "Value",
-        isJSConvertible: true,
-        isBindProperty: true,
+        isJSConvertible: false,
+        isBindProperty: false,
         isTriggerProperty: false,
         dependencies: ["queryData", "queryRun"],
         updateHook: (
