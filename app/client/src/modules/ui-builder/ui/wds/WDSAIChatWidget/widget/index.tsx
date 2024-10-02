@@ -247,40 +247,43 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
               key={message.id}
             >
               {message.role === "bot" ? (
-                <Markdown
-                  // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
-                  components={{
-                    //   h1: ({ children }) => (
-                    //     <Text size="heading">{children}</Text>
-                    //   ),
-                    //   h2: ({ children }) => (
-                    //     <Text size="heading">{children}</Text>
-                    //   ),
-                    //   h3: ({ children }) => (
-                    //     <Text size="heading">{children}</Text>
-                    //   ),
-                    code(props) {
-                      const { children, className, ...rest } = props;
-                      const match = /language-(\w+)/.exec(className || "");
+                <div>
+                  {this.props.assistantName}
+                  <Markdown
+                    // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
+                    components={{
+                      //   h1: ({ children }) => (
+                      //     <Text size="heading">{children}</Text>
+                      //   ),
+                      //   h2: ({ children }) => (
+                      //     <Text size="heading">{children}</Text>
+                      //   ),
+                      //   h3: ({ children }) => (
+                      //     <Text size="heading">{children}</Text>
+                      //   ),
+                      code(props) {
+                        const { children, className, ...rest } = props;
+                        const match = /language-(\w+)/.exec(className || "");
 
-                      return match ? (
-                        <SyntaxHighlighter
-                          PreTag="div"
-                          language={match[1]}
-                          style={monokai}
-                        >
-                          {String(children).replace(/\n$/, "")}
-                        </SyntaxHighlighter>
-                      ) : (
-                        <code {...rest} className={className}>
-                          {children}
-                        </code>
-                      );
-                    },
-                  }}
-                >
-                  {message.text}
-                </Markdown>
+                        return match ? (
+                          <SyntaxHighlighter
+                            PreTag="div"
+                            language={match[1]}
+                            style={monokai}
+                          >
+                            {String(children).replace(/\n$/, "")}
+                          </SyntaxHighlighter>
+                        ) : (
+                          <code {...rest} className={className}>
+                            {children}
+                          </code>
+                        );
+                      },
+                    }}
+                  >
+                    {message.text}
+                  </Markdown>
+                </div>
               ) : (
                 message.text
               )}
