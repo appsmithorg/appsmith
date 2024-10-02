@@ -14,7 +14,6 @@ interface ApiEditorContextContextProps {
   saveActionName: (
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
-  closeEditorLink?: React.ReactNode;
   showRightPaneTabbedSection?: boolean;
   actionRightPaneAdditionSections?: React.ReactNode;
   notification?: React.ReactNode | string;
@@ -31,7 +30,6 @@ export function ApiEditorContextProvider({
   actionRightPaneAdditionSections,
   actionRightPaneBackLink,
   children,
-  closeEditorLink,
   handleDeleteClick,
   handleRunClick,
   moreActionsMenu,
@@ -44,7 +42,6 @@ export function ApiEditorContextProvider({
     () => ({
       actionRightPaneAdditionSections,
       actionRightPaneBackLink,
-      closeEditorLink,
       handleDeleteClick,
       showRightPaneTabbedSection,
       handleRunClick,
@@ -56,7 +53,6 @@ export function ApiEditorContextProvider({
     [
       actionRightPaneBackLink,
       actionRightPaneAdditionSections,
-      closeEditorLink,
       handleDeleteClick,
       showRightPaneTabbedSection,
       handleRunClick,

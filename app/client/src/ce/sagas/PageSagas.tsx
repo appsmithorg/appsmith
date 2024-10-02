@@ -325,12 +325,47 @@ export function* fetchPageSaga(action: ReduxAction<FetchPageActionPayload>) {
   }
 }
 
+export function* updateCanvasLayout(response: FetchPageResponse) {
+  // Wait for widget config to load before we can get the canvas payload
+  yield call(waitForWidgetConfigBuild);
+  // Get Canvas payload
+  const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
+
+  // resize main canvas
+  resizePublishedMainCanvasToLowestWidget(canvasWidgetsPayload.widgets);
+  // Update the canvas
+  yield put(initCanvasLayout(canvasWidgetsPayload));
+
+  // Since new page has new layout, we need to generate a data structure
+  // to compute dynamic height based on the new layout.
+  yield put(generateAutoHeightLayoutTreeAction(true, true));
+}
+
+export function* postFetchedPublishedPage(
+  response: FetchPageResponse,
+  pageId: string,
+) {
+  // set current page
+  yield put(
+    updateCurrentPage(
+      pageId,
+      response.data.slug,
+      response.data.userPermissions,
+    ),
+  );
+  // Clear any existing caches
+  yield call(clearEvalCache);
+  // Set url params
+  yield call(setDataUrl);
+
+  yield call(updateCanvasLayout, response);
+}
+
 export function* fetchPublishedPageSaga(
   action: ReduxAction<FetchPublishedPageActionPayload>,
 ) {
   try {
-    const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =
-      action.payload;
+    const { bustCache, pageId, pageWithMigratedDsl } = action.payload;
 
     const params = { pageId, bustCache };
     const response: FetchPageResponse = yield call(
@@ -342,41 +377,9 @@ export function* fetchPublishedPageSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      // Clear any existing caches
-      yield call(clearEvalCache);
-      // Set url params
-      yield call(setDataUrl);
-      // Wait for widget config to load before we can get the canvas payload
-      yield call(waitForWidgetConfigBuild);
-      // Get Canvas payload
-      const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
+      yield call(postFetchedPublishedPage, response, pageId);
 
-      // resize main canvas
-      resizePublishedMainCanvasToLowestWidget(canvasWidgetsPayload.widgets);
-      // Update the canvas
-      yield put(initCanvasLayout(canvasWidgetsPayload));
-      // set current page
-      yield put(
-        updateCurrentPage(
-          pageId,
-          response.data.slug,
-          response.data.userPermissions,
-        ),
-      );
-
-      // dispatch fetch page success
       yield put(fetchPublishedPageSuccess());
-
-      // Since new page has new layout, we need to generate a data structure
-      // to compute dynamic height based on the new layout.
-      yield put(generateAutoHeightLayoutTreeAction(true, true));
-
-      /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
-       */
-      // Hence, if is not isFirstLoad then trigger evaluation with execute pageLoad action
-      if (!firstLoad) {
-        yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
-      }
     }
   } catch (error) {
     yield put({
@@ -392,9 +395,9 @@ export function* fetchPublishedPageResourcesSaga(
   action: ReduxAction<FetchPublishedPageResourcesPayload>,
 ) {
   try {
-    const { pageId } = action.payload;
+    const { basePageId, pageId } = action.payload;
 
-    const params = { defaultPageId: pageId };
+    const params = { defaultPageId: basePageId };
     const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
       yield ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
 
@@ -410,10 +413,18 @@ export function* fetchPublishedPageResourcesSaga(
       // In future, we can reuse this saga to fetch other resources of the page like actionCollections etc
       const { publishedActions } = response;
 
-      // Sending applicationId as empty as we have publishedActions present,
-      // it won't call the actions view api with applicationId
+      yield call(
+        postFetchedPublishedPage,
+        response.pageWithMigratedDsl,
+        pageId,
+      );
+
+      // NOTE: fetchActionsForView is used here to update publishedActions in redux store and not to fetch actions again
       yield put(fetchActionsForView({ applicationId: "", publishedActions }));
       yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+      yield put({
+        type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_SUCCESS,
+      });
     }
   } catch (error) {
     yield put({
@@ -1425,21 +1436,13 @@ export function* setupPublishedPageSaga(
   action: ReduxAction<SetupPublishedPageActionPayload>,
 ) {
   try {
-    const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =
-      action.payload;
+    const { bustCache, pageId, pageWithMigratedDsl } = action.payload;
 
     /*
       Added the first line for isPageSwitching redux state to be true when page is being fetched to fix scroll position issue.
       Added the second line for sync call instead of async (due to first line) as it was leading to issue with on page load actions trigger.
     */
-    yield put(
-      fetchPublishedPageAction(
-        pageId,
-        bustCache,
-        firstLoad,
-        pageWithMigratedDsl,
-      ),
-    );
+    yield put(fetchPublishedPageAction(pageId, bustCache, pageWithMigratedDsl));
     yield take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS);
 
     yield put({
