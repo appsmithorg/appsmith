@@ -692,12 +692,11 @@ public class MySqlPlugin extends BasePlugin {
                                  */
                                 sshTunnelContext.getServerSocket().close();
                                 sshTunnelContext.getSshClient().disconnect();
-                                sshTunnelContext.getThread().stop();
+                                sshTunnelContext.getThread().interrupt(); // Gracefully interrupt the thread
                             } catch (IOException e) {
                                 log.error("Failed to destroy SSH tunnel context: " + e.getMessage());
                             }
                         }
-
                         return Mono.empty();
                     })
                     .subscribeOn(scheduler)
