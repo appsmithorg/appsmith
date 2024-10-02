@@ -1,5 +1,5 @@
 import { useLocation } from "react-router";
-import { DEBUGGER_TAB_KEYS } from "../helpers";
+import { DEBUGGER_TAB_KEYS } from "../constants";
 import { setCanvasDebuggerState } from "actions/debuggerActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { FocusEntityInfo } from "navigation/FocusEntity";

@@ -23,7 +23,7 @@ import { Flex, Text } from "@appsmith/ads";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/constants";
 import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { getIsSavingEntity } from "selectors/editorSelectors";
@@ -56,6 +56,7 @@ const ResponseTabWrapper = styled.div`
     opacity: 0.8;
     pointer-events: none;
   }
+
   .response-run {
     margin: 0 10px;
   }

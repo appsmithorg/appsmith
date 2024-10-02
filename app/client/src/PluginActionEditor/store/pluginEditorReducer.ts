@@ -6,7 +6,7 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import type { ActionResponse } from "api/ActionAPI";
 import { omit } from "lodash";
 import { objectKeys } from "@appsmith/utils";

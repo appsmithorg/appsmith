@@ -20,7 +20,7 @@ import {
   type CalloutLinkProps,
 } from "@appsmith/ads";
 import styled from "styled-components";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
@@ -66,6 +66,7 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
   ${HelpSection} {
     margin-bottom: 10px;
   }
+
   position: relative;
 `;
 

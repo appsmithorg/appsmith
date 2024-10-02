@@ -5,7 +5,7 @@ import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { useDispatch, useSelector } from "react-redux";
 import { setPluginActionEditorDebuggerState } from "../../store";
 import { getPluginActionDebuggerState } from "../../store";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { usePluginActionResponseTabs } from "./hooks";
 

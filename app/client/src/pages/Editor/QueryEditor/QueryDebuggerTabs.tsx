@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getErrorCount } from "selectors/debuggerSelectors";
 import { Text, TextType } from "@appsmith/ads-old";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import {
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,

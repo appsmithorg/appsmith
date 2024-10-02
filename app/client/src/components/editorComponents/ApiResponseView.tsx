@@ -14,7 +14,7 @@ import ErrorLogs from "./Debugger/Errors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
-import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/constants";
 import { getErrorCount } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import type { Action } from "entities/Action";

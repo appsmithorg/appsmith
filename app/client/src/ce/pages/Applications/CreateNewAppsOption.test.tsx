@@ -59,7 +59,7 @@ const defaultStoreState = {
         config: {},
       },
     },
-    apiPane: {
+    pluginActionEditor: {
       isCreating: false,
       isRunning: {},
       isSaving: {},
