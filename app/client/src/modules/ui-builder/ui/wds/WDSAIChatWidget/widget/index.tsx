@@ -195,9 +195,17 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
   getWidgetView(): ReactNode {
     return (
       <div className={styles.root}>
+        {/* CHAT TITLE */}
         {this.props.chatTitle && (
           <Text size="heading">{this.props.chatTitle}</Text>
         )}
+
+        {/* CHAT DESCRIPTION */}
+        {this.props.chatDescription && (
+          <Text size="body">{this.props.chatDescription}</Text>
+        )}
+
+        {/* THREAD */}
         <ul className={styles.messageList}>
           {(this.state.messages || []).map((message: Message) => (
             <li

@@ -45,6 +45,18 @@ export const propertyPaneContent = [
         defaultValue: "",
       },
       {
+        helpText:
+          "Adds a description to help users understand how to use the chat",
+        propertyName: "chatDescription",
+        label: "Description",
+        controlType: "INPUT_TEXT",
+        isJSConvertible: false,
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        defaultValue: "",
+      },
+      {
         helpText: "Gives the open AI Assistant a name to be displayed in chat",
         propertyName: "assistantName",
         label: "Assistant Name",
