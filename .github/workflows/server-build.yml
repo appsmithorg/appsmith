@@ -72,6 +72,9 @@ jobs:
 
       - name: Figure out the PR number
         run: echo ${{ inputs.pr }}
+      
+      - name: Default database URL
+        run: echo "Is this a PG build? ${{ inputs.is-pg-build }}"
 
       - name: Print the Github event
         run: echo ${{ github.event_name }}

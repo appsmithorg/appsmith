@@ -45,7 +45,7 @@ const toast = {
 
     return toastifyToast(
       <ToastBody kind="body-m">
-        <StyledPre> {content}</StyledPre>
+        <StyledPre>{content}</StyledPre>
         {actionText && (
           <StyledButton
             kind="tertiary"
