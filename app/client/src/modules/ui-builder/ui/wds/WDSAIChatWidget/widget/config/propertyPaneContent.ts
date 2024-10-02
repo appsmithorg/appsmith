@@ -12,6 +12,18 @@ export const propertyPaneContent = [
         isJSConvertible: false,
         isBindProperty: false,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        defaultValue: "",
+      },
+      {
+        helpText: "Configures a prompt for the assistant",
+        propertyName: "prompt",
+        label: "Prompt",
+        controlType: "INPUT_TEXT",
+        isJSConvertible: false,
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
         defaultValue: "",
       },
       {
@@ -21,6 +33,7 @@ export const propertyPaneContent = [
         isJSConvertible: false,
         isBindProperty: false,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
         defaultValue: "",
       },
       {
