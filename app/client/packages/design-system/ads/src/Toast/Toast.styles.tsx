@@ -63,7 +63,3 @@ export const ToastBody = styled(Text)`
 export const StyledButton = styled(Button)`
   align-self: center;
 `;
-
-export const StyledPre = styled.pre`
-  font: inherit;
-`;
