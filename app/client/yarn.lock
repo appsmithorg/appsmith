@@ -10683,11 +10683,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^18.0.0, @types/node@npm:^18.11.18":
-  version: 18.19.53
-  resolution: "@types/node@npm:18.19.53"
+  version: 18.19.54
+  resolution: "@types/node@npm:18.19.54"
   dependencies:
     undici-types: ~5.26.4
-  checksum: 53a5a480998967f45e243f35413152f2f67c3bbe517a51e6aaba239fe1ec14be7b302538e9c17bfda4a317fcea41cb09d09764286e0341fcea37a5de5a98d54b
+  checksum: d85bacc7430c2913bcd2cf293f312bc1f9108819707ac25b58404185c3b8f9ca9e3e93c396672f457c18e65f5ba86cc8363803f830207c6b7dd14fd74e1455b0
   languageName: node
   linkType: hard
 
@@ -25398,8 +25398,8 @@ __metadata:
   linkType: hard
 
 "openai@npm:^4.64.0":
-  version: 4.64.0
-  resolution: "openai@npm:4.64.0"
+  version: 4.67.0
+  resolution: "openai@npm:4.67.0"
   dependencies:
     "@types/node": ^18.11.18
     "@types/node-fetch": ^2.6.4
@@ -25415,7 +25415,7 @@ __metadata:
       optional: true
   bin:
     openai: bin/cli
-  checksum: 24e9e118563c3db0d21560533d50ffa76751eed2f9d51e34933e636b079b4cc7cdae4d14e39d036e38464516aa47742fd520f8bfc66baecbe40fda65a36ee6fc
+  checksum: 9e214f27630d1cb0ae9bf129a81133e6cf4683e7af8e8aa852cf473d9a1a84c6f551722b0557c7c18c8b92ee0112f1781227b89e9b7f16be9de1b64fcba4c55e
   languageName: node
   linkType: hard
 
