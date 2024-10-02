@@ -1,15 +1,10 @@
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import React, { type FormEvent, type ReactNode } from "react";
+import { AIChat, type Message } from "@appsmith/wds";
 import {
   EventType,
   type ExecutionResult,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import styles from "./styles.module.css";
-import Markdown from "react-markdown";
-import SyntaxHighlighter from "react-syntax-highlighter";
-import { monokai } from "react-syntax-highlighter/dist/esm/styles/hljs";
-
-import { Button, Spinner, Text, TextArea } from "@appsmith/wds";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import React, { type FormEvent, type ReactNode } from "react";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -32,12 +27,6 @@ import {
 
 export interface WDSAIChatWidgetProps
   extends ContainerWidgetProps<WidgetProps> {}
-
-interface Message {
-  id: string;
-  content: string;
-  role: "assistant" | "user" | "system";
-}
 
 interface State extends WidgetState {
   messages: Message[];
@@ -181,116 +170,20 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
     }
   };
 
-  onEnterPress = (e: {
-    keyCode: number;
-    shiftKey: boolean;
-    preventDefault: () => void;
-  }) => {
-    if (e.keyCode == 13 && e.shiftKey) {
-      e.preventDefault();
-      this.handleMessageSubmit();
-    }
-  };
-
   getWidgetView(): ReactNode {
     return (
-      <div className={styles.root}>
-        {/* CHAT TITLE */}
-        {this.props.chatTitle && (
-          <Text size="heading">{this.props.chatTitle}</Text>
-        )}
-
-        {/* CHAT DESCRIPTION */}
-        {this.props.chatDescription && (
-          <Text size="body">{this.props.chatDescription}</Text>
-        )}
-
-        {/* THREAD */}
-        <ul className={styles.messageList}>
-          {(this.state.messages || []).map((message: Message) => (
-            <li
-              className={styles.message}
-              data-role={message.role}
-              key={message.id}
-            >
-              {message.role === "assistant" ? (
-                <div>
-                  {this.props.assistantName}
-                  <Markdown
-                    // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
-                    components={{
-                      // h1: ({ children }) => (
-                      //   <Text size="heading" wordBreak="break-word">
-                      //     {children}
-                      //   </Text>
-                      // ),
-                      // h2: ({ children }) => (
-                      //   <Text size="title" wordBreak="break-word">
-                      //     {children}
-                      //   </Text>
-                      // ),
-                      // h3: ({ children }) => (
-                      //   <Text size="subtitle" wordBreak="break-word">
-                      //     {children}
-                      //   </Text>
-                      // ),
-                      // p: ({ children }) => (
-                      //   <Text size="body" wordBreak="break-word">
-                      //     {children}
-                      //   </Text>
-                      // ),
-                      code(props) {
-                        const { children, className, ...rest } = props;
-                        const match = /language-(\w+)/.exec(className || "");
-
-                        return match ? (
-                          <SyntaxHighlighter
-                            PreTag="div"
-                            language={match[1]}
-                            style={monokai}
-                          >
-                            {String(children).replace(/\n$/, "")}
-                          </SyntaxHighlighter>
-                        ) : (
-                          <code {...rest} className={className}>
-                            {children}
-                          </code>
-                        );
-                      },
-                    }}
-                  >
-                    {message.content}
-                  </Markdown>
-                </div>
-              ) : (
-                message.content
-              )}
-            </li>
-          ))}
-
-          {this.state.isWaitingForResponse && (
-            <li className={styles.message} data-role="bot">
-              <Spinner />
-            </li>
-          )}
-        </ul>
-
-        <form className={styles.promptForm} onSubmit={this.handleMessageSubmit}>
-          <TextArea
-            name="message"
-            // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
-            onChange={(value) => {
-              this.setState({ prompt: value });
-            }}
-            onKeyDown={this.onEnterPress}
-            placeholder={this.props.promptInputPlaceholder}
-            value={this.state.prompt}
-          />
-          <Button isDisabled={this.state.prompt.length < 3} type="submit">
-            Send
-          </Button>
-        </form>
-      </div>
+      <AIChat
+        assistantName={this.props.assistantName}
+        description={this.props.description}
+        isWaitingForResponse={this.state.isWaitingForResponse}
+        // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
+        onPromptChange={(prompt) => this.setState({ prompt })}
+        onSubmit={this.handleMessageSubmit}
+        prompt={this.state.prompt}
+        promptInputPlaceholder={this.props.promptInputPlaceholder}
+        thread={this.state.messages}
+        title={this.props.title}
+      />
     );
   }
 }
