@@ -58,6 +58,12 @@ init_env_file() {
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
     tlog "Generating default configuration file"
     mkdir -p "$CONF_PATH"
+
+    local default_appsmith_db_user="appsmith"
+    local generated_appsmith_db_password=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ""
+    )
     local generated_appsmith_encryption_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
@@ -70,9 +76,9 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
-    bash "$TEMPLATES_PATH/docker.env.sh" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
-  fi
 
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_db_user" "$generated_appsmith_db_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
+  fi
 
   tlog "Load environment configuration"
 

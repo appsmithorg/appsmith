@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -82,5 +83,19 @@ public class SerializationUtils {
 
     public static ObjectMapper getObjectMapperWithSourceInLocationEnabled() {
         return new ObjectMapper().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature());
+    }
+
+    public static ObjectMapper getObjectMapperWithSourceInLocationAndMaxStringLengthEnabled() {
+        ObjectMapper objectMapper =
+                new ObjectMapper().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature());
+        // Multipart data would be parsed using object mapper, these files may be large in the size.
+        // Hence, the length should not be truncated, therefore allowing maximum length.
+        objectMapper
+                .getFactory()
+                .setStreamReadConstraints(StreamReadConstraints.builder()
+                        .maxStringLength(Integer.MAX_VALUE)
+                        .build());
+
+        return objectMapper;
     }
 }

@@ -197,6 +197,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
+      
+      - name: Check DB URL
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          db_url=$(grep -oP 'APPSMITH_DB_URL=\K[^ ]+' cicontainerlocal/stacks/configuration/docker.env || echo "")
+          if [[ -z "$db_url" ]]; then
+            echo "::error::APPSMITH_DB_URL not found in the environment file"
+            exit 1
+          fi
+          if [[ $db_url == "postgresql"* ]]; then
+            echo "Database type: Postgres. Ensure PostgreSQL-specific configurations are in place."
+          elif [[ $db_url == "mongo"* ]]; then
+            echo "Database type: MongoDB. Verify MongoDB connection settings if issues arise."
+          else
+            echo "::warning::Unknown database type. Please verify the database configuration."
+          fi
 
       # actions/setup-node@v4 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488

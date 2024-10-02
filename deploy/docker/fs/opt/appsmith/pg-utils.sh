@@ -87,6 +87,54 @@ extract_postgres_db_params() {
   export PG_DB_NAME="$DB"
 }
 
+init_pg_db() {
+  # Create the appsmith schema
+  echo "Initializing PostgreSQL with schema..."
+
+  # Check if APPSMITH_DB_URL is a PostgreSQL URL
+  if [[ -n "$APPSMITH_DB_URL" && "$APPSMITH_DB_URL" == postgres*://* ]]; then
+    echo "APPSMITH_DB_URL is a valid PostgreSQL URL."
+
+    # Check if the DB_HOST is local (localhost or 127.0.0.1)
+    if [[ "$PG_DB_HOST" == "localhost" || "$PG_DB_HOST" == "127.0.0.1" ]]; then
+
+      # Check if the database exists
+      DB_CHECK=$(psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "postgres" -tAc "SELECT 1 FROM pg_database WHERE datname='$PG_DB_NAME'")
+
+      if [ "$DB_CHECK" != "1" ]; then
+        echo "Database $PG_DB_NAME does not exist. Creating database..."
+        psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "postgres" -c "CREATE DATABASE $PG_DB_NAME;"
+      else
+        echo "Database $PG_DB_NAME already exists."
+      fi
+
+      # Check if the schema exists
+      SCHEMA_CHECK=$(psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -tAc "SELECT 1 FROM information_schema.schemata WHERE schema_name='appsmith'")
+
+      # Create schema and user if not exists
+      if [ "$SCHEMA_CHECK" != "1" ]; then
+        echo "Creating user '$PG_DB_USER' with password "
+        psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "CREATE USER \"$PG_DB_USER\" WITH PASSWORD '$PG_DB_PASSWORD';"
+
+        echo "Schema 'appsmith' does not exist. Creating schema..."
+        psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "CREATE SCHEMA appsmith;"
+      fi
+    else
+      echo "Remote PostgreSQL detected, running as current user."
+      PGPASSWORD=$PG_DB_PASSWORD psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U "$PG_DB_USER" -d "$PG_DB_NAME" -c "CREATE SCHEMA IF NOT EXISTS appsmith;"
+    fi
+
+    # Check if the schema creation was successful
+    if [ $? -eq 0 ]; then
+      echo "Schema 'appsmith' created or already exists."
+    else
+      echo "Failed to create schema 'appsmith'."
+      exit 1
+    fi
+    echo "PostgreSQL initialization completed."
+  fi
+}
+
 # Example usage of the functions
 # waitForPostgresAvailability
 # extract_postgres_db_params "postgresql://user:password@localhost:5432/dbname"
