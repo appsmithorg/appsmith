@@ -62,11 +62,13 @@ const TemplatesLayoutWithFilters = ({
 
   const onTemplateClick = (id: string) => {
     const template = getTemplateById(id);
+
     if (template) {
       AnalyticsUtil.logEvent(analyticsEventNameForTemplateCardClick, {
         id,
         title: template.title,
       });
+
       // When template is clicked to view the template details
       if (!isImportingTemplate && setSelectedTemplate) setSelectedTemplate(id);
     }

@@ -182,6 +182,7 @@ const getPrimaryKeyFromDynamicValue = (
     return JSON.parse(value);
   } catch (error) {
     log.error(error);
+
     return "";
   }
 };
@@ -225,6 +226,7 @@ export const primaryKeyOptions = (props: ListWidgetProps) => {
       }
     });
   }
+
   return options;
 };
 

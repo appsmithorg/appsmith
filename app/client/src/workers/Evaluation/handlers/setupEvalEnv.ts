@@ -18,12 +18,15 @@ export default function (request: EvalWorkerSyncRequest) {
   WorkerEnv.setFeatureFlags(request.data.featureFlags);
   WorkerEnv.setCloudHosting(request.data.cloudHosting);
   addPlatformFunctionsToEvalContext(self);
+
   return true;
 }
 
 export function setEvaluationVersion(request: EvalWorkerSyncRequest) {
   const { data } = request;
   const { version } = data;
+
   self.evaluationVersion = version || 1;
+
   return true;
 }

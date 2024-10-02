@@ -59,17 +59,20 @@ export function* logJSVarCreatedEvent(
 
 export function* showExecutionErrors(errors: EvaluationError[]) {
   const appMode: APP_MODE = yield select(getAppMode);
+
   for (const error of errors) {
     const errorMessage = get(
       error,
       "errorMessage.message.message",
       error.errorMessage.message,
     );
+
     yield call(
       showToastOnExecutionError,
       errorMessage,
       appMode === APP_MODE.EDIT,
     );
+
     // Add it to the logs tab when in edit mode
     if (appMode === APP_MODE.EDIT) {
       AppsmithConsole.error({
@@ -89,7 +92,9 @@ export function* logSuccessfulBindings(
   undefinedEvalValuesMap: Record<string, boolean>,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
+
   if (appMode === APP_MODE.PUBLISHED) return;
+
   if (!evaluationOrder) return;
 
   const successfulBindingPaths: SuccessfulBindings = !successfulBindingsMap
@@ -106,6 +111,7 @@ export function* logSuccessfulBindings(
     const entityConfig = configTree[entityName] as
       | WidgetEntityConfig
       | ActionEntityConfig;
+
     if (isAction(entity) || isWidget(entity)) {
       const unevalValue = get(unEvalTree, evaluatedPath);
       let isUndefined = false;
@@ -126,6 +132,7 @@ export function* logSuccessfulBindings(
         if (successfulBindingPaths[evaluatedPath]) {
           delete successfulBindingPaths[evaluatedPath];
         }
+
         return;
       }
 
@@ -134,6 +141,7 @@ export function* logSuccessfulBindings(
        */
       if (isNewWidgetAdded) {
         successfulBindingPaths[evaluatedPath] = unevalValue;
+
         return;
       }
 
@@ -144,6 +152,7 @@ export function* logSuccessfulBindings(
       ) as EvaluationError[];
 
       const hasErrors = errors.length > 0;
+
       if (!hasErrors) {
         if (!isCreateFirstTree) {
           /**Log the binding only if it doesn't already exist */
@@ -200,13 +209,18 @@ export function* updateTernDefinitions(
     isCreateFirstTree ||
     some(updates, (update) => {
       if (update.event === DataTreeDiffEvent.NEW) return true;
+
       if (update.event === DataTreeDiffEvent.DELETE) return true;
+
       if (update.event === DataTreeDiffEvent.EDIT) return false;
+
       const { entityName } = getEntityNameAndPropertyPath(
         update.payload.propertyPath,
       );
       const entity = dataTree[entityName];
+
       if (!entity || !isWidget(entity)) return false;
+
       return isWidgetPropertyNamePath(
         entity as WidgetEntity,
         update.payload.propertyPath,
@@ -215,8 +229,10 @@ export function* updateTernDefinitions(
 
   if (!shouldUpdate) {
     endSpan(span);
+
     return;
   }
+
   const start = performance.now();
 
   // remove private and suppressAutoComplete widgets from dataTree used for autocompletion
@@ -229,8 +245,10 @@ export function* updateTernDefinitions(
     jsData,
     configTree,
   );
+
   CodemirrorTernService.updateDef("DATA_TREE", def, entityInfo);
   const end = performance.now();
+
   log.debug("Tern", { updates });
   log.debug("Tern definitions updated took ", (end - start).toFixed(2));
   endSpan(span);
@@ -262,8 +280,10 @@ export function* handleJSFunctionExecutionErrorLog(
             messages: errors.map((error) => {
               // TODO: Remove this check once we address uncaught promise errors
               let errorMessage = error.errorMessage;
+
               if (!errorMessage) {
                 const errMsgArr = error.message.split(":");
+
                 errorMessage = errMsgArr.length
                   ? {
                       name: errMsgArr[0],
@@ -274,6 +294,7 @@ export function* handleJSFunctionExecutionErrorLog(
                       message: error.message,
                     };
               }
+
               return {
                 message: errorMessage,
                 type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,

@@ -20,6 +20,7 @@ export function* fetchCurrentTenantConfigSaga(action?: {
   payload?: { tenantConfig?: ApiResponse };
 }) {
   const tenantConfig = action?.payload?.tenantConfig;
+
   try {
     const response: ApiResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
@@ -28,10 +29,12 @@ export function* fetchCurrentTenantConfigSaga(action?: {
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: any = response.data;
+
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
         payload: data,
@@ -121,6 +124,7 @@ export function* updateTenantConfigSaga(
     }
   } catch (error) {
     const errorObj = error as APIResponseError;
+
     yield put({
       type: ReduxActionErrorTypes.UPDATE_TENANT_CONFIG_ERROR,
       payload: {

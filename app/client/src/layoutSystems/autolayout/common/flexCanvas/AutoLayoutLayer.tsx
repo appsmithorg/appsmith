@@ -126,13 +126,18 @@ function AutoLayoutLayer(props: AutoLayoutLayerProps) {
     const isFull =
       startColumns + centerColumns + endColumns ===
         GridDefaults.DEFAULT_GRID_COLUMNS && !isMobile;
+
     if (isFull) {
       if (startColumns === 0) arr[0] = null;
+
       if (centerColumns === 0) arr[1] = null;
+
       if (endColumns === 0) arr[2] = null;
     }
+
     return arr.filter((item) => item !== null);
   };
+
   return (
     <LayoutLayerContainer
       className={`auto-layout-layer-${props.widgetId}-${props.index}`}

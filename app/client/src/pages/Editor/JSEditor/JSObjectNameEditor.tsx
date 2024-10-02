@@ -25,11 +25,8 @@ import NameEditorComponent, {
 } from "components/utils/NameEditorComponent";
 import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { SaveActionNameParams } from "PluginActionEditor";
 
-export interface SaveActionNameParams {
-  id: string;
-  name: string;
-}
 export interface JSObjectNameEditorProps {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
@@ -64,10 +61,10 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
 
   return (
     <NameEditorComponent
-      dispatchAction={props.saveJSObjectName}
       id={currentJSObjectConfig?.id}
       idUndefinedErrorMessage={JS_OBJECT_ID_NOT_FOUND_IN_URL}
       name={currentJSObjectConfig?.name}
+      onSaveName={props.saveJSObjectName}
       saveStatus={saveStatus}
     >
       {({

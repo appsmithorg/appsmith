@@ -10,6 +10,7 @@ export const getCompletionsForKeyword = (
   const indentationSpace = " ".repeat(indentation);
 
   const completions = [];
+
   switch (keywordName) {
     // loops
     case "for":

@@ -13,6 +13,7 @@ export enum UIComponentTypes {
   UQIDbEditorForm = "UQIDbEditorForm",
   ApiEditorForm = "ApiEditorForm",
   JsEditorForm = "JsEditorForm",
+  GraphQLEditorForm = "GraphQLEditorForm",
 }
 
 export enum DatasourceComponentTypes {
@@ -103,6 +104,7 @@ class PluginsApi extends Api {
   ): Promise<AxiosPromise<ApiResponse>> {
     const url = this.dynamicTriggerURLForInternalPlugins(pluginId);
     const formData = new FormData();
+
     files.forEach((file) => {
       formData.append("files", file);
     });

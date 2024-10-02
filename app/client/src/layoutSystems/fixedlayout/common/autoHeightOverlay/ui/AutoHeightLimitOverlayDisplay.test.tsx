@@ -9,6 +9,7 @@ describe("<AutoHeightLimitOverlayDisplay />", () => {
     const tree = renderer
       .create(<AutoHeightLimitOverlayDisplay height={0} isActive={false} />)
       .toJSON();
+
     expect(tree).toHaveStyleRule("display", "none");
   });
 
@@ -16,6 +17,7 @@ describe("<AutoHeightLimitOverlayDisplay />", () => {
     const tree = renderer
       .create(<AutoHeightLimitOverlayDisplay height={0} isActive />)
       .toJSON();
+
     expect(tree).toHaveStyleRule("display", "block");
   });
 
@@ -23,6 +25,7 @@ describe("<AutoHeightLimitOverlayDisplay />", () => {
     const tree = renderer
       .create(<AutoHeightLimitOverlayDisplay height={10} isActive />)
       .toJSON();
+
     expect(tree).toHaveStyleRule("height", "10px");
   });
 });

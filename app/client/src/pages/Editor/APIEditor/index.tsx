@@ -8,7 +8,11 @@ import {
   getPluginSettingConfigs,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
-import { deleteAction, runAction } from "actions/pluginActionActions";
+import {
+  deleteAction,
+  runAction,
+  saveActionName,
+} from "actions/pluginActionActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Editor from "./Editor";
 import BackToCanvas from "components/common/BackToCanvas";
@@ -48,6 +52,7 @@ function getPageName(pages: any, basePageId: string) {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const page = pages.find((page: any) => page.basePageId === basePageId);
+
   return page ? page.pageName : "";
 }
 
@@ -105,6 +110,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       entityId: action?.id || "",
       moduleType: MODULE_TYPE.QUERY,
     };
+
     return (
       <>
         <MoreActionsMenu
@@ -138,6 +144,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const handleRunClick = useCallback(
     (paginationField?: PaginationField) => {
       const pluginName = plugins.find((plugin) => plugin.id === pluginId)?.name;
+
       AnalyticsUtil.logEvent("RUN_API_CLICK", {
         apiName,
         apiID: action?.id,
@@ -148,15 +155,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       });
       dispatch(runAction(action?.id ?? "", paginationField));
     },
-    [
-      action?.id,
-      apiName,
-      pageName,
-      getPageName,
-      plugins,
-      pluginId,
-      datasourceId,
-    ],
+    [action?.id, apiName, pageName, plugins, pluginId, datasourceId, dispatch],
   );
 
   const actionRightPaneBackLink = useMemo(() => {
@@ -170,13 +169,13 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       pageName,
     });
     dispatch(deleteAction({ id: action?.id ?? "", name: apiName }));
-  }, [getPageName, pages, basePageId, apiName]);
+  }, [pages, basePageId, apiName, action?.id, dispatch, pageName]);
 
   const notification = useMemo(() => {
     if (!isConverting) return null;
 
     return <ConvertEntityNotification icon={icon} name={action?.name || ""} />;
-  }, [action?.name, isConverting]);
+  }, [action?.name, isConverting, icon]);
 
   const isActionRedesignEnabled = useFeatureFlag(
     FEATURE_FLAG.release_actions_redesign_enabled,
@@ -193,6 +192,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
       notification={notification}
+      saveActionName={saveActionName}
       settingsConfig={settingsConfig}
     >
       <Disabler isDisabled={isConverting}>

@@ -18,9 +18,7 @@ import styled from "styled-components";
 import { Text, TextType } from "@appsmith/ads-old";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 
-const QueryHeader = styled.div`
-  display: flex;
-  width: 100%;
+const QueryHeader = styled(Text)`
   background: var(--ads-v2-color-bg-subtle);
   padding: 8px 16px;
 `;
@@ -51,10 +49,8 @@ function QueryEditor(props: QueryProps) {
 
   return (
     <QueryWrapper className="t--graphql-query-editor">
-      <QueryHeader>
-        <Text color={"var(--ads-v2-color-fg)"} type={TextType.H6}>
-          Query
-        </Text>
+      <QueryHeader color={"var(--ads-v2-color-fg)"} type={TextType.H6}>
+        Query
       </QueryHeader>
       <Field
         border={CodeEditorBorder.NONE}

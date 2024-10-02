@@ -319,6 +319,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
 
   getWidgetView() {
     const { maxZoomLevel, objectFit } = this.props;
+
     return (
       <ImageComponent
         borderRadius={this.props.borderRadius}

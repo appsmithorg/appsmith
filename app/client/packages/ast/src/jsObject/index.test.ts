@@ -32,6 +32,7 @@ describe("addPropertiesToJSObjectCode", () => {
 
     const ast = parseAST(result);
     let properties;
+
     simple(ast, {
       ExportDefaultDeclaration(node) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -73,6 +74,7 @@ describe("addPropertiesToJSObjectCode", () => {
 
     const ast = parseAST(result);
     let properties;
+
     simple(ast, {
       ExportDefaultDeclaration(node) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -132,6 +134,7 @@ async function myFun2() {
     };
 
     const result = addPropertiesToJSObjectCode(body, obj);
+
     expect(result).toEqual(body);
   });
 });

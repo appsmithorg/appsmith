@@ -13,6 +13,7 @@ import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { useSelector } from "react-redux";
 import {
   getActionByBaseId,
+  getPlugin,
   getPluginNameFromId,
 } from "ee/selectors/entitiesSelector";
 import { QueryEditorContext } from "./QueryEditorContext";
@@ -21,6 +22,9 @@ import type { Datasource } from "entities/Datasource";
 import type { AppState } from "ee/reducers";
 import { SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import DatasourceSelector from "./DatasourceSelector";
+import { getSavingStatusForActionName } from "selectors/actionSelectors";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { ActionUrlIcon } from "../Explorer/ExplorerIcons";
 
 const NameWrapper = styled.div`
   display: flex;
@@ -79,12 +83,25 @@ const QueryEditorHeader = (props: Props) => {
     currentActionConfig?.userPermissions,
   );
 
+  const currentPlugin = useSelector((state: AppState) =>
+    getPlugin(state, currentActionConfig?.pluginId || ""),
+  );
+
+  const saveStatus = useSelector((state) =>
+    getSavingStatusForActionName(state, currentActionConfig?.id || ""),
+  );
+
+  const iconUrl = getAssetUrl(currentPlugin?.iconLocation) || "";
+
+  const icon = ActionUrlIcon(iconUrl);
+
   // get the current action's plugin name
   const currentActionPluginName = useSelector((state: AppState) =>
     getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
   );
 
   let actionBody = "";
+
   if (!!currentActionConfig?.actionConfiguration) {
     if ("formData" in currentActionConfig?.actionConfiguration) {
       // if the action has a formData (the action is postUQI e.g. Oracle)
@@ -105,8 +122,11 @@ const QueryEditorHeader = (props: Props) => {
     <StyledFormRow>
       <NameWrapper>
         <ActionNameEditor
+          actionConfig={currentActionConfig}
           disabled={!isChangePermitted}
+          icon={icon}
           saveActionName={saveActionName}
+          saveStatus={saveStatus}
         />
       </NameWrapper>
       <ActionsWrapper>

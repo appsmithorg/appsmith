@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import { useWidgetBorderStyles } from "layoutSystems/anvil/common/hooks/useWidgetBorderStyles";
 import type { AppState } from "ee/reducers";
 import { getIsNewWidgetBeingDragged } from "sagas/selectors";
-import { AnvilDataAttributes } from "widgets/wds/constants";
+import { AnvilDataAttributes } from "modules/ui-builder/ui/wds/constants";
 
 export const useAnvilWidgetStyles = (
   widgetId: string,

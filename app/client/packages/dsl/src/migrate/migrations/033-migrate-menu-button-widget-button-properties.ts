@@ -13,7 +13,9 @@ export const migrateMenuButtonWidgetButtonProperties = (
     } else if (child.children && child.children.length > 0) {
       child = migrateMenuButtonWidgetButtonProperties(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

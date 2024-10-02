@@ -29,6 +29,7 @@ export const AnvilEditorDetachedWidgetOnion = (props: BaseWidgetProps) => {
     props.layout[0].layoutId,
     !!props.isVisible,
   );
+
   return props.type !== SKELETON_WIDGET_TYPE ? (
     <AnvilErrorBoundary {...props}>{props.children}</AnvilErrorBoundary>
   ) : null;

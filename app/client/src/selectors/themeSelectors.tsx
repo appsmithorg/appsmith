@@ -19,6 +19,7 @@ export const getThemeDetails = (
 
 export const getTheme = (themeMode: ThemeMode) => {
   const colors = themeMode === ThemeMode.LIGHT ? light : dark;
+
   return { ...theme, colors: { ...theme.colors, ...colors } };
 };
 

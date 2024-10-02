@@ -31,26 +31,34 @@ function* handleSetTernRecentEntities(action: ReduxAction<RecentEntity[]>) {
         const datasource = reducerDatasources.find(
           (reducerDatasource) => reducerDatasource.id === id,
         );
+
         if (!datasource) break;
+
         recentEntityNames.add(datasource.name);
         break;
       }
       case FocusEntity.API:
       case FocusEntity.QUERY: {
         const action = actions.find((action) => action?.config?.id === id);
+
         if (!action) break;
+
         recentEntityNames.add(action.config.name);
         break;
       }
       case FocusEntity.JS_OBJECT: {
         const action = jsActions.find((action) => action?.config?.id === id);
+
         if (!action) break;
+
         recentEntityNames.add(action.config.name);
         break;
       }
       case FocusEntity.PROPERTY_PANE: {
         const widget = get(widgetsMap, id, null);
+
         if (!widget) break;
+
         recentEntityNames.add(widget.widgetName);
       }
     }
@@ -58,9 +66,11 @@ function* handleSetTernRecentEntities(action: ReduxAction<RecentEntity[]>) {
 
   CodemirrorTernService.updateRecentEntities(Array.from(recentEntityNames));
 }
+
 function* handleResetTernRecentEntities() {
   CodemirrorTernService.updateRecentEntities([]);
 }
+
 export default function* ternSagas() {
   yield takeLatest(
     ReduxActionTypes.SET_RECENT_ENTITIES,

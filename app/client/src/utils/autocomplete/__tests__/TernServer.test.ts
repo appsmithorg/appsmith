@@ -18,6 +18,7 @@ import type { FieldEntityInformation } from "components/editorComponents/CodeEdi
 
 jest.mock("utils/getCodeMirrorNamespace", () => {
   const actual = jest.requireActual("utils/getCodeMirrorNamespace");
+
   return {
     ...actual,
     getCodeMirrorNamespaceFromDoc: jest.fn((doc) => ({
@@ -91,6 +92,7 @@ describe("Tern server", () => {
       const { value } = CodemirrorTernService.getFocusedDocValueAndPos(
         testCase.input,
       );
+
       expect(value).toBe(testCase.expectedOutput);
     });
   });
@@ -157,6 +159,7 @@ describe("Tern server", () => {
         string: "",
       });
       const request = CodemirrorTernService.buildRequest(testCase.input, {});
+
       expect(request.query.end).toEqual(testCase.expectedOutput);
     });
   });
@@ -223,6 +226,7 @@ describe("Tern server", () => {
       });
 
       const mockAddFile = jest.fn();
+
       CodemirrorTernService.server.addFile = mockAddFile;
 
       // TODO: Fix this the next time the file is edited
@@ -265,6 +269,7 @@ describe("Tern server sorting", () => {
     origin: "DATA_TREE",
     data: {},
   };
+
   defEntityInformation.set("sameEntity", {
     type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET",
@@ -283,6 +288,7 @@ describe("Tern server sorting", () => {
     origin: "DATA_TREE",
     data: {},
   };
+
   defEntityInformation.set("sameType", {
     type: ENTITY_TYPE.WIDGET,
     subType: "TABLE_WIDGET",
@@ -416,6 +422,7 @@ describe("Tern server sorting", () => {
         subType: "TABLE_WIDGET",
       },
     );
+
     expect(sortedCompletions[1]).toStrictEqual(contextCompletion);
     expect(sortedCompletions).toEqual(
       expect.arrayContaining([
@@ -443,18 +450,21 @@ describe("Tern server sorting", () => {
       dataTreeCompletion,
       AutocompleteSorter.currentFieldInfo,
     );
+
     expect(scoredCompletion1.score).toEqual(2 ** 6 + 2 ** 4 + 2 ** 3);
     //completion that belongs to the same entity.
     const scoredCompletion2 = new ScoredCompletion(
       sameEntityCompletion,
       AutocompleteSorter.currentFieldInfo,
     );
+
     expect(scoredCompletion2.score).toEqual(-Infinity);
     //completion that is a priority.
     const scoredCompletion3 = new ScoredCompletion(
       priorityCompletion,
       AutocompleteSorter.currentFieldInfo,
     );
+
     expect(scoredCompletion3.score).toBe(2 ** 8 + 2 ** 4 + 2 ** 3);
   });
 });
@@ -741,6 +751,7 @@ describe("Tern server completion", () => {
     const expectedContainingItems = _.sortBy(expectedValue, "text").map(
       (item) => expect.objectContaining(item),
     );
+
     expect(_.sortBy(result.list, "text")).toEqual(expectedContainingItems);
   });
 });

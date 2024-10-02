@@ -86,14 +86,17 @@ class GlobalHotKeys extends React.Component<Props> {
     const singleWidgetSelected =
       this.props.selectedWidget &&
       this.props.selectedWidget != MAIN_CONTAINER_WIDGET_ID;
+
     if (
       (singleWidgetSelected || multipleWidgetsSelected) &&
       !getSelectedText()
     ) {
       e.preventDefault();
       e.stopPropagation();
+
       return true;
     }
+
     return false;
   }
 
@@ -107,6 +110,7 @@ class GlobalHotKeys extends React.Component<Props> {
     if (this.props.isPreviewMode) return;
 
     const category = filterCategories[categoryId];
+
     this.props.setGlobalSearchCategory(category);
     this.props.hideInstaller();
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
@@ -118,6 +122,7 @@ class GlobalHotKeys extends React.Component<Props> {
   public renderHotkeys() {
     const { isOpened: isWalkthroughOpened } = this.context ?? {};
     const { isProtectedMode } = this.props;
+
     // If walkthrough is open disable shortcuts
     if (isWalkthroughOpened || isProtectedMode) return <Hotkeys />;
 
@@ -132,6 +137,7 @@ class GlobalHotKeys extends React.Component<Props> {
           onKeyDown={(e: any) => {
             const widgetSearchInput =
               document.getElementById(WIDGETS_SEARCH_ID);
+
             if (widgetSearchInput) {
               widgetSearchInput.focus();
               e.preventDefault();
@@ -262,11 +268,13 @@ class GlobalHotKeys extends React.Component<Props> {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onKeyDown={(e: any) => {
             this.props.resetSnipingMode();
+
             if (matchBuilderPath(window.location.pathname)) {
               this.props.deselectAllWidgets();
               this.props.closeProppane();
               this.props.closeTableFilterProppane();
             }
+
             e.preventDefault();
           }}
         />

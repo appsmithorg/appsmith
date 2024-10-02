@@ -42,6 +42,7 @@ function UserProfile() {
     panelComponent: <GitConfig />,
     icon: "git-branch",
   });
+
   if (location.pathname === GIT_PROFILE_ROUTE) {
     initialTab = "gitConfig";
   }

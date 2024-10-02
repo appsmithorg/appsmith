@@ -121,6 +121,7 @@ const Canvas = (props: CanvasProps) => {
   } catch (error) {
     log.error("Error rendering DSL", error);
     Sentry.captureException(error);
+
     return null;
   }
 };

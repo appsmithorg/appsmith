@@ -1,5 +1,4 @@
 import ReconnectLocators from "../../../../locators/ReconnectLocators";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   gitSync,
@@ -7,16 +6,20 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 let wsName: string;
-let repoName: string = "TED-testrepo1";
+let repoName: string = "TED-autocommit-test-1";
 
 describe(
   "Git Autocommit",
-  { tags: ["@tag.Git", "@tag.GitAutocommit", "@tag.excludeForAirgap"] },
+  {
+    tags: [
+      "@tag.Git",
+      "@tag.GitAutocommit",
+      "@tag.Sanity",
+      "@tag.TedMigration",
+    ],
+  },
   function () {
     it("Check if autocommit progress bar is visible and network requests are properly called", function () {
-      featureFlagIntercept({
-        release_git_autocommit_feature_enabled: true,
-      });
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         wsName = "GitAC-" + uid;

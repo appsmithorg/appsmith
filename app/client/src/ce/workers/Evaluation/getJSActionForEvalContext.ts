@@ -15,10 +15,14 @@ function getJSFunctionsForEntity({
   const jsObjectFunction: Record<string, any> = {};
   const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
   const resolvedObject = Object.assign({}, resolvedFunctions[jsObjectName]);
+
   for (const fnName of Object.keys(resolvedObject || {})) {
     const fn = resolvedObject[fnName];
+
     if (typeof fn !== "function") continue;
+
     const data = jsObject[fnName]?.data;
+
     jsObjectFunction[fnName] = jsObjectFunctionFactory(
       fn,
       jsObjectName + "." + fnName,
@@ -28,6 +32,7 @@ function getJSFunctionsForEntity({
       jsObjectFunction[fnName]["data"] = data;
     }
   }
+
   return jsObjectFunction;
 }
 
@@ -51,5 +56,6 @@ export function getJSActionForEvalContext(
 
   jsObjectForEval =
     JSObjectCollection.getVariablesForEvaluationContext(entityName);
+
   return Object.assign(jsObjectForEval, fns);
 }

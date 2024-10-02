@@ -26,12 +26,14 @@ describe("<MainContainerWidthToggles />", () => {
 
   it("Pressing tab should focus on the first component", async () => {
     const { container } = render(getTestComponent());
+
     await userEvent.tab();
 
     // Should focus on the first component
     const tab = container.getElementsByClassName(
       "ads-v2-segmented-control__segments-container",
     )[0];
+
     expect(tab).toHaveFocus();
   });
 
@@ -40,6 +42,7 @@ describe("<MainContainerWidthToggles />", () => {
     const tabs = container.getElementsByClassName(
       "ads-v2-segmented-control__segments-container",
     );
+
     await userEvent.tab();
 
     await navigateWithArrowKeys("{ArrowRight}", 1);

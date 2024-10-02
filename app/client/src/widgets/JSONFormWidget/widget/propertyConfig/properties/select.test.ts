@@ -216,6 +216,7 @@ describe(".defaultOptionValueValidation", () => {
         {} as JSONFormWidgetProps,
         _,
       );
+
       expect(response).toEqual(expected);
     });
   });

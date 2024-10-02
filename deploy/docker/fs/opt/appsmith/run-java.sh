@@ -1,9 +1,20 @@
 #!/bin/bash
 
+# Source the helper script
+source pg-utils.sh
+
 set -o errexit
 set -o pipefail
 set -o nounset
 set -o noglob
+
+mode=mongo
+if [[ "$APPSMITH_DB_URL" = postgresql://* ]]; then
+  mode=pg
+fi
+
+tlog "Running with $mode."
+cd "/opt/appsmith/server/$mode"
 
 declare -a extra_args
 proxy_configured=0
@@ -20,6 +31,13 @@ match-proxy-url() {
   proxy_port="${BASH_REMATCH[5]-}"
   [[ -n $proxy_host ]]
 }
+
+# Extract the database parameters from the APPSMITH_DB_URL and wait for the database to be available
+if [[ "$mode" == "pg" ]]; then
+  extract_postgres_db_params "$APPSMITH_DB_URL"
+  waitForPostgresAvailability
+  init_pg_db
+fi
 
 if match-proxy-url "${HTTP_PROXY-}"; then
   extra_args+=(-Dhttp.proxyHost="$proxy_host" -Dhttp.proxyPort="$proxy_port")

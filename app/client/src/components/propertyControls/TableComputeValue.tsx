@@ -63,6 +63,7 @@ function InputText(props: InputTextProp) {
     theme,
     value,
   } = props;
+
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
@@ -130,13 +131,16 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentRow: { [key: string]: any } = {};
+
     Object.values(columns).forEach((column) => {
       currentRow[column.alias || column.originalId] = undefined;
     });
+
     // Load default value in evaluated value
     if (value && !propertyValue) {
       this.onTextChange(value);
     }
+
     return (
       <InputText
         additionalDynamicData={{
@@ -163,6 +167,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
         propertyValue.length -
           ComputeTablePropertyControlV2.bindingSuffix.length,
       )}`;
+
       return JSToString(value);
     } else {
       return propertyValue;

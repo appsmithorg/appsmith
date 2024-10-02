@@ -21,6 +21,7 @@ export const getIDEViewMode = createSelector(
     if (featureFlag) {
       return ideViewMode;
     }
+
     return EditorViewMode.FullScreen;
   },
 );
@@ -60,3 +61,6 @@ export const getShowCreateNewModal = (state: AppState) =>
 
 export const getIdeCanvasSideBySideHoverState = (state: AppState) =>
   state.ui.ide.ideCanvasSideBySideHover;
+
+export const getListViewActiveState = (state: AppState) =>
+  state.ui.ide.isListViewActive;

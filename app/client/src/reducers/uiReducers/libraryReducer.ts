@@ -41,6 +41,7 @@ const jsLibraryReducer = createImmerReducer(initialState, {
     action: ReduxAction<Partial<JSLibrary>>,
   ) => {
     const { url } = action.payload;
+
     state.installationStatus[url as string] =
       state.installationStatus[url as string] || InstallState.Queued;
   },
@@ -63,6 +64,7 @@ const jsLibraryReducer = createImmerReducer(initialState, {
     const recommendedLibrary = recommendedLibraries.find(
       (lib) => lib.url === url,
     );
+
     state.installationStatus[url] = InstallState.Success;
     state.installedLibraries.unshift({
       name: recommendedLibrary?.name || name,
@@ -102,6 +104,7 @@ const jsLibraryReducer = createImmerReducer(initialState, {
     action: ReduxAction<JSLibrary>,
   ) => {
     const uLib = action.payload;
+
     state.installedLibraries = state.installedLibraries.filter(
       (lib) => uLib.url !== lib.url,
     );

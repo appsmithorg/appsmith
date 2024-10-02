@@ -84,8 +84,10 @@ function HelpMenu(props: {
                     if (item.link) {
                       window.open(item.link, "_blank");
                     }
+
                     if (item.id === "intercom-trigger") {
                       e?.preventDefault();
+
                       if (intercomAppID && window.Intercom) {
                         if (user?.isIntercomConsentGiven || cloudHosting) {
                           window.Intercom("show");

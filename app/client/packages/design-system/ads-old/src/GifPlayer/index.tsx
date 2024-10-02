@@ -55,6 +55,7 @@ const Overlay = styled.div`
 
 function GifPlayer(props: GifPlayerProps) {
   const [startGif, setStartGif] = useState(false);
+
   return !startGif ? (
     <ThumbnailContainer onClick={() => setStartGif(!startGif)}>
       <Overlay />

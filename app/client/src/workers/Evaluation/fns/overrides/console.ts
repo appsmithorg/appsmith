@@ -27,18 +27,21 @@ class UserLog {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private saveLog(method: Methods, data: any[]) {
     const parsed = this.parseLogs(method, data);
+
     this.emitter?.emit("process_logs", parsed);
   }
 
   public overrideConsoleAPI() {
     this.emitter = TriggerEmitter;
     const { debug, error, info, log, table, warn } = console;
+
     console = {
       ...console,
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       table: (...args: any) => {
         if (!this.isEnabled) return;
+
         table.call(this, args);
         this.saveLog("table", args);
       },
@@ -46,6 +49,7 @@ class UserLog {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       error: (...args: any) => {
         if (!this.isEnabled) return;
+
         error.apply(this, args);
         this.saveLog("error", args);
       },
@@ -53,6 +57,7 @@ class UserLog {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       log: (...args: any) => {
         if (!this.isEnabled) return;
+
         log.apply(this, args);
         this.saveLog("log", args);
       },
@@ -60,6 +65,7 @@ class UserLog {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       debug: (...args: any) => {
         if (!this.isEnabled) return;
+
         debug.apply(this, args);
         this.saveLog("debug", args);
       },
@@ -67,6 +73,7 @@ class UserLog {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       warn: (...args: any) => {
         if (!this.isEnabled) return;
+
         warn.apply(this, args);
         this.saveLog("warn", args);
       },
@@ -74,6 +81,7 @@ class UserLog {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       info: (...args: any) => {
         if (!this.isEnabled) return;
+
         info.apply(this, args);
         this.saveLog("info", args);
       },
@@ -83,14 +91,19 @@ class UserLog {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private replaceFunctionWithNamesFromObjects(data: any) {
     if (typeof data === "function") return `func() ${data.name}`;
+
     if (!data || typeof data !== "object") return data;
+
     if (data instanceof Promise) return "Promise";
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const acc: any =
       Object.prototype.toString.call(data) === "[object Array]" ? [] : {};
+
     return Object.keys(data).reduce((acc, key) => {
       acc[key] = this.replaceFunctionWithNamesFromObjects(data[key]);
+
       return acc;
     }, acc);
   }
@@ -100,6 +113,7 @@ class UserLog {
   private sanitizeData(data: any): any {
     try {
       const returnData = this.replaceFunctionWithNamesFromObjects(data);
+
       return returnData;
     } catch (e) {
       return [`There was some error: ${e} ${JSON.stringify(data)}`];
@@ -112,6 +126,7 @@ class UserLog {
       triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "";
     const propertyPath = triggerMeta?.triggerPropertyName || "";
     const id = triggerMeta?.source?.id || "";
+
     //@ts-expect-error : we are not using the source entity in the console
     return { type, name, id, propertyPath };
   };
@@ -127,6 +142,7 @@ class UserLog {
     let output = data;
     // For logs UI we only keep 3 levels of severity, info, warn, error
     let severity = Severity.INFO;
+
     if (method === "error") {
       severity = Severity.ERROR;
       output = data.map((error) => {
@@ -137,6 +153,7 @@ class UserLog {
     }
 
     const { triggerMeta } = ExecutionMetaData.getExecutionMetaData();
+
     return {
       method,
       id,

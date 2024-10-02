@@ -114,6 +114,7 @@ function PageSelection(props: PageSelectionProps) {
         selectedPages,
       ),
     );
+
     if (props.isStartWithTemplateFlow) {
       AnalyticsUtil.logEvent("fork_APPLICATIONTEMPLATE", {
         applicationId: applicationId,

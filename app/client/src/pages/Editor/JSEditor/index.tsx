@@ -74,6 +74,7 @@ function JSEditor(props: Props) {
       />
     );
   }
+
   return <EntityNotFoundPane />;
 }
 

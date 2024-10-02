@@ -10,6 +10,7 @@ import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { WidgetEditorContainer } from "./WidgetEditorContainer";
 import { WidgetEditorHeader } from "./WidgetEditorHeader";
 import { WidgetEditorContent } from "./WidgetEditorContent";
+
 /**
  * WidgetsEditor
  * This is the main editor component that is used to edit widgets.

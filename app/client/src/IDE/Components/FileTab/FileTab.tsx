@@ -119,6 +119,7 @@ export const FileTab = ({
   // it will be addressed soon, likely by a focus retention modification
   useEffect(() => {
     const input = inputRef.current;
+
     if (isEditing && input) {
       setTimeout(() => {
         input.focus();

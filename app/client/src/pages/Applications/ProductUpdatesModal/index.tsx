@@ -43,6 +43,7 @@ function ProductUpdatesModal(props: ProductUpdatesModalProps) {
 
   useEffect(() => {
     if (!props.isOpen) return;
+
     setIsOpen(true);
     dispatch(resetReleasesCount());
     ReleasesAPI.markAsRead();

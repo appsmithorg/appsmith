@@ -13,7 +13,7 @@ const appNavigationLocators = require("../../../../locators/AppNavigation.json")
 
 describe(
   "Create new workspace and share with a user",
-  { tags: ["@tag.Workspace"] },
+  { tags: ["@tag.Workspace", "@tag.Sanity"] },
   function () {
     let workspaceId: string, appid: string, currentUrl: any;
 

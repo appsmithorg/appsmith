@@ -414,7 +414,7 @@ function filePickerWidgetAndReset() {
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
   describe(
     `${testConfig.widgetName} widget test for validating reset assertWidgetReset`,
-    { tags: ["@tag.Widget"] },
+    { tags: ["@tag.Widget", "@tag.Sanity"] },
     () => {
       beforeEach(() => {
         _.agHelper.RestoreLocalStorageCache();

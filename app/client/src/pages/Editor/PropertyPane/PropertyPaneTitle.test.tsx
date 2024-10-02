@@ -19,6 +19,7 @@ describe("<PropertyPaneTitle />", () => {
     );
     const component = getTestComponent();
     const renderResult = render(component);
+
     await userEvent.keyboard("{F2}");
     expect(renderResult.container.querySelector("input")).toBeVisible();
   });

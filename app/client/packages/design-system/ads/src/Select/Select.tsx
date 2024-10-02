@@ -44,6 +44,7 @@ function Select(props: SelectProps) {
     if (isLoading) {
       return <Spinner size="md" />;
     }
+
     return <Icon name="arrow-down-s-line" size="md" />;
   }
 
@@ -71,6 +72,7 @@ function Select(props: SelectProps) {
       showSearch={showSearch}
       tagRender={(props) => {
         const { closable, label, onClose } = props;
+
         return (
           <Tag isClosable={closable} onClose={onClose}>
             {label}

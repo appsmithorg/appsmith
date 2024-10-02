@@ -7,7 +7,7 @@ import {
 import WidgetRow from "../WidgetRow";
 import { SectionRow } from "./SectionRow";
 import type { FlexLayoutProps } from "../FlexLayout";
-import { anvilWidgets } from "widgets/wds/constants";
+import { anvilWidgets } from "modules/ui-builder/ui/wds/constants";
 import { SectionSpaceDistributor } from "layoutSystems/anvil/sectionSpaceDistributor/SectionSpaceDistributor";
 
 class Section extends WidgetRow {
@@ -17,6 +17,7 @@ class Section extends WidgetRow {
     if (props.allowedWidgetTypes && props.allowedWidgetTypes.length) {
       return props.allowedWidgetTypes;
     }
+
     // TODO: remove string hard coding.
     return [anvilWidgets.ZONE_WIDGET];
   }

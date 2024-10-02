@@ -24,6 +24,7 @@ describe("Selector view component", () => {
       return 1;
     },
   };
+
   test("Renders selector view component correctly", () => {
     render(<SelectorView {...props} />);
     expect(screen.getByTestId("selector-view-label")).toHaveTextContent(

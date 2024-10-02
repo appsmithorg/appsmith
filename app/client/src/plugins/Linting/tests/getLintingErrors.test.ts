@@ -2,6 +2,8 @@ import { getScriptType } from "workers/Evaluation/evaluate";
 import { CustomLintErrorCode } from "../constants";
 import getLintingErrors from "../utils/getLintingErrors";
 
+const webworkerTelemetry = {};
+
 describe("getLintingErrors", () => {
   describe("1. Verify lint errors are not shown for supported window APIs", () => {
     const data = {};
@@ -17,6 +19,7 @@ describe("getLintingErrors", () => {
         originalBinding,
         script,
         scriptType,
+        webworkerTelemetry,
       });
 
       expect(Array.isArray(lintErrors)).toBe(true);
@@ -29,6 +32,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, true);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         originalBinding,
         script,
@@ -45,6 +49,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, true);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         originalBinding,
         script,
@@ -57,6 +62,7 @@ describe("getLintingErrors", () => {
 
   describe("2. Verify lint errors are shown for unsupported window APIs", () => {
     const data = {};
+
     it("1. For window", () => {
       const originalBinding = "{{window}}";
       const script = "window";
@@ -64,6 +70,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, true);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         originalBinding,
         script,
@@ -79,6 +86,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, true);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         originalBinding,
         script,
@@ -94,6 +102,7 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, true);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         originalBinding,
         script,
@@ -117,6 +126,7 @@ describe("getLintingErrors", () => {
         },
       },
     };
+
     it("1. Assigning values to input widget's properties", () => {
       const originalBinding = "'myFun1() {\n\t\tInput1.text = \"\";\n\t}'";
       const script =
@@ -126,12 +136,14 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, false);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         options,
         originalBinding,
         script,
         scriptType,
       });
+
       expect(lintErrors.length).toEqual(1);
       expect(lintErrors[0].code).toEqual(
         CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
@@ -147,12 +159,14 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, false);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         options,
         originalBinding,
         script,
         scriptType,
       });
+
       expect(lintErrors.length).toEqual(1);
       expect(lintErrors[0].code).toEqual(
         CustomLintErrorCode.INVALID_APPSMITH_STORE_PROPERTY_SETTER,
@@ -168,12 +182,14 @@ describe("getLintingErrors", () => {
       const scriptType = getScriptType(false, false);
 
       const lintErrors = getLintingErrors({
+        webworkerTelemetry,
         data,
         options,
         originalBinding,
         script,
         scriptType,
       });
+
       expect(lintErrors.length).toEqual(1);
       expect(lintErrors[0].code).toEqual(
         CustomLintErrorCode.INVALID_APPSMITH_STORE_PROPERTY_SETTER,

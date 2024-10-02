@@ -33,25 +33,37 @@ import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import type { ListItemProps } from "@appsmith/ads";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
 import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import { setListViewActiveState } from "actions/ideActions";
 
 export const useQueryAdd = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
+  const ideViewMode = useSelector(getIDEViewMode);
 
   const openAddQuery = useCallback(() => {
     if (currentEntityInfo.entity === FocusEntity.QUERY_ADD) {
+      if (ideViewMode === EditorViewMode.SplitScreen) {
+        dispatch(setListViewActiveState(false));
+      }
+
       return;
     }
+
     let url = "";
+
     url = getQueryUrl(currentEntityInfo);
     history.push(url);
   }, [currentEntityInfo]);
 
   const closeAddQuery = useCallback(() => {
     let url = "";
+
     url = getQueryUrl(currentEntityInfo, false);
     history.push(url);
-  }, [currentEntityInfo]);
+  }, [currentEntityInfo, ideViewMode]);
 
   return { openAddQuery, closeAddQuery };
 };
@@ -170,6 +182,7 @@ export const useAddQueryListItems = () => {
         fileOperation.entityExplorerTitle ||
         fileOperation.dsName ||
         fileOperation.title;
+
       title =
         fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE
           ? fileOperation.title
@@ -179,6 +192,7 @@ export const useAddQueryListItems = () => {
         fileOperation.icon ||
         (fileOperation.pluginId &&
           getPluginEntityIcon(pluginGroups[fileOperation.pluginId]));
+
       return {
         startIcon: icon,
         wrapperClassName: className,

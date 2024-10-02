@@ -7,6 +7,7 @@ describe("MSSQL WidgetQueryGenerator", () => {
       pluginSpecifiedTemplates: [{ value: true }],
     },
   };
+
   test("should build select form data correctly", () => {
     const expr = MSSQL.build(
       {
@@ -293,6 +294,7 @@ FETCH NEXT
       },
       initialValues,
     );
+
     expect(expr).toEqual([]);
   });
 
@@ -320,6 +322,7 @@ FETCH NEXT
       },
       initialValues,
     );
+
     expect(expr).toEqual([]);
   });
 
@@ -347,6 +350,7 @@ FETCH NEXT
       },
       initialValues,
     );
+
     expect(expr).toEqual([
       {
         name: "Insert_someTable",

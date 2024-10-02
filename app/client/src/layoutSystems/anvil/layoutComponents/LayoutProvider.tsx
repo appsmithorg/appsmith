@@ -9,9 +9,11 @@ export const LayoutProvider = (props: BaseWidgetProps) => {
   const { children, layout, renderMode, widgetId } = props;
   const childrenMap = useMemo(() => {
     const map: Record<string, WidgetProps> = {};
+
     children.forEach((child: WidgetProps) => {
       map[child.widgetId] = child;
     });
+
     return map;
   }, [children]);
 

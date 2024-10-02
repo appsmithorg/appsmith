@@ -33,6 +33,7 @@ const triggers = createReducer(initialState, {
     action: ReduxAction<TriggerActionPayload>,
   ) => {
     const triggers = state[action.payload.formId];
+
     return {
       [action.payload.formId]: {
         ...triggers,
@@ -45,6 +46,7 @@ const triggers = createReducer(initialState, {
     action: ReduxAction<TriggerActionPayload>,
   ) => {
     const triggers = state[action.payload.formId];
+
     return {
       [action.payload.formId]: {
         ...triggers,
@@ -59,6 +61,7 @@ const triggers = createReducer(initialState, {
     const triggers = state[action.payload.formId];
 
     const triggersToBeFetched: FormEvalOutput = {};
+
     Object.entries(triggers).forEach(([key, value]) => {
       if (action.payload.keys.includes(key)) {
         const newValue = {
@@ -68,9 +71,11 @@ const triggers = createReducer(initialState, {
             isLoading: action.payload.value,
           },
         };
+
         triggersToBeFetched[key] = newValue as unknown as FormEvalOutput;
       }
     });
+
     return {
       [action.payload.formId]: {
         ...triggers,
