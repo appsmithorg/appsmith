@@ -101,6 +101,5 @@ describe("Tests fetch calls", { tags: ["@tag.JS"] }, () => {
     agHelper.Sleep(2000);
     agHelper.ClickButton("getUserName");
     agHelper.AssertContains("Name: sagar", "exist");
-    agHelper.AssertContains("Name: sagar", "exist");
   });
 });
