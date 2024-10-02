@@ -24,9 +24,7 @@ const VariableWrapper = styled.div`
   }
 `;
 
-const VariableHeader = styled.div`
-  display: flex;
-  width: 100%;
+const VariableHeader = styled(Text)`
   background: var(--ads-v2-color-bg-subtle);
   padding: 8px 16px;
 `;
@@ -53,10 +51,8 @@ interface VariableProps {
 function VariableEditor(props: VariableProps) {
   return (
     <VariableWrapper className="t--graphql-variable-editor">
-      <VariableHeader>
-        <Text color={"var(--ads-v2-color-fg)"} type={TextType.H6}>
-          Query variables
-        </Text>
+      <VariableHeader color={"var(--ads-v2-color-fg)"} type={TextType.H6}>
+        Query variables
       </VariableHeader>
       <DynamicTextField
         border={CodeEditorBorder.NONE}
