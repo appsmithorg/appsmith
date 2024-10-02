@@ -13,7 +13,6 @@ import type { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import type { DatasourcePaneReduxState } from "reducers/uiReducers/datasourcePaneReducer";
 import type { ApplicationsReduxState } from "ee/reducers/uiReducers/applicationsReducer";
 import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
-import type { ApiPaneReduxState } from "ee/reducers/uiReducers/apiPaneReducer";
 import type { QueryPaneReduxState } from "ee/reducers/uiReducers/queryPaneReducer";
 import type { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import type { AuthState } from "reducers/uiReducers/authReducer";
@@ -103,7 +102,6 @@ export interface AppState {
     errors: ErrorReduxState;
     appView: AppViewReduxState;
     applications: ApplicationsReduxState;
-    apiPane: ApiPaneReduxState;
     auth: AuthState;
     templates: TemplatesReduxState;
     buildingBlocks: BuildingBlocksReduxState;

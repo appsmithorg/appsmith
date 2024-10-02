@@ -20,7 +20,7 @@ import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionRe
 import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
+import { getPluginActionDebuggerState } from "PluginActionEditor";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, plugin } = usePluginActionContext();
@@ -28,7 +28,7 @@ function usePluginActionResponseTabs() {
   const IDEViewMode = useSelector(getIDEViewMode);
   const errorCount = useSelector(getErrorCount);
 
-  const { responseTabHeight } = useSelector(getApiPaneDebuggerState);
+  const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
 
   const tabs: BottomTab[] = [];
 

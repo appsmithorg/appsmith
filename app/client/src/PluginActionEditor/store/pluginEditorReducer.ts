@@ -25,8 +25,8 @@ export interface PluginActionEditorState {
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
   runErrorMessage: Record<string, string>;
-  selectedConfigTab?: string;
-  formData: Record<string, unknown>;
+  selectedConfigTab?: number;
+  formData: Record<string, Record<string, { label: string; value: string }>>;
   debugger: PluginEditorDebuggerState;
 }
 
@@ -216,7 +216,10 @@ export const handlers = {
    */
   [ReduxActionTypes.SET_EXTRA_FORMDATA]: (
     state: PluginActionEditorState,
-    action: ReduxAction<{ id: string; values: Record<string, unknown> }>,
+    action: ReduxAction<{
+      id: string;
+      values: Record<string, { label: string; value: string }>;
+    }>,
   ): PluginActionEditorState => {
     const { id, values } = action.payload;
 
@@ -229,7 +232,7 @@ export const handlers = {
   },
   [ReduxActionTypes.SET_PLUGIN_ACTION_EDITOR_FORM_SELECTED_TAB]: (
     state: PluginActionEditorState,
-    action: ReduxAction<{ selectedTab: string }>,
+    action: ReduxAction<{ selectedTab: number }>,
   ): PluginActionEditorState => {
     const { selectedTab } = action.payload;
 

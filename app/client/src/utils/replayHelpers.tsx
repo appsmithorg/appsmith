@@ -16,7 +16,7 @@ import {
   ACTION_CONFIGURATION_CHANGED,
 } from "ee/constants/messages";
 import { toast } from "@appsmith/ads";
-import { setApiPaneConfigSelectedTabIndex } from "../actions/apiPaneActions";
+import { setPluginActionEditorSelectedTab } from "PluginActionEditor";
 import { API_EDITOR_TABS } from "../constants/ApiEditorConstants/CommonApiConstants";
 import store from "../store";
 
@@ -177,7 +177,7 @@ export function switchTab(replayId: string): boolean {
   // @ts-ignore
   const index = Object.values(API_EDITOR_TABS).indexOf(replayId);
 
-  store.dispatch(setApiPaneConfigSelectedTabIndex(index));
+  store.dispatch(setPluginActionEditorSelectedTab(index));
 
   return true;
 }

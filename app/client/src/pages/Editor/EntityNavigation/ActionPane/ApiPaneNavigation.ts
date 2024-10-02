@@ -2,7 +2,7 @@ import { call, delay, put } from "redux-saga/effects";
 import type { EntityInfo, IApiPaneNavigationConfig } from "../types";
 import { ActionPaneNavigation } from "./exports";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
-import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";
+import { setPluginActionEditorSelectedTab } from "PluginActionEditor";
 import { NAVIGATION_DELAY } from "../costants";
 import { isNumber } from "lodash";
 
@@ -38,7 +38,7 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
     if (!this.entityInfo.propertyPath) return;
 
     if (isNumber(config.tabIndex)) {
-      yield put(setApiPaneConfigSelectedTabIndex(config.tabIndex));
+      yield put(setPluginActionEditorSelectedTab(config.tabIndex));
       yield delay(NAVIGATION_DELAY);
     }
 

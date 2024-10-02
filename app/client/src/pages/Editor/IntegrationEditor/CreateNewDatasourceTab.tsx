@@ -39,6 +39,7 @@ import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
+import { isPluginActionCreating } from "PluginActionEditor";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -381,7 +382,7 @@ const mapStateToProps = (state: AppState) => {
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
-    isCreating: state.ui.apiPane.isCreating,
+    isCreating: isPluginActionCreating(state),
     applicationId: getCurrentApplicationId(state),
     canCreateDatasource,
     showDebugger,

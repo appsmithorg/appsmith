@@ -1,8 +1,7 @@
 import { renderHook } from "@testing-library/react-hooks/dom";
 import { useDispatch } from "react-redux";
 import { PluginType } from "entities/Action";
-import { usePluginActionContext } from "PluginActionEditor";
-import { changeApi } from "actions/apiPaneActions";
+import { changeApi, usePluginActionContext } from "PluginActionEditor";
 import { changeQuery } from "actions/queryPaneActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { useChangeActionCall } from "./useChangeActionCall";

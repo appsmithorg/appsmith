@@ -41,6 +41,11 @@ import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { QueryEditorContext } from "./QueryEditorContext";
+import {
+  getActionIsDeleting,
+  getActionIsRunning,
+  isPluginActionCreating,
+} from "PluginActionEditor";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -272,6 +277,10 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
     pluginId = action.pluginId;
   }
 
+  const isCreating = isPluginActionCreating(state);
+  const isDeleting = getActionIsDeleting(actionId)(state);
+  const isRunning = getActionIsRunning(actionId)(state);
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let editorConfig: any;
@@ -319,12 +328,12 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
       ? getDatasourceByPluginId(state, action?.pluginId)
       : getDBAndRemoteDatasources(state),
     responses: getActionResponses(state),
-    isRunning: state.ui.queryPane.isRunning[actionId],
-    isDeleting: state.ui.queryPane.isDeleting[actionId],
+    isCreating,
+    isRunning,
+    isDeleting,
     isSaas: !!baseApiId,
     formData,
     editorConfig,
-    isCreating: state.ui.apiPane.isCreating,
     uiComponent,
     applicationId: getCurrentApplicationId(state),
     actionObjectDiff,

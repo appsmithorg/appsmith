@@ -14,3 +14,6 @@ export { default as PluginActionNameEditor } from "./components/PluginActionName
 
 export type { PluginActionEditorState } from "./store/pluginEditorReducer";
 export { default as PluginActionEditorReducer } from "./store/pluginEditorReducer";
+
+export * from "./store/pluginActionEditorActions";
+export * from "./store/pluginActionEditorSelectors";

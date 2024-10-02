@@ -3,7 +3,6 @@ import errorReducer from "reducers/uiReducers/errorReducer";
 import propertyPaneReducer from "reducers/uiReducers/propertyPaneReducer";
 import appViewReducer from "reducers/uiReducers/appViewReducer";
 import applicationsReducer from "ee/reducers/uiReducers/applicationsReducer";
-import apiPaneReducer from "ee/reducers/uiReducers/apiPaneReducer";
 import datasourcePaneReducer from "reducers/uiReducers/datasourcePaneReducer";
 import authReducer from "reducers/uiReducers/authReducer";
 import workspaceReducer from "ee/reducers/uiReducers/workspaceReducer";
@@ -48,7 +47,7 @@ import layoutConversionReducer from "reducers/uiReducers/layoutConversionReducer
 import oneClickBindingReducer from "reducers/uiReducers/oneClickBindingReducer";
 import activeFieldReducer from "reducers/uiReducers/activeFieldEditorReducer";
 import selectedWorkspaceReducer from "ee/reducers/uiReducers/selectedWorkspaceReducer";
-import ideReducer from "../../../reducers/uiReducers/ideReducer";
+import ideReducer from "reducers/uiReducers/ideReducer";
 import consolidatedPageLoadReducer from "reducers/uiReducers/consolidatedPageLoadReducer";
 import { PluginActionEditorReducer } from "PluginActionEditor";
 
@@ -60,7 +59,6 @@ export const uiReducerObject = {
   tableFilterPane: tableFilterPaneReducer,
   appView: appViewReducer,
   applications: applicationsReducer,
-  apiPane: apiPaneReducer,
   auth: authReducer,
   templates: templateReducer,
   buildingBlocks: buildingBlockReducer,

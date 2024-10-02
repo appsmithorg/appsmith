@@ -19,8 +19,10 @@ import { getErrorCount } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import type { Action } from "entities/Action";
 import { EMPTY_RESPONSE } from "./emptyResponse";
-import { setApiPaneDebuggerState } from "actions/apiPaneActions";
-import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
+import {
+  getPluginActionDebuggerState,
+  setPluginActionEditorDebuggerState,
+} from "PluginActionEditor";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import useDebuggerTriggerClick from "./Debugger/hooks/useDebuggerTriggerClick";
@@ -49,7 +51,7 @@ function ApiResponseView(props: Props) {
   const dispatch = useDispatch();
   const errorCount = useSelector(getErrorCount);
   const { open, responseTabHeight, selectedTab } = useSelector(
-    getApiPaneDebuggerState,
+    getPluginActionDebuggerState,
   );
 
   const ideViewMode = useSelector(getIDEViewMode);
@@ -72,7 +74,9 @@ function ApiResponseView(props: Props) {
         });
       }
 
-      dispatch(setApiPaneDebuggerState({ open: true, selectedTab: tabKey }));
+      dispatch(
+        setPluginActionEditorDebuggerState({ open: true, selectedTab: tabKey }),
+      );
     },
     [dispatch],
   );
@@ -80,7 +84,9 @@ function ApiResponseView(props: Props) {
   // update the height of the response pane on resize.
   const updateResponsePaneHeight = useCallback(
     (height: number) => {
-      dispatch(setApiPaneDebuggerState({ responseTabHeight: height }));
+      dispatch(
+        setPluginActionEditorDebuggerState({ responseTabHeight: height }),
+      );
     },
     [dispatch],
   );
@@ -135,7 +141,7 @@ function ApiResponseView(props: Props) {
   // close the debugger
   //TODO: move this to a common place
   const toggleHide = useCallback(
-    () => dispatch(setApiPaneDebuggerState({ open: !open })),
+    () => dispatch(setPluginActionEditorDebuggerState({ open: !open })),
     [dispatch, open],
   );
 

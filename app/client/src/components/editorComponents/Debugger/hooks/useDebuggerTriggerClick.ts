@@ -5,11 +5,11 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { setJsPaneDebuggerState } from "actions/jsPaneActions";
-import { setApiPaneDebuggerState } from "actions/apiPaneActions";
-import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
-import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
-import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
+import {
+  getPluginActionDebuggerState,
+  setPluginActionEditorDebuggerState,
+} from "PluginActionEditor";
 import { getCanvasDebuggerState } from "selectors/debuggerSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,26 +30,15 @@ const canvasDebuggerConfig: Config = {
   get: getCanvasDebuggerState,
 };
 
-const queryDebuggerConfig: Config = {
-  set: setQueryPaneDebuggerState,
-  get: getQueryPaneDebuggerState,
+const pluginActionEditorDebuggerConfig: Config = {
+  set: setPluginActionEditorDebuggerState,
+  get: getPluginActionDebuggerState,
 };
 
 const getConfig = (focusInfo: FocusEntityInfo): Config => {
   switch (focusInfo.entity) {
     case FocusEntity.QUERY:
-      if (focusInfo.params.baseApiId) {
-        if (focusInfo.params.pluginPackageName) {
-          return queryDebuggerConfig;
-        }
-
-        return {
-          set: setApiPaneDebuggerState,
-          get: getApiPaneDebuggerState,
-        };
-      }
-
-      return queryDebuggerConfig;
+      return pluginActionEditorDebuggerConfig;
     case FocusEntity.JS_OBJECT:
       return {
         set: setJsPaneDebuggerState,

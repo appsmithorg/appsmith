@@ -8,7 +8,7 @@ import { getFormEvaluationState } from "selectors/formSelectors";
 import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import { isEmpty } from "lodash";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
-import { isActionSaving } from "ee/selectors/entitiesSelector";
+import { isActionSaving } from "PluginActionEditor";
 
 export default class QueryPaneNavigation extends ActionPaneNavigation {
   constructor(entityInfo: EntityInfo) {

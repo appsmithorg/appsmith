@@ -1,14 +1,16 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
-import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";
+import {
+  getPluginActionConfigSelectedTabIndex,
+  setPluginActionEditorSelectedTab,
+} from "PluginActionEditor";
 
 export function useSelectedFormTab(): [string, (id: string) => void] {
   const dispatch = useDispatch();
   // the redux form has been configured with indexes, but the new ads components need strings to work.
   // these functions convert them back and forth as needed.
-  const selectedIndex = useSelector(getApiPaneConfigSelectedTabIndex);
+  const selectedIndex = useSelector(getPluginActionConfigSelectedTabIndex) || 0;
   const selectedValue = Object.values(API_EDITOR_TABS)[selectedIndex];
   const setSelectedIndex = useCallback(
     (value: string) => {
@@ -16,7 +18,7 @@ export function useSelectedFormTab(): [string, (id: string) => void] {
         value as API_EDITOR_TABS,
       );
 
-      dispatch(setApiPaneConfigSelectedTabIndex(index));
+      dispatch(setPluginActionEditorSelectedTab(index));
     },
     [dispatch],
   );
