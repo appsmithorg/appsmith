@@ -54,7 +54,7 @@ import {
   getPropertyPaneWidth,
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
-import { getLastQueryTab } from "selectors/queryPaneSelectors";
+import { getLastQueryTab } from "ee/selectors/appIDESelectors";
 import { getDebuggerContext } from "selectors/debuggerSelectors";
 import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";

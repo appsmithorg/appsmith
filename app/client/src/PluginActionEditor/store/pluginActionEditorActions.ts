@@ -3,6 +3,7 @@ import {
   type ReduxAction,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import type { Action } from "entities/Action";
 
 export const setPluginActionEditorDebuggerState = (
   payload: Partial<PluginEditorDebuggerState>,
@@ -11,7 +12,7 @@ export const setPluginActionEditorDebuggerState = (
   payload,
 });
 
-export const setPluginActionEditorSelectedTab = (payload: number) => ({
+export const setPluginActionEditorSelectedTab = (payload: number | string) => ({
   type: ReduxActionTypes.SET_PLUGIN_ACTION_EDITOR_FORM_SELECTED_TAB,
   payload,
 });
@@ -32,5 +33,23 @@ export const changeApi = (
   return {
     type: ReduxActionTypes.API_PANE_CHANGE_API,
     payload: { id, isSaas, newApi },
+  };
+};
+
+export interface ChangeQueryPayload {
+  baseQueryId: string;
+  packageId?: string;
+  applicationId?: string;
+  basePageId?: string;
+  moduleId?: string;
+  workflowId?: string;
+  newQuery?: boolean;
+  action?: Action;
+}
+
+export const changeQuery = (payload: ChangeQueryPayload) => {
+  return {
+    type: ReduxActionTypes.QUERY_PANE_CHANGE,
+    payload,
   };
 };

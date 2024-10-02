@@ -36,8 +36,10 @@ import { isString } from "lodash";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import BindDataButton from "./BindDataButton";
-import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
-import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
+import {
+  getPluginActionDebuggerState,
+  setPluginActionEditorDebuggerState,
+} from "PluginActionEditor/store";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import {
   createMessage,
@@ -97,7 +99,7 @@ const QueryResponseTab = (props: Props) => {
   const actionResponse = useSelector((state) =>
     getActionData(state, currentActionConfig.id),
   );
-  const { responseTabHeight } = useSelector(getQueryPaneDebuggerState);
+  const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
 
   const { responseDataTypes, responseDisplayFormat } =
     actionResponseDisplayDataFormats(actionResponse);
@@ -216,8 +218,12 @@ const QueryResponseTab = (props: Props) => {
   }
 
   const navigateToSettings = useCallback(() => {
-    dispatch(setQueryPaneConfigSelectedTabIndex(EDITOR_TABS.SETTINGS));
-  }, []);
+    dispatch(
+      setPluginActionEditorDebuggerState({
+        selectedTab: EDITOR_TABS.SETTINGS,
+      }),
+    );
+  }, [dispatch]);
 
   const preparedStatementCalloutLinks: CalloutLinkProps[] = [
     {

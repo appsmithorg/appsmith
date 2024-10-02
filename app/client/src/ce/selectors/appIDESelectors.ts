@@ -7,6 +7,12 @@ import {
 } from "ee/selectors/entitiesSelector";
 import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 import type { AppState } from "ee/reducers";
+import {
+  type FocusEntityInfo,
+  identifyEntityFromPath,
+} from "navigation/FocusEntity";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 
 export type EditorSegmentList = Array<{
   group: string | "NA";
@@ -67,4 +73,17 @@ export const selectQuerySegmentEditorTabs = (state: AppState) => {
   const keyedItems = keyBy(items, "key");
 
   return tabs.map((tab) => keyedItems[tab]).filter(Boolean);
+};
+export const getLastQueryTab = (
+  state: AppState,
+): FocusEntityInfo | undefined => {
+  const tabs = selectQuerySegmentEditorTabs(state);
+  const pageId = getCurrentPageId(state);
+
+  if (tabs.length) {
+    const url = getQueryEntityItemUrl(tabs[tabs.length - 1], pageId);
+    const urlWithoutQueryParams = url.split("?")[0];
+
+    return identifyEntityFromPath(urlWithoutQueryParams);
+  }
 };

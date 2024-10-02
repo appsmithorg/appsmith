@@ -27,12 +27,14 @@ import {
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { DatasourceStructureContext } from "entities/Datasource";
-import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
-import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
+import {
+  getPluginActionDebuggerState,
+  setPluginActionEditorDebuggerState,
+} from "PluginActionEditor/store";
 import { actionResponseDisplayDataFormats } from "../utils";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
-import { IDEBottomView, ViewHideBehaviour } from "../../../IDE";
+import { IDEBottomView, ViewHideBehaviour } from "IDE";
 
 const ResultsCount = styled.div`
   position: absolute;
@@ -68,7 +70,7 @@ function QueryDebuggerTabs({
   const dispatch = useDispatch();
 
   const { open, responseTabHeight, selectedTab } = useSelector(
-    getQueryPaneDebuggerState,
+    getPluginActionDebuggerState,
   );
 
   const { responseDisplayFormat } =
@@ -107,7 +109,12 @@ function QueryDebuggerTabs({
         ),
       );
     }
-  }, []);
+  }, [
+    currentActionConfig,
+    datasourceStructure,
+    dispatch,
+    pluginDatasourceForm,
+  ]);
 
   // These useEffects are used to open the response tab by default for page load queries
   // as for page load queries, query response is available and can be shown in response tab
@@ -121,25 +128,30 @@ function QueryDebuggerTabs({
       !showResponseOnFirstLoad
     ) {
       dispatch(
-        setQueryPaneDebuggerState({
+        setPluginActionEditorDebuggerState({
           open: true,
           selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
         }),
       );
       setShowResponseOnFirstLoad(true);
     }
-  }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
+  }, [
+    responseDisplayFormat,
+    actionResponse,
+    showResponseOnFirstLoad,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (showSchema && !selectedTab) {
       dispatch(
-        setQueryPaneDebuggerState({
+        setPluginActionEditorDebuggerState({
           open: true,
           selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
         }),
       );
     }
-  }, [showSchema, currentActionConfig?.id, selectedTab]);
+  }, [showSchema, selectedTab, dispatch]);
 
   // When multiple page load queries exist, we want to response tab by default for all of them
   // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
@@ -170,17 +182,27 @@ function QueryDebuggerTabs({
     }
   }
 
-  const setQueryResponsePaneHeight = useCallback((height: number) => {
-    dispatch(setQueryPaneDebuggerState({ responseTabHeight: height }));
-  }, []);
+  const setQueryResponsePaneHeight = useCallback(
+    (height: number) => {
+      dispatch(
+        setPluginActionEditorDebuggerState({ responseTabHeight: height }),
+      );
+    },
+    [dispatch],
+  );
 
   const onToggle = useCallback(() => {
-    dispatch(setQueryPaneDebuggerState({ open: !open }));
-  }, [open]);
+    dispatch(setPluginActionEditorDebuggerState({ open: !open }));
+  }, [dispatch, open]);
 
-  const setSelectedResponseTab = useCallback((tabKey: string) => {
-    dispatch(setQueryPaneDebuggerState({ open: true, selectedTab: tabKey }));
-  }, []);
+  const setSelectedResponseTab = useCallback(
+    (tabKey: string) => {
+      dispatch(
+        setPluginActionEditorDebuggerState({ open: true, selectedTab: tabKey }),
+      );
+    },
+    [dispatch],
+  );
 
   const ideViewMode = useSelector(getIDEViewMode);
 

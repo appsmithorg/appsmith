@@ -258,7 +258,7 @@ class QueryEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
   const { baseApiId, baseQueryId } = props.match.params;
   const baseActionId = baseQueryId || baseApiId || "";
-  const { runErrorMessage } = state.ui.queryPane;
+  const { runErrorMessage } = state.ui.pluginActionEditor;
   const { plugins } = state.entities;
 
   const { editorConfigs } = plugins;

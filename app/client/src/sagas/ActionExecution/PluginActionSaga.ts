@@ -145,7 +145,6 @@ import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPageAction } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
 import { softRefreshDatasourceStructure } from "actions/datasourceActions";
-import { changeQuery } from "actions/queryPaneActions";
 import {
   getCurrentEnvironmentDetails,
   getCurrentEnvironmentName,
@@ -167,6 +166,7 @@ import {
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
 import {
+  changeQuery,
   isActionDirty,
   isActionSaving,
   setPluginActionEditorDebuggerState,

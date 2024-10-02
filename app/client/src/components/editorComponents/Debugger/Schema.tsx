@@ -12,7 +12,7 @@ import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
 import { find } from "lodash";
 import type { AppState } from "ee/reducers";
 import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
-import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
+import { getPluginActionDebuggerState } from "PluginActionEditor/store";
 
 interface Props {
   datasourceId: string;
@@ -24,7 +24,7 @@ const Schema = (props: Props) => {
   const datasourceStructure = useSelector((state) =>
     getDatasourceStructureById(state, props.datasourceId),
   );
-  const { responseTabHeight } = useSelector(getQueryPaneDebuggerState);
+  const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
   const [selectedTable, setSelectedTable] = useState<string>();
 
   const selectedTableItems = find(datasourceStructure?.tables, [
@@ -53,7 +53,7 @@ const Schema = (props: Props) => {
     if (!selectedTable && datasourceStructure?.tables?.length && !isLoading) {
       setSelectedTable(datasourceStructure.tables[0].name);
     }
-  }, [selectedTable, props.datasourceId, isLoading]);
+  }, [selectedTable, props.datasourceId, isLoading, datasourceStructure]);
 
   if (!datasourceStructure) {
     return (

@@ -11,7 +11,6 @@ import buildingBlockReducer from "reducers/uiReducers/buildingBlockReducer";
 import usersReducer from "reducers/uiReducers/usersReducer";
 import { widgetDraggingReducer } from "reducers/uiReducers/dragResizeReducer";
 import importReducer from "reducers/uiReducers/importReducer";
-import queryPaneReducer from "ee/reducers/uiReducers/queryPaneReducer";
 import helpReducer from "reducers/uiReducers/helpReducer";
 import apiNameReducer from "ee/reducers/uiReducers/apiNameReducer";
 import explorerReducer from "ee/reducers/uiReducers/explorerReducer";
@@ -67,7 +66,6 @@ export const uiReducerObject = {
   users: usersReducer,
   widgetDragResize: widgetDraggingReducer,
   imports: importReducer,
-  queryPane: queryPaneReducer,
   datasourcePane: datasourcePaneReducer,
   datasourceName: datasourceNameReducer,
   help: helpReducer,

@@ -13,7 +13,6 @@ import type { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import type { DatasourcePaneReduxState } from "reducers/uiReducers/datasourcePaneReducer";
 import type { ApplicationsReduxState } from "ee/reducers/uiReducers/applicationsReducer";
 import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
-import type { QueryPaneReduxState } from "ee/reducers/uiReducers/queryPaneReducer";
 import type { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import type { AuthState } from "reducers/uiReducers/authReducer";
 import type { WorkspaceReduxState } from "ee/reducers/uiReducers/workspaceReducer";
@@ -110,7 +109,6 @@ export interface AppState {
     users: UsersReduxState;
     widgetDragResize: WidgetDragResizeState;
     imports: ImportReduxState;
-    queryPane: QueryPaneReduxState;
     datasourcePane: DatasourcePaneReduxState;
     help: HelpReduxState;
     apiName: ApiNameReduxState;
