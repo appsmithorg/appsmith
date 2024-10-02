@@ -1,7 +1,7 @@
 import React, { useCallback, useRef } from "react";
 import styled from "styled-components";
-import QueryEditor from "./QueryEditor";
-import VariableEditor from "./VariableEditor";
+import QueryEditor from "pages/Editor/APIEditor/GraphQL/QueryEditor";
+import VariableEditor from "pages/Editor/APIEditor/GraphQL/VariableEditor";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import classNames from "classnames";

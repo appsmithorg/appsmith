@@ -7,7 +7,7 @@ import { HintMessages } from "./HintMessages";
 import { Flex } from "@appsmith/ads";
 import useGetFormActionValues from "./hooks/useGetFormActionValues";
 
-export interface Props {
+interface Props {
   httpMethodOptions: { value: string }[];
   action: Action;
   formName: string;

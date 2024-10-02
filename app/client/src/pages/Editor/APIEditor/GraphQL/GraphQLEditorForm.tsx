@@ -14,7 +14,7 @@ import type { CommonFormProps } from "../CommonEditorForm";
 import CommonEditorForm from "../CommonEditorForm";
 import Pagination from "./Pagination";
 import { GRAPHQL_HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/GraphQLEditorConstants";
-import PostBodyData from "./PostBodyData";
+import PostBodyData from "PluginActionEditor/components/PluginActionForm/components/GraphQLEditor/PostBodyData";
 
 type APIFormProps = {
   actionConfigurationBody: string;

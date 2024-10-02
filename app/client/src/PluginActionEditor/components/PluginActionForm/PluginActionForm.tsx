@@ -4,7 +4,7 @@ import { Flex } from "@appsmith/ads";
 import { useChangeActionCall } from "./hooks/useChangeActionCall";
 import { usePluginActionContext } from "../../PluginActionContext";
 import { UIComponentTypes } from "api/PluginApi";
-import GraphQLEditorForm from "./components/GraphQLEditorForm";
+import GraphQLEditorForm from "./components/GraphQLEditor/GraphQLEditorForm";
 
 const PluginActionForm = () => {
   useChangeActionCall();
