@@ -105,12 +105,14 @@ export class DataManager {
       mockDatabaseUsername: "fakeapi",
       mockDatabasePassword: "LimitedAccess123#",
       readonly: "readonly",
-      authenticatedApiUrl: "https://fakeapi.com",
+      authenticatedApiUrl: "http://host.docker.internal:5001",
 
       GraphqlApiUrl_TED: "http://host.docker.internal:4200/graphql",
 
       twilio_username: "random-username",
       twilio_password: "random-password",
+
+      okta_username: "tech@appsmith.com",
     },
 
     Staging: {
@@ -200,12 +202,14 @@ export class DataManager {
       mockDatabaseUsername: "fakeapi",
       mockDatabasePassword: "LimitedAccess123#",
       readonly: "readonly",
-      authenticatedApiUrl: "https://fakeapi.com",
+      authenticatedApiUrl: "http://host.docker.internal:5001",
 
       GraphqlApiUrl_TED: "http://host.docker.internal:4200/graphql",
 
       twilio_username: "random-username",
       twilio_password: "random-password",
+
+      okta_username: "tech@appsmith.com",
     },
   };
 
