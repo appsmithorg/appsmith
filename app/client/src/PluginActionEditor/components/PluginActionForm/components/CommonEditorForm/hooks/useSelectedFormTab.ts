@@ -4,7 +4,7 @@ import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants
 import {
   getPluginActionConfigSelectedTabIndex,
   setPluginActionEditorSelectedTab,
-} from "PluginActionEditor";
+} from "PluginActionEditor/store";
 
 export function useSelectedFormTab(): [string, (id: string) => void] {
   const dispatch = useDispatch();

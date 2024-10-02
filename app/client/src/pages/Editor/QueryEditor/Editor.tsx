@@ -45,7 +45,7 @@ import {
   getActionIsDeleting,
   getActionIsRunning,
   isPluginActionCreating,
-} from "PluginActionEditor";
+} from "PluginActionEditor/store";
 
 const EmptyStateContainer = styled.div`
   display: flex;

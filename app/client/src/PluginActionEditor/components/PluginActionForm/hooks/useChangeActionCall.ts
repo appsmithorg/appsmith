@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { changeQuery } from "actions/queryPaneActions";
 import { PluginType } from "entities/Action";
-import { changeApi, usePluginActionContext } from "PluginActionEditor";
+import { usePluginActionContext } from "PluginActionEditor";
+import { changeApi } from "PluginActionEditor/store";
 import usePrevious from "utils/hooks/usePrevious";
 
 export const useChangeActionCall = () => {

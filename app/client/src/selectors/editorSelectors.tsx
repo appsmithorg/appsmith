@@ -27,7 +27,7 @@ import {
 } from "selectors/dataTreeSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
-import { getActionEditorSavingMap } from "PluginActionEditor";
+import { getActionEditorSavingMap } from "PluginActionEditor/store";
 import {
   getCanvasWidgets,
   getJSCollections,

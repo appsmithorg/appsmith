@@ -170,7 +170,7 @@ import {
   isActionDirty,
   isActionSaving,
   setPluginActionEditorDebuggerState,
-} from "PluginActionEditor";
+} from "PluginActionEditor/store";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",

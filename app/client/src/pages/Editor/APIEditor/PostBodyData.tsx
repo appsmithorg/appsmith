@@ -22,7 +22,7 @@ import { Classes } from "@appsmith/ads-old";
 import {
   getPostBodyFormat,
   updatePostBodyContentType,
-} from "PluginActionEditor";
+} from "PluginActionEditor/store";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { createMessage, API_PANE_NO_BODY } from "ee/constants/messages";

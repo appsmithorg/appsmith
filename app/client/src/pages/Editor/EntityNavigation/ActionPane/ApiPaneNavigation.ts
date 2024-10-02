@@ -2,7 +2,7 @@ import { call, delay, put } from "redux-saga/effects";
 import type { EntityInfo, IApiPaneNavigationConfig } from "../types";
 import { ActionPaneNavigation } from "./exports";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
-import { setPluginActionEditorSelectedTab } from "PluginActionEditor";
+import { setPluginActionEditorSelectedTab } from "PluginActionEditor/store";
 import { NAVIGATION_DELAY } from "../costants";
 import { isNumber } from "lodash";
 

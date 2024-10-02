@@ -61,7 +61,7 @@ import {
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { Plugin } from "api/PluginApi";
-import { getPostBodyFormat } from "../PluginActionEditor";
+import { getPostBodyFormat } from "../PluginActionEditor/store";
 import { apiEditorIdURL, datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";

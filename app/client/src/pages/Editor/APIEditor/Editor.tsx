@@ -26,7 +26,7 @@ import {
   getActionIsDeleting,
   getActionIsRunning,
   isPluginActionCreating,
-} from "PluginActionEditor";
+} from "PluginActionEditor/store";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import type { ApplicationPayload } from "entities/Application";

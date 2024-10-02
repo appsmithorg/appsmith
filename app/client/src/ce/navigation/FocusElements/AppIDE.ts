@@ -79,7 +79,7 @@ import {
   getPluginActionDebuggerState,
   setPluginActionEditorDebuggerState,
   setPluginActionEditorSelectedTab,
-} from "PluginActionEditor";
+} from "PluginActionEditor/store";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [

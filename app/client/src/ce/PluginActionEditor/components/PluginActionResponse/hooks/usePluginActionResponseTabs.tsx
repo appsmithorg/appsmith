@@ -20,7 +20,7 @@ import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionRe
 import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import { getPluginActionDebuggerState } from "PluginActionEditor";
+import { getPluginActionDebuggerState } from "PluginActionEditor/store";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, plugin } = usePluginActionContext();

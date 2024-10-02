@@ -9,7 +9,7 @@ import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import {
   getPluginActionDebuggerState,
   setPluginActionEditorDebuggerState,
-} from "PluginActionEditor";
+} from "PluginActionEditor/store";
 import { getCanvasDebuggerState } from "selectors/debuggerSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { useDispatch, useSelector } from "react-redux";

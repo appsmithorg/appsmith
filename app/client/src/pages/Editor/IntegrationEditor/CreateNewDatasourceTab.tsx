@@ -39,7 +39,7 @@ import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
-import { isPluginActionCreating } from "PluginActionEditor";
+import { isPluginActionCreating } from "PluginActionEditor/store";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};

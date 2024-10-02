@@ -22,7 +22,7 @@ import { EMPTY_RESPONSE } from "./emptyResponse";
 import {
   getPluginActionDebuggerState,
   setPluginActionEditorDebuggerState,
-} from "PluginActionEditor";
+} from "PluginActionEditor/store";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import useDebuggerTriggerClick from "./Debugger/hooks/useDebuggerTriggerClick";
