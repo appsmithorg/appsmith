@@ -1,7 +1,7 @@
 import React from "react";
 import Markdown from "react-markdown";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { monokai } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import { monokai } from "react-syntax-highlighter/dist/cjs/styles/hljs";
 import type { ThreadMessageProps } from "./types";
 import styles from "./styles.module.css";
 

@@ -1,11 +1,10 @@
 module.exports = {
   preset: "ts-jest",
   roots: ["<rootDir>/src"],
+  setupFiles: ["<rootDir>../../../test/__mocks__/reactMarkdown.tsx"],
   testEnvironment: "jsdom",
   moduleNameMapper: {
     "\\.(css)$": "<rootDir>../../../test/__mocks__/styleMock.js",
-    "react-markdown":
-      "../../../node_modules/react-markdown/react-markdown.min.js",
   },
   globals: {
     "ts-jest": {
