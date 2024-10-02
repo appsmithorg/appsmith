@@ -70,6 +70,7 @@ import type { Span } from "@opentelemetry/api";
 import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
+import log from "loglevel";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -274,11 +275,15 @@ export default class AppEditorEngine extends AppEngine {
     const currentUser: User = yield select(getCurrentUser);
     const currentBranch: string = yield select(getCurrentGitBranch);
 
-    if (currentUser?.email && currentBranch) {
+    if (currentUser?.email && currentApplication?.baseId && currentBranch) {
       yield setLatestGitBranchInLocal(
         currentUser.email,
         currentApplication.baseId,
         currentBranch,
+      );
+    } else {
+      log.error(
+        `There was an error setting the latest git branch in local - userEmail: ${!!currentUser?.email}, applicationId: ${currentApplication?.baseId}, branch: ${currentBranch}`,
       );
     }
 
