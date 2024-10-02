@@ -90,7 +90,7 @@ public class MySqlPluginTest {
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is
     // pseudo-optional.
     @Container
-    public static MySQLContainer mySQLContainer = (MySQLContainer) new MySQLContainer(
+    public static MySQLContainer mySQLContainer = new MySQLContainer(
                     DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
             .withUsername("mysql")
             .withPassword("password")
