@@ -125,6 +125,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad(0, 0, "v2");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("pagination");
       propPane.TogglePropertyState("Server side pagination", "On");
     });
 
@@ -153,6 +154,7 @@ describe(
       deployMode.NavigateBacktoEditor();
 
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("search\\&filters");
       propPane.TypeTextIntoField("Default search text", "Quest", true, false);
 
       deployMode.DeployApp();
@@ -162,6 +164,7 @@ describe(
       table.WaitUntilTableLoad(0, 0, "v2");
 
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("search\\&filters");
       propPane.TypeTextIntoField("Default search text", "Epic"); //Bug 12228 - Searching based on hidden column value should not be allowed
       deployMode.DeployApp();
       table.AssertSearchText("Epic");
@@ -169,6 +172,7 @@ describe(
       deployMode.NavigateBacktoEditor();
 
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("search\\&filters");
       propPane.RemoveText("defaultsearchtext");
       agHelper.GetNClick(dataSources._refreshIcon, 0, true);
       table.WaitUntilTableLoad(0, 0, "v2");
@@ -194,6 +198,7 @@ describe(
       table.WaitUntilTableLoad(0, 1, "v2");
 
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("search\\&filters");
       propPane.TogglePropertyState("Client side search", "Off");
 
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
@@ -211,6 +216,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad(0, 1, "v2");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("search\\&filters");
       propPane.TogglePropertyState("Client side search", "On");
       propPane.EnterJSContext("onSearchTextChanged", "");
       propPane.ToggleJSMode("onSearchTextChanged", false);
@@ -230,6 +236,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad(0, 1, "v2");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("search\\&filters");
       propPane.TogglePropertyState("Client side search", "Off");
 
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
