@@ -118,6 +118,12 @@ init_pg_db() {
 
         echo "Schema 'appsmith' does not exist. Creating schema..."
         psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "CREATE SCHEMA appsmith;"
+
+        echo "Granting privileges to user '$PG_DB_USER'"
+        psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "GRANT ALL PRIVILEGES ON SCHEMA appsmith TO ${PG_DB_USER};"
+        psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA appsmith TO ${PG_DB_USER};"
+        psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "ALTER DEFAULT PRIVILEGES IN SCHEMA appsmith GRANT ALL PRIVILEGES ON TABLES TO ${PG_DB_USER};"
+        psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -c "GRANT CONNECT ON DATABASE appsmith TO ${PG_DB_USER};"
       fi
     else
       echo "Remote PostgreSQL detected, running as current user."
