@@ -40,12 +40,18 @@ export const getActionIsDeleting = (id: string) =>
 type GetFormData = (
   state: AppState,
   id: string,
-) => { label: string; value: string };
+) => { label: string; value: string } | undefined;
 
 export const getPostBodyFormat: GetFormData = (state, id) => {
-  return state.ui.pluginActionEditor.formData[id][POST_BODY_FORM_DATA_KEY];
+  const formData = state.ui.pluginActionEditor.formData;
+
+  if (id in formData) {
+    return formData[id][POST_BODY_FORM_DATA_KEY];
+  }
+
+  return undefined;
 };
-export const getPluginActionConfigSelectedTabIndex = (state: AppState) =>
+export const getPluginActionConfigSelectedTab = (state: AppState) =>
   state.ui.pluginActionEditor.selectedConfigTab;
 
 export const getPluginActionDebuggerState = (state: AppState) =>

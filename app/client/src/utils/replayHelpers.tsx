@@ -17,7 +17,6 @@ import {
 } from "ee/constants/messages";
 import { toast } from "@appsmith/ads";
 import { setPluginActionEditorSelectedTab } from "PluginActionEditor/store";
-import { API_EDITOR_TABS } from "../constants/ApiEditorConstants/CommonApiConstants";
 import store from "../store";
 
 /**
@@ -173,11 +172,7 @@ export function switchTab(replayId: string): boolean {
 
   if (element.getAttribute("data-state") == "active") return false;
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  const index = Object.values(API_EDITOR_TABS).indexOf(replayId);
-
-  store.dispatch(setPluginActionEditorSelectedTab(index));
+  store.dispatch(setPluginActionEditorSelectedTab(replayId));
 
   return true;
 }

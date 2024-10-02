@@ -25,7 +25,7 @@ export interface PluginActionEditorState {
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
   runErrorMessage: Record<string, string>;
-  selectedConfigTab?: number;
+  selectedConfigTab?: string;
   formData: Record<string, Record<string, { label: string; value: string }>>;
   debugger: PluginEditorDebuggerState;
 }
@@ -232,7 +232,7 @@ export const handlers = {
   },
   [ReduxActionTypes.SET_PLUGIN_ACTION_EDITOR_FORM_SELECTED_TAB]: (
     state: PluginActionEditorState,
-    action: ReduxAction<{ selectedTab: number }>,
+    action: ReduxAction<{ selectedTab: string }>,
   ): PluginActionEditorState => {
     const { selectedTab } = action.payload;
 

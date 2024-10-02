@@ -24,8 +24,8 @@ import type { UIComponentTypes } from "api/PluginApi";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
-  getPluginActionDebuggerState,
-  setPluginActionEditorDebuggerState,
+  getPluginActionConfigSelectedTab,
+  setPluginActionEditorSelectedTab,
 } from "PluginActionEditor/store";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
@@ -232,15 +232,11 @@ export function EditorJSONtoForm(props: Props) {
     id: currentActionConfig ? currentActionConfig.id : "",
   };
 
-  const { selectedTab } = useSelector(getPluginActionDebuggerState);
+  const selectedTab = useSelector(getPluginActionConfigSelectedTab);
 
   const setSelectedConfigTab = useCallback(
     (selectedIndex: string) => {
-      dispatch(
-        setPluginActionEditorDebuggerState({
-          selectedTab: selectedIndex,
-        }),
-      );
+      dispatch(setPluginActionEditorSelectedTab(selectedIndex));
     },
     [dispatch],
   );

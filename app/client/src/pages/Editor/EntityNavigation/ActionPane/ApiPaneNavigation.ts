@@ -11,7 +11,7 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
     super(entityInfo);
     this.getConfig = this.getConfig.bind(this);
     this.navigate = this.navigate.bind(this);
-    this.getTabIndex = this.getTabIndex.bind(this);
+    this.getTab = this.getTab.bind(this);
   }
 
   *getConfig() {
@@ -19,13 +19,13 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
 
     if (!this.entityInfo.propertyPath) return {};
 
-    const tabIndex: number | undefined = yield call(
-      this.getTabIndex,
+    const tab: string | undefined = yield call(
+      this.getTab,
       this.entityInfo.propertyPath,
     );
 
     config = {
-      tabIndex,
+      tab,
     };
 
     return config;
@@ -37,17 +37,16 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
 
     if (!this.entityInfo.propertyPath) return;
 
-    if (isNumber(config.tabIndex)) {
-      yield put(setPluginActionEditorSelectedTab(config.tabIndex));
+    if (isNumber(config.tab)) {
+      yield put(setPluginActionEditorSelectedTab(config.tab));
       yield delay(NAVIGATION_DELAY);
     }
 
     yield call(this.scrollToView, this.entityInfo.propertyPath);
   }
 
-  *getTabIndex(propertyPath: string) {
-    let currentTab;
-    let index;
+  *getTab(propertyPath: string) {
+    let currentTab: string | undefined;
     const modifiedProperty = propertyPath.replace(
       "config",
       "actionConfiguration",
@@ -79,10 +78,6 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
       }
     }
 
-    if (currentTab) {
-      index = Object.values(API_EDITOR_TABS).indexOf(currentTab);
-    }
-
-    return index;
+    return currentTab;
   }
 }

@@ -12,9 +12,11 @@ export const setPluginActionEditorDebuggerState = (
   payload,
 });
 
-export const setPluginActionEditorSelectedTab = (payload: number | string) => ({
+export const setPluginActionEditorSelectedTab = (payload: string) => ({
   type: ReduxActionTypes.SET_PLUGIN_ACTION_EDITOR_FORM_SELECTED_TAB,
-  payload,
+  payload: {
+    selectedTab: payload,
+  },
 });
 
 export const updatePostBodyContentType = (

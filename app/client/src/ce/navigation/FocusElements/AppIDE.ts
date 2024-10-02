@@ -75,11 +75,13 @@ import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import {
-  getPluginActionConfigSelectedTabIndex,
+  getPluginActionConfigSelectedTab,
   getPluginActionDebuggerState,
   setPluginActionEditorDebuggerState,
   setPluginActionEditorSelectedTab,
 } from "PluginActionEditor/store";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [
@@ -136,12 +138,15 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
     {
       type: FocusElementConfigType.Redux,
       name: FocusElement.PluginActionConfigTabs,
-      selector: getPluginActionConfigSelectedTabIndex,
+      selector: getPluginActionConfigSelectedTab,
       setter: setPluginActionEditorSelectedTab,
-      defaultValue: 0,
+      defaultValue: EDITOR_TABS.QUERY,
       subTypes: {
         [PluginPackageName.GRAPHQL]: {
-          defaultValue: 2,
+          defaultValue: API_EDITOR_TABS.BODY,
+        },
+        [PluginPackageName.REST_API]: {
+          defaultValue: API_EDITOR_TABS.HEADERS,
         },
       },
     },
