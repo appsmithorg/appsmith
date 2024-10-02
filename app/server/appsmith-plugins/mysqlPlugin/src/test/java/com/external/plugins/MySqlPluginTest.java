@@ -1562,7 +1562,8 @@ public class MySqlPluginTest {
         MySqlPlugin.MySqlPluginExecutor spyPlugin = spy(pluginExecutor);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        ConnectionContext<ConnectionPool> connectionContextMono = pluginExecutor
+        ConnectionContext<ConnectionPool> connectionContext = pluginExecutor.datasourceCreate(dsConfig).block();
+        instanceConnectionContext = connectionContext;
                 .datasourceCreate(dsConfig)
                 .map(connectionPool -> {
                     instanceConnectionContext = connectionPool;
