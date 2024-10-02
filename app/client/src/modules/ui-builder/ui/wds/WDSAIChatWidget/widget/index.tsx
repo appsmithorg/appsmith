@@ -283,6 +283,7 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
               this.setState({ prompt: value });
             }}
             onKeyDown={this.onEnterPress}
+            placeholder={this.props.promptInputPlaceholder}
             value={this.state.prompt}
           />
           <Button isDisabled={this.state.prompt.length < 3} type="submit">
