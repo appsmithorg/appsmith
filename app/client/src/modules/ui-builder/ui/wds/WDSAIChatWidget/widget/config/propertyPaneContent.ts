@@ -5,6 +5,35 @@ export const propertyPaneContent = [
     sectionName: "General",
     children: [
       {
+        helpText: "Select a query to submit when a chat message is sent.",
+        propertyName: "query",
+        label: "Query to trigger",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Value",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        dependencies: ["queryData", "queryRun"],
+        updateHook: (
+          _props: unknown,
+          propertyPath: string,
+          propertyValue: string,
+        ) => {
+          const propertiesToUpdate = [{ propertyPath, propertyValue }];
+
+          propertiesToUpdate.push({
+            propertyPath: "queryData",
+            propertyValue: `{{${propertyValue}.data}}`,
+          });
+          propertiesToUpdate.push({
+            propertyPath: "queryRun",
+            propertyValue: propertyValue,
+          });
+
+          return propertiesToUpdate;
+        },
+      },
+      {
         helpText: "Gives the open AI Assistant a name to be displayed in chat",
         propertyName: "assistantName",
         label: "Assistant Name",
@@ -46,35 +75,6 @@ export const propertyPaneContent = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
         defaultValue: true,
-      },
-      {
-        helpText: "Select a query to submit when a chat message is sent.",
-        propertyName: "query",
-        label: "Query to trigger",
-        controlType: "INPUT_TEXT",
-        placeholderText: "Value",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        dependencies: ["queryData", "queryRun"],
-        updateHook: (
-          props: unknown,
-          propertyPath: string,
-          propertyValue: string,
-        ) => {
-          const propertiesToUpdate = [{ propertyPath, propertyValue }];
-
-          propertiesToUpdate.push({
-            propertyPath: "queryData",
-            propertyValue: `{{${propertyValue}.data}}`,
-          });
-          propertiesToUpdate.push({
-            propertyPath: "queryRun",
-            propertyValue: propertyValue,
-          });
-
-          return propertiesToUpdate;
-        },
       },
     ],
   },
