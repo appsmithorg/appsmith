@@ -79,16 +79,6 @@ export const propertyPaneContent = [
         defaultValue: "",
       },
       {
-        propertyName: "senderName",
-        label: "Sender Name",
-        controlType: "INPUT_TEXT",
-        isJSConvertible: false,
-        isBindProperty: false,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-        defaultValue: "",
-      },
-      {
         helpText: "Controls the visibility of the widget",
         propertyName: "isVisible",
         label: "Visible",
