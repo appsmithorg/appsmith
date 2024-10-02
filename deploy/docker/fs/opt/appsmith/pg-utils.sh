@@ -145,6 +145,17 @@ init_pg_db() {
   fi
 }
 
+# Utility function to grant permissions to a user on a schema in a database on a host and port in PostgreSQL database
+# Args:
+#     USER (string): User to grant permissions to
+#     SCHEMA (string): Schema to grant permissions on
+#     DB (string): Database to grant permissions on
+#     HOST (string): Host to grant permissions on
+#     PORT (int): Port to grant permissions on
+# Returns:
+#     None
+# Example:
+#     USER="user" SCHEMA="schema" DB="db" HOST="host" PORT="port" grant_permissions_for_schema
 grant_permissions_for_schema() {
   local user=${USER-$DB_USER} schema=${SCHEMA-$DB_SCHEMA} db=${DB-$DB_NAME} host=${HOST-$DB_HOST} port=${PORT-$DB_PORT}
   tlog "Granting permissions to user '${user}' on schema '$schema' in database '$db' on host '$host' and port '$port'..."
@@ -158,4 +169,4 @@ grant_permissions_for_schema() {
 # waitForPostgresAvailability
 # extract_postgres_db_params "postgresql://user:password@localhost:5432/dbname"
 # init_pg_db
-# grant_permissions_for_schema "user" "schema" "db" "host" "port"
+# USER="user" SCHEMA="schema" DB="db" HOST="host" PORT="port" grant_permissions_for_schema
