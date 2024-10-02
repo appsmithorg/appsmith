@@ -527,13 +527,9 @@ public class MySqlPluginTest {
     public void testStaleConnectionCheck() {
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("show databases");
-        ConnectionContext<ConnectionPool> connectionContext = pluginExecutor
-                .datasourceCreate(dsConfig)
-                .map(connectionPool -> {
-                    instanceConnectionContext = connectionPool;
-                    return connectionPool;
-                })
-                .block();
+        ConnectionContext<ConnectionPool> connectionContext =
+                pluginExecutor.datasourceCreate(dsConfig).block();
+        instanceConnectionContext = connectionContext;
         Flux<ActionExecutionResult> resultFlux = Mono.from((connectionContext.getConnection()).disposeLater())
                 .thenMany(pluginExecutor.executeParameterized(
                         connectionContext, new ExecuteActionDTO(), dsConfig, actionConfiguration));
@@ -1562,14 +1558,9 @@ public class MySqlPluginTest {
         MySqlPlugin.MySqlPluginExecutor spyPlugin = spy(pluginExecutor);
 
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
-        ConnectionContext<ConnectionPool> connectionContext = pluginExecutor.datasourceCreate(dsConfig).block();
+        ConnectionContext<ConnectionPool> connectionContext =
+                pluginExecutor.datasourceCreate(dsConfig).block();
         instanceConnectionContext = connectionContext;
-                .datasourceCreate(dsConfig)
-                .map(connectionPool -> {
-                    instanceConnectionContext = connectionPool;
-                    return connectionPool;
-                })
-                .block();
 
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setBody("SELECT id FROM users WHERE -- IS operator\nid = 1 limit 1;");
@@ -1580,7 +1571,7 @@ public class MySqlPluginTest {
         HashMap<String, Object> requestData = new HashMap<>();
 
         Mono<ActionExecutionResult> resultMono =
-                spyPlugin.executeCommon(connectionContextMono, actionConfiguration, TRUE, null, null, requestData);
+                spyPlugin.executeCommon(connectionContext, actionConfiguration, TRUE, null, null, requestData);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
