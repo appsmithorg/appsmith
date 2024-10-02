@@ -74,8 +74,10 @@ describe(
 
     it("2. Validate table navigation with Server Side pagination enabled with Default selected row", () => {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("pagination");
       agHelper.AssertExistingToggleState("Server side pagination", "true");
 
+      propPane.ExpandIfCollapsedSection("rowselection");
       propPane
         .ValidatePropertyFieldValue("Default selected row", "0")
         .then(($selectedRow: any) => {
@@ -114,6 +116,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad(0, 0, "v2");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("pagination");
       propPane.TogglePropertyState("Server side pagination", "Off");
       deployMode.DeployApp();
       table.WaitUntilTableLoad(0, 0, "v2");
@@ -126,6 +129,7 @@ describe(
     });
 
     it("4. Change Default selected row in table and verify", () => {
+      propPane.ExpandIfCollapsedSection("rowselection");
       propPane.UpdatePropertyFieldValue("Default selected row", "1");
       deployMode.DeployApp();
       table.WaitUntilTableLoad(0, 0, "v2");
@@ -140,6 +144,7 @@ describe(
 
     it("5. Verify Default search text in table as per 'Default search text' property set + Bug 12228", () => {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("search\\&filters");
       propPane.TypeTextIntoField("Default search text", "Bug");
       deployMode.DeployApp();
       table.AssertSearchText("Bug");
@@ -171,6 +176,7 @@ describe(
 
     it("6. Validate Search table with Client Side Search enabled & disabled & onSearchTextChanged is set", () => {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("search\\&filters");
       agHelper.AssertExistingToggleState("Client side search", "true");
 
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
