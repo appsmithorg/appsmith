@@ -193,6 +193,7 @@ export const StyledEditableInput = styled.input`
   outline: none;
   margin: 0;
   position: absolute;
+  top: -3px;
   width: 100%;
   padding: var(--ads-v2-spaces-1);
 

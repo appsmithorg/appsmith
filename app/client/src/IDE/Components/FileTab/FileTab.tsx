@@ -103,7 +103,7 @@ export const FileTab = ({
       onChange: handleTitleChange,
       autofocus: true,
       style: {
-        padding: "0 var(--ads-v2-spaces-1)",
+        left: -1,
       },
     }),
     [handleKeyUp, handleTitleChange],
