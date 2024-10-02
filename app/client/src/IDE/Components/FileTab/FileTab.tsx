@@ -70,6 +70,7 @@ export const FileTab = ({
       } else if (e.key === "Escape") {
         exitEditMode();
         setEditableTitle(title);
+        setValidationError(null);
       } else {
         setValidationError(null);
       }
