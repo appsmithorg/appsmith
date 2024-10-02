@@ -301,15 +301,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
     initials += props.application.name[1].toUpperCase() || "";
   }
 
-  // should show correct branch of application when edit mode
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  // const params: any = {};
-
-  // if (showGitBadge) {
-  //   params.branch = showGitBadge;
-  // }
-
   const handleMenuOnClose = (open: boolean) => {
     if (!open && !isDeleting) {
       setIsMenuOpen(false);
