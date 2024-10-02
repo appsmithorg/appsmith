@@ -156,7 +156,7 @@ export const StyledButton = styled((props) => (
       "buttonVariant",
       "primaryColor",
       "navColorStyle",
-      "varient",
+      "variant",
       "insideSidebar",
       "isMinimal",
     ])}
