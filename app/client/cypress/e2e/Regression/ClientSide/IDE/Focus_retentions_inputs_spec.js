@@ -14,7 +14,7 @@ import EditorNavigation, {
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 
-describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
+describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
   before("Import the test application", () => {
     homePage.CreateNewWorkspace("MaintainContext&Focus", true);
     homePage.ImportApp("ContextSwitching.json", "MaintainContext");
@@ -150,12 +150,10 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
 
     PageLeftPane.selectItem("S3_Query");
 
-    agHelper.GetElement(locators._queryName).should("have.text", "S3_Query");
-
-    // cy.assertCursorOnCodeInput(
-    //   ".t--actionConfiguration\\.formData\\.bucket\\.data",
-    //   { ch: 2, line: 0 },
-    // );
+    cy.assertCursorOnCodeInput(
+      ".t--actionConfiguration\\.formData\\.bucket\\.data",
+      { ch: 2, line: 0 },
+    );
 
     PageLeftPane.switchSegment(PagePaneSegment.JS);
 
