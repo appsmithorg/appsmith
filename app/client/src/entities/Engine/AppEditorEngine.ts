@@ -50,7 +50,7 @@ import {
 } from "ee/sagas/userSagas";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "ee/utils/airgapHelpers";
-import { getAIPromptTriggered } from "utils/storage";
+import { getAIPromptTriggered, setLatestGitBranchInLocal } from "utils/storage";
 import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
@@ -68,6 +68,8 @@ import {
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { Span } from "@opentelemetry/api";
 import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
+import { getCurrentUser } from "selectors/usersSelectors";
+import type { User } from "constants/userConstants";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -268,6 +270,17 @@ export default class AppEditorEngine extends AppEngine {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
+
+    const currentUser: User = yield select(getCurrentUser);
+    const currentBranch: string = yield select(getCurrentGitBranch);
+
+    if (currentUser?.email && currentBranch) {
+      yield setLatestGitBranchInLocal(
+        currentUser.email,
+        currentApplication.baseId,
+        currentBranch,
+      );
+    }
 
     const [isAnotherEditorTabOpen, currentTabs] = yield call(
       trackOpenEditorTabs,

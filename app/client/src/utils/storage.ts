@@ -1090,16 +1090,22 @@ export const storeActionTestPayload = async (payload: {
 };
 
 export const setLatestGitBranchInLocal = async (
+  userEmail: string,
   baseApplicationId: string,
   branch: string,
 ) => {
   try {
-    const storedBranches: Record<string, string> | null = await store.getItem(
-      STORAGE_KEYS.LATEST_GIT_BRANCH,
-    );
+    const storedBranches: Record<
+      string,
+      Record<string, string>
+    > = (await store.getItem(STORAGE_KEYS.LATEST_GIT_BRANCH)) ?? {};
+    const userBranches = storedBranches?.[userEmail] ?? {};
     const newBranches = {
       ...(storedBranches ?? {}),
-      [baseApplicationId]: branch,
+      [userEmail]: {
+        ...userBranches,
+        [baseApplicationId]: branch,
+      },
     };
 
     await store.setItem(STORAGE_KEYS.LATEST_GIT_BRANCH, newBranches);
@@ -1114,13 +1120,14 @@ export const setLatestGitBranchInLocal = async (
 };
 
 export const getLatestGitBranchFromLocal = async (
+  userEmail: string,
   baseApplicationId: string,
 ) => {
   try {
-    const storedBranches: Record<string, string> | null = await store.getItem(
-      STORAGE_KEYS.LATEST_GIT_BRANCH,
-    );
-    const branch = storedBranches?.[baseApplicationId];
+    const storedBranches: Record<string, Record<string, string>> | null =
+      await store.getItem(STORAGE_KEYS.LATEST_GIT_BRANCH);
+    const userBranches = storedBranches?.[userEmail] ?? {};
+    const branch = userBranches?.[baseApplicationId] ?? null;
 
     return branch;
   } catch (error) {

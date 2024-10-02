@@ -135,7 +135,6 @@ import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActions
 import { toast } from "@appsmith/ads";
 import { gitExtendedSagas } from "ee/sagas/GitExtendedSagas";
 import type { ApplicationPayload } from "entities/Application";
-import { setLatestGitBranchInLocal } from "utils/storage";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -378,7 +377,6 @@ function* switchBranch(action: ReduxAction<string>) {
   try {
     const branch = action.payload;
     const applicationId: string = yield select(getCurrentApplicationId);
-    const baseApplicationId: string = yield select(getCurrentBaseApplicationId);
 
     response = yield GitSyncAPI.checkoutBranch(applicationId, branch);
     const isValidResponse: boolean = yield validateResponse(
@@ -406,7 +404,6 @@ function* switchBranch(action: ReduxAction<string>) {
 
     yield put(setShowBranchPopupAction(false));
     yield put({ type: ReduxActionTypes.SWITCH_GIT_BRANCH_SUCCESS });
-    yield setLatestGitBranchInLocal(baseApplicationId, trimmedBranch);
     const defaultPage = response.data.pages.find((page) => page.isDefault);
 
     if (!existingPage && defaultPage) {
