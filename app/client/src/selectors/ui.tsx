@@ -21,6 +21,10 @@ export const getDefaultSelectedWidgetIds = (state: AppState) => {
 export const getIsSavingForApiName = (state: AppState, id: string) =>
   state.ui.apiName.isSaving[id];
 
+/** Select saving status for all API names */
+export const getApiNameSavingStatuses = (state: AppState) =>
+  state.ui.apiName.isSaving;
+
 /**
  * Selector to use id and provide the status of error in an API.
  */
@@ -32,6 +36,10 @@ export const getErrorForApiName = (state: AppState, id: string) =>
  */
 export const getIsSavingForJSObjectName = (state: AppState, id: string) =>
   state.ui.jsObjectName.isSaving[id];
+
+/** Select saving status for all JS object names */
+export const getJsObjectNameSavingStatuses = (state: AppState) =>
+  state.ui.jsObjectName.isSaving;
 
 /**
  * Selector to use id and provide the status of error in a JS Object.
