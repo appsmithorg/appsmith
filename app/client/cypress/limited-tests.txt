@@ -1,15 +1,5 @@
 # To run only limited tests - give the spec names in below format:
-#cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-cypress/e2e/Regression/Apps/CommunityIssues_Spec.ts
-cypress/e2e/Regression/ClientSide/Widgets/Button/Button_showAlert_multiline_message_spec.ts
-cypress/e2e/Regression/ClientSide/Widgets/Dropdown/Dropdown_onOptionChange_spec.js
-cypress/e2e/Regression/ClientSide/Widgets/TableV1/Table_Widget_Add_button_spec.js
-cypress/e2e/Regression/ClientSide/Widgets/TableV2/Inline_editing_2_spec.js
-cypress/e2e/Regression/ClientSide/Widgets/TableV2/Inline_editing_3_spec.js
-cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2_Widget_Add_button_spec.js
-cypress/e2e/Regression/ClientSide/Widgets/TableV2/inline_editing_validations_spec.js
-cypress/e2e/Smoke/GenerateCRUD/Generate_Crud_New_Page_spec.ts
-
+cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
