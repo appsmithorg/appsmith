@@ -97,11 +97,16 @@ export const FileTab = ({
 
   const handleDoubleClick = editorConfig ? handleEnterEditMode : noop;
 
+  const handleOnClose = useEventCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClose(e);
+  });
+
   const inputProps = useMemo(
     () => ({
       onKeyUp: handleKeyUp,
       onChange: handleTitleChange,
-      autofocus: true,
+      autoFocus: true,
       style: {
         left: -1,
       },
@@ -155,7 +160,7 @@ export const FileTab = ({
         className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
         data-testid="t--tab-close-btn"
         name="close-line"
-        onClick={onClose}
+        onClick={handleOnClose}
       />
     </Styled.Tab>
   );
