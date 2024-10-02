@@ -9,7 +9,7 @@ import Markdown from "react-markdown";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { monokai } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
-import { Button, Spinner, TextArea } from "@appsmith/wds";
+import { Button, Spinner, Text, TextArea } from "@appsmith/wds";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -195,6 +195,9 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
   getWidgetView(): ReactNode {
     return (
       <div className={styles.root}>
+        {this.props.chatTitle && (
+          <Text size="heading">{this.props.chatTitle}</Text>
+        )}
         <ul className={styles.messageList}>
           {(this.state.messages || []).map((message: Message) => (
             <li
