@@ -46,7 +46,7 @@ export const propertyPaneContent = [
       },
       {
         helpText: "Configures a prompt for the assistant",
-        propertyName: "prompt",
+        propertyName: "systemPrompt",
         label: "Prompt",
         controlType: "INPUT_TEXT",
         isJSConvertible: false,

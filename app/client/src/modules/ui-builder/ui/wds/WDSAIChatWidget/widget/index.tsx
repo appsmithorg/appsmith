@@ -36,7 +36,7 @@ export interface WDSAIChatWidgetProps
 interface Message {
   id: string;
   content: string;
-  role: "assistant" | "user";
+  role: "assistant" | "user" | "system";
 }
 
 interface State extends WidgetState {
@@ -123,8 +123,6 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
   }
 
   handleMessageSubmit = (event?: FormEvent<HTMLFormElement>) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
     event?.preventDefault();
 
     this.setState(
@@ -141,12 +139,23 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
         isWaitingForResponse: true,
       }),
       () => {
-        pushBatchMetaUpdates("messages", this.state.messages);
-        commitBatchMetaUpdates();
+        const messages: Message[] = [...this.state.messages];
 
-        super.executeAction({
+        if (this.props.systemPrompt) {
+          messages.unshift({
+            id: String(Date.now()),
+            content: this.props.systemPrompt,
+            role: "system",
+          });
+        }
+
+        const params = {
+          messages,
+        };
+
+        this.executeAction({
           triggerPropertyName: "onClick",
-          dynamicString: `{{${this.props.queryRun}.run()}}`,
+          dynamicString: `{{${this.props.queryRun}.run(${JSON.stringify(params)})}}`,
           event: {
             type: EventType.ON_CLICK,
             callback: this.handleActionComplete,
