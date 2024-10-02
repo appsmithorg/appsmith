@@ -6,7 +6,6 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import styles from "./styles.module.css";
 import Markdown from "react-markdown";
-import { Text } from "@appsmith/wds";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { monokai } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
@@ -200,15 +199,26 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
                   <Markdown
                     // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
                     components={{
-                      //   h1: ({ children }) => (
-                      //     <Text size="heading">{children}</Text>
-                      //   ),
-                      //   h2: ({ children }) => (
-                      //     <Text size="heading">{children}</Text>
-                      //   ),
-                      //   h3: ({ children }) => (
-                      //     <Text size="heading">{children}</Text>
-                      //   ),
+                      // h1: ({ children }) => (
+                      //   <Text size="heading" wordBreak="break-word">
+                      //     {children}
+                      //   </Text>
+                      // ),
+                      // h2: ({ children }) => (
+                      //   <Text size="title" wordBreak="break-word">
+                      //     {children}
+                      //   </Text>
+                      // ),
+                      // h3: ({ children }) => (
+                      //   <Text size="subtitle" wordBreak="break-word">
+                      //     {children}
+                      //   </Text>
+                      // ),
+                      // p: ({ children }) => (
+                      //   <Text size="body" wordBreak="break-word">
+                      //     {children}
+                      //   </Text>
+                      // ),
                       code(props) {
                         const { children, className, ...rest } = props;
                         const match = /language-(\w+)/.exec(className || "");
