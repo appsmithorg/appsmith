@@ -7,6 +7,8 @@ import {
 import styles from "./styles.module.css";
 import Markdown from "react-markdown";
 import { Text } from "@appsmith/wds";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { monokai } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 import { Button, Spinner, TextArea } from "@appsmith/wds";
 import type {
@@ -92,6 +94,10 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
         setVisibility: {
           path: "isVisible",
           type: "boolean",
+        },
+        setData: {
+          path: "messages",
+          type: "array",
         },
       },
     };
@@ -189,33 +195,43 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
               key={message.id}
             >
               {message.role === "assistant" ? (
-                <Markdown
-                  // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
-                  components={{
-                    h1: ({ children }) => (
-                      <Text size="heading" wordBreak="break-word">
-                        {children}
-                      </Text>
-                    ),
-                    h2: ({ children }) => (
-                      <Text size="title" wordBreak="break-word">
-                        {children}
-                      </Text>
-                    ),
-                    h3: ({ children }) => (
-                      <Text size="subtitle" wordBreak="break-word">
-                        {children}
-                      </Text>
-                    ),
-                    p: ({ children }) => (
-                      <Text size="body" wordBreak="break-word">
-                        {children}
-                      </Text>
-                    ),
-                  }}
-                >
-                  {message.content}
-                </Markdown>
+                <div>
+                  {this.props.assistantName}
+                  <Markdown
+                    // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
+                    components={{
+                      //   h1: ({ children }) => (
+                      //     <Text size="heading">{children}</Text>
+                      //   ),
+                      //   h2: ({ children }) => (
+                      //     <Text size="heading">{children}</Text>
+                      //   ),
+                      //   h3: ({ children }) => (
+                      //     <Text size="heading">{children}</Text>
+                      //   ),
+                      code(props) {
+                        const { children, className, ...rest } = props;
+                        const match = /language-(\w+)/.exec(className || "");
+
+                        return match ? (
+                          <SyntaxHighlighter
+                            PreTag="div"
+                            language={match[1]}
+                            style={monokai}
+                          >
+                            {String(children).replace(/\n$/, "")}
+                          </SyntaxHighlighter>
+                        ) : (
+                          <code {...rest} className={className}>
+                            {children}
+                          </code>
+                        );
+                      },
+                    }}
+                  >
+                    {message.content}
+                  </Markdown>
+                </div>
               ) : (
                 message.content
               )}
