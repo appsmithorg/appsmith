@@ -14,9 +14,9 @@ function Text({
   className,
   color,
   inputProps,
+  inputRef,
   isEditable,
   kind,
-  onChange,
   renderAs,
   ...rest
 }: TextProps) {
@@ -35,11 +35,7 @@ function Text({
       {...rest}
     >
       {isEditable && typeof children === "string" ? (
-        <StyledEditableInput
-          onChange={onChange}
-          value={children}
-          {...inputProps}
-        />
+        <StyledEditableInput ref={inputRef} value={children} {...inputProps} />
       ) : (
         children
       )}

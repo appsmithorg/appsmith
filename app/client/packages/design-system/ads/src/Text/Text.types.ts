@@ -36,13 +36,13 @@ export type TextProps = {
   isStriked?: boolean;
   /** whether the text is editable or not */
   isEditable?: boolean;
-  /** onChange event for editable text */
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   /** input component props while isEditable is true */
   inputProps?: Omit<
     React.InputHTMLAttributes<HTMLInputElement>,
     "value" | "onChange"
   >;
+  /** ref for input component */
+  inputRef?: React.RefObject<HTMLInputElement>;
 } & React.HTMLAttributes<HTMLLabelElement> &
   React.HTMLAttributes<HTMLHeadingElement> &
   React.HTMLAttributes<HTMLParagraphElement> &
