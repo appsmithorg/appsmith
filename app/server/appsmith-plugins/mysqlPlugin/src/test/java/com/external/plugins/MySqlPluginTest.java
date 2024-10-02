@@ -80,11 +80,13 @@ public class MySqlPluginTest {
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is
     // pseudo-optional.
     @Container
-    public static MySQLContainer mySQLContainer = new MySQLContainer(
+    public static MySQLContainer mySQLContainer = (MySQLContainer) new MySQLContainer(
                     DockerImageName.parse("mysql/mysql-server:8.0.25").asCompatibleSubstituteFor("mysql"))
             .withUsername("mysql")
             .withPassword("password")
-            .withDatabaseName("test_db");
+            .withDatabaseName("test_db")
+            // Increased max connections to 400 to support the increased max connection pool size
+            .withCommand("--max_connections=400");
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is
     // pseudo-optional.
