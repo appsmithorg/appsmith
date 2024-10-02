@@ -114,13 +114,13 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         final CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         final CriteriaUpdate<Application> cu = cb.createCriteriaUpdate(genericDomain);
         final Root<Application> root = cu.getRoot();
-        final Path<Expression<?>> pagesField = root.get("pages");
+        final Path<Expression<?>> pagesField = root.get(Application.Fields.pages);
         cu.set(
                 pagesField,
                 cb.function(
                         "jsonb_insert",
                         Object.class,
-                        cb.function("coalesce", List.class, pagesField, cb.literal("[]")),
+                        cb.function("coalesce", Object.class, pagesField, cb.literal("[]")),
                         cb.literal("{-1}"), // at end of array
                         cb.literal(new ObjectMapper().writeValueAsString(applicationPage)),
                         cb.literal(true)));
