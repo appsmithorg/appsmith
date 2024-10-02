@@ -353,7 +353,7 @@ export const ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
 
 export const ACTION_ID_NOT_FOUND_IN_URL =
   "No correct API id or Query id found in the url.";
-export const JSOBJECT_ID_NOT_FOUND_IN_URL =
+export const JS_OBJECT_ID_NOT_FOUND_IN_URL =
   "No correct JS Object id found in the url.";
 
 export const DATASOURCE_CREATE = (dsName: string) =>

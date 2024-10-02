@@ -10,7 +10,7 @@ import {
 } from "ee/selectors/entitiesSelector";
 import {
   ACTION_NAME_PLACEHOLDER,
-  JSOBJECT_ID_NOT_FOUND_IN_URL,
+  JS_OBJECT_ID_NOT_FOUND_IN_URL,
   createMessage,
 } from "ee/constants/messages";
 import EditableText, {
@@ -66,7 +66,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
     <NameEditorComponent
       dispatchAction={props.saveJSObjectName}
       id={currentJSObjectConfig?.id}
-      idUndefinedErrorMessage={JSOBJECT_ID_NOT_FOUND_IN_URL}
+      idUndefinedErrorMessage={JS_OBJECT_ID_NOT_FOUND_IN_URL}
       name={currentJSObjectConfig?.name}
       saveStatus={saveStatus}
     >
