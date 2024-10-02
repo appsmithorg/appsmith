@@ -38,7 +38,7 @@ import static org.springframework.util.CollectionUtils.isEmpty;
 
 public class MySqlDatasourceUtils {
 
-    public static int MAX_CONNECTION_POOL_SIZE = 5;
+    public static int MAX_CONNECTION_POOL_SIZE = 20;
 
     /**
      * 1 sec is the recommended value as shown in the example here:
