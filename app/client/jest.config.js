@@ -5,7 +5,7 @@ const LOG_LEVELS = ["debug", "error"];
 const CONFIG_LOG_LEVEL_INDEX = 1;
 
 module.exports = {
-  setupFiles: ["jest-canvas-mock"],
+  setupFiles: ["jest-canvas-mock", "<rootDir>/test/__mocks__/reactMarkdown.tsx"],
   roots: ["<rootDir>/src"],
   transform: {
     "^.+\\.(png|js|ts|tsx)$": "ts-jest",
@@ -20,8 +20,6 @@ module.exports = {
     "<rootDir>/node_modules/(?!codemirror|konva|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never|axios)",
   ],
   moduleNameMapper: {
-    "react-markdown":
-      "<rootDir>/node_modules/react-markdown/react-markdown.min.js",
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
     "\\.svg$": "<rootDir>/test/__mocks__/svgMock.js",
     "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga|txt)$":
