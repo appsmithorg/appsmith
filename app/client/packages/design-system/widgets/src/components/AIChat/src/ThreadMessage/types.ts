@@ -1,5 +1,7 @@
-export interface ThreadMessageProps {
-  id: string;
+import type { HTMLProps } from "react";
+
+export interface ThreadMessageProps extends HTMLProps<HTMLLIElement> {
   content: string;
-  role: "assistant" | "user" | "system";
+  isAssistant: boolean;
+  username: string;
 }

@@ -1,4 +1,4 @@
-import { AIChat, type Message } from "@appsmith/wds";
+import { AIChat, type ChatMessage } from "@appsmith/wds";
 import {
   EventType,
   type ExecutionResult,
@@ -27,6 +27,11 @@ import {
 
 export interface WDSAIChatWidgetProps
   extends ContainerWidgetProps<WidgetProps> {}
+export interface Message {
+  id: string;
+  content: string;
+  role: "assistant" | "user" | "system";
+}
 
 interface State extends WidgetState {
   messages: Message[];
@@ -42,6 +47,17 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
       {
         id: "1",
         content: "Hello! How can I help you?",
+        role: "assistant" as const,
+      },
+      {
+        id: "2",
+        content: "Find stuck support requests",
+        role: "user" as const,
+      },
+      {
+        id: "3",
+        content:
+          "I'm finding these customer support requests that have been waiting for a response for over a day:",
         role: "assistant" as const,
       },
     ],
@@ -83,10 +99,6 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
           path: "isVisible",
           type: "boolean",
         },
-        setData: {
-          path: "messages",
-          type: "array",
-        },
       },
     };
   }
@@ -109,6 +121,13 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
 
   static getStylesheetConfig(): Stylesheet {
     return {};
+  }
+
+  adaptMessages(messages: Message[]): ChatMessage[] {
+    return messages.map((message) => ({
+      ...message,
+      isAssistant: message.role === "assistant",
+    }));
   }
 
   handleMessageSubmit = (event?: FormEvent<HTMLFormElement>) => {
@@ -170,19 +189,23 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
     }
   };
 
+  handlePromptChange = (prompt: string) => {
+    this.setState({ prompt });
+  };
+
   getWidgetView(): ReactNode {
     return (
       <AIChat
         assistantName={this.props.assistantName}
+        chatTitle={this.props.chatTitle}
         description={this.props.description}
         isWaitingForResponse={this.state.isWaitingForResponse}
-        // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
-        onPromptChange={(prompt) => this.setState({ prompt })}
+        onPromptChange={this.handlePromptChange}
         onSubmit={this.handleMessageSubmit}
         prompt={this.state.prompt}
         promptInputPlaceholder={this.props.promptInputPlaceholder}
-        thread={this.state.messages}
-        title={this.props.title}
+        thread={this.adaptMessages(this.state.messages)}
+        username={this.props.username}
       />
     );
   }

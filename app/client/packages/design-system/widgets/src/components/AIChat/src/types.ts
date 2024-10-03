@@ -1,14 +1,15 @@
-export interface Message {
+export interface ChatMessage {
   id: string;
   content: string;
-  role: "assistant" | "user" | "system";
+  isAssistant: boolean;
 }
 
 export interface AIChatProps {
-  thread: Message[];
+  thread: ChatMessage[];
   prompt: string;
+  username: string;
   promptInputPlaceholder?: string;
-  title?: string;
+  chatTitle?: string;
   description?: string;
   assistantName?: string;
   isWaitingForResponse?: boolean;

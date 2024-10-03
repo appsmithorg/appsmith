@@ -123,6 +123,18 @@ export const propertyPaneContent = [
         isTriggerProperty: false,
         hidden: () => true,
       },
+      // Fake hidden prop to pass the username to the widget
+      {
+        propertyName: "username",
+        label: "",
+        controlType: "INPUT_TEXT",
+        defaultValue: "{{appsmith.user.username}}",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        hidden: () => true,
+        invisible: true,
+      },
     ],
   },
 ];

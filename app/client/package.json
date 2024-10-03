@@ -95,7 +95,6 @@
     "@types/d3-geo": "^3.1.0",
     "@types/google.maps": "^3.51.0",
     "@types/react-page-visibility": "^6.4.1",
-    "@types/react-syntax-highlighter": "^15.5.13",
     "@types/web": "^0.0.99",
     "@uppy/core": "^1.16.0",
     "@uppy/dashboard": "^1.16.0",

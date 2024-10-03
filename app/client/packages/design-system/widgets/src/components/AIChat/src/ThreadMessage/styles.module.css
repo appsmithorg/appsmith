@@ -1,27 +1,27 @@
 .root {
-  position: relative;
-  padding: 24px 0 24px 40px;
+  display: flex;
+  gap: 16px;
+  padding: 12px 0;
+}
 
-  ul {
-    margin: var(--outer-spacing-3) 0 var(--outer-spacing-5);
-    padding: 0 0 0 var(--inner-spacing-4);
-    list-style-type: disc;
-  }
-
-  li {
-    margin: var(--outer-spacing-3) 0;
+@container (min-width: 700px) {
+  .root {
+    padding: 24px 0;
   }
 }
 
-.message[data-role="user"] {
-  align-self: flex-end;
-  background-color: rgba(from var(--color-bg-neutral) r g b / 0.1);
+.root[data-assistant="false"] {
+  flex-direction: row-reverse;
 }
 
-.message[data-role="bot"] {
-  align-self: flex-start;
+.root[data-assistant="false"] .sentTime {
+  text-align: right;
 }
 
-.content {
-  margin: 0;
+.sentTime {
+  margin: 0 0 8px;
+  /* TODO: --type-caption doesn't exists. Define it */
+  font-size: var(--type-caption, 12.247px);
+  /* TODO: --type-caption-lineheight doesn't exists. Define it */
+  line-height: var(--type-caption-lineheight, 17.25px);
 }

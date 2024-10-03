@@ -250,6 +250,7 @@ __metadata:
     "@react-types/shared": ^3.23.1
     "@tabler/icons-react": ^3.10.0
     "@types/fs-extra": ^11.0.4
+    "@types/react-syntax-highlighter": ^15.5.13
     clsx: ^2.0.0
     eslint-plugin-storybook: ^0.6.10
     lodash: "*"
@@ -12671,7 +12672,6 @@ __metadata:
     "@types/react-page-visibility": ^6.4.1
     "@types/react-redux": ^7.0.1
     "@types/react-router-dom": ^5.1.2
-    "@types/react-syntax-highlighter": ^15.5.13
     "@types/react-table": ^7.0.13
     "@types/react-tabs": ^2.3.1
     "@types/react-test-renderer": ^17.0.1
