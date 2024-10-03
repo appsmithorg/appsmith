@@ -137,6 +137,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     public Mono<Tenant> getTenantConfiguration(Mono<Tenant> dbTenantMono) {
         Mono<String> instanceAdminEmailDomainMono = configService
                 .getByName(INSTANCE_ADMIN_CONFIG)
+                .onErrorResume(e -> Mono.empty())
                 .switchIfEmpty(Mono.just(new Config()))
                 .map(config -> {
                     if (config.getConfig() == null) {

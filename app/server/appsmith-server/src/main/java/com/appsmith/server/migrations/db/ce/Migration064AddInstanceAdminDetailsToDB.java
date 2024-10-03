@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_ADMIN_CONFIG;
@@ -22,8 +23,8 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 
 @RequiredArgsConstructor
 @Slf4j
-@ChangeUnit(order = "063", id = "add_instance_admin_details_to_config_collection")
-public class Migration063AddInstanceAdminDetailsToDB {
+@ChangeUnit(order = "064", id = "add_instance_admin_details_to_config_collection")
+public class Migration064AddInstanceAdminDetailsToDB {
 
     private final MongoTemplate mongoTemplate;
     private final CommonConfig commonConfig;
@@ -64,7 +65,9 @@ public class Migration063AddInstanceAdminDetailsToDB {
         }
         Config config = new Config();
         config.setName(INSTANCE_ADMIN_CONFIG);
-        config.setConfig(InstanceAdminMetaDTO.toJsonObject(adminEmail));
-        mongoTemplate.save(config);
+        if (StringUtils.hasLength(adminEmail)) {
+            config.setConfig(InstanceAdminMetaDTO.toJsonObject(adminEmail));
+            mongoTemplate.save(config);
+        }
     }
 }

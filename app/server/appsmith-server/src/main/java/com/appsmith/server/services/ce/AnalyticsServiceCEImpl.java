@@ -228,6 +228,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 ? Mono.just(adminEmailDomainHash)
                 : configService
                         .getByName(INSTANCE_ADMIN_CONFIG)
+                        .onErrorResume(e -> Mono.empty())
                         .switchIfEmpty(Mono.just(new Config()))
                         .map(config -> {
                             if (config.getConfig() == null) {

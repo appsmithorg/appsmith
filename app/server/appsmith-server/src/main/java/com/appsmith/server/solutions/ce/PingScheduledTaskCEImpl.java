@@ -157,6 +157,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
         Mono<String> instanceAdminEmailDomainMono = configService
                 .getByName(INSTANCE_ADMIN_CONFIG)
+                .onErrorResume(error -> Mono.empty())
                 .switchIfEmpty(Mono.just(new Config()))
                 .map(config -> {
                     if (config.getConfig() == null) {

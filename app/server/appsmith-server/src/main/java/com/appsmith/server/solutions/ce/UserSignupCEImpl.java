@@ -473,8 +473,10 @@ public class UserSignupCEImpl implements UserSignupCE {
                     Config config = new Config();
                     config.setName(INSTANCE_ADMIN_CONFIG);
                     config.setConfig(InstanceAdminMetaDTO.toJsonObject(newsletterSignedUpUserEmail));
-                    Mono<Config> configMono =
-                            configService.getByName(INSTANCE_ADMIN_CONFIG).switchIfEmpty(configService.save(config));
+                    Mono<Config> configMono = configService
+                            .getByName(INSTANCE_ADMIN_CONFIG)
+                            .onErrorResume(error -> Mono.empty())
+                            .switchIfEmpty(configService.save(config));
 
                     return configMono
                             .then(analyticsService.sendEvent(
