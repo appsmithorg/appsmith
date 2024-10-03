@@ -55,11 +55,6 @@ describe(
         0,
         "https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg",
       );
-      // _.table.AssertURLColumnNavigation(
-      //   3,
-      //   0,
-      //   "https://docs.appsmith.com/img/replyto-logo_6yaZHFIeU.jpeg",
-      // );
 
       _.deployMode.NavigateBacktoEditor();
     });
@@ -100,11 +95,6 @@ describe(
         0,
         "https://docs.appsmith.com/img/Appsmith-Login-Screen-Shows-SAML.jpg",
       );
-      // _.table.AssertURLColumnNavigation(
-      //   2,
-      //   0,
-      //   "https://docs.appsmith.com/img/zapier-logo_odZ9wZQ3vY.jpeg",
-      // );
 
       _.deployMode.NavigateBacktoEditor();
     });
@@ -145,11 +135,6 @@ describe(
         0,
         "https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg",
       );
-      // _.table.AssertURLColumnNavigation(
-      //   3,
-      //   0,
-      //   "https://docs.appsmith.com/img/replyto-logo_6yaZHFIeU.jpeg",
-      // );
 
       _.deployMode.NavigateBacktoEditor();
     });
