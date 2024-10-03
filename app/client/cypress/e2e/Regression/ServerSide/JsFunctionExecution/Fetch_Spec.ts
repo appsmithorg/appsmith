@@ -91,8 +91,8 @@ describe("Tests fetch calls", { tags: ["@tag.JS"] }, () => {
       "onClick",
       `{{(async function(){
           const gender = await Gender_Age.run({ person: "sagar" });
-          storeValue("Gender", gender); // No need to await
-          showAlert("Your name is " + appsmith.store.Gender.name); // Assuming 'name' is a string
+          storeValue("Gender", gender);
+          showAlert("Your name is " + appsmith.store.Gender.name);
         })()}}`,
     );
 
