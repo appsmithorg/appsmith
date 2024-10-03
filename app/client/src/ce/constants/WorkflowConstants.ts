@@ -2,23 +2,6 @@ import type { EvaluationVersion } from "constants/EvalConstants";
 
 type ID = string;
 
-export interface WorkflowScheduleSpecInterface {
-  cronExpressions: Array<string>;
-  timeZoneName: string;
-}
-
-export enum WorkflowScheduleState {
-  ACTIVE = "ACTIVE",
-  INACTIVE = "INACTIVE",
-}
-
-export interface WorkflowScheduleInterface {
-  scheduleSpec: WorkflowScheduleSpecInterface;
-  triggerData: Record<string, unknown>;
-  name: string;
-  state: WorkflowScheduleState;
-}
-
 // Type for the workflow object.
 export interface Workflow {
   id: ID;
@@ -37,7 +20,6 @@ export interface Workflow {
   // PR for reference: https://github.com/appsmithorg/appsmith/pull/8796
   evaluationVersion: EvaluationVersion;
   token?: string;
-  schedules?: Record<string, WorkflowScheduleInterface>;
 }
 
 export type WorkflowMetadata = Workflow;
