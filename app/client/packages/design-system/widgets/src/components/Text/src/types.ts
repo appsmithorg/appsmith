@@ -35,7 +35,7 @@ export interface TextProps {
   /** Sets the CSS [className](https://developer.mozilla.org/en-US/docs/Web/API/Element/className) for the element. Only use as a **last resort**. Use style props instead. */
   className?: string;
   /** The children of the component. */
-  children: ReactNode;
+  children?: ReactNode;
   /** title attribute for the component */
   title?: string;
   /** Sets the HTML [id](https://developer.mozilla.org/en-US/docs/Web/API/Element/id) for the element. */
