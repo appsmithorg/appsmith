@@ -4,7 +4,7 @@ type ID = string;
 
 export interface WorkflowScheduleSpecInterface {
   cronExpressions: Array<string>;
-  timezone: string;
+  timeZoneName: string;
 }
 
 export enum WorkflowScheduleState {
