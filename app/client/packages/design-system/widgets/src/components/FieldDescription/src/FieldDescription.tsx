@@ -1,16 +1,18 @@
 import React from "react";
-import { Text } from "../../Text";
-import styles from "./styles.module.css";
-import type { FieldDescriptionProps } from "./types";
+import { Text } from "@appsmith/wds";
+import { Text as AriaText } from "react-aria-components";
+import type { TextProps as AriaTextProps } from "react-aria-components";
 
-export const FieldDescription = (props: FieldDescriptionProps) => {
-  const { description, isInvalid } = props;
+export const FieldDescription = (props: AriaTextProps) => {
+  const { children } = props;
 
-  if (!Boolean(description) || Boolean(isInvalid)) return null;
+  if (!Boolean(children)) return null;
 
   return (
-    <Text className={styles.description} lineClamp={2} size="footnote">
-      {description}
-    </Text>
+    <AriaText slot="description">
+      <Text lineClamp={2} size="footnote">
+        {children}
+      </Text>
+    </AriaText>
   );
 };

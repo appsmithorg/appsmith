@@ -98,7 +98,7 @@
     box-shadow: 0 0 0 1px var(--color-bd-negative);
   }
 
-  & [data-field-input][data-invalid][data-hovered] {
+  & [data-field-input][data-invalid] {
     box-shadow: 0 0 0 1px var(--color-bd-negative-hover);
   }
 

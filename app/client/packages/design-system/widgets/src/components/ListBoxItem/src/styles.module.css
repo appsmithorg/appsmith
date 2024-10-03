@@ -1,0 +1,84 @@
+@import "../../../shared/colors/colors.module.css";
+
+.listBoxItem {
+  display: flex;
+  align-items: center;
+  padding-inline: var(--inner-spacing-3);
+  block-size: var(--sizing-11);
+}
+
+.listBoxItem:first-of-type {
+  border-top-left-radius: var(--border-radius-elevation-3);
+  border-top-right-radius: var(--border-radius-elevation-3);
+}
+
+.listBoxItem:last-of-type {
+  border-bottom-left-radius: var(--border-radius-elevation-3);
+  border-bottom-right-radius: var(--border-radius-elevation-3);
+}
+
+/**
+* ----------------------------------------------------------------------------
+* ICON STYLES
+*-----------------------------------------------------------------------------
+*/
+.listBoxItem [data-icon] {
+  margin-inline-end: var(--inner-spacing-2);
+}
+
+.listBoxItem [data-submenu-icon] {
+  margin-inline-end: 0;
+  margin-inline-start: auto;
+}
+
+/**
+* ----------------------------------------------------------------------------
+* HOVER AND ACTIVE STATES
+*-----------------------------------------------------------------------------
+*/
+.listBoxItem:not([data-disabled]) {
+  cursor: pointer;
+}
+
+.listBoxItem[data-hovered],
+.listBoxItem[data-focused] {
+  background-color: var(--color-bg-accent-subtle-hover);
+}
+
+.listBoxItem[data-selected] {
+  background-color: var(--color-bg-accent-subtle-active);
+}
+
+/**
+* ----------------------------------------------------------------------------
+* DISABLED STATE
+*-----------------------------------------------------------------------------
+*/
+.listBoxItem[data-disabled] {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+/**
+* ----------------------------------------------------------------------------
+* FOCUS VISIBLE
+*-----------------------------------------------------------------------------
+*/
+.listBoxItem[data-focus-visible] {
+  box-shadow: inset 0 0 0 2px var(--color-bd-focus);
+}
+
+/**
+* ----------------------------------------------------------------------------
+* SEPARATOR
+*-----------------------------------------------------------------------------
+*/
+.separator {
+  border-top: var(--border-width-1) solid var(--color-bd);
+  padding: 0;
+}
+
+/* making sure the first and last child are not displayed when they have the data-separator attribute */
+.separator:is(:first-child, :last-child) {
+  display: none;
+}

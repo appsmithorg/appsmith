@@ -1,7 +1,12 @@
 import React from "react";
-import { Button, Menu, MenuTrigger } from "@appsmith/wds";
+import {
+  Button,
+  Menu,
+  MenuTrigger,
+  MenuItem,
+  SubmenuTrigger,
+} from "@appsmith/wds";
 import type { Meta, StoryObj } from "@storybook/react";
-import { menuItems, submenusItems, submenusItemsWithIcons } from "./menuData";
 
 /**
  * A menu displays a list of actions or options that a user can choose.
@@ -17,45 +22,55 @@ export default meta;
 type Story = StoryObj<typeof Menu>;
 
 export const Main: Story = {
-  render: (args) => (
-    <MenuTrigger>
-      <Button>Open The Menu…</Button>
-      <Menu
-        items={menuItems}
-        onAction={(key) => alert(`Selected key: ${key}`)}
-        {...args}
-      />
-    </MenuTrigger>
-  ),
-};
-
-export const Submenus: Story = {
   render: () => (
     <MenuTrigger>
       <Button>Open The Menu…</Button>
-      <Menu items={submenusItems} />
+      <Menu>
+        <MenuItem>Hello</MenuItem>
+        <MenuItem>World</MenuItem>
+        <MenuItem>Hello</MenuItem>
+        <MenuItem>World</MenuItem>
+        <SubmenuTrigger>
+          <MenuItem>Submenu</MenuItem>
+          <Menu>
+            <MenuItem>Submenu</MenuItem>
+            <MenuItem>Submenu</MenuItem>
+            <MenuItem>Submenu</MenuItem>
+            <MenuItem>Submenu</MenuItem>
+          </Menu>
+        </SubmenuTrigger>
+      </Menu>
     </MenuTrigger>
   ),
 };
 
-/**
- * The items can be disabled by passing `disabledKeys` or `isDisabled` in the item configuration.
- */
+// export const Submenus: Story = {
+//   render: () => (
+//     <MenuTrigger>
+//       <Button>Open The Menu…</Button>
+//       <Menu items={submenusItems} />
+//     </MenuTrigger>
+//   ),
+// };
 
-export const DisabledItems: Story = {
-  render: () => (
-    <MenuTrigger>
-      <Button>Open The Menu…</Button>
-      <Menu disabledKeys={[1, 2]} items={submenusItems} />
-    </MenuTrigger>
-  ),
-};
+// /**
+//  * The items can be disabled by passing `disabledKeys` or `isDisabled` in the item configuration.
+//  */
 
-export const WithIcons: Story = {
-  render: () => (
-    <MenuTrigger>
-      <Button>Open The Menu…</Button>
-      <Menu items={submenusItemsWithIcons} />
-    </MenuTrigger>
-  ),
-};
+// export const DisabledItems: Story = {
+//   render: () => (
+//     <MenuTrigger>
+//       <Button>Open The Menu…</Button>
+//       <Menu disabledKeys={[1, 2]} items={submenusItems} />
+//     </MenuTrigger>
+//   ),
+// };
+
+// export const WithIcons: Story = {
+//   render: () => (
+//     <MenuTrigger>
+//       <Button>Open The Menu…</Button>
+//       <Menu items={submenusItemsWithIcons} />
+//     </MenuTrigger>
+//   ),
+// };

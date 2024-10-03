@@ -5,9 +5,16 @@ import type { PopoverProps } from "react-aria-components";
 
 export const Popover = (props: PopoverProps) => {
   const { children, ...rest } = props;
+  const root = document.body.querySelector(
+    "[data-theme-provider]",
+  ) as HTMLButtonElement;
 
   return (
-    <HeadlessPopover className={styles.popover} {...rest}>
+    <HeadlessPopover
+      {...rest}
+      UNSTABLE_portalContainer={root}
+      className={styles.popover}
+    >
       {children}
     </HeadlessPopover>
   );

@@ -1,40 +1,35 @@
-import React, { useRef } from "react";
+import React from "react";
 import {
   FieldDescription,
   FieldError,
-  Icon,
   FieldLabel,
-  Spinner,
-  FieldListPopover,
+  ListBox,
+  newFieldStyles,
+  Popover,
 } from "@appsmith/wds";
-import { getTypographyClassName } from "@appsmith/wds-theming";
-import clsx from "clsx";
-import {
-  Button,
-  Select as HeadlessSelect,
-  SelectValue,
-} from "react-aria-components";
-import styles from "./styles.module.css";
+import { Select as AriaSelect } from "react-aria-components";
+
 import type { SelectProps } from "./types";
+import { SelectTrigger } from "./SelectTrigger";
 
 export const Select = (props: SelectProps) => {
   const {
+    children,
     contextualHelp,
     description,
     errorMessage,
+    isDisabled,
     isLoading,
     isRequired,
-    items,
     label,
+    placeholder,
     size = "medium",
     ...rest
   } = props;
-  const triggerRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <HeadlessSelect
-      aria-label={Boolean(label) ? undefined : "Select"}
-      className={styles.formField}
+    <AriaSelect
+      className={newFieldStyles.field}
       data-size={size}
       isRequired={isRequired}
       {...rest}
@@ -43,32 +38,24 @@ export const Select = (props: SelectProps) => {
         <>
           <FieldLabel
             contextualHelp={contextualHelp}
+            isDisabled={isDisabled}
             isRequired={isRequired}
-            text={label}
+          >
+            {label}
+          </FieldLabel>
+          <SelectTrigger
+            isInvalid={isInvalid}
+            isLoading={isLoading}
+            placeholder={placeholder}
+            size={size}
           />
-          <Button className={styles.textField} ref={triggerRef}>
-            <SelectValue
-              className={clsx(
-                styles.fieldValue,
-                getTypographyClassName("body"),
-              )}
-            >
-              {({ defaultChildren, isPlaceholder }) => {
-                if (isPlaceholder) {
-                  return props.placeholder;
-                }
-
-                return defaultChildren;
-              }}
-            </SelectValue>
-            {!Boolean(isLoading) && <Icon name="chevron-down" />}
-            {Boolean(isLoading) && <Spinner />}
-          </Button>
-          <FieldError errorMessage={errorMessage} />
-          <FieldDescription description={description} isInvalid={isInvalid} />
-          <FieldListPopover items={items} />
+          <FieldDescription>{description}</FieldDescription>
+          <FieldError>{errorMessage}</FieldError>
+          <Popover>
+            <ListBox shouldFocusWrap>{children}</ListBox>
+          </Popover>
         </>
       )}
-    </HeadlessSelect>
+    </AriaSelect>
   );
 };

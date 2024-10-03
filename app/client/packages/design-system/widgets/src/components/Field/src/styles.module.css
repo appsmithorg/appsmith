@@ -1,0 +1,6 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--inner-spacing-3);
+  width: 100%;
+}

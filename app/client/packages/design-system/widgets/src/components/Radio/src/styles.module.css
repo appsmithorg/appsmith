@@ -1,21 +1,3 @@
-.radioGroup {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-
-  &[data-orientation="vertical"] {
-    align-items: start;
-
-    .radio {
-      margin-inline-end: auto;
-    }
-  }
-
-  &[data-disabled] {
-    cursor: not-allowed;
-  }
-}
-
 .radio {
   display: flex;
   align-items: center;

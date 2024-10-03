@@ -1,70 +1,90 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { RadioGroup, Flex } from "@appsmith/wds";
-
-/**
- * Radio group is a component that allows users to select one option from a set of options.
- */
-const meta: Meta<typeof RadioGroup> = {
-  component: RadioGroup,
-  title: "WDS/Widgets/RadioGroup",
-};
-
-export default meta;
-type Story = StoryObj<typeof RadioGroup>;
+import { RadioGroup, Flex, Radio } from "@appsmith/wds";
 
 const items = [
   { label: "Value 1", value: "value-1" },
   { label: "Value 2", value: "value-2" },
 ];
 
-export const Main: Story = {
+const meta: Meta<typeof RadioGroup> = {
+  title: "WDS/Widgets/RadioGroup",
+  component: RadioGroup,
+  tags: ["autodocs"],
   args: {
-    label: "Radio Group",
     defaultValue: "value-1",
-    items: items,
+    children: items.map((item) => (
+      <Radio key={item.value} value={item.value}>
+        {item.label}
+      </Radio>
+    )),
   },
-  render: (args) => <RadioGroup {...args} />,
 };
 
-/**
- * The component supports two label orientations `vertical` and `horizontal`. Default size is `horizontal`.
- */
+export default meta;
+type Story = StoryObj<typeof RadioGroup>;
+
+export const Main: Story = {
+  args: {
+    label: "Label",
+  },
+};
+
+export const WithLabelAndDescription: Story = {
+  args: {
+    label: "Label",
+    description: "Description",
+  },
+};
+
+export const WithContextualHelp: Story = {
+  args: {
+    label: "Label",
+    contextualHelp: "Contextual help",
+  },
+};
+
 export const Orientation: Story = {
-  render: () => (
-    <Flex direction="column" gap="spacing-4">
-      <RadioGroup items={items} />
-      <RadioGroup items={items} orientation="vertical" />
-    </Flex>
-  ),
+  render: () => {
+    return (
+      <Flex direction="column" gap="spacing-4">
+        <RadioGroup label="Vertical" orientation="vertical">
+          {items.map((item) => (
+            <Radio key={item.value} value={item.value}>
+              {item.label}
+            </Radio>
+          ))}
+        </RadioGroup>
+        <RadioGroup label="Horizontal" orientation="horizontal">
+          {items.map((item) => (
+            <Radio key={item.value} value={item.value}>
+              {item.label}
+            </Radio>
+          ))}
+        </RadioGroup>
+      </Flex>
+    );
+  },
 };
 
 export const Disabled: Story = {
   args: {
-    label: "Radio Group",
-    defaultValue: "value-1",
     isDisabled: true,
-    items: items,
+    label: "Disabled",
   },
-  render: (args) => <RadioGroup {...args} />,
 };
 
 export const Required: Story = {
   args: {
-    label: "Radio Group",
-    defaultValue: "value-1",
     isRequired: true,
-    items: items,
+    label: "Required",
   },
-  render: (args) => <RadioGroup {...args} />,
 };
 
 export const Invalid: Story = {
   args: {
-    label: "Radio Group",
+    errorMessage: "There is an error",
+    label: "Invalid",
     isInvalid: true,
-    errorMessage: "This is a error message",
-    items: items,
   },
-  render: (args) => <RadioGroup {...args} />,
 };

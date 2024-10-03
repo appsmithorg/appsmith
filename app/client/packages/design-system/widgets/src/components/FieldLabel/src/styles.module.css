@@ -1,17 +1,22 @@
+.labelGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--inner-spacing-1);
+  height: var(--sizing-3);
+}
+
+.labelGroup[data-disabled] {
+  opacity: var(--opacity-disabled);
+}
+
 .label {
   display: flex;
   align-items: center;
-  height: var(--sizing-3);
-  margin-block-end: var(--inner-spacing-3);
+  height: fit-content;
+  max-width: 100%;
   gap: var(--inner-spacing-1);
-
-  &[data-disabled="true"] {
-    cursor: not-allowed;
-    opacity: var(--opacity-disabled);
-  }
 }
 
 .necessityIndicator {
   color: var(--color-fg-negative);
-  margin-inline-start: var(--inner-spacing-1);
 }

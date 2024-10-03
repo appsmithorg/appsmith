@@ -2,7 +2,7 @@ import React from "react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
-import { RadioGroup } from "@appsmith/wds";
+import { Radio, RadioGroup } from "@appsmith/wds";
 
 describe("@appsmith/wds/RadioGroup", () => {
   const items = [
@@ -12,7 +12,13 @@ describe("@appsmith/wds/RadioGroup", () => {
 
   it("should render the Radio group", async () => {
     const { container } = render(
-      <RadioGroup items={items} label="Radio Group" />,
+      <RadioGroup label="Radio Group">
+        {items.map(({ label, value }) => (
+          <Radio key={value} value={value}>
+            {label}
+          </Radio>
+        ))}
+      </RadioGroup>,
     );
 
     expect(screen.getByText("Value 1")).toBeInTheDocument();
@@ -46,11 +52,13 @@ describe("@appsmith/wds/RadioGroup", () => {
 
   it("should support custom props", () => {
     render(
-      <RadioGroup
-        data-testid="t--radio-group"
-        items={items}
-        label="Radio Group Label"
-      />,
+      <RadioGroup data-testid="t--radio-group" label="Radio Group Label">
+        {items.map(({ label, value }) => (
+          <Radio key={value} value={value}>
+            {label}
+          </Radio>
+        ))}
+      </RadioGroup>,
     );
 
     const radioGroup = screen.getByTestId("t--radio-group");
@@ -60,7 +68,13 @@ describe("@appsmith/wds/RadioGroup", () => {
 
   it("should render checked checkboxes when value is passed", () => {
     render(
-      <RadioGroup items={items} label="Radio  Group Label" value="value-1" />,
+      <RadioGroup label="Radio  Group Label" value="value-1">
+        {items.map(({ label, value }) => (
+          <Radio key={value} value={value}>
+            {label}
+          </Radio>
+        ))}
+      </RadioGroup>,
     );
 
     const options = screen.getAllByRole("radio");
@@ -73,11 +87,13 @@ describe("@appsmith/wds/RadioGroup", () => {
     const onChangeSpy = jest.fn();
 
     render(
-      <RadioGroup
-        items={items}
-        label="Radio  Group Label"
-        onChange={onChangeSpy}
-      />,
+      <RadioGroup label="Radio  Group Label" onChange={onChangeSpy}>
+        {items.map(({ label, value }) => (
+          <Radio key={value} value={value}>
+            {label}
+          </Radio>
+        ))}
+      </RadioGroup>,
     );
 
     const options = screen.getAllByRole("radio");
@@ -87,7 +103,15 @@ describe("@appsmith/wds/RadioGroup", () => {
   });
 
   it("should be able to render disabled checkboxes", () => {
-    render(<RadioGroup isDisabled items={items} label="Radio  Group Label" />);
+    render(
+      <RadioGroup isDisabled label="Radio  Group Label">
+        {items.map(({ label, value }) => (
+          <Radio key={value} value={value}>
+            {label}
+          </Radio>
+        ))}
+      </RadioGroup>,
+    );
 
     const options = screen.getAllByRole("radio");
 
