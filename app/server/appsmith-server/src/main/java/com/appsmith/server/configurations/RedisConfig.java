@@ -215,7 +215,7 @@ public class RedisConfig {
                 boolean allValuesAreClientDTOs = true;
                 for (final LoginSource loginSource : LoginSource.oauthSources) {
                     final Object value = data.get(loginSource.name().toLowerCase());
-                    if (value != null && !(value instanceof OAuth2AuthorizedClientDTO)) {
+                    if (value != null && !(value instanceof OAuth2AuthorizedClient)) {
                         allValuesAreClientDTOs = false;
                         break;
                     }

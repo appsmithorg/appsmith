@@ -4,6 +4,7 @@ import { Flex } from "@appsmith/ads";
 import { useChangeActionCall } from "./hooks/useChangeActionCall";
 import { usePluginActionContext } from "../../PluginActionContext";
 import { UIComponentTypes } from "api/PluginApi";
+import GraphQLEditorForm from "./components/GraphQLEditor/GraphQLEditorForm";
 
 const PluginActionForm = () => {
   useChangeActionCall();
@@ -11,9 +12,12 @@ const PluginActionForm = () => {
 
   return (
     <Flex p="spaces-2" w="100%">
-      {plugin.uiComponent === UIComponentTypes.ApiEditorForm ? (
+      {plugin.uiComponent === UIComponentTypes.ApiEditorForm && (
         <APIEditorForm />
-      ) : null}
+      )}
+      {plugin.uiComponent === UIComponentTypes.GraphQLEditorForm && (
+        <GraphQLEditorForm />
+      )}
     </Flex>
   );
 };
