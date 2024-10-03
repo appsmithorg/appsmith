@@ -81,21 +81,29 @@ describe("Tests fetch calls", { tags: ["@tag.JS"] }, () => {
     propPane.TypeTextIntoField("Label", "getUserName");
     propPane.EnterJSContext(
       "onClick",
-      `{{fetch('http://host.docker.internal:5001/v1/genderize_agify?name=sagar')
-        .then(res => {
-          if (!res.ok) {
-            throw new Error('Network response was not ok');
-          }
-          return res.json();
-        })
-        .then(json => {
-          const name = json.name; // Get the name
-          showAlert("Name: " + name);
-        })
-        .catch(error => {
-          console.error("Fetch error:", error);
-          showAlert("Failed to fetch user data: " + error.message);
-        })}}`,
+      `{{ 
+        (function fetchData(retries = 3) {
+          return fetch('http://host.docker.internal:5001/v1/genderize_agify?name=sagar')
+            .then(res => {
+              if (!res.ok) {
+                throw new Error('Network response was not ok');
+              }
+              return res.json();
+            })
+            .then(json => {
+              const name = json.name;
+              showAlert("Name: " + name);
+            })
+            .catch(error => {
+              if (retries > 0) {
+                return fetchData(retries - 1);
+              } else {
+                console.error("Fetch error:", error);
+                showAlert("Failed to fetch user data: " + error.message);
+              }
+            });
+        })()
+      }}`,
     );
 
     agHelper.Sleep(2000);
