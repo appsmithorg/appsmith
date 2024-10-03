@@ -1,0 +1,13 @@
+.root {
+  display: inline-block;
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  color: var(--bg-elevation-2, #fff);
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 28px;
+  border-radius: var(--inner-spacing-1, 4px);
+  background: #000;
+}

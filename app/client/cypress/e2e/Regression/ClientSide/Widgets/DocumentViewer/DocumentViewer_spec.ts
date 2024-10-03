@@ -15,12 +15,11 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const ppt =
-  "https://ssz.sgp1.digitaloceanspaces.com/3ZEO2582C29EA0KKK2/ppt-on-population-pptxafa26c44-208f-46a3-89cc-8a5c020b6863.pptx";
+  "http://host.docker.internal:4200/ppt-on-population-pptxafa26c44-208f-46a3-89cc-8a5c020b6863.pptx";
 const pngImage = "https://www.appsmith.com/favicon.png";
 const jpgImage =
-  "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg";
-const pdf =
-  "https://www.learningcontainer.com/wp-content/uploads/2019/09/sample-pdf-file.pdf";
+  "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg?itok=yG4bpfFs";
+const pdf = "http://host.docker.internal:4200/sample-pdf-file.pdf";
 
 describe(
   "DocumentViewer Widget Functionality",

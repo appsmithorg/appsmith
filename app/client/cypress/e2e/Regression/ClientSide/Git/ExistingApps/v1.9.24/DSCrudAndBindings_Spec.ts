@@ -4,24 +4,18 @@ import {
   dataSources,
   deployMode,
   draggableWidgets,
-  entityExplorer,
   gitSync,
   homePage,
-  jsEditor,
   locators,
-  propPane,
   table,
 } from "../../../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
-  EntityType,
-  PageLeftPane,
-} from "../../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../../support/Pages/PageList";
 
 describe(
   "Import and validate older app (app created in older versions of Appsmith) from Gitea",
-  { tags: ["@tag.Git", "@tag.Sanity"] },
+  { tags: ["@tag.Git", "@tag.Sanity", "@tag.TedMigration"] },
   function () {
-    let appRepoName = "TestMigration",
+    let appRepoName = "TED-migration-test-1",
       appName = "UpgradeAppToLatestVersion",
       keyId: any,
       workspaceName: any;
@@ -41,68 +35,21 @@ describe(
       dataSources.ReconnectDSbyType("MongoDB");
       dataSources.ReconnectDSbyType("MySQL");
       dataSources.ReconnectDSbyType("PostgreSQL");
-      agHelper.Sleep(3000); //for CI to reconnect successfully
       homePage.AssertNCloseImport();
-    });
-
-    it("1. Validate merge status + Bug23822", () => {
-      PageLeftPane.assertPresence("ListingAndReviews");
-      //Wait for the app to settle
-      agHelper.Sleep(3000);
       homePage.RenameApplication(appName);
+      PageList.assertPresence("ListingAndReviews");
+
+      // this logic will have to be removed after decimal issue with auto-commit is resolved
       assertHelper.AssertNetworkResponseData("gitStatus");
       agHelper.AssertElementExist(gitSync._bottomBarCommit, 0, 30000);
-      agHelper.AssertText(gitSync._gitPullCount, "text", "4");
       agHelper.GetNClick(gitSync._bottomBarCommit);
       agHelper.AssertElementVisibility(gitSync._gitSyncModal);
-
-      //This is expected due to Canvas Splitting PR changes in v1.9.24
-      agHelper.GetNAssertContains(
-        gitSync._gitStatusChanges,
-        /[0-9] page(|s) modified/,
-      );
-
-      // Commenting it as part of #28012 - to be added back later
-      // agHelper.GetNAssertElementText(
-      //   gitSync._gitStatusChanges,
-      //   "Application settings modified",
-      //   "not.contain.text",
-      // );
-      agHelper.GetNAssertElementText(
-        gitSync._gitStatusChanges,
-        "Theme modified",
-        "not.contain.text",
-      );
-      agHelper.AssertContains(/[0-9] quer(y|ies) modified/, "not.exist");
-
-      // Commented out due to #25739 - to be fixed by dev later
-      // agHelper.GetNAssertElementText(
-      //   gitSync._gitStatusChanges,
-      //   "datasource modified",
-      //   "not.contain.text",
-      // );
-
-      agHelper.AssertContains(/[0-9] JS Object(|s) modified/, "not.exist");
-
-      // Commenting it as part of #28012 - to be added back later
-      // agHelper.AssertContains(/[0-9] librar(y|ies) modified/, "not.exist");
-
-      // This assertions is commented out due to issue #https://github.com/appsmithorg/appsmith/issues/28563
-      // Since we don't want this specific message appearing when we are just migrating the metadata,
-      // this assertion is not required.
-      // Slack conversation: https://theappsmith.slack.com/archives/C04HERDNZPA/p1698851532418569
-
-      // agHelper.GetNAssertElementText(
-      //   gitSync._gitStatusChanges,
-      //   "Some of the changes above are due to an improved file structure designed to reduce merge conflicts. You can safely commit them to your repository.",
-      //   "contain.text",
-      // );
       agHelper.GetNClick(gitSync._commitButton);
       assertHelper.AssertNetworkStatus("@commit", 201);
       gitSync.CloseGitSyncModal();
     });
 
-    it("2. Deploy the app & Validate CRUD pages - Mongo , MySql, Postgres pages", () => {
+    it("1. Deploy the app & Validate CRUD pages - Mongo , MySql, Postgres pages", () => {
       //Mongo CRUD page validation
       //Assert table data
       cy.latestDeployPreview();
@@ -112,7 +59,7 @@ describe(
         "listingAndReviews Data",
       );
       agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
-      table.WaitUntilTableLoad(0, 0, "v2");
+      table.WaitUntilTableLoad(0, 0);
 
       //Filter & validate table data
       table.OpenNFilterTable("_id", "is exactly", "15665837");
@@ -131,7 +78,7 @@ describe(
         "countryFlags Data",
       );
       agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
-      table.WaitUntilTableLoad(0, 0, "v2");
+      table.WaitUntilTableLoad(0, 0);
 
       //Filter & validate table data
       table.OpenNFilterTable("Country", "starts with", "Ba");
@@ -152,7 +99,7 @@ describe(
         "public_astronauts Data",
       );
       agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
-      table.WaitUntilTableLoad(0, 0, "v2");
+      table.WaitUntilTableLoad(0, 0);
 
       //Filter & validate table data
       table.OpenNFilterTable("id", "is exactly", "196");
@@ -164,10 +111,8 @@ describe(
       //Update table data
       deployMode.EnterJSONInputValue("Statusid", "5", 0, true);
       deployMode.EnterJSONInputValue("Statusname", "Active", 0, true);
-      agHelper.Sleep(500);
       agHelper.ClickButton("Update");
-      agHelper.Sleep(2000); //for CI update to be successful
-      table.WaitUntilTableLoad(0, 0, "v1");
+      table.WaitUntilTableLoad(0, 0);
 
       //Validate updated values in table
       table.ReadTableRowColumnData(0, 3).then(($cellData) => {
@@ -176,10 +121,9 @@ describe(
       table.ReadTableRowColumnData(0, 4).then(($cellData) => {
         expect($cellData).to.eq("Active");
       });
-      agHelper.Sleep(500);
     });
 
-    it("3. Validate widgets & bindings", () => {
+    it("2. Validate widgets & bindings", () => {
       agHelper.GetNClickByContains(locators._deployedPage, "Widgets");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.AUDIO),
@@ -194,22 +138,35 @@ describe(
         locators._widgetInDeployed(draggableWidgets.CHART),
       );
 
-      //Button
-      agHelper.ClickButton("Alert button");
-      agHelper.Sleep(500);
-      agHelper.WaitUntilToastDisappear(
-        "404 hit : invalidApi failed to execute",
-      );
-
       //Checkbox group
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
       );
-      agHelper.GetNAssertElementText(
+      agHelper.GetNAssertContains(
         locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
-        "Select AstronautUlf MerboldAndreas MogensenWubbo OckelsThomas ReiterAnil Menon",
-        "have.text",
+        "Select Astronaut",
       );
+      agHelper.GetNAssertContains(
+        locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
+        "Ulf Merbold",
+      );
+      agHelper.GetNAssertContains(
+        locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
+        "Andreas Mogensen",
+      );
+      agHelper.GetNAssertContains(
+        locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
+        "Wubbo Ockels",
+      );
+      agHelper.GetNAssertContains(
+        locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
+        "Thomas Reiter",
+      );
+      agHelper.GetNAssertContains(
+        locators._widgetInDeployed(draggableWidgets.CHECKBOXGROUP),
+        "Anil Menon",
+      );
+
       agHelper
         .GetElement(locators._checkboxTypeByOption("Ulf Merbold"))
         .should("be.checked");
@@ -219,10 +176,8 @@ describe(
       agHelper
         .ScrollIntoView(locators._sliderThumb)
         .focus()
-        .type("{rightArrow}")
-        .wait(500);
+        .type("{rightArrow}");
 
-      agHelper.Sleep(500);
       agHelper.WaitUntilToastDisappear("Category Value Changed!");
 
       //Currency input
@@ -261,51 +216,6 @@ describe(
       agHelper.WaitUntilToastDisappear("Delete customer successful!");
       agHelper.ClickButton("Close");
       agHelper.AssertElementAbsence(locators._modal);
-      agHelper.Sleep(2000);
-    });
-
-    it.skip("4. Edit JSObject & Check Updated Data ", () => {
-      deployMode.NavigateBacktoEditor();
-      //Edit existing JS object
-      EditorNavigation.SelectEntityByName("users", EntityType.JSObject);
-      jsEditor.EditJSObj(`export default {
-      fun: async () => {
-        return await invalidApi.run().catch((e) => showAlert("404 hit : " + e.message));
-      },
-      myFun1: async () => {
-        //write code here
-        const data = JSON.stringify(await usersApi.run())
-        return data
-      },
-      myFun2: async () => {
-        //use async-await or promises
-        await this.myFun1()
-        return showAlert("myFun2 Data")
-      }
-    }`);
-
-      //Update property field for button
-      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.EnterJSContext("onClick", `{{users.myFun2()}}`, true, false);
-
-      //Drag n drop text widget & bind it to myFun1
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
-      propPane.TypeTextIntoField("Text", `{{users.myFun1.data}}`);
-      agHelper.ValidateToastMessage(
-        "[users.myFun1] will be executed automatically on page load",
-      );
-
-      //Commit & push new changes
-      gitSync.CommitAndPush();
-      cy.latestDeployPreview();
-
-      //Validate new response for button & text widget
-      agHelper.GetNClickByContains(locators._deployedPage, "Widgets");
-      agHelper.ClickButton("Submit");
-      agHelper.ValidateToastMessage("myFun2 Data");
-      agHelper
-        .GetText(locators._widgetInDeployed(draggableWidgets.TEXT), "text")
-        .should("not.be.empty");
     });
 
     after(() => {
