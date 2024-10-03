@@ -4,7 +4,6 @@ import { ActionPaneNavigation } from "./exports";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
 import { setPluginActionEditorSelectedTab } from "PluginActionEditor/store";
 import { NAVIGATION_DELAY } from "../costants";
-import { isNumber } from "lodash";
 
 export default class ApiPaneNavigation extends ActionPaneNavigation {
   constructor(entityInfo: EntityInfo) {
@@ -30,6 +29,7 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
 
     return config;
   }
+
   *navigate() {
     const config: IApiPaneNavigationConfig = yield call(this.getConfig);
 
@@ -37,7 +37,7 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
 
     if (!this.entityInfo.propertyPath) return;
 
-    if (isNumber(config.tab)) {
+    if (config.tab) {
       yield put(setPluginActionEditorSelectedTab(config.tab));
       yield delay(NAVIGATION_DELAY);
     }
