@@ -88,7 +88,8 @@ import type {
 } from "reducers/uiReducers/usersReducer";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
-
+import * as Sentry from "@sentry/react";
+import { Severity } from "@sentry/react";
 export function* createUserSaga(
   action: ReduxActionWithPromise<CreateUserRequest>,
 ) {
@@ -127,6 +128,12 @@ export function* createUserSaga(
       type: ReduxActionErrorTypes.CREATE_USER_ERROR,
       payload: {
         error,
+      },
+    });
+    Sentry.captureException("Sign up failed", {
+      level: Severity.Error,
+      extra: {
+        error: error,
       },
     });
   }

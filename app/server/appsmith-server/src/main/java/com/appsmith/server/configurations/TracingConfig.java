@@ -5,15 +5,18 @@ import io.micrometer.observation.ObservationPredicate;
 import io.micrometer.observation.ObservationView;
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.exporter.SpanExportingPredicate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.reactive.observation.ServerRequestObservationContext;
 
 import static com.appsmith.external.constants.spans.BaseSpan.APPSMITH_SPAN_PREFIX;
+import static com.appsmith.external.constants.spans.BaseSpan.AUTHENTICATE;
 
 /**
  * This configuration file creates beans that are required to filter just Appsmith specific spans
  */
+@Slf4j
 @Configuration
 public class TracingConfig {
 
@@ -45,8 +48,10 @@ public class TracingConfig {
     SpanExportingPredicate onlyAppsmithSpans() {
         return (finishedSpan) -> {
             if ((finishedSpan.getKind() != null && finishedSpan.getKind().equals(Span.Kind.SERVER))
-                    || finishedSpan.getName().startsWith(APPSMITH_SPAN_PREFIX)) {
-                // A span is either an http server request root or Appsmith specific
+                    || finishedSpan.getName().startsWith(APPSMITH_SPAN_PREFIX)
+                    || finishedSpan.getName().startsWith(AUTHENTICATE)
+                    || finishedSpan.getName().startsWith("authorize")) {
+                // A span is either an http server request root or Appsmith specific or login related or signup related
                 return true;
             } else {
                 return false;
