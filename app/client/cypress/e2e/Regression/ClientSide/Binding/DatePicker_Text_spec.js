@@ -14,7 +14,7 @@ describe(
       _.agHelper.AddDsl("uiBindDsl");
     });
     // Skipping tests due to issue - https://www.notion.so/appsmith/f353d8c6bd664f79ad858a42010cdfc8?v=f04cde23f6424aeb9d5a6e389cd172bd&p=0717892d43684c40bae4e2c87b8308cb&pm=s
-    it.skip("1. DatePicker-Text, Validate selectedDate functionality", function () {
+    it("1. DatePicker-Text, Validate selectedDate functionality", function () {
       /**
        * Bind DatePicker1 to Text for "selectedDate"
        */
@@ -51,7 +51,7 @@ describe(
       cy.get(commonlocators.backToEditor).click();
     });
 
-    it.skip("2. DatePicker1-text: Change the date in DatePicker1 and Validate the same in text widget", function () {
+    it("2. DatePicker1-text: Change the date in DatePicker1 and Validate the same in text widget", function () {
       cy.openPropertyPane("textwidget");
 
       /**
@@ -89,7 +89,7 @@ describe(
       });
     });
 
-    it.skip("3. Validate the Date is not changed in DatePicker2", function () {
+    it("3. Validate the Date is not changed in DatePicker2", function () {
       cy.log("dateDp2:" + dateDp2);
       cy.get(formWidgetsPage.datepickerWidget + commonlocators.inputField)
         .eq(1)
@@ -124,7 +124,7 @@ describe(
       _.deployMode.NavigateBacktoEditor();
     });
 
-    it.skip("5. Checks if on deselection of date triggers the onDateSelected action or not.", function () {
+    it("5. Checks if on deselection of date triggers the onDateSelected action or not.", function () {
       /**
        * bind datepicker to show a message "Hello" on date selected
        */

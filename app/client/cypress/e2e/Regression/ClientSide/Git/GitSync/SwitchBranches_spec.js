@@ -175,7 +175,7 @@ describe("Git sync:", { tags: ["@tag.Git", "@tag.Sanity"] }, function () {
   });
 
   //Rename - hence skipping for Gitea
-  it.skip("5. test sync and prune branches", () => {
+  it("5. test sync and prune branches", () => {
     // uncomment once prune branch flow is complete
     let tempBranch = "featureA";
     const tempBranchRenamed = "newFeatureA";

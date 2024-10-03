@@ -48,7 +48,7 @@ describe(
     });
 
     //This test is failing because of this bug #36348
-    it.skip("2. Verify if schema was fetched once #36348", () => {
+    it("2. Verify if schema was fetched once #36348", () => {
       agHelper.RefreshPage();
       EditorNavigation.SelectEntityByName(
         dataSourceName,
