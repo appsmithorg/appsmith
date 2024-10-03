@@ -47,6 +47,7 @@ describe("ce/PageSaga", () => {
         pageWithMigratedDsl: mockResponse.data
           .pageWithMigratedDsl as FetchPageResponse,
         bustCache: false,
+        firstLoad: true,
       },
     };
 
@@ -56,6 +57,7 @@ describe("ce/PageSaga", () => {
         fetchPublishedPageAction(
           action.payload.pageId,
           action.payload.bustCache,
+          action.payload.firstLoad,
           action.payload.pageWithMigratedDsl,
         ),
       )

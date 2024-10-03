@@ -68,23 +68,25 @@ export const fetchPageAction = (
 export interface FetchPublishedPageActionPayload {
   pageId: string;
   bustCache?: boolean;
+  firstLoad?: boolean;
   pageWithMigratedDsl?: FetchPageResponse;
 }
 
 export interface FetchPublishedPageResourcesPayload {
   pageId: string;
-  applicationId: string;
 }
 
 export const fetchPublishedPageAction = (
   pageId: string,
   bustCache = false,
+  firstLoad = false,
   pageWithMigratedDsl?: FetchPageResponse,
 ): ReduxAction<FetchPublishedPageActionPayload> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
+    firstLoad,
     pageWithMigratedDsl,
   },
 });
@@ -299,12 +301,10 @@ export const clonePageSuccess = ({
 // In future we can reuse this for fetching other page level resources in published mode
 export const fetchPublishedPageResourcesAction = (
   pageId: string,
-  applicationId: string,
 ): ReduxAction<FetchPublishedPageResourcesPayload> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_INIT,
   payload: {
     pageId,
-    applicationId,
   },
 });
 
@@ -675,18 +675,21 @@ export const setupPageAction = (
 export interface SetupPublishedPageActionPayload {
   pageId: string;
   bustCache: boolean;
+  firstLoad: boolean;
   pageWithMigratedDsl?: FetchPageResponse;
 }
 
 export const setupPublishedPage = (
   pageId: string,
   bustCache = false,
+  firstLoad = false,
   pageWithMigratedDsl?: FetchPageResponse,
 ): ReduxAction<SetupPublishedPageActionPayload> => ({
   type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
+    firstLoad,
     pageWithMigratedDsl,
   },
 });
