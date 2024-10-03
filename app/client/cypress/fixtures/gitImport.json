@@ -743,7 +743,7 @@
           "userPermissions": [],
           "name": "DEFAULT_REST_DATASOURCE",
           "pluginId": "restapi-plugin",
-          "datasourceConfiguration": { "url": "hhttp://host.docker.internal:5001/v1/mock-api" },
+          "datasourceConfiguration": { "url": "http://host.docker.internal:5001/v1/mock-api" },
           "invalids": [],
           "messages": [],
           "isValid": true,

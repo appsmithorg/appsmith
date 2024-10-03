@@ -10,5 +10,8 @@
     "prettier": "yarn g:prettier",
     "postinstall": "yarn build",
     "test:unit": "yarn g:jest"
+  },
+  "dependencies": {
+    "@typescript-eslint/utils": "5.62.0"
   }
 }
