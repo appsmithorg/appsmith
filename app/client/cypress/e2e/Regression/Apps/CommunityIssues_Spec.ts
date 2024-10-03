@@ -88,8 +88,7 @@ describe(
 
       //Verify hidden columns are infact hidden in deployed app!
       table.AssertTableHeaderOrder(
-        // "TypeTitleStatus+1CommentorsVotesAnswerUpVote",
-        "TypeTitleStatus+1CommentorsVotesAnswerUpVoteStatesupvote_ididgithub_issue_idauthorcreated_atdescriptionlabelsstatelinkupdated_at",
+        "TypeTitleStatus+1CommentorsVotesAnswerUpVote",
       ); //from case #1
 
       table.AssertSelectedRow(selectedRow); //Assert default selected row
@@ -227,7 +226,7 @@ describe(
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.TogglePropertyState("Client side search", "Off");
 
-      // deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       table.WaitUntilTableLoad(0, 1, "v2");
 
       table.SearchTable("Xano");
