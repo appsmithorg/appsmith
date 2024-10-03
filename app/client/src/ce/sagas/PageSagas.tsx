@@ -395,9 +395,9 @@ export function* fetchPublishedPageResourcesSaga(
   action: ReduxAction<FetchPublishedPageResourcesPayload>,
 ) {
   try {
-    const { basePageId, pageId } = action.payload;
+    const { applicationId, pageId } = action.payload;
 
-    const params = { defaultPageId: basePageId };
+    const params = { defaultPageId: pageId };
     const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
       yield ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
 
@@ -420,11 +420,8 @@ export function* fetchPublishedPageResourcesSaga(
       );
 
       // NOTE: fetchActionsForView is used here to update publishedActions in redux store and not to fetch actions again
-      yield put(fetchActionsForView({ applicationId: "", publishedActions }));
+      yield put(fetchActionsForView({ applicationId, publishedActions }));
       yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
-      yield put({
-        type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_SUCCESS,
-      });
     }
   } catch (error) {
     yield put({
