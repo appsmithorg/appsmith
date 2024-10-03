@@ -194,7 +194,7 @@ export class DataSources {
   _globalSearchInput = ".t--global-search-input";
   _gsScopeDropdown =
     "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
-  _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
+  _gsScopeOptions = ".ads-v2-radio-group";
   _queryTimeout = "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
