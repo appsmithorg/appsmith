@@ -162,7 +162,7 @@ grant_permissions_for_schema() {
   psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "GRANT ALL PRIVILEGES ON SCHEMA ${schema} TO ${user};"
   psql -h ${host} -p ${port} -U ${postgres_admin_user} -d "$db" -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ${schema} TO ${user};"
   psql -h ${host} -p ${port} -U ${postgres_admin_user} -d "$db" -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${schema} GRANT ALL PRIVILEGES ON TABLES TO ${user};"
-  psql -h ${host} -p ${port} -U ${postgres_admin_user} -c "GRANT CONNECT ON DATABASE ${schema} TO ${user};"
+  psql -h ${host} -p ${port} -U ${postgres_admin_user} -c "GRANT CONNECT ON DATABASE ${db} TO ${user};"
 }
 
 # Example usage of the functions
