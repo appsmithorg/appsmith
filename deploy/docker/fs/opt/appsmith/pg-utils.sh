@@ -160,9 +160,9 @@ grant_permissions_for_schema() {
   local user=${USER-$DB_USER} schema=${SCHEMA-$DB_SCHEMA} db=${DB-$DB_NAME} host=${HOST-$DB_HOST} port=${PORT-$DB_PORT}
   tlog "Granting permissions to user '${user}' on schema '$schema' in database '$db' on host '$host' and port '$port'..."
   psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "GRANT ALL PRIVILEGES ON SCHEMA ${schema} TO ${user};"
-  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d "$db" -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ${schema} TO ${user};"
-  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d "$db" -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${schema} GRANT ALL PRIVILEGES ON TABLES TO ${user};"
-  psql -h ${host} -p ${port} -U ${postgres_admin_user} -c "GRANT CONNECT ON DATABASE ${db} TO ${user};"
+  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ${schema} TO ${user};"
+  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${schema} GRANT ALL PRIVILEGES ON TABLES TO ${user};"
+  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "GRANT CONNECT ON DATABASE ${db} TO ${user};"
 }
 
 # Example usage of the functions
