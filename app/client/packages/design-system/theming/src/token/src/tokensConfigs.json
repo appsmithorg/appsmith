@@ -18,12 +18,12 @@
     "userDensityRatio": 2.25
   },
   "innerSpacing": {
-    "V": 1.4,
+    "V": 1.2,
     "R": 2.25,
     "N": 2,
     "stepsUp": 8,
     "stepsDown": 0,
-    "userSizingRatio": 0.5,
+    "userSizingRatio": 1.35,
     "userDensityRatio": 2.5
   },
   "typography": {
