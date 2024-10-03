@@ -152,11 +152,10 @@ describe(
     it("1.7. should not hide the header section when add new row button is enabled and another header element is disabled", () => {
       cy.get(".t--discard-new-row").click({ force: true });
       //disable all header widgets for the table
-      ["pagination", "search\\&filters", "general", "addingarow"].forEach(
-        (val) => {
-          propPane.ExpandIfCollapsedSection(val);
-        },
-      );
+      propPane.ExpandIfCollapsedSection("general");
+      propPane.ExpandIfCollapsedSection("addingarow");
+      propPane.ExpandIfCollapsedSection("search\\&filters");
+      propPane.ExpandIfCollapsedSection("pagination");
       [
         "Show pagination",
         "Allow searching",
