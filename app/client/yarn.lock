@@ -12795,7 +12795,7 @@ __metadata:
     node-forge: ^1.3.0
     object-hash: ^3.0.0
     openai: ^4.64.0
-    path-to-regexp: ^6.3.0
+    path-to-regexp: ^8.0.0
     pg: ^8.11.3
     plop: ^3.1.1
     popper.js: ^1.15.0
@@ -25897,10 +25897,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"path-to-regexp@npm:^6.3.0":
-  version: 6.3.0
-  resolution: "path-to-regexp@npm:6.3.0"
-  checksum: eca78602e6434a1b6799d511d375ec044e8d7e28f5a48aa5c28d57d8152fb52f3fc62fb1cfc5dfa2198e1f041c2a82ed14043d75740a2fe60e91b5089a153250
+"path-to-regexp@npm:^8.0.0":
+  version: 8.2.0
+  resolution: "path-to-regexp@npm:8.2.0"
+  checksum: 56e13e45962e776e9e7cd72e87a441cfe41f33fd539d097237ceb16adc922281136ca12f5a742962e33d8dda9569f630ba594de56d8b7b6e49adf31803c5e771
   languageName: node
   linkType: hard
 
