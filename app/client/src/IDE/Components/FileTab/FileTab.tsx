@@ -109,7 +109,10 @@ export const FileTab = ({
       onChange: handleTitleChange,
       autoFocus: true,
       style: {
+        paddingTop: 0,
+        paddingBottom: 0,
         left: -1,
+        top: -1,
       },
     }),
     [handleKeyUp, handleTitleChange],
@@ -121,8 +124,9 @@ export const FileTab = ({
     }
   }, [title, previousTitle, isEditing]);
 
-  // this is a nasty hack to re-focus the input after context retention applies the focus
-  // it will be addressed soon, likely by a focus retention modification
+  // TODO: This is a temporary fix to focus the input after context retention applies focus to its target
+  // this is a nasty hack to re-focus the input after context retention applies focus to its target
+  // this will be addressed in a future task, likely by a focus retention modification
   useEffect(() => {
     const input = inputRef.current;
 
@@ -156,13 +160,14 @@ export const FileTab = ({
         </Styled.Text>
       </Tooltip>
 
-      {/* not using button component because of the size not matching design */}
-      <Icon
-        className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
+      <Styled.CloseButton
+        aria-label="Close tab"
+        className="tab-close"
         data-testid="t--tab-close-btn"
-        name="close-line"
         onClick={handleOnClose}
-      />
+      >
+        <Icon name="close-line" />
+      </Styled.CloseButton>
     </Styled.Tab>
   );
 };

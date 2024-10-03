@@ -34,10 +34,7 @@ export const Tab = styled.div`
     visibility: hidden;
   }
 
-  &:hover > .tab-close {
-    visibility: visible;
-  }
-
+  &:hover > .tab-close,
   &.active > .tab-close {
     visibility: visible;
   }
@@ -58,4 +55,14 @@ export const IconContainer = styled.div`
 export const Text = styled(ADSText)`
   min-width: 3ch;
   padding: 0 var(--ads-v2-spaces-1);
+`;
+
+export const CloseButton = styled.button`
+  border-radius: var(--ads-v2-border-radius);
+  cursor: pointer;
+  padding: var(--ads-v2-spaces-1);
+
+  &:hover {
+    background: var(--ads-v2-colors-action-tertiary-surface-hover-bg);
+  }
 `;
