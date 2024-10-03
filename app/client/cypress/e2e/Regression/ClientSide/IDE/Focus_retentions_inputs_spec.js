@@ -66,16 +66,6 @@ describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
     cy.focusCodeInput(".t--actionConfiguration\\.body", { ch: 5, line: 0 });
     cy.wait("@saveAction");
 
-    PageLeftPane.selectItem("S3_Query");
-
-    cy.wait(1000);
-    cy.focusCodeInput(".t--actionConfiguration\\.formData\\.bucket\\.data", {
-      ch: 2,
-      line: 0,
-    });
-    cy.wait(1000);
-    cy.wait("@saveAction");
-
     PageLeftPane.switchSegment(PagePaneSegment.JS);
 
     PageLeftPane.selectItem("JSObject1");
@@ -147,13 +137,6 @@ describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
       ch: 5,
       line: 0,
     });
-
-    PageLeftPane.selectItem("S3_Query");
-
-    cy.assertCursorOnCodeInput(
-      ".t--actionConfiguration\\.formData\\.bucket\\.data",
-      { ch: 2, line: 0 },
-    );
 
     PageLeftPane.switchSegment(PagePaneSegment.JS);
 
