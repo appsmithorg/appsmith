@@ -1,6 +1,6 @@
-import { ZoneIcon, ZoneThumbnail } from "appsmith-icons";
+import { AIChatIcon, AIChatThumbnail } from "appsmith-icons";
 
 export const methodsConfig = {
-  IconCmp: ZoneIcon,
-  ThumbnailCmp: ZoneThumbnail,
+  IconCmp: AIChatIcon,
+  ThumbnailCmp: AIChatThumbnail,
 };
