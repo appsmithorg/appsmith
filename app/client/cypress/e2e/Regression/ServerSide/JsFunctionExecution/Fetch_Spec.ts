@@ -83,6 +83,7 @@ describe("Tests fetch calls", { tags: ["@tag.JS"] }, () => {
         `{{this.params.person}}`,
       "Gender_Age",
     );
+    apiPage.RunAPI();
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 200);
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.TypeTextIntoField("Label", "getUserName");
