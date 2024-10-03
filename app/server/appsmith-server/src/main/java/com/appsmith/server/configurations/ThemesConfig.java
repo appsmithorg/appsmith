@@ -37,7 +37,7 @@ public class ThemesConfig {
     private final ThemeRepository themeRepository;
 
     @Bean
-    public void createSystemTheme() throws IOException {
+    public boolean createSystemTheme() throws IOException {
         final String themesJson = StreamUtils.copyToString(
                 new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
                 Charset.defaultCharset());
@@ -109,5 +109,6 @@ public class ThemesConfig {
         // Finally save the role which gives access to all the system themes to the anonymous user.
         publicPermissionGroup.setPermissions(permissions);
         permissionGroupRepository.save(publicPermissionGroup);
+        return true;
     }
 }

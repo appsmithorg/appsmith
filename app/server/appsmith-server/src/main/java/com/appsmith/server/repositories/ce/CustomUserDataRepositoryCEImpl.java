@@ -55,7 +55,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                 cb.function(
                         "jsonb_path_query_array",
                         Object.class,
-                        cb.function("coalesce", List.class, recentlyUsedEntityIdsField, cb.literal("[]")),
+                        cb.function("coalesce", Object.class, recentlyUsedEntityIdsField, cb.literal("[]")),
                         cb.literal("$[*] ? (@.workspaceId != \"" + workspaceId + "\")")));
 
         cu.where(cb.equal(root.get(UserData.Fields.userId), userId));

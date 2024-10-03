@@ -13,7 +13,6 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.extensions.AfterAllCleanUpExtension;
-import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;

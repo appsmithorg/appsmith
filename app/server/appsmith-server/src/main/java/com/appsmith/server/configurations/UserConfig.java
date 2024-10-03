@@ -44,7 +44,7 @@ public class UserConfig {
      * Responsible for creating super-users based on the admin emails provided in the environment.
      */
     @Bean
-    public void createSuperUsers() {
+    public boolean createSuperUsers() {
         // Read the admin emails from the environment and update the super-users accordingly
         String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
 
@@ -53,7 +53,7 @@ public class UserConfig {
         Optional<Config> instanceAdminConfigurationOptional = configRepository.findByName(FieldName.INSTANCE_CONFIG);
         if (instanceAdminConfigurationOptional.isEmpty()) {
             log.error("Instance configuration not found. Cannot create super users.");
-            return;
+            return false;
         }
         Config instanceAdminConfiguration = instanceAdminConfigurationOptional.get();
 
@@ -64,14 +64,14 @@ public class UserConfig {
                 permissionGroupRepository.findById(instanceAdminPermissionGroupId);
         if (instanceAdminPGOptional.isEmpty()) {
             log.error("Instance admin permission group not found. Cannot create super users.");
-            return;
+            return false;
         }
         PermissionGroup instanceAdminPG = instanceAdminPGOptional.get();
 
         Optional<Tenant> tenantOptional = tenantRepository.findBySlug("default");
         if (tenantOptional.isEmpty()) {
             log.error("Default tenant not found. Cannot create super users.");
-            return;
+            return false;
         }
         Tenant tenant = tenantOptional.get();
 
@@ -110,6 +110,7 @@ public class UserConfig {
 
         instanceAdminPG.setAssignedToUserIds(userIds);
         permissionGroupRepository.save(instanceAdminPG);
+        return true;
     }
 
     public static void evictPermissionCacheForUsers(

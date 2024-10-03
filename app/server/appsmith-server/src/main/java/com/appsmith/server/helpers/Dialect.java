@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers;
 
+import org.hibernate.boot.model.FunctionContributions;
 import org.hibernate.dialect.PostgresPlusDialect;
-import org.hibernate.query.spi.QueryEngine;
 
 public class Dialect extends PostgresPlusDialect {
 
@@ -10,8 +10,8 @@ public class Dialect extends PostgresPlusDialect {
     }
 
     @Override
-    public void initializeFunctionRegistry(QueryEngine queryEngine) {
-        super.initializeFunctionRegistry(queryEngine);
+    public void initializeFunctionRegistry(FunctionContributions functionContributions) {
+        super.initializeFunctionRegistry(functionContributions);
         // queryEngine.getSqmFunctionRegistry().register("minus", new MinusFunction());
     }
 }
