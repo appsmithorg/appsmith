@@ -11,7 +11,7 @@
   flex-direction: column;
   gap: 8px;
   padding: 22px 40px;
-  align-items: start;
+  align-items: flex-start;
   border-bottom: 1px solid var(--color-bd-elevation-1);
   background: rgba(255, 255, 255, 0.45);
 }
