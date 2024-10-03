@@ -1,0 +1,22 @@
+.root {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  /* TODO: --type-title doesn't exists. Define it */
+  font-size: var(--type-title, 22.499px);
+  font-style: normal;
+  font-weight: 500;
+  /* TODO: --type-title-lineheight doesn't exists. Define it */
+  line-height: var(--type-title-lineheight, 31.7px);
+}
+
+.logo {
+  display: inline-block;
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  /* TODO: --bd-neutral doesn't exists. Define it */
+  border: 1px solid var(--bd-neutral, #81858b);
+  background: #f8f8f8;
+}
