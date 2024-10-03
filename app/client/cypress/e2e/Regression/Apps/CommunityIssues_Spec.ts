@@ -339,7 +339,7 @@ describe(
     });
 
     it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
-      // agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
+      agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
       table.SelectTableRow(0, 1, true, "v2");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed("tabswidget"),
@@ -389,11 +389,11 @@ describe(
         "multiselectwidget",
       );
       agHelper.ClickButton("Save");
-      table.ReadTableRowColumnData(1, 0, "v2", 2000).then((cellData) => {
+      table.ReadTableRowColumnData(0, 0, "v2", 2000).then((cellData) => {
         expect(cellData).to.be.equal("Troubleshooting");
       });
 
-      table.ReadTableRowColumnData(1, 1, "v2").then((cellData) => {
+      table.ReadTableRowColumnData(0, 1, "v2").then((cellData) => {
         expect(cellData).to.be.equal(
           "Adding Title Suggestion via script-updating title",
         );
