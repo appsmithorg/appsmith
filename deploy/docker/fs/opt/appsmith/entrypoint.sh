@@ -455,6 +455,13 @@ safe_init_postgres() {
   fi
 }
 
+# Method to create a appsmith database in the postgres 
+# Args:
+#     POSTGRES_DB_PATH (string): Path to the postgres data directory
+# Returns:
+#     None
+# Example:
+#     create_appsmith_pg_db "/appsmith-stacks/data/postgres/main"
 create_appsmith_pg_db() {
   POSTGRES_DB_PATH=$1
   # Start the postgres , wait for it to be ready and create a appsmith db
