@@ -105,7 +105,7 @@ export default class AppViewerEngine extends AppEngine {
       }),
       fetchSelectedAppThemeAction(applicationId, currentTheme),
       fetchAppThemesAction(applicationId, themes),
-      setupPublishedPage(toLoadPageId, true, pageWithMigratedDsl),
+      setupPublishedPage(toLoadPageId, true, true, pageWithMigratedDsl),
     ];
 
     const successActionEffects = [

@@ -18,7 +18,7 @@ public class ConnectionPoolConfigCETest {
     @Test
     public void verifyGetMaxConnectionPoolSizeProvidesDefaultValue() {
         // this is same as default
-        Integer connectionPoolMaxSize = 20;
+        Integer connectionPoolMaxSize = 5;
 
         Mono<Integer> connectionPoolMaxSizeMono = connectionPoolConfig.getMaxConnectionPoolSize();
         StepVerifier.create(connectionPoolMaxSizeMono).assertNext(poolSize -> {
