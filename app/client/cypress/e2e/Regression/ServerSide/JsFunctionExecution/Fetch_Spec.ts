@@ -1,5 +1,7 @@
 import {
   agHelper,
+  apiPage,
+  dataManager,
   entityExplorer,
   jsEditor,
   propPane,
@@ -76,38 +78,24 @@ describe("Tests fetch calls", { tags: ["@tag.JS"] }, () => {
   });
 
   it("3. Tests if fetch works with store value", function () {
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockGenderAge +
+        `{{this.params.person}}`,
+      "Gender_Age",
+    );
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 500, 200);
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.TypeTextIntoField("Label", "getUserName");
     propPane.EnterJSContext(
       "onClick",
-      `{{ 
-        (function fetchData(retries = 3) {
-          return fetch('http://host.docker.internal:5001/v1/genderize_agify?name=sagar')
-            .then(res => {
-              if (!res.ok) {
-                throw new Error('Network response was not ok');
-              }
-              return res.json();
-            })
-            .then(json => {
-              const name = json.name;
-              showAlert("Name: " + name);
-            })
-            .catch(error => {
-              if (retries > 0) {
-                return fetchData(retries - 1);
-              } else {
-                console.error("Fetch error:", error);
-                showAlert("Failed to fetch user data: " + error.message);
-              }
-            });
-        })()
-      }}`,
+      `{{(async function(){
+          const gender = await Gender_Age.run({ person: "sagar" });
+          storeValue("Gender", gender); // No need to await
+          showAlert("Your name is " + appsmith.store.Gender.name); // Assuming 'name' is a string
+        })()}}`,
     );
 
-    agHelper.Sleep(2000);
     agHelper.ClickButton("getUserName");
-    agHelper.AssertContains("Name: sagar", "exist");
+    agHelper.AssertContains("Your name is sagar", "exist");
   });
 });
