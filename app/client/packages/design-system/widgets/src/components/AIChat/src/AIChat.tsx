@@ -1,4 +1,4 @@
-import { Button, Spinner, Text, TextArea } from "@appsmith/wds";
+import { Button, Text, TextArea } from "@appsmith/wds";
 import type { FormEvent, ForwardedRef, KeyboardEvent } from "react";
 import React, { forwardRef, useCallback } from "react";
 import { ChatTitle } from "./ChatTitle";
@@ -13,7 +13,6 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
   const {
     // assistantName,
     chatTitle,
-    description,
     isWaitingForResponse = false,
     onPromptChange,
     onSubmit,
@@ -45,29 +44,26 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
   return (
     <div className={styles.root} ref={ref} {...rest}>
       <div className={styles.header}>
-        {chatTitle != null && <ChatTitle title={chatTitle} />}
+        <ChatTitle title={chatTitle} />
 
-        {description ?? <Text size="body">{description}</Text>}
         <div className={styles.username}>
           <UserAvatar username={username} />
-          <Text size="body">{username}</Text>
+          <Text data-testid="t--aichat-username" size="body">
+            {username}
+          </Text>
         </div>
       </div>
 
-      <ul className={styles.thread}>
+      <ul className={styles.thread} data-testid="t--aichat-thread">
         {thread.map((message: ChatMessage) => (
           <ThreadMessage {...message} key={message.id} username={username} />
         ))}
-
-        {isWaitingForResponse && (
-          <li>
-            <Spinner />
-          </li>
-        )}
       </ul>
 
       <form className={styles.promptForm} onSubmit={handleFormSubmit}>
         <TextArea
+          // TODO: Handle isWaitingForResponse: true state
+          isDisabled={isWaitingForResponse}
           name="prompt"
           onChange={onPromptChange}
           onKeyDown={handlePromptInputKeyDown}
