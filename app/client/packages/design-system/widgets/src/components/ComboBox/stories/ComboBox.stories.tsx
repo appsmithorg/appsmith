@@ -62,8 +62,8 @@ export const Loading: Story = {
 export const Size: Story = {
   render: (args) => (
     <Flex direction="column" gap="spacing-4">
-      <ComboBox {...args} label="Small" size="small" {...args} />
-      <ComboBox {...args} label="Medium" size="medium" {...args} />
+      <ComboBox {...args} label="Small" size="small" />
+      <ComboBox {...args} label="Medium" size="medium" />
     </Flex>
   ),
 };
@@ -73,10 +73,10 @@ export const Validation: Story = {
     <Form onSubmit={(e) => e.preventDefault()}>
       <Flex direction="column" gap="spacing-3" width="sizing-60">
         <ComboBox
-          {...args}
           errorMessage="Please select an option"
           isRequired
           label="Required Selection"
+          {...args}
         />
         <Button type="submit">Submit</Button>
       </Flex>

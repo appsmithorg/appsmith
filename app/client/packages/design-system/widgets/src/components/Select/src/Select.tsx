@@ -44,6 +44,7 @@ export const Select = (props: SelectProps) => {
             {label}
           </FieldLabel>
           <SelectTrigger
+            isDisabled={isDisabled}
             isInvalid={isInvalid}
             isLoading={isLoading}
             placeholder={placeholder}

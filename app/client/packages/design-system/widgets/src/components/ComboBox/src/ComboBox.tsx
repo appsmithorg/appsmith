@@ -44,6 +44,7 @@ export const ComboBox = (props: ComboBoxProps) => {
         {label}
       </FieldLabel>
       <ComboBoxTrigger
+        isDisabled={isDisabled}
         isLoading={isLoading}
         placeholder={placeholder}
         size={size}

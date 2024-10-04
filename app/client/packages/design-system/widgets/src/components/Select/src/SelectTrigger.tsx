@@ -10,10 +10,11 @@ interface SelectTriggerProps {
   isLoading?: boolean;
   isInvalid?: boolean;
   placeholder?: string;
+  isDisabled?: boolean;
 }
 
 export const SelectTrigger: React.FC<SelectTriggerProps> = (props) => {
-  const { isInvalid, isLoading, placeholder, size } = props;
+  const { isDisabled, isInvalid, isLoading, placeholder, size } = props;
 
   return (
     <Group className={textInputStyles.inputGroup}>
@@ -21,6 +22,7 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = (props) => {
         className={textInputStyles.input}
         data-invalid={Boolean(isInvalid) ? "" : undefined}
         data-size={size}
+        isDisabled={isDisabled}
       >
         <SelectValue
           className={getTypographyClassName("body")}

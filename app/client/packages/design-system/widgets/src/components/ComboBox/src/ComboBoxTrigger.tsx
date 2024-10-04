@@ -8,11 +8,12 @@ import type { ComboBoxProps } from "./types";
 interface ComboBoxTriggerProps {
   size?: ComboBoxProps["size"];
   isLoading?: boolean;
+  isDisabled?: boolean;
   placeholder?: string;
 }
 
 export const ComboBoxTrigger: React.FC<ComboBoxTriggerProps> = (props) => {
-  const { isLoading, placeholder, size } = props;
+  const { isDisabled, isLoading, placeholder, size } = props;
 
   const suffix = useMemo(() => {
     if (Boolean(isLoading)) return <Spinner />;
@@ -20,10 +21,11 @@ export const ComboBoxTrigger: React.FC<ComboBoxTriggerProps> = (props) => {
     return (
       <IconButton
         icon="chevron-down"
+        isDisabled={isDisabled}
         size={size === "medium" ? "small" : "xSmall"}
       />
     );
-  }, [isLoading, size]);
+  }, [isLoading, size, isDisabled]);
 
   return (
     <Input
