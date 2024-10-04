@@ -1,2 +1,2 @@
 export type { FieldProps } from "./types";
-export { default as newFieldStyles } from "./styles.module.css";
+export { default as inputFieldStyles } from "./styles.module.css";

@@ -4,7 +4,7 @@ import {
   FieldError,
   FieldLabel,
   Input,
-  newFieldStyles,
+  inputFieldStyles,
 } from "@appsmith/wds";
 import React, { useCallback, useRef } from "react";
 import { chain, useLayoutEffect } from "@react-aria/utils";
@@ -86,7 +86,7 @@ export function TextArea(props: TextAreaProps) {
   return (
     <AriaTextField
       {...rest}
-      className={clsx(newFieldStyles.field)}
+      className={clsx(inputFieldStyles.field)}
       isDisabled={isDisabled}
       isInvalid={isInvalid}
       isReadOnly={isReadOnly}

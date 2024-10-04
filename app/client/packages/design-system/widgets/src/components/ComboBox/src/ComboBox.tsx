@@ -4,7 +4,7 @@ import {
   FieldLabel,
   Popover,
   ListBox,
-  newFieldStyles,
+  inputFieldStyles,
 } from "@appsmith/wds";
 import React from "react";
 import { ComboBox as HeadlessCombobox } from "react-aria-components";
@@ -29,7 +29,7 @@ export const ComboBox = (props: ComboBoxProps) => {
   return (
     <HeadlessCombobox
       aria-label={Boolean(label) ? undefined : "ComboBox"}
-      className={newFieldStyles.field}
+      className={inputFieldStyles.field}
       data-size={size}
       isDisabled={isDisabled}
       isRequired={isRequired}

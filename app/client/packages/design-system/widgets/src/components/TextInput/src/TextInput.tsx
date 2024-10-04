@@ -5,7 +5,7 @@ import {
   FieldError,
   FieldLabel,
   Input,
-  newFieldStyles,
+  inputFieldStyles,
 } from "@appsmith/wds";
 import { TextField as AriaTextField } from "react-aria-components";
 
@@ -33,7 +33,7 @@ export function TextInput(props: TextInputProps) {
   return (
     <AriaTextField
       {...rest}
-      className={clsx(newFieldStyles.field)}
+      className={clsx(inputFieldStyles.field)}
       data-field=""
       isDisabled={isDisabled}
       isInvalid={isInvalid}

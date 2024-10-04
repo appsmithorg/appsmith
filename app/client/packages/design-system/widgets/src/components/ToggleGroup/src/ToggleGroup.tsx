@@ -2,7 +2,7 @@ import type { ForwardedRef } from "react";
 import React, { forwardRef, useRef } from "react";
 import {
   useGroupOrientation,
-  newFieldStyles,
+  inputFieldStyles,
   FieldLabel,
   FieldDescription,
   FieldError,
@@ -36,7 +36,7 @@ const _ToggleGroup = (
   return (
     <AriaToggleGroup
       {...rest}
-      className={newFieldStyles.field}
+      className={inputFieldStyles.field}
       isDisabled={isDisabled}
       isReadOnly={isReadOnly}
       isRequired={isRequired}

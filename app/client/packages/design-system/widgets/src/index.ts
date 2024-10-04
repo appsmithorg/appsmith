@@ -33,6 +33,5 @@ export * from "./components/ListBoxItem";
 export * from "./components/MenuItem";
 
 export * from "./utils";
-export * from "./styles";
 export * from "./hooks";
 export * from "./shared";

@@ -4,7 +4,7 @@ import {
   FieldError,
   FieldLabel,
   ListBox,
-  newFieldStyles,
+  inputFieldStyles,
   Popover,
 } from "@appsmith/wds";
 import { Select as AriaSelect } from "react-aria-components";
@@ -29,7 +29,7 @@ export const Select = (props: SelectProps) => {
 
   return (
     <AriaSelect
-      className={newFieldStyles.field}
+      className={inputFieldStyles.field}
       data-size={size}
       isRequired={isRequired}
       {...rest}
