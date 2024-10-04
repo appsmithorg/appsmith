@@ -54,14 +54,6 @@ export const Loading: Story = {
   },
 };
 
-export const Readonly: Story = {
-  args: {
-    isReadOnly: true,
-    label: "Readonly",
-    description: "This is a readonly field",
-  },
-};
-
 export const Validation: Story = {
   render: (args) => (
     <Form>

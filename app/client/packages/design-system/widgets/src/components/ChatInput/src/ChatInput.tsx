@@ -28,7 +28,14 @@ export function ChatInput(props: ChatInputProps) {
     onChange,
     onSubmit,
     prefix,
-    suffix = <IconButton icon="send" onPress={props.onSubmit} size="small" />,
+    suffix = (
+      <IconButton
+        icon="send"
+        isDisabled={props.isDisabled}
+        onPress={props.onSubmit}
+        size="small"
+      />
+    ),
     value,
     ...rest
   } = props;
