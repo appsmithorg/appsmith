@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 @ChangeUnit(order = "063", id = "reset_session_oauth2_spring_3_3")
 public class Migration063CacheBustSpringBoot3_3 {
 
-    private final ReactiveRedisTemplate<String, String> reactiveRedisTemplate;
+    private final ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
 
     @RollbackExecution
     public void rollbackExecution() {}
