@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import React from "react";
-import { Label as AriaLabel, Group } from "react-aria-components";
 import { ContextualHelp, Text } from "@appsmith/wds";
+import { Label as HeadlessLabel, Group } from "react-aria-components";
 
 import styles from "./styles.module.css";
 import type { LabelProps } from "./types";
@@ -17,7 +17,7 @@ export function FieldLabel(props: LabelProps) {
       data-field-label-wrapper=""
       isDisabled={isDisabled}
     >
-      <AriaLabel {...rest} className={clsx(styles.label)}>
+      <HeadlessLabel {...rest} className={clsx(styles.label)}>
         <Text fontWeight={600} size="caption">
           {children}
         </Text>
@@ -26,7 +26,7 @@ export function FieldLabel(props: LabelProps) {
             *
           </span>
         )}
-      </AriaLabel>
+      </HeadlessLabel>
       {Boolean(contextualHelp) && (
         <ContextualHelp contextualHelp={contextualHelp} />
       )}

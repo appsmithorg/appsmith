@@ -1,13 +1,14 @@
 import {
-  FieldError,
-  FieldDescription,
-  FieldLabel,
   Popover,
   ListBox,
+  FieldLabel,
+  FieldError,
+  FieldDescription,
   inputFieldStyles,
 } from "@appsmith/wds";
 import React from "react";
 import { ComboBox as HeadlessCombobox } from "react-aria-components";
+
 import type { ComboBoxProps } from "./types";
 import { ComboBoxTrigger } from "./ComboBoxTrigger";
 

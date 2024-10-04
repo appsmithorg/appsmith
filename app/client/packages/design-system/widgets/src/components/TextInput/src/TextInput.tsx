@@ -7,7 +7,7 @@ import {
   Input,
   inputFieldStyles,
 } from "@appsmith/wds";
-import { TextField as AriaTextField } from "react-aria-components";
+import { TextField as HeadlessTextField } from "react-aria-components";
 
 import type { TextInputProps } from "./types";
 
@@ -31,7 +31,7 @@ export function TextInput(props: TextInputProps) {
   } = props;
 
   return (
-    <AriaTextField
+    <HeadlessTextField
       {...rest}
       className={clsx(inputFieldStyles.field)}
       data-field=""
@@ -61,6 +61,6 @@ export function TextInput(props: TextInputProps) {
         <FieldDescription>{description}</FieldDescription>
       )}
       {Boolean(errorMessage) && <FieldError>{errorMessage}</FieldError>}
-    </AriaTextField>
+    </HeadlessTextField>
   );
 }

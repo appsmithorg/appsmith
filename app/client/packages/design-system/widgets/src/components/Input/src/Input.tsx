@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import {
-  Input as AriaInput,
   Group,
-  TextArea as AriaTextArea,
+  Input as HeadlessInput,
+  TextArea as HeadlessTextArea,
 } from "react-aria-components";
 import React, { forwardRef, useState } from "react";
 import { getTypographyClassName } from "@appsmith/wds-theming";
@@ -31,8 +31,8 @@ function _Input(
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
   const isEmpty = !Boolean(value) && !Boolean(defaultValue);
   const ElementType: React.ElementType = Boolean(isMultiLine)
-    ? AriaTextArea
-    : AriaInput;
+    ? HeadlessTextArea
+    : HeadlessInput;
 
   const suffix = (() => {
     if (Boolean(isLoading)) return <Spinner />;

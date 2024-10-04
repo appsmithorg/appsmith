@@ -1,5 +1,5 @@
 import React from "react";
-import { SubmenuTrigger as AriaSubmenuTrigger } from "react-aria-components";
+import { SubmenuTrigger as HeadlessSubmenuTrigger } from "react-aria-components";
 import type { SubmenuTriggerProps as AriaSubmenuTriggerProps } from "react-aria-components";
 
 export function SubmenuTrigger(props: AriaSubmenuTriggerProps) {
@@ -20,5 +20,9 @@ export function SubmenuTrigger(props: AriaSubmenuTriggerProps) {
     return child;
   });
 
-  return <AriaSubmenuTrigger {...rest}>{modifiedChildren}</AriaSubmenuTrigger>;
+  return (
+    <HeadlessSubmenuTrigger {...rest}>
+      {modifiedChildren}
+    </HeadlessSubmenuTrigger>
+  );
 }

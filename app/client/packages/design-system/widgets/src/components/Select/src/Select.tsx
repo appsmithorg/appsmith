@@ -7,7 +7,7 @@ import {
   inputFieldStyles,
   Popover,
 } from "@appsmith/wds";
-import { Select as AriaSelect } from "react-aria-components";
+import { Select as HeadlessSelect } from "react-aria-components";
 
 import type { SelectProps } from "./types";
 import { SelectTrigger } from "./SelectTrigger";
@@ -28,7 +28,7 @@ export const Select = (props: SelectProps) => {
   } = props;
 
   return (
-    <AriaSelect
+    <HeadlessSelect
       className={inputFieldStyles.field}
       data-size={size}
       isRequired={isRequired}
@@ -56,6 +56,6 @@ export const Select = (props: SelectProps) => {
           </Popover>
         </>
       )}
-    </AriaSelect>
+    </HeadlessSelect>
   );
 };

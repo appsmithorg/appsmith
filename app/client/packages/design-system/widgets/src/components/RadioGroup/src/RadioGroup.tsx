@@ -8,7 +8,7 @@ import {
   FieldError,
   toggleGroupStyles,
 } from "@appsmith/wds";
-import { RadioGroup as AriaRadioGroup, Group } from "react-aria-components";
+import { RadioGroup as HeadlessRadioGroup, Group } from "react-aria-components";
 
 import type { RadioGroupProps } from "./types";
 
@@ -34,7 +34,7 @@ const _RadioGroup = (
   );
 
   return (
-    <AriaRadioGroup
+    <HeadlessRadioGroup
       {...rest}
       className={inputFieldStyles.field}
       isDisabled={isDisabled}
@@ -62,7 +62,7 @@ const _RadioGroup = (
         <FieldDescription>{description}</FieldDescription>
       )}
       {Boolean(errorMessage) && <FieldError>{errorMessage}</FieldError>}
-    </AriaRadioGroup>
+    </HeadlessRadioGroup>
   );
 };
 

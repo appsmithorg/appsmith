@@ -1,24 +1,23 @@
 import React from "react";
 import {
-  TooltipTrigger as AriaTooltipTrigger,
-  Tooltip as AriaTooltip,
+  TooltipTrigger as HeadlessTooltipTrigger,
+  Tooltip as HeadlessTooltip,
 } from "react-aria-components";
 import { Text } from "@appsmith/wds";
-import { useThemeContext } from "@appsmith/wds-theming";
-
 import type {
-  TooltipProps as AriaTooltipProps,
-  TooltipTriggerComponentProps as AriaTooltipTriggerProps,
+  TooltipProps as HeadlessTooltipProps,
+  TooltipTriggerComponentProps as HeadlessTooltipTriggerProps,
 } from "react-aria-components";
+import { useThemeContext } from "@appsmith/wds-theming";
 
 import styles from "./styles.module.css";
 
 const BORDER_RADIUS_THRESHOLD = 6;
 
-export interface TooltipProps extends AriaTooltipTriggerProps {
+export interface TooltipProps extends HeadlessTooltipTriggerProps {
   tooltip?: React.ReactNode;
   children: JSX.Element;
-  placement?: AriaTooltipProps["placement"];
+  placement?: HeadlessTooltipProps["placement"];
   offset?: number;
 }
 
@@ -45,9 +44,9 @@ export function Tooltip(props: TooltipProps) {
   if (!Boolean(tooltip)) return children;
 
   return (
-    <AriaTooltipTrigger {...rest} closeDelay={closeDelay} delay={delay}>
+    <HeadlessTooltipTrigger {...rest} closeDelay={closeDelay} delay={delay}>
       {children}
-      <AriaTooltip
+      <HeadlessTooltip
         UNSTABLE_portalContainer={root}
         className={styles.tooltip}
         data-is-rounded={isRounded ? "" : undefined}
@@ -56,7 +55,7 @@ export function Tooltip(props: TooltipProps) {
       >
         {typeof tooltip === "string" ? <Text>{tooltip}</Text> : tooltip}
         <span data-tooltip-trigger-arrow />
-      </AriaTooltip>
-    </AriaTooltipTrigger>
+      </HeadlessTooltip>
+    </HeadlessTooltipTrigger>
   );
 }

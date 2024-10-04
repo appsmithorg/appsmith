@@ -1,15 +1,15 @@
 import clsx from "clsx";
 import {
-  FieldDescription,
+  Input,
   FieldError,
   FieldLabel,
-  Input,
+  FieldDescription,
   inputFieldStyles,
 } from "@appsmith/wds";
 import React, { useCallback, useRef } from "react";
-import { chain, useLayoutEffect } from "@react-aria/utils";
 import { useControlledState } from "@react-stately/utils";
-import { TextField as AriaTextField } from "react-aria-components";
+import { chain, useLayoutEffect } from "@react-aria/utils";
+import { TextField as HeadlessTextField } from "react-aria-components";
 
 import type { TextAreaProps } from "./types";
 
@@ -84,7 +84,7 @@ export function TextArea(props: TextAreaProps) {
   }, [onHeightChange, inputValue, inputRef.current]);
 
   return (
-    <AriaTextField
+    <HeadlessTextField
       {...rest}
       className={clsx(inputFieldStyles.field)}
       isDisabled={isDisabled}
@@ -116,6 +116,6 @@ export function TextArea(props: TextAreaProps) {
         <FieldDescription>{description}</FieldDescription>
       )}
       {Boolean(errorMessage) && <FieldError>{errorMessage}</FieldError>}
-    </AriaTextField>
+    </HeadlessTextField>
   );
 }
