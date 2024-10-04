@@ -133,8 +133,10 @@ function testPreloadMetadata(viewOrEditMode) {
     );
 
     // check if req
-    const isSubset = preloadLinks.every(item => allRequestsDuringPageLoad.includes(item));
-    expect(isSubset).to.be.true; 
+    const isSubset = preloadLinks.every((item) =>
+      allRequestsDuringPageLoad.includes(item),
+    );
+    expect(isSubset).to.be.true;
   });
 }
 
