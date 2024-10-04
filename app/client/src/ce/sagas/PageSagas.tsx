@@ -149,7 +149,7 @@ import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import type { Page } from "entities/Page";
-import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
+import { ConsolidatedPageLoadApi } from "api";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,

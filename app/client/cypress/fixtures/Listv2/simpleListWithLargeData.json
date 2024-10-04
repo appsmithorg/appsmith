@@ -165,7 +165,7 @@
                                                 }
                                             ],
                                             "leftColumn": 0,
-                                            "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                                            "defaultImage": "http://host.docker.internal:4200/clouddefaultImage.png",
                                             "key": "e4nnev99kg",
                                             "image": "{{currentItem.img}}",
                                             "isDeprecated": false,

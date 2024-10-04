@@ -22,28 +22,22 @@
     "@storybook/addon-toolbars": "^8.2.7",
     "@storybook/addon-viewport": "^8.2.7",
     "@storybook/blocks": "^8.2.7",
-    "@storybook/builder-vite": "^8.2.7",
     "@storybook/components": "^8.2.7",
     "@storybook/manager-api": "^8.2.7",
     "@storybook/preset-create-react-app": "^8.2.7",
-    "@storybook/preview-api": "^8.2.7",
     "@storybook/react-vite": "^8.2.7",
     "@storybook/test-runner": "^0.19.1",
     "@storybook/theming": "^8.2.7",
     "@vitejs/plugin-react": "^4.3.1",
-    "babel-loader": "9.1.2",
     "chromatic": "^11.3.0",
-    "react-docgen-typescript": "^2.2.2",
     "storybook": "^8.2.7",
     "vite": "^5.3.5",
     "vite-plugin-svgr": "^4.2.0"
   },
   "dependencies": {
     "@appsmith/wds": "workspace:^",
-    "@appsmith/wds-headless": "workspace:^",
     "@appsmith/wds-theming": "workspace:^",
-    "@design-system/widgets-old": "workspace:^",
-    "appsmith-icons": "workspace:^",
-    "colorjs.io": "^0.5.2"
+    "@storybook/core-events": "^8.3.2",
+    "glob": "^11.0.0"
   }
 }

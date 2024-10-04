@@ -71,7 +71,7 @@ jobs:
 
           # This is the ChannelId of the proj postgres channel.
           body="$(jq -nc \
-            --arg channel C06Q3A97USE \
+            --arg channel C07JMLWEXDJ \
             --arg text "$slack_message" \
             '$ARGS.named'
           )"

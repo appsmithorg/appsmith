@@ -964,6 +964,7 @@ public class MongoPlugin extends BasePlugin {
                         }
                         return true;
                     })
+                    .sort((collectionName1, collectionName2) -> collectionName1.compareToIgnoreCase(collectionName2))
                     .flatMap(collectionName -> {
                         final ArrayList<DatasourceStructure.Column> columns = new ArrayList<>();
                         final ArrayList<DatasourceStructure.Template> templates = new ArrayList<>();

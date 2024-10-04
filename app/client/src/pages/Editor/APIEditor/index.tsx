@@ -8,7 +8,11 @@ import {
   getPluginSettingConfigs,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
-import { deleteAction, runAction } from "actions/pluginActionActions";
+import {
+  deleteAction,
+  runAction,
+  saveActionName,
+} from "actions/pluginActionActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Editor from "./Editor";
 import BackToCanvas from "components/common/BackToCanvas";
@@ -151,15 +155,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       });
       dispatch(runAction(action?.id ?? "", paginationField));
     },
-    [
-      action?.id,
-      apiName,
-      pageName,
-      getPageName,
-      plugins,
-      pluginId,
-      datasourceId,
-    ],
+    [action?.id, apiName, pageName, plugins, pluginId, datasourceId, dispatch],
   );
 
   const actionRightPaneBackLink = useMemo(() => {
@@ -173,13 +169,13 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       pageName,
     });
     dispatch(deleteAction({ id: action?.id ?? "", name: apiName }));
-  }, [getPageName, pages, basePageId, apiName]);
+  }, [pages, basePageId, apiName, action?.id, dispatch, pageName]);
 
   const notification = useMemo(() => {
     if (!isConverting) return null;
 
     return <ConvertEntityNotification icon={icon} name={action?.name || ""} />;
-  }, [action?.name, isConverting]);
+  }, [action?.name, isConverting, icon]);
 
   const isActionRedesignEnabled = useFeatureFlag(
     FEATURE_FLAG.release_actions_redesign_enabled,
@@ -196,6 +192,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
       notification={notification}
+      saveActionName={saveActionName}
       settingsConfig={settingsConfig}
     >
       <Disabler isDisabled={isConverting}>
