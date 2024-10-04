@@ -9,7 +9,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-import gitSyncLocators from "../../../../locators/gitSyncLocators";
 const appNavigationLocators = require("../../../../locators/AppNavigation.json");
 
 describe(
