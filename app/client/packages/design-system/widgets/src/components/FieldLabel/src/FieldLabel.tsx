@@ -17,7 +17,11 @@ export function FieldLabel(props: LabelProps) {
       data-field-label-wrapper=""
       isDisabled={isDisabled}
     >
-      <HeadlessLabel {...rest} className={clsx(styles.label)}>
+      <HeadlessLabel
+        {...rest}
+        className={clsx(styles.label)}
+        elementType="label"
+      >
         <Text fontWeight={600} size="caption">
           {children}
         </Text>

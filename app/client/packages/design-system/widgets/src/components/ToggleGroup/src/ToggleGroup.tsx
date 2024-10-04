@@ -37,20 +37,19 @@ const _ToggleGroup = (
     <AriaToggleGroup
       {...rest}
       className={inputFieldStyles.field}
+      data-field=""
       isDisabled={isDisabled}
       isReadOnly={isReadOnly}
       isRequired={isRequired}
       ref={ref}
     >
-      {Boolean(label) && (
-        <FieldLabel
-          contextualHelp={contextualHelp}
-          isDisabled={isDisabled}
-          isRequired={isRequired}
-        >
-          {label}
-        </FieldLabel>
-      )}
+      <FieldLabel
+        contextualHelp={contextualHelp}
+        isDisabled={isDisabled}
+        isRequired={isRequired}
+      >
+        {label}
+      </FieldLabel>
       <Group
         className={styles.toggleGroup}
         data-orientation={orientation}
@@ -58,10 +57,8 @@ const _ToggleGroup = (
       >
         {children}
       </Group>
-      {Boolean(description) && (
-        <FieldDescription>{description}</FieldDescription>
-      )}
-      {Boolean(errorMessage) && <FieldError>{errorMessage}</FieldError>}
+      <FieldDescription>{description}</FieldDescription>
+      <FieldError>{errorMessage}</FieldError>
     </AriaToggleGroup>
   );
 };

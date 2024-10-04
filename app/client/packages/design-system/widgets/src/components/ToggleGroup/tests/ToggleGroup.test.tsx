@@ -25,11 +25,14 @@ describe("@appsmith/wds/ToggleGroup", () => {
     expect(screen.getByText("Value 2")).toBeInTheDocument();
 
     // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
-    const label = container.querySelector("label") as HTMLElement;
+    const label = container.querySelector(
+      "[data-field-label-wrapper] label",
+    ) as HTMLElement;
 
     expect(label).toHaveTextContent("Checkbox Group");
 
-    const toggleGroup = screen.getByRole("group");
+    // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
+    const toggleGroup = container.querySelector("[data-field]") as HTMLElement;
 
     expect(toggleGroup).toHaveAttribute("aria-labelledby");
     expect(toggleGroup.getAttribute("aria-labelledby")).toBe(label.id);
