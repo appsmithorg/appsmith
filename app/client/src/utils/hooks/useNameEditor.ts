@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import { isNameValid, removeSpecialChars } from "utils/helpers";
 import type { AppState } from "ee/reducers";
@@ -10,6 +9,7 @@ import {
   createMessage,
 } from "ee/constants/messages";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { useEventCallback } from "usehooks-ts";
 
 interface NameSaveActionParams {
   name: string;
@@ -17,6 +17,8 @@ interface NameSaveActionParams {
 }
 
 interface UseNameEditorProps {
+  entityId: string;
+  entityName: string;
   nameSaveAction: (
     params: NameSaveActionParams,
   ) => ReduxAction<NameSaveActionParams>;
@@ -28,9 +30,12 @@ interface UseNameEditorProps {
  */
 export function useNameEditor(props: UseNameEditorProps) {
   const dispatch = useDispatch();
-
-  const { nameErrorMessage = ACTION_NAME_CONFLICT_ERROR, nameSaveAction } =
-    props;
+  const {
+    entityId,
+    entityName,
+    nameErrorMessage = ACTION_NAME_CONFLICT_ERROR,
+    nameSaveAction,
+  } = props;
 
   const isNew =
     new URLSearchParams(window.location.search).get("editName") === "true";
@@ -40,28 +45,21 @@ export function useNameEditor(props: UseNameEditorProps) {
     shallowEqual,
   );
 
-  const validateName = useCallback(
-    (entityName: string) =>
-      (name: string): string | null => {
-        if (!name || name.trim().length === 0) {
-          return createMessage(ACTION_INVALID_NAME_ERROR);
-        } else if (name !== entityName && !isNameValid(name, usedEntityNames)) {
-          return createMessage(nameErrorMessage, name);
-        }
+  const validateName = useEventCallback((name: string): string | null => {
+    if (!name || name.trim().length === 0) {
+      return createMessage(ACTION_INVALID_NAME_ERROR);
+    } else if (name !== entityName && !isNameValid(name, usedEntityNames)) {
+      return createMessage(nameErrorMessage, name);
+    }
 
-        return null;
-      },
-    [nameErrorMessage, usedEntityNames],
-  );
+    return null;
+  });
 
-  const handleNameSave = useCallback(
-    (entityName: string, entityId: string) => (name: string) => {
-      if (name !== entityName && validateName(entityName)(name) === null) {
-        dispatch(nameSaveAction({ id: entityId, name }));
-      }
-    },
-    [validateName, dispatch, nameSaveAction],
-  );
+  const handleNameSave = useEventCallback((name: string) => {
+    if (name !== entityName && validateName(name) === null) {
+      dispatch(nameSaveAction({ id: entityId, name }));
+    }
+  });
 
   return {
     isNew,

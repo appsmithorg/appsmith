@@ -10,7 +10,7 @@ import { usePrevious } from "@mantine/hooks";
 
 import * as Styled from "./styles";
 
-interface FileTabProps {
+export interface FileTabProps {
   isActive: boolean;
   isLoading?: boolean;
   title: string;
@@ -98,11 +98,6 @@ export const FileTab = ({
 
   const handleDoubleClick = editorConfig ? handleEnterEditMode : noop;
 
-  const handleOnClose = useEventCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    onClose(e);
-  });
-
   const inputProps = useMemo(
     () => ({
       onKeyUp: handleKeyUp,
@@ -164,7 +159,7 @@ export const FileTab = ({
         aria-label="Close tab"
         className="tab-close"
         data-testid="t--tab-close-btn"
-        onClick={handleOnClose}
+        onClick={onClose}
       >
         <Icon name="close-line" />
       </Styled.CloseButton>

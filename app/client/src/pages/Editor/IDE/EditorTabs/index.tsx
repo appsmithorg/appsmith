@@ -25,17 +25,9 @@ import { ScreenModeToggle } from "./ScreenModeToggle";
 import { AddTab } from "./AddTab";
 import { setListViewActiveState } from "actions/ideActions";
 
-import { FileTab } from "IDE/Components/FileTab";
 import { useEventCallback } from "usehooks-ts";
 
-import { saveActionName } from "actions/pluginActionActions";
-import { saveJSObjectName } from "actions/jsActionActions";
-import { useNameEditor } from "utils/hooks/useNameEditor";
-
-import {
-  getJsObjectNameSavingStatuses,
-  getApiNameSavingStatuses,
-} from "selectors/ui";
+import { EditableTab } from "./EditableTab";
 
 const EditorTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
@@ -46,21 +38,9 @@ const EditorTabs = () => {
   const files = useSelector(tabsConfig.tabsSelector, shallowEqual);
   const isListViewActive = useSelector(getListViewActiveState);
 
-  const saveStatus = useSelector(
-    EditorEntityTab.JS === segment
-      ? getJsObjectNameSavingStatuses
-      : getApiNameSavingStatuses,
-    shallowEqual,
-  );
-
   const location = useLocation();
   const dispatch = useDispatch();
   const currentEntity = identifyEntityFromPath(location.pathname);
-
-  const { handleNameSave, normalizeName, validateName } = useNameEditor({
-    nameSaveAction:
-      EditorEntityTab.JS === segment ? saveJSObjectName : saveActionName,
-  });
 
   // Turn off list view while changing segment, files
   useEffect(() => {
@@ -104,19 +84,14 @@ const EditorTabs = () => {
     dispatch(setListViewActiveState(!isListViewActive));
   });
 
-  const handleTabClick = (tab: EntityItem) => {
+  // TODO: this returns a new function every time, needs to be recomposed
+  const handleTabClick = useEventCallback((tab: EntityItem) => () => {
     dispatch(setListViewActiveState(false));
     tabClickHandler(tab);
-  };
-
-  const newTabClickHandler = useEventCallback(() => {
-    dispatch(setListViewActiveState(false));
   });
 
-  const createTabEditorConfig = (title: string, key: string) => ({
-    onTitleSave: handleNameSave(title, key),
-    validateTitle: validateName(title),
-    titleTransformer: normalizeName,
+  const handleNewTabClick = useEventCallback(() => {
+    dispatch(setListViewActiveState(false));
   });
 
   if (!isSideBySideEnabled) return null;
@@ -148,24 +123,23 @@ const EditorTabs = () => {
             height="100%"
           >
             {files.map((tab) => (
-              <FileTab
-                editorConfig={createTabEditorConfig(tab.title, tab.key)}
+              <EditableTab
                 icon={tab.icon}
+                id={tab.key}
                 isActive={
                   currentEntity.id === tab.key &&
                   segmentMode !== EditorEntityTabState.Add &&
                   !isListViewActive
                 }
-                isLoading={saveStatus[tab.key]}
                 key={tab.key}
-                onClick={() => handleTabClick(tab)}
-                onClose={() => closeClickHandler(tab.key)}
+                onClick={handleTabClick(tab)}
+                onClose={closeClickHandler}
                 title={tab.title}
               />
             ))}
             <AddTab
               isListActive={isListViewActive}
-              newTabClickCallback={newTabClickHandler}
+              newTabClickCallback={handleNewTabClick}
               onClose={closeClickHandler}
             />
           </Flex>
