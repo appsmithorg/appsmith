@@ -198,7 +198,6 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
       <AIChat
         assistantName={this.props.assistantName}
         chatTitle={this.props.chatTitle}
-        description={this.props.description}
         isWaitingForResponse={this.state.isWaitingForResponse}
         onPromptChange={this.handlePromptChange}
         onSubmit={this.handleMessageSubmit}

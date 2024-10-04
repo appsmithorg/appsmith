@@ -13,7 +13,6 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
   const {
     // assistantName,
     chatTitle,
-    description,
     isWaitingForResponse = false,
     onPromptChange,
     onSubmit,
@@ -47,15 +46,15 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
       <div className={styles.header}>
         <ChatTitle title={chatTitle} />
 
-        {description ?? <Text size="body">{description}</Text>}
-
         <div className={styles.username}>
           <UserAvatar username={username} />
-          <Text size="body">{username}</Text>
+          <Text data-testid="t--aichat-username" size="body">
+            {username}
+          </Text>
         </div>
       </div>
 
-      <ul className={styles.thread}>
+      <ul className={styles.thread} data-testid="t--aichat-thread">
         {thread.map((message: ChatMessage) => (
           <ThreadMessage {...message} key={message.id} username={username} />
         ))}

@@ -1,9 +1,6 @@
 import { AIChat } from "@appsmith/wds";
 import type { Meta, StoryObj } from "@storybook/react";
 
-/**
- * A button is a clickable element that is used to trigger an action.
- */
 const meta: Meta<typeof AIChat> = {
   component: AIChat,
   title: "WDS/Widgets/AIChat",
@@ -19,7 +16,6 @@ export const Main: Story = {
     username: "John Doe",
     promptInputPlaceholder: "Type your message here",
     chatTitle: "Chat with Assistant",
-    description: "",
     assistantName: "",
     isWaitingForResponse: false,
   },

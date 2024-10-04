@@ -5,7 +5,11 @@ import type { ChatTitleProps } from "./types";
 
 export const ChatTitle = ({ className, title, ...rest }: ChatTitleProps) => {
   return (
-    <div className={clsx(styles.root, className)} {...rest}>
+    <div
+      className={clsx(styles.root, className)}
+      {...rest}
+      data-testid="t--aichat-chat-title"
+    >
       <div className={styles.logo} />
       {title}
     </div>
