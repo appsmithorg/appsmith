@@ -24,6 +24,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.InstanceAdminMetaDTO;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.solutions.UpdateSuperUserMigrationHelper;
@@ -45,6 +46,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -65,12 +67,14 @@ import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
+import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_ADMIN_CONFIG;
 import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.installPluginToAllWorkspaces;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
+import static com.appsmith.server.migrations.db.ce.Migration064AddInstanceAdminDetailsToDB.verifyIfInstanceAdminDetailsArePresent;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -503,6 +507,21 @@ public class DatabaseChangelog2 {
 
         Update update = new Update().set(PermissionGroup.Fields.assignedToUserIds, userIds);
         mongoTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);
+
+        // Check if instance admin details are already present in the DB
+        if (verifyIfInstanceAdminDetailsArePresent(mongoTemplate)) {
+            return;
+        }
+        String adminEmail = adminEmails.stream()
+                .filter(email -> email != null && email.contains("@"))
+                .findFirst()
+                .orElse(null);
+        Config config = new Config();
+        config.setName(INSTANCE_ADMIN_CONFIG);
+        if (StringUtils.hasLength(adminEmail)) {
+            config.setConfig(InstanceAdminMetaDTO.toJsonObject(adminEmail));
+            mongoTemplate.save(config);
+        }
     }
 
     @ChangeSet(order = "034", id = "update-bad-theme-state", author = "")
