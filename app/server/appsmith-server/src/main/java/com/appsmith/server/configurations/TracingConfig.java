@@ -5,7 +5,6 @@ import io.micrometer.observation.ObservationPredicate;
 import io.micrometer.observation.ObservationView;
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.exporter.SpanExportingPredicate;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.reactive.observation.ServerRequestObservationContext;
@@ -17,7 +16,6 @@ import static com.appsmith.external.constants.spans.BaseSpan.AUTHORIZE;
 /**
  * This configuration file creates beans that are required to filter just Appsmith specific spans
  */
-@Slf4j
 @Configuration
 public class TracingConfig {
 
