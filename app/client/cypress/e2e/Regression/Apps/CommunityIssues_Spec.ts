@@ -329,7 +329,7 @@ describe(
       table.SearchTable("Suggestion");
       table.WaitUntilTableLoad(0, 0, "v2");
 
-      table.ReadTableRowColumnData(0, 0, "v2", 4000).then((cellData) => {
+      table.ReadTableRowColumnData(1, 0, "v2", 4000).then((cellData) => {
         expect(cellData).to.be.equal("Suggestion");
       });
 
@@ -340,6 +340,7 @@ describe(
 
     it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
       agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
+      agHelper.GetNClick(".cross-icon");
       table.SelectTableRow(0, 1, true, "v2");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed("tabswidget"),
@@ -401,7 +402,7 @@ describe(
     });
 
     it("10. Validate Deleting the newly created issue", () => {
-      // agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
+      agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
       agHelper.GetNClick(".cross-icon");
       table.SearchTable("Suggestion");
       table.WaitUntilTableLoad(0, 0, "v2");
@@ -410,8 +411,8 @@ describe(
         locators._widgetInDeployed("tabswidget"),
       );
       cy.get(table._trashIcon).closest("div").click({ force: true });
-      // agHelper.WaitUntilEleDisappear(locators._widgetInDeployed("tabswidget"));
-      // agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
+      agHelper.WaitUntilEleDisappear(locators._widgetInDeployed("tabswidget"));
+      agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
       table.WaitForTableEmpty("v2");
 
       //2nd search is not working, hence commenting below
