@@ -19,6 +19,7 @@ import reactor.core.publisher.Flux;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_ADMIN_CONFIG;
 import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
+import static com.appsmith.server.migrations.constants.FieldName.DEFAULT_CLOUD_ADMIN_EMAIL;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @RequiredArgsConstructor
@@ -48,21 +49,23 @@ public class Migration064AddInstanceAdminDetailsToDB {
                 .addCriteria(notDeleted());
         PermissionGroup instanceAdminPG = mongoTemplate.findOne(instanceAdminRoleQuery, PermissionGroup.class);
         if (instanceAdminPG == null) {
-            log.error("Instance admin permission group not found in the DB. Skipping migration 63");
+            log.error("Instance admin permission group not found in the DB. Skipping migration 064");
             return;
         }
         String adminEmail = null;
         if (commonConfig.isCloudHosting()) {
             // As a fallback, use the default admin email for cloud hosting
-            adminEmail = "admin@appsmith.com";
+            adminEmail = DEFAULT_CLOUD_ADMIN_EMAIL;
         } else if (!CollectionUtils.isNullOrEmpty(instanceAdminPG.getAssignedToUserIds())) {
             adminEmail = Flux.fromIterable(instanceAdminPG.getAssignedToUserIds())
-                    .map(userId -> mongoTemplate.findOne(
-                            new Query()
-                                    .addCriteria(where(FieldName.ID).is(userId))
-                                    .addCriteria(notDeleted()),
-                            User.class))
-                    .map(User::getEmail)
+                    .map(userId -> {
+                        User user = mongoTemplate.findOne(
+                                new Query()
+                                        .addCriteria(where(FieldName.ID).is(userId))
+                                        .addCriteria(notDeleted()),
+                                User.class);
+                        return user != null ? user.getEmail() : "";
+                    })
                     .filter(email -> email != null && email.contains("@"))
                     .blockFirst();
         }
@@ -86,14 +89,12 @@ public class Migration064AddInstanceAdminDetailsToDB {
                 .addCriteria(where(FieldName.NAME).is(FieldName.INSTANCE_ADMIN_CONFIG))
                 .addCriteria(notDeleted());
         Config instanceAdminConfig = mongoTemplate.findOne(instanceAdminConfigQuery, Config.class);
-        if (instanceAdminConfig != null) {
-            InstanceAdminMetaDTO instanceAdminMetaDTO =
-                    InstanceAdminMetaDTO.fromJsonObject(instanceAdminConfig.getConfig());
-            if (StringUtils.hasLength(instanceAdminMetaDTO.getEmail())) {
-                log.info("Instance admin details already present in the DB. Skipping migration 64");
-                return true;
-            }
+        boolean adminDetailsPresent = instanceAdminConfig != null
+                && StringUtils.hasLength(InstanceAdminMetaDTO.fromJsonObject(instanceAdminConfig.getConfig())
+                        .getEmail());
+        if (adminDetailsPresent) {
+            log.info("Instance admin details already present in the DB. Skipping migration 64");
         }
-        return false;
+        return adminDetailsPresent;
     }
 }

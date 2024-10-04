@@ -175,16 +175,22 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                         applicationRepository.getAllApplicationsCountAccessibleToARoleWithPermission(
                                 AclPermission.READ_APPLICATIONS, publicPermissionGroupId),
                         instanceAdminEmailDomainMono))
-                .flatMap(statsData -> {
+                .flatMap(tuple5 -> {
+                    final String instanceId = tuple5.getT1();
+                    final String ipAddress = tuple5.getT2();
+                    Tuple7<Long, Long, Long, Long, Long, Long, Map<String, Long>> counts = tuple5.getT3();
+                    Long publicAppsCount = tuple5.getT4();
+                    String adminEmailDomainHash = tuple5.getT5();
+
                     Map<String, Object> propertiesMap = new java.util.HashMap<>(Map.ofEntries(
-                            entry("instanceId", statsData.getT1()),
-                            entry("numOrgs", statsData.getT3().getT1()),
-                            entry("numApps", statsData.getT3().getT2()),
-                            entry("numPages", statsData.getT3().getT3()),
-                            entry("numActions", statsData.getT3().getT4()),
-                            entry("numDatasources", statsData.getT3().getT5()),
-                            entry("numUsers", statsData.getT3().getT6()),
-                            entry("numPublicApps", statsData.getT4()),
+                            entry("instanceId", instanceId),
+                            entry("numOrgs", counts.getT1()),
+                            entry("numApps", counts.getT2()),
+                            entry("numPages", counts.getT3()),
+                            entry("numActions", counts.getT4()),
+                            entry("numDatasources", counts.getT5()),
+                            entry("numUsers", counts.getT6()),
+                            entry("numPublicApps", publicAppsCount),
                             entry("version", projectProperties.getVersion()),
                             entry("edition", deploymentProperties.getEdition()),
                             entry("cloudProvider", defaultIfEmpty(deploymentProperties.getCloudProvider(), "")),
@@ -192,12 +198,11 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                             entry("tool", defaultIfEmpty(deploymentProperties.getTool(), "")),
                             entry("hostname", defaultIfEmpty(deploymentProperties.getHostname(), "")),
                             entry("deployedAt", defaultIfEmpty(deploymentProperties.getDeployedAt(), "")),
-                            entry(ADMIN_EMAIL_DOMAIN_HASH, defaultIfEmpty(statsData.getT5(), "")),
-                            entry(EMAIL_DOMAIN_HASH, defaultIfEmpty(statsData.getT5(), ""))));
+                            entry(ADMIN_EMAIL_DOMAIN_HASH, defaultIfEmpty(adminEmailDomainHash, "")),
+                            entry(EMAIL_DOMAIN_HASH, defaultIfEmpty(adminEmailDomainHash, ""))));
 
-                    propertiesMap.putAll(statsData.getT3().getT7());
+                    propertiesMap.putAll(counts.getT7());
 
-                    final String ipAddress = statsData.getT2();
                     return WebClientUtils.create("https://api.segment.io")
                             .post()
                             .uri("/v1/track")
@@ -205,7 +210,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(BodyInserters.fromValue(Map.of(
                                     "userId",
-                                    statsData.getT1(),
+                                    tuple5.getT1(),
                                     "context",
                                     Map.of("ip", ipAddress),
                                     "properties",
