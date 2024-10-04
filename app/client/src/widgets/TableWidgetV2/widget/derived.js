@@ -684,7 +684,7 @@ export default {
        * For select columns with label and values, we need to include the label value
        * in the search
        */
-      let labelValueForSelectCell = "";
+      let labelValuesForSelectCell = {};
       /*
        * Initialize an array to store keys for columns that have the 'select' column type
        * and contain selectOptions.
@@ -716,7 +716,7 @@ export default {
             primaryColumns[key].selectOptions,
           );
 
-          let selectOptions;
+          let selectOptions = {};
 
           /*
            * If selectOptions is an array, check if it contains nested arrays.
@@ -732,7 +732,8 @@ export default {
               });
 
               if (option) {
-                labelValueForSelectCell = option.label;
+                labelValuesForSelectCell[primaryColumns[key].alias] =
+                  option.label;
               }
             } else {
               /* Handle the case where selectOptions is a flat array - selectOptions is plain JSON */
@@ -742,7 +743,8 @@ export default {
               );
 
               if (option) {
-                labelValueForSelectCell = option.label;
+                labelValuesForSelectCell[primaryColumns[key].alias] =
+                  option.label;
               }
             }
           } else {
@@ -753,7 +755,8 @@ export default {
             );
 
             if (option) {
-              labelValueForSelectCell = option.label;
+              labelValuesForSelectCell[primaryColumns[key].alias] =
+                option.label;
             }
           }
         });
@@ -761,7 +764,7 @@ export default {
 
       const displayedRow = {
         ...row,
-        labelValueForSelectCell,
+        ...labelValuesForSelectCell,
         ...columnWithDisplayText.reduce((acc, column) => {
           let displayText;
 
