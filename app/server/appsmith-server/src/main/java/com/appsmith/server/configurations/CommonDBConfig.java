@@ -45,7 +45,7 @@ public class CommonDBConfig {
         if (!appsmithDbUrl.contains("postgresql")) {
             return null;
         }
-        log.info("Found PostgreSQL uri configuring now");
+        log.info("Found PostgreSQL uri configuring now.");
         return extractJdbcProperties(appsmithDbUrl);
     }
 
