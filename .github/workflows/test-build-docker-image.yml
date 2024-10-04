@@ -517,7 +517,7 @@ jobs:
           run_url='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}'
           slack_message="🚨 TBP workflow failed in <$run_url|${{ vars.EDITION }} attempt ${{ github.run_attempt }} (run ${{ github.run_id }})>."
 
-          # This is the ChannelId of the pro-postgres-sync channel.
+          # This is the ChannelId of the proj-postgres-sync channel.
           body="$(jq -nc \
             --arg channel C07JMLWEXDJ \
             --arg text "$slack_message" \
