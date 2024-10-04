@@ -205,7 +205,7 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
         prompt={this.state.prompt}
         promptInputPlaceholder={this.props.promptInputPlaceholder}
         thread={this.adaptMessages(this.state.messages)}
-        username={this.props.username}
+        username={this.props.username || ""}
       />
     );
   }
