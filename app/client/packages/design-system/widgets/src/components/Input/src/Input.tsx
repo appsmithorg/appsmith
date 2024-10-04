@@ -1,24 +1,16 @@
 import clsx from "clsx";
-import {
-  Group,
-  Input as HeadlessInput,
-  TextArea as HeadlessTextArea,
-} from "react-aria-components";
 import React, { forwardRef, useState } from "react";
 import { getTypographyClassName } from "@appsmith/wds-theming";
 import { IconButton, Spinner, type IconProps } from "@appsmith/wds";
+import { Group, Input as HeadlessInput } from "react-aria-components";
 
 import styles from "./styles.module.css";
 import type { InputProps } from "./types";
 
-function _Input(
-  props: InputProps,
-  ref: React.Ref<HTMLInputElement | HTMLTextAreaElement>,
-) {
+function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
   const {
     defaultValue,
     isLoading,
-    isMultiLine,
     isReadOnly,
     prefix,
     size,
@@ -30,9 +22,6 @@ function _Input(
   const [showPassword, setShowPassword] = useState(false);
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
   const isEmpty = !Boolean(value) && !Boolean(defaultValue);
-  const ElementType: React.ElementType = Boolean(isMultiLine)
-    ? HeadlessTextArea
-    : HeadlessInput;
 
   const suffix = (() => {
     if (Boolean(isLoading)) return <Spinner />;
@@ -57,7 +46,7 @@ function _Input(
 
   return (
     <Group className={styles.inputGroup}>
-      <ElementType
+      <HeadlessInput
         {...rest}
         className={clsx(styles.input, getTypographyClassName("body"))}
         data-readonly={Boolean(isReadOnly) ? true : undefined}

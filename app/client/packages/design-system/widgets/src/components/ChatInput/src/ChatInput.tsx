@@ -4,6 +4,7 @@ import {
   FieldLabel,
   FieldDescription,
   inputFieldStyles,
+  IconButton,
   TextAreaInput,
 } from "@appsmith/wds";
 import React, { useCallback, useRef } from "react";
@@ -11,9 +12,9 @@ import { useControlledState } from "@react-stately/utils";
 import { chain, useLayoutEffect } from "@react-aria/utils";
 import { TextField as HeadlessTextField } from "react-aria-components";
 
-import type { TextAreaProps } from "./types";
+import type { ChatInputProps } from "./types";
 
-export function TextArea(props: TextAreaProps) {
+export function ChatInput(props: ChatInputProps) {
   const {
     contextualHelp,
     description,
@@ -25,10 +26,13 @@ export function TextArea(props: TextAreaProps) {
     isRequired,
     label,
     onChange,
-    suffix,
+    onSubmit,
+    prefix,
+    suffix = <IconButton icon="send" onPress={props.onSubmit} size="small" />,
     value,
     ...rest
   } = props;
+
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [inputValue, setInputValue] = useControlledState(
     props.value,
@@ -57,28 +61,38 @@ export function TextArea(props: TextAreaProps) {
       input.style.alignSelf = "start";
       input.style.height = "auto";
 
-      const computedStyle = getComputedStyle(input);
-      const paddingTop = parseFloat(computedStyle.paddingTop);
-      const paddingBottom = parseFloat(computedStyle.paddingBottom);
+      const computedStyle = window.getComputedStyle(input);
+      const height = parseFloat(computedStyle.height) || 0;
+      const paddingTop = parseFloat(computedStyle.paddingTop) || 0;
+      const paddingBottom = parseFloat(computedStyle.paddingBottom) || 0;
+      const textHeight = input.scrollHeight - paddingTop - paddingBottom + 1;
 
-      input.style.height = `${
-        // subtract comptued padding and border to get the actual content height
-        input.scrollHeight -
-        paddingTop -
-        paddingBottom +
-        // Also, adding 1px to fix a bug in browser where there is a scrolllbar on certain heights
-        1
-      }px`;
+      if (Math.abs(textHeight - height) > 10) {
+        input.style.height = `${textHeight}px`;
+      } else {
+        input.style.height = "auto";
+      }
+
       input.style.overflow = prevOverflow;
       input.style.alignSelf = prevAlignment;
     }
   }, [inputRef, props.height]);
 
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        onSubmit?.();
+      }
+    },
+    [onSubmit],
+  );
+
   useLayoutEffect(() => {
     if (inputRef.current) {
       onHeightChange();
     }
-  }, [onHeightChange, inputValue]);
+  }, [onHeightChange, inputValue, inputRef.current]);
 
   return (
     <HeadlessTextField
@@ -101,7 +115,10 @@ export function TextArea(props: TextAreaProps) {
       <TextAreaInput
         isLoading={isLoading}
         isReadOnly={isReadOnly}
+        onKeyDown={handleKeyDown}
+        prefix={prefix}
         ref={inputRef}
+        rows={1}
         suffix={suffix}
         value={value}
       />

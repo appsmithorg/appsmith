@@ -23,19 +23,20 @@
   isolation: isolate;
 }
 
-.input:is(textarea) {
-  block-size: auto;
-}
-
 .input:has(> [data-select-text]) {
   block-size: var(--body-line-height);
 }
 
 .input:is(textarea) {
-  height: auto;
+  block-size: auto;
   min-block-size: var(--sizing-16);
   align-items: flex-start;
   resize: none;
+  font-family: inherit;
+}
+
+.input:is(textarea)[rows="1"] {
+  min-block-size: initial;
 }
 
 .input:autofill,
@@ -52,7 +53,7 @@
  * SUFFIX and PREFIX
  * ----------------------------------------------------------------------------
  */
-.inputGroup [data-input-suffix] {
+.inputGroup [data-input-suffix] button {
   border-radius: calc(
     var(--border-radius-elevation-3) - var(--inner-spacing-1)
   );
@@ -82,6 +83,11 @@
 .inputGroup:has(> [data-input-suffix]) [data-input-suffix] {
   right: var(--inner-spacing-1);
   position: absolute;
+}
+
+.inputGroup:has(.input[rows="1"]) [data-input-suffix] {
+  bottom: 50%;
+  transform: translateY(50%);
 }
 
 .inputGroup :is([data-input-suffix], [data-input-prefix]) {

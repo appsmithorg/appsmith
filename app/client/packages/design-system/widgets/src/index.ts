@@ -31,6 +31,7 @@ export * from "./components/Radio";
 export * from "./components/ListBox";
 export * from "./components/ListBoxItem";
 export * from "./components/MenuItem";
+export * from "./components/ChatInput";
 
 export * from "./utils";
 export * from "./hooks";
