@@ -86,8 +86,16 @@
 }
 
 .inputGroup:has(.input[rows="1"]) [data-input-suffix] {
-  bottom: 50%;
-  transform: translateY(50%);
+  --container-height: calc(
+    var(--body-line-height) + (var(--inner-spacing-1) * 2)
+  );
+  --icon-size: calc(
+    var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end) +
+      (var(--inner-spacing-1) * 2)
+  );
+
+  /* subtracting 0.5 looks better for some reason */
+  bottom: calc(((var(--container-height) - var(--icon-size)) / 2) - 0.5px);
 }
 
 .inputGroup :is([data-input-suffix], [data-input-prefix]) {
