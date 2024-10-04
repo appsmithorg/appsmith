@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# default values
+DB_USER="appsmith"
+DB_HOST="127.0.0.1"
+DB_PORT="5432"
+DB_SCHEMA="appsmith"
+DB_NAME="appsmith"
+postgres_admin_user="postgres"
+
 waitForPostgresAvailability() {
   if [ -z "$PG_DB_HOST" ]; then
     tlog "PostgreSQL host name is empty. Check env variables. Error. Exiting java setup"
@@ -125,6 +133,8 @@ init_pg_db() {
         psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "ALTER DEFAULT PRIVILEGES IN SCHEMA appsmith GRANT ALL PRIVILEGES ON TABLES TO ${PG_DB_USER};"
         psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -c "GRANT CONNECT ON DATABASE appsmith TO ${PG_DB_USER};"
       fi
+
+      USER=$PG_DB_USER SCHEMA="appsmith" DB=$PG_DB_NAME HOST=$PG_DB_HOST PORT=$PG_DB_PORT grant_permissions_for_schema
     else
       echo "Remote PostgreSQL detected, running as current user."
       PGPASSWORD=$PG_DB_PASSWORD psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U "$PG_DB_USER" -d "$PG_DB_NAME" -c "CREATE SCHEMA IF NOT EXISTS appsmith;"
@@ -141,6 +151,28 @@ init_pg_db() {
   fi
 }
 
+# Utility function to grant permissions to a user on a schema in a database on a host and port in PostgreSQL database
+# Args:
+#     USER (string): User to grant permissions to
+#     SCHEMA (string): Schema to grant permissions on
+#     DB (string): Database to grant permissions on
+#     HOST (string): Host to grant permissions on
+#     PORT (int): Port to grant permissions on
+# Returns:
+#     None
+# Example:
+#     USER="user" SCHEMA="schema" DB="db" HOST="host" PORT="port" grant_permissions_for_schema
+grant_permissions_for_schema() {
+  local user=${USER-$DB_USER} schema=${SCHEMA-$DB_SCHEMA} db=${DB-$DB_NAME} host=${HOST-$DB_HOST} port=${PORT-$DB_PORT}
+  tlog "Granting permissions to user '${user}' on schema '$schema' in database '$db' on host '$host' and port '$port'..."
+  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "GRANT ALL PRIVILEGES ON SCHEMA ${schema} TO ${user};"
+  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ${schema} TO ${user};"
+  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${schema} GRANT ALL PRIVILEGES ON TABLES TO ${user};"
+  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "GRANT CONNECT ON DATABASE ${db} TO ${user};"
+}
+
 # Example usage of the functions
 # waitForPostgresAvailability
 # extract_postgres_db_params "postgresql://user:password@localhost:5432/dbname"
+# init_pg_db
+# USER="user" SCHEMA="schema" DB="db" HOST="host" PORT="port" grant_permissions_for_schema
