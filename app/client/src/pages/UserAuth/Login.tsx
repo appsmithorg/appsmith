@@ -114,7 +114,7 @@ export function Login(props: LoginFormProps) {
   if (queryParams.get("error")) {
     errorMessage = queryParams.get("message") || queryParams.get("error") || "";
     showError = true;
-    Sentry.captureException("Sign up failed", {
+    Sentry.captureException("Login failed", {
       level: Severity.Error,
       extra: {
         error: new Error(errorMessage),
