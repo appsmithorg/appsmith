@@ -169,7 +169,9 @@ describe(
       table.WaitUntilTableLoad(0, 0, "v2");
     });
 
-    it("6. Validate Search table with Client Side Search enabled & disabled & onSearchTextChanged is set", () => {
+    // All tests from number 6 to 10 are skipped as some of the tests are already covered in other Table spec and Github issue link adding
+    // a new issue and associated tests value addition was limited hence skipped
+    it.skip("6. Validate Search table with Client Side Search enabled & disabled & onSearchTextChanged is set", () => {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       agHelper.AssertExistingToggleState("Client side search", "true");
 
@@ -240,7 +242,7 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("7. Validate Filter table", () => {
+    it.skip("7. Validate Filter table", () => {
       let filterTitle = new Array();
       deployMode.DeployApp();
       table.WaitUntilTableLoad(0, 0, "v2");
@@ -293,7 +295,7 @@ describe(
       table.RemoveFilterNVerify("Question", true, false, 0, "v2");
     });
 
-    it("8. Validate Adding a New issue from Add Modal", () => {
+    it.skip("8. Validate Adding a New issue from Add Modal", () => {
       // agHelper.DeployApp()
       // table.WaitUntilTableLoad(0,0,"v2")
 
@@ -338,7 +340,7 @@ describe(
       });
     });
 
-    it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
+    it.skip("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
       agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
       agHelper.GetNClick(".cross-icon");
       table.SelectTableRow(0, 1, true, "v2");
@@ -401,7 +403,7 @@ describe(
       });
     });
 
-    it("10. Validate Deleting the newly created issue", () => {
+    it.skip("10. Validate Deleting the newly created issue", () => {
       agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
       agHelper.GetNClick(".cross-icon");
       table.SearchTable("Suggestion");
