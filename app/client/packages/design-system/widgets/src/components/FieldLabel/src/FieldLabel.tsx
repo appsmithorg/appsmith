@@ -12,7 +12,11 @@ export function FieldLabel(props: LabelProps) {
   if (!Boolean(children)) return null;
 
   return (
-    <Group className={styles.labelGroup} isDisabled={isDisabled}>
+    <Group
+      className={styles.labelGroup}
+      data-field-label-wrapper=""
+      isDisabled={isDisabled}
+    >
       <AriaLabel {...rest} className={clsx(styles.label)}>
         <Text fontWeight={600} size="caption">
           {children}

@@ -1,13 +1,13 @@
 import React from "react";
-import { Tooltip } from "../../Tooltip";
-import { IconButton } from "../../IconButton";
+import { Tooltip, IconButton } from "@appsmith/wds";
+
 import type { ContextualProps } from "./types";
 
 const _ContextualHelp = (props: ContextualProps) => {
   const { contextualHelp } = props;
 
   return (
-    <Tooltip interaction="click" tooltip={contextualHelp}>
+    <Tooltip tooltip={contextualHelp}>
       <IconButton
         color="neutral"
         icon="question-mark"

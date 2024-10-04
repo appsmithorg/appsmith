@@ -1,6 +1,6 @@
 import React from "react";
 import { listStyles, Popover } from "@appsmith/wds";
-import { Menu as HeadlessMenu } from "react-aria-components";
+import { Menu as AriaMenu } from "react-aria-components";
 
 import type { MenuProps } from "./types";
 
@@ -12,9 +12,9 @@ export const Menu = (props: MenuProps) => {
 
   return (
     <Popover UNSTABLE_portalContainer={root}>
-      <HeadlessMenu className={listStyles.listBox} {...props}>
+      <AriaMenu className={listStyles.listBox} {...props}>
         {children}
-      </HeadlessMenu>
+      </AriaMenu>
     </Popover>
   );
 };

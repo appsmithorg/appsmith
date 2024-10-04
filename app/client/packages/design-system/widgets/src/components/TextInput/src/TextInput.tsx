@@ -34,6 +34,7 @@ export function TextInput(props: TextInputProps) {
     <AriaTextField
       {...rest}
       className={clsx(newFieldStyles.field)}
+      data-field=""
       isDisabled={isDisabled}
       isInvalid={isInvalid}
       isReadOnly={isReadOnly}

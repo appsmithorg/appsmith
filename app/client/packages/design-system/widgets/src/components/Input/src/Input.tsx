@@ -8,8 +8,8 @@ import React, { forwardRef, useState } from "react";
 import { getTypographyClassName } from "@appsmith/wds-theming";
 import { IconButton, Spinner, type IconProps } from "@appsmith/wds";
 
-import type { InputProps } from "./types";
 import styles from "./styles.module.css";
+import type { InputProps } from "./types";
 
 function _Input(
   props: InputProps,

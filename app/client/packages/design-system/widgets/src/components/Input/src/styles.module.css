@@ -3,6 +3,7 @@
   display: flex;
   align-items: center;
   gap: var(--inner-spacing-1);
+  width: 100%;
 }
 
 .input {
@@ -10,7 +11,6 @@
   display: flex;
   flex: 1;
   align-items: center;
-  justify-content: space-between;
   box-sizing: content-box;
   max-inline-size: 100%;
   padding-block: var(--inner-spacing-1);
@@ -25,6 +25,10 @@
 
 .input:is(textarea) {
   block-size: auto;
+}
+
+.input:has(> [data-select-text]) {
+  block-size: var(--body-line-height);
 }
 
 .input:is(textarea) {
@@ -48,6 +52,12 @@
  * SUFFIX and PREFIX
  * ----------------------------------------------------------------------------
  */
+.inputGroup [data-input-suffix] {
+  border-radius: calc(
+    var(--border-radius-elevation-3) - var(--inner-spacing-1)
+  );
+}
+
 .inputGroup:has(> [data-input-prefix]) .input {
   padding-left: var(--sizing-8);
 }

@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import React from "react";
 import { Icon, Spinner, textInputStyles } from "@appsmith/wds";
 import { getTypographyClassName } from "@appsmith/wds-theming";
@@ -24,17 +23,17 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = (props) => {
         data-size={size}
       >
         <SelectValue
-          className={clsx(getTypographyClassName("body"))}
+          className={getTypographyClassName("body")}
           data-select-text=""
         >
           {({ defaultChildren, isPlaceholder }) =>
             isPlaceholder ? placeholder : defaultChildren
           }
         </SelectValue>
-        <span data-input-suffix>
-          {Boolean(isLoading) ? <Spinner /> : <Icon name="chevron-down" />}
-        </span>
       </Button>
+      <span data-input-suffix>
+        {Boolean(isLoading) ? <Spinner /> : <Icon name="chevron-down" />}
+      </span>
     </Group>
   );
 };

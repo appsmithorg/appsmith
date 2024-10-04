@@ -5,9 +5,6 @@ import {
   Text,
   ToggleGroup,
   Checkbox,
-  TooltipRoot,
-  TooltipTrigger,
-  TooltipContent,
   ToolbarButtons,
   Flex,
   Switch,
@@ -23,6 +20,7 @@ import {
   ComboBox,
   Radio,
   ListBoxItem,
+  Tooltip,
 } from "@appsmith/wds";
 // This component is used only for testing purpose and is not used in the prod
 
@@ -196,14 +194,10 @@ export const ComplexForm = () => {
       </Flex>
 
       <Flex gap="spacing-2">
-        <TooltipRoot>
-          <TooltipTrigger>
-            <Button variant="outlined">Cancel</Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            If you cancel, you will lose your order
-          </TooltipContent>
-        </TooltipRoot>
+        <Tooltip tooltip="Tooltip">
+          <Button variant="outlined">Cancel</Button>
+        </Tooltip>
+
         <Button onPress={() => setModalOpen(!isModalOpen)} ref={submitRef}>
           Ok
         </Button>

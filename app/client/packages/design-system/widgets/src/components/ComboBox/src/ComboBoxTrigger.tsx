@@ -8,12 +8,11 @@ import type { ComboBoxProps } from "./types";
 interface ComboBoxTriggerProps {
   size?: ComboBoxProps["size"];
   isLoading?: boolean;
-  isInvalid?: boolean;
   placeholder?: string;
 }
 
 export const ComboBoxTrigger: React.FC<ComboBoxTriggerProps> = (props) => {
-  const { isInvalid, isLoading, placeholder, size } = props;
+  const { isLoading, placeholder, size } = props;
 
   const suffix = useMemo(() => {
     if (Boolean(isLoading)) return <Spinner />;
@@ -29,9 +28,8 @@ export const ComboBoxTrigger: React.FC<ComboBoxTriggerProps> = (props) => {
   return (
     <Input
       className={clsx(textInputStyles.input, getTypographyClassName("body"))}
-      data-invalid={Boolean(isInvalid) ? "" : undefined}
-      data-size={size}
       placeholder={placeholder}
+      size={size}
       suffix={suffix}
     />
   );

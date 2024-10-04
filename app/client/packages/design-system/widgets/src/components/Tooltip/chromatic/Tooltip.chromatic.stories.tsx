@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Button,
-  TooltipTrigger,
-  TooltipContent,
-  TooltipRoot as Tooltip,
-} from "@appsmith/wds";
+import { Button, Tooltip } from "@appsmith/wds";
 import { StoryGrid } from "@design-system/storybook";
 import type { Meta, StoryObj } from "@storybook/react";
 
@@ -20,29 +15,17 @@ type Story = StoryObj<typeof Tooltip>;
 export const LightMode: Story = {
   render: () => (
     <StoryGrid>
-      <Tooltip open placement="left">
-        <TooltipTrigger>
-          <Button>Button</Button>
-        </TooltipTrigger>
-        <TooltipContent>This is a tooltip</TooltipContent>
+      <Tooltip isOpen placement="left" tooltip="This is a tooltip">
+        <Button>Button</Button>
       </Tooltip>
-      <Tooltip open placement="top">
-        <TooltipTrigger>
-          <Button>Button</Button>
-        </TooltipTrigger>
-        <TooltipContent>This is a tooltip</TooltipContent>
+      <Tooltip isOpen placement="top" tooltip="This is a tooltip">
+        <Button>Button</Button>
       </Tooltip>
-      <Tooltip open placement="bottom">
-        <TooltipTrigger>
-          <Button>Button</Button>
-        </TooltipTrigger>
-        <TooltipContent>This is a tooltip</TooltipContent>
+      <Tooltip isOpen placement="bottom" tooltip="This is a tooltip">
+        <Button>Button</Button>
       </Tooltip>
-      <Tooltip open placement="right">
-        <TooltipTrigger>
-          <Button>Button</Button>
-        </TooltipTrigger>
-        <TooltipContent>This is a tooltip</TooltipContent>
+      <Tooltip isOpen placement="right" tooltip="This is a tooltip">
+        <Button>Button</Button>
       </Tooltip>
     </StoryGrid>
   ),

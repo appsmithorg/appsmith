@@ -26,17 +26,17 @@ export const Main: Story = {
     <MenuTrigger>
       <Button>Open The Menu…</Button>
       <Menu>
-        <MenuItem>Hello</MenuItem>
-        <MenuItem>World</MenuItem>
-        <MenuItem>Hello</MenuItem>
-        <MenuItem>World</MenuItem>
+        <MenuItem>Item 1</MenuItem>
+        <MenuItem>Item 2</MenuItem>
+        <MenuItem>Item 3</MenuItem>
+        <MenuItem>Item 4</MenuItem>
         <SubmenuTrigger>
           <MenuItem>Submenu</MenuItem>
           <Menu>
-            <MenuItem>Submenu</MenuItem>
-            <MenuItem>Submenu</MenuItem>
-            <MenuItem>Submenu</MenuItem>
-            <MenuItem>Submenu</MenuItem>
+            <MenuItem>Submenu Item 1</MenuItem>
+            <MenuItem>Submenu Item 2</MenuItem>
+            <MenuItem>Submenu Item 3</MenuItem>
+            <MenuItem>Submenu Item 4</MenuItem>
           </Menu>
         </SubmenuTrigger>
       </Menu>
@@ -44,33 +44,56 @@ export const Main: Story = {
   ),
 };
 
-// export const Submenus: Story = {
-//   render: () => (
-//     <MenuTrigger>
-//       <Button>Open The Menu…</Button>
-//       <Menu items={submenusItems} />
-//     </MenuTrigger>
-//   ),
-// };
+export const Submenus: Story = {
+  render: () => (
+    <MenuTrigger>
+      <Button>Open The Menu…</Button>
+      <Menu>
+        <MenuItem>Item 1</MenuItem>
+        <MenuItem>Item 2</MenuItem>
+        <SubmenuTrigger>
+          <MenuItem>Submenu 1</MenuItem>
+          <Menu>
+            <MenuItem>Submenu 1 Item 1</MenuItem>
+            <MenuItem>Submenu 1 Item 2</MenuItem>
+            <SubmenuTrigger>
+              <MenuItem>Submenu 2</MenuItem>
+              <Menu>
+                <MenuItem>Submenu 2 Item 1</MenuItem>
+                <MenuItem>Submenu 2 Item 2</MenuItem>
+              </Menu>
+            </SubmenuTrigger>
+          </Menu>
+        </SubmenuTrigger>
+      </Menu>
+    </MenuTrigger>
+  ),
+};
 
-// /**
-//  * The items can be disabled by passing `disabledKeys` or `isDisabled` in the item configuration.
-//  */
+export const DisabledItems: Story = {
+  render: () => (
+    <MenuTrigger>
+      <Button>Open The Menu…</Button>
+      <Menu disabledKeys={["2", "3"]}>
+        <MenuItem id="1">Enabled Item</MenuItem>
+        <MenuItem id="2">Disabled Item 1</MenuItem>
+        <MenuItem id="3">Disabled Item 2</MenuItem>
+        <MenuItem id="4">Enabled Item</MenuItem>
+      </Menu>
+    </MenuTrigger>
+  ),
+};
 
-// export const DisabledItems: Story = {
-//   render: () => (
-//     <MenuTrigger>
-//       <Button>Open The Menu…</Button>
-//       <Menu disabledKeys={[1, 2]} items={submenusItems} />
-//     </MenuTrigger>
-//   ),
-// };
-
-// export const WithIcons: Story = {
-//   render: () => (
-//     <MenuTrigger>
-//       <Button>Open The Menu…</Button>
-//       <Menu items={submenusItemsWithIcons} />
-//     </MenuTrigger>
-//   ),
-// };
+export const WithIcons: Story = {
+  render: () => (
+    <MenuTrigger>
+      <Button>Open The Menu…</Button>
+      <Menu>
+        <MenuItem icon="home">Home</MenuItem>
+        <MenuItem icon="file">Files</MenuItem>
+        <MenuItem icon="settings">Settings</MenuItem>
+        <MenuItem icon="question-mark">Help</MenuItem>
+      </Menu>
+    </MenuTrigger>
+  ),
+};
