@@ -74,13 +74,13 @@ parts.push(`
   }
 
   # skip logs for health check
-  skip_log /api/v1/health
+  log_skip /api/v1/health
 
   # skip logs for sourcemap files
   @source-map-files {
     path_regexp ^.*\.(js|css)\.map$
   }
-  skip_log @source-map-files
+  log_skip @source-map-files
 
   # The internal request ID header should never be accepted from an incoming request.
   request_header -X-Appsmith-Request-Id
@@ -101,15 +101,7 @@ parts.push(`
   }
 
   header /static/* {
-   # Match the response with status 200
-    @successful {
-        status 200
-    }
-
-    # Cache the response for 1 year if the response is successful
-    # @successful {
-        Cache-Control "public, max-age=31536000, immutable"
-    # }
+    Cache-Control "public, max-age=31536000, immutable"
   }
 
   request_body {
@@ -162,7 +154,12 @@ parts.push(`
 
   handle_errors {
     respond "{err.status_code} {err.status_text}" {err.status_code}
-    header -Server
+    header {
+      # Remove the Server header from the response.
+      -Server
+      # Remove Cache-Control header from the response.
+      -Cache-Control
+    }
   }
 }
 
