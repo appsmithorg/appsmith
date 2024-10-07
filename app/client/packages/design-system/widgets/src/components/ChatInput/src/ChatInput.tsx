@@ -99,7 +99,7 @@ export function ChatInput(props: ChatInputProps) {
     if (inputRef.current) {
       onHeightChange();
     }
-  }, [onHeightChange, inputValue, inputRef.current]);
+  }, [onHeightChange, inputValue]);
 
   return (
     <HeadlessTextField
