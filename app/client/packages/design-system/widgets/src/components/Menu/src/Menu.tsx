@@ -17,7 +17,7 @@ export const Menu = (props: MenuProps) => {
 
   return (
     <MenuNestingContext.Provider value={nestingLevel + 1}>
-      {/* Only the parent Popover should be placed in the root. Place child popover in root would cause the menu to function incorrectly */}
+      {/* Only the parent Popover should be placed in the root. Placing child popoves in root would cause the menu to function incorrectly */}
       <Popover UNSTABLE_portalContainer={isRootMenu ? root : undefined}>
         <HeadlessMenu className={listStyles.listBox} {...props}>
           {children}
