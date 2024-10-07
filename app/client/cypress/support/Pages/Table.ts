@@ -528,7 +528,7 @@ export class Table {
   }
 
   public CloseFilter() {
-    this.agHelper.GetNClick(this._filterCloseBtn, 0, true);
+    this.agHelper.GetNClick(this._filterCloseBtn);
   }
 
   public DownloadFromTable(filetype: "Download as CSV" | "Download as Excel") {
