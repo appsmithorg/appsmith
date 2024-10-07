@@ -150,6 +150,9 @@ describe(
       cy.saveTableCellValue(0, 0);
       agHelper
         .GetText(".t--widget-textwidget .bp3-ui-text", "text")
+        .should("not.be", "[]");
+      agHelper
+        .GetText(".t--widget-textwidget .bp3-ui-text", "text")
         .then((text) => {
           text = JSON.parse(text);
           const exected = JSON.parse(
