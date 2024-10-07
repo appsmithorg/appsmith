@@ -26,6 +26,9 @@ export const Select = (props: SelectProps) => {
     size = "medium",
     ...rest
   } = props;
+  const root = document.body.querySelector(
+    "[data-theme-provider]",
+  ) as HTMLButtonElement;
 
   return (
     <HeadlessSelect
@@ -52,7 +55,7 @@ export const Select = (props: SelectProps) => {
           />
           <FieldDescription>{description}</FieldDescription>
           <FieldError>{errorMessage}</FieldError>
-          <Popover>
+          <Popover UNSTABLE_portalContainer={root}>
             <ListBox shouldFocusWrap>{children}</ListBox>
           </Popover>
         </>

@@ -40,8 +40,7 @@
   cursor: pointer;
 }
 
-.listBoxItem[data-hovered],
-.listBoxItem[data-focused] {
+.listBoxItem[data-hovered] {
   background-color: var(--color-bg-accent-subtle-hover);
 }
 

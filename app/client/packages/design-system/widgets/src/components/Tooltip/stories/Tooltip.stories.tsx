@@ -24,8 +24,7 @@ export const Main: Story = {};
  */
 export const Disabled: Story = {
   args: {
-    children: <Button>My Trigger</Button>,
-    isDisabled: true,
+    children: <Button isDisabled>My Trigger</Button>,
   },
 };
 

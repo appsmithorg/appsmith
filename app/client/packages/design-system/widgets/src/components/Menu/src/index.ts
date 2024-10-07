@@ -1,4 +1,3 @@
 export * from "./Menu";
 export * from "./types";
-export { SubmenuTrigger } from "./SubmenuTrigger";
-export { MenuTrigger } from "react-aria-components";
+export { MenuTrigger, SubmenuTrigger } from "react-aria-components";

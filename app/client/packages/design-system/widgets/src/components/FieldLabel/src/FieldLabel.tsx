@@ -9,7 +9,7 @@ import type { LabelProps } from "./types";
 export function FieldLabel(props: LabelProps) {
   const { children, contextualHelp, isDisabled, isRequired, ...rest } = props;
 
-  if (!Boolean(children)) return null;
+  if (!Boolean(children) && !Boolean(contextualHelp)) return null;
 
   return (
     <Group
@@ -31,9 +31,7 @@ export function FieldLabel(props: LabelProps) {
           </span>
         )}
       </HeadlessLabel>
-      {Boolean(contextualHelp) && (
-        <ContextualHelp contextualHelp={contextualHelp} />
-      )}
+      <ContextualHelp contextualHelp={contextualHelp} />
     </Group>
   );
 }

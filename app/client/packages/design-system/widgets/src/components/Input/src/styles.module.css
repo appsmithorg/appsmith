@@ -57,6 +57,12 @@
   border-radius: calc(
     var(--border-radius-elevation-3) - var(--inner-spacing-1)
   );
+  padding: 0; /* resetting padding here because we will be adding padding to the [data-empty-text] instead. */
+}
+
+.inputGroup :is([data-input-suffix], [data-input-prefix]) [data-empty-text] {
+  margin: 0; /* resetting margin so that height of the button is same as the height of the input ( excluding padding  */
+  padding: var(--inner-spacing-1);
 }
 
 .inputGroup:has(> [data-input-prefix]) .input {
@@ -90,15 +96,9 @@
 }
 
 .inputGroup :is([data-input-suffix], [data-input-prefix]) {
-  width: var(--sizing-6);
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.inputGroup:has(> .input[data-size="small"])
-  :is([data-input-suffix], [data-input-prefix]) {
-  width: var(--sizing-5);
 }
 
 /**

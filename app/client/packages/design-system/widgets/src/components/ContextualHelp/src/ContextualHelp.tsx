@@ -6,8 +6,10 @@ import type { ContextualProps } from "./types";
 const _ContextualHelp = (props: ContextualProps) => {
   const { contextualHelp } = props;
 
+  if (!Boolean(contextualHelp)) return null;
+
   return (
-    <Tooltip tooltip={contextualHelp}>
+    <Tooltip interaction="click" tooltip={contextualHelp}>
       <IconButton
         color="neutral"
         icon="question-mark"

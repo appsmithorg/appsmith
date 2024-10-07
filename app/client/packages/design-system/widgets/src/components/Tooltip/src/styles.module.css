@@ -6,38 +6,16 @@
   z-index: var(--z-index-99);
 
   & [data-tooltip-trigger-arrow] {
-    background-color: var(--color-bg-assistive);
-    width: 8px;
-    height: 8px;
-    position: absolute;
-    margin: auto;
+    fill: var(--color-bg-assistive);
   }
 
-  &[data-placement^="top"] [data-tooltip-trigger-arrow] {
-    bottom: -4px;
-    transform: rotate(45deg);
-    left: 0;
-    right: 0;
+  &[data-is-rounded]:is([data-tooltip-placement^="left"])
+    [data-tooltip-trigger-arrow] {
+    margin-left: -2px;
   }
 
-  &[data-placement^="bottom"] [data-tooltip-trigger-arrow] {
-    top: -4px;
-    transform: rotate(225deg);
-    left: 0;
-    right: 0;
-  }
-
-  &[data-placement^="left"] [data-tooltip-trigger-arrow] {
-    right: -4px;
-    transform: rotate(135deg);
-    top: 0;
-    bottom: 0;
-  }
-
-  &[data-placement^="right"] [data-tooltip-trigger-arrow] {
-    left: -4px;
-    transform: rotate(315deg);
-    top: 0;
-    bottom: 0;
+  &[data-is-rounded]:is([data-tooltip-placement^="right"])
+    [data-tooltip-trigger-arrow] {
+    margin-right: -2px;
   }
 }

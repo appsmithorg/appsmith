@@ -34,7 +34,6 @@ export const LightMode: Story = {
       {states.map((state) => (
         <DataAttrWrapper attr={state} key={state} target="label">
           <RadioGroup defaultValue="value-1">
-            {" "}
             {items.map(({ label, value }) => (
               <Radio key={value} value={value}>
                 {label}

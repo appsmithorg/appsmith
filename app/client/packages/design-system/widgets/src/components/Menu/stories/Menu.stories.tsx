@@ -26,17 +26,17 @@ export const Main: Story = {
     <MenuTrigger>
       <Button>Open The Menu…</Button>
       <Menu>
-        <MenuItem>Item 1</MenuItem>
-        <MenuItem>Item 2</MenuItem>
-        <MenuItem>Item 3</MenuItem>
-        <MenuItem>Item 4</MenuItem>
+        <MenuItem id="1">Item 1</MenuItem>
+        <MenuItem id="2">Item 2</MenuItem>
+        <MenuItem id="3">Item 3</MenuItem>
+        <MenuItem id="4">Item 4</MenuItem>
         <SubmenuTrigger>
-          <MenuItem>Submenu</MenuItem>
+          <MenuItem id="5">Submenu</MenuItem>
           <Menu>
-            <MenuItem>Submenu Item 1</MenuItem>
-            <MenuItem>Submenu Item 2</MenuItem>
-            <MenuItem>Submenu Item 3</MenuItem>
-            <MenuItem>Submenu Item 4</MenuItem>
+            <MenuItem id="6">Submenu Item 1</MenuItem>
+            <MenuItem id="7">Submenu Item 2</MenuItem>
+            <MenuItem id="8">Submenu Item 3</MenuItem>
+            <MenuItem id="9">Submenu Item 4</MenuItem>
           </Menu>
         </SubmenuTrigger>
       </Menu>
@@ -49,18 +49,18 @@ export const Submenus: Story = {
     <MenuTrigger>
       <Button>Open The Menu…</Button>
       <Menu>
-        <MenuItem>Item 1</MenuItem>
-        <MenuItem>Item 2</MenuItem>
+        <MenuItem id="1">Item 1</MenuItem>
+        <MenuItem id="2">Item 2</MenuItem>
         <SubmenuTrigger>
-          <MenuItem>Submenu 1</MenuItem>
+          <MenuItem id="3">Submenu 1</MenuItem>
           <Menu>
-            <MenuItem>Submenu 1 Item 1</MenuItem>
-            <MenuItem>Submenu 1 Item 2</MenuItem>
+            <MenuItem id="4">Submenu 1 Item 1</MenuItem>
+            <MenuItem id="5">Submenu 1 Item 2</MenuItem>
             <SubmenuTrigger>
-              <MenuItem>Submenu 2</MenuItem>
+              <MenuItem id="6">Submenu 2</MenuItem>
               <Menu>
-                <MenuItem>Submenu 2 Item 1</MenuItem>
-                <MenuItem>Submenu 2 Item 2</MenuItem>
+                <MenuItem id="7">Submenu 2 Item 1</MenuItem>
+                <MenuItem id="8">Submenu 2 Item 2</MenuItem>
               </Menu>
             </SubmenuTrigger>
           </Menu>

@@ -26,6 +26,9 @@ export const ComboBox = (props: ComboBoxProps) => {
     size = "medium",
     ...rest
   } = props;
+  const root = document.body.querySelector(
+    "[data-theme-provider]",
+  ) as HTMLButtonElement;
 
   return (
     <HeadlessCombobox
@@ -51,7 +54,7 @@ export const ComboBox = (props: ComboBoxProps) => {
       />
       <FieldDescription>{description}</FieldDescription>
       <FieldError>{errorMessage}</FieldError>
-      <Popover>
+      <Popover UNSTABLE_portalContainer={root}>
         <ListBox shouldFocusWrap>{children}</ListBox>
       </Popover>
     </HeadlessCombobox>
