@@ -43,24 +43,7 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
   static type = "WDS_AI_CHAT_WIDGET";
 
   state = {
-    messages: [
-      {
-        id: "1",
-        content: "Hello! How can I help you?",
-        role: "assistant" as const,
-      },
-      {
-        id: "2",
-        content: "Find stuck support requests",
-        role: "user" as const,
-      },
-      {
-        id: "3",
-        content:
-          "I'm finding these customer support requests that have been waiting for a response for over a day:",
-        role: "assistant" as const,
-      },
-    ],
+    messages: [],
     prompt: "",
     isWaitingForResponse: false,
   };
