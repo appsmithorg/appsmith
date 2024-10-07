@@ -149,13 +149,15 @@ describe(
       cy.enterTableCellValue(0, 0, "newValue");
       cy.saveTableCellValue(0, 0);
       agHelper.Sleep();
+
+      const exected = JSON.parse(
+        `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅"    }  }]`,
+      );
       agHelper
         .GetText(".t--widget-textwidget .bp3-ui-text", "text")
-        .then((text) => {
+        .should((text) => {
           text = JSON.parse(text);
-          const exected = JSON.parse(
-            `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅"    }  }]`,
-          );
+
           expect(text).to.deep.equal(exected);
         });
       cy.openPropertyPane("textwidget");
