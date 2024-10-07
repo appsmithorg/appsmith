@@ -98,10 +98,17 @@ export function ChatInput(props: ChatInputProps) {
     if (Boolean(suffixProp)) return suffixProp;
 
     if (Boolean(isLoading)) {
-      return <IconButton icon="player-stop-filled" isDisabled size="small" />;
+      return (
+        <IconButton
+          icon="player-stop-filled"
+          isDisabled
+          onPress={onSubmit}
+          size="small"
+        />
+      );
     }
 
-    return <IconButton icon="arrow-up" size="small" />;
+    return <IconButton icon="arrow-up" onPress={onSubmit} size="small" />;
   })();
 
   return (
