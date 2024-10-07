@@ -6,7 +6,7 @@ import type {
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { isFunction } from "lodash";
-import widgets from "widgets";
+import widgets from "ee/widgets";
 import WidgetFactory from "WidgetProvider/factory";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 

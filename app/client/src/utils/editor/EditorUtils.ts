@@ -3,7 +3,7 @@ import PropertyControlRegistry from "../PropertyControlRegistry";
 // import Widgets from "widgets";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
 import { registerLayoutComponents } from "layoutSystems/anvil/utils/layouts/layoutUtils";
-import widgets from "widgets";
+import widgets from "ee/widgets";
 
 export const registerEditorWidgets = () => {
   registerWidgets(widgets);
