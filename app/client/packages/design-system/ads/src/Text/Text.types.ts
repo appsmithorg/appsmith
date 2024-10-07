@@ -45,10 +45,7 @@ export type TextProps = {
   /** whether the text is editable or not */
   isEditable?: boolean;
   /** input component props while isEditable is true */
-  inputProps?: Omit<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    "value" | "onChange"
-  >;
+  inputProps?: Omit<React.InputHTMLAttributes<HTMLInputElement>, "value">;
   /** ref for input component */
   inputRef?: React.RefObject<HTMLInputElement>;
 } & React.HTMLAttributes<HTMLLabelElement> &
