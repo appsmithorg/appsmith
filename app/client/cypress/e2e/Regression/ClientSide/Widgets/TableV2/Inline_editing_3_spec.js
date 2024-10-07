@@ -4,6 +4,7 @@ import {
   agHelper,
   table as tableHelper,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
@@ -148,9 +149,13 @@ describe(
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
       cy.saveTableCellValue(0, 0);
-      const exected = JSON.parse(
-        `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅"    }  }]`,
-      );
+      const exected = [
+        {
+          index: 0,
+          updatedFields: { step: "newValue" },
+          allFields: { step: "newValue", task: "Drop a table", status: "✅" },
+        },
+      ];
       agHelper
         .GetText(locators._textWidget, "text")
         .should((text) => expect(JSON.parse(text)).to.deep.equal(exected));
