@@ -1,4 +1,3 @@
-import { AIChat, type ChatMessage } from "@appsmith/wds";
 import {
   EventType,
   type ExecutionResult,
@@ -15,6 +14,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { AIChat, type ChatMessage } from "../AIChat";
 import {
   anvilConfig,
   autocompleteConfig,
