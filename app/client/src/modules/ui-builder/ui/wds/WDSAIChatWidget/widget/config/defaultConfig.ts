@@ -1,5 +1,8 @@
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import {
+  BlueprintOperationTypes,
+  type WidgetDefaultProps,
+} from "WidgetProvider/constants";
 
 export const defaultsConfig = {
   isVisible: true,
@@ -9,4 +12,12 @@ export const defaultsConfig = {
   responsiveBehavior: ResponsiveBehavior.Fill,
   initialAssistantMessage: "",
   initialAssistantSuggestions: [],
+  blueprint: {
+    operations: [
+      {
+        type: BlueprintOperationTypes.ADD_ACTION,
+        fn: () => {},
+      },
+    ],
+  },
 } as unknown as WidgetDefaultProps;
