@@ -33,13 +33,22 @@ import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import type { ListItemProps } from "@appsmith/ads";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
 import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import { setListViewActiveState } from "actions/ideActions";
 
 export const useQueryAdd = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
+  const ideViewMode = useSelector(getIDEViewMode);
 
   const openAddQuery = useCallback(() => {
     if (currentEntityInfo.entity === FocusEntity.QUERY_ADD) {
+      if (ideViewMode === EditorViewMode.SplitScreen) {
+        dispatch(setListViewActiveState(false));
+      }
+
       return;
     }
 
@@ -54,7 +63,7 @@ export const useQueryAdd = () => {
 
     url = getQueryUrl(currentEntityInfo, false);
     history.push(url);
-  }, [currentEntityInfo]);
+  }, [currentEntityInfo, ideViewMode]);
 
   return { openAddQuery, closeAddQuery };
 };

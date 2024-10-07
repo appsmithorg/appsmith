@@ -57,6 +57,7 @@ import RangeSliderWidget from "./RangeSliderWidget";
 import CategorySliderWidget from "./CategorySliderWidget";
 import CodeScannerWidget from "./CodeScannerWidget";
 import ListWidgetV2 from "./ListWidgetV2";
+import { WDSAIChatWidget } from "modules/ui-builder/ui/wds/WDSAIChatWidget";
 import { WDSButtonWidget } from "modules/ui-builder/ui/wds/WDSButtonWidget";
 import { WDSInputWidget } from "modules/ui-builder/ui/wds/WDSInputWidget";
 import { WDSCheckboxWidget } from "modules/ui-builder/ui/wds/WDSCheckboxWidget";
@@ -157,6 +158,7 @@ const DeprecatedWidgets = [
 
 const WDSWidgets = [
   // WDS Widgets
+  WDSAIChatWidget,
   WDSButtonWidget,
   WDSInputWidget,
   WDSCheckboxWidget,
