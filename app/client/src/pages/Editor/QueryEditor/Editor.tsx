@@ -42,8 +42,8 @@ import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndVa
 import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { QueryEditorContext } from "./QueryEditorContext";
 import {
-  getActionIsDeleting,
-  getActionIsRunning,
+  isActionDeleting,
+  isActionRunning,
   isPluginActionCreating,
 } from "PluginActionEditor/store";
 
@@ -278,8 +278,8 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
   }
 
   const isCreating = isPluginActionCreating(state);
-  const isDeleting = getActionIsDeleting(actionId)(state);
-  const isRunning = getActionIsRunning(actionId)(state);
+  const isDeleting = isActionDeleting(actionId)(state);
+  const isRunning = isActionRunning(actionId)(state);
 
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

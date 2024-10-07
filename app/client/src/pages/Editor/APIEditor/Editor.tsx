@@ -23,8 +23,8 @@ import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import {
   changeApi,
-  getActionIsDeleting,
-  getActionIsRunning,
+  isActionDeleting,
+  isActionRunning,
   isPluginActionCreating,
 } from "PluginActionEditor/store";
 import * as Sentry from "@sentry/react";
@@ -243,8 +243,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiName = apiAction?.name ?? "";
   const apiId = apiAction?.id ?? "";
   const isCreating = isPluginActionCreating(state);
-  const isDeleting = getActionIsDeleting(apiId)(state);
-  const isRunning = getActionIsRunning(apiId)(state);
+  const isDeleting = isActionDeleting(apiId)(state);
+  const isRunning = isActionRunning(apiId)(state);
   const pluginId = _.get(apiAction, "pluginId", "");
 
   return {

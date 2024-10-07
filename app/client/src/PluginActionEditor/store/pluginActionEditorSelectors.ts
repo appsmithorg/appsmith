@@ -22,7 +22,7 @@ export const isActionDirty = (id: string) =>
 const getActionRunningState = (state: AppState) =>
   state.ui.pluginActionEditor.isRunning;
 
-export const getActionIsRunning = (id: string) =>
+export const isActionRunning = (id: string) =>
   createSelector(
     [getActionRunningState],
     (isRunningMap) => id in isRunningMap && isRunningMap[id],
@@ -31,7 +31,7 @@ export const getActionIsRunning = (id: string) =>
 const getActionDeletingState = (state: AppState) =>
   state.ui.pluginActionEditor.isDeleting;
 
-export const getActionIsDeleting = (id: string) =>
+export const isActionDeleting = (id: string) =>
   createSelector(
     [getActionDeletingState],
     (deletingMap) => id in deletingMap && deletingMap[id],

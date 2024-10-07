@@ -1,8 +1,8 @@
 export enum DEBUGGER_TAB_KEYS {
-  SCHEMA_TAB = "schema",
-  RESPONSE_TAB = "response",
-  HEADER_TAB = "headers",
-  ERROR_TAB = "ERROR",
+  SCHEMA_TAB = "SCHEMA_TAB",
+  RESPONSE_TAB = "RESPONSE_TAB",
+  HEADER_TAB = "HEADERS_TAB",
+  ERROR_TAB = "ERROR_TAB",
   LOGS_TAB = "LOGS_TAB",
   INSPECT_TAB = "INSPECT_TAB",
 }
