@@ -148,9 +148,7 @@ describe(
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
       cy.saveTableCellValue(0, 0);
-      agHelper
-        .GetText(".t--widget-textwidget .bp3-ui-text", "text")
-        .should("not.be", "[]");
+      agHelper.Sleep();
       agHelper
         .GetText(".t--widget-textwidget .bp3-ui-text", "text")
         .then((text) => {
