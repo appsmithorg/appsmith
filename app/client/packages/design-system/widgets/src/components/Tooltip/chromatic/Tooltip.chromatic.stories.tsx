@@ -15,16 +15,16 @@ type Story = StoryObj<typeof Tooltip>;
 export const LightMode: Story = {
   render: () => (
     <StoryGrid>
-      <Tooltip isOpen placement="left" tooltip="This is a tooltip">
+      <Tooltip open placement="left" tooltip="This is a tooltip">
         <Button>Button</Button>
       </Tooltip>
-      <Tooltip isOpen placement="top" tooltip="This is a tooltip">
+      <Tooltip open placement="top" tooltip="This is a tooltip">
         <Button>Button</Button>
       </Tooltip>
-      <Tooltip isOpen placement="bottom" tooltip="This is a tooltip">
+      <Tooltip open placement="bottom" tooltip="This is a tooltip">
         <Button>Button</Button>
       </Tooltip>
-      <Tooltip isOpen placement="right" tooltip="This is a tooltip">
+      <Tooltip open placement="right" tooltip="This is a tooltip">
         <Button>Button</Button>
       </Tooltip>
     </StoryGrid>
