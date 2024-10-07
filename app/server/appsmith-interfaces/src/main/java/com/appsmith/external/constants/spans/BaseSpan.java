@@ -9,4 +9,8 @@ public class BaseSpan {
     public static final String GIT_SPAN_PREFIX = "git.";
 
     public static final String APPLICATION_SPAN_PREFIX = "application.";
+
+    public static final String AUTHENTICATE = "authenticate";
+
+    public static final String AUTHORIZE = "authorize";
 }
