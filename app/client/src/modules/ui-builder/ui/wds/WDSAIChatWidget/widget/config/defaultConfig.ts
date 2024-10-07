@@ -1,5 +1,8 @@
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import {
+  BlueprintOperationTypes,
+  type WidgetDefaultProps,
+} from "WidgetProvider/constants";
 
 export const defaultsConfig = {
   isVisible: true,
@@ -7,4 +10,12 @@ export const defaultsConfig = {
   widgetType: "AI_CHAT",
   version: 1,
   responsiveBehavior: ResponsiveBehavior.Fill,
+  blueprint: {
+    operations: [
+      {
+        type: BlueprintOperationTypes.ADD_ACTION,
+        fn: () => {},
+      },
+    ],
+  },
 } as unknown as WidgetDefaultProps;

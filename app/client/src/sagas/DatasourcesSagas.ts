@@ -1128,7 +1128,7 @@ function* createTempDatasourceFromFormSaga(
   );
 }
 
-function* createDatasourceFromFormSaga(
+export function* createDatasourceFromFormSaga(
   actionPayload: ReduxActionWithCallbacks<Datasource, unknown, unknown>,
 ) {
   try {
