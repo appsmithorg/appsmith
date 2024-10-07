@@ -37,7 +37,7 @@ const StyledRadioGroup = styled(RadioGroup)({
 });
 
 function renderComponent(props: renderComponentProps) {
-  const onChangeHandler = (value: string): any => {
+  const onChangeHandler = (value: string) => {
     if (typeof props.input?.onChange === "function") {
       props.input.onChange(value);
     }
@@ -62,6 +62,7 @@ function renderComponent(props: renderComponentProps) {
     </StyledRadioGroup>
   );
 }
+
 export interface RadioButtonControlProps extends ControlProps {
   options: SelectOptionProps[];
 }
