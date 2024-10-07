@@ -1,3 +1,4 @@
+export * from "./components/AIChat";
 export * from "./components/Icon";
 export * from "./components/Button";
 export * from "./components/IconButton";
