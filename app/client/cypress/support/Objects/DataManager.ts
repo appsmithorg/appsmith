@@ -97,15 +97,12 @@ export class DataManager {
       firestore_projectID: "appsmith-22e8b",
       firestore_serviceaccountkey: Cypress.env("FIRESTORE_PRIVATE_KEY"),
 
-      restapi_url: "https://my-json-server.typicode.com/typicode/demo/posts",
-      connection_type: "Replica set",
-
       mockHostAddress: "fake_api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
       mockDatabaseName: "fakeapi",
       mockDatabaseUsername: "fakeapi",
       mockDatabasePassword: "LimitedAccess123#",
       readonly: "readonly",
-      authenticatedApiUrl: "https://fakeapi.com",
+      authenticatedApiUrl: "http://host.docker.internal:5001",
 
       GraphqlApiUrl_TED: "http://host.docker.internal:4200/graphql",
 
@@ -192,15 +189,12 @@ export class DataManager {
       firestore_projectID: "appsmith-dummy",
       firestore_serviceaccountkey: "dummy_service_creds_key",
 
-      restapi_url: "https://my-json-server.typicode.com/typicode/demo/posts",
-      connection_type: "Replica set",
-
       mockHostAddress: "fake_api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
       mockDatabaseName: "fakeapi",
       mockDatabaseUsername: "fakeapi",
       mockDatabasePassword: "LimitedAccess123#",
       readonly: "readonly",
-      authenticatedApiUrl: "https://fakeapi.com",
+      authenticatedApiUrl: "http://host.docker.internal:5001",
 
       GraphqlApiUrl_TED: "http://host.docker.internal:4200/graphql",
 
