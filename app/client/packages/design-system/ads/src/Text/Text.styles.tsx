@@ -125,7 +125,7 @@ export const StyledText = styled.span<{
   isBold?: boolean;
   isItalic?: boolean;
   isUnderlined?: boolean;
-  isStriked?: boolean;
+  isStrikethrough?: boolean;
   isEditable?: boolean;
 }>`
   ${TypographyScales}
@@ -160,8 +160,8 @@ export const StyledText = styled.span<{
     text-decoration: underline;
   }
 
-  /* Striked style */
-  &[data-striked="true"] {
+  /* Strikethrough style */
+  &[data-strikethrough="true"] {
     text-decoration: line-through;
   }
 
