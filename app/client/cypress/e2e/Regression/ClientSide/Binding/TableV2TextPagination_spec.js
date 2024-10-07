@@ -6,7 +6,6 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import apiPageLocators from "../../../../locators/ApiEditor";
 import {
-  entityExplorer,
   apiPage,
   deployMode,
   propPane,
@@ -91,6 +90,7 @@ describe(
     it("3. Table-Text, Validate Server Side Pagination of Paginate with Total v2 Records Count", function () {
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("pagination");
       propPane.UpdatePropertyFieldValue("Total Records", "20");
       deployMode.DeployApp();
       cy.wait("@postExecute");
