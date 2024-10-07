@@ -475,7 +475,7 @@ create_appsmith_pg_db() {
   DB_EXISTS=$(su postgres -c "env PATH='$PATH' psql -tAc \"SELECT 1 FROM pg_database WHERE datname='${APPSMITH_PG_DATABASE}'\"")
 
   if [[ "$DB_EXISTS" != "1" ]]; then
-    su postgres -c "env PATH='$PATH' psql -c 'CREATE DATABASE ${APPSMITH_PG_DATABASE}'"
+    su postgres -c "env PATH='$PATH' psql -c \"CREATE DATABASE ${APPSMITH_PG_DATABASE}\""
   else
     echo "Database ${APPSMITH_PG_DATABASE} already exists."
   fi
