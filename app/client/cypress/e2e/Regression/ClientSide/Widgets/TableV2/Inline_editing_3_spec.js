@@ -148,10 +148,12 @@ describe(
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
       cy.saveTableCellValue(0, 0);
-      cy.get(".t--widget-textwidget .bp3-ui-text").should(
-        "contain",
+      const exected = JSON.parse(
         `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅"    }  }]`,
       );
+      agHelper
+        .GetText(".t--widget-textwidget .bp3-ui-text", "text")
+        .should((text) => expect(JSON.parse(text)).to.deep.equal(exected));
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
