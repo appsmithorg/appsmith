@@ -110,7 +110,7 @@ function usePluginActionResponseTabs() {
 
     if (showSchema) {
       newTabs.push({
-        key: "schema",
+        key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
         title: "Schema",
         panelComponent: (
           <Schema
@@ -123,7 +123,7 @@ function usePluginActionResponseTabs() {
     }
 
     newTabs.push({
-      key: "response",
+      key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <QueryResponseTab
