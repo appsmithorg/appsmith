@@ -28,14 +28,7 @@ export function ChatInput(props: ChatInputProps) {
     onChange,
     onSubmit,
     prefix,
-    suffix = (
-      <IconButton
-        icon="send"
-        isDisabled={props.isDisabled}
-        onPress={props.onSubmit}
-        size="small"
-      />
-    ),
+    suffix: suffixProp,
     value,
     ...rest
   } = props;
@@ -101,11 +94,21 @@ export function ChatInput(props: ChatInputProps) {
     }
   }, [onHeightChange, inputValue]);
 
+  const suffix = (function () {
+    if (Boolean(suffixProp)) return suffixProp;
+
+    if (Boolean(isLoading)) {
+      return <IconButton icon="player-stop-filled" isDisabled size="small" />;
+    }
+
+    return <IconButton icon="arrow-up" size="small" />;
+  })();
+
   return (
     <HeadlessTextField
       {...rest}
       className={clsx(inputFieldStyles.field)}
-      isDisabled={isDisabled}
+      isDisabled={Boolean(isDisabled) || Boolean(isLoading)}
       isInvalid={isInvalid}
       isReadOnly={isReadOnly}
       isRequired={isRequired}
@@ -120,7 +123,6 @@ export function ChatInput(props: ChatInputProps) {
         {label}
       </FieldLabel>
       <TextAreaInput
-        isLoading={isLoading}
         isReadOnly={isReadOnly}
         onKeyDown={handleKeyDown}
         prefix={prefix}
