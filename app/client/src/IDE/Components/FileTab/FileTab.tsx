@@ -9,6 +9,7 @@ import { useBoolean, useEventCallback, useOnClickOutside } from "usehooks-ts";
 import { usePrevious } from "@mantine/hooks";
 
 import * as Styled from "./styles";
+import { DATA_TEST_ID } from "./constants";
 
 export interface FileTabProps {
   isActive: boolean;
@@ -100,6 +101,7 @@ export const FileTab = ({
 
   const inputProps = useMemo(
     () => ({
+      ["data-testid"]: DATA_TEST_ID.INPUT,
       onKeyUp: handleKeyUp,
       onChange: handleTitleChange,
       autoFocus: true,
@@ -142,7 +144,7 @@ export const FileTab = ({
       {icon && !isLoading ? (
         <Styled.IconContainer>{icon}</Styled.IconContainer>
       ) : null}
-      {isLoading && <Spinner size="sm" />}
+      {isLoading && <Spinner data-testid={DATA_TEST_ID.SPINNER} size="sm" />}
 
       <Tooltip content={validationError} visible={Boolean(validationError)}>
         <Styled.Text
@@ -158,7 +160,7 @@ export const FileTab = ({
       <Styled.CloseButton
         aria-label="Close tab"
         className="tab-close"
-        data-testid="t--tab-close-btn"
+        data-testid={DATA_TEST_ID.CLOSE_BUTTON}
         onClick={onClose}
       >
         <Icon name="close-line" />
