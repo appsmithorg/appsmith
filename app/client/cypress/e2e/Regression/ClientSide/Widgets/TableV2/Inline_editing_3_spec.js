@@ -152,7 +152,7 @@ describe(
         `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅"    }  }]`,
       );
       agHelper
-        .GetText(".t--widget-textwidget .bp3-ui-text", "text")
+        .GetText(locators._textWidget, "text")
         .should((text) => expect(JSON.parse(text)).to.deep.equal(exected));
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(
