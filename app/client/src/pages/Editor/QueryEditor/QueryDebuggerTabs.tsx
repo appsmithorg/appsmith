@@ -226,7 +226,7 @@ function QueryDebuggerTabs({
 
   if (currentActionConfig) {
     responseTabs.unshift({
-      key: "response",
+      key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <QueryResponseTab
@@ -243,7 +243,7 @@ function QueryDebuggerTabs({
 
   if (showSchema && currentActionConfig && currentActionConfig.datasource) {
     responseTabs.unshift({
-      key: "schema",
+      key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
       title: "Schema",
       panelComponent: (
         <Schema

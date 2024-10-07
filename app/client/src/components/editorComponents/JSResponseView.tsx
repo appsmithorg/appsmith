@@ -191,7 +191,7 @@ function JSResponseView(props: Props) {
 
   const tabs: BottomTab[] = [
     {
-      key: "response",
+      key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <>
