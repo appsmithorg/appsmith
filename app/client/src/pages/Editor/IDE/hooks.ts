@@ -179,6 +179,7 @@ export const useIDETabClickHandlers = () => {
   const tabClickHandler = useCallback(
     (item: EntityItem) => {
       const navigateToUrl = tabsConfig.itemUrlSelector(item, basePageId);
+
       if (navigateToUrl !== history.location.pathname) {
         history.push(navigateToUrl, {
           invokedBy: NavigationMethod.EditorTabs,
