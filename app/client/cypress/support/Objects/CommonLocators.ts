@@ -89,8 +89,8 @@ export class CommonLocators {
   _createNew = ".t--add-item";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
-  _errorTab = "[data-testid=t--tab-ERROR]";
-  _responseTab = "[data-testid=t--tab-response]";
+  _errorTab = "[data-testid=t--tab-ERROR_TAB]";
+  _responseTab = "[data-testid=t--tab-RESPONSE_TAB]";
   _modal = ".t--modal-widget";
   _closeModal = "button:contains('Close')";
   _entityProperties = (entityNameinLeftSidebar: string) =>

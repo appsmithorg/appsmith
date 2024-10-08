@@ -13,7 +13,7 @@ import {
   showDebugger,
 } from "actions/debuggerActions";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import Errors from "components/editorComponents/Debugger/Errors";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
@@ -37,30 +37,38 @@ export const ResizerContentContainer = styled.div`
   flex: 1;
   position: relative;
   display: flex;
+
   &.db-form-resizer-content,
   &.saas-form-resizer-content,
   &.api-datasource-content-container {
     flex-direction: column;
     padding: 0 var(--ads-v2-spaces-7) 0 var(--ads-v2-spaces-7);
+
     & .t--ds-form-header {
       border-bottom: 1px solid var(--ads-v2-color-border);
     }
   }
+
   &.db-form-resizer-content.db-form-resizer-content-show-tabs,
   &.saas-form-resizer-content.saas-form-resizer-content-show-tabs {
     padding: 0;
+
     & .t--ds-form-header {
       border-bottom: none;
     }
   }
+
   &.saas-form-resizer-content.saas-form-resizer-content-show-tabs form {
     padding-bottom: 0;
   }
+
   border-top: none;
+
   .db-form-content-container {
     display: flex;
     flex-direction: column;
     width: 100%;
+
     form {
       flex-grow: 1;
     }

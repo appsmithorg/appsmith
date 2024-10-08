@@ -9,7 +9,7 @@ import type { ActionTriggerKeys } from "ee/workers/Evaluation/fns";
 import { getActionTriggerFunctionNames } from "ee/workers/Evaluation/fns";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import store from "store";
 import showToast from "sagas/ToastSagas";
 import { call, put } from "redux-saga/effects";
