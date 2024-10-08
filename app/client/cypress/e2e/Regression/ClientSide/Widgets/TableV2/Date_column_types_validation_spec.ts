@@ -45,15 +45,13 @@ describe(
 
       // Click on specific date within
       agHelper.GetNClick(
-        `${table._dateInputPopover} [aria-label='${table.getFormattedTomorrowDates().verboseFormat}']`,
+        `${table._dateInputPopover} [aria-label='Thu Sep 26 2024']`,
       );
 
       // Check that date is set in column
       table
         .ReadTableRowColumnData(row, column, "v2")
-        .then((val) =>
-          expect(val).to.equal(table.getFormattedTomorrowDates().isoFormat),
-        );
+        .then((val) => expect(val).to.equal("2024-09-26"));
     };
 
     it("1. should allow inline editing of Unix Timestamp in seconds (unix/s)", () => {
