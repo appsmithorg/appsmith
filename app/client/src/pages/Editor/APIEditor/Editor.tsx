@@ -35,7 +35,6 @@ import { saasEditorApiIdURL } from "ee/RouteBuilder";
 import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";
 import type { APIEditorRouteParams } from "constants/routes";
 import { ApiEditorContext } from "./ApiEditorContext";
-import { EDITOR_TABS_HEIGHT } from "../IDE/EditorPane/constants";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -227,9 +226,10 @@ class ApiEditor extends React.Component<Props> {
 
 const formStyles: CSSProperties = {
   position: "relative",
-  height: `calc(100% - ${EDITOR_TABS_HEIGHT})`,
   display: "flex",
   flexDirection: "column",
+  flexGrow: "1",
+  overflow: "auto",
 };
 
 // TODO: Fix this the next time the file is edited
