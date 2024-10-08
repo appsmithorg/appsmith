@@ -125,7 +125,6 @@ export interface CommonFormProps {
   actionResponse?: ActionResponse;
   pluginId: string;
   onRunClick: (paginationField?: PaginationField) => void;
-  onDeleteClick: () => void;
   isRunning: boolean;
   isDeleting: boolean;
   paginationType: PaginationType;
