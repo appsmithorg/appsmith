@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "ee/AppRouter";
 import {
+  AI_EDITOR_PATH,
   APP_LIBRARIES_EDITOR_PATH,
   APP_SETTINGS_EDITOR_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
@@ -14,6 +15,7 @@ import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
 import EditorPane from "../EditorPane";
+import AISidePane from "./AISidePane";
 
 export const LeftPaneContainer = styled.div<{ showRightBorder?: boolean }>`
   height: 100%;
@@ -48,6 +50,11 @@ const LeftPane = () => {
           component={AppSettingsPane}
           exact
           path={`${path}${APP_SETTINGS_EDITOR_PATH}`}
+        />
+        <SentryRoute
+          component={AISidePane}
+          exact
+          path={`${path}${AI_EDITOR_PATH}`}
         />
         <SentryRoute component={EditorPane} />
       </Switch>

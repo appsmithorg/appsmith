@@ -1063,6 +1063,10 @@ const MaximizeV3Icon = importSvg(
   async () => import("../__assets__/icons/ads/maximize-v3-icon.svg"),
 );
 
+const OpenAIIcon = importSvg(
+  async () => import("../__assets__/icons/ads/open-ai.svg"),
+);
+
 import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
 
 function PlayIconPNGWrapper() {
@@ -1443,6 +1447,7 @@ const ICON_LOOKUP = {
   workspace: WorkspaceIcon,
   package: PackageIcon,
   slash: SlashIcon,
+  openAI: OpenAIIcon,
 };
 
 export const IconCollection = Object.keys(ICON_LOOKUP);

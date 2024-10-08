@@ -28,6 +28,7 @@ export enum EditorState {
   EDITOR = "EDITOR",
   SETTINGS = "SETTINGS",
   LIBRARIES = "LIBRARIES",
+  AI_CHAT = "AI_CHAT",
 }
 
 export const SidebarTopButtonTitles = {
@@ -38,6 +39,7 @@ export const SidebarTopButtonTitles = {
 export const SidebarBottomButtonTitles = {
   SETTINGS: "Settings",
   LIBRARIES: "Libraries",
+  AI_CHAT: "AI Chat",
 };
 
 export enum EditorEntityTab {
@@ -73,6 +75,12 @@ export const TopButtons: IDESidebarButton[] = [
 ];
 
 export const BottomButtons: IDESidebarButton[] = [
+  {
+    state: EditorState.AI_CHAT,
+    icon: "openAI",
+    tooltip: SidebarBottomButtonTitles.AI_CHAT,
+    urlSuffix: "ai-chat",
+  },
   {
     state: EditorState.LIBRARIES,
     icon: "packages-v3",

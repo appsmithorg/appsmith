@@ -1,6 +1,7 @@
 import WidgetsEditor from "pages/Editor/WidgetsEditor";
 import {
   ADD_PATH,
+  AI_EDITOR_PATH,
   API_EDITOR_ID_ADD_PATH,
   API_EDITOR_ID_PATH,
   APP_LIBRARIES_EDITOR_PATH,
@@ -83,6 +84,7 @@ function useRoutes(path: string): RouteReturnType[] {
         `${path}${SAAS_EDITOR_API_ID_ADD_PATH}`,
         `${path}${APP_LIBRARIES_EDITOR_PATH}`,
         `${path}${APP_SETTINGS_EDITOR_PATH}`,
+        `${path}${AI_EDITOR_PATH}`,
       ],
     },
     {
