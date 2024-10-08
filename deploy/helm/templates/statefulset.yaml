@@ -70,7 +70,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: {{ .Values.HTTPContainerPort | default 80 }}
               protocol: TCP
             - name: https
               containerPort: 443
@@ -101,6 +101,10 @@ spec:
             - name: data
               mountPath: /appsmith-stacks
           env:
+          {{- if .Values.HTTPContainerPort }}
+            - name: PORT
+              values: {{ .Values.HTTPContainerPort }}
+          {{- end }}
             - name: APPSMITH_ENABLE_EMBEDDED_DB
               value: "0"
           envFrom:
