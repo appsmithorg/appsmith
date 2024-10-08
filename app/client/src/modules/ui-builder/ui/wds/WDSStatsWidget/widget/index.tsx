@@ -7,7 +7,7 @@ import * as config from "../config";
 import { StatsComponent } from "../component";
 import type { StatsWidgetProps } from "./types";
 import type { AnvilConfig } from "WidgetProvider/constants";
-import { Elevations } from "modules/ui-builder/ui/wds/constants";
+import { Elevations } from "ee/modules/ui-builder/ui/wds/constants";
 import { ContainerComponent } from "modules/ui-builder/ui/wds/Container";
 
 class WDSStatsWidget extends BaseWidget<StatsWidgetProps, WidgetState> {

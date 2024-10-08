@@ -1,4 +1,4 @@
-import { getCanvasClassName } from "../../../../utils/generators";
+import { getCanvasClassName } from "../../../../../utils/generators";
 
 export const anvilWidgets = {
   SECTION_WIDGET: "SECTION_WIDGET",

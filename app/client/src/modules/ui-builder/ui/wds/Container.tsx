@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import React from "react";
 import styled from "styled-components";
 import { generateClassName } from "utils/generators";
-import type { Elevations } from "./constants";
+import type { Elevations } from "../../../../ee/modules/ui-builder/ui/wds/constants";
 import { useAnvilWidgetElevationSetter } from "layoutSystems/anvil/editor/canvas/hooks/useAnvilWidgetElevationSetter";
 
 /**

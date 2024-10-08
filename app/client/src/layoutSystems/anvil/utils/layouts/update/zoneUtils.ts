@@ -11,7 +11,7 @@ import { call } from "redux-saga/effects";
 import { addWidgetsToChildTemplate } from "./additionUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { isLargeWidget } from "../../widgetUtils";
-import { anvilWidgets } from "modules/ui-builder/ui/wds/constants";
+import { anvilWidgets } from "ee/modules/ui-builder/ui/wds/constants";
 import {
   moveWidgets,
   severTiesFromParents,

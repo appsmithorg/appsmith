@@ -1,6 +1,6 @@
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import type { HighlightPayload, HighlightRenderInfo } from "./anvilTypes";
-import { anvilWidgets } from "modules/ui-builder/ui/wds/constants";
+import { anvilWidgets } from "ee/modules/ui-builder/ui/wds/constants";
 
 export const MOBILE_BREAKPOINT = 480;
 

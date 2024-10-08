@@ -25,7 +25,10 @@ import type { ReactNode } from "react";
 import React from "react";
 import { ContainerComponent } from "modules/ui-builder/ui/wds/Container";
 import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
-import { Elevations, anvilWidgets } from "modules/ui-builder/ui/wds/constants";
+import {
+  Elevations,
+  anvilWidgets,
+} from "ee/modules/ui-builder/ui/wds/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
   CopiedWidgetData,

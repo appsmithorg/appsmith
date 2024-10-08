@@ -7,7 +7,7 @@ import {
 import WidgetRow from "../WidgetRow";
 import { SectionRow } from "./SectionRow";
 import type { FlexLayoutProps } from "../FlexLayout";
-import { anvilWidgets } from "modules/ui-builder/ui/wds/constants";
+import { anvilWidgets } from "ee/modules/ui-builder/ui/wds/constants";
 import { SectionSpaceDistributor } from "layoutSystems/anvil/sectionSpaceDistributor/SectionSpaceDistributor";
 
 class Section extends WidgetRow {
