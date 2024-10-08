@@ -27,10 +27,12 @@ import Schema from "components/editorComponents/Debugger/Schema";
 import QueryResponseTab from "pages/Editor/QueryEditor/QueryResponseTab";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { useActionDispatchCalls } from "ee/PluginActionEditor/hooks/useActionDispatchCalls";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =
     usePluginActionContext();
+  const { handleRunClick } = useActionDispatchCalls();
 
   const IDEViewMode = useSelector(getIDEViewMode);
   const errorCount = useSelector(getErrorCount);
@@ -69,7 +71,7 @@ function usePluginActionResponseTabs() {
             actionResponse={actionResponse}
             isRunDisabled={false}
             isRunning={false}
-            onRunClick={noop}
+            onRunClick={() => handleRunClick()}
             responseTabHeight={responseTabHeight}
             theme={EditorTheme.LIGHT}
           />
@@ -84,7 +86,7 @@ function usePluginActionResponseTabs() {
             isRunDisabled={false}
             isRunning={false}
             onDebugClick={noop}
-            onRunClick={noop}
+            onRunClick={() => handleRunClick()}
           />
         ),
       },
@@ -131,7 +133,7 @@ function usePluginActionResponseTabs() {
           actionSource={actionSource}
           currentActionConfig={action}
           isRunning={false}
-          onRunClick={noop}
+          onRunClick={() => handleRunClick()}
           runErrorMessage={""} // TODO
         />
       ),

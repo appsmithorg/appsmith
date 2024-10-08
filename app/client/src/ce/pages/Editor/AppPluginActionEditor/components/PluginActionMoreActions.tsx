@@ -22,13 +22,13 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import {
   copyActionRequest,
-  deleteAction,
   moveActionRequest,
 } from "actions/pluginActionActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Page } from "entities/Page";
 import { getPageList } from "ee/selectors/entitiesSelector";
 import { ConvertToModuleCTA } from "./ConvertToModule";
+import { useActionDispatchCalls } from "ee/PluginActionEditor/hooks/useActionDispatchCalls";
 
 const PageMenuItem = (props: {
   page: Page;
@@ -126,18 +126,16 @@ const Move = () => {
 };
 
 const Delete = () => {
-  const dispatch = useDispatch();
-  const { action } = usePluginActionContext();
-
+  const { handleDeleteClick } = useActionDispatchCalls();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const deleteActionFromPage = useCallback(() => {
-    dispatch(deleteAction({ id: action.id, name: action.name }));
-  }, [action.id, action.name, dispatch]);
-
-  const handleSelect = useCallback(() => {
-    confirmDelete ? deleteActionFromPage() : setConfirmDelete(true);
-  }, [confirmDelete, deleteActionFromPage]);
+  const handleSelect = useCallback(
+    (e?: Event) => {
+      e?.preventDefault();
+      confirmDelete ? handleDeleteClick({}) : setConfirmDelete(true);
+    },
+    [confirmDelete],
+  );
 
   const menuLabel = confirmDelete
     ? createMessage(CONFIRM_CONTEXT_DELETE)

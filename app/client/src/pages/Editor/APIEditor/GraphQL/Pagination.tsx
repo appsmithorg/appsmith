@@ -28,7 +28,6 @@ const PAGINATION_PREFIX =
 
 interface PaginationProps {
   actionName: string;
-  onTestClick: (test?: "PREV" | "NEXT") => void;
   paginationType: PaginationType;
   theme?: EditorTheme;
   query: string;
