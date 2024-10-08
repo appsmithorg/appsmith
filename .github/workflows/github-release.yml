@@ -205,7 +205,7 @@ jobs:
   package:
     needs: [prelude, client-build, server-build, rts-build]
 
-    runs-on: depot-ubuntu-22.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
