@@ -28,7 +28,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Page } from "entities/Page";
 import { getPageList } from "ee/selectors/entitiesSelector";
 import { ConvertToModuleCTA } from "./ConvertToModule";
-import { useActionDispatchCalls } from "ee/PluginActionEditor/hooks/useActionDispatchCalls";
+import { useHandleDeleteClick } from "ee/PluginActionEditor/hooks/useActionDispatchCalls";
 
 const PageMenuItem = (props: {
   page: Page;
@@ -126,7 +126,7 @@ const Move = () => {
 };
 
 const Delete = () => {
-  const { handleDeleteClick } = useActionDispatchCalls();
+  const { handleDeleteClick } = useHandleDeleteClick();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleSelect = useCallback(
@@ -134,7 +134,7 @@ const Delete = () => {
       e?.preventDefault();
       confirmDelete ? handleDeleteClick({}) : setConfirmDelete(true);
     },
-    [confirmDelete],
+    [confirmDelete, handleDeleteClick],
   );
 
   const menuLabel = confirmDelete

@@ -10,13 +10,13 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import Pagination from "pages/Editor/APIEditor/Pagination";
 import { reduxForm } from "redux-form";
-import { useActionDispatchCalls } from "ee/PluginActionEditor/hooks/useActionDispatchCalls";
+import { useHandleRunClick } from "ee/PluginActionEditor/hooks/useActionDispatchCalls";
 
 const FORM_NAME = API_EDITOR_FORM_NAME;
 
 const APIEditorForm = () => {
   const { action } = usePluginActionContext();
-  const { handleRunClick } = useActionDispatchCalls();
+  const { handleRunClick } = useHandleRunClick();
   const theme = EditorTheme.LIGHT;
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);

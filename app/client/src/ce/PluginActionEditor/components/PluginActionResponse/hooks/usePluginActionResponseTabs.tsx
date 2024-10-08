@@ -27,12 +27,12 @@ import Schema from "components/editorComponents/Debugger/Schema";
 import QueryResponseTab from "pages/Editor/QueryEditor/QueryResponseTab";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { useActionDispatchCalls } from "ee/PluginActionEditor/hooks/useActionDispatchCalls";
+import { useHandleRunClick } from "ee/PluginActionEditor/hooks/useActionDispatchCalls";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =
     usePluginActionContext();
-  const { handleRunClick } = useActionDispatchCalls();
+  const { handleRunClick } = useHandleRunClick();
 
   const IDEViewMode = useSelector(getIDEViewMode);
   const errorCount = useSelector(getErrorCount);
