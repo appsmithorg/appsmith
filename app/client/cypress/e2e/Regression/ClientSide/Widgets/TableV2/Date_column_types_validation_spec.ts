@@ -43,12 +43,13 @@ describe(
       // Click unix cell edit
       table.ClickOnEditIcon(row, column);
 
-      // Click on specific date within
+      // Click on a specific date within the view port of the date picker
+      // Date picker opens in september 2024 due to the Table data set
       agHelper.GetNClick(
         `${table._dateInputPopover} [aria-label='Thu Sep 26 2024']`,
       );
 
-      // Check that date is set in column
+      // Check that the date is set in column
       table
         .ReadTableRowColumnData(row, column, "v2")
         .then((val) => expect(val).to.equal("2024-09-26"));
