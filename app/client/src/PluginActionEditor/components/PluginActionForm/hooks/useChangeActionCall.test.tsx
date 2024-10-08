@@ -2,8 +2,7 @@ import { renderHook } from "@testing-library/react-hooks/dom";
 import { useDispatch } from "react-redux";
 import { PluginType } from "entities/Action";
 import { usePluginActionContext } from "PluginActionEditor";
-import { changeApi } from "actions/apiPaneActions";
-import { changeQuery } from "actions/queryPaneActions";
+import { changeApi, changeQuery } from "../../../store";
 import usePrevious from "utils/hooks/usePrevious";
 import { useChangeActionCall } from "./useChangeActionCall";
 
@@ -11,11 +10,8 @@ jest.mock("react-redux", () => ({
   useDispatch: jest.fn(),
 }));
 
-jest.mock("actions/apiPaneActions", () => ({
+jest.mock("../../../store", () => ({
   changeApi: jest.fn(),
-}));
-
-jest.mock("actions/queryPaneActions", () => ({
   changeQuery: jest.fn(),
 }));
 

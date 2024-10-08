@@ -5,7 +5,7 @@ const LOG_LEVELS = ["debug", "error"];
 const CONFIG_LOG_LEVEL_INDEX = 1;
 
 module.exports = {
-  setupFiles: ["jest-canvas-mock"],
+  setupFiles: ["jest-canvas-mock", "<rootDir>/test/__mocks__/reactMarkdown.tsx"],
   roots: ["<rootDir>/src"],
   transform: {
     "^.+\\.(png|js|ts|tsx)$": "ts-jest",
