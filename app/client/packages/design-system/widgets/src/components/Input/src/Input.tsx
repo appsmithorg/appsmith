@@ -50,7 +50,7 @@ function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
         {...rest}
         className={clsx(styles.input, getTypographyClassName("body"))}
         data-readonly={Boolean(isReadOnly) ? true : undefined}
-        data-size={size ? size : undefined}
+        data-size={Boolean(size) ? size : undefined}
         defaultValue={defaultValue}
         ref={ref}
         type={showPassword ? "text" : type}

@@ -7,7 +7,7 @@ import {
   IconButton,
   TextAreaInput,
 } from "@appsmith/wds";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useEffect, useState } from "react";
 import { useControlledState } from "@react-stately/utils";
 import { chain, useLayoutEffect } from "@react-aria/utils";
 import { TextField as HeadlessTextField } from "react-aria-components";
@@ -34,6 +34,7 @@ export function ChatInput(props: ChatInputProps) {
   } = props;
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [initialHeight, setInitialHeight] = useState<number | null>(null);
   const [inputValue, setInputValue] = useControlledState(
     props.value,
     props.defaultValue ?? "",
@@ -41,6 +42,18 @@ export function ChatInput(props: ChatInputProps) {
       //
     },
   );
+
+  useEffect(() => {
+    if (inputRef.current && initialHeight === null) {
+      const input = inputRef.current;
+      const computedStyle = window.getComputedStyle(input);
+      const height = parseFloat(computedStyle.height) || 0;
+      const paddingTop = parseFloat(computedStyle.paddingTop) || 0;
+      const paddingBottom = parseFloat(computedStyle.paddingBottom) || 0;
+
+      setInitialHeight(height + paddingTop + paddingBottom);
+    }
+  }, [initialHeight]);
 
   const onHeightChange = useCallback(() => {
     // Quiet textareas always grow based on their text content.
@@ -98,28 +111,28 @@ export function ChatInput(props: ChatInputProps) {
     if (Boolean(suffixProp)) return suffixProp;
 
     if (Boolean(isLoading)) {
-      return (
-        <IconButton
-          icon="player-stop-filled"
-          isDisabled
-          onPress={onSubmit}
-          size="small"
-        />
-      );
+      return <IconButton icon="player-stop-filled" onPress={onSubmit} />;
     }
 
-    return <IconButton icon="arrow-up" onPress={onSubmit} size="small" />;
+    return <IconButton icon="arrow-up" onPress={onSubmit} />;
   })();
+
+  const styles = {
+    // The --input-height is required to make the icon button vertically centered.
+    // Why can't we do this with CSS? Reason is that the height of the input is calculated based on the content.
+    "--input-height": Boolean(initialHeight) ? `${initialHeight}px` : "auto",
+  } as React.CSSProperties;
 
   return (
     <HeadlessTextField
       {...rest}
       className={clsx(inputFieldStyles.field)}
-      isDisabled={Boolean(isDisabled) || Boolean(isLoading)}
+      isDisabled={Boolean(isDisabled)}
       isInvalid={isInvalid}
       isReadOnly={isReadOnly}
       isRequired={isRequired}
       onChange={chain(onChange, setInputValue)}
+      style={styles}
       value={value}
     >
       <FieldLabel
@@ -135,6 +148,7 @@ export function ChatInput(props: ChatInputProps) {
         prefix={prefix}
         ref={inputRef}
         rows={1}
+        size="large"
         suffix={suffix}
         value={value}
       />

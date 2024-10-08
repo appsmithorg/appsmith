@@ -6,5 +6,5 @@ export interface TextInputProps extends AriaTextFieldProps, FieldProps {
   placeholder?: string;
   suffix?: ReactNode;
   prefix?: ReactNode;
-  size?: Omit<keyof typeof SIZES, "xSmall" | "large">;
+  size?: Omit<keyof typeof SIZES, "xSmall">;
 }

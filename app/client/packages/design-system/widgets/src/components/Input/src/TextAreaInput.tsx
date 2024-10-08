@@ -17,6 +17,7 @@ function _TextAreaInput(
     isReadOnly,
     prefix,
     rows,
+    size,
     suffix: suffixProp,
     value,
     ...rest
@@ -35,6 +36,7 @@ function _TextAreaInput(
         {...rest}
         className={clsx(styles.input, getTypographyClassName("body"))}
         data-readonly={Boolean(isReadOnly) ? true : undefined}
+        data-size={Boolean(size) ? size : undefined}
         defaultValue={defaultValue}
         ref={ref}
         rows={Boolean(rows) ? rows : undefined}

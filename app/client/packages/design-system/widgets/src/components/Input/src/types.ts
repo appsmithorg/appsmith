@@ -4,21 +4,21 @@ import type {
   TextAreaProps as HeadlessTextAreaProps,
 } from "react-aria-components";
 
-export type InputProps = Omit<HeadlessInputProps, "prefix" | "size"> & {
+// Common properties for both Input and TextArea
+interface CommonInputProps {
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
   isLoading?: boolean;
   isReadOnly?: boolean;
-  size?: Omit<keyof typeof SIZES, "xSmall" | "large">;
-};
+  size?: Omit<keyof typeof SIZES, "xSmall">;
+}
 
-export type TextAreaInputProps = Omit<
-  HeadlessTextAreaProps,
-  "prefix" | "size"
-> & {
-  prefix?: React.ReactNode;
-  suffix?: React.ReactNode;
-  isLoading?: boolean;
-  isReadOnly?: boolean;
+export interface InputProps
+  extends Omit<HeadlessInputProps, "prefix" | "size">,
+    CommonInputProps {}
+
+export interface TextAreaInputProps
+  extends Omit<HeadlessTextAreaProps, "prefix" | "size">,
+    CommonInputProps {
   rows?: number;
-};
+}

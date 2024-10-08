@@ -57,12 +57,6 @@
   border-radius: calc(
     var(--border-radius-elevation-3) - var(--inner-spacing-1)
   );
-  padding: 0; /* resetting padding here because we will be adding padding to the [data-empty-text] instead. */
-}
-
-.inputGroup :is([data-input-suffix], [data-input-prefix]) [data-empty-text] {
-  margin: 0; /* resetting margin so that height of the button is same as the height of the input ( excluding padding  */
-  padding: var(--inner-spacing-1);
 }
 
 .inputGroup:has(> [data-input-prefix]) .input {
@@ -91,8 +85,16 @@
   position: absolute;
 }
 
+/* Note: the following calculations are done so that icon button isn chat input is centered vertically */
 .inputGroup:has(.input[rows="1"]) [data-input-suffix] {
-  bottom: var(--inner-spacing-1);
+  --icon-size: calc(
+    var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end) +
+      var(--inner-spacing-3) * 2
+  );
+  --icon-offset: calc((var(--input-height) - var(--icon-size)) / 2);
+
+  bottom: var(--icon-offset);
+  right: var(--icon-offset);
 }
 
 .inputGroup :is([data-input-suffix], [data-input-prefix]) {
@@ -196,6 +198,14 @@
     var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end)
   );
   padding-block: var(--inner-spacing-2);
+}
+
+.input[data-size="large"] {
+  block-size: calc(
+    var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end)
+  );
+  padding-block: var(--inner-spacing-3);
+  padding-inline: var(--inner-spacing-3);
 }
 
 /**
