@@ -1,6 +1,6 @@
 import React from "react";
 import RadioButtonControl from "./RadioButtonControl";
-import { render, waitFor, screen } from "test/testUtils";
+import { render, screen } from "test/testUtils";
 import { Provider } from "react-redux";
 import { reduxForm } from "redux-form";
 import configureStore from "redux-mock-store";
@@ -49,9 +49,9 @@ describe("RadioButtonControl", () => {
         </ReduxFormDecorator>
       </Provider>,
     );
-    const radioButton = await waitFor(async () =>
-      screen.getByTestId("actionConfiguration.testPath"),
-    );
+    const radioButton = (await screen.findByTestId(
+      "actionConfiguration.testPath",
+    )) as HTMLElement;
 
     expect(radioButton).toBeInTheDocument();
 
