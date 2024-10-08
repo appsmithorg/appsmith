@@ -45,7 +45,7 @@ function PostBodyData(props: Props) {
     <PostBodyContainer>
       <Section isFullWidth>
         <Zone layout="single_column">
-          <div>
+          <div className="t--graphql-query-editor">
             <StyledFormLabel>Query</StyledFormLabel>
             <DynamicTextField
               border={CodeEditorBorder.ALL_SIDE}
@@ -62,7 +62,7 @@ function PostBodyData(props: Props) {
           </div>
         </Zone>
         <Zone layout="single_column">
-          <div>
+          <div className="t--graphql-variable-editor">
             <StyledFormLabel>Query variables</StyledFormLabel>
             <DynamicTextField
               border={CodeEditorBorder.ALL_SIDE}
