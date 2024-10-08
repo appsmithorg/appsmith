@@ -2,7 +2,7 @@ import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { AppState } from "ee/reducers";
 
 export enum FocusElement {
-  ApiPaneConfigTabs = "ApiPaneConfigTabs",
+  PluginActionConfigTabs = "PluginActionConfigTabs",
   CodeEditorHistory = "CodeEditorHistory",
   EntityCollapsibleState = "EntityCollapsibleState",
   EntityExplorerWidth = "EntityExplorerWidth",
@@ -10,8 +10,6 @@ export enum FocusElement {
   DatasourceViewMode = "DatasourceViewMode",
   SelectedDatasource = "SelectedDatasource",
   DebuggerContext = "DebuggerContext",
-  ApiRightPaneTabs = "ApiRightPaneTabs",
-  QueryPaneConfigTabs = "QueryPaneConfigTabs",
   JSPaneConfigTabs = "JSPaneConfigTabs",
   PropertySections = "PropertySections",
   PropertyField = "PropertyField",
@@ -26,8 +24,7 @@ export enum FocusElement {
   SelectedJSObject = "SelectedJSObject",
   SelectedEntity = "SelectedEntity",
   IDETabs = "IDETabs",
-  QueryDebugger = "QueryDebugger",
-  ApiDebugger = "ApiDebugger",
+  PluginActionDebugger = "PluginActionDebugger",
   JSDebugger = "JSDebugger",
 }
 

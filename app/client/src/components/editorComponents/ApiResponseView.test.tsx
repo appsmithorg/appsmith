@@ -50,7 +50,7 @@ const storeState = {
         errorCount: 0,
       },
     },
-    apiPane: {
+    pluginActionEditor: {
       debugger: {
         open: true,
         responseTabHeight: 200,

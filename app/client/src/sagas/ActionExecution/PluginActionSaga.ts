@@ -44,8 +44,6 @@ import {
   getDatasource,
   getJSCollectionFromAllEntities,
   getPlugin,
-  isActionDirty,
-  isActionSaving,
 } from "ee/selectors/entitiesSelector";
 import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
@@ -72,7 +70,7 @@ import {
 } from "sagas/ErrorSagas";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
-import { ActionExecutionContext, PluginType } from "entities/Action";
+import { ActionExecutionContext } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   ACTION_EXECUTION_CANCELLED,
@@ -99,7 +97,7 @@ import {
   getLayoutOnLoadActions,
   getLayoutOnLoadIssues,
 } from "selectors/editorSelectors";
-import * as log from "loglevel";
+import log from "loglevel";
 import { EMPTY_RESPONSE } from "components/editorComponents/emptyResponse";
 import type { AppState } from "ee/reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "ee/constants/ApiConstants";
@@ -140,17 +138,13 @@ import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
 import { checkAndLogErrorsIfCyclicDependency } from "sagas/helper";
 import { toast } from "@appsmith/ads";
 import type { TRunDescription } from "workers/Evaluation/fns/actionFns";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import { handleStoreOperations } from "./StoreActionSaga";
 import { fetchPageAction } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
 import { softRefreshDatasourceStructure } from "actions/datasourceActions";
-import {
-  changeQuery,
-  setQueryPaneDebuggerState,
-} from "actions/queryPaneActions";
 import {
   getCurrentEnvironmentDetails,
   getCurrentEnvironmentName,
@@ -171,7 +165,12 @@ import {
 } from "ee/utils/actionExecutionUtils";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
-import { setApiPaneDebuggerState } from "../../actions/apiPaneActions";
+import {
+  changeQuery,
+  isActionDirty,
+  isActionSaving,
+  setPluginActionEditorDebuggerState,
+} from "PluginActionEditor/store";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -801,7 +800,12 @@ export function* runActionSaga(
 
   // open response tab in debugger on exection of action.
   if (!reduxAction.payload.skipOpeningDebugger) {
-    yield call(openDebugger, plugin.type);
+    yield put(
+      setPluginActionEditorDebuggerState({
+        open: true,
+        selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+      }),
+    );
   }
 
   let payload = EMPTY_RESPONSE;
@@ -1193,7 +1197,12 @@ function* executePageLoadAction(
     // open response tab in debugger on exection of action on page load.
     // Only if current page is the page on which the action is executed.
     if (window.location.pathname.includes(pageAction.id))
-      yield call(openDebugger, plugin.type);
+      yield put(
+        setPluginActionEditorDebuggerState({
+          open: true,
+          selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        }),
+      );
 
     if (isError) {
       AppsmithConsole.addErrors([
@@ -1575,23 +1584,6 @@ function triggerFileUploadInstrumentation(
     pluginType,
     timeTaken,
   });
-}
-
-//Open debugger with response tab selected.
-function* openDebugger(pluginType: PluginType) {
-  if (pluginType === PluginType.API) {
-    yield put(
-      setApiPaneDebuggerState({
-        open: true,
-        selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-      }),
-    );
-  } else {
-    setQueryPaneDebuggerState({
-      open: true,
-      selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-    });
-  }
 }
 
 // Function to clear the action responses for the actions which are not executeOnLoad.
