@@ -4,7 +4,7 @@ import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { useSelector } from "react-redux";
 import { EditorViewMode } from "ee/entities/IDE/constants";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import {
   createMessage,
   DEBUGGER_ERRORS,
@@ -20,7 +20,7 @@ import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionRe
 import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
+import { getPluginActionDebuggerState } from "PluginActionEditor/store";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 import Schema from "components/editorComponents/Debugger/Schema";
@@ -38,7 +38,7 @@ function usePluginActionResponseTabs() {
 
   const showSchema = useShowSchema(plugin.id) && pluginRequireDatasource;
 
-  const { responseTabHeight } = useSelector(getApiPaneDebuggerState);
+  const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
 
   const tabs: BottomTab[] = [];
 
@@ -110,7 +110,7 @@ function usePluginActionResponseTabs() {
 
     if (showSchema) {
       newTabs.push({
-        key: "schema",
+        key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
         title: "Schema",
         panelComponent: (
           <Schema
@@ -123,7 +123,7 @@ function usePluginActionResponseTabs() {
     }
 
     newTabs.push({
-      key: "response",
+      key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <QueryResponseTab

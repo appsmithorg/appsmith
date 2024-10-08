@@ -23,8 +23,10 @@ import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
-import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
-import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
+import {
+  getPluginActionConfigSelectedTab,
+  setPluginActionEditorSelectedTab,
+} from "PluginActionEditor/store";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
@@ -230,11 +232,11 @@ export function EditorJSONtoForm(props: Props) {
     id: currentActionConfig ? currentActionConfig.id : "",
   };
 
-  const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
+  const selectedTab = useSelector(getPluginActionConfigSelectedTab);
 
   const setSelectedConfigTab = useCallback(
     (selectedIndex: string) => {
-      dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
+      dispatch(setPluginActionEditorSelectedTab(selectedIndex));
     },
     [dispatch],
   );
@@ -264,7 +266,7 @@ export function EditorJSONtoForm(props: Props) {
             <TabContainerView>
               <Tabs
                 onValueChange={setSelectedConfigTab}
-                value={selectedConfigTab || EDITOR_TABS.QUERY}
+                value={selectedTab || EDITOR_TABS.QUERY}
               >
                 <TabsListWrapper>
                   <TabsList>

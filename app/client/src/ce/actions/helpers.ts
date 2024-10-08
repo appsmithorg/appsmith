@@ -1,14 +1,14 @@
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
-import {
-  createNewApiAction,
-  createNewQueryAction,
-} from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import {
   ActionParentEntityType,
   type ActionParentEntityTypeInterface,
 } from "ee/entities/Engine/actionHelpers";
-import { saveActionName } from "actions/pluginActionActions";
+import {
+  createNewApiAction,
+  createNewQueryAction,
+  saveActionName,
+} from "actions/pluginActionActions";
 import { saveJSObjectName } from "actions/jsActionActions";
 
 export const createNewQueryBasedOnParentEntity = (
