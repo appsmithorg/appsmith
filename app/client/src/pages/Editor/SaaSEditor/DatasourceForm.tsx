@@ -662,17 +662,6 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                 >
                   {(!viewMode || createFlow || isInsideReconnectModal) && (
                     <>
-                      {/* This adds information banner when creating google sheets datasource,
-              this info banner explains why appsmith requires permissions from users google account */}
-                      {datasource && isGoogleSheetPlugin && createFlow ? (
-                        <AuthMessage
-                          actionType={ActionType.DOCUMENTATION}
-                          calloutType="info"
-                          datasource={datasource}
-                          description={googleSheetsInfoMessage}
-                          pageId={pageId}
-                        />
-                      ) : null}
                       {/* This adds error banner for google sheets datasource if the datasource is unauthorised */}
                       {datasource &&
                       isGoogleSheetPlugin &&
@@ -688,6 +677,17 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                         ? map(sections, this.renderMainSection)
                         : null}
                       {""}
+                      {/* This adds information banner when creating google sheets datasource,
+              this info banner explains why appsmith requires permissions from users google account */}
+                      {datasource && isGoogleSheetPlugin && createFlow ? (
+                        <AuthMessage
+                          actionType={ActionType.DOCUMENTATION}
+                          calloutType="info"
+                          datasource={datasource}
+                          description={googleSheetsInfoMessage}
+                          pageId={pageId}
+                        />
+                      ) : null}
                     </>
                   )}
                   {viewMode &&
