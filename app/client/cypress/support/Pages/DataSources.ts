@@ -201,7 +201,7 @@ export class DataSources {
     ".t--datasource-name:contains('" + dsName + "')";
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
-  _dsTabSchema = "[data-testid='t--tab-schema']";
+  _dsTabSchema = "[data-testid='t--tab-SCHEMA_TAB']";
   private _pageSelectionMenu = "[data-testId='t--page-selection']";
 
   private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
