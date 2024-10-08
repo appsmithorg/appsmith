@@ -174,13 +174,17 @@ describe(
         expect(afterSearch).to.eq("Software Engineer");
       });
       table.RemoveSearchTextNVerify("1", "v2");
+    });
 
-      // Search for a value in the table
-      table.SearchTable("20");
-      table.ReadTableRowColumnData(0, 2, "v2").then((afterSearch) => {
-        expect(afterSearch).to.eq("Product Manager");
+    it("12. Verify table filter for select column type", function () {
+      featureFlagIntercept({ release_table_cell_label_value_enabled: true });
+      table.OpenNFilterTable("role", "is exactly", "Product Manager");
+      table.ReadTableRowColumnData(0, 2, "v2").then(($cellData) => {
+        expect($cellData).to.eq("Product Manager");
       });
-      table.RemoveSearchTextNVerify("1", "v2");
+      table.ReadTableRowColumnData(1, 2, "v2").then(($cellData) => {
+        expect($cellData).to.eq("Product Manager");
+      });
     });
   },
 );

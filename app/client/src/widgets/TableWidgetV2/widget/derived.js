@@ -723,6 +723,8 @@ export default {
            * This is to handle situations where selectOptons is a javascript object and computes as a nested array.
            */
           if (isSelectOptionsAnArray) {
+            const selectOptionKey = primaryColumns[key].alias;
+
             if (_.some(primaryColumns[key].selectOptions, _.isArray)) {
               /* Handle the case where selectOptions contains nested arrays - selectOptions is javascript */
               selectOptions =
@@ -732,8 +734,7 @@ export default {
               });
 
               if (option) {
-                labelValuesForSelectCell[primaryColumns[key].alias] =
-                  option.label;
+                labelValuesForSelectCell[selectOptionKey] = option.label;
               }
             } else {
               /* Handle the case where selectOptions is a flat array - selectOptions is plain JSON */
@@ -743,8 +744,7 @@ export default {
               );
 
               if (option) {
-                labelValuesForSelectCell[primaryColumns[key].alias] =
-                  option.label;
+                labelValuesForSelectCell[selectOptionKey] = option.label;
               }
             }
           } else {
@@ -755,8 +755,7 @@ export default {
             );
 
             if (option) {
-              labelValuesForSelectCell[primaryColumns[key].alias] =
-                option.label;
+              labelValuesForSelectCell[selectOptionKey] = option.label;
             }
           }
         });
