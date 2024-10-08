@@ -205,7 +205,7 @@ jobs:
   package:
     needs: [prelude, client-build, server-build, rts-build]
 
-    runs-on: depot-ubuntu-22.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
@@ -214,8 +214,8 @@ jobs:
       - name: Checkout the merged commit from PR and base branch
         uses: actions/checkout@v4
 
-      - name: Set up Depot CLI
-        uses: depot/setup-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
       - name: Download the client build artifact
         uses: actions/download-artifact@v4
@@ -264,8 +264,8 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build and push fat image
-        uses: depot/build-push-action@v1
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
         with:
           context: .
           push: true
