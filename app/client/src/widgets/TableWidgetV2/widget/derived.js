@@ -682,7 +682,7 @@ export default {
 
       /*
        * For select columns with label and values, we need to include the label value
-       * in the search
+       * in the search and filter data
        */
       let labelValuesForSelectCell = {};
       /*
