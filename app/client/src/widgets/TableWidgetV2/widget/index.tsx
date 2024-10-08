@@ -454,7 +454,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         pageNo: "number",
         pageSize: "number",
         isVisible: DefaultAutocompleteDefinitions.isVisible,
-        searchText: "string",
+        searchText: generateTypeDef(widget.searchText, extraDefsToDefine),
         totalRecordsCount: "number",
         sortOrder: {
           column: "string",
@@ -1259,6 +1259,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           disabledAddNewRowSave={this.hasInvalidColumnCell()}
           editMode={this.props.renderMode === RenderModes.CANVAS}
           editableCell={this.props.editableCell}
+          enableClientSideSearch={this.props?.enableClientSideSearch}
           filters={this.props.filters}
           handleColumnFreeze={this.handleColumnFreeze}
           handleReorderColumn={this.handleReorderColumn}

@@ -14,6 +14,7 @@ interface SearchProps {
   value: string;
   className?: string;
   autoFocus?: boolean;
+  enableClientSideSearch?: boolean;
 }
 
 const SearchComponentWrapper = styled.div`
@@ -98,6 +99,13 @@ class SearchComponent extends React.Component<
     if (prevProps.value !== this.props.value) {
       this.setState({ localValue: this.props.value });
     }
+
+    if (prevProps.enableClientSideSearch !== this.props.enableClientSideSearch) {
+      this.setState({ localValue: "" }, () => {
+        // Trigger search with an empty value to reset the table
+      this.props.onSearch("");
+      });
+    }
   }
 
   handleSearch = (
@@ -108,11 +116,15 @@ class SearchComponent extends React.Component<
     const search = event.target.value;
 
     this.setState({ localValue: search });
-    this.onDebouncedSearch(search);
+    if (this.props.enableClientSideSearch) {
+        this.onDebouncedSearch(search);
+      }
   };
   clearSearch = () => {
     this.setState({ localValue: "" });
-    this.onDebouncedSearch("");
+    if (this.props.enableClientSideSearch) {
+      this.onDebouncedSearch("");
+    }
   };
 
   render() {

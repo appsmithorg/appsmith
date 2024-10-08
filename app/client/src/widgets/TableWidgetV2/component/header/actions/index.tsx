@@ -98,6 +98,7 @@ export interface ActionsPropsType {
   nextPageClick: () => void;
   prevPageClick: () => void;
   pageNo: number;
+  enableClientSideSearch?: boolean;
   totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
   tableColumns: ReactTableColumnProps[];
@@ -142,6 +143,7 @@ function Actions(props: ActionsPropsType) {
             onSearch={props.searchTableData}
             placeholder="Search..."
             value={props.searchKey}
+            enableClientSideSearch={props.enableClientSideSearch}
           />
         </SearchComponentWrapper>
       )}
