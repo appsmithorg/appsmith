@@ -28,7 +28,7 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import type { Page } from "entities/Page";
 import { getPageList } from "ee/selectors/entitiesSelector";
 import { ConvertToModuleCTA } from "./ConvertToModule";
-import { useHandleDeleteClick } from "ee/PluginActionEditor/hooks/useActionDispatchCalls";
+import { useHandleDeleteClick } from "PluginActionEditor/hooks";
 
 const PageMenuItem = (props: {
   page: Page;

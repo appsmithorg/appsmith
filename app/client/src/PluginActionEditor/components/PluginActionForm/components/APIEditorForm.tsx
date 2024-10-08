@@ -10,7 +10,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import Pagination from "pages/Editor/APIEditor/Pagination";
 import { reduxForm } from "redux-form";
-import { useHandleRunClick } from "ee/PluginActionEditor/hooks/useActionDispatchCalls";
+import { useHandleRunClick } from "PluginActionEditor/hooks";
 
 const FORM_NAME = API_EDITOR_FORM_NAME;
 

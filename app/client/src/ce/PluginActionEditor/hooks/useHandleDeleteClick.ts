@@ -1,5 +1,4 @@
-import { deleteAction, runAction } from "actions/pluginActionActions";
-import type { PaginationField } from "api/ActionAPI";
+import { deleteAction } from "actions/pluginActionActions";
 import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
@@ -24,18 +23,4 @@ function useHandleDeleteClick() {
   return { handleDeleteClick };
 }
 
-function useHandleRunClick() {
-  const { action } = usePluginActionContext();
-  const dispatch = useDispatch();
-
-  const handleRunClick = useCallback(
-    (paginationField?: PaginationField) => {
-      dispatch(runAction(action?.id ?? "", paginationField));
-    },
-    [action.id, dispatch],
-  );
-
-  return { handleRunClick };
-}
-
-export { useHandleDeleteClick, useHandleRunClick };
+export { useHandleDeleteClick };

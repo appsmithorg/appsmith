@@ -27,7 +27,7 @@ import Schema from "components/editorComponents/Debugger/Schema";
 import QueryResponseTab from "pages/Editor/QueryEditor/QueryResponseTab";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { useHandleRunClick } from "ee/PluginActionEditor/hooks/useActionDispatchCalls";
+import { useHandleRunClick } from "PluginActionEditor/hooks";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =

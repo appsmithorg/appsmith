@@ -3,7 +3,7 @@ import { IDEToolbar } from "IDE";
 import { Button, Menu, MenuContent, MenuTrigger, Tooltip } from "@appsmith/ads";
 import { modText } from "utils/helpers";
 import { usePluginActionContext } from "../PluginActionContext";
-import { useHandleRunClick } from "ee/PluginActionEditor/hooks/useActionDispatchCalls";
+import { useHandleRunClick } from "PluginActionEditor/hooks";
 import { useToggle } from "@mantine/hooks";
 
 interface PluginActionToolbarProps {
