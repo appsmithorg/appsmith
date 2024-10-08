@@ -11,20 +11,31 @@ import java.util.List;
 @Slf4j
 public class DBCleanup {
     public static void deleteAllTables(JdbcTemplate jdbcTemplate) {
-        List<String> tableNames =
-                jdbcTemplate.queryForList("SELECT tablename FROM pg_tables WHERE schemaname = 'public'", String.class);
+        List<String> tableNames = jdbcTemplate.queryForList(
+                "SELECT tablename FROM pg_tables WHERE schemaname = 'appsmith'", String.class);
 
         for (String tableName : tableNames) {
             jdbcTemplate.execute("DROP TABLE IF EXISTS \"" + tableName + "\" CASCADE");
         }
     }
 
+    // drop extension pg_trgm
+    public static void deleteAllExtensions(JdbcTemplate jdbcTemplate) {
+        List<String> extensionNames =
+                jdbcTemplate.queryForList("SELECT extname FROM pg_extension WHERE extname = 'pg_trgm'", String.class);
+
+        for (String extensionName : extensionNames) {
+            jdbcTemplate.execute("DROP EXTENSION IF EXISTS " + extensionName + " CASCADE");
+        }
+    }
+
     public static void deleteAllRoutines(JdbcTemplate jdbcTemplate) {
         List<String> routineNames = jdbcTemplate.queryForList(
-                "SELECT routine_name FROM information_schema.routines WHERE specific_schema = 'public'", String.class);
+                "SELECT routine_name FROM information_schema.routines WHERE specific_schema = 'appsmith'",
+                String.class);
 
         for (String routineName : routineNames) {
-            jdbcTemplate.execute("DROP FUNCTION IF EXISTS public." + routineName + " CASCADE");
+            jdbcTemplate.execute("DROP FUNCTION IF EXISTS appsmith." + routineName + " CASCADE");
         }
     }
 
