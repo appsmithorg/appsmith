@@ -103,7 +103,7 @@ spec:
           env:
           {{- if .Values.HTTPContainerPort }}
             - name: PORT
-              values: {{ .Values.HTTPContainerPort }}
+              value: "{{ .Values.HTTPContainerPort }}"
           {{- end }}
             - name: APPSMITH_ENABLE_EMBEDDED_DB
               value: "0"
