@@ -29,7 +29,7 @@ import {
 import { DEFAULT_CREATE_API_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { DEFAULT_CREATE_GRAPHQL_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import history from "utils/history";
-import { initialize, autofill, change, reset } from "redux-form";
+import { autofill, change, initialize, reset } from "redux-form";
 import type { Property } from "api/ActionAPI";
 import { getQueryParams } from "utils/URLUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -61,7 +61,7 @@ import {
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { Plugin } from "api/PluginApi";
-import { getDisplayFormat } from "selectors/apiPaneSelectors";
+import { getPostBodyFormat } from "../PluginActionEditor/store";
 import { apiEditorIdURL, datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
@@ -83,6 +83,7 @@ import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import type { ApplicationPayload } from "entities/Application";
 import { klonaLiteWithTelemetry } from "utils/helpers";
+import { POST_BODY_FORM_DATA_KEY } from "../PluginActionEditor/constants";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -256,7 +257,7 @@ function* updateExtraFormDataSaga() {
   const { values } = formData;
 
   // when initializing, check if theres a display format present.
-  const extraFormData: GetFormData = yield select(getDisplayFormat, values.id);
+  const extraFormData: GetFormData = yield select(getPostBodyFormat, values.id);
 
   const headers: Array<{ key: string; value: string }> =
     get(values, "actionConfiguration.headers") || [];
@@ -367,7 +368,7 @@ function* setApiBodyTabHeaderFormat(apiId: string, apiContentType?: string) {
     payload: {
       id: apiId,
       values: {
-        displayFormat,
+        [POST_BODY_FORM_DATA_KEY]: displayFormat,
       },
     },
   });

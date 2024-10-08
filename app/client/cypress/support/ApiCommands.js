@@ -94,7 +94,7 @@ Cypress.Commands.add(
     }
     cy.get(".string-value").contains(baseurl.concat(path));
     cy.get(".string-value").contains(verb);
-    cy.get("[data-testid=t--tab-response]").first().click({ force: true });
+    cy.get("[data-testid=t--tab-RESPONSE_TAB]").first().click({ force: true });
   },
 );
 
