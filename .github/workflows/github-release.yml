@@ -22,11 +22,16 @@ jobs:
     steps:
       - name: Environment details
         run: |
+          echo ${{ secrets.DOCKER_HUB_USERNAME }}
           echo "PWD: $PWD"
           echo "GITHUB_REF: $GITHUB_REF"
           echo "GITHUB_SHA: $GITHUB_SHA"
           echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
-
+      - name: Login to DockerHub
+        uses: docker/login-action@v3.3.0
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       - name: Get the version
         id: get_version
         run: |
@@ -40,7 +45,7 @@ jobs:
     needs:
       - prelude
 
-    runs-on: ubuntu-latest-4-cores
+    runs-on: ubuntu-latest
 
     defaults:
       run:
@@ -200,7 +205,7 @@ jobs:
   package:
     needs: [prelude, client-build, server-build, rts-build]
 
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-22.04
     permissions:
       contents: read
       id-token: write
@@ -247,14 +252,10 @@ jobs:
         run: |
           scripts/generate_info_json.sh
 
-      # As pg docker image is continuously updated for each scheduled cron on release, we are using the nightly tag while building the latest tag
       - name: Place server artifacts-es
         run: |
           if [[ -f scripts/prepare_server_artifacts.sh ]]; then
-            PG_TAG=nightly scripts/prepare_server_artifacts.sh
-          else
-            echo "No script found to prepare server artifacts"
-            exit 1
+            scripts/prepare_server_artifacts.sh
           fi
 
       - name: Login to DockerHub
@@ -271,7 +272,7 @@ jobs:
           platforms: linux/arm64,linux/amd64
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
-            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:nightly
+            BASE=appsmith/base-${{ vars.EDITION }}:nightly
           tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{needs.prelude.outputs.tag}}
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:latest
+            ${{ secrets.DOCKER_HUB_USERNAME }}/appsmith-${{ vars.EDITION }}:${{needs.prelude.outputs.tag}}
+            ${{ secrets.DOCKER_HUB_USERNAME }}/appsmith-${{ vars.EDITION }}:latest
