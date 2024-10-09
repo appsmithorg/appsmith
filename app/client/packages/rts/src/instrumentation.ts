@@ -1,9 +1,12 @@
 import {
   BatchSpanProcessor,
-  NodeTracerProvider
+  NodeTracerProvider,
 } from "@opentelemetry/sdk-trace-node";
 import { Resource } from "@opentelemetry/resources";
-import { ATTR_DEPLOYMENT_NAME, ATTR_SERVICE_INSTANCE_ID } from "@opentelemetry/semantic-conventions/incubating";
+import {
+  ATTR_DEPLOYMENT_NAME,
+  ATTR_SERVICE_INSTANCE_ID,
+} from "@opentelemetry/semantic-conventions/incubating";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import { diag, DiagConsoleLogger, DiagLogLevel } from "@opentelemetry/api";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
@@ -48,5 +51,3 @@ provider.addSpanProcessor(batchSpanProcessor);
 provider.register();
 
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
-
-console.log(">>>>>> Tracer initialized");

@@ -1,4 +1,4 @@
-import './instrumentation';
+import "./instrumentation";
 import http from "http";
 import express from "express";
 import { Server } from "socket.io";
