@@ -187,7 +187,6 @@ class ApiEditor extends React.Component<Props> {
             }
             isDeleting={isDeleting}
             isRunning={isRunning}
-            onDeleteClick={this.context.handleDeleteClick}
             onRunClick={this.context.handleRunClick}
             paginationType={paginationType}
             pluginId={pluginId}
@@ -205,7 +204,6 @@ class ApiEditor extends React.Component<Props> {
             isDeleting={isDeleting}
             isRunning={isRunning}
             match={this.props.match}
-            onDeleteClick={this.context.handleDeleteClick}
             onRunClick={this.context.handleRunClick}
             paginationType={paginationType}
             pluginId={pluginId}

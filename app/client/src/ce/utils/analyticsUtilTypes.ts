@@ -52,7 +52,6 @@ export type EventName =
   | "RUN_API_CLICK"
   | "RUN_API_SHORTCUT"
   | "DELETE_API"
-  | "DELETE_API_CLICK"
   | "IMPORT_API"
   | "EXPAND_API"
   | "IMPORT_API_CLICK"
