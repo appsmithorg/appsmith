@@ -8,6 +8,9 @@ ruleTester.run("named-use-effect", namedUseEffectRule, {
     {
       code: "useEffect(function add(){ }, [])",
     },
+    {
+      code: "React.useEffect(function add(){ }, [])",
+    },
   ],
   invalid: [
     {
@@ -15,7 +18,7 @@ ruleTester.run("named-use-effect", namedUseEffectRule, {
       errors: [{ messageId: "useNamedUseEffect" }],
     },
     {
-      code: "useEffect(() => {})",
+      code: "React.useEffect(function (){ }, [])",
       errors: [{ messageId: "useNamedUseEffect" }],
     },
   ],
