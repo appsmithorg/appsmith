@@ -17,8 +17,6 @@ import { evaluateHiddenProperty } from "./helpers";
 import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
 import equal from "fast-deep-equal/es6";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 export interface PropertyControlsGeneratorProps {
   id: string;
@@ -106,10 +104,6 @@ function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
 
-  const isCollapseAllExceptDataEnabled: boolean = useFeatureFlag(
-    FEATURE_FLAG.ab_learnability_discoverability_collapse_all_except_data_enabled,
-  );
-
   const enhancementSelector = getWidgetEnhancementSelector(
     widgetProps?.widgetId,
   );
@@ -140,7 +134,7 @@ function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
         props,
         isSearchResult,
         enhancements,
-        isCollapseAllExceptDataEnabled,
+        true,
       )}
     </>
   );

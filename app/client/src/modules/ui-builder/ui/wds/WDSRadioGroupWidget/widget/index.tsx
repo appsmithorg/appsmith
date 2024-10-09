@@ -6,7 +6,7 @@ import type {
 import isNumber from "lodash/isNumber";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
-import { RadioGroup } from "@appsmith/wds";
+import { Radio, RadioGroup } from "@appsmith/wds";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -139,10 +139,15 @@ class WDSRadioGroupWidget extends BaseWidget<
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
         isInvalid={validation.validationStatus === "invalid"}
-        items={options}
         onChange={this.onRadioSelectionChange}
         value={selectedOptionValue}
-      />
+      >
+        {options.map((option) => (
+          <Radio key={option.value} value={option.value}>
+            {option.label}
+          </Radio>
+        ))}
+      </RadioGroup>
     );
   }
 }

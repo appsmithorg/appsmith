@@ -6,7 +6,6 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
-  entityExplorer,
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
@@ -26,6 +25,7 @@ describe(
 
     it("1. Check if the selectedRowIndices does not contain 2d array", function () {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("rowselection");
       propPane.TogglePropertyState("Enable multi-row selection", "On"); //Enable Multi row select
 
       propPane.UpdatePropertyFieldValue("Default selected rows", "[1]"); //Change the value of default selected row

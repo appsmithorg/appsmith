@@ -18,20 +18,12 @@ export interface TagGroupProps<T>
   extends Omit<HeadlessTagGroupProps, "children">,
     Pick<HeadlessTagListProps<T>, "items" | "children" | "renderEmptyState"> {
   label?: string;
-  description?: string;
   errorMessage?: string;
 }
 
 function TagGroup<T extends object>(props: TagGroupProps<T>) {
-  const {
-    children,
-    description,
-    errorMessage,
-    items,
-    label,
-    renderEmptyState,
-    ...rest
-  } = props;
+  const { children, errorMessage, items, label, renderEmptyState, ...rest } =
+    props;
 
   return (
     <HeadlessTagGroup {...rest} className={styles["tag-group"]}>
@@ -43,14 +35,6 @@ function TagGroup<T extends object>(props: TagGroupProps<T>) {
       >
         {children}
       </HeadlessTagList>
-      {Boolean(description) && (
-        <HeadlessText
-          className={getTypographyClassName("footnote")}
-          slot="description"
-        >
-          {description}
-        </HeadlessText>
-      )}
       {Boolean(errorMessage) && (
         <HeadlessText
           className={getTypographyClassName("footnote")}

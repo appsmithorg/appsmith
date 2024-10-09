@@ -1,5 +1,4 @@
 import type { ComponentProps } from "widgets/BaseComponent";
-import type { TextInputProps } from "@appsmith/wds";
 
 export type KeyDownEvent = React.KeyboardEvent<
   HTMLTextAreaElement | HTMLInputElement
@@ -31,7 +30,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   label: string;
 
   // validation props
-  validationStatus?: TextInputProps["validationState"];
+  validationStatus?: "invalid" | "valid";
   errorMessage?: string;
 
   // misc
