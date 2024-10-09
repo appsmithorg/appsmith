@@ -78,7 +78,6 @@ export const Validation: Story = {
     >
       <Flex direction="column" gap="spacing-5" width="sizing-60">
         <Select
-          description="description"
           errorMessage="There is an error"
           isRequired
           label="Validation"

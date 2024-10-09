@@ -30,10 +30,9 @@ export const Main: Story = {
   },
 };
 
-export const WithLabelAndDescription: Story = {
+export const WithLabel: Story = {
   args: {
-    label: "Label",
-    description: "Description",
+    label: "Description",
   },
 };
 

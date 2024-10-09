@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  FieldDescription,
   FieldError,
   FieldLabel,
   ListBox,
@@ -16,7 +15,6 @@ export const Select = (props: SelectProps) => {
   const {
     children,
     contextualHelp,
-    description,
     errorMessage,
     isDisabled,
     isLoading,
@@ -53,7 +51,6 @@ export const Select = (props: SelectProps) => {
             placeholder={placeholder}
             size={size}
           />
-          <FieldDescription>{description}</FieldDescription>
           <FieldError>{errorMessage}</FieldError>
           <Popover UNSTABLE_portalContainer={root}>
             <ListBox shouldFocusWrap>{children}</ListBox>

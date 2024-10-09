@@ -28,10 +28,9 @@ export const Main: Story = {
   },
 };
 
-export const WithLabelAndDescription: Story = {
+export const WithLabel: Story = {
   args: {
     label: "Favorite Fruit",
-    description: "Select your favorite fruit from the list",
   },
 };
 
@@ -46,7 +45,6 @@ export const Disabled: Story = {
   args: {
     isDisabled: true,
     label: "Disabled ComboBox",
-    description: "This ComboBox is disabled",
   },
 };
 
@@ -55,7 +53,6 @@ export const Loading: Story = {
     isLoading: true,
     label: "Loading ComboBox",
     placeholder: "Loading options...",
-    description: "This ComboBox is in a loading state",
   },
 };
 

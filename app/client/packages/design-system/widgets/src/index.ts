@@ -22,7 +22,6 @@ export * from "./components/ContextualHelp";
 export * from "./components/Link";
 export * from "./components/Popover";
 export * from "./components/FieldError";
-export * from "./components/FieldDescription";
 export * from "./components/TextInput";
 export * from "./components/FieldLabel";
 export * from "./components/Input";

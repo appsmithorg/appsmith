@@ -3,7 +3,6 @@ import {
   ListBox,
   FieldLabel,
   FieldError,
-  FieldDescription,
   inputFieldStyles,
 } from "@appsmith/wds";
 import React from "react";
@@ -16,7 +15,6 @@ export const ComboBox = (props: ComboBoxProps) => {
   const {
     children,
     contextualHelp,
-    description,
     errorMessage,
     isDisabled,
     isLoading,
@@ -52,7 +50,6 @@ export const ComboBox = (props: ComboBoxProps) => {
         placeholder={placeholder}
         size={size}
       />
-      <FieldDescription>{description}</FieldDescription>
       <FieldError>{errorMessage}</FieldError>
       <Popover UNSTABLE_portalContainer={root}>
         <ListBox shouldFocusWrap>{children}</ListBox>

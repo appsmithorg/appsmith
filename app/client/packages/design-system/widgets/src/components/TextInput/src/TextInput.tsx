@@ -1,12 +1,6 @@
 import clsx from "clsx";
 import React from "react";
-import {
-  FieldDescription,
-  FieldError,
-  FieldLabel,
-  Input,
-  inputFieldStyles,
-} from "@appsmith/wds";
+import { FieldError, FieldLabel, Input, inputFieldStyles } from "@appsmith/wds";
 import { TextField as HeadlessTextField } from "react-aria-components";
 
 import type { TextInputProps } from "./types";
@@ -14,7 +8,6 @@ import type { TextInputProps } from "./types";
 export function TextInput(props: TextInputProps) {
   const {
     contextualHelp,
-    description,
     errorMessage,
     isDisabled,
     isInvalid,
@@ -57,10 +50,7 @@ export function TextInput(props: TextInputProps) {
         type={type}
         value={value}
       />
-      {Boolean(description) && (
-        <FieldDescription>{description}</FieldDescription>
-      )}
-      {Boolean(errorMessage) && <FieldError>{errorMessage}</FieldError>}
+      <FieldError>{errorMessage}</FieldError>
     </HeadlessTextField>
   );
 }

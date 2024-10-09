@@ -2,7 +2,6 @@ import clsx from "clsx";
 import {
   FieldError,
   FieldLabel,
-  FieldDescription,
   inputFieldStyles,
   IconButton,
   TextAreaInput,
@@ -17,7 +16,6 @@ import type { ChatInputProps } from "./types";
 export function ChatInput(props: ChatInputProps) {
   const {
     contextualHelp,
-    description,
     errorMessage,
     isDisabled,
     isInvalid,
@@ -111,10 +109,18 @@ export function ChatInput(props: ChatInputProps) {
     if (Boolean(suffixProp)) return suffixProp;
 
     if (Boolean(isLoading)) {
-      return <IconButton icon="player-stop-filled" onPress={onSubmit} />;
+      return (
+        <IconButton
+          icon="player-stop-filled"
+          isDisabled={isDisabled}
+          onPress={onSubmit}
+        />
+      );
     }
 
-    return <IconButton icon="arrow-up" onPress={onSubmit} />;
+    return (
+      <IconButton icon="arrow-up" isDisabled={isDisabled} onPress={onSubmit} />
+    );
   })();
 
   const styles = {
@@ -152,10 +158,7 @@ export function ChatInput(props: ChatInputProps) {
         suffix={suffix}
         value={value}
       />
-      {Boolean(description) && (
-        <FieldDescription>{description}</FieldDescription>
-      )}
-      {Boolean(errorMessage) && <FieldError>{errorMessage}</FieldError>}
+      <FieldError>{errorMessage}</FieldError>
     </HeadlessTextField>
   );
 }

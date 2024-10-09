@@ -2,7 +2,6 @@ import clsx from "clsx";
 import {
   FieldError,
   FieldLabel,
-  FieldDescription,
   inputFieldStyles,
   TextAreaInput,
 } from "@appsmith/wds";
@@ -16,7 +15,6 @@ import type { TextAreaProps } from "./types";
 export function TextArea(props: TextAreaProps) {
   const {
     contextualHelp,
-    description,
     errorMessage,
     isDisabled,
     isInvalid,
@@ -105,10 +103,8 @@ export function TextArea(props: TextAreaProps) {
         suffix={suffix}
         value={value}
       />
-      {Boolean(description) && (
-        <FieldDescription>{description}</FieldDescription>
-      )}
-      {Boolean(errorMessage) && <FieldError>{errorMessage}</FieldError>}
+
+      <FieldError>{errorMessage}</FieldError>
     </HeadlessTextField>
   );
 }

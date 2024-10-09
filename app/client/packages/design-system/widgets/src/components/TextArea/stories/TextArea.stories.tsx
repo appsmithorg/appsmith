@@ -22,10 +22,9 @@ export const Main: Story = {
   },
 };
 
-export const WithLabelAndDescription: Story = {
+export const WithLabel: Story = {
   args: {
-    label: "Description",
-    description: "This is a description",
+    label: "Label",
   },
 };
 
@@ -40,7 +39,6 @@ export const Disabled: Story = {
   args: {
     isDisabled: true,
     label: "Disabled",
-    description: "This is a disabled field",
   },
 };
 
@@ -49,7 +47,6 @@ export const Loading: Story = {
     isLoading: true,
     label: "Loading",
     placeholder: "Loading...",
-    description: "This is a loading field",
   },
 };
 
@@ -57,7 +54,6 @@ export const Readonly: Story = {
   args: {
     isReadOnly: true,
     label: "Readonly",
-    description: "This is a readonly field",
   },
 };
 

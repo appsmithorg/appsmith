@@ -4,7 +4,6 @@ import {
   useGroupOrientation,
   inputFieldStyles,
   FieldLabel,
-  FieldDescription,
   FieldError,
 } from "@appsmith/wds";
 import { CheckboxGroup as AriaToggleGroup, Group } from "react-aria-components";
@@ -19,7 +18,6 @@ const _ToggleGroup = (
   const {
     children,
     contextualHelp,
-    description,
     errorMessage,
     isDisabled,
     isReadOnly,
@@ -57,7 +55,6 @@ const _ToggleGroup = (
       >
         {children}
       </Group>
-      <FieldDescription>{description}</FieldDescription>
       <FieldError>{errorMessage}</FieldError>
     </AriaToggleGroup>
   );

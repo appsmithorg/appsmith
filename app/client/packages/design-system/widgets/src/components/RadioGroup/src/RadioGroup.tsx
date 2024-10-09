@@ -4,7 +4,6 @@ import {
   useGroupOrientation,
   inputFieldStyles,
   FieldLabel,
-  FieldDescription,
   FieldError,
   toggleGroupStyles,
 } from "@appsmith/wds";
@@ -19,7 +18,6 @@ const _RadioGroup = (
   const {
     children,
     contextualHelp,
-    description,
     errorMessage,
     isDisabled,
     isReadOnly,
@@ -58,10 +56,7 @@ const _RadioGroup = (
       >
         {children}
       </Group>
-      {Boolean(description) && (
-        <FieldDescription>{description}</FieldDescription>
-      )}
-      {Boolean(errorMessage) && <FieldError>{errorMessage}</FieldError>}
+      <FieldError>{errorMessage}</FieldError>
     </HeadlessRadioGroup>
   );
 };
