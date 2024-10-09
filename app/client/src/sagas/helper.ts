@@ -4,6 +4,7 @@ import type {
   FormEvalOutput,
   ConditionalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
+import { select } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Log } from "entities/AppsmithConsole";
@@ -22,6 +23,14 @@ import { isPlainObject, isString } from "lodash";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { apiFailureResponseInterceptor } from "api/interceptors";
 import { klonaLiteWithTelemetry } from "utils/helpers";
+import { getDefaultEnvId } from "ee/api/ApiUtils";
+import { getDatasources } from "ee/selectors/entitiesSelector";
+import {
+  DATASOURCE_NAME_DEFAULT_PREFIX,
+  TEMP_DATASOURCE_ID,
+} from "../constants/Datasource";
+import { type Datasource, ToastMessageType } from "../entities/Datasource";
+import { getUntitledDatasourceSequence } from "../utils/DatasourceSagaUtils";
 
 // function to extract all objects that have dynamic values
 export const extractFetchDynamicValueFormConfigs = (
@@ -248,4 +257,33 @@ export function* getFromServerWhenNoPrefetchedResult(
   }
 
   return yield apiEffect();
+}
+
+export function* getInitialDatasourcePayload(
+  pluginId: string,
+  pluginType?: string,
+) {
+  const dsList: Datasource[] = yield select(getDatasources);
+  const sequence = getUntitledDatasourceSequence(dsList);
+  const defaultEnvId = getDefaultEnvId();
+
+  return {
+    id: TEMP_DATASOURCE_ID,
+    name: DATASOURCE_NAME_DEFAULT_PREFIX + sequence,
+    type: pluginType,
+    pluginId: pluginId,
+    new: false,
+    datasourceStorages: {
+      [defaultEnvId]: {
+        datasourceId: TEMP_DATASOURCE_ID,
+        environmentId: defaultEnvId,
+        isValid: false,
+        datasourceConfiguration: {
+          url: "",
+          properties: [],
+        },
+        toastMessage: ToastMessageType.EMPTY_TOAST_MESSAGE,
+      },
+    },
+  };
 }

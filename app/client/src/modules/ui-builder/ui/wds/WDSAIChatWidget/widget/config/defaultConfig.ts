@@ -3,6 +3,8 @@ import {
   BlueprintOperationTypes,
   type WidgetDefaultProps,
 } from "WidgetProvider/constants";
+import { createOrUpdateDataSourceWithAction } from "sagas/DatasourcesSagas";
+import { PluginPackageName } from "entities/Action";
 
 export const defaultsConfig = {
   isVisible: true,
@@ -16,7 +18,14 @@ export const defaultsConfig = {
     operations: [
       {
         type: BlueprintOperationTypes.ADD_ACTION,
-        fn: () => {},
+        fn: function* () {
+          yield createOrUpdateDataSourceWithAction(
+            PluginPackageName.APPSMITH_AI,
+            {
+              usecase: { data: "TEXT_CLASSIFY" },
+            },
+          );
+        },
       },
     ],
   },
