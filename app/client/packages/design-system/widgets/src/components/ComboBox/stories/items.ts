@@ -1,6 +1,4 @@
-import type { ComboBoxItem } from "../src/types";
-
-export const items: ComboBoxItem[] = [
+export const items = [
   { id: 1, label: "Aerospace" },
   {
     id: 2,
@@ -15,7 +13,7 @@ export const items: ComboBoxItem[] = [
   { id: 9, label: "Electrical" },
 ];
 
-export const itemsWithIcons: ComboBoxItem[] = [
+export const itemsWithIcons = [
   { id: 1, label: "Aerospace", icon: "galaxy" },
   {
     id: 2,
