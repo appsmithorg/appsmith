@@ -4,7 +4,7 @@ import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { useSelector } from "react-redux";
 import { EditorViewMode } from "ee/entities/IDE/constants";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import {
   createMessage,
   DEBUGGER_ERRORS,
@@ -20,15 +20,25 @@ import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionRe
 import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
+import { getPluginActionDebuggerState } from "PluginActionEditor/store";
+import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
+import Schema from "components/editorComponents/Debugger/Schema";
+import QueryResponseTab from "pages/Editor/QueryEditor/QueryResponseTab";
+import type { SourceEntity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 
 function usePluginActionResponseTabs() {
-  const { action, actionResponse, plugin } = usePluginActionContext();
+  const { action, actionResponse, datasource, plugin } =
+    usePluginActionContext();
 
   const IDEViewMode = useSelector(getIDEViewMode);
   const errorCount = useSelector(getErrorCount);
+  const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
 
-  const { responseTabHeight } = useSelector(getApiPaneDebuggerState);
+  const showSchema = useShowSchema(plugin.id) && pluginRequireDatasource;
+
+  const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
 
   const tabs: BottomTab[] = [];
 
@@ -79,6 +89,55 @@ function usePluginActionResponseTabs() {
         ),
       },
     ]);
+  }
+
+  if (
+    [
+      PluginType.DB,
+      PluginType.AI,
+      PluginType.REMOTE,
+      PluginType.SAAS,
+      PluginType.INTERNAL,
+    ].includes(plugin.type)
+  ) {
+    const newTabs = [];
+
+    const actionSource: SourceEntity = {
+      type: SOURCE_ENTITY_TYPE.ACTION,
+      name: action.name,
+      id: action.id,
+    };
+
+    if (showSchema) {
+      newTabs.push({
+        key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
+        title: "Schema",
+        panelComponent: (
+          <Schema
+            currentActionId={action.id}
+            datasourceId={datasource?.id || ""}
+            datasourceName={datasource?.name || ""}
+          />
+        ),
+      });
+    }
+
+    newTabs.push({
+      key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+      title: createMessage(DEBUGGER_RESPONSE),
+      panelComponent: (
+        <QueryResponseTab
+          actionName={action.name}
+          actionSource={actionSource}
+          currentActionConfig={action}
+          isRunning={false}
+          onRunClick={noop}
+          runErrorMessage={""} // TODO
+        />
+      ),
+    });
+
+    return tabs.concat(newTabs);
   }
 
   return tabs;

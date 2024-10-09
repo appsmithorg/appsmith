@@ -13,7 +13,7 @@ import {
   getIsEditorInitialized,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { changeQuery } from "actions/queryPaneActions";
+import { changeQuery } from "PluginActionEditor/store";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import {
   getActionByBaseId,

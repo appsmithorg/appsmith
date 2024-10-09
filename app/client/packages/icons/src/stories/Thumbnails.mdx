@@ -1,10 +1,12 @@
 import { Meta } from "@storybook/addon-docs";
 import { Flex } from "@appsmith/wds";
+import { AIChatThumbnail } from "../components/Thumbnails/AIChatThumbnail";
 import { ButtonThumbnail } from "../components/Thumbnails/ButtonThumbnail";
 import { CheckboxGroupThumbnail } from "../components/Thumbnails/CheckboxGroupThumbnail";
 import { CheckboxThumbnail } from "../components/Thumbnails/CheckboxThumbnail";
 import { ComboboxSelectThumbnail } from "../components/Thumbnails/ComboboxSelectThumbnail";
 import { CurrencyInputThumbnail } from "../components/Thumbnails/CurrencyInputThumbnail";
+import { DatePickerThumbnail } from "../components/Thumbnails/DatePickerThumbnail";
 import { EmailInputThumbnail } from "../components/Thumbnails/EmailInputThumbnail";
 import { HeadingThumbnail } from "../components/Thumbnails/HeadingThumbnail";
 import { IconButtonThumbnail } from "../components/Thumbnails/IconButtonThumbnail";
@@ -37,11 +39,13 @@ Icon set for Widget Explorer Panel, which provides a visual representation of th
 export const Icons = () => {
   return (
     <Flex gap="spacing-4" wrap="wrap">
+      <AIChatThumbnail />
       <ButtonThumbnail />
       <CheckboxGroupThumbnail />
       <CheckboxThumbnail />
       <ComboboxSelectThumbnail />
       <CurrencyInputThumbnail />
+      <DatePickerThumbnail />
       <EmailInputThumbnail />
       <HeadingThumbnail />
       <IconButtonThumbnail />

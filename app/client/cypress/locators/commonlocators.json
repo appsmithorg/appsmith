@@ -164,7 +164,7 @@
   "labelSectionTxt": ".CodeMirror-code .cm-variable",
   "lintError": ".CodeMirror-lint-mark-error",
   "debugger": ".t--debugger-count",
-  "errorTab": "[data-testid=t--tab-ERROR]",
+  "errorTab": "[data-testid=t--tab-ERROR_TAB]",
   "debugErrorMsg": "[data-testid=t--debugger-log-message]",
   "tableButtonVariant": ".t--property-control-buttonvariant",
   "debuggerLabel": "span.debugger-label",

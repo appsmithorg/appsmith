@@ -1,5 +1,4 @@
 import {
-  entityExplorer,
   locators,
   agHelper,
   propPane,
@@ -17,6 +16,7 @@ describe(
       agHelper.AddDsl("jsonFormDynamicHeightDsl");
 
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
+      propPane.ExpandIfCollapsedSection("general");
       agHelper
         .GetWidgetCSSHeight(
           locators._widgetInDeployed(draggableWidgets.JSONFORM),

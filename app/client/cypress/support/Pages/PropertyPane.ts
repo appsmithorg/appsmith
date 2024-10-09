@@ -686,4 +686,20 @@ export class PropertyPane {
       .GetElement(this._propertyToggle(propertyName))
       .should(state === "enabled" ? "be.checked" : "not.be.checked");
   }
+
+  public ExpandIfCollapsedSection(sectionName: string) {
+    cy.get(`.t--property-pane-section-collapse-${sectionName}`)
+      .scrollIntoView()
+      .then(($element) => {
+        cy.wrap($element)
+          .siblings(".bp3-collapse")
+          .then(($sibling) => {
+            const siblingHeight = $sibling.height(); // Get the height of the sibling element
+
+            if (!siblingHeight) {
+              $element.click();
+            }
+          });
+      });
+  }
 }
