@@ -1,17 +1,18 @@
 .toggleGroup {
   display: flex;
-  flex-direction: column;
   width: 100%;
+  gap: var(--inner-spacing-4);
+}
 
-  &[data-disabled] {
-    cursor: not-allowed;
-  }
+.toggleGroup[data-orientation="vertical"] {
+  flex-direction: column;
+  gap: var(--inner-spacing-2);
+}
 
-  &[data-orientation="horizontal"] [data-label-position="end"] {
-    margin-inline-end: 0;
-  }
+.toggleGroup[data-orientation="horizontal"] [data-label-position="end"] {
+  margin-inline-end: 0;
+}
 
-  &[data-orientation="horizontal"] [data-label-position="start"] {
-    width: fit-content;
-  }
+.toggleGroup[data-orientation="horizontal"] [data-label-position="start"] {
+  width: fit-content;
 }

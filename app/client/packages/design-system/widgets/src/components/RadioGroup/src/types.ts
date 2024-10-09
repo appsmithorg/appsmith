@@ -1,34 +1,13 @@
+import type { FieldProps, ORIENTATION } from "@appsmith/wds";
 import type { RadioGroupProps as HeadlessRadioGroupProps } from "react-aria-components";
-import type { ORIENTATION } from "../../../shared";
 
-interface RadioGroupItemProps {
-  value: string;
-  label?: string;
-  isSelected?: boolean;
-  isDisabled?: boolean;
-  index?: number;
-}
-
-export interface RadioGroupProps extends HeadlessRadioGroupProps {
+export interface RadioGroupProps extends HeadlessRadioGroupProps, FieldProps {
   /**
-   * A ContextualHelp element to place next to the label.
-   */
-  contextualHelp?: string;
-  /**
-   * The content to display as the label.
-   */
-  label?: string;
-  /**
-   * Radio that belong to this group.
-   */
-  items: RadioGroupItemProps[];
-  /**
-   * The axis the checkboxes should align with.
-   * @default 'horizontal'
+   * The orientation of the radio group.
    */
   orientation?: keyof typeof ORIENTATION;
   /**
-   * An error message for the field.
+   * children for the radio group
    */
-  errorMessage?: string;
+  children?: React.ReactNode;
 }
