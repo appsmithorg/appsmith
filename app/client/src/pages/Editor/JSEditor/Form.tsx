@@ -70,8 +70,9 @@ import {
   getHasManageActionPermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
-import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import RunHistory from "ee/components/RunHistory";
+
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
   contextMenu: React.ReactNode;
@@ -99,6 +100,7 @@ const SecondaryWrapper = styled.div`
   flex-direction: column;
   flex: 1;
   overflow: hidden;
+
   &&& {
     .ads-v2-tabs,
     &.js-editor-tab {

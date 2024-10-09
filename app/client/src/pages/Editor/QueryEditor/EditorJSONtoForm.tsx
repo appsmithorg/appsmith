@@ -23,8 +23,10 @@ import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
-import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
-import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
+import {
+  getPluginActionConfigSelectedTab,
+  setPluginActionEditorSelectedTab,
+} from "PluginActionEditor/store";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
@@ -197,7 +199,7 @@ export function EditorJSONtoForm(props: Props) {
     uiComponent,
   } = props;
 
-  const { actionRightPaneAdditionSections, closeEditorLink, notification } =
+  const { actionRightPaneAdditionSections, notification } =
     useContext(QueryEditorContext);
 
   const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
@@ -230,11 +232,14 @@ export function EditorJSONtoForm(props: Props) {
     id: currentActionConfig ? currentActionConfig.id : "",
   };
 
-  const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
+  const selectedTab = useSelector(getPluginActionConfigSelectedTab);
 
-  const setSelectedConfigTab = useCallback((selectedIndex: string) => {
-    dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
-  }, []);
+  const setSelectedConfigTab = useCallback(
+    (selectedIndex: string) => {
+      dispatch(setPluginActionEditorSelectedTab(selectedIndex));
+    },
+    [dispatch],
+  );
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -243,107 +248,102 @@ export function EditorJSONtoForm(props: Props) {
   }
 
   return (
-    <>
-      {closeEditorLink}
-      <QueryFormContainer onSubmit={handleSubmit(noop)}>
-        <QueryEditorHeader
-          dataSources={dataSources}
-          formName={formName}
-          isRunning={isRunning}
-          onCreateDatasourceClick={onCreateDatasourceClick}
-          onRunClick={onRunClick}
-          plugin={plugin}
-        />
-        {notification && (
-          <StyledNotificationWrapper>{notification}</StyledNotificationWrapper>
-        )}
-        <Wrapper>
-          <div className="flex flex-1 w-full">
-            <SecondaryWrapper>
-              <TabContainerView>
-                <Tabs
-                  onValueChange={setSelectedConfigTab}
-                  value={selectedConfigTab || EDITOR_TABS.QUERY}
+    <QueryFormContainer onSubmit={handleSubmit(noop)}>
+      <QueryEditorHeader
+        dataSources={dataSources}
+        formName={formName}
+        isRunning={isRunning}
+        onCreateDatasourceClick={onCreateDatasourceClick}
+        onRunClick={onRunClick}
+        plugin={plugin}
+      />
+      {notification && (
+        <StyledNotificationWrapper>{notification}</StyledNotificationWrapper>
+      )}
+      <Wrapper>
+        <div className="flex flex-1 w-full">
+          <SecondaryWrapper>
+            <TabContainerView>
+              <Tabs
+                onValueChange={setSelectedConfigTab}
+                value={selectedTab || EDITOR_TABS.QUERY}
+              >
+                <TabsListWrapper>
+                  <TabsList>
+                    <Tab
+                      data-testid={`t--query-editor-` + EDITOR_TABS.QUERY}
+                      value={EDITOR_TABS.QUERY}
+                    >
+                      Query
+                    </Tab>
+                    <Tab
+                      data-testid={`t--query-editor-` + EDITOR_TABS.SETTINGS}
+                      value={EDITOR_TABS.SETTINGS}
+                    >
+                      Settings
+                    </Tab>
+                  </TabsList>
+                </TabsListWrapper>
+                <TabPanelWrapper
+                  className="tab-panel"
+                  value={EDITOR_TABS.QUERY}
                 >
-                  <TabsListWrapper>
-                    <TabsList>
-                      <Tab
-                        data-testid={`t--query-editor-` + EDITOR_TABS.QUERY}
-                        value={EDITOR_TABS.QUERY}
-                      >
-                        Query
-                      </Tab>
-                      <Tab
-                        data-testid={`t--query-editor-` + EDITOR_TABS.SETTINGS}
-                        value={EDITOR_TABS.SETTINGS}
-                      >
-                        Settings
-                      </Tab>
-                    </TabsList>
-                  </TabsListWrapper>
-                  <TabPanelWrapper
-                    className="tab-panel"
-                    value={EDITOR_TABS.QUERY}
+                  <SettingsWrapper
+                    data-testid={`t--action-form-${plugin?.type}`}
                   >
-                    <SettingsWrapper
-                      data-testid={`t--action-form-${plugin?.type}`}
-                    >
-                      <FormRender
-                        editorConfig={editorConfig}
-                        formData={props.formData}
-                        formEvaluationState={props.formEvaluationState}
-                        formName={formName}
-                        uiComponent={uiComponent}
-                      />
-                    </SettingsWrapper>
-                  </TabPanelWrapper>
-                  <TabPanelWrapper value={EDITOR_TABS.SETTINGS}>
-                    <SettingsWrapper>
-                      <ActionSettings
-                        actionSettingsConfig={settingConfig}
-                        formName={formName}
-                      />
-                    </SettingsWrapper>
-                  </TabPanelWrapper>
-                </Tabs>
-                {documentationLink && (
-                  <Tooltip
-                    content={createMessage(DOCUMENTATION_TOOLTIP)}
-                    placement="top"
+                    <FormRender
+                      editorConfig={editorConfig}
+                      formData={props.formData}
+                      formEvaluationState={props.formEvaluationState}
+                      formName={formName}
+                      uiComponent={uiComponent}
+                    />
+                  </SettingsWrapper>
+                </TabPanelWrapper>
+                <TabPanelWrapper value={EDITOR_TABS.SETTINGS}>
+                  <SettingsWrapper>
+                    <ActionSettings
+                      actionSettingsConfig={settingConfig}
+                      formName={formName}
+                    />
+                  </SettingsWrapper>
+                </TabPanelWrapper>
+              </Tabs>
+              {documentationLink && (
+                <Tooltip
+                  content={createMessage(DOCUMENTATION_TOOLTIP)}
+                  placement="top"
+                >
+                  <DocumentationButton
+                    className="t--datasource-documentation-link"
+                    kind="tertiary"
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      handleDocumentationClick();
+                    }}
+                    size="sm"
+                    startIcon="book-line"
                   >
-                    <DocumentationButton
-                      className="t--datasource-documentation-link"
-                      kind="tertiary"
-                      onClick={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                        handleDocumentationClick();
-                      }}
-                      size="sm"
-                      startIcon="book-line"
-                    >
-                      {createMessage(DOCUMENTATION)}
-                    </DocumentationButton>
-                  </Tooltip>
-                )}
-              </TabContainerView>
-              <QueryDebuggerTabs
-                actionName={actionName}
-                actionResponse={actionResponse}
-                actionSource={actionSource}
-                currentActionConfig={currentActionConfig}
-                isRunning={isRunning}
-                onRunClick={onRunClick}
-                runErrorMessage={runErrorMessage}
-                showSchema={showSchema}
-              />
-              <RunHistory />
-            </SecondaryWrapper>
-          </div>
-          <ActionRightPane
-            additionalSections={actionRightPaneAdditionSections}
-          />
-        </Wrapper>
-      </QueryFormContainer>
-    </>
+                    {createMessage(DOCUMENTATION)}
+                  </DocumentationButton>
+                </Tooltip>
+              )}
+            </TabContainerView>
+            <QueryDebuggerTabs
+              actionName={actionName}
+              actionResponse={actionResponse}
+              actionSource={actionSource}
+              currentActionConfig={currentActionConfig}
+              isRunning={isRunning}
+              onRunClick={onRunClick}
+              runErrorMessage={runErrorMessage}
+              showSchema={showSchema}
+            />
+            <RunHistory />
+          </SecondaryWrapper>
+        </div>
+        <ActionRightPane additionalSections={actionRightPaneAdditionSections} />
+      </Wrapper>
+    </QueryFormContainer>
   );
 }

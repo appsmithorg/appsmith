@@ -7,7 +7,7 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getTypographyByKey } from "@appsmith/ads-old";
 import type { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
-import { DEBUGGER_TAB_KEYS } from "./helpers";
+import { DEBUGGER_TAB_KEYS } from "./constants";
 import type { FieldEntityInformation } from "../CodeEditor/EditorConfig";
 import { Button } from "@appsmith/ads";
 

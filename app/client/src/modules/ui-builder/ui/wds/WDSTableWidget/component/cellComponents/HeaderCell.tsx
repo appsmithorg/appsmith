@@ -3,7 +3,15 @@ import React, { useCallback, memo } from "react";
 
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { isColumnTypeEditable } from "modules/ui-builder/ui/wds/WDSTableWidget/widget/utilities";
-import { Flex, Icon, IconButton, Menu, MenuTrigger, Text } from "@appsmith/wds";
+import {
+  Flex,
+  Icon,
+  IconButton,
+  Menu,
+  MenuItem,
+  MenuTrigger,
+  Text,
+} from "@appsmith/wds";
 
 interface HeaderProps {
   canFreezeColumn?: boolean;
@@ -192,13 +200,16 @@ const HeaderCellComponent = (props: HeaderProps) => {
               size="small"
               variant="ghost"
             />
-            <Menu
-              items={[
+            <Menu onAction={onActionOnMenu}>
+              {[
                 { id: "sort-asc", label: "Sort column ascending" },
                 { id: "sort-desc", label: "Sort column descending" },
-              ]}
-              onAction={onActionOnMenu}
-            />
+              ].map((item) => (
+                <MenuItem key={item.id} textValue={item.label}>
+                  {item.label}
+                </MenuItem>
+              ))}
+            </Menu>
           </MenuTrigger>
         </Flex>
       )}
