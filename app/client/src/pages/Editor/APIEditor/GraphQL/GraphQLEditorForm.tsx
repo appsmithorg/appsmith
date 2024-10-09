@@ -42,7 +42,6 @@ function GraphQLEditorForm(props: Props) {
         <Pagination
           actionName={actionName}
           formName={FORM_NAME}
-          onTestClick={props.onRunClick}
           paginationType={props.paginationType}
           query={props.actionConfigurationBody}
         />
