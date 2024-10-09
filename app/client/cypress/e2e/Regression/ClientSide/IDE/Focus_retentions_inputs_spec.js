@@ -16,8 +16,8 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 
 describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
   before("Import the test application", () => {
-    homePage.CreateNewWorkspace("MaintainContext&Focus", true);
-    homePage.ImportApp("ContextSwitching.json", "MaintainContext");
+    homePage.NavigateToHome();
+    homePage.ImportApp("ContextSwitching.json");
     cy.wait("@importNewApplication").then((interception) => {
       agHelper.Sleep();
       const { isPartialImport } = interception.response.body.data;
@@ -64,6 +64,16 @@ describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
     PageLeftPane.selectItem("SQL_Query");
     cy.wait(1000);
     cy.focusCodeInput(".t--actionConfiguration\\.body", { ch: 5, line: 0 });
+    cy.wait("@saveAction");
+
+    PageLeftPane.selectItem("S3_Query");
+
+    cy.wait(1000);
+    cy.focusCodeInput(".t--actionConfiguration\\.formData\\.bucket\\.data", {
+      ch: 2,
+      line: 0,
+    });
+    cy.wait(1000);
     cy.wait("@saveAction");
 
     PageLeftPane.switchSegment(PagePaneSegment.JS);
@@ -137,6 +147,13 @@ describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
       ch: 5,
       line: 0,
     });
+
+    PageLeftPane.selectItem("S3_Query");
+
+    cy.assertCursorOnCodeInput(
+      ".t--actionConfiguration\\.formData\\.bucket\\.data",
+      { ch: 2, line: 0 },
+    );
 
     PageLeftPane.switchSegment(PagePaneSegment.JS);
 
