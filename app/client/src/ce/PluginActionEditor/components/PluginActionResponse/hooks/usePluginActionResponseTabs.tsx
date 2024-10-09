@@ -71,7 +71,7 @@ function usePluginActionResponseTabs() {
             actionResponse={actionResponse}
             isRunDisabled={false}
             isRunning={false}
-            onRunClick={() => handleRunClick()}
+            onRunClick={handleRunClick}
             responseTabHeight={responseTabHeight}
             theme={EditorTheme.LIGHT}
           />
@@ -86,7 +86,7 @@ function usePluginActionResponseTabs() {
             isRunDisabled={false}
             isRunning={false}
             onDebugClick={noop}
-            onRunClick={() => handleRunClick()}
+            onRunClick={handleRunClick}
           />
         ),
       },
@@ -133,7 +133,7 @@ function usePluginActionResponseTabs() {
           actionSource={actionSource}
           currentActionConfig={action}
           isRunning={false}
-          onRunClick={() => handleRunClick()}
+          onRunClick={handleRunClick}
           runErrorMessage={""} // TODO
         />
       ),
