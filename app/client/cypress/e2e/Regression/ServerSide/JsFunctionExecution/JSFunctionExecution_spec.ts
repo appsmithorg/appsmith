@@ -584,6 +584,18 @@ return "yes";`;
         action: "Delete",
         entityType: entityItems.JSObject,
       });
+      it("11. Should throw an error when JS Object is empty", () => {
+        const jsObjectEmptyToastMessage =
+          "JS object must contain 'export default'.";
+        jsEditor.CreateJSObject(` `, {
+          paste: true,
+          completeReplace: true,
+          toRun: false,
+          prettify: false,
+        });
+
+        agHelper.AssertContains(jsObjectEmptyToastMessage);
+      });
     });
   },
 );
