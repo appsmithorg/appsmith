@@ -27,7 +27,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
           placement="topRight"
           showArrow={false}
         >
-          <Button kind="primary" onClick={() => handleRunClick} size="sm">
+          <Button kind="primary" onClick={() => handleRunClick()} size="sm">
             Run
           </Button>
         </Tooltip>
