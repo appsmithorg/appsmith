@@ -15,6 +15,7 @@ export interface EditorType {
 
 export const editorType: EditorType = {
   [BUILDER_VIEWER_PATH_PREFIX]: EditorNames.APPLICATION,
+  [BUILDER_BASE_PATH_DEPRECATED]: EditorNames.APPLICATION,
 };
 
 export const useEditorType = (path: string) => {
