@@ -18,7 +18,7 @@ import {
   NEW_API_BUTTON_TEXT,
   NEW_QUERY_BUTTON_TEXT,
 } from "ee/constants/messages";
-import { createNewQueryAction } from "actions/apiPaneActions";
+import { createNewQueryAction } from "actions/pluginActionActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";

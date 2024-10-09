@@ -1,12 +1,7 @@
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   locators,
-  entityExplorer,
   propPane,
-  draggableWidgets,
-  apiPage,
-  entityItems,
   homePage,
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
@@ -15,12 +10,6 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Property Pane Suggestions", { tags: ["@tag.JS"] }, () => {
-  before(() => {
-    featureFlagIntercept({
-      ab_learnability_ease_of_initial_use_enabled: true,
-    });
-  });
-
   before(function () {
     agHelper.ClearLocalStorageCache();
   });

@@ -3,6 +3,9 @@ import {
   propPane,
   table,
 } from "../../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
@@ -16,6 +19,7 @@ describe(
 
     it("1.1. should test that allow Add new row property is present", () => {
       cy.openPropertyPane("tablewidgetv2");
+      propPane.ExpandIfCollapsedSection("addingarow");
       cy.get(".t--property-control-allowaddingarow").should("exist");
       cy.get(".t--property-control-allowaddingarow input").should("exist");
       cy.get(".t--add-new-row").should("not.exist");
@@ -150,7 +154,12 @@ describe(
 
     it("1.7. should not hide the header section when add new row button is enabled and another header element is disabled", () => {
       cy.get(".t--discard-new-row").click({ force: true });
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       //disable all header widgets for the table
+      propPane.ExpandIfCollapsedSection("general");
+      propPane.ExpandIfCollapsedSection("addingarow");
+      propPane.ExpandIfCollapsedSection("search\\&filters");
+      propPane.ExpandIfCollapsedSection("pagination");
       [
         "Show pagination",
         "Allow searching",

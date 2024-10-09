@@ -1,4 +1,4 @@
-import { ComboBox } from "@appsmith/wds";
+import { ComboBox, ListBoxItem } from "@appsmith/wds";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import isNumber from "lodash/isNumber";
@@ -20,7 +20,6 @@ import {
 } from "../config";
 import { validateInput } from "./helpers";
 import type { WDSComboBoxWidgetProps } from "./types";
-import type { ComboBoxItem } from "@appsmith/wds/src/components/ComboBox/src/types";
 
 const isTrueObject = (item: unknown): item is Record<string, unknown> => {
   return Object.prototype.toString.call(item) === "[object Object]";
@@ -143,9 +142,7 @@ class WDSComboBoxWidget extends BaseWidget<
     commitBatchMetaUpdates();
   };
 
-  optionsToItems = (
-    options: WDSComboBoxWidgetProps["options"],
-  ): ComboBoxItem[] => {
+  optionsToItems = (options: WDSComboBoxWidgetProps["options"]) => {
     if (Array.isArray(options)) {
       const items = options.map((option) => ({
         label: option["label"] as string,
@@ -179,11 +176,16 @@ class WDSComboBoxWidget extends BaseWidget<
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
         isInvalid={validation.validationStatus === "invalid"}
-        items={this.optionsToItems(options)}
         onSelectionChange={this.handleSelectionChange}
         placeholder={placeholderText}
         selectedKey={selectedOptionValue}
-      />
+      >
+        {this.optionsToItems(options).map((option) => (
+          <ListBoxItem key={option.id} textValue={option.label}>
+            {option.label}
+          </ListBoxItem>
+        ))}
+      </ComboBox>
     );
   }
 }

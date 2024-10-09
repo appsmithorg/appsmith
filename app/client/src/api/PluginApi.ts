@@ -13,6 +13,7 @@ export enum UIComponentTypes {
   UQIDbEditorForm = "UQIDbEditorForm",
   ApiEditorForm = "ApiEditorForm",
   JsEditorForm = "JsEditorForm",
+  GraphQLEditorForm = "GraphQLEditorForm",
 }
 
 export enum DatasourceComponentTypes {

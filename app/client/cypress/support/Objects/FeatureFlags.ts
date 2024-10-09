@@ -4,7 +4,6 @@ import produce from "immer";
 
 const defaultFlags = {
   release_side_by_side_ide_enabled: true,
-  ab_learnability_discoverability_collapse_all_except_data_enabled: false, // remove this flag from here when it's removed from code
   rollout_remove_feature_walkthrough_enabled: false, // remove this flag from here when it's removed from code
 };
 

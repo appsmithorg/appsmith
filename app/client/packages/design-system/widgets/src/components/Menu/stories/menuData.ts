@@ -1,6 +1,4 @@
-import type { MenuItem } from "../src";
-
-export const menuItems: MenuItem[] = [
+export const menuItems = [
   { id: 1, label: "Aerospace" },
   { id: 2, label: "Mechanical" },
   { id: 3, label: "Civil" },
@@ -12,7 +10,7 @@ export const menuItems: MenuItem[] = [
   { id: 9, label: "Electrical" },
 ];
 
-export const submenusItems: MenuItem[] = [
+export const submenusItems = [
   { id: 1, label: "Level 1-1" },
   {
     id: 2,
@@ -37,7 +35,7 @@ export const submenusItems: MenuItem[] = [
   { id: 8, label: "Level 1-8" },
 ];
 
-export const submenusItemsWithIcons: MenuItem[] = [
+export const submenusItemsWithIcons = [
   { id: 1, label: "Level 1-1", icon: "galaxy" },
   {
     id: 2,
