@@ -60,7 +60,9 @@ export interface UpdatePropertyArgs {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any;
 }
-export type BlueprintOperationAddActionFn = () => Generator;
+export type BlueprintOperationAddActionFn = (
+  widget: WidgetProps & { children?: WidgetProps[] },
+) => Generator;
 export type BlueprintOperationModifyPropsFn = (
   widget: WidgetProps & { children?: WidgetProps[] },
   widgets: { [widgetId: string]: FlattenedWidgetProps },
@@ -118,7 +120,16 @@ export function* executeWidgetBlueprintOperations(
     switch (operation.type) {
       case BlueprintOperationTypes.ADD_ACTION:
         if (operation.fn) {
-          yield (operation.fn as BlueprintOperationAddActionFn)();
+          const updatePropertyPayloads: UpdatePropertyArgs[] | undefined =
+            yield (operation.fn as BlueprintOperationAddActionFn)(
+              widget as WidgetProps & { children?: WidgetProps[] },
+            );
+
+          updatePropertyPayloads &&
+            updatePropertyPayloads.forEach((params: UpdatePropertyArgs) => {
+              widgets[params.widgetId][params.propertyName] =
+                params.propertyValue;
+            });
         }
 
         break;

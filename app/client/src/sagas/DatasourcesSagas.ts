@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { objectKeys } from "@appsmith/utils";
 import {
   all,
   call,
@@ -36,6 +35,7 @@ import {
 } from "selectors/editorSelectors";
 import {
   type DatasourceGroupByPluginCategory,
+  getActions,
   getDatasourceByPluginId,
 } from "ee/selectors/entitiesSelector";
 import {
@@ -96,6 +96,8 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
 } from "ee/constants/forms";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
+import { createActionRequestSaga } from "./ActionSagas";
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { GetFormData } from "selectors/formSelectors";
@@ -184,7 +186,6 @@ import { executeGoogleApi } from "./loadGoogleApi";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { getCurrentModuleId } from "ee/selectors/modulesSelector";
 import type { ApplicationPayload } from "entities/Application";
-import { createActionRequest } from "../actions/pluginActionActions";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -597,7 +598,7 @@ function* updateDatasourceSaga(
       //So we need to update the other storages with the old values.
       // TODO server should send ony the updated storage or whole datasource.
       if (!isNewStorage) {
-        objectKeys(datasourcePayload.datasourceStorages).forEach(
+        Object.keys(datasourcePayload.datasourceStorages).forEach(
           (storageId: string) => {
             if (storageId !== currentEnvironment) {
               response.data.datasourceStorages[storageId] =
@@ -1129,14 +1130,14 @@ export function* createOrUpdateDataSourceWithAction(
     plugin.id,
   );
   const pageId: string = yield select(getCurrentPageId);
-  const payload: Datasource = yield getInitialDatasourcePayload(
+  const datasourcePayload: Datasource = yield getInitialDatasourcePayload(
     plugin.id,
     plugin.type,
   );
 
   if (aiDatasources.length === 0) {
     yield createDatasourceFromFormSaga({
-      payload,
+      payload: datasourcePayload,
       type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
     });
   }
@@ -1146,18 +1147,25 @@ export function* createOrUpdateDataSourceWithAction(
     plugin.id,
   );
 
-  yield put(
-    createActionRequest({
-      pageId,
-      pluginId: updatedAiDatasources[0].pluginId,
-      datasource: {
-        id: updatedAiDatasources[0].id,
-      },
-      actionConfiguration: {
-        formData,
-      },
-    }),
-  );
+  const actionPayload = {
+    pageId,
+    pluginId: updatedAiDatasources[0].pluginId,
+    datasource: {
+      id: updatedAiDatasources[0].id,
+    },
+    actionConfiguration: {
+      formData,
+    },
+  };
+
+  yield createActionRequestSaga({
+    payload: actionPayload,
+    type: ReduxActionTypes.CREATE_ACTION_REQUEST,
+  });
+
+  const actions: ActionDataState = yield select(getActions);
+
+  return actions[actions.length - 1];
 }
 
 export function* createDatasourceFromFormSaga(

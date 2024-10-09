@@ -5,6 +5,8 @@ import {
 } from "WidgetProvider/constants";
 import { createOrUpdateDataSourceWithAction } from "sagas/DatasourcesSagas";
 import { PluginPackageName } from "entities/Action";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export const defaultsConfig = {
   isVisible: true,
@@ -18,13 +20,21 @@ export const defaultsConfig = {
     operations: [
       {
         type: BlueprintOperationTypes.ADD_ACTION,
-        fn: function* () {
-          yield createOrUpdateDataSourceWithAction(
+        fn: function* (widget: WidgetProps & { children?: WidgetProps[] }) {
+          const action: ActionData = yield createOrUpdateDataSourceWithAction(
             PluginPackageName.APPSMITH_AI,
             {
               usecase: { data: "TEXT_CLASSIFY" },
             },
           );
+
+          return [
+            {
+              widgetId: widget.widgetId,
+              propertyName: "query",
+              propertyValue: action.config.name,
+            },
+          ];
         },
       },
     ],
