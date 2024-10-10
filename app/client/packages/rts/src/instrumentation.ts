@@ -16,7 +16,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
 const provider = new NodeTracerProvider({
   resource: new Resource({
     [ATTR_DEPLOYMENT_NAME]: `${process.env.APPSMITH_DEPLOYMENT_NAME || "self-hosted"}`,
-    [ATTR_SERVICE_INSTANCE_ID]: `${process.env.NEW_RELIC_METADATA_KUBERNETES_POD_NAME || "appsmith-0"}`,
+    [ATTR_SERVICE_INSTANCE_ID]: `${process.env.HOSTNAME || "appsmith-0"}`,
     [ATTR_SERVICE_NAME]: "rts",
   }),
 });
