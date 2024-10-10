@@ -87,7 +87,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       padding-right: 4px;
       text-overflow: ellipsis;
       overflow: hidden;
-      white-space: nowrap;
+      white-space: pre-wrap;
     }
     .debugger-entity {
       color: var(--ads-v2-color-fg-emphasis);
@@ -302,7 +302,9 @@ function LogItem(props: LogItemProps) {
               className="debugger-label t--debugger-log-message cursor-text"
               onClick={(e) => e.stopPropagation()}
             >
-              {props.text}
+              {props.category === LOG_CATEGORY.PLATFORM_GENERATED
+                ? props.text
+                : props.logData}
             </span>
 
             {props.timeTaken && (
