@@ -10,7 +10,7 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ValidationUtils;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.EmailService;
@@ -42,7 +42,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final SessionUserService sessionUserService;
     private final PermissionGroupService permissionGroupService;
     private final WorkspaceService workspaceService;
-    private final UserRepository userRepository;
+    private final UserRepositoryCake userRepository;
     private final AnalyticsService analyticsService;
     private final UserService userService;
     private final PermissionGroupPermission permissionGroupPermission;
@@ -55,7 +55,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
             SessionUserService sessionUserService,
             PermissionGroupService permissionGroupService,
             WorkspaceService workspaceService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             AnalyticsService analyticsService,
             UserService userService,
             PermissionGroupPermission permissionGroupPermission,
@@ -240,7 +240,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
 
         return Flux.fromIterable(defaultPermissionGroups)
                 .map(permissionGroup -> {
-                    if (permissionGroup.getAssignedToUserIds().contains(user.getId())) {
+                    final Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
+                    if (assignedToUserIds != null && assignedToUserIds.contains(user.getId())) {
                         throw new AppsmithException(
                                 AppsmithError.USER_ALREADY_EXISTS_IN_WORKSPACE,
                                 user.getUsername(),

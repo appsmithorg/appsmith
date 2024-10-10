@@ -1,6 +1,7 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.server.constants.Appsmith;
+import com.appsmith.server.domains.Config;
 import com.appsmith.server.helpers.InstanceConfigHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.ConfigService;
@@ -16,6 +17,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 import static java.lang.Boolean.TRUE;
 
@@ -46,6 +48,8 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
 
         Mono<Void> registrationAndRtsCheckMono = configService
                 .getByName(Appsmith.APPSMITH_REGISTERED)
+                // TODO: This logic when the config is missing, is very twisted now. Revisit this please!
+                .onErrorReturn(Config.fromMap(Appsmith.APPSMITH_REGISTERED, Map.of("value", false)))
                 .filter(config -> TRUE.equals(config.getConfig().get("value")))
                 .switchIfEmpty(Mono.defer(() -> instanceConfigHelper.registerInstance()))
                 .onErrorResume(errorSignal -> {
@@ -54,10 +58,7 @@ public class InstanceConfig implements ApplicationListener<ApplicationReadyEvent
                 })
                 .then(instanceConfigHelper.performRtsHealthCheck());
 
-        Mono<?> startupProcess = instanceConfigHelper
-                .checkMongoDBVersion()
-                .flatMap(ignored -> instanceConfigHelper.checkInstanceSchemaVersion())
-                .flatMap(signal -> registrationAndRtsCheckMono)
+        Mono<?> startupProcess = registrationAndRtsCheckMono
                 // Prefill the server cache with anonymous user permission group ids.
                 .then(cacheableRepositoryHelper.preFillAnonymousUserPermissionGroupIdsCache())
                 // Add cold publisher as we have dependency on the instance registration

@@ -14,8 +14,10 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -48,7 +50,8 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValues
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
-public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionRepository, ActionCollection, String>
+public class ActionCollectionServiceCEImpl
+        extends BaseService<ActionCollectionRepository, ActionCollectionRepositoryCake, ActionCollection, String>
         implements ActionCollectionServiceCE {
 
     private final NewActionService newActionService;
@@ -61,7 +64,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     @Autowired
     public ActionCollectionServiceCEImpl(
             Validator validator,
-            ActionCollectionRepository repository,
+            ActionCollectionRepository repositoryDirect,
+            ActionCollectionRepositoryCake repository,
             AnalyticsService analyticsService,
             NewActionService newActionService,
             PolicyGenerator policyGenerator,
@@ -70,7 +74,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             ActionPermission actionPermission,
             ObservationRegistry observationRegistry) {
 
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.newActionService = newActionService;
         this.policyGenerator = policyGenerator;
         this.applicationService = applicationService;
@@ -290,10 +294,11 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                     return dbActionCollection;
                 })
                 .flatMap(actionCollection -> this.update(id, actionCollection))
-                .flatMap(repository::setUserPermissionsInObject)
+                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                 .flatMap(actionCollection -> this.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> this.populateActionCollectionByViewMode(
-                                actionCollection.getUnpublishedCollection(), false)));
+                                actionCollection.getUnpublishedCollection(), false))); // */
     }
 
     @Override
@@ -348,7 +353,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
                     return modifiedActionCollectionMono;
                 })
-                .flatMap(updatedAction -> generateActionCollectionByViewMode(updatedAction, false));
+                .flatMap(updatedAction -> generateActionCollectionByViewMode(updatedAction, false)); // */
     }
 
     @Override
@@ -456,7 +461,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                 .collectList()
                 .then(repository.archive(actionCollection).thenReturn(actionCollection))
                 .flatMap(deletedActionCollection -> analyticsService.sendDeleteEvent(
-                        deletedActionCollection, getAnalyticsProperties(deletedActionCollection)));
+                        deletedActionCollection, getAnalyticsProperties(deletedActionCollection))); // */
     }
 
     @Override
@@ -536,11 +541,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         Set<Policy> existingPolicies =
                 actionCollection.getPolicies() == null ? Set.of() : actionCollection.getPolicies();
         existingPolicies.forEach(policy -> {
-            Policy actionPolicy = Policy.builder()
-                    .permission(policy.getPermission())
-                    .permissionGroups(policy.getPermissionGroups())
-                    .build();
-
+            Policy actionPolicy = new Policy();
+            actionPolicy.setPermission(policy.getPermission());
+            actionPolicy.setPermissionGroups(policy.getPermissionGroups());
             actionCollectionPolicies.add(actionPolicy);
         });
 
@@ -584,9 +587,12 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                 }
                                 // If the base collection is not set then current collection will be the default one
                                 savedActionCollection.setBaseId(savedActionCollection.getId());
+                                // With PG, this `save` method is returning a different object than what was passed
+                                // to it.
                                 return this.save(savedActionCollection);
                             })
-                            .flatMap(repository::setUserPermissionsInObject)
+                            .zipWith(ReactiveContextUtils.getCurrentUser())
+                            .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                             .cache();
 
                     return actionCollectionMono
@@ -603,7 +609,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                             .flatMap(tuple1 -> {
                                 final List<ActionDTO> actionDTOList = tuple1.getT1();
                                 final ActionCollection actionCollection1 = tuple1.getT2();
-                                return generateActionCollectionByViewMode(actionCollection, false)
+                                return generateActionCollectionByViewMode(actionCollection1, false)
                                         .flatMap(actionCollectionDTO -> splitValidActionsByViewMode(
                                                 actionCollection1.getUnpublishedCollection(), actionDTOList, false));
                             });
@@ -629,7 +635,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         return Flux.fromIterable(actionCollectionList)
                 .flatMap(this::validateActionCollection)
                 .collectList()
-                .flatMap(repository::bulkInsert);
+                .flatMap(items -> repository.bulkInsert(repository, items));
     }
 
     @Override
@@ -637,7 +643,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         return Flux.fromIterable(actionCollectionList)
                 .flatMap(this::validateActionCollection)
                 .collectList()
-                .flatMap(repository::bulkUpdate);
+                .flatMap(items -> repository.bulkUpdate(repository, items));
     }
 
     @Override

@@ -343,7 +343,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         e -> {
                             log.debug("Error while retrieving access token: ", e);
                             return this.getPageRedirectUrl(state, "appsmith_error");
-                        });
+                        }); // */
     }
 
     private Mono<String> getPageRedirectUrl(String state, String error) {
@@ -378,7 +378,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 })
                 .onErrorResume(e -> Mono.just(redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + "?response_status="
-                        + responseStatus + "&view_mode=true"));
+                        + responseStatus + "&view_mode=true")); // */
     }
 
     @Override
@@ -523,7 +523,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             return datasourceStorageService
                                     .save(datasourceStorage)
                                     .then(Mono.error(error));
-                        }));
+                        })); // */
     }
 
     /**
@@ -717,7 +717,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                             return datasourceStorageService
                                     .save(datasourceStorage)
                                     .then(Mono.error(error));
-                        }));
+                        })); // */
     }
 
     public Mono<DatasourceStorage> refreshAuthentication(DatasourceStorage datasourceStorage) {

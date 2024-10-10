@@ -5,25 +5,26 @@ import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomApplicationRepository;
 import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ApplicationRepositoryCE extends BaseRepository<Application, String>, CustomApplicationRepository {
 
-    Flux<Application> findByIdIn(List<String> ids);
+    Optional<Application> findByName(String name);
 
-    Flux<Application> findByWorkspaceId(String workspaceId);
+    List<Application> findByIdIn(List<String> ids);
 
-    Mono<Long> countByWorkspaceId(String workspaceId);
+    List<Application> findByWorkspaceId(String workspaceId);
 
-    Flux<IdOnly> findIdsByWorkspaceId(String workspaceId);
+    Optional<Long> countByWorkspaceId(String workspaceId);
 
-    Flux<Application> findByClonedFromApplicationId(String clonedFromApplicationId);
+    List<IdOnly> findIdsByWorkspaceId(String workspaceId);
 
-    Mono<Long> countByDeletedAtNull();
+    List<Application> findByClonedFromApplicationId(String clonedFromApplicationId);
 
-    Mono<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
+    Optional<Long> countByDeletedAtNull();
+
+    Optional<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
 }

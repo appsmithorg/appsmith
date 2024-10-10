@@ -11,7 +11,7 @@ import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.GitDeployKeysRepository;
+import com.appsmith.server.repositories.cakes.GitDeployKeysRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.GitArtifactHelper;
 import com.appsmith.server.services.SessionUserService;
@@ -22,14 +22,13 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @Service
 public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl implements CommonGitServiceCECompatible {
 
     public CommonGitServiceCECompatibleImpl(
-            GitDeployKeysRepository gitDeployKeysRepository,
+            GitDeployKeysRepositoryCake gitDeployKeysRepository,
             GitPrivateRepoHelper gitPrivateRepoHelper,
             CommonGitFileUtils commonGitFileUtils,
             GitRedisUtils gitRedisUtils,
@@ -37,7 +36,6 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
             UserDataService userDataService,
             UserService userService,
             EmailConfig emailConfig,
-            TransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ObservationRegistry observationRegistry,
             WorkspaceService workspaceService,
@@ -58,7 +56,6 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
                 userDataService,
                 userService,
                 emailConfig,
-                transactionalOperator,
                 analyticsService,
                 observationRegistry,
                 workspaceService,

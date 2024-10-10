@@ -13,12 +13,12 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -70,7 +70,7 @@ public class ActionCollectionCE_DTO {
     @JsonView({Views.Public.class, Git.class})
     PluginType pluginType;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @JsonView(Views.Public.class)
     Instant deletedAt;
 

@@ -19,12 +19,13 @@ import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Transient;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@EqualsAndHashCode
 @ToString
 @FieldNameConstants
 public class ActionCE_DTO implements Identifiable, Executable {
@@ -138,12 +140,12 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView({Views.Public.class, FromRequest.class})
     Documentation documentation;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @JsonView({Views.Public.class, FromRequest.class})
     Instant deletedAt = null;
 
     @Deprecated
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @JsonView({Views.Public.class, FromRequest.class})
     Instant archivedAt = null;
 
@@ -158,7 +160,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Internal.class)
     protected Instant createdAt;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @JsonView(Views.Public.class)
     protected Instant updatedAt;
 
@@ -179,12 +181,14 @@ public class ActionCE_DTO implements Identifiable, Executable {
      */
     @JsonView(Views.Internal.class)
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    @Transient
     public Set<Policy> getPolicies() {
         return policyMap == null ? null : Set.copyOf(policyMap.values());
     }
 
     @JsonView(Views.Internal.class)
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    @Transient
     public void setPolicies(Set<Policy> policies) {
         if (policies == null) {
             this.policyMap = null;
@@ -198,6 +202,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public String getValidName() {
         if (this.fullyQualifiedName == null) {
             return this.name;
@@ -208,6 +213,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public Set<String> getExecutableNames() {
         String validName = this.getValidName();
         HashSet<String> validNames = new HashSet<>();
@@ -223,6 +229,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
     }
 
     @Override
+    @Transient
     public EntityReferenceType getEntityReferenceType() {
         if (this.getPluginType() == null) {
             return null;
@@ -252,6 +259,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public Set<String> getSelfReferencingDataPaths() {
         if (this.getActionConfiguration() == null) {
             return new HashSet<>();
@@ -261,6 +269,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public ActionConfiguration getExecutableConfiguration() {
         return this.getActionConfiguration();
     }
@@ -273,18 +282,21 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public String getCompleteDynamicBindingPath(String fieldPath) {
         return this.getConfigurationPath() + "." + fieldPath;
     }
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public boolean hasExtractableBinding() {
         return PluginType.JS.equals(this.getPluginType());
     }
 
     @Override
     @JsonView({Views.Internal.class})
+    @Transient
     public DslExecutableDTO getDslExecutable() {
         DslExecutableDTO dslExecutableDTO = new DslExecutableDTO();
 
@@ -305,6 +317,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
     }
 
     @Override
+    @Transient
     public LayoutExecutableUpdateDTO createLayoutExecutableUpdateDTO() {
         LayoutExecutableUpdateDTO layoutExecutableUpdateDTO = Executable.super.createLayoutExecutableUpdateDTO();
         layoutExecutableUpdateDTO.setCollectionId(this.getCollectionId());
