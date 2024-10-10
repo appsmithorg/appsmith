@@ -14,7 +14,7 @@ import { getTypographyByKey } from "@appsmith/ads-old";
 const StyledButton = styled(Button)<{
   primaryColor: string;
   navColorStyle: NavigationSetting["colorStyle"];
-  varient?: ButtonVariant;
+  variant?: ButtonVariant;
   insideSidebar?: boolean;
   isMinimal?: boolean;
 }>`
@@ -87,7 +87,7 @@ const StyledButton = styled(Button)<{
   }}
 
   // Secondary button styles (such as the sign in button)
-  ${({ insideSidebar = false, navColorStyle, primaryColor, varient }) => {
+  ${({ insideSidebar = false, navColorStyle, primaryColor, variant }) => {
     const styles = getSignInButtonStyles(primaryColor, navColorStyle);
 
     let secondaryVarientStyles = `
@@ -123,7 +123,7 @@ const StyledButton = styled(Button)<{
       `;
     }
 
-    return varient === ButtonVariantTypes.SECONDARY
+    return variant === ButtonVariantTypes.SECONDARY
       ? secondaryVarientStyles
       : "";
   }}

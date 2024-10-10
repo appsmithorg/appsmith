@@ -166,12 +166,12 @@ export const getCustomHoverColor = (
  * Calculate Hover Color using the logic
  * https://www.notion.so/appsmith/Widget-hover-colors-165e54b304ca4e83a355e4e14d7aa3cb
  *
- * In case of transparent backgrounds (secondary or tertiary button varients)
+ * In case of transparent backgrounds (secondary or tertiary button variants)
  * 1. Find out the button color
  * 2. Calculate hover color by setting the button color to 10% transparency
  * 3. Add the calculated color to the background of the button
  *
- * In case of non transparent backgrounds (primary button varient), using the HSL color modal,
+ * In case of non transparent backgrounds (primary button variant), using the HSL color modal,
  * 1. If lightness > 35, decrease the lightness by 5 on hover
  * 2. If lightness <= 35, increase the lightness by 5 on hover
  *
