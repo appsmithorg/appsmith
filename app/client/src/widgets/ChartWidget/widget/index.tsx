@@ -225,43 +225,51 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 
   getWidgetView() {
     const errors = syntaxErrorsFromProps(this.props);
+    const isLoading = this.props.isLoading;
+    const hasErrors = errors.length > 0;
+    const isEmptyChart = emptyChartData(this.props);
 
-    if (errors.length == 0) {
-      if (emptyChartData(this.props)) {
-        return <EmptyChartData />;
-      } else {
-        return (
-          <Suspense fallback={<Skeleton />}>
-            <ChartComponent
-              allowScroll={this.props.allowScroll}
-              borderRadius={this.props.borderRadius}
-              boxShadow={this.props.boxShadow}
-              chartData={this.props.chartData}
-              chartName={this.props.chartName}
-              chartType={this.props.chartType}
-              customEChartConfig={this.props.customEChartConfig}
-              customFusionChartConfig={this.props.customFusionChartConfig}
-              dimensions={this.props}
-              fontFamily={ChartWidget.fontFamily}
-              hasOnDataPointClick={Boolean(this.props.onDataPointClick)}
-              isLoading={this.props.isLoading}
-              isVisible={this.props.isVisible}
-              key={this.props.widgetId}
-              labelOrientation={this.props.labelOrientation}
-              onDataPointClick={this.onDataPointClick}
-              primaryColor={this.props.accentColor ?? Colors.ROYAL_BLUE_2}
-              setAdaptiveYMin={this.props.setAdaptiveYMin}
-              showDataPointLabel={this.props.showDataPointLabel}
-              widgetId={this.props.widgetId}
-              xAxisName={this.props.xAxisName}
-              yAxisName={this.props.yAxisName}
-            />
-          </Suspense>
-        );
-      }
-    } else {
-      return <ChartErrorComponent error={errors[0]} />;
+    if (isEmptyChart && !isLoading) {
+      return <EmptyChartData />;
     }
+
+    if (isLoading || !hasErrors) {
+      return this.renderChartWithData();
+    }
+
+    // There are errors and chart is not loading
+    return <ChartErrorComponent error={errors[0]} />;
+  }
+
+  renderChartWithData() {
+    return (
+      <Suspense fallback={<Skeleton />}>
+        <ChartComponent
+          allowScroll={this.props.allowScroll}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          chartData={this.props.chartData}
+          chartName={this.props.chartName}
+          chartType={this.props.chartType}
+          customEChartConfig={this.props.customEChartConfig}
+          customFusionChartConfig={this.props.customFusionChartConfig}
+          dimensions={this.props}
+          fontFamily={ChartWidget.fontFamily}
+          hasOnDataPointClick={Boolean(this.props.onDataPointClick)}
+          isLoading={this.props.isLoading}
+          isVisible={this.props.isVisible}
+          key={this.props.widgetId}
+          labelOrientation={this.props.labelOrientation}
+          onDataPointClick={this.onDataPointClick}
+          primaryColor={this.props.accentColor ?? Colors.ROYAL_BLUE_2}
+          setAdaptiveYMin={this.props.setAdaptiveYMin}
+          showDataPointLabel={this.props.showDataPointLabel}
+          widgetId={this.props.widgetId}
+          xAxisName={this.props.xAxisName}
+          yAxisName={this.props.yAxisName}
+        />
+      </Suspense>
+    );
   }
 }
 
