@@ -162,7 +162,7 @@
     "node-forge": "^1.3.0",
     "object-hash": "^3.0.0",
     "openai": "^4.64.0",
-    "path-to-regexp": "^6.3.0",
+    "path-to-regexp": "^8.0.0",
     "popper.js": "^1.15.0",
     "prismjs": "^1.27.0",
     "proxy-memoize": "^1.2.0",
