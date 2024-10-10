@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Text } from "./Text";
 import type { Meta, StoryObj } from "@storybook/react";
 
@@ -25,15 +25,17 @@ export const EditableTextStory: Story = {
   },
   render: function Render(args) {
     const [text, setText] = React.useState(args.children);
+    const inputProps = useMemo(
+      () => ({
+        onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+          setText(e.target.value);
+        },
+      }),
+      [],
+    );
 
     return (
-      <Text
-        {...args}
-        onChange={(e) => {
-          // @ts-expect-error type error
-          setText(e.target.value);
-        }}
-      >
+      <Text inputProps={inputProps} {...args}>
         {text}
       </Text>
     );

@@ -125,7 +125,7 @@ export const StyledText = styled.span<{
   isBold?: boolean;
   isItalic?: boolean;
   isUnderlined?: boolean;
-  isStriked?: boolean;
+  isStrikethrough?: boolean;
   isEditable?: boolean;
 }>`
   ${TypographyScales}
@@ -160,8 +160,8 @@ export const StyledText = styled.span<{
     text-decoration: underline;
   }
 
-  /* Striked style */
-  &[data-striked="true"] {
+  /* Strikethrough style */
+  &[data-strikethrough="true"] {
     text-decoration: line-through;
   }
 
@@ -191,10 +191,8 @@ export const StyledEditableInput = styled.input`
   border: 1px solid transparent;
   border-radius: var(--ads-v2-border-radius);
   outline: none;
-  padding: 0;
   margin: 0;
   position: absolute;
-  left: -3px;
   top: -3px;
   width: 100%;
   padding: var(--ads-v2-spaces-1);
@@ -205,6 +203,6 @@ export const StyledEditableInput = styled.input`
 
   &:focus,
   &:active {
-    border-color: var(--ads-v2-colors-control-field-default-border);
+    border-color: var(--ads-v2-colors-control-field-active-border);
   }
 `;

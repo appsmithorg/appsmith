@@ -37,3 +37,10 @@ export const TabSelectors: Record<
     itemUrlSelector: () => "",
   },
 };
+
+export const SCROLL_AREA_OPTIONS = {
+  overflow: {
+    x: "scroll",
+    y: "hidden",
+  },
+} as const;

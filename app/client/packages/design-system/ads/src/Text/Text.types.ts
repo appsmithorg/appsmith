@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type React from "react";
 
+/** Text style variant */
 export type TextKind =
   | "heading-xl"
   | "heading-l"
@@ -14,7 +15,14 @@ export type TextKind =
   | "action-s"
   | "code";
 
-// Text props
+/** All possible element types text can be rendered as, matches renderAs prop */
+export type RenderAsElement =
+  | HTMLHeadingElement
+  | HTMLLabelElement
+  | HTMLParagraphElement
+  | HTMLSpanElement;
+
+/** Text component props */
 export type TextProps = {
   /** to change the rendering component */
   renderAs?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "p" | "span" | "label";
@@ -32,17 +40,14 @@ export type TextProps = {
   isItalic?: boolean;
   /** whether the text is underlined or not */
   isUnderlined?: boolean;
-  /** whether the text is striked or not */
-  isStriked?: boolean;
+  /** whether the text is strikethrough or not */
+  isStrikethrough?: boolean;
   /** whether the text is editable or not */
   isEditable?: boolean;
-  /** onChange event for editable text */
-  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   /** input component props while isEditable is true */
-  inputProps?: Omit<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    "value" | "onChange"
-  >;
+  inputProps?: Omit<React.InputHTMLAttributes<HTMLInputElement>, "value">;
+  /** ref for input component */
+  inputRef?: React.RefObject<HTMLInputElement>;
 } & React.HTMLAttributes<HTMLLabelElement> &
   React.HTMLAttributes<HTMLHeadingElement> &
   React.HTMLAttributes<HTMLParagraphElement> &
