@@ -24,7 +24,7 @@ describe("Widget error state", { tags: ["@tag.Widget"] }, function () {
     //Check if the current value is shown in the debugger
 
     _.debuggerHelper.OpenDebugger();
-    cy.get("[data-testid=t--tab-ERROR]").click();
+    cy.get("[data-testid=t--tab-ERROR_TAB]").click();
     //This feature is disabled in updated error log - epic 17720
     // _.debuggerHelper.LogStateContains("Test");
   });
@@ -37,7 +37,7 @@ describe("Widget error state", { tags: ["@tag.Widget"] }, function () {
     cy.get(widgetLocators.buttonWidget).click();
 
     cy.get(".t--toast-debug-button").click();
-    cy.get("[data-testid='t--tab-ERROR']").should(
+    cy.get("[data-testid='t--tab-ERROR_TAB']").should(
       "have.attr",
       "aria-selected",
       "true",

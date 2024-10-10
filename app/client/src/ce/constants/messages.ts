@@ -247,6 +247,7 @@ export const FORK_APP = () => `Fork app`;
 export const SIGN_IN = () => `Sign in`;
 export const SHARE_APP = () => `Share app`;
 export const ALL_APPS = () => `All apps`;
+export const KNOW_MORE = () => "Know more";
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",

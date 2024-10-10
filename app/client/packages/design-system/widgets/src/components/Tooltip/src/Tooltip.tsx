@@ -1,7 +1,11 @@
 import React from "react";
+import {
+  TooltipRoot as HeadlessTooltip,
+  TooltipTrigger as HeadlessTooltipTrigger,
+} from "@appsmith/wds-headless";
 import type { TooltipOptions } from "@appsmith/wds-headless";
 
-import { TooltipRoot, TooltipContent, TooltipTrigger } from "./";
+import { TooltipContent } from "./TooltipContent";
 
 export type TooltipProps = {
   tooltip?: React.ReactNode;
@@ -14,9 +18,9 @@ export function Tooltip(props: TooltipProps) {
   if (!Boolean(tooltip)) return children;
 
   return (
-    <TooltipRoot {...rest}>
-      <TooltipTrigger>{children}</TooltipTrigger>
+    <HeadlessTooltip {...rest}>
+      <HeadlessTooltipTrigger>{children}</HeadlessTooltipTrigger>
       <TooltipContent>{tooltip}</TooltipContent>
-    </TooltipRoot>
+    </HeadlessTooltip>
   );
 }

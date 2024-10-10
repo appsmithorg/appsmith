@@ -1,21 +1,15 @@
 import React from "react";
+import { Form } from "react-aria-components";
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  Flex,
-  Icon,
-  SIZES,
-  Button,
-  Menu,
-  MenuTrigger,
-  TextInput,
-} from "@appsmith/wds";
+import { Flex, Icon, TextInput, Button } from "@appsmith/wds";
 
-/**
- * TextInput is a component that allows users to input text.
- */
 const meta: Meta<typeof TextInput> = {
-  component: TextInput,
   title: "WDS/Widgets/TextInput",
+  component: TextInput,
+  tags: ["autodocs"],
+  args: {
+    placeholder: "Write something...",
+  },
 };
 
 export default meta;
@@ -23,143 +17,99 @@ type Story = StoryObj<typeof TextInput>;
 
 export const Main: Story = {
   args: {
+    label: "Email",
     placeholder: "Write something...",
   },
 };
 
-export const Description: Story = {
+export const WithLabel: Story = {
   args: {
-    placeholder: "Description",
-    description: "This is a description",
+    label: "Email",
   },
 };
 
-export const Sizes: Story = {
-  render: () => (
-    <Flex alignItems="start" gap="spacing-4">
-      {Object.keys(SIZES)
-        .filter((size) => !["xSmall", "large"].includes(size))
-        .map((size) => (
-          <TextInput
-            key={size}
-            placeholder={size}
-            prefix={<Icon name="user" size={size as keyof typeof SIZES} />}
-            size={size}
-          />
-        ))}
-    </Flex>
-  ),
+export const WithContextualHelp: Story = {
+  args: {
+    label: "Email",
+    contextualHelp: "This is a contextual help",
+  },
 };
 
-export const PrefixAndSuffix: Story = {
-  render: () => (
+export const WithPrefixAndSuffix: Story = {
+  render: (args) => (
     <Flex direction="column" gap="spacing-4">
-      <TextInput placeholder="prefix" prefix="$" />
-      <TextInput placeholder="suffix" suffix="$" />
+      <TextInput {...args} suffix={<Icon name="user" size="medium" />} />
+      <TextInput {...args} prefix={<Icon name="user" size="medium" />} />
       <TextInput
-        placeholder="prefix and suffix"
-        prefix={<Icon name="user" />}
-        suffix={<Icon name="user" />}
-      />
-      <TextInput
-        placeholder="component as prefix"
-        prefix={
-          <MenuTrigger>
-            <Button
-              color="neutral"
-              icon="chevron-down"
-              size="small"
-              variant="ghost"
-            />
-            <Menu
-              disabledKeys={["cut"]}
-              items={[
-                { id: "copy", label: "Copy" },
-                { id: "cut", label: "Cut" },
-                { id: "paste", label: "Paste" },
-              ]}
-              onAction={(key) => alert(key)}
-            />
-          </MenuTrigger>
-        }
+        {...args}
+        prefix={<Icon name="user" size="medium" />}
+        suffix={<Icon name="user" size="medium" />}
       />
     </Flex>
   ),
 };
 
-/**
- * The icon button for input type password type occupies the same slot as the suffix and has priority.
- */
-export const TypePassword: Story = {
+export const Password: Story = {
   args: {
-    label: "Password",
-    placeholder: "Type Password",
     type: "password",
-  },
-};
-
-/**
- * Loading indicator for input occupies the same slot as the password icon and suffix and has priority.
- */
-
-export const Loading: Story = {
-  args: {
-    placeholder: "Loading",
-    isLoading: true,
+    label: "Password",
   },
 };
 
 export const Disabled: Story = {
   args: {
-    placeholder: "Disabled",
     isDisabled: true,
+    label: "Disabled",
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    isLoading: true,
+    label: "Loading",
+    placeholder: "Loading...",
   },
 };
 
 export const Readonly: Story = {
   args: {
-    label: "Readonly",
     isReadOnly: true,
+    label: "Readonly",
   },
 };
 
-export const Validation: Story = {
-  render: () => (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        alert("Form submitted");
-      }}
-    >
-      <Flex direction="column" gap="spacing-5" width="sizing-60">
-        <TextInput description="description" isRequired label="Validation" />
-        <Button type="submit">Submit</Button>
-      </Flex>
-    </form>
-  ),
-};
-
-export const RequiredIndicator: Story = {
-  render: () => (
-    <Flex direction="column" gap="spacing-4" width="100%">
-      <TextInput isRequired label="Required - Icon Indicator" />
+export const Size: Story = {
+  render: (args) => (
+    <Flex direction="column" gap="spacing-4">
       <TextInput
-        isRequired
-        label="Required - Label Indicator"
-        necessityIndicator="label"
+        {...args}
+        label="Small"
+        prefix={<Icon name="user" size="medium" />}
+        size="small"
       />
       <TextInput
-        label="Required - Label Indicator"
-        necessityIndicator="label"
+        {...args}
+        label="Medium"
+        prefix={<Icon name="user" size="medium" />}
+        size="medium"
       />
     </Flex>
   ),
 };
 
-export const ContextualHelp: Story = {
-  args: {
-    label: "Label",
-    placeholder: "Contextual Help Text",
-    contextualHelp: "This is a contextual help text",
-  },
+export const Validation: Story = {
+  render: (args) => (
+    <Form onSubmit={(e) => e.preventDefault()}>
+      <Flex direction="column" gap="spacing-3" width="sizing-60">
+        <TextInput
+          {...args}
+          errorMessage="Please enter a valid email address"
+          isRequired
+          label="Email"
+          type="email"
+        />
+        <Button type="submit">Submit</Button>
+      </Flex>
+    </Form>
+  ),
 };

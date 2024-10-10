@@ -1,8 +1,7 @@
-import type { LabelProps as HeadlessLabelProps } from "react-aria-components";
+import type { LabelProps as AriaLabelProps } from "react-aria-components";
 
-export interface LabelProps extends HeadlessLabelProps {
-  text?: string;
-  contextualHelp?: string;
+export type LabelProps = AriaLabelProps & {
+  contextualHelp?: React.ReactNode;
   isRequired?: boolean;
   isDisabled?: boolean;
-}
+};

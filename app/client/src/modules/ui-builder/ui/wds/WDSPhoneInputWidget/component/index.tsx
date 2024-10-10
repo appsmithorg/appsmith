@@ -23,6 +23,7 @@ export function PhoneInputComponent(props: PhoneInputComponentProps) {
       errorMessage={props.errorMessage}
       excludeFromTabOrder={props.excludeFromTabOrder}
       isDisabled={props.isDisabled}
+      isInvalid={props.validationStatus === "invalid"}
       isReadOnly={props.isReadOnly}
       isRequired={props.isRequired}
       label={props.label}
@@ -31,7 +32,6 @@ export function PhoneInputComponent(props: PhoneInputComponentProps) {
       onKeyDown={props.onKeyDown}
       placeholder={props.placeholder}
       prefix={prefix}
-      validationState={props.validationStatus}
       value={props.value}
     />
   );

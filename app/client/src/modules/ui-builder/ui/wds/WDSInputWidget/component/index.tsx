@@ -94,9 +94,10 @@ function InputComponent(props: InputComponentProps) {
       autoFocus={props.autoFocus}
       contextualHelp={props.tooltip}
       defaultValue={props.defaultValue}
-      errorMessage={props.validationStatus === "invalid" ? errorMessage : ""}
+      errorMessage={validationStatus === "invalid" ? errorMessage : ""}
       excludeFromTabOrder={props.excludeFromTabOrder}
       isDisabled={props.isDisabled}
+      isInvalid={props.validationStatus === "invalid"}
       isReadOnly={props.isReadOnly}
       isRequired={props.isRequired}
       label={props.label}
@@ -112,7 +113,6 @@ function InputComponent(props: InputComponentProps) {
       spellCheck={props.spellCheck}
       suffix={endIcon}
       type={type}
-      validationState={validationStatus}
       value={props.value}
     />
   );
