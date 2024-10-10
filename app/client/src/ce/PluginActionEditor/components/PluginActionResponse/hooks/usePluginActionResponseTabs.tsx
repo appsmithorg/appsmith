@@ -29,12 +29,8 @@ import Schema from "components/editorComponents/Debugger/Schema";
 import QueryResponseTab from "pages/Editor/QueryEditor/QueryResponseTab";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { useHandleRunClick } from "PluginActionEditor/hooks";
+import { useBlockExecution, useHandleRunClick } from "PluginActionEditor/hooks";
 import useDebuggerTriggerClick from "components/editorComponents/Debugger/hooks/useDebuggerTriggerClick";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =
@@ -51,27 +47,7 @@ function usePluginActionResponseTabs() {
 
   const onDebugClick = useDebuggerTriggerClick();
   const isRunning = useSelector(isActionRunning(action.id));
-
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const isExecutePermitted = getHasExecuteActionPermission(
-    isFeatureEnabled,
-    action?.userPermissions,
-  );
-  // this gets the url of the current action's datasource
-  const actionDatasourceUrl =
-    action?.datasource?.datasourceConfiguration?.url || "";
-  const actionDatasourceUrlPath = action?.actionConfiguration?.path || "";
-  // this gets the name of the current action's datasource
-  const actionDatasourceName = action?.datasource.name || "";
-
-  // if the url is empty and the action's datasource name is the default datasource name (this means the api does not have a datasource attached)
-  // or the user does not have permission,
-  // we block action execution.
-  const blockExecution =
-    (!actionDatasourceUrl &&
-      !actionDatasourceUrlPath &&
-      actionDatasourceName === DEFAULT_DATASOURCE_NAME) ||
-    !isExecutePermitted;
+  const blockExecution = useBlockExecution();
 
   const tabs: BottomTab[] = [];
 
