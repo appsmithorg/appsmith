@@ -49,5 +49,3 @@ const batchSpanProcessor = new BatchSpanProcessor(
 
 provider.addSpanProcessor(batchSpanProcessor);
 provider.register();
-
-diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
