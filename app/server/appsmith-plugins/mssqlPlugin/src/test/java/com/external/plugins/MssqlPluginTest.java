@@ -6,6 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
@@ -15,6 +16,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
+import com.external.plugins.exceptions.MssqlErrorMessages;
 import com.external.plugins.exceptions.MssqlPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -231,6 +233,50 @@ public class MssqlPluginTest {
         StepVerifier.create(dsConnectionMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithPluginException)
                 .verify();
+    }
+
+    @Test
+    void testValidateDatasource_NullCredentials_returnsWithInvalids() {
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+
+        dsConfig.setConnection(new Connection());
+        DBAuth auth = (DBAuth) dsConfig.getAuthentication();
+        auth.setUsername(null);
+        auth.setPassword(null);
+        auth.setDatabaseName(null);
+
+        Set<String> expectedOutput = mssqlPluginExecutor.validateDatasource(dsConfig);
+        assertTrue(expectedOutput.contains(MssqlErrorMessages.DS_MISSING_USERNAME_ERROR_MSG));
+        assertTrue(expectedOutput.contains(MssqlErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG));
+        assertTrue(expectedOutput.contains(MssqlErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG));
+    }
+
+    @Test
+    void testValidateDatasource_NullEndPoint() {
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.setEndpoints(null);
+        Set<String> output = mssqlPluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.contains(MssqlErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG));
+    }
+
+    @Test
+    void testValidateDatasource_NullHost() {
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.setEndpoints(List.of(new Endpoint("", 1433L)));
+        Set<String> output = mssqlPluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.contains(MssqlErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG));
+    }
+
+    @Test
+    void testValidateDatasource_NullAuthentication() {
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
+        dsConfig.setAuthentication(null);
+        Set<String> output = mssqlPluginExecutor.validateDatasource(dsConfig);
+        assertTrue(output.contains(MssqlErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG));
     }
 
     @Test
