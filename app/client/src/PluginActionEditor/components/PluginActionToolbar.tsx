@@ -17,6 +17,10 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
   const { handleRunClick } = useHandleRunClick();
   const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
 
+  const onRunClick = () => {
+    handleRunClick();
+  };
+
   return (
     <IDEToolbar>
       <IDEToolbar.Left>{props.children}</IDEToolbar.Left>
@@ -27,7 +31,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
           placement="topRight"
           showArrow={false}
         >
-          <Button kind="primary" onClick={() => handleRunClick()} size="sm">
+          <Button kind="primary" onClick={onRunClick} size="sm">
             Run
           </Button>
         </Tooltip>
