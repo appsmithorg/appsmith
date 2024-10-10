@@ -28,27 +28,19 @@ interface ChildrenProps {
 export const PluginActionContextProvider = (
   props: ChildrenProps & PluginActionContextType,
 ) => {
-  const {
-    action,
-    actionResponse,
-    children,
-    datasource,
-    editorConfig,
-    plugin,
-    settingsConfig,
-  } = props;
+  const { action, children, datasource, editorConfig, plugin, settingsConfig } =
+    props;
 
   // using useMemo to avoid unnecessary renders
   const contextValue = useMemo(
     () => ({
       action,
-      actionResponse,
       datasource,
       editorConfig,
       plugin,
       settingsConfig,
     }),
-    [action, actionResponse, datasource, editorConfig, plugin, settingsConfig],
+    [action, datasource, editorConfig, plugin, settingsConfig],
   );
 
   return (

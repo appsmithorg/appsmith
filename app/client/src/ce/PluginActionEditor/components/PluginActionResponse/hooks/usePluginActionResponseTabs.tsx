@@ -17,12 +17,10 @@ import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import { PluginType } from "entities/Action";
 import { ApiResponse } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
 import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponseHeaders";
+import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import {
-  getPluginActionDebuggerState,
-  isActionRunning,
-} from "PluginActionEditor/store";
+import { getPluginActionDebuggerState } from "PluginActionEditor/store";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 import Schema from "components/editorComponents/Debugger/Schema";
@@ -30,11 +28,6 @@ import QueryResponseTab from "pages/Editor/QueryEditor/QueryResponseTab";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { useHandleRunClick } from "PluginActionEditor/hooks";
-import useDebuggerTriggerClick from "components/editorComponents/Debugger/hooks/useDebuggerTriggerClick";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =
@@ -49,35 +42,7 @@ function usePluginActionResponseTabs() {
 
   const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
 
-  const onDebugClick = useDebuggerTriggerClick();
-  const isRunning = useSelector(isActionRunning(action.id));
-
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const isExecutePermitted = getHasExecuteActionPermission(
-    isFeatureEnabled,
-    action?.userPermissions,
-  );
-  // this gets the url of the current action's datasource
-  const actionDatasourceUrl =
-    action?.datasource?.datasourceConfiguration?.url || "";
-  const actionDatasourceUrlPath = action?.actionConfiguration?.path || "";
-  // this gets the name of the current action's datasource
-  const actionDatasourceName = action?.datasource.name || "";
-
-  // if the url is empty and the action's datasource name is the default datasource name (this means the api does not have a datasource attached)
-  // or the user does not have permission,
-  // we block action execution.
-  const blockExecution =
-    (!actionDatasourceUrl &&
-      !actionDatasourceUrlPath &&
-      actionDatasourceName === DEFAULT_DATASOURCE_NAME) ||
-    !isExecutePermitted;
-
   const tabs: BottomTab[] = [];
-
-  const onRunClick = () => {
-    handleRunClick();
-  };
 
   if (IDEViewMode === EditorViewMode.FullScreen) {
     tabs.push(
@@ -104,9 +69,9 @@ function usePluginActionResponseTabs() {
           <ApiResponse
             action={action}
             actionResponse={actionResponse}
-            isRunDisabled={blockExecution}
-            isRunning={isRunning}
-            onRunClick={onRunClick}
+            isRunDisabled={false}
+            isRunning={false}
+            onRunClick={handleRunClick}
             responseTabHeight={responseTabHeight}
             theme={EditorTheme.LIGHT}
           />
@@ -118,10 +83,10 @@ function usePluginActionResponseTabs() {
         panelComponent: (
           <ApiResponseHeaders
             actionResponse={actionResponse}
-            isRunDisabled={blockExecution}
-            isRunning={isRunning}
-            onDebugClick={onDebugClick}
-            onRunClick={onRunClick}
+            isRunDisabled={false}
+            isRunning={false}
+            onDebugClick={noop}
+            onRunClick={handleRunClick}
           />
         ),
       },
@@ -167,8 +132,8 @@ function usePluginActionResponseTabs() {
           actionName={action.name}
           actionSource={actionSource}
           currentActionConfig={action}
-          isRunning={isRunning}
-          onRunClick={onRunClick}
+          isRunning={false}
+          onRunClick={handleRunClick}
           runErrorMessage={""} // TODO
         />
       ),
