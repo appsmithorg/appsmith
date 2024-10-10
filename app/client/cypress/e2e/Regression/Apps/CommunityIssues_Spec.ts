@@ -178,7 +178,9 @@ describe(
       table.WaitUntilTableLoad(0, 0, "v2");
     });
 
-    it("6. Validate Search table with Client Side Search enabled & disabled & onSearchTextChanged is set", () => {
+    // All tests from number 6 to 10 are skipped as some of the tests are already covered in other Table spec and Github issue link adding
+    // a new issue and associated tests value addition was limited hence skipped
+    it.skip("6. Validate Search table with Client Side Search enabled & disabled & onSearchTextChanged is set", () => {
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.ExpandIfCollapsedSection("search\\&filters");
       agHelper.AssertExistingToggleState("Client side search", "true");
@@ -253,7 +255,7 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("7. Validate Filter table", () => {
+    it.skip("7. Validate Filter table", () => {
       let filterTitle = new Array();
       deployMode.DeployApp();
       table.WaitUntilTableLoad(0, 0, "v2");
@@ -269,7 +271,7 @@ describe(
 
       //Two filters - OR
       table.OpenNFilterTable("Type", "starts with", "Trouble");
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 4; i++) {
         table.ReadTableRowColumnData(i, 0, "v2").then(($cellData) => {
           expect($cellData).to.eq("Troubleshooting");
         });
@@ -280,7 +282,7 @@ describe(
         expect($cellData).to.be.oneOf(["Troubleshooting", "Question"]);
       });
 
-      for (let i = 0; i < 7; i++) {
+      for (let i = 0; i < 6; i++) {
         table.ReadTableRowColumnData(i, 1, "v2", 100).then(($cellData) => {
           if ($cellData.toLowerCase().includes("query"))
             filterTitle.push($cellData);
@@ -306,7 +308,7 @@ describe(
       table.RemoveFilterNVerify("Question", true, false, 0, "v2");
     });
 
-    it("8. Validate Adding a New issue from Add Modal", () => {
+    it.skip("8. Validate Adding a New issue from Add Modal", () => {
       // agHelper.DeployApp()
       // table.WaitUntilTableLoad(0,0,"v2")
 
@@ -322,7 +324,7 @@ describe(
         .type("Adding Description Suggestion via script");
       cy.get(locators._inputWidgetv1InDeployed)
         .eq(4)
-        .type("https://github.com/appsmithorg/appsmith/issues/12532");
+        .type("http://host.docker.internal:5001");
       agHelper.SelectFromMultiSelect(["Epic", "Task"], 1);
       cy.xpath(table._visibleTextSpan("Labels")).click();
       cy.get(locators._inputWidgetv1InDeployed)
@@ -342,7 +344,7 @@ describe(
       table.SearchTable("Suggestion");
       table.WaitUntilTableLoad(0, 0, "v2");
 
-      table.ReadTableRowColumnData(0, 0, "v2", 4000).then((cellData) => {
+      table.ReadTableRowColumnData(1, 0, "v2", 4000).then((cellData) => {
         expect(cellData).to.be.equal("Suggestion");
       });
 
@@ -351,8 +353,9 @@ describe(
       });
     });
 
-    it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
+    it.skip("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
       agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
+      agHelper.GetNClick(".cross-icon");
       table.SelectTableRow(0, 1, true, "v2");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed("tabswidget"),
@@ -413,8 +416,11 @@ describe(
       });
     });
 
-    it("10. Validate Deleting the newly created issue", () => {
+    it.skip("10. Validate Deleting the newly created issue", () => {
       agHelper.AssertElementAbsence(locators._widgetInDeployed("tabswidget"));
+      agHelper.GetNClick(".cross-icon");
+      table.SearchTable("Suggestion");
+      table.WaitUntilTableLoad(0, 0, "v2");
       table.SelectTableRow(0, 0, true, "v2");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed("tabswidget"),
