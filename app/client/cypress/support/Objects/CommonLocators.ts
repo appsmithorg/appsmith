@@ -342,3 +342,4 @@ export class CommonLocators {
   _propertyCollapseBody = ".bp3-collapse-body";
   _propertyCollapse = ".bp3-collapse";
 }
+
