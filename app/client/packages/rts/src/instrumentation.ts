@@ -8,7 +8,6 @@ import {
   ATTR_SERVICE_INSTANCE_ID,
 } from "@opentelemetry/semantic-conventions/incubating";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
-import { diag, DiagConsoleLogger, DiagLogLevel } from "@opentelemetry/api";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";

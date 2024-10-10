@@ -14,6 +14,7 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
     // assistantName,
     chatTitle,
     isWaitingForResponse = false,
+    onApplyAssistantSuggestion,
     onPromptChange,
     onSubmit,
     prompt,
@@ -56,7 +57,12 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
 
       <ul className={styles.thread} data-testid="t--aichat-thread">
         {thread.map((message: ChatMessage) => (
-          <ThreadMessage {...message} key={message.id} username={username} />
+          <ThreadMessage
+            {...message}
+            key={message.id}
+            onApplyAssistantSuggestion={onApplyAssistantSuggestion}
+            username={username}
+          />
         ))}
       </ul>
 
