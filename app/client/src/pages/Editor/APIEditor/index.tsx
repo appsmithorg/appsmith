@@ -8,11 +8,7 @@ import {
   getPluginSettingConfigs,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
-import {
-  deleteAction,
-  runAction,
-  saveActionName,
-} from "actions/pluginActionActions";
+import { runAction, saveActionName } from "actions/pluginActionActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Editor from "./Editor";
 import BackToCanvas from "components/common/BackToCanvas";
@@ -162,15 +158,6 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     return <BackToCanvas basePageId={basePageId} />;
   }, [basePageId]);
 
-  const handleDeleteClick = useCallback(() => {
-    AnalyticsUtil.logEvent("DELETE_API_CLICK", {
-      apiName,
-      apiID: action?.id,
-      pageName,
-    });
-    dispatch(deleteAction({ id: action?.id ?? "", name: apiName }));
-  }, [pages, basePageId, apiName, action?.id, dispatch, pageName]);
-
   const notification = useMemo(() => {
     if (!isConverting) return null;
 
@@ -188,7 +175,6 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   return (
     <ApiEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
-      handleDeleteClick={handleDeleteClick}
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
       notification={notification}
