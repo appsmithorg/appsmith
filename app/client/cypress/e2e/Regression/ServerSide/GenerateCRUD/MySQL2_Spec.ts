@@ -190,7 +190,7 @@ describe(
     });
 
     // https://github.com/appsmithorg/appsmith/issues/29870 Once this issue is fixed then this test case should be enabled and fixed for the table v2
-    it.skip("7. Verify Refresh table from Deploy page - on Stores & verify all updates persists : Skipped till #29870 gets fixed", () => {
+    it("7. Verify Refresh table from Deploy page - on Stores & verify all updates persists : Skipped till #29870 gets fixed", () => {
       agHelper.GetNClick(dataSources._refreshIcon);
 
       //Store Address deletion remains
