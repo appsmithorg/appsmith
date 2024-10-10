@@ -9,7 +9,6 @@ import { usePluginActionContext } from "PluginActionEditor";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useGetFormActionValues from "../CommonEditorForm/hooks/useGetFormActionValues";
 
@@ -38,7 +37,6 @@ function GraphQLEditorForm() {
         <Pagination
           actionName={action.name}
           formName={FORM_NAME}
-          onTestClick={noop}
           paginationType={action.actionConfiguration.paginationType}
           query={actionConfigurationBody}
           theme={theme}

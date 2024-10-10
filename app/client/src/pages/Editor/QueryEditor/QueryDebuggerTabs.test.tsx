@@ -42,7 +42,7 @@ const storeState = {
         errorCount: 0,
       },
     },
-    queryPane: {
+    pluginActionEditor: {
       debugger: {
         open: true,
         responseTabHeight: 200,

@@ -5,9 +5,6 @@ import {
   Text,
   ToggleGroup,
   Checkbox,
-  TooltipRoot,
-  TooltipTrigger,
-  TooltipContent,
   ToolbarButtons,
   Flex,
   Switch,
@@ -21,6 +18,9 @@ import {
   ModalContent,
   TextInput,
   ComboBox,
+  Radio,
+  ListBoxItem,
+  Tooltip,
 } from "@appsmith/wds";
 // This component is used only for testing purpose and is not used in the prod
 
@@ -65,25 +65,25 @@ export const ComplexForm = () => {
           ]}
         />
 
-        <ToggleGroup
-          items={[
+        <ToggleGroup label="Repeat order">
+          {[
             {
-              value: "value-1",
+              value: "Once a week",
               label: "Once a week",
             },
-            { isSelected: true, value: "value-2", label: "Twice a week" },
-          ]}
-          label="Repeat order"
-        >
-          {({ isSelected, label, value }) => (
-            <Switch isSelected={isSelected} key={value} value={value}>
+            {
+              value: "Twice a week",
+              label: "Twice a week",
+            },
+          ].map(({ label, value }) => (
+            <Switch key={value} value={value}>
               {label}
             </Switch>
-          )}
+          ))}
         </ToggleGroup>
 
-        <ToggleGroup
-          items={[
+        <ToggleGroup label="Dishes">
+          {[
             {
               value: "Hamburger",
               label: "Hamburger",
@@ -96,18 +96,15 @@ export const ComplexForm = () => {
               value: "Coca-Cola",
               label: "Coca-Cola",
             },
-          ]}
-          label="Dishes"
-        >
-          {({ isSelected, label, value }) => (
-            <Checkbox isSelected={isSelected} key={value} value={value}>
+          ].map(({ label, value }) => (
+            <Checkbox key={value} value={value}>
               {label}
             </Checkbox>
-          )}
+          ))}
         </ToggleGroup>
 
-        <RadioGroup
-          items={[
+        <RadioGroup label="Portion size">
+          {[
             {
               value: "s",
               label: "S",
@@ -124,9 +121,12 @@ export const ComplexForm = () => {
               value: "xl",
               label: "XL",
             },
-          ]}
-          label="Portion size"
-        />
+          ].map(({ label, value }) => (
+            <Radio key={value} value={value}>
+              {label}
+            </Radio>
+          ))}
+        </RadioGroup>
 
         <Flex direction="column" gap="spacing-3">
           <Flex direction="column" gap="spacing-2">
@@ -140,8 +140,8 @@ export const ComplexForm = () => {
         </Flex>
         <Flex gap="spacing-2">
           <TextInput />
-          <ComboBox
-            items={[
+          <ComboBox>
+            {[
               {
                 id: "s",
                 label: "S",
@@ -158,8 +158,12 @@ export const ComplexForm = () => {
                 id: "xl",
                 label: "XL",
               },
-            ]}
-          />
+            ].map(({ id, label }) => (
+              <ListBoxItem key={id} textValue={label}>
+                {label}
+              </ListBoxItem>
+            ))}
+          </ComboBox>
           <Button>Ok</Button>
         </Flex>
         <Flex gap="spacing-2">
@@ -190,14 +194,10 @@ export const ComplexForm = () => {
       </Flex>
 
       <Flex gap="spacing-2">
-        <TooltipRoot>
-          <TooltipTrigger>
-            <Button variant="outlined">Cancel</Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            If you cancel, you will lose your order
-          </TooltipContent>
-        </TooltipRoot>
+        <Tooltip tooltip="Tooltip">
+          <Button variant="outlined">Cancel</Button>
+        </Tooltip>
+
         <Button onPress={() => setModalOpen(!isModalOpen)} ref={submitRef}>
           Ok
         </Button>

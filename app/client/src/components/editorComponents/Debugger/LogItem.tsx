@@ -395,4 +395,4 @@ function LogItem(props: LogItemProps) {
   );
 }
 
-export default LogItem;
+export default React.memo(LogItem);
