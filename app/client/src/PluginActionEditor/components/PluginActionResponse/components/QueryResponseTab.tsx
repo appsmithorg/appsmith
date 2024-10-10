@@ -6,9 +6,9 @@ import {
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
   ResponseTabErrorDefaultMessage,
-} from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
-import { ResponseFormatTabs } from "PluginActionEditor/components/PluginActionResponse/components/ResponseFormatTabs";
-import { NoResponse } from "PluginActionEditor/components/PluginActionResponse/components/NoResponse";
+} from "./ApiResponse";
+import { ResponseFormatTabs } from "./ResponseFormatTabs";
+import { NoResponse } from "./NoResponse";
 import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -27,7 +27,7 @@ import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLo
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
 import { getActionData } from "ee/selectors/entitiesSelector";
-import { actionResponseDisplayDataFormats } from "../utils";
+import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
@@ -39,7 +39,7 @@ import BindDataButton from "./BindDataButton";
 import {
   getPluginActionDebuggerState,
   setPluginActionEditorDebuggerState,
-} from "PluginActionEditor/store";
+} from "../../../store";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import {
   createMessage,

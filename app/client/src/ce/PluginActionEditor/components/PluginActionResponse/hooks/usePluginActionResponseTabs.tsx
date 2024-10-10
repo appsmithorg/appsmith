@@ -22,9 +22,9 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import { getErrorCount } from "selectors/debuggerSelectors";
 import { getPluginActionDebuggerState } from "PluginActionEditor/store";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
-import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
-import Schema from "components/editorComponents/Debugger/Schema";
-import QueryResponseTab from "pages/Editor/QueryEditor/QueryResponseTab";
+import useShowSchema from "PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
+import Schema from "PluginActionEditor/components/PluginActionResponse/components/Schema";
+import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { useHandleRunClick } from "PluginActionEditor/hooks";

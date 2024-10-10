@@ -4,7 +4,7 @@ import type { InjectedFormProps } from "redux-form";
 import { formValueSelector, reduxForm } from "redux-form";
 import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Action } from "entities/Action";
-import PostBodyData from "./PostBodyData";
+import PostBodyData from "../../../PluginActionEditor/components/PluginActionForm/components/ApiEditor/PostBodyData";
 import type { AppState } from "ee/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -12,7 +12,7 @@ import get from "lodash/get";
 import { getAction, getActionResponses } from "ee/selectors/entitiesSelector";
 import type { CommonFormProps } from "./CommonEditorForm";
 import CommonEditorForm from "./CommonEditorForm";
-import Pagination from "./Pagination";
+import Pagination from "../../../PluginActionEditor/components/PluginActionForm/components/ApiEditor/Pagination";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 

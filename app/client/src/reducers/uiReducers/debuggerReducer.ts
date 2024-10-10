@@ -4,7 +4,7 @@ import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { omit, isUndefined, isEmpty } from "lodash";
 import equal from "fast-deep-equal";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "../../PluginActionEditor/components/PluginActionResponse/constants";
 import { klona } from "klona";
 
 export const DefaultDebuggerContext = {

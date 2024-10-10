@@ -1,10 +1,10 @@
 import React from "react";
-import APIEditorForm from "./components/APIEditorForm";
+import APIEditorForm from "./components/ApiEditor/APIEditorForm";
 import { Flex } from "@appsmith/ads";
 import { useChangeActionCall } from "./hooks/useChangeActionCall";
 import { usePluginActionContext } from "../../PluginActionContext";
 import { UIComponentTypes } from "api/PluginApi";
-import GraphQLEditorForm from "./components/GraphQLEditor/GraphQLEditorForm";
+import GraphQLEditorForm from "./components/GraphQLEditor";
 import UQIEditorForm from "./components/UQIEditorForm";
 
 const PluginActionForm = () => {

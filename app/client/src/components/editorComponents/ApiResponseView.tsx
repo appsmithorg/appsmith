@@ -16,7 +16,7 @@ import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/constants";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "../../PluginActionEditor/components/PluginActionResponse/constants";
 import type { Action } from "entities/Action";
 import { EMPTY_RESPONSE } from "./emptyResponse";
 import {

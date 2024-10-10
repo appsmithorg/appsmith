@@ -73,7 +73,7 @@ import {
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "../../../PluginActionEditor/components/PluginActionResponse/constants";
 import {
   getPluginActionConfigSelectedTab,
   getPluginActionDebuggerState,

@@ -32,7 +32,7 @@ import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/u
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { QueryEditorContext } from "./QueryEditorContext";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
-import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
+import useShowSchema from "../../../PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import FormRender from "./FormRender";
 import QueryEditorHeader from "./QueryEditorHeader";

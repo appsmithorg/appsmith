@@ -4,7 +4,7 @@ import { Flex } from "@appsmith/ads";
 import { Text, TextType } from "@appsmith/ads-old";
 import { formatBytes } from "../../utils/helpers";
 import { isEmpty } from "lodash";
-import BindDataButton from "pages/Editor/QueryEditor/BindDataButton";
+import BindDataButton from "../../PluginActionEditor/components/PluginActionResponse/components/BindDataButton";
 import styled from "styled-components";
 import type { ActionResponse } from "api/ActionAPI";
 import { Text as BlueprintText } from "@blueprintjs/core/lib/esm/components/text/text";

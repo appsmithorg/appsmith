@@ -3,7 +3,7 @@ import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { Datasource } from "entities/Datasource";
 import _ from "lodash";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "../../PluginActionEditor/components/PluginActionResponse/constants";
 
 const initialState: DatasourcePaneReduxState = {
   drafts: {},
