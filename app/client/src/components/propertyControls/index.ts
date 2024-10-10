@@ -76,12 +76,14 @@ import type { IconSelectControlV2Props } from "./IconSelectControlV2";
 import IconSelectControlV2 from "./IconSelectControlV2";
 import PrimaryColumnsControlWDS from "./PrimaryColumnsControlWDS";
 import ToolbarButtonListControl from "./ToolbarButtonListControl";
+import ArrayControl from "./ArrayControl";
 
 export const PropertyControls = {
   InputTextControl,
   DropDownControl,
   SwitchControl,
   OptionControl,
+  ArrayControl,
   CodeEditorControl,
   DatePickerControl,
   ActionSelectorControl,

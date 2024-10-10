@@ -1,9 +1,6 @@
 .root {
   height: 30px;
   padding: 0 var(--inner-spacing-4);
-  color: var(--fg-neutral, #1f2123);
-  font-size: var(--type-body-text, 15px);
-  line-height: var(--type-body-text-lineheight, 21.13px); /* 140.867% */
   background-color: var(--bg-neutral-subtle-alt, #e7e8e8);
   border-radius: var(--radius-inner-button, 1.8px);
 

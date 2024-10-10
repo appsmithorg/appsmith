@@ -45,7 +45,7 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
   static type = "WDS_AI_CHAT_WIDGET";
 
   state = {
-    messages: [],
+    messages: [] as Message[],
     prompt: "",
     isWaitingForResponse: false,
   };
@@ -108,6 +108,60 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
     return {};
   }
 
+  componentDidMount() {
+    // Add initial assistant message with suggestions if they were configured
+    if (this.props.initialAssistantMessage.length > 0) {
+      this.setState((state) => ({
+        ...state,
+        messages: [
+          {
+            id: Math.random().toString(),
+            content: this.props.initialAssistantMessage,
+            role: "assistant",
+            promptSuggestions: this.props.initialAssistantSuggestions || [],
+          },
+        ],
+      }));
+    }
+  }
+
+  componentDidUpdate(prevProps: WDSAIChatWidgetProps): void {
+    // Track changes in the widget's properties and update the local state accordingly
+
+    // Update the initial assistant message
+    if (
+      prevProps.initialAssistantMessage !==
+        this.props.initialAssistantMessage ||
+      prevProps.initialAssistantSuggestions !==
+        this.props.initialAssistantSuggestions
+    ) {
+      let updatedMessage: Message | null;
+
+      //
+      if (this.props.initialAssistantMessage.length > 0) {
+        const currentMessage = this.state.messages[0];
+
+        updatedMessage = {
+          // If the initial assistant message is set, update it
+          // Otherwise, create a new one
+          ...(currentMessage || {
+            id: Math.random().toString(),
+            role: "assistant",
+          }),
+          content: this.props.initialAssistantMessage,
+          promptSuggestions: this.props.initialAssistantSuggestions,
+        };
+      } else {
+        updatedMessage = null;
+      }
+
+      this.setState((state) => ({
+        ...state,
+        messages: updatedMessage ? [updatedMessage] : [],
+      }));
+    }
+  }
+
   updatePrompt = (prompt: string) => {
     this.setState({ prompt });
   };
@@ -151,18 +205,7 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
       }),
       () => {
         const messages: Message[] = [...this.state.messages];
-
-        if (this.props.systemPrompt) {
-          messages.unshift({
-            id: String(Date.now()),
-            content: this.props.systemPrompt,
-            role: "system",
-          });
-        }
-
-        const params = {
-          messages,
-        };
+        const params = { messages };
 
         this.executeAction({
           triggerPropertyName: "onClick",

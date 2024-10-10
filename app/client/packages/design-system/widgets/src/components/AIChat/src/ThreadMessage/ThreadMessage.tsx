@@ -1,4 +1,4 @@
-import { Text } from "@appsmith/wds";
+import { Flex, Text } from "@appsmith/wds";
 import { clsx } from "clsx";
 import React from "react";
 import Markdown from "react-markdown";
@@ -55,7 +55,12 @@ export const ThreadMessage = ({
           </Text>
 
           {promptSuggestions.length > 0 && (
-            <div className={styles.suggestions}>
+            <Flex
+              className={styles.suggestions}
+              gap="var(--inner-spacing-5)"
+              paddingTop="spacing-4"
+              wrap="wrap"
+            >
               {promptSuggestions.map((suggestion) => (
                 <AssistantSuggestionButton
                   key={suggestion}
@@ -65,7 +70,7 @@ export const ThreadMessage = ({
                   {suggestion}
                 </AssistantSuggestionButton>
               ))}
-            </div>
+            </Flex>
           )}
         </div>
       ) : (

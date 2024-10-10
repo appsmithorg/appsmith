@@ -25,10 +25,3 @@
   /* TODO: --type-caption-lineheight doesn't exists. Define it */
   line-height: var(--type-caption-lineheight, 17.25px);
 }
-
-.suggestions {
-  display: flex;
-  gap: var(--inner-spacing-5);
-  flex-wrap: wrap;
-  padding: var(--inner-spacing-4) 0 0;
-}
