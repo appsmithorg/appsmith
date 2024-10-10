@@ -29,13 +29,18 @@ import Schema from "components/editorComponents/Debugger/Schema";
 import QueryResponseTab from "pages/Editor/QueryEditor/QueryResponseTab";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { useBlockExecution, useHandleRunClick } from "PluginActionEditor/hooks";
+import {
+  useBlockExecution,
+  useHandleRunClick,
+  useAnalyticsOnRunClick,
+} from "PluginActionEditor/hooks";
 import useDebuggerTriggerClick from "components/editorComponents/Debugger/hooks/useDebuggerTriggerClick";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =
     usePluginActionContext();
   const { handleRunClick } = useHandleRunClick();
+  const { callRunActionAnalytics } = useAnalyticsOnRunClick();
 
   const IDEViewMode = useSelector(getIDEViewMode);
   const errorCount = useSelector(getErrorCount);
@@ -52,6 +57,7 @@ function usePluginActionResponseTabs() {
   const tabs: BottomTab[] = [];
 
   const onRunClick = () => {
+    callRunActionAnalytics();
     handleRunClick();
   };
 

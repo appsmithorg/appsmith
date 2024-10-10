@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { IDEToolbar } from "IDE";
 import { Button, Menu, MenuContent, MenuTrigger, Tooltip } from "@appsmith/ads";
 import { modText } from "utils/helpers";
 import { usePluginActionContext } from "../PluginActionContext";
-import { useBlockExecution, useHandleRunClick } from "PluginActionEditor/hooks";
+import {
+  useBlockExecution,
+  useHandleRunClick,
+  useAnalyticsOnRunClick,
+} from "PluginActionEditor/hooks";
 import { useToggle } from "@mantine/hooks";
 import { useSelector } from "react-redux";
 import { isActionRunning } from "PluginActionEditor/store";
@@ -17,13 +21,15 @@ interface PluginActionToolbarProps {
 const PluginActionToolbar = (props: PluginActionToolbarProps) => {
   const { action } = usePluginActionContext();
   const { handleRunClick } = useHandleRunClick();
+  const { callRunActionAnalytics } = useAnalyticsOnRunClick();
   const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
   const blockExecution = useBlockExecution();
   const isRunning = useSelector(isActionRunning(action.id));
 
-  const onRunClick = () => {
+  const onRunClick = useCallback(() => {
+    callRunActionAnalytics();
     handleRunClick();
-  };
+  }, [callRunActionAnalytics, handleRunClick]);
 
   return (
     <IDEToolbar>
