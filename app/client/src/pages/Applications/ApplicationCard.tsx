@@ -53,6 +53,8 @@ import { getCurrentUser } from "actions/authActions";
 import Card, { ContextMenuTrigger } from "components/common/Card";
 import { generateEditedByText } from "./helpers";
 import { noop } from "lodash";
+import { getLatestGitBranchFromLocal } from "utils/storage";
+import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
 
 interface ApplicationCardProps {
   application: ApplicationPayload;
@@ -98,6 +100,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const theme = useContext(ThemeContext);
   const isSavingName = useSelector(getIsSavingAppName);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
+  const currentUser = useSelector(getCurrentUserSelector);
   const initialsAndColorCode = getInitialsAndColorCode(
     props.application.name,
     theme.colors.appCardColors,
@@ -116,7 +119,32 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const dispatch = useDispatch();
 
   const applicationId = props.application?.id;
+  const baseApplicationId = props.application?.baseId;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
+  const [editorParams, setEditorParams] = useState({});
+
+  useEffect(() => {
+    (async () => {
+      const storedLatestBranch = await getLatestGitBranchFromLocal(
+        currentUser?.email ?? "",
+        baseApplicationId,
+      );
+
+      if (storedLatestBranch) {
+        setEditorParams({ branch: storedLatestBranch });
+      } else if (showGitBadge) {
+        setEditorParams({ branch: showGitBadge });
+      }
+    })();
+  }, [baseApplicationId, currentUser?.email, showGitBadge]);
+
+  const viewerParams = useMemo(() => {
+    if (showGitBadge) {
+      return { branch: showGitBadge };
+    } else {
+      return {};
+    }
+  }, [showGitBadge]);
 
   useEffect(() => {
     let colorCode;
@@ -271,15 +299,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   if (initials.length < 2 && props.application.name.length > 1) {
     initials += props.application.name[1].toUpperCase() || "";
-  }
-
-  // should show correct branch of application when edit mode
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const params: any = {};
-
-  if (showGitBadge) {
-    params.branch = showGitBadge;
   }
 
   const handleMenuOnClose = (open: boolean) => {
@@ -437,16 +456,16 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
     if (!basePageId) return "";
 
-    return builderURL({ basePageId, params });
-  }, [props.application.defaultBasePageId, params]);
+    return builderURL({ basePageId, params: editorParams });
+  }, [props.application.defaultBasePageId, editorParams]);
 
   const viewModeURL = useMemo(() => {
     const basePageId = props.application.defaultBasePageId;
 
     if (!basePageId) return "";
 
-    return viewerURL({ basePageId, params });
-  }, [props.application.defaultBasePageId, params]);
+    return viewerURL({ basePageId, params: viewerParams });
+  }, [props.application.defaultBasePageId, viewerParams]);
 
   const launchApp = useCallback(() => {
     setURLParams();
@@ -463,11 +482,11 @@ export function ApplicationCard(props: ApplicationCardProps) {
     history.push(
       viewerURL({
         basePageId: props.application.defaultBasePageId,
-        params,
+        params: viewerParams,
       }),
     );
     dispatch(getCurrentUser());
-  }, [props.application.defaultPageId]);
+  }, [dispatch, props.application.defaultBasePageId, viewerParams]);
 
   return (
     <Card

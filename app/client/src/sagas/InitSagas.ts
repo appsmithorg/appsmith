@@ -219,7 +219,6 @@ export function* getInitResponses({
 }: {
   applicationId?: string;
   basePageId?: string;
-  branch?: string;
   mode?: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
   // TODO: Fix this the next time the file is edited
