@@ -292,6 +292,9 @@ describe(
 
       agHelper.ClearNType(locators._input, "100");
       agHelper.ValidateToastMessage("Value Changed");
+      agHelper.WaitUntilToastDisappear("Value Changed");
+      agHelper.ClearNType(locators._input, "a");
+      cy.get(locators._toastMsg).should("not.exist");
 
       // onFocus
       propPane.SelectPlatformFunction("onFocus", "Show alert");
