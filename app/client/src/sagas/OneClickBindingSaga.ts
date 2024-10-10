@@ -136,7 +136,8 @@ function* BindWidgetToDatasource(
       plugin.packageName,
     );
 
-    const actionConfigurationList = widgetQueryGenerator.build(
+    const actionConfigurationList = yield call(
+      widgetQueryGenerator.build,
       widgetQueryGenerationConfig,
       action.payload,
       defaultValues,
