@@ -1,6 +1,7 @@
-import { Button, Text, TextArea } from "@appsmith/wds";
+import { Button, Flex, Text, TextArea } from "@appsmith/wds";
 import type { FormEvent, ForwardedRef, KeyboardEvent } from "react";
 import React, { forwardRef, useCallback } from "react";
+import { ChatDescriptionModal } from "./ChatDescriptionModal";
 import { ChatTitle } from "./ChatTitle";
 import styles from "./styles.module.css";
 import { ThreadMessage } from "./ThreadMessage";
@@ -12,6 +13,7 @@ const MIN_PROMPT_LENGTH = 3;
 const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
   const {
     // assistantName,
+    chatDescription,
     chatTitle,
     isWaitingForResponse = false,
     onApplyAssistantSuggestion,
@@ -23,6 +25,8 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
     username,
     ...rest
   } = props;
+  const [isChatDescriptionModalOpen, setIsChatDescriptionModalOpen] =
+    React.useState(false);
 
   const handleFormSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
@@ -44,15 +48,31 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
 
   return (
     <div className={styles.root} ref={ref} {...rest}>
-      <div className={styles.header}>
-        <ChatTitle title={chatTitle} />
+      <ChatDescriptionModal
+        isOpen={isChatDescriptionModalOpen}
+        setOpen={() =>
+          setIsChatDescriptionModalOpen(!isChatDescriptionModalOpen)
+        }
+      >
+        {chatDescription}
+      </ChatDescriptionModal>
 
-        <div className={styles.username}>
+      <div className={styles.header}>
+        <Flex alignItems="center" gap="8px">
+          <ChatTitle title={chatTitle} />
+          <Button
+            icon="info-square-rounded"
+            onPress={() => setIsChatDescriptionModalOpen(true)}
+            variant="ghost"
+          />
+        </Flex>
+
+        <Flex alignItems="center" gap="8px">
           <UserAvatar username={username} />
           <Text data-testid="t--aichat-username" size="body">
             {username}
           </Text>
-        </div>
+        </Flex>
       </div>
 
       <ul className={styles.thread} data-testid="t--aichat-thread">

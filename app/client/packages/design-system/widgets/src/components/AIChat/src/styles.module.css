@@ -24,12 +24,6 @@
   }
 }
 
-.username {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .thread {
   display: flex;
   flex-direction: column;
