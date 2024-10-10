@@ -14,11 +14,7 @@ import {
   CrashingError,
   getSafeToRenderDataTree,
 } from "ee/workers/Evaluation/evaluationUtils";
-import type {
-  EvalTreeRequestData,
-  EvalTreeResponseData,
-  EvalWorkerSyncRequest,
-} from "../types";
+import type { EvalTreeRequestData, EvalWorkerASyncRequest } from "../types";
 import { clearAllIntervals } from "../fns/overrides/interval";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
@@ -33,6 +29,7 @@ import { MessageType, sendMessage } from "utils/MessageUtil";
 import {
   profileFn,
   newWebWorkerSpanData,
+  profileAsyncFn,
 } from "UITelemetry/generateWebWorkerTraces";
 import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -49,9 +46,9 @@ export let canvasWidgetsMeta: Record<string, any>;
 export let metaWidgetsCache: MetaWidgetsReduxState;
 export let canvasWidgets: CanvasWidgetsReduxState;
 
-export function evalTree(
-  request: EvalWorkerSyncRequest<EvalTreeRequestData>,
-): EvalTreeResponseData {
+export async function evalTree(
+  request: EvalWorkerASyncRequest<EvalTreeRequestData>,
+) {
   const { data, webworkerTelemetry } = request;
 
   webworkerTelemetry["transferDataToWorkerThread"].endTime = Date.now();
@@ -76,6 +73,7 @@ export function evalTree(
     affectedJSObjects,
     allActionValidationConfig,
     appMode,
+    cacheProps,
     forceEvaluation,
     metaWidgets,
     shouldReplay,
@@ -109,16 +107,17 @@ export function evalTree(
         allActionValidationConfig,
       );
 
-      const setupFirstTreeResponse = profileFn(
+      const setupFirstTreeResponse = await profileAsyncFn(
         "setupFirstTree",
-        { description: "during initialisation" },
+        (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree.bind(
+          dataTreeEvaluator,
+          unevalTree,
+          configTree,
+          webworkerTelemetry,
+          cacheProps,
+        ),
         webworkerTelemetry,
-        () =>
-          (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree(
-            unevalTree,
-            configTree,
-            webworkerTelemetry,
-          ),
+        { description: "during initialisation" },
       );
 
       evalOrder = setupFirstTreeResponse.evalOrder;
@@ -128,8 +127,9 @@ export function evalTree(
         "evalAndValidateFirstTree",
         { description: "during initialisation" },
         webworkerTelemetry,
-        () =>
-          (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateFirstTree(),
+        (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateFirstTree.bind(
+          dataTreeEvaluator,
+        ),
       );
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
@@ -160,15 +160,17 @@ export function evalTree(
         );
       }
 
-      const setupFirstTreeResponse = profileFn(
+      const setupFirstTreeResponse = await profileAsyncFn(
         "setupFirstTree",
-        { description: "non-initialisation" },
+        (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree.bind(
+          dataTreeEvaluator,
+          unevalTree,
+          configTree,
+          webworkerTelemetry,
+          cacheProps,
+        ),
         webworkerTelemetry,
-        () =>
-          (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree(
-            unevalTree,
-            configTree,
-          ),
+        { description: "non-initialisation" },
       );
 
       isCreateFirstTree = true;
