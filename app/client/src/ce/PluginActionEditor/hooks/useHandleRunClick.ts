@@ -1,8 +1,8 @@
+import { useCallback } from "react";
+import { useDispatch } from "react-redux";
 import { runAction } from "actions/pluginActionActions";
 import type { PaginationField } from "api/ActionAPI";
 import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
-import { useCallback } from "react";
-import { useDispatch } from "react-redux";
 
 function useHandleRunClick() {
   const { action } = usePluginActionContext();

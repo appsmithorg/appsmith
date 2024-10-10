@@ -7,4 +7,6 @@ export const defaultsConfig = {
   widgetType: "AI_CHAT",
   version: 1,
   responsiveBehavior: ResponsiveBehavior.Fill,
+  initialAssistantMessage: "",
+  initialAssistantSuggestions: [],
 } as unknown as WidgetDefaultProps;
