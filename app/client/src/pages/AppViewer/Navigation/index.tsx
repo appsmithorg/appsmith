@@ -119,7 +119,7 @@ export function Navigation() {
 
   return (
     <ThemeProvider theme={lightTheme}>
-      <div ref={headerRef}>
+      <div ref={headerRef} style={{ direction: "rtl" }}>
         {/* Since the Backend doesn't have navigationSetting field by default
         and we are creating the default values only when any nav settings via the
         settings pane has changed, we need to hide the navbar ONLY when the showNavbar
