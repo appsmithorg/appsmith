@@ -3,15 +3,10 @@ name: Test Client build
 on:
   push:
     branches: [ "release" ]
-  pull_request:
-    branches: [ "release" ]
 
 jobs:
   prelude:
     runs-on: ubuntu-latest
-
-    outputs:
-      tag: ${{ steps.get_version.outputs.tag }}
 
     steps:
       - name: Environment details
