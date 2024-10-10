@@ -538,6 +538,7 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.SWITCH,
   ColumnTypes.DATE,
   ColumnTypes.CURRENCY,
+  ColumnTypes.IMAGE
 ];
 
 export function isColumnTypeEditable(columnType: string) {
