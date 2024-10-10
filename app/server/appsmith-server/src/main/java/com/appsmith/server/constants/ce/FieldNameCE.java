@@ -204,4 +204,5 @@ public class FieldNameCE {
     public static final String ARTIFACT_CONTEXT = "artifactContext";
     public static final String ARTIFACT_ID = "artifactId";
     public static final String BODY = "body";
+    public static final String INSTANCE_ADMIN_CONFIG = "instanceAdminConfig";
 }
