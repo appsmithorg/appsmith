@@ -13,8 +13,12 @@ describe("FileTab", () => {
   const mockOnClick = jest.fn();
   const mockOnClose = jest.fn();
 
-  const title = "test_file";
+  const TITLE = "test_file";
   const TabIcon = () => <Icon name="js" />;
+  const KEY_CONFIG = {
+    ENTER: { key: "Enter", keyCode: 13 },
+    ESC: { key: "Esc", keyCode: 27 },
+  };
 
   const setup = (
     mockEditorConfig: {
@@ -36,10 +40,10 @@ describe("FileTab", () => {
         isLoading={isLoading}
         onClick={mockOnClick}
         onClose={mockOnClose}
-        title={title}
+        title={TITLE}
       />,
     );
-    const tabElement = utils.getByText(title);
+    const tabElement = utils.getByText(TITLE);
 
     return {
       tabElement,
@@ -88,92 +92,82 @@ describe("FileTab", () => {
     expect(mockOnClose).toHaveBeenCalled();
   });
 
-  test("edit and hit enter", () => {
+  test("valid title actions", async () => {
     const {
       getByTestId,
       getByText,
       onTitleSave,
+      queryByText,
       tabElement,
       titleTransformer,
       validateTitle,
     } = setup();
 
-    const newTitle = "new_title";
+    // hit enter
+    const enterTitle = "enter_title";
 
     fireEvent.doubleClick(tabElement);
-    const inputElement = getByTestId(DATA_TEST_ID.INPUT);
+    fireEvent.change(getByTestId(DATA_TEST_ID.INPUT), {
+      target: { value: enterTitle },
+    });
+    expect(titleTransformer).toHaveBeenCalledWith(enterTitle);
 
-    fireEvent.change(inputElement, { target: { value: newTitle } });
-    expect(titleTransformer).toHaveBeenCalledWith(newTitle);
+    fireEvent.keyUp(getByTestId(DATA_TEST_ID.INPUT), KEY_CONFIG.ENTER);
+    expect(titleTransformer).toHaveBeenCalledWith(enterTitle);
+    expect(validateTitle).toHaveBeenCalledWith(enterTitle);
+    expect(onTitleSave).toHaveBeenCalledWith(enterTitle);
+    expect(getByText(enterTitle)).toBeInTheDocument();
 
-    fireEvent.keyUp(inputElement, { key: "Enter", keyCode: 13 });
-
-    expect(titleTransformer).toHaveBeenCalledWith(newTitle);
-    expect(validateTitle).toHaveBeenCalledWith(newTitle);
-    expect(onTitleSave).toHaveBeenCalledWith(newTitle);
-
-    expect(getByText(newTitle)).toBeInTheDocument();
-  });
-
-  test("edit and click outside", async () => {
-    const {
-      getByTestId,
-      getByText,
-      onTitleSave,
-      tabElement,
-      titleTransformer,
-      validateTitle,
-    } = setup();
-
-    const newTitle = "new_title";
+    // click outside
+    const clickOutsideTitle = "click_outside_title";
 
     fireEvent.doubleClick(tabElement);
-    const inputElement = getByTestId(DATA_TEST_ID.INPUT);
-
-    fireEvent.change(inputElement, { target: { value: newTitle } });
-    expect(titleTransformer).toHaveBeenCalledWith(newTitle);
+    fireEvent.change(getByTestId(DATA_TEST_ID.INPUT), {
+      target: { value: clickOutsideTitle },
+    });
+    expect(titleTransformer).toHaveBeenCalledWith(clickOutsideTitle);
 
     await userEvent.click(document.body);
+    expect(titleTransformer).toHaveBeenCalledWith(clickOutsideTitle);
+    expect(validateTitle).toHaveBeenCalledWith(clickOutsideTitle);
+    expect(onTitleSave).toHaveBeenCalledWith(clickOutsideTitle);
+    expect(getByText(clickOutsideTitle)).toBeInTheDocument();
 
-    expect(titleTransformer).toHaveBeenCalledWith(newTitle);
-    expect(validateTitle).toHaveBeenCalledWith(newTitle);
-    expect(onTitleSave).toHaveBeenCalledWith(newTitle);
+    // hit esc
+    const escapeTitle = "escape_title";
 
-    expect(getByText(newTitle)).toBeInTheDocument();
+    fireEvent.doubleClick(tabElement);
+    fireEvent.change(getByTestId(DATA_TEST_ID.INPUT), {
+      target: { value: escapeTitle },
+    });
+    expect(titleTransformer).toHaveBeenCalledWith(escapeTitle);
+
+    fireEvent.keyUp(getByTestId(DATA_TEST_ID.INPUT), KEY_CONFIG.ESC);
+    expect(queryByText(escapeTitle)).not.toBeInTheDocument();
+    expect(getByText(TITLE)).toBeInTheDocument();
+
+    // focus out event
+    const focusOutTitle = "focus_out_title";
+
+    fireEvent.doubleClick(tabElement);
+    fireEvent.change(getByTestId(DATA_TEST_ID.INPUT), {
+      target: { value: focusOutTitle },
+    });
+    expect(titleTransformer).toHaveBeenCalledWith(focusOutTitle);
+
+    fireEvent.keyUp(getByTestId(DATA_TEST_ID.INPUT), KEY_CONFIG.ESC);
+    expect(queryByText(focusOutTitle)).not.toBeInTheDocument();
+    expect(getByText(TITLE)).toBeInTheDocument();
   });
 
-  test("edit and hit esc", () => {
+  test("invalid title actions", async () => {
+    const validationError = "Invalid title";
+    const invalidTitle = "else";
+
     const {
       getByTestId,
       getByText,
       queryByText,
-      tabElement,
-      titleTransformer,
-    } = setup();
-
-    const newTitle = "new_title";
-
-    fireEvent.doubleClick(tabElement);
-    const inputElement = getByTestId(DATA_TEST_ID.INPUT);
-
-    fireEvent.change(inputElement, { target: { value: newTitle } });
-    expect(titleTransformer).toHaveBeenCalledWith(newTitle);
-
-    fireEvent.keyUp(inputElement, { key: "Esc", keyCode: 27 });
-
-    const newTab = queryByText(newTitle);
-    const oldTab = getByText(title);
-
-    expect(newTab).not.toBeInTheDocument();
-    expect(oldTab).toBeInTheDocument();
-  });
-
-  test("enter invalid title", () => {
-    const validationError = "Invalid title";
-
-    const {
-      getByTestId,
-      getByText,
       tabElement,
       titleTransformer,
       validateTitle,
@@ -183,21 +177,44 @@ describe("FileTab", () => {
       validateTitle: jest.fn(() => validationError),
     });
 
-    const invalidTitle = "else";
-
+    // click outside
     fireEvent.doubleClick(tabElement);
-    const inputElement = getByTestId(DATA_TEST_ID.INPUT);
-
-    fireEvent.change(inputElement, { target: { value: invalidTitle } });
+    fireEvent.change(getByTestId(DATA_TEST_ID.INPUT), {
+      target: { value: invalidTitle },
+    });
     expect(titleTransformer).toHaveBeenCalledWith(invalidTitle);
 
-    fireEvent.keyUp(inputElement, { key: "Enter", keyCode: 13 });
-
+    fireEvent.keyUp(getByTestId(DATA_TEST_ID.INPUT), KEY_CONFIG.ENTER);
     expect(titleTransformer).toHaveBeenCalledWith(invalidTitle);
     expect(validateTitle).toHaveBeenCalledWith(invalidTitle);
+    expect(getByText(validationError)).toBeInTheDocument();
 
-    const tooltip = getByText(validationError);
+    await userEvent.click(document.body);
+    expect(queryByText(validationError)).not.toBeInTheDocument();
+    expect(getByText(TITLE)).toBeInTheDocument();
 
-    expect(tooltip).toBeInTheDocument();
+    // escape
+    fireEvent.doubleClick(tabElement);
+    fireEvent.change(getByTestId(DATA_TEST_ID.INPUT), {
+      target: { value: invalidTitle },
+    });
+    expect(titleTransformer).toHaveBeenCalledWith(invalidTitle);
+
+    fireEvent.keyUp(getByTestId(DATA_TEST_ID.INPUT), KEY_CONFIG.ENTER);
+    fireEvent.keyUp(getByTestId(DATA_TEST_ID.INPUT), KEY_CONFIG.ESC);
+    expect(queryByText(validationError)).not.toBeInTheDocument();
+    expect(getByText(TITLE)).toBeInTheDocument();
+
+    // focus out event
+    fireEvent.doubleClick(tabElement);
+    fireEvent.change(getByTestId(DATA_TEST_ID.INPUT), {
+      target: { value: invalidTitle },
+    });
+    expect(titleTransformer).toHaveBeenCalledWith(invalidTitle);
+
+    fireEvent.keyUp(getByTestId(DATA_TEST_ID.INPUT), KEY_CONFIG.ENTER);
+    fireEvent.focusOut(getByTestId(DATA_TEST_ID.INPUT));
+    expect(queryByText(validationError)).not.toBeInTheDocument();
+    expect(getByText(TITLE)).toBeInTheDocument();
   });
 });

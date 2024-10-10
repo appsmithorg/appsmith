@@ -5,7 +5,7 @@ import { noop } from "lodash";
 
 import { Icon, Spinner, Tooltip } from "@appsmith/ads";
 import { sanitizeString } from "utils/URLUtils";
-import { useBoolean, useEventCallback, useOnClickOutside } from "usehooks-ts";
+import { useBoolean, useEventCallback, useEventListener } from "usehooks-ts";
 import { usePrevious } from "@mantine/hooks";
 
 import * as Styled from "./styles";
@@ -50,24 +50,20 @@ export const FileTab = ({
   const [validationError, setValidationError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const attemptToSave = () => {
-    if (editorConfig) {
-      const { onTitleSave, validateTitle } = editorConfig;
-      const nameError = validateTitle(editableTitle);
-
-      if (nameError !== null) {
-        setValidationError(nameError);
-      } else {
-        exitEditMode();
-        onTitleSave(editableTitle);
-      }
-    }
-  };
-
   const handleKeyUp = useEventCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") {
-        attemptToSave();
+        if (editorConfig) {
+          const { onTitleSave, validateTitle } = editorConfig;
+          const nameError = validateTitle(editableTitle);
+
+          if (nameError === null) {
+            exitEditMode();
+            onTitleSave(editableTitle);
+          } else {
+            setValidationError(nameError);
+          }
+        }
       } else if (e.key === "Escape") {
         exitEditMode();
         setEditableTitle(title);
@@ -77,10 +73,6 @@ export const FileTab = ({
       }
     },
   );
-
-  useOnClickOutside(inputRef, () => {
-    attemptToSave();
-  });
 
   const handleTitleChange = useEventCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,24 +107,50 @@ export const FileTab = ({
     [handleKeyUp, handleTitleChange],
   );
 
-  useEffect(() => {
-    if (!isEditing && previousTitle !== title) {
-      setEditableTitle(title);
-    }
-  }, [title, previousTitle, isEditing]);
+  useEventListener(
+    "focusout",
+    function handleFocusOut() {
+      if (isEditing && editorConfig) {
+        const { onTitleSave, validateTitle } = editorConfig;
+        const nameError = validateTitle(editableTitle);
+
+        exitEditMode();
+
+        if (nameError === null) {
+          onTitleSave(editableTitle);
+        } else {
+          setEditableTitle(title);
+          setValidationError(null);
+        }
+      }
+    },
+    inputRef,
+  );
+
+  useEffect(
+    function syncEditableTitle() {
+      if (!isEditing && previousTitle !== title) {
+        setEditableTitle(title);
+      }
+    },
+    [title, previousTitle, isEditing],
+  );
 
   // TODO: This is a temporary fix to focus the input after context retention applies focus to its target
   // this is a nasty hack to re-focus the input after context retention applies focus to its target
   // this will be addressed in a future task, likely by a focus retention modification
-  useEffect(() => {
-    const input = inputRef.current;
+  useEffect(
+    function recaptureFocusInEventOfFocusRetention() {
+      const input = inputRef.current;
 
-    if (isEditing && input) {
-      setTimeout(() => {
-        input.focus();
-      }, 200);
-    }
-  }, [isEditing]);
+      if (isEditing && input) {
+        setTimeout(() => {
+          input.focus();
+        }, 200);
+      }
+    },
+    [isEditing],
+  );
 
   return (
     <Styled.Tab
