@@ -26,4 +26,6 @@ public interface ApplicationRepositoryCE extends BaseRepository<Application, Str
     Mono<Long> countByDeletedAtNull();
 
     Mono<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
+
+    Flux<Application> findByWorkspaceIdOrderByNameAsc(String workspaceId);
 }

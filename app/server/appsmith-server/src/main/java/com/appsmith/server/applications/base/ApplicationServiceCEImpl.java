@@ -57,6 +57,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -209,6 +210,50 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             return !GitUtils.isApplicationConnectedToGit(application)
                                     || GitUtils.isDefaultBranchedApplication(application);
                         })));
+    }
+
+    /**
+     * This method is used to fetch all the applications for a given workspaceId. It also sorts the applications based
+     * in alphabetical order.
+     * For git connected applications only default branched application is returned.
+     * @param workspaceId   workspaceId for which applications are to be fetched
+     * @return              Flux of applications
+     */
+    @Override
+    public Flux<Application> findByWorkspaceIdAndBaseApplicationsInAlphabeticalOrder(String workspaceId) {
+
+        if (!StringUtils.hasLength(workspaceId)) {
+            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+
+        // Read the workspace
+        Mono<Workspace> workspaceMono = workspaceService
+                .findById(workspaceId, workspacePermission.getReadPermission())
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
+
+        Mono<RecentlyUsedEntityDTO> userDataMono = userDataService
+                .getForCurrentUser()
+                .defaultIfEmpty(new UserData())
+                .map(userData -> {
+                    if (userData.getRecentlyUsedEntityIds() == null) {
+                        return new RecentlyUsedEntityDTO();
+                    }
+                    return userData.getRecentlyUsedEntityIds().stream()
+                            .filter(entityDTO -> workspaceId.equals(entityDTO.getWorkspaceId()))
+                            .findFirst()
+                            .orElse(new RecentlyUsedEntityDTO());
+                });
+
+        // Fetch applications sorted by name from MongoDB
+        return workspaceMono.thenMany(userDataMono.flatMapMany(
+                recentlyUsedEntityDTO -> repository.findByWorkspaceIdOrderByNameAsc(workspaceId)
+                        .filter(application -> {
+                            // Filter applications that are either not connected to Git or are default-branched
+                            return !GitUtils.isApplicationConnectedToGit(application)
+                                    || GitUtils.isDefaultBranchedApplication(application);
+                        })
+        ));
     }
 
     @Override

@@ -4520,4 +4520,48 @@ public class ApplicationServiceCETest {
                 .block();
         assertThat(cachedBaseAppId2).isNull();
     }
+    @Test
+    @WithUserDetails(value = "usertest@usertest.com")
+    public void
+            findByWorkspaceIdAndBaseApplicationsInAlphabeticalOrder_applicationPresentInWorkspace_orderedAlphabetically() {
+        // Create a workspace for this user first.
+        Workspace workspace = new Workspace();
+        workspace.setName("usertest's workspace");
+        workspace = workspaceService.create(workspace).block();
+
+        assert workspace != null;
+        List<String> applicationIds = createDummyApplications(workspace.getId());
+
+        // Fetch user data but we are not using recently used application ids anymore
+        UserData userData = new UserData();
+        RecentlyUsedEntityDTO usedEntityDTO = new RecentlyUsedEntityDTO();
+        usedEntityDTO.setWorkspaceId(workspace.getId());
+        userData.setRecentlyUsedEntityIds(List.of(usedEntityDTO));
+        doReturn(Mono.just(userData)).when(userDataService).getForCurrentUser();
+
+        // Fetch applications from the service which should return them in alphabetical order
+        Flux<Application> allApplicationsWithinWorkspace =
+                applicationService.findByWorkspaceIdAndBaseApplicationsInAlphabeticalOrder(workspace.getId());
+
+        StepVerifier.create(allApplicationsWithinWorkspace.collectList())
+                .assertNext(applications -> {
+                    assertThat(applications).hasSize(4);
+
+                    // Check if the applications are sorted alphabetically by name
+                    List<String> applicationNames = new ArrayList<>();
+                    applications.forEach(application -> applicationNames.add(application.getName()));
+
+                    // Create a sorted copy of the list and compare
+                    List<String> sortedApplicationNames = new ArrayList<>(applicationNames);
+                    sortedApplicationNames.sort(String::compareTo);
+
+                    assertThat(applicationNames).isEqualTo(sortedApplicationNames);
+                })
+                .verifyComplete();
+
+        // Clean up
+        applicationIds.forEach(applicationId ->
+                applicationPageService.deleteApplication(applicationId).block());
+        workspaceService.archiveById(workspace.getId()).block();
+    }
 }
