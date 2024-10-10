@@ -60,7 +60,9 @@ export interface UpdatePropertyArgs {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any;
 }
-export type BlueprintOperationAddActionFn = () => void;
+export type BlueprintOperationAddActionFn = (
+  widget: WidgetProps & { children?: WidgetProps[] },
+) => Generator;
 export type BlueprintOperationModifyPropsFn = (
   widget: WidgetProps & { children?: WidgetProps[] },
   widgets: { [widgetId: string]: FlattenedWidgetProps },
@@ -110,12 +112,27 @@ export function* executeWidgetBlueprintOperations(
 ) {
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
 
-  operations.forEach((operation: BlueprintOperation) => {
+  for (const operation of operations) {
     const widget: WidgetProps & { children?: string[] | WidgetProps[] } = {
       ...widgets[widgetId],
     };
 
     switch (operation.type) {
+      case BlueprintOperationTypes.ADD_ACTION:
+        if (operation.fn) {
+          const updatePropertyPayloads: UpdatePropertyArgs[] | undefined =
+            yield (operation.fn as BlueprintOperationAddActionFn)(
+              widget as WidgetProps & { children?: WidgetProps[] },
+            );
+
+          updatePropertyPayloads &&
+            updatePropertyPayloads.forEach((params: UpdatePropertyArgs) => {
+              widgets[params.widgetId][params.propertyName] =
+                params.propertyValue;
+            });
+        }
+
+        break;
       case BlueprintOperationTypes.MODIFY_PROPS:
         if (widget.children && widget.children.length > 0) {
           widget.children = (widget.children as string[]).map(
@@ -139,7 +156,7 @@ export function* executeWidgetBlueprintOperations(
           });
         break;
     }
-  });
+  }
 
   const result: { [widgetId: string]: FlattenedWidgetProps } = yield widgets;
 
