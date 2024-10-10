@@ -21,6 +21,7 @@ public class ServerApplication {
         printBuildInfo();
     }
 
+    // Unnecessary comment to raise PR
     public static void main(String[] args) {
         new SpringApplicationBuilder(ServerApplication.class)
                 .bannerMode(Banner.Mode.OFF)
