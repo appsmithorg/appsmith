@@ -17,7 +17,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { ICON_NAMES } from "WidgetProvider/constants";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import { isNil, isNumber, merge, toString } from "lodash";
+import { isNil, isNumber, merge, toString, omit } from "lodash";
 import derivedProperties from "./parsedDerivedProperties";
 import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
@@ -300,6 +300,13 @@ function InputTypeUpdateHook(
 }
 
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
+  constructor(props: InputWidgetProps) {
+    super(props);
+    this.state = {
+      isFocused: false,
+    };
+  }
+
   static type = "INPUT_WIDGET_V2";
 
   static getConfig() {
@@ -641,7 +648,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
-    return merge(super.getMetaPropertiesMap(), {
+    const baseMetaProperties = super.getMetaPropertiesMap();
+    const rest = omit(baseMetaProperties, ["isFocused"]);
+
+    return merge(rest, {
       inputText: "",
       text: "",
     });
@@ -663,8 +673,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   }
 
   handleFocusChange = (focusState: boolean) => {
+    this.setState({ isFocused: focusState });
+
     if (focusState) {
-      this.props.updateWidgetMetaProperty("isFocused", focusState, {
+      this.executeAction({
         triggerPropertyName: "onFocus",
         dynamicString: this.props.onFocus,
         event: {
@@ -674,7 +686,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     }
 
     if (!focusState) {
-      this.props.updateWidgetMetaProperty("isFocused", focusState, {
+      this.executeAction({
         triggerPropertyName: "onBlur",
         dynamicString: this.props.onBlur,
         event: {
