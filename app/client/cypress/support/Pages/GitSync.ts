@@ -453,4 +453,16 @@ export class GitSync {
     }
     this.CloseGitSyncModal();
   }
+
+  public AssertBranchName(branch: string) {
+    this.agHelper.AssertElementVisibility(this._branchButton);
+    this.agHelper.AssertContains(branch);
+  }
+
+  public AssertBranchNameInUrl(branch: string) {
+    cy.location("search")
+      .then((searchParams) => new URLSearchParams(searchParams))
+      .invoke("get", "branch")
+      .should("equal", branch);
+  }
 }
