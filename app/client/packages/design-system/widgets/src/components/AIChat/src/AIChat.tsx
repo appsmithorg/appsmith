@@ -1,14 +1,14 @@
-import { Button, Flex, Text, TextArea } from "@appsmith/wds";
-import type { FormEvent, ForwardedRef, KeyboardEvent } from "react";
-import React, { forwardRef, useCallback } from "react";
+import { Avatar, Button, ChatInput, Flex, Icon, Text } from "@appsmith/wds";
+import type { ForwardedRef } from "react";
+import React, { forwardRef } from "react";
 import { ChatDescriptionModal } from "./ChatDescriptionModal";
-import { ChatTitle } from "./ChatTitle";
 import styles from "./styles.module.css";
 import { ThreadMessage } from "./ThreadMessage";
 import type { AIChatProps, ChatMessage } from "./types";
-import { UserAvatar } from "./UserAvatar";
 
 const MIN_PROMPT_LENGTH = 3;
+const LOGO =
+  "https://app.appsmith.com/static/media/appsmith_logo_square.3867b1959653dabff8dc.png";
 
 const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
   const {
@@ -28,24 +28,6 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
   const [isChatDescriptionModalOpen, setIsChatDescriptionModalOpen] =
     React.useState(false);
 
-  const handleFormSubmit = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      onSubmit?.();
-    },
-    [onSubmit],
-  );
-
-  const handlePromptInputKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLTextAreaElement>) => {
-      if (event.key === "Enter" && event.shiftKey) {
-        event.preventDefault();
-        onSubmit?.();
-      }
-    },
-    [onSubmit],
-  );
-
   return (
     <div className={styles.root} ref={ref} {...rest}>
       <ChatDescriptionModal
@@ -59,7 +41,12 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
 
       <div className={styles.header}>
         <Flex alignItems="center" gap="spacing-2">
-          <ChatTitle title={chatTitle} />
+          <Flex alignItems="center" gap="spacing-3">
+            <Avatar label="Appsmith AI" size="large" src={LOGO} />
+            <Text fontWeight={600} size="subtitle">
+              {chatTitle}
+            </Text>
+          </Flex>
           <Button
             icon="info-square-rounded"
             onPress={() => setIsChatDescriptionModalOpen(true)}
@@ -68,7 +55,7 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
         </Flex>
 
         <Flex alignItems="center" gap="spacing-2">
-          <UserAvatar username={username} />
+          <Avatar label={username} />
           <Text data-testid="t--aichat-username" size="body">
             {username}
           </Text>
@@ -86,20 +73,35 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
         ))}
       </ul>
 
-      <form className={styles.promptForm} onSubmit={handleFormSubmit}>
-        <TextArea
-          // TODO: Handle isWaitingForResponse: true state
-          isDisabled={isWaitingForResponse}
-          name="prompt"
+      <Flex
+        direction="column"
+        gap="spacing-3"
+        paddingBottom="spacing-4"
+        paddingLeft="spacing-6"
+        paddingRight="spacing-6"
+        paddingTop="spacing-4"
+      >
+        <ChatInput
+          isLoading={isWaitingForResponse}
+          isSubmitDisabled={prompt.length < MIN_PROMPT_LENGTH}
           onChange={onPromptChange}
-          onKeyDown={handlePromptInputKeyDown}
+          onSubmit={onSubmit}
           placeholder={promptInputPlaceholder}
           value={prompt}
         />
-        <Button isDisabled={prompt.length < MIN_PROMPT_LENGTH} type="submit">
-          Send
-        </Button>
-      </form>
+        <Flex
+          alignItems="center"
+          flexGrow={1}
+          gap="spacing-1"
+          justifyContent="center"
+        >
+          <Icon name="alert-circle" size="small" />
+          <Text color="neutral" size="caption" textAlign="center">
+            LLM assistant can make mistakes. Answers should be verified before
+            they are trusted.
+          </Text>
+        </Flex>
+      </Flex>
     </div>
   );
 };
