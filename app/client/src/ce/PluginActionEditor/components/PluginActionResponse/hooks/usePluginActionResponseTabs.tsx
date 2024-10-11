@@ -17,10 +17,12 @@ import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import { PluginType } from "entities/Action";
 import { ApiResponse } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
 import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponseHeaders";
-import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import { getPluginActionDebuggerState } from "PluginActionEditor/store";
+import {
+  getPluginActionDebuggerState,
+  isActionRunning,
+} from "PluginActionEditor/store";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 import Schema from "components/editorComponents/Debugger/Schema";
@@ -28,9 +30,11 @@ import QueryResponseTab from "pages/Editor/QueryEditor/QueryResponseTab";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import {
+  useBlockExecution,
   useHandleRunClick,
   useAnalyticsOnRunClick,
 } from "PluginActionEditor/hooks";
+import useDebuggerTriggerClick from "components/editorComponents/Debugger/hooks/useDebuggerTriggerClick";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =
@@ -45,6 +49,10 @@ function usePluginActionResponseTabs() {
   const showSchema = useShowSchema(plugin.id) && pluginRequireDatasource;
 
   const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
+
+  const onDebugClick = useDebuggerTriggerClick();
+  const isRunning = useSelector(isActionRunning(action.id));
+  const blockExecution = useBlockExecution();
 
   const tabs: BottomTab[] = [];
 
@@ -78,8 +86,8 @@ function usePluginActionResponseTabs() {
           <ApiResponse
             action={action}
             actionResponse={actionResponse}
-            isRunDisabled={false}
-            isRunning={false}
+            isRunDisabled={blockExecution}
+            isRunning={isRunning}
             onRunClick={onRunClick}
             responseTabHeight={responseTabHeight}
             theme={EditorTheme.LIGHT}
@@ -92,9 +100,9 @@ function usePluginActionResponseTabs() {
         panelComponent: (
           <ApiResponseHeaders
             actionResponse={actionResponse}
-            isRunDisabled={false}
-            isRunning={false}
-            onDebugClick={noop}
+            isRunDisabled={blockExecution}
+            isRunning={isRunning}
+            onDebugClick={onDebugClick}
             onRunClick={onRunClick}
           />
         ),
@@ -141,7 +149,7 @@ function usePluginActionResponseTabs() {
           actionName={action.name}
           actionSource={actionSource}
           currentActionConfig={action}
-          isRunning={false}
+          isRunning={isRunning}
           onRunClick={onRunClick}
           runErrorMessage={""} // TODO
         />
