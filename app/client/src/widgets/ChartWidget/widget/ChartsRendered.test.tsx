@@ -76,6 +76,7 @@ describe("ChartWidget getWidgetView", () => {
 
   it("renders empty chart data state", () => {
     chartWidget = new ChartWidget({ ...defaultProps, chartData: {} });
+
     const view = chartWidget.getWidgetView();
 
     expect(view.type).toEqual(EmptyChartData);
