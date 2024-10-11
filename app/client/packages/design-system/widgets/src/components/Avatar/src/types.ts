@@ -1,6 +1,6 @@
 import type { HTMLProps } from "react";
 
-export interface AvatarProps extends HTMLProps<HTMLSpanElement> {
+export interface AvatarProps extends Omit<HTMLProps<HTMLSpanElement>, "size"> {
   /** The label of the avatar */
   label: string;
   /** The image source of the avatar */

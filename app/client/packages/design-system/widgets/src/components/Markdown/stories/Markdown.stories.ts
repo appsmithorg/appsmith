@@ -11,7 +11,7 @@ type Story = StoryObj<typeof Markdown>;
 
 export const Default: Story = {
   args: {
-    content: `# Hello, Markdown!
+    children: `# Hello, Markdown!
 
 This is a paragraph with **bold** and *italic* text.
 
@@ -57,27 +57,6 @@ console.log(greeting);
 > This is a blockquote.
 >
 > It can span multiple lines.
-
-## Horizontal Rule Example
-
 `,
-  },
-};
-
-export const WithCustomOptions: Story = {
-  args: {
-    content: `# Custom Heading
-
-This example uses custom options to disable certain elements.
-
-1. Numbered list item
-2. Another numbered list item
-
-> This blockquote will be removed
-`,
-    options: {
-      disableParsingRawHTML: true,
-      disallowedElements: ["blockquote"],
-    },
   },
 };
