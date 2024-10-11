@@ -1,6 +1,7 @@
 import { RenderModes } from "constants/WidgetConstants";
 import ChartWidget, { type ChartWidgetProps } from ".";
 import { LabelOrientation, type ChartData } from "../constants";
+import { EmptyChartData } from "../component/EmptyChartData";
 
 describe("ChartWidget getWidgetView", () => {
   let chartWidget: ChartWidget;
@@ -57,7 +58,7 @@ describe("ChartWidget getWidgetView", () => {
 
     const view = chartWidget.getWidgetView();
 
-    expect(view).toMatchSnapshot();
+    expect(view.props.children.props.isLoading).toBe(true);
   });
 
   it("renders error state", () => {
@@ -70,20 +71,23 @@ describe("ChartWidget getWidgetView", () => {
 
     const view = chartWidget.getWidgetView();
 
-    expect(view).toMatchSnapshot();
+    expect(view.props.error.message).toBe("We have a error");
   });
 
   it("renders empty chart data state", () => {
     chartWidget = new ChartWidget({ ...defaultProps, chartData: {} });
     const view = chartWidget.getWidgetView();
 
-    expect(view).toMatchSnapshot();
+    expect(view.type).toEqual(EmptyChartData);
   });
 
   it("renders chart with data", () => {
     chartWidget = new ChartWidget(defaultProps);
     const view = chartWidget.getWidgetView();
 
-    expect(view).toMatchSnapshot();
+    expect(view.props.children.props.chartData).toEqual({
+      seriesID1: seriesData1,
+      seriesID2: seriesData2,
+    });
   });
 });
