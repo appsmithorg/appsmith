@@ -22,12 +22,3 @@
     align-items: center;
   }
 }
-
-.thread {
-  display: flex;
-  flex-direction: column;
-  gap: var(--inner-spacing-3);
-  align-self: stretch;
-  padding: 0px var(--inner-spacing-6) var(--inner-spacing-5)
-    var(--inner-spacing-6);
-}

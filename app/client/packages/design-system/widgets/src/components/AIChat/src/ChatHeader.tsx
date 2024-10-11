@@ -1,5 +1,4 @@
-import React from "react";
-import styles from "./styles.module.css";
+import React, { useState } from "react";
 import {
   Avatar,
   Button,
@@ -11,6 +10,8 @@ import {
   Text,
 } from "@appsmith/wds";
 
+import styles from "./styles.module.css";
+
 // this value might come from props in future. So keeping a temporary value here.
 const LOGO =
   "https://app.appsmith.com/static/media/appsmith_logo_square.3867b1959653dabff8dc.png";
@@ -21,7 +22,7 @@ export const ChatHeader: React.FC<{
   chatDescription?: string;
 }> = ({ chatDescription, chatTitle, username }) => {
   const [isChatDescriptionModalOpen, setIsChatDescriptionModalOpen] =
-    React.useState(false);
+    useState(false);
 
   return (
     <>
