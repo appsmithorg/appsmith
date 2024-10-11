@@ -3,7 +3,10 @@ import { IDEToolbar } from "IDE";
 import { Button, Menu, MenuContent, MenuTrigger, Tooltip } from "@appsmith/ads";
 import { modText } from "utils/helpers";
 import { usePluginActionContext } from "../PluginActionContext";
-import { useHandleRunClick } from "PluginActionEditor/hooks";
+import {
+  useHandleRunClick,
+  useAnalyticsOnRunClick,
+} from "PluginActionEditor/hooks";
 import { useToggle } from "@mantine/hooks";
 
 interface PluginActionToolbarProps {
@@ -15,7 +18,13 @@ interface PluginActionToolbarProps {
 const PluginActionToolbar = (props: PluginActionToolbarProps) => {
   const { action } = usePluginActionContext();
   const { handleRunClick } = useHandleRunClick();
+  const { callRunActionAnalytics } = useAnalyticsOnRunClick();
   const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
+
+  const onRunClick = () => {
+    callRunActionAnalytics();
+    handleRunClick();
+  };
 
   return (
     <IDEToolbar>
@@ -27,7 +36,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
           placement="topRight"
           showArrow={false}
         >
-          <Button kind="primary" onClick={() => handleRunClick()} size="sm">
+          <Button kind="primary" onClick={onRunClick} size="sm">
             Run
           </Button>
         </Tooltip>
