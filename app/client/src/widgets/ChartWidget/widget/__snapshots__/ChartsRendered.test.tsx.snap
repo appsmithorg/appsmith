@@ -1,0 +1,253 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ChartWidget getWidgetView renders chart with data 1`] = `
+<React.Suspense
+  fallback={<Skeleton />}
+>
+  <UNDEFINED
+    allowScroll={true}
+    borderRadius="1"
+    boxShadow="1"
+    chartData={
+      Object {
+        "seriesID1": Object {
+          "color": "series1color",
+          "data": Array [
+            Object {
+              "x": "x1",
+              "y": 1,
+            },
+          ],
+          "seriesName": "series1",
+        },
+        "seriesID2": Object {
+          "color": "series2color",
+          "data": Array [
+            Object {
+              "x": "x1",
+              "y": 2,
+            },
+          ],
+          "seriesName": "series2",
+        },
+      }
+    }
+    chartName="chart name"
+    chartType="AREA_CHART"
+    customEChartConfig={Object {}}
+    customFusionChartConfig={
+      Object {
+        "dataSource": undefined,
+        "type": "type",
+      }
+    }
+    dimensions={
+      Object {
+        "allowScroll": true,
+        "borderRadius": "1",
+        "bottomRow": 0,
+        "boxShadow": "1",
+        "chartData": Object {
+          "seriesID1": Object {
+            "color": "series1color",
+            "data": Array [
+              Object {
+                "x": "x1",
+                "y": 1,
+              },
+            ],
+            "seriesName": "series1",
+          },
+          "seriesID2": Object {
+            "color": "series2color",
+            "data": Array [
+              Object {
+                "x": "x1",
+                "y": 2,
+              },
+            ],
+            "seriesName": "series2",
+          },
+        },
+        "chartName": "chart name",
+        "chartType": "AREA_CHART",
+        "customEChartConfig": Object {},
+        "customFusionChartConfig": Object {
+          "dataSource": undefined,
+          "type": "type",
+        },
+        "dimensions": Object {
+          "componentHeight": 11,
+          "componentWidth": 11,
+        },
+        "fontFamily": "fontfamily",
+        "hasOnDataPointClick": true,
+        "isLoading": false,
+        "isVisible": true,
+        "labelOrientation": "auto",
+        "leftColumn": 0,
+        "onDataPointClick": "",
+        "parentColumnSpace": 1,
+        "parentRowSpace": 1,
+        "primaryColor": "primarycolor",
+        "renderMode": "CANVAS",
+        "rightColumn": 0,
+        "setAdaptiveYMin": false,
+        "showDataPointLabel": true,
+        "topRow": 0,
+        "type": "CHART_WIDGET",
+        "version": 1,
+        "widgetId": "widgetID",
+        "widgetName": "widgetName",
+        "xAxisName": "xaxisname",
+        "yAxisName": "yaxisname",
+      }
+    }
+    fontFamily="Nunito Sans"
+    hasOnDataPointClick={false}
+    isLoading={false}
+    isVisible={true}
+    labelOrientation="auto"
+    onDataPointClick={[Function]}
+    primaryColor="#553DE9"
+    setAdaptiveYMin={false}
+    showDataPointLabel={true}
+    widgetId="widgetID"
+    xAxisName="xaxisname"
+    yAxisName="yaxisname"
+  />
+</React.Suspense>
+`;
+
+exports[`ChartWidget getWidgetView renders empty chart data state 1`] = `<EmptyChartData />`;
+
+exports[`ChartWidget getWidgetView renders error state 1`] = `
+<ChartErrorComponent
+  error={
+    Object {
+      "message": "We have a error",
+      "name": "error",
+      "type": "configuration",
+    }
+  }
+/>
+`;
+
+exports[`ChartWidget getWidgetView renders loading state 1`] = `
+<React.Suspense
+  fallback={<Skeleton />}
+>
+  <UNDEFINED
+    allowScroll={true}
+    borderRadius="1"
+    boxShadow="1"
+    chartData={
+      Object {
+        "seriesID1": Object {
+          "color": "series1color",
+          "data": Array [
+            Object {
+              "x": "x1",
+              "y": 1,
+            },
+          ],
+          "seriesName": "series1",
+        },
+        "seriesID2": Object {
+          "color": "series2color",
+          "data": Array [
+            Object {
+              "x": "x1",
+              "y": 2,
+            },
+          ],
+          "seriesName": "series2",
+        },
+      }
+    }
+    chartName="chart name"
+    chartType="AREA_CHART"
+    customEChartConfig={Object {}}
+    customFusionChartConfig={
+      Object {
+        "dataSource": undefined,
+        "type": "type",
+      }
+    }
+    dimensions={
+      Object {
+        "allowScroll": true,
+        "borderRadius": "1",
+        "bottomRow": 0,
+        "boxShadow": "1",
+        "chartData": Object {
+          "seriesID1": Object {
+            "color": "series1color",
+            "data": Array [
+              Object {
+                "x": "x1",
+                "y": 1,
+              },
+            ],
+            "seriesName": "series1",
+          },
+          "seriesID2": Object {
+            "color": "series2color",
+            "data": Array [
+              Object {
+                "x": "x1",
+                "y": 2,
+              },
+            ],
+            "seriesName": "series2",
+          },
+        },
+        "chartName": "chart name",
+        "chartType": "AREA_CHART",
+        "customEChartConfig": Object {},
+        "customFusionChartConfig": Object {
+          "dataSource": undefined,
+          "type": "type",
+        },
+        "dimensions": Object {
+          "componentHeight": 11,
+          "componentWidth": 11,
+        },
+        "fontFamily": "fontfamily",
+        "hasOnDataPointClick": true,
+        "isLoading": true,
+        "isVisible": true,
+        "labelOrientation": "auto",
+        "leftColumn": 0,
+        "onDataPointClick": "",
+        "parentColumnSpace": 1,
+        "parentRowSpace": 1,
+        "primaryColor": "primarycolor",
+        "renderMode": "CANVAS",
+        "rightColumn": 0,
+        "setAdaptiveYMin": false,
+        "showDataPointLabel": true,
+        "topRow": 0,
+        "type": "CHART_WIDGET",
+        "version": 1,
+        "widgetId": "widgetID",
+        "widgetName": "widgetName",
+        "xAxisName": "xaxisname",
+        "yAxisName": "yaxisname",
+      }
+    }
+    fontFamily="Nunito Sans"
+    hasOnDataPointClick={false}
+    isLoading={true}
+    isVisible={true}
+    labelOrientation="auto"
+    onDataPointClick={[Function]}
+    primaryColor="#553DE9"
+    setAdaptiveYMin={false}
+    showDataPointLabel={true}
+    widgetId="widgetID"
+    xAxisName="xaxisname"
+    yAxisName="yaxisname"
+  />
+</React.Suspense>
+`;
