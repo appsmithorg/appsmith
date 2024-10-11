@@ -107,6 +107,6 @@
     padding-left: var(--inner-spacing-3);
     padding-right: var(--inner-spacing-3);
     margin-left: 0;
-    border-left: var(--border-width-2) solid var(--color-bd);
+    border-left: var(--border-width-2) solid var(--color-bd-neutral);
   }
 }
