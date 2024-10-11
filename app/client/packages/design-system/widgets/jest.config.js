@@ -1,4 +1,3 @@
-
 const esModules = ["remark-gfm"].join("|");
 
 module.exports = {
