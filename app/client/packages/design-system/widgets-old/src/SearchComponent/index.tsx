@@ -100,10 +100,12 @@ class SearchComponent extends React.Component<
       this.setState({ localValue: this.props.value });
     }
 
-    if (prevProps.enableClientSideSearch !== this.props.enableClientSideSearch) {
+    if (
+      prevProps.enableClientSideSearch !== this.props.enableClientSideSearch
+    ) {
       this.setState({ localValue: "" }, () => {
         // Trigger search with an empty value to reset the table
-      this.props.onSearch("");
+        this.props.onSearch("");
       });
     }
   }
@@ -116,8 +118,8 @@ class SearchComponent extends React.Component<
     const search = event.target.value;
     this.setState({ localValue: search });
     if (this.props.enableClientSideSearch) {
-        this.onDebouncedSearch(search);
-      }
+      this.onDebouncedSearch(search);
+    }
   };
   clearSearch = () => {
     this.setState({ localValue: "" });
