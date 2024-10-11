@@ -2,6 +2,7 @@ import { RenderModes } from "constants/WidgetConstants";
 import ChartWidget, { type ChartWidgetProps } from ".";
 import { LabelOrientation, type ChartData } from "../constants";
 import { EmptyChartData } from "../component/EmptyChartData";
+import type { WidgetError } from "widgets/BaseWidget";
 
 describe("ChartWidget getWidgetView", () => {
   let chartWidget: ChartWidget;
@@ -52,21 +53,52 @@ describe("ChartWidget getWidgetView", () => {
     version: 1,
     renderMode: RenderModes.CANVAS,
   };
+  const errors: WidgetError[] = [
+    {
+      name: "error",
+      type: "configuration",
+      message: "We have a error",
+    },
+  ];
 
-  it("renders loading state", () => {
-    chartWidget = new ChartWidget({ ...defaultProps, isLoading: true });
+  describe("loading state", () => {
+    it("isLoading: true", () => {
+      chartWidget = new ChartWidget({ ...defaultProps, isLoading: true });
 
-    const view = chartWidget.getWidgetView();
+      const view = chartWidget.getWidgetView();
 
-    expect(view.props.children.props.isLoading).toBe(true);
+      expect(view.props.children.props.isLoading).toBe(true);
+    });
+
+    it("isLoading: true + errors", () => {
+      chartWidget = new ChartWidget({
+        ...defaultProps,
+        isLoading: true,
+        errors,
+      });
+
+      const view = chartWidget.getWidgetView();
+
+      expect(view.props.children.props.isLoading).toBe(true);
+    });
+    it("isLoading: true + emptyChartData", () => {
+      chartWidget = new ChartWidget({
+        ...defaultProps,
+        isLoading: true,
+        errors,
+        chartData: {},
+      });
+
+      const view = chartWidget.getWidgetView();
+
+      expect(view.props.children.props.isLoading).toBe(true);
+    });
   });
 
   it("renders error state", () => {
     chartWidget = new ChartWidget({
       ...defaultProps,
-      errors: [
-        { name: "error", type: "configuration", message: "We have a error" },
-      ],
+      errors,
     });
 
     const view = chartWidget.getWidgetView();
