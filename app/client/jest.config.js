@@ -4,15 +4,12 @@ function parseConfig() {
 const LOG_LEVELS = ["debug", "error"];
 const CONFIG_LOG_LEVEL_INDEX = 1;
 
-const esModules = ["remark-gfm"].join("|");
-
 module.exports = {
   setupFiles: ["jest-canvas-mock", "<rootDir>/test/__mocks__/reactMarkdown.tsx"],
   roots: ["<rootDir>/src"],
   transform: {
     "^.+\\.(png|js|ts|tsx)$": "ts-jest",
   },
-  [`(${esModules}).+\\.js$`]: '<rootDir>/config/jest/babelTransform.js',
   testEnvironment: "jsdom",
   testTimeout: 9000,
   setupFilesAfterEnv: ["<rootDir>/test/setup.ts"],
@@ -20,7 +17,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    `<rootDir>/node_modules/(?!codemirror|konva|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never|axios|${esModules})`,
+    "<rootDir>/node_modules/(?!codemirror|konva|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never|axios)",
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
