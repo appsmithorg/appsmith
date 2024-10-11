@@ -2,7 +2,7 @@ import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type LOG_TYPE from "./logtype";
 import type { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import type { PluginType } from "entities/Action";
-import type { HTTP_METHOD } from "../../PluginActionEditor/constants/CommonApiConstants";
+import type { HTTP_METHOD } from "PluginActionEditor/constants/CommonApiConstants";
 import type {
   ENTITY_TYPE,
   PLATFORM_ERROR,

@@ -73,7 +73,7 @@ import {
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
-import { ActionExecutionResizerHeight } from "../../../PluginActionEditor/components/PluginActionResponse/constants";
+import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 import {
   getPluginActionConfigSelectedTab,
   getPluginActionDebuggerState,
@@ -81,7 +81,7 @@ import {
   setPluginActionEditorSelectedTab,
 } from "PluginActionEditor/store";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import { API_EDITOR_TABS } from "../../../PluginActionEditor/constants/CommonApiConstants";
+import { API_EDITOR_TABS } from "PluginActionEditor/constants/CommonApiConstants";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [

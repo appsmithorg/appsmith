@@ -9,7 +9,7 @@ import { getCodeFromMoustache, getEvaluationVersion } from "../../utils";
 import { ApiMethodIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { getCurrentActions } from "ee/selectors/entitiesSelector";
 import { useSelector } from "react-redux";
-import type { HTTP_METHOD } from "../../../../../PluginActionEditor/constants/CommonApiConstants";
+import type { HTTP_METHOD } from "PluginActionEditor/constants/CommonApiConstants";
 
 function GetIconForAction(
   actionType: ActionTree["actionType"],

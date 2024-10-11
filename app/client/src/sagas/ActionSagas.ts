@@ -125,8 +125,8 @@ import {
   API_EDITOR_FORM_NAME,
   QUERY_EDITOR_FORM_NAME,
 } from "ee/constants/forms";
-import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "../PluginActionEditor/constants/GraphQLEditorConstants";
-import { DEFAULT_API_ACTION_CONFIG } from "../PluginActionEditor/constants/ApiEditorConstants";
+import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "PluginActionEditor/constants/GraphQLEditorConstants";
+import { DEFAULT_API_ACTION_CONFIG } from "PluginActionEditor/constants/ApiEditorConstants";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { setAIPromptTriggered } from "utils/storage";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";

@@ -17,7 +17,7 @@ import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import {
   DEFAULT_MULTI_PART_DROPDOWN_PLACEHOLDER,
   MULTI_PART_DROPDOWN_OPTIONS,
-} from "../../../../PluginActionEditor/constants/CommonApiConstants";
+} from "PluginActionEditor/constants/CommonApiConstants";
 import { Button, Text } from "@appsmith/ads";
 import RequestDropdownField from "./RequestDropdownField";
 

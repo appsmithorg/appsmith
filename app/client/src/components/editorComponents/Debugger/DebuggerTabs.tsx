@@ -22,7 +22,7 @@ import {
 } from "ee/constants/messages";
 import { DEBUGGER_TAB_KEYS } from "./constants";
 import EntityBottomTabs from "../EntityBottomTabs";
-import { ActionExecutionResizerHeight } from "../../../PluginActionEditor/components/PluginActionResponse/constants";
+import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 import { IDEBottomView, ViewHideBehaviour, ViewDisplayMode } from "IDE";
 
 function DebuggerTabs() {

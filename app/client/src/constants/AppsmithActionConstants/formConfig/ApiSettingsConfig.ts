@@ -5,7 +5,7 @@ import {
 import {
   HTTP_PROTOCOL,
   HTTP_PROTOCOL_VERSIONS,
-} from "../../../PluginActionEditor/constants/CommonApiConstants";
+} from "PluginActionEditor/constants/CommonApiConstants";
 
 export default [
   {

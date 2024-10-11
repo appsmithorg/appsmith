@@ -59,7 +59,7 @@ import {
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { isGACEnabled } from "ee/utils/planHelpers";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import { getDatasourceInfo } from "../../../utils/getDatasourceInfo";
+import { getDatasourceInfo } from "../utils/getDatasourceInfo";
 
 interface ReduxStateProps {
   workspaceId: string;

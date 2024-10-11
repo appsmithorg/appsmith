@@ -1,6 +1,6 @@
 import { isEnvironmentValid } from "ee/utils/Environments";
-import type { Property } from "../../entities/Action";
-import type { Datasource, DatasourceStorage } from "../../entities/Datasource";
+import type { Property } from "entities/Action";
+import type { Datasource, DatasourceStorage } from "entities/Datasource";
 import type {
   ApiDatasourceForm,
   Authentication,
@@ -11,12 +11,8 @@ import type {
   ApiKey,
   BearerToken,
   SSL,
-} from "../../entities/Datasource/RestAPIForm";
-import {
-  AuthType,
-  GrantType,
-  SSLType,
-} from "../../entities/Datasource/RestAPIForm";
+} from "entities/Datasource/RestAPIForm";
+import { AuthType, GrantType, SSLType } from "entities/Datasource/RestAPIForm";
 import { get, set } from "lodash";
 
 export const datasourceToFormValues = (

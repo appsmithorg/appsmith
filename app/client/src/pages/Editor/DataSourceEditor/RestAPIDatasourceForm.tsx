@@ -19,7 +19,7 @@ import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   datasourceToFormValues,
   formValuesToDatasource,
-} from "../../../PluginActionEditor/transformers/RestAPIDatasourceFormTransformer";
+} from "PluginActionEditor/transformers/RestAPIDatasourceFormTransformer";
 import type {
   ApiDatasourceForm,
   AuthorizationCode,

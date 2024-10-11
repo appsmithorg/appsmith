@@ -1,7 +1,7 @@
 import { call, delay, put } from "redux-saga/effects";
 import type { EntityInfo, IApiPaneNavigationConfig } from "../types";
 import { ActionPaneNavigation } from "./exports";
-import { API_EDITOR_TABS } from "../../../../PluginActionEditor/constants/CommonApiConstants";
+import { API_EDITOR_TABS } from "PluginActionEditor/constants/CommonApiConstants";
 import { setPluginActionEditorSelectedTab } from "PluginActionEditor/store";
 import { NAVIGATION_DELAY } from "../costants";
 

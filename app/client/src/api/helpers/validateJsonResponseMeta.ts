@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 import type { AxiosResponse } from "axios";
-import { CONTENT_TYPE_HEADER_KEY } from "../../PluginActionEditor/constants/CommonApiConstants";
+import { CONTENT_TYPE_HEADER_KEY } from "PluginActionEditor/constants/CommonApiConstants";
 
 export const validateJsonResponseMeta = (response: AxiosResponse) => {
   if (

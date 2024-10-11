@@ -22,7 +22,7 @@ import {
   getErrorCount,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
-import { ActionExecutionResizerHeight } from "../../../PluginActionEditor/components/PluginActionResponse/constants";
+import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
 
 export const ResizerMainContainer = styled.div`
