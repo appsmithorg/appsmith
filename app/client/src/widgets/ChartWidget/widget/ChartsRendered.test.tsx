@@ -85,7 +85,6 @@ describe("ChartWidget getWidgetView", () => {
       chartWidget = new ChartWidget({
         ...defaultProps,
         isLoading: true,
-        errors,
         chartData: {},
       });
 
