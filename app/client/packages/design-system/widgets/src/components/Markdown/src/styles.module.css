@@ -85,11 +85,9 @@
     position: relative;
   }
 
-  [data-component="a"] {
-    &:before,
-    &:after {
-      content: none;
-    }
+  [data-component="a"]:before,
+  [data-component="a"]:after {
+    content: none;
   }
 
   [data-component="code"] {
