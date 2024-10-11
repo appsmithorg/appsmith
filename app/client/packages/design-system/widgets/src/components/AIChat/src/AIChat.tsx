@@ -58,7 +58,7 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
       </ChatDescriptionModal>
 
       <div className={styles.header}>
-        <Flex alignItems="center" gap="8px">
+        <Flex alignItems="center" gap="spacing-2">
           <ChatTitle title={chatTitle} />
           <Button
             icon="info-square-rounded"
@@ -67,7 +67,7 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
           />
         </Flex>
 
-        <Flex alignItems="center" gap="8px">
+        <Flex alignItems="center" gap="spacing-2">
           <UserAvatar username={username} />
           <Text data-testid="t--aichat-username" size="body">
             {username}

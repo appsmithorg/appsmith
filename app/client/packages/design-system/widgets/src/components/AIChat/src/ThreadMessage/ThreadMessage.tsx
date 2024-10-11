@@ -57,7 +57,7 @@ export const ThreadMessage = ({
           {promptSuggestions.length > 0 && (
             <Flex
               className={styles.suggestions}
-              gap="var(--inner-spacing-5)"
+              gap="spacing-5"
               paddingTop="spacing-4"
               wrap="wrap"
             >
