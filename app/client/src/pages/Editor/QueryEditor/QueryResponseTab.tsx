@@ -20,7 +20,7 @@ import {
   type CalloutLinkProps,
 } from "@appsmith/ads";
 import styled from "styled-components";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
@@ -36,8 +36,10 @@ import { isString } from "lodash";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import BindDataButton from "./BindDataButton";
-import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
-import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
+import {
+  getPluginActionDebuggerState,
+  setPluginActionEditorDebuggerState,
+} from "PluginActionEditor/store";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import {
   createMessage,
@@ -64,6 +66,7 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
   ${HelpSection} {
     margin-bottom: 10px;
   }
+
   position: relative;
 `;
 
@@ -97,7 +100,7 @@ const QueryResponseTab = (props: Props) => {
   const actionResponse = useSelector((state) =>
     getActionData(state, currentActionConfig.id),
   );
-  const { responseTabHeight } = useSelector(getQueryPaneDebuggerState);
+  const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
 
   const { responseDataTypes, responseDisplayFormat } =
     actionResponseDisplayDataFormats(actionResponse);
@@ -216,8 +219,12 @@ const QueryResponseTab = (props: Props) => {
   }
 
   const navigateToSettings = useCallback(() => {
-    dispatch(setQueryPaneConfigSelectedTabIndex(EDITOR_TABS.SETTINGS));
-  }, []);
+    dispatch(
+      setPluginActionEditorDebuggerState({
+        selectedTab: EDITOR_TABS.SETTINGS,
+      }),
+    );
+  }, [dispatch]);
 
   const preparedStatementCalloutLinks: CalloutLinkProps[] = [
     {

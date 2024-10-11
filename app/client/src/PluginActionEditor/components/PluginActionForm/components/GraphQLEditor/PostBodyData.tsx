@@ -1,107 +1,87 @@
-import React, { useCallback, useRef } from "react";
+import React from "react";
 import styled from "styled-components";
-import QueryEditor from "pages/Editor/APIEditor/GraphQL/QueryEditor";
-import VariableEditor from "pages/Editor/APIEditor/GraphQL/VariableEditor";
-import useHorizontalResize from "utils/hooks/useHorizontalResize";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import classNames from "classnames";
-import { tailwindLayers } from "constants/Layers";
-
-const ResizableDiv = styled.div`
-  display: flex;
-  height: 100%;
-  flex-shrink: 0;
-`;
+import {
+  CodeEditorBorder,
+  EditorModes,
+  EditorSize,
+  EditorTheme,
+  TabBehaviour,
+} from "components/editorComponents/CodeEditor/EditorConfig";
+import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
+import { Section, Zone } from "pages/Editor/ActionForm";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import FormLabel from "components/editorComponents/FormLabel";
 
 const PostBodyContainer = styled.div`
-  display: flex;
-  height: 100%;
-  overflow: hidden;
   &&&& .CodeMirror {
-    height: 100%;
-    border-top: 1px solid var(--ads-v2-color-border);
-    border-bottom: 1px solid var(--ads-v2-color-border);
-    border-radius: 0;
+    height: auto;
+    min-height: 250px;
+  }
+`;
+
+const StyledFormLabel = styled(FormLabel)`
+  && {
+    margin-bottom: var(--ads-v2-spaces-2);
     padding: 0;
   }
-  & .CodeMirror-scroll {
-    margin: 0px;
-    padding: 0px;
-    overflow: auto !important;
-  }
 `;
-
-const ResizerHandler = styled.div<{ resizing: boolean }>`
-  width: 6px;
-  height: 100%;
-  margin-left: 2px;
-  border-right: 1px solid var(--ads-v2-color-border);
-  background: ${(props) =>
-    props.resizing ? "var(--ads-v2-color-border)" : "transparent"};
-  &:hover {
-    background: var(--ads-v2-color-border);
-    border-color: transparent;
-  }
-`;
-
-const DEFAULT_GRAPHQL_VARIABLE_WIDTH = 300;
 
 interface Props {
   actionName: string;
 }
 
+const EXPECTED_VARIABLE = {
+  type: "object",
+  example:
+    '{\n  "name":"{{ inputName.property }}",\n  "preference":"{{ dropdownName.property }}"\n}',
+  autocompleteDataType: AutocompleteDataType.OBJECT,
+};
+
 function PostBodyData(props: Props) {
   const { actionName } = props;
   const theme = EditorTheme.LIGHT;
-  const resizeableRef = useRef<HTMLDivElement>(null);
-  const [variableEditorWidth, setVariableEditorWidth] = React.useState(
-    DEFAULT_GRAPHQL_VARIABLE_WIDTH,
-  );
-  /**
-   * Variable Editor's resizeable handler for the changing of width
-   */
-  const onVariableEditorWidthChange = useCallback((newWidth) => {
-    setVariableEditorWidth(newWidth);
-  }, []);
-
-  const { onMouseDown, onMouseUp, onTouchStart, resizing } =
-    useHorizontalResize(
-      resizeableRef,
-      onVariableEditorWidthChange,
-      undefined,
-      true,
-    );
 
   return (
     <PostBodyContainer>
-      <QueryEditor
-        dataTreePath={`${actionName}.config.body`}
-        height="100%"
-        name="actionConfiguration.body"
-        theme={theme}
-      />
-      <div
-        className={`w-2 h-full -ml-2 group  cursor-ew-resize ${tailwindLayers.resizer}`}
-        onMouseDown={onMouseDown}
-        onTouchEnd={onMouseUp}
-        onTouchStart={onTouchStart}
-      >
-        <ResizerHandler
-          className={classNames({
-            "transform transition": true,
-          })}
-          resizing={resizing}
-        />
-      </div>
-      <ResizableDiv
-        ref={resizeableRef}
-        style={{
-          width: `${variableEditorWidth}px`,
-          paddingRight: "2px",
-        }}
-      >
-        <VariableEditor actionName={actionName} theme={theme} />
-      </ResizableDiv>
+      <Section isFullWidth>
+        <Zone layout="single_column">
+          <div className="t--graphql-query-editor">
+            <StyledFormLabel>Query</StyledFormLabel>
+            <DynamicTextField
+              border={CodeEditorBorder.ALL_SIDE}
+              dataTreePath={`${actionName}.config.body`}
+              evaluatedPopUpLabel={"Query"}
+              mode={EditorModes.GRAPHQL_WITH_BINDING}
+              name="actionConfiguration.body"
+              placeholder={`{{\n\t{name: inputName.property, preference: dropdownName.property}\n}}`}
+              showLineNumbers
+              size={EditorSize.EXTENDED}
+              tabBehaviour={TabBehaviour.INDENT}
+              theme={theme}
+            />
+          </div>
+        </Zone>
+        <Zone layout="single_column">
+          <div className="t--graphql-variable-editor">
+            <StyledFormLabel>Query variables</StyledFormLabel>
+            <DynamicTextField
+              border={CodeEditorBorder.ALL_SIDE}
+              dataTreePath={`${props.actionName}.config.pluginSpecifiedTemplates[1].value`}
+              evaluatedPopUpLabel={"Query variables"}
+              expected={EXPECTED_VARIABLE}
+              height="100%"
+              mode={EditorModes.JSON_WITH_BINDING}
+              name="actionConfiguration.pluginSpecifiedTemplates[1].value"
+              placeholder={`${EXPECTED_VARIABLE.example}\n\n\\\\Take widget inputs using {{ }}`}
+              showLightningMenu={false}
+              showLineNumbers
+              size={EditorSize.EXTENDED}
+              tabBehaviour={TabBehaviour.INDENT}
+              theme={theme}
+            />
+          </div>
+        </Zone>
+      </Section>
     </PostBodyContainer>
   );
 }

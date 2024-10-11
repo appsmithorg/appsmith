@@ -12,7 +12,22 @@ export class OneClickBinding {
     column: Record<string, string> = {},
   ) {
     agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
-
+    agHelper.GetElement("[role='menu']").then(($menu) => {
+      if (
+        $menu.find(oneClickBindingLocator.datasourceQuerySelector()).length > 0
+      ) {
+        cy.wrap($menu)
+          .find(oneClickBindingLocator.datasourceQuerySelector())
+          .should("have.length.greaterThan", 0)
+          .each(($item) => {
+            cy.wrap($item)
+              .find("img")
+              .should(($img) => {
+                expect($img).to.have.attr("src").and.not.be.empty;
+              });
+          });
+      }
+    });
     expandLoadMoreOptions();
 
     agHelper.AssertElementAbsence(oneClickBindingLocator.connectData);

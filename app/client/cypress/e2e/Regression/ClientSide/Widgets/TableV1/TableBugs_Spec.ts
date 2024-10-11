@@ -30,33 +30,31 @@ describe(
       _.deployMode.DeployApp();
 
       //_.table.SelectTableRow(1)
-
       _.table.ReadTableRowColumnData(0, 0).then(($cellData) => {
-        expect($cellData).to.eq("1376499.jpg");
+        expect($cellData).contains("cube-logo_S50__hLNq.jpeg");
       });
 
       _.table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-        expect($cellData).to.eq("https://wallpaperaccess.com/full/1688623.jpg");
+        expect($cellData).to.eq(
+          "https://docs.appsmith.com/img/Appsmith-Login-Screen-Shows-SAML.jpg",
+        );
       });
 
       _.table.ReadTableRowColumnData(2, 0).then(($cellData) => {
-        expect($cellData).to.eq("2117775.jpg");
+        expect($cellData).contains("zapier-logo_odZ9wZQ3vY.jpeg");
       });
 
       _.table.ReadTableRowColumnData(3, 0).then(($cellData) => {
-        expect($cellData).to.eq("https://wallpaperaccess.com/full/812632.jpg");
+        expect($cellData).to.eq(
+          "https://docs.appsmith.com/img/replyto-logo_6yaZHFIeU.jpeg",
+        );
       });
 
       _.table.AssertURLColumnNavigation(
         0,
         0,
-        "https://wallpaperaccess.com/full/1376499.jpg",
+        "https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg",
       );
-      // _.table.AssertURLColumnNavigation(
-      //   3,
-      //   0,
-      //   "https://wallpaperaccess.com/full/812632.jpg",
-      // );
 
       _.deployMode.NavigateBacktoEditor();
     });
@@ -73,31 +71,30 @@ describe(
       _.deployMode.DeployApp();
 
       _.table.ReadTableRowColumnData(0, 0).then(($cellData) => {
-        expect($cellData).to.eq("1376499.jpg");
+        expect($cellData).contains("cube-logo_S50__hLNq.jpeg");
       });
 
       _.table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-        expect($cellData).to.eq("https://wallpaperaccess.com/full/1688623.jpg");
+        expect($cellData).to.eq(
+          "https://docs.appsmith.com/img/Appsmith-Login-Screen-Shows-SAML.jpg",
+        );
       });
 
       _.table.ReadTableRowColumnData(2, 0).then(($cellData) => {
-        expect($cellData).to.eq("2117775.jpg");
+        expect($cellData).contains("zapier-logo_odZ9wZQ3vY.jpeg");
       });
 
       _.table.ReadTableRowColumnData(3, 0).then(($cellData) => {
-        expect($cellData).to.eq("https://wallpaperaccess.com/full/812632.jpg");
+        expect($cellData).to.eq(
+          "https://docs.appsmith.com/img/replyto-logo_6yaZHFIeU.jpeg",
+        );
       });
 
       _.table.AssertURLColumnNavigation(
         1,
         0,
-        "https://wallpaperaccess.com/full/1688623.jpg",
+        "https://docs.appsmith.com/img/Appsmith-Login-Screen-Shows-SAML.jpg",
       );
-      // _.table.AssertURLColumnNavigation(
-      //   2,
-      //   0,
-      //   "https://wallpaperaccess.com/full/2117775.jpg",
-      // );
 
       _.deployMode.NavigateBacktoEditor();
     });
@@ -114,31 +111,30 @@ describe(
       _.deployMode.DeployApp();
 
       _.table.ReadTableRowColumnData(0, 0).then(($cellData) => {
-        expect($cellData).to.eq("1376499.jpg");
+        expect($cellData).contains("cube-logo_S50__hLNq.jpeg");
       });
 
       _.table.ReadTableRowColumnData(1, 0).then(($cellData) => {
-        expect($cellData).to.eq("https://wallpaperaccess.com/full/1688623.jpg");
+        expect($cellData).to.eq(
+          "https://docs.appsmith.com/img/Appsmith-Login-Screen-Shows-SAML.jpg",
+        );
       });
 
       _.table.ReadTableRowColumnData(2, 0).then(($cellData) => {
-        expect($cellData).to.eq("2117775.jpg");
+        expect($cellData).contains("zapier-logo_odZ9wZQ3vY.jpeg");
       });
 
       _.table.ReadTableRowColumnData(3, 0).then(($cellData) => {
-        expect($cellData).to.eq("https://wallpaperaccess.com/full/812632.jpg");
+        expect($cellData).to.eq(
+          "https://docs.appsmith.com/img/replyto-logo_6yaZHFIeU.jpeg",
+        );
       });
 
       _.table.AssertURLColumnNavigation(
         0,
         0,
-        "https://wallpaperaccess.com/full/1376499.jpg",
+        "https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg",
       );
-      // _.table.AssertURLColumnNavigation(
-      //   3,
-      //   0,
-      //   "https://wallpaperaccess.com/full/812632.jpg",
-      // );
 
       _.deployMode.NavigateBacktoEditor();
     });

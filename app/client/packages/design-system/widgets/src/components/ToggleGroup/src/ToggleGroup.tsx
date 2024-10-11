@@ -1,13 +1,14 @@
-import React, { forwardRef, useRef } from "react";
-import { CheckboxGroup as HeadlessToggleGroup } from "react-aria-components";
-import {
-  FieldError,
-  FieldLabel,
-  Flex,
-  useGroupOrientation,
-} from "@appsmith/wds";
-import styles from "./styles.module.css";
 import type { ForwardedRef } from "react";
+import React, { forwardRef, useRef } from "react";
+import {
+  useGroupOrientation,
+  inputFieldStyles,
+  FieldLabel,
+  FieldError,
+} from "@appsmith/wds";
+import { CheckboxGroup as AriaToggleGroup, Group } from "react-aria-components";
+
+import styles from "./styles.module.css";
 import type { ToggleGroupProps } from "./types";
 
 const _ToggleGroup = (
@@ -19,8 +20,8 @@ const _ToggleGroup = (
     contextualHelp,
     errorMessage,
     isDisabled,
+    isReadOnly,
     isRequired,
-    items,
     label,
     ...rest
   } = props;
@@ -31,30 +32,31 @@ const _ToggleGroup = (
   );
 
   return (
-    <HeadlessToggleGroup
-      className={styles.toggleGroup}
-      data-orientation={orientation}
-      isDisabled={isDisabled}
-      ref={ref}
+    <AriaToggleGroup
       {...rest}
+      className={inputFieldStyles.field}
+      data-field=""
+      isDisabled={isDisabled}
+      isReadOnly={isReadOnly}
+      isRequired={isRequired}
+      ref={ref}
     >
       <FieldLabel
         contextualHelp={contextualHelp}
         isDisabled={isDisabled}
         isRequired={isRequired}
-        text={label}
-      />
-      <Flex
-        direction={orientation === "vertical" ? "column" : "row"}
-        gap={orientation === "vertical" ? "spacing-2" : "spacing-4"}
-        isInner
-        ref={containerRef}
-        wrap="wrap"
       >
-        {items.map((item, index) => children({ ...item, index }))}
-      </Flex>
-      <FieldError errorMessage={errorMessage} />
-    </HeadlessToggleGroup>
+        {label}
+      </FieldLabel>
+      <Group
+        className={styles.toggleGroup}
+        data-orientation={orientation}
+        ref={containerRef}
+      >
+        {children}
+      </Group>
+      <FieldError>{errorMessage}</FieldError>
+    </AriaToggleGroup>
   );
 };
 

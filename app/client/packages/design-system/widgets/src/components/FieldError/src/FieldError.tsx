@@ -1,18 +1,20 @@
 import React from "react";
-import { getTypographyClassName } from "@appsmith/wds-theming";
-import clsx from "clsx";
-import { FieldError as HeadlessFieldError } from "react-aria-components";
+import { Text } from "@appsmith/wds";
+import { FieldError as AriaFieldError } from "react-aria-components";
+
 import styles from "./styles.module.css";
 import type { FieldErrorProps } from "./types";
 
 export const FieldError = (props: FieldErrorProps) => {
-  const { errorMessage } = props;
+  const { children } = props;
+
+  if (!Boolean(children)) return null;
 
   return (
-    <HeadlessFieldError
-      className={clsx(styles.errorText, getTypographyClassName("footnote"))}
-    >
-      {errorMessage}
-    </HeadlessFieldError>
+    <AriaFieldError className={styles.errorText}>
+      <Text color="negative" size="caption">
+        {children}
+      </Text>
+    </AriaFieldError>
   );
 };
