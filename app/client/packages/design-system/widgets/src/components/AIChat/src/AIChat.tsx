@@ -32,9 +32,7 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
     <div className={styles.root} ref={ref} {...rest}>
       <ChatDescriptionModal
         isOpen={isChatDescriptionModalOpen}
-        setOpen={() =>
-          setIsChatDescriptionModalOpen(!isChatDescriptionModalOpen)
-        }
+        setOpen={setIsChatDescriptionModalOpen}
       >
         {chatDescription}
       </ChatDescriptionModal>
