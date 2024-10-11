@@ -225,20 +225,20 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 
   getWidgetView() {
     const errors = syntaxErrorsFromProps(this.props);
-    const isLoading = this.props.isLoading;
-    const hasErrors = errors.length > 0;
-    const isEmptyChart = emptyChartData(this.props);
 
-    if (isEmptyChart && !isLoading) {
-      return <EmptyChartData />;
-    }
-
-    if (isLoading || !hasErrors) {
+    if (this.props.isLoading) {
       return this.renderChartWithData();
     }
 
-    // There are errors and chart is not loading
-    return <ChartErrorComponent error={errors[0]} />;
+    if (errors.length > 0) {
+      return <ChartErrorComponent error={errors[0]} />;
+    }
+
+    if (emptyChartData(this.props)) {
+      return <EmptyChartData />;
+    }
+
+    return this.renderChartWithData();
   }
 
   renderChartWithData() {
