@@ -4,4 +4,6 @@ export interface ThreadMessageProps extends HTMLProps<HTMLLIElement> {
   content: string;
   isAssistant: boolean;
   username: string;
+  promptSuggestions?: string[];
+  onApplyAssistantSuggestion?: (suggestion: string) => void;
 }
