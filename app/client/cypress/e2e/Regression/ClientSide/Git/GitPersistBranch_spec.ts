@@ -38,10 +38,5 @@ describe(
         });
       });
     });
-    after(() => {
-      homePage.NavigateToHome();
-      homePage.DeleteApplication(appName);
-      gitSync.DeleteTestGithubRepo(repoName);
-    });
   },
 );
