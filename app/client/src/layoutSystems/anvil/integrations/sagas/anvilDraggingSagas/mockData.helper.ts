@@ -104,6 +104,7 @@ export const generateMockDataWithTwoSections = () => {
       parentId: section2Id,
     },
   };
+
   return {
     allWidgets,
     mainCanvasLayoutId,

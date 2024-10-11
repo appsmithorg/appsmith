@@ -6,8 +6,8 @@ import {
   SIZES,
   BUTTON_VARIANTS,
   COLORS,
-  objectKeys,
 } from "@appsmith/wds";
+import { objectKeys } from "@appsmith/utils";
 
 /**
  * Icon Button is a button component that only contains an icon.
@@ -65,8 +65,8 @@ export const Semantic: Story = {
 export const Sizes: Story = {
   render: () => (
     <Flex alignItems="start" gap="spacing-2">
-      {Object.keys(SIZES)
-        .filter((size) => !["large"].includes(size))
+      {objectKeys(SIZES)
+        .filter((size) => !["xSmall", "large"].includes(size))
         .map((size) => (
           <IconButton icon="star" key={size} size={size} />
         ))}

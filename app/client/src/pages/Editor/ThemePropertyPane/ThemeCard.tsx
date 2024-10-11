@@ -86,6 +86,7 @@ const ThemeCardApplyButton = styled.div`
   background-color: var(--ads-v2-color-bg-emphasis-plus);
   color: var(--ads-v2-color-fg-on-emphasis-plus);
 `;
+
 /**
  * ----------------------------------------------------------------------------
  * COMPONENT
@@ -177,6 +178,7 @@ export function ThemeCard(props: ThemeCard) {
             "overflow-hidden": !selectable,
             "hover:shadow-xl cursor-pointer": selectable,
           })}
+          data-testid={`t--theme-card-${theme.name}`}
           onClick={changeSelectedTheme}
         >
           <MainContainer backgroundColor={backgroundColor}>

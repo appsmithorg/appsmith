@@ -8,6 +8,7 @@ on:
   pull_request:
     branches:
       - release
+      - master
       - pg
     types: [ labeled, synchronize ]
 

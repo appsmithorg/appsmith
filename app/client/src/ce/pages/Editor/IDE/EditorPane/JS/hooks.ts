@@ -15,6 +15,9 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
 import { getJSUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
 import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import { setListViewActiveState } from "actions/ideActions";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
@@ -24,21 +27,35 @@ export const useJSAdd = () => {
   const jsModuleCreationOptions = moduleCreationOptions.filter(
     (opt) => opt.focusEntityType === FocusEntity.JS_MODULE_INSTANCE,
   );
+  const ideViewMode = useSelector(getIDEViewMode);
 
   const openAddJS = useCallback(() => {
     if (jsModuleCreationOptions.length === 0) {
       dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
     } else {
       if (currentEntityInfo.entity === FocusEntity.JS_OBJECT_ADD) {
+        if (ideViewMode === EditorViewMode.SplitScreen) {
+          dispatch(setListViewActiveState(false));
+        }
+
         return;
       }
+
       const url = getJSUrl(currentEntityInfo, true);
+
       history.push(url);
     }
-  }, [jsModuleCreationOptions, pageId, dispatch, currentEntityInfo]);
+  }, [
+    jsModuleCreationOptions,
+    pageId,
+    dispatch,
+    currentEntityInfo,
+    ideViewMode,
+  ]);
 
   const closeAddJS = useCallback(() => {
     const url = getJSUrl(currentEntityInfo, false);
+
     history.push(url);
   }, [currentEntityInfo]);
 
@@ -51,9 +68,11 @@ export const useIsJSAddLoading = () => {
     (opt) => opt.focusEntityType === FocusEntity.JS_MODULE_INSTANCE,
   );
   const { isCreating } = useSelector((state) => state.ui.jsPane);
+
   if (jsModuleCreationOptions.length === 0) {
     return isCreating;
   }
+
   return false;
 };
 

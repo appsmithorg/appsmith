@@ -41,6 +41,11 @@ import { merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
 import { getCurrentEnvironmentDetails } from "ee/selectors/environmentSelectors";
 import { QueryEditorContext } from "./QueryEditorContext";
+import {
+  isActionDeleting,
+  isActionRunning,
+  isPluginActionCreating,
+} from "PluginActionEditor/store";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -120,6 +125,7 @@ class QueryEditor extends React.Component<Props> {
 
   constructor(props: Props) {
     super(props);
+
     // Call the first evaluations when the page loads
     // call evaluations only for queries and not google sheets (which uses apiId)
     if (this.props.match.params.baseQueryId) {
@@ -135,6 +141,7 @@ class QueryEditor extends React.Component<Props> {
     // if the current action is non existent, do not dispatch change query page action
     // this action should only be dispatched when switching from an existent action.
     if (!this.props.pluginId) return;
+
     this.context?.changeQueryPage?.(this.props.baseActionId);
 
     // fixes missing where key issue by populating the action with a where object when the component is mounted.
@@ -142,6 +149,7 @@ class QueryEditor extends React.Component<Props> {
       const { path = "", value = "" } = {
         ...getPathAndValueFromActionDiffObject(this.props.actionObjectDiff),
       };
+
       if (value && path) {
         this.props.setActionProperty(this.props.actionId, path, value);
       }
@@ -250,7 +258,7 @@ class QueryEditor extends React.Component<Props> {
 const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
   const { baseApiId, baseQueryId } = props.match.params;
   const baseActionId = baseQueryId || baseApiId || "";
-  const { runErrorMessage } = state.ui.queryPane;
+  const { runErrorMessage } = state.ui.pluginActionEditor;
   const { plugins } = state.entities;
 
   const { editorConfigs } = plugins;
@@ -264,9 +272,14 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
     | QueryAction
     | SaaSAction;
   let pluginId;
+
   if (action) {
     pluginId = action.pluginId;
   }
+
+  const isCreating = isPluginActionCreating(state);
+  const isDeleting = isActionDeleting(actionId)(state);
+  const isRunning = isActionRunning(actionId)(state);
 
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -297,6 +310,7 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
 
   const allPlugins = getPlugins(state);
   let uiComponent = UIComponentTypes.DbEditorForm;
+
   if (!!pluginId) uiComponent = getUIComponent(pluginId, allPlugins);
 
   const currentEnvDetails = getCurrentEnvironmentDetails(state);
@@ -314,12 +328,12 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
       ? getDatasourceByPluginId(state, action?.pluginId)
       : getDBAndRemoteDatasources(state),
     responses: getActionResponses(state),
-    isRunning: state.ui.queryPane.isRunning[actionId],
-    isDeleting: state.ui.queryPane.isDeleting[actionId],
+    isCreating,
+    isRunning,
+    isDeleting,
     isSaas: !!baseApiId,
     formData,
     editorConfig,
-    isCreating: state.ui.apiPane.isCreating,
     uiComponent,
     applicationId: getCurrentApplicationId(state),
     actionObjectDiff,

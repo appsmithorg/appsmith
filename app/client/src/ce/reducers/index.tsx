@@ -13,8 +13,6 @@ import type { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import type { DatasourcePaneReduxState } from "reducers/uiReducers/datasourcePaneReducer";
 import type { ApplicationsReduxState } from "ee/reducers/uiReducers/applicationsReducer";
 import type { PageListReduxState } from "reducers/entityReducers/pageListReducer";
-import type { ApiPaneReduxState } from "ee/reducers/uiReducers/apiPaneReducer";
-import type { QueryPaneReduxState } from "ee/reducers/uiReducers/queryPaneReducer";
 import type { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import type { AuthState } from "reducers/uiReducers/authReducer";
 import type { WorkspaceReduxState } from "ee/reducers/uiReducers/workspaceReducer";
@@ -74,6 +72,8 @@ import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConve
 import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
 import type { IDEState } from "reducers/uiReducers/ideReducer";
 import type { FloatingPaneState } from "pages/Editor/IDE/FloatingPane/reducer";
+import type { PluginActionEditorState } from "PluginActionEditor";
+
 
 /* Reducers which are integrated into the core system when registering a pluggable module
     or done so by a module that is designed to be eventually pluggable */
@@ -103,7 +103,6 @@ export interface AppState {
     errors: ErrorReduxState;
     appView: AppViewReduxState;
     applications: ApplicationsReduxState;
-    apiPane: ApiPaneReduxState;
     auth: AuthState;
     templates: TemplatesReduxState;
     buildingBlocks: BuildingBlocksReduxState;
@@ -112,7 +111,6 @@ export interface AppState {
     users: UsersReduxState;
     widgetDragResize: WidgetDragResizeState;
     imports: ImportReduxState;
-    queryPane: QueryPaneReduxState;
     datasourcePane: DatasourcePaneReduxState;
     help: HelpReduxState;
     apiName: ApiNameReduxState;
@@ -148,6 +146,7 @@ export interface AppState {
     activeField: ActiveField;
     ide: IDEState;
     floatingPane: FloatingPaneState;
+    pluginActionEditor: PluginActionEditorState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;

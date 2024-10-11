@@ -16,6 +16,7 @@ const IconWrapper = styled.div`
   display: flex;
   justify-content: flex-end;
 `;
+
 class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
   static type = "ICON_WIDGET";
 

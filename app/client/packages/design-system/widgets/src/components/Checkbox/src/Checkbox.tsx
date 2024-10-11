@@ -1,8 +1,9 @@
 import React, { forwardRef } from "react";
-import { Checkbox as HeadlessCheckbox } from "react-aria-components";
-import { Text, Icon } from "@appsmith/wds";
-import styles from "./styles.module.css";
 import type { ForwardedRef } from "react";
+import { Text, Icon } from "@appsmith/wds";
+import { Checkbox as HeadlessCheckbox } from "react-aria-components";
+
+import styles from "./styles.module.css";
 import type { CheckboxProps } from "./types";
 
 const _Checkbox = (

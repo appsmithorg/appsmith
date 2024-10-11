@@ -17,6 +17,7 @@ export default (
         singleClk(e);
       } else {
         clickCount++;
+
         if (clickCount === 2 && doubleClk) {
           doubleClk(e);
           clearTimeout(timeoutId);
@@ -31,7 +32,9 @@ export default (
     };
 
     const el = currentRef.current;
+
     el?.addEventListener("click", handleClick);
+
     return () => {
       el?.removeEventListener("click", handleClick);
     };

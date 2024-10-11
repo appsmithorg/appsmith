@@ -166,5 +166,5 @@
   "APPURL": "http://localhost:8081/app/app1/page1-63d38854252ca15b7ec9fabb",
   "iframeUrl": "https://elfsight.com/social-feed-widget/iframe/",
   "iframeUrlSubstring": "https://elfsight.com/",
-  "iframeRandomUrl": "https://www.google.com"
+  "iframeRandomUrl": "https://www.appsmith.com/"
 }

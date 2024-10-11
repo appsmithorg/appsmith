@@ -15,28 +15,23 @@
     "start": "./start-server.sh"
   },
   "dependencies": {
-    "@babel/runtime": "^7.21.0",
+    "@opentelemetry/instrumentation-http": "^0.53.0",
+    "@opentelemetry/sdk-trace-node": "^1.26.0",
+    "@opentelemetry/semantic-conventions": "^1.27.0",
     "@shared/ast": "workspace:^",
-    "astravel": "^0.6.1",
     "axios": "^1.7.4",
-    "escodegen": "^2.0.0",
-    "express": "^4.19.2",
+    "express": "^4.20.0",
     "express-validator": "^6.14.2",
     "http-status-codes": "^2.2.0",
-    "klona": "^2.0.5",
     "loglevel": "^1.8.1",
-    "socket.io": "^4.6.2",
-    "socket.io-adapter": "^2.4.0",
-    "source-map-support": "^0.5.19"
+    "socket.io": "^4.6.2"
   },
   "devDependencies": {
     "@types/express": "^4.17.14",
     "@types/jest": "^29.2.3",
-    "esbuild": "^0.19.4",
     "jest": "^29.3.1",
     "supertest": "^6.3.3",
     "ts-jest": "29.1.0",
-    "tsc-alias": "^1.8.2",
     "typescript": "^5.5.4"
   }
 }

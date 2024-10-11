@@ -2,47 +2,51 @@ import { call, delay, put } from "redux-saga/effects";
 import type { EntityInfo, IApiPaneNavigationConfig } from "../types";
 import { ActionPaneNavigation } from "./exports";
 import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
-import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";
+import { setPluginActionEditorSelectedTab } from "PluginActionEditor/store";
 import { NAVIGATION_DELAY } from "../costants";
-import { isNumber } from "lodash";
 
 export default class ApiPaneNavigation extends ActionPaneNavigation {
   constructor(entityInfo: EntityInfo) {
     super(entityInfo);
     this.getConfig = this.getConfig.bind(this);
     this.navigate = this.navigate.bind(this);
-    this.getTabIndex = this.getTabIndex.bind(this);
+    this.getTab = this.getTab.bind(this);
   }
 
   *getConfig() {
     let config: IApiPaneNavigationConfig = {};
+
     if (!this.entityInfo.propertyPath) return {};
-    const tabIndex: number | undefined = yield call(
-      this.getTabIndex,
+
+    const tab: string | undefined = yield call(
+      this.getTab,
       this.entityInfo.propertyPath,
     );
 
     config = {
-      tabIndex,
+      tab,
     };
+
     return config;
   }
+
   *navigate() {
     const config: IApiPaneNavigationConfig = yield call(this.getConfig);
 
     yield call(this.navigateToUrl);
+
     if (!this.entityInfo.propertyPath) return;
 
-    if (isNumber(config.tabIndex)) {
-      yield put(setApiPaneConfigSelectedTabIndex(config.tabIndex));
+    if (config.tab) {
+      yield put(setPluginActionEditorSelectedTab(config.tab));
       yield delay(NAVIGATION_DELAY);
     }
+
     yield call(this.scrollToView, this.entityInfo.propertyPath);
   }
 
-  *getTabIndex(propertyPath: string) {
-    let currentTab;
-    let index;
+  *getTab(propertyPath: string) {
+    let currentTab: string | undefined;
     const modifiedProperty = propertyPath.replace(
       "config",
       "actionConfiguration",
@@ -68,15 +72,12 @@ export default class ApiPaneNavigation extends ActionPaneNavigation {
         this.isInSettingsTab,
         modifiedProperty,
       );
+
       if (inSettingsTab) {
         currentTab = API_EDITOR_TABS.SETTINGS;
       }
     }
 
-    if (currentTab) {
-      index = Object.values(API_EDITOR_TABS).indexOf(currentTab);
-    }
-
-    return index;
+    return currentTab;
   }
 }

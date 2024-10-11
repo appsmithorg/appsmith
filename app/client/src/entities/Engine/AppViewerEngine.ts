@@ -105,7 +105,7 @@ export default class AppViewerEngine extends AppEngine {
       }),
       fetchSelectedAppThemeAction(applicationId, currentTheme),
       fetchAppThemesAction(applicationId, themes),
-      setupPublishedPage(toLoadPageId, true, true, pageWithMigratedDsl),
+      setupPublishedPage(toLoadPageId, true, pageWithMigratedDsl),
     ];
 
     const successActionEffects = [
@@ -142,6 +142,7 @@ export default class AppViewerEngine extends AppEngine {
       "AppViewerEngine.waitForFetchUserSuccess",
       rootSpan,
     );
+
     yield call(waitForFetchUserSuccess);
     endSpan(waitForUserSpan);
 
@@ -149,6 +150,7 @@ export default class AppViewerEngine extends AppEngine {
       "AppViewerEngine.waitForSegmentInit",
       rootSpan,
     );
+
     yield call(waitForSegmentInit, true);
     endSpan(waitForSegmentSpan);
 
@@ -156,6 +158,7 @@ export default class AppViewerEngine extends AppEngine {
       "AppViewerEngine.waitForFetchEnvironments",
       rootSpan,
     );
+
     yield call(waitForFetchEnvironments);
     endSpan(waitForEnvironmentsSpan);
 

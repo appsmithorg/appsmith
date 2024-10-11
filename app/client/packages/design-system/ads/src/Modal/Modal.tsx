@@ -22,6 +22,7 @@ import { Button } from "../Button";
 
 function ModalContent(props: ModalContentProps) {
   const { children, className, overlayClassName, ...rest } = props;
+
   return (
     <Portal>
       <StyledOverlay className={overlayClassName} />
@@ -75,6 +76,7 @@ function ModalTrigger(props: DialogTriggerProps) {
 const Modal = Root;
 const ModalBody = StyledBody;
 const ModalFooter = StyledFooter;
+
 Modal.displayName = "Modal";
 ModalContent.displayName = "ModalContent";
 ModalHeader.displayName = "ModalHeader";

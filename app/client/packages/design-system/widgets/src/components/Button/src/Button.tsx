@@ -1,14 +1,13 @@
+import clsx from "clsx";
+import type { SIZES } from "@appsmith/wds";
 import type { ForwardedRef } from "react";
 import React, { forwardRef } from "react";
+import { Text, Spinner, Icon } from "@appsmith/wds";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
 import { Button as HeadlessButton } from "react-aria-components";
-import type { SIZES } from "../../../shared";
-import clsx from "clsx";
-import { Text } from "../../Text";
-import { Spinner } from "../../Spinner";
+
 import styles from "./styles.module.css";
 import type { ButtonProps } from "./types";
-import { Icon } from "../../Icon";
 
 const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
   props = useVisuallyDisabled(props);
@@ -33,7 +32,12 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
         <span aria-hidden={isLoading ? true : undefined} data-content="">
           {icon && <Icon name={icon} size={size as keyof typeof SIZES} />}
           {Boolean(children) && (
-            <Text data-text="" fontWeight={500} lineClamp={1}>
+            <Text
+              data-text=""
+              fontWeight={500}
+              lineClamp={1}
+              size={size === "xSmall" ? "footnote" : "body"}
+            >
               {children}
             </Text>
           )}
@@ -41,7 +45,14 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
             To align buttons in the case when we don't have text content, we create an empty block with the appropriate size.
             See the styles for data-empty-text attribute.
            */}
-          {!Boolean(children) && <Text data-empty-text="">&#8203;</Text>}
+          {!Boolean(children) && (
+            <Text
+              data-empty-text=""
+              size={size === "xSmall" ? "footnote" : "body"}
+            >
+              &#8203;
+            </Text>
+          )}
         </span>
 
         {isLoading && (

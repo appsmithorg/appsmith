@@ -46,6 +46,7 @@ describe("validate document viewer url", () => {
 
     for (let index = 0; index < input.length; index++) {
       const result = getDocViewerConfigs(input[index]);
+
       expect(result).toStrictEqual(expected[index]);
     }
   });
@@ -53,6 +54,7 @@ describe("validate document viewer url", () => {
   it("validate errorMessage should return for empty url", () => {
     const input = "";
     const result = getDocViewerConfigs(input);
+
     expect(result).toStrictEqual({
       url: "",
       viewer: "url",

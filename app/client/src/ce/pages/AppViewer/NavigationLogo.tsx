@@ -9,7 +9,7 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "ee/selectors/applicationSelectors";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import {
   getCurrentPageId,
   getViewModePageList,

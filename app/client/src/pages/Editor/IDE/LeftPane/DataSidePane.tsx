@@ -70,6 +70,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
   }, []);
 
   const location = useLocation();
+
   useEffect(() => {
     setCurrentSelectedDatasource(getSelectedDatasourceId(location.pathname));
   }, [location]);
@@ -98,7 +99,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
       borderRight="1px solid var(--ads-v2-color-border)"
       flexDirection="column"
       height="100%"
-      width="300px"
+      width="100%"
     >
       <PaneHeader
         rightIcon={

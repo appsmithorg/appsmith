@@ -18,6 +18,7 @@
     "@typescript-eslint/adjacent-overload-signatures": "off",
     "jest/no-disabled-tests": "off",
     "@typescript-eslint/no-explicit-any": "off",
-    "@typescript-eslint/no-var-requires": "off"
+    "@typescript-eslint/no-var-requires": "off",
+    "padding-line-between-statements": "off"
   }
 }

@@ -39,6 +39,7 @@ import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
+import { isPluginActionCreating } from "PluginActionEditor/store";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -61,6 +62,7 @@ interface MockDataSourcesProps {
 function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
   const useMockRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
+
   useEffect(() => {
     if (active && useMockRef.current) {
       isMounted.current &&
@@ -74,6 +76,7 @@ function UseMockDatasources({ active, mockDatasources }: MockDataSourcesProps) {
       isMounted.current = true;
     }
   }, [active]);
+
   return (
     <div id="mock-database" ref={useMockRef}>
       <Text kind="heading-m">{createMessage(SAMPLE_DATASOURCES)}</Text>
@@ -106,6 +109,7 @@ function CreateNewAPI({
       isMounted.current = true;
     }
   }, [active]);
+
   return (
     <div id="new-api" ref={newAPIRef}>
       <Text kind="heading-m">APIs</Text>
@@ -134,6 +138,7 @@ function CreateNewDatasource({
   const { editorId, parentEntityId, parentEntityType } =
     useParentEntityInfo(editorType);
   const newDatasourceRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (active && newDatasourceRef.current) {
       scrollIntoView(newDatasourceRef.current, {
@@ -193,6 +198,7 @@ function CreateNewSaasIntegration({
       isMounted.current = true;
     }
   }, [active]);
+
   return !isAirgappedInstance ? (
     <>
       <StyledDivider />
@@ -278,7 +284,9 @@ class CreateNewDatasourceTab extends React.Component<
       pageId,
       showDebugger,
     } = this.props;
+
     if (!canCreateDatasource) return null;
+
     const mockDataSection =
       this.props.mockDatasources.length > 0 ? (
         <UseMockDatasources
@@ -286,6 +294,7 @@ class CreateNewDatasourceTab extends React.Component<
           mockDatasources={this.props.mockDatasources}
         />
       ) : null;
+
     return (
       <>
         <NewIntegrationsContainer className="p-4" id="new-integrations-wrapper">
@@ -373,7 +382,7 @@ const mapStateToProps = (state: AppState) => {
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
-    isCreating: state.ui.apiPane.isCreating,
+    isCreating: isPluginActionCreating(state),
     applicationId: getCurrentApplicationId(state),
     canCreateDatasource,
     showDebugger,

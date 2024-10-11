@@ -16,6 +16,7 @@ describe("getJSEntityItemUrl", () => {
       },
       "0123456789abcdef00000000",
     );
+
     expect(url).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/jsObjects/abc",
     );
@@ -32,11 +33,13 @@ describe("getJSUrl", () => {
       params: {},
     };
     const url = getJSUrl(focusEntity, false);
+
     expect(url).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/jsObjects/abc",
     );
 
     const addUrl = getJSUrl(focusEntity);
+
     expect(addUrl).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/jsObjects/abc/add",
     );
@@ -50,6 +53,7 @@ describe("getJSUrl", () => {
       params: {},
     };
     const url = getJSUrl(focusEntity, false);
+
     expect(url).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/jsObjects",
     );
@@ -66,11 +70,13 @@ describe("getJSUrl", () => {
       },
     };
     const url = getJSUrl(focusEntity, false);
+
     expect(url).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/jsObjects",
     );
 
     const addUrl = getJSUrl(focusEntity);
+
     expect(addUrl).toEqual(
       "/app/application/page-0123456789abcdef00000000/edit/jsObjects/add",
     );

@@ -17,6 +17,7 @@ import { Colors } from "constants/Colors";
 import ConflictInfo from "../components/ConflictInfo";
 import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
 import { Button } from "@appsmith/ads";
+import { BOTTOM_BAR_HEIGHT } from "../../../../components/BottomBar/constants";
 
 const StyledGitErrorPopup = styled.div`
   & {
@@ -31,7 +32,7 @@ const StyledGitErrorPopup = styled.div`
       .${Classes.OVERLAY_CONTENT} {
         overflow: hidden;
         bottom: ${(props) =>
-          `calc(${props.theme.bottomBarHeight} + ${props.theme.spaces[3]}px)`};
+          `calc(${BOTTOM_BAR_HEIGHT}px + ${props.theme.spaces[3]}px)`};
         left: ${(props) => props.theme.spaces[3]}px;
         background-color: ${Colors.WHITE};
       }

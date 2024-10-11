@@ -90,6 +90,7 @@ export function* createActionsForOneClickBindingSaga(
           name: response.data.name,
         },
       });
+
       return response.data;
     }
   } catch (e) {
@@ -366,6 +367,7 @@ function* BindWidgetToDatasource(
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_SUCCESS,
     });
     const { otherFields } = action.payload;
+
     AnalyticsUtil.logEvent("1_CLICK_BINDING_SUCCESS", {
       widgetName: widget.widgetName,
       widgetType: widget.type,
@@ -374,16 +376,15 @@ function* BindWidgetToDatasource(
       isMock: datasource.isMock,
       formType: otherFields?.formType,
     });
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (e: any) {
-    toast.show(e.message, {
-      hideProgressBar: false,
-      kind: "error",
-    });
-
+  } catch (e: unknown) {
     yield put({
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE_ERROR,
+      payload: {
+        show: true,
+        error: {
+          message: e instanceof Error ? e.message : "Failed to Bind to widget",
+        },
+      },
     });
   }
 

@@ -155,6 +155,7 @@ export const getSearchedTemplateList = createSelector(
     }
 
     const fuzzy = new Fuse(templates, fuzzySearchOptions);
+
     return fuzzy.search(query);
   },
 );
@@ -165,6 +166,7 @@ export const templatesDatasourceFiltersSelector = createSelector(
   getDefaultPlugins,
   (templates, plugins) => {
     const datasourceFilters: Filter[] = [];
+
     templates.map((template) => {
       template.datasources.map((pluginIdentifier) => {
         if (
@@ -222,6 +224,7 @@ export const getFilterListSelector = createSelector(
             if (filter.value) {
               return filter.value === templateValue;
             }
+
             return filter.label === templateValue;
           })
         ) {
@@ -229,8 +232,10 @@ export const getFilterListSelector = createSelector(
             if (datum.value) {
               return datum.value === templateValue;
             }
+
             return datum.label === templateValue;
           });
+
           filteredData && filters[key].push(filteredData);
         }
       });
@@ -239,6 +244,7 @@ export const getFilterListSelector = createSelector(
     templates.forEach((template) => {
       filterFilters(FUNCTIONS_FILTER, allFunctions, template);
     });
+
     return filters;
   },
 );

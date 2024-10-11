@@ -18,6 +18,7 @@ const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
   height: number;
   isNewRow: boolean;
+  isValid: boolean;
 }>`
   &&& {
     width: ${(props) =>
@@ -37,7 +38,6 @@ const StyledSelectComponent = styled(SelectComponent)<{
       }
 
       & button.bp3-button {
-        border-color: #fff;
         padding: 0 9px;
         min-height: ${(props) => {
           return props.isNewRow
@@ -82,6 +82,7 @@ type SelectProps = BaseCellComponentProps & {
   value: string;
   width: number;
   isEditable: boolean;
+  isEditableCellValid: boolean;
   tableWidth: number;
   isCellEditable?: boolean;
   isCellEditMode?: boolean;
@@ -131,6 +132,7 @@ export const SelectCell = (props: SelectProps) => {
     isCellEditMode,
     isCellVisible,
     isEditable,
+    isEditableCellValid,
     isFilterable = false,
     isHidden,
     isNewRow,
@@ -200,9 +202,12 @@ export const SelectCell = (props: SelectProps) => {
 
   const cellLabelValue = useMemo(() => {
     if (releaseTableSelectCellLabelValue) {
+      if (!options.length) return value;
+
       const selectedOption = options.find(
         (option) => option[TableSelectColumnOptionKeys.VALUE] === value,
       );
+
       return selectedOption
         ? selectedOption[TableSelectColumnOptionKeys.LABEL]
         : "";
@@ -233,13 +238,14 @@ export const SelectCell = (props: SelectProps) => {
           compactMode
           dropDownWidth={width}
           filterText={filterText}
+          hasError={!isEditableCellValid}
           height={TABLE_SIZES[compactMode].ROW_HEIGHT}
           hideCancelIcon
           isFilterable={isFilterable}
           isLoading={false}
           isNewRow={isNewRow}
           isOpen={autoOpen}
-          isValid
+          isValid={isEditableCellValid}
           labelText=""
           onClose={onClose}
           onFilterChange={onFilter}

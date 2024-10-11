@@ -8,5 +8,6 @@ export function useFeatureFlag(flagName: FeatureFlag): boolean {
   if (flagName in flagValues) {
     return flagValues[flagName];
   }
+
   return false;
 }

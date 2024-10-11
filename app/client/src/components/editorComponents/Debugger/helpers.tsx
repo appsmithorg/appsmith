@@ -7,8 +7,8 @@ import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "ee/constants/messages";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { isChildPropertyPath } from "utils/DynamicBindingUtils";
 import {
-  matchBuilderPath,
   matchApiPath,
+  matchBuilderPath,
   matchQueryPath,
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
@@ -22,8 +22,8 @@ const BlankStateWrapper = styled.div`
   justify-content: center;
   align-items: center;
   color: var(--ads-v2-color-fg);
-  ${getTypographyByKey("p1")}
 
+  ${getTypographyByKey("p1")}
   .debugger-shortcut {
     color: var(--ads-v2-color-fg);
     ${getTypographyByKey("h5")}
@@ -49,15 +49,6 @@ export function BlankState(props: {
       )}
     </BlankStateWrapper>
   );
-}
-
-export enum DEBUGGER_TAB_KEYS {
-  SCHEMA_TAB = "schema",
-  RESPONSE_TAB = "response",
-  HEADER_TAB = "headers",
-  ERROR_TAB = "ERROR",
-  LOGS_TAB = "LOGS_TAB",
-  INSPECT_TAB = "INSPECT_TAB",
 }
 
 export const SeverityIcon: Record<Severity, string> = {
@@ -91,28 +82,37 @@ export function createLogTitleString(data: any[]) {
       if (typeof curr === "boolean") {
         return `${acc} ${curr}`;
       }
+
       if (curr === null || curr === undefined) {
         return `${acc} undefined`;
       }
+
       if (curr instanceof Promise) {
         return `${acc} Promise ${curr.constructor.name}`;
       }
+
       if (typeof curr === "string") {
         return `${acc} ${truncate(curr)}`;
       }
+
       if (typeof curr === "number") {
         return `${acc} ${truncate(curr.toString())}`;
       }
+
       if (typeof curr === "function") {
         return `${acc} func() ${curr.name}`;
       }
+
       if (typeof curr === "object") {
         let suffix = "}";
+
         if (Array.isArray(curr)) {
           suffix = "]";
         }
+
         return `${acc} ${truncate(JSON.stringify(curr, null, "\t"), suffix)}`;
       }
+
       acc = `${acc} -`;
     }, "");
   } catch (error) {
@@ -147,6 +147,7 @@ export function getDependenciesFromInverseDependencies(
 
   Object.entries(deps).forEach(([dependant, dependencies]) => {
     const { entityName: entity } = getEntityNameAndPropertyPath(dependant);
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (dependencies as any).map((dependency: any) => {
@@ -200,6 +201,7 @@ export function getDependencyChain(
       if (!isChildPropertyPath(entityName, dependentPath)) {
         currentChain.push(dependentPath);
       }
+
       if (dependentPath !== entityName) {
         currentChain = union(
           currentChain,
@@ -207,6 +209,7 @@ export function getDependencyChain(
         );
       }
     }
+
     return currentChain;
   }
 }

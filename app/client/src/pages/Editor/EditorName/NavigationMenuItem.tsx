@@ -50,7 +50,9 @@ export function NavigationMenuItem({
 
   const handleClick = (e: React.SyntheticEvent, item: MenuItemData) => {
     setIsPopoverOpen(false);
+
     if (item.onClick) item.onClick(e);
+
     AnalyticsUtil.logEvent("APP_MENU_OPTION_CLICK", {
       option: item.text,
     });

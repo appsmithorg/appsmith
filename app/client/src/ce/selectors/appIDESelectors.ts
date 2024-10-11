@@ -7,6 +7,9 @@ import {
 } from "ee/selectors/entitiesSelector";
 import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 import type { AppState } from "ee/reducers";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getQueryEntityItemUrl } from "ee/pages/Editor/IDE/EditorPane/Query/utils";
 
 export type EditorSegmentList = Array<{
   group: string | "NA";
@@ -18,6 +21,7 @@ export const groupAndSortEntitySegmentList = (
 ): EditorSegmentList => {
   const groups = groupBy(items, (item) => {
     if (item.group) return item.group;
+
     return "NA";
   });
 
@@ -51,6 +55,7 @@ export const selectJSSegmentEditorTabs = (state: AppState) => {
   const tabs = getJSTabs(state);
 
   const keyedItems = keyBy(items, "key");
+
   return tabs
     .map((tab) => {
       return keyedItems[tab];
@@ -63,5 +68,19 @@ export const selectQuerySegmentEditorTabs = (state: AppState) => {
   const tabs = getQueryTabs(state);
 
   const keyedItems = keyBy(items, "key");
+
   return tabs.map((tab) => keyedItems[tab]).filter(Boolean);
 };
+
+export const getLastQueryTab = createSelector(
+  selectQuerySegmentEditorTabs,
+  getCurrentPageId,
+  (tabs, pageId) => {
+    if (tabs.length) {
+      const url = getQueryEntityItemUrl(tabs[tabs.length - 1], pageId);
+      const urlWithoutQueryParams = url.split("?")[0];
+
+      return identifyEntityFromPath(urlWithoutQueryParams);
+    }
+  },
+);

@@ -39,6 +39,7 @@ function CopyToClipboard(props: any) {
       copyURLInput.current.setSelectionRange(0, copyText.length);
     }
   };
+
   return (
     <Wrapper>
       <BaseTextInput

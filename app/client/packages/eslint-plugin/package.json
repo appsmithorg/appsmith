@@ -1,0 +1,17 @@
+{
+  "name": "@appsmith/eslint-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx tsc",
+    "build:watch": "npx tsc --watch",
+    "lint": "yarn g:lint",
+    "prettier": "yarn g:prettier",
+    "postinstall": "yarn build",
+    "test:unit": "yarn g:jest"
+  },
+  "dependencies": {
+    "@typescript-eslint/utils": "5.62.0"
+  }
+}

@@ -6,6 +6,7 @@ import Resizer, {
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/styledComponents";
 import { ViewDisplayMode, ViewHideBehaviour } from "IDE/Interfaces/View";
 import { Button } from "@appsmith/ads";
+import classNames from "classnames";
 
 const VIEW_MIN_HEIGHT = 38;
 
@@ -112,11 +113,14 @@ const ViewHide = (props: ViewHideProps) => {
 
 const BottomView = (props: Props) => {
   const panelRef = useRef<HTMLDivElement>(null);
+  const { className = "" } = props;
 
   // Handle the height of the view when toggling the hidden state
   useEffect(() => {
     const panel = panelRef.current;
+
     if (!panel) return;
+
     if (props.hidden) {
       panel.style.height = MIN_HEIGHT[props.behaviour];
     } else {
@@ -126,7 +130,10 @@ const BottomView = (props: Props) => {
 
   return (
     <Container
-      className={`select-text ${props.className || ""}`}
+      className={classNames("select-text", {
+        [className]: true,
+        "t--ide-bottom-view": !props.hidden,
+      })}
       displayMode={props.displayMode || ViewDisplayMode.BLOCK}
       ref={panelRef}
     >

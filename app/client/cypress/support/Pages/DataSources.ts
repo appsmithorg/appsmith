@@ -194,14 +194,14 @@ export class DataSources {
   _globalSearchInput = ".t--global-search-input";
   _gsScopeDropdown =
     "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
-  _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
+  _gsScopeOptions = ".ads-v2-radio-group";
   _queryTimeout = "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
-
+  _dsTabSchema = "[data-testid='t--tab-SCHEMA_TAB']";
   private _pageSelectionMenu = "[data-testId='t--page-selection']";
 
   private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
@@ -1116,13 +1116,11 @@ export class DataSources {
       });
   }
 
-  ToggleUsePreparedStatement(
-    enable = true || false,
-    toNavigateToSettings = false,
-  ) {
-    toNavigateToSettings && this.apiPage.SelectPaneTab("Settings");
+  ToggleUsePreparedStatement(enable = true || false) {
+    this.apiPage.SelectPaneTab("Settings");
     if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
     else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
+    this.apiPage.SelectPaneTab("Query");
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
@@ -1373,7 +1371,7 @@ export class DataSources {
     expectedTableName = search,
   ) {
     this.agHelper.Sleep(2500); //for query editor to load
-    this.agHelper.TypeText(this._datasourceStructureSearchInput, search);
+    this.agHelper.ClearNType(this._datasourceStructureSearchInput, search);
     this.agHelper.Sleep(1000); //for search result to load
     this.VerifyTableSchemaOnQueryEditor(expectedTableName);
   }
@@ -1856,7 +1854,7 @@ export class DataSources {
     cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
       `getDatasourceStructureUpdated_${ds_entity_name}`,
     );
-    cy.get("[data-testid=t--tab-schema]").first().click({ force: true });
+    cy.get("[data-testid=t--tab-SCHEMA_TAB]").first().click({ force: true });
     this.RefreshDatasourceSchema();
     this.assertHelper
       .WaitForNetworkCall(`@getDatasourceStructureUpdated_${ds_entity_name}`)

@@ -1,6 +1,4 @@
-import type { SelectItem } from "../src/types";
-
-export const selectItems: SelectItem[] = [
+export const selectItems = [
   { id: 1, label: "Aerospace" },
   {
     id: 2,
@@ -15,7 +13,7 @@ export const selectItems: SelectItem[] = [
   { id: 9, label: "Electrical" },
 ];
 
-export const selectItemsWithIcons: SelectItem[] = [
+export const selectItemsWithIcons = [
   { id: 1, label: "Aerospace", icon: "galaxy" },
   {
     id: 2,
@@ -25,4 +23,4 @@ export const selectItemsWithIcons: SelectItem[] = [
   { id: 3, label: "Civil", icon: "circuit-ground" },
   { id: 4, label: "Biomedical", icon: "biohazard" },
   { id: 5, label: "Nuclear", icon: "atom" },
-];
+] as const;

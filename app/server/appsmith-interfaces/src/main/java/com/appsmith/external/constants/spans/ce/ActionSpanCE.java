@@ -23,13 +23,18 @@ public class ActionSpanCE {
     public static final String GET_UNPUBLISHED_ACTION = APPSMITH_SPAN_PREFIX + "get.action.unpublished";
     public static final String GET_VIEW_MODE_ACTION = APPSMITH_SPAN_PREFIX + "get.action.viewmode";
     public static final String GET_ACTION_REPOSITORY_CALL = APPSMITH_SPAN_PREFIX + "get.action.repository.call";
-    public static final String VIEW_MODE_FILTER_ACTION = ACTIONS_VIEW_MODE_PREFIX + "filter";
-    public static final String VIEW_MODE_SANITISE_ACTION = ACTIONS_VIEW_MODE_PREFIX + "sanitise";
     public static final String VIEW_MODE_INITIAL_ACTION = ACTIONS_VIEW_MODE_PREFIX + "initial";
     public static final String VIEW_MODE_FINAL_ACTION = ACTIONS_VIEW_MODE_PREFIX + "final";
     public static final String VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_JS = ACTIONS_VIEW_MODE_PREFIX + "set_js";
     public static final String VIEW_MODE_SET_PLUGIN_ID_AND_TYPE_ACTION = ACTIONS_VIEW_MODE_PREFIX + "set_action";
     public static final String VIEW_MODE_FETCH_PLUGIN_FROM_DB = ACTIONS_VIEW_MODE_PREFIX + "plugindb";
     public static final String VIEW_MODE_FETCH_ACTIONS_FROM_DB = ACTIONS_VIEW_MODE_PREFIX + "fetchactions";
-    public static final String VIEW_MODE_FETCH_ACTIONS_FROM_DB_QUERY = ACTIONS_VIEW_MODE_PREFIX + "actionsdb";
+    public static final String GET_ACTION_BY_ID = APPSMITH_SPAN_PREFIX + "get.actionById";
+
+    // Action creation, update and delete spans
+    public static final String UPDATE_SINGLE_ACTION = APPSMITH_SPAN_PREFIX + "update.single.action";
+    public static final String UPDATE_ACTION_BASED_ON_CONTEXT = APPSMITH_SPAN_PREFIX + "update.action.context";
+    public static final String CREATE_ACTION = APPSMITH_SPAN_PREFIX + "create.action";
+    public static final String UPDATE_ACTION = APPSMITH_SPAN_PREFIX + "update.action";
+    public static final String DELETE_ACTION = APPSMITH_SPAN_PREFIX + "delete.action";
 }

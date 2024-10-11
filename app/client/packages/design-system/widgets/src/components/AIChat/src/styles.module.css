@@ -1,0 +1,43 @@
+.root {
+  width: 100%;
+  border-radius: var(--border-radius-elevation-1);
+  border: 1px solid var(--color-bd-elevation-1);
+  /* TODO: --bg-elevation-1 doesn't exists. Define it */
+  background: var(--bg-elevation-1, #fbfcfd);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--inner-spacing-2);
+  padding: var(--inner-spacing-5) var(--inner-spacing-6);
+  align-items: flex-start;
+  border-bottom: 1px solid var(--color-bd-elevation-1);
+  background: rgba(255, 255, 255, 0.45);
+}
+
+@container (min-width: 700px) {
+  .header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--inner-spacing-3);
+  align-self: stretch;
+  padding: 0px var(--inner-spacing-6) var(--inner-spacing-5)
+    var(--inner-spacing-6);
+}
+
+.promptForm {
+  display: flex;
+  align-items: flex-start;
+  margin: var(--outer-spacing-4) 0 0 0;
+  padding: 0 var(--inner-spacing-5) var(--inner-spacing-5)
+    var(--inner-spacing-5);
+  gap: var(--outer-spacing-3);
+}

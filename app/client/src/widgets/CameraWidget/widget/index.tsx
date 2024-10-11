@@ -384,8 +384,10 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("imageBlobURL", undefined);
       this.props.updateWidgetMetaProperty("imageDataURL", undefined);
       this.props.updateWidgetMetaProperty("imageRawBinary", undefined);
+
       return;
     }
+
     // Set isDirty to true when an image is captured
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
@@ -451,6 +453,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
       this.props.updateWidgetMetaProperty("videoBlobURL", undefined);
       this.props.updateWidgetMetaProperty("videoDataURL", undefined);
       this.props.updateWidgetMetaProperty("videoRawBinary", undefined);
+
       return;
     }
 

@@ -27,6 +27,7 @@ export function getOverflowMiddleware(boundaryEl: HTMLDivElement) {
       const overflow = await detectOverflow(state, {
         boundary: boundaryEl,
       });
+
       return {
         data: {
           overflowAmount: overflow.right,
@@ -82,6 +83,7 @@ export function handleWidgetUpdate(
         ],
       }).then(({ middlewareData, x, y }) => {
         let shiftOffset = 0;
+
         if (middlewareData.containWithinCanvas.overflowAmount > 0) {
           shiftOffset = middlewareData.containWithinCanvas.overflowAmount + 5;
         }
@@ -132,6 +134,7 @@ export function getWidgetNameComponentStyleProps(
     bGCSSVar = "--on-canvas-ui-widget-error";
     colorCSSVar = "--on-canvas-ui-white";
   }
+
   return {
     disableParentToggle: onCanvasUI.disableParentSelection,
     bGCSSVar,

@@ -66,6 +66,7 @@ export const isValid = (
 
 const transformValue = (value: string) => {
   const parsedValue = parseIncompletePhoneNumber(value);
+
   return {
     text: parsedValue,
     value: parsedValue,

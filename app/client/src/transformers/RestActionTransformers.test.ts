@@ -75,6 +75,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
+
     expect(result).toEqual(output);
   });
 
@@ -98,6 +99,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
+
     expect(result).toEqual(output);
   });
 
@@ -141,6 +143,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
+
     expect(result).toEqual(output);
   });
 
@@ -194,6 +197,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
+
     expect(result).toEqual(output);
   });
 
@@ -246,6 +250,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
+
     expect(result).toEqual(output);
   });
 
@@ -269,6 +274,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
+
     expect(result).toEqual(output);
   });
 
@@ -333,6 +339,7 @@ describe("Api action transformer", () => {
       },
     };
     const result = transformRestAction(input);
+
     expect(result).toEqual(output);
   });
 
@@ -342,6 +349,7 @@ describe("Api action transformer", () => {
     const output1 = `/{{Text1.text ? 'users' : 'user'}}`;
 
     const result1 = extractApiUrlPath(path1);
+
     expect(result1).toEqual(output1);
 
     // testing multiple dynamic bindings in path with empty query params
@@ -349,6 +357,7 @@ describe("Api action transformer", () => {
     const output2 = `/{{Text1.text ? 'users' : 'user'}}/{{"test"}}`;
 
     const result2 = extractApiUrlPath(path2);
+
     expect(result2).toEqual(output2);
 
     // testing multiple dynamic bindings in path with non-empty query params
@@ -356,6 +365,7 @@ describe("Api action transformer", () => {
     const output3 = `/{{Text1.text ? 'users' : 'user'}}/{{"test"}}`;
 
     const result3 = extractApiUrlPath(path3);
+
     expect(result3).toEqual(output3);
 
     // testing normal strings and dynamic bindings in path with non-empty query params
@@ -363,12 +373,14 @@ describe("Api action transformer", () => {
     const output4 = `/key/{{Text1.text}}`;
 
     const result4 = extractApiUrlPath(path4);
+
     expect(result4).toEqual(output4);
 
     const path5 = "/{{Text1.text ?? 'user1'}}";
     const output5 = "/{{Text1.text ?? 'user1'}}";
 
     const result5 = extractApiUrlPath(path5);
+
     expect(result5).toEqual(output5);
   });
 });

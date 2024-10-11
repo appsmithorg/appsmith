@@ -5,7 +5,7 @@ import Card from "components/common/Card";
 import CardList from "pages/Applications/CardList";
 import { Button } from "@appsmith/ads";
 import { PaddingWrapper } from "pages/Applications/CommonElements";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 
 interface ResourcesLoaderProps {
   isMobile: boolean;
@@ -18,6 +18,7 @@ const DEAFULT_RESOURCES = [{ id: "default", name: "Default Resource" }];
 
 function ResourceListLoader({ isMobile, resources }: ResourcesLoaderProps) {
   const resourcesToUse = resources?.length ? resources : DEAFULT_RESOURCES;
+
   return (
     <CardList isLoading isMobile={isMobile} title="Apps">
       {/* TODO: Fix this the next time the file is edited */}

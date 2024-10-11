@@ -25,5 +25,6 @@ export const selectFeatureFlagCheck = (
   if (flagName in flagValues) {
     return flagValues[flagName];
   }
+
   return false;
 };

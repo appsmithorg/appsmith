@@ -12,12 +12,12 @@ describe("@appsmith/wds/ToggleGroup", () => {
 
   it("should render the checkbox group", async () => {
     const { container } = render(
-      <ToggleGroup items={items} label="Checkbox Group">
-        {({ label, value }) => (
+      <ToggleGroup label="Checkbox Group">
+        {items.map(({ label, value }) => (
           <Checkbox key={value} value={value}>
             {label}
           </Checkbox>
-        )}
+        ))}
       </ToggleGroup>,
     );
 
@@ -25,14 +25,20 @@ describe("@appsmith/wds/ToggleGroup", () => {
     expect(screen.getByText("Value 2")).toBeInTheDocument();
 
     // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
-    const label = container.querySelector("label") as HTMLElement;
+    const label = container.querySelector(
+      "[data-field-label-wrapper] label",
+    ) as HTMLElement;
+
     expect(label).toHaveTextContent("Checkbox Group");
 
-    const toggleGroup = screen.getByRole("group");
+    // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
+    const toggleGroup = container.querySelector("[data-field]") as HTMLElement;
+
     expect(toggleGroup).toHaveAttribute("aria-labelledby");
     expect(toggleGroup.getAttribute("aria-labelledby")).toBe(label.id);
 
     const checkboxes = screen.getAllByRole("checkbox");
+
     expect(checkboxes[0]).toHaveAttribute("value", "value-1");
     expect(checkboxes[1]).toHaveAttribute("value", "value-2");
 
@@ -48,39 +54,33 @@ describe("@appsmith/wds/ToggleGroup", () => {
 
   it("should support custom props", () => {
     render(
-      <ToggleGroup
-        data-testid="t--checkbox-group"
-        items={items}
-        label="Checkbox Group Label"
-      >
-        {({ label, value }) => (
+      <ToggleGroup data-testid="t--checkbox-group" label="Checkbox Group Label">
+        {items.map(({ label, value }) => (
           <Checkbox key={value} value={value}>
             {label}
           </Checkbox>
-        )}
+        ))}
       </ToggleGroup>,
     );
 
     const toggleGroup = screen.getByTestId("t--checkbox-group");
+
     expect(toggleGroup).toBeInTheDocument();
   });
 
   it("should render checked checkboxes when value is passed", () => {
     render(
-      <ToggleGroup
-        items={items}
-        label="Checkbox Group Label"
-        value={["value-1", "value-2"]}
-      >
-        {({ label, value }) => (
+      <ToggleGroup label="Checkbox Group Label" value={["value-1", "value-2"]}>
+        {items.map(({ label, value }) => (
           <Checkbox key={value} value={value}>
             {label}
           </Checkbox>
-        )}
+        ))}
       </ToggleGroup>,
     );
 
     const checkboxes = screen.getAllByRole("checkbox");
+
     expect(checkboxes[0]).toBeChecked();
     expect(checkboxes[1]).toBeChecked();
   });
@@ -89,36 +89,34 @@ describe("@appsmith/wds/ToggleGroup", () => {
     const onChangeSpy = jest.fn();
 
     render(
-      <ToggleGroup
-        items={items}
-        label="Checkbox Group Label"
-        onChange={onChangeSpy}
-      >
-        {({ label, value }) => (
+      <ToggleGroup label="Checkbox Group Label" onChange={onChangeSpy}>
+        {items.map(({ label, value }) => (
           <Checkbox key={value} value={value}>
             {label}
           </Checkbox>
-        )}
+        ))}
       </ToggleGroup>,
     );
 
     const checkboxes = screen.getAllByRole("checkbox");
+
     await userEvent.click(checkboxes[0]);
     expect(onChangeSpy).toHaveBeenCalled();
   });
 
   it("should be able to render disabled checkboxes", () => {
     render(
-      <ToggleGroup isDisabled items={items} label="Checkbox Group Label">
-        {({ label, value }) => (
+      <ToggleGroup isDisabled label="Checkbox Group Label">
+        {items.map(({ label, value }) => (
           <Checkbox key={value} value={value}>
             {label}
           </Checkbox>
-        )}
+        ))}
       </ToggleGroup>,
     );
 
     const checkboxes = screen.getAllByRole("checkbox");
+
     expect(checkboxes[0]).toBeDisabled();
     expect(checkboxes[1]).toBeDisabled();
   });

@@ -6,6 +6,7 @@ tlog "Running as: $(id)"
 
 stacks_path=/appsmith-stacks
 
+export APPSMITH_PG_DATABASE="appsmith"
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
 
@@ -58,6 +59,7 @@ init_env_file() {
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
     tlog "Generating default configuration file"
     mkdir -p "$CONF_PATH"
+
     local default_appsmith_mongodb_user="appsmith"
     local generated_appsmith_mongodb_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
@@ -75,9 +77,9 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
+
     bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
   fi
-
 
   tlog "Load environment configuration"
 
@@ -372,7 +374,7 @@ configure_supervisord() {
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
-    if [[ $isUriLocal -eq 0 ]]; then
+    if [[ $isUriLocal -eq 0 && $isMongoUrl -eq 1 ]]; then
       cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
@@ -431,6 +433,7 @@ init_postgres() {
       tlog "Initializing local Postgres data folder"
       su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
+    create_appsmith_pg_db "$POSTGRES_DB_PATH"
   else
     runEmbeddedPostgres=0
   fi
@@ -450,6 +453,33 @@ safe_init_postgres() {
     tlog "init_postgres failed with exit status $exit_status."
     runEmbeddedPostgres=0
   fi
+}
+
+# Method to create a appsmith database in the postgres 
+# Args:
+#     POSTGRES_DB_PATH (string): Path to the postgres data directory
+# Returns:
+#     None
+# Example:
+#     create_appsmith_pg_db "/appsmith-stacks/data/postgres/main"
+create_appsmith_pg_db() {
+  POSTGRES_DB_PATH=$1
+  # Start the postgres , wait for it to be ready and create a appsmith db
+  su postgres -c "env PATH='$PATH' pg_ctl -D $POSTGRES_DB_PATH -l $POSTGRES_DB_PATH/logfile start"
+  echo "Waiting for Postgres to start"
+  until su postgres -c "env PATH='$PATH' pg_isready -d postgres"; do
+    tlog "Waiting for Postgres to be ready..."
+    sleep 1
+  done
+  # Check if the appsmith DB is present
+  DB_EXISTS=$(su postgres -c "env PATH='$PATH' psql -tAc \"SELECT 1 FROM pg_database WHERE datname='${APPSMITH_PG_DATABASE}'\"")
+
+  if [[ "$DB_EXISTS" != "1" ]]; then
+    su postgres -c "env PATH='$PATH' psql -c \"CREATE DATABASE ${APPSMITH_PG_DATABASE}\""
+  else
+    echo "Database ${APPSMITH_PG_DATABASE} already exists."
+  fi
+  su postgres -c "env PATH='$PATH' pg_ctl -D $POSTGRES_DB_PATH stop"
 }
 
 setup_caddy() {
@@ -477,6 +507,14 @@ function setup_auto_heal(){
    fi
 }
 
+function setup_monitoring(){
+   if [[ ${APPSMITH_MONITORING-} = 1 ]]; then
+     # By default APPSMITH_MONITORING=0
+     # To enable auto heal set APPSMITH_MONITORING=1
+     bash /opt/appsmith/JFR-recording-24-hours.sh $APPSMITH_LOG_DIR 2>&1 &
+   fi
+}
+
 print_appsmith_info(){
   tr '\n' ' ' < /opt/appsmith/info.json
 }
@@ -500,9 +538,6 @@ if [[ -z "${DYNO}" ]]; then
     tlog "Initializing MongoDB"
     init_mongodb
     init_replica_set
-  elif [[ $isPostgresUrl -eq 1 ]]; then
-    tlog "Initializing Postgres"
-    # init_postgres
   fi
 else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
@@ -530,6 +565,7 @@ mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,p
 
 setup_auto_heal
 capture_infra_details
+setup_monitoring || echo true
 
 # Handle CMD command
 exec "$@"

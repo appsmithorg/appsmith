@@ -4,15 +4,17 @@
   gap: var(--ads-v2-spaces-4);
   width: 100%;
   max-width: 800px;
-  align-items: center;
   justify-content: center;
-  container: uqi-section / inline-size;
-}
 
-.section[data-standalone="false"] {
-  padding-block: var(--ads-v2-spaces-6);
-}
+  &[data-standalone="false"] {
+    padding-block: var(--ads-v2-spaces-6);
+  }
 
-.section[data-standalone="false"]:not(:last-child) {
-  border-bottom: 1px solid var(--ads-v2-color-border);
+  &[data-standalone="false"]:not(:last-child) {
+    border-bottom: 1px solid var(--ads-v2-color-border);
+  }
+
+  &[data-fullwidth="true"] {
+    max-width: none;
+  }
 }

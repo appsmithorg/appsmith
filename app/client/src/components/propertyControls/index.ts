@@ -76,12 +76,14 @@ import type { IconSelectControlV2Props } from "./IconSelectControlV2";
 import IconSelectControlV2 from "./IconSelectControlV2";
 import PrimaryColumnsControlWDS from "./PrimaryColumnsControlWDS";
 import ToolbarButtonListControl from "./ToolbarButtonListControl";
+import ArrayControl from "./ArrayControl";
 
 export const PropertyControls = {
   InputTextControl,
   DropDownControl,
   SwitchControl,
   OptionControl,
+  ArrayControl,
   CodeEditorControl,
   DatePickerControl,
   ActionSelectorControl,
@@ -160,11 +162,14 @@ export type PropertyControlPropsType =
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};
+
   Object.values(PropertyControls).forEach(
     (Control: typeof BaseControl & { getControlType: () => string }) => {
       const controlType = Control.getControlType();
+
       _types[controlType] = controlType;
     },
   );
+
   return _types;
 };

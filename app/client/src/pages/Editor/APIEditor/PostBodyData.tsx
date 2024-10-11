@@ -19,7 +19,10 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Classes } from "@appsmith/ads-old";
-import { updateBodyContentType } from "actions/apiPaneActions";
+import {
+  getPostBodyFormat,
+  updatePostBodyContentType,
+} from "PluginActionEditor/store";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { createMessage, API_PANE_NO_BODY } from "ee/constants/messages";
@@ -199,14 +202,14 @@ const selector = formValueSelector(API_EDITOR_FORM_NAME);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => ({
   updateBodyContentType: (contentType: string, apiId: string) =>
-    dispatch(updateBodyContentType(contentType, apiId)),
+    dispatch(updatePostBodyContentType(contentType, apiId)),
 });
 
 export default connect((state: AppState) => {
   const apiId = selector(state, "id");
-  const extraFormData = state.ui.apiPane.extraformData[apiId] || {};
-  // Defaults to NONE when extraformData is empty
-  const displayFormat = extraFormData["displayFormat"] || {
+  const postBodyFormat = getPostBodyFormat(state, apiId);
+  // Defaults to NONE when format is not set
+  const displayFormat = postBodyFormat || {
     label: POST_BODY_FORMAT_OPTIONS.NONE,
     value: POST_BODY_FORMAT_OPTIONS.NONE,
   };

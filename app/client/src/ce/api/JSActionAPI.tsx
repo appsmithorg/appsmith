@@ -94,6 +94,7 @@ class JSActionAPI extends API {
           },
         })) ?? undefined,
     };
+
     return API.post(JSActionAPI.url, payload);
   }
 
@@ -117,6 +118,7 @@ class JSActionAPI extends API {
           },
         })) ?? undefined,
     };
+
     return API.post(JSActionAPI.url, payload);
   }
 
@@ -149,6 +151,7 @@ class JSActionAPI extends API {
           },
         })) ?? undefined,
     };
+
     return API.put(`${JSActionAPI.url}/${jsConfig.id}`, payload);
   }
 
@@ -203,6 +206,7 @@ class JSActionAPI extends API {
           ) ?? undefined,
       },
     };
+
     return API.put(JSActionAPI.url + "/refactorAction", payload);
   }
 }

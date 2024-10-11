@@ -1,24 +1,30 @@
 {
   "editor": [
     {
-      "controlType": "SECTION",
+      "controlType": "SECTION_V2",
       "identifier": "SELECTOR",
       "children": [
         {
-          "label": "Command",
-          "description": "Choose method you would like to use to send an email",
-          "configProperty": "actionConfiguration.formData.command",
-          "controlType": "DROP_DOWN",
-          "initialValue": "SEND",
-          "options": [
+          "controlType": "DOUBLE_COLUMN_ZONE",
+          "identifier": "SELECTOR-Z1",
+          "children": [
             {
-              "label": "Send email",
-              "value": "SEND"
+              "label": "Command",
+              "description": "Choose method you would like to use to send an email",
+              "configProperty": "actionConfiguration.formData.command",
+              "controlType": "DROP_DOWN",
+              "initialValue": "SEND",
+              "options": [
+                {
+                  "label": "Send email",
+                  "value": "SEND"
+                }
+              ]
             }
           ]
         }
       ]
     }
   ],
-  "files": ["send.json"]
+  "files": ["send.json", "body.json"]
 }

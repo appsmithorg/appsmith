@@ -7,6 +7,7 @@ export const migrateTableWidgetIconButtonVariant = (currentDSL: DSLWidget) => {
         string,
         ColumnProperties
       >;
+
       Object.keys(primaryColumns).forEach((accessor: string) => {
         const primaryColumn = primaryColumns[accessor];
 
@@ -19,7 +20,9 @@ export const migrateTableWidgetIconButtonVariant = (currentDSL: DSLWidget) => {
     } else if (child.children && child.children.length > 0) {
       child = migrateTableWidgetIconButtonVariant(child);
     }
+
     return child;
   });
+
   return currentDSL;
 };

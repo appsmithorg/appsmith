@@ -18,7 +18,7 @@ import {
   NEW_API_BUTTON_TEXT,
   NEW_QUERY_BUTTON_TEXT,
 } from "ee/constants/messages";
-import { createNewQueryAction } from "actions/apiPaneActions";
+import { createNewQueryAction } from "actions/pluginActionActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
@@ -47,6 +47,7 @@ export const apiPluginHasUrl = (
   if (pluginType !== PluginType.API) {
     return false;
   }
+
   return (
     !datasource ||
     !datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
@@ -81,11 +82,13 @@ function NewActionButton(props: NewActionButtonProps) {
         toast.show(ERROR_ADD_API_INVALID_URL(), {
           kind: "error",
         });
+
         return;
       }
 
       if (currentPageId) {
         setIsSelected(true);
+
         if (datasource) {
           dispatch(
             createNewQueryAction(
@@ -104,14 +107,19 @@ function NewActionButton(props: NewActionButtonProps) {
   const handleOnInteraction = useCallback(
     (open: boolean) => {
       if (disabled || isLoading) return;
+
       if (!open) {
         setIsPageSelectionOpen(false);
+
         return;
       }
+
       if (pages.length === 1) {
         createQueryAction(currentPageId);
+
         return;
       }
+
       setIsPageSelectionOpen(true);
     },
     [pages, createQueryAction, disabled, isLoading],
@@ -180,6 +188,7 @@ function NewActionButton(props: NewActionButtonProps) {
               i === 0 ? <MenuSeparator /> : null,
             ];
           }
+
           return null;
         })}
       </MenuContent>

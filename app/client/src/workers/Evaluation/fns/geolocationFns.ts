@@ -38,6 +38,7 @@ export async function getGeoLocation(
   const [successCallback, errorCallback, options] = args;
   const executor = promisify(getGeoLocationFnDescriptor);
   let response;
+
   try {
     response = await executor(successCallback, errorCallback, options);
 
@@ -46,17 +47,22 @@ export async function getGeoLocation(
     if (geolocation) {
       geolocation.currentPosition = response;
     }
+
     if (typeof successCallback === "function") {
       successCallback(response);
+
       return;
     }
   } catch (e) {
     if (typeof errorCallback === "function") {
       errorCallback(e);
+
       return;
     }
+
     throw e;
   }
+
   return response;
 }
 
@@ -97,6 +103,7 @@ export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
   const metaData = ExecutionMetaData.getExecutionMetaData();
   const [onSuccessCallback, onErrorCallback] = args;
   const listenerId = uniqueId("geoLocationListener_");
+
   TriggerEmitter.emit(BatchKey.process_batched_triggers, {
     trigger: watchGeoLocationFnDescriptor.apply({ listenerId }, args),
     ...metaData,
@@ -105,20 +112,27 @@ export function watchGeoLocation(...args: TWatchGeoLocationArgs) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const messageHandler = (event: MessageEvent<TDefaultMessage<any>>) => {
     const message = event.data;
+
     if (message.messageId !== listenerId) return;
+
     ExecutionMetaData.setExecutionMetaData(metaData);
     const { body } = message;
+
     if (!dataTreeEvaluator) throw new Error("No data tree evaluator found");
+
     ExecutionMetaData.setExecutionMetaData(metaData);
     self["$isDataField"] = false;
+
     if (body.data) {
       if (typeof onSuccessCallback === "function") onSuccessCallback(body.data);
     } else if (body.error) {
       if (typeof onErrorCallback === "function") onErrorCallback(body.error);
+
       self.removeEventListener("message", messageHandler);
       geoLocationListener = null;
     }
   };
+
   self.addEventListener("message", messageHandler);
   geoLocationListener = messageHandler;
 }
@@ -144,11 +158,13 @@ export type TStopWatchGeoLocationActionType =
 export async function stopWatchGeoLocation() {
   const executor = promisify(stopWatchGeoLocationFnDescriptor);
   let response;
+
   try {
     response = await executor();
     geoLocationListener = null;
   } catch (e) {
     throw e;
   }
+
   return response;
 }

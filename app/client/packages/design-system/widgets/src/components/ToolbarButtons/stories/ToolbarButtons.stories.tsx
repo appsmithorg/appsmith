@@ -4,10 +4,10 @@ import {
   BUTTON_VARIANTS,
   COLORS,
   Flex,
-  objectKeys,
   ToolbarButtons,
   SIZES,
 } from "@appsmith/wds";
+import { objectKeys } from "@appsmith/utils";
 import {
   itemList,
   itemListWithIcons,
@@ -71,7 +71,7 @@ export const Sizes: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-4" width="100%">
       {Object.keys(SIZES)
-        .filter((size) => !["large"].includes(size))
+        .filter((size) => !["xSmall", "large"].includes(size))
         .map((size) => (
           <ToolbarButtons items={itemList} key={size} size={size} />
         ))}

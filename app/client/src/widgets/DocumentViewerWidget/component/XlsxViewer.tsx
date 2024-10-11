@@ -59,11 +59,13 @@ export default function XlsxViewer(props: { blob?: Blob }) {
         .then(
           (jsonData: { sheetsData: RawSheetData[]; sheetNames: string[] }) => {
             const newState = newStateInstance();
+
             newState.sheetNames = jsonData.sheetNames;
             const newSheetIndex = jsonData.sheetsData.length > 0 ? 0 : -1;
 
             jsonData.sheetsData.forEach((data: RawSheetData, index: number) => {
               const parsedData = parseExcelData(data);
+
               newState.tableData[index] = parsedData.body;
               newState.headerData[index] = parsedData.headers;
             });
@@ -86,6 +88,7 @@ export default function XlsxViewer(props: { blob?: Blob }) {
   ): Promise<{ sheetsData: RawSheetData[]; sheetNames: string[] }> {
     const buffer = await blob.arrayBuffer();
     const workbook = XLSX.read(buffer, { type: "array" });
+
     return convertWorkbookDataToJSON(workbook);
   }
 
@@ -102,6 +105,7 @@ export default function XlsxViewer(props: { blob?: Blob }) {
         workbook.Sheets[sheetName],
         { header: 1 },
       );
+
       sheetsData.push(result);
     });
 
@@ -118,11 +122,13 @@ export default function XlsxViewer(props: { blob?: Blob }) {
       tableData: { ...defaultTableData },
       headerData: { ...defaultHeaderData },
     };
+
     return newState;
   }
 
   const resetStates = () => {
     const newState = newStateInstance();
+
     setState(newState);
     setSheetIndex(-1);
   };
@@ -162,6 +168,7 @@ export default function XlsxViewer(props: { blob?: Blob }) {
         <tbody {...getTableBodyProps()}>
           {rows.map((row, rInd) => {
             prepareRow(row);
+
             return (
               <tr {...row.getRowProps()} key={rInd}>
                 {row.cells.map((cell, ind) => {

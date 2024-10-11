@@ -359,6 +359,7 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
       // avoid updating value, when there is no actual change.
       if (newValue !== editorValue) {
         const isFocused = editor.hasFocus();
+
         /**
          * only change call the props.onValueChange when the editor is in focus.
          * This prevents props.onValueChange from getting called whenever the defaultText is changed.

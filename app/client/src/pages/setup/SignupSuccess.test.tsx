@@ -7,6 +7,7 @@ const useSelector = jest.fn();
 const values = {
   isSuperUser: true,
 };
+
 useSelector.mockReturnValue(values);
 
 function renderComponent() {

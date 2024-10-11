@@ -23,9 +23,11 @@ function useResize(
 
   const onMouseMove = (e: MouseEvent) => {
     document.body.classList.add(pointer);
+
     if (ref.current) {
       // below lines stop selection of texts
       if (e.stopPropagation) e.stopPropagation();
+
       if (e.preventDefault) e.preventDefault();
 
       const { bottom, left, right, top } = ref.current.getBoundingClientRect();

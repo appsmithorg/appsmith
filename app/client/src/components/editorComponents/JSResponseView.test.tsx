@@ -13,6 +13,7 @@ import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReduc
 import { PluginType } from "entities/Action";
 import "@testing-library/jest-dom/extend-expect";
 import { EMPTY_RESPONSE_LAST_HALF } from "ee/constants/messages";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/constants";
 
 jest.mock("ee/utils/actionExecutionUtils");
 
@@ -43,7 +44,7 @@ const storeState = {
       debugger: {
         open: true,
         responseTabHeight: 200,
-        selectedTab: "response",
+        selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       },
     },
     editor: {
@@ -114,6 +115,7 @@ describe("JSResponseView", () => {
         </ThemeProvider>
       </Provider>,
     );
+
     expect(getByText(EMPTY_RESPONSE_LAST_HALF())).toBeInTheDocument();
   });
 

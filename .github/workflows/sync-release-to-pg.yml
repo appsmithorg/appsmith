@@ -1,0 +1,83 @@
+name: Merge release to pg
+
+on:
+  push:
+    branches:
+      - release  # Trigger on push to the release branch
+
+jobs:
+  merge-release-to-pg:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout release branch
+        uses: actions/checkout@v3
+        with:
+          ref: release  # Checkout the release branch
+          fetch-depth: 0
+
+      - name: Set Git config values
+        run: |
+          git config pull.rebase false
+          git config user.email "automated@github.com"
+          git config user.name "Automated Github Action"
+
+      - name: Checkout pg branch
+        run: git checkout pg
+
+      - name: Merge release to pg
+        id: merge_commits
+        run: |
+          PG_HEAD=$(git rev-parse pg)
+          RELEASE_HEAD=$(git rev-parse release)
+
+          echo "PG_HEAD=$PG_HEAD"
+          echo "RELEASE_HEAD=$RELEASE_HEAD"
+
+          # Attempt to merge release into pg
+          if ! git merge release; then
+            echo "Merge conflict detected during merge"
+
+            # Capture the conflicting commit SHAs (both HEAD of pg and the merge commit from release)
+            CONFLICTING_COMMIT=$(git log -1 --pretty=format:"%H")
+            echo "CONFLICTING_COMMIT=$CONFLICTING_COMMIT" >> $GITHUB_ENV
+
+            echo "MERGE_CONFLICT=true" >> $GITHUB_ENV
+          else
+            echo "MERGE_CONFLICT=false" >> $GITHUB_ENV
+          fi
+
+      - name: Push changes
+        if: env.MERGE_CONFLICT == 'false'
+        run: |
+          git push origin pg
+
+      - name: Notify on merge conflicts
+        if: env.MERGE_CONFLICT == 'true'
+        env:
+          REPOSITORY_URL: ${{ github.repositoryUrl }}
+          CONFLICTING_COMMIT: ${{ env.CONFLICTING_COMMIT }}
+        run: |
+          # Prepare the message for Slack
+          message="Merge conflict detected while merging release into pg branch. Conflicted commits:\n"
+          commit_url="$REPOSITORY_URL/commit/$CONFLICTING_COMMIT"
+          message+="$commit_url\n"
+
+          # Send the message to Slack
+          # This unwieldy horror of a sed command, converts standard Markdown links to Slack's unwieldy link syntax.
+          slack_message="$(echo "$message" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')"
+
+          echo "$slack_message"
+
+          # This is the ChannelId of the proj postgres channel.
+          body="$(jq -nc \
+            --arg channel C07JMLWEXDJ \
+            --arg text "$slack_message" \
+            '$ARGS.named'
+          )"
+
+          curl --version
+          curl -v https://slack.com/api/chat.postMessage \
+            --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
+            --header 'Content-Type: application/json; charset=utf-8' \
+            --data-raw "$body"

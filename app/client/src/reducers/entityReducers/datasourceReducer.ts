@@ -87,6 +87,7 @@ const datasourceReducer = createReducer(initialState, {
     action: ReduxAction<any>,
   ) => {
     const mockDatasourceList = action.payload as MockDatasource[];
+
     return { ...state, isFetchingMockDataSource: false, mockDatasourceList };
   },
   [ReduxActionErrorTypes.FETCH_MOCK_DATASOURCES_ERROR]: (
@@ -261,6 +262,7 @@ const datasourceReducer = createReducer(initialState, {
             },
           };
         }
+
         return datasource;
       });
       const unconfiguredList = state.unconfiguredList.map((datasource) => {
@@ -277,8 +279,10 @@ const datasourceReducer = createReducer(initialState, {
             },
           };
         }
+
         return datasource;
       });
+
       return {
         ...state,
         isTesting: false,
@@ -286,6 +290,7 @@ const datasourceReducer = createReducer(initialState, {
         unconfiguredList: unconfiguredList,
       };
     }
+
     return {
       ...state,
       isTesting: false,
@@ -370,7 +375,7 @@ const datasourceReducer = createReducer(initialState, {
       loadingTokenForDatasourceId: null,
     };
   },
-  [ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN_ERROR]: (
+  [ReduxActionErrorTypes.GET_OAUTH_ACCESS_TOKEN_ERROR]: (
     state: DatasourceDataState,
   ) => {
     return {
@@ -442,8 +447,10 @@ const datasourceReducer = createReducer(initialState, {
       if (datasource.id === action.payload.id) {
         return { ...datasource, name: action.payload.name };
       }
+
       return datasource;
     });
+
     return {
       ...state,
       list: list,
@@ -514,6 +521,7 @@ const datasourceReducer = createReducer(initialState, {
             },
           };
         }
+
         return datasource;
       });
       const unconfiguredList = state.unconfiguredList.map((datasource) => {
@@ -530,8 +538,10 @@ const datasourceReducer = createReducer(initialState, {
             },
           };
         }
+
         return datasource;
       });
+
       return {
         ...state,
         isTesting: false,
@@ -539,6 +549,7 @@ const datasourceReducer = createReducer(initialState, {
         unconfiguredList: unconfiguredList,
       };
     }
+
     return {
       ...state,
       isTesting: false,
@@ -735,6 +746,7 @@ const datasourceReducer = createReducer(initialState, {
             },
           );
         }
+
         return datasource;
       });
       const unconfiguredList = state.unconfiguredList.map((datasource) => {
@@ -746,14 +758,17 @@ const datasourceReducer = createReducer(initialState, {
             },
           );
         }
+
         return datasource;
       });
+
       return {
         ...state,
         list: list,
         unconfiguredList: unconfiguredList,
       };
     }
+
     return {
       ...state,
     };

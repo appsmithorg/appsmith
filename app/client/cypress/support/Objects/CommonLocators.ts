@@ -89,8 +89,8 @@ export class CommonLocators {
   _createNew = ".t--add-item";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
-  _errorTab = "[data-testid=t--tab-ERROR]";
-  _responseTab = "[data-testid=t--tab-response]";
+  _errorTab = "[data-testid=t--tab-ERROR_TAB]";
+  _responseTab = "[data-testid=t--tab-RESPONSE_TAB]";
   _modal = ".t--modal-widget";
   _closeModal = "button:contains('Close')";
   _entityProperties = (entityNameinLeftSidebar: string) =>
@@ -334,4 +334,11 @@ export class CommonLocators {
   _menuItem = ".bp3-menu-item";
   _slashCommandHintText = ".slash-command-hint-text";
   _selectionItem = ".rc-select-selection-item";
+  errorPageTitle = ".t--error-page-title";
+  errorPageDescription = ".t--error-page-description";
+  _selectClearButton_testId = "selectbutton.btn.cancel";
+  _selectClearButton_dataTestId = `[data-testid="${this._selectClearButton_testId}"]`;
+  _saveDatasource = `[data-testid='t--store-as-datasource']`;
+  _propertyCollapseBody = ".bp3-collapse-body";
+  _propertyCollapse = ".bp3-collapse";
 }

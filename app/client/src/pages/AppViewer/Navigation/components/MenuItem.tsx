@@ -1,5 +1,5 @@
 import React from "react";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { APP_MODE } from "entities/App";

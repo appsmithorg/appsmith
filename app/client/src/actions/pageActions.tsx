@@ -1,20 +1,17 @@
 import type { WidgetType } from "constants/WidgetConstants";
 import type {
+  AnyReduxAction,
   EvaluationReduxAction,
   ReduxAction,
-  UpdateCanvasPayload,
-  AnyReduxAction,
-  ClonePageSuccessPayload,
 } from "ee/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
   WidgetReduxActionTypes,
-  ReplayReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type { WidgetOperation } from "widgets/BaseWidget";
+import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import type {
   FetchPageResponse,
   PageLayout,
@@ -28,6 +25,12 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import * as Sentry from "@sentry/react";
+import type { DSLWidget } from "../WidgetProvider/constants";
+import type {
+  LayoutOnLoadActionErrors,
+  PageAction,
+} from "../constants/AppsmithActionConstants/ActionConstants";
+import { ReplayOperation } from "entities/Replay/ReplayEntity/ReplayOperations";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -65,21 +68,23 @@ export const fetchPageAction = (
 export interface FetchPublishedPageActionPayload {
   pageId: string;
   bustCache?: boolean;
-  firstLoad?: boolean;
   pageWithMigratedDsl?: FetchPageResponse;
+}
+
+export interface FetchPublishedPageResourcesPayload {
+  pageId: string;
+  basePageId: string;
 }
 
 export const fetchPublishedPageAction = (
   pageId: string,
   bustCache = false,
-  firstLoad = false,
   pageWithMigratedDsl?: FetchPageResponse,
 ): ReduxAction<FetchPublishedPageActionPayload> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
-    firstLoad,
     pageWithMigratedDsl,
   },
 });
@@ -127,6 +132,19 @@ export const updateCurrentPage = (
   payload: { id, slug, permissions },
 });
 
+export interface UpdateCanvasPayload {
+  pageWidgetId: string;
+  widgets: { [widgetId: string]: WidgetProps };
+  currentLayoutId: string;
+  currentPageId: string;
+  currentPageName: string;
+  currentApplicationId: string;
+  dsl: Partial<DSLWidget>;
+  pageActions: PageAction[][];
+  updatedWidgetIds?: string[];
+  layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
+}
+
 export const initCanvasLayout = (
   payload: UpdateCanvasPayload,
 ): ReduxAction<UpdateCanvasPayload> => {
@@ -165,6 +183,7 @@ export const updateAndSaveLayout = (
   options: updateLayoutOptions = {},
 ) => {
   const { isRetry, shouldReplay, updatedWidgetIds } = options;
+
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
     payload: { widgets, isRetry, shouldReplay, updatedWidgetIds },
@@ -196,6 +215,7 @@ export const createPageAction = (
     orgId,
     instanceId,
   });
+
   return {
     type: ReduxActionTypes.CREATE_PAGE_INIT,
     payload: {
@@ -217,6 +237,7 @@ export const createNewPageFromEntities = (
     orgId,
     instanceId,
   });
+
   return {
     type: ReduxActionTypes.CREATE_NEW_PAGE_FROM_ENTITIES,
     payload: {
@@ -245,6 +266,16 @@ export const clonePageInit = (
   };
 };
 
+export interface ClonePageSuccessPayload {
+  pageName: string;
+  description?: string;
+  pageId: string;
+  basePageId: string;
+  layoutId: string;
+  isDefault: boolean;
+  slug: string;
+}
+
 export const clonePageSuccess = ({
   basePageId,
   layoutId,
@@ -263,6 +294,19 @@ export const clonePageSuccess = ({
     },
   };
 };
+
+// Fetches resources required for published page, currently only used for fetching actions
+// In future we can reuse this for fetching other page level resources in published mode
+export const fetchPublishedPageResources = ({
+  basePageId,
+  pageId,
+}: FetchPublishedPageResourcesPayload): ReduxAction<FetchPublishedPageResourcesPayload> => ({
+  type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_INIT,
+  payload: {
+    pageId,
+    basePageId,
+  },
+});
 
 // update a page
 
@@ -284,6 +328,7 @@ export const updatePageAction = (
       new Error("Attempting to update page without page id"),
     );
   }
+
   return {
     type: ReduxActionTypes.UPDATE_PAGE_INIT,
     payload,
@@ -524,7 +569,7 @@ export function undoAction() {
   return {
     type: ReduxActionTypes.UNDO_REDO_OPERATION,
     payload: {
-      operation: ReplayReduxActionTypes.UNDO,
+      operation: ReplayOperation.UNDO,
     },
   };
 }
@@ -533,7 +578,7 @@ export function redoAction() {
   return {
     type: ReduxActionTypes.UNDO_REDO_OPERATION,
     payload: {
-      operation: ReplayReduxActionTypes.REDO,
+      operation: ReplayOperation.REDO,
     },
   };
 }
@@ -630,21 +675,18 @@ export const setupPageAction = (
 export interface SetupPublishedPageActionPayload {
   pageId: string;
   bustCache: boolean;
-  firstLoad: boolean;
   pageWithMigratedDsl?: FetchPageResponse;
 }
 
 export const setupPublishedPage = (
   pageId: string,
   bustCache = false,
-  firstLoad = false,
   pageWithMigratedDsl?: FetchPageResponse,
 ): ReduxAction<SetupPublishedPageActionPayload> => ({
   type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
-    firstLoad,
     pageWithMigratedDsl,
   },
 });

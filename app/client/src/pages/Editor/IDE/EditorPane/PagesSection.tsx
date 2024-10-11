@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
 import { selectAllPages } from "ee/selectors/entitiesSelector";
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import { getHasCreatePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -46,6 +46,7 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
       PAGE_ENTITY_NAME,
       pages.map((page: Page) => page.pageName),
     );
+
     dispatch(
       createNewPageFromEntities(applicationId, name, workspaceId, instanceId),
     );

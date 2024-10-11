@@ -44,6 +44,7 @@ describe("DynamicInputTextControl", () => {
     // eslint-disable-next-line testing-library/await-async-utils
     waitFor(async () => {
       const input = screen.getAllByText("My test value")[0];
+
       // eslint-disable-next-line testing-library/no-wait-for-side-effects
       await userEvent.type(input, "New text");
       await expect(screen.getAllByText("New text")).toHaveLength(2);

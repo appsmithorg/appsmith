@@ -54,4 +54,5 @@ function ProgressiveImage(props: {
     </Container>
   );
 }
+
 export default ProgressiveImage;

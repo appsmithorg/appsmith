@@ -23,6 +23,7 @@ export const getIndextoUpdate = (headers: any, headerIndexToUpdate: number) => {
     firstEmptyHeaderRowIndex > -1 ? firstEmptyHeaderRowIndex : headers.length;
   const indexToUpdate =
     headerIndexToUpdate > -1 ? headerIndexToUpdate : newHeaderIndex;
+
   return indexToUpdate;
 };
 
@@ -42,8 +43,10 @@ export function parseUrlForQueryParams(url: string) {
   const templateStringSegments = dynamicStringSegments.map((segment) => {
     if (isDynamicValue(segment)) {
       dynamicValuesDetected.push(segment);
+
       return "~";
     }
+
     return segment;
   });
 
@@ -58,6 +61,7 @@ export function parseUrlForQueryParams(url: string) {
         firstEqualPos > -1
           ? [p.substring(0, firstEqualPos), p.substring(firstEqualPos + 1)]
           : [];
+
       return { key: keyValue[0] || "", value: keyValue[1] || "" };
     });
 

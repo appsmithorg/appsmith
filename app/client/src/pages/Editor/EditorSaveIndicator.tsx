@@ -19,6 +19,7 @@ export function EditorSaveIndicator({
 }) {
   let saveStatusIcon: React.ReactNode;
   let saveStatusText = "";
+
   if (isSaving) {
     saveStatusIcon = <Spinner className="t--save-status-is-saving" />;
     saveStatusText = createMessage(EDITOR_HEADER.saving);

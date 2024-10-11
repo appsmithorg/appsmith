@@ -12,6 +12,7 @@
     cb: (arg0: { didTimeout: boolean; timeRemaining: () => number }) => void,
   ) {
     const start = Date.now();
+
     return setTimeout(function () {
       cb({
         didTimeout: false,

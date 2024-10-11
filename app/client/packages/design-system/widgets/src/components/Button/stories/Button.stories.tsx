@@ -1,13 +1,7 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  Button,
-  Flex,
-  BUTTON_VARIANTS,
-  COLORS,
-  SIZES,
-  objectKeys,
-} from "@appsmith/wds";
+import { Button, Flex, BUTTON_VARIANTS, COLORS, SIZES } from "@appsmith/wds";
+import { objectKeys } from "@appsmith/utils";
 
 /**
  * A button is a clickable element that is used to trigger an action.
@@ -63,14 +57,41 @@ export const Semantic: Story = {
  */
 export const Sizes: Story = {
   render: () => (
-    <Flex alignItems="start" gap="spacing-4">
-      {Object.keys(SIZES)
-        .filter((size) => !["large"].includes(size))
-        .map((size) => (
-          <Button icon="star" key={size} size={size}>
-            {size}
-          </Button>
-        ))}
+    <Flex direction="column" gap="spacing-6">
+      <Flex alignItems="start" gap="spacing-4">
+        {Object.keys(SIZES)
+          .filter((size) => !["large"].includes(size))
+          .map((size) => (
+            <Button icon="star" key={size} size={size} />
+          ))}
+      </Flex>
+      <Flex alignItems="start" gap="spacing-4">
+        {Object.keys(SIZES)
+          .filter((size) => !["large"].includes(size))
+          .map((size) => (
+            <Button icon="star" key={size} size={size}>
+              {size}
+            </Button>
+          ))}
+      </Flex>
+      <Flex alignItems="start" gap="spacing-4">
+        {Object.keys(SIZES)
+          .filter((size) => !["large"].includes(size))
+          .map((size) => (
+            <Button icon="star" iconPosition="end" key={size} size={size}>
+              {size}
+            </Button>
+          ))}
+      </Flex>
+      <Flex alignItems="start" gap="spacing-4">
+        {Object.keys(SIZES)
+          .filter((size) => !["large"].includes(size))
+          .map((size) => (
+            <Button key={size} size={size}>
+              {size}
+            </Button>
+          ))}
+      </Flex>
     </Flex>
   ),
 };

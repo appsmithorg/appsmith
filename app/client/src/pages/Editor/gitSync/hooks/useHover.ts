@@ -9,14 +9,17 @@ export default function useHover(ref: any) {
 
   useEffect(() => {
     const target = ref.current;
+
     if (target) {
       target.addEventListener("mouseenter", onMouseEnter);
       target.addEventListener("mouseleave", onMouseLeave);
+
       return () => {
         target.removeEventListener("mouseenter", onMouseEnter);
         target.removeEventListener("mouseleave", onMouseLeave);
       };
     }
   });
+
   return [hover];
 }

@@ -63,6 +63,7 @@ function TableFilters(props: TableFilterProps) {
 
   useEffect(() => {
     const filters: ReactTableFilter[] = props.filters ? [...props.filters] : [];
+
     if (filters.length === 0) {
       filters.push({
         column: "",
@@ -71,6 +72,7 @@ function TableFilters(props: TableFilterProps) {
         condition: "",
       });
     }
+
     updateFilters(filters);
   }, [props.filters]);
 

@@ -16,8 +16,6 @@ public interface FileOperationsCE {
 
     void saveWidgets(JSONObject sourceEntity, String resourceName, Path path);
 
-    void writeStringToFile(String sourceEntity, Path path) throws IOException;
-
     boolean writeToFile(Object sourceEntity, Path path) throws IOException;
 
     void scanAndDeleteFileForDeletedResources(Set<String> validResources, Path resourceDirectory);

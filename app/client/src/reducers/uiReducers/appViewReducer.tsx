@@ -26,12 +26,30 @@ const appViewReducer = createReducer(initialState, {
   [ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT]: (state: AppViewReduxState) => {
     return { ...state, isFetchingPage: true };
   },
+  [ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_INIT]: (
+    state: AppViewReduxState,
+  ) => {
+    return { ...state, isFetchingPage: true };
+  },
   [ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_ERROR]: (
     state: AppViewReduxState,
   ) => {
     return { ...state, isFetchingPage: false };
   },
+  [ReduxActionErrorTypes.FETCH_PUBLISHED_PAGE_RESOURCES_ERROR]: (
+    state: AppViewReduxState,
+  ) => {
+    return { ...state, isFetchingPage: false };
+  },
   [ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS]: (
+    state: AppViewReduxState,
+  ) => {
+    return {
+      ...state,
+      isFetchingPage: false,
+    };
+  },
+  [ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_SUCCESS]: (
     state: AppViewReduxState,
   ) => {
     return {

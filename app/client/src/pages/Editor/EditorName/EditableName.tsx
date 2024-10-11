@@ -22,6 +22,7 @@ export type EditableAppNameProps = CommonComponentProps & {
   onBlur?: (value: string) => void;
   isEditingDefault?: boolean;
   inputValidation?: (value: string) => string | boolean;
+  hideEditIcon?: boolean;
   fill?: boolean;
   isError?: boolean;
   isEditing: boolean;

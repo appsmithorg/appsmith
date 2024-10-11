@@ -36,6 +36,7 @@ const Previews = (props: PreviewsProps) => {
 
     if (typeof logo !== "string") {
       const reader = new FileReader();
+
       reader.readAsDataURL(logo);
 
       reader.onloadend = function () {
@@ -55,6 +56,7 @@ const Previews = (props: PreviewsProps) => {
 
     if (typeof favicon !== "string") {
       const reader = new FileReader();
+
       reader.readAsDataURL(favicon);
 
       reader.onloadend = function () {

@@ -12,6 +12,7 @@ export function* setDefaultActionDisplayFormat(
     const responseType = payload?.dataTypes.find(
       (type) => plugin?.responseType && type.dataType === plugin?.responseType,
     );
+
     yield put(
       setActionResponseDisplayFormat({
         id: actionId,

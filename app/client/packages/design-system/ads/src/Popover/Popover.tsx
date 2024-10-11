@@ -50,6 +50,7 @@ function PopoverHeader({
     </StyledHeader>
   );
 }
+
 function PopoverContent({ size = "sm", ...props }: PopoverContentProps) {
   return (
     <Portal>
@@ -66,10 +67,12 @@ function PopoverContent({ size = "sm", ...props }: PopoverContentProps) {
 }
 
 const Popover = Root;
+
 Popover.displayName = "Popover";
 Popover.defaultProps = {};
 
 const PopoverBody = StyledBody;
+
 PopoverBody.displayName = "Popover Body";
 
 export { Popover, PopoverBody, PopoverContent, PopoverHeader, PopoverTrigger };

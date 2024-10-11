@@ -162,12 +162,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             serverSideFiltering: true,
             onFilterUpdate: queryConfig.select.run,
           };
-          if (
-            !!SelectWidget.getFeatureFlag(
-              FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
-            )
-          )
-            dynamicPropertyPathList.push({ key: "sourceData" });
+
+          dynamicPropertyPathList.push({ key: "sourceData" });
         }
 
         return {
@@ -849,6 +845,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       value: this.props.selectedOptionValue,
     });
     const { componentHeight, componentWidth } = this.props;
+
     return (
       <SelectComponent
         accentColor={this.props.accentColor}
@@ -863,6 +860,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
         isFilterable={this.props.isFilterable}
         isLoading={this.props.isLoading}
+        isRequired={this.props.isRequired}
         isValid={this.props.isValid}
         label={this.props.selectedOptionLabel}
         labelAlignment={this.props.labelAlignment}
@@ -898,7 +896,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     if (!isNil(this.props.selectedOptionValue)) {
       isChanged = this.props.selectedOptionValue !== selectedOption.value;
     }
+
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
+
     if (isChanged) {
       if (!this.props.isDirty) {
         pushBatchMetaUpdates("isDirty", true);
@@ -919,6 +919,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     if (!isChanged && this.props.selectedOptionLabel !== selectedOption.label) {
       pushBatchMetaUpdates("label", selectedOption.label ?? "");
     }
+
     commitBatchMetaUpdates();
   };
 

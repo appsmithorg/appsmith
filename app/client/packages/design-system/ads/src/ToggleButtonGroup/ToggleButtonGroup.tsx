@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import clsx from "classnames";
 import { ToggleButton } from "../ToggleButton";
 
 import { Group } from "./ToggleButtonGroup.styles";
@@ -6,6 +7,7 @@ import type {
   ToggleGroupOption,
   ToggleGroupProps,
 } from "./ToggleButtonGroup.types";
+import { ToggleGroupClassName } from "./ToggleButtonGroup.constants";
 
 // eslint-disable-next-line react/display-name
 export const ToggleButtonGroup = React.forwardRef<
@@ -14,7 +16,7 @@ export const ToggleButtonGroup = React.forwardRef<
 >((props, ref) => {
   const toggleRefs: Array<HTMLButtonElement | null> = [];
 
-  const { onClick, options, values } = props;
+  const { className, onClick, options, values } = props;
 
   const valueSet = new Set(values);
   let firstValueIndex = 0;
@@ -39,6 +41,7 @@ export const ToggleButtonGroup = React.forwardRef<
       case "ArrowRight":
       case "Right":
         const rightIndex = index === options.length - 1 ? 0 : index + 1;
+
         toggleRefs[rightIndex]?.focus();
         setFocusedIndex(rightIndex);
         break;
@@ -46,6 +49,7 @@ export const ToggleButtonGroup = React.forwardRef<
       case "ArrowLeft":
       case "Left":
         const leftIndex = index === 0 ? options.length - 1 : index - 1;
+
         toggleRefs[leftIndex]?.focus();
         setFocusedIndex(leftIndex);
         break;
@@ -63,12 +67,14 @@ export const ToggleButtonGroup = React.forwardRef<
 
   return (
     <Group
+      className={clsx(ToggleGroupClassName, className)}
       onBlur={() => setFocusedIndex(firstValueIndex)}
       ref={ref}
       role="tablist"
     >
       {options.map(({ icon, value }: ToggleGroupOption, index: number) => {
         const isSelected = valueSet.has(value);
+
         return (
           <div
             aria-selected={isSelected}

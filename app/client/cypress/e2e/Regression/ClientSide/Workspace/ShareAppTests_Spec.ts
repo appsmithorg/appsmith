@@ -13,7 +13,7 @@ const appNavigationLocators = require("../../../../locators/AppNavigation.json")
 
 describe(
   "Create new workspace and share with a user",
-  { tags: ["@tag.Workspace"] },
+  { tags: ["@tag.Workspace", "@tag.Sanity"] },
   function () {
     let workspaceId: string, appid: string, currentUrl: any;
 
@@ -113,6 +113,7 @@ describe(
       agHelper.AssertElementExist(homePage._appEditIcon);
       agHelper.GetNClick(homePage._appEditIcon, 0, true);
       agHelper.AssertElementAbsence(locators._loading);
+      assertHelper.AssertNetworkStatus("@getConsolidatedData", 200, true);
       agHelper.GetNClick(inviteModal.locators._shareButton, 0, true);
       agHelper.GetNClick(homePage._sharePublicToggle, 0, true);
       agHelper.GetNClick(locators._dialogCloseButton, 0, true);
@@ -124,7 +125,17 @@ describe(
         Cypress.env("TESTPASSWORD2"),
       );
       agHelper.VisitNAssert(currentUrl);
-      agHelper.ValidateToastMessage("Resource Not Found"); //for 404 screen
+      cy.get(locators.errorPageTitle).should(($x) => {
+        //for 404 screen
+        expect($x).contain(Cypress.env("MESSAGES").PAGE_NOT_FOUND());
+      });
+      cy.get(locators.errorPageDescription).should(($x) => {
+        //for 404 screen
+        expect($x).contain(
+          "Either this page doesn't exist, or you don't have access to this page",
+        );
+      });
+      agHelper.ValidateToastMessage("Resource Not Found");
       homePage.LogOutviaAPI();
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);

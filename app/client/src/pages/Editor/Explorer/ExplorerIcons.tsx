@@ -37,26 +37,31 @@ export const defaultPageIcon = (
 export const hiddenPageIcon = <Icon name="eye-off" size="md" />;
 
 const WidgetIcon = MenuIcons.WIDGETS_ICON;
+
 export const widgetIcon = (
   <WidgetIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
 const DBQueryIcon = MenuIcons.DATASOURCE_ICON_v2;
+
 export const dbQueryIcon = (
   <DBQueryIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
 const JSIcon = MenuIcons.JS_ICON_V2;
+
 export const jsIcon = (
   <JSIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
 const JSFileIcon = MenuIcons.JS_FILE_ICON;
+
 export const jsFileIcon = (
   <JSFileIcon height={ENTITY_ICON_SIZE} keepColors width={ENTITY_ICON_SIZE} />
 );
 
 const JSFunctionIcon = MenuIcons.JS_FUNCTION_ICON;
+
 export const jsFunctionIcon = (
   <JSFunctionIcon
     height={ENTITY_ICON_SIZE}
@@ -66,6 +71,7 @@ export const jsFunctionIcon = (
 );
 
 const QueryMainIcon = MenuIcons.QUERY_MAIN;
+
 export function QueryIcon() {
   return (
     <QueryMainIcon
@@ -77,6 +83,7 @@ export function QueryIcon() {
 }
 
 const DataSourceIcon = MenuIcons.DATASOURCES_ICON;
+
 export const datasourceIcon = (
   <DataSourceIcon
     color="var(--ads-v2-color-fg)"
@@ -114,6 +121,7 @@ export const getPluginIcon = (plugin?: Plugin) => {
       />
     );
   }
+
   return <PluginIcon alt="plugin-placeholder" src={ImageAlt} />;
 };
 
@@ -140,6 +148,7 @@ export function MethodTag(props: { type: keyof typeof HTTP_METHOD }) {
 }
 
 const CurrentPageIcon = MenuIcons.CURRENT_PAGE_ICON;
+
 export const currentPageIcon = (
   <CurrentPageIcon
     color="var(--ads-v2-color-fg)"
@@ -149,6 +158,7 @@ export const currentPageIcon = (
 );
 
 const SortIcon = MenuIcons.SORT_ICON;
+
 export const SortFileIcon = (
   <SortIcon
     color="var(--ads-v2-color-fg)"

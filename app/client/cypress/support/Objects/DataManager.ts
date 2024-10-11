@@ -80,6 +80,8 @@ export class DataManager {
         "http://host.docker.internal:5001/v1/mock-api-object?records=10",
       echoApiUrl: "http://host.docker.internal:5001/v1/mock-api/echo",
       randomCatfactUrl: "http://host.docker.internal:5001/v1/catfact/random",
+      multipartAPI:
+        "http://host.docker.internal:5001/v1/mock-api/echo-multipart",
       randomTrumpApi:
         "http://host.docker.internal:5001/v1/whatdoestrumpthink/random",
       mockHttpCodeUrl: "http://host.docker.internal:5001/v1/mock-http-codes/",
@@ -95,15 +97,12 @@ export class DataManager {
       firestore_projectID: "appsmith-22e8b",
       firestore_serviceaccountkey: Cypress.env("FIRESTORE_PRIVATE_KEY"),
 
-      restapi_url: "https://my-json-server.typicode.com/typicode/demo/posts",
-      connection_type: "Replica set",
-
       mockHostAddress: "fake_api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
       mockDatabaseName: "fakeapi",
       mockDatabaseUsername: "fakeapi",
       mockDatabasePassword: "LimitedAccess123#",
       readonly: "readonly",
-      authenticatedApiUrl: "https://fakeapi.com",
+      authenticatedApiUrl: "http://host.docker.internal:5001",
 
       GraphqlApiUrl_TED: "http://host.docker.internal:4200/graphql",
 
@@ -179,6 +178,8 @@ export class DataManager {
       mockApiUrl: "http://host.docker.internal:5001/v1/mock-api?records=10",
       echoApiUrl: "http://host.docker.internal:5001/v1/mock-api/echo",
       randomCatfactUrl: "http://host.docker.internal:5001/v1/catfact/random",
+      multipartAPI:
+        "http://host.docker.internal:5001/v1/mock-api/echo-multipart",
       mockHttpCodeUrl: "http://host.docker.internal:5001/v1/mock-http-codes/",
       AirtableBaseForME: "appubHrVbovcudwN6",
       AirtableTableForME: "tblsFCQSskVFf7xNd",
@@ -188,15 +189,12 @@ export class DataManager {
       firestore_projectID: "appsmith-dummy",
       firestore_serviceaccountkey: "dummy_service_creds_key",
 
-      restapi_url: "https://my-json-server.typicode.com/typicode/demo/posts",
-      connection_type: "Replica set",
-
       mockHostAddress: "fake_api.cvuydmurdlas.us-east-1.rds.amazonaws.com",
       mockDatabaseName: "fakeapi",
       mockDatabaseUsername: "fakeapi",
       mockDatabasePassword: "LimitedAccess123#",
       readonly: "readonly",
-      authenticatedApiUrl: "https://fakeapi.com",
+      authenticatedApiUrl: "http://host.docker.internal:5001",
 
       GraphqlApiUrl_TED: "http://host.docker.internal:4200/graphql",
 

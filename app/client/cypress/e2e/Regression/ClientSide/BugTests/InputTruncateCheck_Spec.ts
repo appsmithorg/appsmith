@@ -11,6 +11,7 @@ import {
   draggableWidgets,
   fakerHelper,
   dataManager,
+  debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 const widgetsToTest = {
@@ -180,8 +181,18 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         agHelper.GetNClick(locators._widgetInputSelector(widgetSelector));
         agHelper.PressDelete();
 
+        //Since widget is removed & Button is still holding its reference
+        debuggerHelper.AssertDebugError(
+          `'${testConfig.widgetPrefixName}1' is not defined.`,
+          "",
+          true,
+          false,
+        );
+        debuggerHelper.CloseBottomBar();
         agHelper.GetNClick(getWidgetSelector(draggableWidgets.BUTTON));
-        agHelper.AssertContains("is not defined"); //Since widget is removed & Button is still holding its reference
+        agHelper.ValidateToastMessage(
+          `${testConfig.widgetPrefixName}1 is not defined`,
+        );
         agHelper.PressDelete();
 
         agHelper.GetNClick(getWidgetSelector(draggableWidgets.TEXT)).click();

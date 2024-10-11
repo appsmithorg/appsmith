@@ -7,7 +7,7 @@ import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import { useHistory } from "react-router";
 import styled from "styled-components";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -48,6 +48,7 @@ const BackToAppsButton = (props: BackToAppsButtonProps) => {
   if (currentUser?.username === ANONYMOUS_USERNAME) {
     return null;
   }
+
   return (
     <Tooltip
       content={createMessage(ALL_APPS)}

@@ -29,6 +29,8 @@ import { updateCanvasWithDSL, WidgetTypes } from "ee/sagas/PageSagas";
 import {
   closeQueryActionTab,
   closeQueryActionTabSuccess,
+  createNewApiAction,
+  createNewQueryAction,
   type FetchActionsPayload,
   type SetActionPropertyPayload,
 } from "actions/pluginActionActions";
@@ -102,12 +104,7 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import {
-  createNewApiAction,
-  createNewQueryAction,
-} from "actions/apiPaneActions";
 import type { Plugin } from "api/PluginApi";
-import * as log from "loglevel";
 import { shouldBeDefined } from "utils/helpers";
 import {
   apiEditorIdURL,
@@ -177,6 +174,7 @@ export function* createDefaultActionPayloadWithPluginDefaults(
       getPluginActionDefaultValues,
       actionDefaults.pluginId,
     );
+
     return merge({}, pluginDefaults, actionDefaults);
   }
 
@@ -258,6 +256,7 @@ export function* getPluginActionDefaultValues(pluginId: string) {
   if (!pluginId) {
     return;
   }
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorConfig: any[] = yield select(getEditorConfig, pluginId);
@@ -270,13 +269,16 @@ export function* getPluginActionDefaultValues(pluginId: string) {
     getConfigInitialValues,
     editorConfig,
   );
+
   if (settingConfig) {
     const settingInitialValues: Record<string, unknown> = yield call(
       getConfigInitialValues,
       settingConfig,
     );
+
     initialValues = merge(initialValues, settingInitialValues);
   }
+
   return initialValues;
 }
 
@@ -296,12 +298,14 @@ export function* createActionRequestSaga(
   const pluginId =
     actionPayload.payload.pluginId ||
     actionPayload.payload.datasource?.pluginId;
+
   if (!actionPayload.payload.name) {
     const { parentEntityId, parentEntityKey } = resolveParentEntityMetadata(
       actionPayload.payload,
     );
 
     if (!parentEntityId || !parentEntityKey) return;
+
     const plugin: Plugin | undefined = yield select(getPlugin, pluginId || "");
     const isQueryType =
       plugin?.type === PluginType.DB ||
@@ -343,6 +347,7 @@ export function* createActionSaga(
     const response: ApiResponse<ActionCreateUpdateResponse> =
       yield ActionAPI.createAction(payload);
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       const pageName: string = yield select(
         getCurrentPageNameByActionId,
@@ -369,6 +374,7 @@ export function* createActionSaga(
       });
 
       const newAction = response.data;
+
       // @ts-expect-error: type mismatch ActionCreateUpdateResponse vs Action
       yield put(createActionSuccess(newAction));
 
@@ -389,9 +395,11 @@ export function* fetchActionDatasourceStructure(
   if (action.datasource?.id) {
     const doesDatasourceStructureAlreadyExist: DatasourceStructure =
       yield select(getDatasourceStructureById, action.datasource.id);
+
     if (doesDatasourceStructureAlreadyExist) {
       return;
     }
+
     yield put(fetchDatasourceStructure(action.datasource.id, true));
   } else {
     return;
@@ -411,6 +419,7 @@ export function* fetchActionsSaga(
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
@@ -439,6 +448,7 @@ export function* fetchActionsForViewModeSaga(
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       const correctFormatResponse = response.data.map((action) => {
         return {
@@ -448,6 +458,7 @@ export function* fetchActionsForViewModeSaga(
           },
         };
       });
+
       yield put({
         type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_SUCCESS,
         payload: correctFormatResponse,
@@ -477,6 +488,7 @@ export function* fetchActionsForPageSaga(
       pageId,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put(fetchActionsForPageSuccess(response.data));
     }
@@ -491,6 +503,7 @@ export function* fetchActionsForPageSaga(
 export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   try {
     let action: Action = yield select(getAction, actionPayload.payload.id);
+
     if (!action) throw new Error("Could not find action to update");
 
     if (isAPIAction(action)) {
@@ -521,16 +534,19 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
 
     /* NOTE: This  is fix for a missing command config */
     const plugin: Plugin | undefined = yield select(getPlugin, action.pluginId);
+
     if (action && plugin && plugin.packageName === PluginPackageName.MONGO) {
       // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
+
     const response: ApiResponse<Action> = yield call(
       updateActionAPICall,
       action,
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       const pageName: string = yield select(
         getCurrentPageNameByActionId,
@@ -559,10 +575,12 @@ export function* apiCallToSaveAction(action: Action) {
   const response: ApiResponse<Action> = yield call(updateActionAPICall, action);
 
   const isValidResponse: boolean = yield validateResponse(response);
+
   if (isValidResponse) {
     yield put(updateActionSuccess({ data: response.data }));
     checkAndLogErrorsIfCyclicDependency((response.data as Action).errorReports);
   }
+
   return { isValidResponse, response };
 }
 
@@ -589,30 +607,37 @@ export function* deleteActionSaga(
 
     const response: ApiResponse<Action> = yield ActionAPI.deleteAction(id);
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (!isValidResponse) {
       return;
     }
+
     if (isApi) {
       const pageName: string = yield select(getCurrentPageNameByActionId, id);
+
       AnalyticsUtil.logEvent("DELETE_API", {
         apiName: name,
         pageName,
         apiID: id,
       });
     }
+
     if (isSaas) {
       const pageName: string = yield select(getCurrentPageNameByActionId, id);
+
       AnalyticsUtil.logEvent("DELETE_SAAS", {
         apiName: name,
         pageName,
         apiID: id,
       });
     }
+
     if (isQuery) {
       AnalyticsUtil.logEvent("DELETE_QUERY", {
         queryName: name,
       });
     }
+
     yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
 
     if (ideType === IDE_TYPE.App) {
@@ -671,6 +696,7 @@ function* moveActionSaga(
     parentEntityKey: CreateNewActionKey.PAGE,
     startWithoutIndex: true,
   });
+
   try {
     const response: ApiResponse = yield ActionAPI.moveAction({
       action: {
@@ -687,6 +713,7 @@ function* moveActionSaga(
       // @ts-expect-error: response is of type unknown
       response.data.pageId,
     );
+
     if (isValidResponse) {
       toast.show(
         // @ts-expect-error: response is of type unknown
@@ -714,13 +741,14 @@ function* moveActionSaga(
     // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
   } catch (e) {
-    toast.show(createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name), {
-      kind: "error",
-    });
     yield put(
       moveActionError({
         id: action.payload.id,
         originalPageId: action.payload.originalPageId,
+        show: true,
+        error: {
+          message: createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name),
+        },
       }),
     );
   }
@@ -737,8 +765,10 @@ function* copyActionSaga(
     suffix: "Copy",
     startWithoutIndex: true,
   });
+
   try {
     if (!actionObject) throw new Error("Could not find action to copy");
+
     // At this point the actionObject.id will be the id of the action to be copied
     // We enhance the payload with eventData to track the action being copied
     actionObject = enhanceRequestPayloadWithEventData(
@@ -766,6 +796,7 @@ function* copyActionSaga(
       // @ts-expect-error: pageId not present on ActionCreateUpdateResponse
       response.data.pageId,
     );
+
     if (isValidResponse) {
       toast.show(
         createMessage(ACTION_COPY_SUCCESS, actionObject.name, pageName),
@@ -782,6 +813,7 @@ function* copyActionSaga(
         `${RequestPayloadAnalyticsPath}.originalActionId`,
         action.payload.id,
       );
+
       AnalyticsUtil.logEvent("DUPLICATE_ACTION", {
         // @ts-expect-error: name not present on ActionCreateUpdateResponse
         actionName: response.data.name,
@@ -805,12 +837,22 @@ function* copyActionSaga(
 
     // @ts-expect-error: type mismatch Action vs ActionCreateUpdateResponse
     yield put(copyActionSuccess(payload));
-  } catch (e) {
+  } catch (e: unknown) {
     const actionName = actionObject ? actionObject.name : "";
-    toast.show(createMessage(ERROR_ACTION_COPY_FAIL, actionName), {
-      kind: "error",
-    });
-    yield put(copyActionError(action.payload));
+    const errorMessage =
+      e instanceof Error
+        ? e.message
+        : createMessage(ERROR_ACTION_COPY_FAIL, actionName);
+
+    yield put(
+      copyActionError({
+        ...action.payload,
+        show: true,
+        error: {
+          message: errorMessage,
+        },
+      }),
+    );
   }
 }
 
@@ -824,6 +866,7 @@ export function* refactorActionName(
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
+
   if (isPageRequestSuccessful) {
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
@@ -848,6 +891,7 @@ export function* refactorActionName(
           actionId: id,
         },
       });
+
       if (currentPageId === pageId) {
         // @ts-expect-error: refactorResponse is of type unknown
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
@@ -876,6 +920,7 @@ function* bindDataOnCanvasSaga(
   }>,
 ) {
   const { basePageId, queryId } = action.payload;
+
   yield put(setSnipingModeAction({ isActive: true, bindTo: queryId }));
   history.push(
     builderURL({
@@ -909,12 +954,9 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
       payload: {
         actionId: action.payload.id,
         oldName: api.config.name,
+        message: createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name),
       },
     });
-    toast.show(createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name), {
-      kind: "error",
-    });
-    log.error(e);
   }
 }
 
@@ -922,7 +964,9 @@ export function* setActionPropertySaga(
   action: EvaluationReduxAction<SetActionPropertyPayload>,
 ) {
   const { actionId, propertyName, skipSave, value } = action.payload;
+
   if (!actionId) return;
+
   if (propertyName === "name") return;
 
   const actionObj: Action = yield select(getAction, actionId);
@@ -943,6 +987,7 @@ export function* setActionPropertySaga(
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const effects: Record<string, any> = {};
+
   // Value change effect
   effects[propertyName] = value;
   // Bindings change effect
@@ -962,6 +1007,7 @@ export function* setActionPropertySaga(
       ),
     ),
   );
+
   if (propertyName === "executeOnLoad") {
     yield put({
       type: ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_INIT,
@@ -970,8 +1016,10 @@ export function* setActionPropertySaga(
         shouldExecute: value,
       },
     });
+
     return;
   }
+
   //skipSave property is added to skip API calls when the updateAction needs to be called from the caller
   if (!skipSave) yield put(updateAction({ id: actionId }));
 }
@@ -986,6 +1034,7 @@ function* toggleActionExecuteOnLoadSaga(
       action.payload.shouldExecute,
     );
     const isValidResponse: boolean = yield validateResponse(response);
+
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS,
@@ -1010,6 +1059,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
   const isQuery = pluginType === PluginType.DB;
   const isSaas = pluginType === PluginType.SAAS;
   const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
+
   if (isApi) {
     history.push(
       apiEditorIdURL({
@@ -1018,6 +1068,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
       }),
     );
   }
+
   if (isQuery) {
     history.push(
       queryEditorIdURL({
@@ -1026,11 +1077,13 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
       }),
     );
   }
+
   if (isSaas) {
     const plugin = shouldBeDefined<Plugin>(
       yield select(getPlugin, pluginId),
       `Plugin not found for pluginId - ${pluginId}`,
     );
+
     history.push(
       saasEditorApiIdURL({
         basePageId,
@@ -1045,6 +1098,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   const pageId: string = yield select(getCurrentPageId);
   const basePageId: string = yield select(getCurrentBasePageId);
   const callback = get(actionPayload, "payload.callback");
+
   switch (actionPayload.payload.actionType) {
     case SlashCommand.NEW_INTEGRATION:
       history.push(
@@ -1056,16 +1110,21 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       break;
     case SlashCommand.NEW_QUERY:
       const datasource = get(actionPayload, "payload.args.datasource");
+
       yield put(createNewQueryAction(pageId, "QUICK_COMMANDS", datasource.id));
       // @ts-expect-error: QUERY is of type unknown
       const QUERY = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+
       if (callback) callback(`{{${QUERY.payload.name}.data}}`);
+
       break;
     case SlashCommand.NEW_API:
       yield put(createNewApiAction(pageId, "QUICK_COMMANDS"));
       // @ts-expect-error: QUERY is of type unknown
       const API = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
+
       if (callback) callback(`{{${API.payload.name}.data}}`);
+
       break;
     case SlashCommand.ASK_AI: {
       const context = get(actionPayload, "payload.args", {});
@@ -1085,6 +1144,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
 
       if (triggerCount < 5) {
         const currentValue: number = yield setAIPromptTriggered(context.mode);
+
         yield put({
           type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
           payload: {
@@ -1123,11 +1183,13 @@ function* handleCreateNewQueryFromActionCreator(
   // Side by Side ramp. Switch to SplitScreen mode to allow user to edit query
   // created while having context of the canvas
   const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
+
   // This state is a proxy to check if we are currently in side by side or full screen
   // because the action can only be triggered in side by side mode if floating pane
   // is visible
   const floatingPaneVisible: boolean = yield select(isFloatingPaneVisible);
-  if (isSideBySideEnabled) {
+
+    if (isSideBySideEnabled) {
     if (floatingPaneVisible) {
       history.push(queryAddURL({}));
       // Wait for a query to be created
@@ -1237,6 +1299,7 @@ export function* closeActionTabSaga(
 ) {
   const { id, parentId } = actionPayload.payload;
   const currentUrl = window.location.pathname;
+
   yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
   yield call(handleQueryEntityRedirect, id);
   yield put(closeQueryActionTabSuccess({ id, parentId }));

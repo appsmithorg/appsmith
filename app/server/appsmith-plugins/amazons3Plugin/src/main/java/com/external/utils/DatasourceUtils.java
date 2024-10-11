@@ -12,6 +12,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.external.plugins.exceptions.S3ErrorMessages;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
@@ -26,6 +27,7 @@ import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_R
 import static com.external.plugins.constants.S3PluginConstants.S3_SERVICE_PROVIDER_PROPERTY_INDEX;
 import static com.external.utils.DatasourceUtils.S3ServiceProvider.AMAZON;
 
+@Slf4j
 public class DatasourceUtils {
 
     /**
@@ -101,7 +103,7 @@ public class DatasourceUtils {
      */
     public static AmazonS3ClientBuilder getS3ClientBuilder(DatasourceConfiguration datasourceConfiguration)
             throws AppsmithPluginException {
-
+        log.debug(Thread.currentThread().getName() + ": getS3ClientBuilder action called.");
         DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
         String accessKey = authentication.getUsername();
         String secretKey = authentication.getPassword();

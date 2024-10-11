@@ -3092,6 +3092,7 @@ describe("correctly migrate dsl", () => {
     };
 
     const actualNextDSL = migrateRadioGroupAlignmentProperty(currentDSL);
+
     expect(actualNextDSL).toEqual(expectedNextDSL);
   });
 
@@ -3178,6 +3179,7 @@ describe("correctly migrate dsl", () => {
 
     for (const validationName in validations) {
       const validation = validations[validationName];
+
       if (
         validationName == "min" ||
         validationName == "regex" ||

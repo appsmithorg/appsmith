@@ -57,6 +57,8 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHTMLPageTitle } from "ee/utils/BusinessFeatures/brandingPageHelpers";
 import log from "loglevel";
 import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
+import * as Sentry from "@sentry/react";
+import { Severity } from "@sentry/react";
 
 declare global {
   interface Window {
@@ -69,6 +71,7 @@ const { cloudHosting, googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
+
   if (!values.password || isEmptyString(values.password)) {
     errors.password = createMessage(FORM_VALIDATION_EMPTY_PASSWORD);
   } else if (!isStrongPassword(values.password)) {
@@ -76,9 +79,11 @@ const validate = (values: SignupFormValues) => {
   }
 
   const email = values.email || "";
+
   if (!isEmptyString(email) && !isEmail(email)) {
     errors.email = createMessage(FORM_VALIDATION_INVALID_EMAIL);
   }
+
   return errors;
 };
 
@@ -91,9 +96,11 @@ type SignUpFormProps = InjectedFormProps<
 export function SignUp(props: SignUpFormProps) {
   const history = useHistory();
   const isFormLoginEnabled = useSelector(getIsFormLoginEnabled);
+
   useEffect(() => {
     if (!isFormLoginEnabled) {
       const search = new URL(window.location.href)?.searchParams?.toString();
+
       history.replace({
         pathname: AUTH_LOGIN_URL,
         search,
@@ -124,9 +131,16 @@ export function SignUp(props: SignUpFormProps) {
   let showError = false;
   let errorMessage = "";
   const queryParams = new URLSearchParams(location.search);
+
   if (queryParams.get("error")) {
     errorMessage = queryParams.get("error") || "";
     showError = true;
+    Sentry.captureException("Sign up failed", {
+      level: Severity.Error,
+      extra: {
+        error: new Error(errorMessage),
+      },
+    });
   }
 
   const signupURL = new URL(
@@ -134,10 +148,12 @@ export function SignUp(props: SignUpFormProps) {
     window.location.origin,
   );
   const appId = queryParams.get("appId");
+
   if (appId) {
     signupURL.searchParams.append("appId", appId);
   } else {
     const redirectUrl = queryParams.get("redirectUrl");
+
     if (redirectUrl != null && getIsSafeRedirectURL(redirectUrl)) {
       signupURL.searchParams.append("redirectUrl", redirectUrl);
     }
@@ -148,6 +164,7 @@ export function SignUp(props: SignUpFormProps) {
     const formElement: HTMLFormElement = document.getElementById(
       "signup-form",
     ) as HTMLFormElement;
+
     if (
       googleRecaptchaSiteKey.enabled &&
       recaptchaStatus === ScriptStatus.READY
@@ -272,8 +289,10 @@ export function SignUp(props: SignUpFormProps) {
 }
 
 const selector = formValueSelector(SIGNUP_FORM_NAME);
+
 export default connect((state: AppState, props: SignUpFormProps) => {
   const queryParams = new URLSearchParams(props.location.search);
+
   return {
     initialValues: {
       email: queryParams.get("email"),

@@ -120,10 +120,10 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     }
 
     /**
-     * This method is used to set the policyMap and also nullify the policies field if required. This acts as a
-     * backward compatible method till we replace direct assignment to policyMap field. By default, from the codebase
-     * we expect that the policies field should be nullified, but the same is not true when triggered it from startup
-     * migrations till {@link Migration057PolicySetToPolicyMap} is executed. This is because we update the policies via:
+     * This method is used to set the policies and policyMap field if required. This acts as a backward compatible
+     * method till we replace direct assignment to policyMap field. By default, from the codebase we expect that the
+     * policyMap field should have all elements from policies, but the same is not true when triggered it from startup
+     * migrations till {@link Migration059PolicySetToPolicyMap} is executed. This is because we update the policies via:
      * 1. The setter method
      * 2. Direct assignment to the field (check {@link Migration042AddPermissionsForGitOperations})
      * The 2nd use-case is what makes it difficult to track and update policies in migrations. We thought of updating
@@ -131,21 +131,15 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
      * which leaves the room for errors and is not a good practice.
      *
      * @param policies                  The set of policies to be set
-     * @param shouldNullifyPolicies     A boolean flag to decide if the policies field should be nullified
+     * @param shouldUpdatePolicyMap     A boolean flag to decide if the policyMap field should be updated
      */
     @JsonView({Views.Internal.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
-    public void setPolicies(Set<Policy> policies, boolean shouldNullifyPolicies) {
-        if (!shouldNullifyPolicies) {
-            // This block should be used only for startup migrations to make sure we have the updated values in policies
-            // only, before running the migration to switch from policies to policyMap.
-            this.policies = policies;
-            this.policyMap = null;
-            return;
+    public void setPolicies(Set<Policy> policies, boolean shouldUpdatePolicyMap) {
+        this.policies = policies;
+        if (shouldUpdatePolicyMap) {
+            this.policyMap = policySetToMap(policies);
         }
-        // Explicitly set policies to null as it is deprecated and should not be used.
-        this.policyMap = policySetToMap(policies);
-        this.policies = null;
     }
 
     public static Map<String, Policy> policySetToMap(Set<Policy> policies) {
@@ -175,6 +169,9 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         this.setUpdatedAt(null);
         if (this.getPolicyMap() != null) {
             this.getPolicyMap().clear();
+        }
+        if (this.getPolicies() != null) {
+            this.policies = new HashSet<>();
         }
     }
 

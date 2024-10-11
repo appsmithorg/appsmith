@@ -34,6 +34,7 @@ import { NavigationMethod } from "utils/history";
 import { isPropertyPaneActiveForWidget } from "pages/Editor/IDE/FloatingPane/selectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
+
 export const WidgetNameComponentHeight = theme.spaces[10];
 
 const PositionStyle = styled.div<{
@@ -166,9 +167,13 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       props.type === WidgetTypes.MODAL_WIDGET
         ? Activities.HOVERING
         : Activities.NONE;
+
     if (isFocused) activity = Activities.HOVERING;
+
     if (showAsSelected) activity = Activities.SELECTED;
+
     if (showAsSelected && isActiveInPropertyPane) activity = Activities.ACTIVE;
+
     return activity;
   };
 
@@ -184,6 +189,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       //ToDo: (Ashok) This is a hasty fix from my end. need to check the padding and margins and give a meaningful constant.
       return [-3, -3];
     }
+
     return isAutoLayout
       ? [-RESIZE_BORDER_BUFFER / 2, -RESIZE_BORDER_BUFFER / 2]
       : [0, 0];

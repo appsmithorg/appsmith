@@ -1,9 +1,5 @@
 import { useLocation } from "react-router-dom";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import type {
-  ApplicationPayload,
-  Page,
-} from "ee/constants/ReduxActionConstants";
 import { useWindowSizeHooks } from "utils/hooks/dragResizeHooks";
 import MenuItem from "./components/MenuItem";
 import { Container } from "./TopInline.styled";
@@ -16,13 +12,9 @@ import {
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { throttle } from "lodash";
+import type { NavigationProps } from "./constants";
 
-interface TopInlineProps {
-  currentApplicationDetails?: ApplicationPayload;
-  pages: Page[];
-}
-
-export function TopInline(props: TopInlineProps) {
+export function TopInline(props: NavigationProps) {
   const { currentApplicationDetails, pages } = props;
   const location = useLocation();
   const { pathname } = location;
@@ -45,6 +37,7 @@ export function TopInline(props: TopInlineProps) {
 
   // Mark default page as first page
   const appPages = pages;
+
   if (appPages.length > 1) {
     appPages.forEach((item, i) => {
       if (item.isDefault) {

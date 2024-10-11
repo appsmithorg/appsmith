@@ -77,14 +77,19 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
     .map(([currWidgetId, currWidget]) => {
       const { getOneClickBindingConnectableWidgetConfig } =
         WidgetFactory.getWidgetMethods(currWidget.type);
+
       if (getOneClickBindingConnectableWidgetConfig) {
         const { message, widgetBindPath } =
           getOneClickBindingConnectableWidgetConfig(currWidget);
+        const iconSVG =
+          WidgetFactory.getConfig(currWidget.type)?.iconSVG ||
+          currWidget.iconSVG;
+
         return {
           id: currWidgetId,
           value: widgetBindPath,
           label: currWidget.widgetName,
-          icon: <StyledImage alt="widget-icon" src={currWidget.iconSVG} />,
+          icon: <StyledImage alt="widget-icon" src={iconSVG} />,
           data: {
             widgetType: currWidget.type,
             widgetName: currWidget.widgetName,
@@ -92,6 +97,7 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
           message,
         };
       }
+
       return null;
     })
     .filter(Boolean) as DropdownOptionType[];
@@ -123,11 +129,14 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (d: any) => d.id === selectedOption.key,
     );
+
     if (option) {
       onSelect(value);
+
       if (option.message) {
         setMessage(option.message);
       }
+
       AnalyticsUtil.logEvent("ONE_CLICK_BINDING_CONFIG", {
         widgetName: widget.widgetName,
         widgetType: widget.type,
@@ -155,6 +164,7 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
       const option = (options as DropdownOptionType[]).find(
         (option) => option.value === selectedValue,
       );
+
       return {
         label: <DropdownOption label={option?.label} leftIcon={option?.icon} />,
         key: option?.id,

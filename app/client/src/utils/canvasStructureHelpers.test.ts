@@ -164,6 +164,7 @@ describe("Immutable Canvas structures", () => {
       canvasStructure,
       dsl,
     );
+
     expect(nextState).not.toBe(expectedCanvasStructure);
     expect(JSON.stringify(nextState)).toBe(
       JSON.stringify(expectedCanvasStructure),

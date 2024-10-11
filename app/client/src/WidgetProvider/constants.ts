@@ -82,6 +82,7 @@ export interface AnvilConfig {
 
 export interface WidgetBaseConfiguration {
   name: string;
+  displayOrder?: number;
   iconSVG?: string;
   thumbnailSVG?: string;
   hideCard?: boolean;
@@ -242,6 +243,7 @@ const staticProps = omit(
   "topRowBeforeCollapse",
   "bottomRowBeforeCollapse",
 );
+
 export type CanvasWidgetStructure = Pick<
   WidgetProps,
   keyof typeof staticProps

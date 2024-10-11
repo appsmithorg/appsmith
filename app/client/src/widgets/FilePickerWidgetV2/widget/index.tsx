@@ -6,7 +6,6 @@ import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { klona } from "klona";
 import _, { findIndex } from "lodash";
 import log from "loglevel";
 
@@ -31,6 +30,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const CSV_ARRAY_LABEL = "Array of Objects (CSV, XLS(X), JSON, TSV)";
 
@@ -502,6 +502,7 @@ class FilePickerWidget extends BaseWidget<
     };
 
     const uppy = await this.loadAndInitUppyOnce();
+
     uppy.setOptions(uppyState);
   };
 
@@ -582,6 +583,7 @@ class FilePickerWidget extends BaseWidget<
          */
         const fileMap = this.props.selectedFiles!.reduce((acc, cur) => {
           acc[cur.id] = cur.data;
+
           return acc;
         }, {});
 
@@ -601,6 +603,7 @@ class FilePickerWidget extends BaseWidget<
             size: currentFile.size,
             dataFormat: this.props.fileDataType,
           }));
+
         this.props.updateWidgetMetaProperty(
           "selectedFiles",
           updatedFiles ?? [],
@@ -614,8 +617,12 @@ class FilePickerWidget extends BaseWidget<
 
     uppy.on("files-added", (files: UppyFile[]) => {
       // Deep cloning the selectedFiles
+
       const selectedFiles = this.props.selectedFiles
-        ? klona(this.props.selectedFiles)
+        ? (klonaRegularWithTelemetry(
+            this.props.selectedFiles,
+            "initializeUppyEventListeners.selectedFiles",
+          ) as Array<unknown>)
         : [];
 
       const fileCount = this.props.selectedFiles?.length || 0;
@@ -623,6 +630,7 @@ class FilePickerWidget extends BaseWidget<
         return new Promise((resolve) => {
           (async () => {
             let data: unknown;
+
             if (file.size < FILE_SIZE_LIMIT_FOR_BLOBS) {
               data = await parseFileData(
                 file.data,
@@ -644,6 +652,7 @@ class FilePickerWidget extends BaseWidget<
               size: file.size,
               dataFormat: this.props.fileDataType,
             };
+
             resolve(newFile);
           })();
         });
@@ -704,6 +713,7 @@ class FilePickerWidget extends BaseWidget<
 
     const { selectedFiles: previousSelectedFiles = [] } = prevProps;
     const { selectedFiles = [] } = this.props;
+
     if (previousSelectedFiles.length && selectedFiles.length === 0) {
       (await this.loadAndInitUppyOnce()).reset();
     } else if (
@@ -713,6 +723,7 @@ class FilePickerWidget extends BaseWidget<
     ) {
       await this.reinitializeUppy(this.props);
     }
+
     this.clearFilesFromMemory(prevProps.selectedFiles);
   }
 
@@ -721,10 +732,12 @@ class FilePickerWidget extends BaseWidget<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   clearFilesFromMemory(previousFiles: any[] = []) {
     const { selectedFiles: newFiles = [] } = this.props;
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     previousFiles.forEach((file: any) => {
       let { data: blobUrl } = file;
+
       if (isBlobUrl(blobUrl)) {
         if (findIndex(newFiles, (f) => f.data === blobUrl) === -1) {
           blobUrl = blobUrl.split("?")[0];
@@ -815,11 +828,14 @@ class FilePickerWidget extends BaseWidget<
 
             if (!isUppyLoadedByThisPoint)
               this.setState({ isWaitingForUppyToLoad: true });
+
             const uppy = await this.loadAndInitUppyOnce();
+
             if (!isUppyLoadedByThisPoint)
               this.setState({ isWaitingForUppyToLoad: false });
 
             const dashboardPlugin = uppy.getPlugin("Dashboard") as Dashboard;
+
             dashboardPlugin.openModal();
             this.setState({ isUppyModalOpen: true });
           }}

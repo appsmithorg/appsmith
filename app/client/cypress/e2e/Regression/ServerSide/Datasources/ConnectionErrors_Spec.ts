@@ -51,10 +51,7 @@ describe(
           dataManager.dsValues[dataManager.defaultEnviorment].postgres_username,
         );
         dataSources.TestDatasource(false);
-        agHelper.ValidateToastMessage(
-          "An exception occurred while creating connection pool. One or more arguments in the datasource configuration may be invalid.",
-        );
-        agHelper.ValidateToastMessage("Failed to initialize pool:");
+        agHelper.ValidateToastMessage("Missing password for authentication.");
         agHelper.GetNClick(locators._visibleTextSpan("Read only"));
         propPane.AssertPropertiesDropDownValues("SSL mode", [
           "Default",

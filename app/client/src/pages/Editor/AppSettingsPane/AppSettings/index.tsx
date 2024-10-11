@@ -1,4 +1,4 @@
-import type { Page } from "ee/constants/ReduxActionConstants";
+import type { Page } from "entities/Page";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import { WDSThemePropertyPane } from "pages/Editor/WDSThemePropertyPane";
 import React, { useEffect, useState } from "react";
@@ -112,6 +112,7 @@ function AppSettings() {
         },
       }),
     );
+
     return () => {
       dispatch(
         updateAppSettingsPaneSelectedTabAction({

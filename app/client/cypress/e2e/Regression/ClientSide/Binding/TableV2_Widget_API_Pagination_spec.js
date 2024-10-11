@@ -13,7 +13,7 @@ import {
 
 describe(
   "Test Create Api and Bind to Table widget V2",
-  { tags: ["@tag.Binding"] },
+  { tags: ["@tag.Binding", "@tag.Sanity"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2TextPaginationDsl");
@@ -30,6 +30,7 @@ describe(
       //Validate Table V2 with API data and then add a column
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Table data", "{{Api1.data}}");
+      propPane.ExpandIfCollapsedSection("pagination");
       cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);
       cy.get(`.t--widget-tablewidgetv2 .page-item`)
         .first()

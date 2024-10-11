@@ -38,6 +38,7 @@ const StyledText = styled(Text)`
   padding-top: 8px;
   padding-bottom: 4px;
 `;
+
 function Files() {
   // Import the context
   const context = useContext(FilesContext);
@@ -67,12 +68,13 @@ function Files() {
 
   const onCreate = useCallback(() => {
     openMenu(true);
-  }, [dispatch, openMenu]);
+  }, [openMenu]);
 
   const activeActionBaseId = useActiveActionBaseId();
 
   useEffect(() => {
     if (!activeActionBaseId) return;
+
     document.getElementById(`entity-${activeActionBaseId}`)?.scrollIntoView({
       block: "nearest",
       inline: "nearest",
@@ -141,7 +143,7 @@ function Files() {
           );
         }
       }),
-    [files, activeActionBaseId, parentEntityId],
+    [files, activeActionBaseId, parentEntityId, parentEntityType],
   );
 
   const handleClick = useCallback(
@@ -149,6 +151,7 @@ function Files() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (item: any) => {
       if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
+
       if (item.action) {
         dispatch(
           item.action(
@@ -161,7 +164,7 @@ function Files() {
         item.redirect(parentEntityId, DatasourceCreateEntryPoints.SUBMENU);
       }
     },
-    [parentEntityId, dispatch],
+    [dispatch, parentEntityId, parentEntityType],
   );
 
   return (

@@ -92,6 +92,7 @@ describe("DropDownControl", () => {
 
     const options = screen.getAllByText(/Optio.../);
     const optionCount = options.length;
+
     expect(optionCount).toBe(2);
   });
 
@@ -112,6 +113,7 @@ describe("DropDownControl", () => {
 
     await waitFor(() => {
       const options = screen.queryAllByText(/Option.../);
+
       expect(options.length).toBe(0);
     });
   });

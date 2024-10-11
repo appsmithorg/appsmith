@@ -8,7 +8,7 @@ import {
   getPluginSettingConfigs,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
-import { deleteAction, runAction } from "actions/pluginActionActions";
+import { runAction, saveActionName } from "actions/pluginActionActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Editor from "./Editor";
 import BackToCanvas from "components/common/BackToCanvas";
@@ -38,6 +38,7 @@ import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
+import { AppPluginActionEditor } from "pages/Editor/AppPluginActionEditor";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
@@ -47,6 +48,7 @@ function getPageName(pages: any, basePageId: string) {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const page = pages.find((page: any) => page.basePageId === basePageId);
+
   return page ? page.pageName : "";
 }
 
@@ -104,6 +106,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       entityId: action?.id || "",
       moduleType: MODULE_TYPE.QUERY,
     };
+
     return (
       <>
         <MoreActionsMenu
@@ -137,6 +140,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const handleRunClick = useCallback(
     (paginationField?: PaginationField) => {
       const pluginName = plugins.find((plugin) => plugin.id === pluginId)?.name;
+
       AnalyticsUtil.logEvent("RUN_API_CLICK", {
         apiName,
         apiID: action?.id,
@@ -147,43 +151,34 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       });
       dispatch(runAction(action?.id ?? "", paginationField));
     },
-    [
-      action?.id,
-      apiName,
-      pageName,
-      getPageName,
-      plugins,
-      pluginId,
-      datasourceId,
-    ],
+    [action?.id, apiName, pageName, plugins, pluginId, datasourceId, dispatch],
   );
 
   const actionRightPaneBackLink = useMemo(() => {
     return <BackToCanvas basePageId={basePageId} />;
   }, [basePageId]);
 
-  const handleDeleteClick = useCallback(() => {
-    AnalyticsUtil.logEvent("DELETE_API_CLICK", {
-      apiName,
-      apiID: action?.id,
-      pageName,
-    });
-    dispatch(deleteAction({ id: action?.id ?? "", name: apiName }));
-  }, [getPageName, pages, basePageId, apiName]);
-
   const notification = useMemo(() => {
     if (!isConverting) return null;
 
     return <ConvertEntityNotification icon={icon} name={action?.name || ""} />;
-  }, [action?.name, isConverting]);
+  }, [action?.name, isConverting, icon]);
+
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
+  );
+
+  if (isActionRedesignEnabled) {
+    return <AppPluginActionEditor />;
+  }
 
   return (
     <ApiEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
-      handleDeleteClick={handleDeleteClick}
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
       notification={notification}
+      saveActionName={saveActionName}
       settingsConfig={settingsConfig}
     >
       <Disabler isDisabled={isConverting}>

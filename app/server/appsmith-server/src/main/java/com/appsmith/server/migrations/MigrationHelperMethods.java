@@ -1,8 +1,11 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.external.constants.PluginConstants;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.ApplicationConstants;
@@ -41,6 +44,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
+import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -1229,6 +1234,136 @@ public class MigrationHelperMethods {
 
         if (themeSetting.getSizing() == 0) {
             themeSetting.setSizing(1);
+        }
+    }
+
+    public static boolean conditionForDefaultRestDatasource(NewAction action) {
+        if (action.getUnpublishedAction() == null
+                || action.getUnpublishedAction().getDatasource() == null) {
+            return false;
+        }
+
+        Datasource actionDatasource = action.getUnpublishedAction().getDatasource();
+
+        // probable check for the  default rest datasource action is.
+        // it has no datasource id and action's plugin id is either rest-api or graphql plugin.
+        boolean probableCheckForDefaultRestDatasource = !org.springframework.util.StringUtils.hasText(
+                        actionDatasource.getId())
+                && (REST_API_PLUGIN.equals(action.getPluginId()) || GRAPHQL_PLUGIN.equals(action.getPluginId()));
+
+        // condition to check if the action is default rest datasource.
+        // it has no datasource id and name is equal to DEFAULT_REST_DATASOURCE
+        boolean certainCheckForDefaultRestDatasource =
+                !org.springframework.util.StringUtils.hasText(actionDatasource.getId())
+                        && PluginConstants.DEFAULT_REST_DATASOURCE.equals(actionDatasource.getName());
+
+        // Two separate types of checks over here, it's either the obvious certain way to identify or
+        // the likely chance that the datasource is present.
+        return certainCheckForDefaultRestDatasource || probableCheckForDefaultRestDatasource;
+    }
+
+    private static boolean conditionForDefaultRestDatasourceMigration(NewAction action) {
+        boolean isActionDefaultRestDatasource = conditionForDefaultRestDatasource(action);
+        Datasource actionDatasource = action.getUnpublishedAction().getDatasource();
+
+        // condition to check if the action has missing url or has no config at all
+        boolean isDatasourceConfigurationOrUrlMissing = actionDatasource.getDatasourceConfiguration() == null
+                || !org.springframework.util.StringUtils.hasText(
+                        actionDatasource.getDatasourceConfiguration().getUrl());
+
+        return isActionDefaultRestDatasource && isDatasourceConfigurationOrUrlMissing;
+    }
+
+    /**
+     * Adds datasource configuration and relevant url to the embedded datasource actions.
+     * @param applicationJson: ApplicationJson for which the migration has to be performed
+     * @param defaultDatasourceActionMap: gitSyncId to actions with default rest datasource map
+     */
+    public static void migrateApplicationJsonToVersionTen(
+            ApplicationJson applicationJson, Map<String, NewAction> defaultDatasourceActionMap) {
+        List<NewAction> actionList = applicationJson.getActionList();
+        if (CollectionUtils.isNullOrEmpty(actionList)) {
+            return;
+        }
+
+        for (NewAction action : actionList) {
+            if (action.getUnpublishedAction() == null
+                    || action.getUnpublishedAction().getDatasource() == null) {
+                continue;
+            }
+
+            Datasource actionDatasource = action.getUnpublishedAction().getDatasource();
+            if (conditionForDefaultRestDatasourceMigration(action)) {
+                // Idea is to add datasourceConfiguration to existing DEFAULT_REST_DATASOURCE apis,
+                // for which the datasource configuration is missing
+                // the url would be set to empty string as right url is not present over here.
+                setDatasourceConfigDetailsInDefaultRestDatasourceForActions(action, defaultDatasourceActionMap);
+            }
+        }
+    }
+
+    /**
+     * Finds if the applicationJson has any default rest datasource which has a null datasource configuration
+     * or an unset url.
+     * @param applicationJson : Application Json for which requirement is to be checked.
+     * @return true if the application has a rest api which doesn't have a valid datasource configuration.
+     */
+    public static Boolean doesRestApiRequireMigration(ApplicationJson applicationJson) {
+        List<NewAction> actionList = applicationJson.getActionList();
+        if (CollectionUtils.isNullOrEmpty(actionList)) {
+            return Boolean.FALSE;
+        }
+
+        for (NewAction action : actionList) {
+            if (action.getUnpublishedAction() == null
+                    || action.getUnpublishedAction().getDatasource() == null) {
+                continue;
+            }
+
+            Datasource actionDatasource = action.getUnpublishedAction().getDatasource();
+            if (conditionForDefaultRestDatasourceMigration(action)) {
+                return Boolean.TRUE;
+            }
+        }
+
+        return Boolean.FALSE;
+    }
+
+    /**
+     * Adds the relevant url in the default rest datasource for the given action from an action in the db
+     * otherwise sets the url to empty
+     * it's established that action doesn't have the datasource.
+     * @param action : default rest datasource actions which doesn't have valid datasource configuration.
+     * @param defaultDatasourceActionMap : gitSyncId to actions with default rest datasource map
+     */
+    public static void setDatasourceConfigDetailsInDefaultRestDatasourceForActions(
+            NewAction action, Map<String, NewAction> defaultDatasourceActionMap) {
+
+        ActionDTO actionDTO = action.getUnpublishedAction();
+        Datasource actionDatasource = actionDTO.getDatasource();
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+
+        if (defaultDatasourceActionMap.containsKey(action.getGitSyncId())) {
+            NewAction actionFromMap = defaultDatasourceActionMap.get(action.getGitSyncId());
+            // NPE check to avoid migration failures
+            if (actionFromMap.getUnpublishedAction() == null
+                    || actionFromMap.getUnpublishedAction().getDatasource() == null
+                    || actionFromMap.getUnpublishedAction().getDatasource().getDatasourceConfiguration() == null) {
+                return;
+            }
+
+            // set the datasource config in the json action only if the datasource config from db is not null,
+            // else it'll start to show as uncommited changes.
+            DatasourceConfiguration datasourceConfigurationFromDBAction =
+                    actionFromMap.getUnpublishedAction().getDatasource().getDatasourceConfiguration();
+
+            // At this point it's established that datasource config of db action is not null.
+            datasourceConfiguration.setUrl(datasourceConfigurationFromDBAction.getUrl());
+            actionDatasource.setDatasourceConfiguration(datasourceConfiguration);
+
+        } else {
+            datasourceConfiguration.setUrl("");
+            actionDatasource.setDatasourceConfiguration(datasourceConfiguration);
         }
     }
 }

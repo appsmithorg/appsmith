@@ -20,7 +20,7 @@ import {
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
 } from "ee/constants/messages";
-import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "entities/Application";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { createWorkspaceSubmitHandler } from "ee/pages/workspace/helpers";
 import type { AppState } from "ee/reducers";
@@ -379,13 +379,16 @@ export function WorkspaceMenuItem({
 
   const handleWorkspaceClick = () => {
     const workspaceId = workspace?.id;
+
     if (workspaceId) {
       const newUrl = `${location.pathname}?workspaceId=${workspaceId}`;
+
       history.push(newUrl);
     }
   };
 
   if (!workspace.id) return null;
+
   return (
     <ListItem
       className={selected ? "selected-workspace" : ""}
@@ -406,6 +409,7 @@ export function WorkspaceMenuItem({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
   const result = await createWorkspaceSubmitHandler(data, dispatch);
+
   return result;
 };
 
@@ -426,6 +430,7 @@ export function LeftPane(props: LeftPaneProps) {
   const isMobile = useIsMobileDevice();
 
   if (isMobile) return null;
+
   return (
     <LeftPaneWrapper isBannerVisible={isBannerVisible}>
       <LeftPaneSection
@@ -467,6 +472,7 @@ export const WorkspaceNameWrapper = styled.div<{ disabled?: boolean }>`
     const color = props.disabled
       ? props.theme.colors.applications.workspaceColor
       : props.theme.colors.applications.hover.workspaceColor[9];
+
     return `${textIconStyles({
       color: color,
       hover: color,
@@ -695,11 +701,13 @@ export function ApplicationsSection(props: any) {
   const activeWorkspace = workspaces.find(
     (workspace: Workspace) => workspace.id === activeWorkspaceId,
   );
+
   if (!activeWorkspace && !isFetchingWorkspaces) return <NoWorkspaceFound />;
 
   if (!activeWorkspace) return null;
 
   let workspacesListComponent;
+
   if (
     !isLoadingResources &&
     props.searchKeyword &&
@@ -776,6 +784,7 @@ export function ApplicationsSection(props: any) {
     // So, that they can be listed in different card lists depending on whether Anvil is enabled
     const anvilApplications: ApplicationPayload[] = [];
     const nonAnvilApplications: ApplicationPayload[] = [];
+
     applications.forEach((application: ApplicationPayload) => {
       if (
         application.applicationDetail?.appPositioning?.type ===
@@ -977,6 +986,7 @@ export const ApplictionsMainPage = (props: any) => {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let workspaces: any;
+
   if (!isFetchingWorkspaces) {
     workspaces = fetchedWorkspaces;
   } else {
@@ -999,6 +1009,7 @@ export const ApplictionsMainPage = (props: any) => {
         ? workspaceIdFromQueryParams
         : workspaces[0]?.id,
     );
+
     if (
       activeWorkspaceId &&
       fetchedWorkspaceId &&
@@ -1007,6 +1018,7 @@ export const ApplictionsMainPage = (props: any) => {
       const activeWorkspace: Workspace = workspaces.find(
         (workspace: Workspace) => workspace.id === activeWorkspaceId,
       );
+
       if (activeWorkspace) {
         dispatch({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
@@ -1119,6 +1131,7 @@ export class Applications<
   componentDidMount() {
     const urlParams = new URLSearchParams(window.location.search);
     const workspaceIdFromQueryParams = urlParams.get("workspaceId");
+
     this.props.getAllWorkspaces({
       workspaceId: workspaceIdFromQueryParams,
       fetchEntities: true,

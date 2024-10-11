@@ -164,6 +164,7 @@ export function getHighlightsForWidgetsRow(
 
   // add a highlight before every widget and after the last one.
   const highlights: AnvilHighlightInfo[] = [];
+
   meta.metaData.forEach((row: RowMetaData[], index: number) => {
     highlights.push(
       ...getHighlightsForRow(
@@ -235,6 +236,7 @@ export function getHighlightsForRow(
       index + startingIndex - draggedWidgetIndices.length,
       false,
     );
+
     // Track indices of dragged widgets
     if (isDraggedWidget) {
       draggedWidgetIndices.push(index);
@@ -279,10 +281,14 @@ export function extractMetaInformation(
   let curr: RowMetaData[] = [];
   let currentTallestWidget: WidgetLayoutProps = layout[0];
   let maxHeight = 0;
+
   for (const each of layout) {
     const dimensions: LayoutElementPosition = getDimensions(each.widgetId);
+
     if (!dimensions) continue;
+
     const { height, top } = dimensions;
+
     // If current row is empty, add the widget to it.
     if (!curr.length) {
       curr.push({ ...each, ...dimensions });
@@ -301,6 +307,7 @@ export function extractMetaInformation(
     ) {
       // If there is intersection, add the widget to the current row.
       curr.push({ ...each, ...dimensions });
+
       if (height > maxHeight) {
         maxHeight = height;
         currentTallestWidget = each;
@@ -318,10 +325,12 @@ export function extractMetaInformation(
       currentTallestWidget = each;
     }
   }
+
   if (curr.length) {
     data.push(curr);
     tallestWidgets.push(currentTallestWidget);
   }
+
   return { metaData: data, tallestWidgets };
 }
 
@@ -360,6 +369,7 @@ export function getHighlightsForLayoutRow(
   let index = 0;
   let discardedLayouts: number = 0;
   let skipNextNewCellHighlights = false;
+
   // Loop over each child layout
   while (index < layout.length) {
     // Extract information on current child layout.
@@ -406,6 +416,7 @@ export function getHighlightsForLayoutRow(
     } else {
       skipNextNewCellHighlights = false;
     }
+
     /**
      * Add highlights of the child layout if it is not a drop target.
      * because if it is, then it can handle its own drag behavior.
@@ -413,6 +424,7 @@ export function getHighlightsForLayoutRow(
     if (!isDropTarget && layoutHighlights.length) {
       highlights.push(...layoutHighlights);
     }
+
     if (skipEntity) {
       /**
        * Layout is discarded from child count only if skipEntity is true.
@@ -439,6 +451,7 @@ export function getHighlightsForLayoutRow(
       );
     }
   }
+
   return { highlights, skipEntity: false };
 }
 
@@ -458,6 +471,7 @@ function updateHighlights(
     ? arr.filter((each: AnvilHighlightInfo, index: number) => {
         if (each.rowIndex === rowIndex - 1 && each.isVertical) {
           if (prevHighlightIndex === -1) prevHighlightIndex = index;
+
           return true;
         }
       })
@@ -478,7 +492,9 @@ function updateHighlights(
       ...prevHighlights[0],
     };
   }
+
   updatedHighlights.push(curr);
+
   return updatedHighlights;
 }
 
@@ -521,12 +537,15 @@ export function generateHighlights(
     const gap: number = prevDimension
       ? currentDimension.left - (prevDimension.left + prevDimension.width)
       : HIGHLIGHT_SIZE;
+
     posX = Math.max(
       currentDimension.left - gap / 2 - HIGHLIGHT_SIZE / 2,
       layoutDimension.left,
     );
   }
+
   const posY = tallestDimension?.top ?? layoutDimension.top;
+
   return {
     ...baseHighlight,
     height: tallestDimension?.height ?? layoutDimension.height,
@@ -563,6 +582,7 @@ export function getInitialHighlights(
     baseHighlight.alignment,
     layoutDimension.width,
   );
+
   return {
     highlights: updateHighlights(
       [],
