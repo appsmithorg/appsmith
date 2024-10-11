@@ -12,8 +12,8 @@ import {
 } from "ee/selectors/entitiesSelector";
 import type { CommonFormProps } from "../CommonEditorForm";
 import CommonEditorForm from "../CommonEditorForm";
-import Pagination from "./Pagination";
-import { GRAPHQL_HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import Pagination from "PluginActionEditor/components/PluginActionForm/components/GraphQLEditor/Pagination";
+import { GRAPHQL_HTTP_METHOD_OPTIONS } from "../../../../PluginActionEditor/constants/GraphQLEditorConstants";
 import PostBodyData from "PluginActionEditor/components/PluginActionForm/components/GraphQLEditor/PostBodyData";
 
 type APIFormProps = {

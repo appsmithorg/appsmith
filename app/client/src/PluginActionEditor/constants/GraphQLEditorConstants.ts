@@ -1,4 +1,4 @@
-import type { ApiActionConfig } from "entities/Action";
+import type { ApiActionConfig } from "../../entities/Action";
 import { DEFAULT_ACTION_TIMEOUT } from "ee/constants/ApiConstants";
 import {
   CONTENT_TYPE_HEADER_KEY,

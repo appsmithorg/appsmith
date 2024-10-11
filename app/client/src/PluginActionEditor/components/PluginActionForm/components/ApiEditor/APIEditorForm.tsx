@@ -3,7 +3,7 @@ import CommonEditorForm from "../CommonEditorForm";
 import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
-import { HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
+import { HTTP_METHOD_OPTIONS } from "PluginActionEditor/constants/CommonApiConstants";
 import PostBodyData from "./PostBodyData";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";

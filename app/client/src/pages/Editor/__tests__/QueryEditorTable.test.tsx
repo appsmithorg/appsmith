@@ -1,8 +1,8 @@
 import React from "react";
 import { render, screen } from "test/testUtils";
 import "@testing-library/jest-dom";
-import Table from "../QueryEditor/Table";
-import { getScrollBarWidth } from "../QueryEditor/Table";
+import Table from "../../../PluginActionEditor/components/PluginActionResponse/components/Table";
+import { getScrollBarWidth } from "../../../PluginActionEditor/components/PluginActionResponse/components/Table";
 
 function createEle() {
   return {

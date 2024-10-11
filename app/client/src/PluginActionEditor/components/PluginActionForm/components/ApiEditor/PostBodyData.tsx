@@ -5,7 +5,7 @@ import { formValueSelector } from "redux-form";
 import {
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMAT_TITLES,
-} from "constants/ApiEditorConstants/CommonApiConstants";
+} from "../../../../constants/CommonApiConstants";
 import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";

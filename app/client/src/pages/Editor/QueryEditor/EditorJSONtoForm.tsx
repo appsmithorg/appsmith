@@ -29,12 +29,12 @@ import {
 } from "PluginActionEditor/store";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+import { DocsLink, openDoc } from "constants/DocumentationLinks";
 import { QueryEditorContext } from "./QueryEditorContext";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
-import useShowSchema from "../../../PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
+import useShowSchema from "PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
-import FormRender from "./FormRender";
+import FormRender from "PluginActionEditor/components/PluginActionForm/components/UQIEditor/FormRender";
 import QueryEditorHeader from "./QueryEditorHeader";
 import RunHistory from "ee/components/RunHistory";
 

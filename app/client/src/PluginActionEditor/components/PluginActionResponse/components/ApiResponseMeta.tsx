@@ -2,12 +2,12 @@ import type { PropsWithChildren } from "react";
 import React from "react";
 import { Flex } from "@appsmith/ads";
 import { Text, TextType } from "@appsmith/ads-old";
-import { formatBytes } from "../../utils/helpers";
 import { isEmpty } from "lodash";
-import BindDataButton from "../../PluginActionEditor/components/PluginActionResponse/components/BindDataButton";
+import BindDataButton from "./BindDataButton";
 import styled from "styled-components";
 import type { ActionResponse } from "api/ActionAPI";
 import { Text as BlueprintText } from "@blueprintjs/core/lib/esm/components/text/text";
+import { formatBytes } from "../utils/formatBytes";
 
 interface TextStyleProps {
   accent: "primary" | "secondary" | "error";

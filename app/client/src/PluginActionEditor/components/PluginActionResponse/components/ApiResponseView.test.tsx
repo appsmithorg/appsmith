@@ -1,6 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import ApiResponseView from "./ApiResponseView";
+import ApiResponseView from "components/editorComponents/ApiResponseView";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "styled-components";
@@ -12,7 +12,7 @@ import "@testing-library/jest-dom/extend-expect";
 import { APIFactory } from "test/factories/Actions/API";
 import { noop } from "lodash";
 
-jest.mock("./EntityBottomTabs", () => ({
+jest.mock("components/editorComponents/EntityBottomTabs", () => ({
   __esModule: true,
   default: () => <div />,
 }));

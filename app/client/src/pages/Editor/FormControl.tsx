@@ -27,7 +27,7 @@ import {
 } from "ee/selectors/entitiesSelector";
 import { get } from "lodash";
 import { SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE } from "constants/Datasource";
-import TemplateMenu from "./QueryEditor/TemplateMenu";
+import TemplateMenu from "../../PluginActionEditor/components/PluginActionForm/components/UQIEditor/TemplateMenu";
 import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
 import type { Datasource, DatasourceStructure } from "entities/Datasource";
 import { getCurrentEditingEnvironmentId } from "ee/selectors/environmentSelectors";

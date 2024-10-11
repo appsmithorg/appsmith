@@ -23,7 +23,7 @@ import {
 
 import { entityMarker } from "components/editorComponents/CodeEditor/MarkHelpers/entityMarker";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
-import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
+import StoreAsDatasource from "./StoreAsDatasource";
 import { DATASOURCE_URL_EXACT_MATCH_REGEX } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
 import * as FontFamilies from "constants/Fonts";
@@ -42,7 +42,7 @@ import {
   getDatasource,
   getDatasourcesByPluginId,
 } from "ee/selectors/entitiesSelector";
-import { extractApiUrlPath } from "transformers/RestActionTransformer";
+import { extractApiUrlPath } from "PluginActionEditor/transformers/RestActionTransformer";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { Text } from "@appsmith/ads";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
@@ -50,7 +50,7 @@ import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { isEnvironmentValid } from "ee/utils/Environments";
-import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { DEFAULT_DATASOURCE_NAME } from "PluginActionEditor/constants/ApiEditorConstants";
 import { isString } from "lodash";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import {
@@ -59,7 +59,7 @@ import {
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { isGACEnabled } from "ee/utils/planHelpers";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import { getDatasourceInfo } from "PluginActionEditor/components/PluginActionForm/utils/getDatasourceInfo";
+import { getDatasourceInfo } from "../../../utils/getDatasourceInfo";
 
 interface ReduxStateProps {
   workspaceId: string;

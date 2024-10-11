@@ -10,7 +10,7 @@ import {
 import type { DropdownOptions } from "../GeneratePage/components/constants";
 import { DEFAULT_DROPDOWN_OPTION } from "../GeneratePage/components/constants";
 import { isEmpty } from "lodash";
-import Table from "pages/Editor/QueryEditor/Table";
+import Table from "../../../PluginActionEditor/components/PluginActionResponse/components/Table";
 import {
   getCurrentApplicationId,
   getPagePermissions,

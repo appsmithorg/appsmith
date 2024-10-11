@@ -1,6 +1,6 @@
 import React from "react";
-import FormRender from "pages/Editor/QueryEditor/FormRender";
-import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
+import FormRender from "./FormRender";
+import { usePluginActionContext } from "../../../../PluginActionContext";
 import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import { getFormValues, reduxForm } from "redux-form";
 import type { QueryAction, SaaSAction } from "entities/Action";

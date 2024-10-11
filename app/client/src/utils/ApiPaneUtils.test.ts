@@ -1,4 +1,4 @@
-import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
+import { POST_BODY_FORMAT_OPTIONS } from "../PluginActionEditor/constants/CommonApiConstants";
 import {
   getContentTypeHeaderValue,
   getIndextoUpdate,
