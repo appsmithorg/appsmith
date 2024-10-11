@@ -27,12 +27,16 @@ import Schema from "PluginActionEditor/components/PluginActionResponse/component
 import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { useHandleRunClick } from "PluginActionEditor/hooks";
+import {
+  useHandleRunClick,
+  useAnalyticsOnRunClick,
+} from "PluginActionEditor/hooks";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =
     usePluginActionContext();
   const { handleRunClick } = useHandleRunClick();
+  const { callRunActionAnalytics } = useAnalyticsOnRunClick();
 
   const IDEViewMode = useSelector(getIDEViewMode);
   const errorCount = useSelector(getErrorCount);
@@ -43,6 +47,11 @@ function usePluginActionResponseTabs() {
   const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
 
   const tabs: BottomTab[] = [];
+
+  const onRunClick = () => {
+    callRunActionAnalytics();
+    handleRunClick();
+  };
 
   if (IDEViewMode === EditorViewMode.FullScreen) {
     tabs.push(
@@ -71,7 +80,7 @@ function usePluginActionResponseTabs() {
             actionResponse={actionResponse}
             isRunDisabled={false}
             isRunning={false}
-            onRunClick={handleRunClick}
+            onRunClick={onRunClick}
             responseTabHeight={responseTabHeight}
             theme={EditorTheme.LIGHT}
           />
@@ -86,7 +95,7 @@ function usePluginActionResponseTabs() {
             isRunDisabled={false}
             isRunning={false}
             onDebugClick={noop}
-            onRunClick={handleRunClick}
+            onRunClick={onRunClick}
           />
         ),
       },
@@ -133,7 +142,7 @@ function usePluginActionResponseTabs() {
           actionSource={actionSource}
           currentActionConfig={action}
           isRunning={false}
-          onRunClick={handleRunClick}
+          onRunClick={onRunClick}
           runErrorMessage={""} // TODO
         />
       ),
