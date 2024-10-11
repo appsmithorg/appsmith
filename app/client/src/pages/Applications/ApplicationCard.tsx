@@ -55,6 +55,8 @@ import { generateEditedByText } from "./helpers";
 import { noop } from "lodash";
 import { getLatestGitBranchFromLocal } from "utils/storage";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 interface ApplicationCardProps {
   application: ApplicationPayload;
@@ -122,6 +124,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const baseApplicationId = props.application?.baseId;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
   const [editorParams, setEditorParams] = useState({});
+  const isGitPersistBranchEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_git_persist_branch_enabled,
+  );
 
   useEffect(() => {
     (async () => {
@@ -130,13 +135,18 @@ export function ApplicationCard(props: ApplicationCardProps) {
         baseApplicationId,
       );
 
-      if (storedLatestBranch) {
+      if (isGitPersistBranchEnabled && storedLatestBranch) {
         setEditorParams({ branch: storedLatestBranch });
       } else if (showGitBadge) {
         setEditorParams({ branch: showGitBadge });
       }
     })();
-  }, [baseApplicationId, currentUser?.email, showGitBadge]);
+  }, [
+    baseApplicationId,
+    currentUser?.email,
+    showGitBadge,
+    isGitPersistBranchEnabled,
+  ]);
 
   const viewerParams = useMemo(() => {
     if (showGitBadge) {

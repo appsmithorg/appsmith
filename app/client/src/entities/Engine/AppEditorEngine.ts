@@ -33,7 +33,10 @@ import {
   reportSWStatus,
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
-import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import {
+  getCurrentGitBranch,
+  isGitPersistBranchEnabledSelector,
+} from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import history from "utils/history";
 import type { AppEnginePayload } from ".";
@@ -272,19 +275,25 @@ export default class AppEditorEngine extends AppEngine {
       getCurrentApplication,
     );
 
-    const currentUser: User = yield select(getCurrentUser);
-    const currentBranch: string = yield select(getCurrentGitBranch);
+    const isGitPersistBranchEnabled: boolean = yield select(
+      isGitPersistBranchEnabledSelector,
+    );
 
-    if (currentUser?.email && currentApplication?.baseId && currentBranch) {
-      yield setLatestGitBranchInLocal(
-        currentUser.email,
-        currentApplication.baseId,
-        currentBranch,
-      );
-    } else {
-      log.error(
-        `There was an error setting the latest git branch in local - userEmail: ${!!currentUser?.email}, applicationId: ${currentApplication?.baseId}, branch: ${currentBranch}`,
-      );
+    if (isGitPersistBranchEnabled) {
+      const currentUser: User = yield select(getCurrentUser);
+      const currentBranch: string = yield select(getCurrentGitBranch);
+
+      if (currentUser?.email && currentApplication?.baseId && currentBranch) {
+        yield setLatestGitBranchInLocal(
+          currentUser.email,
+          currentApplication.baseId,
+          currentBranch,
+        );
+      } else {
+        log.error(
+          `There was an error setting the latest git branch in local - userEmail: ${!!currentUser?.email}, applicationId: ${currentApplication?.baseId}, branch: ${currentBranch}`,
+        );
+      }
     }
 
     const [isAnotherEditorTabOpen, currentTabs] = yield call(
