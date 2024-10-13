@@ -1,13 +1,10 @@
-
 const BACKUP_PATH = "/appsmith-stacks/data/backup"
 
 const RESTORE_PATH = "/appsmith-stacks/data/restore"
 
 const DUMP_FILE_NAME = "appsmith-data.archive"
 
-const APPSMITH_LOG_DIR = process.env.APPSMITH_LOG_DIR || "/appsmith-stacks/logs";
-const APPSMITHCTL_LOG_PATH = `${APPSMITH_LOG_DIR}/appsmithctl`;
-
+const APPSMITHCTL_LOG_PATH = "/appsmith-stacks/logs/appsmithctl"
 
 const LAST_ERROR_MAIL_TS = "/appsmith-stacks/data/backup/last-error-mail-ts"
 
