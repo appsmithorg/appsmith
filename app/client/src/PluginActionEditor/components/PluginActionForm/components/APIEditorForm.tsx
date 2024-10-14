@@ -9,13 +9,18 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import Pagination from "pages/Editor/APIEditor/Pagination";
-import { noop } from "lodash";
 import { reduxForm } from "redux-form";
+import {
+  useHandleRunClick,
+  useAnalyticsOnRunClick,
+} from "PluginActionEditor/hooks";
 
 const FORM_NAME = API_EDITOR_FORM_NAME;
 
 const APIEditorForm = () => {
   const { action } = usePluginActionContext();
+  const { handleRunClick } = useHandleRunClick();
+  const { callRunActionAnalytics } = useAnalyticsOnRunClick();
   const theme = EditorTheme.LIGHT;
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -23,6 +28,11 @@ const APIEditorForm = () => {
     isFeatureEnabled,
     action.userPermissions,
   );
+
+  const onTestClick = () => {
+    callRunActionAnalytics();
+    handleRunClick();
+  };
 
   return (
     <CommonEditorForm
@@ -39,7 +49,7 @@ const APIEditorForm = () => {
       paginationUiComponent={
         <Pagination
           actionName={action.name}
-          onTestClick={noop}
+          onTestClick={onTestClick}
           paginationType={action.actionConfiguration.paginationType}
           theme={theme}
         />

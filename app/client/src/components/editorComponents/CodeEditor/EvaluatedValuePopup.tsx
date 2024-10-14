@@ -29,7 +29,7 @@ import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUt
 import { getPathNavigationUrl } from "selectors/navigationSelectors";
 import { Button, Icon, Link, toast, Tooltip } from "@appsmith/ads";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { DEBUGGER_TAB_KEYS } from "../Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "../Debugger/constants";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -92,6 +92,7 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   &:hover {
     .copyIconWrapper {
       display: flex;
@@ -99,6 +100,7 @@ const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
   }
 
   /* for audit logs */
+
   .pushed-content .object-key-val,
   .variable-row {
     border-left: 1px solid var(--ads-v2-color-border) !important;
@@ -173,6 +175,7 @@ const StyledIcon = styled(Icon)`
   &.open-collapse {
     transform: rotate(90deg);
   }
+
   float: right;
 `;
 
@@ -281,6 +284,7 @@ interface PreparedStatementValue {
   value: string;
   parameters: Record<string, number | string>;
 }
+
 export function PreparedStatementViewer(props: {
   evaluatedValue: PreparedStatementValue;
 }) {

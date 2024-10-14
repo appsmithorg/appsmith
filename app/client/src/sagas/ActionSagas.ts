@@ -28,6 +28,8 @@ import { updateCanvasWithDSL } from "ee/sagas/PageSagas";
 import {
   closeQueryActionTab,
   closeQueryActionTabSuccess,
+  createNewApiAction,
+  createNewQueryAction,
   type FetchActionsPayload,
   type SetActionPropertyPayload,
 } from "actions/pluginActionActions";
@@ -101,10 +103,6 @@ import {
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import {
-  createNewApiAction,
-  createNewQueryAction,
-} from "actions/apiPaneActions";
 import type { Plugin } from "api/PluginApi";
 import { shouldBeDefined } from "utils/helpers";
 import {

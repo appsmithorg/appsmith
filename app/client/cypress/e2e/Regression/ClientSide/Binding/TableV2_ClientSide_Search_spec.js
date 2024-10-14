@@ -20,6 +20,7 @@ describe(
       cy.readTableV2dataPublish("0", "0").then((tabData) => {
         expect(tabData).to.eq("#2");
       });
+      _.propPane.ExpandIfCollapsedSection("search\\&filters");
       // Input onsearchtextchanged control
       cy.get(".t--property-control-onsearchtextchanged .t--js-toggle")
         .first()

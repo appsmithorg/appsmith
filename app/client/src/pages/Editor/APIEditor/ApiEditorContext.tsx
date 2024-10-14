@@ -5,7 +5,6 @@ import type { SaveActionNameParams } from "PluginActionEditor";
 
 interface ApiEditorContextContextProps {
   moreActionsMenu?: React.ReactNode;
-  handleDeleteClick: () => void;
   handleRunClick: (paginationField?: PaginationField) => void;
   actionRightPaneBackLink?: React.ReactNode;
   // TODO: Fix this the next time the file is edited
@@ -30,7 +29,6 @@ export function ApiEditorContextProvider({
   actionRightPaneAdditionSections,
   actionRightPaneBackLink,
   children,
-  handleDeleteClick,
   handleRunClick,
   moreActionsMenu,
   notification,
@@ -42,7 +40,6 @@ export function ApiEditorContextProvider({
     () => ({
       actionRightPaneAdditionSections,
       actionRightPaneBackLink,
-      handleDeleteClick,
       showRightPaneTabbedSection,
       handleRunClick,
       moreActionsMenu,
@@ -53,7 +50,6 @@ export function ApiEditorContextProvider({
     [
       actionRightPaneBackLink,
       actionRightPaneAdditionSections,
-      handleDeleteClick,
       showRightPaneTabbedSection,
       handleRunClick,
       moreActionsMenu,

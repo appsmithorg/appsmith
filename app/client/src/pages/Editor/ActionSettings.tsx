@@ -4,6 +4,7 @@ import FormControl from "./FormControl";
 import log from "loglevel";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
+import { Text } from "@appsmith/ads";
 
 interface ActionSettingsProps {
   // TODO: Fix this the next time the file is edited
@@ -21,9 +22,11 @@ const ActionSettingsWrapper = styled.div`
   width: 100%;
   max-width: 600px;
   padding-bottom: 1px;
+
   .form-config-top {
     flex-grow: 1;
   }
+
   .t--form-control-SWITCH {
     display: flex;
     flex-shrink: 0;
@@ -35,10 +38,16 @@ const ActionSettingsWrapper = styled.div`
 function ActionSettings(props: ActionSettingsProps): JSX.Element {
   return (
     <ActionSettingsWrapper>
-      {/* TODO: Fix this the next time the file is edited */}
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      {props.actionSettingsConfig.map((section: any) =>
-        renderEachConfig(section, props.formName),
+      {!props.actionSettingsConfig ? (
+        <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
+          Error: No settings config found
+        </Text>
+      ) : (
+        /* TODO: Fix this the next time the file is edited */
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        props.actionSettingsConfig.map((section: any) =>
+          renderEachConfig(section, props.formName),
+        )
       )}
     </ActionSettingsWrapper>
   );

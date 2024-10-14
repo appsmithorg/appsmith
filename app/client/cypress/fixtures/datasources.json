@@ -83,7 +83,7 @@
   "mockDatabaseUsername": "fakeapi",
   "mockDatabasePassword": "LimitedAccess123#",
   "readonly": "readonly",
-  "authenticatedApiUrl": "https://fakeapi.com",
+  "authenticatedApiUrl": "http://host.docker.internal:5001",
 
   "GraphqlApiUrl_TED": "http://host.docker.internal:4200/graphql",
   "GITEA_API_BASE_TED": "localhost",

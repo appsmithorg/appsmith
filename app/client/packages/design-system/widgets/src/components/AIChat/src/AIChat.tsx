@@ -1,20 +1,19 @@
-import { Button, Spinner, Text, TextArea } from "@appsmith/wds";
-import type { FormEvent, ForwardedRef, KeyboardEvent } from "react";
-import React, { forwardRef, useCallback } from "react";
-import { ChatTitle } from "./ChatTitle";
-import styles from "./styles.module.css";
-import { ThreadMessage } from "./ThreadMessage";
-import type { AIChatProps, ChatMessage } from "./types";
-import { UserAvatar } from "./UserAvatar";
+import type { ForwardedRef } from "react";
+import React, { forwardRef } from "react";
 
-const MIN_PROMPT_LENGTH = 3;
+import styles from "./styles.module.css";
+import { ChatHeader } from "./ChatHeader";
+import { ChatThread } from "./ChatThread";
+import type { AIChatProps } from "./types";
+import { ChatInputSection } from "./ChatInputSection";
 
 const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
   const {
     // assistantName,
+    chatDescription,
     chatTitle,
-    description,
     isWaitingForResponse = false,
+    onApplyAssistantSuggestion,
     onPromptChange,
     onSubmit,
     prompt,
@@ -24,60 +23,27 @@ const _AIChat = (props: AIChatProps, ref: ForwardedRef<HTMLDivElement>) => {
     ...rest
   } = props;
 
-  const handleFormSubmit = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      onSubmit?.();
-    },
-    [onSubmit],
-  );
-
-  const handlePromptInputKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLTextAreaElement>) => {
-      if (event.key === "Enter" && event.shiftKey) {
-        event.preventDefault();
-        onSubmit?.();
-      }
-    },
-    [onSubmit],
-  );
-
   return (
     <div className={styles.root} ref={ref} {...rest}>
-      <div className={styles.header}>
-        {chatTitle != null && <ChatTitle title={chatTitle} />}
+      <ChatHeader
+        chatDescription={chatDescription}
+        chatTitle={chatTitle}
+        username={username}
+      />
 
-        {description ?? <Text size="body">{description}</Text>}
-        <div className={styles.username}>
-          <UserAvatar username={username} />
-          <Text size="body">{username}</Text>
-        </div>
-      </div>
+      <ChatThread
+        onApplyAssistantSuggestion={onApplyAssistantSuggestion}
+        thread={thread}
+        username={username}
+      />
 
-      <ul className={styles.thread}>
-        {thread.map((message: ChatMessage) => (
-          <ThreadMessage {...message} key={message.id} username={username} />
-        ))}
-
-        {isWaitingForResponse && (
-          <li>
-            <Spinner />
-          </li>
-        )}
-      </ul>
-
-      <form className={styles.promptForm} onSubmit={handleFormSubmit}>
-        <TextArea
-          name="prompt"
-          onChange={onPromptChange}
-          onKeyDown={handlePromptInputKeyDown}
-          placeholder={promptInputPlaceholder}
-          value={prompt}
-        />
-        <Button isDisabled={prompt.length < MIN_PROMPT_LENGTH} type="submit">
-          Send
-        </Button>
-      </form>
+      <ChatInputSection
+        isWaitingForResponse={isWaitingForResponse}
+        onPromptChange={onPromptChange}
+        onSubmit={onSubmit}
+        prompt={prompt}
+        promptInputPlaceholder={promptInputPlaceholder}
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@ export interface ChatMessage {
   id: string;
   content: string;
   isAssistant: boolean;
+  promptSuggestions?: string[];
 }
 
 export interface AIChatProps {
@@ -10,9 +11,10 @@ export interface AIChatProps {
   username: string;
   promptInputPlaceholder?: string;
   chatTitle?: string;
-  description?: string;
+  chatDescription?: string;
   assistantName?: string;
   isWaitingForResponse?: boolean;
   onPromptChange: (prompt: string) => void;
   onSubmit?: () => void;
+  onApplyAssistantSuggestion?: (suggestion: string) => void;
 }

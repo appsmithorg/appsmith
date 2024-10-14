@@ -1,14 +1,14 @@
 import React from "react";
 import RadioButtonControl from "./RadioButtonControl";
-import { render, waitFor, screen } from "test/testUtils";
+import { render, screen } from "test/testUtils";
 import { Provider } from "react-redux";
 import { reduxForm } from "redux-form";
 import configureStore from "redux-mock-store";
-import store from "store";
 import "@testing-library/jest-dom";
 
 const mockStore = configureStore([]);
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function TestForm(props: any) {
   return <div>{props.children}</div>;
 }
@@ -35,8 +35,10 @@ let radioButtonProps = {
 };
 
 describe("RadioButtonControl", () => {
+  const mockStoreInstance = mockStore();
+  let store: typeof mockStoreInstance;
+
   beforeEach(() => {
-    let store: any;
     store = mockStore();
   });
   it("should render RadioButtonControl and options properly", async () => {
@@ -47,12 +49,14 @@ describe("RadioButtonControl", () => {
         </ReduxFormDecorator>
       </Provider>,
     );
-    const radioButton = await waitFor(async () =>
-      screen.getByTestId("actionConfiguration.testPath"),
-    );
+    const radioButton = (await screen.findByTestId(
+      "actionConfiguration.testPath",
+    )) as HTMLElement;
+
     expect(radioButton).toBeInTheDocument();
 
     const options = screen.getAllByRole("radio");
+
     expect(options).toHaveLength(3);
   });
 
@@ -68,12 +72,14 @@ describe("RadioButtonControl", () => {
         </ReduxFormDecorator>
       </Provider>,
     );
-    const radioButton = await waitFor(async () =>
-      screen.getByTestId("actionConfiguration.testPath"),
-    );
+    const radioButton = (await screen.findByTestId(
+      "actionConfiguration.testPath",
+    )) as HTMLElement;
+
     expect(radioButton).toBeInTheDocument();
 
     const options = screen.getAllByRole("radio");
+
     expect(options[0]).toBeChecked();
     expect(options[1]).not.toBeChecked();
     expect(options[2]).not.toBeChecked();
@@ -91,12 +97,14 @@ describe("RadioButtonControl", () => {
         </ReduxFormDecorator>
       </Provider>,
     );
-    const radioButton = await waitFor(async () =>
-      screen.getByTestId("actionConfiguration.testPath"),
-    );
+    const radioButton = (await screen.findByTestId(
+      "actionConfiguration.testPath",
+    )) as HTMLElement;
+
     expect(radioButton).toBeInTheDocument();
 
     const options = screen.getAllByRole("radio");
+
     expect(options[0]).toBeChecked();
     expect(options[1]).not.toBeChecked();
     expect(options[2]).not.toBeChecked();

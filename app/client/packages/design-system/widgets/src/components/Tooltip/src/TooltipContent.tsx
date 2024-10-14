@@ -1,8 +1,9 @@
+import { Text } from "@appsmith/wds";
 import React, { forwardRef } from "react";
 import { useThemeContext } from "@appsmith/wds-theming";
-import { Text } from "../../Text";
-import styles from "./styles.module.css";
 import { TooltipContent as HeadlessTooltipContent } from "@appsmith/wds-headless";
+
+import styles from "./styles.module.css";
 
 import type {
   TooltipContentRef as HeadlessTooltipContentRef,
