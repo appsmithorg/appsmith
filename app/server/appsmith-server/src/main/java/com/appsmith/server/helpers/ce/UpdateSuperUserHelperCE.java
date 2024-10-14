@@ -59,7 +59,8 @@ public class UpdateSuperUserHelperCE {
         user.setCreatedAt(Instant.now());
         user = userRepository.save(user);
 
-        PermissionGroup userManagementPermissionGroup = createUserManagementPermissionGroup(permissionGroupRepository, user);
+        PermissionGroup userManagementPermissionGroup =
+                createUserManagementPermissionGroup(permissionGroupRepository, user);
 
         Set<Policy> userPolicies = this.generateUserPolicy(
                 user, userManagementPermissionGroup, instanceAdminRole, tenant, policySolution, policyGenerator);
@@ -69,7 +70,8 @@ public class UpdateSuperUserHelperCE {
         return userRepository.save(user);
     }
 
-    @NotNull public static PermissionGroup createUserManagementPermissionGroup(PermissionGroupRepository permissionGroupRepository, User user) {
+    @NotNull public static PermissionGroup createUserManagementPermissionGroup(
+            PermissionGroupRepository permissionGroupRepository, User user) {
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
         userManagementPermissionGroup.setName(user.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
