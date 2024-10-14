@@ -201,7 +201,7 @@ jobs:
         run: |
             mkdir -p cacherepo
             cd ./cacherepo
-
+            git lfs prune
             # Install Git LFS and configure Git user
             git lfs install
             git config --global user.email "$gituseremail"
@@ -262,6 +262,7 @@ jobs:
           # Create and navigate to the repository cache directory
           mkdir -p cacherepo
           cd ./cacherepo
+          git lfs prune
 
           # Set up Git user information
           git config --global user.email "$gituseremail"
