@@ -129,25 +129,25 @@ jobs:
           echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
 
       # In case of run-id provided download the artifact from the previous run
-      - name: Download Docker image artifact
-        if: inputs.previous-workflow-run-id != 0
-        uses: actions/cache@v4
-        with:
-          path: cicontainer.tar.gz
-          key: docker-image-${{ inputs.previous-workflow-run-id }}
+      # - name: Download Docker image artifact
+      #   if: inputs.previous-workflow-run-id != 0
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: cicontainer.tar.gz
+      #     key: docker-image-${{ inputs.previous-workflow-run-id }}
 
-      # In case of run-id is 0 download the artifact from the current run
-      - name: Download Docker image artifact
-        if: inputs.previous-workflow-run-id == 0
-        uses: actions/cache@v4
-        with:
-          path: cicontainer.tar.gz
-          key: docker-image-${{github.run_id}}
+      # # In case of run-id is 0 download the artifact from the current run
+      # - name: Download Docker image artifact
+      #   if: inputs.previous-workflow-run-id == 0
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: cicontainer.tar.gz
+      #     key: docker-image-${{github.run_id}}
 
-      - name: Load Docker image from tar file
-        run: |
-          gunzip cicontainer.tar.gz
-          docker load -i cicontainer.tar
+      # - name: Load Docker image from tar file
+      #   run: |
+      #     gunzip cicontainer.tar.gz
+      #     docker load -i cicontainer.tar
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
@@ -164,42 +164,42 @@ jobs:
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
             -p 5433:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
             appsmith/test-event-driver:latest
-          docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
-            --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
-            -e APPSMITH_CLOUD_SERVICES_MONGODB_URI=mongodb://host.docker.internal:27017 \
-            -e APPSMITH_CLOUD_SERVICES_MONGODB_DATABASE=cs \
-            -e APPSMITH_CLOUD_SERVICES_MONGODB_AUTH_DATABASE=admin \
-            -e APPSMITH_REDIS_URL=redis://host.docker.internal:6379/ \
-            -e APPSMITH_APPS_API_KEY=dummy-api-key \
-            -e APPSMITH_REMOTE_API_KEY=dummy-api-key \
-            -e APPSMITH_GITHUB_API_KEY=dummy-appsmith-gh-api-key \
-            -e APPSMITH_JWT_SECRET=appsmith-cloud-services-jwt-secret-dummy-key \
-            -e APPSMITH_ENCRYPTION_SALT=encryption-salt \
-            -e APPSMITH_ENCRYPTION_PASSWORD=encryption-password \
-            -e APPSMITH_CLOUD_SERVICES_URL=https://cs-dev.appsmith.com \
-            -e APPSMITH_CUSTOMER_PORTAL_URL=https://dev.appsmith.com \
-            -e APPSMITH_CLOUD_SERVICES_BASE_URL=https://cs-dev.appsmith.com \
-            -e APPSMITH_CLOUD_SERVER_BASE_URL=https://release.app.appsmith.com \
-            -e AUTH0_ISSUER_URL=https://login.release-customer.appsmith.com/ \
-            -e AUTH0_CLIENT_ID=dummy-client-id \
-            -e AUTH0_CLIENT_SECRET=dummy-secret-id \
-            -e AUTH0_AUDIENCE_URL=https://login.local-customer.appsmith.com/ \
-            -e CLOUDSERVICES_URL=cs-dev.appsmith.com \
-            -e CUSTOMER_URL=dev.appsmith.com  \
-            -e ENTERPRISE_USER_NAME=ent-user@appsmith.com \
-            -e ENTERPRISE_USER_PASSWORD=ent_user_password \
-            -e ENTERPRISE_ADMIN_NAME=ent-admin@appsmith.com \
-            -e ENTERPRISE_ADMIN_PASSWORD=ent_admin_password \
-            -e LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY=$LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY \
-            appsmith/cloud-services:release
-          cd cicontainerlocal
-          docker run -d --name appsmith -p 80:80 \
-            -v "$PWD/stacks:/appsmith-stacks" \
-            -e APPSMITH_DISABLE_TELEMETRY=true \
-            -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
-            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
-            --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
-            cicontainer
+          # docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
+          #   --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
+          #   -e APPSMITH_CLOUD_SERVICES_MONGODB_URI=mongodb://host.docker.internal:27017 \
+          #   -e APPSMITH_CLOUD_SERVICES_MONGODB_DATABASE=cs \
+          #   -e APPSMITH_CLOUD_SERVICES_MONGODB_AUTH_DATABASE=admin \
+          #   -e APPSMITH_REDIS_URL=redis://host.docker.internal:6379/ \
+          #   -e APPSMITH_APPS_API_KEY=dummy-api-key \
+          #   -e APPSMITH_REMOTE_API_KEY=dummy-api-key \
+          #   -e APPSMITH_GITHUB_API_KEY=dummy-appsmith-gh-api-key \
+          #   -e APPSMITH_JWT_SECRET=appsmith-cloud-services-jwt-secret-dummy-key \
+          #   -e APPSMITH_ENCRYPTION_SALT=encryption-salt \
+          #   -e APPSMITH_ENCRYPTION_PASSWORD=encryption-password \
+          #   -e APPSMITH_CLOUD_SERVICES_URL=https://cs-dev.appsmith.com \
+          #   -e APPSMITH_CUSTOMER_PORTAL_URL=https://dev.appsmith.com \
+          #   -e APPSMITH_CLOUD_SERVICES_BASE_URL=https://cs-dev.appsmith.com \
+          #   -e APPSMITH_CLOUD_SERVER_BASE_URL=https://release.app.appsmith.com \
+          #   -e AUTH0_ISSUER_URL=https://login.release-customer.appsmith.com/ \
+          #   -e AUTH0_CLIENT_ID=dummy-client-id \
+          #   -e AUTH0_CLIENT_SECRET=dummy-secret-id \
+          #   -e AUTH0_AUDIENCE_URL=https://login.local-customer.appsmith.com/ \
+          #   -e CLOUDSERVICES_URL=cs-dev.appsmith.com \
+          #   -e CUSTOMER_URL=dev.appsmith.com  \
+          #   -e ENTERPRISE_USER_NAME=ent-user@appsmith.com \
+          #   -e ENTERPRISE_USER_PASSWORD=ent_user_password \
+          #   -e ENTERPRISE_ADMIN_NAME=ent-admin@appsmith.com \
+          #   -e ENTERPRISE_ADMIN_PASSWORD=ent_admin_password \
+          #   -e LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY=$LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY \
+          #   appsmith/cloud-services:release
+          # cd cicontainerlocal
+          # docker run -d --name appsmith -p 80:80 \
+          #   -v "$PWD/stacks:/appsmith-stacks" \
+          #   -e APPSMITH_DISABLE_TELEMETRY=true \
+          #   -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
+          #   -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+          #   --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
+          #   cicontainer
 
       - name: Use Node.js
         uses: actions/setup-node@v4
