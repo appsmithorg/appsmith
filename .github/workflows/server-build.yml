@@ -252,8 +252,13 @@ jobs:
           git config --global user.name "$gituser"
           git clone https://$cachetoken@github.com/sagar-qa007/cibuildcache.git
           git lfs install
-          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+           if [ "$reponame" = "appsmith" ]; then
+              export repodir="CE"
+          elif [ "$reponame" = "appsmith-ee" ]; then
+              export repodir="EE"
+          else
+              export repodir="CE"  # Default case if neither condition is met
+          fi
           cd cibuildcache/$repodir/release/server
           git lfs pull ./server.jar
           mv ./server.jar ../../../../../server.jar
