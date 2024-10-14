@@ -94,6 +94,7 @@ export async function createDependencyMap(
           pathDependencies,
           allKeys,
         );
+
         dependencyMap.addDependency(path, references);
         dataTreeEvalRef.errors.push(...errors);
 

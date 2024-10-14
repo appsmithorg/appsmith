@@ -36,8 +36,10 @@ export const profileAsyncFn = async <T>(
 ) => {
   const span = newWebWorkerSpanData(spanName, attributes);
   const res: T = await fn();
+
   addEndTimeForWebWorkerSpanData(span);
   allSpans[spanName] = span;
+
   return res;
 };
 

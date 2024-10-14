@@ -48,6 +48,7 @@ export class AppComputationCache {
     if (!AppComputationCache.instance) {
       AppComputationCache.instance = new AppComputationCache();
     }
+
     return AppComputationCache.instance;
   }
 
@@ -139,6 +140,7 @@ export class AppComputationCache {
 
     try {
       const cached = await this.store.getItem<ICachedData<T>>(cacheKey);
+
       if (isNull(cached)) {
         // Cache miss
         // Delete invalid cache entries when thread is idle
@@ -154,6 +156,7 @@ export class AppComputationCache {
       return cached.value;
     } catch (error) {
       loglevel.error("Error getting cache result:", error);
+
       return null;
     }
   }
@@ -230,8 +233,8 @@ export class AppComputationCache {
       return computationResult;
     } catch (error) {
       loglevel.error("Error getting cache result:", error);
-
       const fallbackResult = await computeFn();
+
       return fallbackResult;
     }
   }

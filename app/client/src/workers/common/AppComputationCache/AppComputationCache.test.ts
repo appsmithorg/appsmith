@@ -60,6 +60,7 @@ jest.spyOn(localforage, "createInstance").mockImplementation((options) => {
 
 describe("AppComputationCache", () => {
   let appComputationCache: AppComputationCache;
+
   beforeEach(() => {
     jest.clearAllMocks();
     AppComputationCache.resetInstance();
@@ -419,7 +420,9 @@ describe("AppComputationCache", () => {
 
     test("should handle cache errors and compute result", async () => {
       getItemMock.mockRejectedValue(new Error("Cache access error"));
+
       const defaultLogLevel = loglevel.getLevel();
+
       loglevel.setLevel("SILENT");
 
       const cacheProps = {

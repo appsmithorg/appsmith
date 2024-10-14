@@ -184,6 +184,7 @@ describe("evaluateAndGenerateResponse", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return updates.filter((p: any) => !p.rhs.__evaluation__);
   };
+
   beforeEach(async () => {
     evaluator = new DataTreeEvaluator(WIDGET_CONFIG_MAP);
     await evaluator.setupFirstTree(
