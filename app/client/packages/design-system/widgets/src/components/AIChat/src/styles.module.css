@@ -1,0 +1,24 @@
+.root {
+  width: 100%;
+  background-color: var(--color-bg-elevation-3);
+  border-radius: var(--border-radius-elevation-3);
+  outline: var(--border-width-1) solid var(--color-bd-elevation-3);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--inner-spacing-2);
+  padding: var(--inner-spacing-5) var(--inner-spacing-6);
+  align-items: flex-start;
+  border-bottom: 1px solid var(--color-bd-elevation-1);
+}
+
+@container (min-width: 700px) {
+  .header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}

@@ -682,9 +682,9 @@ export default {
 
       /*
        * For select columns with label and values, we need to include the label value
-       * in the search
+       * in the search and filter data
        */
-      let labelValueForSelectCell = "";
+      let labelValuesForSelectCell = {};
       /*
        * Initialize an array to store keys for columns that have the 'select' column type
        * and contain selectOptions.
@@ -716,13 +716,15 @@ export default {
             primaryColumns[key].selectOptions,
           );
 
-          let selectOptions;
+          let selectOptions = {};
 
           /*
            * If selectOptions is an array, check if it contains nested arrays.
            * This is to handle situations where selectOptons is a javascript object and computes as a nested array.
            */
           if (isSelectOptionsAnArray) {
+            const selectOptionKey = primaryColumns[key].alias;
+
             if (_.some(primaryColumns[key].selectOptions, _.isArray)) {
               /* Handle the case where selectOptions contains nested arrays - selectOptions is javascript */
               selectOptions =
@@ -732,7 +734,7 @@ export default {
               });
 
               if (option) {
-                labelValueForSelectCell = option.label;
+                labelValuesForSelectCell[selectOptionKey] = option.label;
               }
             } else {
               /* Handle the case where selectOptions is a flat array - selectOptions is plain JSON */
@@ -742,7 +744,7 @@ export default {
               );
 
               if (option) {
-                labelValueForSelectCell = option.label;
+                labelValuesForSelectCell[selectOptionKey] = option.label;
               }
             }
           } else {
@@ -753,7 +755,7 @@ export default {
             );
 
             if (option) {
-              labelValueForSelectCell = option.label;
+              labelValuesForSelectCell[selectOptionKey] = option.label;
             }
           }
         });
@@ -761,7 +763,7 @@ export default {
 
       const displayedRow = {
         ...row,
-        labelValueForSelectCell,
+        ...labelValuesForSelectCell,
         ...columnWithDisplayText.reduce((acc, column) => {
           let displayText;
 
@@ -1037,7 +1039,7 @@ export default {
     };
 
     let editableColumns = [];
-    const validatableColumns = ["text", "number", "currency", "date"];
+    const validatableColumns = ["text", "number", "currency", "date", "select"];
 
     if (props.isAddRowInProgress) {
       Object.values(props.primaryColumns)

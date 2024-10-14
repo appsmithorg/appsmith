@@ -1,15 +1,13 @@
-import type { AxiosInstance, AxiosRequestConfig } from "axios";
 import axios from "axios";
+import type { AxiosInstance, AxiosRequestConfig } from "axios";
+import {
+  apiRequestInterceptor,
+  apiFailureResponseInterceptor,
+  apiSuccessResponseInterceptor,
+} from "./interceptors";
 import { REQUEST_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import { convertObjectToQueryParams } from "utils/URLUtils";
-import {
-  apiFailureResponseInterceptor,
-  apiRequestInterceptor,
-  apiSuccessResponseInterceptor,
-  blockedApiRoutesForAirgapInterceptor,
-} from "ee/api/ApiUtils";
 
-//TODO(abhinav): Refactor this to make more composable.
 export const apiRequestConfig = {
   baseURL: "/api/",
   timeout: REQUEST_TIMEOUT_MS,
@@ -21,16 +19,7 @@ export const apiRequestConfig = {
 
 const axiosInstance: AxiosInstance = axios.create();
 
-const requestInterceptors = [
-  blockedApiRoutesForAirgapInterceptor,
-  apiRequestInterceptor,
-];
-
-requestInterceptors.forEach((interceptor) => {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  axiosInstance.interceptors.request.use(interceptor as any);
-});
+axiosInstance.interceptors.request.use(apiRequestInterceptor);
 
 axiosInstance.interceptors.response.use(
   apiSuccessResponseInterceptor,

@@ -2,25 +2,24 @@ import { renderHook } from "@testing-library/react-hooks/dom";
 import { useDispatch } from "react-redux";
 import { PluginType } from "entities/Action";
 import { usePluginActionContext } from "PluginActionEditor";
-import { changeApi } from "actions/apiPaneActions";
-import { changeQuery } from "actions/queryPaneActions";
+import { changeApi, changeQuery } from "../../../store";
+import usePrevious from "utils/hooks/usePrevious";
 import { useChangeActionCall } from "./useChangeActionCall";
 
 jest.mock("react-redux", () => ({
   useDispatch: jest.fn(),
 }));
 
-jest.mock("actions/apiPaneActions", () => ({
+jest.mock("../../../store", () => ({
   changeApi: jest.fn(),
-}));
-
-jest.mock("actions/queryPaneActions", () => ({
   changeQuery: jest.fn(),
 }));
 
 jest.mock("PluginActionEditor", () => ({
   usePluginActionContext: jest.fn(),
 }));
+
+jest.mock("utils/hooks/usePrevious", () => jest.fn());
 
 describe("useChangeActionCall hook", () => {
   const dispatchMock = jest.fn();
@@ -104,5 +103,37 @@ describe("useChangeActionCall hook", () => {
 
     // Expect no action to be dispatched
     expect(dispatchMock).not.toHaveBeenCalled();
+  });
+
+  it("should not dispatch any action if the action Id has not changed", () => {
+    const actionMock = { id: "actionId" };
+    const pluginMock = { id: "pluginId", type: PluginType.API };
+
+    // First we mount, so it should be called as previous action id was undefined
+    (usePluginActionContext as jest.Mock).mockReturnValueOnce({
+      action: actionMock,
+      plugin: pluginMock,
+    });
+    (usePrevious as jest.Mock).mockReturnValueOnce(undefined);
+    renderHook(() => useChangeActionCall());
+    expect(changeApi).toHaveBeenCalledTimes(1);
+
+    // Now we mock the action object to change but not the id. It should not be called again
+    (usePluginActionContext as jest.Mock).mockReturnValueOnce({
+      action: { ...actionMock, testId: "test" },
+      plugin: pluginMock,
+    });
+    (usePrevious as jest.Mock).mockReturnValueOnce("actionId");
+    renderHook(() => useChangeActionCall());
+    expect(changeApi).toHaveBeenCalledTimes(1);
+
+    // Now we change the action id, so it will be called the second time
+    (usePluginActionContext as jest.Mock).mockReturnValueOnce({
+      action: { id: "actionId2", testId: "test" },
+      plugin: pluginMock,
+    });
+    (usePrevious as jest.Mock).mockReturnValueOnce("actionId");
+    renderHook(() => useChangeActionCall());
+    expect(changeApi).toHaveBeenCalledTimes(2);
   });
 });

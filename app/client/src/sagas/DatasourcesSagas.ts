@@ -401,7 +401,9 @@ function* handleDatasourceDeleteRedirect(deletedDatasourceId: string) {
 
   // Go to the add datasource if the last item is deleted
   if (remainingDatasources.length === 0) {
-    history.push(integrationEditorURL({ selectedTab: INTEGRATION_TABS.NEW }));
+    yield call(() =>
+      history.push(integrationEditorURL({ selectedTab: INTEGRATION_TABS.NEW })),
+    );
 
     return;
   }

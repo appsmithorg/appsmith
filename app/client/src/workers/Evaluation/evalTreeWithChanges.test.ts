@@ -289,6 +289,11 @@ describe("evaluateAndGenerateResponse", () => {
         [],
         [],
       );
+
+      expect(webworkerResponse.workerResponse.dependencies).toEqual({
+        "Text1.text": ["Text2.text", "Text1"],
+        "Text2.text": ["Text2"],
+      });
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
 

@@ -13,6 +13,7 @@ export const IDETabsDefaultValue = {
 const initialState: IDEState = {
   view: EditorViewMode.FullScreen,
   tabs: {},
+  isListViewActive: false,
   showCreateModal: false,
   ideCanvasSideBySideHover: {
     navigated: false,
@@ -101,10 +102,19 @@ const ideReducer = createImmerReducer(initialState, {
   ) => {
     state.ideCanvasSideBySideHover.widgetTypes.push(action.payload);
   },
+  [ReduxActionTypes.SET_IS_LIST_VIEW_ACTIVE]: (
+    state: IDEState,
+    action: {
+      payload: boolean;
+    },
+  ) => {
+    state.isListViewActive = action.payload;
+  },
 });
 
 export interface IDEState {
   view: EditorViewMode;
+  isListViewActive: boolean;
   tabs: ParentEntityIDETabs;
   showCreateModal: boolean;
   ideCanvasSideBySideHover: IDECanvasSideBySideHover;

@@ -1,24 +1,18 @@
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { PaginationField } from "api/ActionAPI";
 import React, { createContext, useMemo } from "react";
-
-interface SaveActionNameParams {
-  id: string;
-  name: string;
-}
+import type { SaveActionNameParams } from "PluginActionEditor";
 
 interface ApiEditorContextContextProps {
   moreActionsMenu?: React.ReactNode;
-  handleDeleteClick: () => void;
   handleRunClick: (paginationField?: PaginationField) => void;
   actionRightPaneBackLink?: React.ReactNode;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settingsConfig: any;
-  saveActionName?: (
+  saveActionName: (
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
-  closeEditorLink?: React.ReactNode;
   showRightPaneTabbedSection?: boolean;
   actionRightPaneAdditionSections?: React.ReactNode;
   notification?: React.ReactNode | string;
@@ -35,8 +29,6 @@ export function ApiEditorContextProvider({
   actionRightPaneAdditionSections,
   actionRightPaneBackLink,
   children,
-  closeEditorLink,
-  handleDeleteClick,
   handleRunClick,
   moreActionsMenu,
   notification,
@@ -48,8 +40,6 @@ export function ApiEditorContextProvider({
     () => ({
       actionRightPaneAdditionSections,
       actionRightPaneBackLink,
-      closeEditorLink,
-      handleDeleteClick,
       showRightPaneTabbedSection,
       handleRunClick,
       moreActionsMenu,
@@ -60,8 +50,6 @@ export function ApiEditorContextProvider({
     [
       actionRightPaneBackLink,
       actionRightPaneAdditionSections,
-      closeEditorLink,
-      handleDeleteClick,
       showRightPaneTabbedSection,
       handleRunClick,
       moreActionsMenu,

@@ -138,7 +138,6 @@ import {
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const ReactTableComponent = lazy(async () =>
@@ -275,12 +274,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isVisibleDownload: false,
           });
 
-          if (
-            !!TableWidgetV2.getFeatureFlag(
-              FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
-            )
-          )
-            dynamicPropertyPathList.push({ key: "tableData" });
+          dynamicPropertyPathList.push({ key: "tableData" });
         }
 
         if (queryConfig.create) {
@@ -2156,6 +2150,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isCellEditable={isCellEditable}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isEditable={isColumnEditable}
+            isEditableCellValid={this.isColumnCellValid(alias)}
             isFilterable={cellProperties.isFilterable}
             isHidden={isHidden}
             isNewRow={isNewRow}

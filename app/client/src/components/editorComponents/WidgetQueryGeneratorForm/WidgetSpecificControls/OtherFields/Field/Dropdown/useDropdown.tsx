@@ -81,12 +81,15 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
       if (getOneClickBindingConnectableWidgetConfig) {
         const { message, widgetBindPath } =
           getOneClickBindingConnectableWidgetConfig(currWidget);
+        const iconSVG =
+          WidgetFactory.getConfig(currWidget.type)?.iconSVG ||
+          currWidget.iconSVG;
 
         return {
           id: currWidgetId,
           value: widgetBindPath,
           label: currWidget.widgetName,
-          icon: <StyledImage alt="widget-icon" src={currWidget.iconSVG} />,
+          icon: <StyledImage alt="widget-icon" src={iconSVG} />,
           data: {
             widgetType: currWidget.type,
             widgetName: currWidget.widgetName,

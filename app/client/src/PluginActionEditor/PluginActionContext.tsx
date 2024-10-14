@@ -6,14 +6,16 @@ import React, {
 } from "react";
 import type { Action } from "entities/Action";
 import type { Plugin } from "api/PluginApi";
-import type { Datasource } from "entities/Datasource";
+import type { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
+import type { ActionResponse } from "api/ActionAPI";
 
 interface PluginActionContextType {
   action: Action;
+  actionResponse?: ActionResponse;
   editorConfig: unknown[];
   settingsConfig: unknown[];
   plugin: Plugin;
-  datasource?: Datasource;
+  datasource?: EmbeddedRestDatasource | Datasource;
 }
 
 // No need to export this context to use it. Use the hook defined below instead
@@ -26,19 +28,27 @@ interface ChildrenProps {
 export const PluginActionContextProvider = (
   props: ChildrenProps & PluginActionContextType,
 ) => {
-  const { action, children, datasource, editorConfig, plugin, settingsConfig } =
-    props;
+  const {
+    action,
+    actionResponse,
+    children,
+    datasource,
+    editorConfig,
+    plugin,
+    settingsConfig,
+  } = props;
 
   // using useMemo to avoid unnecessary renders
   const contextValue = useMemo(
     () => ({
       action,
+      actionResponse,
       datasource,
       editorConfig,
       plugin,
       settingsConfig,
     }),
-    [action, datasource, editorConfig, plugin, settingsConfig],
+    [action, actionResponse, datasource, editorConfig, plugin, settingsConfig],
   );
 
   return (

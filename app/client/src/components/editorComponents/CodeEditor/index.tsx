@@ -95,7 +95,6 @@ import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
-import { executeCommandAction } from "actions/apiPaneActions";
 import { startingEntityUpdate } from "actions/editorActions";
 import type { SlashCommandPayload } from "entities/Action";
 import type { Indices } from "constants/Layers";
@@ -163,6 +162,7 @@ import {
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { getEachEntityInformation } from "ee/utils/autocomplete/EntityDefinitions";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { executeCommandAction } from "actions/pluginActionActions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;

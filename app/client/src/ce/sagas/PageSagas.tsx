@@ -149,7 +149,7 @@ import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 import type { Page } from "entities/Page";
-import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
+import { ConsolidatedPageLoadApi } from "api";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -345,12 +345,6 @@ export function* postFetchedPublishedPage(
   response: FetchPageResponse,
   pageId: string,
 ) {
-  // Clear any existing caches
-  yield call(clearEvalCache);
-  // Set url params
-  yield call(setDataUrl);
-
-  yield call(updateCanvasLayout, response);
   // set current page
   yield put(
     updateCurrentPage(
@@ -359,6 +353,12 @@ export function* postFetchedPublishedPage(
       response.data.userPermissions,
     ),
   );
+  // Clear any existing caches
+  yield call(clearEvalCache);
+  // Set url params
+  yield call(setDataUrl);
+
+  yield call(updateCanvasLayout, response);
 }
 
 export function* fetchPublishedPageSaga(
@@ -395,9 +395,9 @@ export function* fetchPublishedPageResourcesSaga(
   action: ReduxAction<FetchPublishedPageResourcesPayload>,
 ) {
   try {
-    const { pageId } = action.payload;
+    const { basePageId, pageId } = action.payload;
 
-    const params = { defaultPageId: pageId };
+    const params = { defaultPageId: basePageId };
     const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
       yield ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
 
@@ -419,10 +419,12 @@ export function* fetchPublishedPageResourcesSaga(
         pageId,
       );
 
-      // Sending applicationId as empty as we have publishedActions present,
-      // it won't call the actions view api with applicationId
+      // NOTE: fetchActionsForView is used here to update publishedActions in redux store and not to fetch actions again
       yield put(fetchActionsForView({ applicationId: "", publishedActions }));
       yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+      yield put({
+        type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_RESOURCES_SUCCESS,
+      });
     }
   } catch (error) {
     yield put({

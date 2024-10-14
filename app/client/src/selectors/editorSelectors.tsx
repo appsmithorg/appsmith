@@ -27,8 +27,8 @@ import {
 } from "selectors/dataTreeSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
+import { getActionEditorSavingMap } from "PluginActionEditor/store";
 import {
-  getApiPaneSavingMap,
   getCanvasWidgets,
   getJSCollections,
 } from "ee/selectors/entitiesSelector";
@@ -41,13 +41,14 @@ import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import { isAirgapped } from "ee/utils/airgapHelpers";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
-import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
+import { WDS_V2_WIDGET_MAP } from "modules/ui-builder/ui/wds/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 import { protectedModeSelector } from "./gitSyncSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { Page } from "entities/Page";
+import { objectKeys } from "@appsmith/utils";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -76,7 +77,7 @@ export const getLoadingError = (state: AppState) =>
 
 export const getIsPageSaving = createSelector(
   [
-    getApiPaneSavingMap,
+    getActionEditorSavingMap,
     (state: AppState) => state.ui.jsPane.isSaving,
     (state: AppState) => state.ui.appTheming.isSaving,
     (state: AppState) => state.ui.applications.isSavingNavigationSetting,
@@ -84,23 +85,23 @@ export const getIsPageSaving = createSelector(
     (state: AppState) => state.ui.editor.loadingStates.saving,
   ],
   (
-    savingApis,
+    savingActions,
     savingJSObjects,
     isSavingAppTheme,
     isSavingNavigationSetting,
     isEditorSavingEntity,
     isEditorSaving,
   ) => {
-    const areApisSaving = Object.keys(savingApis).some(
-      (apiId) => savingApis[apiId],
+    const areActionsSaving = objectKeys(savingActions).some(
+      (actionId) => savingActions[actionId],
     );
-    const areJsObjectsSaving = Object.keys(savingJSObjects).some(
+    const areJsObjectsSaving = objectKeys(savingJSObjects).some(
       (collectionId) => savingJSObjects[collectionId],
     );
 
     return (
       isEditorSavingEntity ||
-      areApisSaving ||
+      areActionsSaving ||
       areJsObjectsSaving ||
       isSavingAppTheme ||
       isEditorSaving ||
