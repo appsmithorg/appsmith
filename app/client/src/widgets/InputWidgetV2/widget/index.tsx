@@ -648,7 +648,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
-    const baseMetaProperties = super.getMetaPropertiesMap();
+    const baseMetaProperties = BaseInputWidget.getMetaPropertiesMap();
     const rest = omit(baseMetaProperties, ["isFocused"]);
 
     return merge(rest, {
@@ -910,7 +910,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         rtl={this.props.rtl}
-        showError={!!this.props.isFocused}
+        showError={!!this.state.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}
         tooltip={this.props.tooltip}
