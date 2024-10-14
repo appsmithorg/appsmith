@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.PolicySolution;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -58,7 +59,17 @@ public class UpdateSuperUserHelperCE {
         user.setCreatedAt(Instant.now());
         user = userRepository.save(user);
 
-        // Assign the user to the default permissions
+        PermissionGroup userManagementPermissionGroup = createUserManagementPermissionGroup(permissionGroupRepository, user);
+
+        Set<Policy> userPolicies = this.generateUserPolicy(
+                user, userManagementPermissionGroup, instanceAdminRole, tenant, policySolution, policyGenerator);
+
+        user.setPolicies(userPolicies);
+
+        return userRepository.save(user);
+    }
+
+    @NotNull public static PermissionGroup createUserManagementPermissionGroup(PermissionGroupRepository permissionGroupRepository, User user) {
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
         userManagementPermissionGroup.setName(user.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
@@ -68,12 +79,6 @@ public class UpdateSuperUserHelperCE {
         userManagementPermissionGroup.setAssignedToUserIds(Set.of(user.getId()));
 
         PermissionGroup savedPermissionGroup = permissionGroupRepository.save(userManagementPermissionGroup);
-
-        Set<Policy> userPolicies = this.generateUserPolicy(
-                user, savedPermissionGroup, instanceAdminRole, tenant, policySolution, policyGenerator);
-
-        user.setPolicies(userPolicies);
-
-        return userRepository.save(user);
+        return savedPermissionGroup;
     }
 }
