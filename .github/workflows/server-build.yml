@@ -237,28 +237,28 @@ jobs:
           if-no-files-found: ignore
           overwrite: true
 
-      # - name: Fetch server build from cache
-      #   if: steps.changed-files-specific.outputs.any_changed == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
-      #   env:
-      #     cachetoken: ${{ secrets.CACHETOKEN }}
-      #     reponame: ${{ github.event.repository.name }}
-      #     gituser: ${{ secrets.CACHE_GIT_USER }}
-      #     gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
-      #   run: |
-      #     mkdir cacherepo
-      #     cd ./cacherepo
-      #     git lfs install
-      #     git config --global user.email "$gituseremail"
-      #     git config --global user.name "$gituser"
-      #     git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-      #     git lfs install
-      #     if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-      #     if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
-      #     cd cibuildcache/$repodir/release/server
-      #     git lfs pull ./server.jar
-      #     mv ./server.jar ../../../../../server.jar
-      #     cd ../../../../../
-      #     tar -xzvf ./server.jar
+      - name: Fetch server build from cache
+        if: steps.changed-files-specific.outputs.any_changed == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          reponame: ${{ github.event.repository.name }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        run: |
+          mkdir cacherepo
+          cd ./cacherepo
+          git lfs install
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/sagar-qa007/cibuildcache.git
+          git lfs install
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd cibuildcache/$repodir/release/server
+          git lfs pull ./server.jar
+          mv ./server.jar ../../../../../server.jar
+          cd ../../../../../
+          tar -xzvf ./server.jar
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
@@ -277,31 +277,31 @@ jobs:
           path: app/server/dist/
           overwrite: true
 
-      # - name: Put release build in cache
-      #   if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-      #   env:
-      #     cachetoken: ${{ secrets.CACHETOKEN }}
-      #     reponame: ${{ github.event.repository.name }}
-      #     gituser: ${{ secrets.CACHE_GIT_USER }}
-      #     gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
-      #   run: |
-      #     pwd
-      #     tar -czvf server.jar dist/
-      #     mkdir cacherepo
-      #     cd ./cacherepo
-      #     git config --global user.email "$gituseremail"
-      #     git config --global user.name "$gituser"
-      #     git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-      #     git lfs install
-      #     cd cibuildcache/
-      #     if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-      #     if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
-      #     cd $repodir/release/server
-      #     cp ../../../../../server.jar ./
-      #     git lfs track "server.jar"
-      #     git add  server.jar
-      #     git commit --allow-empty -m "Update Latest Server.jar"
-      #     git push
+      - name: Put release build in cache
+        if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          reponame: ${{ github.event.repository.name }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        run: |
+          pwd
+          tar -czvf server.jar dist/
+          mkdir cacherepo
+          cd ./cacherepo
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/sagar-qa007/cibuildcache.git
+          git lfs install
+          cd cibuildcache/
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd $repodir/release/server
+          cp ../../../../../server.jar ./
+          git lfs track "server.jar"
+          git add  server.jar
+          git commit --allow-empty -m "Update Latest Server.jar"
+          git push
 
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
