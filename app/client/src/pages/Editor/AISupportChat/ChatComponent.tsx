@@ -9,12 +9,13 @@ import {
   getConversation,
   sendMessage,
 } from "./api";
-import { Button, Tooltip, Text, Flex, Input, toast } from "@appsmith/ads";
+import { Button, Text, Flex, Input, toast } from "@appsmith/ads";
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { ReactComponent as SupportBotSVG } from "./supportbot.svg";
 import moment from "moment";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import Markdown from "react-markdown";
+import { a11yLight } from "react-syntax-highlighter/dist/cjs/styles/hljs";
 
 interface ChatComponentProps {
   onClose: () => void;
@@ -188,7 +189,6 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
                             return match ? (
                               <div
                                 style={{
-                                  padding: "15px 0",
                                   position: "relative",
                                 }}
                               >
@@ -197,28 +197,27 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
                                     position: "absolute",
                                     right: "0px",
                                     bottom: "0px",
-                                    background: "#ffff22 !important",
                                   }}
                                 >
-                                  <Tooltip content="Copy to clipboard">
-                                    <Button
-                                      kind="tertiary"
-                                      onClick={() => {
-                                        navigator.clipboard.writeText(
-                                          String(children),
-                                        );
-                                        toast.show("Copied to clipboard", {
-                                          kind: "success",
-                                        });
-                                      }}
-                                      size="sm"
-                                      startIcon="copy-control"
-                                    />
-                                  </Tooltip>
+                                  <StyledButton
+                                    color="#4C5664"
+                                    kind="tertiary"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(
+                                        String(children),
+                                      );
+                                      toast.show("Copied to clipboard", {
+                                        kind: "success",
+                                      });
+                                    }}
+                                    size="sm"
+                                    endIcon="copy-control"
+                                  />
                                 </div>
                                 <SyntaxHighlighter
                                   PreTag="div"
                                   language={match[1]}
+                                  style={a11yLight}
                                 >
                                   {String(children).replace(/\n$/, "")}
                                 </SyntaxHighlighter>
@@ -369,22 +368,30 @@ interface MessageItemProps {
   sender: "user" | "bot";
 }
 
+const StyledButton = styled(Button)`
+  background-color: #ffffff;
+  color: #4c5664;
+
+  &:hover {
+    background-color: #f7fafc;
+  }
+`;
+
 const MessageItem = styled.div<MessageItemProps>`
+  padding: 10px;
   background-color: ${(props) =>
     props.sender === "user" ? "#E3E8EF" : "#FFFFFF"};
   color: ${(props) => (props.sender === "user" ? "#4C5664" : "#000000")};
   align-self: ${(props) =>
     props.sender === "user" ? "flex-end" : "flex-start"};
   margin: 5px 0;
-  padding: 10px;
   border-radius: 7.5px;
   max-width: ${(props) => (props.sender === "user" ? "80%" : "100%")};
   border: 1px solid #e3e8ef;
 
-  & * {
-    text-wrap: unset;
-    background-color: ${(props) =>
-      props.sender === "bot" ? "#ffffff !important" : ""};
+  & code {
+    text-wrap: wrap !important;
+    padding-right: 24px;
   }
 
   pre {

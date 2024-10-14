@@ -26,9 +26,13 @@ const sentryReduxEnhancer = Sentry.createReduxEnhancer({
   },
 });
 
+const composeWithTraces = composeWithDevTools({
+  maxAge: 200,
+});
+
 export default createStore(
   appReducer,
-  composeWithDevTools(
+  composeWithTraces(
     reduxBatch,
     applyMiddleware(sagaMiddleware, routeParamsMiddleware),
     reduxBatch,
