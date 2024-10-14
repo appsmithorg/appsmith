@@ -1,7 +1,7 @@
 import React from "react";
 import { render, fireEvent, act } from "@testing-library/react";
 import SearchComponent from "../SearchComponent";
-import "@testing-library/jest-dom"
+import "@testing-library/jest-dom";
 
 // Mocking the debounce function to call the function immediately
 jest.mock("lodash", () => ({
@@ -23,7 +23,7 @@ describe("SearchComponent", () => {
         placeholder="Search..."
         value=""
         {...props}
-      />
+      />,
     );
   };
 
@@ -33,9 +33,7 @@ describe("SearchComponent", () => {
     });
     const inputElement = getByPlaceholderText("Search...") as HTMLInputElement;
 
-    act(() => {
-      fireEvent.change(inputElement, { target: { value: "test" } });
-    });
+    fireEvent.change(inputElement, { target: { value: "test" } });
 
     expect(inputElement.value).toBe("test");
     expect(onSearchMock).toHaveBeenCalledWith("test");
@@ -49,9 +47,7 @@ describe("SearchComponent", () => {
     const inputElement = getByPlaceholderText("Search...") as HTMLInputElement;
     const clearButton = getByTestId("cross-icon");
 
-    act(() => {
-      fireEvent.click(clearButton);
-    });
+    fireEvent.click(clearButton);
 
     expect(inputElement.value).toBe("");
     expect(onSearchMock).toHaveBeenCalledWith("");
@@ -65,7 +61,13 @@ describe("SearchComponent", () => {
     const inputElement = getByPlaceholderText("Search...") as HTMLInputElement;
     expect(inputElement.value).toBe("initial");
 
-    rerender(<SearchComponent onSearch={onSearchMock} placeholder="Search..." value="updated" />);
+    rerender(
+      <SearchComponent
+        onSearch={onSearchMock}
+        placeholder="Search..."
+        value="updated"
+      />,
+    );
 
     expect(inputElement.value).toBe("updated");
   });
@@ -76,10 +78,17 @@ describe("SearchComponent", () => {
       value: "initial",
     });
 
-    const inputElement = getByPlaceholderText("Search...")as HTMLInputElement;
+    const inputElement = getByPlaceholderText("Search...") as HTMLInputElement;
     expect(inputElement.value).toBe("initial");
 
-    rerender(<SearchComponent onSearch={onSearchMock} value="" placeholder="Search..." enableClientSideSearch={false} />);
+    rerender(
+      <SearchComponent
+        onSearch={onSearchMock}
+        value=""
+        placeholder="Search..."
+        enableClientSideSearch={false}
+      />,
+    );
 
     expect(inputElement.value).toBe("");
     expect(onSearchMock).toHaveBeenCalledWith("");
