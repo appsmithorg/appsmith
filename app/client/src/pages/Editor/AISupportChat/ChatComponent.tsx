@@ -201,6 +201,7 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
                                 >
                                   <StyledButton
                                     color="#4C5664"
+                                    endIcon="copy-control"
                                     kind="tertiary"
                                     onClick={() => {
                                       navigator.clipboard.writeText(
@@ -211,7 +212,6 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
                                       });
                                     }}
                                     size="sm"
-                                    endIcon="copy-control"
                                   />
                                 </div>
                                 <SyntaxHighlighter
@@ -243,7 +243,7 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  maxWidth: "60%",
+                  padding: "20px",
                   alignSelf: "center",
                 }}
               >
@@ -260,7 +260,6 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
                   kind="body-m"
                   style={{
                     textAlign: "center",
-                    maxWidth: "80%",
                     marginTop: "10px",
                   }}
                 >
@@ -305,8 +304,6 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
 
 // Styled Components
 const ChatContainer = styled.div`
-  width: 500px;
-  height: 80vh;
   background-color: #ffffff;
   border: 1px solid #ccc;
   display: flex;
@@ -317,6 +314,10 @@ const ChatContainer = styled.div`
   z-index: 10;
   border-radius: 10px;
   overflow: hidden;
+  height: 50vh;
+  width: 20vw;
+  min-width: 300px;
+  min-height: 400px;
 `;
 
 const Header = styled.div`
