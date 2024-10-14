@@ -788,7 +788,7 @@ public class DatabaseChangelog1 {
         mongoTemplate.save(googleSheetsPlugin);
     }
 
-    protected static void doClearRedisKeys(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+    public static void doClearRedisKeys(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         final String script = "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))"
                 + " do redis.call('del',k) " + "end";
         final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
