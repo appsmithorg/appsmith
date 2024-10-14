@@ -16,7 +16,7 @@
 <img src="https://img.shields.io/docker/pulls/appsmith/appsmith-ce?color=4591df&style=for-the-badge">
 </a>
 <a href="https://www.youtube.com/@appsmith/?sub_confirmation=1" target="_blank">
-    <img alt="YouTube Channel Views" src="https://img.shields.io/youtube/channel/subscribers/UCMYwzPG2txS8nR5ZbNY6T5g?color=00FF0&style=for-the-badge">
+    <img alt="YouTube Channel Subscribers" src="https://img.shields.io/youtube/channel/subscribers/UCMYwzPG2txS8nR5ZbNY6T5g?color=00FF0&style=for-the-badge">
 </a>
 <a href="https://www.youtube.com/@appsmith/?sub_confirmation=1" target="_blank">
     <img alt="YouTube Channel Views" src="https://img.shields.io/youtube/channel/views/UCMYwzPG2txS8nR5ZbNY6T5g?color=00FF0&style=for-the-badge">
