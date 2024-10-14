@@ -300,7 +300,7 @@ jobs:
           else
               export repodir="CE"  # Default case if neither condition is met
           fi
-          cd $repodir/release/server
+          cd cibuildcache/$repodir/release/server
           cp ../../../../../server.jar ./
           git lfs track "server.jar"
           git add  server.jar
