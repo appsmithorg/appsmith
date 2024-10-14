@@ -1181,6 +1181,141 @@ describe("Validates getFilteredTableData Properties", () => {
     expect(result).toStrictEqual(expected);
   });
 
+  it("validates generated filtered table data to be filtered correctly after committing an edit to a value in an applied filter state", () => {
+    const { getFilteredTableData } = derivedProperty;
+    const input = {
+      tableData: [
+        { id: 1234, name: "Jim Doe" },
+        { id: 123, name: "Hamza Khafaga" },
+        { id: 234, name: "Khadija Khafaga" },
+      ],
+      processedTableData: [
+        { id: 1234, name: "Jim Doe", __originalIndex__: 0 },
+        { id: 123, name: "Hamza Khafa", __originalIndex__: 1 },
+        { id: 234, name: "Khadija Khafaga", __originalIndex__: 2 },
+      ],
+      filters: [
+        {
+          condition: "contains",
+          column: "name",
+          value: "Khafaga"
+        },
+      ],
+      sortOrder: { column: "id", order: "desc" },
+      columnOrder: ["name", "id"],
+      primaryColumns: {
+        id: {
+          index: 1,
+          width: 150,
+          id: "id",
+          alias: "id",
+          originalId: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false
+        },
+        name: {
+          index: 0,
+          width: 150,
+          id: "name",
+          alias: "name",
+          originalId: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined
+        },
+        extra: {
+          index: 2,
+          width: 150,
+          id: "extra",
+          alias: "extra",
+          originalId: "extra",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          label: "extra",
+          isAscOrder: undefined,
+          isDerived: true,
+        },
+      },
+      tableColumns: [
+        {
+          index: 0,
+          width: 150,
+          id: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined
+        },
+        {
+          index: 1,
+          width: 150,
+          id: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false
+        }
+      ],
+    };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
+
+    const expected = [
+      { id: 234, name: "Khadija Khafaga", extra: '', __originalIndex__: 2 },
+      { id: 123, name: "Hamza Khafa", extra: '', __originalIndex__: 1 },
+    ];
+
+    let result = getFilteredTableData(input, moment, _);
+    console.log(result);
+    expect(result).toStrictEqual(expected);
+  });
+
   it("validates generated sanitized table data with valid property keys", () => {
     const { getProcessedTableData } = derivedProperty;
 
