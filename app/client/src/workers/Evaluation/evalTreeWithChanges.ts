@@ -139,6 +139,7 @@ export const evaluateAndGenerateResponse = (
   );
 
   defaultResponse.staleMetaIds = updateResponse.staleMetaIds;
+  defaultResponse.dependencies = dataTreeEvaluator.inverseDependencies;
 
   // when additional paths are required to be added as updates, we extract the updates from the data tree using these paths.
   const additionalUpdates = getNewDataTreeUpdates(
