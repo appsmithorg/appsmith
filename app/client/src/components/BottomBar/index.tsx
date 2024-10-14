@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { softRefreshActions } from "actions/pluginActionActions";
 import { START_SWITCH_ENVIRONMENT } from "ee/constants/messages";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import { AISupportChatButton } from "pages/Editor/AISupportChat";
 
 export default function BottomBar() {
   const appId = useSelector(getCurrentApplicationId) || "";
@@ -54,6 +55,7 @@ export default function BottomBar() {
             />
           </ManualUpgrades>
           <DebuggerTrigger />
+          <AISupportChatButton />
           <HelpButton />
         </Wrapper>
       )}
