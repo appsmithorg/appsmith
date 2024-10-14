@@ -6,10 +6,10 @@ import {
   IconButton,
   TextAreaInput,
 } from "@appsmith/wds";
-import React, { useCallback, useRef, useEffect, useState } from "react";
 import { useControlledState } from "@react-stately/utils";
 import { chain, useLayoutEffect } from "@react-aria/utils";
 import { TextField as HeadlessTextField } from "react-aria-components";
+import React, { useCallback, useRef, useEffect, useState } from "react";
 
 import type { ChatInputProps } from "./types";
 
@@ -22,6 +22,7 @@ export function ChatInput(props: ChatInputProps) {
     isLoading,
     isReadOnly,
     isRequired,
+    isSubmitDisabled,
     label,
     onChange,
     onSubmit,
@@ -91,12 +92,14 @@ export function ChatInput(props: ChatInputProps) {
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (Boolean(isSubmitDisabled)) return;
+
       if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
         onSubmit?.();
       }
     },
-    [onSubmit],
+    [onSubmit, isSubmitDisabled],
   );
 
   useLayoutEffect(() => {
@@ -112,14 +115,18 @@ export function ChatInput(props: ChatInputProps) {
       return (
         <IconButton
           icon="player-stop-filled"
-          isDisabled={isDisabled}
+          isDisabled={Boolean(isDisabled) || Boolean(isSubmitDisabled)}
           onPress={onSubmit}
         />
       );
     }
 
     return (
-      <IconButton icon="arrow-up" isDisabled={isDisabled} onPress={onSubmit} />
+      <IconButton
+        icon="arrow-up"
+        isDisabled={Boolean(isDisabled) || Boolean(isSubmitDisabled)}
+        onPress={onSubmit}
+      />
     );
   })();
 

@@ -66,3 +66,9 @@ export const Validation: Story = {
     </Form>
   ),
 };
+
+export const SubmitDisabled: Story = {
+  args: {
+    isSubmitDisabled: true,
+  },
+};

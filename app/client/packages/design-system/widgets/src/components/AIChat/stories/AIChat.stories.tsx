@@ -1,4 +1,6 @@
+import React from "react";
 import { AIChat } from "@appsmith/wds";
+import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta: Meta<typeof AIChat> = {
@@ -18,6 +20,12 @@ export const Main: Story = {
     chatTitle: "Chat with Assistant",
     assistantName: "",
     isWaitingForResponse: false,
+  },
+  render: (args) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [prompt, setPrompt] = useState(args.prompt);
+
+    return <AIChat {...args} onPromptChange={setPrompt} prompt={prompt} />;
   },
 };
 
@@ -68,6 +76,21 @@ export const WithHistory: Story = {
         id: "4",
         content: "Thank you",
         isAssistant: false,
+      },
+      {
+        id: "5",
+        content: `Here's an example of markdown code:
+
+\`\`\`javascript
+function greet(name) {
+  console.log(\`Hello, \${name}!\`);
+}
+
+greet('World');
+\`\`\`
+
+This code defines a function that greets the given name.`,
+        isAssistant: true,
       },
     ],
     prompt: "",
