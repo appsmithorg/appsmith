@@ -258,20 +258,18 @@ jobs:
             EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
             COMMIT_INFO_AUTHOR: ${{ github.event.commits[0].author.name }}
         run: |
-            COMMIT_MESSAGE="$EVENT_COMMITS"
-        
-            if [[ ${{ inputs.pr }} -ne 0 && ${{ github.event_name }} == 'repository_dispatch' ]]; then
-              echo "COMMIT_INFO_MESSAGE=$COMMIT_INFO_MESSAGE" >> $GITHUB_ENV
-            elif [[ ${{ inputs.pr }} -ne 0 && ${{ github.event_name }} == 'workflow_dispatch' ]]; then
-              echo "COMMIT_INFO_MESSAGE=Workflow run on PR# ${{ inputs.pr }}" >> $GITHUB_ENV
-            else
-              if [[ "$COMMIT_MESSAGE" == "null" ]]; then
-                echo "COMMIT_INFO_MESSAGE=${{ github.event_name }} by $COMMIT_INFO_AUTHOR" >> $GITHUB_ENV
+              if [[ ${{ inputs.pr }} -ne 0 && ${{ github.event_name }} == 'repository_dispatch' ]]; then
+                echo "COMMIT_INFO_MESSAGE=$COMMIT_INFO_MESSAGE" >> $GITHUB_ENV
+              elif [[ ${{ inputs.pr }} -ne 0 && ${{ github.event_name }} == 'workflow_dispatch' ]]; then
+                echo "COMMIT_INFO_MESSAGE=Workflow run on PR# ${{ inputs.pr }}" >> $GITHUB_ENV
               else
-                COMMIT_FIRST_LINE=$(echo "$COMMIT_MESSAGE" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')
-                echo "COMMIT_INFO_MESSAGE=$COMMIT_FIRST_LINE" >> $GITHUB_ENV
+                if [[ "$EVENT_COMMITS" == "null" ]]; then
+                  echo "COMMIT_INFO_MESSAGE=${{ github.event_name }} by $COMMIT_INFO_AUTHOR" >> $GITHUB_ENV
+                else
+                  COMMIT_FIRST_LINE=$(echo "$EVENT_COMMITS" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')
+                  echo "COMMIT_INFO_MESSAGE=$COMMIT_FIRST_LINE" >> $GITHUB_ENV
+                fi
               fi
-            fi
 
       - name: Run the cypress test
         uses: cypress-io/github-action@v6
