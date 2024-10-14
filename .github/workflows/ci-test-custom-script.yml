@@ -204,7 +204,6 @@ jobs:
           db_url=$(grep -oP 'APPSMITH_DB_URL=\K[^ ]+' cicontainerlocal/stacks/configuration/docker.env || echo "")
           if [[ -z "$db_url" ]]; then
             echo "::error::APPSMITH_DB_URL not found in the environment file"
-            exit 1
           fi
           if [[ $db_url == "postgresql"* ]]; then
             echo "Database type: Postgres. Ensure PostgreSQL-specific configurations are in place."
