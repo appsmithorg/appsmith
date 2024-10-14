@@ -182,6 +182,9 @@ public class ApplicationServiceCETest {
     @Autowired
     ApplicationService applicationService;
 
+    @SpyBean
+    ApplicationService applicationService1;
+
     @Qualifier("applicationPageServiceCEImpl") @Autowired
     ApplicationPageServiceCE applicationPageService;
 
@@ -4535,5 +4538,34 @@ public class ApplicationServiceCETest {
                 .fetchBaseApplicationId(basePageId2Ref.get(), null)
                 .block();
         assertThat(cachedBaseAppId2).isNull();
+    }
+
+    @Test
+    public void testTransactionPOC() {
+        Application application = new Application();
+        application.setName("testTransactionPOC-Test");
+
+        Application createApplication = applicationPageService
+                .createApplication(application, workspaceId)
+                .block();
+
+        StepVerifier.create(applicationService.findSaveUpdateApp(createApplication.getId(), "first call"))
+                .assertNext(application1 -> {
+                    assertThat(createApplication.getName()).isNotEqualTo(application1.getName());
+                })
+                .verifyComplete();
+
+        Mockito.when(applicationService1.save(Mockito.any(Application.class)))
+                .thenThrow(new Exception("Test exception"));
+
+        StepVerifier.create(applicationService1.findSaveUpdateApp(createApplication.getId(), "second call"))
+                .expectErrorMatches(throwable -> throwable.getMessage().contains(" Test Exception"))
+                .verify();
+
+        StepVerifier.create(applicationService.findById(createApplication.getId()))
+                .assertNext(application1 -> {
+                    assertThat(application1.getName()).isNotEqualTo("second call");
+                })
+                .verifyComplete();
     }
 }

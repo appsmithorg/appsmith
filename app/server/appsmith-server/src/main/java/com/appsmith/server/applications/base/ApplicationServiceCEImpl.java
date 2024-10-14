@@ -53,6 +53,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
@@ -96,6 +99,8 @@ public class ApplicationServiceCEImpl
 
     private static final Integer MAX_RETRIES = 5;
 
+    private final PlatformTransactionManager transactionManager;
+
     @Autowired
     public ApplicationServiceCEImpl(
             Validator validator,
@@ -112,7 +117,8 @@ public class ApplicationServiceCEImpl
             UserDataService userDataService,
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            PlatformTransactionManager transactionManager) {
 
         super(validator, repositoryDirect, repository, analyticsService);
         this.policySolution = policySolution;
@@ -126,6 +132,7 @@ public class ApplicationServiceCEImpl
         this.workspaceService = workspaceService;
         this.workspacePermission = workspacePermission;
         this.observationRegistry = observationRegistry;
+        this.transactionManager = transactionManager;
     }
 
     @Override
@@ -1066,5 +1073,43 @@ public class ApplicationServiceCEImpl
                 .tap(Micrometer.observation(observationRegistry))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)));
+    }
+
+    @Override
+    public Mono<Application> findSaveUpdateApp(String id, String name) {
+        Mono<Application> applicationMono = repository
+                .findById(id, applicationPermission.getEditPermission())
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+                .flatMap(obj -> {
+                    obj.setName(name);
+                    return this.save(obj);
+                })
+                .flatMap(obj -> {
+                    Application update = new Application();
+                    update.setName(name);
+                    return repository.updateById(id, update, null);
+                });
+
+        return Mono.deferContextual(ctx -> {
+                    // Retrieve the transaction from the Reactor Context
+                    TransactionStatus transaction = ctx.get(TransactionStatus.class);
+
+                    return applicationMono
+                            .doOnSuccess(result -> {
+                                // Commit the transaction on success
+                                transactionManager.commit(transaction);
+                            })
+                            .doOnError(e -> {
+                                // Rollback the transaction on error
+                                transactionManager.rollback(transaction);
+                            });
+                })
+                .contextWrite(ctx -> {
+                    // Manually begin a transaction and add it to Reactor's Context
+                    TransactionStatus transaction =
+                            transactionManager.getTransaction(new DefaultTransactionDefinition());
+                    return ctx.put(TransactionStatus.class, transaction);
+                });
     }
 }
