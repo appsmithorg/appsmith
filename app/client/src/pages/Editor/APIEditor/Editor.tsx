@@ -229,9 +229,10 @@ class ApiEditor extends React.Component<Props> {
 
 const formStyles: CSSProperties = {
   position: "relative",
-  height: "100%",
   display: "flex",
   flexDirection: "column",
+  flexGrow: "1",
+  overflow: "auto",
 };
 
 // TODO: Fix this the next time the file is edited
