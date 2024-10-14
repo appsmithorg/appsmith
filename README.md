@@ -15,6 +15,9 @@
 <a href="https://docs.appsmith.com/getting-started/setup/installation-guides/docker?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=badge">
 <img src="https://img.shields.io/docker/pulls/appsmith/appsmith-ce?color=4591df&style=for-the-badge">
 </a>
+<a href="https://www.youtube.com/@appsmith/?sub_confirmation=1" target="_blank">
+    <img alt="YouTube Channel Views" src="https://img.shields.io/youtube/channel/views/UCMYwzPG2txS8nR5ZbNY6T5g?color=00FF0&style=for-the-badge">
+</a>
 </p>
 
 ---
