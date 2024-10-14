@@ -815,6 +815,9 @@ export default {
             filterResult = conditionFunction(
               originalRow[props.filters[i].column],
               props.filters[i].value,
+            ) || conditionFunction(
+              displayedRow[props.filters[i].column],
+              props.filters[i].value,
             );
           }
         } catch (e) {

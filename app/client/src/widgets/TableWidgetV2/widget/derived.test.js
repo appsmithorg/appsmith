@@ -196,6 +196,12 @@ const sampleProcessedTableData = [
 
 describe("Validates getFilteredTableData Properties", () => {
   const inputWithDisplayText = {
+    tableData: [
+      { url: "A.COM" },
+      { url: "B.COM" },
+      { url: "C.COM" },
+      { url: "D.COM" },
+    ],
     processedTableData: [
       { url: "A.COM", __originalIndex__: 0 },
       { url: "B.COM", __originalIndex__: 1 },
