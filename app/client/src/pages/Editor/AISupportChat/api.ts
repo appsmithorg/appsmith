@@ -3,6 +3,7 @@ export interface Conversation {
   id: string;
   title: string;
   lastMessage: string;
+  date: string;
 }
 
 export interface Message {
@@ -16,8 +17,18 @@ export const getConversationHistory = async (): Promise<Conversation[]> => {
   // Replace with actual API call
   // For demonstration, returning mock data
   return Promise.resolve([
-    { id: "1", title: "Conversation 1", lastMessage: "How can I help you?" },
-    { id: "2", title: "Conversation 2", lastMessage: "Thank you!" },
+    {
+      id: "1",
+      title: "Conversation 1",
+      lastMessage: "How can I help you?",
+      date: new Date().toISOString(),
+    },
+    {
+      id: "2",
+      title: "Conversation 2",
+      lastMessage: "Thank you!",
+      date: new Date().toISOString(),
+    },
   ]);
 };
 

@@ -9,7 +9,7 @@ import {
   getConversation,
   sendMessage,
 } from "./api";
-import { Button, Tooltip, Text, Flex, Input } from "@appsmith/ads";
+import { Button, Tooltip, Text, Flex, Input, toast } from "@appsmith/ads";
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { ReactComponent as SupportBotSVG } from "./supportbot.svg";
 import moment from "moment";
@@ -28,7 +28,8 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
   >(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState("");
-  const chatContainerRef = React.useRef<HTMLDivElement>(null);
+  const lastChildRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     // Fetch conversation history when component mounts
@@ -50,12 +51,7 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
   const handleConversationSelect = (conversationId: string) => {
     setCurrentConversationId(conversationId);
     setShowHistory(false);
-    setTimeout(() => {
-      (chatContainerRef.current?.lastChild as HTMLDivElement)?.scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-      });
-    }, 100);
+    scrollToBottom();
   };
 
   const handleStartNewConversation = () => {
@@ -80,15 +76,18 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
 
       setMessages((currentMessages) => [...currentMessages, botResponse]);
       // Scroll to the bottom of the chat container
-      setTimeout(() => {
-        (chatContainerRef.current?.lastChild as HTMLDivElement)?.scrollIntoView(
-          {
-            behavior: "smooth",
-            block: "end",
-          },
-        );
-      }, 100);
+      scrollToBottom();
     }
+  };
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      lastChildRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+      inputRef.current?.focus();
+    }, 100);
   };
 
   return (
@@ -99,7 +98,7 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
           data-testid="t--help-button"
           kind="tertiary"
           onClick={handleHamburgerClick}
-          size="md"
+          size="sm"
           startIcon="hamburger"
         />
         <CloseButton>
@@ -108,102 +107,135 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
             data-testid="t--close-button"
             kind="tertiary"
             onClick={onClose}
-            size="md"
+            size="sm"
             startIcon="close-x"
           />
         </CloseButton>
       </Header>
       {showHistory ? (
         <HistoryPanel>
-          <HistoryTitle>Messages</HistoryTitle>
+          <Text kind="heading-m">Messages</Text>
           <HistoryList>
             {conversations.map((convo) => (
               <HistoryItem
                 key={convo.id}
                 onClick={() => handleConversationSelect(convo.id)}
               >
-                {convo.title}
+                <SupportBotSVG height="32px" />
+                <div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    {convo.lastMessage}
+                  </div>
+
+                  <div>{moment(convo.date).fromNow()}</div>
+                </div>
               </HistoryItem>
             ))}
           </HistoryList>
-          <NewConversationButton onClick={handleStartNewConversation}>
-            Start New Conversation
-          </NewConversationButton>
+          <div
+            style={{
+              position: "absolute",
+              bottom: "10px",
+              display: "flex",
+              justifyContent: "center",
+              width: "100%",
+            }}
+          >
+            <Button
+              endIcon="message-2-line"
+              onClick={handleStartNewConversation}
+              size="md"
+            >
+              Send us a message
+            </Button>
+          </div>
         </HistoryPanel>
       ) : (
         <>
-          <MessagesContainer ref={chatContainerRef}>
+          <MessagesContainer>
             {messages.length > 0 ? (
               messages.map(({ content, date, id, sender }) => {
                 return (
-                  <MessageItem key={id} sender={sender}>
-                    {sender === "bot" && (
-                      <div
-                        style={{
-                          display: "flex",
-                          marginBottom: "5px",
-                        }}
-                      >
-                        <SupportBotSVG height="24px" width="24px" />
-                        <div style={{ marginLeft: "auto" }}>
-                          {moment(date).format("h:mm a")}
+                  <>
+                    <MessageItem key={id} sender={sender}>
+                      {sender === "bot" && (
+                        <div
+                          style={{
+                            display: "flex",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          <SupportBotSVG height="24px" width="24px" />
+                          <div style={{ marginLeft: "auto" }}>
+                            {moment(date).format("h:mm a")}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {/* <Markdown>{content}</Markdown> */}
-                    <Markdown
-                      // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
-                      components={{
-                        code(props) {
-                          const { children, className, ...rest } = props;
-                          const match = /language-(\w+)/.exec(className ?? "");
+                      )}
+                      <Markdown
+                        // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
+                        components={{
+                          code(props) {
+                            const { children, className, ...rest } = props;
+                            const match = /language-(\w+)/.exec(
+                              className ?? "",
+                            );
 
-                          return match ? (
-                            <div
-                              style={{
-                                padding: "15px 0",
-                                position: "relative",
-                              }}
-                            >
+                            return match ? (
                               <div
                                 style={{
-                                  position: "absolute",
-                                  right: "0px",
-                                  bottom: "0px",
-                                  background: "#ffff22 !important",
+                                  padding: "15px 0",
+                                  position: "relative",
                                 }}
                               >
-                                <Tooltip content="Copy to clipboard">
-                                  <Button
-                                    kind="tertiary"
-                                    onClick={() => {
-                                      navigator.clipboard.writeText(
-                                        String(children),
-                                      );
-                                    }}
-                                    size="sm"
-                                    startIcon="copy-control"
-                                  />
-                                </Tooltip>
+                                <div
+                                  style={{
+                                    position: "absolute",
+                                    right: "0px",
+                                    bottom: "0px",
+                                    background: "#ffff22 !important",
+                                  }}
+                                >
+                                  <Tooltip content="Copy to clipboard">
+                                    <Button
+                                      kind="tertiary"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(
+                                          String(children),
+                                        );
+                                        toast.show("Copied to clipboard", {
+                                          kind: "success",
+                                        });
+                                      }}
+                                      size="sm"
+                                      startIcon="copy-control"
+                                    />
+                                  </Tooltip>
+                                </div>
+                                <SyntaxHighlighter
+                                  PreTag="div"
+                                  language={match[1]}
+                                >
+                                  {String(children).replace(/\n$/, "")}
+                                </SyntaxHighlighter>
                               </div>
-                              <SyntaxHighlighter
-                                PreTag="div"
-                                language={match[1]}
-                              >
-                                {String(children).replace(/\n$/, "")}
-                              </SyntaxHighlighter>
-                            </div>
-                          ) : (
-                            <code {...rest} className={className}>
-                              {children}
-                            </code>
-                          );
-                        },
-                      }}
-                    >
-                      {content}
-                    </Markdown>
-                  </MessageItem>
+                            ) : (
+                              <code {...rest} className={className}>
+                                {children}
+                              </code>
+                            );
+                          },
+                        }}
+                      >
+                        {content}
+                      </Markdown>
+                    </MessageItem>
+                    <div ref={lastChildRef} />
+                  </>
                 );
               })
             ) : (
@@ -249,6 +281,7 @@ export const ChatComponent: React.FC<ChatComponentProps> = ({ onClose }) => {
                 }
               }}
               placeholder="Type your message..."
+              ref={inputRef}
               renderAs="textarea"
               type="text"
               value={inputMessage}
@@ -280,14 +313,16 @@ const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
   position: fixed;
-  right: 0;
-  bottom: 0;
+  right: 10px;
+  bottom: 10px;
   z-index: 10;
+  border-radius: 10px;
+  overflow: hidden;
 `;
 
 const Header = styled.div`
   background-color: #e3e8ef;
-  padding: 10px;
+  padding: 4px;
   display: flex;
   align-items: center;
 `;
@@ -297,15 +332,10 @@ const CloseButton = styled.div`
 `;
 
 const HistoryPanel = styled.div`
-  background-color: #f1f1f1;
+  background-color: #ffffff;
   overflow-y: auto;
   flex: 1;
   padding: 10px;
-`;
-
-const HistoryTitle = styled.h2`
-  font-size: 16px;
-  margin-bottom: 10px;
 `;
 
 const HistoryList = styled.ul`
@@ -315,15 +345,15 @@ const HistoryList = styled.ul`
 `;
 
 const HistoryItem = styled.li`
-  padding: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 5px;
   cursor: pointer;
+  border-bottom: 1px solid #efefef;
   &:hover {
-    background-color: #ddd;
+    background-color: #efefef;
   }
-`;
-
-const NewConversationButton = styled.button`
-  margin-top: 10px;
 `;
 
 const MessagesContainer = styled.div`
@@ -365,6 +395,5 @@ const MessageItem = styled.div<MessageItemProps>`
 
 const InputContainer = styled.div`
   display: flex;
-  padding: 10px;
-  border-top: 1px solid #ccc;
+  padding: 10px 10px 0 10px;
 `;
