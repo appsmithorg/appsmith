@@ -1,0 +1,35 @@
+name: Run Vulnerabilities Data Script
+
+on:
+  workflow_dispatch:
+    inputs:
+      OLD_VULN_FILE:
+        description: 'Specify the old vulnerability file (e.g., vulnerabilities.txt)'
+        required: true
+
+jobs:
+  run_vulnerabilities_data:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set execute permissions for script
+        run: chmod +x scripts/vulnerabilities_data.sh
+
+      - name: Run Vulnerabilities Data Script
+        run: |
+          IMAGE="appsmith/appsmith-ce:v1.42"
+          PREFIX="trivy_vurn"
+          if [[ "$IMAGE" == *"-ce"* ]]; then
+            FILE_NAME="${PREFIX}_ce.txt"
+          elif [[ "$IMAGE" == *"-ee"* ]]; then
+            FILE_NAME="${PREFIX}_ee.txt"
+          elif [[ "$IMAGE" == *"cloud-services"* ]]; then
+            FILE_NAME="${PREFIX}_cloud_services.txt"
+          else
+            echo "Unknown image type."
+            exit 1
+          fi
+          ./scripts/vulnerabilities_data.sh "$IMAGE" "$FILE_NAME" ${{ github.event.inputs.OLD_VULN_FILE }}
