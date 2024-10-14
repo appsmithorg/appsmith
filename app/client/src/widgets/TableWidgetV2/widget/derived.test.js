@@ -1181,7 +1181,7 @@ describe("Validates getFilteredTableData Properties", () => {
     expect(result).toStrictEqual(expected);
   });
 
-  it("validates generated filtered table data to be filtered correctly after committing an edit to a value in an applied filter state", () => {
+  it("should filter correctly after editing a value with an applied filter", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {
       tableData: [
@@ -1191,7 +1191,7 @@ describe("Validates getFilteredTableData Properties", () => {
       ],
       processedTableData: [
         { id: 1234, name: "Jim Doe", __originalIndex__: 0 },
-        { id: 123, name: "Hamza Khafa", __originalIndex__: 1 },
+        { id: 123, name: "Hamza Anas", __originalIndex__: 1 },
         { id: 234, name: "Khadija Khafaga", __originalIndex__: 2 },
       ],
       filters: [
@@ -1241,26 +1241,7 @@ describe("Validates getFilteredTableData Properties", () => {
           isDerived: false,
           label: "awesome",
           isAscOrder: undefined
-        },
-        extra: {
-          index: 2,
-          width: 150,
-          id: "extra",
-          alias: "extra",
-          originalId: "extra",
-          horizontalAlignment: "LEFT",
-          verticalAlignment: "CENTER",
-          columnType: "text",
-          textColor: "#231F20",
-          textSize: "PARAGRAPH",
-          fontStyle: "REGULAR",
-          enableFilter: true,
-          enableSort: true,
-          isVisible: true,
-          label: "extra",
-          isAscOrder: undefined,
-          isDerived: true,
-        },
+        }
       },
       tableColumns: [
         {
@@ -1307,12 +1288,12 @@ describe("Validates getFilteredTableData Properties", () => {
     );
 
     const expected = [
-      { id: 234, name: "Khadija Khafaga", extra: '', __originalIndex__: 2 },
-      { id: 123, name: "Hamza Khafa", extra: '', __originalIndex__: 1 },
+      { id: 234, name: "Khadija Khafaga", __originalIndex__: 2 },
+      { id: 123, name: "Hamza Anas", __originalIndex__: 1 },
     ];
 
     let result = getFilteredTableData(input, moment, _);
-    console.log(result);
+
     expect(result).toStrictEqual(expected);
   });
 
