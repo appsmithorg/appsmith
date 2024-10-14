@@ -2,8 +2,12 @@ import React, { useState } from "react";
 
 import { ActionWrapper } from "../TableStyledWrappers";
 import { BaseButton } from "widgets/ButtonWidget/component";
-import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
+import {
+  ColumnTypes,
+  type ButtonColumnActions,
+} from "widgets/TableWidgetV2/constants";
 import styled from "styled-components";
+import AutoToolTipComponent from "widgets/TableWidgetV2/component/cellComponents/AutoToolTipComponent";
 
 const StyledButton = styled(BaseButton)<{
   compactMode?: string;
@@ -44,21 +48,28 @@ export function Button(props: ButtonProps) {
         e.stopPropagation();
       }}
     >
-      {props.isCellVisible && props.action.isVisible ? (
-        <StyledButton
-          borderRadius={props.action.borderRadius}
-          boxShadow={props.action.boxShadow}
-          buttonColor={props.action.backgroundColor}
-          buttonVariant={props.action.variant}
-          compactMode={props.compactMode}
-          disabled={props.isDisabled}
-          iconAlign={props.action.iconAlign}
-          iconName={props.action.iconName}
-          loading={loading}
-          onClick={handleClick}
-          text={props.action.label}
-        />
-      ) : null}
+      {props.isCellVisible && props.action.isVisible
+        ? props.action.label && (
+            <AutoToolTipComponent
+              columnType={ColumnTypes.BUTTON}
+              title={props.action.label}
+            >
+              <StyledButton
+                borderRadius={props.action.borderRadius}
+                boxShadow={props.action.boxShadow}
+                buttonColor={props.action.backgroundColor}
+                buttonVariant={props.action.variant}
+                compactMode={props.compactMode}
+                disabled={props.isDisabled}
+                iconAlign={props.action.iconAlign}
+                iconName={props.action.iconName}
+                loading={loading}
+                onClick={handleClick}
+                text={props.action.label}
+              />
+            </AutoToolTipComponent>
+          )
+        : null}
     </ActionWrapper>
   );
 }
