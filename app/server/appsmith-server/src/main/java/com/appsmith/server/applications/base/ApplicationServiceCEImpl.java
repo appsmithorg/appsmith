@@ -54,12 +54,14 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -1077,39 +1079,35 @@ public class ApplicationServiceCEImpl
 
     @Override
     public Mono<Application> findSaveUpdateApp(String id, String name) {
-        Mono<Application> applicationMono = repository
-                .findById(id, applicationPermission.getEditPermission())
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
-                .flatMap(obj -> {
-                    obj.setName(name);
-                    return this.save(obj);
-                })
-                .flatMap(obj -> {
-                    Application update = new Application();
-                    update.setName(name);
-                    return repository.updateById(id, update, null);
-                });
-
         return Mono.deferContextual(ctx -> {
-                    // Retrieve the transaction from the Reactor Context
-                    TransactionStatus transaction = ctx.get(TransactionStatus.class);
+            DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+            def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+            TransactionStatus transactionStatus = transactionManager.getTransaction(def);
 
-                    return applicationMono
-                            .doOnSuccess(result -> {
-                                // Commit the transaction on success
-                                transactionManager.commit(transaction);
-                            })
-                            .doOnError(e -> {
-                                // Rollback the transaction on error
-                                transactionManager.rollback(transaction);
-                            });
-                })
-                .contextWrite(ctx -> {
-                    // Manually begin a transaction and add it to Reactor's Context
-                    TransactionStatus transaction =
-                            transactionManager.getTransaction(new DefaultTransactionDefinition());
-                    return ctx.put(TransactionStatus.class, transaction);
-                });
+            return repository
+                    .findById(id)
+                    .switchIfEmpty(Mono.error(
+                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+                    .flatMap(obj -> {
+                        obj.setName(name);
+                        return this.save(obj);
+                    })
+                    .flatMap(obj -> {
+                        Application update = new Application();
+                        update.setName(name);
+                        return repository.updateById(id, update, null);
+                    })
+                    .doOnSuccess(result -> {
+                        if (!transactionStatus.isCompleted()) {
+                            transactionManager.commit(transactionStatus);
+                        }
+                    })
+                    .doOnError(e -> {
+                        if (!transactionStatus.isCompleted()) {
+                            transactionManager.rollback(transactionStatus);
+                        }
+                    })
+                    .subscribeOn(Schedulers.boundedElastic());
+        });
     }
 }

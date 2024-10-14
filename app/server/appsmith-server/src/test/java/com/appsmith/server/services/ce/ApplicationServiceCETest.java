@@ -4541,6 +4541,7 @@ public class ApplicationServiceCETest {
     }
 
     @Test
+    @WithUserDetails(value = "api_user")
     public void testTransactionPOC() {
         Application application = new Application();
         application.setName("testTransactionPOC-Test");
@@ -4554,12 +4555,20 @@ public class ApplicationServiceCETest {
                     assertThat(createApplication.getName()).isNotEqualTo(application1.getName());
                 })
                 .verifyComplete();
+    }
 
-        Mockito.when(applicationService1.save(Mockito.any(Application.class)))
-                .thenThrow(new Exception("Test exception"));
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testTransactionPOC1() {
+        Application application = new Application();
+        application.setName("testTransactionPOC1-Test");
 
-        StepVerifier.create(applicationService1.findSaveUpdateApp(createApplication.getId(), "second call"))
-                .expectErrorMatches(throwable -> throwable.getMessage().contains(" Test Exception"))
+        Application createApplication = applicationPageService
+                .createApplication(application, workspaceId)
+                .block();
+
+        StepVerifier.create(applicationService.findSaveUpdateApp(createApplication.getId(), "second call"))
+                .expectErrorMatches(throwable -> throwable.getMessage().contains("Internal server error"))
                 .verify();
 
         StepVerifier.create(applicationService.findById(createApplication.getId()))

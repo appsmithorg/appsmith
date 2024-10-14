@@ -18,6 +18,7 @@ import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @Slf4j
 @Service
@@ -38,7 +39,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             UserDataService userDataService,
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            PlatformTransactionManager transactionManager) {
         super(
                 validator,
                 repositoryDirect,
@@ -54,6 +56,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 userDataService,
                 workspaceService,
                 workspacePermission,
-                observationRegistry);
+                observationRegistry,
+                transactionManager);
     }
 }
