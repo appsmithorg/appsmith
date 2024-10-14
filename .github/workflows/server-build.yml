@@ -292,6 +292,7 @@ jobs:
           git config --global user.email "$gituseremail"
           git config --global user.name "$gituser"
           git clone https://$cachetoken@github.com/sagar-qa007/cibuildcache.git
+          pwd
           git lfs install
           if [ "$reponame" = "appsmith" ]; then
               export repodir="CE"
@@ -300,7 +301,8 @@ jobs:
           else
               export repodir="CE"  # Default case if neither condition is met
           fi
-          cd cibuildcache/$repodir/release/server
+          pwd
+          cd cibuildcache$repodir/release/server
           cp ../../../../../server.jar ./
           git lfs track "server.jar"
           git add  server.jar
