@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import static com.appsmith.external.git.constants.GitConstants.ACTION_COLLECTION_LIST;
@@ -243,7 +244,7 @@ public class FileUtilsCEImpl implements FileInterface {
 
         Set<String> validPages = new HashSet<>();
         for (Map.Entry<String, Object> pageResource : pageEntries) {
-            Map<String, String> validWidgetToParentMap = new HashMap<>();
+            Map<String, String> validWidgetToParentMap = new ConcurrentHashMap<>();
             final String pageName = pageResource.getKey();
             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
             boolean isResourceUpdated =
@@ -292,7 +293,7 @@ public class FileUtilsCEImpl implements FileInterface {
             Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
             Set<Map.Entry<String, Object>> jsLibEntries =
                     applicationGitReference.getJsLibraries().entrySet();
-            Set<String> validJsLibs = new HashSet<>();
+            Set<String> validJsLibs = ConcurrentHashMap.newKeySet();
             jsLibEntries.parallelStream().forEach(jsLibEntry -> {
                 String uidString = jsLibEntry.getKey();
                 boolean isResourceUpdated = modifiedResources.isResourceUpdated(CUSTOM_JS_LIB_LIST, uidString);
@@ -309,11 +310,11 @@ public class FileUtilsCEImpl implements FileInterface {
         }
 
         // Create HashMap for valid actions and actionCollections
-        HashMap<String, Set<String>> validActionsMap = new HashMap<>();
-        HashMap<String, Set<String>> validActionCollectionsMap = new HashMap<>();
+        ConcurrentHashMap<String, Set<String>> validActionsMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Set<String>> validActionCollectionsMap = new ConcurrentHashMap<>();
         validPages.forEach(validPage -> {
-            validActionsMap.put(validPage, new HashSet<>());
-            validActionCollectionsMap.put(validPage, new HashSet<>());
+            validActionsMap.put(validPage, ConcurrentHashMap.newKeySet());
+            validActionCollectionsMap.put(validPage, ConcurrentHashMap.newKeySet());
         });
 
         // Save actions
