@@ -85,35 +85,35 @@ jobs:
             [Cypress dashboard](https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail)
             PR: #${{ fromJson(steps.args.outputs.pr) }}.
 
-  server-build:
-    name: server-build
-    needs: [file-check]
-    if: success() && needs.file-check.outputs.runId == '0'
-    uses: ./.github/workflows/server-build.yml
-    secrets: inherit
-    with:
-      pr: ${{fromJson(needs.file-check.outputs.pr)}}
-      skip-tests: "true"
-      is-pg-build: ${{fromJson(needs.file-check.outputs.is-pg-build)}}
+  # server-build:
+  #   name: server-build
+  #   needs: [file-check]
+  #   if: success() && needs.file-check.outputs.runId == '0'
+  #   uses: ./.github/workflows/server-build.yml
+  #   secrets: inherit
+  #   with:
+  #     pr: ${{fromJson(needs.file-check.outputs.pr)}}
+  #     skip-tests: "true"
+  #     is-pg-build: ${{fromJson(needs.file-check.outputs.is-pg-build)}}
 
-  client-build:
-    name: client-build
-    needs: [file-check]
-    if: success() && needs.file-check.outputs.runId == '0'
-    uses: ./.github/workflows/client-build.yml
-    secrets: inherit
-    with:
-      pr: ${{fromJson(needs.file-check.outputs.pr)}}
-      skip-tests: "true"
+  # client-build:
+  #   name: client-build
+  #   needs: [file-check]
+  #   if: success() && needs.file-check.outputs.runId == '0'
+  #   uses: ./.github/workflows/client-build.yml
+  #   secrets: inherit
+  #   with:
+  #     pr: ${{fromJson(needs.file-check.outputs.pr)}}
+  #     skip-tests: "true"
 
-  rts-build:
-    name: rts-build
-    needs: [file-check]
-    if: success() && needs.file-check.outputs.runId == '0'
-    uses: ./.github/workflows/rts-build.yml
-    secrets: inherit
-    with:
-      pr: ${{fromJson(needs.file-check.outputs.pr)}}
+  # rts-build:
+  #   name: rts-build
+  #   needs: [file-check]
+  #   if: success() && needs.file-check.outputs.runId == '0'
+  #   uses: ./.github/workflows/rts-build.yml
+  #   secrets: inherit
+  #   with:
+  #     pr: ${{fromJson(needs.file-check.outputs.pr)}}
 
   # build-docker-image:
   #   needs: [file-check, client-build, server-build, rts-build]
