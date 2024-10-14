@@ -2,6 +2,7 @@ export interface ChatMessage {
   id: string;
   content: string;
   isAssistant: boolean;
+  promptSuggestions?: string[];
 }
 
 export interface AIChatProps {
@@ -15,4 +16,5 @@ export interface AIChatProps {
   isWaitingForResponse?: boolean;
   onPromptChange: (prompt: string) => void;
   onSubmit?: () => void;
+  onApplyAssistantSuggestion?: (suggestion: string) => void;
 }

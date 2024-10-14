@@ -27,10 +27,12 @@ import {
 
 export interface WDSAIChatWidgetProps
   extends ContainerWidgetProps<WidgetProps> {}
+
 export interface Message {
   id: string;
   content: string;
   role: "assistant" | "user" | "system";
+  promptSuggestions?: string[];
 }
 
 interface State extends WidgetState {
@@ -43,24 +45,7 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
   static type = "WDS_AI_CHAT_WIDGET";
 
   state = {
-    messages: [
-      {
-        id: "1",
-        content: "Hello! How can I help you?",
-        role: "assistant" as const,
-      },
-      {
-        id: "2",
-        content: "Find stuck support requests",
-        role: "user" as const,
-      },
-      {
-        id: "3",
-        content:
-          "I'm finding these customer support requests that have been waiting for a response for over a day:",
-        role: "assistant" as const,
-      },
-    ],
+    messages: [] as Message[],
     prompt: "",
     isWaitingForResponse: false,
   };
@@ -123,12 +108,84 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
     return {};
   }
 
-  adaptMessages(messages: Message[]): ChatMessage[] {
-    return messages.map((message) => ({
-      ...message,
-      isAssistant: message.role === "assistant",
-    }));
+  componentDidMount() {
+    // Add initial assistant message with suggestions if they were configured
+    if (this.props.initialAssistantMessage.length > 0) {
+      this.setState((state) => ({
+        ...state,
+        messages: [
+          {
+            id: Math.random().toString(),
+            content: this.props.initialAssistantMessage,
+            role: "assistant",
+            promptSuggestions: this.props.initialAssistantSuggestions || [],
+          },
+        ],
+      }));
+    }
   }
+
+  componentDidUpdate(prevProps: WDSAIChatWidgetProps): void {
+    // Track changes in the widget's properties and update the local state accordingly
+
+    // Update the initial assistant message
+    if (
+      prevProps.initialAssistantMessage !==
+        this.props.initialAssistantMessage ||
+      prevProps.initialAssistantSuggestions !==
+        this.props.initialAssistantSuggestions
+    ) {
+      let updatedMessage: Message | null;
+
+      //
+      if (this.props.initialAssistantMessage.length > 0) {
+        const currentMessage = this.state.messages[0];
+
+        updatedMessage = {
+          // If the initial assistant message is set, update it
+          // Otherwise, create a new one
+          ...(currentMessage || {
+            id: Math.random().toString(),
+            role: "assistant",
+          }),
+          content: this.props.initialAssistantMessage,
+          promptSuggestions: this.props.initialAssistantSuggestions,
+        };
+      } else {
+        updatedMessage = null;
+      }
+
+      this.setState((state) => ({
+        ...state,
+        messages: updatedMessage ? [updatedMessage] : [],
+      }));
+    }
+  }
+
+  updatePrompt = (prompt: string) => {
+    this.setState({ prompt });
+  };
+
+  adaptMessages = (messages: Message[]): ChatMessage[] => {
+    const chatMessages: ChatMessage[] = messages.map((message) => {
+      if (message.role === "assistant") {
+        return {
+          id: message.id,
+          content: message.content,
+          isAssistant: true,
+          promptSuggestions: message.promptSuggestions || [],
+        };
+      }
+
+      return {
+        id: message.id,
+        content: message.content,
+        isAssistant: false,
+      };
+    });
+
+    return chatMessages;
+  };
 
   handleMessageSubmit = (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
@@ -148,18 +205,7 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
       }),
       () => {
         const messages: Message[] = [...this.state.messages];
-
-        if (this.props.systemPrompt) {
-          messages.unshift({
-            id: String(Date.now()),
-            content: this.props.systemPrompt,
-            role: "system",
-          });
-        }
-
-        const params = {
-          messages,
-        };
+        const params = { messages };
 
         this.executeAction({
           triggerPropertyName: "onClick",
@@ -182,6 +228,8 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
             id: Math.random().toString(),
             content: this.props.queryData.choices[0].message.content,
             role: "assistant",
+            // TODO: Add prompt suggestions from the query data, if any
+            promptSuggestions: [],
           },
         ],
         isWaitingForResponse: false,
@@ -190,15 +238,21 @@ class WDSAIChatWidget extends BaseWidget<WDSAIChatWidgetProps, State> {
   };
 
   handlePromptChange = (prompt: string) => {
-    this.setState({ prompt });
+    this.updatePrompt(prompt);
+  };
+
+  handleApplyAssistantSuggestion = (suggestion: string) => {
+    this.updatePrompt(suggestion);
   };
 
   getWidgetView(): ReactNode {
     return (
       <AIChat
         assistantName={this.props.assistantName}
+        chatDescription={this.props.chatDescription}
         chatTitle={this.props.chatTitle}
         isWaitingForResponse={this.state.isWaitingForResponse}
+        onApplyAssistantSuggestion={this.handleApplyAssistantSuggestion}
         onPromptChange={this.handlePromptChange}
         onSubmit={this.handleMessageSubmit}
         prompt={this.state.prompt}

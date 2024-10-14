@@ -31,6 +31,7 @@ export function CurrencyInputComponent(props: CurrencyInputComponentProps) {
       errorMessage={props.validationStatus === "invalid" ? errorMessage : ""}
       excludeFromTabOrder={props.excludeFromTabOrder}
       isDisabled={props.isDisabled}
+      isInvalid={validationStatus === "invalid"}
       isReadOnly={props.isReadOnly}
       isRequired={props.isRequired}
       label={props.label}
@@ -39,7 +40,6 @@ export function CurrencyInputComponent(props: CurrencyInputComponentProps) {
       onKeyDown={props.onKeyDown}
       placeholder={props.placeholder}
       prefix={prefix}
-      validationState={validationStatus}
       value={props.value}
     />
   );

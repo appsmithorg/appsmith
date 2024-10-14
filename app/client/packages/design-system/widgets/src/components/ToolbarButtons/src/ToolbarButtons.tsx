@@ -1,5 +1,5 @@
 import React, { forwardRef, useMemo } from "react";
-import { Button, Menu } from "@appsmith/wds";
+import { Button, ListBoxItem, Menu } from "@appsmith/wds";
 import { FocusScope } from "@react-aria/focus";
 import { useDOMRef } from "@react-spectrum/utils";
 import { useListState } from "@react-stately/list";
@@ -91,7 +91,15 @@ const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
               isDisabled={isDisabled}
               variant={variant}
             />
-            <Menu {...props} items={menuChildren} />
+            <Menu {...props}>
+              {menuChildren.map((item) => {
+                return (
+                  <ListBoxItem key={item.id} textValue={item.label}>
+                    {item.label}
+                  </ListBoxItem>
+                );
+              })}
+            </Menu>
           </MenuTrigger>
         )}
       </div>

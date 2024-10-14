@@ -21,7 +21,12 @@ import Spinner from "components/editorComponents/Spinner";
 import type { CSSProperties } from "styled-components";
 import styled from "styled-components";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import { changeApi } from "actions/apiPaneActions";
+import {
+  changeApi,
+  isActionDeleting,
+  isActionRunning,
+  isPluginActionCreating,
+} from "PluginActionEditor/store";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import type { ApplicationPayload } from "entities/Application";
@@ -182,7 +187,6 @@ class ApiEditor extends React.Component<Props> {
             }
             isDeleting={isDeleting}
             isRunning={isRunning}
-            onDeleteClick={this.context.handleDeleteClick}
             onRunClick={this.context.handleRunClick}
             paginationType={paginationType}
             pluginId={pluginId}
@@ -200,7 +204,6 @@ class ApiEditor extends React.Component<Props> {
             isDeleting={isDeleting}
             isRunning={isRunning}
             match={this.props.match}
-            onDeleteClick={this.context.handleDeleteClick}
             onRunClick={this.context.handleRunClick}
             paginationType={paginationType}
             pluginId={pluginId}
@@ -226,9 +229,10 @@ class ApiEditor extends React.Component<Props> {
 
 const formStyles: CSSProperties = {
   position: "relative",
-  height: "100%",
   display: "flex",
   flexDirection: "column",
+  flexGrow: "1",
+  overflow: "auto",
 };
 
 // TODO: Fix this the next time the file is edited
@@ -237,7 +241,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionByBaseId(state, props?.match?.params?.baseApiId);
   const apiName = apiAction?.name ?? "";
   const apiId = apiAction?.id ?? "";
-  const { isCreating, isDeleting, isRunning } = state.ui.apiPane;
+  const isCreating = isPluginActionCreating(state);
+  const isDeleting = isActionDeleting(apiId)(state);
+  const isRunning = isActionRunning(apiId)(state);
   const pluginId = _.get(apiAction, "pluginId", "");
 
   return {
@@ -251,9 +257,9 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     pluginId,
     paginationType: _.get(apiAction, "actionConfiguration.paginationType"),
     apiAction,
-    isRunning: isRunning[apiId],
-    isDeleting: isDeleting[apiId],
-    isCreating: isCreating,
+    isRunning,
+    isDeleting,
+    isCreating,
     applicationId: getCurrentApplicationId(state),
   };
 };

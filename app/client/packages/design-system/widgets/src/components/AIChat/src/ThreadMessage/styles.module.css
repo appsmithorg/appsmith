@@ -1,12 +1,12 @@
 .root {
   display: flex;
-  gap: 16px;
-  padding: 12px 0;
+  gap: var(--inner-spacing-4);
+  padding: var(--inner-spacing-3) 0;
 }
 
 @container (min-width: 700px) {
   .root {
-    padding: 24px 0;
+    padding: var(--inner-spacing-5) 0;
   }
 }
 
@@ -19,7 +19,7 @@
 }
 
 .sentTime {
-  margin: 0 0 8px;
+  margin: 0 0 var(--outer-spacing-3);
   /* TODO: --type-caption doesn't exists. Define it */
   font-size: var(--type-caption, 12.247px);
   /* TODO: --type-caption-lineheight doesn't exists. Define it */
