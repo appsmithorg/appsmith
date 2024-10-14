@@ -96,6 +96,7 @@ const QueryResponseTab = (props: Props) => {
     isFeatureEnabled,
     currentActionConfig?.userPermissions,
   );
+  const isQueryEmpty = !currentActionConfig?.actionConfiguration?.body;
 
   const actionResponse = useSelector((state) =>
     getActionData(state, currentActionConfig.id),
@@ -345,7 +346,7 @@ const QueryResponseTab = (props: Props) => {
         )}
       {!output && !error && (
         <NoResponse
-          isRunDisabled={!isExecutePermitted}
+          isRunDisabled={!isExecutePermitted || isQueryEmpty}
           isRunning={isRunning}
           onRunClick={responseTabOnRunClick}
         />
