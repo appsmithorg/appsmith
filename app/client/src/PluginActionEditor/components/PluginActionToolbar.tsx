@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { IDEToolbar } from "IDE";
 import { Button, Menu, MenuContent, MenuTrigger, Tooltip } from "@appsmith/ads";
 import { modText } from "utils/helpers";
 import { usePluginActionContext } from "../PluginActionContext";
-import { useHandleRunClick } from "PluginActionEditor/hooks";
+import {
+  useBlockExecution,
+  useHandleRunClick,
+  useAnalyticsOnRunClick,
+} from "PluginActionEditor/hooks";
 import { useToggle } from "@mantine/hooks";
+import { useSelector } from "react-redux";
+import { isActionRunning } from "PluginActionEditor/store";
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;
@@ -15,7 +21,15 @@ interface PluginActionToolbarProps {
 const PluginActionToolbar = (props: PluginActionToolbarProps) => {
   const { action } = usePluginActionContext();
   const { handleRunClick } = useHandleRunClick();
+  const { callRunActionAnalytics } = useAnalyticsOnRunClick();
   const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
+  const blockExecution = useBlockExecution();
+  const isRunning = useSelector(isActionRunning(action.id));
+
+  const onRunClick = useCallback(() => {
+    callRunActionAnalytics();
+    handleRunClick();
+  }, [callRunActionAnalytics, handleRunClick]);
 
   return (
     <IDEToolbar>
@@ -27,7 +41,13 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
           placement="topRight"
           showArrow={false}
         >
-          <Button kind="primary" onClick={() => handleRunClick()} size="sm">
+          <Button
+            isDisabled={blockExecution}
+            isLoading={isRunning}
+            kind="primary"
+            onClick={onRunClick}
+            size="sm"
+          >
             Run
           </Button>
         </Tooltip>
