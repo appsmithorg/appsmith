@@ -56,27 +56,55 @@ export interface PanelConfig {
 }
 
 export interface PropertyPaneControlConfig {
-  // Unique identifier for the control. Used for internal tracking and debugging.
-  // It added by `addPropertyConfigIds` function ( app/client/src/WidgetProvider/factory/helpers.ts ).
+  /**
+   * Unique identifier for the control. Used for internal tracking and debugging.
+   * It added by `addPropertyConfigIds` function in `WidgetProvider/factory/helpers.ts`.
+   */
   id?: string;
-  // label is used to display the name of the property
+  /**
+   * Label of the property. Shown right above the control.
+   */
   label: string;
-  // unique name of the property
+  /**
+   * Human-readable slugified name of the property.
+   */
   propertyName: string;
-  // Serves in the tooltip
+  /**
+   * Used to provide more context about the property. Appears as tooltip when we hover over the label of the property.
+   * Note: This is different from `helperText` which appears below the property input.
+   */
   helpText?: string;
-  // Dynamic text serves below the property pane inputs
+  /**
+   * Dynamic text that appears below the property input.
+   */
   helperText?: ((props: unknown) => React.ReactNode) | React.ReactNode;
-  // used to tell if the property is a JS convertible property.
-  // If true, It will show the little JS icon button next to the property name
+  /**
+   * If true, transform the property input into plain input where js can be written..
+   */
   isJSConvertible?: boolean;
+  /**
+   * Used in special cases where we want to custom control instead regular text input control.
+   * For example: `COMPUTE_VALUE` control is used in table widget provides access to currentRow in controls in the table columns.
+   */
   customJSControl?: string;
+  /**
+   * Type of the property control.
+   * Full list of supported controls can be found in `app/client/src/components/propertyControls/index.ts`.
+   */
   controlType: ControlType;
+  /** @deprecated. Not used anywhere. */
   validationMessage?: string;
   dataTreePath?: string;
   // used to define children property configs when the current property is a section
   children?: PropertyPaneConfig[];
   panelConfig?: PanelConfig;
+  /**
+   * Callback function to update related widget properties.
+   * @param propertyName - Path to the widget property
+   * @param propertyValue - New value of the property
+   * @param props - Current widget properties
+   * @returns - Array of property updates
+   */
   updateRelatedWidgetProperties?: (
     propertyName: string,
     // TODO: Fix this the next time the file is edited
@@ -86,7 +114,15 @@ export interface PropertyPaneControlConfig {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     props: any,
   ) => UpdateWidgetPropertyPayload[];
-  // Function that is called when the property is updated, it is mainly used to update other properties
+  /**
+   * Function that is called when the property is updated, it is mainly used to update other properties
+   *
+   * @param props - Current widget properties
+   * @param propertyName - Path to the widget property
+   * @param propertyValue - New value of the property
+   *
+   * @returns - Array of property updates
+   */
   updateHook?: (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -96,25 +132,61 @@ export interface PropertyPaneControlConfig {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any,
   ) => Array<PropertyUpdates> | undefined;
+  /**
+   * callback function to determine if the property should be hidden.
+
+   * @param props - Current widget properties
+   * @param propertyPath - Path to the widget property
+   * @returns - True if the property should be hidden, false otherwise
+   */
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hidden?: (props: any, propertyPath: string) => boolean;
+  /**
+   * If true, the property is hidden.
+   * Note: hidden and invisible do the same thing but differently. hidden uses a callback to determine if the property should be hidden.
+   * invisible is a boolean flag to hide the property.
+   */
   invisible?: boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;
-  /** validation configuration for the property */
+  /**
+   * Validation configuration for the property
+   */
   validation?: ValidationConfig;
-  useValidationMessage?: boolean;
+  /**
+   * Callback function to provide additional autocomplete data for the autocomplete list.
+   *
+   * @param props - Current widget properties
+   * @returns - Additional autocomplete data
+   */
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   additionalAutoComplete?: (props: any) => AdditionalDynamicDataTree;
   evaluationSubstitutionType?: EvaluationSubstitutionType;
-  // all the properties that current property  is dependent on. All the properties passed here comes into widgetProperties
+  /**
+   * All properties that current property is dependent on.
+   * All of these properties becomes available in `widgetProperties` in the property control..
+   */
   dependencies?: string[];
+  /**
+   * It is same as `dependencies` but these dependencies are not statically defined in the widget.
+   * The callback is called  during rendering of the property control to get the latest dependencies.
+   */
   dynamicDependencies?: (widget: WidgetProps) => string[];
-  evaluatedDependencies?: string[]; // dependencies to be picked from the __evaluated__ object
+  /**
+   * Dependencies to be picked from the __evaluated__ object
+   */
+  evaluatedDependencies?: string[];
   expected?: CodeEditorExpected;
-  // Used to get value of the property from stylesheet config. Used in app theming v1 ( Not needed in anvil )
+  /**
+   * Used to get value of the property from stylesheet config. Used in app theming v1 ( Not needed in anvil )
+   *
+   * @param props - Current widget properties
+   * @param propertyPath - Path to the widget property
+   * @param stylesheet - Stylesheet config
+   * @returns - Value of the property
+   */
   getStylesheetValue?: (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -129,26 +201,26 @@ export interface PropertyPaneControlConfig {
   options?: any;
   // The following should ideally be used internally
   postUpdateAction?: ReduxActionType;
-  onBlur?: () => void;
-  onFocus?: () => void;
   isPanelProperty?: boolean;
-  // Numeric Input Control
-  min?: number;
   // Switch mode ( JS -> Text )
   shouldSwitchToNormalMode?: (
     isDynamic: boolean,
     isToggleDisabled: boolean,
     triggerFlag?: boolean,
   ) => boolean;
-
   /**
    * `controlConfig` is a generic record that can be used to pass additional configuration
    * options to the property control. The specific structure and contents of this record
    * will depend on the control type and its individual requirements.
    */
   controlConfig?: Record<string, unknown>;
+  /**
+   * The default value of the property.
+   */
   defaultValue?: unknown;
-  /** used to mark a property as reusable so that it can be reused in next dropping widget */
+  /**
+   * If the property is marked reusable, on the next drop it will rule the value of the last dropped widget.
+   */
   isReusable?: boolean;
 }
 
