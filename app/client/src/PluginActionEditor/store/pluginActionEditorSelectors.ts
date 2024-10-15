@@ -59,3 +59,6 @@ export const getPluginActionDebuggerState = (state: AppState) =>
 
 export const isPluginActionCreating = (state: AppState) =>
   state.ui.pluginActionEditor.isCreating;
+
+export const isPluginActionSettingsOpen = (state: AppState) =>
+  state.ui.pluginActionEditor.settingsOpen;
