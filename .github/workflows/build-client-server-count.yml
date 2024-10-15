@@ -129,18 +129,18 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
 
-  # build-docker-image:
-  #   needs: [file-check, client-build, server-build, rts-build]
-  #   # Only run if the build step is successful
-  #   if: success() && needs.file-check.outputs.runId == '0'
-  #   name: build-docker-image
-  #   uses: ./.github/workflows/build-docker-image.yml
-  #   secrets: inherit
-  #   with:
-  #     pr: ${{fromJson(needs.file-check.outputs.pr)}}
+  build-docker-image:
+    needs: [file-check, client-build, server-build, rts-build]
+    # Only run if the build step is successful
+    if: success() && needs.file-check.outputs.runId == '0'
+    name: build-docker-image
+    uses: ./.github/workflows/build-docker-image.yml
+    secrets: inherit
+    with:
+      pr: ${{fromJson(needs.file-check.outputs.pr)}}
 
   ci-test-limited:
-    needs: [file-check]
+    needs: [file-check, build-docker-image]
     # Only run if the build step is successful
     if: success() && needs.file-check.outputs.runId == '0'
     name: ci-test-limited
