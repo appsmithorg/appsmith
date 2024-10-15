@@ -110,6 +110,7 @@ export interface TableWidgetProps
   enableServerSideFiltering: boolean;
   onTableFilterUpdate: string;
   userDefinedIsLoading: boolean;
+  userDefinedIsLoadingValue: boolean;
 }
 
 export enum TableVariantTypes {

@@ -226,7 +226,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       )
         ? false
         : undefined,
-      userDefinedIsLoading: "",
+      userDefinedIsLoading: false,
+      userDefinedIsLoadingValue: "",
     };
   }
 
@@ -1222,6 +1223,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       primaryColumns,
       totalRecordsCount,
       userDefinedIsLoading,
+      userDefinedIsLoadingValue,
     } = this.props;
 
     const tableColumns = this.getTableColumns() || emptyArr;
@@ -1268,7 +1270,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
           isEditableCellsValid={this.props.isEditableCellsValid}
-          isLoading={!!userDefinedIsLoading || this.props.isLoading}
+          isLoading={
+            userDefinedIsLoading
+              ? userDefinedIsLoadingValue || this.props.isLoading
+              : this.props.isLoading
+          }
           isSortable={this.props.isSortable ?? true}
           isVisibleDownload={isVisibleDownload}
           isVisibleFilters={isVisibleFilters}
