@@ -111,15 +111,17 @@ jobs:
       - name: Save Docker image to tar file
         run: |
          images=$(docker image ls --all --no-trunc --format '{{.Repository}},{{.ID}}' \
-                | grep -v cicontainer \
-                | cut -d, -f2)
-              
-              if [[ -n "$images" ]]; then
-                echo "$images" | xargs docker rmi || true
-              fi
-              
-              docker save cicontainer -o cicontainer.tar
-              gzip cicontainer.tar
+              | grep -v cicontainer \
+              | cut -d, -f2)
+            
+            if [[ -n "$images" ]]; then
+              set +e
+              echo "$images" | xargs docker rmi || true
+              set -e
+            fi
+            
+            docker save cicontainer -o cicontainer.tar
+            gzip cicontainer.tar
 
       - name: Cache docker image
         uses: actions/cache/save@v4
