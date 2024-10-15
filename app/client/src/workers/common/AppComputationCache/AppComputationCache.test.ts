@@ -1,4 +1,4 @@
-import { EComputationCacheName } from "./types";
+import { EComputationCacheName, type ICacheProps } from "./types";
 import { APP_MODE } from "entities/App";
 import localforage from "localforage";
 import loglevel from "loglevel";
@@ -71,13 +71,12 @@ describe("AppComputationCache", () => {
 
   describe("generateCacheKey", () => {
     test("should generate the correct cache key", () => {
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -88,7 +87,7 @@ describe("AppComputationCache", () => {
       });
 
       expect(cacheKey).toBe(
-        `${cacheProps.instanceId}>${cacheProps.workspaceId}>${cacheProps.appId}>${cacheProps.pageId}>${cacheProps.appMode}>${new Date(
+        `${cacheProps.instanceId}>${cacheProps.appId}>${cacheProps.pageId}>${cacheProps.appMode}>${new Date(
           cacheProps.timestamp,
         ).getTime()}>${cacheName}`,
       );
@@ -97,13 +96,12 @@ describe("AppComputationCache", () => {
 
   describe("isComputationCached", () => {
     test("should return false for EDIT mode", () => {
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.EDIT,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -117,13 +115,12 @@ describe("AppComputationCache", () => {
     });
 
     test("should return true for PUBLISHED mode", () => {
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -137,12 +134,11 @@ describe("AppComputationCache", () => {
     });
 
     test("should return false if appMode is undefined", () => {
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -156,13 +152,12 @@ describe("AppComputationCache", () => {
     });
 
     test("should return false if timestamp is undefined", () => {
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: "",
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -178,13 +173,12 @@ describe("AppComputationCache", () => {
 
   describe("getCachedComputationResult", () => {
     test("should call getItemMock and return null if cache miss", async () => {
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -211,13 +205,12 @@ describe("AppComputationCache", () => {
     });
 
     test("should call deleteInvalidCacheEntries on cache miss after 10 seconds", async () => {
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -248,13 +241,12 @@ describe("AppComputationCache", () => {
     });
 
     test("should call getItemMock and return cached value if cache hit", async () => {
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -278,13 +270,12 @@ describe("AppComputationCache", () => {
 
   describe("cacheComputationResult", () => {
     test("should store computation result and call trackCacheUsage when shouldCache is true", async () => {
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -316,13 +307,12 @@ describe("AppComputationCache", () => {
     });
 
     test("should not store computation result when shouldCache is false", async () => {
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.EDIT,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -341,13 +331,12 @@ describe("AppComputationCache", () => {
 
   describe("fetchOrCompute", () => {
     test("should return cached result if available", async () => {
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -375,13 +364,12 @@ describe("AppComputationCache", () => {
     test("should compute, cache, and return result if not in cache", async () => {
       getItemMock.mockResolvedValue(null);
 
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -425,13 +413,12 @@ describe("AppComputationCache", () => {
 
       loglevel.setLevel("SILENT");
 
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const cacheName = EComputationCacheName.ALL_KEYS;
@@ -467,20 +454,18 @@ describe("AppComputationCache", () => {
 
   describe("deleteInvalidCacheEntries", () => {
     test("should delete old cache entries", async () => {
-      const cacheProps = {
+      const cacheProps: ICacheProps = {
         appMode: APP_MODE.PUBLISHED,
         timestamp: new Date("11 September 2024").toISOString(),
         appId: "appId",
         instanceId: "instanceId",
         pageId: "pageId",
-        workspaceId: "workspaceId",
       };
 
       const currentTimestamp = new Date(cacheProps.timestamp).getTime();
 
       const currentCacheKey = [
         cacheProps.instanceId,
-        cacheProps.workspaceId,
         cacheProps.appId,
         cacheProps.pageId,
         cacheProps.appMode,
@@ -492,7 +477,6 @@ describe("AppComputationCache", () => {
 
       const oldCacheKey = [
         cacheProps.instanceId,
-        cacheProps.workspaceId,
         cacheProps.appId,
         cacheProps.pageId,
         cacheProps.appMode,
