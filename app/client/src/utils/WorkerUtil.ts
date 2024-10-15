@@ -48,6 +48,10 @@ import {
 // TODO: Extract the worker wrapper into a library to be useful to anyone with WebWorkers + redux-saga.
 // TODO: Add support for timeouts on requests and shutdown.
 // TODO: Add a readiness + liveness probes.
+
+let totalEvalTime = 0
+let totalTransferTime = 0
+let numEvals = 0
 export class GracefulWorkerService {
   // We keep track of all in-flight requests with these channels.
   // TODO: Fix this the next time the file is edited
@@ -204,7 +208,11 @@ export class GracefulWorkerService {
 
     if (transferDataToMainThread) {
       transferDataToMainThread.endTime = Date.now();
+      if (transferDataToMainThread.startTime) {
+        // log.debug("*** transferToMainThread took ", transferDataToMainThread.endTime - transferDataToMainThread.startTime);
+      }
     }
+    
 
     /// Add the completeWebworkerComputation span to the root span
     webworkerTelemetry["completeWebworkerComputation"] = {
@@ -231,6 +239,8 @@ export class GracefulWorkerService {
     completeWebworkerComputationRoot?.setAttribute("taskType", method);
     completeWebworkerComputationRoot?.end(endTime);
   }
+
+  
   /**
    * Send a request to the worker for processing.
    * If the worker isn't ready, we wait for it to become ready.
@@ -281,6 +291,7 @@ export class GracefulWorkerService {
       WebworkerSpanData | SpanAttributes
     > = {};
 
+    let response : any
     try {
       sendMessage.call(this._Worker, {
         messageType: MessageType.REQUEST,
@@ -289,7 +300,9 @@ export class GracefulWorkerService {
       });
 
       // The `this._broker` method is listening to events and will pass response to us over this channel.
-      const response = yield take(ch);
+      response = yield take(ch);
+      
+      
       const { data, endTime, startTime } = response;
 
       webworkerTelemetryResponse = data.webworkerTelemetry;
@@ -309,6 +322,8 @@ export class GracefulWorkerService {
       // Log perf of main thread and worker
       const mainThreadEndTime = Date.now();
       const timeTakenOnMainThread = mainThreadEndTime - mainThreadStartTime;
+      
+      // console.log("*** main thread time is ", timeTakenOnMainThread)
 
       if (yield cancelled()) {
         rootSpan?.setAttribute("cancelled", true);
@@ -319,10 +334,15 @@ export class GracefulWorkerService {
 
       if (timeTaken) {
         const transferTime = timeTakenOnMainThread - timeTaken;
-
-        log.debug(` Worker ${method} took ${timeTaken}ms`);
-        log.debug(` Transfer ${method} took ${transferTime}ms`);
+        if (method == 'EVAL_TREE') {
+          log.debug(`*** ${method} Worker ${method} took ${timeTaken}ms *** Transfer took ${transferTime}ms response is `, response.data);
+          totalEvalTime += timeTaken
+          totalTransferTime += transferTime
+          numEvals += 1
+          console.log("***", "total eval time ", totalEvalTime, "total transfer time ", totalTransferTime, "num evals ", numEvals)
+        }
       }
+      
 
       if (
         webworkerTelemetryResponse &&

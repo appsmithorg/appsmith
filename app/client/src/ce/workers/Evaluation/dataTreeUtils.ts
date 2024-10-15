@@ -32,11 +32,17 @@ export function makeEntityConfigsAsObjProperties(
   for (const [entityName, entityEvalProps] of Object.entries(evalProps)) {
     if (!entityEvalProps.__evaluation__) continue;
 
+    // klona({ errors: entityEvalProps.__evaluation__.errors })
+
     set(
       dataTreeToReturn[entityName],
-      "__evaluation__",
-      klona({ errors: entityEvalProps.__evaluation__.errors }),
+      "__evaluation__", { errors: {}}
     );
+    // set(
+    //   dataTreeToReturn[entityName],
+    //   "rajat123",
+    //   "agrawal123",
+    // );
   }
 
   return dataTreeToReturn;
