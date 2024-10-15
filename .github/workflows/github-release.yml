@@ -40,7 +40,7 @@ jobs:
     needs:
       - prelude
 
-    runs-on: ubuntu-latest-4-cores
+    runs-on: ubuntu-latest
 
     defaults:
       run:

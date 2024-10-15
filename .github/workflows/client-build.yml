@@ -29,7 +29,7 @@ defaults:
 
 jobs:
   client-build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_CLIENT_BUILD }}
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
@@ -199,45 +199,18 @@ jobs:
           gituser: ${{ secrets.CACHE_GIT_USER }}
           gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
         run: |
-            mkdir -p cacherepo
-            cd ./cacherepo
-            git lfs prune
-            # Install Git LFS and configure Git user
-            git lfs install
-            git config --global user.email "$gituseremail"
-            git config --global user.name "$gituser"
-
-            # Clone the repository using the cache token for authentication
-            git clone https://$cachetoken@github.com/sagar-qa007/cibuildcache.git
-
-            # Navigate into the cloned repository
-            cd cibuildcache
-
-            # Install Git LFS in the repository
-            git lfs install
-
-            # Determine the correct directory (CE or EE) based on reponame
-            if [ "$reponame" = "appsmith" ]; then
-                export repodir="CE"
-            elif [ "$reponame" = "appsmith-ee" ]; then
-                export repodir="EE"
-            else
-                export repodir="CE"  # Default case if neither condition is met
-            fi
-
-            # Navigate to the release/client directory
-            cd "$repodir/release/client"
-
-            # Pull all LFS files
-            git lfs pull
-
-            # Check if the build.tar file exists and move it to the desired location
-            if [ -f "./build.tar" ]; then
-                mv ./build.tar ../../../../../build.tar
-                echo "build.tar successfully moved."
-            else
-                echo "Warning: build.tar file not found!"
-            fi
+          mkdir cacherepo
+          cd ./cacherepo
+          git lfs install
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs install
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd cibuildcache/$repodir/release/client
+          git lfs pull ./build.tar
+          mv ./build.tar ../../../../../build.tar
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
@@ -256,48 +229,21 @@ jobs:
           gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
         # git lfs update --force in the script below overrides appsmith git hooks with git lfs hooks since appsmith hooks are not required during workflow runs
         run: |
-          # Print the current working directory
           pwd
-
-          # Create and navigate to the repository cache directory
-          mkdir -p cacherepo
+          mkdir cacherepo
           cd ./cacherepo
-          git lfs prune
-
-          # Set up Git user information
           git config --global user.email "$gituseremail"
           git config --global user.name "$gituser"
-
-          # Clone the repository using the cache token
-          git clone https://$cachetoken@github.com/sagar-qa007/cibuildcache.git
-
-          # Force update Git LFS and install it
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
           git lfs update --force
           git lfs install
-
-          # Navigate into the cloned repository
           cd cibuildcache/
-
-          # Determine the correct directory (CE or EE) based on reponame
-          if [ "$reponame" = "appsmith" ]; then
-              export repodir="CE"
-          elif [ "$reponame" = "appsmith-ee" ]; then
-              export repodir="EE"
-          else
-              export repodir="CE"  # Default case if neither condition is met
-          fi
-
-          # Navigate to the client release directory
-          cd "$repodir/release/client"
-
-          # Copy the build.tar file
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd $repodir/release/client
           cp ../../../../../build.tar ./
-
-          # Track build.tar with Git LFS
           git lfs track "build.tar"
-
-          # Stage, commit, and push the build.tar file
-          git add build.tar
+          git add  build.tar
           git commit -m "Update Latest build.tar"
           git push
 

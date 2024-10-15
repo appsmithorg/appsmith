@@ -30,7 +30,7 @@ defaults:
 
 jobs:
   server-unit-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest-8-cores
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -245,45 +245,20 @@ jobs:
           gituser: ${{ secrets.CACHE_GIT_USER }}
           gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
         run: |
-            # Create and navigate to the repository cache directory
-            mkdir -p cacherepo
-            cd ./cacherepo
-
-            # Install Git LFS and configure Git user details
-            git lfs prune
-            git lfs install
-            git config --global user.email "$gituseremail"
-            git config --global user.name "$gituser"
-
-            # Clone the repository using the cache token for authentication
-            git clone https://$cachetoken@github.com/sagar-qa007/cibuildcache.git
-
-            # Install Git LFS for the cloned repository
-            git lfs install
-
-            # Determine the correct directory (CE or EE) based on reponame
-            if [ "$reponame" = "appsmith" ]; then
-                export repodir="CE"
-            elif [ "$reponame" = "appsmith-ee" ]; then
-                export repodir="EE"
-            else
-                export repodir="CE"  # Default case if neither condition is met
-            fi
-
-            # Navigate to the server release directory
-            cd "cibuildcache/$repodir/release/server"
-
-            # Pull the LFS file for server.jar
-            git lfs pull ./server.jar
-
-            # Move the server.jar file to the desired location
-            mv ./server.jar ../../../../../server.jar
-
-            # Navigate back to the initial working directory
-            cd ../../../../../
-
-            # Extract the server.jar file
-            tar -xzvf ./server.jar
+          mkdir cacherepo
+          cd ./cacherepo
+          git lfs install
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs install
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd cibuildcache/$repodir/release/server
+          git lfs pull ./server.jar
+          mv ./server.jar ../../../../../server.jar
+          cd ../../../../../
+          tar -xzvf ./server.jar
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
@@ -310,55 +285,22 @@ jobs:
           gituser: ${{ secrets.CACHE_GIT_USER }}
           gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
         run: |
-          # Display the current working directory
           pwd
-
-          # Create a compressed archive of the dist directory
           tar -czvf server.jar dist/
-
-          # Create and navigate to the repository cache directory
-          mkdir -p cacherepo
+          mkdir cacherepo
           cd ./cacherepo
-          git lfs prune
-
-          # Configure Git user details
           git config --global user.email "$gituseremail"
           git config --global user.name "$gituser"
-
-          # Clone the repository using the cache token for authentication
-          git clone https://$cachetoken@github.com/sagar-qa007/cibuildcache.git
-
-          # Display the current working directory after cloning
-          pwd
-
-          # Install Git LFS for the cloned repository
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
           git lfs install
-
-          # Determine the correct directory (CE or EE) based on reponame
-          if [ "$reponame" = "appsmith" ]; then
-              export repodir="CE"
-          elif [ "$reponame" = "appsmith-ee" ]; then
-              export repodir="EE"
-          else
-              export repodir="CE"  # Default case if neither condition is met
-          fi
-
-          # Navigate to the server release directory
-          cd "cibuildcache/$repodir/release/server"
-
-          # Copy the server.jar file to the current directory
+          cd cibuildcache/
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd $repodir/release/server
           cp ../../../../../server.jar ./
-
-          # Track the new server.jar file with Git LFS
           git lfs track "server.jar"
-
-          # Stage the server.jar file for commit
-          git add server.jar
-
-          # Commit the change with an empty commit message
+          git add  server.jar
           git commit --allow-empty -m "Update Latest Server.jar"
-
-          # Push the changes to the repository
           git push
 
       - name: Save the status of the run

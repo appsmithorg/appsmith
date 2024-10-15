@@ -192,7 +192,7 @@ jobs:
             -e ENTERPRISE_ADMIN_PASSWORD=ent_admin_password \
             -e LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY=$LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY \
             appsmith/cloud-services:release
-           cd cicontainerlocal
+          cd cicontainerlocal
           docker run -d --name appsmith -p 80:80 \
             -v "$PWD/stacks:/appsmith-stacks" \
             -e APPSMITH_DISABLE_TELEMETRY=true \
@@ -268,18 +268,18 @@ jobs:
           EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
           COMMIT_INFO_AUTHOR: ${{ github.event.commits[0].author.name }}
         run: |
-            if [[ ${{ inputs.pr }} -ne 0 && ${{ github.event_name }} == 'repository_dispatch' ]]; then
-              echo "COMMIT_INFO_MESSAGE=$COMMIT_INFO_MESSAGE" >> $GITHUB_ENV
-            elif [[ ${{ inputs.pr }} -ne 0 && ${{ github.event_name }} == 'workflow_dispatch' ]]; then
-              echo "COMMIT_INFO_MESSAGE=Workflow run on PR# ${{ inputs.pr }}" >> $GITHUB_ENV
+          if [[ ${{ inputs.pr }} -ne 0 && ${{ github.event_name }} == 'repository_dispatch' ]]; then
+            echo "COMMIT_INFO_MESSAGE=$COMMIT_INFO_MESSAGE" >> $GITHUB_ENV
+          elif [[ ${{ inputs.pr }} -ne 0 && ${{ github.event_name }} == 'workflow_dispatch' ]]; then
+            echo "COMMIT_INFO_MESSAGE=Workflow run on PR# ${{ inputs.pr }}" >> $GITHUB_ENV
+          else
+            if [[ "$EVENT_COMMITS" == "null" ]]; then
+              echo "COMMIT_INFO_MESSAGE=${{ github.event_name }} by $COMMIT_INFO_AUTHOR" >> $GITHUB_ENV
             else
-              if [[ "$EVENT_COMMITS" == "null" ]]; then
-                echo "COMMIT_INFO_MESSAGE=${{ github.event_name }} by $COMMIT_INFO_AUTHOR" >> $GITHUB_ENV
-              else
-                COMMIT_FIRST_LINE=$(echo "$EVENT_COMMITS" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')
-                echo "COMMIT_INFO_MESSAGE=$COMMIT_FIRST_LINE" >> $GITHUB_ENV
-              fi
+              COMMIT_FIRST_LINE=$(echo "$EVENT_COMMITS" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')
+              echo "COMMIT_INFO_MESSAGE=$COMMIT_FIRST_LINE" >> $GITHUB_ENV
             fi
+          fi
 
       - name: Run the cypress test
         env:
