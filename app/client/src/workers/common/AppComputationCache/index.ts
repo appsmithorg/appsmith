@@ -172,13 +172,11 @@ export class AppComputationCache {
     cacheProps: ICacheProps;
     cacheName: EComputationCacheName;
   }) {
-    const { appId, appMode, instanceId, pageId, timestamp, workspaceId } =
-      cacheProps;
+    const { appId, appMode, instanceId, pageId, timestamp } = cacheProps;
 
     const timeStampEpoch = new Date(timestamp).getTime();
     const cacheKeyParts = [
       instanceId,
-      workspaceId,
       appId,
       pageId,
       appMode,
@@ -271,13 +269,12 @@ export class AppComputationCache {
       // Get invalid cache keys
       const invalidCacheKeys = cacheKeys.filter((key) => {
         const keyParts = key.split(AppComputationCache.CACHE_KEY_DELIMITER);
-        const cacheKeyTimestamp = parseInt(keyParts[5], 10);
+        const cacheKeyTimestamp = parseInt(keyParts[4], 10);
 
         return (
           keyParts[0] === cacheProps.instanceId &&
-          keyParts[1] === cacheProps.workspaceId &&
-          keyParts[2] === cacheProps.appId &&
-          keyParts[4] === cacheProps.appMode &&
+          keyParts[1] === cacheProps.appId &&
+          keyParts[3] === cacheProps.appMode &&
           cacheKeyTimestamp !== new Date(cacheProps.timestamp).getTime()
         );
       });

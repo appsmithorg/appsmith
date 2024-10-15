@@ -11,5 +11,4 @@ export interface ICacheProps {
   appMode?: APP_MODE;
   timestamp: string;
   instanceId: string;
-  workspaceId: string;
 }

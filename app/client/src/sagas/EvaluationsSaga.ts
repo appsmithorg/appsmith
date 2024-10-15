@@ -117,7 +117,6 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -269,7 +268,6 @@ export function* evaluateTreeSaga(
 
   log.debug({ unevalTree, configTree: unEvalAndConfigTree.configTree });
   const instanceId: string = yield select(getInstanceId);
-  const workspaceId: string = yield select(getCurrentWorkspaceId);
   const applicationId: string = yield select(getCurrentApplicationId);
   const pageId: string = yield select(getCurrentPageId);
   const lastDeployedAt: string = yield select(getApplicationLastDeployedAt);
@@ -286,7 +284,6 @@ export function* evaluateTreeSaga(
       pageId,
       timestamp: lastDeployedAt,
       instanceId,
-      workspaceId,
     },
     unevalTree: unEvalAndConfigTree,
     widgetTypeConfigMap,
