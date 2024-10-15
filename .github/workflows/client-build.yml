@@ -29,7 +29,7 @@ defaults:
 
 jobs:
   client-build:
-    runs-on: ${{ vars.RUNNER_CLIENT_BUILD }}
+    runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
