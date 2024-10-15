@@ -811,7 +811,11 @@ export default {
             ConditionFunctions[props.filters[i].condition];
 
           if (conditionFunction) {
+            const originalRow = props.tableData[row.__originalIndex__];
             filterResult = conditionFunction(
+              originalRow[props.filters[i].column],
+              props.filters[i].value,
+            ) || conditionFunction(
               displayedRow[props.filters[i].column],
               props.filters[i].value,
             );
