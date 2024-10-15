@@ -15,7 +15,7 @@ import { LightModeTheme } from "@design-system/theming";
 
 const FAVICON_MAX_WIDTH = 32;
 const FAVICON_MAX_HEIGHT = 32;
-const DEFAULT_BRANDING_PRIMARY_COLOR = "#E15615";
+const DEFAULT_BRANDING_PRIMARY_COLOR = "#8A2EB6";
 export const APPSMITH_BRAND_PRIMARY_COLOR =
   getComputedStyle(document.documentElement).getPropertyValue(
     "--ads-v2-color-bg-brand",

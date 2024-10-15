@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import styled from "styled-components";
+// import styled from "styled-components";
 import classNames from "classnames";
 import {
   getAppMode,
@@ -18,16 +18,16 @@ import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { get } from "lodash";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+// import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 interface NavigationLogoProps {
   logoConfiguration: NavigationSetting["logoConfiguration"];
 }
 
-const StyledImage = styled.img`
-  max-width: 10rem;
-  max-height: 1.5rem;
-`;
+// const StyledImage = styled.img`
+//   max-width: 10rem;
+//   max-height: 1.5rem;
+// `;
 
 function NavigationLogo(props: NavigationLogoProps) {
   const { logoConfiguration } = props;
@@ -69,10 +69,11 @@ function NavigationLogo(props: NavigationLogoProps) {
       })}
       to={pageUrl}
     >
-      <StyledImage
-        alt="Application's logo"
-        src={getAssetUrl(`/api/v1/assets/${logoAssetId}`)}
-      />
+      {/*<StyledImage*/}
+      {/*  alt="Application's logo"*/}
+      {/*  src={getAssetUrl(`/api/v1/assets/${logoAssetId}`)}*/}
+      {/*/>*/}
+      <h1>YuChat Admin</h1>
     </Link>
   );
 }

@@ -5,7 +5,7 @@ import type { PreviewsProps } from ".";
 import PreviewBox from "./PreviewBox";
 
 const LoginPreview = (props: PreviewsProps) => {
-  const { logo, shades } = props;
+  const { shades } = props;
 
   return (
     <PreviewBox
@@ -17,11 +17,11 @@ const LoginPreview = (props: PreviewsProps) => {
     >
       <ContentBox className="w-7/12 bg-white border-l border-r border-t h-4/5">
         <div className="flex flex-col gap-3 pt-6 px-9">
-          <img
-            alt="Logo"
-            className="block h-4 m-auto t--branding-logo"
-            src={logo as string}
-          />
+          {/*<img*/}
+          {/*  alt="Logo"*/}
+          {/*  className="block h-4 m-auto t--branding-logo"*/}
+          {/*  src={logo as string}*/}
+          {/*/>*/}
           <ContentBox className="h-4 border" />
           <ContentBox className="h-4 border" />
           <ContentBox

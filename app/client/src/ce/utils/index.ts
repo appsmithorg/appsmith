@@ -2,7 +2,7 @@ import _ from "lodash";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getHtmlPageTitle = (instanceName: string) => {
-  return "Appsmith";
+  return "YuChat Admin";
 };
 
 export const isCEMode = () => {
@@ -14,7 +14,7 @@ export const getPageTitle = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   titleSuffix?: string,
 ) => {
-  return `${displayName ? `${displayName} | ` : ""}Appsmith`;
+  return `${displayName ? `${displayName} | ` : ""}YuChat Admin`;
 };
 
 // TODO: Remove this function once we have a better way to handle this

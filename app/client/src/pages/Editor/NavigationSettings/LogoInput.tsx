@@ -33,21 +33,21 @@ const LogoInput = ({ navigationSetting }: ButtonGroupSettingProps) => {
   const isDeletingNavigationLogo = useSelector(getIsDeletingNavigationLogo);
   const tenantConfig = useSelector(getTenantConfig);
   const { logoAssetId } = navigationSetting;
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (logoAssetId?.length) {
-      setLogoUrl(`/api/v1/assets/${logoAssetId}`);
+      // setLogoUrl(`/api/v1/assets/${logoAssetId}`);
       return;
     } else if (cloudHosting) {
-      setLogoUrl(null);
+      // setLogoUrl(null);
       return;
     } else if (!cloudHosting && tenantConfig?.brandLogoUrl) {
-      setLogoUrl(tenantConfig.brandLogoUrl);
+      // setLogoUrl(tenantConfig.brandLogoUrl);
       return;
     }
 
-    setLogoUrl(null);
+    // setLogoUrl(null);
     return;
   }, [logoAssetId, tenantConfig, cloudHosting]);
 

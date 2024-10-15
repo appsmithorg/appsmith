@@ -8,6 +8,17 @@ import { LightModeTheme } from "@design-system/theming";
 
 const useBrandingTheme = () => {
   const config = useSelector(getTenantConfig);
+  const localOverrideBrandColors = {
+    primary: "#8A2EB6", // Translated from #E15615
+    background: "#F1F5F9", // Keeping the same as it is a neutral color
+    hover: "#7E30C7", // Translated from #6d1fb0
+    active: "#6D1FB0", // Translated from #5c0e99
+    font: "#FFFFFF", // Keeping the same as it is a neutral color
+    disabled: "#D8B6FA", // Translated from #ebdef7
+  };
+
+  config.brandColors = localOverrideBrandColors;
+
   let activeColor: string | undefined = undefined;
   if (
     config.brandColors.primary !== undefined &&

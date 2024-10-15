@@ -20662,7 +20662,7 @@ export const defaultAppState = {
       brandFaviconUrl:
         "https://assets.appsmith.com/appsmith-favicon-orange.ico",
       brandColors: {
-        primary: "#e15615",
+        primary: "#8A2EB6",
         background: "#F1F5F9",
         hover: "#cf4d10",
         active: "#ca520f",

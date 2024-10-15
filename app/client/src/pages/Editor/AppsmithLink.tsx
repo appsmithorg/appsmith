@@ -3,7 +3,6 @@ import { Link, Tooltip } from "design-system";
 import styled from "styled-components";
 import { LOGO_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { APPLICATIONS_URL } from "constants/routes";
-import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 
 export const StyledLink = styled((props) => {
   // we are removing non input related props before passing them in the components
@@ -25,11 +24,11 @@ export const AppsmithLink = () => {
   return (
     <Tooltip content={createMessage(LOGO_TOOLTIP)} placement="bottomLeft">
       <StyledLink target="_self" to={APPLICATIONS_URL}>
-        <img
-          alt="Appsmith logo"
-          className="t--appsmith-logo"
-          src={AppsmithLogo}
-        />
+        {/*<img*/}
+        {/*  alt="Appsmith logo"*/}
+        {/*  className="t--appsmith-logo"*/}
+        {/*  src={AppsmithLogo}*/}
+        {/*/>*/}
       </StyledLink>
     </Tooltip>
   );

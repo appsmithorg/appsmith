@@ -1,4 +1,3 @@
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Button } from "design-system";
@@ -218,11 +217,12 @@ function EntitySearchBar(props: any) {
         <HeaderSection>
           {tenantConfig.brandLogoUrl && (
             <Link className="t--appsmith-logo" to={APPLICATIONS_URL}>
-              <img
-                alt="Logo"
-                className="h-6"
-                src={getAssetUrl(tenantConfig.brandLogoUrl)}
-              />
+              Main
+              {/*<img*/}
+              {/*  alt="Logo"*/}
+              {/*  className="h-6"*/}
+              {/*  src={getAssetUrl(tenantConfig.brandLogoUrl)}*/}
+              {/*/>*/}
             </Link>
           )}
         </HeaderSection>
