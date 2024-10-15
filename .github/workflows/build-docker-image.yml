@@ -104,7 +104,7 @@ jobs:
           if [[ base_tag != 'nightly' ]]; then
             args+=(--build-arg "APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com")
           fi
-          args+=(--build-arg "BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:$base_tag")
+          args+=(--build-arg "BASE=appsmith/base-ce:$base_tag")
           docker build -t cicontainer "${args[@]}" .
 
       # Saving the docker image to tar file
