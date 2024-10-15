@@ -56,7 +56,8 @@ export interface PanelConfig {
 }
 
 export interface PropertyPaneControlConfig {
-  // unique id to identify the property. It is added automatically with generateReactKey()
+  // Unique identifier for the control. Used for internal tracking and debugging.
+  // It added by `addPropertyConfigIds` function ( app/client/src/WidgetProvider/factory/helpers.ts ).
   id?: string;
   // label is used to display the name of the property
   label: string;
@@ -101,6 +102,7 @@ export interface PropertyPaneControlConfig {
   invisible?: boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;
+  /** validation configuration for the property */
   validation?: ValidationConfig;
   useValidationMessage?: boolean;
   // TODO: Fix this the next time the file is edited
