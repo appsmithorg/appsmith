@@ -197,7 +197,6 @@ describe("evaluateAndGenerateResponse", () => {
         timestamp: "timestamp",
         appMode: APP_MODE.PUBLISHED,
         instanceId: "instanceId",
-        workspaceId: "workspaceId",
       },
     );
     evaluator.evalAndValidateFirstTree();

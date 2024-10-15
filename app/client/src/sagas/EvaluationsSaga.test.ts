@@ -26,7 +26,6 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 
 jest.mock("loglevel");
 
@@ -49,7 +48,6 @@ describe("evaluateTreeSaga", () => {
         [select(getAppMode), false],
         [select(getWidgetsMeta), {}],
         [select(getInstanceId), "instanceId"],
-        [select(getCurrentWorkspaceId), "workspaceId"],
         [select(getCurrentApplicationId), "applicationId"],
         [select(getCurrentPageId), "pageId"],
         [
@@ -60,7 +58,6 @@ describe("evaluateTreeSaga", () => {
       .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
         cacheProps: {
           instanceId: "instanceId",
-          workspaceId: "workspaceId",
           appId: "applicationId",
           pageId: "pageId",
           appMode: false,
@@ -102,12 +99,10 @@ describe("evaluateTreeSaga", () => {
           select(getApplicationLastDeployedAt),
           new Date("11 September 2024").toISOString(),
         ],
-        [select(getCurrentWorkspaceId), "workspaceId"],
       ])
       .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
         cacheProps: {
           instanceId: "instanceId",
-          workspaceId: "workspaceId",
           appId: "applicationId",
           pageId: "pageId",
           appMode: false,
@@ -158,12 +153,10 @@ describe("evaluateTreeSaga", () => {
           select(getApplicationLastDeployedAt),
           new Date("11 September 2024").toISOString(),
         ],
-        [select(getCurrentWorkspaceId), "workspaceId"],
       ])
       .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
         cacheProps: {
           instanceId: "instanceId",
-          workspaceId: "workspaceId",
           appId: "applicationId",
           pageId: "pageId",
           appMode: false,
