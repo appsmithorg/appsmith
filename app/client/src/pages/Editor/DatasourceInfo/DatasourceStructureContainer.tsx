@@ -36,17 +36,8 @@ interface Props {
 
 // leaving out DynamoDB and Firestore because they have a schema but not templates
 export const SCHEMALESS_PLUGINS: Array<string> = [
-  PluginName.SMTP,
-  PluginName.TWILIO,
-  PluginName.HUBSPOT,
-  PluginName.ELASTIC_SEARCH,
-  PluginName.AIRTABLE,
   PluginName.GRAPHQL,
   PluginName.REST_API,
-  PluginName.REDIS,
-  PluginName.GOOGLE_SHEETS,
-  PluginName.OPEN_AI,
-  PluginName.APPSMITH_AI,
 ];
 
 const Container = (props: Props) => {
