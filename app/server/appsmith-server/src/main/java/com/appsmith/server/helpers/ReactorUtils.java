@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import org.springframework.transaction.TransactionStatus;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -25,6 +26,17 @@ public class ReactorUtils {
 
     public static <T> Mono<T> asMono(Supplier<Optional<T>> supplier) {
         return Mono.defer(() -> Mono.justOrEmpty(supplier.get())).subscribeOn(elasticScheduler);
+    }
+
+    public static <T> Mono<T> asMonoTransaction(Supplier<Optional<T>> supplier) {
+        return Mono.deferContextual(ctx -> {
+                    // Retrieve the transaction from the Reactor context
+                    TransactionStatus transactionStatus = ctx.get("Transaction");
+
+                    // Simulate further processing and ensure it runs within the same transaction
+                    return Mono.justOrEmpty(supplier.get());
+                })
+                .subscribeOn(elasticScheduler);
     }
 
     public static <T> Mono<T> asMonoDirect(Supplier<T> supplier) {

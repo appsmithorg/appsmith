@@ -25,6 +25,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -367,5 +368,18 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         } else {
             return List.of(application.getId());
         }
+    }
+
+    @Override
+    public Optional<Application> findByCtx(String id, TransactionStatus transactionStatus) {
+        return queryBuilder().criteria(Bridge.equal(Application.Fields.id, id)).one();
+    }
+
+    @Override
+    public int saveApp(Application application, TransactionStatus transactionStatus) {
+        BridgeUpdate updateObj = Bridge.update();
+        updateObj.set(Application.Fields.name, application.getName());
+
+        return queryBuilder().byId(application.getId()).updateFirst(updateObj);
     }
 }

@@ -61,7 +61,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -1079,35 +1078,73 @@ public class ApplicationServiceCEImpl
 
     @Override
     public Mono<Application> findSaveUpdateApp(String id, String name) {
-        return Mono.deferContextual(ctx -> {
-            DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-            def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
-            TransactionStatus transactionStatus = transactionManager.getTransaction(def);
+        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
+        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
 
-            return repository
-                    .findById(id)
-                    .switchIfEmpty(Mono.error(
-                            new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
-                    .flatMap(obj -> {
-                        obj.setName(name);
-                        return this.save(obj);
-                    })
-                    .flatMap(obj -> {
-                        Application update = new Application();
-                        update.setName(name);
-                        return repository.updateById(id, update, null);
-                    })
-                    .doOnSuccess(result -> {
-                        if (!transactionStatus.isCompleted()) {
-                            transactionManager.commit(transactionStatus);
-                        }
-                    })
-                    .doOnError(e -> {
-                        if (!transactionStatus.isCompleted()) {
-                            transactionManager.rollback(transactionStatus);
-                        }
-                    })
-                    .subscribeOn(Schedulers.boundedElastic());
-        });
+        // Begin the transaction manually
+        TransactionStatus transactionStatus = transactionManager.getTransaction(new DefaultTransactionDefinition());
+        // return Mono.just(new Application());
+        return Mono.deferContextual(ctx -> {
+                    return Mono.just(transactionStatus).flatMap(transactionStatus1 -> {
+                        System.out.println(transactionStatus1.getTransactionName() + "---------------------- ");
+
+                        return repository
+                                .findByCtx(id, transactionStatus)
+                                .flatMap(obj -> {
+                                    obj.setName(name);
+                                    return this.saveApp(obj, transactionStatus);
+                                })
+                                .flatMap(obj -> {
+                                    Application update = new Application();
+                                    update.setName("ggwp");
+
+                                    return this.saveError(update, transactionStatus);
+                                })
+                                .doOnSuccess(result -> {
+                                    if (!transactionStatus.isCompleted()) {
+                                        transactionManager.commit(transactionStatus); // Commit transaction
+                                    }
+                                })
+                                .doOnError(e -> {
+                                    if (!transactionStatus.isCompleted()) {
+                                        transactionManager.rollback(transactionStatus); // Rollback transaction on error
+                                    }
+                                });
+                    });
+                })
+                .contextWrite(context -> context.put("Transaction", transactionStatus));
+    }
+
+    public Mono<Integer> saveApp(Application application, TransactionStatus transactionStatus) {
+        /*if (!StringUtils.isEmpty(application.getName())) {
+            application.setSlug(TextUtils.makeSlug(application.getName()));
+        }
+
+        if (application.getApplicationVersion() != null) {
+            int appVersion = application.getApplicationVersion();
+            if (appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
+                return Mono.error(
+                    new AppsmithException(AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
+            }
+        }
+        return repository.save(application).flatMap(this::setTransientFields);*/
+        return repository.saveApp(application, transactionStatus);
+    }
+
+    public Mono<Application> saveError(Application application, TransactionStatus transactionStatus) {
+        /*if (!StringUtils.isEmpty(application.getName())) {
+            application.setSlug(TextUtils.makeSlug(application.getName()));
+        }
+
+        if (application.getApplicationVersion() != null) {
+            int appVersion = application.getApplicationVersion();
+            if (appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
+                return Mono.error(
+                    new AppsmithException(AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
+            }
+        }
+        return repository.save(application).flatMap(this::setTransientFields);*/
+        return Mono.error(
+                new AppsmithException(AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
     }
 }

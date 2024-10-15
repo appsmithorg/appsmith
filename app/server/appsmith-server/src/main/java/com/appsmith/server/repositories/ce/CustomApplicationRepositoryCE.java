@@ -5,6 +5,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.AppsmithRepository;
+import org.springframework.transaction.TransactionStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -97,4 +98,8 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     List<String> findAllBranchedApplicationIdsByBranchedApplicationId(
             String branchedApplicationId, AclPermission permission, User currentUser);
+
+    Optional<Application> findByCtx(String id, TransactionStatus transactionStatus);
+
+    int saveApp(Application application, TransactionStatus transactionStatus);
 }

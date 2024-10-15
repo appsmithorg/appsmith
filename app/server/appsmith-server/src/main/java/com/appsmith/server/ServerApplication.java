@@ -9,6 +9,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import reactor.core.publisher.Hooks;
 
 @SpringBootApplication
 @ComponentScan({"com.appsmith"})
@@ -26,6 +27,7 @@ public class ServerApplication {
     }
 
     public static void main(String[] args) {
+        Hooks.enableAutomaticContextPropagation();
         new SpringApplicationBuilder(ServerApplication.class)
                 .bannerMode(Banner.Mode.OFF)
                 .run(args);
