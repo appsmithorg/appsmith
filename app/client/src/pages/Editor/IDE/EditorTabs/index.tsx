@@ -12,10 +12,10 @@ import {
   EditorEntityTabState,
   EditorViewMode,
 } from "ee/entities/IDE/constants";
-import FileTabs from "./FileTabs";
+
 import Container from "./Container";
 import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
-import { TabSelectors } from "./constants";
+import { SCROLL_AREA_OPTIONS, TabSelectors } from "./constants";
 import { AddButton } from "./AddButton";
 import { Announcement } from "../EditorPane/components/Announcement";
 import { useLocation } from "react-router";
@@ -24,6 +24,10 @@ import { List } from "./List";
 import { ScreenModeToggle } from "./ScreenModeToggle";
 import { AddTab } from "./AddTab";
 import { setListViewActiveState } from "actions/ideActions";
+
+import { useEventCallback } from "usehooks-ts";
+
+import { EditableTab } from "./EditableTab";
 
 const EditorTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
@@ -41,21 +45,21 @@ const EditorTabs = () => {
   // Turn off list view while changing segment, files
   useEffect(() => {
     dispatch(setListViewActiveState(false));
-  }, [currentEntity.id, currentEntity.entity, files, segmentMode]);
+  }, [currentEntity.id, currentEntity.entity, files, segmentMode, dispatch]);
 
   // Show list view if all tabs is closed
   useEffect(() => {
     if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) {
       dispatch(setListViewActiveState(true));
     }
-  }, [files, segmentMode, currentEntity.entity]);
+  }, [files, segmentMode, currentEntity.entity, dispatch]);
 
   // scroll to the active tab
   useEffect(() => {
-    const activetab = document.querySelector(".editor-tab.active");
+    const activeTab = document.querySelector(".editor-tab.active");
 
-    if (activetab) {
-      activetab.scrollIntoView({
+    if (activeTab) {
+      activeTab.scrollIntoView({
         inline: "nearest",
       });
     }
@@ -74,24 +78,25 @@ const EditorTabs = () => {
     }
   }, [files]);
 
-  if (!isSideBySideEnabled) return null;
-
-  if (segment === EditorEntityTab.UI) return null;
-
-  const handleHamburgerClick = () => {
+  const handleHamburgerClick = useEventCallback(() => {
     if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) return;
 
     dispatch(setListViewActiveState(!isListViewActive));
-  };
+  });
 
-  const onTabClick = (tab: EntityItem) => {
+  // TODO: this returns a new function every time, needs to be recomposed
+  const handleTabClick = useEventCallback((tab: EntityItem) => () => {
     dispatch(setListViewActiveState(false));
     tabClickHandler(tab);
-  };
+  });
 
-  const newTabClickHandler = () => {
+  const handleNewTabClick = useEventCallback(() => {
     dispatch(setListViewActiveState(false));
-  };
+  });
+
+  if (!isSideBySideEnabled) return null;
+
+  if (segment === EditorEntityTab.UI) return null;
 
   return (
     <>
@@ -108,13 +113,8 @@ const EditorTabs = () => {
         <ScrollArea
           className="h-[32px] top-[0.5px]"
           data-testid="t--editor-tabs"
-          options={{
-            overflow: {
-              x: "scroll",
-              y: "hidden",
-            },
-          }}
-          size={"sm"}
+          options={SCROLL_AREA_OPTIONS}
+          size="sm"
         >
           <Flex
             className="items-center"
@@ -122,21 +122,28 @@ const EditorTabs = () => {
             gap="spaces-2"
             height="100%"
           >
-            <FileTabs
-              currentEntity={currentEntity}
-              isListActive={isListViewActive}
-              navigateToTab={onTabClick}
-              onClose={closeClickHandler}
-              tabs={files}
-            />
+            {files.map((tab) => (
+              <EditableTab
+                icon={tab.icon}
+                id={tab.key}
+                isActive={
+                  currentEntity.id === tab.key &&
+                  segmentMode !== EditorEntityTabState.Add &&
+                  !isListViewActive
+                }
+                key={tab.key}
+                onClick={handleTabClick(tab)}
+                onClose={closeClickHandler}
+                title={tab.title}
+              />
+            ))}
             <AddTab
               isListActive={isListViewActive}
-              newTabClickCallback={newTabClickHandler}
+              newTabClickCallback={handleNewTabClick}
               onClose={closeClickHandler}
             />
           </Flex>
         </ScrollArea>
-
         {files.length > 0 ? <AddButton /> : null}
         {/* Switch screen mode button */}
         <ScreenModeToggle />

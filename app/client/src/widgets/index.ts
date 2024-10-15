@@ -57,7 +57,6 @@ import RangeSliderWidget from "./RangeSliderWidget";
 import CategorySliderWidget from "./CategorySliderWidget";
 import CodeScannerWidget from "./CodeScannerWidget";
 import ListWidgetV2 from "./ListWidgetV2";
-import { WDSAIChatWidget } from "modules/ui-builder/ui/wds/WDSAIChatWidget";
 import { WDSButtonWidget } from "modules/ui-builder/ui/wds/WDSButtonWidget";
 import { WDSInputWidget } from "modules/ui-builder/ui/wds/WDSInputWidget";
 import { WDSCheckboxWidget } from "modules/ui-builder/ui/wds/WDSCheckboxWidget";
@@ -88,6 +87,7 @@ import { WDSPasswordInputWidget } from "modules/ui-builder/ui/wds/WDSPasswordInp
 import { WDSNumberInputWidget } from "modules/ui-builder/ui/wds/WDSNumberInputWidget";
 import { WDSMultilineInputWidget } from "modules/ui-builder/ui/wds/WDSMultilineInputWidget";
 import { WDSSelectWidget } from "modules/ui-builder/ui/wds/WDSSelectWidget";
+import { EEWDSWidgets } from "ee/modules/ui-builder/ui/wds";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -157,8 +157,6 @@ const DeprecatedWidgets = [
 ];
 
 const WDSWidgets = [
-  // WDS Widgets
-  WDSAIChatWidget,
   WDSButtonWidget,
   WDSInputWidget,
   WDSCheckboxWidget,
@@ -193,6 +191,7 @@ const Widgets = [
   ...WDSWidgets,
   ...DeprecatedWidgets,
   ...LegacyWidgets,
+  ...EEWDSWidgets,
 ] as (typeof BaseWidget)[];
 
 export default Widgets;
