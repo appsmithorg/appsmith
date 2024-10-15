@@ -114,6 +114,7 @@ jobs:
           #   | grep -v cicontainer \
           #   | cut -d, -f2 \
           #   | xargs docker rmi
+          docker container prune -f
           docker save cicontainer -o cicontainer.tar
           gzip cicontainer.tar
 
