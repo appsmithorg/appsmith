@@ -1204,7 +1204,7 @@ describe("Validates getFilteredTableData Properties", () => {
         {
           condition: "contains",
           column: "name",
-          value: "Khafaga"
+          value: "Khafaga",
         },
       ],
       sortOrder: { column: "id", order: "desc" },
@@ -1227,7 +1227,7 @@ describe("Validates getFilteredTableData Properties", () => {
           isVisible: true,
           isDerived: false,
           label: "id",
-          isAscOrder: false
+          isAscOrder: false,
         },
         name: {
           index: 0,
@@ -1246,8 +1246,8 @@ describe("Validates getFilteredTableData Properties", () => {
           isVisible: true,
           isDerived: false,
           label: "awesome",
-          isAscOrder: undefined
-        }
+          isAscOrder: undefined,
+        },
       },
       tableColumns: [
         {
@@ -1265,7 +1265,7 @@ describe("Validates getFilteredTableData Properties", () => {
           isVisible: true,
           isDerived: false,
           label: "awesome",
-          isAscOrder: undefined
+          isAscOrder: undefined,
         },
         {
           index: 1,
@@ -1282,8 +1282,8 @@ describe("Validates getFilteredTableData Properties", () => {
           isVisible: true,
           isDerived: false,
           label: "id",
-          isAscOrder: false
-        }
+          isAscOrder: false,
+        },
       ],
     };
 
