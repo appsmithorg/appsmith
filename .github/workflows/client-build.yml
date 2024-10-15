@@ -133,6 +133,10 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         run: yarn install --immutable
 
+      - name: Update Browserslist database
+        run: npx browserslist@latest --update-db
+        shell: bash
+
       # Type checking before starting the build
       - name: Run type check
         if: steps.run_result.outputs.run_result != 'success' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
