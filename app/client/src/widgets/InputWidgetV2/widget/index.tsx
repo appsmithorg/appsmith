@@ -304,6 +304,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     super(props);
     this.state = {
       isFocused: false,
+      isDirty: false,
     };
   }
 
@@ -726,9 +727,9 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     // If defaultText property has changed, reset isDirty to false
     if (
       this.props.defaultText !== prevProps.defaultText &&
-      this.props.isDirty
+      this.state.isDirty
     ) {
-      this.props.updateWidgetMetaProperty("isDirty", false);
+      this.setState({ isDirty: false });
     }
   };
 
@@ -752,8 +753,8 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
       },
     });
 
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
+    if (!this.state.isDirty) {
+      this.setState({ isDirty: true });
     }
   };
 
@@ -793,7 +794,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     const value = this.props.inputText ?? "";
     let isInvalid = false;
 
-    if (this.props.isDirty) {
+    if (this.state.isDirty) {
       isInvalid = "isValid" in this.props && !this.props.isValid;
     } else {
       isInvalid = false;
