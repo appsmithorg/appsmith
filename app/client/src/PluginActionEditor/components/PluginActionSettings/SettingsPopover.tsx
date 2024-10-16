@@ -8,7 +8,6 @@ import {
   PopoverTrigger,
 } from "@appsmith/ads";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { usePluginActionContext } from "../../PluginActionContext";
 import styled from "styled-components";
 import { API_EDITOR_TAB_TITLES, createMessage } from "ee/constants/messages";
@@ -17,6 +16,7 @@ import {
   isPluginActionSettingsOpen,
   openPluginActionSettings,
 } from "../../store";
+import { THEME } from "../../constants";
 
 export interface SettingsProps {
   formName: string;
@@ -46,19 +46,18 @@ const SettingsWrapper = styled.div`
 const PluginActionSettingsPopover = (props: SettingsProps) => {
   const { settingsConfig } = usePluginActionContext();
   const openSettings = useSelector(isPluginActionSettingsOpen);
-  const [open, setOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
-  const theme = EditorTheme.LIGHT;
 
   useEffect(() => {
     if (openSettings) {
-      onOpenChange(true);
+      handleOpenChange(true);
     }
   }, [openSettings]);
 
-  const onOpenChange = useCallback(
+  const handleOpenChange = useCallback(
     (open: boolean) => {
-      setOpen(open);
+      setIsOpen(open);
 
       if (openSettings && !open) {
         dispatch(openPluginActionSettings(false));
@@ -67,20 +66,28 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
     [openSettings],
   );
 
+  const handleEscapeKeyDown = () => {
+    handleOpenChange(false);
+  };
+
+  const handleButtonClick = () => {
+    handleOpenChange(true);
+  };
+
   return (
-    <Popover onOpenChange={onOpenChange} open={open}>
+    <Popover onOpenChange={handleOpenChange} open={isOpen}>
       <PopoverTrigger>
         <Button
           isIconButton
           kind="secondary"
-          onClick={() => onOpenChange(true)}
+          onClick={handleButtonClick}
           size="sm"
           startIcon="settings-2-line"
         />
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        onEscapeKeyDown={() => onOpenChange(false)}
+        onEscapeKeyDown={handleEscapeKeyDown}
         size="sm"
       >
         <PopoverHeader className="sticky top-0" isClosable>
@@ -91,7 +98,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
             <ActionSettings
               actionSettingsConfig={settingsConfig}
               formName={props.formName}
-              theme={theme}
+              theme={THEME}
             />
           </SettingsWrapper>
         </PopoverBody>
