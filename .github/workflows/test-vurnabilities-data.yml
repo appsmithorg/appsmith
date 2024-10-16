@@ -1,0 +1,78 @@
+name: Run Vulnerability Data Script with Parameters and Update PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_name:
+        description: 'Docker image name to scan'
+        required: true
+        default: 'appsmith/appsmith-ce:release'
+      old_vuln_file:
+        description: 'Old vulnerability file (if exists)'
+        required: true
+        default: 'vulnerabilities.txt'
+
+jobs:
+  run-vulnerabilities-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Run vulnerability data script
+        run: |
+          chmod +x scripts/vulnerabilities_data.sh
+          ./scripts/vulnerabilities_data.sh ${{ inputs.image_name }} ${{ inputs.old_vuln_file }}
+          
+      - name: Upload vulnerabilities report as artifact
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: vulnerabilities-report
+          path: vulnerabilities_diff.txt
+
+  update-pr-with-failures:
+    needs: run-vulnerabilities-data
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create PR comment with vulnerabilities report
+        if: failure()
+        uses: actions/github-script@v7
+        env:
+          NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
+        with:
+          script: |
+            const fs = require('fs');
+            const core = require('@actions/core');
+            const github = require('@actions/github');
+            
+            let body = "Vulnerability scan found issues.\n";
+            body += `Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>\n`;
+            body += `Commit: ${{ github.sha }}\n\n`;
+            body += "The following vulnerabilities were detected during the scan:\n\n";
+            
+            let reportPath = './scripts/vulnerabilities_diff.txt';
+            
+            if (fs.existsSync(reportPath)) {
+              const vulnerabilities = fs.readFileSync(reportPath, 'utf8');
+              body += vulnerabilities;
+            } else {
+              body += "No vulnerabilities found.";
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body
+            });
+            
+            core.setFailed("Vulnerability scan detected issues.");
