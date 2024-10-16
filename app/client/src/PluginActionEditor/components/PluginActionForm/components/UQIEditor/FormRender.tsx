@@ -20,7 +20,7 @@ import {
   updateEvaluatedSectionConfig,
 } from "components/formControls/utils";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
-import FormControl from "../FormControl";
+import FormControl from "pages/Editor/FormControl";
 import type { ControlProps } from "components/formControls/BaseControl";
 import { Spinner } from "@appsmith/ads";
 import type { QueryAction, SaaSAction } from "entities/Action";
