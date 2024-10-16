@@ -122,7 +122,7 @@ const StyledFormLabel = styled.label<{
   font-weight: 400;
   font-size: 14px;
   line-height: 16px;
-  letter-spacing: 0.02em;
+  letter-spacing: normal;
   margin-bottom: ${(props) =>
     props.extraStyles?.marginBottom
       ? props.extraStyles?.marginBottom

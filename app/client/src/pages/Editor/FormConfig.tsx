@@ -41,6 +41,8 @@ const LabelWrapper = styled.div`
   .label-icon-wrapper {
     &.help {
       cursor: help;
+      text-decoration: underline dashed var(--ads-v2-color-border) from-font;
+      text-underline-position: under;
     }
   }
 `;

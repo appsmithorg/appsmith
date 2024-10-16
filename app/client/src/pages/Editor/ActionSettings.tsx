@@ -14,14 +14,15 @@ interface ActionSettingsProps {
   theme?: EditorTheme;
 }
 
-const FormRow = styled.div`
-  margin-bottom: ${(props) => props.theme.spaces[10] + 1}px;
-`;
+const FormRow = styled.div``;
 
 const ActionSettingsWrapper = styled.div`
   width: 100%;
   max-width: 600px;
   padding-bottom: 1px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 
   .form-config-top {
     flex-grow: 1;

@@ -7,18 +7,17 @@
         {
           "label": "Run query on page load",
           "configProperty": "executeOnLoad",
-          "controlType": "SWITCH",
-          "subtitle": "Will refresh data each time the page is loaded"
+          "controlType": "SWITCH"
         },
         {
           "label": "Request confirmation before running query",
           "configProperty": "confirmBeforeExecute",
           "controlType": "SWITCH",
-          "subtitle": "Ask confirmation from the user each time before refreshing data"
+          "tooltipText": "Ask confirmation from the user each time before refreshing data"
         },
         {
-          "label": "Use Prepared Statement",
-          "subtitle": "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
+          "label": "Use prepared statements",
+          "tooltipText": "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
           "controlType": "SWITCH",
           "initialValue": true

@@ -1,32 +1,36 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  Button,
+  Link,
   Popover,
   PopoverBody,
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
+  ToggleButton,
 } from "@appsmith/ads";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { usePluginActionContext } from "../../PluginActionContext";
 import styled from "styled-components";
-import { API_EDITOR_TAB_TITLES, createMessage } from "ee/constants/messages";
+import {
+  API_EDITOR_TAB_TITLES,
+  createMessage,
+  LEARN_MORE,
+} from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   isPluginActionSettingsOpen,
   openPluginActionSettings,
 } from "../../store";
 import { THEME } from "../../constants";
+import { type DocsLink, openDoc } from "constants/DocumentationLinks";
 
 export interface SettingsProps {
   formName: string;
+  docsLink?: DocsLink;
 }
 
 /* TODO: Remove this after removing custom width from server side (Ankita) */
 const SettingsWrapper = styled.div`
-  overflow-y: scroll;
-  max-height: calc(var(--popover-max-height) - 69px);
-
   .t--form-control-INPUT_TEXT,
   .t--form-control-DROP_DOWN {
     > div {
@@ -38,18 +42,19 @@ const SettingsWrapper = styled.div`
   .form-config-top {
     .form-label {
       min-width: unset;
-      width: 100%l;
+      width: 100%;
     }
   }
 `;
 
 const StyledPopoverHeader = styled(PopoverHeader)`
-  position: sticky;
-  top: 0px;
+  margin-bottom: var(--ads-v2-spaces-5);
 `;
 
-const StyledPopoverBody = styled(PopoverBody)`
-  overflow-y: clip !important;
+const LearnMoreLink = styled(Link)`
+  span {
+    font-weight: bold;
+  }
 `;
 
 const PluginActionSettingsPopover = (props: SettingsProps) => {
@@ -83,15 +88,18 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
     handleOpenChange(true);
   };
 
+  const handleLearnMoreClick = () => {
+    openDoc(props.docsLink as DocsLink);
+  };
+
   return (
     <Popover onOpenChange={handleOpenChange} open={isOpen}>
       <PopoverTrigger>
-        <Button
-          isIconButton
-          kind="secondary"
+        <ToggleButton
+          icon="settings-2-line"
+          isSelected={isOpen}
           onClick={handleButtonClick}
-          size="sm"
-          startIcon="settings-2-line"
+          size="md"
         />
       </PopoverTrigger>
       <PopoverContent
@@ -102,15 +110,25 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
         <StyledPopoverHeader isClosable>
           {createMessage(API_EDITOR_TAB_TITLES.SETTINGS)}
         </StyledPopoverHeader>
-        <StyledPopoverBody>
+        <PopoverBody>
           <SettingsWrapper>
             <ActionSettings
               actionSettingsConfig={settingsConfig}
               formName={props.formName}
               theme={THEME}
             />
+            {props.docsLink && (
+              <LearnMoreLink
+                className="t--action-settings-documentation-link"
+                endIcon="share-box-line"
+                kind="secondary"
+                onClick={handleLearnMoreClick}
+              >
+                {createMessage(LEARN_MORE)}
+              </LearnMoreLink>
+            )}
           </SettingsWrapper>
-        </StyledPopoverBody>
+        </PopoverBody>
       </PopoverContent>
     </Popover>
   );
