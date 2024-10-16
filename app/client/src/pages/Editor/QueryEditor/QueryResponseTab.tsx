@@ -39,11 +39,13 @@ import BindDataButton from "./BindDataButton";
 import {
   getPluginActionDebuggerState,
   openPluginActionSettings,
+  setPluginActionEditorDebuggerState,
 } from "PluginActionEditor/store";
 import {
   createMessage,
   PREPARED_STATEMENT_WARNING,
 } from "ee/constants/messages";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
 
 const HelpSection = styled.div``;
 
@@ -94,6 +96,10 @@ const QueryResponseTab = (props: Props) => {
   const isExecutePermitted = getHasExecuteActionPermission(
     isFeatureEnabled,
     currentActionConfig?.userPermissions,
+  );
+
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
   const actionResponse = useSelector((state) =>
@@ -218,8 +224,16 @@ const QueryResponseTab = (props: Props) => {
   }
 
   const navigateToSettings = useCallback(() => {
-    dispatch(openPluginActionSettings(true));
-  }, [dispatch]);
+    if (isActionRedesignEnabled) {
+      dispatch(openPluginActionSettings(true));
+    } else {
+      dispatch(
+        setPluginActionEditorDebuggerState({
+          selectedTab: EDITOR_TABS.SETTINGS,
+        }),
+      );
+    }
+  }, [dispatch, isActionRedesignEnabled]);
 
   const preparedStatementCalloutLinks: CalloutLinkProps[] = [
     {
