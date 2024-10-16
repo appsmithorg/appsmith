@@ -21,7 +21,7 @@ import {
   isPluginActionSettingsOpen,
   openPluginActionSettings,
 } from "../../store";
-import { THEME } from "../../constants";
+import { THEME } from "../../constants/PluginActionConstants";
 import { type DocsLink, openDoc } from "constants/DocumentationLinks";
 
 export interface SettingsProps {
