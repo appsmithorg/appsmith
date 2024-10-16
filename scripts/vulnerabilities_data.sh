@@ -3,13 +3,25 @@
 # Check if Trivy is installed, if not, download and install it
 if ! command -v trivy &> /dev/null; then
   echo "Trivy is not installed. Installing Trivy..."
-  curl -sfL https://github.com/aquasecurity/trivy/releases/latest/download/trivy_1.9.2_Linux-64bit.tar.gz | tar -xzf - trivy_1.9.2/trivy
+  
+  # Fetch the latest release dynamically instead of hardcoding
+  TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+  TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_"$TRIVY_VERSION"_Linux-64bit.tar.gz"
+  
+  # Download and extract Trivy
+  curl -sfL "$TRIVY_URL" | tar -xzf - trivy
+  
+  # Check if extraction was successful
+  if [[ $? -ne 0 ]]; then
+    echo "Error: Trivy extraction failed."
+    exit 1
+  fi
 
   # Create a local bin directory if it doesn't exist
   mkdir -p "$HOME/bin"
   
   # Move Trivy to the local bin directory
-  mv trivy_1.9.2/trivy "$HOME/bin/"
+  mv trivy "$HOME/bin/"
 
   # Add the local bin directory to PATH if it's not already present
   if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
