@@ -258,7 +258,7 @@ export interface PropertyPaneControlConfig {
    */
   defaultValue?: unknown;
   /**
-   * If the property is marked reusable, on the next drop it will rule the value of the last dropped widget.
+   * If the property is marked reusable, on the next drop it will use the value of the last dropped widget.
    */
   isReusable?: boolean;
 }
