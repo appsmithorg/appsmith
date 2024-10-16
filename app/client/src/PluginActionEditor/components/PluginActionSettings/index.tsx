@@ -1,6 +1,6 @@
 import React from "react";
 import { UIComponentTypes } from "api/PluginApi";
-import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
+import { usePluginActionContext } from "../../PluginActionContext";
 import ApiSettings from "./ApiSettings";
 import QuerySettings from "./QuerySettings";
 import {
@@ -8,13 +8,15 @@ import {
   QUERY_EDITOR_FORM_NAME,
 } from "ee/constants/forms";
 
+const API_FORM_COMPONENTS = [
+  UIComponentTypes.ApiEditorForm,
+  UIComponentTypes.GraphQLEditorForm,
+];
+
 const PluginActionSettings = () => {
   const { plugin } = usePluginActionContext();
 
-  return [
-    UIComponentTypes.ApiEditorForm,
-    UIComponentTypes.GraphQLEditorForm,
-  ].includes(plugin.uiComponent) ? (
+  return API_FORM_COMPONENTS.includes(plugin.uiComponent) ? (
     <ApiSettings formName={API_EDITOR_FORM_NAME} />
   ) : (
     <QuerySettings formName={QUERY_EDITOR_FORM_NAME} />

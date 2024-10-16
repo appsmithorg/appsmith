@@ -16,7 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   isPluginActionSettingsOpen,
   openPluginActionSettings,
-} from "PluginActionEditor/store";
+} from "../../store";
 
 export interface SettingsProps {
   formName: string;
@@ -53,7 +53,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
         dispatch(openPluginActionSettings(false));
       }
     },
-    [dispatch, openSettings],
+    [openSettings],
   );
 
   return (
