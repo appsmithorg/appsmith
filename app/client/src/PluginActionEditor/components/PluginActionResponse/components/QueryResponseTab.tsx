@@ -27,14 +27,7 @@ import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLo
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
 import { getActionData } from "ee/selectors/entitiesSelector";
-<<<<<<< HEAD:app/client/src/PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab.tsx
 import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-=======
-import { actionResponseDisplayDataFormats } from "../utils";
->>>>>>> release:app/client/src/pages/Editor/QueryEditor/QueryResponseTab.tsx
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { isString } from "lodash";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
@@ -42,13 +35,8 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import BindDataButton from "./BindDataButton";
 import {
   getPluginActionDebuggerState,
-<<<<<<< HEAD:app/client/src/PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab.tsx
-  setPluginActionEditorDebuggerState,
-} from "../../../store";
-=======
   setPluginActionEditorSelectedTab,
-} from "PluginActionEditor/store";
->>>>>>> release:app/client/src/pages/Editor/QueryEditor/QueryResponseTab.tsx
+} from "../../../store";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import {
   createMessage,
