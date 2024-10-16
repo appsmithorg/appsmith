@@ -676,6 +676,9 @@ export default {
 
     const finalTableData = sortedTableData.filter((row) => {
       let isSearchKeyFound = true;
+      const originalRow = (props.tableData ?? sortedTableData)[
+        row.__originalIndex__
+      ];
       const columnWithDisplayText = Object.values(props.primaryColumns).filter(
         (column) => column.columnType === "url" && column.displayText,
       );
@@ -780,7 +783,10 @@ export default {
       };
 
       if (searchKey) {
-        isSearchKeyFound = Object.values(_.omit(displayedRow, hiddenColumns))
+        isSearchKeyFound = [
+          ...Object.values(_.omit(displayedRow, hiddenColumns)),
+          ...Object.values(_.omit(originalRow, hiddenColumns)),
+        ]
           .join(", ")
           .toLowerCase()
           .includes(searchKey);
@@ -811,8 +817,6 @@ export default {
             ConditionFunctions[props.filters[i].condition];
 
           if (conditionFunction) {
-            const originalRow = props.tableData[row.__originalIndex__];
-
             filterResult =
               conditionFunction(
                 originalRow[props.filters[i].column],
