@@ -5,7 +5,7 @@ import {
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "../components/PluginActionResponse/constants";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import type { ActionResponse } from "api/ActionAPI";
 import { omit, set } from "lodash";

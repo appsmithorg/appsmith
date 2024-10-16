@@ -1,15 +1,14 @@
 import {
   extractApiUrlPath,
   transformRestAction,
-} from "transformers/RestActionTransformer";
+} from "./RestActionTransformer";
 import type { ApiAction } from "entities/Action";
 import { PluginType } from "entities/Action";
 import {
   HTTP_PROTOCOL,
   MultiPartOptionTypes,
   POST_BODY_FORMAT_OPTIONS,
-  // POST_BODY_FORMAT_OPTIONS_ENUM,
-} from "constants/ApiEditorConstants/CommonApiConstants";
+} from "../constants/CommonApiConstants";
 
 // jest.mock("POST_");
 
