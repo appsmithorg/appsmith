@@ -149,6 +149,7 @@ function usePluginActionResponseTabs() {
           actionName={action.name}
           actionSource={actionSource}
           currentActionConfig={action}
+          isRunDisabled={blockExecution}
           isRunning={isRunning}
           onRunClick={onRunClick}
           runErrorMessage={""} // TODO
