@@ -178,39 +178,103 @@ jobs:
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
-          if [[ "${{ inputs.is-pg-build }}" == "true" ]]; then
-            export APPSMITH_DB_URL="postgresql://postgres:password@localhost:5432/postgres"
-          else
-            export APPSMITH_DB_URL="mongodb://localhost:27017/mobtools"
-          fi
-          args=()
-          if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
-            failed_tests="${{ steps.failed_tests.outputs.tests }}"
-            args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
-          fi
-          if ! mvn test "${args[@]}"; then
-            echo "Generating failed test list:"
-            failed_tests_file="$PWD/failed-server-tests.txt"
+            if [[ "${{ inputs.is-pg-build }}" == "true" ]]; then
+                export APPSMITH_DB_URL="postgresql://postgres:password@localhost:5432/postgres"
+            else
+                export APPSMITH_DB_URL="mongodb://localhost:27017/mobtools"
+            fi
+
+            args=()
+            if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
+                failed_tests="${{ steps.failed_tests.outputs.tests }}"
+                args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
+            fi
+
+            # Run tests and capture logs
+            mvn test "${args[@]}" | tee mvn_test.log
+            
+            # Check for "BUILD FAILURE" in the mvn_test.log
+            if grep -q "BUILD FAILURE" mvn_test.log; then
+                test_result="failed"
+            else
+                test_result="passed"
+            fi
+
+            echo "test_result variable value: ${test_result}"
+
+            # Prepare output file for failed tests and ensure a fresh file is created
+            OUTPUT_FILE="failed-server-tests.txt"
+            rm -f "$OUTPUT_FILE"
+            touch "$OUTPUT_FILE"
+
+            failed_modules=()
+            skipped_modules=()
+
+            # Process mvn_test.log for FAILURE and SKIPPED statuses
+            while IFS= read -r line; do
+                if [[ $line == *"FAILURE"* ]]; then
+                    module_name=$(echo "$line" | awk '{print $2}')
+                    failed_modules+=("$module_name")
+                elif [[ $line == *"SKIPPED"* ]]; then
+                    module_name=$(echo "$line" | awk '{print $2}')
+                    skipped_modules+=("$module_name")
+                fi
+            done < mvn_test.log
+
+            echo "Failed Modules: ${failed_modules[*]}"
+            echo "Skipped Modules: ${skipped_modules[*]}"
+
+            # Handle older approach for reading failed tests from XML files
+            failed_tests_from_xml="$PWD/failed-tests-from-xml.txt"
             gawk -F\" '/<testcase / {cur_test = $4 "#" $2} /<(failure|error) / {print cur_test}' $(find . -type f -name 'TEST-*.xml') \
               | sort -u \
-              | tee "$failed_tests_file"
-            echo "Saved to $failed_tests_file"
-            if [[ -s $failed_tests_file ]]; then
-              content="$(
-                echo "## Failed server tests"
-                echo
-                sed 's/^/- /' "$failed_tests_file"
-              )"
-              echo "$content" >> "$GITHUB_STEP_SUMMARY"
-              # Add a comment to the PR with the list of failed tests.
-              curl --silent --show-error \
-                --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                --data "$(jq -n --arg body "$content" '$ARGS.named')" \
-                "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/${{ inputs.pr }}/comments" \
-                > /dev/null
+              | tee "$failed_tests_from_xml"
+
+            # Filter out failed modules and add only relevant tests to the final failed list
+            for module in "${failed_modules[@]}"; do
+                grep -v "$module" "$failed_tests_from_xml" > temp_file && mv temp_file "$failed_tests_from_xml"
+            done
+
+            # Include all skipped module test files in the final list
+            for module in "${skipped_modules[@]}"; do
+                module_directories=$(find . -path "*/${module}*/src/test/java/*" -type f -name "*Test.java" -exec dirname {} \; | sort -u)
+                for module_directory in $module_directories; do
+                    test_classes=$(find "$module_directory" -type f -name "*Test.java" | sed 's|.*/src/test/java/||; s|\.java$||; s|/|.|g')
+                    for class_name in $test_classes; do
+                        if [[ ${#class_name} -le 240 ]] && ! grep -Fxq "$class_name#" "$OUTPUT_FILE"; then
+                            echo "${class_name}#" >> "$OUTPUT_FILE"
+                        fi
+                    done
+                done
+            done
+
+            # Combine the XML file test cases and skipped module test files into the final output file
+            cat "$failed_tests_from_xml" >> "$OUTPUT_FILE"
+            
+            # Print the final output
+            cat "$OUTPUT_FILE"
+
+            if [[ -s $OUTPUT_FILE ]]; then
+                content="$(
+                    echo "## Failed server tests"
+                    echo
+                    sed 's/^/- /' "$OUTPUT_FILE"
+                )"
+                echo "$content" >> "$GITHUB_STEP_SUMMARY"
+                
+                # Post a comment to the PR
+                curl --silent --show-error \
+                    --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    --data "$(jq -n --arg body "$content" '$ARGS.named')" \
+                    "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/${{ inputs.pr }}/comments" \
+                    > /dev/null
             fi
-            exit 1
-          fi
+
+            # Fail the script if tests did not pass
+            if [[ "$test_result" == "failed" ]]; then
+                echo "Tests failed, exiting with status 1."
+                exit 1
+            fi
 
       # Set status = failedtest
       - name: Set fail if there are test failures
