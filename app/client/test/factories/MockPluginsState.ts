@@ -6934,7 +6934,8 @@ export default {
           },
           {
             label: "Use Prepared Statement",
-            info: "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
+            tooltipText:
+              "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
             configProperty:
               "actionConfiguration.pluginSpecifiedTemplates[0].value",
             controlType: "SWITCH",
@@ -7133,7 +7134,7 @@ export default {
           },
           {
             label: "Use Prepared Statement",
-            subtitle:
+            tooltipText:
               "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
             configProperty:
               "actionConfiguration.pluginSpecifiedTemplates[0].value",

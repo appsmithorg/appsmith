@@ -41,6 +41,7 @@ const LabelWrapper = styled.div`
   .label-icon-wrapper {
     &.help {
       cursor: help;
+      border-bottom: 1px dashed var(--ads-v2-color-border);
     }
   }
 `;
