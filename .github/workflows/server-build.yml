@@ -22,6 +22,27 @@ on:
         required: false
         type: string
         default: "false"
+      
+  workflow_dispatch: # This allows manual triggering of the workflow
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+      skip-tests:
+        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
+        required: false
+        type: string
+        default: "false"
+      branch:
+        description: "This is the branch to be used for the build."
+        required: false
+        type: string
+      is-pg-build:
+        description: "This is a boolean value in case the workflow is being called for a PG build"
+        required: false
+        type: string
+        default: "false"    
 
 # Change the working directory for all the jobs in this workflow
 defaults:
