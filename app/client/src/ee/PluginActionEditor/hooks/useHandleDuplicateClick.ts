@@ -1,1 +1,1 @@
-export * from "ee/PluginActionEditor/hooks/useHandleDuplicateClick";
+export * from "ce/PluginActionEditor/hooks/useHandleDuplicateClick";
