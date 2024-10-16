@@ -7,7 +7,6 @@ import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 import type { EventName } from "ee/utils/analyticsUtilTypes";
-import mixpanelClient from "mixpanel-browser";
 
 export function getUserSource() {
   const { cloudHosting, segment } = getAppsmithConfigs();
@@ -253,8 +252,7 @@ class AnalyticsUtil {
   }
 
   static identifyUser(userData: User, sendAdditionalData?: boolean) {
-    const { appVersion, mixpanel, segment, sentry, smartLook } =
-      getAppsmithConfigs();
+    const { appVersion, segment, sentry, smartLook } = getAppsmithConfigs();
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const windowDoc: any = window;
@@ -276,61 +274,6 @@ class AnalyticsUtil {
         AnalyticsUtil.user = userData;
         log.debug("Identify User " + userId);
         windowDoc.analytics.identify(userId, userProperties);
-
-        // Init mixpanel to record session recordings
-        mixpanelClient.init(mixpanel.apiKey, {
-          record_sessions_percent: 100,
-        });
-
-        // Middleware to add Mixpanel's session recording properties to Segment events
-        // https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/middleware/
-        windowDoc.analytics.addSourceMiddleware(
-          (middleware: {
-            payload: {
-              type: "track" | "page" | "identify";
-              obj: {
-                properties: Record<string, unknown>;
-                anonymousId: string;
-                userId: string;
-              };
-            };
-            next: (payload: unknown) => void;
-          }) => {
-            if (
-              middleware.payload.type === "track" ||
-              middleware.payload.type === "page"
-            ) {
-              if (mixpanelClient) {
-                const segmentDeviceId = middleware.payload.obj.anonymousId;
-
-                //simplified id
-                mixpanelClient.register({
-                  $device_id: segmentDeviceId,
-                  distinct_id: "$device:" + segmentDeviceId,
-                });
-
-                // Add session recording properties to the event
-                const sessionReplayProperties =
-                  mixpanelClient.get_session_recording_properties();
-
-                middleware.payload.obj.properties = {
-                  ...middleware.payload.obj.properties,
-                  ...sessionReplayProperties,
-                };
-              }
-            }
-
-            if (middleware.payload.type === "identify") {
-              if (mixpanelClient) {
-                const userId = middleware.payload.obj.userId;
-
-                mixpanelClient.identify(userId);
-              }
-            }
-
-            middleware.next(middleware.payload);
-          },
-        );
       } else if (segment.ceKey) {
         // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
         if (userId !== AnalyticsUtil.cachedUserId) {
