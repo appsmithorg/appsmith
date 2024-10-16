@@ -10,7 +10,6 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { JSObjectNameEditorProps } from "./JSObjectNameEditor";
-import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
   setActiveJSAction,
   setJsPaneConfigSelectedTab,
@@ -23,7 +22,6 @@ import { useLocation } from "react-router";
 import JSResponseView from "components/editorComponents/JSResponseView";
 import { isEmpty } from "lodash";
 import equal from "fast-deep-equal/es6";
-import { JSFunctionRun } from "./JSFunctionRun";
 import type { AppState } from "ee/reducers";
 import {
   getActiveJSActionId,
@@ -33,24 +31,16 @@ import {
 } from "ee/selectors/entitiesSelector";
 import type { JSActionDropdownOption } from "./utils";
 import {
-  convertJSActionsToDropdownOptions,
   convertJSActionToDropdownOption,
   getActionFromJsCollection,
   getJSActionOption,
   getJSFunctionLineGutter,
   getJSPropertyLineFromName,
 } from "./utils";
-import JSFunctionSettingsView from "./JSFunctionSettings";
-import type { JSFunctionSettingsProps } from "./JSFunctionSettings";
+import JSFunctionSettingsView from "./JSEditorToolbar/components/old/JSFunctionSettings";
+import type { JSFunctionSettingsProps } from "./JSEditorToolbar/components/old/JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
-import {
-  ActionButtons,
-  Form,
-  FormWrapper,
-  NameWrapper,
-  StyledFormRow,
-  TabbedViewContainer,
-} from "./styledComponents";
+import { Form, FormWrapper, TabbedViewContainer } from "./styledComponents";
 import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import {
@@ -72,6 +62,7 @@ import {
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import RunHistory from "ee/components/RunHistory";
+import { JSEditorToolbar } from "./JSEditorToolbar/JSEditorToolbar";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
@@ -349,33 +340,27 @@ function JSEditorForm({
       >
         {backLink}
         <Form onSubmit={(event) => event.preventDefault()}>
-          <StyledFormRow className="form-row-header">
-            <NameWrapper className="t--nameOfJSObject">
-              <JSObjectNameEditor
-                disabled={!isChangePermitted || hideEditIconOnEditor}
-                saveJSObjectName={saveJSObjectName}
-              />
-            </NameWrapper>
-            <ActionButtons className="t--formActionButtons">
-              {!hideContextMenuOnEditor && contextMenu}
-              <JSFunctionRun
-                disabled={disableRunFunctionality || !isExecutePermitted}
-                isLoading={isExecutingCurrentJSAction}
-                jsCollection={currentJSCollection}
-                onButtonClick={(
-                  event:
-                    | React.MouseEvent<HTMLElement, MouseEvent>
-                    | KeyboardEvent,
-                ) => {
-                  handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
-                }}
-                onSelect={handleJSActionOptionSelection}
-                options={convertJSActionsToDropdownOptions(jsActions)}
-                selected={selectedJSActionOption}
-                showTooltip={!selectedJSActionOption.data}
-              />
-            </ActionButtons>
-          </StyledFormRow>
+          <JSEditorToolbar
+            changePermitted={isChangePermitted}
+            contextMenu={contextMenu}
+            disableRunFunctionality={disableRunFunctionality}
+            executePermitted={isExecutePermitted}
+            hideContextMenuOnEditor={hideContextMenuOnEditor}
+            hideEditIconOnEditor={hideEditIconOnEditor}
+            jsActions={jsActions}
+            jsCollection={currentJSCollection}
+            loading={isExecutingCurrentJSAction}
+            onButtonClick={(
+              event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
+            ) => {
+              handleRunAction(event, "JS_OBJECT_MAIN_RUN_BUTTON");
+            }}
+            onSelect={handleJSActionOptionSelection}
+            onUpdateSettings={onUpdateSettings}
+            saveJSObjectName={saveJSObjectName}
+            selected={selectedJSActionOption}
+            showSettings={showSettings}
+          />
           {notification && (
             <StyledNotificationWrapper>
               {notification}

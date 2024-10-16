@@ -4,8 +4,8 @@ import type { JSCollection } from "entities/JSCollection";
 import type { SelectProps } from "@appsmith/ads";
 import { Button, Option, Select, Tooltip, Text } from "@appsmith/ads";
 import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ee/constants/messages";
-import type { JSActionDropdownOption } from "./utils";
-import { RUN_BUTTON_DEFAULTS, testLocators } from "./constants";
+import type { JSActionDropdownOption } from "../../../utils";
+import { RUN_BUTTON_DEFAULTS, testLocators } from "../../../constants";
 
 interface Props {
   disabled: boolean;
