@@ -21,7 +21,7 @@ import ActionRightPane from "components/editorComponents/ActionRightPane";
 import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
-import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import { EDITOR_TABS, SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
   getPluginActionConfigSelectedTab,
@@ -37,6 +37,10 @@ import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import FormRender from "PluginActionEditor/components/PluginActionForm/components/UQIEditor/FormRender";
 import QueryEditorHeader from "./QueryEditorHeader";
 import RunHistory from "ee/components/RunHistory";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { getPluginNameFromId } from "ee/selectors/entitiesSelector";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -241,6 +245,35 @@ export function EditorJSONtoForm(props: Props) {
     [dispatch],
   );
 
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isExecutePermitted = getHasExecuteActionPermission(
+    isFeatureEnabled,
+    currentActionConfig?.userPermissions,
+  );
+
+  // get the current action's plugin name
+  const currentActionPluginName = useSelector((state: AppState) =>
+    getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
+  );
+
+  let actionBody = "";
+
+  if (!!currentActionConfig?.actionConfiguration) {
+    if ("formData" in currentActionConfig?.actionConfiguration) {
+      // if the action has a formData (the action is postUQI e.g. Oracle)
+      actionBody =
+        currentActionConfig.actionConfiguration.formData?.body?.data || "";
+    } else {
+      // if the action is pre UQI, the path is different e.g. mySQL
+      actionBody = currentActionConfig.actionConfiguration?.body || "";
+    }
+  }
+
+  // if (the body is empty and the action is an sql datasource) or the user does not have permission, block action execution.
+  const blockExecution =
+    (!actionBody && SQL_DATASOURCES.includes(currentActionPluginName)) ||
+    !isExecutePermitted;
+
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -252,6 +285,7 @@ export function EditorJSONtoForm(props: Props) {
       <QueryEditorHeader
         dataSources={dataSources}
         formName={formName}
+        isRunDisabled={blockExecution}
         isRunning={isRunning}
         onCreateDatasourceClick={onCreateDatasourceClick}
         onRunClick={onRunClick}
@@ -334,6 +368,7 @@ export function EditorJSONtoForm(props: Props) {
               actionResponse={actionResponse}
               actionSource={actionSource}
               currentActionConfig={currentActionConfig}
+              isRunDisabled={blockExecution}
               isRunning={isRunning}
               onRunClick={onRunClick}
               runErrorMessage={runErrorMessage}

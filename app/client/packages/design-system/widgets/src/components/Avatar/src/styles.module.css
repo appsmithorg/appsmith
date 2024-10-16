@@ -1,0 +1,31 @@
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--sizing-8);
+  height: var(--sizing-8);
+}
+
+.avatar[data-size="small"] {
+  width: var(--sizing-6);
+  height: var(--sizing-6);
+}
+
+.avatar[data-size="large"] {
+  width: var(--sizing-10);
+  height: var(--sizing-10);
+}
+
+/* if the avatar has div, that means no source is provided. For this case, we want to add a background color and border radius */
+.avatar:has(div) {
+  background-color: var(--color-bg-assistive);
+  color: var(--color-fg-on-assistive);
+  border-radius: var(--border-radius-elevation-3);
+}
+
+.avatarImage {
+  border-radius: inherit;
+  height: 100%;
+  object-fit: contain;
+  aspect-ratio: 1 / 1;
+}

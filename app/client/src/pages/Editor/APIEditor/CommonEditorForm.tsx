@@ -339,7 +339,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               <ApiResponseView
                 actionResponse={actionResponse}
                 currentActionConfig={currentActionConfig}
-                disabled={!isExecutePermitted}
+                isRunDisabled={blockExecution}
                 isRunning={isRunning}
                 onRunClick={onRunClick}
                 theme={theme}

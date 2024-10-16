@@ -5,7 +5,7 @@ import CommonEditorForm from "../CommonEditorForm";
 import Pagination from "./Pagination";
 import { GRAPHQL_HTTP_METHOD_OPTIONS } from "../../../../constants/GraphQLEditorConstants";
 import PostBodyData from "./PostBodyData";
-import { usePluginActionContext } from "PluginActionEditor";
+import { usePluginActionContext } from "../../../../PluginActionContext";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";

@@ -15,7 +15,7 @@ import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
 import { find } from "lodash";
 import type { AppState } from "ee/reducers";
 import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
-import { getPluginActionDebuggerState } from "PluginActionEditor/store";
+import { getPluginActionDebuggerState } from "../../../store";
 
 interface Props {
   datasourceId: string;

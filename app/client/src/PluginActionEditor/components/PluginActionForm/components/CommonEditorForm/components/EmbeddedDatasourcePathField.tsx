@@ -42,7 +42,7 @@ import {
   getDatasource,
   getDatasourcesByPluginId,
 } from "ee/selectors/entitiesSelector";
-import { extractApiUrlPath } from "PluginActionEditor/transformers/RestActionTransformer";
+import { extractApiUrlPath } from "../../../../../transformers/RestActionTransformer";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { Text } from "@appsmith/ads";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
@@ -50,7 +50,7 @@ import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { getCodeMirrorNamespaceFromEditor } from "utils/getCodeMirrorNamespace";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { isEnvironmentValid } from "ee/utils/Environments";
-import { DEFAULT_DATASOURCE_NAME } from "PluginActionEditor/constants/ApiEditorConstants";
+import { DEFAULT_DATASOURCE_NAME } from "../../../../../constants/ApiEditorConstants";
 import { isString } from "lodash";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import {

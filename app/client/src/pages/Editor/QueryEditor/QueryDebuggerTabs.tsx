@@ -46,6 +46,7 @@ const ResultsCount = styled.div`
 interface QueryDebuggerTabsProps {
   actionSource: SourceEntity;
   currentActionConfig?: Action;
+  isRunDisabled?: boolean;
   isRunning: boolean;
   actionName: string; // Check what and how to get
   runErrorMessage?: string;
@@ -59,6 +60,7 @@ function QueryDebuggerTabs({
   actionResponse,
   actionSource,
   currentActionConfig,
+  isRunDisabled = false,
   isRunning,
   onRunClick,
   runErrorMessage,
@@ -233,6 +235,7 @@ function QueryDebuggerTabs({
           actionName={actionName}
           actionSource={actionSource}
           currentActionConfig={currentActionConfig}
+          isRunDisabled={isRunDisabled}
           isRunning={isRunning}
           onRunClick={onRunClick}
           runErrorMessage={runErrorMessage}
