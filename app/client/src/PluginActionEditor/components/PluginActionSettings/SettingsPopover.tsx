@@ -43,6 +43,15 @@ const SettingsWrapper = styled.div`
   }
 `;
 
+const StyledPopoverHeader = styled(PopoverHeader)`
+  position: sticky;
+  top: 0px;
+`;
+
+const StyledPopoverBody = styled(PopoverBody)`
+  overflow-y: clip !important;
+`;
+
 const PluginActionSettingsPopover = (props: SettingsProps) => {
   const { settingsConfig } = usePluginActionContext();
   const openSettings = useSelector(isPluginActionSettingsOpen);
@@ -90,10 +99,10 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
         onEscapeKeyDown={handleEscapeKeyDown}
         size="sm"
       >
-        <PopoverHeader className="sticky top-0" isClosable>
+        <StyledPopoverHeader isClosable>
           {createMessage(API_EDITOR_TAB_TITLES.SETTINGS)}
-        </PopoverHeader>
-        <PopoverBody className={"!overflow-y-clip"}>
+        </StyledPopoverHeader>
+        <StyledPopoverBody className={"!overflow-y-clip"}>
           <SettingsWrapper>
             <ActionSettings
               actionSettingsConfig={settingsConfig}
@@ -101,7 +110,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
               theme={THEME}
             />
           </SettingsWrapper>
-        </PopoverBody>
+        </StyledPopoverBody>
       </PopoverContent>
     </Popover>
   );
