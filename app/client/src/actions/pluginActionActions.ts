@@ -245,7 +245,7 @@ export const copyActionSuccess = (payload: Action) => {
 export const copyActionError = (
   payload: {
     id: string;
-    destinationInfo: GenerateDestinationIdInfoReturnType;
+    destinationEditorIdInfo: GenerateDestinationIdInfoReturnType;
   } & ErrorActionPayload,
 ) => {
   return {

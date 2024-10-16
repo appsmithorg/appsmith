@@ -17,7 +17,7 @@ export const Copy = () => {
       dispatch(
         copyActionRequest({
           id: action.id,
-          destinationInfo: { pageId },
+          destinationEditorId: pageId,
           name: action.name,
         }),
       ),

@@ -148,6 +148,7 @@ import {
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
 import { objectKeys } from "@appsmith/utils";
+import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -862,7 +863,8 @@ function* copyActionSaga(
 
     yield put(
       copyActionError({
-        ...action.payload,
+        id: action.payload.id,
+        destinationEditorIdInfo,
         show: true,
         error: {
           message: errorMessage,
@@ -1069,11 +1071,14 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
   const isApi = pluginType === PluginType.API;
   const isQuery = pluginType === PluginType.DB;
   const isSaas = pluginType === PluginType.SAAS;
-  const { parentEntityId: baseParentEntityId } = resolveParentEntityMetadata(
-    actionPayload.payload,
-  );
+  const { parentEntityId } = resolveParentEntityMetadata(actionPayload.payload);
 
-  if (!baseParentEntityId) return;
+  if (!parentEntityId) return;
+
+  const baseParentEntityId: string = yield select(
+    convertToBaseParentEntityIdSelector,
+    parentEntityId,
+  );
 
   if (isApi) {
     history.push(
