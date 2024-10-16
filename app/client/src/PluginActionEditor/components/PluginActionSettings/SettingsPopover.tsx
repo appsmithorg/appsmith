@@ -24,10 +24,21 @@ export interface SettingsProps {
 
 /* TODO: Remove this after removing custom width from server side (Ankita) */
 const SettingsWrapper = styled.div`
+  overflow-y: scroll;
+  max-height: calc(var(--popover-max-height) - 69px);
+
   .t--form-control-INPUT_TEXT,
   .t--form-control-DROP_DOWN {
     > div {
+      min-width: unset;
       width: 100%;
+    }
+  }
+
+  .form-config-top {
+    .form-label {
+      min-width: unset;
+      width: 100%l;
     }
   }
 `;
@@ -70,7 +81,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
       <PopoverContent
         align="end"
         onEscapeKeyDown={() => onOpenChange(false)}
-        size="md"
+        size="sm"
       >
         <PopoverHeader className="sticky top-0" isClosable>
           {createMessage(API_EDITOR_TAB_TITLES.SETTINGS)}

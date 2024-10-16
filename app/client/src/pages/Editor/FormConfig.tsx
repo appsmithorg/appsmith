@@ -209,6 +209,7 @@ function renderFormConfigTop(props: {
           <>
             <FlexWrapper>
               <FormLabel
+                className="form-label"
                 config={props.config}
                 extraStyles={{
                   marginBottom: shouldRenderSubtitle && "0px",
