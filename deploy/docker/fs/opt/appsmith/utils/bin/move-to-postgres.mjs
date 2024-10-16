@@ -91,7 +91,7 @@ for await (const collectionName of sortedCollectionNames) {
     if (isArchivedObject(doc)) {
       continue;
     }
-    transformFields(doc);
+    transformFields(doc);  // This now handles the _class to type transformation.
     if (doc.policyMap == null) {
       doc.policyMap = {};
     }
