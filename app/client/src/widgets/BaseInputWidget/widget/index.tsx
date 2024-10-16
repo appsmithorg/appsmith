@@ -520,7 +520,6 @@ class BaseInputWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,
-      isFocused: false,
       isDirty: false,
     };
   }
