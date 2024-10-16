@@ -134,7 +134,10 @@ import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { updateActionAPICall } from "ee/sagas/ApiCallerSagas";
 import FocusRetention from "./FocusRetentionSaga";
-import { resolveParentEntityMetadata } from "ee/sagas/helpers";
+import {
+  generateDestinationIdInfoForQueryDuplication,
+  resolveParentEntityMetadata,
+} from "ee/sagas/helpers";
 import { handleQueryEntityRedirect } from "./IDESaga";
 import { EditorViewMode, IDE_TYPE } from "ee/entities/IDE/constants";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
@@ -144,6 +147,7 @@ import {
 } from "actions/ideActions";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
+import { objectKeys } from "@appsmith/utils";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -746,10 +750,7 @@ function* moveActionSaga(
 function* copyActionSaga(
   action: ReduxAction<{
     id: string;
-    destinationInfo: {
-      pageId?: string;
-      workflowId?: string;
-    };
+    destinationEditorId: string;
     name: string;
   }>,
 ) {
@@ -768,6 +769,13 @@ function* copyActionSaga(
     startWithoutIndex: true,
   });
 
+  const destinationEditorIdInfo = generateDestinationIdInfoForQueryDuplication(
+    action.payload.destinationEditorId,
+    parentEntityKey,
+  );
+
+  if (objectKeys(destinationEditorIdInfo).length === 0) return;
+
   try {
     if (!actionObject) throw new Error("Could not find action to copy");
 
@@ -780,7 +788,7 @@ function* copyActionSaga(
 
     const copyAction = Object.assign({}, actionObject, {
       name: newName,
-      ...action.payload.destinationInfo,
+      ...destinationEditorIdInfo,
     }) as Partial<Action>;
 
     // Indicates that source of action creation is copy action
