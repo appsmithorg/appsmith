@@ -12,6 +12,7 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
+    base_branches: ["pg", "release"]
   path_instructions:
     - path: "app/client/cypress/**/**.*"
       instructions: |

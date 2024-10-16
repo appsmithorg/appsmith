@@ -5,7 +5,7 @@ import type {
 import type { ReactNode } from "react";
 import type { COLORS } from "../../../shared";
 
-export interface TextProps extends React.HTMLAttributes<HTMLElement> {
+export interface TextProps {
   /** size variant of the text
    * @default body
    */
