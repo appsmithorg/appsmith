@@ -225,7 +225,10 @@ export const moveActionError = (
 
 export const copyActionRequest = (payload: {
   id: string;
-  destinationPageId: string;
+  destinationInfo: {
+    pageId?: string;
+    workflowId?: string;
+  };
   name: string;
 }) => {
   return {
@@ -244,7 +247,7 @@ export const copyActionSuccess = (payload: Action) => {
 export const copyActionError = (
   payload: {
     id: string;
-    destinationPageId: string;
+    destinationInfo: { pageId?: string; workflowId?: string };
   } & ErrorActionPayload,
 ) => {
   return {
