@@ -39,7 +39,7 @@ import BindDataButton from "./BindDataButton";
 import {
   getPluginActionDebuggerState,
   openPluginActionSettings,
-  setPluginActionEditorDebuggerState,
+  setPluginActionEditorSelectedTab,
 } from "PluginActionEditor/store";
 import {
   createMessage,
@@ -227,11 +227,7 @@ const QueryResponseTab = (props: Props) => {
     if (isActionRedesignEnabled) {
       dispatch(openPluginActionSettings(true));
     } else {
-      dispatch(
-        setPluginActionEditorDebuggerState({
-          selectedTab: EDITOR_TABS.SETTINGS,
-        }),
-      );
+      dispatch(setPluginActionEditorSelectedTab(EDITOR_TABS.SETTINGS));
     }
   }, [dispatch, isActionRedesignEnabled]);
 
