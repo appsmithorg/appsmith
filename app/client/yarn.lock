@@ -12995,7 +12995,7 @@ __metadata:
     tailwindcss: ^3.3.3
     tern: ^0.21.0
     tinycolor2: ^1.4.2
-    tinymce: ^7.3.0
+    tinymce: 6.8.3
     toposort: ^2.0.2
     ts-jest: 29.1.0
     ts-jest-mock-import-meta: ^0.12.0
@@ -32225,7 +32225,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinymce@npm:^7.0.0 || ^6.0.0 || ^5.5.1, tinymce@npm:^7.3.0":
+"tinymce@npm:6.8.3":
+  version: 6.8.3
+  resolution: "tinymce@npm:6.8.3"
+  checksum: 2ce922ceb60636778afb21a493e99d561e73f82c5fb331a4f666d973129ca27277bc1b6332d6932ab8fe0a379b1f201285f143a2d72646a813fda88a0dec5312
+  languageName: node
+  linkType: hard
+
+"tinymce@npm:^7.0.0 || ^6.0.0 || ^5.5.1":
   version: 7.3.0
   resolution: "tinymce@npm:7.3.0"
   checksum: 8c2205e8f316ae86c713ba09d8072921050011fbb6a28060c02c53d79d34d470995f286b478966e42c767d5905fd9d89a808338d63ac63a0ea0f96a017b020e2
