@@ -50,7 +50,7 @@ import {
 } from "actions/pluginActionActions";
 import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
-import { transformRestAction } from "transformers/RestActionTransformer";
+import { transformRestAction } from "PluginActionEditor/transformers/RestActionTransformer";
 import {
   getCurrentBasePageId,
   getCurrentPageId,
@@ -125,8 +125,8 @@ import {
   API_EDITOR_FORM_NAME,
   QUERY_EDITOR_FORM_NAME,
 } from "ee/constants/forms";
-import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "PluginActionEditor/constants/GraphQLEditorConstants";
+import { DEFAULT_API_ACTION_CONFIG } from "PluginActionEditor/constants/ApiEditorConstants";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { setAIPromptTriggered } from "utils/storage";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
