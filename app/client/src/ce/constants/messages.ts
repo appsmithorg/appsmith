@@ -339,9 +339,9 @@ export const ERROR_ACTION_MOVE_FAIL = (actionName: string) =>
 export const ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
   `${actionName} action copied ${pageName.length > 0 ? "to page " + pageName : ""} successfully`;
 export const ERROR_ACTION_COPY_FAIL = (actionName: string) =>
-  `Error while copying action ${actionName} `;
+  `Error while copying action ${actionName}`;
 export const ERROR_ACTION_RENAME_FAIL = (actionName: string) =>
-  `Unable to update action name to ${actionName} `;
+  `Unable to update action name to ${actionName}`;
 
 // Action Names Messages
 export const ACTION_NAME_PLACEHOLDER = (type: string) =>
@@ -396,14 +396,14 @@ export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
 
 export const ERROR_EVAL_TRIGGER = (message: string) =>
-  `Error occurred while evaluating trigger: ${message} `;
+  `Error occurred while evaluating trigger: ${message}`;
 
-export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName} `;
+export const WIDGET_COPY = (widgetName: string) => `Copied ${widgetName}`;
 export const ERROR_WIDGET_COPY_NO_WIDGET_SELECTED = () =>
   `Please select a widget to copy`;
 export const ERROR_WIDGET_COPY_NOT_ALLOWED = () =>
   `This selected widget cannot be copied.`;
-export const WIDGET_CUT = (widgetName: string) => `Cut ${widgetName} `;
+export const WIDGET_CUT = (widgetName: string) => `Cut ${widgetName}`;
 export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
 export const ERROR_WIDGET_CUT_NOT_ALLOWED = () =>
@@ -445,7 +445,7 @@ export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
   "LocalStorage is not supported on your device. Some features including the Appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
-  `Search widgets, queries or create new `;
+  `Search widgets, queries or create new`;
 export const OMNIBAR_PLACEHOLDER_NAV = () => "Search widgets and queries";
 export const CREATE_NEW_OMNIBAR_PLACEHOLDER = () =>
   "Create a new query, API or JS Object";
@@ -1731,6 +1731,7 @@ export const CONTEXT_RENAME = () => "Rename";
 export const CONTEXT_SHOW_BINDING = () => "Show bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
+export const CONTEXT_DUPLICATE = () => "Duplicate";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
 export const CONFIRM_CONTEXT_DELETING = () => "Deleting";

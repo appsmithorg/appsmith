@@ -20,6 +20,7 @@ import {
   CONTEXT_NO_PAGE,
   CONTEXT_SHOW_BINDING,
   createMessage,
+  CONTEXT_DUPLICATE,
 } from "ee/constants/messages";
 import { builderURL } from "ee/RouteBuilder";
 
@@ -33,6 +34,7 @@ import { useConvertToModuleOptions } from "ee/pages/Editor/Explorer/hooks";
 import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import { PluginType } from "entities/Action";
 import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 
 interface EntityContextMenuProps {
   id: string;
@@ -45,7 +47,7 @@ interface EntityContextMenuProps {
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   // Import the context
   const context = useContext(FilesContext);
-  const { menuItems, parentEntityId } = context;
+  const { menuItems, parentEntityId, parentEntityType } = context;
   const baseParentEntityId = useSelector((state) =>
     convertToBaseParentEntityIdSelector(state, parentEntityId),
   );
@@ -130,13 +132,16 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
       canManageAction && {
         value: "copy",
         onSelect:
-          menuPages.length > 0
+          parentEntityType === ActionParentEntityType.PAGE
             ? noop
             : () => {
                 copyAction(props.id, props.name, parentEntityId);
               },
-        label: menuPages.length > 0 ? createMessage(CONTEXT_COPY) : "Duplicate",
+        label: createMessage(
+          menuPages.length > 0 ? CONTEXT_COPY : CONTEXT_DUPLICATE,
+        ),
         children:
+          parentEntityType === ActionParentEntityType.PAGE &&
           menuPages.length > 0 &&
           menuPages.map((page) => {
             return {
