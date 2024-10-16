@@ -53,12 +53,16 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const { canDeleteAction, canManageAction } = props;
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const copyActionToPage = useCallback(
-    (actionId: string, actionName: string, pageId: string) =>
+  const copyAction = useCallback(
+    (
+      actionId: string,
+      actionName: string,
+      destinationInfo: { pageId?: string; workflowId?: string },
+    ) =>
       dispatch(
         copyActionRequest({
           id: actionId,
-          destinationPageId: pageId,
+          destinationInfo,
           name: actionName,
         }),
       ),
@@ -129,14 +133,24 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     menuItems.includes(ActionEntityContextMenuItemsEnum.COPY) &&
       canManageAction && {
         value: "copy",
-        onSelect: noop,
-        label: createMessage(CONTEXT_COPY),
-        children: menuPages.map((page) => {
-          return {
-            ...page,
-            onSelect: () => copyActionToPage(props.id, props.name, page.id),
-          };
-        }),
+        onSelect:
+          menuPages.length > 0
+            ? noop
+            : () => {
+                copyAction(props.id, props.name, {
+                  workflowId: "670901003eac561f47b67e85",
+                });
+              },
+        label: menuPages.length > 0 ? createMessage(CONTEXT_COPY) : "Duplicate",
+        children:
+          menuPages.length > 0 &&
+          menuPages.map((page) => {
+            return {
+              ...page,
+              onSelect: () =>
+                copyAction(props.id, props.name, { pageId: page.id }),
+            };
+          }),
       },
     menuItems.includes(ActionEntityContextMenuItemsEnum.MOVE) &&
       canManageAction && {
