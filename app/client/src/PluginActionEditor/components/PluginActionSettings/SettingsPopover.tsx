@@ -102,7 +102,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
         <StyledPopoverHeader isClosable>
           {createMessage(API_EDITOR_TAB_TITLES.SETTINGS)}
         </StyledPopoverHeader>
-        <StyledPopoverBody className={"!overflow-y-clip"}>
+        <StyledPopoverBody>
           <SettingsWrapper>
             <ActionSettings
               actionSettingsConfig={settingsConfig}
