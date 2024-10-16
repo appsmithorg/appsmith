@@ -38,7 +38,7 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import BindDataButton from "./BindDataButton";
 import {
   getPluginActionDebuggerState,
-  setPluginActionEditorDebuggerState,
+  setPluginActionEditorSelectedTab,
 } from "PluginActionEditor/store";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import {
@@ -219,11 +219,7 @@ const QueryResponseTab = (props: Props) => {
   }
 
   const navigateToSettings = useCallback(() => {
-    dispatch(
-      setPluginActionEditorDebuggerState({
-        selectedTab: EDITOR_TABS.SETTINGS,
-      }),
-    );
+    dispatch(setPluginActionEditorSelectedTab(EDITOR_TABS.SETTINGS));
   }, [dispatch]);
 
   const preparedStatementCalloutLinks: CalloutLinkProps[] = [
