@@ -15,7 +15,7 @@ on:
         type: string
         default: ad-hoc
       pg_tag:
-        description: Tag to use for image
+        description: Postgres tag to use for image
         required: false
         type: string
         default: pg
