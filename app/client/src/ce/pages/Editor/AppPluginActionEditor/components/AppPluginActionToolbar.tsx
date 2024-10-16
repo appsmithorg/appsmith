@@ -1,9 +1,9 @@
 import React from "react";
 import { PluginActionToolbar } from "PluginActionEditor";
-import AppPluginActionMenu from "./PluginActionMoreActions";
+import { ToolbarMenu } from "./ToolbarMenu";
 
 const AppPluginActionToolbar = () => {
-  return <PluginActionToolbar menuContent={<AppPluginActionMenu />} />;
+  return <PluginActionToolbar menuContent={<ToolbarMenu />} />;
 };
 
 export default AppPluginActionToolbar;
