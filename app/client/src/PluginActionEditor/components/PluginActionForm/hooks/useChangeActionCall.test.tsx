@@ -15,7 +15,7 @@ jest.mock("../../../store", () => ({
   changeQuery: jest.fn(),
 }));
 
-jest.mock("PluginActionEditor", () => ({
+jest.mock("../../../PluginActionContext", () => ({
   usePluginActionContext: jest.fn(),
 }));
 
