@@ -63,7 +63,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
       dispatch(
         copyActionRequest({
           id: actionId,
-          destinationInfo: { pageId },
+          destinationEditorId: pageId,
           name: actionName,
         }),
       ),

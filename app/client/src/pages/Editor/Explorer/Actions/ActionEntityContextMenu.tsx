@@ -54,15 +54,11 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const copyAction = useCallback(
-    (
-      actionId: string,
-      actionName: string,
-      destinationInfo: { pageId?: string; workflowId?: string },
-    ) =>
+    (actionId: string, actionName: string, destinationEditorId: string) =>
       dispatch(
         copyActionRequest({
           id: actionId,
-          destinationInfo,
+          destinationEditorId,
           name: actionName,
         }),
       ),
@@ -137,9 +133,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
           menuPages.length > 0
             ? noop
             : () => {
-                copyAction(props.id, props.name, {
-                  workflowId: "670901003eac561f47b67e85",
-                });
+                copyAction(props.id, props.name, parentEntityId);
               },
         label: menuPages.length > 0 ? createMessage(CONTEXT_COPY) : "Duplicate",
         children:
@@ -147,8 +141,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
           menuPages.map((page) => {
             return {
               ...page,
-              onSelect: () =>
-                copyAction(props.id, props.name, { pageId: page.id }),
+              onSelect: () => copyAction(props.id, props.name, page.id),
             };
           }),
       },

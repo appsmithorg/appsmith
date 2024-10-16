@@ -8,11 +8,11 @@ function useHandleDuplicateClick() {
   const dispatch = useDispatch();
 
   const handleDuplicateClick = useCallback(
-    (destinationInfo: { pageId?: string; workflowId?: string }) => {
+    (destinationEditorId: string) => {
       dispatch(
         copyActionRequest({
           id: action.id,
-          destinationInfo,
+          destinationEditorId,
           name: action.name,
         }),
       );
