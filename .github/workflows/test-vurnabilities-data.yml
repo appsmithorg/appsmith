@@ -22,22 +22,36 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '20'
 
-      - name: Run vulnerability data script
+      - name: Run Scout vulnerability data script
+        if: always()
         run: |
-          chmod +x scripts/vulnerabilities_data.sh
-          ./scripts/vulnerabilities_data.sh "${{ inputs.image_name }}" "${{ inputs.old_vuln_file }}"
+          chmod +x scripts/scripts/scout_vulnerabilities_data.sh
+          ./scripts/scripts/scout_vulnerabilities_data.sh "${{ inputs.image_name }}" "${{ inputs.old_vuln_file }}"
 
-      - name: Upload vulnerabilities report as artifact
-        if: failure()
+      - name: Upload Scout vulnerabilities report as artifact
+        if: always()
         uses: actions/upload-artifact@v3
         with:
-          name: vulnerabilities-report
-          path: vulnerabilities_diff.txt
+          name: scout-vulnerabilities-report
+          path: scout_vulnerabilities_diff.txt
+
+      - name: Run Trivy vulnerability data script
+        if: always()
+        run: |
+          chmod +x scripts/trivy_vulnerabilities_data.sh
+          ./scripts/trivy_vulnerabilities_data.sh "${{ inputs.image_name }}" "${{ inputs.old_vuln_file }}"
+
+      - name: Upload Trivy vulnerabilities report as artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: trivy-vulnerabilities-report
+          path: trivy_vulnerabilities_diff.txt
 
       - name: Create PR comment with vulnerabilities report
-        if: failure()
+        if: always()
         uses: actions/github-script@v7
         env:
           NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
@@ -46,12 +60,19 @@ jobs:
             const fs = require('fs');
             const { context, github } = require('@actions/github');
 
-            let reportPath = './scripts/vulnerabilities_diff.txt';
+            let scoutReportPath = './scripts/scout_vulnerabilities_diff.txt';
+            let trivyReportPath = './scripts/trivy_vulnerabilities_diff.txt';
             let body = `Vulnerability scan found issues.\nWorkflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>\nCommit: ${{ github.sha }}\n\n`;
-            
-            body += fs.existsSync(reportPath) 
-              ? fs.readFileSync(reportPath, 'utf8') 
-              : "No vulnerabilities found.";
+
+            // Read Scout report
+            body += fs.existsSync(scoutReportPath) 
+              ? fs.readFileSync(scoutReportPath, 'utf8') 
+              : "No Scout vulnerabilities found.\n";
+
+            // Read Trivy report
+            body += fs.existsSync(trivyReportPath) 
+              ? fs.readFileSync(trivyReportPath, 'utf8') 
+              : "No Trivy vulnerabilities found.\n";
 
             await github.rest.issues.createComment({
               issue_number: context.payload.pull_request.number,

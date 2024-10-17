@@ -3,52 +3,26 @@
 # Define the maximum number of retries
 MAX_RETRIES=3
 
-# Function to install Trivy with retry logic
-install_trivy_with_retry() {
-    local count=0
-    local success=false
+# Function to install Docker Scout
+install_docker_scout() {
+    echo "Installing Docker Scout..."
+    
+    # Run the installation commands
+    curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
+    sh install-scout.sh
 
-    while [[ $count -lt $MAX_RETRIES ]]; do
-        echo "Attempting to install Trivy (attempt $((count + 1)))..."
-        
-        # Fetch the latest release dynamically instead of hardcoding
-        TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
-        TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_"$TRIVY_VERSION"_Linux-64bit.tar.gz"
-        
-        # Download and extract Trivy
-        curl -sfL "$TRIVY_URL" | tar -xzf - trivy
-        
-        # Check if extraction was successful
-        if [[ $? -eq 0 ]]; then
-            # Create a local bin directory if it doesn't exist
-            mkdir -p "$HOME/bin"
-            # Move Trivy to the local bin directory
-            mv trivy "$HOME/bin/"
-            # Manually add the bin directory to PATH for this session
-            export PATH="$HOME/bin:$PATH"
-
-            # Check if Trivy is successfully installed
-            if command -v trivy &> /dev/null; then
-                success=true
-                break
-            fi
-        fi
-        
-        echo "Trivy installation failed. Retrying..."
-        count=$((count + 1))
-    done
-
-    if [[ $success = false ]]; then
-        echo "Error: Trivy installation failed after $MAX_RETRIES attempts."
+    # Check if Scout is successfully installed
+    if ! command -v scout &> /dev/null; then
+        echo "Error: Docker Scout installation failed."
         exit 1
     fi
 
-    echo "Trivy installed successfully."
+    echo "Docker Scout installed successfully."
 }
 
-# Check if Trivy is installed, if not, install it with retry logic
-if ! command -v trivy &> /dev/null; then
-    install_trivy_with_retry
+# Check if Docker Scout is installed, if not, install it
+if ! command -v scout &> /dev/null; then
+    install_docker_scout
 fi
 
 # Define the parameters
@@ -56,9 +30,9 @@ IMAGE="${1:-appsmith/appsmith-ce:release}"
 OLD_VULN_FILE="${2:-vulnerabilities.txt}"
 
 # Define output files
-NEW_VULN_FILE="vulnerabilities_new.txt"
-DIFF_OUTPUT_FILE="vulnerabilities_diff.txt"
-JSON_OUTPUT_FILE="vulnerabilities.json"
+NEW_VULN_FILE="scout_vulnerabilities_new.txt"
+DIFF_OUTPUT_FILE="scout_vulnerabilities_diff.txt"
+JSON_OUTPUT_FILE="scout_vulnerabilities.json"
 
 # Remove existing files and create new ones
 rm -f "$NEW_VULN_FILE" "$DIFF_OUTPUT_FILE" "$JSON_OUTPUT_FILE"
@@ -69,21 +43,16 @@ if [ ! -f "$OLD_VULN_FILE" ]; then
     touch "$OLD_VULN_FILE"
 fi
 
-# Run the Trivy scan and output to JSON file
-echo "Running Trivy scan for image: $IMAGE..."
-if ! trivy image --format json "$IMAGE" > "$JSON_OUTPUT_FILE"; then
-    echo "Error: Trivy is not available or the image does not exist."
-    exit 1
-fi
+# Run the Docker Scout CVE scan and output to the new vulnerabilities file
+echo "Running Docker Scout CVE scan for image: $IMAGE..."
+docker scout cves "$IMAGE" | \
+grep -E "✗ |CVE-" | \
+awk '{print $2, $3}' | \
+sort | uniq | \
+grep -v '^[[:space:]]*$' > "$NEW_VULN_FILE"  # Only write non-blank lines
 
 # Check if there are any vulnerabilities in the scan
-if jq -e '.Results | length > 0' "$JSON_OUTPUT_FILE" > /dev/null; then
-    # Extract vulnerabilities into the new vulnerabilities file
-    jq -r '.Results[].Vulnerabilities[] | "\(.Severity) \(.VulnerabilityID)"' "$JSON_OUTPUT_FILE" | \
-    sed 's/^\s*//;s/\s*$//' | \
-    awk '{if ($1 == "") {print "UNSPECIFIED " $2} else {print}}' | \
-    sort -u > "$NEW_VULN_FILE"
-
+if [ -s "$NEW_VULN_FILE" ]; then
     echo "Vulnerabilities saved to $NEW_VULN_FILE"
 else
     echo "No vulnerabilities found for image: $IMAGE"
