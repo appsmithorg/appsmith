@@ -423,6 +423,18 @@ class PhoneInputWidget extends BaseInputWidget<
       },
     });
 
+    // This regular expression validates that the input:
+    // - Does not start with a whitespace character
+    // - Contains only digits, spaces, parentheses, plus, and minus symbols
+    if (/^(?!\s)[\d\s()+-]*$/.test(value)) {
+      this.props.updateWidgetMetaProperty("text", formattedValue, {
+        triggerPropertyName: "onTextChanged",
+        dynamicString: this.props.onTextChanged,
+        event: {
+          type: EventType.ON_TEXT_CHANGE,
+        },
+      });
+    }
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
