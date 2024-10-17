@@ -70,6 +70,7 @@ public class BodyReceiver {
             validatedValue = value;
         }
 
+        System.out.println("Received value: " + validatedValue);
         return validatedValue;
     }
 
