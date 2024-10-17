@@ -29,11 +29,8 @@ import {
   getJSActions,
   getJSCollectionParseErrors,
 } from "ee/selectors/entitiesSelector";
-import type { JSActionDropdownOption } from "./utils";
 import {
-  convertJSActionToDropdownOption,
   getActionFromJsCollection,
-  getJSActionOption,
   getJSFunctionLineGutter,
   getJSPropertyLineFromName,
 } from "./utils";
@@ -62,7 +59,12 @@ import {
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import RunHistory from "ee/components/RunHistory";
-import { JSEditorToolbar } from "./JSEditorToolbar/JSEditorToolbar";
+import {
+  JSEditorToolbar,
+  type JSActionDropdownOption,
+  convertJSActionToDropdownOption,
+  getJSActionOption,
+} from "./JSEditorToolbar";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;

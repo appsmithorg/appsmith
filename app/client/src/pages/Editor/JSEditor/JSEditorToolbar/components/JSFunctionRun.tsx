@@ -12,8 +12,8 @@ import {
   MenuTrigger,
   Tooltip,
 } from "@appsmith/ads";
-import type { JSActionDropdownOption } from "../../utils";
-import { RUN_BUTTON_DEFAULTS, testLocators } from "../../constants";
+import type { JSActionDropdownOption } from "../types";
+import { RUN_BUTTON_DEFAULTS, testLocators } from "../constants";
 import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ee/constants/messages";
 
 interface Props {

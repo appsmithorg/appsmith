@@ -1,9 +1,6 @@
 import React from "react";
 import { JSFunctionRun } from "./components/JSFunctionRun";
-import {
-  convertJSActionsToDropdownOptions,
-  type JSActionDropdownOption,
-} from "../utils";
+import type { JSActionDropdownOption } from "./types";
 import { ActionButtons, NameWrapper, StyledFormRow } from "../styledComponents";
 import type { SaveActionNameParams } from "PluginActionEditor";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
@@ -11,6 +8,7 @@ import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { DropdownOnSelect } from "@appsmith/ads-old";
 import JSObjectNameEditor from "../JSObjectNameEditor";
 import { Flex } from "@appsmith/ads";
+import { convertJSActionsToDropdownOptions } from "./utils";
 
 interface Props {
   changePermitted: boolean;

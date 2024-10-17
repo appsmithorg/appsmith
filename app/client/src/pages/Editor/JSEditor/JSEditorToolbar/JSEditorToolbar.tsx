@@ -1,10 +1,7 @@
 import React from "react";
 import { IDEToolbar } from "IDE";
 import { JSFunctionRun } from "./components/JSFunctionRun";
-import {
-  convertJSActionsToDropdownOptions,
-  type JSActionDropdownOption,
-} from "../utils";
+import type { JSActionDropdownOption } from "./types";
 import type { SaveActionNameParams } from "PluginActionEditor";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { JSAction, JSCollection } from "entities/JSCollection";
@@ -14,6 +11,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { JSHeader } from "./JSHeader";
 import { JSFunctionSettings } from "./components/JSFunctionSettings";
 import type { JSFunctionSettingsProps } from "./components/old/JSFunctionSettings";
+import { convertJSActionsToDropdownOptions } from "./utils";
 
 interface Props {
   changePermitted: boolean;

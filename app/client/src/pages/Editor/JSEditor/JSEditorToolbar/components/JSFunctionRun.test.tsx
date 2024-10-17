@@ -4,7 +4,7 @@ import { render, screen, fireEvent } from "test/testUtils";
 import { JSFunctionRun } from "./JSFunctionRun";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
-import { convertJSActionsToDropdownOptions } from "../../utils";
+import { convertJSActionsToDropdownOptions } from "../utils";
 
 jest.mock("utils/hooks/useFeatureFlag");
 const mockUseFeatureFlag = useFeatureFlag as jest.Mock;
