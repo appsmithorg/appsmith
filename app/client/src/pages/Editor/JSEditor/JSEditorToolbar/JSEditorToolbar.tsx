@@ -37,15 +37,25 @@ interface Props {
   showSettings: boolean;
 }
 
+/**
+ * JSEditorToolbar component.
+ *
+ * This component renders a toolbar for the JS editor. It conditionally renders
+ * different components based on the `release_actions_redesign_enabled` feature flag.
+ *
+ */
 export const JSEditorToolbar = (props: Props) => {
+  // Check if the action redesign feature flag is enabled
   const isActionRedesignEnabled = useFeatureFlag(
     FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
+  // If the action redesign is not enabled, render the JSHeader component
   if (!isActionRedesignEnabled) {
     return <JSHeader {...props} />;
   }
 
+  // Render the IDEToolbar with JSFunctionRun and JSFunctionSettings components
   return (
     <IDEToolbar>
       <IDEToolbar.Left />

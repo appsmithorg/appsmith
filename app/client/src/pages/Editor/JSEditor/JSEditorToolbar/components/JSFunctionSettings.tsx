@@ -25,9 +25,8 @@ interface Props {
   onUpdateSettings: JSFunctionSettingsProps["onUpdateSettings"];
 }
 
-interface FunctionSettingsRowProps {
+interface FunctionSettingsRowProps extends Omit<Props, "actions"> {
   action: JSAction;
-  onUpdateSettings: JSFunctionSettingsProps["onUpdateSettings"];
 }
 
 const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
@@ -62,6 +61,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
     >
       <Switch
         defaultSelected={JSON.parse(executeOnPageLoad)}
+        isDisabled={props.disabled}
         isSelected={JSON.parse(executeOnPageLoad)}
         name={`execute-on-page-load-${props.action.id}`}
         onChange={onChange}
@@ -72,11 +72,16 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   );
 };
 
+/**
+ * JSFunctionSettings component renders a button and a popover for configuring JS function settings.
+ * It conditionally renders the old or new version of the component based on a feature flag.
+ */
 export const JSFunctionSettings = (props: Props) => {
   const isActionRedesignEnabled = useFeatureFlag(
     FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
+  // If the feature flag is disabled, render the old version of the component
   if (!isActionRedesignEnabled) {
     return (
       <JSFunctionSettingsView
@@ -87,12 +92,15 @@ export const JSFunctionSettings = (props: Props) => {
     );
   }
 
+  // Render the new version of the component
   return (
     <Popover>
       <PopoverTrigger>
         <Button
+          data-testid="t--js-editor-SETTINGS"
           isIconButton
           kind="secondary"
+          name="Settings"
           size="sm"
           startIcon="settings-2-line"
         />
@@ -109,6 +117,7 @@ export const JSFunctionSettings = (props: Props) => {
             {props.actions.map((action) => (
               <FunctionSettingRow
                 action={action}
+                disabled
                 key={action.id}
                 onUpdateSettings={props.onUpdateSettings}
               />

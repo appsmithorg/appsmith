@@ -27,10 +27,17 @@ interface Props {
   showTooltip: boolean;
 }
 
+/**
+ * JSFunctionRun component renders a button and a dropdown menu for running JS functions.
+ * It conditionally renders the old or new version of the component based on a feature flag.
+ *
+ */
 export const JSFunctionRun = (props: Props) => {
   const isActionRedesignEnabled = useFeatureFlag(
     FEATURE_FLAG.release_actions_redesign_enabled,
   );
+
+  // Callback function to handle function selection from the dropdown menu
   const onFunctionSelect = useCallback((option: JSActionDropdownOption) => {
     if (props.onSelect) {
       props.onSelect(option.value);
@@ -41,6 +48,7 @@ export const JSFunctionRun = (props: Props) => {
     return <OldJSFunctionRun {...props} />;
   }
 
+  // Render the new version of the component
   return (
     <Flex gap="spaces-2">
       <Menu>
