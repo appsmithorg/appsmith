@@ -5,7 +5,7 @@ import type { DSLWidget } from "../types";
 const ASSETS_CDN_URL = "https://assets.appsmith.com";
 
 describe("correctly migrate dsl", () => {
-  it("migrateDSL for private widget", () => {
+  it("migrateDSL for private widget", async () => {
     const currentVersion = 49; // before adding privateWidgets to all List widgets
     const nextVersion = LATEST_DSL_VERSION; // It runs Two Migrations, Always Update as migration increases
 
@@ -1229,12 +1229,12 @@ describe("correctly migrate dsl", () => {
       isLoading: false,
     };
 
-    const actualNextDsl = migrateDSL(currentDSL);
+    const actualNextDsl = await migrateDSL(currentDSL);
 
     expect(actualNextDsl).toEqual(expectedNextDSL);
   });
 
-  it("migrateDSL for theming v1", () => {
+  it("migrateDSL for theming v1", async () => {
     const currentVersion = 53;
     const nextVersion = LATEST_DSL_VERSION;
     const currentDSL: DSLWidget = {
@@ -2452,7 +2452,7 @@ describe("correctly migrate dsl", () => {
       isLoading: false,
     };
 
-    const actualNextDsl = migrateDSL(currentDSL);
+    const actualNextDsl = await migrateDSL(currentDSL);
 
     expect(actualNextDsl).toEqual(expectedNextDSL);
   });
@@ -3096,7 +3096,7 @@ describe("correctly migrate dsl", () => {
     expect(actualNextDSL).toEqual(expectedNextDSL);
   });
 
-  it("correctly migrates currentIndex/currentRow properties for validations in table view", () => {
+  it("correctly migrates currentIndex/currentRow properties for validations in table view", async () => {
     const currentVersion = 78;
     const currentDSL: DSLWidget = {
       bottomRow: 740,
@@ -3171,7 +3171,7 @@ describe("correctly migrate dsl", () => {
         },
       ],
     };
-    const nextDSL = migrateDSL(currentDSL);
+    const nextDSL = await migrateDSL(currentDSL);
 
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     const validations = (nextDSL.children || [])[0].primaryColumns.column1

@@ -193,14 +193,15 @@ export function* refreshTheApp() {
   }
 }
 
-export const getCanvasWidgetsPayload = (
+export const getCanvasWidgetsPayload = async (
   pageResponse: FetchPageResponse,
   dslTransformer?: (dsl: DSLWidget) => DSLWidget,
-): UpdateCanvasPayload => {
-  const extractedDSL = extractCurrentDSL({
+): Promise<UpdateCanvasPayload> => {
+  const currentDSL = await extractCurrentDSL({
     dslTransformer,
     response: pageResponse,
-  }).dsl;
+  });
+  const extractedDSL = currentDSL.dsl;
   const flattenedDSL = flattenDSL(extractedDSL);
   const pageWidgetId = MAIN_CONTAINER_WIDGET_ID;
 
@@ -249,10 +250,9 @@ export function* handleFetchedPage({
     // Wait for widget config to be loaded before we can generate the canvas payload
     yield call(waitForWidgetConfigBuild);
     // Get Canvas payload
-    const canvasWidgetsPayload = getCanvasWidgetsPayload(
-      fetchPageResponse,
-      dslTransformer,
-    );
+
+    const canvasWidgetsPayload: UpdateCanvasPayload =
+      yield getCanvasWidgetsPayload(fetchPageResponse, dslTransformer);
 
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
@@ -329,7 +329,8 @@ export function* updateCanvasLayout(response: FetchPageResponse) {
   // Wait for widget config to load before we can get the canvas payload
   yield call(waitForWidgetConfigBuild);
   // Get Canvas payload
-  const canvasWidgetsPayload = getCanvasWidgetsPayload(response);
+  const canvasWidgetsPayload: UpdateCanvasPayload =
+    yield getCanvasWidgetsPayload(response);
 
   // resize main canvas
   resizePublishedMainCanvasToLowestWidget(canvasWidgetsPayload.widgets);
@@ -688,9 +689,11 @@ export function* createNewPageFromEntity(
     // So, the client premptively uses the default page DSL
     // The default page DSL is used and modified using the layout system
     // specific dslTransformer
+    const currentDSL: { dsl: DSLWidget; layoutId: string | undefined } =
+      yield extractCurrentDSL({ dslTransformer });
     const defaultPageLayouts = [
       {
-        dsl: extractCurrentDSL({ dslTransformer }).dsl,
+        dsl: currentDSL.dsl,
         layoutOnLoadActions: [],
       },
     ];
@@ -754,14 +757,17 @@ export function* createPageSaga(action: ReduxAction<CreatePageActionPayload>) {
       // Add this to the page DSLs for entity explorer
       // The dslTransformer may not be necessary for the entity explorer
       // However, we still transform for consistency.
+      const currentDSL: { dsl: DSLWidget; layoutId: string | undefined } =
+        yield extractCurrentDSL({
+          dslTransformer,
+          response,
+        });
+
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
           pageId: response.data.id,
-          dsl: extractCurrentDSL({
-            dslTransformer,
-            response,
-          }).dsl,
+          dsl: currentDSL.dsl,
           layoutId: response.data.layouts[0].id,
         },
       });
@@ -879,7 +885,7 @@ export function* clonePageSaga(
       // We're not sending the `dslTransformer` to the `extractCurrentDSL` function
       // as this is a clone operation, and any layout system specific
       // updates to the DSL would have already been performed in the original page
-      const { dsl, layoutId } = extractCurrentDSL({
+      const { dsl, layoutId } = yield extractCurrentDSL({
         response,
       });
 
@@ -1169,7 +1175,7 @@ export function* fetchPageDSLSaga(
       // between Auto Layout and Fixed layout systems, this means that
       // particularly for these two layout systems the dslTransformer may be necessary
       // unless we're no longer running any conversions
-      const { dsl, layoutId } = extractCurrentDSL({
+      const { dsl, layoutId } = yield extractCurrentDSL({
         dslTransformer,
         response: fetchPageResponse,
       });

@@ -53,7 +53,7 @@ describe("Canvas selection test cases", () => {
     jest.useRealTimers();
   });
 
-  it("Should select using canvas draw", () => {
+  it("Should select using canvas draw", async () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const children: any = buildChildren([
@@ -94,10 +94,13 @@ describe("Canvas selection test cases", () => {
       </MemoryRouter>,
       { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
+
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let selectionCanvas: any = component.queryByTestId(
+    let selectionCanvas: any = await component.findByTestId(
       `canvas-selection-${MAIN_CONTAINER_WIDGET_ID}`,
+      undefined,
+      { timeout: 3000 },
     );
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,7 +124,7 @@ describe("Canvas selection test cases", () => {
     expect(selectionCanvas.style.zIndex).toBe("");
   });
 
-  it("Should select all elements using canvas from top to bottom", () => {
+  it("Should select all elements using canvas from top to bottom", async () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const children: any = buildChildren([
@@ -166,8 +169,10 @@ describe("Canvas selection test cases", () => {
     );
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const selectionDiv: any = component.queryByTestId(
+    const selectionDiv: any = await component.findByTestId(
       `div-selection-${MAIN_CONTAINER_WIDGET_ID}`,
+      undefined,
+      { timeout: 3000 },
     );
 
     fireEvent(
@@ -221,7 +226,7 @@ describe("Canvas selection test cases", () => {
     );
   });
 
-  it("Should allow draw to select using cmd + draw in Container component", () => {
+  it("Should allow draw to select using cmd + draw in Container component", async () => {
     const containerId = generateReactKey();
     const canvasId = generateReactKey();
     // TODO: Fix this the next time the file is edited
@@ -273,8 +278,10 @@ describe("Canvas selection test cases", () => {
     );
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let selectionCanvas: any = component.queryByTestId(
+    let selectionCanvas: any = await component.findByTestId(
       `canvas-selection-${canvasId}`,
+      undefined,
+      { timeout: 3000 },
     );
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -300,7 +307,7 @@ describe("Canvas selection test cases", () => {
     expect(selectionCanvas.style.zIndex).toBe("");
   });
 
-  it("Should not allow draw to select using cmd + draw in drop disabled Canvas component", () => {
+  it("Should not allow draw to select using cmd + draw in drop disabled Canvas component", async () => {
     const containerId = generateReactKey();
     const canvasId = generateReactKey();
     // TODO: Fix this the next time the file is edited
@@ -341,14 +348,27 @@ describe("Canvas selection test cases", () => {
         <Canvas canvasWidth={dsl.rightColumn} widgetsStructure={dsl} />
       </MockPageDSL>,
     );
+
+    let selectionCanvas;
+
     // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const selectionCanvas: any = component.queryByTestId(`canvas-${canvasId}`);
+    try {
+      // We actually want to assert the canvas component could not be found,
+      // if the canvas component could not be found after timeout findByTestId will throw an error
+      // In that case we set the component to be null
+      selectionCanvas = await component.findByTestId(
+        `canvas-${canvasId}`,
+        undefined,
+        { timeout: 3000 },
+      );
+    } catch (e) {
+      selectionCanvas = null;
+    }
 
     expect(selectionCanvas).toBeNull();
   });
 
-  it("Should select all elements inside a CONTAINER using draw on canvas from top to bottom", () => {
+  it("Should select all elements inside a CONTAINER using draw on canvas from top to bottom", async () => {
     const containerId = "containerWidget";
     const canvasId = "canvasWidget";
     // TODO: Fix this the next time the file is edited
@@ -426,8 +446,10 @@ describe("Canvas selection test cases", () => {
 
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const selectionDiv: any = component.queryByTestId(
+    const selectionDiv: any = await component.findByTestId(
       `div-selection-${canvasId}`,
+      undefined,
+      { timeout: 3000 },
     );
 
     fireEvent(
@@ -479,7 +501,7 @@ describe("Canvas selection test cases", () => {
     );
   });
 
-  it("Draw to select from outside of canvas(editor) ", () => {
+  it("Draw to select from outside of canvas(editor) ", async () => {
     const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -525,7 +547,11 @@ describe("Canvas selection test cases", () => {
     );
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const widgetEditor: any = component.queryByTestId("t--widgets-editor");
+    const widgetEditor: any = await component.findByTestId(
+      "t--widgets-editor",
+      undefined,
+      { timeout: 3000 },
+    );
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let selectionCanvas: any = component.queryByTestId(
