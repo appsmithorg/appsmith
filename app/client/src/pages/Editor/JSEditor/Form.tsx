@@ -2,13 +2,7 @@ import type { ChangeEvent } from "react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSAction } from "entities/JSCollection";
 import type { DropdownOnSelect } from "@appsmith/ads-old";
-import {
-  CodeEditorBorder,
-  EditorModes,
-  EditorSize,
-  EditorTheme,
-  TabBehaviour,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { JSObjectNameEditorProps } from "./JSObjectNameEditor";
 import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
@@ -40,7 +34,6 @@ import {
   getJSFunctionLineGutter,
   getJSPropertyLineFromName,
 } from "./utils";
-import JSFunctionSettingsView from "./JSFunctionSettings";
 import type { JSFunctionSettingsProps } from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
 import {
@@ -49,7 +42,6 @@ import {
   FormWrapper,
   NameWrapper,
   StyledFormRow,
-  TabbedViewContainer,
 } from "./styledComponents";
 import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
@@ -59,10 +51,8 @@ import {
 } from "actions/editorContextActions";
 import history from "utils/history";
 import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
-import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
-import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
-import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
+import type { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
@@ -72,6 +62,7 @@ import {
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import RunHistory from "ee/components/RunHistory";
+import { JSEditorForm as EditorForm } from "./JSEditorForm";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
@@ -384,73 +375,22 @@ function JSEditorForm({
           <Wrapper>
             <div className="flex flex-1 w-full">
               <SecondaryWrapper>
-                <TabbedViewContainer isExecuting={isExecutingCurrentJSAction}>
-                  <Tabs
-                    defaultValue={JSEditorTab.CODE}
-                    onValueChange={(string) =>
-                      setSelectedConfigTab(string as JSEditorTab)
-                    }
-                    value={selectedConfigTab}
-                  >
-                    <TabsList>
-                      <Tab
-                        data-testid={`t--js-editor-` + JSEditorTab.CODE}
-                        value={JSEditorTab.CODE}
-                      >
-                        Code
-                      </Tab>
-                      {showSettings && (
-                        <Tab
-                          data-testid={`t--js-editor-` + JSEditorTab.SETTINGS}
-                          value={JSEditorTab.SETTINGS}
-                        >
-                          Settings
-                        </Tab>
-                      )}
-                    </TabsList>
-                    <TabPanel value={JSEditorTab.CODE}>
-                      <div className="js-editor-tab">
-                        <LazyCodeEditor
-                          AIAssisted
-                          blockCompletions={blockCompletions}
-                          border={CodeEditorBorder.NONE}
-                          borderLess
-                          className={"js-editor"}
-                          customGutter={JSGutters}
-                          dataTreePath={`${currentJSCollection.name}.body`}
-                          disabled={!isChangePermitted}
-                          folding
-                          height={"100%"}
-                          hideEvaluatedValue
-                          input={{
-                            value: currentJSCollection.body,
-                            onChange: handleEditorChange,
-                          }}
-                          isJSObject
-                          jsObjectName={currentJSCollection.name}
-                          mode={EditorModes.JAVASCRIPT}
-                          placeholder="Let's write some code!"
-                          showLightningMenu={false}
-                          showLineNumbers
-                          size={EditorSize.EXTENDED}
-                          tabBehaviour={TabBehaviour.INDENT}
-                          theme={theme}
-                        />
-                      </div>
-                    </TabPanel>
-                    {showSettings && (
-                      <TabPanel value={JSEditorTab.SETTINGS}>
-                        <div className="js-editor-tab">
-                          <JSFunctionSettingsView
-                            actions={jsActions}
-                            disabled={!isChangePermitted}
-                            onUpdateSettings={onUpdateSettings}
-                          />
-                        </div>
-                      </TabPanel>
-                    )}
-                  </Tabs>
-                </TabbedViewContainer>
+                <EditorForm
+                  actions={jsActions}
+                  blockCompletions={blockCompletions}
+                  changePermitted={isChangePermitted}
+                  currentJSCollection={currentJSCollection}
+                  customGutter={JSGutters}
+                  executing={isExecutingCurrentJSAction}
+                  onChange={handleEditorChange}
+                  onUpdateSettings={onUpdateSettings}
+                  onValueChange={(string) =>
+                    setSelectedConfigTab(string as JSEditorTab)
+                  }
+                  showSettings={showSettings}
+                  theme={theme}
+                  value={selectedConfigTab}
+                />
                 <JSResponseView
                   currentFunction={activeResponse}
                   disabled={disableRunFunctionality || !isExecutePermitted}

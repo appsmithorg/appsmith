@@ -47,6 +47,7 @@ import type {
   Hinter,
   HintHelper,
   MarkHelper,
+  BlockCompletion,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   EditorModes,
@@ -199,7 +200,7 @@ export interface EditorStyleProps {
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   popperPlacement?: Placement;
   popperZIndex?: Indices;
-  blockCompletions?: FieldEntityInformation["blockCompletions"];
+  blockCompletions?: Array<BlockCompletion>;
 }
 /**
  *  line => Line to which the gutter is added

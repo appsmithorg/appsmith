@@ -54,6 +54,11 @@ export const EditorThemes: Record<EditorTheme, string> = {
   [EditorTheme.DARK]: "duotone-dark",
 };
 
+export interface BlockCompletion {
+  parentPath: string;
+  subPath: string;
+}
+
 export interface FieldEntityInformation {
   entityName?: string;
   expectedType?: AutocompleteDataType;
@@ -61,7 +66,7 @@ export interface FieldEntityInformation {
   entityId?: string;
   propertyPath?: string;
   isTriggerPath?: boolean;
-  blockCompletions?: Array<{ parentPath: string; subPath: string }>;
+  blockCompletions?: Array<BlockCompletion>;
   example?: ExpectedValueExample;
   mode?: TEditorModes;
   token?: CodeMirror.Token;
