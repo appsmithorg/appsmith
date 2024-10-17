@@ -10,7 +10,7 @@ import {
 import type { ActionResponse } from "api/ActionAPI";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { SourceEntity } from "entities/AppsmithConsole";
-import ApiResponseMeta from "components/editorComponents/ApiResponseMeta";
+import ApiResponseMeta from "./ApiResponseMeta";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";

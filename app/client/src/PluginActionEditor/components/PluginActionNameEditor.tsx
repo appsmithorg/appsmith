@@ -1,7 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
-import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
+import { usePluginActionContext } from "../PluginActionContext";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
