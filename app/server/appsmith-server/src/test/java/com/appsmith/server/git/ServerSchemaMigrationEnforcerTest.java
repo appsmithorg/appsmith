@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.git.autocommit.AutoCommitEventHandler;
 import com.appsmith.server.git.autocommit.AutoCommitEventHandlerImpl;
 import com.appsmith.server.helpers.CommonGitFileUtils;
@@ -34,6 +35,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
@@ -97,9 +99,10 @@ import static org.mockito.ArgumentMatchers.any;
  *      In order to retrieve the updated JSON, one could simply copy the serialized files from the test case itself.
  */
 @Slf4j
+@ExtendWith(AfterAllCleanUpExtension.class)
 @AutoConfigureDataMongo
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ServerSchemaMigrationEnforcerTest {
 
     @Autowired

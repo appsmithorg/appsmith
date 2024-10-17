@@ -13,7 +13,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.ExchangeUtils;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.repositories.UserDataRepository;
+import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.segment.analytics.Analytics;
@@ -54,7 +54,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     private final ProjectProperties projectProperties;
     private final DeploymentProperties deploymentProperties;
 
-    private final UserDataRepository userDataRepository;
+    private final UserDataRepositoryCake userDataRepository;
 
     @Autowired
     public AnalyticsServiceCEImpl(
@@ -65,7 +65,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             UserUtils userUtils,
             ProjectProperties projectProperties,
             DeploymentProperties deploymentProperties,
-            UserDataRepository userDataRepository) {
+            UserDataRepositoryCake userDataRepository) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
         this.commonConfig = commonConfig;

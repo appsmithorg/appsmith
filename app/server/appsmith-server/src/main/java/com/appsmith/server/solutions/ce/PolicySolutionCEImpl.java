@@ -12,12 +12,12 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.Permission;
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
+import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
@@ -44,12 +44,12 @@ import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 public class PolicySolutionCEImpl implements PolicySolutionCE {
 
     private final PolicyGenerator policyGenerator;
-    private final ApplicationRepository applicationRepository;
-    private final DatasourceRepository datasourceRepository;
-    private final NewPageRepository newPageRepository;
-    private final NewActionRepository newActionRepository;
-    private final ActionCollectionRepository actionCollectionRepository;
-    private final ThemeRepository themeRepository;
+    private final ApplicationRepositoryCake applicationRepository;
+    private final DatasourceRepositoryCake datasourceRepository;
+    private final NewPageRepositoryCake newPageRepository;
+    private final NewActionRepositoryCake newActionRepository;
+    private final ActionCollectionRepositoryCake actionCollectionRepository;
+    private final ThemeRepositoryCake themeRepository;
     private final DatasourcePermission datasourcePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
@@ -62,10 +62,9 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
         final Map<String, Policy> policyMap1 = new HashMap<>();
         for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
             Policy entryValue = entry.getValue();
-            Policy policy = Policy.builder()
-                    .permission(entryValue.getPermission())
-                    .permissionGroups(new HashSet<>(entryValue.getPermissionGroups()))
-                    .build();
+            Policy policy = new Policy();
+            policy.setPermission(entryValue.getPermission());
+            policy.setPermissionGroups(new HashSet<>(entryValue.getPermissionGroups()));
             policyMap1.put(entry.getKey(), policy);
         }
 
@@ -131,13 +130,13 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
         return permissions.stream()
                 .filter(perm -> perm.getDocumentId().equals(objectId))
                 .map(perm -> {
-                    Policy policyWithCurrentPermission = Policy.builder()
-                            .permission(perm.getAclPermission().getValue())
-                            .permissionGroups(Set.of(permissionGroup.getId()))
-                            .build();
+                    Policy policyWithCurrentPermission = new Policy();
+                    policyWithCurrentPermission.setPermission(
+                            perm.getAclPermission().getValue());
+                    policyWithCurrentPermission.setPermissionGroups(Set.of(String.valueOf(permissionGroup.getId())));
                     // Generate any and all lateral policies that might come with the current permission
                     Set<Policy> policiesForPermissionGroup = policyGenerator.getLateralPolicies(
-                            perm.getAclPermission(), Set.of(permissionGroup.getId()), null);
+                            perm.getAclPermission(), Set.of(String.valueOf(permissionGroup.getId())), null);
                     policiesForPermissionGroup.add(policyWithCurrentPermission);
                     return policiesForPermissionGroup;
                 })
@@ -149,10 +148,9 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     public Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(
             AclPermission permission, String permissionGroupId) {
 
-        Policy policyWithCurrentPermission = Policy.builder()
-                .permission(permission.getValue())
-                .permissionGroups(Set.of(permissionGroupId))
-                .build();
+        Policy policyWithCurrentPermission = new Policy();
+        policyWithCurrentPermission.setPermission(permission.getValue());
+        policyWithCurrentPermission.setPermissionGroups(Set.of(permissionGroupId));
         // Generate any and all lateral policies that might come with the current permission
         Set<Policy> policiesForPermission =
                 policyGenerator.getLateralPolicies(permission, Set.of(permissionGroupId), null);
@@ -179,7 +177,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     return Mono.just(updatedDatasource);
                 })
                 .collectList()
-                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
+                .flatMapMany(datasources -> datasourceRepository.saveAll(datasources)); // */
     }
 
     public Flux<Application> updateWithNewPoliciesToApplicationsByWorkspaceId(
@@ -199,7 +197,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));
+                .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications)); // */
     }
 
     @Override
@@ -225,7 +223,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(updatedPages -> newPageRepository.saveAll(updatedPages));
+                .flatMapMany(updatedPages -> newPageRepository.saveAll(updatedPages)); // */
     }
 
     @Override
@@ -250,7 +248,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(themeRepository::saveAll);
+                .flatMapMany(themeRepository::saveAll); // */
     }
 
     /**
@@ -280,7 +278,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(newActionRepository::saveAll);
+                .flatMapMany(newActionRepository::saveAll); // */
     }
 
     @Override
@@ -298,7 +296,7 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
                     }
                 })
                 .collectList()
-                .flatMapMany(actionCollectionRepository::saveAll);
+                .flatMapMany(actionCollectionRepository::saveAll); // */
     }
 
     @Override

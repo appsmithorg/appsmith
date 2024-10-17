@@ -13,6 +13,8 @@ import java.util.Map;
 
 public interface UserDataServiceCE {
 
+    Mono<UserData> create(UserData userData);
+
     Mono<UserData> getForUser(User user);
 
     Mono<UserData> getForUser(String userId);
