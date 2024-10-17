@@ -617,7 +617,7 @@ const getWidgetPropertyPaneConfig = async (
 
     return enhancedPropertyPaneConfig;
   } else {
-    const config = getWidgetPropertyPaneCombinedConfig(type);
+    const config = await getWidgetPropertyPaneCombinedConfig(type);
 
     if (config === undefined) {
       log.error("Widget property pane config not defined", type);
