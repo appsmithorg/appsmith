@@ -50,7 +50,7 @@ jobs:
       - name: Push changes
         if: env.MERGE_CONFLICT == 'false'
         run: |
-          git push origin pg
+          git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }} HEAD:pg
 
       - name: Notify on merge conflicts
         if: env.MERGE_CONFLICT == 'true'
