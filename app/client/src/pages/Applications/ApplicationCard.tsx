@@ -117,7 +117,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isForkApplicationModalopen, setForkApplicationModalOpen] =
     useState(false);
-  const [lastUpdatedValue, setLastUpdatedValue] = useState("");
+  const lastUpdatedValue = "";
   const dispatch = useDispatch();
 
   const applicationId = props.application?.id;
@@ -370,9 +370,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     props.update(applicationId, {
                       name: value,
                     });
-                }}
-                onTextChanged={(value: string) => {
-                  setLastUpdatedValue(value);
                 }}
                 placeholder={"Edit text input"}
                 savingState={
