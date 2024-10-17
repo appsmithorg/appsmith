@@ -5,22 +5,14 @@ import { StyledFormRow } from "./EditorJSONtoForm";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import {
-  getHasExecuteActionPermission,
-  getHasManageActionPermission,
-} from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { useSelector } from "react-redux";
-import {
-  getActionByBaseId,
-  getPlugin,
-  getPluginNameFromId,
-} from "ee/selectors/entitiesSelector";
+import { getActionByBaseId, getPlugin } from "ee/selectors/entitiesSelector";
 import { QueryEditorContext } from "./QueryEditorContext";
 import type { Plugin } from "api/PluginApi";
 import type { Datasource } from "entities/Datasource";
 import type { AppState } from "ee/reducers";
-import { SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import DatasourceSelector from "./DatasourceSelector";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
@@ -51,6 +43,7 @@ interface Props {
   formName: string;
   dataSources: Datasource[];
   onCreateDatasourceClick: () => void;
+  isRunDisabled?: boolean;
   isRunning: boolean;
   onRunClick: () => void;
 }
@@ -59,6 +52,7 @@ const QueryEditorHeader = (props: Props) => {
   const {
     dataSources,
     formName,
+    isRunDisabled = false,
     isRunning,
     onCreateDatasourceClick,
     onRunClick,
@@ -78,11 +72,6 @@ const QueryEditorHeader = (props: Props) => {
     currentActionConfig?.userPermissions,
   );
 
-  const isExecutePermitted = getHasExecuteActionPermission(
-    isFeatureEnabled,
-    currentActionConfig?.userPermissions,
-  );
-
   const currentPlugin = useSelector((state: AppState) =>
     getPlugin(state, currentActionConfig?.pluginId || ""),
   );
@@ -94,29 +83,6 @@ const QueryEditorHeader = (props: Props) => {
   const iconUrl = getAssetUrl(currentPlugin?.iconLocation) || "";
 
   const icon = ActionUrlIcon(iconUrl);
-
-  // get the current action's plugin name
-  const currentActionPluginName = useSelector((state: AppState) =>
-    getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
-  );
-
-  let actionBody = "";
-
-  if (!!currentActionConfig?.actionConfiguration) {
-    if ("formData" in currentActionConfig?.actionConfiguration) {
-      // if the action has a formData (the action is postUQI e.g. Oracle)
-      actionBody =
-        currentActionConfig.actionConfiguration.formData?.body?.data || "";
-    } else {
-      // if the action is pre UQI, the path is different e.g. mySQL
-      actionBody = currentActionConfig.actionConfiguration?.body || "";
-    }
-  }
-
-  // if (the body is empty and the action is an sql datasource) or the user does not have permission, block action execution.
-  const blockExecution =
-    (!actionBody && SQL_DATASOURCES.includes(currentActionPluginName)) ||
-    !isExecutePermitted;
 
   return (
     <StyledFormRow>
@@ -141,7 +107,7 @@ const QueryEditorHeader = (props: Props) => {
         <Button
           className="t--run-query"
           data-guided-tour-iid="run-query"
-          isDisabled={blockExecution}
+          isDisabled={isRunDisabled}
           isLoading={isRunning}
           onClick={onRunClick}
           size="md"

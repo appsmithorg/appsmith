@@ -81,7 +81,7 @@ import {
 } from "components/formControls/utils";
 import type { ControlProps } from "components/formControls/BaseControl";
 import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
-import { formValuesToDatasource } from "transformers/RestAPIDatasourceFormTransformer";
+import { formValuesToDatasource } from "PluginActionEditor/transformers/RestAPIDatasourceFormTransformer";
 import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";

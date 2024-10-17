@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "./constants";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { useDispatch, useSelector } from "react-redux";
 import { setPluginActionEditorDebuggerState } from "../../store";

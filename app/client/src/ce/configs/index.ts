@@ -26,7 +26,10 @@ export interface INJECTED_CONFIGS {
   fusioncharts: {
     licenseKey: string;
   };
-  enableMixpanel: boolean;
+  mixpanel: {
+    enabled: boolean;
+    apiKey: string;
+  };
   cloudHosting: boolean;
   algolia: {
     apiId: string;
@@ -77,9 +80,12 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     fusioncharts: {
       licenseKey: process.env.REACT_APP_FUSIONCHARTS_LICENSE_KEY || "",
     },
-    enableMixpanel: process.env.REACT_APP_SEGMENT_KEY
-      ? process.env.REACT_APP_SEGMENT_KEY.length > 0
-      : false,
+    mixpanel: {
+      enabled: process.env.REACT_APP_SEGMENT_KEY
+        ? process.env.REACT_APP_SEGMENT_KEY.length > 0
+        : false,
+      apiKey: process.env.REACT_APP_MIXPANEL_KEY || "",
+    },
     algolia: {
       apiId: process.env.REACT_APP_ALGOLIA_API_ID || "",
       apiKey: process.env.REACT_APP_ALGOLIA_API_KEY || "",
@@ -160,6 +166,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const segment = getConfig(
     ENV_CONFIG.segment.apiKey,
     APPSMITH_FEATURE_CONFIGS?.segment.apiKey,
+  );
+  const mixpanel = getConfig(
+    ENV_CONFIG.mixpanel.apiKey,
+    APPSMITH_FEATURE_CONFIGS?.mixpanel.apiKey,
   );
   const newRelicAccountId = getConfig(
     ENV_CONFIG.newRelic.accountId,
@@ -278,10 +288,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       enabled: googleRecaptchaSiteKey.enabled,
       apiKey: googleRecaptchaSiteKey.value,
     },
-    enableMixpanel:
-      ENV_CONFIG.enableMixpanel ||
-      APPSMITH_FEATURE_CONFIGS?.enableMixpanel ||
-      false,
+    mixpanel: {
+      enabled: segment.enabled,
+      apiKey: mixpanel.value,
+    },
     cloudHosting:
       ENV_CONFIG.cloudHosting ||
       APPSMITH_FEATURE_CONFIGS?.cloudHosting ||
