@@ -29,6 +29,7 @@ import com.external.plugins.exceptions.MssqlErrorMessages;
 import com.external.plugins.exceptions.MssqlPluginError;
 import com.external.plugins.utils.MssqlDatasourceUtils;
 import com.external.plugins.utils.MssqlExecuteUtils;
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.pool.HikariPool;
@@ -69,6 +70,9 @@ import java.util.stream.IntStream;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.PluginConstants.PluginName.MSSQL_PLUGIN_NAME;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_CLOSED_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_INVALID_ERROR_MSG;
+import static com.appsmith.external.exceptions.pluginExceptions.BasePluginErrorMessages.CONNECTION_NULL_ERROR_MSG;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
 import static com.appsmith.external.helpers.PluginUtils.getPSParamLabel;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
@@ -115,17 +119,26 @@ public class MssqlPlugin extends BasePlugin {
         private static final int PREPARED_STATEMENT_INDEX = 0;
 
         /**
-         * Instead of using the default executeParametrized provided by pluginExecutor, this implementation affords an opportunity
-         * to use PreparedStatement (if configured) which requires the variable substitution, etc. to happen in a particular format
-         * supported by PreparedStatement. In case of PreparedStatement turned off, the action and datasource configurations are
+         * Instead of using the default executeParametrized provided by pluginExecutor,
+         * this implementation affords an opportunity
+         * to use PreparedStatement (if configured) which requires the variable
+         * substitution, etc. to happen in a particular format
+         * supported by PreparedStatement. In case of PreparedStatement turned off, the
+         * action and datasource configurations are
          * prepared (binding replacement) using PluginExecutor.variableSubstitution
          *
-         * @param hikariDSConnection      : This is the connection that is established to the data source. This connection is according
+         * @param hikariDSConnection      : This is the connection that is established
+         *                                to the data source. This connection is
+         *                                according
          *                                to the parameters in Datasource Configuration
-         * @param executeActionDTO        : This is the data structure sent by the client during execute. This contains the params
+         * @param executeActionDTO        : This is the data structure sent by the
+         *                                client during execute. This contains the
+         *                                params
          *                                which would be used for substitution
-         * @param datasourceConfiguration : These are the configurations which have been used to create a Datasource from a Plugin
-         * @param actionConfiguration     : These are the configurations which have been used to create an Action from a Datasource.
+         * @param datasourceConfiguration : These are the configurations which have been
+         *                                used to create a Datasource from a Plugin
+         * @param actionConfiguration     : These are the configurations which have been
+         *                                used to create an Action from a Datasource.
          * @return
          */
         @Override
@@ -137,7 +150,8 @@ public class MssqlPlugin extends BasePlugin {
 
             log.debug(Thread.currentThread().getName() + ": executeParameterized() called for MSSQL plugin.");
             String query = actionConfiguration.getBody();
-            // Check for query parameter before performing the probably expensive fetch connection from the pool op.
+            // Check for query parameter before performing the probably expensive fetch
+            // connection from the pool op.
             if (!StringUtils.hasLength(query)) {
                 return Mono.error(new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, MssqlErrorMessages.MISSING_QUERY_ERROR_MSG));
@@ -208,10 +222,13 @@ public class MssqlPlugin extends BasePlugin {
                             sqlConnectionFromPool = mssqlDatasourceUtils.getConnectionFromHikariConnectionPool(
                                     hikariDSConnection, MSSQL_PLUGIN_NAME);
                         } catch (SQLException | StaleConnectionException e) {
-                            // The function can throw either StaleConnectionException or SQLException. The underlying
+                            // The function can throw either StaleConnectionException or SQLException. The
+                            // underlying
                             // hikari
-                            // library throws SQLException in case the pool is closed or there is an issue initializing
-                            // the connection pool which can also be translated in our world to StaleConnectionException
+                            // library throws SQLException in case the pool is closed or there is an issue
+                            // initializing
+                            // the connection pool which can also be translated in our world to
+                            // StaleConnectionException
                             // and should then trigger the destruction and recreation of the pool.
                             return Mono.error(
                                     e instanceof StaleConnectionException
@@ -239,7 +256,8 @@ public class MssqlPlugin extends BasePlugin {
                                 }
                             }
                         } catch (SQLException error) {
-                            // This exception is thrown only when the timeout to `isValid` is negative. Since, that's
+                            // This exception is thrown only when the timeout to `isValid` is negative.
+                            // Since, that's
                             // not the case,
                             // here, this should never happen.
                             log.error("Error checking validity of MsSQL connection.");
@@ -375,30 +393,47 @@ public class MssqlPlugin extends BasePlugin {
             log.debug(Thread.currentThread().getName() + ": validateDatasource() called for MSSQL plugin.");
             Set<String> invalids = new HashSet<>();
 
-            if (isEmpty(datasourceConfiguration.getEndpoints())) {
-                invalids.add(MssqlErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
-            }
+            validateConnectionMode(datasourceConfiguration, invalids);
+            validateEndpoints(datasourceConfiguration, invalids);
+            validateAuthentication(datasourceConfiguration, invalids);
+            return invalids;
+        }
 
+        private void validateConnectionMode(DatasourceConfiguration datasourceConfiguration, Set<String> invalids) {
             if (datasourceConfiguration.getConnection() != null
                     && datasourceConfiguration.getConnection().getMode() == null) {
                 invalids.add(MssqlErrorMessages.DS_MISSING_CONNECTION_MODE_ERROR_MSG);
             }
+        }
 
+        private void validateEndpoints(DatasourceConfiguration datasourceConfiguration, Set<String> invalids) {
+            if (StringUtils.isEmpty(datasourceConfiguration.getUrl())
+                    && isEmpty(datasourceConfiguration.getEndpoints())) {
+                invalids.add(MssqlErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
+            } else if (!isEmpty(datasourceConfiguration.getEndpoints())) {
+                for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    if (isBlank(endpoint.getHost())) {
+                        invalids.add(MssqlErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
+                    }
+                }
+            }
+        }
+
+        private void validateAuthentication(DatasourceConfiguration datasourceConfiguration, Set<String> invalids) {
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
             if (auth == null) {
                 invalids.add(MssqlErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG);
-
             } else {
-                if (StringUtils.isEmpty(auth.getUsername())) {
+                if (isBlank(auth.getUsername())) {
                     invalids.add(MssqlErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
                 }
-
-                if (StringUtils.isEmpty(auth.getPassword())) {
+                if (isBlank(auth.getPassword())) {
                     invalids.add(MssqlErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
                 }
+                if (isBlank(auth.getDatabaseName())) {
+                    invalids.add(MssqlErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG);
+                }
             }
-
-            return invalids;
         }
 
         @Override
@@ -503,10 +538,14 @@ public class MssqlPlugin extends BasePlugin {
         }
 
         /**
-         * MsSQL plugin makes use of a common template that is available for SQL query which is also used for other SQL
-         * type plugins e.g. Postgres to create select, insert, update, delete, find queries for the CRUD page. In
-         * case of MsSQL the  template select query needs to be replaced because its syntax does not match with MsSQL
-         * syntax. Hence, this method updates the template select query with the correct syntax select query for MsSQL.
+         * MsSQL plugin makes use of a common template that is available for SQL query
+         * which is also used for other SQL
+         * type plugins e.g. Postgres to create select, insert, update, delete, find
+         * queries for the CRUD page. In
+         * case of MsSQL the template select query needs to be replaced because its
+         * syntax does not match with MsSQL
+         * syntax. Hence, this method updates the template select query with the correct
+         * syntax select query for MsSQL.
          */
         @Override
         public Mono<Void> sanitizeGenerateCRUDPageTemplateInfo(
@@ -556,7 +595,8 @@ public class MssqlPlugin extends BasePlugin {
     }
 
     /**
-     * This function is blocking in nature which connects to the database and creates a connection pool
+     * This function is blocking in nature which connects to the database and
+     * creates a connection pool
      *
      * @param datasourceConfiguration
      * @return connection pool
@@ -573,8 +613,10 @@ public class MssqlPlugin extends BasePlugin {
         hikariConfig.setDriverClassName(JDBC_DRIVER);
         hikariConfig.setMinimumIdle(MINIMUM_POOL_SIZE);
         hikariConfig.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
-        // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
-        // should get tracked (may be falsely for long running queries) as leaked connection
+        // Configuring leak detection threshold for 60 seconds. Any connection which
+        // hasn't been released in 60 seconds
+        // should get tracked (may be falsely for long running queries) as leaked
+        // connection
         hikariConfig.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
 
         authentication = (DBAuth) datasourceConfiguration.getAuthentication();
@@ -604,14 +646,45 @@ public class MssqlPlugin extends BasePlugin {
         addSslOptionsToUrlBuilder(datasourceConfiguration, urlBuilder);
 
         hikariConfig.setJdbcUrl(urlBuilder.toString());
-
         try {
             hikariDatasource = new HikariDataSource(hikariConfig);
         } catch (HikariPool.PoolInitializationException e) {
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    MssqlErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
-                    e.getMessage());
+            Throwable cause = e.getCause();
+            if (cause instanceof SQLServerException) {
+                SQLServerException sqlException = (SQLServerException) cause;
+                String sqlState = sqlException.getSQLState();
+
+                if ("08S01".equals(sqlState)) {
+
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            "Invalid host or port",
+                            sqlException.getMessage());
+                } else if ("08S02".equals(sqlState)) {
+
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            "Could not connect to server. Check host and port.",
+                            sqlException.getMessage());
+                } else if ("28000".equals(sqlState)) {
+
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            "Invalid username or password",
+                            sqlException.getMessage());
+                } else {
+
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            "Connection pool creation failed: " + sqlState,
+                            sqlException.getMessage());
+                }
+            } else {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        "Connection pool creation failed",
+                        cause != null ? cause.getMessage() : e.getMessage());
+            }
         }
 
         return hikariDatasource;
@@ -620,7 +693,8 @@ public class MssqlPlugin extends BasePlugin {
     private static void addSslOptionsToUrlBuilder(
             DatasourceConfiguration datasourceConfiguration, StringBuilder urlBuilder) throws AppsmithPluginException {
         /*
-         * - Ideally, it is never expected to be null because the SSL dropdown is set to a initial value.
+         * - Ideally, it is never expected to be null because the SSL dropdown is set to
+         * a initial value.
          */
         if (datasourceConfiguration.getConnection() == null
                 || datasourceConfiguration.getConnection().getSsl() == null
