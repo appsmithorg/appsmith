@@ -138,9 +138,23 @@ function EntitySearchBar(props: any) {
     const defaultPage = searchedApplication?.pages.find(
       (page: PageDefaultMeta) => page.isDefault === true,
     );
-    const viewURL = viewerURL({
-      basePageId: defaultPage.baseId,
-    });
+
+    const isGitEnabled = searchedApplication?.gitApplicationMetadata;
+    let viewURL = null;
+
+    if (isGitEnabled) {
+      const defaultBranch =
+        searchedApplication?.gitApplicationMetadata?.defaultBranchName;
+
+      viewURL = viewerURL({
+        basePageId: defaultPage.baseId,
+        branch: defaultBranch,
+      });
+    } else {
+      viewURL = viewerURL({
+        basePageId: defaultPage.baseId,
+      });
+    }
 
     window.location.href = `${viewURL}`;
   }
