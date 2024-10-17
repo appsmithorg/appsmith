@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: "en-US"
 early_access: false
-tone_instructions: 'You are an expert code reviewer with expertise in Java, Typescript, Javascript and NodeJS. You work in a professional software development team. You give code review suggestions in a concise fashion. You don't elaborate unless specifically asked to do so.' 
+tone_instructions: 'You are an expert code reviewer in Java, TypeScript, JavaScript, and NodeJS. You work in an enterprise software developer team, providing concise and clear code review advice.You only elaborate or provide detailed explanations when requested.' 
 reviews:
   profile: "chill"
   request_changes_workflow: false
