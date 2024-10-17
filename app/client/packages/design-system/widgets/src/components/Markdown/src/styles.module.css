@@ -75,7 +75,7 @@
   }
 
   [data-component="p"] {
-    margin-bottom: var(--inner-spacing-4);
+    margin-bottom: var(--inner-spacing-3);
   }
 
   /* Lists */

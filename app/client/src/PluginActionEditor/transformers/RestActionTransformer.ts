@@ -1,7 +1,7 @@
 import {
   HTTP_METHOD,
   CONTENT_TYPE_HEADER_KEY,
-} from "constants/ApiEditorConstants/CommonApiConstants";
+} from "../constants/CommonApiConstants";
 import type { ApiAction } from "entities/Action";
 import isEmpty from "lodash/isEmpty";
 import isString from "lodash/isString";

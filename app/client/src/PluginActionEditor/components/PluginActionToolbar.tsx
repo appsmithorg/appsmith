@@ -7,10 +7,10 @@ import {
   useBlockExecution,
   useHandleRunClick,
   useAnalyticsOnRunClick,
-} from "PluginActionEditor/hooks";
+} from "../hooks";
 import { useToggle } from "@mantine/hooks";
 import { useSelector } from "react-redux";
-import { isActionRunning } from "PluginActionEditor/store";
+import { isActionRunning } from "../store";
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;

@@ -1,4 +1,4 @@
-import transformCurlImport from "transformers/CurlImportTransformer";
+import transformCurlImport from "./CurlImportTransformer";
 
 describe("CurlImportTransformer", () => {
   it("has quotes in start and end and escapes special characters", () => {
