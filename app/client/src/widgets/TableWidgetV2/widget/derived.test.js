@@ -1181,6 +1181,122 @@ describe("Validates getFilteredTableData Properties", () => {
     expect(result).toStrictEqual(expected);
   });
 
+  it("should filter correctly after editing a value with an applied filter", () => {
+    const { getFilteredTableData } = derivedProperty;
+    const input = {
+      tableData: [
+        { id: 1234, name: "Jim Doe" },
+        { id: 123, name: "Hamza Khafaga" },
+        { id: 234, name: "Khadija Khafaga" },
+      ],
+      processedTableData: [
+        { id: 1234, name: "Jim Doe", __originalIndex__: 0 },
+        { id: 123, name: "Hamza Anas", __originalIndex__: 1 },
+        { id: 234, name: "Khadija Khafaga", __originalIndex__: 2 },
+      ],
+      filters: [
+        {
+          condition: "contains",
+          column: "name",
+          value: "Khafaga",
+        },
+      ],
+      sortOrder: { column: "id", order: "desc" },
+      columnOrder: ["name", "id"],
+      primaryColumns: {
+        id: {
+          index: 1,
+          width: 150,
+          id: "id",
+          alias: "id",
+          originalId: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+        },
+        name: {
+          index: 0,
+          width: 150,
+          id: "name",
+          alias: "name",
+          originalId: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+        },
+      },
+      tableColumns: [
+        {
+          index: 0,
+          width: 150,
+          id: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+        },
+        {
+          index: 1,
+          width: 150,
+          id: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+        },
+      ],
+    };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
+
+    const expected = [
+      { id: 234, name: "Khadija Khafaga", __originalIndex__: 2 },
+      { id: 123, name: "Hamza Anas", __originalIndex__: 1 },
+    ];
+
+    let result = getFilteredTableData(input, moment, _);
+
+    expect(result).toStrictEqual(expected);
+  });
+
   it("validates generated sanitized table data with valid property keys", () => {
     const { getProcessedTableData } = derivedProperty;
 
@@ -1328,6 +1444,116 @@ describe("Validates getFilteredTableData Properties", () => {
     );
 
     const expected = [{ url: "B.COM", __originalIndex__: 1 }];
+
+    let result = getFilteredTableData(input, moment, _);
+
+    expect(result).toStrictEqual(expected);
+  });
+
+  it("filters correctly after editing a value with an applied search key", () => {
+    const { getFilteredTableData } = derivedProperty;
+    const input = {
+      tableData: [
+        { id: 1234, name: "Jim Doe" },
+        { id: 123, name: "Hamza Khafaga" },
+        { id: 234, name: "Khadija Khafaga" },
+      ],
+      processedTableData: [
+        { id: 1234, name: "Jim Doe", __originalIndex__: 0 },
+        { id: 123, name: "Hamza Anas", __originalIndex__: 1 },
+        { id: 234, name: "Khadija Khafaga", __originalIndex__: 2 },
+      ],
+      searchText: "Khafaga",
+      sortOrder: { column: "id", order: "desc" },
+      columnOrder: ["name", "id"],
+      primaryColumns: {
+        id: {
+          index: 1,
+          width: 150,
+          id: "id",
+          alias: "id",
+          originalId: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+        },
+        name: {
+          index: 0,
+          width: 150,
+          id: "name",
+          alias: "name",
+          originalId: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+        },
+      },
+      tableColumns: [
+        {
+          index: 0,
+          width: 150,
+          id: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+        },
+        {
+          index: 1,
+          width: 150,
+          id: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+        },
+      ],
+    };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
+
+    const expected = [
+      { id: 234, name: "Khadija Khafaga", __originalIndex__: 2 },
+      { id: 123, name: "Hamza Anas", __originalIndex__: 1 },
+    ];
 
     let result = getFilteredTableData(input, moment, _);
 
