@@ -29,7 +29,7 @@ type IconMapType = Record<
   Record<IconSize, () => Promise<typeof import("*.svg")>>
 >;
 
-// Create a variable to cache the imported module
+// Cache for lazy-loaded svg imports
 let cachedSvgImportsMap: IconMapType | null = null;
 
 // Function to lazily load the file once

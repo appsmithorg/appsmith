@@ -510,7 +510,7 @@ export function addSearchConfigToPanelConfig(config: readonly any[]) {
     return configItem;
   });
 }
-// Create a variable to cache the imported module
+// Cache for lazy-loaded widget configurations
 let cachedWidgetConfigs: any | null = null;
 
 // Function to lazily load the file once
