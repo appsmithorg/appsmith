@@ -33,10 +33,19 @@ const Variables = css`
   --popover-width: 280px;
 `;
 
+/* TODO: Remove this after removing custom width from server side (Ankita) */
 const SettingsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);
+
+  .t--form-control-INPUT_TEXT,
+  .t--form-control-DROP_DOWN {
+    > div {
+      min-width: unset;
+      width: 100%;
+    }
+  }
 `;
 
 const StyledPopoverHeader = styled(PopoverHeader)`

@@ -29,14 +29,6 @@ const ActionSettingsWrapper = styled.div`
     margin-left: 24px;
   }
 
-  .t--form-control-INPUT_TEXT,
-  .t--form-control-DROP_DOWN {
-    > div {
-      min-width: unset;
-      width: 100%;
-    }
-  }
-
   .form-config-top {
     flex-grow: 1;
     .form-label {
