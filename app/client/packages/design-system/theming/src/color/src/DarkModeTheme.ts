@@ -410,8 +410,8 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.l = 0.22;
     }
 
-    if (this.seedChroma > 0.025) {
-      color.oklch.c = 0.025;
+    if (this.seedChroma > 0.005) {
+      color.oklch.c = 0.005;
     }
 
     if (this.seedIsAchromatic) {
@@ -448,7 +448,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgNeutralSoftHover() {
     const color = this.bgNeutralSoft.clone();
 
-    color.oklch.l += 0.01;
+    color.oklch.l += 0.02;
 
     return color;
   }
@@ -456,7 +456,7 @@ export class DarkModeTheme implements ColorModeTheme {
   private get bgNeutralSoftActive() {
     const color = this.bgNeutralSoft.clone();
 
-    color.oklch.l -= 0.01;
+    color.oklch.l -= 0.015;
 
     return color;
   }
