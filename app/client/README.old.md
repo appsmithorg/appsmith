@@ -8,6 +8,8 @@ When you're done, you can delete the content in this README and then update the 
 
 ## Edit a file
 
+sample
+
 You’ll start by editing this README file to learn how to edit a file in Bitbucket.
 
 1. Click **Source** on the left side.
