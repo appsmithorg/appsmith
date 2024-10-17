@@ -526,7 +526,7 @@ const loadWidgetConfig = async () => {
 
       cachedWidgetConfigs = widgetConfigs; // Cache the module for future use
     } catch (e) {
-      log.error("Error loading SvgImportsMap", e);
+      log.error("Error loading WidgetConfig", e);
     }
   }
 
