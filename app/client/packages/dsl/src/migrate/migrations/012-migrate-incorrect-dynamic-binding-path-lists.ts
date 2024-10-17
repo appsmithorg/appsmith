@@ -519,11 +519,15 @@ let cachedWidgetConfigs: any | null = null;
 */
 const loadWidgetConfig = async () => {
   if (!cachedWidgetConfigs) {
-    const { default: widgetConfigs } = await import(
-      "../helpers/widget-configs.json"
-    );
+    try {
+      const { default: widgetConfigs } = await import(
+        "../helpers/widget-configs.json"
+      );
 
-    cachedWidgetConfigs = widgetConfigs; // Cache the module for future use
+      cachedWidgetConfigs = widgetConfigs; // Cache the module for future use
+    } catch (e) {
+      log.error("Error loading SvgImportsMap", e);
+    }
   }
 
   return cachedWidgetConfigs;
@@ -1015,8 +1019,8 @@ export const migrateIncorrectDynamicBindingPathLists = async (
 
   if (currentDSL.children) {
     migratedDsl.children = await Promise.all(
-      currentDSL.children.map(
-        async (value) => await migrateIncorrectDynamicBindingPathLists(value),
+      currentDSL.children.map(async (value) =>
+        migrateIncorrectDynamicBindingPathLists(value),
       ),
     );
   }
