@@ -98,7 +98,9 @@ function InputText(props: InputTextProp) {
   );
 }
 
-class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyControlPropsV2> {
+class ComputeTablePropertyControlV2 extends BaseControl<
+  ComputeTablePropertyControlPropsV2 & { placeholderText: string }
+> {
   static getBindingPrefix(tableName: string) {
     return `{{${tableName}.processedTableData.map((currentRow, currentIndex) => ( `;
   }
@@ -113,6 +115,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
       label,
       propertyValue,
       theme,
+      placeholderText,
     } = this.props;
     const tableName = this.props.widgetProperties.widgetName;
     const value =
@@ -153,6 +156,7 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
         onChange={this.onTextChange}
         theme={theme}
         value={value}
+        placeholder={placeholderText}
       />
     );
   }

@@ -18,6 +18,16 @@ export default {
     {
       propertyName: "selectOptions",
       helpText: "Options to be shown on the select dropdown",
+      placeholderText: `[
+        {
+          label: "label1",
+          value: "1",
+        },
+        {
+          label: "label2",
+          value: "2",
+        },
+      ]`,
       label: "Options",
       controlType: "TABLE_COMPUTE_VALUE",
       isJSConvertible: false,
