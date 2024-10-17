@@ -214,7 +214,7 @@ function renderFormConfigTop(props: {
                 className="form-label"
                 config={props.config}
                 extraStyles={{
-                  marginBottom: shouldRenderSubtitle && "0px",
+                  marginBottom: (shouldRenderSubtitle || !subtitle) && "0px",
                   minWidth: !!props.changesViewType && "unset",
                 }}
               >
