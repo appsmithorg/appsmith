@@ -16,6 +16,7 @@ import {
 import {
   APP_SETTINGS_PANE_WIDTH,
   APP_SIDEBAR_WIDTH,
+  APP_LIBRARIES_PANE_WIDTH,
 } from "constants/AppConstants";
 import { useEditorStateLeftPaneWidth } from "./useEditorStateLeftPaneWidth";
 import { type Area, Areas, SIDEBAR_WIDTH } from "../constants";
@@ -97,10 +98,10 @@ function useGridLayoutTemplate(): ReturnValue {
           } else {
             setColumns([
               SIDEBAR_WIDTH,
-              "255px",
+              `${APP_LIBRARIES_PANE_WIDTH}px`,
               (windowWidth -
                 APP_SIDEBAR_WIDTH -
-                255 +
+                APP_LIBRARIES_PANE_WIDTH +
                 "px") as AnimatedGridUnit,
               "0px",
             ]);

@@ -30,6 +30,7 @@ export const getPageDependencyActions = (
   currentWorkspaceId: string = "",
   featureFlags: DependentFeatureFlags = {},
   allResponses: EditConsolidatedApi,
+  applicationId: string,
 ) => {
   const { datasources, pagesWithMigratedDsl, plugins } = allResponses || {};
   const initActions = [
