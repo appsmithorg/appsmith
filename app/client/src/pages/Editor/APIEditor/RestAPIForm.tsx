@@ -22,8 +22,6 @@ type APIFormProps = {
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
 
-const FORM_NAME = API_EDITOR_FORM_NAME;
-
 function ApiEditorForm(props: Props) {
   const { actionName } = props;
   const theme = EditorTheme.LIGHT;
@@ -34,7 +32,7 @@ function ApiEditorForm(props: Props) {
       bodyUIComponent={
         <PostBodyData dataTreePath={`${actionName}.config`} theme={theme} />
       }
-      formName={FORM_NAME}
+      formName={API_EDITOR_FORM_NAME}
       httpsMethods={HTTP_METHOD_OPTIONS}
       paginationUIComponent={
         <Pagination
@@ -48,7 +46,7 @@ function ApiEditorForm(props: Props) {
   );
 }
 
-const selector = formValueSelector(FORM_NAME);
+const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
 export default connect((state: AppState) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
@@ -106,7 +104,7 @@ export default connect((state: AppState) => {
   };
 })(
   reduxForm<Action, APIFormProps>({
-    form: FORM_NAME,
+    form: API_EDITOR_FORM_NAME,
     enableReinitialize: true,
   })(ApiEditorForm),
 );

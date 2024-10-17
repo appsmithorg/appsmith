@@ -65,5 +65,5 @@ export const StyledBody = styled.div`
   max-height: calc(
     var(--popover-max-height) - calc(var(--popover-padding) * 2 + 25.5px)
   );
-  overflow-y: scroll;
+  overflow-y: auto;
 `;

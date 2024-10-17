@@ -11,6 +11,7 @@ import {
 import { useToggle } from "@mantine/hooks";
 import { useSelector } from "react-redux";
 import { isActionRunning } from "../store";
+import PluginActionSettings from "./PluginActionSettings";
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;
@@ -51,12 +52,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
             Run
           </Button>
         </Tooltip>
-        <Button
-          isIconButton
-          kind="secondary"
-          size="sm"
-          startIcon="settings-2-line"
-        />
+        <PluginActionSettings />
         <Menu onOpenChange={toggleMenuOpen} open={isMenuOpen}>
           <MenuTrigger>
             <Button

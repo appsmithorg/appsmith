@@ -7,13 +7,12 @@ export default [
         label: "Run API on page load",
         configProperty: "executeOnLoad",
         controlType: "SWITCH",
-        subtitle: "Will refresh data each time the page is loaded",
       },
       {
         label: "Request confirmation before running API",
         configProperty: "confirmBeforeExecute",
         controlType: "SWITCH",
-        subtitle:
+        tooltipText:
           "Ask confirmation from the user each time before refreshing data",
       },
       {

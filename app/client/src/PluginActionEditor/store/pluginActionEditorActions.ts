@@ -19,6 +19,13 @@ export const setPluginActionEditorSelectedTab = (payload: string) => ({
   },
 });
 
+export const openPluginActionSettings = (payload: boolean) => ({
+  type: ReduxActionTypes.OPEN_PLUGIN_ACTION_SETTINGS,
+  payload: {
+    settingsOpen: payload,
+  },
+});
+
 export const updatePostBodyContentType = (
   title: string,
   apiId: string,

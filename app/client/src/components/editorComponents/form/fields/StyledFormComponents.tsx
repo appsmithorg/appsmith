@@ -122,7 +122,7 @@ const StyledFormLabel = styled.label<{
   font-weight: 400;
   font-size: 14px;
   line-height: 16px;
-  letter-spacing: 0.02em;
+  letter-spacing: normal;
   margin-bottom: ${(props) =>
     props.extraStyles?.marginBottom
       ? props.extraStyles?.marginBottom
@@ -153,6 +153,7 @@ const FormEncrytedSection = styled.div`
 `;
 
 interface FormLabelProps {
+  className?: string;
   config?: ControlProps;
   children: JSX.Element | React.ReactNode;
   // TODO: Fix this the next time the file is edited
@@ -163,7 +164,11 @@ interface FormLabelProps {
 //Wrapper on styled <label/>
 function FormLabel(props: FormLabelProps) {
   return (
-    <StyledFormLabel config={props.config} extraStyles={props.extraStyles}>
+    <StyledFormLabel
+      className={props.className}
+      config={props.config}
+      extraStyles={props.extraStyles}
+    >
       {props.children}
     </StyledFormLabel>
   );

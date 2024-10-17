@@ -19,10 +19,10 @@ const PluginActionForm = () => {
       {plugin.uiComponent === UIComponentTypes.GraphQLEditorForm && (
         <GraphQLEditorForm />
       )}
-      {plugin.uiComponent === UIComponentTypes.DbEditorForm ||
-        (plugin.uiComponent === UIComponentTypes.UQIDbEditorForm && (
-          <UQIEditorForm />
-        ))}
+      {(plugin.uiComponent === UIComponentTypes.DbEditorForm ||
+        plugin.uiComponent === UIComponentTypes.UQIDbEditorForm) && (
+        <UQIEditorForm />
+      )}
     </Flex>
   );
 };

@@ -1288,8 +1288,8 @@
                 }
               },
               {
-                "label": "Use Prepared Statement",
-                "info": "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
+                "label": "Use prepared statements",
+                "tooltipText": "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "controlType": "SWITCH",
                 "initialValue": true
@@ -2545,18 +2545,17 @@
               {
                 "label": "Run query on page load",
                 "configProperty": "executeOnLoad",
-                "controlType": "SWITCH",
-                "info": "Will refresh data each time the page is loaded"
+                "controlType": "SWITCH"
               },
               {
                 "label": "Request confirmation before running query",
                 "configProperty": "confirmBeforeExecute",
                 "controlType": "SWITCH",
-                "info": "Ask confirmation from the user each time before refreshing data"
+                "tooltipText": "Ask confirmation from the user each time before refreshing data"
               },
               {
                 "label": "Smart BSON substitution",
-                "info": "Turning on this property fixes the BSON substitution of bindings in the Mongo BSON document by adding/removing quotes intelligently and reduces developer errors",
+                "tooltipText": "Turning on this property fixes the BSON substitution of bindings in the Mongo BSON document by adding/removing quotes intelligently and reduces developer errors",
                 "configProperty": "actionConfiguration.formData.smartSubstitution",
                 "controlType": "SWITCH",
                 "initialValue": true
@@ -2579,18 +2578,17 @@
               {
                 "label": "Run query on page load",
                 "configProperty": "executeOnLoad",
-                "controlType": "SWITCH",
-                "info": "Will refresh data each time the page is loaded"
+                "controlType": "SWITCH"
               },
               {
                 "label": "Request confirmation before running query",
                 "configProperty": "confirmBeforeExecute",
                 "controlType": "SWITCH",
-                "info": "Ask confirmation from the user each time before refreshing data"
+                "tooltipText": "Ask confirmation from the user each time before refreshing data"
               },
               {
-                "label": "Use Prepared Statement",
-                "info": "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
+                "label": "Use prepared statements",
+                "tooltipText": "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "controlType": "SWITCH",
                 "initialValue": true
@@ -2613,26 +2611,25 @@
               {
                 "label": "Run API on page load",
                 "configProperty": "executeOnLoad",
-                "controlType": "CHECKBOX",
-                "info": "Will refresh data each time the page is loaded"
+                "controlType": "CHECKBOX"
               },
               {
                 "label": "Request confirmation before running API",
                 "configProperty": "confirmBeforeExecute",
                 "controlType": "CHECKBOX",
-                "info": "Ask confirmation from the user each time before refreshing data"
+                "tooltipText": "Ask confirmation from the user each time before refreshing data"
               },
               {
                 "label": "Encode query params",
                 "configProperty": "actionConfiguration.encodeParamsToggle",
                 "controlType": "CHECKBOX",
-                "info": "Encode query params for all APIs. Also encode form body when Content-Type header is set to x-www-form-encoded"
+                "tooltipText": "Encode query params for all APIs. Also encode form body when Content-Type header is set to x-www-form-encoded"
               },
               {
                 "label": "Smart JSON substitution",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "controlType": "CHECKBOX",
-                "info": "Turning on this property fixes the JSON substitution of bindings in API body by adding/removing quotes intelligently and reduces developer errors",
+                "tooltipText": "Turning on this property fixes the JSON substitution of bindings in API body by adding/removing quotes intelligently and reduces developer errors",
                 "initialValue": true
               },
               {
@@ -2653,14 +2650,13 @@
               {
                 "label": "Run query on page load",
                 "configProperty": "executeOnLoad",
-                "controlType": "SWITCH",
-                "info": "Will refresh data each time the page is loaded"
+                "controlType": "SWITCH"
               },
               {
                 "label": "Request confirmation before running query",
                 "configProperty": "confirmBeforeExecute",
                 "controlType": "SWITCH",
-                "info": "Ask confirmation from the user each time before refreshing data"
+                "tooltipText": "Ask confirmation from the user each time before refreshing data"
               },
               {
                 "label": "Query timeout (in milliseconds)",
@@ -2680,18 +2676,17 @@
               {
                 "label": "Run query on page load",
                 "configProperty": "executeOnLoad",
-                "controlType": "SWITCH",
-                "info": "Will refresh data each time the page is loaded"
+                "controlType": "SWITCH"
               },
               {
                 "label": "Request confirmation before running query",
                 "configProperty": "confirmBeforeExecute",
                 "controlType": "SWITCH",
-                "info": "Ask confirmation from the user each time before refreshing data"
+                "tooltipText": "Ask confirmation from the user each time before refreshing data"
               },
               {
                 "label": "Smart JSON substitution",
-                "info": "Turning on this property fixes the JSON substitution of bindings in the Row objects by adding/removing quotes intelligently and reduces developer errors",
+                "tooltipText": "Turning on this property fixes the JSON substitution of bindings in the Row objects by adding/removing quotes intelligently and reduces developer errors",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[13].value",
                 "controlType": "SWITCH",
                 "initialValue": true
@@ -2714,18 +2709,17 @@
               {
                 "label": "Run query on page load",
                 "configProperty": "executeOnLoad",
-                "controlType": "SWITCH",
-                "info": "Will refresh data each time the page is loaded"
+                "controlType": "SWITCH"
               },
               {
                 "label": "Request confirmation before running query",
                 "configProperty": "confirmBeforeExecute",
                 "controlType": "SWITCH",
-                "info": "Ask confirmation from the user each time before refreshing data"
+                "tooltipText": "Ask confirmation from the user each time before refreshing data"
               },
               {
                 "label": "Smart JSON substitution",
-                "info": "Turning on this property fixes the JSON substitution of bindings in the Content field by adding/removing quotes intelligently and reduces developer errors",
+                "tooltipText": "Turning on this property fixes the JSON substitution of bindings in the Content field by adding/removing quotes intelligently and reduces developer errors",
                 "configProperty": "actionConfiguration.formData.smartSubstitution",
                 "controlType": "SWITCH",
                 "initialValue": true
@@ -2748,18 +2742,17 @@
               {
                 "label": "Run query on page load",
                 "configProperty": "executeOnLoad",
-                "controlType": "SWITCH",
-                "info": "Will refresh data each time the page is loaded"
+                "controlType": "SWITCH"
               },
               {
                 "label": "Request confirmation before running query",
                 "configProperty": "confirmBeforeExecute",
                 "controlType": "SWITCH",
-                "info": "Ask confirmation from the user each time before refreshing data"
+                "tooltipText": "Ask confirmation from the user each time before refreshing data"
               },
               {
                 "label": "Query timeout (in milliseconds)",
-                "info": "Maximum time after which the query will return",
+                "tooltipText": "Maximum time after which the query will return",
                 "configProperty": "actionConfiguration.timeoutInMillisecond",
                 "controlType": "INPUT_TEXT",
                 "dataType": "NUMBER"

@@ -35,13 +35,16 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import BindDataButton from "./BindDataButton";
 import {
   getPluginActionDebuggerState,
+  openPluginActionSettings,
   setPluginActionEditorSelectedTab,
 } from "../../../store";
-import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import {
   createMessage,
   PREPARED_STATEMENT_WARNING,
 } from "ee/constants/messages";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const HelpSection = styled.div``;
 
@@ -88,6 +91,10 @@ const QueryResponseTab = (props: Props) => {
     runErrorMessage,
   } = props;
   const dispatch = useDispatch();
+
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
+  );
 
   const actionResponse = useSelector((state) =>
     getActionData(state, currentActionConfig.id),
@@ -211,8 +218,12 @@ const QueryResponseTab = (props: Props) => {
   }
 
   const navigateToSettings = useCallback(() => {
-    dispatch(setPluginActionEditorSelectedTab(EDITOR_TABS.SETTINGS));
-  }, [dispatch]);
+    if (isActionRedesignEnabled) {
+      dispatch(openPluginActionSettings(true));
+    } else {
+      dispatch(setPluginActionEditorSelectedTab(EDITOR_TABS.SETTINGS));
+    }
+  }, [dispatch, isActionRedesignEnabled]);
 
   const preparedStatementCalloutLinks: CalloutLinkProps[] = [
     {
