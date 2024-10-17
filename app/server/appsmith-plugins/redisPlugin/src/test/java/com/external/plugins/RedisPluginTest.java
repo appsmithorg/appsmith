@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -40,7 +39,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @Testcontainers
-@Disabled
 public class RedisPluginTest {
     @Container
     public static final GenericContainer redis =

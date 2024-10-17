@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -55,7 +54,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Testcontainers
-@Disabled
 public class MssqlPluginTest {
 
     @SuppressWarnings("rawtypes") // The type parameter for the container type is just itself and is pseudo-optional.

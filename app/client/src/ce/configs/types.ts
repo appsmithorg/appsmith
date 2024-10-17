@@ -47,7 +47,10 @@ export interface AppsmithUIConfigs {
     snippetIndex: string;
   };
 
-  enableMixpanel: boolean;
+  mixpanel: {
+    enabled: boolean;
+    apiKey: string;
+  };
 
   cloudHosting: boolean;
 

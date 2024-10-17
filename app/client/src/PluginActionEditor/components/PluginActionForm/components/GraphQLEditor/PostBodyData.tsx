@@ -8,7 +8,7 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { Section, Zone } from "pages/Editor/ActionForm";
+import { Section, Zone } from "../ActionForm";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import FormLabel from "components/editorComponents/FormLabel";
 
