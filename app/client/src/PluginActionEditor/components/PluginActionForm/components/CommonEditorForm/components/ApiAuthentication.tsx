@@ -13,7 +13,7 @@ import {
   SAVE_DATASOURCE_MESSAGE,
   createMessage,
 } from "ee/constants/messages";
-import StoreAsDatasource from "components/editorComponents/StoreAsDatasource";
+import StoreAsDatasource from "./StoreAsDatasource";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { Icon, Text } from "@appsmith/ads";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";

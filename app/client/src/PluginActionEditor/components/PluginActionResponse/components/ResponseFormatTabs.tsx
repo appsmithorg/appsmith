@@ -1,8 +1,8 @@
 import React from "react";
-import { ResponseDisplayFormats } from "constants/ApiEditorConstants/CommonApiConstants";
+import { ResponseDisplayFormats } from "../../../constants/CommonApiConstants";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { isString } from "lodash";
-import Table from "pages/Editor/QueryEditor/Table";
+import Table from "./Table";
 
 type ResponseData = string | Record<string, unknown>[];
 

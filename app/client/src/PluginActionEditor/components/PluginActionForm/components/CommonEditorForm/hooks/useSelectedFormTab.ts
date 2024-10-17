@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getPluginActionConfigSelectedTab,
   setPluginActionEditorSelectedTab,
-} from "PluginActionEditor/store";
+} from "../../../../../store";
 
 export function useSelectedFormTab(): [
   string | undefined,
