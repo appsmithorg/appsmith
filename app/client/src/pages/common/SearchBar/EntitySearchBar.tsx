@@ -36,6 +36,7 @@ import { getPackagesList } from "ee/selectors/packageSelectors";
 import Fuse from "fuse.js";
 import { useOutsideClick } from "ee/hooks";
 import type { PageDefaultMeta } from "ee/api/ApplicationApi";
+import log from "loglevel";
 
 const HeaderSection = styled.div`
   display: flex;
@@ -135,12 +136,34 @@ function EntitySearchBar(props: any) {
       (app: ApplicationPayload) => app.id === applicationId,
     );
 
-    const defaultPage = searchedApplication?.pages.find(
+    let defaultPage = searchedApplication?.pages.find(
       (page: PageDefaultMeta) => page.isDefault === true,
     );
-    const viewURL = viewerURL({
-      basePageId: defaultPage.baseId,
-    });
+
+    if (!defaultPage) {
+      defaultPage = searchedApplication?.pages[0];
+    }
+
+    if (!defaultPage) {
+      log.error("No default page or pages found for the application");
+    }
+
+    const isGitEnabled = !!searchedApplication?.gitApplicationMetadata;
+    let viewURL = null;
+
+    if (isGitEnabled) {
+      const defaultBranch =
+        searchedApplication?.gitApplicationMetadata?.defaultBranchName;
+
+      viewURL = viewerURL({
+        basePageId: defaultPage.baseId,
+        branch: defaultBranch,
+      });
+    } else {
+      viewURL = viewerURL({
+        basePageId: defaultPage.baseId,
+      });
+    }
 
     window.location.href = `${viewURL}`;
   }
