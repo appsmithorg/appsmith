@@ -513,7 +513,10 @@ export function addSearchConfigToPanelConfig(config: readonly any[]) {
 // Cache for lazy-loaded widget configurations
 let cachedWidgetConfigs: any | null = null;
 
-// Function to lazily load the file once
+/*
+ Lazily load this file since it is very large and used in migrations for certain DSL versions. By lazily loading 
+ this large file it can be reduce the main chunk only be loaded for certain limited conditions.
+*/
 const loadWidgetConfig = async () => {
   if (!cachedWidgetConfigs) {
     const { default: widgetConfigs } = await import(
