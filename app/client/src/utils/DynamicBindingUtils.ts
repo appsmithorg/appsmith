@@ -436,6 +436,7 @@ export interface LintError extends DataTreeError {
   line: number;
   ch: number;
   originalPath?: string;
+  variableLength?: number;
 }
 
 export interface DataTreeEvaluationProps {
