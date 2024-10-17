@@ -5,7 +5,7 @@ import SidePaneWrapper from "pages/common/SidePaneWrapper";
 const LibrarySidePane = () => {
   return (
     <SidePaneWrapper>
-      <JSLibrariesSection variant="primary" />
+      <JSLibrariesSection />
     </SidePaneWrapper>
   );
 };

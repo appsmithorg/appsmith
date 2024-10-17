@@ -7,11 +7,7 @@ import { useSelector } from "react-redux";
 import { animated, useTransition } from "react-spring";
 import { LibraryEntity } from "pages/Editor/Explorer/Libraries";
 
-interface JSLibrariesSectionProps {
-  variant: "primary" | "secondary";
-}
-
-function JSLibrariesSection({ variant = "primary" }: JSLibrariesSectionProps) {
+function JSLibrariesSection() {
   const libraries = useSelector(selectLibrariesForExplorer);
   const transitions = useTransition(libraries, {
     keys: (lib) => lib.name,
@@ -20,18 +16,11 @@ function JSLibrariesSection({ variant = "primary" }: JSLibrariesSectionProps) {
     leave: { opacity: 1 },
   });
 
-  const rightIcon = useMemo(
-    () => <AddLibraryPopover variant={variant} />,
-    [variant],
-  );
+  const rightIcon = useMemo(() => <AddLibraryPopover />, []);
 
   return (
     <>
-      <PaneHeader
-        rightIcon={rightIcon}
-        title="Installed Libraries"
-        variant={variant}
-      />
+      <PaneHeader rightIcon={rightIcon} title="Installed Libraries" />
       {transitions((style, lib) => (
         <animated.div style={style}>
           <LibraryEntity lib={lib} />
