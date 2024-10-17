@@ -336,7 +336,7 @@ function Card({
         className={testId}
         hasReadPermission={hasReadPermission}
         isContextMenuOpen={isContextMenuOpen}
-        onMouseEnter={() => {
+        onMouseOver={() => {
           !isFetching && setShowOverlay(true);
         }}
         onMouseLeave={() => {
