@@ -9,7 +9,7 @@ import {
 const widgetsPage = require("../../../locators/Widgets.json");
 const appPage = require("../../../locators/PgAdminlocators.json");
 
-describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
+describe("PgAdmin Clone App", { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] }, function () {
   let datasourceName, tableName;
 
   before("Add dsl and create datasource", () => {

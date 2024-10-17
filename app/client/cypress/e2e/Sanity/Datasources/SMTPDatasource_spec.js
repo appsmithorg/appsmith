@@ -6,7 +6,7 @@ import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "SMTP datasource test cases using ted",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  { tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let SMTPDatasourceName;
     beforeEach(() => {

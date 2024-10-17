@@ -17,7 +17,9 @@ let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
 describe.skip(
   "GSheet-Functional Tests With All Access",
-  { tags: ["@tag.Datasource", "@tag.GSheet"] },
+  {
+    tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     before("Setup app and spreadsheet", function () {
       //Add a new app and an add new spreadsheet query

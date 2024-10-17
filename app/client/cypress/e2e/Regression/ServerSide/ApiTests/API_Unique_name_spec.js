@@ -1,6 +1,6 @@
 import { apiPage } from "../../../../support/Objects/ObjectsCore";
 
-describe("Name uniqueness test", { tags: ["@tag.Datasource"] }, function () {
+describe("Name uniqueness test", { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] }, function () {
   it("1. Validate Unique Name", () => {
     apiPage.CreateApi("Uni"); //Creation of UniqueName Action successful
     cy.CreationOfUniqueAPIcheck("Uni");

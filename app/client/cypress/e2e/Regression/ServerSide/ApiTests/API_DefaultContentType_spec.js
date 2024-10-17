@@ -8,7 +8,7 @@ import appPage from "../../../../locators/CMSApplocators";
 import apiEditor from "../../../../locators/ApiEditor";
 import { apiPage } from "../../../../support/Objects/ObjectsCore";
 
-describe("API Panel request body", { tags: ["@tag.Datasource"] }, function () {
+describe("API Panel request body", { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] }, function () {
   it("1. Check whether the default content-type changes on changing method types and remains unchanged on switching to GET", function () {
     cy.CreateAPI("FirstAPI");
 

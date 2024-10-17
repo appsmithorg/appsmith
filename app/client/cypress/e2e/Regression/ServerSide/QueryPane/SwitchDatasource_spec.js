@@ -1,5 +1,5 @@
 import { dataSources, agHelper } from "../../../../support/Objects/ObjectsCore";
-describe("Switch datasource", { tags: ["@tag.Datasource"] }, function () {
+describe("Switch datasource", { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] }, function () {
   let dsName_1, dsName_2, MongoDB;
   beforeEach(() => {
     dataSources.StartDataSourceRoutes();

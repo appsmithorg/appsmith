@@ -11,7 +11,7 @@ import {
 
 describe(
   "Undo/Redo functionality",
-  { tags: ["@tag.JS", "@tag.Datasource"] },
+  { tags: ["@tag.JS", "@tag.Datasource", "@tag.Git", "@tag.AccessControl", "@tag.Binding"] },
   function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     let postgresDatasourceName;

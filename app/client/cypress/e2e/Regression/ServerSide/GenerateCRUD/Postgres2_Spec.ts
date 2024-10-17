@@ -18,7 +18,7 @@ let dsName: any, newCallsign: any;
 
 describe(
   "Validate Postgres Generate CRUD with JSON Form",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     before("Create DS for generate CRUD template test", () => {
       dataSources.CreateDataSource("Postgres");
