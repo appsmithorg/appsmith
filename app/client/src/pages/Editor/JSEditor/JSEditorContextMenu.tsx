@@ -12,6 +12,8 @@ import {
   MenuTrigger,
   Text,
 } from "@appsmith/ads";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 export interface ContextMenuOption {
   id?: string;
@@ -35,6 +37,10 @@ export function JSEditorContextMenu({
   onMenuClose,
   options,
 }: EntityContextMenuProps) {
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
+  );
+
   if (options.length === 0) {
     return null;
   }
@@ -53,11 +59,11 @@ export function JSEditorContextMenu({
           data-testid="more-action-trigger"
           isIconButton
           kind="tertiary"
-          size="md"
-          startIcon="context-menu"
+          size={isActionRedesignEnabled ? "sm" : "md"}
+          startIcon={isActionRedesignEnabled ? "more-2-fill" : "context-menu"}
         />
       </MenuTrigger>
-      <MenuContent avoidCollisions>
+      <MenuContent align="end" avoidCollisions>
         {options.map((option, index) => {
           if (option.children) {
             return (

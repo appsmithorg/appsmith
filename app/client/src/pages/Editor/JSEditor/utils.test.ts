@@ -1,12 +1,11 @@
 import type { JSAction } from "entities/JSCollection";
 import { uniqueId } from "lodash";
-import { NO_FUNCTION_DROPDOWN_OPTION } from "./constants";
+import { getJSFunctionStartLineFromCode, isCursorWithinNode } from "./utils";
 import {
   convertJSActionToDropdownOption,
   getJSActionOption,
-  getJSFunctionStartLineFromCode,
-  isCursorWithinNode,
-} from "./utils";
+} from "./JSEditorToolbar/utils";
+import { NO_FUNCTION_DROPDOWN_OPTION } from "./JSEditorToolbar/constants";
 
 const BASE_JS_OBJECT_BODY = `export default {
 	myVar1: [],
@@ -20,7 +19,7 @@ const BASE_JS_OBJECT_BODY = `export default {
 		await Api3.run()
 		await Api3.run()
 		return Api3.data
-	}	
+	}
 }`;
 
 const BASE_JS_OBJECT_BODY_WITH_LITERALS = `export default {
@@ -35,7 +34,7 @@ const BASE_JS_OBJECT_BODY_WITH_LITERALS = `export default {
 		await Api3.run()
 		await Api3.run()
 		return Api3.data
-	}	
+	}
 }`;
 
 const BASE_JS_ACTION = (useLiterals = false) => {

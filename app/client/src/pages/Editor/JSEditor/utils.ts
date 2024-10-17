@@ -3,28 +3,19 @@ import { parse } from "acorn";
 import { ancestor } from "acorn-walk";
 import type { CodeEditorGutter } from "components/editorComponents/CodeEditor";
 import type { JSAction, JSCollection } from "entities/JSCollection";
-import {
-  RUN_GUTTER_CLASSNAME,
-  RUN_GUTTER_ID,
-  NO_FUNCTION_DROPDOWN_OPTION,
-} from "./constants";
-import type { DropdownOption } from "@appsmith/ads-old";
+import { RUN_GUTTER_CLASSNAME, RUN_GUTTER_ID } from "./constants";
 import { find, memoize } from "lodash";
 import type { PropertyNode } from "@shared/ast";
 import {
+  ECMA_VERSION,
   isLiteralNode,
   isPropertyNode,
-  ECMA_VERSION,
   NodeTypes,
   SourceType,
 } from "@shared/ast";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import log from "loglevel";
 import type CodeMirror from "codemirror";
-
-export interface JSActionDropdownOption extends DropdownOption {
-  data: JSAction | null;
-}
 
 export const getAST = memoize((code: string, sourceType: SourceType) =>
   parse(code, {
@@ -224,20 +215,6 @@ export const getJSFunctionLineGutter = (
   };
 };
 
-export const convertJSActionsToDropdownOptions = (
-  JSActions: JSAction[],
-): JSActionDropdownOption[] => {
-  return JSActions.map(convertJSActionToDropdownOption);
-};
-
-export const convertJSActionToDropdownOption = (
-  JSAction: JSAction,
-): JSActionDropdownOption => ({
-  label: JSAction.name,
-  value: JSAction.id,
-  data: JSAction,
-});
-
 export const getActionFromJsCollection = (
   actionId: string | null,
   jsCollection: JSCollection,
@@ -245,22 +222,4 @@ export const getActionFromJsCollection = (
   if (!actionId) return null;
 
   return jsCollection.actions.find((action) => action.id === actionId) || null;
-};
-
-/**
- * Returns dropdown option based on priority and availability
- */
-export const getJSActionOption = (
-  activeJSAction: JSAction | null,
-  jsActions: JSAction[],
-): JSActionDropdownOption => {
-  let jsActionOption = NO_FUNCTION_DROPDOWN_OPTION;
-
-  if (activeJSAction) {
-    jsActionOption = convertJSActionToDropdownOption(activeJSAction);
-  } else if (jsActions.length) {
-    jsActionOption = convertJSActionToDropdownOption(jsActions[0]);
-  }
-
-  return jsActionOption;
 };
