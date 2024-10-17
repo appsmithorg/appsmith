@@ -29,9 +29,10 @@ public class ReactorUtils {
     }
 
     public static <T> Mono<T> asMonoTransaction(Supplier<Optional<T>> supplier) {
+
         return Mono.deferContextual(ctx -> {
                     // Retrieve the transaction from the Reactor context
-                    TransactionStatus transactionStatus = ctx.get("Transaction");
+                    TransactionStatus transactionStatus = ctx.get(TransactionStatus.class);
 
                     // Simulate further processing and ensure it runs within the same transaction
                     return Mono.justOrEmpty(supplier.get());

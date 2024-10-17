@@ -1112,7 +1112,7 @@ public class ApplicationServiceCEImpl
                                 });
                     });
                 })
-                .contextWrite(context -> context.put("Transaction", transactionStatus));
+                .contextWrite(context -> context.put(TransactionStatus.class, transactionStatus));
     }
 
     public Mono<Integer> saveApp(Application application, TransactionStatus transactionStatus) {
