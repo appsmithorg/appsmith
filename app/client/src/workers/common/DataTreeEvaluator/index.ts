@@ -272,6 +272,7 @@ export default class DataTreeEvaluator {
       },
     );
     const parseJSActionsEndTime = performance.now();
+    console.log("***", "time for dependency map calculation is ", parseJSActionsEndTime - parseJSActionsStartTime)
 
     jsUpdates = parsedCollections.jsUpdates;
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
@@ -315,6 +316,7 @@ export default class DataTreeEvaluator {
     );
 
     const createDependencyMapEndTime = performance.now();
+    console.log("***", "time for dependency map calculation is ", createDependencyMapEndTime - createDependencyMapStartTime)
 
     this.dependencies = dependencies;
     this.inverseDependencies = inverseDependencies;
