@@ -62,6 +62,9 @@ export class DarkModeTheme implements ColorModeTheme {
       bgNeutralSubtle: this.bgNeutralSubtle.to("sRGB").toString(),
       bgNeutralSubtleHover: this.bgNeutralSubtleHover.to("sRGB").toString(),
       bgNeutralSubtleActive: this.bgNeutralSubtleActive.to("sRGB").toString(),
+      bgNeutralSoft: this.bgNeutralSoft.to("sRGB").toString(),
+      bgNeutralSoftHover: this.bgNeutralSoftHover.to("sRGB").toString(),
+      bgNeutralSoftActive: this.bgNeutralSoftActive.to("sRGB").toString(),
       bgPositive: this.bgPositive.to("sRGB").toString(),
       bgPositiveHover: this.bgPositiveHover.to("sRGB").toString(),
       bgPositiveActive: this.bgPositiveActive.to("sRGB").toString(),
@@ -430,6 +433,30 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bgNeutralSubtle.clone();
 
     color.oklch.l -= 0.02;
+
+    return color;
+  }
+
+  private get bgNeutralSoft() {
+    const color = this.bgNeutralSubtle.clone();
+
+    color.oklch.l -= 0.03;
+
+    return color;
+  }
+
+  private get bgNeutralSoftHover() {
+    const color = this.bgNeutralSoft.clone();
+
+    color.oklch.l += 0.01;
+
+    return color;
+  }
+
+  private get bgNeutralSoftActive() {
+    const color = this.bgNeutralSoft.clone();
+
+    color.oklch.l -= 0.01;
 
     return color;
   }
