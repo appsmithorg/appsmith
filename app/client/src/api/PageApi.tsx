@@ -47,8 +47,8 @@ export interface PageLayoutsRequest {
 }
 
 export interface FetchPageResponseData {
-  isDefault: boolean;
-  isHidden: boolean;
+  isDefault?: boolean;
+  isHidden?: boolean;
   id: string;
   baseId: string;
   name: string;
