@@ -50,7 +50,6 @@ install_trivy_with_retry() {
 if ! command -v trivy &> /dev/null; then
     install_trivy_with_retry
 fi
-fi
 
 # Define the parameters
 
