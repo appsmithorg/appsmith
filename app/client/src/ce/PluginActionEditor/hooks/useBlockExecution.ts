@@ -1,7 +1,7 @@
 import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { DEFAULT_DATASOURCE_NAME } from "PluginActionEditor/constants/ApiEditorConstants";
 import { UIComponentTypes } from "api/PluginApi";
 import { SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
