@@ -172,8 +172,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         /* Get tenant config data */
         fetches.add(tenantService
                 .getTenantConfiguration()
-                .as(this::toResponseDTO)
                 .doOnError(e -> log.error("Error fetching tenant config", e))
+                .as(this::toResponseDTO)
                 .doOnSuccess(consolidatedAPIResponseDTO::setTenantConfig)
                 .name(getQualifiedSpanName(TENANT_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));

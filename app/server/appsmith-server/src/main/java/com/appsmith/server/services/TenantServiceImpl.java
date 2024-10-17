@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.TenantRepository;
@@ -22,7 +21,6 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             @Lazy EnvManager envManager,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
             CacheableRepositoryHelper cacheableRepositoryHelper,
-            CommonConfig commonConfig,
             ObservationRegistry observationRegistry) {
         super(
                 validator,
@@ -32,7 +30,6 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 envManager,
                 featureFlagMigrationHelper,
                 cacheableRepositoryHelper,
-                commonConfig,
                 observationRegistry);
     }
 }
