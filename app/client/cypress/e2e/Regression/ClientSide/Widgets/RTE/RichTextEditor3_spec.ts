@@ -49,7 +49,7 @@ describe(
     });
 
     it("3. Verify applying style in one line should be observed in next line", function () {
-      agHelper.GetNClick(locators._richText_Text_Color);
+      agHelper.GetNClick(locators._richText_Text_Color("Black"));
       agHelper.GetNClick(locators._richText_color("Red"));
       agHelper
         .GetElement(
