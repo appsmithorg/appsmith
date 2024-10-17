@@ -31,6 +31,7 @@ import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { Layers } from "constants/Layers";
 import memoize from "micro-memoize";
 import { NavigationMethod } from "utils/history";
+import { isPropertyPaneActiveForWidget } from "pages/Editor/IDE/FloatingPane/selectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -138,6 +139,9 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   const isMultiSelected = useSelector(isMultiSelectedWidget(props.widgetId));
   // True when any widget is dragging or resizing, including this one
   const resizingOrDragging = useSelector(isResizingOrDragging);
+  const isMiniPaneVisible = useSelector((state: AppState) =>
+    isPropertyPaneActiveForWidget(state, props.widgetId),
+  );
   const shouldShowWidgetName = () => {
     return (
       !isAutoCanvasResizing &&
@@ -148,7 +152,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       (isSnipingMode
         ? isFocused
         : props.showControls ||
-          ((isFocused || showAsSelected) && !resizingOrDragging))
+          ((isFocused || showAsSelected) && !resizingOrDragging) ||
+          isMiniPaneVisible)
     );
   };
 
@@ -226,6 +231,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
           inverted={props.topRow <= 2}
           name={props.widgetName}
           toggleSettings={togglePropertyEditor}
+          widgetId={props.widgetId}
+          widgetType={props.type}
           widgetWidth={props.widgetWidth}
         />
       </ControlGroup>

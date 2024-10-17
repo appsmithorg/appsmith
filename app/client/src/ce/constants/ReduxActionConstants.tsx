@@ -1266,6 +1266,7 @@ const PlatformActionErrorTypes = {
 };
 
 export const ReduxActionTypes = {
+  UPDATE_FLOATING_PANE: "UPDATE_FLOATING_PANE",
   ...ActionActionTypes,
   ...AdminSettingsActionTypes,
   ...AnalyticsActionTypes,
@@ -1381,6 +1382,7 @@ export const WidgetReduxActionTypes: { [key: string]: string } = {
   WIDGET_SINGLE_DELETE: "WIDGET_SINGLE_DELETE",
   WIDGET_UPDATE_PROPERTY: "WIDGET_UPDATE_PROPERTY",
 };
+
 
 export interface BufferedReduxAction<T> extends ReduxAction<T> {
   affectedJSObjects: AffectedJSObjects;

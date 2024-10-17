@@ -1,10 +1,18 @@
 import { Colors } from "constants/Colors";
 import type { CSSProperties } from "react";
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { Icon, Text, Tooltip } from "@appsmith/ads";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorEntityTab, EditorViewMode } from "ee/entities/IDE/constants";
+import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
+import { updateFloatingPane } from "pages/Editor/IDE/FloatingPane/actions";
+import type { AppState } from "ee/reducers";
+import { isPropertyPaneActiveForWidget } from "pages/Editor/IDE/FloatingPane/selectors";
+import type { WidgetType } from "constants/WidgetConstants";
+import WidgetFactory from "WidgetProvider/factory";
 
 // I honestly can't think of a better name for this enum
 export enum Activities {
@@ -24,7 +32,9 @@ const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   outline: none;
+
   & {
     pre {
       margin: 0 5px 0 0;
@@ -33,6 +43,7 @@ const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
       line-height: ${(props) => props.theme.fontSizes[3] - 1}px;
     }
   }
+
   border: ${WidgetNameBoundary}px solid ${Colors.GREY_1};
   ${(props) => {
     if (props.inverted) {
@@ -45,6 +56,44 @@ const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
       border-bottom: none;`;
     }
   }}
+`;
+
+const StyledBinndingWrapper = styled.div<{
+  isMiniPaneVisible: boolean;
+  inverted: boolean;
+}>`
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  background: ${({ isMiniPaneVisible }) =>
+    isMiniPaneVisible ? Colors.JAFFA_DARK : ""};
+
+  & svg > g > path {
+    fill: #fff;
+  }
+
+  ${({ inverted, isMiniPaneVisible }) =>
+    isMiniPaneVisible
+      ? `
+      &:before {
+        position: absolute;
+        content: "";
+        left: -8px;
+        height: 100%;
+        width: 8px;
+        background-color: ${Colors.JAFFA_DARK};
+      }
+      &:after {
+        position: absolute;
+        content: "";
+        right: -5px;
+        height: 100%;
+        width: 5px;
+        background-color: ${Colors.JAFFA_DARK};
+        ${inverted ? `border-bottom-right-radius:` : `border-top-right-radius:`} ${BORDER_RADIUS}px;
+      }
+    `
+      : ""};
 `;
 
 const WidgetName = styled.span`
@@ -63,12 +112,15 @@ interface SettingsControlProps {
   errorCount: number;
   inverted: boolean;
   widgetWidth: number;
+  widgetId: string;
+  widgetType: WidgetType;
 }
 
 const getStyles = (
   activity: Activities,
   errorCount: number,
   isSnipingMode: boolean,
+  isMiniPaneVisible: boolean,
 ): CSSProperties | undefined => {
   if (isSnipingMode) {
     return {
@@ -79,6 +131,11 @@ const getStyles = (
     return {
       background: "var(--ads-v2-color-fg-error)",
       color: "var(--ads-v2-color-bg-error)",
+    };
+  } else if (isMiniPaneVisible) {
+    return {
+      background: Colors.WATUSI,
+      color: Colors.WHITE,
     };
   }
 
@@ -101,41 +158,96 @@ const getStyles = (
   }
 };
 
+const WidgetTypes = WidgetFactory.widgetTypes;
+
 export function SettingsControl(props: SettingsControlProps) {
+  const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const errorIcon = <Icon name="warning" size="sm" />;
+  const ideViewMode = useSelector(getIDEViewMode);
+  const { segment } = useCurrentEditorState();
+  const [showMiniPaneIcon, setShowMiniPaneIcon] = useState(false);
+  const miniPaneReferenceElementRef = useRef(null);
+  const isMiniPaneVisible = useSelector((state: AppState) =>
+    isPropertyPaneActiveForWidget(state, props.widgetId),
+  );
+
+  useEffect(() => {
+    if (
+      props.widgetType === WidgetTypes.TABLE_WIDGET_V2 ||
+      props.widgetType === WidgetTypes.SELECT_WIDGET
+    ) {
+      setShowMiniPaneIcon(
+        ideViewMode === EditorViewMode.SplitScreen &&
+          segment !== EditorEntityTab.UI,
+      );
+    }
+  }, [ideViewMode, props.widgetType, segment]);
+
+  const handlerShowMiniPropertyPane = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(
+      updateFloatingPane({
+        isVisible: true,
+        selectedWidgetId: props.widgetId,
+        referenceElement: miniPaneReferenceElementRef.current,
+      }),
+    );
+  };
 
   return (
-    <Tooltip
-      content={
-        <Text color="var(--ads-v2-color-white)">
-          {isSnipingMode ? `Bind to widget ${props.name}` : `Edit widget`}
-        </Text>
-      }
-      mouseEnterDelay={0}
-      placement="topRight"
+    <SettingsWrapper
+      className="t--widget-propertypane-toggle"
+      data-testid="t--widget-propertypane-toggle"
+      inverted={props.inverted}
+      onClick={props.toggleSettings}
+      style={getStyles(
+        props.activity,
+        props.errorCount,
+        isSnipingMode,
+        isMiniPaneVisible,
+      )}
+      widgetWidth={props.widgetWidth}
     >
-      <SettingsWrapper
-        className="t--widget-propertypane-toggle"
-        data-testid="t--widget-propertypane-toggle"
-        inverted={props.inverted}
-        onClick={props.toggleSettings}
-        style={getStyles(props.activity, props.errorCount, isSnipingMode)}
-        widgetWidth={props.widgetWidth}
+      <Tooltip
+        content={
+          <Text color="var(--ads-v2-color-white)">
+            {isSnipingMode ? `Bind to widget ${props.name}` : `Edit widget`}
+          </Text>
+        }
+        mouseEnterDelay={0}
+        placement="topRight"
       >
-        {!!props.errorCount && !isSnipingMode && errorIcon}
-        {isSnipingMode && (
-          <Icon
-            color="var(--ads-v2-color-white)"
-            name="arrow-right-line"
-            size="md"
-          />
-        )}
-        <WidgetName className="t--widget-name">
-          {isSnipingMode ? `Bind to ${props.name}` : props.name}
-        </WidgetName>
-      </SettingsWrapper>
-    </Tooltip>
+        <div className="flex">
+          {!!props.errorCount && !isSnipingMode && errorIcon}
+          {isSnipingMode && (
+            <Icon
+              color="var(--ads-v2-color-white)"
+              name="arrow-right-line"
+              size="md"
+            />
+          )}
+          <WidgetName className="t--widget-name">
+            {isSnipingMode ? `Bind to ${props.name}` : props.name}
+          </WidgetName>
+        </div>
+      </Tooltip>
+      {showMiniPaneIcon && <div className="w-[2px] h-full bg-white" />}
+      {showMiniPaneIcon && (
+        <StyledBinndingWrapper
+          className="flex gap-1"
+          id={`float-pane-trigger-${props.widgetId}`}
+          inverted={props.inverted}
+          isMiniPaneVisible={isMiniPaneVisible}
+          onClick={handlerShowMiniPropertyPane}
+          ref={miniPaneReferenceElementRef}
+        >
+          <Icon color="#fff" name="binding-new" size="md" />
+          <span>Bind data</span>
+        </StyledBinndingWrapper>
+      )}
+    </SettingsWrapper>
   );
 }
 
