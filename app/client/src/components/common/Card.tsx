@@ -336,13 +336,13 @@ function Card({
         className={testId}
         hasReadPermission={hasReadPermission}
         isContextMenuOpen={isContextMenuOpen}
-        onMouseOver={() => {
-          !isFetching && setShowOverlay(true);
-        }}
         onMouseLeave={() => {
           // If the menu is not open, then setOverlay false
           // Set overlay false on outside click.
           !isContextMenuOpen && setShowOverlay(false);
+        }}
+        onMouseOver={() => {
+          !isFetching && setShowOverlay(true);
         }}
         showOverlay={showOverlay}
         testId={testId}
