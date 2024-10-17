@@ -27,8 +27,8 @@ jobs:
       - name: Run Scout vulnerability data script
         if: always()
         run: |
-          chmod +x scripts/scripts/scout_vulnerabilities_data.sh
-          ./scripts/scripts/scout_vulnerabilities_data.sh "${{ inputs.image_name }}" "${{ inputs.old_vuln_file }}"
+          chmod +x scripts/scout_vulnerabilities_data.sh
+          ./scripts/scout_vulnerabilities_data.sh "${{ inputs.image_name }}" "${{ inputs.old_vuln_file }}"
 
       - name: Upload Scout vulnerabilities report as artifact
         if: always()
