@@ -1,8 +1,5 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Widgets/RTE/RichTextEditor3_spec.ts
-cypress/e2e/Regression/ClientSide/Widgets/RTE/RichTextEditor_1_spec.js
-cypress/e2e/Regression/ClientSide/Widgets/RTE/RichTextEditor_2_spec.js
-cypress/e2e/Regression/ClientSide/Widgets/RTE/RichTextEditor_Validation_spec.js
+cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
