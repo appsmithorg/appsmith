@@ -146,7 +146,7 @@ const migrateUnversionedDSL = (currentDSL: DSLWidget) => {
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
 // This needs the widget config to be already built to migrate correctly
-const migrateVersionedDSL = (currentDSL: DSLWidget, newPage = false) => {
+const migrateVersionedDSL = async (currentDSL: DSLWidget, newPage = false) => {
   if (currentDSL.version === 1) {
     if (currentDSL.children && currentDSL.children.length > 0)
       currentDSL.children = currentDSL.children.map(updateContainers);
@@ -205,7 +205,7 @@ const migrateVersionedDSL = (currentDSL: DSLWidget, newPage = false) => {
   }
 
   if (currentDSL.version === 12) {
-    currentDSL = migrateIncorrectDynamicBindingPathLists(currentDSL);
+    currentDSL = await migrateIncorrectDynamicBindingPathLists(currentDSL);
     currentDSL.version = 13;
   }
 
@@ -619,15 +619,15 @@ const migrateVersionedDSL = (currentDSL: DSLWidget, newPage = false) => {
   return currentDSL;
 };
 
-export const migrateDSL = (
+export const migrateDSL = async (
   currentDSL: DSLWidget,
   newPage = false,
-): DSLWidget => {
+): Promise<DSLWidget> => {
   if (currentDSL.version === undefined) {
     const initialDSL = migrateUnversionedDSL(currentDSL);
 
-    return migrateVersionedDSL(initialDSL, newPage) as DSLWidget;
+    return (await migrateVersionedDSL(initialDSL, newPage)) as DSLWidget;
   } else {
-    return migrateVersionedDSL(currentDSL, newPage) as DSLWidget;
+    return (await migrateVersionedDSL(currentDSL, newPage)) as DSLWidget;
   }
 };
