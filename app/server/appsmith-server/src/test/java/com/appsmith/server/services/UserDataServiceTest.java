@@ -27,7 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -43,7 +42,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class UserDataServiceTest {
 
     private static final String DEFAULT_GIT_PROFILE = "default";

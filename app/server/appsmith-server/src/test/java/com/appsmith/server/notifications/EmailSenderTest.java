@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.Arrays;
@@ -22,7 +21,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 @Slf4j
 @ExtendWith({AfterAllCleanUpExtension.class})
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestPropertySource(properties = {"management.health.mail.enabled=false"})
 public class EmailSenderTest {
     @MockBean

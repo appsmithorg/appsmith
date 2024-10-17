@@ -1,16 +1,13 @@
 package com.appsmith.server.extensions;
 
 import lombok.extern.slf4j.Slf4j;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static com.appsmith.server.testhelpers.cleanup.DBCleanup.deleteAllExtensions;
-import static com.appsmith.server.testhelpers.cleanup.DBCleanup.deleteAllRoutines;
-import static com.appsmith.server.testhelpers.cleanup.DBCleanup.deleteAllTables;
 import static com.appsmith.server.testhelpers.cleanup.DBCleanup.deleteKeysWithPattern;
 
 /**
@@ -22,9 +19,6 @@ import static com.appsmith.server.testhelpers.cleanup.DBCleanup.deleteKeysWithPa
  * Example:
  * <br>
  * @ExtendWith(AfterAllCleanUpExtension.class)
- * <br>
- * @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
- * <br>
  */
 @Slf4j
 public class AfterAllCleanUpExtension implements AfterAllCallback {
@@ -32,14 +26,13 @@ public class AfterAllCleanUpExtension implements AfterAllCallback {
     public void afterAll(ExtensionContext context) {
         Class<?> testClass = context.getRequiredTestClass();
         ApplicationContext applicationContext = SpringExtension.getApplicationContext(context);
-        JdbcTemplate jdbcTemplate = applicationContext.getBean(JdbcTemplate.class);
+        Flyway flyway = applicationContext.getBean(Flyway.class);
         ReactiveRedisTemplate<String, Object> reactiveRedisTemplate =
                 applicationContext.getBean("reactiveRedisTemplate", ReactiveRedisTemplate.class);
 
         log.debug("Cleaning up after all tests for {}", testClass.getName());
-        deleteAllTables(jdbcTemplate);
-        deleteAllExtensions(jdbcTemplate);
-        deleteAllRoutines(jdbcTemplate);
+        flyway.clean();
+        flyway.migrate();
         deleteKeysWithPattern("tenant:.*", reactiveRedisTemplate).block();
     }
 }

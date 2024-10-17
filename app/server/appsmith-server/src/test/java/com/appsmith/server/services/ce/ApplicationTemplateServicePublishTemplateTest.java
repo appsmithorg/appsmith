@@ -22,7 +22,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
@@ -31,7 +30,6 @@ import java.util.List;
 
 @Slf4j
 @ExtendWith(AfterAllCleanUpExtension.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest
 public class ApplicationTemplateServicePublishTemplateTest {
     private static MockWebServer mockCloudServices;

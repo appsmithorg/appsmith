@@ -82,7 +82,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -121,7 +120,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(AfterAllCleanUpExtension.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ApplicationForkingServiceTests {
 
     private static String sourceAppId;
