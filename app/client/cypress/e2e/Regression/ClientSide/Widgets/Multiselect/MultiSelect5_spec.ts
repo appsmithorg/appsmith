@@ -309,7 +309,7 @@ describe(
     });
 
     //Skipping due to open bug #16870
-    it.skip("8. Bug # 16870 - Verify validation error in default selected values", () => {
+    it("8. Bug # 16870 - Verify validation error in default selected values", () => {
       EditorNavigation.SelectEntityByName("NewMultiSelect", EntityType.Widget);
 
       propPane.MoveToTab("Content");
