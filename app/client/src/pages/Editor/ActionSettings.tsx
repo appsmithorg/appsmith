@@ -22,7 +22,7 @@ const ActionSettingsWrapper = styled.div`
   padding-bottom: 1px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--ads-v2-spaces-4);
 
   .form-config-top {
     flex-grow: 1;

@@ -10,7 +10,7 @@ import {
 } from "@appsmith/ads";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { usePluginActionContext } from "../../PluginActionContext";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import {
   API_EDITOR_TAB_TITLES,
   createMessage,
@@ -29,8 +29,16 @@ export interface SettingsProps {
   docsLink?: DocsLink;
 }
 
+const Variables = css`
+  --popover-width: 280px;
+`;
+
 /* TODO: Remove this after removing custom width from server side (Ankita) */
 const SettingsWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-4);
+
   .t--form-control-INPUT_TEXT,
   .t--form-control-DROP_DOWN {
     > div {
@@ -49,6 +57,10 @@ const SettingsWrapper = styled.div`
 
 const StyledPopoverHeader = styled(PopoverHeader)`
   margin-bottom: var(--ads-v2-spaces-5);
+`;
+
+const StyledPopoverContent = styled(PopoverContent)`
+  ${Variables};
 `;
 
 const LearnMoreLink = styled(Link)`
@@ -102,7 +114,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
           size="md"
         />
       </PopoverTrigger>
-      <PopoverContent
+      <StyledPopoverContent
         align="end"
         onEscapeKeyDown={handleEscapeKeyDown}
         size="sm"
@@ -129,7 +141,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
             )}
           </SettingsWrapper>
         </PopoverBody>
-      </PopoverContent>
+      </StyledPopoverContent>
     </Popover>
   );
 };
