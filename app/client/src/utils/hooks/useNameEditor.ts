@@ -11,7 +11,7 @@ import {
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { useEventCallback } from "usehooks-ts";
 
-interface NameSaveActionParams {
+export interface NameSaveActionParams {
   name: string;
   id: string;
 }

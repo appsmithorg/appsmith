@@ -12,7 +12,7 @@ import { Spinner, Text as ADSText, Tooltip, Flex } from "@appsmith/ads";
 import { usePrevious } from "@mantine/hooks";
 import styled from "styled-components";
 import { useNameEditor } from "utils/hooks/useNameEditor";
-import { useBoolean, useEventCallback, useOnClickOutside } from "usehooks-ts";
+import { useBoolean, useEventCallback, useEventListener } from "usehooks-ts";
 import { noop } from "lodash";
 
 export interface SaveActionNameParams {
@@ -91,21 +91,17 @@ const PluginActionNameEditor = (props: PluginActionNameEditorProps) => {
   const iconUrl = getAssetUrl(plugin?.iconLocation) || "";
   const icon = ActionUrlIcon(iconUrl);
 
-  const attemptToSave = () => {
-    const nameError = validateName(editableTitle);
-
-    if (nameError !== null) {
-      setValidationError(nameError);
-    } else {
-      exitEditMode();
-      handleNameSave(editableTitle);
-    }
-  };
-
   const handleKeyUp = useEventCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") {
-        attemptToSave();
+        const nameError = validateName(editableTitle);
+
+        if (nameError === null) {
+          exitEditMode();
+          handleNameSave(editableTitle);
+        } else {
+          setValidationError(nameError);
+        }
       } else if (e.key === "Escape") {
         exitEditMode();
         setEditableTitle(title);
@@ -115,10 +111,6 @@ const PluginActionNameEditor = (props: PluginActionNameEditorProps) => {
       }
     },
   );
-
-  useOnClickOutside(inputRef, () => {
-    attemptToSave();
-  });
 
   const handleTitleChange = useEventCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -148,21 +140,46 @@ const PluginActionNameEditor = (props: PluginActionNameEditorProps) => {
     [handleKeyUp, handleTitleChange],
   );
 
-  useEffect(() => {
-    if (!isEditing && previousTitle !== title) {
-      setEditableTitle(title);
-    }
-  }, [title, previousTitle, isEditing]);
+  useEventListener(
+    "focusout",
+    function handleFocusOut() {
+      if (isEditing) {
+        const nameError = validateName(editableTitle);
 
-  useEffect(() => {
-    const input = inputRef.current;
+        exitEditMode();
 
-    if (isEditing && input) {
-      setTimeout(() => {
-        input.focus();
-      }, 200);
-    }
-  }, [isEditing]);
+        if (nameError === null) {
+          handleNameSave(editableTitle);
+        } else {
+          setEditableTitle(title);
+          setValidationError(null);
+        }
+      }
+    },
+    inputRef,
+  );
+
+  useEffect(
+    function syncEditableTitle() {
+      if (!isEditing && previousTitle !== title) {
+        setEditableTitle(title);
+      }
+    },
+    [title, previousTitle, isEditing],
+  );
+
+  useEffect(
+    function recaptureFocusInEventOfFocusRetention() {
+      const input = inputRef.current;
+
+      if (isEditing && input) {
+        setTimeout(() => {
+          input.focus();
+        }, 200);
+      }
+    },
+    [isEditing],
+  );
 
   return (
     <NameWrapper onDoubleClick={handleDoubleClick}>
