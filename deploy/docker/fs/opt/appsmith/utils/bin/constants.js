@@ -1,4 +1,3 @@
-
 const BACKUP_PATH = "/appsmith-stacks/data/backup"
 
 const RESTORE_PATH = "/appsmith-stacks/data/restore"
