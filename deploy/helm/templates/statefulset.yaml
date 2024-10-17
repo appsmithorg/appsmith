@@ -49,18 +49,20 @@ spec:
       {{- if ((.Values.initContainer.redis).image) }}
         image: {{ .Values.initContainer.redis.image }}
       {{- else }}
-        image: "docker.io/bitnami/redis:7.0.13-debian-11-r10"
+        image: {{ .Values.initContainer.redis.registry }}/{{ .Values.initContainer.redis.repository }}:{{ .Values.initContainer.redis.tag }}
       {{- end }}
         command: ['sh', '-c', "until redis-cli -h {{.Release.Name}}-redis-master.{{.Release.Namespace}}.svc.cluster.local ping ; do echo waiting for redis; sleep 2; done"]
+        imagePullPolicy: {{ .Values.initContainer.redis.pullPolicy }}
       {{- end }}
       {{- if .Values.mongodb.enabled }}
       - name: mongo-init-container
       {{- if ((.Values.initContainer.mongodb).image) }}
         image: {{ .Values.initContainer.mongodb.image }}
       {{- else }}
-        image:  "docker.io/bitnami/mongodb:5.0.21-debian-11-r5"
+        image: {{ .Values.initContainer.mongodb.registry }}/{{ .Values.initContainer.mongodb.repository }}:{{ .Values.initContainer.mongodb.tag }}
       {{- end }}
         command: ['sh', '-c', "until mongo --host appsmith-mongodb.{{.Release.Namespace}}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done"]
+        imagePullPolicy: {{ .Values.initContainer.mongodb.pullPolicy }}
       {{- end }}
       containers:
         - name: {{ .Values.containerName }}
