@@ -14,8 +14,6 @@ interface ActionSettingsProps {
   theme?: EditorTheme;
 }
 
-const FormRow = styled.div``;
-
 const ActionSettingsWrapper = styled.div`
   width: 100%;
   max-width: 600px;
@@ -24,15 +22,28 @@ const ActionSettingsWrapper = styled.div`
   flex-direction: column;
   gap: var(--ads-v2-spaces-4);
 
-  .form-config-top {
-    flex-grow: 1;
-  }
-
   .t--form-control-SWITCH {
     display: flex;
     flex-shrink: 0;
     align-items: center;
     margin-left: 24px;
+  }
+
+  .t--form-control-INPUT_TEXT,
+  .t--form-control-DROP_DOWN {
+    > div {
+      min-width: unset;
+      width: 100%;
+    }
+  }
+
+  .form-config-top {
+    flex-grow: 1;
+    .form-label {
+      min-width: unset;
+      width: 100%;
+      line-height: 1.43;
+    }
   }
 `;
 
@@ -65,9 +76,11 @@ const renderEachConfig = (section: any, formName: string): any => {
         const { configProperty } = formControlOrSection;
 
         return (
-          <FormRow key={configProperty}>
-            <FormControl config={formControlOrSection} formName={formName} />
-          </FormRow>
+          <FormControl
+            config={formControlOrSection}
+            formName={formName}
+            key={configProperty}
+          />
         );
       } catch (e) {
         log.error(e);
