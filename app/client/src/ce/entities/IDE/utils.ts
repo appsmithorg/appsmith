@@ -7,15 +7,16 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
-import type { NameSaveActionParams } from "utils/hooks/useNameEditor";
 import { saveActionName } from "actions/pluginActionActions";
 import { saveJSObjectName } from "actions/jsActionActions";
 import { EditorEntityTab, type EntityItem } from "ee/entities/IDE/constants";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 export interface SaveEntityName {
-  params: NameSaveActionParams;
+  params: {
+    name: string;
+    id: string;
+  };
   segment: EditorEntityTab;
   entity?: EntityItem;
 }
@@ -49,8 +50,7 @@ export function getBaseUrlsForIDEType(type: IDEType): string[] {
 }
 
 export const saveEntityName = ({ params, segment }: SaveEntityName) => {
-  let saveNameAction: ReduxAction<NameSaveActionParams> =
-    saveActionName(params);
+  let saveNameAction = saveActionName(params);
 
   if (EditorEntityTab.JS === segment) {
     saveNameAction = saveJSObjectName(params);
