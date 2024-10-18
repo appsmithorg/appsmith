@@ -11,7 +11,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Entity explorer Drag and Drop widgets testcases",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     it("1. Drag and drop form widget and validate", function () {
       cy.get(commonlocators.entityExplorersearch).should("be.visible");

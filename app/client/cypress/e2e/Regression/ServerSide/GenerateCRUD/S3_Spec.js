@@ -16,7 +16,7 @@ import EditorNavigation, {
 
 describe(
   "Generate New CRUD Page Inside from entity explorer",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let datasourceName;
 

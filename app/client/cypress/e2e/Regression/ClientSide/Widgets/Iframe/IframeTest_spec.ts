@@ -10,7 +10,7 @@ import testdata from "../../../../../fixtures/testdata.json";
 
 describe(
   "Iframe widget Tests",
-  { tags: ["@tag.Widget", "@tag.Iframe"] },
+  { tags: ["@tag.Widget", "@tag.Iframe", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("iframewidget", 550, 100);

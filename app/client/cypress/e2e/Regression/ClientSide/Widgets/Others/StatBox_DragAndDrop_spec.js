@@ -10,7 +10,7 @@ import {
 
 describe(
   "Statbox Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Statbox"] },
+  { tags: ["@tag.Widget", "@tag.Statbox", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("dynamicHeightStatboxdsl");

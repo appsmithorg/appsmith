@@ -12,7 +12,7 @@ import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Validating multiple widgets in anvil layout mode with App navigation settings`,
-  { tags: ["@tag.Anvil", "@tag.IDE"] },
+  { tags: ["@tag.Anvil", "@tag.IDE", "@tag.PropertyPane"] },
   function () {
     beforeEach(() => {
       // intercept features call for Anvil + WDS tests

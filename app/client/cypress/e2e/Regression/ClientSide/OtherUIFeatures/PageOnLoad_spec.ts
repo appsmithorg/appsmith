@@ -10,7 +10,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 
 describe(
   "Check debugger logs state when there are onPageLoad actions",
-  { tags: ["@tag.IDE", "@tag.Datasource"] },
+  { tags: ["@tag.IDE", "@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     before(() => {
       agHelper.AddDsl("debuggerTableDsl");

@@ -13,7 +13,7 @@ import {
 
 describe(
   "API Panel Test Functionality",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let datasourceName;
     before(() => {

@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   "List widget V2 PropertyPane",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   () => {
     it("1. Validate isVisible", () => {
       entityExplorer.DragDropWidgetNVerify("listwidgetv2", 300, 300);

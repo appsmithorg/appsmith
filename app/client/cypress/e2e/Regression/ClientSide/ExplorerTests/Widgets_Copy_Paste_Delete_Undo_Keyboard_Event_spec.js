@@ -16,7 +16,7 @@ before(() => {
 
 describe(
   "Test Suite to validate copy/delete/undo functionalites",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     it("1. Drag and drop form widget and validate copy widget via toast message", function () {
       const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
