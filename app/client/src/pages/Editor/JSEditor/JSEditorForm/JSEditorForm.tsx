@@ -13,7 +13,7 @@ import {
 import type { CodeEditorGutter } from "components/editorComponents/CodeEditor";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { OldJSEditorForm } from "./old/JSEditorForm";
-import type { OnUpdateSettingsProps } from "../JSFunctionSettings";
+import type { OnUpdateSettingsProps } from "../JSEditorToolbar";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { Flex } from "@appsmith/ads";
 

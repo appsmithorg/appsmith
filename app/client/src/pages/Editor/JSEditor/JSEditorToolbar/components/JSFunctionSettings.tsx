@@ -105,7 +105,7 @@ export const JSFunctionSettings = (props: Props) => {
           startIcon="settings-2-line"
         />
       </PopoverTrigger>
-      <PopoverContent align="end">
+      <PopoverContent align="end" size="md">
         <PopoverHeader isClosable>
           {createMessage(JS_EDITOR_SETTINGS.TITLE)}
         </PopoverHeader>
@@ -117,7 +117,7 @@ export const JSFunctionSettings = (props: Props) => {
             {props.actions.map((action) => (
               <FunctionSettingRow
                 action={action}
-                disabled
+                disabled={props.disabled}
                 key={action.id}
                 onUpdateSettings={props.onUpdateSettings}
               />
