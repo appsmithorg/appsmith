@@ -10,7 +10,7 @@ import CurlImportApi from "api/ImportApi";
 import type { ApiResponse } from "api/ApiResponses";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
-import transformCurlImport from "transformers/CurlImportTransformer";
+import transformCurlImport from "PluginActionEditor/transformers/CurlImportTransformer";
 import history from "utils/history";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { apiEditorIdURL } from "ee/RouteBuilder";

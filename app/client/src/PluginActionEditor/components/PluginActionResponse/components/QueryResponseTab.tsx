@@ -6,9 +6,9 @@ import {
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
   ResponseTabErrorDefaultMessage,
-} from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
-import { ResponseFormatTabs } from "PluginActionEditor/components/PluginActionResponse/components/ResponseFormatTabs";
-import { NoResponse } from "PluginActionEditor/components/PluginActionResponse/components/NoResponse";
+} from "./ApiResponse";
+import { ResponseFormatTabs } from "./ResponseFormatTabs";
+import { NoResponse } from "./NoResponse";
 import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -27,10 +27,7 @@ import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLo
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
 import { getActionData } from "ee/selectors/entitiesSelector";
-import { actionResponseDisplayDataFormats } from "../utils";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
 import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
 import { isString } from "lodash";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
@@ -38,13 +35,16 @@ import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig
 import BindDataButton from "./BindDataButton";
 import {
   getPluginActionDebuggerState,
+  openPluginActionSettings,
   setPluginActionEditorSelectedTab,
-} from "PluginActionEditor/store";
-import { EDITOR_TABS } from "constants/QueryEditorConstants";
+} from "../../../store";
 import {
   createMessage,
   PREPARED_STATEMENT_WARNING,
 } from "ee/constants/messages";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const HelpSection = styled.div``;
 
@@ -72,6 +72,7 @@ const ResponseContentWrapper = styled.div<{ isError: boolean }>`
 
 interface Props {
   actionSource: SourceEntity;
+  isRunDisabled?: boolean;
   isRunning: boolean;
   onRunClick: () => void;
   currentActionConfig: Action;
@@ -84,17 +85,15 @@ const QueryResponseTab = (props: Props) => {
     actionName,
     actionSource,
     currentActionConfig,
+    isRunDisabled = false,
     isRunning,
     onRunClick,
     runErrorMessage,
   } = props;
   const dispatch = useDispatch();
 
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-  const isExecutePermitted = getHasExecuteActionPermission(
-    isFeatureEnabled,
-    currentActionConfig?.userPermissions,
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
   const actionResponse = useSelector((state) =>
@@ -219,8 +218,12 @@ const QueryResponseTab = (props: Props) => {
   }
 
   const navigateToSettings = useCallback(() => {
-    dispatch(setPluginActionEditorSelectedTab(EDITOR_TABS.SETTINGS));
-  }, [dispatch]);
+    if (isActionRedesignEnabled) {
+      dispatch(openPluginActionSettings(true));
+    } else {
+      dispatch(setPluginActionEditorSelectedTab(EDITOR_TABS.SETTINGS));
+    }
+  }, [dispatch, isActionRedesignEnabled]);
 
   const preparedStatementCalloutLinks: CalloutLinkProps[] = [
     {
@@ -341,7 +344,7 @@ const QueryResponseTab = (props: Props) => {
         )}
       {!output && !error && (
         <NoResponse
-          isRunDisabled={!isExecutePermitted}
+          isRunDisabled={isRunDisabled}
           isRunning={isRunning}
           onRunClick={responseTabOnRunClick}
         />

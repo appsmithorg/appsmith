@@ -243,7 +243,10 @@
         fusioncharts: {
           licenseKey: parseConfig('{{env "APPSMITH_FUSIONCHARTS_LICENSE_KEY"}}'),
         },
-        enableMixpanel: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
+        mixpanel: {
+          enabled: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
+          apiKey: parseConfig('{{env "APPSMITH_MIXPANEL_KEY"}}'),
+        },
         algolia: {
           apiId: parseConfig('{{env "APPSMITH_ALGOLIA_API_ID"}}'),
           apiKey: parseConfig('{{env "APPSMITH_ALGOLIA_API_KEY"}}'),

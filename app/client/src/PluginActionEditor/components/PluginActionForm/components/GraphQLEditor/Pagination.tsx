@@ -12,7 +12,7 @@ import { connect } from "react-redux";
 import type { AppState } from "ee/reducers";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import type { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import type { GRAPHQL_PAGINATION_TYPE } from "../../../../constants/GraphQLEditorConstants";
 import {
   LIMITBASED_PREFIX,
   CURSORBASED_PREFIX,

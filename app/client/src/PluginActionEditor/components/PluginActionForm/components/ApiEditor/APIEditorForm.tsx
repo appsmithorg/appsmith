@@ -1,21 +1,19 @@
 import React from "react";
-import CommonEditorForm from "./CommonEditorForm";
-import { usePluginActionContext } from "PluginActionEditor";
+import CommonEditorForm from "../CommonEditorForm";
+import { usePluginActionContext } from "../../../../PluginActionContext";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
-import { HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
-import PostBodyData from "pages/Editor/APIEditor/PostBodyData";
+import { HTTP_METHOD_OPTIONS } from "../../../../constants/CommonApiConstants";
+import PostBodyData from "./PostBodyData";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import Pagination from "pages/Editor/APIEditor/Pagination";
+import Pagination from "./Pagination";
 import { reduxForm } from "redux-form";
 import {
   useHandleRunClick,
   useAnalyticsOnRunClick,
 } from "PluginActionEditor/hooks";
-
-const FORM_NAME = API_EDITOR_FORM_NAME;
 
 const APIEditorForm = () => {
   const { action } = usePluginActionContext();
@@ -43,7 +41,7 @@ const APIEditorForm = () => {
           theme={EditorTheme.LIGHT}
         />
       }
-      formName={FORM_NAME}
+      formName={API_EDITOR_FORM_NAME}
       httpMethodOptions={HTTP_METHOD_OPTIONS}
       isChangePermitted={isChangePermitted}
       paginationUiComponent={
@@ -58,6 +56,7 @@ const APIEditorForm = () => {
   );
 };
 
-export default reduxForm({ form: FORM_NAME, enableReinitialize: true })(
-  APIEditorForm,
-);
+export default reduxForm({
+  form: API_EDITOR_FORM_NAME,
+  enableReinitialize: true,
+})(APIEditorForm);

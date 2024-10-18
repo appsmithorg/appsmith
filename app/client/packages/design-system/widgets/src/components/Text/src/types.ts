@@ -5,7 +5,7 @@ import type {
 import type { ReactNode } from "react";
 import type { COLORS } from "../../../shared";
 
-export interface TextProps extends React.HTMLAttributes<HTMLElement> {
+export interface TextProps {
   /** size variant of the text
    * @default body
    */
@@ -13,7 +13,7 @@ export interface TextProps extends React.HTMLAttributes<HTMLElement> {
   /** Color of the text
    * @default inherit
    */
-  color?: keyof typeof COLORS;
+  color?: keyof typeof COLORS | "neutral-subtle";
   /** Sets the weight (or boldness) of the font
    * @default false
    */

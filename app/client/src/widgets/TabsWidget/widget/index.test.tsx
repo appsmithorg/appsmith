@@ -49,7 +49,7 @@ describe("Tabs widget functional cases", () => {
     expect(tab2).toBeDefined();
   });
 
-  it("Should render components inside tabs by default", () => {
+  it("Should render components inside tabs by default", async () => {
     const tab1Children = buildChildren([
       { type: "SWITCH_WIDGET", label: "Tab1 Switch" },
       { type: "CHECKBOX_WIDGET", label: "Tab1 Checkbox" },
@@ -74,6 +74,10 @@ describe("Tabs widget functional cases", () => {
         <Canvas canvasWidth={dsl.rightColumn} widgetsStructure={dsl} />
       </MockPageDSL>,
     );
+
+    // wait for the dom to settle down by waitng for the canvas to be loaded
+    await component.findByTestId("t--canvas-artboard");
+
     const tab1 = component.queryByText("Tab 1");
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
