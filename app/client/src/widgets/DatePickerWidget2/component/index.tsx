@@ -404,7 +404,7 @@ class DatePickerComponent extends React.Component<
                 ...this.getConditionalPopoverProps(this.props),
               }}
               shortcuts={this.props.shortcuts}
-              showActionsBar
+              showActionsBar={this.props.showActionsBar}
               timePrecision={
                 this.props.timePrecision === TimePrecision.NONE
                   ? undefined
@@ -535,6 +535,7 @@ interface DatePickerComponentProps extends ComponentProps {
   isPopoverOpen?: boolean;
   onDateOutOfRange?: () => void;
   isRequired?: boolean;
+  showActionsBar?: boolean;
 }
 
 interface DatePickerComponentState {
