@@ -9,14 +9,17 @@ import { useMockDsl } from "./testCommon";
 
 export function MockCanvas() {
   const canvasWidgetsStructure = useSelector(getCanvasWidgetsStructure);
+
   return <Canvas canvasWidth={0} widgetsStructure={canvasWidgetsStructure} />;
 }
 
-export function UpdateAppViewer({ dsl }: any) {
-  useMockDsl(dsl, APP_MODE.PUBLISHED);
-  return <AppViewerPageContainer />;
+export function UpdateAppViewer({ dsl }: { dsl: unknown }) {
+  const hasLoaded = useMockDsl(dsl, APP_MODE.PUBLISHED);
+
+  return hasLoaded ? <AppViewerPageContainer /> : null;
 }
-export function UpdatedEditor({ dsl }: any) {
-  useMockDsl(dsl, APP_MODE.EDIT);
-  return <IDE />;
+export function UpdatedEditor({ dsl }: { dsl: unknown }) {
+  const hasLoaded = useMockDsl(dsl, APP_MODE.EDIT);
+
+  return hasLoaded ? <IDE /> : null;
 }

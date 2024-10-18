@@ -1,7 +1,7 @@
 import { LATEST_DSL_VERSION, migrateDSL } from "@shared/dsl";
 
-export function migrateDSLToLatest(currentDsl) {
-  const latestDSL = migrateDSL(currentDsl);
+export async function migrateDSLToLatest(currentDsl) {
+  const latestDSL = await migrateDSL(currentDsl);
 
   return latestDSL;
 }
