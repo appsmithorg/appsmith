@@ -89,6 +89,7 @@ export const JSFunctionSettings = (props: Props) => {
   // Render the new version of the component
   return (
     <ToolbarSettingsPopover
+      dataTestId={"t--js-editor-SETTINGS"}
       handleOpenChange={setIsOpen}
       isOpen={isOpen}
       title={createMessage(JS_EDITOR_SETTINGS.TITLE)}

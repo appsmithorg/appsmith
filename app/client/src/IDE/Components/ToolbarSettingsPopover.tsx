@@ -14,6 +14,7 @@ interface Props {
   handleOpenChange: (isOpen: boolean) => void;
   title: string;
   children: React.ReactNode;
+  dataTestId?: string;
 }
 
 const Variables = css`
@@ -41,6 +42,7 @@ export const ToolbarSettingsPopover = (props: Props) => {
     <Popover onOpenChange={handleOpenChange} open={isOpen}>
       <PopoverTrigger>
         <ToggleButton
+          data-testId={props.dataTestId}
           icon="settings-2-line"
           isSelected={isOpen}
           onClick={handleButtonClick}
