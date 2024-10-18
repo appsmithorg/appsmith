@@ -8,6 +8,7 @@ import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -28,7 +29,8 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
 
     public NewActionServiceImpl(
             Validator validator,
-            NewActionRepository repository,
+            NewActionRepository repositoryDirect,
+            NewActionRepositoryCake repository,
             AnalyticsService analyticsService,
             DatasourceService datasourceService,
             PluginService pluginService,
@@ -48,6 +50,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             ObservationRegistry observationRegistry) {
         super(
                 validator,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 datasourceService,

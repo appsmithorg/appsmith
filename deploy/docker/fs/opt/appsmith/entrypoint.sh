@@ -60,8 +60,8 @@ init_env_file() {
     tlog "Generating default configuration file"
     mkdir -p "$CONF_PATH"
 
-    local default_appsmith_mongodb_user="appsmith"
-    local generated_appsmith_mongodb_password=$(
+    local default_appsmith_db_user="appsmith"
+    local generated_appsmith_db_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )
@@ -78,7 +78,7 @@ init_env_file() {
       echo ''
     )
 
-    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_db_user" "$generated_appsmith_db_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
   fi
 
   tlog "Load environment configuration"
@@ -381,6 +381,7 @@ configure_supervisord() {
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
     fi
+    echo "Run Embedded Postgres: $runEmbeddedPostgres"
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
     fi

@@ -1,6 +1,6 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.ce.UserWorkspaceServiceCEImpl;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
@@ -14,7 +14,7 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
     public UserWorkspaceServiceImpl(
             SessionUserService sessionUserService,
             WorkspaceService workspaceService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             UserDataService userDataService,
             PermissionGroupService permissionGroupService,
             TenantService tenantService,
