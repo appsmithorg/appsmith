@@ -291,7 +291,7 @@ export function PreparedStatementViewer(props: {
   const { parameters, value } = props.evaluatedValue;
 
   if (!value) {
-    Sentry.captureException("Prepared Statement got no value", {
+    Sentry.captureException("Prepared statement got no value", {
       level: Severity.Debug,
       extra: { props },
     });
