@@ -209,8 +209,12 @@ export function* runUserSideEffectsSaga() {
     }
   }
 
-  if (!currentUser.isAnonymous && currentUser.username !== ANONYMOUS_USERNAME) {
-    enableTelemetry && AnalyticsUtil.identifyUser(currentUser);
+  if (
+    !currentUser.isAnonymous &&
+    currentUser.username !== ANONYMOUS_USERNAME &&
+    enableTelemetry
+  ) {
+    yield AnalyticsUtil.identifyUser(currentUser);
   }
 
   const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
