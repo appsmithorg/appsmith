@@ -473,6 +473,7 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
 
 export const ActionWrapper = styled.div<{ disabled: boolean }>`
   margin: 0 5px 0 0;
+  max-width: 100%;
   ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
   &&&&&& {
     .bp3-button {
