@@ -38,6 +38,18 @@
             {
               "label": "Read / Write / Delete | Selected google sheets",
               "value": "https://www.googleapis.com/auth/drive.file"
+            },
+            {
+              "label": "Read / Write / Delete | All google sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+            },
+            {
+              "label": "Read / Write | All google sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
+            },
+            {
+              "label": "Read | All google sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
             }
           ],
           "initialValue": "https://www.googleapis.com/auth/drive.file",
