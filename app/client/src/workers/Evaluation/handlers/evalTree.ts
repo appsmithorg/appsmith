@@ -322,23 +322,26 @@ export async function evalTree(
     },
   );
 
+  evalOrder = []
+  // dependencies = []
+
   const evalTreeResponse = {
     updates,
-    dependencies,
+    dependencies: {},
     errors,
     evalMetaUpdates,
-    evaluationOrder: evalOrder,
+    evaluationOrder: [],
     jsUpdates,
     webworkerTelemetry,
     // be weary of the payload size of logs it can be huge and contribute to transmission overhead
     // we are only sending logs in local debug mode
-    logs: shouldRespondWithLogs ? logs : [],
+    logs: [],// shouldRespondWithLogs ? logs : [],
     unEvalUpdates,
     isCreateFirstTree,
     staleMetaIds,
     removedPaths,
     isNewWidgetAdded,
-    undefinedEvalValuesMap: dataTreeEvaluator?.undefinedEvalValuesMap || {},
+    undefinedEvalValuesMap: {},// dataTreeEvaluator?.undefinedEvalValuesMap || {},
     jsVarsCreatedEvent,
   };
 
