@@ -70,6 +70,7 @@ const TextContainer = styled.div<{
 }>`
   display: flex;
   align-items: center;
+  // justify-content: space-evenly;
   .bp3-editable-text.bp3-editable-text-editing::before,
   .bp3-editable-text.bp3-disabled::before {
     display: none;
@@ -80,7 +81,6 @@ const TextContainer = styled.div<{
     color: var(--ads-editable-text-subcomponent-default-text-color);
     overflow: hidden;
     text-overflow: ellipsis;
-    ${(props) => (props.isEditing ? "display: none" : "display: block")};
     width: fit-content !important;
     min-width: auto !important;
     line-height: inherit !important;
@@ -138,6 +138,7 @@ export const EditableTextSubComponent = React.forwardRef(
     const [value, setValue] = useState(defaultValue);
     const [lastValidValue, setLastValidValue] = useState(defaultValue);
     const [changeStarted, setChangeStarted] = useState<boolean>(false);
+    const [isCancelled, setIsCancelled] = useState<boolean>(false);
 
     useEffect(() => {
       if (isError) {
@@ -187,6 +188,8 @@ export const EditableTextSubComponent = React.forwardRef(
 
         if (finalVal && finalVal !== defaultValue) {
           onBlur && onBlur(finalVal);
+          setLastValidValue(finalVal);
+          setValue(finalVal);
         }
 
         setIsEditing(false);
@@ -215,7 +218,6 @@ export const EditableTextSubComponent = React.forwardRef(
         const error = errorMessage ? errorMessage : false;
 
         if (!error && finalVal !== "") {
-          setLastValidValue(finalVal);
           onTextChanged && onTextChanged(finalVal);
         }
 
@@ -223,8 +225,23 @@ export const EditableTextSubComponent = React.forwardRef(
         setIsInvalid(error);
         setChangeStarted(true);
       },
-      [inputValidation, onTextChanged],
+      [inputValidation, onTextChanged, valueTransform],
     );
+
+    const onCancel = useCallback(() => {
+      onBlur && onBlur(lastValidValue);
+      setIsEditing(false);
+      setIsInvalid(false);
+      setSavingState(SavingState.NOT_STARTED);
+      setValue(lastValidValue);
+      setIsCancelled(true);
+    }, [lastValidValue, onBlur]);
+
+    useEffect(() => {
+      if (isCancelled) {
+        setValue(lastValidValue);
+      }
+    }, [isCancelled, lastValidValue]);
 
     const iconName =
       !isEditing &&
@@ -251,14 +268,41 @@ export const EditableTextSubComponent = React.forwardRef(
             className={props.className}
             disabled={!isEditing}
             isEditing={isEditing}
-            onCancel={onConfirm}
             onChange={onInputchange}
-            onConfirm={onConfirm}
             placeholder={props.placeholder || defaultValue}
             ref={ref}
             selectAllOnFocus
             value={value}
           />
+
+          {value && !props.hideEditIcon && isEditing ? (
+            <>
+              <span
+                className="pl-1"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onConfirm(value);
+                }}
+              >
+                <Icon className="cursor-pointer" name="check-line" size="md" />
+              </span>
+              <span
+                className="px-1"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onCancel();
+                }}
+              >
+                <Icon
+                  className="cursor-pointer"
+                  name="close-circle-line"
+                  size="md"
+                />
+              </span>
+            </>
+          ) : null}
 
           {savingState === SavingState.STARTED ? (
             <Spinner size="md" />
