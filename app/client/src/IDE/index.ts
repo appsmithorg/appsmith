@@ -55,6 +55,11 @@ export { default as IDEBottomView } from "./Components/BottomView";
  */
 export { default as IDESidebar } from "./Components/Sidebar";
 
+/**
+ * CodeEditorStyles is a custom styled component css to be used with CodeMirror
+ */
+export { CodeEditorStyles } from "./Components/CodeEditorStyles";
+
 /* ====================================================
     **** Interfaces ****
     Common types that are used by the different components of the IDE
