@@ -20,6 +20,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
+        {{- include "appsmith.labels" . | nindent 8 }}
         {{- include "appsmith.selectorLabels" . | nindent 8 }}
         {{- if .Values.podLabels }}
         {{- toYaml .Values.podLabels | nindent 8 }}
