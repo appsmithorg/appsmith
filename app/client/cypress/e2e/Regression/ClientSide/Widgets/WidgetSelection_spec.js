@@ -8,7 +8,7 @@ import {
 const dsl = require("../../../../fixtures/widgetSelection.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Widget Selection", { tags: ["@tag.Widget"] }, function () {
+describe("Widget Selection", { tags: ["@tag.Widget", "@tag.Binding"] }, function () {
   before(() => {
     _.agHelper.AddDsl("widgetSelection");
   });

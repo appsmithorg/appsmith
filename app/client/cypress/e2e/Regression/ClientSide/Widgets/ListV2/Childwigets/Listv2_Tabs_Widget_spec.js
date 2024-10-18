@@ -1,7 +1,7 @@
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 
-describe("List v2- Tabs Widget", { tags: ["@tag.Widget", "@tag.List"] }, () => {
+describe("List v2- Tabs Widget", { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] }, () => {
   before(() => {
     _.agHelper.AddDsl("Listv2/simpleListWithTabsWidget");
   });

@@ -7,7 +7,7 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Tab widget test", { tags: ["@tag.IDE"] }, function () {
+describe("Tab widget test", { tags: ["@tag.IDE", "@tag.PropertyPane"] }, function () {
   const apiName = "Table1";
   const tableName = "Table1";
   before(() => {

@@ -11,7 +11,7 @@ const boxShadowOptions = {
 
 describe(
   "Container Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Container"] },
+  { tags: ["@tag.Widget", "@tag.Container", "@tag.AutoHeight", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("containerdsl");

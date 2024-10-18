@@ -16,7 +16,7 @@ let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch";
 
 let repoName;
-describe("Git sync:", { tags: ["@tag.Git"] }, function () {
+describe("Git sync:", { tags: ["@tag.Git", "@tag.AccessControl", "@tag.Workflows", "@tag.Module", "@tag.Theme", "@tag.JS", "@tag.Container", "@tag.ImportExport"] }, function () {
   before(() => {
     homePage.NavigateToHome();
     agHelper.GenerateUUID();

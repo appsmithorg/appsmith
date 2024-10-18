@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetName = "inputwidgetv2";
 const widgetInput = `.t--widget-${widgetName} input`;
 
-describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
+describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input", "@tag.Binding"] }, () => {
   before(() => {
     _.agHelper.AddDsl("InputWidgetV2InsideListDSL");
   });

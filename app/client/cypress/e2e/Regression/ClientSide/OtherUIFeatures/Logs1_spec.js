@@ -19,7 +19,7 @@ const generateTestLogString = () => {
   return logString;
 };
 
-describe("Debugger logs", { tags: ["@tag.Widget", "@tag.IDE"] }, function () {
+describe("Debugger logs", { tags: ["@tag.Widget", "@tag.IDE", "@tag.PropertyPane", "@tag.Binding"] }, function () {
   this.beforeEach(() => {
     logString = generateTestLogString();
   });

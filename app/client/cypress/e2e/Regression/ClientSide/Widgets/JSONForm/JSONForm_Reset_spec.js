@@ -3,7 +3,7 @@ import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const locators = ObjectsRegistry.CommonLocators;
 const fieldPrefix = ".t--jsonformfield";
 
-describe("JSON Form reset", { tags: ["@tag.Widget", "@tag.JSONForm"] }, () => {
+describe("JSON Form reset", { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] }, () => {
   before(() => {
     cy.addDsl(dslWithSchema);
     cy.openPropertyPane("jsonformwidget");

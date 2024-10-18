@@ -6,7 +6,7 @@ const widgetLocators = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { WIDGET } from "../../../../locators/WidgetLocators";
 
-describe("Widget error state", { tags: ["@tag.Widget"] }, function () {
+describe("Widget error state", { tags: ["@tag.Widget", "@tag.Binding"] }, function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   before(() => {

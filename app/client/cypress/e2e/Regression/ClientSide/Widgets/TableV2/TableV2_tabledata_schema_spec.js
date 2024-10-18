@@ -6,7 +6,7 @@ import {
 import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
+describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] }, function () {
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
     let jsContext = `{{Switch1.isSwitchedOn?[{name: "joe"}]:[{employee_name: "john"}];}}`;
     _.homePage.NavigateToHome();

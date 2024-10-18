@@ -4,7 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "DatePicker",
-  { tags: ["@tag.Widget", "@tag.Datepicker"] },
+  { tags: ["@tag.Widget", "@tag.Datepicker", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("newFormDsl");

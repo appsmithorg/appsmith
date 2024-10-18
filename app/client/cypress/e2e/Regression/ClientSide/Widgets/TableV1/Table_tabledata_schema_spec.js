@@ -5,7 +5,7 @@ import {
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
+describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] }, function () {
   before(() => {
     _.agHelper.AddDsl("tableNewDsl");
   });

@@ -7,7 +7,7 @@ import {
 } from "../../../../../support/Pages/EditorNavigation";
 
 let repoName, branchName;
-describe("Delete branch flow", { tags: ["@tag.Git", "@tag.Sanity"] }, () => {
+describe("Delete branch flow", { tags: ["@tag.Git", "@tag.Sanity", "@tag.AccessControl", "@tag.Workflows", "@tag.Module", "@tag.Theme", "@tag.JS", "@tag.Container", "@tag.ImportExport"] }, () => {
   it("1. Connect app to git, create new branch and delete it", () => {
     // create git repo and connect app to git
     gitSync.CreateNConnectToGit();

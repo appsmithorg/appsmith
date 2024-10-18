@@ -16,7 +16,7 @@ const dsl = require("../../../../../fixtures/listdsl.json");
 
 describe(
   "List Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   function () {
     const items = JSON.parse(dsl.dsl.children[0].listData);
 

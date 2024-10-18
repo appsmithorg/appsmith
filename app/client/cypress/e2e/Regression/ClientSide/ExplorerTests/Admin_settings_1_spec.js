@@ -2,7 +2,7 @@
 import adminsSettings from "../../../../locators/AdminsSettings";
 import { adminSettings as adminSettingsHelper } from "../../../../support/Objects/ObjectsCore";
 
-describe("Admin settings page", { tags: ["@tag.IDE"] }, function () {
+describe("Admin settings page", { tags: ["@tag.IDE", "@tag.PropertyPane"] }, function () {
   beforeEach(() => {
     cy.intercept("GET", "/api/v1/admin/env", {
       body: { responseMeta: { status: 200, success: true }, data: {} },

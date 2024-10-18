@@ -14,7 +14,7 @@ const page1 = "Page1";
 const page2 = "Page2";
 const api1 = "API1";
 
-describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
+describe("Canvas context Property Pane", { tags: ["@tag.IDE", "@tag.PropertyPane"] }, function () {
   before(() => {
     _.agHelper.AddDsl("editorContextdsl");
 

@@ -53,7 +53,7 @@ const demoTableData = `
 
 describe(
   "Table Widget V2 Sorting",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     beforeEach(() => {
       PageList.AddNewPage();

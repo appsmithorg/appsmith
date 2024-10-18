@@ -6,7 +6,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Explorer hidden widget Selection", { tags: ["@tag.IDE"] }, () => {
+describe("Explorer hidden widget Selection", { tags: ["@tag.IDE", "@tag.PropertyPane"] }, () => {
   before(() => {
     _.agHelper.AddDsl("explorerHiddenWidgets");
   });

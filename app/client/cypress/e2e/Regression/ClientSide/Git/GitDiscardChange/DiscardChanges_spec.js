@@ -19,7 +19,7 @@ import PageList from "../../../../../support/Pages/PageList";
 
 describe(
   "Git discard changes:",
-  { tags: ["@tag.Git", "@tag.Sanity"] },
+  { tags: ["@tag.Git", "@tag.Sanity", "@tag.AccessControl", "@tag.Workflows", "@tag.Module", "@tag.Theme", "@tag.JS", "@tag.Container", "@tag.ImportExport"] },
   function () {
     let datasourceName;
     let repoName;

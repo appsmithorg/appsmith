@@ -14,7 +14,7 @@ import EditorNavigation, {
 // TODO: Test for Reset functionality
 const items = JSON.parse(dsl.dsl.children[0].listData);
 
-describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
+describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] }, function () {
   before(() => {
     agHelper.AddDsl("Listv2/simpleLargeListv2");
   });

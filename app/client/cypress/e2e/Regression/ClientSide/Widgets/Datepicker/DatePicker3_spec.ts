@@ -16,7 +16,7 @@ import EditorNavigation, {
 
 describe(
   "Date picker widget testcases",
-  { tags: ["@tag.Widget", "@tag.Datepicker"] },
+  { tags: ["@tag.Widget", "@tag.Datepicker", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.DATEPICKER);

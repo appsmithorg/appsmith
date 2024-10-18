@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 let repoName;
 let windowOpenSpy;
-describe("Git disconnect modal:", { tags: ["@tag.Git"] }, function () {
+describe("Git disconnect modal:", { tags: ["@tag.Git", "@tag.AccessControl", "@tag.Workflows", "@tag.Module", "@tag.Theme", "@tag.JS", "@tag.Container", "@tag.ImportExport"] }, function () {
   before(() => {
     _.homePage.NavigateToHome();
     cy.createWorkspace();

@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   "Multi Select widget Tests",
-  { tags: ["@tag.Widget", "@tag.Multiselect"] },
+  { tags: ["@tag.Widget", "@tag.Multiselect", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("multiselectwidgetv2", 550, 100);

@@ -30,7 +30,7 @@ let dsname;
 
 describe(
   "Cyclic Dependency Informational Error Messages",
-  { tags: ["@tag.PropertyPane", "@tag.JS"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Binding"] },
   function () {
     before(() => {
       //appId = localStorage.getItem("applicationId");

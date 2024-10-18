@@ -4,7 +4,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const appSettings = ObjectsRegistry.AppSettings;
 
-describe("Theme validation usecases", { tags: ["@tag.Theme"] }, function () {
+describe("Theme validation usecases", { tags: ["@tag.Theme", "@tag.Git"] }, function () {
   it("1. Drag and drop button widget, change value and check reset flow", function () {
     // drop button widget
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });

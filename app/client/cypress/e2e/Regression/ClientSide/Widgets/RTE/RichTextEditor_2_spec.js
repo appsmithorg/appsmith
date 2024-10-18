@@ -36,7 +36,7 @@ const testCursorPoistion = (textValueLen, tinyMceId) => {
 
 describe(
   "RichTextEditor Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.TextEditor"] },
+  { tags: ["@tag.Widget", "@tag.TextEditor", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formdsl1");

@@ -12,7 +12,7 @@ import {
   table,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
+describe("Migration Validate", { tags: ["@tag.ImportExport", "@tag.Git"] }, function () {
   it("1. Import application and Validate Migration on pageload", function () {
     // import application
     homePageHelpers.NavigateToHome();

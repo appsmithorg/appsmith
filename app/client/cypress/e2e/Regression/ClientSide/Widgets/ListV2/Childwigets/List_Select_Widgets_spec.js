@@ -13,7 +13,7 @@ const items = JSON.parse(dsl.dsl.children[0].listData);
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 const widgetSelectorByType = (name) => `.t--widget-${name}`;
 
-describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
+describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] }, function () {
   before(() => {
     _.agHelper.AddDsl("Listv2/simpleLargeListv2");
   });

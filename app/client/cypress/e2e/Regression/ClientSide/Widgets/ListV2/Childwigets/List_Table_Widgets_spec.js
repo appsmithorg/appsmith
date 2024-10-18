@@ -3,7 +3,7 @@ const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
-describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
+describe("Select Widgets", { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] }, function () {
   before(() => {
     _.agHelper.AddDsl("Listv2/Listv2WithTablewidget");
   });

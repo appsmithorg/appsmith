@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   "Phone Input widget Tests",
-  { tags: ["@tag.Widget", "@tag.PhoneInput"] },
+  { tags: ["@tag.Widget", "@tag.PhoneInput", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("phoneinputwidget", 550, 100);

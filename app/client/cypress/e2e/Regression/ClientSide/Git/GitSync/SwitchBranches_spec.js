@@ -23,7 +23,7 @@ let parentBranchKey = "ParentBranch",
   branchQueryKey = "branch";
 
 let repoName;
-describe("Git sync:", { tags: ["@tag.Git", "@tag.Sanity"] }, function () {
+describe("Git sync:", { tags: ["@tag.Git", "@tag.Sanity", "@tag.AccessControl", "@tag.Workflows", "@tag.Module", "@tag.Theme", "@tag.JS", "@tag.Container", "@tag.ImportExport"] }, function () {
   before(() => {
     gitSync.CreateNConnectToGit();
     cy.get("@gitRepoName").then((repName) => {

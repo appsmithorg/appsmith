@@ -4,7 +4,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Git with Theming:",
-  { tags: ["@tag.Git", "@tag.Sanity"] },
+  { tags: ["@tag.Git", "@tag.Sanity", "@tag.AccessControl", "@tag.Workflows", "@tag.Module", "@tag.Theme", "@tag.JS", "@tag.Container", "@tag.ImportExport"] },
   function () {
     const backgroudColorMaster = "rgb(22, 163, 74)";
     const backgroudColorChildBranch = "rgb(100, 116, 139)";

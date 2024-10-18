@@ -11,7 +11,7 @@ import { REPO, CURRENT_REPO } from "../../../../../fixtures/REPO";
 let repoName1, repoName2, repoName3, repoName4, windowOpenSpy;
 describe(
   "Repo Limit Exceeded Error Modal",
-  { tags: ["@tag.Git"] },
+  { tags: ["@tag.Git", "@tag.AccessControl", "@tag.Workflows", "@tag.Module", "@tag.Theme", "@tag.JS", "@tag.Container", "@tag.ImportExport"] },
   function () {
     before(() => {
       const uuid = require("uuid");

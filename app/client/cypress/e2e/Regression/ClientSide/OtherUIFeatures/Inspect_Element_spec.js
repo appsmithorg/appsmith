@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Inspect Entity",
-  { tags: ["@tag.Widget", "@tag.PropertyPane"] },
+  { tags: ["@tag.Widget", "@tag.PropertyPane", "@tag.Binding"​] },
   function () {
     before(() => {
       _.agHelper.AddDsl("debuggerDependencyDsl");

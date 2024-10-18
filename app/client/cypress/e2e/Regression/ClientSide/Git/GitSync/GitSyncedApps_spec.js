@@ -41,7 +41,7 @@ const mainBranch = "master";
 let datasourceName;
 let repoName;
 
-describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
+describe("Git sync apps", { tags: ["@tag.Git", "@tag.AccessControl", "@tag.Workflows", "@tag.Module", "@tag.Theme", "@tag.JS", "@tag.Container", "@tag.ImportExport"] }, function () {
   it("1. Generate postgreSQL crud page , connect to git, clone the page, rename page with special character in it", () => {
     homePage.NavigateToHome();
     homePage.CreateNewApplication();

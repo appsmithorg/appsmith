@@ -5,7 +5,9 @@ import EditorNavigation, {
 
 describe(
   "Fork application across workspaces",
-  { tags: ["@tag.Fork"] },
+  {
+    tags: ["@tag.Fork", "@tag.Datasource", "@tag.Git", "@tag.Table", "@tag.JS"],
+  },
   function () {
     before(() => {
       _.agHelper.AddDsl("basicDsl");

@@ -1,7 +1,7 @@
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Update Workspace", { tags: ["@tag.Workspace"] }, function () {
+describe("Update Workspace", { tags: ["@tag.Workspace", "@tag.AccessControl"] }, function () {
   let workspaceId;
   let newWorkspaceName;
   let appid;

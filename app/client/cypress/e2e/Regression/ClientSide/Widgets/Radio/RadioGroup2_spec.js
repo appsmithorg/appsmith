@@ -1,6 +1,6 @@
 const widgetName = "radiogroupwidget";
 
-describe("Radio Group Widget", { tags: ["@tag.Widget", "@tag.Radio"] }, () => {
+describe("Radio Group Widget", { tags: ["@tag.Widget", "@tag.Radio", "@tag.Binding"] }, () => {
   it("Drag & drop Radio group & Text widgets", () => {
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
     cy.get(`.t--widget-${widgetName}`).should("exist");

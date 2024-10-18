@@ -3,7 +3,7 @@ import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 const widgetName = "inputwidgetv2";
 const widgetInput = `.t--widget-${widgetName} input`;
 
-describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
+describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input", "@tag.Binding"] }, () => {
   it("1. DragDrop Input & Label/Text widgets", () => {
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
     cy.get(`.t--widget-${widgetName}`).should("exist");

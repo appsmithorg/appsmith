@@ -19,7 +19,7 @@ const { OneClickBinding } = require("../../OneClickBinding/spec_utility");
 
 const oneClickBinding = new OneClickBinding();
 
-describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
+describe("Select widget", { tags: ["@tag.Widget", "@tag.Select", "@tag.Binding"] }, () => {
   it("1. Drag and drop Select/Text widgets", () => {
     cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });
     cy.get(formWidgetsPage.selectWidget).should("exist");

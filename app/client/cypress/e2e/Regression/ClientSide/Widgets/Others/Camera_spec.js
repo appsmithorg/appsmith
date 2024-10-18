@@ -1,6 +1,6 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Camera Widget", { tags: ["@tag.Widget", "@tag.Image"] }, () => {
+describe("Camera Widget", { tags: ["@tag.Widget", "@tag.Image", "@tag.Binding"] }, () => {
   before(() => {
     _.agHelper.AddDsl("CameraDsl");
   });

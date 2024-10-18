@@ -6,7 +6,7 @@ const {
   GOOGLE_MAPS_SETUP_DOC,
 } = require("../../../../../src/constants/ThirdPartyConstants");
 
-describe("Admin settings page", { tags: ["@tag.IDE"] }, function () {
+describe("Admin settings page", { tags: ["@tag.IDE", "@tag.PropertyPane"] }, function () {
   it("1. should test that configure link redirects to google maps setup doc", () => {
     cy.visit(adminSettingsHelper.routes.DEVELOPER_SETTINGS, { timeout: 60000 });
     cy.get(adminsSettings.readMoreLink).within(() => {

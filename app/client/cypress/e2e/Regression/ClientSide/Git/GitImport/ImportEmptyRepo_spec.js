@@ -2,7 +2,7 @@ import homePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
-describe("Git import empty repository", { tags: ["@tag.Git"] }, function () {
+describe("Git import empty repository", { tags: ["@tag.Git", "@tag.AccessControl", "@tag.Workflows", "@tag.Module", "@tag.Theme", "@tag.JS", "@tag.Container", "@tag.ImportExport"] }, function () {
   let repoName;
   const assertConnectFailure = true;
   const failureMessage =
