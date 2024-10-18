@@ -189,7 +189,7 @@ describe(
     });
 
     // to work on redesign of the test, commenting for now
-    it.skip("7. Verify colors, borders and shadows", () => {
+    it("7. Verify colors, borders and shadows", () => {
       // Verify font color picker opens up
       propPane.MoveToTab("Style");
       agHelper.GetNClick(propPane._propertyControlColorPicker("accentcolor"));

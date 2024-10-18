@@ -9,6 +9,7 @@ import {
   homePage,
   locators,
   table,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   AppSidebar,
@@ -221,46 +222,46 @@ describe(
     });
 
     //Open Bug 14063 - hence skipping
-    // it.skip("6. Verify Update/Delete row/Delete field data from Deploy page - on Productlines - existing record + Bug 14063", () => {
-    //   EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
-    //   propPane.ChangeJsonFormFieldType(
-    //     "Text Description",
-    //     "Multiline Text Input",
-    //   );
-    //   propPane.NavigateBackToPropertyPane();
-    //   propPane.ChangeJsonFormFieldType(
-    //     "Html Description",
-    //     "Multiline Text Input",
-    //   );
-    //   propPane.NavigateBackToPropertyPane();
-    //   deployMode.DeployApp();
-    //   table.SelectTableRow(0, 0, false); //to make JSON form hidden
-    //   agHelper.AssertElementAbsence(locators._jsonFormWidget);
-    //   table.SelectTableRow(3);
-    //   agHelper.AssertElementVisibility(locators._jsonFormWidget);
+    it("6. Verify Update/Delete row/Delete field data from Deploy page - on Productlines - existing record + Bug 14063", () => {
+      EditorNavigation.SelectEntityByName("update_form", EntityType.Widget);
+      propPane.ChangeJsonFormFieldType(
+        "Text Description",
+        "Multiline Text Input",
+      );
+      propPane.NavigateBackToPropertyPane();
+      propPane.ChangeJsonFormFieldType(
+        "Html Description",
+        "Multiline Text Input",
+      );
+      propPane.NavigateBackToPropertyPane();
+      deployMode.DeployApp();
+      table.SelectTableRow(0, 0, false); //to make JSON form hidden
+      agHelper.AssertElementAbsence(locators._jsonFormWidget);
+      table.SelectTableRow(3);
+      agHelper.AssertElementVisibility(locators._jsonFormWidget);
 
-    //   dataSources.AssertJSONFormHeader(3, 0, "productLine");
+      dataSources.AssertJSONFormHeader(3, 0, "productLine");
 
-    //   deployMode.EnterJSONTextAreaValue(
-    //     "Html Description",
-    //     "The largest cruise ship is twice the length of the Washington Monument. Some cruise ships have virtual balconies.",
-    //   );
-    //   agHelper.ClickButton("Update"); //Update does not work, Bug 14063
-    //   agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
-    //   assertHelper.AssertNetworkStatus("@postExecute", 200);
-    //   table.AssertSelectedRow(3);
+      deployMode.EnterJSONTextAreaValue(
+        "Html Description",
+        "The largest cruise ship is twice the length of the Washington Monument. Some cruise ships have virtual balconies.",
+      );
+      agHelper.ClickButton("Update"); //Update does not work, Bug 14063
+      agHelper.AssertElementAbsence(locators._toastMsg); //Validating fix for Bug 14063
+      assertHelper.AssertNetworkStatus("@postExecute", 200);
+      table.AssertSelectedRow(3);
 
-    //   //validating update happened fine!
-    //   table.ReadTableRowColumnData(3, 2, "v1", 200).then(($cellData) => {
-    //     expect($cellData).to.eq(
-    //       "The largest cruise ship is twice the length of the Washington Monument. Some cruise ships have virtual balconies.",
-    //     );
-    //   });
-    // });
+      //validating update happened fine!
+      table.ReadTableRowColumnData(3, 2, "v1", 200).then(($cellData) => {
+        expect($cellData).to.eq(
+          "The largest cruise ship is twice the length of the Washington Monument. Some cruise ships have virtual balconies.",
+        );
+      });
+    });
 
-    // it.skip("7. Verify Add/Update/Delete from Deploy page - on Productlines - new record + Bug 14063", () => {
-    //   //To script aft bug fix!
-    // });
+    it("7. Verify Add/Update/Delete from Deploy page - on Productlines - new record + Bug 14063", () => {
+      //To script aft bug fix!
+    });
 
     it("8. Validate Deletion of the Newly Created Page - Productlines", () => {
       deployMode.NavigateBacktoEditor();

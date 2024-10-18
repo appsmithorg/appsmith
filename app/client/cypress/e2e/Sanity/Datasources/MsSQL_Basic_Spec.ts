@@ -151,7 +151,7 @@ describe(
     });
 
     // TODO: This fails with `Invalid Object <tablename>` error. Looks like there needs to be a delay in query exectuion. Will debug and fix this in a different PR - Sangeeth
-    it.skip("3.One click binding - should check that queries are created and bound to table widget properly", () => {
+    it("3.One click binding - should check that queries are created and bound to table widget properly", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 450, 200);
 
       oneClickBinding.ChooseAndAssertForm(dsName, dsName, "Simpsons", {

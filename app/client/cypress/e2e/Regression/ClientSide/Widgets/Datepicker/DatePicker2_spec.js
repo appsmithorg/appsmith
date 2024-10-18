@@ -19,7 +19,7 @@ describe(
 
     // ADS changes to date input property causes this test to fail
     // skipping it temporarily.
-    it.skip("DatePicker-Date Name validation", function () {
+    it("DatePicker-Date Name validation", function () {
       // changing the date to today
       cy.get(formWidgetsPage.defaultDate).click();
       cy.SetDateToToday();
