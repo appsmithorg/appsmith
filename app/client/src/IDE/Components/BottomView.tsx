@@ -3,7 +3,7 @@ import styled from "styled-components";
 import Resizer, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
-import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/styledComponents";
+import { CodeEditorStyles } from "./CodeEditorStyles";
 import { ViewDisplayMode, ViewHideBehaviour } from "IDE/Interfaces/View";
 import { Button } from "@appsmith/ads";
 import classNames from "classnames";
@@ -28,6 +28,7 @@ const Container = styled.div<{ displayMode: ViewDisplayMode }>`
 
 const ViewWrapper = styled.div`
   height: 100%;
+
   &&& {
     ul.ads-v2-tabs__list {
       margin: 0 var(--ads-v2-spaces-8);
@@ -43,7 +44,7 @@ const ViewWrapper = styled.div`
 
   & {
     .ads-v2-tabs__panel {
-      ${CodeEditorWithGutterStyles};
+      ${CodeEditorStyles};
       overflow-y: auto;
       height: 100%;
     }
