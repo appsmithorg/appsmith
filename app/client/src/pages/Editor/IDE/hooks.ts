@@ -3,7 +3,6 @@ import type { EntityItem } from "ee/entities/IDE/constants";
 import {
   EditorEntityTab,
   EditorEntityTabState,
-  EditorState,
 } from "ee/entities/IDE/constants";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -28,18 +27,6 @@ import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentEntityInfo } from "../utils";
-
-export const useCurrentAppState = () => {
-  const [appState, setAppState] = useState(EditorState.EDITOR);
-  const { pathname } = useLocation();
-  const entityInfo = identifyEntityFromPath(pathname);
-
-  useEffect(() => {
-    setAppState(entityInfo.appState);
-  }, [entityInfo.appState]);
-
-  return appState;
-};
 
 export const useCurrentEditorState = () => {
   const [selectedSegment, setSelectedSegment] = useState<EditorEntityTab>(
