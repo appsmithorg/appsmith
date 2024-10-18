@@ -29,10 +29,7 @@ import {
   getJSPropertyLineFromName,
 } from "./utils";
 import JSObjectHotKeys from "./JSObjectHotKeys";
-import {
-  Form,
-  FormWrapper,
-} from "./styledComponents";
+import { Form, FormWrapper } from "./styledComponents";
 import { getJSPaneConfigSelectedTab } from "selectors/jsPaneSelectors";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import {
