@@ -56,11 +56,11 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const copyAction = useCallback(
-    (actionId: string, actionName: string, destinationEditorId: string) =>
+    (actionId: string, actionName: string, destinationEntityId: string) =>
       dispatch(
         copyActionRequest({
           id: actionId,
-          destinationEditorId,
+          destinationEntityId,
           name: actionName,
         }),
       ),

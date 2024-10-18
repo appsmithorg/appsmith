@@ -751,11 +751,12 @@ function* moveActionSaga(
 function* copyActionSaga(
   action: ReduxAction<{
     id: string;
-    destinationEditorId: string;
+    destinationEntityId: string;
     name: string;
   }>,
 ) {
-  let actionObject: Action = yield select(getAction, action.payload.id);
+  const { destinationEntityId, id, name } = action.payload;
+  let actionObject: Action = yield select(getAction, id);
 
   const { parentEntityId, parentEntityKey } =
     resolveParentEntityMetadata(actionObject);
@@ -763,19 +764,19 @@ function* copyActionSaga(
   if (!parentEntityId || !parentEntityKey) return;
 
   const newName: string = yield select(getNewEntityName, {
-    prefix: action.payload.name,
-    parentEntityId,
+    prefix: name,
+    parentEntityId: destinationEntityId,
     parentEntityKey,
     suffix: "Copy",
     startWithoutIndex: true,
   });
 
-  const destinationEditorIdInfo = generateDestinationIdInfoForQueryDuplication(
-    action.payload.destinationEditorId,
+  const destinationEntityIdInfo = generateDestinationIdInfoForQueryDuplication(
+    destinationEntityId,
     parentEntityKey,
   );
 
-  if (objectKeys(destinationEditorIdInfo).length === 0) return;
+  if (objectKeys(destinationEntityIdInfo).length === 0) return;
 
   try {
     if (!actionObject) throw new Error("Could not find action to copy");
@@ -789,7 +790,7 @@ function* copyActionSaga(
 
     const copyAction = Object.assign({}, actionObject, {
       name: newName,
-      ...destinationEditorIdInfo,
+      ...destinationEntityIdInfo,
     }) as Partial<Action>;
 
     // Indicates that source of action creation is copy action
@@ -826,7 +827,7 @@ function* copyActionSaga(
       const originalActionId = get(
         actionObject,
         `${RequestPayloadAnalyticsPath}.originalActionId`,
-        action.payload.id,
+        id,
       );
 
       AnalyticsUtil.logEvent("DUPLICATE_ACTION", {
@@ -863,8 +864,8 @@ function* copyActionSaga(
 
     yield put(
       copyActionError({
-        id: action.payload.id,
-        destinationEditorIdInfo,
+        id,
+        destinationEntityIdInfo,
         show: true,
         error: {
           message: errorMessage,

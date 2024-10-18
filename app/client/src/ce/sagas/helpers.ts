@@ -17,11 +17,11 @@ export interface GenerateDestinationIdInfoReturnType {
 
 // This function is extended in EE. Please check the EE implementation before any modification.
 export function generateDestinationIdInfoForQueryDuplication(
-  destinationEditorId: string,
+  destinationEntityId: string,
   parentEntityKey: CreateNewActionKeyInterface,
 ): GenerateDestinationIdInfoReturnType {
   if (parentEntityKey === CreateNewActionKey.PAGE) {
-    return { pageId: destinationEditorId };
+    return { pageId: destinationEntityId };
   }
 
   return {};

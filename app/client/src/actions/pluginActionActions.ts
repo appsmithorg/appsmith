@@ -226,7 +226,7 @@ export const moveActionError = (
 
 export const copyActionRequest = (payload: {
   id: string;
-  destinationEditorId: string;
+  destinationEntityId: string;
   name: string;
 }) => {
   return {
@@ -245,7 +245,7 @@ export const copyActionSuccess = (payload: Action) => {
 export const copyActionError = (
   payload: {
     id: string;
-    destinationEditorIdInfo: GenerateDestinationIdInfoReturnType;
+    destinationEntityIdInfo: GenerateDestinationIdInfoReturnType;
   } & ErrorActionPayload,
 ) => {
   return {

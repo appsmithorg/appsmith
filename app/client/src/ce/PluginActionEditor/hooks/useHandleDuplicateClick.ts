@@ -8,11 +8,11 @@ function useHandleDuplicateClick() {
   const dispatch = useDispatch();
 
   const handleDuplicateClick = useCallback(
-    (destinationEditorId: string) => {
+    (destinationEntityId: string) => {
       dispatch(
         copyActionRequest({
           id: action.id,
-          destinationEditorId,
+          destinationEntityId,
           name: action.name,
         }),
       );
