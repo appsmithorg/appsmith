@@ -24,7 +24,8 @@ import ActionAPI from "api/ActionAPI";
 import type { ApiResponse } from "api/ApiResponses";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "ee/sagas/PageSagas";
+import { updateCanvasWithDSL, WidgetTypes } from "ee/sagas/PageSagas";
+
 import {
   closeQueryActionTab,
   closeQueryActionTabSuccess,
@@ -109,6 +110,7 @@ import {
   apiEditorIdURL,
   builderURL,
   integrationEditorURL,
+  queryAddURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "ee/RouteBuilder";
@@ -144,6 +146,14 @@ import {
 } from "actions/ideActions";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
+import {
+  getCurrentWidgetId,
+  getFocusablePropertyPaneField,
+} from "../selectors/propertyPaneSelectors";
+import { updateFloatingPane } from "../pages/Editor/IDE/FloatingPane/actions";
+import { getWidgetByID } from "./selectors";
+import type { WidgetProps } from "../widgets/BaseWidget";
+import { isFloatingPaneVisible } from "../pages/Editor/IDE/FloatingPane/selectors";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 export const DEFAULT_PREFIX = {
@@ -1170,27 +1180,74 @@ function* updateEntitySavingStatus() {
 function* handleCreateNewQueryFromActionCreator(
   action: ReduxAction<(name: string) => void>,
 ) {
-  // Show the Query create modal from where the user selects the type of query to be created
-  yield put(setShowQueryCreateNewModal(true));
-
   // Side by Side ramp. Switch to SplitScreen mode to allow user to edit query
   // created while having context of the canvas
   const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
 
-  if (isSideBySideEnabled) {
-    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+  // This state is a proxy to check if we are currently in side by side or full screen
+  // because the action can only be triggered in side by side mode if floating pane
+  // is visible
+  const floatingPaneVisible: boolean = yield select(isFloatingPaneVisible);
+
+    if (isSideBySideEnabled) {
+    if (floatingPaneVisible) {
+      history.push(queryAddURL({}));
+      // Wait for a query to be created
+      const createdQuery: ReduxAction<BaseAction> = yield take(
+        ReduxActionTypes.CREATE_ACTION_SUCCESS,
+      );
+
+      // A delay is needed to ensure the callback function has reference to the latest created Query
+      yield delay(100);
+
+      // Call the payload callback with the new query name that will set the binding to the field
+      action.payload(createdQuery.payload.name);
+    } else {
+      // Show the Query create modal from where the user selects the type of query to be created
+      yield put(setShowQueryCreateNewModal(true));
+      yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+      const selectedWidgetId: string = yield select(getCurrentWidgetId);
+      const widget: WidgetProps = yield select(getWidgetByID(selectedWidgetId));
+      if (
+        widget.type === WidgetTypes.TABLE_WIDGET_V2 ||
+        widget.type === WidgetTypes.SELECT_WIDGET
+      ) {
+        const currentFocusedProperty: string = yield select(
+          getFocusablePropertyPaneField,
+        );
+        const propertyName = currentFocusedProperty.split(".")[1];
+        // Wait for a query to be created
+        const createdQuery: ReduxAction<BaseAction> = yield take(
+          ReduxActionTypes.CREATE_ACTION_SUCCESS,
+        );
+
+        // A delay is needed to ensure the callback function has reference to the latest created Query
+        yield delay(100);
+
+        // Call the payload callback with the new query name that will set the binding to the field
+        action.payload(createdQuery.payload.name);
+
+        yield put(
+          updateFloatingPane({
+            isVisible: true,
+            selectedWidgetId,
+          }),
+        );
+        yield delay(500);
+        const element: HTMLElement | null = document.getElementById(
+          `float-pane-trigger-${selectedWidgetId}`,
+        );
+        yield put(
+          updateFloatingPane({
+            isVisible: true,
+            referenceElement: element,
+            selectedWidgetId,
+            propertyName,
+          }),
+        );
+      }
+    }
   }
-
-  // Wait for a query to be created
-  const createdQuery: ReduxAction<BaseAction> = yield take(
-    ReduxActionTypes.CREATE_ACTION_SUCCESS,
-  );
-
-  // A delay is needed to ensure the callback function has reference to the latest created Query
-  yield delay(100);
-
-  // Call the payload callback with the new query name that will set the binding to the field
-  action.payload(createdQuery.payload.name);
 }
 
 export function* watchActionSagas() {

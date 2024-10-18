@@ -21,7 +21,6 @@ import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
 import "codemirror/addon/comment/comment";
 import "codemirror/mode/sql/sql.js";
-import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/show-hint.css";
 import "codemirror/addon/hint/sql-hint";
 import "codemirror/mode/css/css";
@@ -129,8 +128,8 @@ import history, { NavigationMethod } from "utils/history";
 import { CursorPositionOrigin } from "ee/reducers/uiReducers/editorContextReducer";
 import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
 import {
-  PeekOverlayPopUp,
   PEEK_OVERLAY_DELAY,
+  PeekOverlayPopUp,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
 import ConfigTreeActions from "utils/configTree";
 import {
@@ -202,6 +201,7 @@ export interface EditorStyleProps {
   popperZIndex?: Indices;
   blockCompletions?: Array<BlockCompletion>;
 }
+
 /**
  *  line => Line to which the gutter is added
  *

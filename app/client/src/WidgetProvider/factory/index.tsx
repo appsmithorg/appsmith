@@ -1,5 +1,6 @@
 import type {
   PropertyPaneConfig,
+  PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -456,6 +457,42 @@ class WidgetFactory {
     } else {
       return [];
     }
+  }
+
+  @memoize
+  @freeze
+  static getWidgetFloatPropertyPaneConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const widget = WidgetFactory.widgetsMap.get(type);
+    if (!widget) return [];
+    const config = widget.getPropertyPaneContentConfig();
+    const filteredConfig: PropertyPaneConfig[] = [];
+
+    for (const group of config) {
+      if ((group as PropertyPaneSectionConfig).sectionName) {
+        const sectionConfig: PropertyPaneSectionConfig =
+          group as PropertyPaneSectionConfig;
+
+        const floatConfigs = sectionConfig.children
+          ? sectionConfig.children.filter((propConfig) => {
+              if ((propConfig as PropertyPaneControlConfig).controlType) {
+                const controlConfig: PropertyPaneControlConfig =
+                  propConfig as PropertyPaneControlConfig;
+                return controlConfig.isPartOfFloatingPane;
+              } else {
+                return false;
+              }
+            })
+          : [];
+
+        if (floatConfigs.length) {
+          filteredConfig.push({ ...sectionConfig, children: floatConfigs });
+        }
+      }
+    }
+
+    return filteredConfig;
   }
 
   @memoize
