@@ -7,7 +7,7 @@ const dynamicInputLocators = require("../../../../locators/DynamicInput.json");
 
 describe(
   "Dynamic input autocomplete",
-  { tags: ["@tag.JS", "@tag.Sanity"] },
+  { tags: ["@tag.JS", "@tag.Sanity", "@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("autocomp");

@@ -3,7 +3,7 @@ import { agHelper, propPane } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Canvas Resize",
-  { tags: ["@tag.Widget", "@tag.AutoHeight"] },
+  { tags: ["@tag.Widget", "@tag.AutoHeight", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("CanvasResizeDsl");

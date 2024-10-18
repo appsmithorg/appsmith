@@ -30,7 +30,7 @@ let onPageLoadAndConfirmExecuteFunctionsLength: number,
 
 describe(
   "JS Function Execution",
-  { tags: ["@tag.JS", "@tag.Sanity"] },
+  { tags: ["@tag.JS", "@tag.Sanity", "@tag.Binding"] },
   function () {
     const FUNCTIONS_SETTINGS_DEFAULT_DATA: IFunctionSettingData[] = [
       {

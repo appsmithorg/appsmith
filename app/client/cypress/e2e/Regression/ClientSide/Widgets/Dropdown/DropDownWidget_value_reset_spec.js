@@ -9,7 +9,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Dropdown Widget Check value does not reset on navigation",
-  { tags: ["@tag.Widget", "@tag.Dropdown"] },
+  { tags: ["@tag.Widget", "@tag.Dropdown", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("dropDownWidget_reset_check_dsl");

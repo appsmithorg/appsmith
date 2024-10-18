@@ -18,7 +18,7 @@ import {
 
 describe(
   "JSON Form Widget Array Field",
-  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

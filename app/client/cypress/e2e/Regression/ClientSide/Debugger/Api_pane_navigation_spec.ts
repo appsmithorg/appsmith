@@ -11,7 +11,14 @@ import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Api pane navigation",
-  { tags: ["@tag.Datasource", " @tag.excludeForAirgap"] },
+  {
+    tags: [
+      "@tag.Datasource",
+      " @tag.excludeForAirgap",
+      "@tag.Git",
+      "@tag.AccessControl",
+    ],
+  },
   () => {
     it("1. Navigation to Graphql pagination field", () => {
       apiPage.CreateGraphqlApi("Api1");

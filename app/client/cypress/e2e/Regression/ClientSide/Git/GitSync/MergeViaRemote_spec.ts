@@ -29,7 +29,18 @@ let repoName: any;
 
 describe(
   "Git sync: Merge changes via remote",
-  { tags: ["@tag.Git"] },
+  {
+    tags: [
+      "@tag.Git",
+      "@tag.AccessControl",
+      "@tag.Workflows",
+      "@tag.Module",
+      "@tag.Theme",
+      "@tag.JS",
+      "@tag.Container",
+      "@tag.ImportExport",
+    ],
+  },
   function () {
     before(() => {
       _.homePage.NavigateToHome();

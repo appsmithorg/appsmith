@@ -75,7 +75,7 @@ function testJsontextClear(endp) {
 
 describe(
   "List widget v2 - meta hydration tests",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("Listv2/MetaHydrationDSL");

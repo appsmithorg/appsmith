@@ -5,7 +5,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Workspace name validation spec",
-  { tags: ["@tag.Workspace"] },
+  { tags: ["@tag.Workspace", "@tag.AccessControl"] },
   function () {
     let workspaceId;
     let newWorkspaceName;

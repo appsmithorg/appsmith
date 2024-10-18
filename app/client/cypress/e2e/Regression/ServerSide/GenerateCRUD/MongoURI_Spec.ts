@@ -19,7 +19,7 @@ import data from "../../../../fixtures/mongouri_data_spec.json";
 
 describe(
   "Validate Mongo URI CRUD with JSON Form",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     let dsName: any;
     let importDataCollectionName: string;

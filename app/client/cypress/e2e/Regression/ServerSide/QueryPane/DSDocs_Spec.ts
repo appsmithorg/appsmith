@@ -12,7 +12,7 @@ let dsName: any;
 
 describe(
   "Check datasource doc links",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     it("1. Verify Postgres documentation opens", function () {
       CreateDummyDSNSave(DataSourceKVP["Postgres"]);
