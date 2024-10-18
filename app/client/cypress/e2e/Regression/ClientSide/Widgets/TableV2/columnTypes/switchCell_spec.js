@@ -137,6 +137,12 @@ describe(
         cy.wait(100);
         agHelper.ValidateToastMessage("This is a test message");
       });
+
+      cy.getTableV2DataSelector("0", "5").then(($elemClass) => {
+        const discardBtnSelector =
+          $elemClass + " button[data-test-variant='TERTIARY']";
+        cy.get(discardBtnSelector).click({ force: true }); // discard changes
+      });
     });
 
     it("4. Verify filter condition", () => {
@@ -154,6 +160,10 @@ describe(
         cy.get(selector + switchSelector).should("be.checked");
       });
 
+      cy.getTableV2DataSelector("1", "4").then((selector) => {
+        cy.get(selector + switchSelector).should("be.checked");
+      });
+
       // Filter and verify unchecked rows
       cy.get(widgetsJson.tableFilterRow)
         .find(publishPage.conditionDropdown)
@@ -162,9 +172,6 @@ describe(
       cy.get(publishPage.applyFiltersBtn).click();
 
       cy.getTableV2DataSelector("0", "4").then((selector) => {
-        cy.get(selector + switchSelector).should("not.be.checked");
-      });
-      cy.getTableV2DataSelector("1", "4").then((selector) => {
         cy.get(selector + switchSelector).should("not.be.checked");
       });
     });
