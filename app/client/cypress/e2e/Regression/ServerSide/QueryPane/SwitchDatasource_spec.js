@@ -1,5 +1,8 @@
 import { dataSources, agHelper } from "../../../../support/Objects/ObjectsCore";
-describe("Switch datasource", { tags: ["@tag.Datasource"] }, function () {
+
+// Skipping this for now to avoid failing. This feature has been removed from the UI and now is under feature flag
+// This test will be removed once the feature is removed from the codebase
+describe.skip("Switch datasource", { tags: ["@tag.Datasource"] }, function () {
   let dsName_1, dsName_2, MongoDB;
   beforeEach(() => {
     dataSources.StartDataSourceRoutes();
