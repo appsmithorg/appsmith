@@ -3,7 +3,15 @@ import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 let dsName;
 describe(
   "Validate Datasource Panel Styles",
-  { tags: ["@tag.Datasource", "@tag.Sanity", "@tag.excludeForAirgap", "@tag.Git", "@tag.AccessControl"] },
+  {
+    tags: [
+      "@tag.Datasource",
+      "@tag.Sanity",
+      "@tag.excludeForAirgap",
+      "@tag.Git",
+      "@tag.AccessControl",
+    ],
+  },
   function () {
     const backgroundColorGray700 = "rgb(76, 86, 100)";
     const backgroundColorGray1 = "rgb(241, 245, 249)";

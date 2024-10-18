@@ -23,7 +23,16 @@ beforeEach(() => {
 
 describe(
   "Fork a template to the current app from new page popover",
-  { tags: ["@tag.Templates", "@tag.excludeForAirgap", "@tag.Sanity", "@tag.Git", "@tag.ImportExport", "@tag.Fork"] },
+  {
+    tags: [
+      "@tag.Templates",
+      "@tag.excludeForAirgap",
+      "@tag.Sanity",
+      "@tag.Git",
+      "@tag.ImportExport",
+      "@tag.Fork",
+    ],
+  },
   () => {
     it("1. Fork template from page section", () => {
       //Fork template button to be visible always

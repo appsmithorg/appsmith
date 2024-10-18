@@ -13,7 +13,9 @@ const commonlocators = require("../../../locators/commonlocators.json");
 
 describe(
   "MySQL noise test",
-  { tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     let datasourceName;
 

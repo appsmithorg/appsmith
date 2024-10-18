@@ -17,7 +17,20 @@ let repoName;
 
 describe(
   "Tests JS Library with Git",
-  { tags: ["@tag.Git", "@tag.excludeForAirgap", "@tag.Sanity", "@tag.AccessControl", "@tag.Workflows", "@tag.Module", "@tag.Theme", "@tag.JS", "@tag.Container", "@tag.ImportExport"] },
+  {
+    tags: [
+      "@tag.Git",
+      "@tag.excludeForAirgap",
+      "@tag.Sanity",
+      "@tag.AccessControl",
+      "@tag.Workflows",
+      "@tag.Module",
+      "@tag.Theme",
+      "@tag.JS",
+      "@tag.Container",
+      "@tag.ImportExport",
+    ],
+  },
   () => {
     before(() => {
       homePage.NavigateToHome();

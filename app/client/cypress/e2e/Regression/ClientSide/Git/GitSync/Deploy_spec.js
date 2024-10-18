@@ -5,7 +5,19 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 let repoName;
 describe(
   "Git sync modal: deploy tab",
-  { tags: ["@tag.Git", "@tag.Sanity", "@tag.AccessControl", "@tag.Workflows", "@tag.Module", "@tag.Theme", "@tag.JS", "@tag.Container", "@tag.ImportExport"] },
+  {
+    tags: [
+      "@tag.Git",
+      "@tag.Sanity",
+      "@tag.AccessControl",
+      "@tag.Workflows",
+      "@tag.Module",
+      "@tag.Theme",
+      "@tag.JS",
+      "@tag.Container",
+      "@tag.ImportExport",
+    ],
+  },
   function () {
     before(() => {
       _.homePage.NavigateToHome();

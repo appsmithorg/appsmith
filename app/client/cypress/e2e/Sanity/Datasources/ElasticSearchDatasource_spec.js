@@ -6,7 +6,9 @@ let elasticSearchName;
 
 describe(
   "Elastic search datasource tests",
-  { tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     beforeEach(() => {
       dataSources.StartDataSourceRoutes();

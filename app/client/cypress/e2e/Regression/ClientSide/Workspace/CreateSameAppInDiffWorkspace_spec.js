@@ -6,7 +6,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Create app same name in different workspace",
-  { tags: ["@tag.Workspace", "@tag.AccessControl"​] },
+  { tags: ["@tag.Workspace", "@tag.AccessControl"] },
   function () {
     let workspaceId;
     let appid;
