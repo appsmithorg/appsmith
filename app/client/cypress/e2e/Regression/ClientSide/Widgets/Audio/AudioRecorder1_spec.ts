@@ -13,7 +13,7 @@ import EditorNavigation, {
 
 describe(
   "Audio Recorder functionality tests",
-  { tags: ["@tag.Widget", "@tag.Audio"] },
+  { tags: ["@tag.Widget", "@tag.Audio", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(

@@ -15,7 +15,7 @@ import {
 
 describe(
   "Radio Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Radio"] },
+  { tags: ["@tag.Widget", "@tag.Radio", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("newFormDsl");

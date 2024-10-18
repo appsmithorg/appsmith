@@ -11,165 +11,169 @@ const page1 = "Page1";
 const page2 = "Page2";
 const api1 = "API1";
 
-describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
-  before(() => {
-    _.agHelper.AddDsl("editorContextdsl");
-    PageList.AddNewPage("New blank page");
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
-    EditorNavigation.SelectEntityByName(page1, EntityType.Page);
-    _.apiPage.CreateApi(api1);
-    PageLeftPane.switchSegment(PagePaneSegment.UI);
-  });
+describe(
+  "Canvas context Property Pane",
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
+  function () {
+    before(() => {
+      _.agHelper.AddDsl("editorContextdsl");
+      PageList.AddNewPage("New blank page");
+      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
+      EditorNavigation.SelectEntityByName(page1, EntityType.Page);
+      _.apiPage.CreateApi(api1);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+    });
 
-  beforeEach(() => {
-    _.agHelper.RefreshPage();
-  });
+    beforeEach(() => {
+      _.agHelper.RefreshPage();
+    });
 
-  let propPaneBack = "[data-testid='t--property-pane-back-btn']";
+    let propPaneBack = "[data-testid='t--property-pane-back-btn']";
 
-  it("1. Layered PropertyPane - Property Sections should retain state while switching between widgets, pages and Editor Panes", () => {
-    let propertySectionState = {
-      data: false,
-      general: true,
-    };
+    it("1. Layered PropertyPane - Property Sections should retain state while switching between widgets, pages and Editor Panes", () => {
+      let propertySectionState = {
+        data: false,
+        general: true,
+      };
 
-    verifyPropertyPaneContext(
-      () => {
-        cy.editColumn("step");
-        setPropertyPaneSectionState(propertySectionState);
-      },
-      () => {
-        cy.wait(500);
-        verifyPropertyPaneSectionState(propertySectionState);
-      },
-      "Table1",
-    );
-    cy.get(propPaneBack).click();
-    cy.get(".t--property-pane-title").should("contain", "Table1");
-  });
+      verifyPropertyPaneContext(
+        () => {
+          cy.editColumn("step");
+          setPropertyPaneSectionState(propertySectionState);
+        },
+        () => {
+          cy.wait(500);
+          verifyPropertyPaneSectionState(propertySectionState);
+        },
+        "Table1",
+      );
+      cy.get(propPaneBack).click();
+      cy.get(".t--property-pane-title").should("contain", "Table1");
+    });
 
-  it("2. Layered PropertyPane - Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", () => {
-    propertySectionState = {
-      textformatting: true,
-      color: false,
-    };
+    it("2. Layered PropertyPane - Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", () => {
+      propertySectionState = {
+        textformatting: true,
+        color: false,
+      };
 
-    verifyPropertyPaneContext(
-      () => {
-        cy.editColumn("step");
-        cy.get(`.ads-v2-tabs__list-tab:contains("Style")`).eq(0).click();
-        setPropertyPaneSectionState(propertySectionState);
-      },
-      () => {
-        verifyPropertyPaneSectionState(propertySectionState);
-      },
-      "Table1",
-    );
+      verifyPropertyPaneContext(
+        () => {
+          cy.editColumn("step");
+          cy.get(`.ads-v2-tabs__list-tab:contains("Style")`).eq(0).click();
+          setPropertyPaneSectionState(propertySectionState);
+        },
+        () => {
+          verifyPropertyPaneSectionState(propertySectionState);
+        },
+        "Table1",
+      );
 
-    cy.get(propPaneBack).click();
-    cy.get(".t--property-pane-title").should("contain", "Table1");
-  });
+      cy.get(propPaneBack).click();
+      cy.get(".t--property-pane-title").should("contain", "Table1");
+    });
 
-  it("3. Multi Layered PropertyPane - Code Editor should have focus while switching between widgets, pages and Editor Panes", function () {
-    let propertyControlSelector = ".t--property-control-text";
-    verifyPropertyPaneContext(
-      () => {
-        cy.editColumn("status");
-        cy.editColumn("menuIteme63irwbvnd", false);
-        cy.focusCodeInput(propertyControlSelector);
-      },
-      () => {
-        cy.assertSoftFocusOnCodeInput(propertyControlSelector);
-      },
-      "Table1",
-    );
+    it("3. Multi Layered PropertyPane - Code Editor should have focus while switching between widgets, pages and Editor Panes", function () {
+      let propertyControlSelector = ".t--property-control-text";
+      verifyPropertyPaneContext(
+        () => {
+          cy.editColumn("status");
+          cy.editColumn("menuIteme63irwbvnd", false);
+          cy.focusCodeInput(propertyControlSelector);
+        },
+        () => {
+          cy.assertSoftFocusOnCodeInput(propertyControlSelector);
+        },
+        "Table1",
+      );
 
-    cy.get(propPaneBack).click();
-    cy.get(".t--property-pane-title").should("contain", "status");
+      cy.get(propPaneBack).click();
+      cy.get(".t--property-pane-title").should("contain", "status");
 
-    cy.wait(500);
-    cy.get(propPaneBack).click();
-    cy.get(".t--property-pane-title").should("contain", "Table1");
-  });
+      cy.wait(500);
+      cy.get(propPaneBack).click();
+      cy.get(".t--property-pane-title").should("contain", "Table1");
+    });
 
-  it("4. Multi Layered PropertyPane - Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", () => {
-    propertyControlSelector = `.t--property-control-visible input[type="checkbox"]`;
-    verifyPropertyPaneContext(
-      () => {
-        cy.editColumn("status");
-        cy.editColumn("menuIteme63irwbvnd", false);
-        cy.get(propertyControlSelector).click({ force: true });
-      },
-      () => {
-        cy.get(propertyControlSelector).should("be.focused");
-      },
-      "Table1",
-    );
-    cy.wait(500);
-    cy.get(propPaneBack).click();
-    cy.get(".t--property-pane-title").should("contain", "status");
+    it("4. Multi Layered PropertyPane - Toggle Property controls should have focus while switching between widgets, pages and Editor Panes", () => {
+      propertyControlSelector = `.t--property-control-visible input[type="checkbox"]`;
+      verifyPropertyPaneContext(
+        () => {
+          cy.editColumn("status");
+          cy.editColumn("menuIteme63irwbvnd", false);
+          cy.get(propertyControlSelector).click({ force: true });
+        },
+        () => {
+          cy.get(propertyControlSelector).should("be.focused");
+        },
+        "Table1",
+      );
+      cy.wait(500);
+      cy.get(propPaneBack).click();
+      cy.get(".t--property-pane-title").should("contain", "status");
 
-    cy.wait(500);
-    cy.get(propPaneBack).click();
-    cy.get(".t--property-pane-title").should("contain", "Table1");
-  });
+      cy.wait(500);
+      cy.get(propPaneBack).click();
+      cy.get(".t--property-pane-title").should("contain", "Table1");
+    });
 
-  it("5. Multi Layered PropertyPane - Property Sections should retain state while switching between widgets, pages and Editor Panes", () => {
-    let propertySectionState = {
-      basic: false,
-      general: true,
-    };
+    it("5. Multi Layered PropertyPane - Property Sections should retain state while switching between widgets, pages and Editor Panes", () => {
+      let propertySectionState = {
+        basic: false,
+        general: true,
+      };
 
-    verifyPropertyPaneContext(
-      () => {
-        cy.editColumn("status");
-        cy.editColumn("menuIteme63irwbvnd", false);
-        setPropertyPaneSectionState(propertySectionState);
-      },
-      () => {
-        cy.wait(500);
-        verifyPropertyPaneSectionState(propertySectionState);
-      },
-      "Table1",
-    );
+      verifyPropertyPaneContext(
+        () => {
+          cy.editColumn("status");
+          cy.editColumn("menuIteme63irwbvnd", false);
+          setPropertyPaneSectionState(propertySectionState);
+        },
+        () => {
+          cy.wait(500);
+          verifyPropertyPaneSectionState(propertySectionState);
+        },
+        "Table1",
+      );
 
-    cy.wait(500);
-    cy.get(propPaneBack).click();
-    cy.get(".t--property-pane-title").should("contain", "status");
+      cy.wait(500);
+      cy.get(propPaneBack).click();
+      cy.get(".t--property-pane-title").should("contain", "status");
 
-    cy.wait(500);
-    cy.get(propPaneBack).click();
-    cy.get(".t--property-pane-title").should("contain", "Table1");
-  });
+      cy.wait(500);
+      cy.get(propPaneBack).click();
+      cy.get(".t--property-pane-title").should("contain", "Table1");
+    });
 
-  it("6. Multi Layered PropertyPane - Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", () => {
-    propertySectionState = {
-      icon: true,
-      color: false,
-    };
+    it("6. Multi Layered PropertyPane - Property Tabs and Sections should retain state while switching between widgets, pages and Editor Panes", () => {
+      propertySectionState = {
+        icon: true,
+        color: false,
+      };
 
-    verifyPropertyPaneContext(
-      () => {
-        cy.editColumn("status");
-        cy.editColumn("menuIteme63irwbvnd", false);
-        cy.get(`.ads-v2-tabs__list-tab:contains("Style")`).eq(0).click();
-        setPropertyPaneSectionState(propertySectionState);
-      },
-      () => {
-        verifyPropertyPaneSectionState(propertySectionState);
-      },
-      "Table1",
-    );
+      verifyPropertyPaneContext(
+        () => {
+          cy.editColumn("status");
+          cy.editColumn("menuIteme63irwbvnd", false);
+          cy.get(`.ads-v2-tabs__list-tab:contains("Style")`).eq(0).click();
+          setPropertyPaneSectionState(propertySectionState);
+        },
+        () => {
+          verifyPropertyPaneSectionState(propertySectionState);
+        },
+        "Table1",
+      );
 
-    cy.wait(500);
-    cy.get(propPaneBack).click();
-    cy.get(".t--property-pane-title").should("contain", "status");
+      cy.wait(500);
+      cy.get(propPaneBack).click();
+      cy.get(".t--property-pane-title").should("contain", "status");
 
-    cy.wait(500);
-    cy.get(propPaneBack).click();
-    cy.get(".t--property-pane-title").should("contain", "Table1");
-  });
-});
+      cy.wait(500);
+      cy.get(propPaneBack).click();
+      cy.get(".t--property-pane-title").should("contain", "Table1");
+    });
+  },
+);
 
 let propertySectionClass = (section) =>
   `.t--property-pane-section-collapse-${section}`;

@@ -12,7 +12,15 @@ import EditorNavigation, {
 
 describe(
   "JSObjects OnLoad Actions tests",
-  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.ImportExport"] },
+  {
+    tags: [
+      "@tag.PropertyPane",
+      "@tag.JS",
+      "@tag.ImportExport",
+      "@tag.Binding",
+      "@tag.Git",
+    ],
+  },
   function () {
     before(() => {
       homePage.CreateNewWorkspace("JSOnLoadTest", true);

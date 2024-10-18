@@ -2,7 +2,7 @@ import { partialImportExport } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Partial import functionality",
-  { tags: ["@tag.ImportExport"] },
+  { tags: ["@tag.ImportExport", "@tag.Git"] },
   () => {
     beforeEach(() => {
       partialImportExport.OpenImportModal();

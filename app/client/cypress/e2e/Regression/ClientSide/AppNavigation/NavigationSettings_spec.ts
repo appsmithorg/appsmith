@@ -12,7 +12,7 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Test app's navigation settings",
-  { tags: ["@tag.IDE", "@tag.Sanity"] },
+  { tags: ["@tag.IDE", "@tag.Sanity", "@tag.PropertyPane"] },
   function () {
     it("1. Open app settings and navigation tab should be there and when the navigation tab is selected, navigation preview should be visible", () => {
       AppSidebar.navigate(AppSidebarButton.Settings);

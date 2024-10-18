@@ -11,7 +11,7 @@ let jsName: any;
 
 describe(
   "JSObjects OnLoad Actions tests",
-  { tags: ["@tag.PropertyPane", "@tag.JS"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Binding"] },
   function () {
     it("1. Tc 51, 52 Verify that JS editor function has a settings button available for functions", () => {
       jsEditor.CreateJSObject(

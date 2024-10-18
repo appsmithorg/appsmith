@@ -5,7 +5,7 @@ const testdata = require("../../../../../fixtures/testdata.json");
 
 describe(
   "Table Widget property pane feature validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableNewDsl");
