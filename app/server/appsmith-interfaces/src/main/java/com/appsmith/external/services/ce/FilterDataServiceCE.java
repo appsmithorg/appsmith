@@ -764,7 +764,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                     AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,
                     "Error while interacting with value " + value + " : " + e.getMessage());
         } catch (IllegalArgumentException e) {
-            // The data type recognized does not match the data type of the value being set via Prepared Statement
+            // The data type recognized does not match the data type of the value being set via prepared statement
             // Add proper handling here.
             throw new AppsmithPluginException(
                     AppsmithPluginError.PLUGIN_IN_MEMORY_FILTERING_ERROR,

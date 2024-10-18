@@ -7,14 +7,13 @@
         {
           "label": "Run query on page load",
           "configProperty": "executeOnLoad",
-          "controlType": "SWITCH",
-          "subtitle": "Will refresh data each time the page is loaded"
+          "controlType": "SWITCH"
         },
         {
           "label": "Request confirmation before running query",
           "configProperty": "confirmBeforeExecute",
           "controlType": "SWITCH",
-          "subtitle": "Ask confirmation from the user each time before refreshing data"
+          "tooltipText": "Ask confirmation from the user each time before refreshing data"
         },
         {
           "label": "Query timeout (in milliseconds)",

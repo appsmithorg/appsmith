@@ -12,6 +12,10 @@
     grid-template-columns: 1fr;
   }
 
+  & > div:empty {
+    display: none;
+  }
+
   /*
    This section can be removed once the condition abouve each is resolved
   */
