@@ -15,8 +15,6 @@ import {
   useAnalyticsOnRunClick,
 } from "PluginActionEditor/hooks";
 
-const FORM_NAME = API_EDITOR_FORM_NAME;
-
 const APIEditorForm = () => {
   const { action } = usePluginActionContext();
   const { handleRunClick } = useHandleRunClick();
@@ -43,7 +41,7 @@ const APIEditorForm = () => {
           theme={EditorTheme.LIGHT}
         />
       }
-      formName={FORM_NAME}
+      formName={API_EDITOR_FORM_NAME}
       httpMethodOptions={HTTP_METHOD_OPTIONS}
       isChangePermitted={isChangePermitted}
       paginationUiComponent={
@@ -58,6 +56,7 @@ const APIEditorForm = () => {
   );
 };
 
-export default reduxForm({ form: FORM_NAME, enableReinitialize: true })(
-  APIEditorForm,
-);
+export default reduxForm({
+  form: API_EDITOR_FORM_NAME,
+  enableReinitialize: true,
+})(APIEditorForm);
