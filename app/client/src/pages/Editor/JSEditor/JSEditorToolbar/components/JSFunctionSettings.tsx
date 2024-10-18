@@ -1,15 +1,5 @@
 import React, { useCallback, useState } from "react";
-import {
-  Button,
-  Flex,
-  Popover,
-  PopoverBody,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTrigger,
-  Switch,
-  Text,
-} from "@appsmith/ads";
+import { Flex, Switch, Text } from "@appsmith/ads";
 import JSFunctionSettingsView, {
   type JSFunctionSettingsProps,
 } from "./old/JSFunctionSettings";
@@ -18,6 +8,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { createMessage, JS_EDITOR_SETTINGS } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { ToolbarSettingsPopover } from "IDE";
 
 interface Props {
   disabled: boolean;
@@ -56,6 +47,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
   return (
     <Flex
       className={`t--async-js-function-settings ${props.action.name}-on-page-load-setting`}
+      gap="spaces-4"
       key={props.action.id}
       w="100%"
     >
@@ -81,6 +73,8 @@ export const JSFunctionSettings = (props: Props) => {
     FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
+  const [isOpen, setIsOpen] = useState(false);
+
   // If the feature flag is disabled, render the old version of the component
   if (!isActionRedesignEnabled) {
     return (
@@ -94,37 +88,24 @@ export const JSFunctionSettings = (props: Props) => {
 
   // Render the new version of the component
   return (
-    <Popover>
-      <PopoverTrigger>
-        <Button
-          data-testid="t--js-editor-SETTINGS"
-          isIconButton
-          kind="secondary"
-          name="Settings"
-          size="sm"
-          startIcon="settings-2-line"
-        />
-      </PopoverTrigger>
-      <PopoverContent align="end" size="md">
-        <PopoverHeader isClosable>
-          {createMessage(JS_EDITOR_SETTINGS.TITLE)}
-        </PopoverHeader>
-        <PopoverBody>
-          <Flex flexDirection="column" gap="spaces-4" w="100%">
-            <Text kind="heading-xs">
-              {createMessage(JS_EDITOR_SETTINGS.ON_LOAD_TITLE)}
-            </Text>
-            {props.actions.map((action) => (
-              <FunctionSettingRow
-                action={action}
-                disabled={props.disabled}
-                key={action.id}
-                onUpdateSettings={props.onUpdateSettings}
-              />
-            ))}
-          </Flex>
-        </PopoverBody>
-      </PopoverContent>
-    </Popover>
+    <ToolbarSettingsPopover
+      handleOpenChange={setIsOpen}
+      isOpen={isOpen}
+      title={createMessage(JS_EDITOR_SETTINGS.TITLE)}
+    >
+      <Flex flexDirection="column" gap="spaces-4" w="100%">
+        <Text kind="heading-xs">
+          {createMessage(JS_EDITOR_SETTINGS.ON_LOAD_TITLE)}
+        </Text>
+        {props.actions.map((action) => (
+          <FunctionSettingRow
+            action={action}
+            disabled={props.disabled}
+            key={action.id}
+            onUpdateSettings={props.onUpdateSettings}
+          />
+        ))}
+      </Flex>
+    </ToolbarSettingsPopover>
   );
 };
