@@ -31,7 +31,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -43,7 +42,6 @@ import static com.appsmith.external.models.DatasourceStructure.TableType.TABLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(AfterAllCleanUpExtension.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest
 public class DatasourceTriggerSolutionTest {
 

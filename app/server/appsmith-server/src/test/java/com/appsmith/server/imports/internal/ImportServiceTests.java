@@ -101,7 +101,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -146,7 +145,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 @Slf4j
 @ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class ImportServiceTests {
     private static final Map<String, Datasource> datasourceMap = new HashMap<>();

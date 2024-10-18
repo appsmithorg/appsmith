@@ -16,7 +16,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
@@ -36,7 +35,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 @AutoConfigureWebTestClient
 @Import({SecurityTestConfig.class})
 @ExtendWith(AfterAllCleanUpExtension.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class PageControllerTest {
 
     @Autowired

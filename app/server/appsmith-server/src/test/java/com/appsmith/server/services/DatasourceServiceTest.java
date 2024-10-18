@@ -52,7 +52,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -80,7 +79,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class DatasourceServiceTest {
 
     @Autowired
