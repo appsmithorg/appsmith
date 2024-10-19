@@ -134,8 +134,10 @@ export function* executeWidgetBlueprintOperations(
 
         updatePropertyPayloads &&
           updatePropertyPayloads.forEach((params: UpdatePropertyArgs) => {
-            widgets[params.widgetId][params.propertyName] =
-              params.propertyValue;
+            widgets[params.widgetId] = {
+              ...widgets[params.widgetId],
+              [params.propertyName]: params.propertyValue,
+            };
           });
         break;
     }
