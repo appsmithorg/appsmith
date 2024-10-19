@@ -214,7 +214,7 @@ function* moveWidgetsToNewLayout(
     widgets,
     transformMovedWidgets(widgets, movedWidgets, highlight),
     highlight,
-    zone,
+    zone.widgetId,
   );
 
   return canvasWidgets;
