@@ -55,6 +55,9 @@ export const generateDataTreeJSAction = (
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
 
+      // If action already exists, skip adding it to the data tree
+      if (actionsData[action.name]) continue;
+
       meta[action.name] = {
         arguments: action.actionConfiguration?.jsArguments || [],
         confirmBeforeExecute: !!action.confirmBeforeExecute,
