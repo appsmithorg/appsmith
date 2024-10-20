@@ -10,7 +10,7 @@ const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe(
   "List widget v2 - Basic server side data tests",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("Listv2/listWithServerSideData");

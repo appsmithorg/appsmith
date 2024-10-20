@@ -5,7 +5,7 @@ import commonlocators from "../../../../../locators/commonlocators.json";
 
 describe(
   "Tree Select Widget",
-  { tags: ["@tag.Widget", "@tag.Select"] },
+  { tags: ["@tag.Widget", "@tag.Select", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

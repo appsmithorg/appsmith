@@ -23,7 +23,9 @@ const oneClickBinding = new OneClickBinding();
 
 describe(
   "Validate MsSQL connection & basic querying with UI flows",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   () => {
     let dsName: any,
       query: string,

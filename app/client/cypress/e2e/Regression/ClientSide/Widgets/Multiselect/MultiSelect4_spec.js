@@ -20,7 +20,7 @@ const defaultValue = `[
 
 describe(
   "MultiSelect Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Multiselect"] },
+  { tags: ["@tag.Widget", "@tag.Multiselect", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

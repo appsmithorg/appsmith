@@ -9,7 +9,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "DatePicker Widget Property pane tests with js bindings",
-  { tags: ["@tag.Widget", "@tag.Datepicker"] },
+  { tags: ["@tag.Widget", "@tag.Datepicker", "@tag.Binding"] },
   function () {
     beforeEach(() => {
       _.agHelper.RestoreLocalStorageCache();

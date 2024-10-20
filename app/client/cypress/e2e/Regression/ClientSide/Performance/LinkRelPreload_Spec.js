@@ -30,7 +30,7 @@ import { AppSidebar } from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "html should include preload metadata for all code-split javascript",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     before(() => {
       cy.addDsl(emptyDSL);

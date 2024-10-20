@@ -10,7 +10,7 @@ import EditorNavigation, {
 
 describe(
   "Listv2 - Event bindings spec",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   () => {
     it("1. nested list - inner widget should have access to currentItem, currentIndex, currentView and level_1", () => {
       agHelper.AddDsl("Listv2/nestedList");

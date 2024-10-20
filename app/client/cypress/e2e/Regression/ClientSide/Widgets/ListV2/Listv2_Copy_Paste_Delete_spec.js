@@ -4,7 +4,7 @@ const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
 describe(
   "List widget v2 Copy and Paste",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   () => {
     it("1. Validate Copy paste action", () => {
       cy.dragAndDropToCanvas("listwidgetv2", {
