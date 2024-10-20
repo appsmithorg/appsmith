@@ -72,7 +72,7 @@ const QueryEditorHeader = (props: Props) => {
     currentActionConfig?.userPermissions,
   );
 
-  const isDatasourceSelectorDisabled = useFeatureFlag(
+  const isDatasourceSelectorEnabled = useFeatureFlag(
     FEATURE_FLAG.release_ide_datasource_selector_enabled,
   );
 
@@ -101,7 +101,7 @@ const QueryEditorHeader = (props: Props) => {
       </NameWrapper>
       <ActionsWrapper>
         {moreActionsMenu}
-        {isDatasourceSelectorDisabled && (
+        {isDatasourceSelectorEnabled && (
           <DatasourceSelector
             currentActionConfig={currentActionConfig}
             dataSources={dataSources}
