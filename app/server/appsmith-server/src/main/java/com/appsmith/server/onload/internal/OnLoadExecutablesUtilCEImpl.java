@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.spans.LayoutSpan.ADD_WIDGET_RELATIONSHIP_TO_GRAPH;
 import static com.appsmith.external.constants.spans.LayoutSpan.COMPUTE_ON_PAGE_LOAD_EXECUTABLES_SCHEDULING_ORDER;
-import static com.appsmith.external.constants.spans.LayoutSpan.EXTACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES;
+import static com.appsmith.external.constants.spans.LayoutSpan.EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES;
 import static com.appsmith.external.constants.spans.LayoutSpan.FILTER_AND_TRANSFORM_SCHEDULING_ORDER_TO_DTO;
 import static com.appsmith.external.constants.spans.LayoutSpan.RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS;
 import static com.appsmith.external.helpers.MustacheHelper.EXECUTABLE_ENTITY_REFERENCES;
@@ -646,7 +646,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                                     executablesFoundDuringWalkRef,
                                                     null,
                                                     evalVersion))
-                                            .name(EXTACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
                                             .tap(Micrometer.observation(observationRegistry))
                                             .thenReturn(possibleEntity);
                                 }
@@ -927,7 +927,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                         executablesFoundDuringWalk,
                                         null,
                                         evalVersion))
-                                .name(EXTACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                                .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
                                 .tap(Micrometer.observation(observationRegistry))
                                 .thenReturn(possibleEntity);
                     } else {
@@ -999,7 +999,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     executablesFoundDuringWalkRef,
                                     executableBindingsInDsl,
                                     evalVersion)
-                            .name(EXTACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
                             .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(executable);
                 })

@@ -16,7 +16,7 @@ public class LayoutSpanCE {
     public static final String FIND_AND_UPDATE_LAYOUT =
             APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.findAndUpdateLayout";
 
-    public static final String EXTACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES =
+    public static final String EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES =
             APPSMITH_SPAN_PREFIX + "extractAndSetExecutableBindingsInGraphEdges";
     public static final String RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS =
             APPSMITH_SPAN_PREFIX + "recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings";
