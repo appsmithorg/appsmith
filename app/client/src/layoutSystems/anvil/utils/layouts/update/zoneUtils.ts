@@ -84,7 +84,6 @@ export function* addWidgetsToZone(
     zoneWidgetId,
     draggedWidgets,
   );
-  updatedWidgets[zoneWidgetId].children = updatedWidgets[zoneWidgetId].children;
 
   /**
    * Split new widgets based on type.
