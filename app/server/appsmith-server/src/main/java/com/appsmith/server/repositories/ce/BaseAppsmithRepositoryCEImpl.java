@@ -8,6 +8,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.FieldInfo;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
@@ -37,7 +38,6 @@ import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.annotations.Type;
-import org.openjdk.jmh.generators.core.FieldInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.jpa.domain.Specification;
@@ -62,12 +62,10 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.ReflectionHelpers.getAllFields;
-import static com.appsmith.external.helpers.StringUtils.dotted;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUPS;
-import static com.appsmith.server.helpers.ce.ReflectionHelpers.isAppsmithDefinedClass;
+import static com.appsmith.server.helpers.ce.ReflectionHelpers.extractFieldPaths;
 import static com.appsmith.server.helpers.ce.ReflectionHelpers.map;
 import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.keyToExpression;
-import static org.modelmapper.internal.util.Primitives.isPrimitiveWrapper;
 
 /**
  * In case you are wondering why we have two different repository implementation classes i.e.
@@ -306,8 +304,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         // Map of projection field path to the class type
                         List<FieldInfo> fieldPaths = extractFieldPaths(projectionClass);
 
-                        for (FieldInfo fieldPath : fieldPaths) {
-                            projectionFields.add(keyToExpression(fieldPath.type(), root, cb, fieldPath.name()));
+                        for (FieldInfo fieldInfo : fieldPaths) {
+                            projectionFields.add(keyToExpression(fieldInfo.type(), root, cb, fieldInfo.fullPath()));
                         }
                         cq.multiselect(projectionFields);
                     }
@@ -823,38 +821,4 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 && StringUtils.hasLength(user.getEmail())
                 && (user.isAnonymous() || StringUtils.hasLength(user.getId()));
     }
-
-    private List<FieldInfo> extractFieldPaths(Class<?> projectionClass) {
-        List<FieldInfo> fieldPaths = new ArrayList<>();
-        extractFieldPathsRecursively(projectionClass, "", fieldPaths);
-        return fieldPaths;
-    }
-
-    private void extractFieldPathsRecursively(Class<?> clazz, String parentPath, List<FieldInfo> fieldPaths) {
-        // Process the class and its superclasses
-        while (clazz != null && clazz != Object.class) {
-            for (Field field : clazz.getDeclaredFields()) {
-                field.setAccessible(true); // Ensure access to private fields
-                String fieldName = field.getName();
-                String fullPath = parentPath.isEmpty() ? fieldName : dotted(parentPath, fieldName);
-
-                if (!isAppsmithDefinedClass(field.getType())
-                        || !field.getType().getPackageName().matches(".*appsmith.*projections")) {
-                    // Check if the field type is part of JdbcType.getDdlTypeCode if not assign the Object as the type
-                    if (isPrimitiveWrapper(field.getType()) || String.class.equals(field.getType())) {
-                        fieldPaths.add(new FieldInfo(fullPath, field.getType()));
-                    } else {
-                        fieldPaths.add(new FieldInfo(fullPath, Object.class));
-                    }
-                } else {
-                    // Recursively extract nested fields for complex types
-                    extractFieldPathsRecursively(field.getType(), fullPath, fieldPaths);
-                }
-            }
-            // Move to superclass (if any)
-            clazz = clazz.getSuperclass();
-        }
-    }
-
-    private record FieldInfo(String name, Class<?> type) {}
 }

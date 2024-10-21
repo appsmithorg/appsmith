@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers.ce;
 
+import com.appsmith.server.dtos.FieldInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.util.CollectionUtils;
 
@@ -10,6 +11,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import static com.appsmith.external.helpers.StringUtils.dotted;
+import static com.appsmith.server.helpers.AppsmithClassUtils.isAppsmithDefinedClass;
+import static com.appsmith.server.helpers.AppsmithClassUtils.isAppsmithProjections;
+import static org.modelmapper.internal.util.Primitives.isPrimitiveWrapper;
 
 public class ReflectionHelpers {
 
@@ -77,10 +83,6 @@ public class ReflectionHelpers {
         return result;
     }
 
-    public static boolean isAppsmithDefinedClass(Class<?> clazz) {
-        return clazz.getPackageName().startsWith("com.appsmith");
-    }
-
     // Method to fetch fields from a class including its superclasses
     private static List<Class<?>> fetchAllFields(Class<?> clazz) {
         List<Class<?>> tupleTypes = new ArrayList<>();
@@ -89,6 +91,8 @@ public class ReflectionHelpers {
         while (clazz != null) {
             // Get declared fields from the current class
             for (Field field : clazz.getDeclaredFields()) {
+                // Ensure access to private fields
+                field.setAccessible(true);
                 tupleTypes.add(field.getType());
             }
             // Move to the superclass
@@ -101,5 +105,36 @@ public class ReflectionHelpers {
     private static boolean isCollectionType(Class<?> clazz) {
         // Check if the class is a subtype of Collection or Map
         return Collection.class.isAssignableFrom(clazz) || Map.class.isAssignableFrom(clazz);
+    }
+
+    public static List<FieldInfo> extractFieldPaths(Class<?> projectionClass) {
+        List<FieldInfo> fieldPaths = new ArrayList<>();
+        extractFieldPathsRecursively(projectionClass, "", fieldPaths);
+        return fieldPaths;
+    }
+
+    private static void extractFieldPathsRecursively(Class<?> clazz, String parentPath, List<FieldInfo> fieldPaths) {
+        // Process the class and its superclasses
+        while (clazz != null && clazz != Object.class) {
+            for (Field field : clazz.getDeclaredFields()) {
+                field.setAccessible(true); // Ensure access to private fields
+                String fieldName = field.getName();
+                String fullPath = parentPath.isEmpty() ? fieldName : dotted(parentPath, fieldName);
+
+                if (!isAppsmithDefinedClass(field.getType()) || !isAppsmithProjections(field.getType())) {
+                    // Check if the field type is part of JdbcType.getDdlTypeCode if not assign the Object as the type
+                    if (isPrimitiveWrapper(field.getType()) || String.class.equals(field.getType())) {
+                        fieldPaths.add(new FieldInfo(fullPath, field.getType()));
+                    } else {
+                        fieldPaths.add(new FieldInfo(fullPath, Object.class));
+                    }
+                } else {
+                    // Recursively extract nested fields for complex types
+                    extractFieldPathsRecursively(field.getType(), fullPath, fieldPaths);
+                }
+            }
+            // Move to superclass (if any)
+            clazz = clazz.getSuperclass();
+        }
     }
 }
