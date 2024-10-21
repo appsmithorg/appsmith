@@ -3,7 +3,7 @@ package com.appsmith.server.helpers;
 public class AppsmithClassUtils {
 
     /**
-     * This method checks if the given class is a projection class. Projection classes are classes that are used to project data from one form to another.
+     * This method checks if the given class is Appsmith defined projection class.
      * @param clazz The class to be checked
      * @return      True if the class is a projection class, false otherwise
      */

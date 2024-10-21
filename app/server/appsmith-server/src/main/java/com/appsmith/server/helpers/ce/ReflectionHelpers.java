@@ -24,22 +24,22 @@ public class ReflectionHelpers {
     /**
      * Maps objects to the given type using the constructor of the type. The order of the objects should be the same as
      * the order of the fields in the type constructor.
+     * @param objects       The objects to be mapped to the type. This holds the values of the fields of type objectTypes
      * @param type          The type of the object to be created
-     * @param objects       The objects to be mapped to the type
-     * @param tupleTypes    The types of the objects elements. If not provided, the types of the fields of the type are
+     * @param objectTypes    The types of the objects elements. If not provided, the types of the fields of the type are
      *                      used.
      *
      * @return      The object of the given type
      * @param <T>   The type of the object to be created
      */
-    private static <T> T map(ArrayList<Object> objects, Class<T> type, List<Class<?>> tupleTypes) {
-        if (CollectionUtils.isEmpty(tupleTypes)) {
-            tupleTypes = fetchAllFieldTypes(type);
+    private static <T> T map(ArrayList<Object> objects, Class<T> type, List<Class<?>> objectTypes) {
+        if (CollectionUtils.isEmpty(objectTypes)) {
+            objectTypes = fetchAllFieldTypes(type);
         }
         try {
             // Create a deep copy of the objects
             ArrayList<Object> modified = new ArrayList<>(objects.size());
-            for (Class<?> tupleType : tupleTypes) {
+            for (Class<?> objectType : objectTypes) {
                 // In case of Appsmith based projection loop through each field to avoid mapping all the fields from
                 // the entity class
                 // e.g. class EntityClass {
@@ -49,21 +49,21 @@ public class ReflectionHelpers {
                 //     class ProjectionClass {
                 //       private String field1;
                 //     }
-                // In the above example, we only need to map field1 from EntityClass to ProjectionClass. In the objects
-                // we expect only field1 value to be present.
-                if (isAppsmithProjections(tupleType)) {
-                    modified.add(map(objects, tupleType, null));
+                // In the above example, we only need to map field1 from EntityClass to ProjectionClass. This is
+                // because in the objects param we expect only field1 value to be present.
+                if (isAppsmithProjections(objectType)) {
+                    modified.add(map(objects, objectType, null));
                 } else {
-                    Object value =
-                            objects.get(0) != null && (isCollectionType(tupleType) || isAppsmithDefinedClass(tupleType))
-                                    ? objectMapper.readValue(objects.get(0).toString(), tupleType)
-                                    : objects.get(0);
+                    Object value = objects.get(0) != null
+                                    && (isCollectionType(objectType) || isAppsmithDefinedClass(objectType))
+                            ? objectMapper.readValue(objects.get(0).toString(), objectType)
+                            : objects.get(0);
                     modified.add(value);
                     // Drop the first element from objects as it has been processed
                     objects.remove(0);
                 }
             }
-            Constructor<T> constructor = type.getConstructor(tupleTypes.toArray(new Class<?>[0]));
+            Constructor<T> constructor = type.getConstructor(objectTypes.toArray(new Class<?>[0]));
             return constructor.newInstance(modified.toArray());
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -145,32 +145,43 @@ public class ReflectionHelpers {
      */
     public static List<FieldInfo> extractFieldPaths(Class<?> projectionClass) {
         List<FieldInfo> fieldPaths = new ArrayList<>();
-        extractFieldPathsRecursively(projectionClass, "", fieldPaths);
+        List<Class<?>> visitedClasses = new ArrayList<>();
+        extractFieldPathsRecursively(projectionClass, "", fieldPaths, visitedClasses);
         return fieldPaths;
     }
 
-    private static void extractFieldPathsRecursively(Class<?> clazz, String parentPath, List<FieldInfo> fieldPaths) {
+    private static void extractFieldPathsRecursively(
+            Class<?> clazz, String parentPath, List<FieldInfo> fieldPaths, List<Class<?>> visitedClasses) {
+        // Check if the class has already been visited to prevent cyclic dependencies
+        if (visitedClasses.contains(clazz)) {
+            String cyclicChain = String.join(
+                    " -> ", visitedClasses.stream().map(Class::getName).toArray(String[]::new));
+            throw new RuntimeException("Cyclical dependency detected for: " + cyclicChain);
+        }
         // Process the class and its superclasses
         while (clazz != null && clazz != Object.class) {
             for (Field field : clazz.getDeclaredFields()) {
                 field.setAccessible(true); // Ensure access to private fields
                 String fieldName = field.getName();
                 String fullPath = parentPath.isEmpty() ? fieldName : dotted(parentPath, fieldName);
+                Class<?> fieldType = field.getType();
 
-                if (!isAppsmithDefinedClass(field.getType()) || !isAppsmithProjections(field.getType())) {
+                if (isAppsmithProjections(fieldType)) {
+                    visitedClasses.add(fieldType);
+                    extractFieldPathsRecursively(field.getType(), fullPath, fieldPaths, visitedClasses);
+                } else {
                     // Check if the field type is part of JdbcType.getDdlTypeCode if not assign the Object as the type
                     if (isPrimitiveWrapper(field.getType()) || String.class.equals(field.getType())) {
                         fieldPaths.add(new FieldInfo(fullPath, field.getType()));
                     } else {
                         fieldPaths.add(new FieldInfo(fullPath, Object.class));
                     }
-                } else {
-                    // Recursively extract nested fields for complex types
-                    extractFieldPathsRecursively(field.getType(), fullPath, fieldPaths);
                 }
             }
             // Move to superclass (if any)
             clazz = clazz.getSuperclass();
         }
+        // Remove the class from the visited set to allow revisiting in different branches
+        visitedClasses.remove(clazz);
     }
 }
