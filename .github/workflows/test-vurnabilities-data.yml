@@ -59,7 +59,6 @@ jobs:
       #     path: trivy_vulnerabilities_diff.txt
 
       - name: Fetch vulnerability data
-        if: needs.ci-test.result != 'success'
         id: vulnerability_data
         env:
           DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
