@@ -13,7 +13,6 @@ import * as log from "loglevel";
 import { toast } from "@appsmith/ads";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import produce from "immer";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -135,12 +134,8 @@ export function* executeWidgetBlueprintOperations(
 
         updatePropertyPayloads &&
           updatePropertyPayloads.forEach((params: UpdatePropertyArgs) => {
-            widgets[params.widgetId] = produce(
-              widgets[params.widgetId],
-              (draft) => {
-                draft[params.propertyName] = params.propertyValue;
-              },
-            );
+            widgets[params.widgetId][params.propertyName] =
+              params.propertyValue;
           });
         break;
     }
