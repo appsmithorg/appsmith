@@ -1,12 +1,12 @@
 import React from "react";
 import JSLibrariesSection from "pages/Editor/IDE/LeftPane/JSLibrariesSection";
-import SidePaneWrapper from "pages/common/SidePaneWrapper";
+import { IDESidePaneWrapper } from "IDE";
 
 const LibrarySidePane = () => {
   return (
-    <SidePaneWrapper>
+    <IDESidePaneWrapper>
       <JSLibrariesSection />
-    </SidePaneWrapper>
+    </IDESidePaneWrapper>
   );
 };
 
