@@ -17,6 +17,7 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.onload.internal.OnLoadExecutablesUtil;
@@ -26,6 +27,7 @@ import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -54,6 +56,7 @@ import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_EXECUTABLE
 import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_LAYOUT_DSL_METHOD;
 import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_LAYOUT_METHOD;
 import static com.appsmith.external.constants.spans.PageSpan.GET_PAGE_BY_ID;
+import static com.appsmith.external.constants.spans.ce.LayoutSpanCE.EXTRACT_ALL_WIDGET_NAMES_AND_DYNAMIC_BINDINGS_FROM_DSL;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
 
@@ -70,6 +73,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     private final ApplicationService applicationService;
     private final ObjectMapper objectMapper;
     private final ObservationRegistry observationRegistry;
+    private final ObservationHelperImpl observationHelper;
 
     private final String layoutOnLoadActionErrorToastMessage =
             "A cyclic dependency error has been encountered on current page, \nqueries on page load will not run. \n Please check debugger and Appsmith documentation for more information";
@@ -127,6 +131,12 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         Set<String> widgetNames = new HashSet<>();
         Map<String, Set<String>> widgetDynamicBindingsMap = new HashMap<>();
         Set<String> escapedWidgetNames = new HashSet<>();
+
+        Span extractAllWidgetNamesAndDynamicBindingsFromDSLSpan =
+                observationHelper.createSpan(EXTRACT_ALL_WIDGET_NAMES_AND_DYNAMIC_BINDINGS_FROM_DSL);
+
+        observationHelper.startSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan, true);
+
         try {
             dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
                     dsl, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
@@ -135,6 +145,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
             return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, dsl, false, t, creatorType)
                     .then(Mono.error(t));
         }
+
+        observationHelper.endSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan, true);
 
         layout.setWidgetNames(widgetNames);
 
@@ -151,7 +163,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
 
         AtomicReference<Boolean> validOnLoadExecutables = new AtomicReference<>(Boolean.TRUE);
 
-        // setting the layoutOnLoadActionActionErrors to empty to remove the existing errors before new DAG calculation.
+        // setting the layoutOnLoadActionActionErrors to empty to remove the existing
+        // errors before new DAG calculation.
         layout.setLayoutOnLoadActionErrors(new ArrayList<>());
 
         Mono<List<Set<DslExecutableDTO>>> allOnLoadExecutablesMono = onLoadExecutablesUtil
@@ -180,14 +193,18 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
 
         // First update the actions and set execute on load to true
         JSONObject finalDsl = dsl;
-        return allOnLoadExecutablesMono
+
+        Mono<LayoutDTO> layoutDTOMono = allOnLoadExecutablesMono
                 .flatMap(allOnLoadExecutables -> {
-                    // If there has been an error (e.g. cyclical dependency), then don't update any actions.
-                    // This is so that unnecessary updates don't happen to actions while the page is in invalid state.
+                    // If there has been an error (e.g. cyclical dependency), then don't update any
+                    // actions.
+                    // This is so that unnecessary updates don't happen to actions while the page is
+                    // in invalid state.
                     if (!validOnLoadExecutables.get()) {
                         return Mono.just(allOnLoadExecutables);
                     }
-                    // Update these executables to be executed on load, unless the user has touched the executeOnLoad
+                    // Update these executables to be executed on load, unless the user has touched
+                    // the executeOnLoad
                     // setting for this
                     return onLoadExecutablesUtil
                             .updateExecutablesExecuteOnLoad(
@@ -201,12 +218,15 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     layout.setLayoutOnLoadActions(onLoadExecutables);
                     layout.setAllOnPageLoadActionNames(executableNames);
                     layout.setActionsUsedInDynamicBindings(executablesUsedInDSL);
-                    // The below field is to ensure that we record if the page load actions computation was
+                    // The below field is to ensure that we record if the page load actions
+                    // computation was
                     // valid when last stored in the database.
                     layout.setValidOnPageLoadActions(validOnLoadExecutables.get());
 
                     return onLoadExecutablesUtil
                             .findAndUpdateLayout(creatorId, creatorType, layoutId, layout)
+                            .tag("no_of_widgets", String.valueOf(widgetNames.size()))
+                            .tag("no_of_executables", String.valueOf(executableNames.size()))
                             .name(FIND_AND_UPDATE_LAYOUT)
                             .tap(Micrometer.observation(observationRegistry));
                 })
@@ -222,6 +242,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, finalDsl, true, null, creatorType)
                             .thenReturn(layoutDTO);
                 });
+
+        return layoutDTOMono;
     }
 
     @Override
@@ -326,6 +348,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         Set<String> widgetNames = new HashSet<>();
         Map<String, Set<String>> widgetDynamicBindingsMap = new HashMap<>();
         Set<String> escapedWidgetNames = new HashSet<>();
+        // observationHelper.createSpan()
         try {
             dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
                     dsl, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);

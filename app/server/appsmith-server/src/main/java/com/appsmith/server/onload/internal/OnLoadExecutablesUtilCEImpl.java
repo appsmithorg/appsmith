@@ -18,12 +18,14 @@ import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -43,6 +45,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.ce.OnLoadSpanCE.*;
 import static com.appsmith.external.helpers.MustacheHelper.EXECUTABLE_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.WIDGET_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.getPossibleParents;
@@ -56,6 +59,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     private final AstService astService;
     private final ObjectMapper objectMapper;
     private final ExecutableOnLoadService<NewPage> pageExecutableOnLoadService;
+    private final ObservationRegistry observationRegistry;
 
     /**
      * The following regex finds the immediate parent of an entity path.
@@ -129,25 +133,31 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             .toList();
                 })
                 .collectMap(Tuple2::getT1, Tuple2::getT2)
+                .name(EXECUTABLE_NAME_TO_EXECUTUTABLE_MAP_MONO)
+                .tap(Micrometer.observation(observationRegistry))
                 .cache();
 
         Mono<Set<String>> executablesInCreatorContextMono = allExecutablesByCreatorIdFlux
                 .flatMapIterable(Executable::getExecutableNames)
                 .collect(Collectors.toSet())
+                .name(EXECUTABLE_IN_CREATOR_CONTEXT_MONO)
+                .tap(Micrometer.observation(observationRegistry))
                 .cache();
 
         Set<EntityDependencyNode> executableBindingsInDslRef = new HashSet<>();
 
         Mono<Set<ExecutableDependencyEdge>> directlyReferencedExecutablesToGraphMono =
                 addDirectlyReferencedExecutablesToGraph(
-                        edgesRef,
-                        executablesUsedInDSLRef,
-                        bindingsFromExecutablesRef,
-                        executablesFoundDuringWalkRef,
-                        widgetDynamicBindingsMap,
-                        executableNameToExecutableMapMono,
-                        executableBindingsInDslRef,
-                        evaluatedVersion);
+                                edgesRef,
+                                executablesUsedInDSLRef,
+                                bindingsFromExecutablesRef,
+                                executablesFoundDuringWalkRef,
+                                widgetDynamicBindingsMap,
+                                executableNameToExecutableMapMono,
+                                executableBindingsInDslRef,
+                                evaluatedVersion)
+                        .name(ADD_DIRECTLY_REFERENCED_EXECUTABLES_TO_GRAPH)
+                        .tap(Micrometer.observation(observationRegistry));
 
         // This following `createAllEdgesForPageMono` publisher traverses the executables and widgets to add all
         // possible edges between all possible entity paths
@@ -157,15 +167,17 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         Mono<Set<ExecutableDependencyEdge>> createAllEdgesForPageMono = directlyReferencedExecutablesToGraphMono
                 // Add dependencies of all on page load executables set by the user in the graph
                 .flatMap(updatedEdges -> addExplicitUserSetOnLoadExecutablesToGraph(
-                        creatorId,
-                        updatedEdges,
-                        explicitUserSetOnLoadExecutablesRef,
-                        executablesFoundDuringWalkRef,
-                        bindingsFromExecutablesRef,
-                        executableNameToExecutableMapMono,
-                        executableBindingsInDslRef,
-                        evaluatedVersion,
-                        creatorType))
+                                creatorId,
+                                updatedEdges,
+                                explicitUserSetOnLoadExecutablesRef,
+                                executablesFoundDuringWalkRef,
+                                bindingsFromExecutablesRef,
+                                executableNameToExecutableMapMono,
+                                executableBindingsInDslRef,
+                                evaluatedVersion,
+                                creatorType)
+                        .name(ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH)
+                        .tap(Micrometer.observation(observationRegistry)))
                 // For all the executables found so far, recursively walk the dynamic bindings of the executables to
                 // find more relationships with other executables (& widgets)
                 .flatMap(updatedEdges -> recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
@@ -398,7 +410,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     protected Flux<Executable> getAllExecutablesByCreatorIdFlux(String creatorId, CreatorContextType creatorType) {
-        return pageExecutableOnLoadService.getAllExecutablesByCreatorIdFlux(creatorId);
+        return pageExecutableOnLoadService
+                .getAllExecutablesByCreatorIdFlux(creatorId)
+                .name(GET_ALL_EXECUTABLES_BY_CREATOR_ID_FLUX)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -462,7 +477,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      */
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
             Mono<Map<String, Executable>> executableNameToExecutableMapMono, Set<String> bindings, int evalVersion) {
-        return getPossibleEntityReferences(executableNameToExecutableMapMono, bindings, evalVersion, null);
+        return getPossibleEntityReferences(executableNameToExecutableMapMono, bindings, evalVersion, null)
+                .name(GET_POSSIBLE_ENTITY_REFERENCES)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -485,7 +502,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         final int entityTypes = EXECUTABLE_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
 
         return executableNameToExecutableMono
-                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion))
+                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion)
+                        .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
+                        .tap(Micrometer.observation(observationRegistry)))
                 .map(tuple -> {
                     Map<String, Executable> executableMap = tuple.getT1();
                     // For each binding, here we receive a set of possible references to global entities
@@ -600,6 +619,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     bindingsInWidget,
                                     evalVersion,
                                     executableBindingsInDslRef)
+                            .name(GET_POSSIBLE_ENTITY_REFERENCES)
+                            .tap(Micrometer.observation(observationRegistry))
                             .flatMapMany(Flux::fromIterable)
                             // Add dependencies of the executables found in the DSL in the graph
                             // We are ignoring the widget references at this point
@@ -612,6 +633,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     // for on page load
                                     executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
                                     return updateExecutableSelfReferencingPaths(possibleEntity)
+                                            .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
+                                            .tap(Micrometer.observation(observationRegistry))
                                             .flatMap(executable -> extractAndSetExecutableBindingsInGraphEdges(
                                                     possibleEntity,
                                                     edgesRef,
@@ -620,6 +643,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                                     executablesFoundDuringWalkRef,
                                                     null,
                                                     evalVersion))
+                                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDING_IN_GRAPH_MONO)
+                                            .tap(Micrometer.observation(observationRegistry))
                                             .thenReturn(possibleEntity);
                                 }
                                 return Mono.just(possibleEntity);
@@ -886,11 +911,15 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         // First fetch all the executables in the page whose name matches the words found in all the dynamic bindings
         Mono<List<EntityDependencyNode>> findAndAddExecutablesInBindingsMono = getPossibleEntityReferences(
                         executableNameToExecutableMapMono, dynamicBindings, evalVersion)
+                .name(GET_POSSIBLE_ENTITY_REFERENCES)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMapMany(Flux::fromIterable)
                 // Add dependencies of the executables found in the DSL in the graph.
                 .flatMap(possibleEntity -> {
                     if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
                         return updateExecutableSelfReferencingPaths(possibleEntity)
+                                .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .then(extractAndSetExecutableBindingsInGraphEdges(
                                         possibleEntity,
                                         edges,
@@ -899,6 +928,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                         executablesFoundDuringWalk,
                                         null,
                                         evalVersion))
+                                .name(EXTRACT_AND_SET_EXECUTABLE_BINDING_IN_GRAPH_MONO)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .thenReturn(possibleEntity);
                     } else {
                         return Mono.empty();
@@ -945,6 +976,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         // First fetch all the executables which have been tagged as on load by the user explicitly.
         return getUnpublishedOnLoadExecutablesExplicitSetByUserInCreatorContextFlux(creatorId, creatorType)
+                .name(GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT_FLUX)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMap(this::fillSelfReferencingPaths)
                 // Add the vertices and edges to the graph for these executables
                 .flatMap(executable -> {
@@ -963,6 +996,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     executablesFoundDuringWalkRef,
                                     executableBindingsInDsl,
                                     evalVersion)
+                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDING_IN_GRAPH_MONO)
+                            .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(executable);
                 })
                 .collectList()
@@ -1046,6 +1081,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     executableBindingsMap.get(bindingPath),
                                     evalVersion,
                                     bindingsInDsl)
+                            .name(GET_POSSIBLE_ENTITY_REFERENCES)
+                            .tap(Micrometer.observation(observationRegistry))
                             .flatMapMany(Flux::fromIterable)
                             .map(relatedDependencyNode -> {
                                 bindingsFromExecutables.add(relatedDependencyNode.getReferenceString());
@@ -1076,6 +1113,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         return Flux.fromIterable(widgetBindingMap.entrySet())
                 .flatMap(widgetBindingEntries -> getPossibleEntityParentsMap(
                                 widgetBindingEntries.getValue(), entityTypes, evalVersion)
+                        .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
+                        .tap(Micrometer.observation(observationRegistry))
                         .map(possibleParentsMap -> {
                             possibleParentsMap.entrySet().stream().forEach(entry -> {
                                 if (entry.getValue() == null || entry.getValue().isEmpty()) {
