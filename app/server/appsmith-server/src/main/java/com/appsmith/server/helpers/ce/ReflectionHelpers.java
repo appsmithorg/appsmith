@@ -22,35 +22,45 @@ public class ReflectionHelpers {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * Maps a tuple to an object of the given type using the constructor of the type. The order of the tuple should be
-     * the same as the order of the fields in the type constructor.
+     * Maps objects to the given type using the constructor of the type. The order of the objects should be the same as
+     * the order of the fields in the type constructor.
      * @param type          The type of the object to be created
-     * @param tuple         The tuple to be mapped to the object
-     * @param tupleTypes    The types of the tuple elements. If not provided, the types of the fields of the type are used.
+     * @param objects       The objects to be mapped to the type
+     * @param tupleTypes    The types of the objects elements. If not provided, the types of the fields of the type are
+     *                      used.
      *
      * @return      The object of the given type
      * @param <T>   The type of the object to be created
      */
-    private static <T> T map(ArrayList<Object> tuple, Class<T> type, List<Class<?>> tupleTypes) {
+    private static <T> T map(ArrayList<Object> objects, Class<T> type, List<Class<?>> tupleTypes) {
         if (CollectionUtils.isEmpty(tupleTypes)) {
-            tupleTypes = fetchAllFields(type);
+            tupleTypes = fetchAllFieldTypes(type);
         }
         try {
-            // Create a deep copy of the tuple
-            ArrayList<Object> modified = new ArrayList<>(tuple.size());
+            // Create a deep copy of the objects
+            ArrayList<Object> modified = new ArrayList<>(objects.size());
             for (Class<?> tupleType : tupleTypes) {
-                boolean fromProjectionPackage = tupleType.getPackageName().matches(".*appsmith.*projections");
-                // Detect if the tupleType is userDefined
-                if (fromProjectionPackage) {
-                    modified.add(map(tuple, tupleType, null));
+                // In case of Appsmith based projection loop through each field to avoid mapping all the fields from
+                // the entity class
+                // e.g. class EntityClass {
+                //       private String field1;
+                //       private String field2;
+                //     }
+                //     class ProjectionClass {
+                //       private String field1;
+                //     }
+                // In the above example, we only need to map field1 from EntityClass to ProjectionClass. In the objects
+                // we expect only field1 value to be present.
+                if (isAppsmithProjections(tupleType)) {
+                    modified.add(map(objects, tupleType, null));
                 } else {
                     Object value =
-                            tuple.get(0) != null && (isCollectionType(tupleType) || isAppsmithDefinedClass(tupleType))
-                                    ? objectMapper.readValue(tuple.get(0).toString(), tupleType)
-                                    : tuple.get(0);
+                            objects.get(0) != null && (isCollectionType(tupleType) || isAppsmithDefinedClass(tupleType))
+                                    ? objectMapper.readValue(objects.get(0).toString(), tupleType)
+                                    : objects.get(0);
                     modified.add(value);
-                    // Drop the first element from tuple as it has been used
-                    tuple.remove(0);
+                    // Drop the first element from objects as it has been processed
+                    objects.remove(0);
                 }
             }
             Constructor<T> constructor = type.getConstructor(tupleTypes.toArray(new Class<?>[0]));
@@ -60,8 +70,16 @@ public class ReflectionHelpers {
         }
     }
 
-    public static <T> T map(Object[] tuple, Class<T> type) {
-        ArrayList<Object> update = new ArrayList<>(Arrays.asList(tuple));
+    /**
+     * Maps a row from the database to an object of the given type using the constructor of the type.
+     * @param row   The row to be mapped to the object
+     * @param type  The type of the object to be created
+     *
+     * @return    The object of the given type
+     * @param <T>   The type of the object to be created
+     */
+    public static <T> T map(Object[] row, Class<T> type) {
+        ArrayList<Object> update = new ArrayList<>(Arrays.asList(row));
         return map(update, type, null);
     }
 
@@ -75,16 +93,22 @@ public class ReflectionHelpers {
      */
     public static <T> List<T> map(List<Object[]> records, Class<T> clazz) {
         List<T> result = new ArrayList<>();
-        List<Class<?>> tupleTypes = fetchAllFields(clazz);
+        // In case of multiple records avoid fetching the field types for each record
+        List<Class<?>> fieldTypes = fetchAllFieldTypes(clazz);
         for (Object[] record : records) {
             ArrayList<Object> update = new ArrayList<>(Arrays.asList(record));
-            result.add(map(update, clazz, tupleTypes));
+            result.add(map(update, clazz, fieldTypes));
         }
         return result;
     }
 
-    // Method to fetch fields from a class including its superclasses
-    private static List<Class<?>> fetchAllFields(Class<?> clazz) {
+    /**
+     * Fetches all the field types of a class and its superclasses.
+     * @param clazz The class whose field types are to be fetched
+     *
+     * @return  The list of field types
+     */
+    private static List<Class<?>> fetchAllFieldTypes(Class<?> clazz) {
         List<Class<?>> tupleTypes = new ArrayList<>();
 
         // Traverse the class hierarchy to get fields from the class and its superclasses
@@ -102,11 +126,23 @@ public class ReflectionHelpers {
         return tupleTypes;
     }
 
+    /**
+     * Check if the class is a Java container class e.g. List, Set, Map etc.
+     * @param clazz The class to be checked
+     *
+     * @return  True if the class is a container class, false otherwise
+     */
     private static boolean isCollectionType(Class<?> clazz) {
         // Check if the class is a subtype of Collection or Map
         return Collection.class.isAssignableFrom(clazz) || Map.class.isAssignableFrom(clazz);
     }
 
+    /**
+     * Extracts all the field paths along-with the field type of the projection class.
+     * @param projectionClass The projection class whose field paths are to be extracted
+     *
+     * @return  The list of field paths
+     */
     public static List<FieldInfo> extractFieldPaths(Class<?> projectionClass) {
         List<FieldInfo> fieldPaths = new ArrayList<>();
         extractFieldPathsRecursively(projectionClass, "", fieldPaths);

@@ -317,11 +317,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     }
 
                     return Mono.fromSupplier(query::getResultList)
-                            .map(tuple -> {
+                            .map(rows -> {
                                 if (genericDomain.getSimpleName().equals(projectionClass.getSimpleName())) {
-                                    return (List<P>) tuple;
+                                    return (List<P>) rows;
                                 }
-                                return map((List<Object[]>) tuple, projectionClass);
+                                return map((List<Object[]>) rows, projectionClass);
                             })
                             .onErrorResume(NoResultException.class, e -> Mono.just(Collections.emptyList()));
                 })
@@ -379,11 +379,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     }
 
                     return Mono.fromSupplier(entityManager.createQuery(cq)::getSingleResult)
-                            .map(tuple -> {
+                            .map(row -> {
                                 if (genericDomain.getSimpleName().equals(projectionClass.getSimpleName())) {
-                                    return (P) tuple;
+                                    return (P) row;
                                 }
-                                return map((Object[]) tuple, projectionClass);
+                                return map((Object[]) row, projectionClass);
                             })
                             .onErrorResume(NoResultException.class, e -> Mono.empty());
                 })
