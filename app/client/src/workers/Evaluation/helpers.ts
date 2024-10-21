@@ -192,6 +192,7 @@ const getReducedDataTree = (
     acc[key] = {
       __evaluation__: {
         errors: widgetValue.__evaluation__?.errors,
+        rajat: 'agrawal'
       },
     };
 
