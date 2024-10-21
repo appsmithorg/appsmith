@@ -58,20 +58,46 @@ jobs:
       #     name: trivy-vulnerabilities-report
       #     path: trivy_vulnerabilities_diff.txt
 
-      # Mark the Cypress response as stale and save vulnerability data
-      - name: Mark the Cypress response to be stale and save vulnerability data
-        uses: actions/github-script@v7
+      - name: Fetch vulnerability data
+        if: needs.ci-test.result != 'success'
+        id: vulnerability_data
         env:
-          NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}  # Ensure this secret is in your GitHub repo settings
-          BODY: |
-            Tests have not run on the HEAD ${{ github.event.pull_request.head.sha }} yet
+          DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+        uses: actions/github-script@v7
         with:
           script: |
-            require("${{ github.workspace }}/app/client/cypress/scripts/check-vulnerability.js")({core, context, github}, "warning", process.env.BODY)
-              # Print vulnerability data file
-              - name: Print vulnerability data file
-                run: cat ./vulnerability_data.json
+            const { Pool } = require("pg");
+            const { DB_HOST, DB_NAME, DB_USER, DB_PWD } = process.env;
+
+            const pool = new Pool({
+              user: DB_USER,
+              host: DB_HOST,
+              database: DB_NAME,
+              password: DB_PWD,
+              port: 5432,
+              connectionTimeoutMillis: 60000,
+            });
+
+            async function fetchVulnerabilityData() {
+              const client = await pool.connect();
+              try {
+                const result = await client.query('SELECT * FROM vulnerability_tracking');
+                console.log('Vulnerability Data:', result.rows); // Print data to the GitHub Actions log
+                return result.rows; // Return only the rows
+              } catch (err) {
+                console.error('Error fetching vulnerability data:', err);
+              } finally {
+                client.release();
+              }
+            }
+
+            (async () => {
+              const vulnerabilities = await fetchVulnerabilityData();
+              return vulnerabilities; // Return fetched vulnerabilities
+            })();
 
       # # Create a PR comment with vulnerabilities report
       # - name: Create PR comment with vulnerabilities report
