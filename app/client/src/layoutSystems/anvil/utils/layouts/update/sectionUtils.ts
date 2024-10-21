@@ -19,7 +19,7 @@ import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/a
 export function* createSectionAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,
   highlight: AnvilHighlightInfo,
-  widgets: WidgetLayoutProps[],
+  draggedWidgets: WidgetLayoutProps[],
   parentId: string,
 ) {
   /**
@@ -48,7 +48,7 @@ export function* createSectionAndAddWidget(
     yield call(
       addWidgetsToSection,
       updatedWidgets,
-      widgets,
+      draggedWidgets,
       highlight,
       sectionProps,
     );
