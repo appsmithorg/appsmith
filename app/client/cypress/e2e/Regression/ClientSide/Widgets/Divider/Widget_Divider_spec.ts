@@ -13,7 +13,7 @@ import EditorNavigation, {
 
 describe(
   "Divider Widget functionality tests",
-  { tags: ["@tag.Widget", "@tag.Divider"] },
+  { tags: ["@tag.Widget", "@tag.Divider", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.DIVIDER, 200, 200);

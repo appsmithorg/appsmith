@@ -5,7 +5,7 @@ import EditorNavigation, {
 
 describe(
   "Divider Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Divider"] },
+  { tags: ["@tag.Widget", "@tag.Divider", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("DividerDsl");

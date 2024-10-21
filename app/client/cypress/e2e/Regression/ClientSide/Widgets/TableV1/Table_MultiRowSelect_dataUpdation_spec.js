@@ -17,7 +17,7 @@ if the primary column value isn't updated.
 */
 describe(
   "Table Widget row multi select validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("multiSelectedRowUpdationDsl");

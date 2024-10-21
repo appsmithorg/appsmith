@@ -92,7 +92,7 @@ function removeCustomField() {
 
 describe(
   "JSON Form Hidden fields",
-  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("jsonFormDslWithSchema");

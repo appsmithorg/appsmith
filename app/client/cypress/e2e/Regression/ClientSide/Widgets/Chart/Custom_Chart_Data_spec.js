@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Chart Widget Functionality around custom chart data",
-  { tags: ["@tag.Widget", "@tag.Chart"] },
+  { tags: ["@tag.Widget", "@tag.Chart", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("chartCustomDataDsl");

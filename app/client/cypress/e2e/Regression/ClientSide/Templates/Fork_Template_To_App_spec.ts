@@ -10,7 +10,15 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Fork a template to the current app",
-  { tags: ["@tag.Templates", "@tag.excludeForAirgap"] },
+  {
+    tags: [
+      "@tag.Templates",
+      "@tag.excludeForAirgap",
+      "@tag.Git",
+      "@tag.ImportExport",
+      "@tag.Fork",
+    ],
+  },
   () => {
     it("1. Fork a template to the current app + Bug 17477", () => {
       PageList.AddNewPage("Add page from template");

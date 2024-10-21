@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "MultiSelect Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Multiselect", "@tag.Sanity"] },
+  { tags: ["@tag.Widget", "@tag.Multiselect", "@tag.Sanity", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

@@ -1,16 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  Link,
-  Popover,
-  PopoverBody,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTrigger,
-  ToggleButton,
-} from "@appsmith/ads";
+import { Link } from "@appsmith/ads";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { usePluginActionContext } from "../../PluginActionContext";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import {
   API_EDITOR_TAB_TITLES,
   createMessage,
@@ -23,15 +15,12 @@ import {
 } from "../../store";
 import { THEME } from "../../constants/PluginActionConstants";
 import { type DocsLink, openDoc } from "constants/DocumentationLinks";
+import { ToolbarSettingsPopover } from "IDE";
 
 export interface SettingsProps {
   formName: string;
   docsLink?: DocsLink;
 }
-
-const Variables = css`
-  --popover-width: 280px;
-`;
 
 /* TODO: Remove this after removing custom width from server side (Ankita) */
 const SettingsWrapper = styled.div`
@@ -48,14 +37,6 @@ const SettingsWrapper = styled.div`
   }
 `;
 
-const StyledPopoverHeader = styled(PopoverHeader)`
-  margin-bottom: var(--ads-v2-spaces-5);
-`;
-
-const StyledPopoverContent = styled(PopoverContent)`
-  ${Variables};
-`;
-
 const LearnMoreLink = styled(Link)`
   span {
     font-weight: bold;
@@ -68,12 +49,6 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (openSettings) {
-      handleOpenChange(true);
-    }
-  }, [openSettings]);
-
   const handleOpenChange = useCallback(
     (open: boolean) => {
       setIsOpen(open);
@@ -82,60 +57,46 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
         dispatch(openPluginActionSettings(false));
       }
     },
-    [openSettings],
+    [dispatch, openSettings],
   );
 
-  const handleEscapeKeyDown = () => {
-    handleOpenChange(false);
-  };
+  useEffect(
+    function syncOpenState() {
+      if (openSettings) {
+        handleOpenChange(true);
+      }
+    },
+    [handleOpenChange, openSettings],
+  );
 
-  const handleButtonClick = () => {
-    handleOpenChange(true);
-  };
-
-  const handleLearnMoreClick = () => {
+  const handleLearnMoreClick = useCallback(() => {
     openDoc(props.docsLink as DocsLink);
-  };
+  }, [props.docsLink]);
 
   return (
-    <Popover onOpenChange={handleOpenChange} open={isOpen}>
-      <PopoverTrigger>
-        <ToggleButton
-          icon="settings-2-line"
-          isSelected={isOpen}
-          onClick={handleButtonClick}
-          size="md"
+    <ToolbarSettingsPopover
+      handleOpenChange={handleOpenChange}
+      isOpen={isOpen}
+      title={createMessage(API_EDITOR_TAB_TITLES.SETTINGS)}
+    >
+      <SettingsWrapper>
+        <ActionSettings
+          actionSettingsConfig={settingsConfig}
+          formName={props.formName}
+          theme={THEME}
         />
-      </PopoverTrigger>
-      <StyledPopoverContent
-        align="end"
-        onEscapeKeyDown={handleEscapeKeyDown}
-        size="sm"
-      >
-        <StyledPopoverHeader isClosable>
-          {createMessage(API_EDITOR_TAB_TITLES.SETTINGS)}
-        </StyledPopoverHeader>
-        <PopoverBody>
-          <SettingsWrapper>
-            <ActionSettings
-              actionSettingsConfig={settingsConfig}
-              formName={props.formName}
-              theme={THEME}
-            />
-            {props.docsLink && (
-              <LearnMoreLink
-                className="t--action-settings-documentation-link"
-                endIcon="share-box-line"
-                kind="secondary"
-                onClick={handleLearnMoreClick}
-              >
-                {createMessage(LEARN_MORE)}
-              </LearnMoreLink>
-            )}
-          </SettingsWrapper>
-        </PopoverBody>
-      </StyledPopoverContent>
-    </Popover>
+        {props.docsLink && (
+          <LearnMoreLink
+            className="t--action-settings-documentation-link"
+            endIcon="share-box-line"
+            kind="secondary"
+            onClick={handleLearnMoreClick}
+          >
+            {createMessage(LEARN_MORE)}
+          </LearnMoreLink>
+        )}
+      </SettingsWrapper>
+    </ToolbarSettingsPopover>
   );
 };
 
