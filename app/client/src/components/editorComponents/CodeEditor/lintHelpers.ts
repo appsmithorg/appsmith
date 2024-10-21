@@ -15,6 +15,7 @@ import {
   INVALID_JSOBJECT_START_STATEMENT,
   INVALID_JSOBJECT_START_STATEMENT_ERROR_CODE,
 } from "plugins/Linting/constants";
+
 export const getIndexOfRegex = (
   str: string,
   regex: RegExp,
@@ -137,6 +138,7 @@ export const getLintAnnotations = (
       line,
       originalBinding,
       severity,
+      variableLength,
       variables,
     } = error;
 
@@ -157,16 +159,18 @@ export const getLintAnnotations = (
       });
     }
 
-    let variableLength = 1;
+    let calculatedVariableLength = 1;
 
     // Find the variable with minimal length
-    if (variables) {
+    if (variableLength && variableLength > 0) {
+      calculatedVariableLength = variableLength;
+    } else if (variables) {
       for (const variable of variables) {
         if (variable) {
-          variableLength =
-            variableLength === 1
+          calculatedVariableLength =
+            calculatedVariableLength === 1
               ? String(variable).length
-              : Math.min(String(variable).length, variableLength);
+              : Math.min(String(variable).length, calculatedVariableLength);
         }
       }
     }
@@ -205,7 +209,7 @@ export const getLintAnnotations = (
         };
         const to = {
           line: from.line,
-          ch: from.ch + variableLength,
+          ch: from.ch + calculatedVariableLength,
         };
 
         annotations.push({

@@ -69,6 +69,7 @@ export interface getLintingErrorsProps {
     isJsObject: boolean;
   };
   webworkerTelemetry: Record<string, WebworkerTelemetryAttribute>;
+  linterVersion?: number;
 }
 
 export interface getLintErrorsFromTreeProps {
