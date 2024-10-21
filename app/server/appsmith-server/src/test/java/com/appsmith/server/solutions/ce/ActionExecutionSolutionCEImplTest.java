@@ -53,7 +53,6 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.codec.xml.Jaxb2XmlDecoder;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyExtractors;
 import reactor.core.publisher.Flux;
@@ -79,7 +78,6 @@ import static org.mockito.Mockito.spy;
 
 @ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class ActionExecutionSolutionCEImplTest {
 
     ActionExecutionSolutionCEImpl actionExecutionSolution;

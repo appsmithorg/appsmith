@@ -38,7 +38,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
@@ -48,7 +47,6 @@ import java.io.IOException;
 import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(AfterAllCleanUpExtension.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest
 @AutoConfigureWebTestClient
 @EnableAutoConfiguration(exclude = ReactiveMultipartAutoConfiguration.class)
