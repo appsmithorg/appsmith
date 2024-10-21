@@ -31,32 +31,17 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}    
 
       # Run Scout vulnerability data script
-      - name: Run Scout vulnerability data script
-        if: always()
-        run: |
-          chmod +x scripts/scout_vulnerabilities_data.sh
-          ./scripts/scout_vulnerabilities_data.sh "${{ inputs.image_name }}" "${{ inputs.old_vuln_file }}"
-
-      - name: Upload installation log
-        if: always()  # Only run if the previous step failed
-        run: |
-            if [ -f install_scout_log.txt ]; then
-              echo "Uploading Docker Scout installation log..."
-              mkdir -p logs
-              mv install_scout_log.txt logs/
-            fi
+      # - name: Run Scout vulnerability data script
+      #   if: always()
+      #   run: |
+      #     chmod +x scripts/scout_vulnerabilities_data.sh
+      #     ./scripts/scout_vulnerabilities_data.sh "${{ inputs.image_name }}" "${{ inputs.old_vuln_file }}"
   
-      - name: Upload Vulnerabilities Log
-        uses: actions/upload-artifact@v3
-        with:
-            name: install-scout-log
-            path: logs/install_scout_log.txt
-  
-      - name: Upload Vulnerabilities Scan Results
-        uses: actions/upload-artifact@v3
-        with:
-            name: vulnerabilities-scan-results
-            path: scout_vulnerabilities_new.txt
+      # - name: Upload Vulnerabilities Scan Results
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #       name: vulnerabilities-scan-results
+      #       path: scout_vulnerabilities_new.txt
 
       # # Run Trivy vulnerability data script
       # - name: Run Trivy vulnerability data script
