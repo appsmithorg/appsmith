@@ -51,7 +51,7 @@ describe(
       });
       cy.wait(200);
       cy.get(apiwidget.propertyList).then(function ($lis) {
-        expect($lis).to.have.length(22);
+        expect($lis).to.have.length(23);
         expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");
         expect($lis.eq(1)).to.contain("{{Table1Copy.selectedRows}}");
       });
@@ -68,7 +68,7 @@ describe(
       });
       cy.wait(200);
       cy.get(apiwidget.propertyList).then(function ($lis) {
-        expect($lis).to.have.length(23);
+        expect($lis).to.have.length(24);
         expect($lis.last()).to.contain("{{Table1Copy.filters}}");
       });
     });
