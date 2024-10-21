@@ -2,6 +2,7 @@
 
 # Define the maximum number of retries
 MAX_RETRIES=3
+RETRY_DELAY=10  # Wait time in seconds before retrying
 
 # Function to install Trivy with retry logic
 install_trivy_with_retry() {
@@ -11,30 +12,24 @@ install_trivy_with_retry() {
     while [[ $count -lt $MAX_RETRIES ]]; do
         echo "Attempting to install Trivy (attempt $((count + 1)))..."
         
-        # Fetch the latest release dynamically instead of hardcoding
         TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
         TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_"$TRIVY_VERSION"_Linux-64bit.tar.gz"
         
-        # Download and extract Trivy
         curl -sfL "$TRIVY_URL" | tar -xzf - trivy
         
-        # Check if extraction was successful
         if [[ $? -eq 0 ]]; then
-            # Create a local bin directory if it doesn't exist
             mkdir -p "$HOME/bin"
-            # Move Trivy to the local bin directory
             mv trivy "$HOME/bin/"
-            # Manually add the bin directory to PATH for this session
             export PATH="$HOME/bin:$PATH"
 
-            # Check if Trivy is successfully installed
             if command -v trivy &> /dev/null; then
                 success=true
                 break
             fi
         fi
         
-        echo "Trivy installation failed. Retrying..."
+        echo "Trivy installation failed. Retrying in $RETRY_DELAY seconds..."
+        sleep $RETRY_DELAY
         count=$((count + 1))
     done
 
@@ -69,16 +64,37 @@ if [ ! -f "$OLD_VULN_FILE" ]; then
     touch "$OLD_VULN_FILE"
 fi
 
-# Run the Trivy scan and output to JSON file
-echo "Running Trivy scan for image: $IMAGE..."
-if ! trivy image --format json "$IMAGE" > "$JSON_OUTPUT_FILE"; then
-    echo "Error: Trivy is not available or the image does not exist."
-    exit 1
-fi
+# Function to run the Trivy scan with retry logic for vulnerability DB updates
+run_trivy_scan_with_retry() {
+    local count=0
+    local success=false
+
+    while [[ $count -lt $MAX_RETRIES ]]; do
+        echo "Running Trivy scan for image: $IMAGE (attempt $((count + 1)))..."
+        
+        if trivy image --format json "$IMAGE" > "$JSON_OUTPUT_FILE"; then
+            success=true
+            break
+        else
+            echo "Error: Failed to run Trivy scan. Retrying in $RETRY_DELAY seconds..."
+            sleep $RETRY_DELAY
+        fi
+        count=$((count + 1))
+    done
+
+    if [[ $success = false ]]; then
+        echo "Error: Trivy scan failed after $MAX_RETRIES attempts."
+        exit 1
+    fi
+
+    echo "Trivy scan completed successfully."
+}
+
+# Run the Trivy scan
+run_trivy_scan_with_retry
 
 # Check if there are any vulnerabilities in the scan
 if jq -e '.Results | length > 0' "$JSON_OUTPUT_FILE" > /dev/null; then
-    # Extract vulnerabilities into the new vulnerabilities file
     jq -r '.Results[].Vulnerabilities[] | "\(.Severity) \(.VulnerabilityID)"' "$JSON_OUTPUT_FILE" | \
     sed 's/^\s*//;s/\s*$//' | \
     awk '{if ($1 == "") {print "UNSPECIFIED " $2} else {print}}' | \
