@@ -77,6 +77,7 @@ import type { Page } from "entities/Page";
 import { IDEHeader, IDEHeaderTitle } from "IDE";
 import { APPLICATIONS_URL } from "constants/routes";
 import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
+import useLibraryHeaderTitle from "ee/pages/Editor/IDE/Header/useLibraryHeaderTitle";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -92,6 +93,8 @@ interface HeaderTitleProps {
 }
 
 const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
+  const libraryHeaderTitle = useLibraryHeaderTitle();
+
   switch (appState) {
     case EditorState.DATA:
       return (
@@ -110,12 +113,7 @@ const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
         />
       );
     case EditorState.LIBRARIES:
-      return (
-        <IDEHeaderTitle
-          key={appState}
-          title={createMessage(HEADER_TITLES.LIBRARIES)}
-        />
-      );
+      return <IDEHeaderTitle key={appState} title={libraryHeaderTitle} />;
     default:
       return <EditorTitle key={appState} title={currentPage?.pageName || ""} />;
   }
