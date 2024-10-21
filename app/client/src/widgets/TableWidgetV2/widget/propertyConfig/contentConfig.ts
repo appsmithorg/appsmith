@@ -7,7 +7,10 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING } from "../../constants";
+import {
+  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
+  CUSTOM_LOADING_STATE_ENABLED,
+} from "../../constants";
 import { InlineEditingSaveOptions } from "widgets/TableWidgetV2/constants";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import {
@@ -494,12 +497,34 @@ export default [
         propertyName: "animateLoading",
         label: "Animate loading",
         controlType: "SWITCH",
-        helpText: "Controls the loading of the widget",
+        helpText: "Controls the animation loading of the widget",
         defaultValue: true,
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
+        propertyName: "customIsLoading",
+        label: `Custom loading state`,
+        controlType: "SWITCH",
+        helpText: "Defines a custom value for the loading state",
+        defaultValue: false,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: () => !Widget.getFeatureFlag(CUSTOM_LOADING_STATE_ENABLED),
+      },
+      {
+        propertyName: "customIsLoadingValue",
+        label: "isLoading value",
+        controlType: "INPUT_TEXT",
+        defaultValue: "",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (props: TableWidgetProps) => !props.customIsLoading,
+        dependencies: ["customIsLoading"],
       },
       {
         propertyName: "isVisibleDownload",

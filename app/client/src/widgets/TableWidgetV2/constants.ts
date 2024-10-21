@@ -109,6 +109,8 @@ export interface TableWidgetProps
   firstEditableColumnIdByOrder: string;
   enableServerSideFiltering: boolean;
   onTableFilterUpdate: string;
+  customIsLoading: boolean;
+  customIsLoadingValue: boolean;
 }
 
 export enum TableVariantTypes {
@@ -237,3 +239,6 @@ export const DEFAULT_COLUMN_NAME = "Table Column";
 
 export const ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING =
   FEATURE_FLAG["release_table_serverside_filtering_enabled"];
+
+export const CUSTOM_LOADING_STATE_ENABLED =
+  FEATURE_FLAG["release_table_custom_loading_state_enabled"];
