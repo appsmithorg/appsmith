@@ -63,7 +63,7 @@ jobs:
         uses: actions/github-script@v7
         env:
           NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}  # Make sure to add this secret in your GitHub repo settings
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}  # Ensure this secret is in your GitHub repo settings
           BODY: |
             Tests have not run on the HEAD ${{ github.event.pull_request.head.sha }} yet
         with:
