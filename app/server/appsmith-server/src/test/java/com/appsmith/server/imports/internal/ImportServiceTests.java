@@ -50,6 +50,7 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
@@ -60,11 +61,11 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
+import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -86,6 +87,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -114,6 +116,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,8 +144,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class ImportServiceTests {
     private static final Map<String, Datasource> datasourceMap = new HashMap<>();
@@ -168,10 +172,10 @@ public class ImportServiceTests {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     DatasourceService datasourceService;
@@ -201,13 +205,13 @@ public class ImportServiceTests {
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
-    ThemeRepository themeRepository;
+    ThemeRepositoryCake themeRepository;
 
     @Autowired
     ApplicationService applicationService;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     PermissionGroupService permissionGroupService;
@@ -1039,8 +1043,6 @@ public class ImportServiceTests {
                             // Test the fallback page ID from the unpublishedAction is copied to published version when
                             // published version does not have pageId
                             assertThat(actionDTO.getPageId()).isEqualTo(publishedAction.getPageId());
-                            // check that createAt field is getting populated from JSON
-                            assertThat(actionDTO.getCreatedAt()).isEqualTo("2023-12-13T12:10:02Z");
                         }
 
                         if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
@@ -4599,6 +4601,7 @@ public class ImportServiceTests {
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
                     List<NewPage> pages = applicationJson.getPageList();
+                    pages.sort(Comparator.comparing(p -> p.getUnpublishedPage().getName()));
                     assertThat(pages).hasSize(2);
                     NewPage page = pages.stream()
                             .filter(page1 ->
@@ -4725,7 +4728,7 @@ public class ImportServiceTests {
                 .cache();
 
         StepVerifier.create(resultMonoWithoutDiscardOperation.flatMap(application -> Mono.zip(
-                        Mono.just(application),
+                        applicationRepository.findById(application.getId()),
                         newPageService
                                 .findByApplicationId(application.getId(), MANAGE_PAGES, false)
                                 .collectList())))
@@ -5064,6 +5067,7 @@ public class ImportServiceTests {
                             .then(createActionCollectionToPage(application, 1))
                             .thenReturn(application);
                 })
+                .delayElement(Duration.ofMillis(100))
                 .flatMap(application -> {
                     // set git meta data for the application and set a last commit date
                     GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();

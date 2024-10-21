@@ -7,6 +7,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.CollectionRepository;
+import com.appsmith.server.repositories.cakes.CollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;
@@ -18,12 +19,16 @@ import java.util.List;
 import java.util.ListIterator;
 
 @Slf4j
-public class CollectionServiceCEImpl extends BaseService<CollectionRepository, Collection, String>
+public class CollectionServiceCEImpl
+        extends BaseService<CollectionRepository, CollectionRepositoryCake, Collection, String>
         implements CollectionServiceCE {
 
     public CollectionServiceCEImpl(
-            Validator validator, CollectionRepository repository, AnalyticsService analyticsService) {
-        super(validator, repository, analyticsService);
+            Validator validator,
+            CollectionRepository repositoryDirect,
+            CollectionRepositoryCake repository,
+            AnalyticsService analyticsService) {
+        super(validator, repositoryDirect, repository, analyticsService);
     }
 
     @Override
@@ -70,7 +75,7 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
                 .map(collection -> {
                     log.debug("Action {} added to Collection {}", action.getId(), collection.getId());
                     return action;
-                });
+                }); // */
     }
 
     @Override
@@ -108,6 +113,6 @@ public class CollectionServiceCEImpl extends BaseService<CollectionRepository, C
                     log.debug("Action {} removed from Collection {}", action.getId(), collection.getId());
                     return repository.save(collection);
                 })
-                .then(actionMono);
+                .then(actionMono); // */
     }
 }
