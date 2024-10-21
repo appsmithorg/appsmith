@@ -12,6 +12,7 @@ function TableHeader(props: ActionsPropsType & BannerPropType) {
     disabledAddNewRowSave,
     isAddRowInProgress,
     onAddNewRowAction,
+    enableClientSideSearch,
     ...ActionProps
   } = props;
 
@@ -26,6 +27,7 @@ function TableHeader(props: ActionsPropsType & BannerPropType) {
     />
   ) : (
     <Actions
+      enableClientSideSearch={enableClientSideSearch}
       accentColor={accentColor}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
