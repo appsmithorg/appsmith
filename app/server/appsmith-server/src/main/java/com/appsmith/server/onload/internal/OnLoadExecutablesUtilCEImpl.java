@@ -14,16 +14,20 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -43,6 +47,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.LayoutSpan.ADD_WIDGET_RELATIONSHIP_TO_GRAPH;
+import static com.appsmith.external.constants.spans.LayoutSpan.COMPUTE_ON_PAGE_LOAD_EXECUTABLES_SCHEDULING_ORDER;
+import static com.appsmith.external.constants.spans.LayoutSpan.EXTACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES;
+import static com.appsmith.external.constants.spans.LayoutSpan.FILTER_AND_TRANSFORM_SCHEDULING_ORDER_TO_DTO;
+import static com.appsmith.external.constants.spans.LayoutSpan.RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS;
 import static com.appsmith.external.helpers.MustacheHelper.EXECUTABLE_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.WIDGET_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.getPossibleParents;
@@ -71,6 +80,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     // TODO : This should contain all the static global variables present on the page like `appsmith`, etc.
     // TODO : Add all the global variables exposed on the client side.
     private final Set<String> APPSMITH_GLOBAL_VARIABLES = Set.of();
+    private final ObservationRegistry observationRegistry;
+    private final ObservationHelperImpl observationHelper;
 
     /**
      * This function computes the sequenced on page load executables.
@@ -174,11 +185,15 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                         bindingsFromExecutablesRef,
                         executableNameToExecutableMapMono,
                         evaluatedVersion))
+                .name(RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS)
+                .tap(Micrometer.observation(observationRegistry))
                 // At last, add all the widget relationships to the graph as well.
                 .zipWith(executablesInCreatorContextMono)
                 .flatMap(tuple -> {
                     Set<ExecutableDependencyEdge> updatedEdges = tuple.getT1();
-                    return addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap, evaluatedVersion);
+                    return addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap, evaluatedVersion)
+                            .name(ADD_WIDGET_RELATIONSHIP_TO_GRAPH)
+                            .tap(Micrometer.observation(observationRegistry));
                 });
 
         // Create a graph given edges
@@ -198,11 +213,20 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     Map<String, Executable> executableNameToExecutableMap = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
 
-                    return computeOnPageLoadExecutablesSchedulingOrder(
+                    Span computeOnPageLoadExecutablesSchedulingOrderSpan =
+                            observationHelper.createSpan(COMPUTE_ON_PAGE_LOAD_EXECUTABLES_SCHEDULING_ORDER);
+
+                    observationHelper.startSpan(computeOnPageLoadExecutablesSchedulingOrderSpan, true);
+
+                    List<Set<String>> executablesList = computeOnPageLoadExecutablesSchedulingOrder(
                             graph,
                             onLoadExecutableSetRef,
                             executableNameToExecutableMap,
                             explicitUserSetOnLoadExecutablesRef);
+
+                    observationHelper.endSpan(computeOnPageLoadExecutablesSchedulingOrderSpan, true);
+
+                    return executablesList;
                 })
                 .map(onPageLoadExecutablesSchedulingOrder -> {
                     // Find all explicitly turned on executables which haven't found their way into the scheduling order
@@ -237,6 +261,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                 onLoadExecutableSetRef,
                                 executableNameToExecutableMapMono,
                                 computeOnPageLoadScheduleNamesMono)
+                        .name(FILTER_AND_TRANSFORM_SCHEDULING_ORDER_TO_DTO)
+                        .tap(Micrometer.observation(observationRegistry))
                         .cache();
 
         // With the final on page load scheduling order, also set the on page load executables which would be updated
@@ -620,6 +646,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                                     executablesFoundDuringWalkRef,
                                                     null,
                                                     evalVersion))
+                                            .name(EXTACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                                            .tap(Micrometer.observation(observationRegistry))
                                             .thenReturn(possibleEntity);
                                 }
                                 return Mono.just(possibleEntity);
@@ -899,6 +927,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                         executablesFoundDuringWalk,
                                         null,
                                         evalVersion))
+                                .name(EXTACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .thenReturn(possibleEntity);
                     } else {
                         return Mono.empty();
@@ -910,7 +940,13 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             // Now that the next set of bindings have been found, find recursively all executables by these names
             // and their bindings
             return recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
-                    edges, executablesFoundDuringWalk, newBindings, executableNameToExecutableMapMono, evalVersion);
+                            edges,
+                            executablesFoundDuringWalk,
+                            newBindings,
+                            executableNameToExecutableMapMono,
+                            evalVersion)
+                    .name(RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS)
+                    .tap(Micrometer.observation(observationRegistry));
         });
     }
 
@@ -963,6 +999,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     executablesFoundDuringWalkRef,
                                     executableBindingsInDsl,
                                     evalVersion)
+                            .name(EXTACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                            .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(executable);
                 })
                 .collectList()
