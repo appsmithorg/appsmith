@@ -1,0 +1,9 @@
+{
+    "name": "@appsmith/git",
+    "private": true,
+    "version": "1.0.0",
+    "main": "src/index.ts",
+    "dependencies": {
+        "@reduxjs/toolkit": "^2.3.0"
+    }
+}
