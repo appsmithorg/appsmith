@@ -58,6 +58,10 @@ jobs:
       #     name: trivy-vulnerabilities-report
       #     path: trivy_vulnerabilities_diff.txt
 
+
+      - name: Install pg
+        run: npm install pg
+
       - name: Fetch vulnerability data
         id: vulnerability_data
         env:
