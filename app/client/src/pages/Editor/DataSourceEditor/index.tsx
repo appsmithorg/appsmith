@@ -162,7 +162,6 @@ type Props = ReduxStateProps &
   }>;
 
 export const DSEditorWrapper = styled.div`
-  height: calc(100vh - ${(props) => props.theme.headerHeight});
   overflow: hidden;
   display: flex;
   flex-direction: row;

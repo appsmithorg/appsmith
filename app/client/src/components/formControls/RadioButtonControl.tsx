@@ -62,7 +62,6 @@ function renderComponent(props: renderComponentProps) {
     </StyledRadioGroup>
   );
 }
-
 export interface RadioButtonControlProps extends ControlProps {
   options: SelectOptionProps[];
 }
