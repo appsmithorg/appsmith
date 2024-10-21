@@ -1,7 +1,7 @@
 import type { AppState } from "ee/reducers";
 import { createSelector } from "reselect";
 
-import { POST_BODY_FORM_DATA_KEY } from "../constants";
+import { POST_BODY_FORM_DATA_KEY } from "./constants";
 
 export const getActionEditorSavingMap = (state: AppState) =>
   state.ui.pluginActionEditor.isSaving;
@@ -59,3 +59,6 @@ export const getPluginActionDebuggerState = (state: AppState) =>
 
 export const isPluginActionCreating = (state: AppState) =>
   state.ui.pluginActionEditor.isCreating;
+
+export const isPluginActionSettingsOpen = (state: AppState) =>
+  state.ui.pluginActionEditor.settingsOpen;

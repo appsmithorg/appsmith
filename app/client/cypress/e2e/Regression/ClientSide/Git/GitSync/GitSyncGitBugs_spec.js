@@ -27,7 +27,19 @@ let repoName;
 
 describe(
   "Git sync Bug #10773",
-  { tags: ["@tag.Git", "@tag.Sanity"] },
+  {
+    tags: [
+      "@tag.Git",
+      "@tag.Sanity",
+      "@tag.AccessControl",
+      "@tag.Workflows",
+      "@tag.Module",
+      "@tag.Theme",
+      "@tag.JS",
+      "@tag.Container",
+      "@tag.ImportExport",
+    ],
+  },
   function () {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

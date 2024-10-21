@@ -3,7 +3,7 @@ import formControls from "../../../../locators/FormControl.json";
 
 describe(
   "Ensures evaluated popup is viewable when dynamic bindings are present and draggable",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     it("shows evaluated pop up is visible and draggable", () => {
       _.dataSources.CreateDataSource("Mongo", true, true);

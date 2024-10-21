@@ -9,7 +9,9 @@ let targetWorkspaceId: string;
 
 describe(
   "Fork application with multiple datasources",
-  { tags: ["@tag.Fork"] },
+  {
+    tags: ["@tag.Fork", "@tag.Datasource", "@tag.Git", "@tag.Table", "@tag.JS"],
+  },
   function () {
     it("1. Bug Id: 24708  - fork and test the forked application", function () {
       // Create a new workspace and fork application

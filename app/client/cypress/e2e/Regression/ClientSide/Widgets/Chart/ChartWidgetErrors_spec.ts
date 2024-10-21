@@ -7,7 +7,7 @@ import {
 
 describe(
   "Chart renders widget errors",
-  { tags: ["@tag.Widget", "@tag.Chart"] },
+  { tags: ["@tag.Widget", "@tag.Chart", "@tag.Binding"] },
   () => {
     it("1. If there are syntax errors, the errors are displayed inside the chart widget", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.CHART);

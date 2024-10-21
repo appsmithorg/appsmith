@@ -8,7 +8,7 @@ import { agHelper } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Moustache test Functionality",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     beforeEach(() => {
       agHelper.AddDsl("commondsl");

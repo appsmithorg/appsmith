@@ -16,7 +16,7 @@ import EditorNavigation, {
 
 describe(
   "Video widget tests",
-  { tags: ["@tag.Widget", "@tag.Video"] },
+  { tags: ["@tag.Widget", "@tag.Video", "@tag.Binding"] },
   function () {
     before(() => {
       homePage.NavigateToHome();

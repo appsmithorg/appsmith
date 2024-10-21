@@ -12,7 +12,21 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "General checks for app navigation with Git",
-  { tags: ["@tag.IDE", "@tag.Git", "@tag.Sanity"] },
+  {
+    tags: [
+      "@tag.IDE",
+      "@tag.Git",
+      "@tag.Sanity",
+      "@tag.AccessControl",
+      "@tag.Workflows",
+      "@tag.Module",
+      "@tag.Theme",
+      "@tag.JS",
+      "@tag.Container",
+      "@tag.ImportExport",
+      "@tag.PropertyPane",
+    ],
+  },
   function () {
     it("Issue #32050 - Branch parameter should not be removed when navigating from the inline nav more dropdown", () => {
       gitSync.CreateNConnectToGit();

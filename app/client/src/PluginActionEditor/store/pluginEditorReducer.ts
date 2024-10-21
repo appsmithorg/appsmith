@@ -5,7 +5,7 @@ import {
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "../components/PluginActionResponse/constants";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import type { ActionResponse } from "api/ActionAPI";
 import { omit, set } from "lodash";
@@ -28,6 +28,7 @@ export interface PluginActionEditorState {
   selectedConfigTab?: string;
   formData: Record<string, Record<string, { label: string; value: string }>>;
   debugger: PluginEditorDebuggerState;
+  settingsOpen?: boolean;
 }
 
 const initialState: PluginActionEditorState = {
@@ -42,6 +43,7 @@ const initialState: PluginActionEditorState = {
     open: false,
     responseTabHeight: ActionExecutionResizerHeight,
   },
+  settingsOpen: false,
 };
 
 export const handlers = {
@@ -169,6 +171,14 @@ export const handlers = {
   },
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: PluginActionEditorState) => {
     state.isSaving = {};
+  },
+  [ReduxActionTypes.OPEN_PLUGIN_ACTION_SETTINGS]: (
+    state: PluginActionEditorState,
+    action: ReduxAction<{ settingsOpen: boolean }>,
+  ) => {
+    const { settingsOpen } = action.payload;
+
+    state.settingsOpen = settingsOpen;
   },
 };
 

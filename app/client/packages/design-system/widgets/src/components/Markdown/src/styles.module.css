@@ -74,26 +74,23 @@
     margin-bottom: var(--inner-spacing-1);
   }
 
-  [data-component="p"] {
-    margin-bottom: var(--inner-spacing-4);
-  }
-
   /* Lists */
   :is(ul, ol) {
     margin-top: var(--inner-spacing-2);
-    margin-bottom: var(--inner-spacing-4);
+    margin-bottom: var(--inner-spacing-3);
     padding-left: 0;
+    list-style: initial;
   }
 
   li {
     margin-bottom: var(--inner-spacing-2);
     margin-left: 1em;
     position: relative;
+    list-style-type: auto;
   }
 
-  [data-component="a"]:before,
-  [data-component="a"]:after {
-    content: none;
+  a {
+    display: inline-block;
   }
 
   [data-component="code"] {

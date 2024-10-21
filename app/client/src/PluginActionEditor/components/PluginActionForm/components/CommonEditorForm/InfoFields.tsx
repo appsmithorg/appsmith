@@ -2,7 +2,7 @@ import React from "react";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { replayHighlightClass } from "globalStyles/portals";
-import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
+import EmbeddedDatasourcePathField from "./components/EmbeddedDatasourcePathField";
 import styled from "styled-components";
 import { Flex } from "@appsmith/ads";
 

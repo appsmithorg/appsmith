@@ -44,13 +44,13 @@ const defaultDSL = defaultTemplate;
  * @param fetchPageResponse The response from the fetchPage API Call
  * @returns The updated DSL and the layoutId
  */
-export const extractCurrentDSL = ({
+export const extractCurrentDSL = async ({
   dslTransformer,
   response,
 }: {
   dslTransformer?: (dsl: DSLWidget) => DSLWidget;
   response?: FetchPageResponse;
-}): { dsl: DSLWidget; layoutId: string | undefined } => {
+}): Promise<{ dsl: DSLWidget; layoutId: string | undefined }> => {
   // If fetch page response doesn't exist
   // It means we are creating a new page
   const newPage = !response;
@@ -62,10 +62,10 @@ export const extractCurrentDSL = ({
   let dsl = currentDSL as DSLWidget;
 
   // Run all the migrations on this DSL
-  dsl = migrateDSL(
+  dsl = (await migrateDSL(
     currentDSL as ContainerWidgetProps<WidgetProps>,
     newPage,
-  ) as DSLWidget;
+  )) as DSLWidget;
 
   // If this DSL is meant to be transformed
   // then the dslTransformer would have been passed by the caller

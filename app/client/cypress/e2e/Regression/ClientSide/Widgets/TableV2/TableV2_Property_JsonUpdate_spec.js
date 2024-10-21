@@ -8,7 +8,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Test Create Api and Bind to Table widget V2",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before("Create an API and Execute the API and bind with Table V", () => {
       _.agHelper.AddDsl("tableV2TextPaginationDsl");

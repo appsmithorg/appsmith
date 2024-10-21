@@ -17,7 +17,9 @@ let appName = "gsheet-app";
 let spreadSheetName = "test-sheet-automation-selected";
 describe(
   "GSheet-Functional Tests With Selected Access",
-  { tags: ["@tag.Datasource", "@tag.GSheet"] },
+  {
+    tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     before("Setup app", function () {
       //Setting up app name

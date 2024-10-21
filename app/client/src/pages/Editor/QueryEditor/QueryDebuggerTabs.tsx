@@ -14,12 +14,12 @@ import {
 } from "ee/constants/messages";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
-import Schema from "components/editorComponents/Debugger/Schema";
+import Schema from "PluginActionEditor/components/PluginActionResponse/components/Schema";
 import type { ActionResponse } from "api/ActionAPI";
 import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
-import QueryResponseTab from "./QueryResponseTab";
+import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
 import {
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
@@ -46,6 +46,7 @@ const ResultsCount = styled.div`
 interface QueryDebuggerTabsProps {
   actionSource: SourceEntity;
   currentActionConfig?: Action;
+  isRunDisabled?: boolean;
   isRunning: boolean;
   actionName: string; // Check what and how to get
   runErrorMessage?: string;
@@ -59,6 +60,7 @@ function QueryDebuggerTabs({
   actionResponse,
   actionSource,
   currentActionConfig,
+  isRunDisabled = false,
   isRunning,
   onRunClick,
   runErrorMessage,
@@ -233,6 +235,7 @@ function QueryDebuggerTabs({
           actionName={actionName}
           actionSource={actionSource}
           currentActionConfig={currentActionConfig}
+          isRunDisabled={isRunDisabled}
           isRunning={isRunning}
           onRunClick={onRunClick}
           runErrorMessage={runErrorMessage}

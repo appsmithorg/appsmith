@@ -6,7 +6,7 @@ import EditorNavigation, {
 
 describe(
   "Binding the list widget with text widget",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   function () {
     //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 

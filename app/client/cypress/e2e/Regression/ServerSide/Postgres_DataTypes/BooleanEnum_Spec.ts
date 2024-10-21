@@ -17,7 +17,7 @@ import EditorNavigation, {
 
 describe(
   "Boolean & Enum Datatype tests",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let dsName: any, query: string;
 

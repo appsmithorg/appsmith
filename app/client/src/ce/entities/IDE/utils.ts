@@ -7,6 +7,19 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
+import { saveActionName } from "actions/pluginActionActions";
+import { saveJSObjectName } from "actions/jsActionActions";
+import { EditorEntityTab, type EntityItem } from "ee/entities/IDE/constants";
+import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+
+export interface SaveEntityName {
+  params: {
+    name: string;
+    id: string;
+  };
+  segment: EditorEntityTab;
+  entity?: EntityItem;
+}
 
 export const EDITOR_PATHS = [
   BUILDER_CUSTOM_PATH,
@@ -35,3 +48,28 @@ export function getIDETypeByUrl(path: string): IDEType {
 export function getBaseUrlsForIDEType(type: IDEType): string[] {
   return IDEBasePaths[type];
 }
+
+export const saveEntityName = ({ params, segment }: SaveEntityName) => {
+  let saveNameAction = saveActionName(params);
+
+  if (EditorEntityTab.JS === segment) {
+    saveNameAction = saveJSObjectName(params);
+  }
+
+  return saveNameAction;
+};
+
+export interface EditableTabPermissions {
+  isFeatureEnabled: boolean;
+  entity?: EntityItem;
+}
+
+export const getEditableTabPermissions = ({
+  entity,
+  isFeatureEnabled,
+}: EditableTabPermissions) => {
+  return getHasManageActionPermission(
+    isFeatureEnabled,
+    entity?.userPermissions || [],
+  );
+};

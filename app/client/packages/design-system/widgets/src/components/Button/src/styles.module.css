@@ -54,6 +54,36 @@
         background: var(--color-bg-$(color)-subtle-active);
       }
     }
+
+    &[data-variant="subtle"][data-color="$(color)"] {
+      background-color: var(--color-bg-$(color)-subtle);
+      color: var(--color-fg-$(color));
+
+      &[data-hovered]:not([data-loading]) {
+        background-color: var(--color-bg-$(color)-subtle-hover);
+      }
+
+      &[data-pressed]:not([data-loading]) {
+        background-color: var(--color-bg-$(color)-subtle-active);
+      }
+    }
+  }
+
+  /*
+    This is a special case for the "neutral" color for "subtle" variant. The subtle color is lighter than required.
+    So we added the soft token for neutral color which is little more darker than the subtle color tokens.
+  */
+  &[data-variant="subtle"][data-color="neutral"] {
+    background-color: var(--color-bg-neutral-soft);
+    color: var(--color-fg-neutral);
+
+    &[data-hovered]:not([data-loading]) {
+      background-color: var(--color-bg-neutral-soft-hover);
+    }
+
+    &[data-pressed]:not([data-loading]) {
+      background-color: var(--color-bg-neutral-soft-active);
+    }
   }
 
   /**
