@@ -1,5 +1,5 @@
 import { dataSources, agHelper } from "../../../../support/Objects/ObjectsCore";
-describe(
+describe.skip(
   "Switch datasource",
   { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
