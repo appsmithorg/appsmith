@@ -1,40 +1,25 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-export interface GitMetadata {}
+// These will be updated when contracts are finalized
+export type GitMetadata = Record<string, unknown>;
 
-export interface GitBranches {}
+export type GitBranches = Record<string, unknown>;
 
-export interface GitStatus {}
+export type GitStatus = Record<string, unknown>;
+
+interface AsyncState<T = unknown> {
+  value: T | null;
+  loading: boolean;
+  error: string | null;
+}
 
 export interface GitSingleArtifactReduxState {
-  metadata: {
-    value: GitMetadata | null;
-    loading: boolean;
-    error: string | null;
-  };
-  connect: {
-    loading: boolean;
-    error: string | null;
-  };
-  branches: {
-    value: GitBranches | null;
-    loading: boolean;
-    error: string | null;
-  };
-  status: {
-    value: GitStatus | null;
-    loading: boolean;
-    error: string | null;
-  };
-  commit: {
-    value: string | null;
-    loading: boolean;
-    error: string | null;
-  };
-  pull: {
-    loading: boolean;
-    error: string | null;
-  };
+  metadata: AsyncState<GitMetadata>;
+  connect: Omit<AsyncState, "value">;
+  branches: AsyncState<GitBranches>;
+  status: AsyncState<GitStatus>;
+  commit: Omit<AsyncState, "value">;
+  pull: Omit<AsyncState, "value">;
 }
 
 export interface GitArtifactReduxState {

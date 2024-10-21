@@ -30,7 +30,6 @@ export const gitSingleArtifactInitialState: GitSingleArtifactReduxState = {
     error: null,
   },
   commit: {
-    value: null,
     loading: false,
     error: null,
   },
