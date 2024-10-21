@@ -736,7 +736,7 @@ function* evaluationChangeListenerSaga(): any {
   }
 
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
-  yield fork(evalAndLintingHandler, false, initAction, {
+  yield call(evalAndLintingHandler, true, initAction, {
     shouldReplay: false,
     forceEvaluation: false,
     // during startup all JS objects are affected
