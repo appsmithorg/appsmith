@@ -17,7 +17,7 @@ import {
 
 describe(
   "Dropdown Widget",
-  { tags: ["@tag.Widget", "@tag.Dropdown"] },
+  { tags: ["@tag.Widget", "@tag.Dropdown", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("newFormDsl");

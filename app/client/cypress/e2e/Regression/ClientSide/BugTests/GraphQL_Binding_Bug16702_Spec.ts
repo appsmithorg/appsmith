@@ -18,7 +18,9 @@ const GRAPHQL_RESPONSE = {
 
 describe(
   "Binding Expressions should not be truncated in Url and path extraction",
-  { tags: ["@tag.Datasource", "@tag.Binding"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Binding", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     it("Bug 16702, Moustache+Quotes formatting goes wrong in graphql body resulting in autocomplete failure", function () {
       const jsObjectBody = `export default {

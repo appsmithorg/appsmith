@@ -156,7 +156,7 @@ Object.values(setterMethodsToTest).forEach(
 
 describe(
   "Linting warning for setter methods",
-  { tags: ["@tag.Widget"] },
+  { tags: ["@tag.Widget", "@tag.Binding"] },
   function () {
     it("Lint error when setter is used in a data field", function () {
       entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);

@@ -11,7 +11,7 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Entity explorer tests related to widgets and validation",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

@@ -16,7 +16,7 @@ import EditorNavigation, {
 
 describe(
   "Radio Widget test cases",
-  { tags: ["@tag.Widget", "@tag.Radio"] },
+  { tags: ["@tag.Widget", "@tag.Radio", "@tag.Binding"] },
   function () {
     it("1. Validate radio widget bindings", () => {
       //JS Object

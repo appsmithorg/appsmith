@@ -4,7 +4,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
   "Input Widget Max Char Functionality",
-  { tags: ["@tag.Widget", "@tag.Input"] },
+  { tags: ["@tag.Widget", "@tag.Input", "@tag.Binding"] },
   function () {
     afterEach(() => {
       _.agHelper.SaveLocalStorageCache();

@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   "Validate API Panel CSS Styles",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     const backgroundColorGray200 = "rgb(227, 232, 239)";
     const backgroundColorwhite = "rgb(255, 255, 255)";

@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Binding the list widget with text widget",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("listRegression3Dsl");

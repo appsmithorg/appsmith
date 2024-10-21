@@ -4,7 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Checkbox Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Filepicker"] },
+  { tags: ["@tag.Widget", "@tag.Filepicker", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("filePickerV2WidgetReskinDsl");

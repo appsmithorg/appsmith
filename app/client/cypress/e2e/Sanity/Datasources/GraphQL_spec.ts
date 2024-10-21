@@ -48,7 +48,9 @@ const GRAPHQL_LIMIT_DATA = [
 
 describe(
   "GraphQL Datasource Implementation",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     before(() => {
       agHelper.GenerateUUID();

@@ -12,7 +12,7 @@ import {
 
 describe(
   "List Widget V2 Functionality",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("Listv2/simpleLargeListv2");

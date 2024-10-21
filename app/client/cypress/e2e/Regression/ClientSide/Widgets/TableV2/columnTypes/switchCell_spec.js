@@ -36,7 +36,7 @@ const tableData = `[
 const switchSelector = " .bp3-switch input[type='checkbox']";
 describe(
   "Switch column type funtionality test",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);

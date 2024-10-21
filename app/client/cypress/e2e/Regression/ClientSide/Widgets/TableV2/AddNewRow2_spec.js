@@ -3,7 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Validation flow",
-  { tags: ["@tag.Widget", "@tag.Table", "@tag.Sanity"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Sanity", "@tag.Binding"] },
   () => {
     before(() => {
       cy.startServerAndRoutes();

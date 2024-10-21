@@ -7,7 +7,7 @@ import {
 
 describe(
   "Inconsistent Api error after the invalid chars are removed from header key",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     it("1. Checking whether the appropriate error is displayed even after the removal of invalid chars in header key.", function () {
       const randomApi = `${

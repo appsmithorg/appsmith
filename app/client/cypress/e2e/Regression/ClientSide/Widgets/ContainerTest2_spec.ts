@@ -12,7 +12,9 @@ import EditorNavigation, {
 
 describe(
   "Rich Text Editor widget Tests",
-  { tags: ["@tag.Widget", "@tag.Container"] },
+  {
+    tags: ["@tag.Widget", "@tag.Container", "@tag.AutoHeight", "@tag.Binding"],
+  },
   function () {
     before(() => {
       agHelper.AddDsl("ContainerWithOtherWidgetsDsl");

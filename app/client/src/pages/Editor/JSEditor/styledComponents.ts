@@ -44,13 +44,12 @@ export const Form = styled.form`
   }
 
   flex: 1;
-  padding: var(--ads-v2-spaces-5) 0 0;
 `;
 
 export const StyledFormRow = styled(FormRow)`
   padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-5)
     var(--ads-v2-spaces-7);
-  flex: 0;
+  flex: 1;
 `;
 
 export const NameWrapper = styled.div`
