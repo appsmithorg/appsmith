@@ -9,6 +9,7 @@ install_docker_scout() {
     local attempts=0
 
     while [ $attempts -lt $MAX_RETRIES ]; do
+        echo "Attempt $((attempts + 1))..."
         curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
         sh install-scout.sh && break  # Break if successful
         echo "Attempt $((attempts + 1)) failed. Retrying..."
@@ -16,9 +17,9 @@ install_docker_scout() {
         sleep 2  # Wait before retrying
     done
 
-    # Check if Scout is successfully installed
     if ! command -v scout &> /dev/null; then
         echo "Error: Docker Scout installation failed."
+        echo "Check the install_scout_log.txt for more details."
         exit 1
     fi
 
