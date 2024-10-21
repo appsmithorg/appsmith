@@ -326,7 +326,7 @@ export class DataSources {
     );
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
     cy.get(
-      `div[role="listbox"] p[kind="span"]:contains("${tableName}")`,
+      `div[role="listbox"] p:contains("${tableName}")`,
     ).click();
     this.agHelper.GetNClick(this._generatePageBtn);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
