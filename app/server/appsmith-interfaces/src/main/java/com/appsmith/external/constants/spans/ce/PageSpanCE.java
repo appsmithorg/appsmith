@@ -15,4 +15,5 @@ public class PageSpanCE {
     public static final String MIGRATE_DSL = PAGES + "migrate_dsl";
 
     public static final String GET_PAGE_BY_ID = APPSMITH_SPAN_PREFIX + "get.page.unpublished";
+    public static final String GET_PAGE_BY_ID_AND_LAYOUTS_ID = APPSMITH_SPAN_PREFIX + "getPageByIdAndLayoutsId";
 }
