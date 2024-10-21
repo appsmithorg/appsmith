@@ -4,6 +4,7 @@
 MAX_RETRIES=3
 
 # Function to install Docker Scout
+# Function to install Docker Scout
 install_docker_scout() {
     echo "Installing Docker Scout..."
     local attempts=0
@@ -11,22 +12,23 @@ install_docker_scout() {
     while [ $attempts -lt $MAX_RETRIES ]; do
         echo "Attempt $((attempts + 1))..."
         curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
-        sh install-scout.sh
+        
+        # Run the install script and capture output
+        sh install-scout.sh &> install_scout_log.txt
+        
         if [ $? -eq 0 ]; then
-            break  # Break if successful
+            echo "Docker Scout installed successfully."
+            return 0  # Successful installation
         fi
-        echo "Attempt $((attempts + 1)) failed. Retrying..."
+
+        echo "Attempt $((attempts + 1)) failed. Check install_scout_log.txt for details."
         ((attempts++))
         sleep 2  # Wait before retrying
     done
 
-    if ! command -v scout &> /dev/null; then
-        echo "Error: Docker Scout installation failed."
-        echo "Check the install_scout_log.txt for more details."
-        exit 1
-    fi
-
-    echo "Docker Scout installed successfully."
+    echo "Error: Docker Scout installation failed after $attempts attempts."
+    echo "Check install_scout_log.txt for more details."
+    exit 1
 }
 
 # Check if Docker is installed and the daemon is running
