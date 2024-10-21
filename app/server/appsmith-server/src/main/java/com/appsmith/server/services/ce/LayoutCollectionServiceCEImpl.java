@@ -317,6 +317,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
         final Mono<Map<String, String>> newValidActionIdsMono = branchedActionCollectionMono.flatMap(
                 branchedActionCollection -> Flux.fromIterable(actionCollectionDTO.getActions())
+                        .distinct(actionDTO -> actionCollectionDTO.getName() + "." + actionDTO.getName())
                         .flatMap(actionDTO -> {
                             actionDTO.setDeletedAt(null);
                             setContextId(branchedActionCollection, actionDTO);
