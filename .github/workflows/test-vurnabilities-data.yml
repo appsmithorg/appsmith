@@ -68,7 +68,7 @@ jobs:
             Tests have not run on the HEAD ${{ github.event.pull_request.head.sha }} yet
         with:
           script: |
-            require("check-vulnerability.js")({core, context, github}, "warning", process.env.BODY)
+            require("../../app/client/cypress/scripts/check-vulnerability.js")({core, context, github}, "warning", process.env.BODY)
 
       # Print vulnerability data file
       - name: Print vulnerability data file
