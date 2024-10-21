@@ -21,6 +21,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { JSCollection } from "entities/JSCollection";
 import type { ErrorActionPayload } from "sagas/ErrorSagas";
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
+import type { GenerateDestinationIdInfoReturnType } from "ee/sagas/helpers";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -225,7 +226,7 @@ export const moveActionError = (
 
 export const copyActionRequest = (payload: {
   id: string;
-  destinationPageId: string;
+  destinationEntityId: string;
   name: string;
 }) => {
   return {
@@ -244,7 +245,7 @@ export const copyActionSuccess = (payload: Action) => {
 export const copyActionError = (
   payload: {
     id: string;
-    destinationPageId: string;
+    destinationEntityIdInfo: GenerateDestinationIdInfoReturnType;
   } & ErrorActionPayload,
 ) => {
   return {

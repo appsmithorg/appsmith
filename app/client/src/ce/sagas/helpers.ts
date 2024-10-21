@@ -11,6 +11,23 @@ export interface ResolveParentEntityMetadataReturnType {
 }
 
 // This function is extended in EE. Please check the EE implementation before any modification.
+export interface GenerateDestinationIdInfoReturnType {
+  pageId?: string;
+}
+
+// This function is extended in EE. Please check the EE implementation before any modification.
+export function generateDestinationIdInfoForQueryDuplication(
+  destinationEntityId: string,
+  parentEntityKey: CreateNewActionKeyInterface,
+): GenerateDestinationIdInfoReturnType {
+  if (parentEntityKey === CreateNewActionKey.PAGE) {
+    return { pageId: destinationEntityId };
+  }
+
+  return {};
+}
+
+// This function is extended in EE. Please check the EE implementation before any modification.
 export const resolveParentEntityMetadata = (
   action: Partial<Action>,
 ): ResolveParentEntityMetadataReturnType => {

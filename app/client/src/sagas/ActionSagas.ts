@@ -134,7 +134,10 @@ import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { updateActionAPICall } from "ee/sagas/ApiCallerSagas";
 import FocusRetention from "./FocusRetentionSaga";
-import { resolveParentEntityMetadata } from "ee/sagas/helpers";
+import {
+  generateDestinationIdInfoForQueryDuplication,
+  resolveParentEntityMetadata,
+} from "ee/sagas/helpers";
 import { handleQueryEntityRedirect } from "./IDESaga";
 import { EditorViewMode, IDE_TYPE } from "ee/entities/IDE/constants";
 import { getIDETypeByUrl } from "ee/entities/IDE/utils";
@@ -144,7 +147,8 @@ import {
 } from "actions/ideActions";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
-import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import { objectKeys } from "@appsmith/utils";
+import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -745,16 +749,34 @@ function* moveActionSaga(
 }
 
 function* copyActionSaga(
-  action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
+  action: ReduxAction<{
+    id: string;
+    destinationEntityId: string;
+    name: string;
+  }>,
 ) {
-  let actionObject: Action = yield select(getAction, action.payload.id);
+  const { destinationEntityId, id, name } = action.payload;
+  let actionObject: Action = yield select(getAction, id);
+
+  const { parentEntityId, parentEntityKey } =
+    resolveParentEntityMetadata(actionObject);
+
+  if (!parentEntityId || !parentEntityKey) return;
+
   const newName: string = yield select(getNewEntityName, {
-    prefix: action.payload.name,
-    parentEntityId: action.payload.destinationPageId,
-    parentEntityKey: CreateNewActionKey.PAGE,
+    prefix: name,
+    parentEntityId: destinationEntityId,
+    parentEntityKey,
     suffix: "Copy",
     startWithoutIndex: true,
   });
+
+  const destinationEntityIdInfo = generateDestinationIdInfoForQueryDuplication(
+    destinationEntityId,
+    parentEntityKey,
+  );
+
+  if (objectKeys(destinationEntityIdInfo).length === 0) return;
 
   try {
     if (!actionObject) throw new Error("Could not find action to copy");
@@ -768,7 +790,7 @@ function* copyActionSaga(
 
     const copyAction = Object.assign({}, actionObject, {
       name: newName,
-      pageId: action.payload.destinationPageId,
+      ...destinationEntityIdInfo,
     }) as Partial<Action>;
 
     // Indicates that source of action creation is copy action
@@ -781,11 +803,15 @@ function* copyActionSaga(
     const datasources: Datasource[] = yield select(getDatasources);
 
     const isValidResponse: boolean = yield validateResponse(response);
-    const pageName: string = yield select(
-      getPageNameByPageId,
-      // @ts-expect-error: pageId not present on ActionCreateUpdateResponse
-      response.data.pageId,
-    );
+    let pageName: string = "";
+
+    if (parentEntityKey === CreateNewActionKey.PAGE) {
+      pageName = yield select(
+        getPageNameByPageId,
+        // @ts-expect-error: pageId not present on ActionCreateUpdateResponse
+        response.data.pageId,
+      );
+    }
 
     if (isValidResponse) {
       toast.show(
@@ -801,12 +827,14 @@ function* copyActionSaga(
       const originalActionId = get(
         actionObject,
         `${RequestPayloadAnalyticsPath}.originalActionId`,
-        action.payload.id,
+        id,
       );
 
       AnalyticsUtil.logEvent("DUPLICATE_ACTION", {
         // @ts-expect-error: name not present on ActionCreateUpdateResponse
         actionName: response.data.name,
+        parentEntityId,
+        parentEntityKey,
         pageName: pageName,
         actionId: response.data.id,
         originalActionId,
@@ -836,7 +864,8 @@ function* copyActionSaga(
 
     yield put(
       copyActionError({
-        ...action.payload,
+        id,
+        destinationEntityIdInfo,
         show: true,
         error: {
           message: errorMessage,
@@ -1039,21 +1068,23 @@ function* toggleActionExecuteOnLoadSaga(
 }
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
-  const {
-    baseId: baseActionId,
-    pageId,
-    pluginId,
-    pluginType,
-  } = actionPayload.payload;
+  const { baseId: baseActionId, pluginId, pluginType } = actionPayload.payload;
   const isApi = pluginType === PluginType.API;
   const isQuery = pluginType === PluginType.DB;
   const isSaas = pluginType === PluginType.SAAS;
-  const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
+  const { parentEntityId } = resolveParentEntityMetadata(actionPayload.payload);
+
+  if (!parentEntityId) return;
+
+  const baseParentEntityId: string = yield select(
+    convertToBaseParentEntityIdSelector,
+    parentEntityId,
+  );
 
   if (isApi) {
     history.push(
       apiEditorIdURL({
-        basePageId,
+        baseParentEntityId,
         baseApiId: baseActionId,
       }),
     );
@@ -1062,7 +1093,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
   if (isQuery) {
     history.push(
       queryEditorIdURL({
-        basePageId,
+        baseParentEntityId,
         baseQueryId: baseActionId,
       }),
     );
@@ -1076,7 +1107,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
 
     history.push(
       saasEditorApiIdURL({
-        basePageId,
+        baseParentEntityId,
         pluginPackageName: plugin.packageName,
         baseApiId: baseActionId,
       }),
