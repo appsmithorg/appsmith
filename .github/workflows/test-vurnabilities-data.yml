@@ -31,13 +31,26 @@ jobs:
           chmod +x scripts/scout_vulnerabilities_data.sh
           ./scripts/scout_vulnerabilities_data.sh "${{ inputs.image_name }}" "${{ inputs.old_vuln_file }}"
 
-      # Upload Scout vulnerabilities report as artifact
-      - name: Upload Scout vulnerabilities report as artifact
-        if: always()
-        uses: actions/upload-artifact@v3
+      - name: Upload installation log
+        if: always()  # Only run if the previous step failed
+        run: |
+            if [ -f install_scout_log.txt ]; then
+              echo "Uploading Docker Scout installation log..."
+              mkdir -p logs
+              mv install_scout_log.txt logs/
+            fi
+  
+      - name: Upload Vulnerabilities Log
+        uses: actions/upload-artifact@v2
         with:
-          name: scout-vulnerabilities-report
-          path: scout_vulnerabilities_diff.txt
+            name: install-scout-log
+            path: logs/install_scout_log.txt
+  
+      - name: Upload Vulnerabilities Scan Results
+        uses: actions/upload-artifact@v2
+        with:
+            name: vulnerabilities-scan-results
+            path: scout_vulnerabilities_new.txt
 
       # # Run Trivy vulnerability data script
       # - name: Run Trivy vulnerability data script
