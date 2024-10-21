@@ -57,6 +57,7 @@ import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
 import { getAppViewerPageIdFromPath } from "ee/pages/Editor/Explorer/helpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { updateFloatingPane } from "../pages/Editor/IDE/FloatingPane/actions";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -266,6 +267,7 @@ function* appendSelectedWidgetToUrlSaga(
   }
 
   if (currentURL !== newUrl) {
+    yield put(updateFloatingPane({ isVisible: false, selectedWidgetId: "0" }));
     history.push(newUrl, { invokedBy });
   }
 }
