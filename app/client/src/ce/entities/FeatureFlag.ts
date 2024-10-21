@@ -39,6 +39,8 @@ export const FEATURE_FLAG = {
   release_anvil_toggle_enabled: "release_anvil_toggle_enabled",
   release_git_persist_branch_enabled: "release_git_persist_branch_enabled",
   release_ide_animations_enabled: "release_ide_animations_enabled",
+  release_table_v2_custom_loading_state_enabled:
+    "release_table_v2_custom_loading_state_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -74,6 +76,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_anvil_toggle_enabled: false,
   release_git_persist_branch_enabled: false,
   release_ide_animations_enabled: false,
+  release_table_v2_custom_loading_state_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
