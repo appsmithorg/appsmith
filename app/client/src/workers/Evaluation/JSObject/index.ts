@@ -21,6 +21,9 @@ import JSObjectCollection from "./Collection";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { jsPropertiesState } from "./jsPropertiesState";
 import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
+interface ParseJSAction extends ParsedJSSubAction {
+  parsedFunction: unknown;
+}
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -114,18 +117,17 @@ export function saveResolvedFunctionsAndJSUpdates(
         JSObjectName: entityName,
         JSObjectASTParseTime,
       });
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const actions: any = [];
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const variables: any = [];
+
+      const actionsMap: Record<string, ParseJSAction> = {};
+      const variablesMap: Record<string, { name: string; value: unknown }> = {};
 
       if (success) {
         if (!!parsedObject) {
           jsPropertiesState.update(entityName, parsedObject);
           parsedObject.forEach((parsedElement) => {
             if (isJSFunctionProperty(parsedElement)) {
+              if (actionsMap[parsedElement.key]) return;
+
               try {
                 ExecutionMetaData.setExecutionMetaData({
                   enableJSVarUpdateTracking: false,
@@ -164,12 +166,12 @@ export function saveResolvedFunctionsAndJSUpdates(
                     `${entityName}.${parsedElement.key}`,
                     functionString,
                   );
-                  actions.push({
+                  actionsMap[parsedElement.key] = {
                     name: parsedElement.key,
                     body: functionString,
                     arguments: params,
                     parsedFunction: result,
-                  });
+                  };
                 }
               } catch {
                 // in case we need to handle error state
@@ -184,10 +186,10 @@ export function saveResolvedFunctionsAndJSUpdates(
                 ? parsedElement.key.slice(1, -1)
                 : parsedElement.key;
 
-              variables.push({
+              variablesMap[parsedKey] = {
                 name: parsedKey,
                 value: parsedElement.value,
-              });
+              };
               JSObjectCollection.updateUnEvalState(
                 `${entityName}.${parsedElement.key}`,
                 parsedElement.value,
@@ -196,8 +198,8 @@ export function saveResolvedFunctionsAndJSUpdates(
           });
           const parsedBody = {
             body: entity.body,
-            actions: actions,
-            variables,
+            actions: Object.values(actionsMap),
+            variables: Object.values(variablesMap),
           };
 
           set(jsUpdates, `${entityName}`, {
