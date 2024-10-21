@@ -84,23 +84,18 @@ jobs:
               connectionTimeoutMillis: 60000,
             });
 
-            async function fetchVulnerabilityData() {
-              const client = await pool.connect();
-              try {
-                const result = await client.query('SELECT * FROM vulnerability_tracking');
-                console.log('Vulnerability Data:', result.rows); // Print data to the GitHub Actions log
-                return result.rows; // Return only the rows
-              } catch (err) {
-                console.error('Error fetching vulnerability data:', err);
-              } finally {
-                client.release();
-              }
+            const client = await pool.connect();
+            try {
+              const result = await client.query(
+                `SELECT * FROM vulnerability_tracking`
+              );
+              console.log('Vulnerability Data:', result.rows); // Print data to the GitHub Actions log
+              client.release();
+              return result.rows.map(row => row.vurn_id); // Return array of vulnerability IDs
+            } catch (err) {
+              console.error('Error fetching vulnerability data:', err);
+              client.release();
             }
-
-            (async () => {
-              const vulnerabilities = await fetchVulnerabilityData();
-              return vulnerabilities; // Return fetched vulnerabilities
-            })();
 
       # # Create a PR comment with vulnerabilities report
       # - name: Create PR comment with vulnerabilities report
