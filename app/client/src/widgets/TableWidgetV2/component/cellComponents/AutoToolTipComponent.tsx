@@ -92,7 +92,7 @@ function useToolTip(
       currentRef?.removeEventListener("mouseleave", mouseLeaveHandler);
       clearTimeout(timeout);
     };
-  }, [children]);
+  }, [children,isButton]);
 
   return requiresTooltip && children ? (
     <Tooltip
