@@ -15,6 +15,7 @@ import {
 import type { JSActionDropdownOption } from "../types";
 import { RUN_BUTTON_DEFAULTS, testLocators } from "../constants";
 import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ee/constants/messages";
+import { MenuTitle } from "./MenuTitle";
 
 interface Props {
   disabled: boolean;
@@ -33,16 +34,21 @@ interface Props {
  *
  */
 export const JSFunctionRun = (props: Props) => {
+  const { onSelect } = props;
+
   const isActionRedesignEnabled = useFeatureFlag(
     FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
   // Callback function to handle function selection from the dropdown menu
-  const onFunctionSelect = useCallback((option: JSActionDropdownOption) => {
-    if (props.onSelect) {
-      props.onSelect(option.value);
-    }
-  }, []);
+  const onFunctionSelect = useCallback(
+    (option: JSActionDropdownOption) => {
+      if (onSelect) {
+        onSelect(option.value);
+      }
+    },
+    [onSelect],
+  );
 
   if (!isActionRedesignEnabled) {
     return <OldJSFunctionRun {...props} />;
@@ -58,7 +64,7 @@ export const JSFunctionRun = (props: Props) => {
             isDisabled={props.disabled}
             kind="tertiary"
             size="sm"
-            startIcon=""
+            startIcon="js-function"
           >
             {props.selected.label}
           </Button>
@@ -70,7 +76,7 @@ export const JSFunctionRun = (props: Props) => {
               onSelect={() => onFunctionSelect(option)}
               size="sm"
             >
-              {option.label}
+              <MenuTitle>{option.label}</MenuTitle>
             </MenuItem>
           ))}
         </MenuContent>
