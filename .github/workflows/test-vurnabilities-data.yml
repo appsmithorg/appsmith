@@ -41,13 +41,13 @@ jobs:
             fi
   
       - name: Upload Vulnerabilities Log
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
             name: install-scout-log
             path: logs/install_scout_log.txt
   
       - name: Upload Vulnerabilities Scan Results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
             name: vulnerabilities-scan-results
             path: scout_vulnerabilities_new.txt
