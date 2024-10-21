@@ -12784,6 +12784,7 @@ __metadata:
     "@react-types/shared": ^3.23.0
     "@redux-saga/core": 1.1.3
     "@redux-saga/types": 1.2.1
+    "@reduxjs/toolkit": ^2.3.0
     "@sentry/react": ^6.2.4
     "@sentry/webpack-plugin": ^1.18.9
     "@shared/ast": "workspace:^"
@@ -12914,7 +12915,7 @@ __metadata:
     graphql: ^16.8.1
     history: ^4.10.1
     husky: ^8.0.0
-    immer: ^9.0.6
+    immer: ^10.1.1
     interweave: ^12.7.2
     interweave-autolink: ^4.4.2
     jest: ^27.4.1
@@ -20684,14 +20685,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"immer@npm:^10.0.3":
+"immer@npm:^10.0.3, immer@npm:^10.1.1":
   version: 10.1.1
   resolution: "immer@npm:10.1.1"
   checksum: 07c67970b7d22aded73607193d84861bf786f07d47f7d7c98bb10016c7a88f6654ad78ae1e220b3c623695b133aabbf24f5eb8d9e8060cff11e89ccd81c9c10b
   languageName: node
   linkType: hard
 
-"immer@npm:^9.0.6, immer@npm:^9.0.7":
+"immer@npm:^9.0.7":
   version: 9.0.14
   resolution: "immer@npm:9.0.14"
   checksum: 17f1365c06d653e672a4f609f08e7203e9ab4b4284818332d6ca9b3f3577a0e3c0066ca7933b636fbae560df79a4b3fde70ed717ce3c6e95c39bf3d5861d5be9
