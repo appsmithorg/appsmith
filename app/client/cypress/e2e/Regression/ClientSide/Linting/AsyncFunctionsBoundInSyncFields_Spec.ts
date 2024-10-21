@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "Linting async JSFunctions bound to data fields",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);

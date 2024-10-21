@@ -10,7 +10,7 @@ import EditorNavigation, {
 
 describe(
   "Creations via action selector should bind to the property",
-  { tags: ["@tag.JS", "@tag.PropertyPane"] },
+  { tags: ["@tag.JS", "@tag.PropertyPane", "@tag.Binding"] },
   () => {
     it.skip("binds newly created query / api to the button onClick", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);

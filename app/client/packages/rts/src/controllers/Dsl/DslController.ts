@@ -8,9 +8,9 @@ export default class DSLController extends BaseController {
     super();
   }
 
-  migrateDSL(req: Request, res: Response) {
+  async migrateDSL(req: Request, res: Response) {
     try {
-      const latestDSL = migrateDSLToLatest(req.body);
+      const latestDSL = await migrateDSLToLatest(req.body);
 
       super.sendResponse(res, latestDSL);
     } catch (err) {

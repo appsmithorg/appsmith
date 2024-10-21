@@ -3,7 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Table Widget empty row color validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableNewDsl");

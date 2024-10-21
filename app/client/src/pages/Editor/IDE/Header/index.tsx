@@ -70,7 +70,7 @@ import { useHref } from "pages/Editor/utils";
 import { viewerURL } from "ee/RouteBuilder";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { EditorTitle } from "./EditorTitle";
-import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import { useCurrentAppState } from "../hooks/useCurrentAppState";
 import { EditorState } from "ee/entities/IDE/constants";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
 import type { Page } from "entities/Page";

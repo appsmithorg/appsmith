@@ -5,7 +5,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Verify syntax to create Datpicker field type",
-  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     beforeEach(() => {
       _.agHelper.RestoreLocalStorageCache();

@@ -4,7 +4,7 @@ import type { InjectedFormProps } from "redux-form";
 import { formValueSelector, reduxForm } from "redux-form";
 import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Action } from "entities/Action";
-import PostBodyData from "./PostBodyData";
+import PostBodyData from "PluginActionEditor/components/PluginActionForm/components/ApiEditor/PostBodyData";
 import type { AppState } from "ee/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -12,17 +12,15 @@ import get from "lodash/get";
 import { getAction, getActionResponses } from "ee/selectors/entitiesSelector";
 import type { CommonFormProps } from "./CommonEditorForm";
 import CommonEditorForm from "./CommonEditorForm";
-import Pagination from "./Pagination";
+import Pagination from "PluginActionEditor/components/PluginActionForm/components/ApiEditor/Pagination";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
-import { HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
+import { HTTP_METHOD_OPTIONS } from "PluginActionEditor/constants/CommonApiConstants";
 
 type APIFormProps = {
   httpMethodFromForm: string;
 } & CommonFormProps;
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
-
-const FORM_NAME = API_EDITOR_FORM_NAME;
 
 function ApiEditorForm(props: Props) {
   const { actionName } = props;
@@ -34,7 +32,7 @@ function ApiEditorForm(props: Props) {
       bodyUIComponent={
         <PostBodyData dataTreePath={`${actionName}.config`} theme={theme} />
       }
-      formName={FORM_NAME}
+      formName={API_EDITOR_FORM_NAME}
       httpsMethods={HTTP_METHOD_OPTIONS}
       paginationUIComponent={
         <Pagination
@@ -48,7 +46,7 @@ function ApiEditorForm(props: Props) {
   );
 }
 
-const selector = formValueSelector(FORM_NAME);
+const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
 export default connect((state: AppState) => {
   const httpMethodFromForm = selector(state, "actionConfiguration.httpMethod");
@@ -106,7 +104,7 @@ export default connect((state: AppState) => {
   };
 })(
   reduxForm<Action, APIFormProps>({
-    form: FORM_NAME,
+    form: API_EDITOR_FORM_NAME,
     enableReinitialize: true,
   })(ApiEditorForm),
 );

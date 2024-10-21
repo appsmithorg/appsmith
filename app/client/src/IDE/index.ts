@@ -60,6 +60,11 @@ export { default as IDESidebar } from "./Components/Sidebar";
  */
 export { default as IDESidePaneWrapper } from "./Components/SidePaneWrapper";
 
+/**
+ * ToolbarSettingsPopover is a popover attached to a settings toggle button in the toolbar
+ */
+export { ToolbarSettingsPopover } from "./Components/ToolbarSettingsPopover";
+
 /* ====================================================
     **** Interfaces ****
     Common types that are used by the different components of the IDE

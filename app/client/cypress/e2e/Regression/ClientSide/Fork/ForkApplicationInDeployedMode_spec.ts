@@ -8,7 +8,9 @@ import applicationLocators from "../../../../locators/Applications.json";
 
 describe(
   "Fork application in deployed mode",
-  { tags: ["@tag.Fork"] },
+  {
+    tags: ["@tag.Fork", "@tag.Datasource", "@tag.Git", "@tag.Table", "@tag.JS"],
+  },
   function () {
     it("1. Fork modal should open and close", function () {
       appSettings.OpenAppSettings();

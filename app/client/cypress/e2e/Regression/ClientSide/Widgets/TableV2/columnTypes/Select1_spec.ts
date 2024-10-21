@@ -9,7 +9,7 @@ import { featureFlagIntercept } from "../../../../../../support/Objects/FeatureF
 
 describe(
   "Table widget - Select column type functionality",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });

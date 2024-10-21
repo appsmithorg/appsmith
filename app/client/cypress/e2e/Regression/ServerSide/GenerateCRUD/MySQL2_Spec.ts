@@ -19,7 +19,7 @@ let dsName: any, newStoreSecret: any;
 
 describe(
   "Validate MySQL Generate CRUD with JSON Form",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     // beforeEach(function() {
     //   if (INTERCEPT.MYSQL) {

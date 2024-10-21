@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Tab widget test duplicate tab name validation",
-  { tags: ["@tag.Widget", "@tag.Tab"] },
+  { tags: ["@tag.Widget", "@tag.Tab", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tabsWidgetDsl");

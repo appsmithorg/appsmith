@@ -12,7 +12,7 @@ const widgetName = "filepickerwidgetv2";
 
 describe(
   "File picker widget v2",
-  { tags: ["@tag.Widget", "@tag.Filepicker"] },
+  { tags: ["@tag.Widget", "@tag.Filepicker", "@tag.Binding"] },
   () => {
     it("1. Drag & drop FilePicker/Text widgets", () => {
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });

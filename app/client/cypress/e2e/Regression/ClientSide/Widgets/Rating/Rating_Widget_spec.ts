@@ -12,7 +12,7 @@ import {
 
 describe(
   "Rating widet testcases",
-  { tags: ["@tag.Widget", "@tag.Rating"] },
+  { tags: ["@tag.Widget", "@tag.Rating", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.RATING);

@@ -432,7 +432,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgNeutralSoft() {
     const color = this.bgNeutralSubtle.clone();
 
-    color.oklch.l -= 0.03;
+    color.oklch.l -= 0.045;
 
     return color;
   }
@@ -440,7 +440,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgNeutralSoftHover() {
     const color = this.bgNeutralSoft.clone();
 
-    color.oklch.l += 0.01;
+    color.oklch.l += 0.015;
 
     return color;
   }
@@ -448,7 +448,7 @@ export class LightModeTheme implements ColorModeTheme {
   private get bgNeutralSoftActive() {
     const color = this.bgNeutralSoft.clone();
 
-    color.oklch.l -= 0.01;
+    color.oklch.l -= 0.015;
 
     return color;
   }

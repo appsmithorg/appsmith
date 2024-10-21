@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget property pane feature validation",
-  { tags: ["@tag.Widget", "@tag.Table", "@tag.Sanity"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Sanity", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableV2NewDslWithPagination");
