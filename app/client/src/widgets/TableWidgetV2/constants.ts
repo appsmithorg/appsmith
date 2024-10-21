@@ -109,8 +109,8 @@ export interface TableWidgetProps
   firstEditableColumnIdByOrder: string;
   enableServerSideFiltering: boolean;
   onTableFilterUpdate: string;
-  userDefinedIsLoading: boolean;
-  userDefinedIsLoadingValue: boolean;
+  customIsLoading: boolean;
+  customIsLoadingValue: boolean;
 }
 
 export enum TableVariantTypes {
