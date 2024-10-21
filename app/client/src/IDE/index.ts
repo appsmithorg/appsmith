@@ -56,6 +56,11 @@ export { default as IDEBottomView } from "./Components/BottomView";
 export { default as IDESidebar } from "./Components/Sidebar";
 
 /**
+ * CodeEditorStyles is a custom styled component css to be used with CodeMirror
+ */
+export { CodeEditorStyles } from "./Components/CodeEditorStyles";
+
+/**
  * ToolbarSettingsPopover is a popover attached to a settings toggle button in the toolbar
  */
 export { ToolbarSettingsPopover } from "./Components/ToolbarSettingsPopover";

@@ -6,9 +6,11 @@ import {
   RUN_GUTTER_ID,
 } from "./constants";
 import { thinScrollbar } from "constants/DefaultTheme";
-import { IDE_HEADER_HEIGHT } from "IDE";
+import { CodeEditorStyles, IDE_HEADER_HEIGHT } from "IDE";
 
 export const CodeEditorWithGutterStyles = css`
+  ${CodeEditorStyles};
+
   .${RUN_GUTTER_ID} {
     width: 0.5em;
     background: var(--ads-v2-color-bg-subtle);
@@ -18,19 +20,6 @@ export const CodeEditorWithGutterStyles = css`
   .${RUN_GUTTER_CLASSNAME} {
     cursor: pointer;
     color: var(--ads-v2-color-fg-brand);
-  }
-
-  .CodeMirror-linenumbers {
-    width: max-content;
-  }
-
-  .CodeMirror-linenumber {
-    text-align: right;
-    padding-left: 0;
-  }
-
-  .cm-s-duotone-light.CodeMirror {
-    padding: 0;
   }
 `;
 
