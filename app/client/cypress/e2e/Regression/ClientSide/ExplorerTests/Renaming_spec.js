@@ -19,7 +19,7 @@ const secondApiName = "Second";
 
 describe(
   "Api Naming conflict on a page test",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     it("1. Expects actions on the same page cannot have identical names", function () {
       // create an API

@@ -8,7 +8,7 @@ import EditorNavigation, {
 
 describe(
   "Table Widget v2 property pane feature validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2AndTextDsl");

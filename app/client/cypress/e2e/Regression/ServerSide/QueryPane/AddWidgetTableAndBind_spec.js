@@ -16,7 +16,7 @@ import { Widgets } from "../../../../support/Pages/DataSources";
 
 describe(
   "Addwidget from Query and bind with other widgets",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     before(() => {
       agHelper.AddDsl("inputdsl");

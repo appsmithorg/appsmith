@@ -14,7 +14,7 @@ const commonlocators = require("../../../locators/commonlocators.json");
 
 describe(
   "Promises App tests",
-  { tags: ["@tag.Widget", "@tag.JS"] },
+  { tags: ["@tag.Widget", "@tag.JS", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("promisesStoreValueDsl");

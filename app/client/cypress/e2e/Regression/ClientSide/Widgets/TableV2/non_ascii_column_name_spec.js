@@ -13,7 +13,7 @@ const data = [
 
 describe(
   "Non ASCII character functionality",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("tableV2NewDsl");

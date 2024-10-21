@@ -51,7 +51,7 @@ function checkSelectedRadioValue(selector, value) {
 
 describe(
   "List widget v2 - Basic Child Widget Interaction",
-  { tags: ["@tag.Widget", "@tag.List", "@tag.Sanity"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Sanity", "@tag.Binding"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("Listv2/emptyList");

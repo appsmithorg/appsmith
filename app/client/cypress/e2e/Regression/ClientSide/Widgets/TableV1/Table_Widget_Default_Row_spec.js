@@ -5,7 +5,7 @@ import EditorNavigation, {
 
 describe(
   "Table Widget property pane deafult feature validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("defaultTableDsl");

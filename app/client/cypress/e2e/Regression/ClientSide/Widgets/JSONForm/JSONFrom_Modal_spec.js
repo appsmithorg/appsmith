@@ -34,7 +34,7 @@ const checkFormModalValues = (value) => {
 
 describe(
   "JSONForm in Modal",
-  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     it("should show the JSONForm with default values from Table widget", () => {
       const tableData = [

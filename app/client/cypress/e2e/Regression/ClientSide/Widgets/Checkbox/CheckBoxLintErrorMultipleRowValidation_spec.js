@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Linting warning validation with Checkbox widget",
-  { tags: ["@tag.Widget", "@tag.Checkbox"] },
+  { tags: ["@tag.Widget", "@tag.Checkbox", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("snippetDsl");

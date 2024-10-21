@@ -14,7 +14,7 @@ export interface WebworkerSpanData {
 //to regular otlp telemetry data and subsequently exported to our telemetry collector
 export const newWebWorkerSpanData = (
   spanName: string,
-  attributes: SpanAttributes,
+  attributes: SpanAttributes = {},
 ): WebworkerSpanData => {
   return {
     attributes,
@@ -26,6 +26,21 @@ export const newWebWorkerSpanData = (
 
 const addEndTimeForWebWorkerSpanData = (span: WebworkerSpanData) => {
   span.endTime = Date.now();
+};
+
+export const profileAsyncFn = async <T>(
+  spanName: string,
+  fn: () => Promise<T>,
+  allSpans: Record<string, WebworkerSpanData | SpanAttributes>,
+  attributes: SpanAttributes = {},
+) => {
+  const span = newWebWorkerSpanData(spanName, attributes);
+  const res: T = await fn();
+
+  addEndTimeForWebWorkerSpanData(span);
+  allSpans[spanName] = span;
+
+  return res;
 };
 
 export const profileFn = <T>(

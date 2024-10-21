@@ -3,7 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Disabled Widgets drag Functionality",
-  { tags: ["@tag.Widget"] },
+  { tags: ["@tag.Widget", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("disabledWidgetsDsl");
