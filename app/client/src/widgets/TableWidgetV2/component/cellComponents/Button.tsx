@@ -2,8 +2,12 @@ import React, { useState } from "react";
 
 import { ActionWrapper } from "../TableStyledWrappers";
 import { BaseButton } from "widgets/ButtonWidget/component";
-import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
+import {
+  ColumnTypes,
+  type ButtonColumnActions,
+} from "widgets/TableWidgetV2/constants";
 import styled from "styled-components";
+import AutoToolTipComponent from "widgets/TableWidgetV2/component/cellComponents/AutoToolTipComponent";
 
 const StyledButton = styled(BaseButton)<{
   compactMode?: string;
@@ -39,12 +43,16 @@ export function Button(props: ButtonProps) {
 
   return (
     <ActionWrapper
-      disabled={!!props.isDisabled}
-      onClick={(e) => {
-        e.stopPropagation();
-      }}
-    >
-      {props.isCellVisible && props.action.isVisible ? (
+    disabled={!!props.isDisabled}
+    onClick={(e) => {
+      e.stopPropagation();
+    }}
+  >
+    {props.isCellVisible && props.action.isVisible && props.action.label ? (
+      <AutoToolTipComponent
+        columnType={ColumnTypes.BUTTON}
+        title={props.action.label}
+      >
         <StyledButton
           borderRadius={props.action.borderRadius}
           boxShadow={props.action.boxShadow}
@@ -58,7 +66,9 @@ export function Button(props: ButtonProps) {
           onClick={handleClick}
           text={props.action.label}
         />
-      ) : null}
-    </ActionWrapper>
+      </AutoToolTipComponent>
+    ) 
+    : null}
+  </ActionWrapper>
   );
 }
