@@ -58,7 +58,7 @@ jobs:
       #     name: trivy-vulnerabilities-report
       #     path: trivy_vulnerabilities_diff.txt
 
-      # Mark Cypress response as stale and save vulnerability data
+      # Mark the Cypress response as stale and save vulnerability data
       - name: Mark the Cypress response to be stale and save vulnerability data
         uses: actions/github-script@v7
         env:
@@ -68,11 +68,10 @@ jobs:
             Tests have not run on the HEAD ${{ github.event.pull_request.head.sha }} yet
         with:
           script: |
-            require("../../../app/client/cypress/scripts/check-vulnerability.js")({core, context, github}, "warning", process.env.BODY)
-
-      # Print vulnerability data file
-      - name: Print vulnerability data file
-        run: cat ./vulnerability_data.json
+            require("${{ github.workspace }}/app/client/cypress/scripts/check-vulnerability.js")({core, context, github}, "warning", process.env.BODY)
+              # Print vulnerability data file
+              - name: Print vulnerability data file
+                run: cat ./vulnerability_data.json
 
       # # Create a PR comment with vulnerabilities report
       # - name: Create PR comment with vulnerabilities report
