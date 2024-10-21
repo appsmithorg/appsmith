@@ -24,12 +24,14 @@ jobs:
         with:
           node-version: '20'
 
+      # Run Scout vulnerability data script
       - name: Run Scout vulnerability data script
         if: always()
         run: |
           chmod +x scripts/scout_vulnerabilities_data.sh
           ./scripts/scout_vulnerabilities_data.sh "${{ inputs.image_name }}" "${{ inputs.old_vuln_file }}"
 
+      # Upload Scout vulnerabilities report as artifact
       - name: Upload Scout vulnerabilities report as artifact
         if: always()
         uses: actions/upload-artifact@v3
@@ -37,12 +39,14 @@ jobs:
           name: scout-vulnerabilities-report
           path: scout_vulnerabilities_diff.txt
 
+      # Run Trivy vulnerability data script
       - name: Run Trivy vulnerability data script
         if: always()
         run: |
           chmod +x scripts/trivy_vulnerabilities_data.sh
           ./scripts/trivy_vulnerabilities_data.sh "${{ inputs.image_name }}" "${{ inputs.old_vuln_file }}"
 
+      # Upload Trivy vulnerabilities report as artifact
       - name: Upload Trivy vulnerabilities report as artifact
         if: always()
         uses: actions/upload-artifact@v3
@@ -50,6 +54,23 @@ jobs:
           name: trivy-vulnerabilities-report
           path: trivy_vulnerabilities_diff.txt
 
+      # Mark Cypress response as stale and save vulnerability data
+      - name: Mark the Cypress response to be stale and save vulnerability data
+        uses: actions/github-script@v7
+        env:
+          NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}  # Make sure to add this secret in your GitHub repo settings
+          BODY: |
+            Tests have not run on the HEAD ${{ github.event.pull_request.head.sha }} yet
+        with:
+          script: |
+            require("check-vulnerability.js")({core, context, github}, "warning", process.env.BODY)
+
+      # Print vulnerability data file
+      - name: Print vulnerability data file
+        run: cat ./vulnerability_data.json
+
+      # Create a PR comment with vulnerabilities report
       - name: Create PR comment with vulnerabilities report
         if: always()
         uses: actions/github-script@v7
@@ -60,8 +81,8 @@ jobs:
             const fs = require('fs');
             const { context, github } = require('@actions/github');
 
-            let scoutReportPath = './scripts/scout_vulnerabilities_diff.txt';
-            let trivyReportPath = './scripts/trivy_vulnerabilities_diff.txt';
+            let scoutReportPath = './scout_vulnerabilities_diff.txt';
+            let trivyReportPath = './trivy_vulnerabilities_diff.txt';
             let body = `Vulnerability scan found issues.\nWorkflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>\nCommit: ${{ github.sha }}\n\n`;
 
             // Read Scout report
@@ -74,6 +95,7 @@ jobs:
               ? fs.readFileSync(trivyReportPath, 'utf8') 
               : "No Trivy vulnerabilities found.\n";
 
+            // Post comment on the PR
             await github.rest.issues.createComment({
               issue_number: context.payload.pull_request.number,
               owner: context.repo.owner,
@@ -81,4 +103,5 @@ jobs:
               body
             });
 
+            // Set failure status if vulnerabilities are found
             core.setFailed("Vulnerability scan detected issues.");
