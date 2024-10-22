@@ -67,6 +67,7 @@ export const JS_COLLECTION_ID_ADD_PATH = `${JS_COLLECTION_EDITOR_PATH}/:baseColl
 export const DATA_SOURCES_EDITOR_LIST_PATH = `/datasource`;
 export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
 export const APP_LIBRARIES_EDITOR_PATH = `/libraries`;
+export const APP_PACKAGES_EDITOR_PATH = `/packages`;
 export const APP_SETTINGS_EDITOR_PATH = `/settings`;
 export const SAAS_GSHEET_EDITOR_ID_PATH = `/saas/google-sheets-plugin/datasources/:datasourceId`;
 export const GEN_TEMPLATE_URL = "generate-page";
@@ -127,6 +128,12 @@ export const matchGeneratePagePath = (pathName: string) =>
   match(`${BUILDER_PATH}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName) ||
   match(`${BUILDER_CUSTOM_PATH}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName) ||
   match(`${BUILDER_PATH_DEPRECATED}${GENERATE_TEMPLATE_FORM_PATH}`)(pathName);
+
+export const matchAppLibrariesPath = (pathName: string) =>
+  match(`${BUILDER_PATH}${APP_LIBRARIES_EDITOR_PATH}`)(pathName);
+
+export const matchAppPackagesPath = (pathName: string) =>
+  match(`${BUILDER_PATH}${APP_PACKAGES_EDITOR_PATH}`)(pathName);
 
 export const addBranchParam = (branch: string) => {
   const url = new URL(window.location.href);
