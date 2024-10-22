@@ -199,6 +199,7 @@ export default class AppEditorEngine extends AppEngine {
   private *loadPluginsAndDatasources(
     allResponses: EditConsolidatedApi,
     rootSpan: Span,
+    applicationId: string,
   ) {
     const loadPluginsAndDatasourcesSpan = startNestedSpan(
       "AppEditorEngine.loadPluginsAndDatasources",
@@ -211,7 +212,12 @@ export default class AppEditorEngine extends AppEngine {
       getFeatureFlagsForEngine,
     );
     const { errorActions, initActions, successActions } =
-      getPageDependencyActions(currentWorkspaceId, featureFlags, allResponses);
+      getPageDependencyActions(
+        currentWorkspaceId,
+        featureFlags,
+        allResponses,
+        applicationId,
+      );
 
     if (!isAirgappedInstance) {
       initActions.push(fetchMockDatasources(mockDatasources));
@@ -259,7 +265,12 @@ export default class AppEditorEngine extends AppEngine {
       allResponses,
       rootSpan,
     );
-    yield call(this.loadPluginsAndDatasources, allResponses, rootSpan);
+    yield call(
+      this.loadPluginsAndDatasources,
+      allResponses,
+      rootSpan,
+      applicationId,
+    );
   }
 
   public *completeChore(rootSpan: Span) {
