@@ -43,33 +43,32 @@ export function Button(props: ButtonProps) {
 
   return (
     <ActionWrapper
-      disabled={!!props.isDisabled}
-      onClick={(e) => {
-        e.stopPropagation();
-      }}
-    >
-      {props.isCellVisible && props.action.isVisible
-        ? props.action.label && (
-            <AutoToolTipComponent
-              columnType={ColumnTypes.BUTTON}
-              title={props.action.label}
-            >
-              <StyledButton
-                borderRadius={props.action.borderRadius}
-                boxShadow={props.action.boxShadow}
-                buttonColor={props.action.backgroundColor}
-                buttonVariant={props.action.variant}
-                compactMode={props.compactMode}
-                disabled={props.isDisabled}
-                iconAlign={props.action.iconAlign}
-                iconName={props.action.iconName}
-                loading={loading}
-                onClick={handleClick}
-                text={props.action.label}
-              />
-            </AutoToolTipComponent>
-          )
-        : null}
-    </ActionWrapper>
+    disabled={!!props.isDisabled}
+    onClick={(e) => {
+      e.stopPropagation();
+    }}
+  >
+    {props.isCellVisible && props.action.isVisible && props.action.label ? (
+      <AutoToolTipComponent
+        columnType={ColumnTypes.BUTTON}
+        title={props.action.label}
+      >
+        <StyledButton
+          borderRadius={props.action.borderRadius}
+          boxShadow={props.action.boxShadow}
+          buttonColor={props.action.backgroundColor}
+          buttonVariant={props.action.variant}
+          compactMode={props.compactMode}
+          disabled={props.isDisabled}
+          iconAlign={props.action.iconAlign}
+          iconName={props.action.iconName}
+          loading={loading}
+          onClick={handleClick}
+          text={props.action.label}
+        />
+      </AutoToolTipComponent>
+    ) 
+    : null}
+  </ActionWrapper>
   );
 }

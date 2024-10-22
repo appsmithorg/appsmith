@@ -60,7 +60,7 @@ function useToolTip(
 
     const mouseEnterHandler = () => {
       timeout = setTimeout(() => {
-        const element = ref.current?.querySelector("div") as HTMLDivElement;
+        const element = currentRef?.querySelector("div") as HTMLDivElement;
 
         /*
          * Using setTimeout to simulate hoverOpenDelay of the tooltip
@@ -74,8 +74,8 @@ function useToolTip(
           setRequiresTooltip(false);
         }
 
-        ref.current?.removeEventListener("mouseenter", mouseEnterHandler);
-        ref.current?.removeEventListener("mouseleave", mouseLeaveHandler);
+        currentRef?.removeEventListener("mouseenter", mouseEnterHandler);
+        currentRef?.removeEventListener("mouseleave", mouseLeaveHandler);
       }, TOOLTIP_OPEN_DELAY);
     };
 
@@ -84,15 +84,15 @@ function useToolTip(
       clearTimeout(timeout);
     };
 
-    ref.current?.addEventListener("mouseenter", mouseEnterHandler);
-    ref.current?.addEventListener("mouseleave", mouseLeaveHandler);
+    currentRef?.addEventListener("mouseenter", mouseEnterHandler);
+    currentRef?.addEventListener("mouseleave", mouseLeaveHandler);
 
     return () => {
-      ref.current?.removeEventListener("mouseenter", mouseEnterHandler);
-      ref.current?.removeEventListener("mouseleave", mouseLeaveHandler);
+      currentRef?.removeEventListener("mouseenter", mouseEnterHandler);
+      currentRef?.removeEventListener("mouseleave", mouseLeaveHandler);
       clearTimeout(timeout);
     };
-  }, [children]);
+  }, [children,isButton]);
 
   return requiresTooltip && children ? (
     <Tooltip
@@ -176,12 +176,6 @@ function LinkWrapper(props: Props) {
   );
 }
 
-function ButtonWrapper(props: Props) {
-  const content = useToolTip(props.children, props.title, true);
-
-  return content;
-}
-
 function AutoToolTipComponent(props: Props) {
   const content = useToolTip(props.children, props.title);
 
@@ -190,7 +184,8 @@ function AutoToolTipComponent(props: Props) {
   }
 
   if (props.columnType === ColumnTypes.BUTTON && props.title) {
-    return <ButtonWrapper {...props} />;
+    const buttonContent = useToolTip(props.children, props.title, true);
+    return buttonContent;
   }
 
   return (
