@@ -198,7 +198,7 @@ function PrimaryCTA(props: Props) {
           }}
           primaryColor={primaryColor}
           text={createMessage(FORK_APP)}
-          varient={ButtonVariantTypes.SECONDARY}
+          variant={ButtonVariantTypes.SECONDARY}
         />
       );
     }
@@ -220,7 +220,7 @@ function PrimaryCTA(props: Props) {
             }}
             primaryColor={primaryColor}
             text={createMessage(FORK_APP)}
-            varient={ButtonVariantTypes.SECONDARY}
+            variant={ButtonVariantTypes.SECONDARY}
           />
           <ForkApplicationModal
             applicationId={currentApplication?.id || ""}
@@ -255,7 +255,7 @@ function PrimaryCTA(props: Props) {
           }}
           primaryColor={primaryColor}
           text={createMessage(SIGN_IN)}
-          varient={ButtonVariantTypes.SECONDARY}
+          variant={ButtonVariantTypes.SECONDARY}
         />
       );
     }

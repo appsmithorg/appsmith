@@ -37,6 +37,7 @@ export const FEATURE_FLAG = {
   rollout_side_by_side_enabled: "rollout_side_by_side_enabled",
   release_layout_conversion_enabled: "release_layout_conversion_enabled",
   release_anvil_toggle_enabled: "release_anvil_toggle_enabled",
+  release_git_persist_branch_enabled: "release_git_persist_branch_enabled",
   release_ide_animations_enabled: "release_ide_animations_enabled",
 } as const;
 
@@ -71,6 +72,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   rollout_side_by_side_enabled: false,
   release_layout_conversion_enabled: false,
   release_anvil_toggle_enabled: false,
+  release_git_persist_branch_enabled: false,
   release_ide_animations_enabled: false,
 };
 

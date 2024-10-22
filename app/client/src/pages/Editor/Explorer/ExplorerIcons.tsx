@@ -4,8 +4,10 @@ import { MenuIcons } from "icons/MenuIcons";
 import type { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import styled from "styled-components";
-import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
-import { HTTP_METHODS_COLOR } from "constants/ApiEditorConstants/CommonApiConstants";
+import {
+  HTTP_METHODS_COLOR,
+  type HTTP_METHOD,
+} from "PluginActionEditor/constants/CommonApiConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";

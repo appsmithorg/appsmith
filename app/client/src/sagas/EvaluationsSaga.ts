@@ -111,6 +111,12 @@ import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { transformTriggerEvalErrors } from "ee/sagas/helpers";
+import {
+  getApplicationLastDeployedAt,
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -261,7 +267,10 @@ export function* evaluateTreeSaga(
     yield select(getSelectedAppTheme);
 
   log.debug({ unevalTree, configTree: unEvalAndConfigTree.configTree });
-
+  const instanceId: string = yield select(getInstanceId);
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const pageId: string = yield select(getCurrentPageId);
+  const lastDeployedAt: string = yield select(getApplicationLastDeployedAt);
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
@@ -269,6 +278,13 @@ export function* evaluateTreeSaga(
   const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
 
   const evalTreeRequestData: EvalTreeRequestData = {
+    cacheProps: {
+      appMode,
+      appId: applicationId,
+      pageId,
+      timestamp: lastDeployedAt,
+      instanceId,
+    },
     unevalTree: unEvalAndConfigTree,
     widgetTypeConfigMap,
     widgets,
