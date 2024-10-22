@@ -10,17 +10,15 @@ import {
   ActionEntityContextMenu,
   type EntityContextMenuProps,
 } from "./ActionEntityContextMenu";
-import {
-  ActionEntityContextMenuItemsEnum,
-  FilesContextProvider,
-} from "../Files/FilesContextProvider";
+import { FilesContextProvider } from "../Files/FilesContextProvider";
 import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 import { act } from "react-dom/test-utils";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
-  CONTEXT_DUPLICATE,
+  CONTEXT_MOVE,
   CONTEXT_RENAME,
+  CONTEXT_SHOW_BINDING,
   createMessage,
 } from "ee/constants/messages";
 import {
@@ -81,11 +79,6 @@ const defaultProps: EntityContextMenuProps = {
 const defaultContext = {
   editorId: "test-editor-id",
   canCreateActions: true,
-  menuItems: [
-    ActionEntityContextMenuItemsEnum.RENAME,
-    ActionEntityContextMenuItemsEnum.COPY,
-    ActionEntityContextMenuItemsEnum.DELETE,
-  ],
   parentEntityId: "test-parent-entity-id",
   parentEntityType: ActionParentEntityType.PAGE,
 };
@@ -121,21 +114,32 @@ describe("ActionEntityContextMenu", () => {
         "true",
       );
     });
+
+    // In context of pages, the copy to page option will be shown
     const copyQueryToPageOptions = await findByText(
       createMessage(CONTEXT_COPY),
     );
 
     expect(await findByText(createMessage(CONTEXT_RENAME))).toBeInTheDocument();
     expect(await findByText(createMessage(CONTEXT_DELETE))).toBeInTheDocument();
+    expect(await findByText(createMessage(CONTEXT_MOVE))).toBeInTheDocument();
+    expect(
+      await findByText(createMessage(CONTEXT_SHOW_BINDING)),
+    ).toBeInTheDocument();
     expect(copyQueryToPageOptions).toBeInTheDocument();
+
+    // Now we click on the copy to page option
     act(() => {
       fireEvent.click(copyQueryToPageOptions);
     });
 
+    // Now a menu with the list of pages will show up
     const copyQueryToPageSubOptionPage1 = await findByText("Page1");
 
     expect(copyQueryToPageSubOptionPage1).toBeInTheDocument();
     expect(await findByText("Page2")).toBeInTheDocument();
+
+    // Clicking on the page will trigger the correct action
     act(() => {
       fireEvent.click(copyQueryToPageSubOptionPage1);
     });
@@ -158,68 +162,6 @@ describe("ActionEntityContextMenu", () => {
     expect(actions[0].type).toBe(ReduxActionTypes.COPY_ACTION_INIT);
     expect(actions[0].payload).toEqual({
       destinationEntityId: page1Id,
-      id: "test-action-id",
-      name: "test-action",
-    });
-  });
-
-  it("renders context menu with correct options for workflows editor", async () => {
-    const workflowsEditorContext = {
-      ...defaultContext,
-      parentEntityType: ActionParentEntityType.WORKFLOW,
-    };
-
-    store = mockStore(defaultState);
-    const { findByText, getByRole } = render(
-      <Provider store={store}>
-        <ThemeProvider theme={lightTheme}>
-          <FilesContextProvider {...workflowsEditorContext}>
-            <ActionEntityContextMenu {...defaultProps} />
-          </FilesContextProvider>
-        </ThemeProvider>
-      </Provider>,
-    );
-    const triggerToOpenMenu = getByRole("button");
-
-    act(() => {
-      fireEvent.click(triggerToOpenMenu);
-    });
-
-    await waitFor(() => {
-      expect(triggerToOpenMenu.parentNode).toHaveAttribute(
-        "aria-expanded",
-        "true",
-      );
-    });
-
-    const duplicateQueryOption = await findByText(
-      createMessage(CONTEXT_DUPLICATE),
-    );
-
-    expect(await findByText(createMessage(CONTEXT_RENAME))).toBeInTheDocument();
-    expect(await findByText(createMessage(CONTEXT_DELETE))).toBeInTheDocument();
-    expect(duplicateQueryOption).toBeInTheDocument();
-    act(() => {
-      fireEvent.click(duplicateQueryOption);
-    });
-    let actions: Array<
-      ReduxAction<{
-        payload: {
-          id: string;
-          destinationEntityId: string;
-          name: string;
-        };
-      }>
-    > = [];
-
-    await waitFor(() => {
-      actions = store.getActions();
-    });
-
-    expect(actions.length).toBe(1);
-    expect(actions[0].type).toBe(ReduxActionTypes.COPY_ACTION_INIT);
-    expect(actions[0].payload).toEqual({
-      destinationEntityId: "test-parent-entity-id",
       id: "test-action-id",
       name: "test-action",
     });
