@@ -45,7 +45,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.spans.ce.OnLoadSpanCE.*;
+import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_DIRECTLY_REFERENCED_EXECUTABLES_TO_GRAPH;
+import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH;
+import static com.appsmith.external.constants.spans.OnLoadSpan.EXECUTABLE_NAME_TO_EXECUTUTABLE_MAP;
+import static com.appsmith.external.constants.spans.OnLoadSpan.EXTRACT_AND_SET_EXECUTABLE_BINDING_IN_GRAPH;
+import static com.appsmith.external.constants.spans.OnLoadSpan.GET_ALL_EXECUTABLES_BY_CREATOR_ID;
+import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_ENTITY_PARENTS_MAP;
+import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_ENTITY_REFERENCES;
+import static com.appsmith.external.constants.spans.OnLoadSpan.GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT;
+import static com.appsmith.external.constants.spans.OnLoadSpan.UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS;
 import static com.appsmith.external.helpers.MustacheHelper.EXECUTABLE_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.WIDGET_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.getPossibleParents;
@@ -133,15 +141,13 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             .toList();
                 })
                 .collectMap(Tuple2::getT1, Tuple2::getT2)
-                .name(EXECUTABLE_NAME_TO_EXECUTUTABLE_MAP_MONO)
+                .name(EXECUTABLE_NAME_TO_EXECUTUTABLE_MAP)
                 .tap(Micrometer.observation(observationRegistry))
                 .cache();
 
         Mono<Set<String>> executablesInCreatorContextMono = allExecutablesByCreatorIdFlux
                 .flatMapIterable(Executable::getExecutableNames)
                 .collect(Collectors.toSet())
-                .name(EXECUTABLE_IN_CREATOR_CONTEXT_MONO)
-                .tap(Micrometer.observation(observationRegistry))
                 .cache();
 
         Set<EntityDependencyNode> executableBindingsInDslRef = new HashSet<>();
@@ -412,7 +418,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     protected Flux<Executable> getAllExecutablesByCreatorIdFlux(String creatorId, CreatorContextType creatorType) {
         return pageExecutableOnLoadService
                 .getAllExecutablesByCreatorIdFlux(creatorId)
-                .name(GET_ALL_EXECUTABLES_BY_CREATOR_ID_FLUX)
+                .name(GET_ALL_EXECUTABLES_BY_CREATOR_ID)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
@@ -643,7 +649,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                                     executablesFoundDuringWalkRef,
                                                     null,
                                                     evalVersion))
-                                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDING_IN_GRAPH_MONO)
+                                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDING_IN_GRAPH)
                                             .tap(Micrometer.observation(observationRegistry))
                                             .thenReturn(possibleEntity);
                                 }
@@ -928,7 +934,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                         executablesFoundDuringWalk,
                                         null,
                                         evalVersion))
-                                .name(EXTRACT_AND_SET_EXECUTABLE_BINDING_IN_GRAPH_MONO)
+                                .name(EXTRACT_AND_SET_EXECUTABLE_BINDING_IN_GRAPH)
                                 .tap(Micrometer.observation(observationRegistry))
                                 .thenReturn(possibleEntity);
                     } else {
@@ -976,7 +982,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         // First fetch all the executables which have been tagged as on load by the user explicitly.
         return getUnpublishedOnLoadExecutablesExplicitSetByUserInCreatorContextFlux(creatorId, creatorType)
-                .name(GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT_FLUX)
+                .name(GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(this::fillSelfReferencingPaths)
                 // Add the vertices and edges to the graph for these executables
@@ -996,7 +1002,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     executablesFoundDuringWalkRef,
                                     executableBindingsInDsl,
                                     evalVersion)
-                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDING_IN_GRAPH_MONO)
+                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDING_IN_GRAPH)
                             .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(executable);
                 })
