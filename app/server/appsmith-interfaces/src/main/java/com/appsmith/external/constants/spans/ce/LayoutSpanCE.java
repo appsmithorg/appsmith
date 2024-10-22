@@ -15,7 +15,9 @@ public class LayoutSpanCE {
             APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.updateExecutablesExecuteOnLoad";
     public static final String FIND_AND_UPDATE_LAYOUT =
             APPSMITH_SPAN_PREFIX + "onLoadExecutablesUtil.findAndUpdateLayout";
-
+    public static final String UNESCAPE_MONGO_SPECIAL_CHARS = APPSMITH_SPAN_PREFIX + "unescapeMongoSpecialCharacters";
+    public static final String EXTRACT_ALL_WIDGET_NAMES_AND_DYNAMIC_BINDINGS_FROM_DSL =
+            APPSMITH_SPAN_PREFIX + "extractAllWidgetNamesAndDynamicBindingsFromDSL";
     public static final String EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES =
             APPSMITH_SPAN_PREFIX + "extractAndSetExecutableBindingsInGraphEdges";
     public static final String RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS =
