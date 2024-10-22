@@ -71,39 +71,20 @@ NEW_VULN_FILE="scout_vulnerabilities_new.txt"
 DIFF_OUTPUT_FILE="scout_vulnerabilities_diff.txt"
 JSON_OUTPUT_FILE="scout_vulnerabilities.json"
 rm -f "$NEW_VULN_FILE" "$DIFF_OUTPUT_FILE" "$JSON_OUTPUT_FILE"
-touch "$OLD_VULN_FILE"
 
 # Run Docker Scout CVE scan
 docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk '{print $2, $3}' | sort -u > "$NEW_VULN_FILE"
 [ -s "$NEW_VULN_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$NEW_VULN_FILE"
 
-# Categorize vulnerabilities
-declare -A categories=( ["LOW"]=() ["MEDIUM"]=() ["HIGH"]=() ["CRITICAL"]=() ["UNSPECIFIED"]=() )
-while IFS= read -r line; do
-    for category in "${!categories[@]}"; do
-        [[ "$line" =~ $category ]] && categories[$category]+=$(echo "$line" | awk '{print $2}')
-    done
-done < <(grep -Fvxf "$OLD_VULN_FILE" "$NEW_VULN_FILE")
-
-# Output categorized results
-{
-    echo "Vulnerabilities introduced in $NEW_VULN_FILE but not in $OLD_VULN_FILE:"
-    for category in "${!categories[@]}"; do
-        if [[ -n "${categories[$category]}" ]]; then
-            echo "Category: $category"
-            printf '%s\n' ${categories[$category]}
-        else
-            echo "No new vulnerabilities in category: $category"
-        fi
-    done
-} > "$DIFF_OUTPUT_FILE"
+# Compare new vulnerabilities against old vulnerabilities
+echo "Comparing new vulnerabilities with existing vulnerabilities in $OLD_VULN_FILE..."
+comm -13 <(awk '{print $1}' "$OLD_VULN_FILE" | sort) <(awk '{print $1}' "$NEW_VULN_FILE" | sort) > "$DIFF_OUTPUT_FILE"
 
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
-  while IFS= read -r line; do
+  while IFS= read -r vurn_id; do
     local scanner_tool="scout"
-    local vurn_id=$(echo "$line" | awk '{print $1}')
-    local priority=$(echo "$line" | awk '{print $2}')
+    local priority=$(grep "$vurn_id" "$NEW_VULN_FILE" | awk '{print $2}')
     
     # Determine the product code based on the image name
     local product_code
@@ -119,11 +100,14 @@ insert_vulns_into_db() {
 INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date)
 VALUES ('$product_code', '$scanner_tool', '$vurn_id', '$priority', '$GITHUB_PR_ID', '$GITHUB_PR_LINK', '$GITHUB_RUN_ID', CURRENT_TIMESTAMP);
 EOF
-    echo "Inserted vulnerability: $vurn_id with priority: $priority"
-  done < "$NEW_VULN_FILE"
+    echo "Inserted new vulnerability: $vurn_id with priority: $priority"
+  done < "$DIFF_OUTPUT_FILE"
 }
 
-# Call the function to insert vulnerabilities into the database
-insert_vulns_into_db
-
-echo "New vulnerabilities inserted into the database."
+# Call the function to insert new vulnerabilities into the database if there are any
+if [ -s "$DIFF_OUTPUT_FILE" ]; then
+  insert_vulns_into_db
+  echo "New vulnerabilities inserted into the database."
+else
+  echo "No new vulnerabilities to insert."
+fi
