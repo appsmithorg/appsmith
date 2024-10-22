@@ -4,7 +4,7 @@ import { seconds, testTimeout } from "../../../../../support/timeout";
 
 describe(
   "Table widget edge case scenario testing",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableWithTextWidgetDsl");

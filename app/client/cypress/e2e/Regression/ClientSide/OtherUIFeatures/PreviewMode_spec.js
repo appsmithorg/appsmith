@@ -6,7 +6,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Preview mode functionality",
-  { tags: ["@tag.IDE", "@tag.Sanity"] },
+  { tags: ["@tag.IDE", "@tag.Sanity", "@tag.PropertyPane"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("previewMode");

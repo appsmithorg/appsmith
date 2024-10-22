@@ -1,6 +1,7 @@
 package com.appsmith.server.onload.internal;
 
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +17,8 @@ public class OnLoadExecutablesUtilImpl extends OnLoadExecutablesUtilCEImpl imple
             AstService astService,
             ObjectMapper objectMapper,
             ExecutableOnLoadService<NewPage> pageExecutableOnLoadService,
-            ObservationRegistry observationRegistry) {
-        super(astService, objectMapper, pageExecutableOnLoadService, observationRegistry);
+            ObservationRegistry observationRegistry,
+            ObservationHelperImpl observationHelper) {
+        super(astService, objectMapper, pageExecutableOnLoadService, observationRegistry, observationHelper);
     }
 }

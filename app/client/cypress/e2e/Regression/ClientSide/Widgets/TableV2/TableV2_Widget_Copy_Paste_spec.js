@@ -14,7 +14,7 @@ import {
 
 describe(
   "Test Suite to validate copy/paste table Widget V2",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2NewDsl");

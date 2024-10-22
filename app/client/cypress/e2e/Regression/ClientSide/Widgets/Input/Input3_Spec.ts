@@ -13,7 +13,7 @@ import EditorNavigation, {
 
 describe(
   "InputV2 widget tests - continuation",
-  { tags: ["@tag.Widget", "@tag.Input"] },
+  { tags: ["@tag.Widget", "@tag.Input", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);

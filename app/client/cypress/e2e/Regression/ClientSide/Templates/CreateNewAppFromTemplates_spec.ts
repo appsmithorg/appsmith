@@ -14,6 +14,10 @@ describe(
       "@tag.Workspace",
       "@tag.Templates",
       "@tag.Sanity",
+      "@tag.Git",
+      "@tag.ImportExport",
+      "@tag.Fork",
+      "@tag.AccessControl",
     ],
   },
   function () {
