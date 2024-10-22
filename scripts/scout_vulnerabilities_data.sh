@@ -74,6 +74,9 @@ rm -f "$CSV_OUTPUT_FILE"
 docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk '{print $1","$2}' | sort -u > "$CSV_OUTPUT_FILE"
 [ -s "$CSV_OUTPUT_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$CSV_OUTPUT_FILE"
 
+cat $OLD_VULN_FILE
+cat $CSV_OUTPUT_FILE
+
 # Compare new vulnerabilities against old vulnerabilities
 echo "Comparing new vulnerabilities with existing vulnerabilities in $OLD_VULN_FILE..."
 if [ -s "$OLD_VULN_FILE" ]; then
