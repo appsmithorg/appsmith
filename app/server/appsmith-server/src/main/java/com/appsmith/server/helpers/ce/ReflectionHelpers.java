@@ -56,7 +56,7 @@ public class ReflectionHelpers {
                 } else {
                     Object value = objects.get(0) != null
                                     && (isCollectionType(objectType) || isAppsmithDefinedClass(objectType))
-                            ? objectMapper.readValue(objects.get(0).toString(), objectType)
+                            ? objectMapper.readValue(objectMapper.writeValueAsString(objects.get(0)), objectType)
                             : objects.get(0);
                     modified.add(value);
                     // Drop the first element from objects as it has been processed
