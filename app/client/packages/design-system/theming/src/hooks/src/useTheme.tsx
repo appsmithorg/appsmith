@@ -43,8 +43,8 @@ export function useTheme(props: UseThemeProps = {}) {
     userSizing,
   );
   const { typography } = useTypography(
-    fontFamily,
     tokensConfigs.typography,
+    fontFamily,
     userDensity,
     userSizing,
   );
