@@ -11,7 +11,9 @@ let dsName: any;
 
 describe(
   "Datasource Autosave Improvements Tests",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     it("1. Test to verify that when datasource is discarded, no datasource can be seen in active list", () => {
       dataSources.NavigateToDSCreateNew();

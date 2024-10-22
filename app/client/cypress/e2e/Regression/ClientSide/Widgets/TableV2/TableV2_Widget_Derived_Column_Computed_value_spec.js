@@ -3,7 +3,7 @@ const testdata = require("../../../../../fixtures/testdata.json");
 
 describe(
   "Table Widget V2 property pane feature validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableV2NewDsl");

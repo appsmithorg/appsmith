@@ -11,7 +11,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("UI to Code", { tags: ["@tag.JS"] }, () => {
+describe("UI to Code", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
     apiPage.CreateApi();

@@ -6,7 +6,7 @@ import {
 
 describe(
   "Test cases around bracket notation",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Binding"] },
   function () {
     const jsObjectBody = `export default {
         "my variable 1": [],

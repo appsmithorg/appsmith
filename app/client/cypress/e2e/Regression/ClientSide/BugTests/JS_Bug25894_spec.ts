@@ -10,7 +10,7 @@ import EditorNavigation, {
 
 describe(
   "Bug 25894 - Moustache brackets should be highlighted",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Binding"] },
   () => {
     it("1. should show {{ }} in bold", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);

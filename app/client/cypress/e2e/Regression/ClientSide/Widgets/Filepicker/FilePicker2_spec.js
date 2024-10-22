@@ -7,7 +7,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "FilePicker Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Filepicker"] },
+  { tags: ["@tag.Widget", "@tag.Filepicker", "@tag.Binding"] },
   function () {
     afterEach(() => {
       _.agHelper.SaveLocalStorageCache();

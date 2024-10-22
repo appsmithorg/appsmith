@@ -8,7 +8,7 @@ import {
 
 describe(
   "Export application as a JSON file",
-  { tags: ["@tag.ImportExport"] },
+  { tags: ["@tag.ImportExport", "@tag.Git"] },
   function () {
     let workspaceId, appid;
 

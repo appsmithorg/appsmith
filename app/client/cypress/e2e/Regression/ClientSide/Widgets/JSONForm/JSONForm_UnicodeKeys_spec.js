@@ -11,7 +11,7 @@ const backBtn = "[data-testid='t--property-pane-back-btn']";
 
 describe(
   "JSON Form Widget Unicode keys",
-  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

@@ -5,7 +5,7 @@ import EditorNavigation, {
 
 describe(
   "Verify various Table property bugs",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tablev1NewDsl");

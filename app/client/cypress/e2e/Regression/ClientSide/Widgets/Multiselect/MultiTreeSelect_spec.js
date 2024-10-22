@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Multi Tree Select Widget",
-  { tags: ["@tag.Widget", "@tag.Multiselect"] },
+  { tags: ["@tag.Widget", "@tag.Multiselect", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

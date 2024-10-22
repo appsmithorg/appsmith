@@ -122,6 +122,7 @@ export interface EntityItem {
   key: string;
   icon?: ReactNode;
   group?: string;
+  userPermissions?: string[];
 }
 
 export type UseRoutes = Array<{

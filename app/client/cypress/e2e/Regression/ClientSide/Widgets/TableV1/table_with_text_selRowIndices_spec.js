@@ -4,7 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table widget edge case scenario testing",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableWithTextWidgetDsl");

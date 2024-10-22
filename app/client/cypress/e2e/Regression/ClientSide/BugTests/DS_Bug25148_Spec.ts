@@ -5,7 +5,7 @@ let dsName: any;
 
 describe(
   "Bug 25148 - Edit Datasource button was disabled on Authentication tab of Api action",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     it("1. Checking if the Edit datasource button is enabled or not", () => {
       dataSources.NavigateToDSCreateNew();

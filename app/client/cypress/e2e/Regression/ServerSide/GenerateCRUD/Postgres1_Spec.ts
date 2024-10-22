@@ -22,7 +22,7 @@ let dsName: any;
 
 describe(
   "Postgres Generate CRUD with JSON Form",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
       dataSources.CreateDataSource("Postgres");

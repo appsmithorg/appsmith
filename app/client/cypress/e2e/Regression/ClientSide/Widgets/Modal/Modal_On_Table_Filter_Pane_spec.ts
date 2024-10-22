@@ -3,7 +3,7 @@ const widgets = require("../../../../../locators/Widgets.json");
 
 describe(
   "Modal Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Modal"] },
+  { tags: ["@tag.Widget", "@tag.Modal", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("modalOnTableFilterPaneDsl");

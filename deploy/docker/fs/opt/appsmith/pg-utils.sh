@@ -136,7 +136,7 @@ init_pg_db() {
       PGPASSWORD=$PG_DB_PASSWORD psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U "$PG_DB_USER" -d "$PG_DB_NAME" -c "CREATE SCHEMA IF NOT EXISTS appsmith;"
 
       echo "Creating pg_trgm extension..."
-      psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U "$PG_DB_USER" -d "$PG_DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+      PGPASSWORD=$PG_DB_PASSWORD psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U "$PG_DB_USER" -d "$PG_DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
     fi
 
     # Check if the schema creation was successful

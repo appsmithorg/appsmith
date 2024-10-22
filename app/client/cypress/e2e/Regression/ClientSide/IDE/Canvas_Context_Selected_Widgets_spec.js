@@ -13,7 +13,7 @@ const api1 = "API1";
 
 describe(
   "Canvas context widget selection",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("editorContextdsl");

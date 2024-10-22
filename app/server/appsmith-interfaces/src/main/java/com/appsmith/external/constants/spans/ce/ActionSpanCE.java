@@ -37,4 +37,6 @@ public class ActionSpanCE {
     public static final String CREATE_ACTION = APPSMITH_SPAN_PREFIX + "create.action";
     public static final String UPDATE_ACTION = APPSMITH_SPAN_PREFIX + "update.action";
     public static final String DELETE_ACTION = APPSMITH_SPAN_PREFIX + "delete.action";
+    public static final String FILL_SELF_REFERENCING_PATHS_ACTION =
+            APPSMITH_SPAN_PREFIX + "action.fillSelfReferencingPaths";
 }

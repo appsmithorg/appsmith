@@ -70,13 +70,14 @@ import { useHref } from "pages/Editor/utils";
 import { viewerURL } from "ee/RouteBuilder";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { EditorTitle } from "./EditorTitle";
-import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import { useCurrentAppState } from "../hooks/useCurrentAppState";
 import { EditorState } from "ee/entities/IDE/constants";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
 import type { Page } from "entities/Page";
 import { IDEHeader, IDEHeaderTitle } from "IDE";
 import { APPLICATIONS_URL } from "constants/routes";
 import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
+import useLibraryHeaderTitle from "ee/pages/Editor/IDE/Header/useLibraryHeaderTitle";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -92,6 +93,8 @@ interface HeaderTitleProps {
 }
 
 const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
+  const libraryHeaderTitle = useLibraryHeaderTitle();
+
   switch (appState) {
     case EditorState.DATA:
       return (
@@ -110,12 +113,7 @@ const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
         />
       );
     case EditorState.LIBRARIES:
-      return (
-        <IDEHeaderTitle
-          key={appState}
-          title={createMessage(HEADER_TITLES.LIBRARIES)}
-        />
-      );
+      return <IDEHeaderTitle key={appState} title={libraryHeaderTitle} />;
     default:
       return <EditorTitle key={appState} title={currentPage?.pageName || ""} />;
   }

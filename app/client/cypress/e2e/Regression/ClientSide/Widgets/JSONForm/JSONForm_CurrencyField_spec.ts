@@ -10,7 +10,7 @@ import {
 
 describe(
   "Modal Widget background color spec",
-  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     const schema = {
       name: "John",
