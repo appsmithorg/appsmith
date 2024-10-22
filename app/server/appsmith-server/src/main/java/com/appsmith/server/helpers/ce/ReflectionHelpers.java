@@ -54,13 +54,16 @@ public class ReflectionHelpers {
                 if (isAppsmithProjections(objectType)) {
                     modified.add(map(objects, objectType, null));
                 } else {
-                    Object value = objects.get(0) != null
-                                    && (isCollectionType(objectType) || isAppsmithDefinedClass(objectType))
-                            ? objectMapper.readValue(objectMapper.writeValueAsString(objects.get(0)), objectType)
-                            : objects.get(0);
+                    Object value = null;
+                    if (!CollectionUtils.isEmpty(objects)) {
+                        value = objects.get(0) != null
+                                        && (isCollectionType(objectType) || isAppsmithDefinedClass(objectType))
+                                ? objectMapper.readValue(objectMapper.writeValueAsString(objects.get(0)), objectType)
+                                : objects.get(0);
+                        // Drop the first element from objects as it has been processed
+                        objects.remove(0);
+                    }
                     modified.add(value);
-                    // Drop the first element from objects as it has been processed
-                    objects.remove(0);
                 }
             }
             Constructor<T> constructor = type.getConstructor(objectTypes.toArray(new Class<?>[0]));
