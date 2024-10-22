@@ -137,12 +137,7 @@ describe(
         cy.wait(100);
         agHelper.ValidateToastMessage("This is a test message");
       });
-
-      cy.getTableV2DataSelector("0", "5").then(($elemClass) => {
-        const discardBtnSelector =
-          $elemClass + " button[data-test-variant='TERTIARY']";
-        cy.get(discardBtnSelector).click({ force: true }); // discard changes
-      });
+      agHelper.ClickButton("Discard", { index: 0 }); // discard changes
     });
 
     it("4. Verify filter condition", () => {
@@ -157,11 +152,11 @@ describe(
 
       // filter and verify checked rows
       cy.getTableV2DataSelector("0", "4").then((selector) => {
-        cy.get(selector + switchSelector).should("be.checked");
+        agHelper.AssertExistingCheckedState(selector + switchSelector, "true");
       });
 
       cy.getTableV2DataSelector("1", "4").then((selector) => {
-        cy.get(selector + switchSelector).should("be.checked");
+        agHelper.AssertExistingCheckedState(selector + switchSelector, "true");
       });
 
       // Filter and verify unchecked rows
@@ -172,7 +167,7 @@ describe(
       cy.get(publishPage.applyFiltersBtn).click();
 
       cy.getTableV2DataSelector("0", "4").then((selector) => {
-        cy.get(selector + switchSelector).should("not.be.checked");
+        agHelper.AssertExistingCheckedState(selector + switchSelector, "false");
       });
     });
 
