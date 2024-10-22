@@ -131,7 +131,7 @@ jobs:
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
           chmod +x scripts/scout_vulnerabilities_data.sh
-          ./scripts/scout_vulnerabilities_data.sh "${{ inputs.image_name }}" "vulnerability_base_data.csv"
+          ./scripts/scout_vulnerabilities_data.sh "${{ inputs.image_name }}"
 
       # - name: Upload Vulnerabilities Scan Results
       #   uses: actions/upload-artifact@v3

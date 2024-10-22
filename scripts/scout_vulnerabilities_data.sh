@@ -66,47 +66,27 @@ if ! command -v scout &> /dev/null; then
     install_docker_scout
 fi
 
-# Prepare output files
-NEW_VULN_FILE="scout_vulnerabilities_new.txt"
-DIFF_OUTPUT_FILE="scout_vulnerabilities_diff.txt"
-JSON_OUTPUT_FILE="scout_vulnerabilities.json"
-rm -f "$NEW_VULN_FILE" "$DIFF_OUTPUT_FILE" "$JSON_OUTPUT_FILE"
+# Prepare the output CSV file
+CSV_OUTPUT_FILE="scout_vulnerabilities.csv"
+rm -f "$CSV_OUTPUT_FILE"
 
-# Run Docker Scout CVE scan
-docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk '{print $2, $3}' | sort -u > "$NEW_VULN_FILE"
-[ -s "$NEW_VULN_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$NEW_VULN_FILE"
-
-cat scout_vulnerabilities_new.txt
+# Run Docker Scout CVE scan and store vulnerabilities in CSV format
+docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk '{print $1","$2}' | sort -u > "$CSV_OUTPUT_FILE"
+[ -s "$CSV_OUTPUT_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$CSV_OUTPUT_FILE"
 
 # Compare new vulnerabilities against old vulnerabilities
 echo "Comparing new vulnerabilities with existing vulnerabilities in $OLD_VULN_FILE..."
 if [ -s "$OLD_VULN_FILE" ]; then
-  comm -13 <(awk '{print $3}' "$OLD_VULN_FILE" | sort) <(awk '{print $3}' "$NEW_VULN_FILE" | sort) > "$DIFF_OUTPUT_FILE"
+    comm -13 <(awk -F, '{print $2}' "$OLD_VULN_FILE" | sort) <(awk -F, '{print $2}' "$CSV_OUTPUT_FILE" | sort) > "scout_vulnerabilities_diff.csv"
 else
-  echo "$OLD_VULN_FILE is empty. All new vulnerabilities will be inserted."
-  # If old file is empty, just copy new vulnerabilities to the diff output
-  cp "$NEW_VULN_FILE" "$DIFF_OUTPUT_FILE"
+    echo "$OLD_VULN_FILE is empty. All new vulnerabilities will be included."
+    cp "$CSV_OUTPUT_FILE" "scout_vulnerabilities_diff.csv"
 fi
-
-
 
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
-  while IFS= read -r line; do
-    # Trim whitespace from the line
-    line=$(echo "$line" | xargs)
-
+  while IFS=, read -r priority vurn_id; do
     # Skip empty lines
-    if [[ -z "$line" ]]; then
-      echo "Skipping empty line"
-      continue
-    fi
-
-    # Extract vurn_id and priority from the line
-    local priority=$(echo "$line" | awk '{print $1}')
-    local vurn_id=$(echo "$line" | awk '{print $2}')
-
-    # Check for empty vurn_id or priority
     if [[ -z "$vurn_id" || -z "$priority" ]]; then
       echo "Skipping empty vulnerability ID or priority"
       continue
@@ -136,11 +116,11 @@ INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr
 VALUES ('$product_code', 'scout', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod');
 EOF
     echo "Inserted new vulnerability: $vurn_id with priority: $priority"
-  done < "$DIFF_OUTPUT_FILE"
+  done < "scout_vulnerabilities_diff.csv"
 }
 
 # Call the function to insert new vulnerabilities into the database if there are any
-if [ -s "$DIFF_OUTPUT_FILE" ]; then
+if [ -s "scout_vulnerabilities_diff.csv" ]; then
   insert_vulns_into_db
   echo "New vulnerabilities inserted into the database."
 else
