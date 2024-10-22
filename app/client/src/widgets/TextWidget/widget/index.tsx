@@ -312,6 +312,14 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 label: "Ubuntu",
                 value: "Ubuntu",
               },
+              {
+                label: "YekanBakh",
+                value: "YekanBakh",
+              },
+              {
+                label: "VazirMatn",
+                value: "VazirMatn"
+              },
             ],
             defaultValue: "System Default",
             isJSConvertible: true,

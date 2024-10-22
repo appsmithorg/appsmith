@@ -10,7 +10,7 @@ import {
 } from "./";
 
 import type { ColorMode } from "../../color";
-import type { TokenSource } from "../../token";
+import type { TokenSource, FontFamily } from "../../token";
 
 const tokensAccessor = new TokensAccessor({
   ...(defaultTokens as TokenSource),
@@ -22,10 +22,12 @@ export interface UseThemeProps {
   borderRadius?: string;
   userDensity?: number;
   userSizing?: number;
+  fontFamily?: FontFamily;
 }
 
 export function useTheme(props: UseThemeProps = {}) {
   const {
+    fontFamily,
     borderRadius,
     colorMode = "light",
     seedColor,
@@ -41,6 +43,7 @@ export function useTheme(props: UseThemeProps = {}) {
     userSizing,
   );
   const { typography } = useTypography(
+    fontFamily,
     tokensConfigs.typography,
     userDensity,
     userSizing,
@@ -52,6 +55,7 @@ export function useTheme(props: UseThemeProps = {}) {
   );
 
   const theme = useMemo(() => {
+
     // Color mode
     tokensAccessor.updateColorMode(colorMode);
 
@@ -77,6 +81,7 @@ export function useTheme(props: UseThemeProps = {}) {
     // Typography
     if (typography != null) {
       tokensAccessor.updateTypography(typography);
+      tokensAccessor.updateFontFamily(fontFamily);
     }
 
     // Sizing
@@ -107,6 +112,7 @@ export function useTheme(props: UseThemeProps = {}) {
       ...tokensAccessor.getInnerSpacing(),
       ...tokensAccessor.getIconSize(),
       ...tokensAccessor.getStrokeWidth(),
+      fontFamily: tokensAccessor.getFontFamily(),
     };
   }, [
     colorMode,
@@ -118,6 +124,7 @@ export function useTheme(props: UseThemeProps = {}) {
     innerSpacing,
     iconSize,
     strokeWidth,
+    fontFamily,
   ]);
 
   return { theme };
