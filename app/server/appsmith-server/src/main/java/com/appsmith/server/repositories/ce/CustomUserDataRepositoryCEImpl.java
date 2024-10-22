@@ -70,7 +70,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .one(UserRecentlyUsedEntitiesProjection.class)
                 .map(userData -> {
-                    final List<RecentlyUsedEntityDTO> recentlyUsedWorkspaceIds = userData.recentlyUsedEntityIds();
+                    final List<RecentlyUsedEntityDTO> recentlyUsedWorkspaceIds = userData.getRecentlyUsedEntityIds();
                     return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds)
                             ? ""
                             : recentlyUsedWorkspaceIds.get(0).getWorkspaceId();
