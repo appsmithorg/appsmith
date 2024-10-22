@@ -138,6 +138,7 @@
     "fusioncharts": "^3.18.0",
     "graphql": "^16.8.1",
     "history": "^4.10.1",
+    "immer": "^9.0.6",
     "interweave": "^12.7.2",
     "interweave-autolink": "^4.4.2",
     "js-regex-pl": "^1.0.1",

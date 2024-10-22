@@ -12914,6 +12914,7 @@ __metadata:
     graphql: ^16.8.1
     history: ^4.10.1
     husky: ^8.0.0
+    immer: ^9.0.6
     interweave: ^12.7.2
     interweave-autolink: ^4.4.2
     jest: ^27.4.1
@@ -20690,10 +20691,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"immer@npm:^9.0.7":
-  version: 9.0.14
-  resolution: "immer@npm:9.0.14"
-  checksum: 17f1365c06d653e672a4f609f08e7203e9ab4b4284818332d6ca9b3f3577a0e3c0066ca7933b636fbae560df79a4b3fde70ed717ce3c6e95c39bf3d5861d5be9
+"immer@npm:^9.0.6, immer@npm:^9.0.7":
+  version: 9.0.21
+  resolution: "immer@npm:9.0.21"
+  checksum: 70e3c274165995352f6936695f0ef4723c52c92c92dd0e9afdfe008175af39fa28e76aafb3a2ca9d57d1fb8f796efc4dd1e1cc36f18d33fa5b74f3dfb0375432
   languageName: node
   linkType: hard
 
