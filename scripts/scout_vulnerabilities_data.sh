@@ -19,37 +19,27 @@ GITHUB_RUN_ID="$3"
 IMAGE="${4:-appsmith/appsmith-ce:release}"
 OLD_VULN_FILE="${5:-vulnerability_base_data.csv}"
 
-# Define the maximum number of retries for installing Docker Scout
-MAX_RETRIES=3
-
 # Function to install Docker Scout
 install_docker_scout() {
     echo "Installing Docker Scout..."
     local attempts=0
-
-    while [ $attempts -lt $MAX_RETRIES ]; do
+    while [ $attempts -lt 3 ]; do
         echo "Attempt $((attempts + 1))..."
         curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
-        
-        # Run the install script and capture output
         sh install-scout.sh &> install_scout_log.txt
-        
         if [ $? -eq 0 ]; then
             echo "Docker Scout installed successfully."
-            return 0  # Successful installation
+            return 0
         fi
-
         echo "Attempt $((attempts + 1)) failed. Check install_scout_log.txt for details."
         ((attempts++))
-        sleep 2  # Wait before retrying
+        sleep 2
     done
-
     echo "Error: Docker Scout installation failed after $attempts attempts."
-    echo "Check install_scout_log.txt for more details."
     exit 1
 }
 
-# Check if Docker is installed and the daemon is running
+# Check if Docker is installed
 if ! command -v docker &> /dev/null; then
     echo "Error: Docker is not installed. Please install Docker and try again."
     exit 1
@@ -61,7 +51,7 @@ if ! systemctl is-active --quiet docker; then
     sudo systemctl start docker
 fi
 
-# Check if Docker Scout is installed, if not, install it
+# Check if Docker Scout is installed
 if ! command -v scout &> /dev/null; then
     install_docker_scout
 fi
@@ -69,13 +59,8 @@ fi
 # Prepare the output CSV file
 CSV_OUTPUT_FILE="scout_vulnerabilities.csv"
 rm -f "$CSV_OUTPUT_FILE"
-
-# Run Docker Scout CVE scan and store vulnerabilities in CSV format
 docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk '{if ($2 != "" && $3 != "") print $2","$3}' | sort -u > "$CSV_OUTPUT_FILE"
 [ -s "$CSV_OUTPUT_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$CSV_OUTPUT_FILE"
-
-cat $OLD_VULN_FILE
-cat $CSV_OUTPUT_FILE
 
 # Compare new vulnerabilities against old vulnerabilities
 echo "Comparing new vulnerabilities with existing vulnerabilities in $OLD_VULN_FILE..."
@@ -89,12 +74,14 @@ fi
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
   local count=0
-  while IFS=, read -r priority vurn_id; do
+  while IFS=, read -r vurn_id priority; do
+    # Print the vurn_id and priority for debugging
     if [[ $count -lt 2 ]]; then
       echo "Iteration $((count + 1)):"
       echo "vurn ID: $vurn_id"
       echo "priority: $priority"
     fi
+
     # Skip empty lines
     if [[ -z "$vurn_id" || -z "$priority" ]]; then
       echo "Skipping empty vulnerability ID or priority"
@@ -114,11 +101,9 @@ insert_vulns_into_db() {
     local pr_link="$GITHUB_PR_LINK"
     local created_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     local update_date="$created_date"
-    local comments="Initial vulnerability report"  # Customize this as needed
-    local owner="John Doe"  # Customize this as needed
-    local pod="Security"  # Customize this as needed
-
- 
+    local comments="Initial vulnerability report"
+    local owner="John Doe"
+    local pod="Security"
 
     ((count++))
 
@@ -131,7 +116,7 @@ EOF
   done < "scout_vulnerabilities_diff.csv"
 }
 
-# Call the function to insert new vulnerabilities into the database if there are any
+# Call the function to insert new vulnerabilities into the database
 if [ -s "scout_vulnerabilities_diff.csv" ]; then
   insert_vulns_into_db
   echo "New vulnerabilities inserted into the database."
