@@ -71,8 +71,7 @@ CSV_OUTPUT_FILE="scout_vulnerabilities.csv"
 rm -f "$CSV_OUTPUT_FILE"
 
 # Run Docker Scout CVE scan and store vulnerabilities in CSV format
-docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk '{print $2, $3}' | sort | uniq | sed '/^[[:space:]]*$/d'
- > "$CSV_OUTPUT_FILE"
+docker scout cves "appsmith/appsmith-ce:release" | grep -E "✗ |CVE-" | awk '{if ($2 != "" && $3 != "") print $2","$3}' | sort -u > "$CSV_OUTPUT_FILE"
 [ -s "$CSV_OUTPUT_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$CSV_OUTPUT_FILE"
 
 cat $OLD_VULN_FILE
