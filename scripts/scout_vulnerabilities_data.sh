@@ -93,14 +93,20 @@ fi
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
   while IFS= read -r line; do
-    # Print the raw line for debugging
-    echo "Processing line: $line"
+    # Trim whitespace from the line
+    line=$(echo "$line" | xargs)
+
+    # Skip empty lines
+    if [[ -z "$line" ]]; then
+      echo "Skipping empty line"
+      continue
+    fi
 
     # Extract vurn_id and priority from the line
-    local vurn_id=$(echo "$line" | awk '{print $3}')   # Assuming CVE ID is the third element
-    local priority=$(echo "$line" | awk '{print $2}')  # Assuming priority is the second element
+    local priority=$(echo "$line" | awk '{print $1}')
+    local vurn_id=$(echo "$line" | awk '{print $2}')
 
-    # Check if vurn_id or priority is empty and skip if it is
+    # Check for empty vurn_id or priority
     if [[ -z "$vurn_id" || -z "$priority" ]]; then
       echo "Skipping empty vulnerability ID or priority"
       continue
