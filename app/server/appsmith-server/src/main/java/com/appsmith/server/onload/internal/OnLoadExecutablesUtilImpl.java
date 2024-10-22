@@ -1,9 +1,11 @@
 package com.appsmith.server.onload.internal;
 
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +16,9 @@ public class OnLoadExecutablesUtilImpl extends OnLoadExecutablesUtilCEImpl imple
     public OnLoadExecutablesUtilImpl(
             AstService astService,
             ObjectMapper objectMapper,
-            ExecutableOnLoadService<NewPage> pageExecutableOnLoadService) {
-        super(astService, objectMapper, pageExecutableOnLoadService);
+            ExecutableOnLoadService<NewPage> pageExecutableOnLoadService,
+            ObservationRegistry observationRegistry,
+            ObservationHelperImpl observationHelper) {
+        super(astService, objectMapper, pageExecutableOnLoadService, observationRegistry, observationHelper);
     }
 }
