@@ -71,6 +71,7 @@ else
     cp "$CSV_OUTPUT_FILE" "scout_vulnerabilities_diff.csv"
 fi
 
+echo "Starting scout diff..."
 cat scout_vulnerabilities_diff.csv
 
 # Insert new vulnerabilities into the PostgreSQL database using psql
