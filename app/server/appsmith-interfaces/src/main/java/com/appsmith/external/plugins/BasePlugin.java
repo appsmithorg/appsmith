@@ -4,6 +4,7 @@ import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.pf4j.PluginWrapper;
 import org.pf4j.spring.SpringPlugin;
+import org.springframework.context.ApplicationContext;
 
 public abstract class BasePlugin extends SpringPlugin {
 
@@ -12,5 +13,10 @@ public abstract class BasePlugin extends SpringPlugin {
 
     public BasePlugin(PluginWrapper wrapper) {
         super(wrapper);
+    }
+
+    @Override
+    protected ApplicationContext createApplicationContext() {
+        return null;
     }
 }
