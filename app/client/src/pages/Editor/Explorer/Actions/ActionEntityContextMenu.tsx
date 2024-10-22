@@ -36,7 +36,7 @@ import { PluginType } from "entities/Action";
 import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 
-interface EntityContextMenuProps {
+export interface EntityContextMenuProps {
   id: string;
   name: string;
   className?: string;
@@ -138,7 +138,9 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
                 copyAction(props.id, props.name, parentEntityId);
               },
         label: createMessage(
-          menuPages.length > 0 ? CONTEXT_COPY : CONTEXT_DUPLICATE,
+          parentEntityType === ActionParentEntityType.PAGE
+            ? CONTEXT_COPY
+            : CONTEXT_DUPLICATE,
         ),
         children:
           parentEntityType === ActionParentEntityType.PAGE &&
