@@ -82,9 +82,15 @@ comm -13 <(awk '{print $1}' "$OLD_VULN_FILE" | sort) <(awk '{print $1}' "$NEW_VU
 
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
-  while IFS= read -r vurn_id; do
-    local scanner_tool="scout"
-    local priority=$(grep "$vurn_id" "$NEW_VULN_FILE" | awk '{print $2}')
+  while IFS= read -r line; do
+    local vurn_id=$(echo "$line" | awk '{print $1}')
+    local priority=$(echo "$line" | awk '{print $2}')
+
+    # Ensure priority is valid
+    case "$priority" in
+      "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "UNSPECIFIED") ;;
+      *) priority="UNSPECIFIED" ;;  # Default to UNSPECIFIED if priority is not valid
+    esac
 
     # Determine the product code based on the image name
     local product_code
@@ -107,7 +113,7 @@ insert_vulns_into_db() {
     # Insert the vulnerability into the database
     psql "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" <<EOF
 INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod)
-VALUES ('$product_code', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod');
+VALUES ('$product_code', 'scout', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod');
 EOF
     echo "Inserted new vulnerability: $vurn_id with priority: $priority"
   done < "$DIFF_OUTPUT_FILE"
