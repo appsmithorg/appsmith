@@ -10,7 +10,7 @@ on:
       old_vuln_file:
         description: 'Old vulnerability file (if exists)'
         required: true
-        default: 'vulnerabilities.txt'
+        default: 'vulnerability_base_data.csv'
 
 jobs:
   run-and-update-pr:
