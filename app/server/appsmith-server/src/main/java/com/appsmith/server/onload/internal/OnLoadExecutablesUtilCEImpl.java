@@ -56,8 +56,6 @@ import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_DIRECTLY_REFE
 import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH;
 import static com.appsmith.external.constants.spans.OnLoadSpan.EXECUTABLE_NAME_TO_EXECUTABLE_MAP;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_ALL_EXECUTABLES_BY_CREATOR_ID;
-import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_ENTITY_PARENTS_MAP;
-import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_ENTITY_REFERENCES;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT;
 import static com.appsmith.external.constants.spans.OnLoadSpan.UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS;
 import static com.appsmith.external.helpers.MustacheHelper.EXECUTABLE_ENTITY_REFERENCES;
@@ -85,7 +83,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
     private final Pattern parentPattern = Pattern.compile(IMMEDIATE_PARENT_REGEX);
 
-    // TODO : This should contain all the static global variables present on the page like `appsmith`, etc.
+    // TODO : This should contain all the static global variables present on the
+    // page like `appsmith`, etc.
     // TODO : Add all the global variables exposed on the client side.
     private final Set<String> APPSMITH_GLOBAL_VARIABLES = Set.of();
     private final ObservationRegistry observationRegistry;
@@ -94,24 +93,44 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     /**
      * This function computes the sequenced on page load executables.
      * <p>
-     * !!!WARNING!!! : This function edits the parameters edges, executablesUsedInDSL and flatPageLoadExecutables
+     * !!!WARNING!!! : This function edits the parameters edges,
+     * executablesUsedInDSL and flatPageLoadExecutables
      * and the same are used by the caller function for further processing.
      *
-     * @param creatorId                  : Argument used for fetching executables in this page
-     * @param evaluatedVersion           : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
-     * @param widgetNames                : Set of widget names which SHOULD have been populated before calling this function.
-     * @param edgesRef                   : Set where this function adds all the relationships (dependencies) between executables
-     * @param widgetDynamicBindingsMap   : A map of widget path and the set of dynamic binding words in the mustache at the
-     *                                   path in the widget (populated by the function `extractAllWidgetNamesAndDynamicBindingsFromDSL`
+     * @param creatorId                  : Argument used for fetching executables in
+     *                                   this page
+     * @param evaluatedVersion           : Depending on the evaluated version, the
+     *                                   way the AST parsing logic picks entities in
+     *                                   the dynamic binding will change
+     * @param widgetNames                : Set of widget names which SHOULD have
+     *                                   been populated before calling this
+     *                                   function.
+     * @param edgesRef                   : Set where this function adds all the
+     *                                   relationships (dependencies) between
+     *                                   executables
+     * @param widgetDynamicBindingsMap   : A map of widget path and the set of
+     *                                   dynamic binding words in the mustache at
+     *                                   the
+     *                                   path in the widget (populated by the
+     *                                   function
+     *                                   `extractAllWidgetNamesAndDynamicBindingsFromDSL`
      *                                   <p>
-     *                                   Example : If Table1's field tableData contains a mustache : {{Api1.data}}, the entry in the map would look like :
-     *                                   Map.entry("Table1.tableData", Set.of("Api1.data"))
-     * @param flatPageLoadExecutablesRef : A flat list of on page load executables (Not in the sequence in which these executables
+     *                                   Example : If Table1's field tableData
+     *                                   contains a mustache : {{Api1.data}}, the
+     *                                   entry in the map would look like :
+     *                                   Map.entry("Table1.tableData",
+     *                                   Set.of("Api1.data"))
+     * @param flatPageLoadExecutablesRef : A flat list of on page load executables
+     *                                   (Not in the sequence in which these
+     *                                   executables
      *                                   would be called on page load)
-     * @param executablesUsedInDSLRef    : Set where this function adds all the executables directly used in the DSL
-     * @return Returns page load executables which is a list of sets of executables. Inside a set, all executables can be executed
-     * in parallel. But one set of executables MUST finish execution before the next set of executables can be executed
-     * in the list.
+     * @param executablesUsedInDSLRef    : Set where this function adds all the
+     *                                   executables directly used in the DSL
+     * @return Returns page load executables which is a list of sets of executables.
+     *         Inside a set, all executables can be executed
+     *         in parallel. But one set of executables MUST finish execution before
+     *         the next set of executables can be executed
+     *         in the list.
      */
     public Mono<List<Set<DslExecutableDTO>>> findAllOnLoadExecutables(
             String creatorId,
@@ -127,15 +146,19 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         Set<String> explicitUserSetOnLoadExecutablesRef = new HashSet<>();
         Set<String> bindingsFromExecutablesRef = ConcurrentHashMap.newKeySet();
 
-        // Function `extractAndSetExecutableBindingsInGraphEdges` updates this map to keep a track of all the
-        // executables which have been discovered while walking the executables to ensure that we don't end up in a
+        // Function `extractAndSetExecutableBindingsInGraphEdges` updates this map to
+        // keep a track of all the
+        // executables which have been discovered while walking the executables to
+        // ensure that we don't end up in a
         // recursive infinite loop
-        // in case of a cyclical relationship between executables (and not specific paths) and helps us exit at the
+        // in case of a cyclical relationship between executables (and not specific
+        // paths) and helps us exit at the
         // appropriate junction.
         // e.g : Consider the following relationships :
         // Api1.actionConfiguration.body <- Api2.data.users[0].name
         // Api2.actionConfiguration.url <- Api1.actionConfiguration.url
-        // In the above case, the two executables depend on each other without there being a real cyclical dependency.
+        // In the above case, the two executables depend on each other without there
+        // being a real cyclical dependency.
         Map<String, EntityDependencyNode> executablesFoundDuringWalkRef = new HashMap<>();
 
         Flux<Executable> allExecutablesByCreatorIdFlux = getAllExecutablesByCreatorIdFlux(creatorId, creatorType);
@@ -172,10 +195,12 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                         .name(ADD_DIRECTLY_REFERENCED_EXECUTABLES_TO_GRAPH)
                         .tap(Micrometer.observation(observationRegistry));
 
-        // This following `createAllEdgesForPageMono` publisher traverses the executables and widgets to add all
+        // This following `createAllEdgesForPageMono` publisher traverses the
+        // executables and widgets to add all
         // possible edges between all possible entity paths
 
-        // First find all the executables in the page whose name matches the possible entity names found in the bindings
+        // First find all the executables in the page whose name matches the possible
+        // entity names found in the bindings
         // in the widget
         Mono<Set<ExecutableDependencyEdge>> createAllEdgesForPageMono = directlyReferencedExecutablesToGraphMono
                 // Add dependencies of all on page load executables set by the user in the graph
@@ -191,7 +216,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                 creatorType)
                         .name(ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH)
                         .tap(Micrometer.observation(observationRegistry)))
-                // For all the executables found so far, recursively walk the dynamic bindings of the executables to
+                // For all the executables found so far, recursively walk the dynamic bindings
+                // of the executables to
                 // find more relationships with other executables (& widgets)
                 .flatMap(updatedEdges -> recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
                         updatedEdges,
@@ -243,21 +269,26 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     return executablesList;
                 })
                 .map(onPageLoadExecutablesSchedulingOrder -> {
-                    // Find all explicitly turned on executables which haven't found their way into the scheduling order
-                    // This scenario would happen if an explicitly turned on for page load executable does not have any
+                    // Find all explicitly turned on executables which haven't found their way into
+                    // the scheduling order
+                    // This scenario would happen if an explicitly turned on for page load
+                    // executable does not have any
                     // relationships in the page with any widgets/executables.
                     Set<String> pageLoadExecutableNames = new HashSet<>();
                     pageLoadExecutableNames.addAll(onLoadExecutableSetRef);
                     pageLoadExecutableNames.addAll(explicitUserSetOnLoadExecutablesRef);
                     pageLoadExecutableNames.removeAll(onLoadExecutableSetRef);
 
-                    // If any of the explicitly set on page load executables havent been added yet, add them to the 0th
+                    // If any of the explicitly set on page load executables havent been added yet,
+                    // add them to the 0th
                     // set
-                    // of executables set since no relationships were found with any other appsmith entity
+                    // of executables set since no relationships were found with any other appsmith
+                    // entity
                     if (!pageLoadExecutableNames.isEmpty()) {
                         onLoadExecutableSetRef.addAll(pageLoadExecutableNames);
 
-                        // In case there are no page load executables, initialize the 0th set of page load executables
+                        // In case there are no page load executables, initialize the 0th set of page
+                        // load executables
                         // list.
                         if (onPageLoadExecutablesSchedulingOrder.isEmpty()) {
                             onPageLoadExecutablesSchedulingOrder.add(new HashSet<>());
@@ -279,7 +310,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                         .tap(Micrometer.observation(observationRegistry))
                         .cache();
 
-        // With the final on page load scheduling order, also set the on page load executables which would be updated
+        // With the final on page load scheduling order, also set the on page load
+        // executables which would be updated
         // by the caller function
         Mono<List<Executable>> flatPageLoadExecutablesMono = computeCompletePageLoadExecutableScheduleMono
                 .then(executableNameToExecutableMapMono)
@@ -306,7 +338,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         Flux<Executable> creatorContextExecutablesFlux =
                 this.getAllExecutablesByCreatorIdFlux(creatorId, creatorType).cache();
 
-        // Before we update the actions, fetch all the actions which are currently set to execute on load.
+        // Before we update the actions, fetch all the actions which are currently set
+        // to execute on load.
         Mono<List<Executable>> existingOnLoadExecutablesMono = creatorContextExecutablesFlux
                 .flatMap(executable -> {
                     if (TRUE.equals(executable.getExecuteOnLoad())) {
@@ -322,19 +355,22 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     List<Executable> existingOnLoadExecutables = tuple.getT1();
                     List<Executable> creatorContextExecutables = tuple.getT2();
 
-                    // There are no actions in this page. No need to proceed further since no actions would get updated
+                    // There are no actions in this page. No need to proceed further since no
+                    // actions would get updated
                     if (creatorContextExecutables.isEmpty()) {
                         return Mono.just(FALSE);
                     }
 
-                    // No actions require an update if no actions have been found as page load actions as well as
+                    // No actions require an update if no actions have been found as page load
+                    // actions as well as
                     // existing on load page actions are empty
                     if (existingOnLoadExecutables.isEmpty()
                             && (onLoadExecutables == null || onLoadExecutables.isEmpty())) {
                         return Mono.just(FALSE);
                     }
 
-                    // Extract names of existing page load actions and new page load actions for quick lookup.
+                    // Extract names of existing page load actions and new page load actions for
+                    // quick lookup.
                     Set<String> existingOnLoadExecutableNames = existingOnLoadExecutables.stream()
                             .map(Executable::getUserExecutableName)
                             .collect(Collectors.toSet());
@@ -343,12 +379,14 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             .map(Executable::getUserExecutableName)
                             .collect(Collectors.toSet());
 
-                    // Calculate the actions which would need to be updated from execute on load TRUE to FALSE.
+                    // Calculate the actions which would need to be updated from execute on load
+                    // TRUE to FALSE.
                     Set<String> turnedOffExecutableNames = new HashSet<>();
                     turnedOffExecutableNames.addAll(existingOnLoadExecutableNames);
                     turnedOffExecutableNames.removeAll(newOnLoadExecutableNames);
 
-                    // Calculate the actions which would need to be updated from execute on load FALSE to TRUE
+                    // Calculate the actions which would need to be updated from execute on load
+                    // FALSE to TRUE
                     Set<String> turnedOnExecutableNames = new HashSet<>();
                     turnedOnExecutableNames.addAll(newOnLoadExecutableNames);
                     turnedOnExecutableNames.removeAll(existingOnLoadExecutableNames);
@@ -356,12 +394,15 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     for (Executable executable : creatorContextExecutables) {
 
                         String executableName = executable.getUserExecutableName();
-                        // If a user has ever set execute on load, this field can not be changed automatically. It has
-                        // to be explicitly changed by the user again. Add the executable to update only if this
+                        // If a user has ever set execute on load, this field can not be changed
+                        // automatically. It has
+                        // to be explicitly changed by the user again. Add the executable to update only
+                        // if this
                         // condition is false.
                         if (FALSE.equals(executable.getUserSetOnLoad())) {
 
-                            // If this executable is no longer an onload executable, turn the execute on load to false
+                            // If this executable is no longer an onload executable, turn the execute on
+                            // load to false
                             if (turnedOffExecutableNames.contains(executableName)) {
                                 executable.setExecuteOnLoad(FALSE);
                                 toUpdateExecutables.add(executable);
@@ -374,7 +415,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             }
 
                         } else {
-                            // Remove the executable name from either of the lists (if present) because this executable
+                            // Remove the executable name from either of the lists (if present) because this
+                            // executable
                             // should not be updated
                             turnedOnExecutableNames.remove(executableName);
                             turnedOffExecutableNames.remove(executableName);
@@ -397,7 +439,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                         }
                     }
 
-                    // Now add messagesRef that would eventually be displayed to the developer user informing them
+                    // Now add messagesRef that would eventually be displayed to the developer user
+                    // informing them
                     // about the action setting change.
                     if (!turnedOffExecutableNames.isEmpty()) {
                         messagesRef.add(
@@ -445,15 +488,19 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     /**
-     * This function takes the page load schedule consisting of only executable names.
+     * This function takes the page load schedule consisting of only executable
+     * names.
      * <p>
-     * First it trims the order to remove any unwanted executables which shouldn't be run.
+     * First it trims the order to remove any unwanted executables which shouldn't
+     * be run.
      * Following executables are filtered out :
-     * 1. Any JS executable since they are not supported to run on page load currently. TODO : Remove this check once the
+     * 1. Any JS executable since they are not supported to run on page load
+     * currently. TODO : Remove this check once the
      * client implements execution of JS functions.
      * 2. Any executable which has been marked to not run on page load by the user.
      * <p>
-     * Next it creates a new schedule order consisting of DslExecutableDTO instead of just executable names.
+     * Next it creates a new schedule order consisting of DslExecutableDTO instead
+     * of just executable names.
      *
      * @param onPageLoadExecutableSet
      * @param executableNameToExecutableMapMono
@@ -505,21 +552,30 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      */
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
             Mono<Map<String, Executable>> executableNameToExecutableMapMono, Set<String> bindings, int evalVersion) {
-        return getPossibleEntityReferences(executableNameToExecutableMapMono, bindings, evalVersion, null)
-                .name(GET_POSSIBLE_ENTITY_REFERENCES)
-                .tap(Micrometer.observation(observationRegistry));
+        return getPossibleEntityReferences(executableNameToExecutableMapMono, bindings, evalVersion, null);
     }
 
     /**
-     * Similar to the overridden method, this method is used to find all possible global entity references in the given set of bindings.
-     * However, here we are assuming that the call came from when we were trying to analyze the DSL.
-     * For such cases, we also want to capture entity references that would be qualified to run on page load first.
+     * Similar to the overridden method, this method is used to find all possible
+     * global entity references in the given set of bindings.
+     * However, here we are assuming that the call came from when we were trying to
+     * analyze the DSL.
+     * For such cases, we also want to capture entity references that would be
+     * qualified to run on page load first.
      *
-     * @param executableNameToExecutableMono : This map is used to filter only valid executable references in bindings
-     * @param bindings                       : The set of bindings to find references from
-     * @param evalVersion                    : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
-     * @param bindingsInDsl                  : All references are also added to this set if they should be qualified to run on page load first.
-     * @return A set of any possible reference found in the binding that qualifies as a global entity reference
+     * @param executableNameToExecutableMono : This map is used to filter only valid
+     *                                       executable references in bindings
+     * @param bindings                       : The set of bindings to find
+     *                                       references from
+     * @param evalVersion                    : Depending on the evaluated version,
+     *                                       the way the AST parsing logic picks
+     *                                       entities in the dynamic binding will
+     *                                       change
+     * @param bindingsInDsl                  : All references are also added to this
+     *                                       set if they should be qualified to run
+     *                                       on page load first.
+     * @return A set of any possible reference found in the binding that qualifies
+     *         as a global entity reference
      */
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
             Mono<Map<String, Executable>> executableNameToExecutableMono,
@@ -530,20 +586,22 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         final int entityTypes = EXECUTABLE_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
 
         return executableNameToExecutableMono
-                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion)
-                        .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
-                        .tap(Micrometer.observation(observationRegistry)))
+                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion))
                 .map(tuple -> {
                     Map<String, Executable> executableMap = tuple.getT1();
-                    // For each binding, here we receive a set of possible references to global entities
-                    // At this point we're guaranteed that these references are made to possible variables,
+                    // For each binding, here we receive a set of possible references to global
+                    // entities
+                    // At this point we're guaranteed that these references are made to possible
+                    // variables,
                     // but we do not know if those entities exist in the global namespace yet
                     Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap = tuple.getT2();
 
                     Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
 
-                    // From these references, we will try to validate executable references at this point
-                    // Each identified node is already annotated with the expected type of entity we need to search for
+                    // From these references, we will try to validate executable references at this
+                    // point
+                    // Each identified node is already annotated with the expected type of entity we
+                    // need to search for
                     bindingToPossibleParentMap.entrySet().stream().forEach(entry -> {
                         Set<EntityDependencyNode> bindingsWithExecutableReference = new HashSet<>();
                         entry.getValue().stream().forEach(binding -> {
@@ -551,10 +609,12 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             Executable executable = executableMap.get(binding.getValidEntityName());
 
                             if (executable != null) {
-                                // If it was, and had been identified as the same type of executable as what exists in
+                                // If it was, and had been identified as the same type of executable as what
+                                // exists in
                                 // this app,
                                 if (binding.getEntityReferenceType().equals(executable.getEntityReferenceType())) {
-                                    // Copy over some data from the identified executable, this ensures that we do not
+                                    // Copy over some data from the identified executable, this ensures that we do
+                                    // not
                                     // have
                                     // to query the DB again later
                                     binding.setExecutable(executable);
@@ -566,13 +626,15 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     if (!TRUE.equals(binding.getIsFunctionCall())) {
                                         possibleEntitiesReferences.add(binding);
                                     }
-                                    // We're ignoring any reference that was identified as a widget but actually matched
+                                    // We're ignoring any reference that was identified as a widget but actually
+                                    // matched
                                     // an executable
                                     // We wouldn't have discarded JS collection names here, but this is just an
                                     // optimization, so it's fine
                                 }
                             } else {
-                                // If the reference node was identified as a widget, directly add it as a possible
+                                // If the reference node was identified as a widget, directly add it as a
+                                // possible
                                 // reference
                                 // Because we are not doing any validations for widget references at this point
                                 if (EntityReferenceType.WIDGET.equals(binding.getEntityReferenceType())) {
@@ -591,13 +653,18 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     /**
-     * This method is an abstraction that queries the ast service for possible global references as string values,
-     * and then uses the mustache helper utility to classify these global references into possible types of EntityDependencyNodes
+     * This method is an abstraction that queries the ast service for possible
+     * global references as string values,
+     * and then uses the mustache helper utility to classify these global references
+     * into possible types of EntityDependencyNodes
      *
      * @param bindings    : A set of binding values as string to analyze
      * @param types       : The types of EntityDependencyNode references to look for
-     * @param evalVersion : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
-     * @return A mono of a map of each of the provided binding values to the possible set of EntityDependencyNodes found in the binding
+     * @param evalVersion : Depending on the evaluated version, the way the AST
+     *                    parsing logic picks entities in the dynamic binding will
+     *                    change
+     * @return A mono of a map of each of the provided binding values to the
+     *         possible set of EntityDependencyNodes found in the binding
      */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(
             Set<String> bindings, int types, int evalVersion) {
@@ -607,11 +674,15 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     /**
-     * This function finds all the executables in the page whose name matches the possible entity names found in the
-     * bindings in the widget. Caveat : It first removes all invalid bindings from the set of all bindings from the DSL
-     * This today means only the usage of an async JS function as a call instead of referring to the `.data`.
+     * This function finds all the executables in the page whose name matches the
+     * possible entity names found in the
+     * bindings in the widget. Caveat : It first removes all invalid bindings from
+     * the set of all bindings from the DSL
+     * This today means only the usage of an async JS function as a call instead of
+     * referring to the `.data`.
      * <p>
-     * !!! WARNING !!! : This function updates executablesUsedInDSL set which is used to store all the directly referenced
+     * !!! WARNING !!! : This function updates executablesUsedInDSL set which is
+     * used to store all the directly referenced
      * executables in the DSL.
      *
      * @param edgesRef
@@ -638,7 +709,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     String widgetName = entry.getKey();
                     // For each widget in the DSL that has a dynamic binding,
                     // we define an entity dependency node beforehand
-                    // This will be a leaf node in the DAG that is constructed for on page load dependencies
+                    // This will be a leaf node in the DAG that is constructed for on page load
+                    // dependencies
                     EntityDependencyNode widgetDependencyNode =
                             new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
                     Set<String> bindingsInWidget = entry.getValue();
@@ -647,8 +719,6 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     bindingsInWidget,
                                     evalVersion,
                                     executableBindingsInDslRef)
-                            .name(GET_POSSIBLE_ENTITY_REFERENCES)
-                            .tap(Micrometer.observation(observationRegistry))
                             .flatMapMany(Flux::fromIterable)
                             // Add dependencies of the executables found in the DSL in the graph
                             // We are ignoring the widget references at this point
@@ -656,7 +726,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             .flatMap(possibleEntity -> {
                                 if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
                                     edgesRef.add(new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
-                                    // This executable is directly referenced in the DSL. This executable is an ideal
+                                    // This executable is directly referenced in the DSL. This executable is an
+                                    // ideal
                                     // candidate
                                     // for on page load
                                     executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
@@ -700,14 +771,19 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     /**
-     * This function takes all the edges found and outputs a Directed Acyclic Graph. To create the complete graph, the
+     * This function takes all the edges found and outputs a Directed Acyclic Graph.
+     * To create the complete graph, the
      * following steps are followed :
-     * 1. Trim the edges to only contain relationships between property paths belonging to appsmith entities (executables,
-     * widgets, global variables provided by appsmith). If any/all the vertices of the edge are unknown, the edge
+     * 1. Trim the edges to only contain relationships between property paths
+     * belonging to appsmith entities (executables,
+     * widgets, global variables provided by appsmith). If any/all the vertices of
+     * the edge are unknown, the edge
      * is removed.
-     * 2. Add implicit relationship between property paths and their immediate parents. This is to ensure that in the
+     * 2. Add implicit relationship between property paths and their immediate
+     * parents. This is to ensure that in the
      * DAG, all the relationships are considered.
-     * e.g following are the implicit relationships generated for property path `Dropdown1.options[1].value`:
+     * e.g following are the implicit relationships generated for property path
+     * `Dropdown1.options[1].value`:
      * <p>
      * Dropdown1.options[1].value -> Dropdown1.options[1]
      * Dropdown1.options[1] -> Dropdown1.options
@@ -737,16 +813,20 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         Set<ExecutableDependencyEdge> implicitParentChildEdges = new HashSet<>();
 
-        // Remove any edge which contains an unknown entity - aka neither a known executable nor a known widget
-        // Note : appsmith world objects like `appsmith` would also count as an unknown here.
-        // TODO : Handle the above global variables provided by appsmith in the following filtering.
+        // Remove any edge which contains an unknown entity - aka neither a known
+        // executable nor a known widget
+        // Note : appsmith world objects like `appsmith` would also count as an unknown
+        // here.
+        // TODO : Handle the above global variables provided by appsmith in the
+        // following filtering.
         edges = edges.stream()
                 .filter(edge -> {
                     String source = edge.getSourceNode().getReferenceString();
                     String target = edge.getTargetNode().getReferenceString();
 
                     // Edges here are assumed to be non-null
-                    // If an edge comprises vertices that depend on itself (caused by self-referencing),
+                    // If an edge comprises vertices that depend on itself (caused by
+                    // self-referencing),
                     // We want to throw an error before attempting to create the DAG
                     // Example: Text1.text has the value {{ Text1.text }}
                     if (source.equals(target)) {
@@ -757,8 +837,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                     boolean isValidEdge = true;
 
-                    // Assert that the vertices which are entire property paths have a possible parent which is either
-                    // an executable or a widget or a static variable provided by appsmith at page/application level.
+                    // Assert that the vertices which are entire property paths have a possible
+                    // parent which is either
+                    // an executable or a widget or a static variable provided by appsmith at
+                    // page/application level.
                     for (String vertex : vertices) {
                         Optional<String> validEntity = getPossibleParents(vertex).stream()
                                 .filter(parent -> {
@@ -770,7 +852,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     return true;
                                 })
                                 .findFirst();
-                        // If any of the generated entity names from the path are valid appsmith entity name,
+                        // If any of the generated entity names from the path are valid appsmith entity
+                        // name,
                         // the vertex is considered valid
                         if (!validEntity.isPresent()) {
                             isValidEdge = FALSE;
@@ -791,7 +874,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         edges.addAll(executableDataFromConfigurationEdges);
 
-        // Now add the relationship aka when a child gets updated, the parent should get updated as well. Aka
+        // Now add the relationship aka when a child gets updated, the parent should get
+        // updated as well. Aka
         // parent depends on the child.
         for (ExecutableDependencyEdge edge : edges) {
             EntityDependencyNode source = edge.getSourceNode();
@@ -828,10 +912,13 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     /**
-     * All executables data paths actually depend on the executable configuration paths.
+     * All executables data paths actually depend on the executable configuration
+     * paths.
      * Add this implicit relationship in the graph as well
-     * This also ensures that when an executable.data vertex exists at two different levels in the graph, it gets a
-     * single level because of a common relationship getting added to connect all executableConfiguration dependencies
+     * This also ensures that when an executable.data vertex exists at two different
+     * levels in the graph, it gets a
+     * single level because of a common relationship getting added to connect all
+     * executableConfiguration dependencies
      * to executable.data
      *
      * @param entityDependencyNode
@@ -855,13 +942,20 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     /**
-     * This function takes a Directed Acyclic Graph and computes on page load executables. The final results is a list of set
-     * of executables. The set contains all the independent executables which can be executed in parallel. The List represents
-     * dependencies. The 0th index set contains executables which are executable immediately. The next index contains all
-     * executables which depend on one or more of the executables which were executed from the 0th index set and so on.
-     * Breadth First level by level traversal is used to compute each set of such independent executables.
+     * This function takes a Directed Acyclic Graph and computes on page load
+     * executables. The final results is a list of set
+     * of executables. The set contains all the independent executables which can be
+     * executed in parallel. The List represents
+     * dependencies. The 0th index set contains executables which are executable
+     * immediately. The next index contains all
+     * executables which depend on one or more of the executables which were
+     * executed from the 0th index set and so on.
+     * Breadth First level by level traversal is used to compute each set of such
+     * independent executables.
      *
-     * @param dag                           : The DAG graph containing all the edges representing dependencies between appsmith entities in the page.
+     * @param dag                           : The DAG graph containing all the edges
+     *                                      representing dependencies between
+     *                                      appsmith entities in the page.
      * @param onPageLoadExecutableSet
      * @param executableNameToExecutableMap : All the executable names for the page
      * @return
@@ -913,11 +1007,15 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     /**
-     * This function gets a set of binding names that come from other executables. It looks for executables in the page with
-     * the same names as words in the binding names set. If yes, it creates a new set of dynamicBindingNames, adds these newly
-     * found executables' bindings in the set, adds the new executables and their bindings to executableNames and edges and
+     * This function gets a set of binding names that come from other executables.
+     * It looks for executables in the page with
+     * the same names as words in the binding names set. If yes, it creates a new
+     * set of dynamicBindingNames, adds these newly
+     * found executables' bindings in the set, adds the new executables and their
+     * bindings to executableNames and edges and
      * recursively calls itself with the new set of dynamicBindingNames.
-     * This ensures that the DAG that we create is complete and contains all possible executables and their dependencies
+     * This ensures that the DAG that we create is complete and contains all
+     * possible executables and their dependencies
      *
      * @return
      */
@@ -931,16 +1029,16 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             return Mono.just(edges);
         }
 
-        // All executables found from possibleExecutableNames set would add their dependencies in the following set for
+        // All executables found from possibleExecutableNames set would add their
+        // dependencies in the following set for
         // further
         // walk to find more executables recursively.
         Set<String> newBindings = ConcurrentHashMap.newKeySet();
 
-        // First fetch all the executables in the page whose name matches the words found in all the dynamic bindings
+        // First fetch all the executables in the page whose name matches the words
+        // found in all the dynamic bindings
         Mono<List<EntityDependencyNode>> findAndAddExecutablesInBindingsMono = getPossibleEntityReferences(
                         executableNameToExecutableMapMono, dynamicBindings, evalVersion)
-                .name(GET_POSSIBLE_ENTITY_REFERENCES)
-                .tap(Micrometer.observation(observationRegistry))
                 .flatMapMany(Flux::fromIterable)
                 // Add dependencies of the executables found in the DSL in the graph.
                 .flatMap(possibleEntity -> {
@@ -966,7 +1064,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 .collectList();
 
         return findAndAddExecutablesInBindingsMono.flatMap(entityDependencyNodes -> {
-            // Now that the next set of bindings have been found, find recursively all executables by these names
+            // Now that the next set of bindings have been found, find recursively all
+            // executables by these names
             // and their bindings
             return recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
                             edges,
@@ -980,14 +1079,18 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     /**
-     * This function finds all the executables which have been set to run on page load by the user and adds their
+     * This function finds all the executables which have been set to run on page
+     * load by the user and adds their
      * dependencies to the graph.
      * <p>
-     * Note : If such an executable has no dependencies and no interesting entity depends on it,
-     * this executable would still not get added to the output of page load scheduler. This function only ensures that the
+     * Note : If such an executable has no dependencies and no interesting entity
+     * depends on it,
+     * this executable would still not get added to the output of page load
+     * scheduler. This function only ensures that the
      * dependencies of user set on page load executables are accounted for.
      * <p>
-     * !!! WARNING !!! : This function updates the set `explicitUserSetOnLoadExecutables` and adds the names of all such
+     * !!! WARNING !!! : This function updates the set
+     * `explicitUserSetOnLoadExecutables` and adds the names of all such
      * executables found in this function.
      *
      * @param creatorId
@@ -1008,7 +1111,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             int evalVersion,
             CreatorContextType creatorType) {
 
-        // First fetch all the executables which have been tagged as on load by the user explicitly.
+        // First fetch all the executables which have been tagged as on load by the user
+        // explicitly.
         return getUnpublishedOnLoadExecutablesExplicitSetByUserInCreatorContextFlux(creatorId, creatorType)
                 .name(GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT)
                 .tap(Micrometer.observation(observationRegistry))
@@ -1044,15 +1148,21 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     /**
-     * Given an executable, this function adds all the dependencies the executable to the graph edges. This is achieved by first
-     * walking the executable configuration and finding the paths and the mustache JS snippets found at the said path. Then
-     * the relationship between the complete path and the property paths found in the mustache JS snippets are added to
+     * Given an executable, this function adds all the dependencies the executable
+     * to the graph edges. This is achieved by first
+     * walking the executable configuration and finding the paths and the mustache
+     * JS snippets found at the said path. Then
+     * the relationship between the complete path and the property paths found in
+     * the mustache JS snippets are added to
      * the graph edges.
      * <p>
-     * !!! WARNING !!! : This function updates the set executablesFoundDuringWalk since this function is called from all
-     * places to add the executable dependencies. If the executable has already been discovered, this function exits by checking
+     * !!! WARNING !!! : This function updates the set executablesFoundDuringWalk
+     * since this function is called from all
+     * places to add the executable dependencies. If the executable has already been
+     * discovered, this function exits by checking
      * in the executablesFoundDuringWalk, else, it adds it to the set.
-     * This function also updates `edges` by adding all the new relationships for the said executable in the set.
+     * This function also updates `edges` by adding all the new relationships for
+     * the said executable in the set.
      *
      * @param edges
      * @param entityDependencyNode
@@ -1070,7 +1180,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         Executable executable = entityDependencyNode.getExecutable();
 
-        // Check if the executable has been deleted in unpublished state. If yes, ignore it.
+        // Check if the executable has been deleted in unpublished state. If yes, ignore
+        // it.
         if (executable.getDeletedAt() != null) {
             return Mono.empty().then();
         }
@@ -1088,8 +1199,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         Set<String> allBindings = new HashSet<>();
         executableBindingsMap.values().stream().forEach(bindings -> allBindings.addAll(bindings));
 
-        // TODO : Throw an error on executable save when bindings from dynamic binding path list do not match the json
-        //  path keys and get the client to recompute the dynamic binding path list and try again.
+        // TODO : Throw an error on executable save when bindings from dynamic binding
+        // path list do not match the json
+        // path keys and get the client to recompute the dynamic binding path list and
+        // try again.
         if (!allBindings.containsAll(executable.getJsonPathKeys())) {
             Set<String> invalidBindings = new HashSet<>(executable.getJsonPathKeys());
             invalidBindings.removeAll(allBindings);
@@ -1115,8 +1228,6 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     executableBindingsMap.get(bindingPath),
                                     evalVersion,
                                     bindingsInDsl)
-                            .name(GET_POSSIBLE_ENTITY_REFERENCES)
-                            .tap(Micrometer.observation(observationRegistry))
                             .flatMapMany(Flux::fromIterable)
                             .map(relatedDependencyNode -> {
                                 bindingsFromExecutables.add(relatedDependencyNode.getReferenceString());
@@ -1132,8 +1243,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     /**
-     * This function walks the widget bindings and adds all the relationships which have been discovered earlier while
-     * walking the DSL and extracting all the relationships into edges between the widget path where there is a dynamic
+     * This function walks the widget bindings and adds all the relationships which
+     * have been discovered earlier while
+     * walking the DSL and extracting all the relationships into edges between the
+     * widget path where there is a dynamic
      * binding and the entities in the bindings.
      *
      * @param edges
@@ -1147,8 +1260,6 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         return Flux.fromIterable(widgetBindingMap.entrySet())
                 .flatMap(widgetBindingEntries -> getPossibleEntityParentsMap(
                                 widgetBindingEntries.getValue(), entityTypes, evalVersion)
-                        .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
-                        .tap(Micrometer.observation(observationRegistry))
                         .map(possibleParentsMap -> {
                             possibleParentsMap.entrySet().stream().forEach(entry -> {
                                 if (entry.getValue() == null || entry.getValue().isEmpty()) {
@@ -1184,7 +1295,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     /**
-     * This function walks the executable configuration and extracts a map of all the dynamic bindings present and the
+     * This function walks the executable configuration and extracts a map of all
+     * the dynamic bindings present and the
      * executable path where they exist.
      *
      * @param executable
@@ -1199,14 +1311,18 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 executable.getExecutableConfiguration(), new TypeReference<HashMap<String, Object>>() {});
         Set<String> selfReferencingDataPaths = executable.getSelfReferencingDataPaths();
         if (dynamicBindingPathList != null) {
-            // Each of these might have nested structures, so we iterate through them to find the leaf node for each
+            // Each of these might have nested structures, so we iterate through them to
+            // find the leaf node for each
             for (Property x : dynamicBindingPathList) {
                 final String fieldPath = String.valueOf(x.getKey());
 
                 /**
-                 * selfReferencingDataPaths is a set of paths that are expected to contain bindings that refer to the
-                 * same executable object i.e. a cyclic reference. e.g. A GraphQL API response can contain pagination
-                 * cursors that are required to be configured in the pagination tab of the same API. We don't want to
+                 * selfReferencingDataPaths is a set of paths that are expected to contain
+                 * bindings that refer to the
+                 * same executable object i.e. a cyclic reference. e.g. A GraphQL API response
+                 * can contain pagination
+                 * cursors that are required to be configured in the pagination tab of the same
+                 * API. We don't want to
                  * treat these cyclic references as cyclic dependency errors.
                  */
                 if (selfReferencingDataPaths.contains(fieldPath)) {
@@ -1214,13 +1330,15 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 }
 
                 String[] fields = fieldPath.split("[].\\[]");
-                // For nested fields, the parent dsl to search in would shift by one level every iteration
+                // For nested fields, the parent dsl to search in would shift by one level every
+                // iteration
                 Object parent = configurationObj;
                 Iterator<String> fieldsIterator = Arrays.stream(fields)
                         .filter(fieldToken -> !fieldToken.isBlank())
                         .iterator();
                 boolean isLeafNode = false;
-                // This loop will end at either a leaf node, or the last identified JSON field (by throwing an
+                // This loop will end at either a leaf node, or the last identified JSON field
+                // (by throwing an
                 // exception)
                 // Valid forms of the fieldPath for this search could be:
                 // root.field.list[index].childField.anotherList.indexWithDotOperator.multidimensionalList[index1][index2]
@@ -1235,11 +1353,13 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             try {
                                 parent = ((List) parent).get(Integer.parseInt(nextKey));
                             } catch (IndexOutOfBoundsException e) {
-                                // The index being referred does not exist. Hence the path would not exist. Ignore the
+                                // The index being referred does not exist. Hence the path would not exist.
+                                // Ignore the
                                 // binding
                             }
                         } else {
-                            // The list configuration does not seem correct. Hence the path would not exist. Ignore the
+                            // The list configuration does not seem correct. Hence the path would not exist.
+                            // Ignore the
                             // binding
                         }
                     }
@@ -1255,7 +1375,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 if (isLeafNode) {
 
                     Boolean isBindingPresentInString = MustacheHelper.laxIsBindingPresentInString((String) parent);
-                    // We found the path. But if the path has mustache bindings, record the same in the map
+                    // We found the path. But if the path has mustache bindings, record the same in
+                    // the map
                     // In case
                     if (isBindingPresentInString || executable.hasExtractableBinding()) {
                         Set<String> mustacheKeysFromFields;
@@ -1265,7 +1386,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     .map(token -> token.getValue())
                                     .collect(Collectors.toSet());
                         } else {
-                            // this must be a JS function. No need to extract mustache. The entire string is JS body
+                            // this must be a JS function. No need to extract mustache. The entire string is
+                            // JS body
                             mustacheKeysFromFields = Set.of((String) parent);
                         }
 
@@ -1286,7 +1408,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     /**
      * This function creates all `child -> parent` edges given a path.
      * <p>
-     * For example, given path `Dropdown1.options[1].value`, the following relationships are generated :
+     * For example, given path `Dropdown1.options[1].value`, the following
+     * relationships are generated :
      * <p>
      * Dropdown1.options[1].value -> Dropdown1.options[1]
      * Dropdown1.options[1] -> Dropdown1.options
@@ -1323,13 +1446,17 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     /**
-     * Given a dynamic binding, this function checks if it is a candidate for on page load. This is done by checking for
+     * Given a dynamic binding, this function checks if it is a candidate for on
+     * page load. This is done by checking for
      * the following two conditions :
-     * - Is it an executable name (which has been found in the page). If not, ignore.
+     * - Is it an executable name (which has been found in the page). If not,
+     * ignore.
      * - Has this executable already been found for page load? If yes, ignore.
      * - If JS, following two conditions are checked for :
-     * - If sync function, ignore. This is because client would execute the same during dynamic binding eval
-     * - If async function, it is a candidate only if the data for the function is referred in the dynamic binding.
+     * - If sync function, ignore. This is because client would execute the same
+     * during dynamic binding eval
+     * - If async function, it is a candidate only if the data for the function is
+     * referred in the dynamic binding.
      *
      * @param executableNameToExecutableMap
      * @param vertex
@@ -1350,16 +1477,19 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         for (String entity : possibleParents) {
 
-            // if this generated entity name from the binding matches an executable name check for its eligibility
+            // if this generated entity name from the binding matches an executable name
+            // check for its eligibility
             if (executableNameToExecutableMap.containsKey(entity)) {
 
                 Boolean isCandidateForPageLoad = TRUE;
 
                 /**
                  * Add executable for page load if:
-                 *  o it has been explicitly set to run on page load by the user (even if its data is not
-                 *  referenced in any widget or executable)
-                 *  o or, it is not a function call i.e. the data of this call is being referred to in the binding.
+                 * o it has been explicitly set to run on page load by the user (even if its
+                 * data is not
+                 * referenced in any widget or executable)
+                 * o or, it is not a function call i.e. the data of this call is being referred
+                 * to in the binding.
                  */
                 String validBinding;
                 if (explicitUserSetOnLoadExecutables.contains(entity)) {
@@ -1376,7 +1506,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                     // Check if this executable has already been added to page load executables.
                     if (pageLoadExecutablesLevelMap.containsKey(entity)) {
-                        // Remove this executable from the existing level so that it can be added again at a deeper
+                        // Remove this executable from the existing level so that it can be added again
+                        // at a deeper
                         // level.
                         Integer level = pageLoadExecutablesLevelMap.get(entity);
                         existingPageLoadExecutables.get(level).remove(entity);
