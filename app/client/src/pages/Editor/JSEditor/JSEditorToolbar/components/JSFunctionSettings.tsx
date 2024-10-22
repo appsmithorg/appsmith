@@ -8,7 +8,6 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { createMessage, JS_EDITOR_SETTINGS } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { ToolbarSettingsPopover } from "IDE";
 
 interface Props {
   disabled: boolean;
@@ -73,8 +72,6 @@ export const JSFunctionSettings = (props: Props) => {
     FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
-  const [isOpen, setIsOpen] = useState(false);
-
   // If the feature flag is disabled, render the old version of the component
   if (!isActionRedesignEnabled) {
     return (
@@ -88,25 +85,18 @@ export const JSFunctionSettings = (props: Props) => {
 
   // Render the new version of the component
   return (
-    <ToolbarSettingsPopover
-      dataTestId={"t--js-editor-SETTINGS"}
-      handleOpenChange={setIsOpen}
-      isOpen={isOpen}
-      title={createMessage(JS_EDITOR_SETTINGS.TITLE)}
-    >
-      <Flex flexDirection="column" gap="spaces-4" w="100%">
-        <Text kind="heading-xs">
-          {createMessage(JS_EDITOR_SETTINGS.ON_LOAD_TITLE)}
-        </Text>
-        {props.actions.map((action) => (
-          <FunctionSettingRow
-            action={action}
-            disabled={props.disabled}
-            key={action.id}
-            onUpdateSettings={props.onUpdateSettings}
-          />
-        ))}
-      </Flex>
-    </ToolbarSettingsPopover>
+    <Flex flexDirection="column" gap="spaces-4" w="100%">
+      <Text kind="heading-xs">
+        {createMessage(JS_EDITOR_SETTINGS.ON_LOAD_TITLE)}
+      </Text>
+      {props.actions.map((action) => (
+        <FunctionSettingRow
+          action={action}
+          disabled={props.disabled}
+          key={action.id}
+          onUpdateSettings={props.onUpdateSettings}
+        />
+      ))}
+    </Flex>
   );
 };
