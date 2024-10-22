@@ -107,12 +107,18 @@ insert_vulns_into_db() {
 
     ((count++))
 
-    # Insert the vulnerability into the database
+    # Insert the vulnerability into the database and continue on failure
     psql "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" <<EOF
 INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod)
 VALUES ('$product_code', 'scout', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod');
 EOF
-    echo "Inserted new vulnerability: $vurn_id with priority: $priority"
+
+    if [ $? -eq 0 ]; then
+      echo "Inserted new vulnerability: $vurn_id with priority: $priority"
+    else
+      echo "Failed to insert vulnerability: $vurn_id with priority: $priority. Continuing..."
+    fi
+
   done < "scout_vulnerabilities_diff.csv"
 }
 

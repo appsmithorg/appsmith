@@ -58,7 +58,7 @@ jobs:
             const fs = require('fs');
             const path = require('path');
             const { DB_HOST, DB_NAME, DB_USER, DB_PWD } = process.env;
-      
+
             const pool = new Pool({
               user: DB_USER,
               host: DB_HOST,
@@ -67,48 +67,53 @@ jobs:
               port: 5432,
               connectionTimeoutMillis: 60000,
             });
-      
-            const client = await pool.connect();
-            try {
-              const result = await client.query(`SELECT * FROM vulnerability_tracking`);
-              console.log('Vulnerability Data:', result.rows);
-      
-              const extractedData = result.rows.map(({ vurn_id, product, scanner_tool }) => ({
-                vurn_id,
-                product,
-                scanner_tool
-              }));
-              console.log('Extracted Vulnerability Data:', extractedData);
-      
-              // Prepare CSV content
-              const csvContent = [
-                ['vurn_id', 'product', 'scanner_tool'],
-                ...extractedData.map(row => [row.vurn_id, row.product, row.scanner_tool])
-              ]
-              .map(e => e.join(',')) // Join columns
-              .join('\n'); // Join rows
-      
-              // Write to CSV file in workspace
-              const csvFilePath = path.join(process.env.GITHUB_WORKSPACE, 'vulnerability_base_data.csv');
-              fs.writeFileSync(csvFilePath, csvContent);
-              console.log(`Data successfully written to ${csvFilePath}`);
-      
-              // Prepare TXT content
-              const txtContent = extractedData
-                .map(row => `vurn_id: ${row.vurn_id}, product: ${row.product}, scanner_tool: ${row.scanner_tool}`)
+
+            (async () => {
+              const client = await pool.connect();
+              try {
+                // Fetch vurn_id, product, scanner_tool, and priority from the database
+                const result = await client.query(`SELECT vurn_id, product, scanner_tool, priority FROM vulnerability_tracking`);
+                console.log('Vulnerability Data:', result.rows);
+
+                // Extract relevant fields from the result
+                const extractedData = result.rows.map(({ vurn_id, product, scanner_tool, priority }) => ({
+                  vurn_id,
+                  product,
+                  scanner_tool,
+                  priority
+                }));
+                console.log('Extracted Vulnerability Data:', extractedData);
+
+                // Prepare CSV content
+                const csvContent = [
+                  ['vurn_id', 'product', 'scanner_tool', 'priority'],  // Add priority column header
+                  ...extractedData.map(row => [row.vurn_id, row.product, row.scanner_tool, row.priority])
+                ]
+                .map(e => e.join(',')) // Join columns
                 .join('\n'); // Join rows
-      
-              // Write to TXT file in workspace
-              const txtFilePath = path.join(process.env.GITHUB_WORKSPACE, 'vulnerability_base_data.txt');
-              fs.writeFileSync(txtFilePath, txtContent);
-              console.log(`Data successfully written to ${txtFilePath}`);
-      
-              client.release();
-              return extractedData; // Return the extracted data
-            } catch (err) {
-              console.error('Error fetching vulnerability data:', err);
-              client.release();
-            }  
+
+                // Write to CSV file in workspace
+                const csvFilePath = path.join(process.env.GITHUB_WORKSPACE, 'vulnerability_base_data.csv');
+                fs.writeFileSync(csvFilePath, csvContent);
+                console.log(`Data successfully written to ${csvFilePath}`);
+
+                // Prepare TXT content
+                const txtContent = extractedData
+                  .map(row => `vurn_id: ${row.vurn_id}, product: ${row.product}, scanner_tool: ${row.scanner_tool}, priority: ${row.priority}`)
+                  .join('\n'); // Join rows
+
+                // Write to TXT file in workspace
+                const txtFilePath = path.join(process.env.GITHUB_WORKSPACE, 'vulnerability_base_data.txt');
+                fs.writeFileSync(txtFilePath, txtContent);
+                console.log(`Data successfully written to ${txtFilePath}`);
+
+                client.release();
+                return extractedData; // Return the extracted data
+              } catch (err) {
+                console.error('Error fetching vulnerability data:', err);
+                client.release();
+              }
+            })();
               
       - name: Upload Vulnerability Data
         uses: actions/upload-artifact@v3
