@@ -121,8 +121,8 @@ jobs:
         with:
           name: vulnerability-data
           path: |
-            vulnerability_base_data.csv
-            vulnerability_base_data.txt
+            scripts/vulnerability_base_data.csv
+            scripts/vulnerability_base_data.txt
       
 
       # Run Scout vulnerability data script
