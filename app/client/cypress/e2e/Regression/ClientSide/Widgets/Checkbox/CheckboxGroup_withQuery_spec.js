@@ -8,7 +8,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Checkbox Group Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Checkbox"] },
+  { tags: ["@tag.Widget", "@tag.Checkbox", "@tag.Binding"] },
   function () {
     let dsName;
     before(() => {

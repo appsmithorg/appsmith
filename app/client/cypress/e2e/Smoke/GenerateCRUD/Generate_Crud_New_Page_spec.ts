@@ -3,7 +3,9 @@ import PageList from "../../../support/Pages/PageList";
 
 describe(
   "Validate generate CRUD operation by creating a datasource from generate CRUD form",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   () => {
     it(
       "1. Generated CRUD app should work when there are no entities in the page & when there are entities in the current page",

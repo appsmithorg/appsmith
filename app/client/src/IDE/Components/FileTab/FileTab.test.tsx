@@ -37,6 +37,7 @@ describe("FileTab", () => {
         editorConfig={mockEditorConfig}
         icon={<TabIcon />}
         isActive
+        isChangePermitted
         isLoading={isLoading}
         onClick={mockOnClick}
         onClose={mockOnClose}

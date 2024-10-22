@@ -2509,6 +2509,11 @@ export const FIELD_REQUIRED_MESSAGE = () => `This field is required`;
 
 export const PREPARED_STATEMENT_WARNING = {
   MESSAGE: () =>
-    "Prepared Statements are currently enabled, which may be causing the query error. Turn them off and try running the query again",
+    "Prepared statements are currently enabled, which may be causing the query error. Turn them off and try running the query again",
   LINK: () => "Open settings",
+};
+
+export const JS_EDITOR_SETTINGS = {
+  TITLE: () => "Settings",
+  ON_LOAD_TITLE: () => "Choose functions to run on page load",
 };

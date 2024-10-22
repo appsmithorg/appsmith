@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Column freeze & unfreeze in page mode",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 200, y: 200 });

@@ -12,7 +12,7 @@ import {
 
 describe(
   "Table widget v2 edge case scenario testing",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

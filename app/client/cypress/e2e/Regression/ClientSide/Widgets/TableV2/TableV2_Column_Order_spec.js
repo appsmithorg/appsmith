@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget V2 column order maintained on column change validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableV2ColumnOrderDsl");

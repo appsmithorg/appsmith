@@ -8,7 +8,7 @@ import {
 
 describe(
   "Text Widget color/font/alignment Functionality",
-  { tags: ["@tag.Widget", "@tag.Text"] },
+  { tags: ["@tag.Widget", "@tag.Text", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("textDsl");

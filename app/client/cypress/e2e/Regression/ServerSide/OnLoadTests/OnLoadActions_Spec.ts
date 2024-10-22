@@ -16,7 +16,7 @@ import EditorNavigation, {
 
 describe(
   "Layout OnLoad Actions tests",
-  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Sanity"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Sanity", "@tag.Binding"] },
   function () {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

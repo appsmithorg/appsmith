@@ -8,7 +8,7 @@ import {
 
 describe(
   "Table widget v2: select column type test",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 100);

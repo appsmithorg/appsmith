@@ -13,6 +13,7 @@ import { DATA_TEST_ID } from "./constants";
 
 export interface FileTabProps {
   isActive: boolean;
+  isChangePermitted?: boolean;
   isLoading?: boolean;
   title: string;
   onClick: () => void;
@@ -32,6 +33,7 @@ export const FileTab = ({
   editorConfig,
   icon,
   isActive,
+  isChangePermitted = false,
   isLoading = false,
   onClick,
   onClose,
@@ -89,7 +91,8 @@ export const FileTab = ({
     enterEditMode();
   });
 
-  const handleDoubleClick = editorConfig ? handleEnterEditMode : noop;
+  const handleDoubleClick =
+    editorConfig && isChangePermitted ? handleEnterEditMode : noop;
 
   const inputProps = useMemo(
     () => ({

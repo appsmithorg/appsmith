@@ -11,7 +11,7 @@ import {
 import PageList from "../../../../support/Pages/PageList";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
-describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
+describe("Page Load tests", { tags: ["@tag.IDE", "@tag.PropertyPane"] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });

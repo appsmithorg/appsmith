@@ -10,7 +10,7 @@ import {
 
 describe(
   "Delete workspace test spec",
-  { tags: ["@tag.Workspace"] },
+  { tags: ["@tag.Workspace", "@tag.AccessControl"] },
   function () {
     let newWorkspaceName: any;
 

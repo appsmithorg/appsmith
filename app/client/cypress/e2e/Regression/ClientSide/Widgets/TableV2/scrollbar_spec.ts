@@ -10,7 +10,7 @@ import {
 
 describe(
   "Table widget v2: tableData change test",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("Table/ScrollbarDSL");

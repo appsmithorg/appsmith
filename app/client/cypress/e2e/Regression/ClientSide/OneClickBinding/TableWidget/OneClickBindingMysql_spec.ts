@@ -16,7 +16,7 @@ const oneClickBinding = new OneClickBinding();
 
 describe(
   "Table widget one click binding feature",
-  { tags: ["@tag.Widget"] },
+  { tags: ["@tag.Widget", "@tag.Binding"] },
   () => {
     it("1.should check that queries are created and bound to table widget properly", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 400);

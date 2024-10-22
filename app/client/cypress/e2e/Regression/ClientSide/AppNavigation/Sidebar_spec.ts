@@ -13,7 +13,7 @@ import {
 
 describe(
   "Test Sidebar navigation style",
-  { tags: ["@tag.IDE", "@tag.ImportExport"] },
+  { tags: ["@tag.IDE", "@tag.ImportExport", "@tag.PropertyPane", "@tag.Git"] },
   function () {
     before(() => {
       // Import an application

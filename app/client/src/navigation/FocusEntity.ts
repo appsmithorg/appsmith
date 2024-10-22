@@ -278,7 +278,10 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
   }
 
   if (match.params.entity) {
-    if (match.params.entity === "libraries") {
+    if (
+      match.params.entity === "libraries" ||
+      match.params.entity === "packages"
+    ) {
       return {
         entity: FocusEntity.LIBRARY,
         id: "",

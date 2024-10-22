@@ -35,7 +35,7 @@ function clearOptionsProperty() {
 
 describe(
   "JSONForm RadioGroup Field",
-  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

@@ -13,7 +13,7 @@ const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 
 describe(
   "Single Select Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Select"] },
+  { tags: ["@tag.Widget", "@tag.Select", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("TreeSelectDsl");

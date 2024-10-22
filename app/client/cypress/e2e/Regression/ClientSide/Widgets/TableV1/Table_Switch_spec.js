@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget and Switch binding Functionality",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("swtchTableDsl");
