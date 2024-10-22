@@ -36,6 +36,7 @@ export interface TokenSource {
   innerSpacing?: TokenObj;
   strokeWidth?: TokenObj;
   iconSize?: TokenObj;
+  fontFamily?: FontFamily;
 }
 
 export interface TokenObj {
