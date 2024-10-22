@@ -78,19 +78,14 @@ docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk '{print $2, $3}' | sort -
 
 # Compare new vulnerabilities against old vulnerabilities
 echo "Comparing new vulnerabilities with existing vulnerabilities in $OLD_VULN_FILE..."
-comm -13 <(awk '{print $1}' "$OLD_VULN_FILE" | sort) <(awk '{print $1}' "$NEW_VULN_FILE" | sort) > "$DIFF_OUTPUT_FILE"
+comm -13 <(awk '{print $2}' "$OLD_VULN_FILE" | sort) <(awk '{print $2}' "$NEW_VULN_FILE" | sort) > "$DIFF_OUTPUT_FILE"
 
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
   while IFS= read -r line; do
-    local vurn_id=$(echo "$line" | awk '{print $1}')
-    local priority=$(echo "$line" | awk '{print $2}')
-
-    # Ensure priority is valid
-    case "$priority" in
-      "CRITICAL" | "HIGH" | "MEDIUM" | "LOW" | "UNSPECIFIED") ;;
-      *) priority="UNSPECIFIED" ;;  # Default to UNSPECIFIED if priority is not valid
-    esac
+    # Extract priority and vurn_id from the line
+    local priority=$(echo "$line" | awk '{print $1}')
+    local vurn_id=$(echo "$line" | awk '{print $2}')
 
     # Determine the product code based on the image name
     local product_code
