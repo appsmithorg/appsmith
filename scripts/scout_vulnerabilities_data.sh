@@ -71,6 +71,8 @@ else
     cp "$CSV_OUTPUT_FILE" "scout_vulnerabilities_diff.csv"
 fi
 
+cat scout_vulnerabilities_diff.csv
+
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
   local count=0
