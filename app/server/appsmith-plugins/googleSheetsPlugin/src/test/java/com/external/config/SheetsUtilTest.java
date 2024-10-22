@@ -25,7 +25,7 @@ public class SheetsUtilTest {
         propList.add(prop);
         dsConfig.setProperties(propList);
         Set<String> result = SheetsUtil.validateAndGetUserAuthorizedSheetIds(dsConfig, null);
-        assertEquals(result, null);
+        assertEquals(null, result);
     }
 
     @Test
@@ -49,7 +49,7 @@ public class SheetsUtilTest {
 
         dsConfig.setProperties(propList);
         Set<String> result = SheetsUtil.validateAndGetUserAuthorizedSheetIds(dsConfig, null);
-        assertEquals(result.size(), 1);
+        assertEquals(1, result.size());
     }
 
     @Test
