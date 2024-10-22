@@ -76,16 +76,35 @@ rm -f "$NEW_VULN_FILE" "$DIFF_OUTPUT_FILE" "$JSON_OUTPUT_FILE"
 docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk '{print $2, $3}' | sort -u > "$NEW_VULN_FILE"
 [ -s "$NEW_VULN_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$NEW_VULN_FILE"
 
+cat scout_vulnerabilities_new.txt
+
 # Compare new vulnerabilities against old vulnerabilities
 echo "Comparing new vulnerabilities with existing vulnerabilities in $OLD_VULN_FILE..."
-comm -13 <(awk '{print $2}' "$OLD_VULN_FILE" | sort) <(awk '{print $2}' "$NEW_VULN_FILE" | sort) > "$DIFF_OUTPUT_FILE"
+if [ -s "$OLD_VULN_FILE" ]; then
+  comm -13 <(awk '{print $3}' "$OLD_VULN_FILE" | sort) <(awk '{print $3}' "$NEW_VULN_FILE" | sort) > "$DIFF_OUTPUT_FILE"
+else
+  echo "$OLD_VULN_FILE is empty. All new vulnerabilities will be inserted."
+  # If old file is empty, just copy new vulnerabilities to the diff output
+  cp "$NEW_VULN_FILE" "$DIFF_OUTPUT_FILE"
+fi
+
+
 
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
   while IFS= read -r line; do
-    # Extract priority and vurn_id from the line
-    local priority=$(echo "$line" | awk '{print $1}')
-    local vurn_id=$(echo "$line" | awk '{print $2}')
+    # Print the raw line for debugging
+    echo "Processing line: $line"
+
+    # Extract vurn_id and priority from the line
+    local vurn_id=$(echo "$line" | awk '{print $3}')   # Assuming CVE ID is the third element
+    local priority=$(echo "$line" | awk '{print $2}')  # Assuming priority is the second element
+
+    # Check if vurn_id or priority is empty and skip if it is
+    if [[ -z "$vurn_id" || -z "$priority" ]]; then
+      echo "Skipping empty vulnerability ID or priority"
+      continue
+    fi
 
     # Determine the product code based on the image name
     local product_code
