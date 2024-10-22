@@ -8,14 +8,13 @@ import {
   Flex,
   Menu,
   MenuContent,
-  MenuItem,
   MenuTrigger,
   Tooltip,
 } from "@appsmith/ads";
 import type { JSActionDropdownOption } from "../types";
 import { RUN_BUTTON_DEFAULTS, testLocators } from "../constants";
 import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ee/constants/messages";
-import { MenuTitle } from "./MenuTitle";
+import { JSFunctionItem } from "./JSFunctionItem";
 
 interface Props {
   disabled: boolean;
@@ -71,13 +70,11 @@ export const JSFunctionRun = (props: Props) => {
         </MenuTrigger>
         <MenuContent align="end">
           {props.options.map((option) => (
-            <MenuItem
+            <JSFunctionItem
               key={option.label}
-              onSelect={() => onFunctionSelect(option)}
-              size="sm"
-            >
-              <MenuTitle>{option.label}</MenuTitle>
-            </MenuItem>
+              onSelect={onFunctionSelect}
+              option={option}
+            />
           ))}
         </MenuContent>
       </Menu>
