@@ -90,6 +90,11 @@ fi
 insert_vulns_into_db() {
   local count=0
   while IFS=, read -r priority vurn_id; do
+    if [[ $count -lt 2 ]]; then
+      echo "Iteration $((count + 1)):"
+      echo "vurn ID: $vurn_id"
+      echo "priority: $priority"
+    fi
     # Skip empty lines
     if [[ -z "$vurn_id" || -z "$priority" ]]; then
       echo "Skipping empty vulnerability ID or priority"
@@ -113,11 +118,7 @@ insert_vulns_into_db() {
     local owner="John Doe"  # Customize this as needed
     local pod="Security"  # Customize this as needed
 
-    if [[ $count -lt 2 ]]; then
-      echo "Iteration $((count + 1)):"
-      echo "vurn ID: $vurn_id"
-      echo "priority: $priority"
-    fi
+ 
 
     ((count++))
 
