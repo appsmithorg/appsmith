@@ -17,7 +17,6 @@ import {
 import { useParams } from "react-router";
 import type { AppState } from "ee/reducers";
 import { thinScrollbar } from "constants/DefaultTheme";
-import ActionRightPane from "components/editorComponents/ActionRightPane";
 import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
@@ -377,7 +376,7 @@ export function EditorJSONtoForm(props: Props) {
             <RunHistory />
           </SecondaryWrapper>
         </div>
-        <ActionRightPane additionalSections={actionRightPaneAdditionSections} />
+        {actionRightPaneAdditionSections}
       </Wrapper>
     </QueryFormContainer>
   );
