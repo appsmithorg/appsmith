@@ -72,6 +72,15 @@ describe("emptyChartData", () => {
       expect(emptyChartData(props)).toEqual(true);
     });
 
+    it("returns true if each series is null or undefined", () => {
+      const props = JSON.parse(JSON.stringify(basicEChartProps));
+
+      props.chartData.seriesID1 = { data: undefined };
+      props.chartData.seriesID2 = { data: null };
+
+      expect(emptyChartData(props)).toEqual(true);
+    });
+
     it("returns true if no series is present", () => {
       const props = JSON.parse(JSON.stringify(basicEChartProps));
 
