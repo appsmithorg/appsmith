@@ -21,9 +21,6 @@ import JSObjectCollection from "./Collection";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { jsPropertiesState } from "./jsPropertiesState";
 import { getFixedTimeDifference } from "workers/common/DataTreeEvaluator/utils";
-interface ParseJSAction extends ParsedJSSubAction {
-  parsedFunction: unknown;
-}
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -118,7 +115,7 @@ export function saveResolvedFunctionsAndJSUpdates(
         JSObjectASTParseTime,
       });
 
-      const actionsMap: Record<string, ParseJSAction> = {};
+      const actionsMap: Record<string, ParsedJSSubAction> = {};
       const variablesMap: Record<string, { name: string; value: unknown }> = {};
 
       if (success) {
@@ -170,7 +167,6 @@ export function saveResolvedFunctionsAndJSUpdates(
                     name: parsedElement.key,
                     body: functionString,
                     arguments: params,
-                    parsedFunction: result,
                   };
                 }
               } catch {
@@ -314,8 +310,6 @@ export function parseJSActions(
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {
         ...action,
-        // parsedFunction - used only to determine if function is async
-        parsedFunction: undefined,
       } as ParsedJSSubAction;
     });
   });
