@@ -26,8 +26,15 @@ install_trivy() {
     while [[ $count -lt 3 ]]; do
         echo "Installing Trivy (attempt $((count + 1)))..."
         TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
-        TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_Linux-64bit.tar.gz"
-        curl -sfL "$TRIVY_URL" | tar -xzf - trivy && mv trivy "$HOME/bin/" && export PATH="$HOME/bin:$PATH" && command -v trivy &> /dev/null && return 0
+        
+        # Check if the system is macOS and set the correct binary
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_macOS-64bit.tar.gz"
+        else
+            TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_Linux-64bit.tar.gz"
+        fi
+        
+        curl -sfL "$TRIVY_URL" | tar -xz -C /usr/local/bin trivy && command -v trivy &> /dev/null && return 0
         echo "Installation failed. Retrying in 10 seconds..."
         sleep 10
         count=$((count + 1))
