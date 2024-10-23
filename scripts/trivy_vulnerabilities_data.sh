@@ -68,11 +68,24 @@ run_trivy_scan() {
     local count=0
     while [[ $count -lt 3 ]]; do
         echo "Running Trivy scan for image: $IMAGE (attempt $((count + 1)))..."
-        trivy image --format json "$IMAGE" > "trivy_vulnerabilities.json" && return 0
-        echo "Scan failed. Retrying in 10 seconds..."
+        
+        # Run Trivy scan and capture both stdout and stderr
+        trivy image --format json "$IMAGE" > "trivy_vulnerabilities.json" 2> "trivy_error.log"
+        
+        # Check if the scan was successful
+        if [[ $? -eq 0 ]]; then
+            echo "Scan completed successfully."
+            return 0
+        else
+            echo "Scan failed. Check trivy_error.log for details."
+            cat trivy_error.log
+        fi
+        
+        echo "Retrying in 10 seconds..."
         sleep 10
         count=$((count + 1))
     done
+    
     echo "Error: Trivy scan failed after 3 attempts."
     exit 1
 }
