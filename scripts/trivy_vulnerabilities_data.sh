@@ -20,36 +20,51 @@ IMAGE="${4:-appsmith/appsmith-ce:release}"
 OLD_VULN_FILE="${5:-vulnerability_base_data.csv}"
 
 
-# Function to install Trivy
+# Function to install Trivy on macOS (both Apple Silicon and Intel)
 install_trivy() {
     local count=0
     while [[ $count -lt 3 ]]; do
         echo "Installing Trivy (attempt $((count + 1)))..."
+        
+        # Fetch the latest Trivy version
         TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
         
-        # Check if the system is macOS and set the correct binary
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_macOS-64bit.tar.gz"
+        # Determine the architecture
+        ARCH=$(uname -m)
+        if [[ "$ARCH" == "arm64" ]]; then
+            TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_macOS-ARM64.tar.gz"
         else
-            TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_Linux-64bit.tar.gz"
+            TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_macOS-64bit.tar.gz"
         fi
         
-        # Download the file and check if it's successful
+        # Download the file
+        echo "Downloading Trivy from $TRIVY_URL"
         curl -L -o trivy.tar.gz "$TRIVY_URL"
-        if [[ $? -ne 0 ]]; then
-            echo "Failed to download the file."
-            exit 1
+        if [[ $? -ne 0 || ! -s trivy.tar.gz ]]; then
+            echo "Failed to download the file or the file is empty."
+            sleep 10
+            count=$((count + 1))
+            continue
         fi
 
         # Extract the file
-        tar -xzf trivy.tar.gz -C /usr/local/bin
+        tar -xzf trivy.tar.gz
         if [[ $? -ne 0 ]]; then
             echo "Failed to extract the file."
-            exit 1
+            rm -f trivy.tar.gz
+            sleep 10
+            count=$((count + 1))
+            continue
         fi
         
-        # Check if Trivy was installed
-        command -v trivy &> /dev/null && return 0
+        # Move the trivy binary to /usr/local/bin
+        sudo mv trivy /usr/local/bin/
+        if command -v trivy &> /dev/null; then
+            echo "Trivy installed successfully."
+            rm -f trivy.tar.gz
+            return 0
+        fi
+        
         echo "Installation failed. Retrying in 10 seconds..."
         sleep 10
         count=$((count + 1))
