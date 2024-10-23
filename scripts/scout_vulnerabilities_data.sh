@@ -120,6 +120,7 @@ insert_vulns_into_db() {
 
   # Remove trailing comma
   values_list=${values_list%,}
+  echo "my value list is...... $values_list"
 
   if [ -n "$values_list" ]; then
     # Insert all vulnerabilities in one query
