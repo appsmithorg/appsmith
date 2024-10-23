@@ -1064,8 +1064,8 @@ const MaximizeV3Icon = importSvg(
   async () => import("../__assets__/icons/ads/maximize-v3-icon.svg"),
 );
 
-const ExternalLinkIcon = importSvg(
-  async () => import("../__assets__/icons/ads/external-link-line.svg"),
+const ExternalLinkIcon = importRemixIcon(
+  async () => import("remixicon-react/ExternalLinkLineIcon"),
 );
 
 import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
