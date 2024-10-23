@@ -18,7 +18,7 @@ const _mapChartPlot = (text: string) =>
 
 describe(
   "Map Chart Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Maps", "@tag.Visual"] },
+  { tags: ["@tag.Widget", "@tag.Maps", "@tag.Visual", "@tag.Binding"] },
   function () {
     it("1. Drag and drop a Map Chart widget and verify", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MAPCHART, 200, 200);

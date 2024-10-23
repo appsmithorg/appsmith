@@ -10,7 +10,7 @@ import EditorNavigation, {
 
 describe(
   "Rich Text Editor widget Tests",
-  { tags: ["@tag.Widget", "@tag.TextEditor"] },
+  { tags: ["@tag.Widget", "@tag.TextEditor", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("richTextEditorDsl");

@@ -5,7 +5,7 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe(
   "Modal, Radio, Checkbox widget",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("Listv2/ListWithModalStatCheckboxAndRadio");

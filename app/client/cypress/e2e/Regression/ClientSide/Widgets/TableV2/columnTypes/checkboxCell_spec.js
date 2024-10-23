@@ -30,7 +30,7 @@ const tableData = `[
 const checkboxSelector = " .bp3-checkbox input[type='checkbox']";
 describe(
   "Checkbox column type funtionality test",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);

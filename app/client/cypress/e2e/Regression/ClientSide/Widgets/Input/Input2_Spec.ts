@@ -13,7 +13,7 @@ import EditorNavigation, {
 
 describe(
   "InputV2 widget tests",
-  { tags: ["@tag.Widget", "@tag.Input"] },
+  { tags: ["@tag.Widget", "@tag.Input", "@tag.Binding"] },
   function () {
     let testcases,
       multilineData = `[

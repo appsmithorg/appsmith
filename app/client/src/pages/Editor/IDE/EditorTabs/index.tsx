@@ -35,6 +35,7 @@ const EditorTabs = () => {
   const { segment, segmentMode } = useCurrentEditorState();
   const { closeClickHandler, tabClickHandler } = useIDETabClickHandlers();
   const tabsConfig = TabSelectors[segment];
+  const entities = useSelector(tabsConfig.listSelector, shallowEqual);
   const files = useSelector(tabsConfig.tabsSelector, shallowEqual);
   const isListViewActive = useSelector(getListViewActiveState);
 
@@ -122,21 +123,26 @@ const EditorTabs = () => {
             gap="spaces-2"
             height="100%"
           >
-            {files.map((tab) => (
-              <EditableTab
-                icon={tab.icon}
-                id={tab.key}
-                isActive={
-                  currentEntity.id === tab.key &&
-                  segmentMode !== EditorEntityTabState.Add &&
-                  !isListViewActive
-                }
-                key={tab.key}
-                onClick={handleTabClick(tab)}
-                onClose={closeClickHandler}
-                title={tab.title}
-              />
-            ))}
+            {files.map((tab) => {
+              const entity = entities.find((entity) => entity.key === tab.key);
+
+              return (
+                <EditableTab
+                  entity={entity}
+                  icon={tab.icon}
+                  id={tab.key}
+                  isActive={
+                    currentEntity.id === tab.key &&
+                    segmentMode !== EditorEntityTabState.Add &&
+                    !isListViewActive
+                  }
+                  key={tab.key}
+                  onClick={handleTabClick(tab)}
+                  onClose={closeClickHandler}
+                  title={tab.title}
+                />
+              );
+            })}
             <AddTab
               isListActive={isListViewActive}
               newTabClickCallback={handleNewTabClick}

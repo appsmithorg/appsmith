@@ -6,7 +6,7 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Evaluations causing error when page is cloned",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Binding"] },
   function () {
     it("1. Bug: 20841: JSObjects | Sync methods | Not run consistently when Page is cloned", function () {
       const JS_OBJECT_BODY = `export default{

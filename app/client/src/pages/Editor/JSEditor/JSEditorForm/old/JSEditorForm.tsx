@@ -13,11 +13,10 @@ import {
 import { TabbedViewContainer } from "../../styledComponents";
 import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import JSFunctionSettingsView, {
-  type OnUpdateSettingsProps,
-} from "../../JSFunctionSettings";
 import type { CodeEditorGutter } from "components/editorComponents/CodeEditor";
 import type { JSAction, JSCollection } from "entities/JSCollection";
+import { type OnUpdateSettingsProps } from "../../JSEditorToolbar";
+import { JSFunctionSettings } from "../../JSEditorToolbar/components/JSFunctionSettings";
 
 interface Props {
   executing: boolean;
@@ -91,7 +90,7 @@ export function OldJSEditorForm(props: Props) {
         {props.showSettings && (
           <TabPanel value={JSEditorTab.SETTINGS}>
             <div className="js-editor-tab">
-              <JSFunctionSettingsView
+              <JSFunctionSettings
                 actions={props.actions}
                 disabled={!props.changePermitted}
                 onUpdateSettings={props.onUpdateSettings}

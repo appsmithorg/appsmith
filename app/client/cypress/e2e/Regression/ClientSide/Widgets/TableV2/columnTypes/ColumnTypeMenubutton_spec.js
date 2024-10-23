@@ -2,7 +2,7 @@ import * as _ from "../../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Custom column alias functionality",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 150, y: 300 });

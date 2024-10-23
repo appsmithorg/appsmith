@@ -54,6 +54,16 @@ export { default as IDEBottomView } from "./Components/BottomView";
  * It switches between different editor states
  */
 export { default as IDESidebar } from "./Components/Sidebar";
+/**
+ * IDESidePaneWrapper is used as a wrapper for side panes, which provides a border and optional padding
+ * and enforces 100% width and height to the parent.
+ */
+export { default as IDESidePaneWrapper } from "./Components/SidePaneWrapper";
+
+/**
+ * ToolbarSettingsPopover is a popover attached to a settings toggle button in the toolbar
+ */
+export { ToolbarSettingsPopover } from "./Components/ToolbarSettingsPopover";
 
 /* ====================================================
     **** Interfaces ****

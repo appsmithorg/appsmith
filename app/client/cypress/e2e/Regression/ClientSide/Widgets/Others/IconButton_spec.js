@@ -9,7 +9,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Icon button Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.IconButton"] },
+  { tags: ["@tag.Widget", "@tag.IconButton", "@tag.Binding"] },
   function () {
     before(() => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.ICONBUTTON);
