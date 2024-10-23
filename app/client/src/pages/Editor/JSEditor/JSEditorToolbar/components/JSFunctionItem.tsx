@@ -1,7 +1,7 @@
-import type { JSActionDropdownOption } from "../types";
 import React, { useCallback } from "react";
 import { MenuItem } from "@appsmith/ads";
-import { MenuTitle } from "./styled";
+import type { JSActionDropdownOption } from "../types";
+import * as Styled from "./styles";
 
 export const JSFunctionItem = ({
   onSelect,
@@ -16,7 +16,7 @@ export const JSFunctionItem = ({
 
   return (
     <MenuItem onSelect={onFunctionSelect} size="sm">
-      <MenuTitle>{option.label}</MenuTitle>
+      <Styled.MenuTitle>{option.label}</Styled.MenuTitle>
     </MenuItem>
   );
 };
