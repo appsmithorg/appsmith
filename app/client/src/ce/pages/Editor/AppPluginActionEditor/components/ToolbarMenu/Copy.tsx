@@ -7,7 +7,11 @@ import { MenuSub, MenuSubContent, MenuSubTrigger } from "@appsmith/ads";
 import { CONTEXT_COPY, createMessage } from "ee/constants/messages";
 import { PageMenuItem } from "./PageMenuItem";
 
-export const Copy = () => {
+interface Props {
+  disabled?: boolean;
+}
+
+export const Copy = ({ disabled }: Props) => {
   const menuPages = useSelector(getPageList);
   const { action } = usePluginActionContext();
   const dispatch = useDispatch();
@@ -26,7 +30,7 @@ export const Copy = () => {
 
   return (
     <MenuSub>
-      <MenuSubTrigger startIcon="duplicate">
+      <MenuSubTrigger disabled={disabled} startIcon="duplicate">
         {createMessage(CONTEXT_COPY)}
       </MenuSubTrigger>
       <MenuSubContent>
