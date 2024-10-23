@@ -3,6 +3,7 @@ import type {
   PopoverProps,
 } from "@appsmith/wds-headless";
 import type { ReactNode } from "react";
+import type { SIZES } from "@appsmith/wds";
 
 export interface ModalProps
   extends Pick<
@@ -15,9 +16,14 @@ export interface ModalProps
       | "dismissClickOutside"
     >,
     Pick<PopoverModalContentProps, "overlayClassName"> {
-  dataAttributes?: Record<string, string>;
+  /** size of the modal
+   * @default medium
+   */
+  size?: Omit<keyof typeof SIZES, "xSmall">;
   /** The children of the component. */
   children: ReactNode;
+  /** Additional props to be passed to the overlay */
+  overlayProps?: Record<string, string>;
 }
 
 export interface ModalContentProps {
