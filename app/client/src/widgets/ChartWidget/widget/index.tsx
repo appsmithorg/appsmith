@@ -52,8 +52,8 @@ export const emptyChartData = (props: ChartWidgetProps) => {
 
     for (const seriesID in builder.filteredChartData) {
       if (
-        props.chartData[seriesID].data &&
-        Object.keys(props.chartData[seriesID].data).length > 0
+        Array.isArray(props.chartData[seriesID].data) &&
+        props.chartData[seriesID].data.length > 0
       ) {
         return false;
       }
