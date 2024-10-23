@@ -94,7 +94,6 @@ run_trivy_scan() {
     if ! trivy image \
         --db-repository public.ecr.aws/aquasecurity/trivy-db \
         --java-db-repository public.ecr.aws/aquasecurity/trivy-java-db \
-        --scanners vuln \
         --insecure \
         --format json \
         "$IMAGE" > "trivy_vulnerabilities.json"; then
