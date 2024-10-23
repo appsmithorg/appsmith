@@ -90,24 +90,14 @@ run_trivy_scan() {
     echo "Cleaning up Trivy data..."
     trivy clean --all
 
-    # local count=0
-    # while [[ $count -lt 5 ]]; do
-    #     echo "Attempting to download Trivy database (attempt $((count + 1)))..."
-    #     if trivy image --download-db-only; then
-    #         break
-    #     fi
-    #     echo "Failed to download. Retrying in 10 seconds..."
-    #     sleep 10
-    #     count=$((count + 1))
-    # done
-
-    # if [[ $count -eq 5 ]]; then
-    #     echo "Error: Failed to download Trivy database after 5 attempts."
-    #     exit 1
-    # fi
-
     echo "Running Trivy scan for image: $IMAGE..."
-    if ! trivy image --insecure --format json "$IMAGE"> "trivy_vulnerabilities.json"; then
+    if ! trivy image \
+        --db-repository public.ecr.aws/aquasecurity/trivy-db \
+        --java-db-repository public.ecr.aws/aquasecurity/trivy-java-db \
+        --scanners vuln \
+        --insecure \
+        --format json \
+        "$IMAGE" > "trivy_vulnerabilities.json"; then
         echo "Error: Trivy is not available or the image does not exist."
         exit 1
     fi
