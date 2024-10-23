@@ -13,10 +13,12 @@ DB_HOST="${DB_HOST}"
 DB_NAME="${DB_NAME}"
 DB_USER="${DB_USER}"
 DB_PWD="${DB_PWD}"
-GITHUB_PR_ID="$1"
-GITHUB_PR_LINK="$2"
-GITHUB_RUN_ID="$3"
-IMAGE="${4:-appsmith/appsmith-ce:release}"
+
+# Assign the parameters from the workflow
+IMAGE="$1"
+GITHUB_PR_ID="$2"
+GITHUB_PR_LINK="$3"
+GITHUB_RUN_ID="$4"
 OLD_VULN_FILE="${5:-vulnerability_base_data.csv}"
 
 
