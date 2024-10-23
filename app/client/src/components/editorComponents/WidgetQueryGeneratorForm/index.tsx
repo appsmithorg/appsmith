@@ -17,8 +17,7 @@ import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingA
 import type { AlertMessage, Alias, OtherField } from "./types";
 import { CONNECT_BUTTON_TEXT, createMessage } from "ee/constants/messages";
 import { DROPDOWN_VARIANT } from "./CommonControls/DatasourceDropdown/types";
-import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
-import type { ModuleInstanceData } from "ee/constants/ModuleInstanceConstants";
+import type { getDefaultQueryBindingValue } from "./CommonControls/DatasourceDropdown/useSource/useConnectToOptions";
 
 export interface WidgetQueryGeneratorFormContextType {
   widgetId: string;
@@ -55,7 +54,7 @@ export interface WidgetQueryGeneratorFormContextType {
   alertMessage?: AlertMessage | null;
   showEditFieldsModal?: boolean;
   allowedDatasourceTypes?: string[];
-  getQueryBindingValue?: (query: ActionData | ModuleInstanceData) => string;
+  getQueryBindingValue?: typeof getDefaultQueryBindingValue;
 }
 
 const DEFAULT_CONFIG_VALUE = {

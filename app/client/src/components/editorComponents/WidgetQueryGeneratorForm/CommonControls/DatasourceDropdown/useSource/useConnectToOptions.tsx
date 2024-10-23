@@ -76,12 +76,16 @@ export function sortQueries(
   });
 }
 
+export const getDefaultQueryBindingValue = (
+  query: ActionData | ModuleInstanceData,
+) => `{{${query.config.name}.data}}`;
+
 export function getBindingValue(
   widget: WidgetProps,
   query: ActionData | ModuleInstanceData,
-  getQueryBindingValue: (query: ActionData | ModuleInstanceData) => string = (
-    query,
-  ) => `{{${query.config.name}.data}}`,
+  getQueryBindingValue: (
+    query: ActionData | ModuleInstanceData,
+  ) => string = getDefaultQueryBindingValue,
 ) {
   const querySuggestedWidgets = query.data?.suggestedWidgets;
 
