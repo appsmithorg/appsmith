@@ -48,13 +48,8 @@ export const createSingleArtifactAction = <T>(
   ) => {
     const { artifactType, baseArtifactId } = action.payload;
 
-    if (!state[artifactType]) {
-      state[artifactType] = {};
-    }
-
-    if (!state[artifactType][baseArtifactId]) {
-      state[artifactType][baseArtifactId] = gitSingleArtifactInitialState;
-    }
+    state[artifactType] ??= {};
+    state[artifactType][baseArtifactId] ??= gitSingleArtifactInitialState;
 
     const singleArtifactState = state[artifactType][baseArtifactId];
 

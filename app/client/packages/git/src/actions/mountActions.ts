@@ -10,13 +10,8 @@ export const mountAction = (
 ) => {
   const { artifactType, baseArtifactId } = action.payload;
 
-  if (!state[artifactType]) {
-    state[artifactType] = {};
-  }
-
-  if (!state[artifactType][baseArtifactId]) {
-    state[artifactType][baseArtifactId] = gitSingleArtifactInitialState;
-  }
+  state[artifactType] ??= {};
+  state[artifactType][baseArtifactId] ??= gitSingleArtifactInitialState;
 
   return state;
 };
