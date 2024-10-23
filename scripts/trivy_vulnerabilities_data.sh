@@ -85,34 +85,12 @@ case "$IMAGE" in
     *) product_name="UNKNOWN" ;;
 esac
 
-# Function to run Trivy scan
-run_trivy_scan() {
-    local count=0
-    while [[ $count -lt 3 ]]; do
-        echo "Running Trivy scan for image: $IMAGE (attempt $((count + 1)))..."
-        
-        # Run Trivy scan and capture both stdout and stderr
-        trivy image --format json "$IMAGE" > "trivy_vulnerabilities.json" 2> "trivy_error.log"
-        
-        # Check if the scan was successful
-        if [[ $? -eq 0 ]]; then
-            echo "Scan completed successfully."
-            return 0
-        else
-            echo "Scan failed. Check trivy_error.log for details."
-            cat trivy_error.log
-        fi
-        
-        echo "Retrying in 10 seconds..."
-        sleep 10
-        count=$((count + 1))
-    done
-    
-    echo "Error: Trivy scan failed after 3 attempts."
+# Run the Trivy scan and output to JSON file
+echo "Running Trivy scan for image: $IMAGE..."
+if ! trivy image --format json "$IMAGE" > "$JSON_OUTPUT_FILE"; then
+    echo "Error: Trivy is not available or the image does not exist."
     exit 1
-}
-
-run_trivy_scan
+fi
 
 # Process vulnerabilities and generate the desired CSV format
 if jq -e '.Results | length > 0' "trivy_vulnerabilities.json" > /dev/null; then
