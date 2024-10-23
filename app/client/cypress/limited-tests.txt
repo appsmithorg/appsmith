@@ -1,7 +1,6 @@
 # To run only limited tests - give the spec names in below format:
 cypress/e2e/Regression/ClientSide/Widgets/Datepicker/DatePicker2_spec.js
-cypress/e2e/Regression/ClientSide/Binding/DatePicker_Text_spec.js
-cypress/e2e/Regression/ClientSide/Widgets/Datepicker/DatePicker_With_Switch_spec.js
+
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
