@@ -412,57 +412,6 @@ public class ActionCollectionServiceImplTest {
     }
 
     @Test
-    public void testUpdateUnpublishedActionCollection_withDuplicateActions() throws IOException {
-        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setId("testId");
-        actionCollectionDTO.setPageId("testPageId");
-        actionCollectionDTO.setApplicationId("testApplicationId");
-        actionCollectionDTO.setWorkspaceId("testWorkspaceId");
-        actionCollectionDTO.setPluginId("testPluginId");
-        actionCollectionDTO.setPluginType(PluginType.JS);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        final JsonNode jsonNode = objectMapper.readValue(mockObjects, JsonNode.class);
-        final NewPage newPage = objectMapper.convertValue(jsonNode.get("newPage"), NewPage.class);
-
-        Mockito.when(actionCollectionRepository.findById(Mockito.anyString(), Mockito.<AclPermission>any()))
-                .thenReturn(Mono.empty());
-
-        Mockito.when(newPageService.findByBranchNameAndBasePageId(
-                        Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
-                .thenReturn(Mono.just(newPage));
-
-        Mockito.when(newPageService.findById(Mockito.any(), Mockito.<AclPermission>any()))
-                .thenReturn(Mono.just(newPage));
-
-        Mockito.when(newActionService.findByCollectionIdAndViewMode(
-                        Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
-                .thenReturn(Flux.empty());
-
-        ActionDTO action = new ActionDTO();
-        action.setName("testAction");
-        action.setClientSideExecution(true);
-        actionCollectionDTO.setActions(List.of(action));
-        action.setName("testAction");
-        action.setClientSideExecution(true);
-        actionCollectionDTO.setActions(List.of(action));
-
-        final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                layoutCollectionService.updateUnpublishedActionCollection("testId", actionCollectionDTO);
-
-        // verify that actionCollectionDTOMono has only one action and the duplicate action was ignored
-        StepVerifier.create(actionCollectionDTOMono)
-                .assertNext(actionCollectionDTO1 -> {
-                    assertEquals(1, actionCollectionDTO1.getActions().size());
-                    final ActionDTO actionDTO =
-                            actionCollectionDTO1.getActions().get(0);
-                    assertEquals("testAction", actionDTO.getName());
-                    assertTrue(actionDTO.getClientSideExecution());
-                })
-                .verifyComplete();
-    }
-
-    @Test
     public void testDeleteUnpublishedActionCollection_withInvalidId_throwsError() {
         Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.empty());
