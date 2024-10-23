@@ -57,27 +57,33 @@ if ! command -v scout &> /dev/null; then
 fi
 
 # Prepare the output CSV file
+# Prepare the output CSV file
 CSV_OUTPUT_FILE="scout_vulnerabilities.csv"
 rm -f "$CSV_OUTPUT_FILE"
-docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk '{if ($2 != "" && $3 != "") print $2","$3}' | sort -u > "$CSV_OUTPUT_FILE"
+docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk -F' ' '{if ($2 != "" && $3 != "") print $2","$IMAGE",""SCOUT"","$3}' | sort -u > "$CSV_OUTPUT_FILE"
 [ -s "$CSV_OUTPUT_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$CSV_OUTPUT_FILE"
 
 # Compare new vulnerabilities against old vulnerabilities
 echo "Comparing new vulnerabilities with existing vulnerabilities in $OLD_VULN_FILE..."
 if [ -s "$OLD_VULN_FILE" ]; then
-    # Create a diff that keeps both priority and vurn_id in the output
-    awk -F, 'NR==FNR {old[$2]; next} !($2 in old)' "$OLD_VULN_FILE" "$CSV_OUTPUT_FILE" > "scout_vulnerabilities_diff.csv"
+    awk -F, 'NR==FNR {seen[$1","$2","$3","$4]; next} !($1","$2","$3","$4 in seen)' "$OLD_VULN_FILE" "$CSV_OUTPUT_FILE" > "scout_vulnerabilities_diff.csv"
 else
     echo "$OLD_VULN_FILE is empty. All new vulnerabilities will be included."
     cp "$CSV_OUTPUT_FILE" "scout_vulnerabilities_diff.csv"
 fi
 
 # Output for verification
+
+echo "Fetching passed data..."
+cat "$OLD_VULN_FILE"
+
+
 echo "Fetching new data..."
 cat "$CSV_OUTPUT_FILE"
 
 echo "Featching diff..."
 cat "scout_vulnerabilities_diff.csv"
+
 
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
@@ -85,21 +91,12 @@ insert_vulns_into_db() {
   local query_file="insert_vulns.sql"
   echo "BEGIN;" > "$query_file"  # Start the transaction
 
-  while IFS=, read -r priority vurn_id; do
+  while IFS=, read -r vurn_id product scanner_tool priority; do
     # Skip empty lines
-    if [[ -z "$vurn_id" || -z "$priority" ]]; then
-      echo "Skipping empty vulnerability ID or priority"
+    if [[ -z "$vurn_id" || -z "$priority" || -z "$product" || -z "$scanner_tool" ]]; then
+      echo "Skipping empty vulnerability entry"
       continue
     fi
-
-    # Determine the product code based on the image name
-    local product_code
-    case "$IMAGE" in
-      *appsmith-ce*) product_code="CE" ;;
-      *appsmith-ee*) product_code="EE" ;;
-      *cloud-services*) product_code="CLOUD" ;;
-      *) product_code="UNKNOWN" ;;
-    esac
 
     local pr_id="$GITHUB_PR_ID"
     local pr_link="$GITHUB_PR_LINK"
@@ -112,9 +109,11 @@ insert_vulns_into_db() {
     # Escape single quotes in vulnerability ID and priority
     vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
     priority=$(echo "$priority" | sed "s/'/''/g")
+    product=$(echo "$product" | sed "s/'/''/g")
+    scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
 
     # Write each insert query to the SQL file
-    echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) VALUES ('$product_code', 'scout', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod');" >> "$query_file"
+    echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) VALUES ('$product', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod');" >> "$query_file"
     
     ((count++))
   done < "scout_vulnerabilities_diff.csv"
