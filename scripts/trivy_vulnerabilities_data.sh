@@ -1,170 +1,180 @@
 #!/bin/bash
 
-# Define the maximum number of retries
-MAX_RETRIES=3
-RETRY_DELAY=10  # Wait time in seconds before retrying
+#Check required environment variables
+required_vars=("DB_HOST" "DB_NAME" "DB_USER" "DB_PWD")
+for var in "${required_vars[@]}"; do
+  if [ -z "${!var}" ] || [[ "${!var}" == "your_${var,,}" ]]; then
+    echo "Error: Required environment variable $var is missing or not set correctly."
+    exit 1
+  fi
+done
 
-# Function to install Trivy with retry logic
-install_trivy_with_retry() {
+DB_HOST="${DB_HOST}"
+DB_NAME="${DB_NAME}"
+DB_USER="${DB_USER}"
+DB_PWD="${DB_PWD}"
+GITHUB_PR_ID="$1"
+GITHUB_PR_LINK="$2"
+GITHUB_RUN_ID="$3"
+IMAGE="${4:-appsmith/appsmith-ce:release}"
+OLD_VULN_FILE="${5:-vulnerability_base_data.csv}"
+
+
+# Function to install Trivy
+install_trivy() {
     local count=0
-    local success=false
-
-    while [[ $count -lt $MAX_RETRIES ]]; do
-        echo "Attempting to install Trivy (attempt $((count + 1)))..."
-        
+    while [[ $count -lt 3 ]]; do
+        echo "Installing Trivy (attempt $((count + 1)))..."
         TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
-        TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_"$TRIVY_VERSION"_Linux-64bit.tar.gz"
-        
-        curl -sfL "$TRIVY_URL" | tar -xzf - trivy
-        
-        if [[ $? -eq 0 ]]; then
-            mkdir -p "$HOME/bin"
-            mv trivy "$HOME/bin/"
-            export PATH="$HOME/bin:$PATH"
-
-            if command -v trivy &> /dev/null; then
-                success=true
-                break
-            fi
-        fi
-        
-        echo "Trivy installation failed. Retrying in $RETRY_DELAY seconds..."
-        sleep $RETRY_DELAY
+        TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_Linux-64bit.tar.gz"
+        curl -sfL "$TRIVY_URL" | tar -xzf - trivy && mv trivy "$HOME/bin/" && export PATH="$HOME/bin:$PATH" && command -v trivy &> /dev/null && return 0
+        echo "Installation failed. Retrying in 10 seconds..."
+        sleep 10
         count=$((count + 1))
     done
-
-    if [[ $success = false ]]; then
-        echo "Error: Trivy installation failed after $MAX_RETRIES attempts."
-        exit 1
-    fi
-
-    echo "Trivy installed successfully."
+    echo "Error: Trivy installation failed after 3 attempts."
+    exit 1
 }
 
-# Check if Trivy is installed, if not, install it with retry logic
-if ! command -v trivy &> /dev/null; then
-    install_trivy_with_retry
-fi
+# Check if Trivy is installed
+[ -x "$(command -v trivy)" ] || install_trivy
 
-# Define the parameters
-IMAGE="${1:-appsmith/appsmith-ce:release}"
-OLD_VULN_FILE="${2:-vulnerabilities.txt}"
 
-# Define output files
-NEW_VULN_FILE="trivy_vulnerabilities_new.txt"
-DIFF_OUTPUT_FILE="trivy_vulnerabilities_diff.txt"
-JSON_OUTPUT_FILE="trivy_vulnerabilities.json"
+IMAGE="${4:-appsmith/appsmith-ce:release}"
+OLD_VULN_FILE="${5:-vulnerability_base_data.csv}"
 
-# Remove existing files and create new ones
-rm -f "$NEW_VULN_FILE" "$DIFF_OUTPUT_FILE" "$JSON_OUTPUT_FILE"
-touch "$NEW_VULN_FILE" "$DIFF_OUTPUT_FILE" "$JSON_OUTPUT_FILE"
+NEW_VULN_FILE="trivy_vulnerabilities_new.csv"
+DIFF_OUTPUT_FILE="trivy_vulnerabilities_diff.csv"
 
-# Create an empty OLD_VULN_FILE if it does not exist
-if [ ! -f "$OLD_VULN_FILE" ]; then
-    touch "$OLD_VULN_FILE"
-fi
+rm -f "$NEW_VULN_FILE" "$DIFF_OUTPUT_FILE"
+touch "$OLD_VULN_FILE"
 
-# Function to run the Trivy scan with retry logic for vulnerability DB updates
-run_trivy_scan_with_retry() {
+# Extract the product name from the image name
+case "$IMAGE" in
+    *appsmith/appsmith-ce:*) product_name="CE" ;;
+    *appsmith/appsmith-ee:*) product_name="EE" ;;
+    *appsmith/cloud-services:*) product_name="CLOUD" ;;
+    *) product_name="UNKNOWN" ;;
+esac
+
+# Function to run Trivy scan
+run_trivy_scan() {
     local count=0
-    local success=false
-
-    while [[ $count -lt $MAX_RETRIES ]]; do
+    while [[ $count -lt 3 ]]; do
         echo "Running Trivy scan for image: $IMAGE (attempt $((count + 1)))..."
-        
-        if trivy image --format json "$IMAGE" > "$JSON_OUTPUT_FILE"; then
-            success=true
-            break
-        else
-            echo "Error: Failed to run Trivy scan. Retrying in $RETRY_DELAY seconds..."
-            sleep $RETRY_DELAY
-        fi
+        trivy image --format json "$IMAGE" > "trivy_vulnerabilities.json" && return 0
+        echo "Scan failed. Retrying in 10 seconds..."
+        sleep 10
         count=$((count + 1))
     done
-
-    if [[ $success = false ]]; then
-        echo "Error: Trivy scan failed after $MAX_RETRIES attempts."
-        exit 1
-    fi
-
-    echo "Trivy scan completed successfully."
+    echo "Error: Trivy scan failed after 3 attempts."
+    exit 1
 }
 
-# Run the Trivy scan
-run_trivy_scan_with_retry
+run_trivy_scan
 
-# Check if there are any vulnerabilities in the scan
-if jq -e '.Results | length > 0' "$JSON_OUTPUT_FILE" > /dev/null; then
-    jq -r '.Results[].Vulnerabilities[] | "\(.Severity) \(.VulnerabilityID)"' "$JSON_OUTPUT_FILE" | \
-    sed 's/^\s*//;s/\s*$//' | \
-    awk '{if ($1 == "") {print "UNSPECIFIED " $2} else {print}}' | \
-    sort -u > "$NEW_VULN_FILE"
-
+# Process vulnerabilities and generate the desired CSV format
+if jq -e '.Results | length > 0' "trivy_vulnerabilities.json" > /dev/null; then
+    jq -r --arg product "$product_name" '.Results[].Vulnerabilities[] | "\(.VulnerabilityID),\($product),TRIVY,\(.Severity)"' "trivy_vulnerabilities.json" | sed 's/^\s*//;s/\s*$//' | sort -u > "$NEW_VULN_FILE"
     echo "Vulnerabilities saved to $NEW_VULN_FILE"
 else
     echo "No vulnerabilities found for image: $IMAGE"
     echo "No vulnerabilities found." > "$NEW_VULN_FILE"
 fi
 
-# Prepare arrays for categorized vulnerabilities
-LOW=()
-MEDIUM=()
-HIGH=()
-CRITICAL=()
-UNSPECIFIED=()
-
-# Categorize new vulnerabilities
+# Compare new vulnerabilities with the old file
 if [ -s "$NEW_VULN_FILE" ]; then
-    while IFS= read -r line; do
-        if [[ "$line" =~ LOW ]]; then
-            LOW+=($(echo "$line" | awk '{print $2}'))
-        elif [[ "$line" =~ MEDIUM ]]; then
-            MEDIUM+=($(echo "$line" | awk '{print $2}'))
-        elif [[ "$line" =~ HIGH ]]; then
-            HIGH+=($(echo "$line" | awk '{print $2}'))
-        elif [[ "$line" =~ CRITICAL ]]; then
-            CRITICAL+=($(echo "$line" | awk '{print $2}'))
-        else
-            UNSPECIFIED+=($(echo "$line" | awk '{print $2}'))
-        fi
-    done < <(grep -Fvxf "$OLD_VULN_FILE" "$NEW_VULN_FILE")
+    grep -Fvxf "$OLD_VULN_FILE" "$NEW_VULN_FILE" > "$DIFF_OUTPUT_FILE"
 else
     echo "No new vulnerabilities found for image: $IMAGE"
 fi
 
-# Output categorized results to the diff file
-{
-    echo "Vulnerabilities introduced in $NEW_VULN_FILE but not in $OLD_VULN_FILE:"
-    
-    for category in "LOW" "MEDIUM" "HIGH" "CRITICAL" "UNSPECIFIED"; do
-        eval "arr=\${$category[@]}"
-        
-        if [[ ${#arr[@]} -gt 0 ]]; then
-            echo "Category: $category"
-            printf '%s\n' "${arr[@]}"
-        else
-            echo "No new vulnerabilities in category: $category"
-        fi
-    done
-} > "$DIFF_OUTPUT_FILE"
-
-# Create JSON output for categorized vulnerabilities
-json_output="{\"vulnerabilities\": {"
-first_category=true
-for category in "LOW" "MEDIUM" "HIGH" "CRITICAL" "UNSPECIFIED"; do
-    eval "arr=\${$category[@]}"
-    if [[ ${#arr[@]} -gt 0 ]]; then
-        [[ "$first_category" = true ]] && first_category=false || json_output+=","
-        json_output+="\"$category\": ["
-        for item in "${arr[@]}"; do
-            json_output+="\"$item\","
-        done
-        json_output=${json_output%,} # Remove trailing comma
-        json_output+="]"
-    fi
-done
-json_output+="}}"
-echo "$json_output" > "$JSON_OUTPUT_FILE"
-
 echo "Differences written to $DIFF_OUTPUT_FILE."
-echo "JSON output written to $JSON_OUTPUT_FILE."
+echo "New vulnerabilities saved to $NEW_VULN_FILE."
+
+# Print the contents of the new vulnerabilities CSV
+echo "Contents of $NEW_VULN_FILE:"
+cat "$NEW_VULN_FILE"
+
+# Cleanup JSON file
+rm -f "trivy_vulnerabilities.json"
+
+# Output for verification
+echo "Fetching passed data..."
+cat "$OLD_VULN_FILE"
+echo ""
+echo "Fetching new data..."
+cat "$NEW_VULN_FILE"
+echo ""
+echo "Fetching diff..."
+cat $DIFF_OUTPUT_FILE
+echo ""
+
+# Insert new vulnerabilities into the PostgreSQL database using psql
+insert_vulns_into_db() {
+  local count=0
+  local query_file="insert_vulns.sql"
+  echo "BEGIN;" > "$query_file"  # Start the transaction
+
+  # Create an associative array to hold existing entries from the database
+  declare -A existing_entries
+
+  # Fetch existing vulnerabilities from the database to avoid duplicates
+  psql -t -c "SELECT vurn_id, product, scanner_tool, priority FROM vulnerability_tracking WHERE scanner_tool = 'TRIVY'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" | while IFS='|' read -r db_vurn_id db_product db_scanner_tool db_priority; do
+    existing_entries["$db_product,$db_scanner_tool,$db_vurn_id"]="$db_priority"
+  done
+
+  while IFS=, read -r vurn_id product scanner_tool priority; do
+    # Skip empty lines
+    if [[ -z "$vurn_id" || -z "$priority" || -z "$product" || -z "$scanner_tool" ]]; then
+      echo "Skipping empty vulnerability entry"
+      continue
+    fi
+
+    # Check if the entry already exists
+    if [[ -n "${existing_entries["$product,$scanner_tool,$vurn_id"]}" ]]; then
+      echo "Entry for $vurn_id already exists in the database. Skipping."
+      continue
+    fi
+
+    local pr_id="$GITHUB_PR_ID"
+    local pr_link="$GITHUB_PR_LINK"
+    local created_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    local update_date="$created_date"
+    local comments="Initial vulnerability report"
+    local owner="John Doe"
+    local pod="Security"
+
+    # Escape single quotes in vulnerability ID, product, and priority
+    vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
+    priority=$(echo "$priority" | sed "s/'/''/g")
+    product=$(echo "$product" | sed "s/'/''/g")
+    scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
+
+    # Write each insert query to the SQL file
+    echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) VALUES ('$product', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod');" >> "$query_file"
+    
+    ((count++))
+  done < $DIFF_OUTPUT_FILE
+
+  echo "COMMIT;" >> "$query_file"  # End the transaction
+  echo "Queries written to $query_file."
+
+  # Execute the SQL file
+  psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"
+
+  # Check if the execution was successful
+  if [ $? -eq 0 ]; then
+    echo "Vulnerabilities successfully inserted into the database."
+  else
+    echo "Error: Failed to insert vulnerabilities. Please check the database connection or query."
+    exit 1
+  fi
+}
+
+# Call the function to generate the insert queries and execute them
+if [ -s $DIFF_OUTPUT_FILE ]; then
+  insert_vulns_into_db
+else
+  echo "No new vulnerabilities to insert."
+fi

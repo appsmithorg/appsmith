@@ -26,21 +26,6 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}    
 
-      # # Run Trivy vulnerability data script
-      # - name: Run Trivy vulnerability data script
-      #   if: always()
-      #   run: |
-      #     chmod +x scripts/trivy_vulnerabilities_data.sh
-      #     ./scripts/trivy_vulnerabilities_data.sh "${{ inputs.image_name }}" "${{ inputs.old_vuln_file }}"
-
-      # # Upload Trivy vulnerabilities report as artifact
-      # - name: Upload Trivy vulnerabilities report as artifact
-      #   if: always()
-      #   uses: actions/upload-artifact@v3
-      #   with:
-      #     name: trivy-vulnerabilities-report
-      #     path: trivy_vulnerabilities_diff.txt
-
       - name: Install pg
         run: npm install pg
 
@@ -123,8 +108,23 @@ jobs:
               vulnerability_base_data.csv
               vulnerability_base_data.txt      
 
-      # Run Scout vulnerability data script
-      - name: Run Scout vulnerability data script
+      # # Run Scout vulnerability data script
+      # - name: Run Scout vulnerability data script
+      #   if: always()
+      #   env:
+      #     DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+      #     DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+      #     DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+      #     DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+      #     GITHUB_PR_ID: ${{ github.event.pull_request.number }}
+      #     GITHUB_PR_LINK: ${{ github.event.pull_request.html_url }}
+      #     GITHUB_RUN_ID: ${{ github.run_id }}
+      #   run: |
+      #     chmod +x scripts/scout_vulnerabilities_data.sh
+      #     ./scripts/scout_vulnerabilities_data.sh "${{ inputs.image_name }}"
+
+      # Run Trivy vulnerability data script
+      - name: Run Trivy vulnerability data script
         if: always()
         env:
           DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
@@ -135,8 +135,8 @@ jobs:
           GITHUB_PR_LINK: ${{ github.event.pull_request.html_url }}
           GITHUB_RUN_ID: ${{ github.run_id }}
         run: |
-          chmod +x scripts/scout_vulnerabilities_data.sh
-          ./scripts/scout_vulnerabilities_data.sh "${{ inputs.image_name }}"
+          chmod +x scripts/trivy_vulnerabilities_data.sh
+          ./scripts/trivy_vulnerabilities_data.sh "${{ inputs.image_name }}"    
 
       # - name: Upload Vulnerabilities Scan Results
       #   uses: actions/upload-artifact@v3
