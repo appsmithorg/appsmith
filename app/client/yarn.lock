@@ -13012,7 +13012,7 @@ __metadata:
     xlsx: "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
     yjs: ^13.5.12
     zipcelx: ^1.6.2
-    react-multi-date-picker: ^4.4.1
+    react-multi-date-picker: 4.5.2
   languageName: unknown
   linkType: soft
 
@@ -28715,9 +28715,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-multi-date-picker@npm:^4.4.1":
-  version: 4.4.1
-  resolution: "react-multi-date-picker@npm:4.4.1"
+"react-multi-date-picker@npm:^4.5.2":
+  version: 4.5.2
+  resolution: "react-multi-date-picker@npm:4.5.2"
   dependencies:
     react-date-object: ^2.1.8
     react-element-popper: ^2.1.6
