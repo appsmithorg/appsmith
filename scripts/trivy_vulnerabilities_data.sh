@@ -103,9 +103,19 @@ fi
 
 # Compare new vulnerabilities with the old file
 if [ -s "$NEW_VULN_FILE" ]; then
-    grep -Fvxf "$OLD_VULN_FILE" "$NEW_VULN_FILE" > "$DIFF_OUTPUT_FILE"
+    sort "$OLD_VULN_FILE" -o "$OLD_VULN_FILE"  # Sort the old vulnerabilities file
+    sort "$NEW_VULN_FILE" -o "$NEW_VULN_FILE"  # Sort the new vulnerabilities file
+    
+    # Get the difference between new and old vulnerabilities
+    comm -13 "$OLD_VULN_FILE" "$NEW_VULN_FILE" > "$DIFF_OUTPUT_FILE"
+
+    if [ -s "$DIFF_OUTPUT_FILE" ]; then
+        echo "New vulnerabilities found and recorded in $DIFF_OUTPUT_FILE."
+    else
+        echo "No new vulnerabilities found for image: $IMAGE."
+    fi
 else
-    echo "No new vulnerabilities found for image: $IMAGE"
+    echo "No new vulnerabilities found for image: $IMAGE."
 fi
 
 echo "Differences written to $DIFF_OUTPUT_FILE."
