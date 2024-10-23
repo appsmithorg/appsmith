@@ -34,7 +34,22 @@ install_trivy() {
             TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_$TRIVY_VERSION_Linux-64bit.tar.gz"
         fi
         
-        curl -sfL "$TRIVY_URL" | tar -xz -C /usr/local/bin trivy && command -v trivy &> /dev/null && return 0
+        # Download the file and check if it's successful
+        curl -L -o trivy.tar.gz "$TRIVY_URL"
+        if [[ $? -ne 0 ]]; then
+            echo "Failed to download the file."
+            exit 1
+        fi
+
+        # Extract the file
+        tar -xzf trivy.tar.gz -C /usr/local/bin
+        if [[ $? -ne 0 ]]; then
+            echo "Failed to extract the file."
+            exit 1
+        fi
+        
+        # Check if Trivy was installed
+        command -v trivy &> /dev/null && return 0
         echo "Installation failed. Retrying in 10 seconds..."
         sleep 10
         count=$((count + 1))
