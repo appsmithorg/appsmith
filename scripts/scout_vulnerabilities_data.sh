@@ -60,7 +60,18 @@ fi
 # Prepare the output CSV file
 CSV_OUTPUT_FILE="scout_vulnerabilities.csv"
 rm -f "$CSV_OUTPUT_FILE"
-docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk -F' ' '{if ($2 != "" && $3 != "") print $2","$IMAGE",""SCOUT"","$3}' | sort -u > "$CSV_OUTPUT_FILE"
+
+# Fetch vulnerabilities and format the output correctly
+docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk -F' ' '
+{
+    # Check for valid vulnerability data and format it correctly
+    if ($2 != "" && $3 ~ /^CVE-/) {
+        # Extract severity level, CVE ID and format output
+        print $2","$3",""SCOUT"","$3
+    }
+}' | sort -u > "$CSV_OUTPUT_FILE"
+
+# Check if the CSV output file is empty
 [ -s "$CSV_OUTPUT_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$CSV_OUTPUT_FILE"
 
 # Compare new vulnerabilities against old vulnerabilities
