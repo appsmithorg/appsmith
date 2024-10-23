@@ -26,8 +26,7 @@ import type {
 import type { Module } from "ee/constants/ModuleConstants";
 import { getAllModules } from "ee/selectors/modulesSelector";
 import { getModuleIcon } from "pages/Editor/utils";
-import { isDynamicValue } from "utils/DynamicBindingUtils";
-import type { GetQueryBindingValue } from "./types";
+import { isDynamicValue } from "@shared/dsl";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -80,8 +79,9 @@ export function sortQueries(
 export function getBindingValue(
   widget: WidgetProps,
   query: ActionData | ModuleInstanceData,
-  getQueryBindingValue: GetQueryBindingValue = (query) =>
-    `{{${query.config.name}.data}}`,
+  getQueryBindingValue: (query: ActionData | ModuleInstanceData) => string = (
+    query,
+  ) => `{{${query.config.name}.data}}`,
 ) {
   const querySuggestedWidgets = query.data?.suggestedWidgets;
 

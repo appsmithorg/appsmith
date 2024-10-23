@@ -11,3 +11,4 @@ export type {
 export { migrateDSL, LATEST_DSL_VERSION } from "./migrate";
 
 export type { DSLWidget } from "./migrate/types";
+export { isDynamicValue } from "./migrate/utils";
