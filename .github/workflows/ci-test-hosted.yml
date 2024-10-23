@@ -185,14 +185,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_USERNAME: ${{ secrets.CYPRESS_USERNAME }}
           CYPRESS_PASSWORD: ${{ secrets.CYPRESS_PASSWORD }}
-          CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
-          CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-          CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
-          CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
-          CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
-          CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
-          CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
-          CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
+          CYPRESS_TESTUSERNAME1: demo@appsmith.com
+          CYPRESS_TESTPASSWORD1: demo@appsmith.com
+          CYPRESS_TESTUSERNAME2: demo1@appsmith.com
+          CYPRESS_TESTPASSWORD2: demo1@appsmith.com
+          CYPRESS_TESTUSERNAME3: demo2@appsmith.com
+          CYPRESS_TESTPASSWORD3: demo2@appsmith.com
+          CYPRESS_TESTUSERNAME4: demo3@appsmith.com
+          CYPRESS_TESTPASSWORD4: demo3@appsmith.com
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
