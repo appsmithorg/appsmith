@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Check required environment variables
+#Check required environment variables
 required_vars=("DB_HOST" "DB_NAME" "DB_USER" "DB_PWD")
 for var in "${required_vars[@]}"; do
   if [ -z "${!var}" ] || [[ "${!var}" == "your_${var,,}" ]]; then
@@ -57,19 +57,29 @@ if ! command -v scout &> /dev/null; then
 fi
 
 # Prepare the output CSV file
-# Prepare the output CSV file
 CSV_OUTPUT_FILE="scout_vulnerabilities.csv"
 rm -f "$CSV_OUTPUT_FILE"
 
+# Extract the product name from the image name
+case "$IMAGE" in
+    *appsmith/appsmith-ce:*) product_name="CE" ;;
+    *appsmith/appsmith-ee:*) product_name="EE" ;;
+    *appsmith/cloud-services:*) product_name="CLOUD" ;;
+    *) product_name="UNKNOWN" ;;
+esac
+
 # Fetch vulnerabilities and format the output correctly
-docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk -F' ' '
+docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk -v product_name="$product_name" -F' ' '
 {
     # Check for valid vulnerability data and format it correctly
     if ($2 != "" && $3 ~ /^CVE-/) {
-        # Extract severity level, CVE ID and format output
-        print $2","$3",""SCOUT"","$3
+        # Extract severity level, CVE ID and format output correctly
+        print $3","product_name",""SCOUT"","$2
     }
 }' | sort -u > "$CSV_OUTPUT_FILE"
+
+# Check if the CSV output file is empty
+[ -s "$CSV_OUTPUT_FILE" ] || echo "No vulnerabilities found for image: appsmith/appsmith-ce:release" > "$CSV_OUTPUT_FILE"
 
 # Check if the CSV output file is empty
 [ -s "$CSV_OUTPUT_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$CSV_OUTPUT_FILE"
@@ -84,17 +94,15 @@ else
 fi
 
 # Output for verification
-
 echo "Fetching passed data..."
 cat "$OLD_VULN_FILE"
-
-
+echo ""
 echo "Fetching new data..."
 cat "$CSV_OUTPUT_FILE"
-
-echo "Featching diff..."
+echo ""
+echo "Fetching diff..."
 cat "scout_vulnerabilities_diff.csv"
-
+echo ""
 
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
