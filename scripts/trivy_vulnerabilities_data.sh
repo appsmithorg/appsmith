@@ -34,7 +34,7 @@ install_trivy_with_retry() {
         # Fetch the latest release dynamically instead of hardcoding
         TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
         TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_"$TRIVY_VERSION"_Linux-64bit.tar.gz"
-        
+        echo "Attempting to install $TRIVY_VERSION from $TRIVY_URL"
         # Download and extract Trivy
         curl -sfL "$TRIVY_URL" | tar -xzf - trivy
         
@@ -90,24 +90,24 @@ run_trivy_scan() {
     echo "Cleaning up Trivy data..."
     trivy clean --all
 
-    local count=0
-    while [[ $count -lt 5 ]]; do
-        echo "Attempting to download Trivy database (attempt $((count + 1)))..."
-        if trivy image --download-db-only; then
-            break
-        fi
-        echo "Failed to download. Retrying in 10 seconds..."
-        sleep 10
-        count=$((count + 1))
-    done
+    # local count=0
+    # while [[ $count -lt 5 ]]; do
+    #     echo "Attempting to download Trivy database (attempt $((count + 1)))..."
+    #     if trivy image --download-db-only; then
+    #         break
+    #     fi
+    #     echo "Failed to download. Retrying in 10 seconds..."
+    #     sleep 10
+    #     count=$((count + 1))
+    # done
 
-    if [[ $count -eq 5 ]]; then
-        echo "Error: Failed to download Trivy database after 5 attempts."
-        exit 1
-    fi
+    # if [[ $count -eq 5 ]]; then
+    #     echo "Error: Failed to download Trivy database after 5 attempts."
+    #     exit 1
+    # fi
 
     echo "Running Trivy scan for image: $IMAGE..."
-    if ! trivy image --insecure --format json "$IMAGE" --debug > "trivy_vulnerabilities.json"; then
+    if ! trivy image --insecure --format json "$IMAGE"> "trivy_vulnerabilities.json"; then
         echo "Error: Trivy is not available or the image does not exist."
         exit 1
     fi
