@@ -71,6 +71,9 @@ else
     cp "$CSV_OUTPUT_FILE" "scout_vulnerabilities_diff.csv"
 fi
 
+echo "Starting scout new data..."
+cat scout_vulnerabilities.csv
+
 echo "Starting scout diff..."
 cat scout_vulnerabilities_diff.csv
 
