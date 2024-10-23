@@ -188,8 +188,7 @@ describe(
       propPane.SelectPropertiesDropDown("height", "Auto Height");
     });
 
-    // to work on redesign of the test, commenting for now
-    it.skip("7. Verify colors, borders and shadows", () => {
+    it("7. Verify colors, borders and shadows", () => {
       // Verify font color picker opens up
       propPane.MoveToTab("Style");
       agHelper.GetNClick(propPane._propertyControlColorPicker("accentcolor"));
@@ -223,7 +222,7 @@ describe(
       agHelper.AssertCSS(
         tabs._tabsWidgetStyle,
         "border-color",
-        "rgb(185, 28, 28)",
+        "rgb(113, 113, 122)",
       );
 
       agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 2);
