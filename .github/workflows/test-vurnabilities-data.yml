@@ -103,10 +103,10 @@ jobs:
       - name: Upload Vulnerability Data
         uses: actions/upload-artifact@v3
         with:
-            name: vulnerability-data
-            path: |
-              vulnerability_base_data.csv
-              vulnerability_base_data.txt      
+          name: vulnerability-data
+          path: |
+            vulnerability_base_data.csv
+            vulnerability_base_data.txt      
 
       # Run Scout vulnerability data script
       - name: Run Scout vulnerability data script
