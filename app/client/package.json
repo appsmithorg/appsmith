@@ -126,7 +126,7 @@
     "cypress-repeat-pro": "^1.0.1",
     "d3-geo": "^3.1.0",
     "date-fns": "2.30.0",
-    "dayjs": "^1.10.6",
+    "dayjs": "^1.11.10",
     "deep-diff": "^1.0.2",
     "downloadjs": "^1.4.7",
     "echarts": "^5.4.2",
@@ -234,7 +234,8 @@
     "web-vitals": "3.5.2",
     "webpack-retry-chunk-load-plugin": "^3.1.1",
     "yjs": "^13.5.12",
-    "zipcelx": "^1.6.2"
+    "zipcelx": "^1.6.2",
+    "react-multi-date-picker": "^4.4.1"
   },
   "browserslist": [
     ">0.2%",

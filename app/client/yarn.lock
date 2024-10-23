@@ -12858,7 +12858,7 @@ __metadata:
     cypress-xpath: ^1.6.0
     d3-geo: ^3.1.0
     date-fns: 2.30.0
-    dayjs: ^1.10.6
+    dayjs: ^1.11.10
     deep-diff: ^1.0.2
     diff: ^5.0.0
     dotenv: ^8.1.0
@@ -13012,6 +13012,7 @@ __metadata:
     xlsx: "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
     yjs: ^13.5.12
     zipcelx: ^1.6.2
+    react-multi-date-picker: ^4.4.1
   languageName: unknown
   linkType: soft
 
@@ -16349,10 +16350,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.10.4, dayjs@npm:^1.10.6":
-  version: 1.11.7
-  resolution: "dayjs@npm:1.11.7"
-  checksum: 5003a7c1dd9ed51385beb658231c3548700b82d3548c0cfbe549d85f2d08e90e972510282b7506941452c58d32136d6362f009c77ca55381a09c704e9f177ebb
+"dayjs@npm:^1.10.4, dayjs@npm:^1.11.10":
+  version: 1.11.10
+  resolution: "dayjs@npm:1.11.10"
+  checksum: a6b5a3813b8884f5cd557e2e6b7fa569f4c5d0c97aca9558e38534af4f2d60daafd3ff8c2000fed3435cfcec9e805bcebd99f90130c6d1c5ef524084ced588c4
   languageName: node
   linkType: hard
 
@@ -28353,6 +28354,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-date-object@npm:^2.1.8":
+  version: 2.1.8
+  resolution: "react-date-object@npm:2.1.8"
+  checksum: 8c4ecc7f849efccc483fd78411d88971b48b2e695f1fe331ff83a0e1d87299f3c9d073bd7efba0dd542f5500923ed05dc65af0ea03e1bb344918e3e9e998d703
+  languageName: node
+  linkType: hard
+
 "react-datepicker@npm:^4.10.0":
   version: 4.11.0
   resolution: "react-datepicker@npm:4.11.0"
@@ -28509,6 +28517,16 @@ __metadata:
   peerDependencies:
     react: 17.0.2
   checksum: 1c1eaa3bca7c7228d24b70932e3d7c99e70d1d04e13bb0843bbf321582bc25d7961d6b8a6978a58a598af2af496d1cedcfb1bf65f6b0960a0a8161cb8dab743c
+  languageName: node
+  linkType: hard
+
+"react-element-popper@npm:^2.1.6":
+  version: 2.1.6
+  resolution: "react-element-popper@npm:2.1.6"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 0140c2f78ea5b4ef92d2711ca66d96513403ffab62063cd3bdfee662d5424ceaf50f08a74da3a5e370b3160b1e345d144afa834f90bea5e06fa23c1682660ac4
   languageName: node
   linkType: hard
 
@@ -28694,6 +28712,19 @@ __metadata:
     react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
     react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
   checksum: ee99ca312c35bcec9ef0868babf970ce03c52801731e29be336bb6bdc867a1ecf00a73e1fb5bc3b1b1ef66ceb0c9b4a0199fadb85b1b9829f731409951b018f0
+  languageName: node
+  linkType: hard
+
+"react-multi-date-picker@npm:^4.4.1":
+  version: 4.4.1
+  resolution: "react-multi-date-picker@npm:4.4.1"
+  dependencies:
+    react-date-object: ^2.1.8
+    react-element-popper: ^2.1.6
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: fb225006e24f90ac1283f0e51339b941c17fcdf92418b55c7c51619a17e6f8786bed663187ef24b5f657c20d3bf178bb1ba56e593c314a9add30c43a491a0c6a
   languageName: node
   linkType: hard
 
