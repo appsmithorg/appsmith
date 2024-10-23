@@ -20,34 +20,56 @@ IMAGE="${4:-appsmith/appsmith-ce:release}"
 OLD_VULN_FILE="${5:-vulnerability_base_data.csv}"
 
 
-# Function to install Trivy on macOS (both Apple Silicon and Intel)
-install_trivy() {
+# Define the maximum number of retries
+MAX_RETRIES=3
+
+# Function to install Trivy with retry logic
+install_trivy_with_retry() {
     local count=0
-    while [[ $count -lt 3 ]]; do
-        echo "Installing Trivy (attempt $((count + 1)))..."
+    local success=false
+
+    while [[ $count -lt $MAX_RETRIES ]]; do
+        echo "Attempting to install Trivy (attempt $((count + 1)))..."
         
-        # Run the installation script for Trivy
-        curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.17.2
+        # Fetch the latest release dynamically instead of hardcoding
+        TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+        TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_"$TRIVY_VERSION"_Linux-64bit.tar.gz"
         
-        # Check if Trivy is installed successfully
-        if command -v trivy &> /dev/null; then
-            echo "Trivy installed successfully."
-            return 0
+        # Download and extract Trivy
+        curl -sfL "$TRIVY_URL" | tar -xzf - trivy
+        
+        # Check if extraction was successful
+        if [[ $? -eq 0 ]]; then
+            # Create a local bin directory if it doesn't exist
+            mkdir -p "$HOME/bin"
+            # Move Trivy to the local bin directory
+            mv trivy "$HOME/bin/"
+            # Manually add the bin directory to PATH for this session
+            export PATH="$HOME/bin:$PATH"
+
+            # Check if Trivy is successfully installed
+            if command -v trivy &> /dev/null; then
+                success=true
+                break
+            fi
         fi
         
-        echo "Installation failed. Retrying in 10 seconds..."
-        sleep 10
+        echo "Trivy installation failed. Retrying..."
         count=$((count + 1))
     done
-    echo "Error: Trivy installation failed after 3 attempts."
-    exit 1
+
+    if [[ $success = false ]]; then
+        echo "Error: Trivy installation failed after $MAX_RETRIES attempts."
+        exit 1
+    fi
+
+    echo "Trivy installed successfully."
 }
 
-# Check if Trivy is installed
-[ -x "$(command -v trivy)" ] || install_trivy
-
-IMAGE="${4:-appsmith/appsmith-ce:release}"
-OLD_VULN_FILE="${5:-vulnerability_base_data.csv}"
+# Check if Trivy is installed, if not, install it with retry logic
+if ! command -v trivy &> /dev/null; then
+    install_trivy_with_retry
+fi
 
 NEW_VULN_FILE="trivy_vulnerabilities_new.csv"
 DIFF_OUTPUT_FILE="trivy_vulnerabilities_diff.csv"
