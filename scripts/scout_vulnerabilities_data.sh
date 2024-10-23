@@ -91,10 +91,24 @@ insert_vulns_into_db() {
   local query_file="insert_vulns.sql"
   echo "BEGIN;" > "$query_file"  # Start the transaction
 
+  # Create an associative array to hold existing entries from the database
+  declare -A existing_entries
+
+  # Fetch existing vulnerabilities from the database to avoid duplicates
+  psql -t -c "SELECT vurn_id, product, scanner_tool, priority FROM vulnerability_tracking WHERE scanner_tool = 'SCOUT'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" | while IFS='|' read -r db_vurn_id db_product db_scanner_tool db_priority; do
+    existing_entries["$db_product,$db_scanner_tool,$db_vurn_id"]="$db_priority"
+  done
+
   while IFS=, read -r vurn_id product scanner_tool priority; do
     # Skip empty lines
     if [[ -z "$vurn_id" || -z "$priority" || -z "$product" || -z "$scanner_tool" ]]; then
       echo "Skipping empty vulnerability entry"
+      continue
+    fi
+
+    # Check if the entry already exists
+    if [[ -n "${existing_entries["$product,$scanner_tool,$vurn_id"]}" ]]; then
+      echo "Entry for $vurn_id already exists in the database. Skipping."
       continue
     fi
 
@@ -106,7 +120,7 @@ insert_vulns_into_db() {
     local owner="John Doe"
     local pod="Security"
 
-    # Escape single quotes in vulnerability ID and priority
+    # Escape single quotes in vulnerability ID, product, and priority
     vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
     priority=$(echo "$priority" | sed "s/'/''/g")
     product=$(echo "$product" | sed "s/'/''/g")
