@@ -130,12 +130,17 @@ VALUES $values_list;
 EOF
 
     # Check the inserted vulnerabilities
-    echo "Checking if vulnerabilities were successfully inserted..."
-    local vurn_ids=$(cut -d, -f2 scout_vulnerabilities_diff.csv | sed "s/^/'/;s/$/'/")
-    psql "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -c "
-      SELECT vurn_id, priority 
-      FROM vulnerability_tracking 
-      WHERE vurn_id IN ($vurn_ids);"
+    if [ $? -eq 0 ]; then
+      echo "Checking if vulnerabilities were successfully inserted..."
+      local vurn_ids=$(cut -d, -f2 scout_vulnerabilities_diff.csv | sed "s/^/'/;s/$/'/")
+      psql "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -c "
+        SELECT vurn_id, priority 
+        FROM vulnerability_tracking 
+        WHERE vurn_id IN ($vurn_ids);"
+    else
+      echo "Error: Failed to insert vulnerabilities. Please check the database connection or query."
+      exit 1
+    fi
   fi
 }
 
