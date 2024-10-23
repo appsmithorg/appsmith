@@ -65,29 +65,26 @@ docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk '{if ($2 != "" && $3 != "
 # Compare new vulnerabilities against old vulnerabilities
 echo "Comparing new vulnerabilities with existing vulnerabilities in $OLD_VULN_FILE..."
 if [ -s "$OLD_VULN_FILE" ]; then
-    comm -13 <(awk -F, '{print $2}' "$OLD_VULN_FILE" | sort) <(awk -F, '{print $2}' "$CSV_OUTPUT_FILE" | sort) > "scout_vulnerabilities_diff.csv"
+    # Create a diff that keeps both priority and vurn_id in the output
+    awk -F, 'NR==FNR {old[$2]; next} !($2 in old)' "$OLD_VULN_FILE" "$CSV_OUTPUT_FILE" > "scout_vulnerabilities_diff.csv"
 else
     echo "$OLD_VULN_FILE is empty. All new vulnerabilities will be included."
     cp "$CSV_OUTPUT_FILE" "scout_vulnerabilities_diff.csv"
 fi
 
-echo "Starting scout new data..."
-cat scout_vulnerabilities.csv
+# Output for verification
+echo "Fetching new data..."
+cat "$CSV_OUTPUT_FILE"
 
-echo "Starting scout diff..."
-cat scout_vulnerabilities_diff.csv
+echo "Featching diff..."
+cat "scout_vulnerabilities_diff.csv"
 
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
+  local values_list=""
   local count=0
-  while IFS=, read -r vurn_id priority; do
-    # Print the vurn_id and priority for debugging
-    if [[ $count -lt 2 ]]; then
-      echo "Iteration $((count + 1)):"
-      echo "vurn ID: $vurn_id"
-      echo "priority: $priority"
-    fi
 
+  while IFS=, read -r priority vurn_id; do
     # Skip empty lines
     if [[ -z "$vurn_id" || -z "$priority" ]]; then
       echo "Skipping empty vulnerability ID or priority"
@@ -111,21 +108,29 @@ insert_vulns_into_db() {
     local owner="John Doe"
     local pod="Security"
 
+    # Prepare the VALUES list for batch insert
+    values_list+="('$product_code', 'scout', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod'),"
+    
     ((count++))
+  done < "scout_vulnerabilities_diff.csv"
 
-    # Insert the vulnerability into the database and continue on failure
+  # Remove trailing comma
+  values_list=${values_list%,}
+
+  if [ -n "$values_list" ]; then
+    # Insert all vulnerabilities in one query
     psql "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" <<EOF
 INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod)
-VALUES ('$product_code', 'scout', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod');
+VALUES $values_list;
 EOF
 
-    if [ $? -eq 0 ]; then
-      echo "Inserted new vulnerability: $vurn_id with priority: $priority"
-    else
-      echo "Failed to insert vulnerability: $vurn_id with priority: $priority. Continuing..."
-    fi
-
-  done < "scout_vulnerabilities_diff.csv"
+    # Check the inserted vulnerabilities
+    echo "Checking if vulnerabilities were successfully inserted..."
+    psql "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -c "
+      SELECT vurn_id, priority 
+      FROM vulnerability_tracking 
+      WHERE vurn_id IN ($(cut -d, -f2 scout_vulnerabilities_diff.csv | sed 's/^/\'/g;s/$/\'/g' | paste -sd, -));"
+  fi
 }
 
 # Call the function to insert new vulnerabilities into the database
