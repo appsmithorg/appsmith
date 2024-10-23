@@ -108,6 +108,10 @@ insert_vulns_into_db() {
     local owner="John Doe"
     local pod="Security"
 
+    # Escape single quotes in vulnerability ID and priority
+    vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
+    priority=$(echo "$priority" | sed "s/'/''/g")
+
     # Prepare the VALUES list for batch insert
     values_list+="('$product_code', 'scout', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod'),"
     
@@ -126,10 +130,11 @@ EOF
 
     # Check the inserted vulnerabilities
     echo "Checking if vulnerabilities were successfully inserted..."
+    local vurn_ids=$(cut -d, -f2 scout_vulnerabilities_diff.csv | sed "s/^/'/;s/$/'/")
     psql "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -c "
       SELECT vurn_id, priority 
       FROM vulnerability_tracking 
-      WHERE vurn_id IN ($(cut -d, -f2 scout_vulnerabilities_diff.csv | sed 's/^/\'/g;s/$/\'/g' | paste -sd, -));"
+      WHERE vurn_id IN ($vurn_ids);"
   fi
 }
 
