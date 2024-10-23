@@ -123,7 +123,7 @@ jobs:
       #     chmod +x scripts/scout_vulnerabilities_data.sh
       #     ./scripts/scout_vulnerabilities_data.sh "${{ inputs.image_name }}"
 
-      # Run Trivy vulnerability data script
+     # Run Trivy vulnerability data script
       - name: Run Trivy vulnerability data script
         if: always()
         env:
@@ -134,9 +134,11 @@ jobs:
           GITHUB_PR_ID: ${{ github.event.pull_request.number }}
           GITHUB_PR_LINK: ${{ github.event.pull_request.html_url }}
           GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Add this line to use the default GitHub token
         run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
           chmod +x scripts/trivy_vulnerabilities_data.sh
-          ./scripts/trivy_vulnerabilities_data.sh "${{ inputs.image_name }}"    
+          ./scripts/trivy_vulnerabilities_data.sh "${{ inputs.image_name }}"
 
       # - name: Upload Vulnerabilities Scan Results
       #   uses: actions/upload-artifact@v3
