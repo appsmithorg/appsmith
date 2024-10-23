@@ -1,5 +1,5 @@
-import React from "react";
-import { IDEToolbar } from "IDE";
+import React, { useState } from "react";
+import { IDEToolbar, ToolbarSettingsPopover } from "IDE";
 import { JSFunctionRun } from "./components/JSFunctionRun";
 import type { JSActionDropdownOption } from "./types";
 import type { SaveActionNameParams } from "PluginActionEditor";
@@ -8,6 +8,7 @@ import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { DropdownOnSelect } from "@appsmith/ads-old";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { createMessage, JS_EDITOR_SETTINGS } from "ee/constants/messages";
 import { JSHeader } from "./JSHeader";
 import { JSFunctionSettings } from "./components/JSFunctionSettings";
 import type { JSFunctionSettingsProps } from "./components/old/JSFunctionSettings";
@@ -48,6 +49,8 @@ export const JSEditorToolbar = (props: Props) => {
     FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
+  const [isOpen, setIsOpen] = useState(false);
+
   // If the action redesign is not enabled, render the JSHeader component
   if (!isActionRedesignEnabled) {
     return <JSHeader {...props} />;
@@ -71,11 +74,18 @@ export const JSEditorToolbar = (props: Props) => {
           />
         </div>
         {props.showSettings ? (
-          <JSFunctionSettings
-            actions={props.jsActions}
-            disabled={!props.changePermitted}
-            onUpdateSettings={props.onUpdateSettings}
-          />
+          <ToolbarSettingsPopover
+            dataTestId={"t--js-editor-SETTINGS"}
+            handleOpenChange={setIsOpen}
+            isOpen={isOpen}
+            title={createMessage(JS_EDITOR_SETTINGS.TITLE)}
+          >
+            <JSFunctionSettings
+              actions={props.jsActions}
+              disabled={!props.changePermitted}
+              onUpdateSettings={props.onUpdateSettings}
+            />
+          </ToolbarSettingsPopover>
         ) : null}
 
         {props.hideContextMenuOnEditor ? null : props.contextMenu}
