@@ -191,13 +191,13 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
 
   // filter query based on allowedDatasourceType
   if (allowedDatasourceTypes) {
-    const plugin = plugins.find((plugin) =>
-      allowedDatasourceTypes.includes(plugin.name),
-    );
+    const allowedPluginIds = plugins
+      .filter((plugin) => allowedDatasourceTypes.includes(plugin.name))
+      .map((plugin) => plugin.id);
 
-    if (plugin) {
-      filteredQueries = filteredQueries.filter(
-        (query) => query.config.pluginId === plugin.id,
+    if (allowedPluginIds.length) {
+      filteredQueries = filteredQueries.filter((query) =>
+        allowedPluginIds.includes(query.config.pluginId),
       );
     }
   }
