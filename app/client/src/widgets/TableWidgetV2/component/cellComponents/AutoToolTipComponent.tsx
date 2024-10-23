@@ -52,47 +52,50 @@ function useToolTip(
   const ref = createRef<HTMLDivElement>();
   const [requiresTooltip, setRequiresTooltip] = useState(false);
 
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-    const currentRef = ref.current;
+  useEffect(
+    function setupMouseHandlers() {
+      let timeout: ReturnType<typeof setTimeout>;
+      const currentRef = ref.current;
 
-    if (!currentRef) return;
+      if (!currentRef) return;
 
-    const mouseEnterHandler = () => {
-      timeout = setTimeout(() => {
-        const element = currentRef?.querySelector("div") as HTMLDivElement;
+      const mouseEnterHandler = () => {
+        timeout = setTimeout(() => {
+          const element = currentRef?.querySelector("div") as HTMLDivElement;
 
-        /*
-         * Using setTimeout to simulate hoverOpenDelay of the tooltip
-         * during initial render
-         */
-        if (element && element.offsetWidth < element.scrollWidth) {
-          setRequiresTooltip(true);
-        } else if (isButton && element && isButtonTextTruncated(element)) {
-          setRequiresTooltip(true);
-        } else {
-          setRequiresTooltip(false);
-        }
+          /*
+           * Using setTimeout to simulate hoverOpenDelay of the tooltip
+           * during initial render
+           */
+          if (element && element.offsetWidth < element.scrollWidth) {
+            setRequiresTooltip(true);
+          } else if (isButton && element && isButtonTextTruncated(element)) {
+            setRequiresTooltip(true);
+          } else {
+            setRequiresTooltip(false);
+          }
 
+          currentRef?.removeEventListener("mouseenter", mouseEnterHandler);
+          currentRef?.removeEventListener("mouseleave", mouseLeaveHandler);
+        }, TOOLTIP_OPEN_DELAY);
+      };
+
+      const mouseLeaveHandler = () => {
+        setRequiresTooltip(false);
+        clearTimeout(timeout);
+      };
+
+      currentRef?.addEventListener("mouseenter", mouseEnterHandler);
+      currentRef?.addEventListener("mouseleave", mouseLeaveHandler);
+
+      return () => {
         currentRef?.removeEventListener("mouseenter", mouseEnterHandler);
         currentRef?.removeEventListener("mouseleave", mouseLeaveHandler);
-      }, TOOLTIP_OPEN_DELAY);
-    };
-
-    const mouseLeaveHandler = () => {
-      setRequiresTooltip(false);
-      clearTimeout(timeout);
-    };
-
-    currentRef?.addEventListener("mouseenter", mouseEnterHandler);
-    currentRef?.addEventListener("mouseleave", mouseLeaveHandler);
-
-    return () => {
-      currentRef?.removeEventListener("mouseenter", mouseEnterHandler);
-      currentRef?.removeEventListener("mouseleave", mouseLeaveHandler);
-      clearTimeout(timeout);
-    };
-  }, [children,isButton]);
+        clearTimeout(timeout);
+      };
+    },
+    [children, isButton, ref],
+  );
 
   return requiresTooltip && children ? (
     <Tooltip
@@ -178,13 +181,13 @@ function LinkWrapper(props: Props) {
 
 function AutoToolTipComponent(props: Props) {
   const content = useToolTip(props.children, props.title);
+  const buttonContent = useToolTip(props.children, props.title, true);
 
   if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;
   }
 
   if (props.columnType === ColumnTypes.BUTTON && props.title) {
-    const buttonContent = useToolTip(props.children, props.title, true);
     return buttonContent;
   }
 
