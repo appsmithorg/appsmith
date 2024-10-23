@@ -81,8 +81,9 @@ cat "scout_vulnerabilities_diff.csv"
 
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
-  local values_list=""
   local count=0
+  local query_file="insert_vulns.sql"
+  echo "BEGIN;" > "$query_file"  # Start the transaction
 
   while IFS=, read -r priority vurn_id; do
     # Skip empty lines
@@ -112,42 +113,30 @@ insert_vulns_into_db() {
     vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
     priority=$(echo "$priority" | sed "s/'/''/g")
 
-    # Prepare the VALUES list for batch insert
-    values_list+="('$product_code', 'scout', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod'),"
+    # Write each insert query to the SQL file
+    echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) VALUES ('$product_code', 'scout', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod');" >> "$query_file"
     
     ((count++))
   done < "scout_vulnerabilities_diff.csv"
 
-  # Remove trailing comma
-  values_list=${values_list%,}
-  echo "my value list is...... $values_list"
+  echo "COMMIT;" >> "$query_file"  # End the transaction
+  echo "Queries written to $query_file."
 
-  if [ -n "$values_list" ]; then
-    # Insert all vulnerabilities in one query
-    psql "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" <<EOF
-INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod)
-VALUES $values_list;
-EOF
+  # Execute the SQL file
+  psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"
 
-    # Check the inserted vulnerabilities
-    if [ $? -eq 0 ]; then
-      echo "Checking if vulnerabilities were successfully inserted..."
-      local vurn_ids=$(cut -d, -f2 scout_vulnerabilities_diff.csv | sed "s/^/'/;s/$/'/")
-      psql "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -c "
-        SELECT vurn_id, priority 
-        FROM vulnerability_tracking 
-        WHERE vurn_id IN ($vurn_ids);"
-    else
-      echo "Error: Failed to insert vulnerabilities. Please check the database connection or query."
-      exit 1
-    fi
+  # Check if the execution was successful
+  if [ $? -eq 0 ]; then
+    echo "Vulnerabilities successfully inserted into the database."
+  else
+    echo "Error: Failed to insert vulnerabilities. Please check the database connection or query."
+    exit 1
   fi
 }
 
-# Call the function to insert new vulnerabilities into the database
+# Call the function to generate the insert queries and execute them
 if [ -s "scout_vulnerabilities_diff.csv" ]; then
   insert_vulns_into_db
-  echo "New vulnerabilities inserted into the database."
 else
   echo "No new vulnerabilities to insert."
 fi
