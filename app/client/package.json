@@ -43,9 +43,9 @@
     "check-types": "yarn tsc --noEmit",
     "init-husky": "cd ../.. && husky install app/client/.husky",
     "clean:workspaces": "yarn workspaces foreach -pAv exec rm -rf node_modules",
-    "cypress:snapshot": "npx cypress run -b chromium -s",
-    "cypress:snapshot:docker": "docker run --network='host' -it --rm -e CYPRESS_$1 -v $PWD:/cypress -w /cypress cypress-snapshot $0",
-    "cypress:snapshot:docker:build": "docker build . -f cypress/Dockerfile -t cypress-snapshot"
+    "cypress:snapshot": "npx cypress run -b chrome -s",
+    "cypress:snapshot:docker": "DEBUG=cypress:* docker run --platform linux/amd64 --network='host' -it --rm -e CYPRESS_UPDATE_SNAPSHOTS=$1 -v $PWD:/cypress -w /cypress cypress-snapshot $0",
+    "cypress:snapshot:docker:build": "docker build --platform linux/amd64 . -f cypress/Dockerfile -t cypress-snapshot"
   },
   "dependencies": {
     "@appsmith/ads": "workspace:^",
