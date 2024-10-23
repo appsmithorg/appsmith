@@ -87,7 +87,7 @@ esac
 
 # Run the Trivy scan and output to JSON file
 echo "Running Trivy scan for image: $IMAGE..."
-if ! trivy image --insecure --debug --format json "$IMAGE" > "trivy_vulnerabilities.json"; then
+if ! trivy image --insecure --format json "$IMAGE" > "trivy_vulnerabilities.json"; then
     echo "Error: Trivy is not available or the image does not exist."
     exit 1
 fi
