@@ -15,6 +15,7 @@ interface Props {
   title: string;
   children: React.ReactNode;
   dataTestId?: string;
+  disabled?: boolean;
 }
 
 const Variables = css`
@@ -43,6 +44,7 @@ export const ToolbarSettingsPopover = (props: Props) => {
       <PopoverTrigger>
         <ToggleButton
           data-testId={props.dataTestId}
+          disabled={props.disabled}
           icon="settings-2-line"
           isSelected={isOpen}
           onClick={handleButtonClick}

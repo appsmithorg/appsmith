@@ -88,7 +88,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
         {props.docsLink && (
           <LearnMoreLink
             className="t--action-settings-documentation-link"
-            endIcon="share-box-line"
+            endIcon="external-link-line"
             kind="secondary"
             onClick={handleLearnMoreClick}
           >
