@@ -85,12 +85,21 @@ case "$IMAGE" in
     *) product_name="UNKNOWN" ;;
 esac
 
-# Run the Trivy scan and output to JSON file
-echo "Running Trivy scan for image: $IMAGE..."
-if ! trivy image --insecure --format json "$IMAGE" > "trivy_vulnerabilities.json"; then
-    echo "Error: Trivy is not available or the image does not exist."
-    exit 1
-fi
+# Function to run Trivy scan
+run_trivy_scan() {
+    echo "Cleaning up Trivy data..."
+    trivy clean --all  # Clear all cached data
+
+    # Run the Trivy scan and output to JSON file
+    echo "Running Trivy scan for image: $IMAGE..."
+    if ! trivy image --insecure --format json "$IMAGE" --debug> "trivy_vulnerabilities.json"; then
+        echo "Error: Trivy is not available or the image does not exist."
+        exit 1
+    fi
+}
+
+# Call the function to run the scan
+run_trivy_scan
 
 # Process vulnerabilities and generate the desired CSV format
 if jq -e '.Results | length > 0' "trivy_vulnerabilities.json" > /dev/null; then
