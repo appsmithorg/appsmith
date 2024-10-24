@@ -2630,6 +2630,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         ...this.props.columnEditableCellValue,
         [alias]: value,
       });
+      pushBatchMetaUpdates("selectedRowIndex", rowIndex);
 
       /*
        * We need to clear the selectedRowIndex and selectedRowIndices
