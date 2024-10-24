@@ -1,0 +1,94 @@
+name: Appsmith Build Test Github
+
+# This workflow builds Docker images for server and client, and then pushes them to Docker Hub.
+# The docker-tag with which this push happens is `latest` and the release tag (e.g., v1.2.3 etc.).
+# This workflow does NOT run tests.
+# This workflow is automatically triggered when a release is created on GitHub.
+
+on:
+  # Ref: <https://docs.github.com/en/free-pro-team@latest/actions/reference/events-that-trigger-workflows#release>.
+  push:
+    branches: ["release"]
+
+jobs:
+  prelude:
+    runs-on: ubuntu-latest
+
+    outputs:
+      tag: ${{ steps.get_version.outputs.tag }}
+
+    steps:
+      - name: Environment details
+        run: |
+          echo ${{ secrets.DOCKER_HUB_USERNAME2 }}
+          echo "PWD: $PWD"
+          echo "GITHUB_REF: $GITHUB_REF"
+          echo "GITHUB_SHA: $GITHUB_SHA"
+          echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
+      - name: Login to DockerHub
+        uses: docker/login-action@v3.3.0
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME2 }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN2 }}
+      - name: Get the version
+        id: get_version
+        run: |
+          if ! [[ ${GITHUB_REF-} =~ ^refs/tags/v[[:digit:]]\.[[:digit:]]+(\.[[:digit:]]+)?$ ]]; then
+            echo "Invalid tag: '${GITHUB_REF-}'. Has to be like `v1.22`, `v1.22.33` only."
+            exit 1
+          fi
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+  rts-build:
+    needs:
+      - prelude
+
+    defaults:
+      run:
+        working-directory: app/client/packages/rts
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+
+      # actions/setup-node@v4 doesn’t work properly with Yarn 3
+      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
+      # Restoring the cache manually instead
+      - name: Restore Yarn cache
+        if: steps.run_result.outputs.run_result != 'success'
+        uses: actions/cache@v4
+        with:
+          path: app/.yarn/cache
+          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          restore-keys: |
+            v1-yarn3-
+
+      # Install all the dependencies
+      - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
+        run: yarn install
+
+      - name: Build
+        run: |
+          echo 'export const VERSION = "${{ needs.prelude.outputs.tag }}"' > src/version.js
+          yarn build
+
+      # Tar the bundles to speed up the upload & download process
+      - name: Tar the rts bundles
+        run: |
+          tar -cvf rts-dist.tar dist
+
+      # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
+      - name: Upload rts build bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: rts-dist
+          path: app/client/packages/rts/rts-dist.tar
+          overwrite: true
