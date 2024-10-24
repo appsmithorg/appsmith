@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSAction } from "entities/JSCollection";
 import type { DropdownOnSelect } from "@appsmith/ads-old";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { JSObjectNameEditorProps } from "./JSObjectNameEditor";
+import type { JSObjectNameEditorProps } from "./JSEditorToolbar/JSObjectNameEditor";
 import {
   setActiveJSAction,
   setJsPaneConfigSelectedTab,

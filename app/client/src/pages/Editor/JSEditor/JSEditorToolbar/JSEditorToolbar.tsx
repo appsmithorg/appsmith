@@ -13,7 +13,7 @@ import { JSHeader } from "./JSHeader";
 import { JSFunctionSettings } from "./components/JSFunctionSettings";
 import type { JSFunctionSettingsProps } from "./components/old/JSFunctionSettings";
 import { convertJSActionsToDropdownOptions } from "./utils";
-import { JSObjectNameEditor } from "../JSObjectNameEditor";
+import { JSObjectNameEditor } from "./JSObjectNameEditor";
 
 interface Props {
   changePermitted: boolean;
