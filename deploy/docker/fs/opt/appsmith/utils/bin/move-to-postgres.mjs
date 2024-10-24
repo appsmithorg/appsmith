@@ -18,6 +18,11 @@ let mongoDbUrl;
 let mongoDumpFile = null;
 const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
 
+// The minimum version of the MongoDB changeset that must be present in the mongockChangeLog collection to run this script.
+// This is to ensure we are migrating the data from the stable version of MongoDB.
+const MINIMUM_MONGO_CHANGESET = "add_empty_policyMap_for_null_entries";
+const MONGO_MIGRATION_COLLECTION = "mongockChangeLog";
+
 for (let i = 2; i < process.argv.length; ++i) {
   const arg = process.argv[i];
   if (arg.startsWith("--mongodb-url=") && !mongoDbUrl) {
@@ -76,6 +81,14 @@ if (isBaselineMode) {
 
 const collectionNames = await mongoDb.listCollections({}, { nameOnly: true }).toArray();
 const sortedCollectionNames = collectionNames.map(collection => collection.name).sort();
+
+// Verify that the MongoDB data has been migrated to a stable version i.e. v1.43 before we start migrating the data to Postgres.
+if (!await isMongoDataMigratedToStableVersion(mongoDb)) {
+  console.log("Please upgrade the MongoDB data to the latest version before running this script.");
+  await mongoClient.close();
+  mongoServer?.kill();
+  process.exit(0);
+}
 
 for await (const collectionName of sortedCollectionNames) {
 
@@ -182,4 +195,21 @@ function mapClassToType(_class) {
     default:
       return null;
   }
+}
+
+/**
+ * Method to check if MongoDB data has migrated to a stable version before we start migrating the data to Postgres.
+ * @param {*} mongoDb - The MongoDB client.
+ * @returns {Promise<boolean>} - A promise that resolves to true if the data has been migrated to a stable version, false otherwise.
+ */
+async function isMongoDataMigratedToStableVersion(mongoDb) {
+  const migrationFilters = {};
+  migrationFilters[MONGO_MIGRATION_COLLECTION] = {
+    changeId: MINIMUM_MONGO_CHANGESET
+  };
+  let shouldMigrate = false;
+  for await (const doc of mongoDb.collection(MONGO_MIGRATION_COLLECTION).find(migrationFilters[MONGO_MIGRATION_COLLECTION])) {
+    shouldMigrate = true;
+  }
+  return shouldMigrate;
 }
