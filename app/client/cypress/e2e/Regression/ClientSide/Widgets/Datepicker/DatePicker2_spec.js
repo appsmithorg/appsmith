@@ -19,7 +19,7 @@ describe(
 
     // ADS changes to date input property causes this test to fail
     // skipping it temporarily.
-    it.skip("DatePicker-Date Name validation", function () {
+    it("DatePicker-Date Name validation", function () {
       // changing the date to today
       cy.get(formWidgetsPage.defaultDate).click();
       cy.SetDateToToday();
@@ -36,10 +36,8 @@ describe(
 
       /**
        * setDate--> is a Command to select the date in the date picker
-       * @param1 --> its takes currentday+ <future day> eg: 1
-       * @param2 --> user date formate
        */
-      cy.setDate(1, "ddd MMM DD YYYY");
+      cy.setDate(1);
       const nextDay = dayjs().add(1, "days").format("DD/MM/YYYY");
       cy.log(nextDay);
       cy.get(formWidgetsPage.datepickerWidget + " .bp3-input").should(

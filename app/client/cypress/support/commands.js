@@ -524,10 +524,9 @@ Cypress.Commands.add("getDate", (date, dateFormate) => {
   return eDate;
 });
 
-Cypress.Commands.add("setDate", (date, dateFormate) => {
-  const expDate = dayjs().add(date, "days").format(dateFormate);
-  const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;
-  cy.get(sel).click();
+Cypress.Commands.add("setDate", (date) => {
+  const expDate = dayjs().add(date, "days").format("dddd, MMMM DD");
+  cy.get(`.react-datepicker__day[aria-label^="Choose ${expDate}"]`).click();
 });
 
 Cypress.Commands.add("validateDisableWidget", (widgetCss, disableCss) => {
