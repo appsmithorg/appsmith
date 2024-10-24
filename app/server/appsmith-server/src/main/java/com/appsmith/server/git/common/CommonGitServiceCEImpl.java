@@ -52,7 +52,7 @@ import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.GitDeployKeysRepository;
+import com.appsmith.server.repositories.cakes.GitDeployKeysRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.GitArtifactHelper;
 import com.appsmith.server.services.SessionUserService;
@@ -75,7 +75,6 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.Exceptions;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
@@ -118,7 +117,7 @@ import static org.springframework.util.StringUtils.hasText;
 @RequiredArgsConstructor
 public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
-    private final GitDeployKeysRepository gitDeployKeysRepository;
+    private final GitDeployKeysRepositoryCake gitDeployKeysRepository;
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
     private final CommonGitFileUtils commonGitFileUtils;
     private final GitRedisUtils gitRedisUtils;
@@ -126,7 +125,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     private final UserDataService userDataService;
     protected final UserService userService;
     private final EmailConfig emailConfig;
-    private final TransactionalOperator transactionalOperator;
+    // private final TransactionalOperator transactionalOperator;
 
     protected final AnalyticsService analyticsService;
     private final ObservationRegistry observationRegistry;
@@ -3064,34 +3063,31 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         Mono<? extends Artifact> baseArtifactMono =
                 gitArtifactHelper.getArtifactById(baseArtifactId, artifactManageProtectedBranchPermission);
 
-        return baseArtifactMono
-                .flatMap(baseArtifact -> {
-                    GitArtifactMetadata baseGitData = baseArtifact.getGitArtifactMetadata();
-                    final String defaultBranchName = baseGitData.getDefaultBranchName();
-                    final List<String> incomingProtectedBranches =
-                            CollectionUtils.isNullOrEmpty(branchNames) ? new ArrayList<>() : branchNames;
+        return baseArtifactMono.flatMap(baseArtifact -> {
+            GitArtifactMetadata baseGitData = baseArtifact.getGitArtifactMetadata();
+            final String defaultBranchName = baseGitData.getDefaultBranchName();
+            final List<String> incomingProtectedBranches =
+                    CollectionUtils.isNullOrEmpty(branchNames) ? new ArrayList<>() : branchNames;
 
-                    // user cannot protect multiple branches
-                    if (incomingProtectedBranches.size() > 1) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
+            // user cannot protect multiple branches
+            if (incomingProtectedBranches.size() > 1) {
+                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+            }
 
-                    // user cannot protect a branch which is not default
-                    if (incomingProtectedBranches.size() == 1
-                            && !defaultBranchName.equals(incomingProtectedBranches.get(0))) {
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
+            // user cannot protect a branch which is not default
+            if (incomingProtectedBranches.size() == 1 && !defaultBranchName.equals(incomingProtectedBranches.get(0))) {
+                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+            }
 
-                    return updateProtectedBranchesInArtifactAfterVerification(baseArtifact, incomingProtectedBranches);
-                })
-                .as(transactionalOperator::transactional);
+            return updateProtectedBranchesInArtifactAfterVerification(baseArtifact, incomingProtectedBranches);
+        });
+        /*.as(transactionalOperator::transactional);*/
     }
 
     protected Mono<List<String>> updateProtectedBranchesInArtifactAfterVerification(
             Artifact baseArtifact, List<String> branchNames) {
         GitArtifactHelper<?> gitArtifactHelper = getArtifactGitService(baseArtifact.getArtifactType());
         GitArtifactMetadata baseGitData = baseArtifact.getGitArtifactMetadata();
-
         // keep a copy of old protected branches as it's required to send analytics event later
         List<String> oldProtectedBranches = baseGitData.getBranchProtectionRules() == null
                 ? new ArrayList<>()

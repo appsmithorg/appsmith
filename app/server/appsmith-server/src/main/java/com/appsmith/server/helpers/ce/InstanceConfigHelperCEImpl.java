@@ -17,14 +17,11 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
-import joptsimple.internal.Strings;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -48,8 +45,6 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
     private final ApplicationContext applicationContext;
 
-    private final ReactiveMongoTemplate reactiveMongoTemplate;
-
     private final FeatureFlagService featureFlagService;
     private final AnalyticsService analyticsService;
     private final NetworkUtils networkUtils;
@@ -61,7 +56,6 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
     @Override
     public Mono<? extends Config> registerInstance() {
-
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         if (baseUrl == null || StringUtils.isEmpty(baseUrl)) {
             return Mono.error(new AppsmithException(
@@ -97,10 +91,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                     log.debug("Registration successful, updating state ...");
                     return instanceIdMono.flatMap(instanceId -> configService
                             .getByName(Appsmith.APPSMITH_REGISTERED)
-                            .switchIfEmpty(Mono.defer(() -> {
-                                sendServerSetupEvent(instanceId);
-                                return Mono.just(new Config());
-                            }))
+                            .onErrorReturn(new Config())
                             .flatMap(config -> {
                                 // if instance isn't already marked registered
                                 if (config.getConfig() != null
@@ -206,23 +197,6 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     public Mono<Boolean> isLicenseValid() {
         // As CE edition doesn't require license, default state should be valid
         return Mono.just(true);
-    }
-
-    @Override
-    public Mono<String> checkMongoDBVersion() {
-        return reactiveMongoTemplate
-                .executeCommand(new Document("buildInfo", 1))
-                .map(buildInfo -> {
-                    commonConfig.setMongoDBVersion(buildInfo.getString("version"));
-                    log.info("Fetched and set conenncted mongo db version as: {}", commonConfig.getMongoDBVersion());
-                    return commonConfig.getMongoDBVersion();
-                })
-                .onErrorResume(error -> {
-                    log.error(
-                            "Error while getting mongo db version. Hence current mongo db version will remain unavailable in context",
-                            error);
-                    return Mono.just(Strings.EMPTY);
-                });
     }
 
     @Override

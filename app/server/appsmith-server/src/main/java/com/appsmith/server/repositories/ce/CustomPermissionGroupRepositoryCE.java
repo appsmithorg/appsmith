@@ -3,10 +3,8 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.AppsmithRepository;
-import org.springframework.data.mongodb.core.query.UpdateDefinition;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,23 +12,29 @@ import java.util.Set;
 
 public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<PermissionGroup> {
 
-    Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
-            String userId, String workspaceId, AclPermission permission);
+    List<PermissionGroup> findByAssignedToUserIdsIn(String userId);
 
-    Mono<Integer> updateById(String id, UpdateDefinition updateObj);
+    List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
+            String userId, String workspaceId, AclPermission permission, User currentUser);
 
-    Flux<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission);
+    int updateById(String id, BridgeUpdate updateObj);
 
-    Flux<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission);
+    List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission, User currentUser);
 
-    Mono<Void> evictPermissionGroupsUser(String email, String tenantId);
+    List<PermissionGroup> findByDefaultWorkspaceIds(
+            Set<String> workspaceIds, AclPermission permission, User currentUser);
 
-    Mono<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId);
+    Optional<Void> evictPermissionGroupsUser(String email, String tenantId);
 
-    Flux<PermissionGroup> findAllByAssignedToUserIn(
-            Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);
+    Optional<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId);
 
-    Mono<Set<String>> getCurrentUserPermissionGroups();
+    List<PermissionGroup> findAllByAssignedToUserIn(
+            Set<String> userIds,
+            Optional<List<String>> includeFields,
+            Optional<AclPermission> permission,
+            User currentUser);
 
-    Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user);
+    Set<String> getPermissionGroupsForUser(User user);
+
+    Set<String> getAllPermissionGroupsIdsForUser(User user);
 }

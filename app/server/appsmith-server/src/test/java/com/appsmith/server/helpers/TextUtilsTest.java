@@ -41,7 +41,7 @@ public class TextUtilsTest {
         checkFromCsv("a, b", 2, "a", "b");
         checkFromCsv("a, b,", 2, "a", "b");
         checkFromCsv("a, b, ", 2, "a", "b");
-        checkFromCsv("a, b, ,c", 3, "a", "b", "c");
+        checkFromCsv("a, b,c", 3, "a", "b", "c");
         checkFromCsv("a, b,,c", 3, "a", "b", "c");
         checkFromCsv("a,  b,  ,c ", 3, "a", "b", "c");
         checkFromCsv("a,b,,c ,d", 4, "a", "b", "c", "d");

@@ -311,7 +311,8 @@ jobs:
       id-token: write
 
     # Run this job as soon as the docker image is ready, if this is the release branch
-    if: ( always() && github.ref == 'refs/heads/release' )
+    if: |
+      always() && (github.ref_name == 'release' || github.ref_name == 'pg')
 
     steps:
       - name: Checkout the head commit of the branch
@@ -373,7 +374,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build and push release image to Docker Hub
+      - name: Build and push image to Docker Hub
         if: success()
         uses: depot/build-push-action@v1
         with:
@@ -383,7 +384,7 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
-            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ github.ref_name }}
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{ github.ref_name }}
 
