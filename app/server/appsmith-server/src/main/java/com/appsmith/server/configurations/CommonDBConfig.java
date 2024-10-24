@@ -33,7 +33,7 @@ public class CommonDBConfig {
         if (!appsmithDbUrl.startsWith("mongodb")) {
             return null;
         }
-        log.info("Found MongoDB uri configuring now");
+        log.info("Found MongoDB uri configuring now!");
         MongoProperties mongoProperties = new MongoProperties();
         mongoProperties.setUri(appsmithDbUrl);
         return mongoProperties;

@@ -30,7 +30,7 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
-    baseUrl: "https://regression.test.appsmith.com/",
+    baseUrl: "https://ce-37017.dp.appsmith.com/",
     setupNodeEvents(on, config) {
       addMatchImageSnapshotPlugin(on);
       require("cypress-mochawesome-reporter/plugin")(on);
@@ -53,10 +53,7 @@ export default defineConfig({
       return require("./cypress/plugins/index.js")(on, config);
     },
     specPattern: [
-      "cypress/e2e/Sanity/Datasources/Airtable_Basic_Spec.ts",
-      "cypress/e2e/GSheet/**/**/*",
-      "cypress/e2e/Regression/ServerSide/Datasources/Oracle_Spec.ts",
-      "cypress/e2e/Regression/ClientSide/Widgets/Others/MapWidget_Spec.ts",
+      "cypress/e2e/**/*"
     ],
     testIsolation: false,
     excludeSpecPattern: ["cypress/e2e/**/spec_utility.ts"],
