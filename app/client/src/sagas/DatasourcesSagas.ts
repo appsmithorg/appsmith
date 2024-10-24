@@ -33,7 +33,11 @@ import {
   getCurrentBasePageId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import type { DatasourceGroupByPluginCategory } from "ee/selectors/entitiesSelector";
+import {
+  type DatasourceGroupByPluginCategory,
+  getActions,
+  getDatasourceByPluginId,
+} from "ee/selectors/entitiesSelector";
 import {
   getDatasource,
   getDatasourceActionRouteInfo,
@@ -80,7 +84,6 @@ import type {
 import {
   AuthenticationStatus,
   FilePickerActionStatus,
-  ToastMessageType,
 } from "entities/Datasource";
 import {
   INTEGRATION_TABS,
@@ -93,6 +96,10 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
 } from "ee/constants/forms";
+import type { ActionDataState } from "ee/reducers/entityReducers/actionsReducer";
+import { setIdeEditorViewMode } from "../actions/ideActions";
+import { EditorViewMode } from "ee/entities/IDE/constants";
+import { createActionRequestSaga } from "./ActionSagas";
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { GetFormData } from "selectors/formSelectors";
@@ -121,7 +128,7 @@ import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
-import { PluginPackageName, PluginType } from "entities/Action";
+import { type Action, PluginPackageName, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { getQueryParams } from "utils/URLUtils";
@@ -149,12 +156,10 @@ import {
   saasEditorDatasourceIdURL,
 } from "ee/RouteBuilder";
 import {
-  DATASOURCE_NAME_DEFAULT_PREFIX,
   GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS,
   GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE,
   TEMP_DATASOURCE_ID,
 } from "constants/Datasource";
-import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
 import { toast } from "@appsmith/ads";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { addClassToDocumentRoot } from "pages/utils";
@@ -175,7 +180,11 @@ import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import FocusRetention from "./FocusRetentionSaga";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
-import { getFromServerWhenNoPrefetchedResult } from "./helper";
+import {
+  getFromServerWhenNoPrefetchedResult,
+  getInitialActionPayload,
+  getInitialDatasourcePayload,
+} from "./helper";
 import { executeGoogleApi } from "./loadGoogleApi";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { getCurrentModuleId } from "ee/selectors/modulesSelector";
@@ -1061,9 +1070,6 @@ function* createTempDatasourceFromFormSaga(
   );
   const initialValues: unknown = yield call(getConfigInitialValues, formConfig);
 
-  const dsList: Datasource[] = yield select(getDatasources);
-  const sequence = getUntitledDatasourceSequence(dsList);
-
   let datasourceType = actionPayload?.payload?.type;
 
   if (!actionPayload?.payload.type) {
@@ -1076,25 +1082,11 @@ function* createTempDatasourceFromFormSaga(
   }
 
   const defaultEnvId = getDefaultEnvId();
+  const initialPayload: Datasource = yield getInitialDatasourcePayload(
+    actionPayload.payload.pluginId,
+    datasourceType,
+  );
 
-  const initialPayload = {
-    id: TEMP_DATASOURCE_ID,
-    name: DATASOURCE_NAME_DEFAULT_PREFIX + sequence,
-    type: datasourceType,
-    pluginId: actionPayload.payload.pluginId,
-    new: false,
-    datasourceStorages: {
-      [defaultEnvId]: {
-        datasourceId: TEMP_DATASOURCE_ID,
-        environmentId: defaultEnvId,
-        isValid: false,
-        datasourceConfiguration: {
-          properties: [],
-        },
-        toastMessage: ToastMessageType.EMPTY_TOAST_MESSAGE,
-      },
-    },
-  };
   const payload = merge(initialPayload, actionPayload.payload);
 
   payload.datasourceStorages[defaultEnvId] = merge(
@@ -1128,7 +1120,60 @@ function* createTempDatasourceFromFormSaga(
   );
 }
 
-function* createDatasourceFromFormSaga(
+/**
+ * Verifies whether a datasource for the specified plugin exists. If it does not, creates one.
+ * Then, creates an action for the datasource based on passed action configuration.
+ * @returns Action - return the created Action
+ * @param pluginPackageName - determine whether a datasource exists by its pluginPackageName.
+ * @param actionConfig - configuration for action creation
+ * @param datasourceName - name with which the datasource will be created
+ */
+export function* createOrUpdateDataSourceWithAction(
+  pluginPackageName: PluginPackageName,
+  actionConfig: Action,
+  datasourceName?: string,
+) {
+  const plugin: Plugin = yield select(
+    getPluginByPackageName,
+    pluginPackageName,
+  );
+  const datasources: Datasource[] = yield select(
+    getDatasourceByPluginId,
+    plugin.id,
+  );
+  const pageId: string = yield select(getCurrentPageId);
+  const datasourcePayload: Datasource = yield getInitialDatasourcePayload(
+    plugin.id,
+    plugin.type,
+    datasourceName,
+  );
+
+  if (datasources.length === 0) {
+    yield createDatasourceFromFormSaga({
+      payload: datasourcePayload,
+      type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
+    });
+  }
+
+  const actionPayload: Datasource = yield getInitialActionPayload(
+    pageId,
+    plugin.id,
+    actionConfig,
+  );
+
+  yield createActionRequestSaga({
+    payload: actionPayload,
+    type: ReduxActionTypes.CREATE_ACTION_REQUEST,
+  });
+
+  yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+
+  const actions: ActionDataState = yield select(getActions);
+
+  return actions[actions.length - 1];
+}
+
+export function* createDatasourceFromFormSaga(
   actionPayload: ReduxActionWithCallbacks<Datasource, unknown, unknown>,
 ) {
   try {

@@ -19,6 +19,7 @@ const createHeading = (
       fontWeight={fontWeight}
       ref={ref as Ref<HTMLDivElement>}
       size={size}
+      wordBreak="break-word"
     >
       {children}
     </Text>

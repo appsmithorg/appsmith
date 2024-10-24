@@ -1,9 +1,14 @@
 import { createMessage } from "ee/constants/messages";
 import type { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
 import type {
+  ActionData,
+  ActionDataState,
+} from "ee/reducers/entityReducers/actionsReducer";
+import type {
   FormEvalOutput,
   ConditionalOutput,
 } from "reducers/evaluationReducers/formEvaluationReducer";
+import { select } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Log } from "entities/AppsmithConsole";
@@ -22,6 +27,18 @@ import { isPlainObject, isString } from "lodash";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { apiFailureResponseInterceptor } from "api/interceptors";
 import { klonaLiteWithTelemetry } from "utils/helpers";
+import { getDefaultEnvId } from "ee/api/ApiUtils";
+import {
+  getActions,
+  getDatasourceByPluginId,
+  getDatasources,
+} from "ee/selectors/entitiesSelector";
+import {
+  DATASOURCE_NAME_DEFAULT_PREFIX,
+  TEMP_DATASOURCE_ID,
+} from "../constants/Datasource";
+import { type Datasource, ToastMessageType } from "../entities/Datasource";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 // function to extract all objects that have dynamic values
 export const extractFetchDynamicValueFormConfigs = (
@@ -248,4 +265,64 @@ export function* getFromServerWhenNoPrefetchedResult(
   }
 
   return yield apiEffect();
+}
+
+export function* getInitialDatasourcePayload(
+  pluginId: string,
+  pluginType?: string,
+  defaultDatasourceName: string = DATASOURCE_NAME_DEFAULT_PREFIX,
+) {
+  const dsList: Datasource[] = yield select(getDatasources);
+  const datasourceName = getNextEntityName(
+    defaultDatasourceName,
+    dsList.map((el: Datasource) => el.name),
+  );
+  const defaultEnvId = getDefaultEnvId();
+
+  return {
+    id: TEMP_DATASOURCE_ID,
+    name: datasourceName,
+    type: pluginType,
+    pluginId: pluginId,
+    new: false,
+    datasourceStorages: {
+      [defaultEnvId]: {
+        datasourceId: TEMP_DATASOURCE_ID,
+        environmentId: defaultEnvId,
+        isValid: false,
+        datasourceConfiguration: {
+          url: "",
+          properties: [],
+        },
+        toastMessage: ToastMessageType.EMPTY_TOAST_MESSAGE,
+      },
+    },
+  };
+}
+
+export function* getInitialActionPayload(
+  pageId: string,
+  pluginId: string,
+  actionConfig: Action,
+) {
+  const updatedAiDatasources: Datasource[] = yield select(
+    getDatasourceByPluginId,
+    pluginId,
+  );
+
+  const actions: ActionDataState = yield select(getActions);
+  const actionName = getNextEntityName(
+    actionConfig.name,
+    actions.map((el: ActionData) => el.config.name),
+  );
+
+  return {
+    pageId,
+    pluginId: updatedAiDatasources[0].pluginId,
+    datasource: {
+      id: updatedAiDatasources[0].id,
+    },
+    name: actionName,
+    actionConfiguration: actionConfig.actionConfiguration,
+  };
 }

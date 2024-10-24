@@ -208,6 +208,10 @@ export enum BlueprintOperationTypes {
   UPDATE_CREATE_PARAMS_BEFORE_ADD = "UPDATE_CREATE_PARAMS_BEFORE_ADD",
 }
 
+export enum BlueprintOperationActionTypes {
+  CREATE_OR_UPDATE_DATASOURCE_WITH_ACTION = "CREATE_OR_UPDATE_DATASOURCE_WITH_ACTION",
+}
+
 export type FlattenedWidgetProps = WidgetProps & {
   children?: string[];
 };
