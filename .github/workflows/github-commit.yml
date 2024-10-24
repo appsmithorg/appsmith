@@ -60,7 +60,7 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install
+        run: yarn install --mode update
 
       - name: Build
         run: |
