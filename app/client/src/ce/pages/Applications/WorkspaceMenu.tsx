@@ -171,7 +171,7 @@ function WorkspaceMenu({
             className="error-menuitem workspace-menu-item"
             onClick={() => {
               !warnLeavingWorkspace
-                ? setWarnLeavingWorkspace(true)
+                ? (setWarnLeavingWorkspace(true), setWarnDeleteWorkspace(false))
                 : leaveWS(workspace.id);
             }}
           >
@@ -185,7 +185,8 @@ function WorkspaceMenu({
             onClick={() => {
               warnDeleteWorkspace
                 ? handleDeleteWorkspace(workspace.id)
-                : setWarnDeleteWorkspace(true);
+                : (setWarnDeleteWorkspace(true),
+                  setWarnLeavingWorkspace(false));
             }}
           >
             <Icon name="delete-bin-line" size="md" />
