@@ -16,7 +16,7 @@ let isBaselineMode = false;
 let mongoDbUrl;
 
 let mongoDumpFile = null;
-const EXPORT_ROOT = "appsmith-stacks/mongo-data";
+const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
 
 // The minimum version of the MongoDB changeset that must be present in the mongockChangeLog collection to run this script.
 // This is to ensure we are migrating the data from the stable version of MongoDB.
@@ -204,12 +204,10 @@ function mapClassToType(_class) {
  * @returns {Promise<boolean>} - A promise that resolves to true if the data has been migrated to a stable version, false otherwise.
  */
 async function isMongoDataMigratedToStableVersion(mongoDb) {
-  let shouldMigrate = false;
-  for await (const doc of mongoDb.collection(MONGO_MIGRATION_COLLECTION).find({ changeId: MINIMUM_MONGO_CHANGESET })) {
-    if (doc.state === 'EXECUTED') {
-      shouldMigrate = true;
-      break;
-    }
-  }
-  return shouldMigrate;
+  const doc = await mongoDb.collection(MONGO_MIGRATION_COLLECTION)
+  .findOne({ 
+      changeId: MINIMUM_MONGO_CHANGESET,
+      state: 'EXECUTED'
+  });
+  return doc !== null;
 }
