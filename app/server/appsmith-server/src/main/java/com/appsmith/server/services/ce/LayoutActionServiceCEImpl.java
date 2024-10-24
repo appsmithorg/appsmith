@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -246,11 +247,20 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         return updateSingleAction(newAction.getId(), action)
                 .name(UPDATE_SINGLE_ACTION)
                 .tap(Micrometer.observation(observationRegistry))
-                .flatMap(updatedAction -> updateLayoutService
-                        .updatePageLayoutsByPageId(pageId)
-                        .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
-                        .tap(Micrometer.observation(observationRegistry))
-                        .thenReturn(updatedAction))
+                .flatMap(updatedAction -> {
+                    // Update page layout is skipped for JS actions here because when JSobject is updated, we first
+                    // update all actions, action
+                    // collection and then we update the page layout, hence updating page layout with each action update
+                    // is not required here
+                    if (action.getPluginType() != PluginType.JS) {
+                        return updateLayoutService
+                                .updatePageLayoutsByPageId(pageId)
+                                .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                                .tap(Micrometer.observation(observationRegistry))
+                                .thenReturn(updatedAction);
+                    }
+                    return Mono.just(updatedAction);
+                })
                 .zipWhen(actionDTO -> newPageService.findPageById(pageId, pagePermission.getEditPermission(), false))
                 .map(tuple2 -> {
                     ActionDTO actionDTO = tuple2.getT1();
