@@ -146,6 +146,8 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                     .then(Mono.error(t));
         }
 
+        extractAllWidgetNamesAndDynamicBindingsFromDSLSpan.tag("no_of_widgets", String.valueOf(widgetNames.size()));
+
         observationHelper.endSpan(extractAllWidgetNamesAndDynamicBindingsFromDSLSpan, true);
 
         layout.setWidgetNames(widgetNames);
@@ -225,8 +227,6 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
 
                     return onLoadExecutablesUtil
                             .findAndUpdateLayout(creatorId, creatorType, layoutId, layout)
-                            .tag("no_of_widgets", String.valueOf(widgetNames.size()))
-                            .tag("no_of_executables", String.valueOf(executableNames.size()))
                             .name(FIND_AND_UPDATE_LAYOUT)
                             .tap(Micrometer.observation(observationRegistry));
                 })
