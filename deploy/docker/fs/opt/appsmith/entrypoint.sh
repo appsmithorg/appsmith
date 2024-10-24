@@ -434,6 +434,8 @@ init_postgres() {
       su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
     create_appsmith_pg_db "$POSTGRES_DB_PATH"
+
+    cp /opt/appsmith/postgres/appsmith_hba.conf "$POSTGRES_DB_PATH/pg_hba.conf"
   else
     runEmbeddedPostgres=0
   fi
@@ -470,7 +472,7 @@ create_appsmith_pg_db() {
   local max_attempts=100
   local attempt=0
 
-  until su postgres -c "env PATH='$PATH' pg_isready -d postgres"; do
+  until su postgres -c "env PATH='$PATH' pg_isready -h 127.0.0.1"; do
     if (( attempt >= max_attempts )); then
       echo "Postgres failed to start within 100 seconds."
       return 1
