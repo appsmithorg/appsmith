@@ -1,4 +1,6 @@
-import WidgetQueryGeneratorForm from "components/editorComponents/WidgetQueryGeneratorForm";
+import WidgetQueryGeneratorForm, {
+  type WidgetQueryGeneratorFormContextType,
+} from "components/editorComponents/WidgetQueryGeneratorForm";
 import type {
   AlertMessage,
   Alias,
@@ -70,6 +72,9 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
         actionButtonCtaText={this.props.controlConfig?.actionButtonCtaText}
         alertMessage={this.props.controlConfig?.alertMessage}
         aliases={this.props.controlConfig.aliases}
+        allowedDatasourceTypes={
+          this.props.controlConfig?.allowedDatasourceTypes
+        }
         datasourceDropdownVariant={
           this.props.controlConfig?.datasourceDropdownVariant ||
           DROPDOWN_VARIANT.CONNECT_TO_DATASOURCE
@@ -79,6 +84,7 @@ class OneClickBindingControl extends BaseControl<OneClickBindingControlProps> {
           this.props.controlConfig?.excludePrimaryColumnFromQueryGeneration
         }
         expectedType={this.props.expected?.autocompleteDataType || ""}
+        getQueryBindingValue={this.props.controlConfig?.getQueryBindingValue}
         isConnectableToWidget={this.props.controlConfig?.isConnectableToWidget}
         onUpdate={this.onUpdatePropertyValue}
         otherFields={this.props.controlConfig.otherFields}
@@ -107,5 +113,7 @@ export type OneClickBindingControlProps = ControlProps & {
     actionButtonCtaText: string;
     datasourceDropdownVariant: DROPDOWN_VARIANT;
     alertMessage: AlertMessage;
+    allowedDatasourceTypes?: WidgetQueryGeneratorFormContextType["allowedDatasourceTypes"];
+    getQueryBindingValue?: WidgetQueryGeneratorFormContextType["getQueryBindingValue"];
   };
 };
