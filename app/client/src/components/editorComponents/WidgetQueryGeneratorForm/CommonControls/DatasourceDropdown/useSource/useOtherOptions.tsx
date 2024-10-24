@@ -35,35 +35,39 @@ function useOtherOptions(props: OtherOptionsProps) {
     datasourceDropdownVariant === DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS;
   const { widget } = props;
   const otherOptions = useMemo(() => {
-    const options = [
-      {
-        icon: <Icon name="plus" size="md" />,
-        id: "Connect new datasource",
-        label: "Connect new datasource",
-        value: "Connect new datasource",
-        onSelect: () => {
-          history.push(
-            integrationEditorURL({
-              basePageId,
-              selectedTab: INTEGRATION_TABS.NEW,
-            }),
-          );
+    // we don't want to show the options for connect to query variant
+    if (datasourceDropdownVariant === DROPDOWN_VARIANT.CONNECT_TO_QUERY)
+      return [];
 
-          AnalyticsUtil.logEvent("BIND_OTHER_ACTIONS", {
-            widgetName: widget.widgetName,
-            widgetType: widget.type,
-            propertyName: propertyName,
-            selectedAction: "Connect new datasource",
-          });
+    const options = [];
 
-          const entryPoint = DatasourceCreateEntryPoints.ONE_CLICK_BINDING;
+    options.push({
+      icon: <Icon name="plus" size="md" />,
+      id: "Connect new datasource",
+      label: "Connect new datasource",
+      value: "Connect new datasource",
+      onSelect: () => {
+        history.push(
+          integrationEditorURL({
+            basePageId,
+            selectedTab: INTEGRATION_TABS.NEW,
+          }),
+        );
 
-          AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
-            entryPoint,
-          });
-        },
+        AnalyticsUtil.logEvent("BIND_OTHER_ACTIONS", {
+          widgetName: widget.widgetName,
+          widgetType: widget.type,
+          propertyName: propertyName,
+          selectedAction: "Connect new datasource",
+        });
+
+        const entryPoint = DatasourceCreateEntryPoints.ONE_CLICK_BINDING;
+
+        AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
+          entryPoint,
+        });
       },
-    ];
+    });
 
     if (sampleData) {
       options.push({
