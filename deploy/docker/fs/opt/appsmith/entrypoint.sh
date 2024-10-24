@@ -472,7 +472,7 @@ create_appsmith_pg_db() {
 
   until su postgres -c "env PATH='$PATH' pg_isready -h 127.0.0.1"; do
     if (( attempt >= max_attempts )); then
-      echo "Postgres failed to start within 100 seconds."
+      echo "Postgres failed to start within 300 seconds."
       return 1
     fi
     tlog "Waiting for Postgres to be ready... Attempt $((++attempt))/$max_attempts"
