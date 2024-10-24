@@ -36,7 +36,12 @@ import reactor.util.function.Tuple2;
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_BY_ID;
 import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_ACTION_BASED_ON_CONTEXT;
 import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_SINGLE_ACTION;
+import static com.appsmith.external.constants.spans.ActionSpan.VALIDATE_AND_GENERATE_ACTION_DOMAIN_BASED_ON_CONTEXT;
+import static com.appsmith.external.constants.spans.ActionSpan.VALIDATE_AND_SAVE_ACTION_TO_REPOSITORY;
+import static com.appsmith.external.constants.spans.DatasourceSpan.FIND_DATASOURCE_BY_ID;
 import static com.appsmith.external.constants.spans.LayoutSpan.UPDATE_PAGE_LAYOUT_BY_PAGE_ID;
+import static com.appsmith.external.constants.spans.PageSpan.GET_PAGE_BY_ID;
+import static com.appsmith.external.constants.spans.PageSpan.IS_NAME_ALLOWED;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
@@ -337,6 +342,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     public Mono<ActionDTO> createAction(ActionDTO actionDTO, AppsmithEventContext eventContext, Boolean isJsAction) {
 
         return validateAndGenerateActionDomainBasedOnContext(actionDTO, isJsAction)
+                .name(VALIDATE_AND_GENERATE_ACTION_DOMAIN_BASED_ON_CONTEXT)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMap(newAction -> {
                     // If the datasource is embedded, check for workspaceId and set it in action
                     if (actionDTO.getDatasource() != null
@@ -361,13 +368,17 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 })
                 .flatMap(savedNewAction -> newActionService
                         .validateAndSaveActionToRepository(savedNewAction)
+                        .name(VALIDATE_AND_SAVE_ACTION_TO_REPOSITORY)
+                        .tap(Micrometer.observation(observationRegistry))
                         .zipWith(Mono.just(savedNewAction)))
                 .zipWhen(zippedActions -> {
                     ActionDTO savedActionDTO = zippedActions.getT1();
                     if (savedActionDTO.getDatasource() != null
                             && savedActionDTO.getDatasource().getId() != null) {
-                        return datasourceService.findById(
-                                savedActionDTO.getDatasource().getId());
+                        return datasourceService
+                                .findById(savedActionDTO.getDatasource().getId())
+                                .name(FIND_DATASOURCE_BY_ID)
+                                .tap(Micrometer.observation(observationRegistry));
                     } else {
                         return Mono.justOrEmpty(savedActionDTO.getDatasource());
                     }
@@ -398,6 +409,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
         Mono<NewPage> pageMono = newPageService
                 .findById(action.getPageId(), aclPermission)
+                .name(GET_PAGE_BY_ID)
+                .tap(Micrometer.observation(observationRegistry))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
                 .cache();
@@ -409,7 +422,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     String name = action.getValidName();
                     CreatorContextType contextType =
                             action.getContextType() == null ? CreatorContextType.PAGE : action.getContextType();
-                    return refactoringService.isNameAllowed(page.getId(), contextType, layout.getId(), name);
+                    return refactoringService
+                            .isNameAllowed(page.getId(), contextType, layout.getId(), name)
+                            .name(IS_NAME_ALLOWED)
+                            .tap(Micrometer.observation(observationRegistry));
                 })
                 .flatMap(nameAllowed -> {
                     // If the name is allowed, return pageMono for further processing
