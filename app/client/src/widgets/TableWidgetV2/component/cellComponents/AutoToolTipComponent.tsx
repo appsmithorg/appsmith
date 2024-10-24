@@ -36,45 +36,71 @@ const MAX_WIDTH = 500;
 const TOOLTIP_OPEN_DELAY = 500;
 const MAX_CHARS_ALLOWED_IN_TOOLTIP = 200;
 
-function useToolTip(children: React.ReactNode, title?: string) {
+export function isButtonTextTruncated(element: HTMLElement): boolean {
+  const spanElement = element.querySelector("span");
+
+  if (!spanElement) {
+    return false;
+  }
+
+  const offsetWidth = spanElement.offsetWidth;
+  const scrollWidth = spanElement.scrollWidth;
+
+  return scrollWidth > offsetWidth;
+}
+
+function useToolTip(
+  children: React.ReactNode,
+  title?: string,
+  isButton?: boolean,
+) {
   const ref = createRef<HTMLDivElement>();
   const [requiresTooltip, setRequiresTooltip] = useState(false);
 
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
+  useEffect(
+    function setupMouseHandlers() {
+      let timeout: ReturnType<typeof setTimeout>;
+      const currentRef = ref.current;
 
-    const mouseEnterHandler = () => {
-      const element = ref.current?.querySelector("div") as HTMLDivElement;
+      if (!currentRef) return;
 
-      /*
-       * Using setTimeout to simulate hoverOpenDelay of the tooltip
-       * during initial render
-       */
-      timeout = setTimeout(() => {
-        if (element && element.offsetWidth < element.scrollWidth) {
-          setRequiresTooltip(true);
-        } else {
-          setRequiresTooltip(false);
-        }
+      const mouseEnterHandler = () => {
+        timeout = setTimeout(() => {
+          const element = currentRef?.querySelector("div") as HTMLDivElement;
 
-        ref.current?.removeEventListener("mouseenter", mouseEnterHandler);
-        ref.current?.removeEventListener("mouseleave", mouseLeaveHandler);
-      }, TOOLTIP_OPEN_DELAY);
-    };
+          /*
+           * Using setTimeout to simulate hoverOpenDelay of the tooltip
+           * during initial render
+           */
+          if (element && element.offsetWidth < element.scrollWidth) {
+            setRequiresTooltip(true);
+          } else if (isButton && element && isButtonTextTruncated(element)) {
+            setRequiresTooltip(true);
+          } else {
+            setRequiresTooltip(false);
+          }
 
-    const mouseLeaveHandler = () => {
-      clearTimeout(timeout);
-    };
+          currentRef?.removeEventListener("mouseenter", mouseEnterHandler);
+          currentRef?.removeEventListener("mouseleave", mouseLeaveHandler);
+        }, TOOLTIP_OPEN_DELAY);
+      };
 
-    ref.current?.addEventListener("mouseenter", mouseEnterHandler);
-    ref.current?.addEventListener("mouseleave", mouseLeaveHandler);
+      const mouseLeaveHandler = () => {
+        setRequiresTooltip(false);
+        clearTimeout(timeout);
+      };
 
-    return () => {
-      ref.current?.removeEventListener("mouseenter", mouseEnterHandler);
-      ref.current?.removeEventListener("mouseleave", mouseLeaveHandler);
-      clearTimeout(timeout);
-    };
-  }, [children]);
+      currentRef?.addEventListener("mouseenter", mouseEnterHandler);
+      currentRef?.addEventListener("mouseleave", mouseLeaveHandler);
+
+      return () => {
+        currentRef?.removeEventListener("mouseenter", mouseEnterHandler);
+        currentRef?.removeEventListener("mouseleave", mouseLeaveHandler);
+        clearTimeout(timeout);
+      };
+    },
+    [children, isButton, ref],
+  );
 
   return requiresTooltip && children ? (
     <Tooltip
@@ -158,11 +184,19 @@ function LinkWrapper(props: Props) {
   );
 }
 
-function AutoToolTipComponent(props: Props) {
-  const content = useToolTip(props.children, props.title);
+export function AutoToolTipComponent(props: Props) {
+  const content = useToolTip(
+    props.children,
+    props.title,
+    props.columnType === ColumnTypes.BUTTON,
+  );
 
   if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;
+  }
+
+  if (props.columnType === ColumnTypes.BUTTON && props.title) {
+    return content;
   }
 
   return (
