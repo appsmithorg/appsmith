@@ -60,6 +60,7 @@ import {
 } from "./geolocationFns";
 import { getFnWithGuards, isAsyncGuard } from "./utils/fnGuard";
 import { isRunNClearFnQualifierEntity } from "ee/workers/Evaluation/fns/utils/isRunNClearFnQualifierEntity";
+import { datasourceRequest } from "./datasourceFns";
 
 export const getPlatformFunctions = () => {
   return platformFns;
@@ -169,6 +170,15 @@ const entityFns = [
     qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
     fn: () =>
       getFnWithGuards(stopWatchGeoLocation, "appsmith.geolocation.clearWatch", [
+        isAsyncGuard,
+      ]),
+  },
+  {
+    name: "request",
+    path: "appsmith.datasource.request",
+    qualifier: (entity: DataTreeEntity) => isAppsmithEntity(entity),
+    fn: () =>
+      getFnWithGuards(datasourceRequest, "appsmith.datasource.request", [
         isAsyncGuard,
       ]),
   },

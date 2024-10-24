@@ -30,6 +30,9 @@ import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/perm
 import { EmptyState } from "../EditorPane/components/EmptyState";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
+import { useParagonIntegrations, useParagonUser } from "utils/paragonHooks";
+import { objectKeys } from "@appsmith/utils";
+import { paragon } from "@useparagon/connect";
 
 const PaneBody = styled.div`
   padding: var(--ads-v2-spaces-3) 0;
@@ -51,6 +54,51 @@ interface DataSidePaneProps {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dsUsageSelector?: (...args: any[]) => Record<string, string>;
+}
+
+function ParagonIntegrations() {
+  const { paragonUser } = useParagonUser();
+  const { integrations } = useParagonIntegrations();
+  const integrationsMap = keyBy(integrations, "type");
+  const paragonIntegrations = paragonUser?.integrations;
+
+  const onClickParagonIntegration = (
+    type: string,
+    selectedCredentialId: string,
+  ) => {
+    paragon.connect(type, {
+      selectedCredentialId,
+    });
+  };
+
+  if (!paragonIntegrations) return null;
+
+  const connectedIntegrations = objectKeys(paragonIntegrations).reduce(
+    (acc: any[], integrationKey) => {
+      const integrationArray =
+        paragonIntegrations[integrationKey]?.allCredentials || [];
+      acc = acc.concat(
+        integrationArray.map((data) => ({
+          className: "t--datasource",
+          title: integrationKey,
+          onClick: () => {
+            onClickParagonIntegration(integrationKey, data.id);
+          },
+          description: data.id,
+          descriptionType: "block",
+          startIcon: integrationsMap[integrationKey] ? (
+            <DatasourceIcon
+              src={getAssetUrl(integrationsMap[integrationKey].icon)}
+            />
+          ) : null,
+        })),
+      );
+      return acc;
+    },
+    [],
+  );
+
+  return <StyledList items={connectedIntegrations} />;
 }
 
 const DataSidePane = (props: DataSidePaneProps) => {
@@ -154,6 +202,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
               />
             </Flex>
           ))}
+          <ParagonIntegrations />
         </Flex>
       </PaneBody>
     </Flex>

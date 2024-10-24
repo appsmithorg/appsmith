@@ -20,6 +20,7 @@ export enum APPSMITH_NAMESPACED_FUNCTIONS {
   getGeolocation = "appsmith.geolocation.getCurrentPosition",
   watchGeolocation = "appsmith.geolocation.watchPosition",
   stopWatchGeolocation = "appsmith.geolocation.clearWatch",
+  datasourceRequest = "appsmith.datasource.request",
 }
 
 export enum APPSMITH_INTEGRATIONS {
