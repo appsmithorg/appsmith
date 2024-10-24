@@ -446,25 +446,39 @@ export default {
 
       sortedTableData = transformedTableDataForSorting.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
+          const originalA = (props.tableData ?? transformedTableDataForSorting)[
+            a.__originalIndex__
+          ];
+          const originalB = (props.tableData ?? transformedTableDataForSorting)[
+            b.__originalIndex__
+          ];
+          const [processedA, processedB] = [
+            { ...a, ...originalA },
+            { ...b, ...originalB },
+          ];
+
           if (
-            isEmptyOrNil(a[sortByColumnOriginalId]) ||
-            isEmptyOrNil(b[sortByColumnOriginalId])
+            isEmptyOrNil(processedA[sortByColumnOriginalId]) ||
+            isEmptyOrNil(processedB[sortByColumnOriginalId])
           ) {
             /* push null, undefined and "" values to the bottom. */
-            return isEmptyOrNil(a[sortByColumnOriginalId]) ? 1 : -1;
+            return isEmptyOrNil(processedA[sortByColumnOriginalId]) ? 1 : -1;
           } else {
             switch (columnType) {
               case "number":
               case "currency":
                 return sortByOrder(
-                  Number(a[sortByColumnOriginalId]) >
-                    Number(b[sortByColumnOriginalId]),
+                  Number(processedA[sortByColumnOriginalId]) >
+                    Number(processedB[sortByColumnOriginalId]),
                 );
               case "date":
                 try {
                   return sortByOrder(
-                    moment(a[sortByColumnOriginalId], inputFormat).isAfter(
-                      moment(b[sortByColumnOriginalId], inputFormat),
+                    moment(
+                      processedA[sortByColumnOriginalId],
+                      inputFormat,
+                    ).isAfter(
+                      moment(processedB[sortByColumnOriginalId], inputFormat),
                     ),
                   );
                 } catch (e) {
@@ -489,8 +503,8 @@ export default {
                 }
               default:
                 return sortByOrder(
-                  a[sortByColumnOriginalId].toString().toLowerCase() >
-                    b[sortByColumnOriginalId].toString().toLowerCase(),
+                  processedA[sortByColumnOriginalId].toString().toLowerCase() >
+                    processedB[sortByColumnOriginalId].toString().toLowerCase(),
                 );
             }
           }
