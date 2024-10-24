@@ -68,6 +68,7 @@ interface JSFormProps {
   hideContextMenuOnEditor?: boolean;
   hideEditIconOnEditor?: boolean;
   notification?: React.ReactNode;
+  showNameEditor?: boolean;
 }
 
 type Props = JSFormProps;
@@ -108,6 +109,7 @@ function JSEditorForm({
   notification,
   onUpdateSettings,
   saveJSObjectName,
+  showNameEditor = false,
   showSettings = true,
 }: Props) {
   const theme = EditorTheme.LIGHT;
@@ -353,6 +355,7 @@ function JSEditorForm({
             onUpdateSettings={onUpdateSettings}
             saveJSObjectName={saveJSObjectName}
             selected={selectedJSActionOption}
+            showNameEditor={showNameEditor}
             showSettings={showSettings}
           />
           {notification && (

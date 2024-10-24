@@ -6,7 +6,7 @@ import type { SaveActionNameParams } from "PluginActionEditor";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { DropdownOnSelect } from "@appsmith/ads-old";
-import JSObjectNameEditor from "../JSObjectNameEditor";
+import { JSObjectNameEditor } from "../JSObjectNameEditor";
 import { Flex } from "@appsmith/ads";
 import { convertJSActionsToDropdownOptions } from "./utils";
 
