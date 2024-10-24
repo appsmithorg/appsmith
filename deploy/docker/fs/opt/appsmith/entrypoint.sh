@@ -470,7 +470,7 @@ create_appsmith_pg_db() {
   local max_attempts=100
   local attempt=0
 
-  until su postgres -c "env PATH='$PATH' pg_isready -d postgres -h 127.0.0.1"; do
+  until su postgres -c "env PATH='$PATH' pg_isready -h 127.0.0.1"; do
     if (( attempt >= max_attempts )); then
       echo "Postgres failed to start within 100 seconds."
       return 1
