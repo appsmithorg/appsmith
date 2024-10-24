@@ -341,4 +341,5 @@ export class CommonLocators {
   _saveDatasource = `[data-testid='t--store-as-datasource']`;
   _propertyCollapseBody = ".bp3-collapse-body";
   _propertyCollapse = ".bp3-collapse";
+  _widgetBorder = ".t--draggable-tabswidget div div div";
 }
