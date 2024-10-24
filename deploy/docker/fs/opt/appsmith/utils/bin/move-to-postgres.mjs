@@ -204,10 +204,9 @@ function mapClassToType(_class) {
  * @returns {Promise<boolean>} - A promise that resolves to true if the data has been migrated to a stable version, false otherwise.
  */
 async function isMongoDataMigratedToStableVersion(mongoDb) {
-  const doc = await mongoDb.collection(MONGO_MIGRATION_COLLECTION)
-  .findOne({ 
-      changeId: MINIMUM_MONGO_CHANGESET,
-      state: 'EXECUTED'
+  const doc = await mongoDb.collection(MONGO_MIGRATION_COLLECTION).findOne({
+    changeId: MINIMUM_MONGO_CHANGESET,
+    state: "EXECUTED",
   });
   return doc !== null;
 }
