@@ -16,10 +16,10 @@ import {
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
 import type { AlertMessage, Alias, OtherField } from "./types";
 import { CONNECT_BUTTON_TEXT, createMessage } from "ee/constants/messages";
-
 import { DROPDOWN_VARIANT } from "./CommonControls/DatasourceDropdown/types";
+import type { getDefaultQueryBindingValue } from "./CommonControls/DatasourceDropdown/useSource/useConnectToOptions";
 
-interface WidgetQueryGeneratorFormContextType {
+export interface WidgetQueryGeneratorFormContextType {
   widgetId: string;
   propertyValue: string;
   propertyName: string;
@@ -53,6 +53,8 @@ interface WidgetQueryGeneratorFormContextType {
   datasourceDropdownVariant: DROPDOWN_VARIANT;
   alertMessage?: AlertMessage | null;
   showEditFieldsModal?: boolean;
+  allowedDatasourceTypes?: string[];
+  getQueryBindingValue?: typeof getDefaultQueryBindingValue;
 }
 
 const DEFAULT_CONFIG_VALUE = {
@@ -110,6 +112,8 @@ interface Props {
   datasourceDropdownVariant: DROPDOWN_VARIANT;
   actionButtonCtaText?: string;
   alertMessage?: AlertMessage;
+  allowedDatasourceTypes?: WidgetQueryGeneratorFormContextType["allowedDatasourceTypes"];
+  getQueryBindingValue?: WidgetQueryGeneratorFormContextType["getQueryBindingValue"];
 }
 
 function WidgetQueryGeneratorForm(props: Props) {
@@ -121,10 +125,12 @@ function WidgetQueryGeneratorForm(props: Props) {
     actionButtonCtaText = createMessage(CONNECT_BUTTON_TEXT),
     alertMessage,
     aliases,
+    allowedDatasourceTypes,
     datasourceDropdownVariant,
     errorMsg,
     excludePrimaryColumnFromQueryGeneration,
     expectedType,
+    getQueryBindingValue,
     isConnectableToWidget,
     onUpdate,
     otherFields = [],
@@ -247,6 +253,8 @@ function WidgetQueryGeneratorForm(props: Props) {
       datasourceDropdownVariant,
       alertMessage,
       showEditFieldsModal,
+      allowedDatasourceTypes,
+      getQueryBindingValue,
     };
   }, [
     config,
@@ -266,6 +274,9 @@ function WidgetQueryGeneratorForm(props: Props) {
     datasourceDropdownVariant,
     alertMessage,
     showEditFieldsModal,
+    allowedDatasourceTypes,
+    getQueryBindingValue,
+    expectedType,
   ]);
 
   useEffect(() => {

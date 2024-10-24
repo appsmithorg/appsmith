@@ -4,6 +4,7 @@ import {
   getCurrentActions,
   getCurrentPageWidgets,
   getPluginIdPackageNamesMap,
+  getPlugins,
   getQueryModuleInstances,
 } from "ee/selectors/entitiesSelector";
 import WidgetFactory from "WidgetProvider/factory";
@@ -25,6 +26,7 @@ import type {
 import type { Module } from "ee/constants/ModuleConstants";
 import { getAllModules } from "ee/selectors/modulesSelector";
 import { getModuleIcon } from "pages/Editor/utils";
+import { isDynamicValue } from "@shared/dsl";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -74,20 +76,26 @@ export function sortQueries(
   });
 }
 
+export const getDefaultQueryBindingValue = (
+  query: ActionData | ModuleInstanceData,
+) => `{{${query.config.name}.data}}`;
+
 export function getBindingValue(
   widget: WidgetProps,
   query: ActionData | ModuleInstanceData,
+  getQueryBindingValue: (
+    query: ActionData | ModuleInstanceData,
+  ) => string = getDefaultQueryBindingValue,
 ) {
-  const defaultBindingValue = `{{${query.config.name}.data}}`;
   const querySuggestedWidgets = query.data?.suggestedWidgets;
 
-  if (!querySuggestedWidgets) return defaultBindingValue;
+  if (!querySuggestedWidgets) return getQueryBindingValue(query);
 
   const suggestedWidget = querySuggestedWidgets.find(
     (suggestedWidget) => suggestedWidget.type === widget.type,
   );
 
-  if (!suggestedWidget) return defaultBindingValue;
+  if (!suggestedWidget) return getQueryBindingValue(query);
 
   return `{{${query.config.name}.${suggestedWidget.bindingQuery}}}`;
 }
@@ -157,7 +165,9 @@ export const getAnalyticsInfo = (
 function useConnectToOptions(props: ConnectToOptionsProps) {
   const {
     addBinding,
+    allowedDatasourceTypes,
     expectedType,
+    getQueryBindingValue,
     isConnectableToWidget,
     propertyName,
     updateConfig,
@@ -165,6 +175,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
 
   const queries = useSelector(getCurrentActions);
   const pluginsPackageNamesMap = useSelector(getPluginIdPackageNamesMap);
+  const plugins = useSelector(getPlugins);
 
   const { pluginImages, widget } = props;
 
@@ -182,6 +193,19 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
     });
   }
 
+  // filter query based on allowedDatasourceType
+  if (allowedDatasourceTypes) {
+    const allowedPluginIds = plugins
+      .filter((plugin) => allowedDatasourceTypes.includes(plugin.name))
+      .map((plugin) => plugin.id);
+
+    if (allowedPluginIds.length) {
+      filteredQueries = filteredQueries.filter((query) =>
+        allowedPluginIds.includes(query.config.pluginId),
+      );
+    }
+  }
+
   filteredQueries = [...filteredQueries, ...queryModuleInstances] as
     | ActionDataState
     | ModuleInstanceDataState;
@@ -190,10 +214,12 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
     return sortQueries(filteredQueries, expectedType).map((query) => ({
       id: query.config.id,
       label: query.config.name,
-      value: getBindingValue(widget, query),
+      value: getBindingValue(widget, query, getQueryBindingValue),
       icon: getQueryIcon(query, pluginImages, modules),
-      onSelect: function (value?: string, valueOption?: DropdownOptionType) {
-        addBinding(valueOption?.value, true);
+      onSelect: function (value: string, valueOption?: DropdownOptionType) {
+        const isDynamic = isDynamicValue(value);
+
+        addBinding(valueOption?.value, isDynamic);
 
         updateConfig({
           datasource: "",
