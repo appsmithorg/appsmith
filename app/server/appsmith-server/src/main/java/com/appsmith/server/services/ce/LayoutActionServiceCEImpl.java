@@ -253,7 +253,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     // collection and then we update the page layout, hence updating page layout with each action update
                     // is not required here
                     if (action.getPluginType() != PluginType.JS) {
-                        updateLayoutService
+                        return updateLayoutService
                                 .updatePageLayoutsByPageId(pageId)
                                 .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
                                 .tap(Micrometer.observation(observationRegistry))
