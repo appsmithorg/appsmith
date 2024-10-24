@@ -243,6 +243,7 @@ public class MssqlPlugin extends BasePlugin {
                             // not the case,
                             // here, this should never happen.
                             log.error("Error checking validity of MsSQL connection.");
+                            log.error("Error checking validity of MsSQL for new error.");
                             error.printStackTrace();
                         }
 
