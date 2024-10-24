@@ -192,6 +192,13 @@ export default class AppEditorEngine extends AppEngine {
     yield call(waitForFetchEnvironments);
     endSpan(waitForFetchEnvironmentsSpan);
 
+    yield call(
+      this.loadPluginsAndDatasources,
+      allResponses,
+      rootSpan,
+      applicationId,
+    );
+
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
     endSpan(loadPageThemesAndActionsSpan);
   }
@@ -264,12 +271,6 @@ export default class AppEditorEngine extends AppEngine {
       applicationId,
       allResponses,
       rootSpan,
-    );
-    yield call(
-      this.loadPluginsAndDatasources,
-      allResponses,
-      rootSpan,
-      applicationId,
     );
   }
 
