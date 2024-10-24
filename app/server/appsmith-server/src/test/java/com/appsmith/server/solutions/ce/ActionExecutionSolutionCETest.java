@@ -74,7 +74,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -95,7 +94,6 @@ import static org.mockito.ArgumentMatchers.any;
 @ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ActionExecutionSolutionCETest {
 
     @Autowired
