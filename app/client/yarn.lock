@@ -12954,6 +12954,7 @@ __metadata:
     react-json-view: ^1.21.3
     react-media-recorder: ^1.6.1
     react-modal: ^3.15.1
+    react-multi-date-picker: ^4.5.2
     react-page-visibility: ^7.0.0
     react-player: ^2.3.1
     react-qr-barcode-scanner: ^1.0.6
@@ -13012,7 +13013,6 @@ __metadata:
     xlsx: "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
     yjs: ^13.5.12
     zipcelx: ^1.6.2
-    react-multi-date-picker: ^4.4.1
   languageName: unknown
   linkType: soft
 
@@ -28715,15 +28715,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-multi-date-picker@npm:^4.4.1":
-  version: 4.4.1
-  resolution: "react-multi-date-picker@npm:4.4.1"
+"react-multi-date-picker@npm:^4.5.2":
+  version: 4.5.2
+  resolution: "react-multi-date-picker@npm:4.5.2"
   dependencies:
+    react-date-object: ^2.1.8
     react-element-popper: ^2.1.6
   peerDependencies:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
-  checksum: fb225006e24f90ac1283f0e51339b941c17fcdf92418b55c7c51619a17e6f8786bed663187ef24b5f657c20d3bf178bb1ba56e593c314a9add30c43a491a0c6a
+  checksum: 6ed0e03f2c07d409c1d0db040a94d6aa632f81b62d017c0167b90d51a7587ade8b29abcd520ef0d41a93253d37607e8275cff9f4c9c748875fafb49f4e9efc99
   languageName: node
   linkType: hard
 
