@@ -1,5 +1,6 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import AutoToolTipComponent from "./AutoToolTipComponent";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import "@testing-library/jest-dom";
@@ -41,7 +42,6 @@ test.each([
   await screen.findByText(longText);
 });
 
-// Other test cases remain unchanged
 test("does not show tooltip for non-button types", () => {
   const { getByText } = render(
     <AutoToolTipComponent columnType={ColumnTypes.URL} title="Not a button">
@@ -62,7 +62,7 @@ test("handles empty tooltip", () => {
 
   expect(getByText("Empty button")).toBeInTheDocument();
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-});
+})
 
 test("renders content without tooltip for normal text", () => {
   const { getByText } = render(
@@ -74,6 +74,7 @@ test("renders content without tooltip for normal text", () => {
   expect(getByText("Normal Text")).toBeInTheDocument();
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });
+
 
 test("does not show tooltip for non-truncated text", () => {
   const shortText = "Short text";
@@ -107,7 +108,10 @@ test("opens a new tab for URL column type when clicked", () => {
 });
 
 describe("isButtonTextTruncated", () => {
-  function mockElementWidths(offsetWidth: number, scrollWidth: number) {
+  function mockElementWidths(
+    offsetWidth: number,
+    scrollWidth: number,
+  ): HTMLElement {
     const spanElement = document.createElement("span");
 
     Object.defineProperty(spanElement, "offsetWidth", { value: offsetWidth });
