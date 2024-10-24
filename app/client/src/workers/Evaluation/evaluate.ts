@@ -11,11 +11,6 @@ import { Severity } from "entities/AppsmithConsole";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
-import DOM_APIS from "./domApis";
-import {
-  JSLibraryAccessor,
-  libraryReservedIdentifiers,
-} from "../common/JSLibrary";
 import {
   ActionInDataFieldErrorModifier,
   errorModifier,
@@ -84,47 +79,6 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   $$closedFn.call(THIS_CONTEXT)
   `,
 };
-
-const topLevelWorkerAPIs = Object.keys(self).reduce(
-  (acc, key: string) => {
-    acc[key] = true;
-
-    return acc;
-  },
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  {} as any,
-);
-
-const ignoreGlobalObjectKeys = new Set([
-  "evaluationVersion",
-  "window",
-  "document",
-  "location",
-]);
-
-function resetWorkerGlobalScope() {
-  const jsLibraryAccessorSet = JSLibraryAccessor.getSet();
-
-  for (const key of Object.keys(self)) {
-    if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
-
-    //TODO: Remove this once we have a better way to handle this
-    if (ignoreGlobalObjectKeys.has(key)) continue;
-
-    if (jsLibraryAccessorSet.has(key)) continue;
-
-    if (libraryReservedIdentifiers[key]) continue;
-
-    try {
-      // @ts-expect-error: Types are not available
-      delete self[key];
-    } catch (e) {
-      // @ts-expect-error: Types are not available
-      self[key] = undefined;
-    }
-  }
-}
 
 export const getScriptType = (
   evalArgumentsExist = false,
@@ -394,8 +348,6 @@ export default function evaluateSync(
       };
     }
 
-    resetWorkerGlobalScope();
-
     setEvalContext({
       dataTree,
       configTree,
@@ -453,7 +405,6 @@ export async function evaluateAsync(
   evalArguments?: Array<any>,
 ) {
   return (async function () {
-    resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;
 
