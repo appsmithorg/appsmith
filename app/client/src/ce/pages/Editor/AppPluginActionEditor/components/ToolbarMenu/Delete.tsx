@@ -7,7 +7,11 @@ import {
 } from "ee/constants/messages";
 import { MenuItem } from "@appsmith/ads";
 
-export const Delete = () => {
+interface Props {
+  disabled?: boolean;
+}
+
+export const Delete = ({ disabled }: Props) => {
   const { handleDeleteClick } = useHandleDeleteClick();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -26,6 +30,7 @@ export const Delete = () => {
   return (
     <MenuItem
       className="t--apiFormDeleteBtn error-menuitem"
+      disabled={disabled}
       onSelect={handleSelect}
       startIcon="trash"
     >
