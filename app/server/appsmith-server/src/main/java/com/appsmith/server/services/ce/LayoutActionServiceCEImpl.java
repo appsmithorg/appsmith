@@ -248,9 +248,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .name(UPDATE_SINGLE_ACTION)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(updatedAction -> {
-                    // JS actions are skipped because when JSobject is updated, we first update all actions and action
-                    // collection
-                    // and then
+                    // Update page layout is skipped for JS actions here because when JSobject is updated, we first
+                    // update all actions, action
+                    // collection and then we update the page layout, hence updating page layout with each action update
+                    // is not required here
                     if (action.getPluginType() != PluginType.JS) {
                         updateLayoutService
                                 .updatePageLayoutsByPageId(pageId)
