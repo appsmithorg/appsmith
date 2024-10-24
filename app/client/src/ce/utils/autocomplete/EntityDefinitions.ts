@@ -87,6 +87,15 @@ export const entityDefinitions = {
               "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocationclearwatch",
           },
         },
+        datasource: {
+          "!doc": "Object to enable running custom datasources",
+          "!url": "",
+          request: {
+            "!type":
+              "fn(requestType: string, apiPath: string, options: object) -> +Promise|void",
+            "!url": "",
+          },
+        },
         ...eeAppsmithAutocompleteDefs(generatedTypeDef),
       };
     }

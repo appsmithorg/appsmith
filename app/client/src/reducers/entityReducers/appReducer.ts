@@ -35,6 +35,7 @@ export interface AppDataState {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workflows: Record<string, any>;
+  datasource: Record<string, any>;
 }
 
 const initialState: AppDataState = {
@@ -59,6 +60,7 @@ const initialState: AppDataState = {
     currentPosition: {},
   },
   workflows: {},
+  datasource: {},
 };
 
 const appReducer = createReducer(initialState, {
