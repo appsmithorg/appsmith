@@ -23,7 +23,6 @@ import {
   getHasManageActionPermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { ApiEditorContext } from "./ApiEditorContext";
-import ActionRightPane from "components/editorComponents/ActionRightPane";
 import RunHistory from "ee/components/RunHistory";
 import { HintMessages } from "PluginActionEditor/components/PluginActionForm/components/CommonEditorForm/HintMessages";
 import { InfoFields } from "PluginActionEditor/components/PluginActionForm/components/CommonEditorForm/InfoFields";
@@ -347,9 +346,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               <RunHistory />
             </SecondaryWrapper>
           </div>
-          <ActionRightPane
-            additionalSections={actionRightPaneAdditionSections}
-          />
+          {actionRightPaneAdditionSections}
         </Wrapper>
       </Form>
     </MainContainer>

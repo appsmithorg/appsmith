@@ -34,6 +34,7 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm/index";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getDatasourceConnectionMode } from "components/editorComponents/WidgetQueryGeneratorForm/utils";
+import { DROPDOWN_VARIANT } from "../types";
 
 interface DatasourceOptionsProps {
   widget: WidgetProps;
@@ -41,9 +42,8 @@ interface DatasourceOptionsProps {
 }
 
 function useDatasourceOptions(props: DatasourceOptionsProps) {
-  const { config, propertyName, updateConfig } = useContext(
-    WidgetQueryGeneratorFormContext,
-  );
+  const { config, datasourceDropdownVariant, propertyName, updateConfig } =
+    useContext(WidgetQueryGeneratorFormContext);
   const { pluginImages, widget } = props;
   const dispatch = useDispatch();
   const datasources: Datasource[] = useSelector(getDatasources);
@@ -58,6 +58,11 @@ function useDatasourceOptions(props: DatasourceOptionsProps) {
     useState(false);
 
   const [actualDatasourceOptions, mockDatasourceOptions] = useMemo(() => {
+    // we don't want to show the datasource options for connect to query variant
+    if (datasourceDropdownVariant === DROPDOWN_VARIANT.CONNECT_TO_QUERY) {
+      return [[], []];
+    }
+
     const availableDatasources = datasources.filter(({ pluginId }) =>
       WidgetQueryGeneratorRegistry.has(pluginsPackageNamesMap[pluginId]),
     );
