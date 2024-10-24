@@ -16,7 +16,7 @@ let isBaselineMode = false;
 let mongoDbUrl;
 
 let mongoDumpFile = null;
-const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
+const EXPORT_ROOT = "appsmith-stacks/mongo-data";
 
 // The minimum version of the MongoDB changeset that must be present in the mongockChangeLog collection to run this script.
 // This is to ensure we are migrating the data from the stable version of MongoDB.
@@ -84,10 +84,11 @@ const sortedCollectionNames = collectionNames.map(collection => collection.name)
 
 // Verify that the MongoDB data has been migrated to a stable version i.e. v1.43 before we start migrating the data to Postgres.
 if (!await isMongoDataMigratedToStableVersion(mongoDb)) {
-  console.log("Please upgrade the MongoDB data to the latest version before running this script.");
+  console.error("MongoDB migration check failed: Try upgrading the Appsmith instance to latest before opting for data migration.");
+  console.error(`Could not find the valid migration execution entry for "${MINIMUM_MONGO_CHANGESET}" in the "${MONGO_MIGRATION_COLLECTION}" collection.`);
   await mongoClient.close();
   mongoServer?.kill();
-  process.exit(0);
+  process.exit(1);
 }
 
 for await (const collectionName of sortedCollectionNames) {
@@ -203,13 +204,12 @@ function mapClassToType(_class) {
  * @returns {Promise<boolean>} - A promise that resolves to true if the data has been migrated to a stable version, false otherwise.
  */
 async function isMongoDataMigratedToStableVersion(mongoDb) {
-  const migrationFilters = {};
-  migrationFilters[MONGO_MIGRATION_COLLECTION] = {
-    changeId: MINIMUM_MONGO_CHANGESET
-  };
   let shouldMigrate = false;
-  for await (const doc of mongoDb.collection(MONGO_MIGRATION_COLLECTION).find(migrationFilters[MONGO_MIGRATION_COLLECTION])) {
-    shouldMigrate = true;
+  for await (const doc of mongoDb.collection(MONGO_MIGRATION_COLLECTION).find({ changeId: MINIMUM_MONGO_CHANGESET })) {
+    if (doc.state === 'EXECUTED') {
+      shouldMigrate = true;
+      break;
+    }
   }
   return shouldMigrate;
 }
