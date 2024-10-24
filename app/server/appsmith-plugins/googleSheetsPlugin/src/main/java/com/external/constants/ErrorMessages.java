@@ -39,6 +39,9 @@ public class ErrorMessages extends BasePluginErrorMessages {
 
     public static final String MISSING_ROW_INDEX_ERROR_MSG = "Missing required field 'Row index'";
 
+    public static final String MISSING_SPREADSHEET_URL_SELECTED_SHEETS_ERROR_MSG =
+            "Missing required field 'Spreadsheet Url'. Please check if your datasource is authorized to use this spreadsheet.";
+
     public static final String UNABLE_TO_CREATE_URI_ERROR_MSG = "Unable to create URI";
 
     public static final String MISSING_VALID_RESPONSE_ERROR_MSG = "Missing a valid response object.";
