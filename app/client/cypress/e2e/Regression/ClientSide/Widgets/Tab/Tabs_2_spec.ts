@@ -188,6 +188,7 @@ describe(
       propPane.SelectPropertiesDropDown("height", "Auto Height");
     });
 
+    // to work on redesign of the test, commenting for now
     it("7. Verify colors, borders and shadows", () => {
       // Verify font color picker opens up
       propPane.MoveToTab("Style");
@@ -219,11 +220,16 @@ describe(
       // Border Color
       propPane.SelectColorFromColorPicker("bordercolor", 13);
       assertHelper.AssertNetworkStatus("@updateLayout");
-      agHelper.AssertCSS(
-        tabs._tabsWidgetStyle,
-        "border-color",
-        "rgb(113, 113, 122)",
-      );
+
+      agHelper
+        .GetWidgetCSSFrAttribute(propPane._borderColorCursor, "color")
+        .then((color) => {
+          agHelper
+            .GetWidgetCSSFrAttribute(locators._widgetBorder, "color", 1)
+            .then((bgcolor) => {
+              expect(color).to.eq(bgcolor);
+            });
+        });
 
       agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 2);
       propPane.TogglePropertyState("bordercolor", "On", "");
