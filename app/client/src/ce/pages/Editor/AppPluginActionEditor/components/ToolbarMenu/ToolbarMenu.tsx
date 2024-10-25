@@ -35,7 +35,6 @@ export const ToolbarMenu = () => {
       <ConvertToModuleCTA />
       <Copy disabled={!isChangePermitted} />
       <Move disabled={!isChangePermitted} />
-      <MenuSeparator />
       <Docs />
       <MenuSeparator />
       <Delete disabled={!isDeletePermitted} />
