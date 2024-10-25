@@ -6,7 +6,7 @@ DB_HOST="127.0.0.1"
 DB_PORT="5432"
 DB_SCHEMA="appsmith"
 DB_NAME="appsmith"
-postgres_admin_user="postgres"
+POSTGRES_ADMIN_USER="postgres"
 
 waitForPostgresAvailability() {
   if [ -z "$PG_DB_HOST" ]; then
@@ -107,30 +107,32 @@ init_pg_db() {
     if [[ "$PG_DB_HOST" == "localhost" || "$PG_DB_HOST" == "127.0.0.1" ]]; then
 
       # Check if the database exists
-      DB_CHECK=$(psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "postgres" -tAc "SELECT 1 FROM pg_database WHERE datname='$PG_DB_NAME'")
+      DB_CHECK=$(psql -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -tAc "SELECT 1 FROM pg_database WHERE datname='$PG_DB_NAME'")
 
       if [ "$DB_CHECK" != "1" ]; then
         echo "Database $PG_DB_NAME does not exist. Creating database..."
-        psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "postgres" -c "CREATE DATABASE $PG_DB_NAME;"
+        psql -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -c "CREATE DATABASE $PG_DB_NAME;"
       else
         echo "Database $PG_DB_NAME already exists."
       fi
 
       # Check if the schema exists
-      SCHEMA_CHECK=$(psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -tAc "SELECT 1 FROM information_schema.schemata WHERE schema_name='appsmith'")
+      SCHEMA_CHECK=$(psql -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -d "$PG_DB_NAME" -tAc "SELECT 1 FROM information_schema.schemata WHERE schema_name='appsmith'")
 
       # Create schema and user if not exists
       if [ "$SCHEMA_CHECK" != "1" ]; then
         echo "Creating user '$PG_DB_USER' with password "
-        psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "CREATE USER \"$PG_DB_USER\" WITH PASSWORD '$PG_DB_PASSWORD';"
+        psql -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -d "$PG_DB_NAME" -c "CREATE USER \"$PG_DB_USER\" WITH PASSWORD '$PG_DB_PASSWORD';"
 
         echo "Schema 'appsmith' does not exist. Creating schema..."
-        psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "CREATE SCHEMA appsmith;"
+        psql -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -d "$PG_DB_NAME" -c "CREATE SCHEMA appsmith;"
       fi
-      USER=$PG_DB_USER SCHEMA="appsmith" DB=$PG_DB_NAME HOST=$PG_DB_HOST PORT=$PG_DB_PORT grant_permissions_for_schema
-
       echo "Creating pg_trgm extension..."
-      psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U postgres -d "$PG_DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+      psql -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -d "$PG_DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+
+      # Grant permissions to the user on the schema
+      USER=$PG_DB_USER SCHEMA="appsmith" DB=$PG_DB_NAME HOST=$PG_DB_HOST PORT=$PG_DB_PORT grant_permissions_for_local_db_schema
+    
     else
       echo "Remote PostgreSQL detected, running as current user."
       PGPASSWORD=$PG_DB_PASSWORD psql -h "$PG_DB_HOST" -p "$PG_DB_PORT" -U "$PG_DB_USER" -d "$PG_DB_NAME" -c "CREATE SCHEMA IF NOT EXISTS appsmith;"
@@ -160,18 +162,18 @@ init_pg_db() {
 # Returns:
 #     None
 # Example:
-#     USER="user" SCHEMA="schema" DB="db" HOST="host" PORT="port" grant_permissions_for_schema
-grant_permissions_for_schema() {
+#     USER="user" SCHEMA="schema" DB="db" HOST="host" PORT="port" grant_permissions_for_local_db_schema
+grant_permissions_for_local_db_schema() {
   local user=${USER-$DB_USER} schema=${SCHEMA-$DB_SCHEMA} db=${DB-$DB_NAME} host=${HOST-$DB_HOST} port=${PORT-$DB_PORT}
   tlog "Granting permissions to user '${user}' on schema '$schema' in database '$db' on host '$host' and port '$port'..."
-  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "GRANT ALL PRIVILEGES ON SCHEMA ${schema} TO ${user};"
-  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ${schema} TO ${user};"
-  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${schema} GRANT ALL PRIVILEGES ON TABLES TO ${user};"
-  psql -h ${host} -p ${port} -U ${postgres_admin_user} -d ${db} -c "GRANT CONNECT ON DATABASE ${db} TO ${user};"
+  psql -p ${port} -U ${POSTGRES_ADMIN_USER} -d ${db} -c "GRANT ALL PRIVILEGES ON SCHEMA ${schema} TO ${user};"
+  psql -p ${port} -U ${POSTGRES_ADMIN_USER} -d ${db} -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ${schema} TO ${user};"
+  psql -p ${port} -U ${POSTGRES_ADMIN_USER} -d ${db} -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${schema} GRANT ALL PRIVILEGES ON TABLES TO ${user};"
+  psql -p ${port} -U ${POSTGRES_ADMIN_USER} -d ${db} -c "GRANT CONNECT ON DATABASE ${db} TO ${user};"
 }
 
 # Example usage of the functions
 # waitForPostgresAvailability
 # extract_postgres_db_params "postgresql://user:password@localhost:5432/dbname"
 # init_pg_db
-# USER="user" SCHEMA="schema" DB="db" HOST="host" PORT="port" grant_permissions_for_schema
+# USER="user" SCHEMA="schema" DB="db" HOST="host" PORT="port" grant_permissions_for_local_db_schema

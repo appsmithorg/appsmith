@@ -433,9 +433,13 @@ init_postgres() {
       tlog "Initializing local Postgres data folder"
       su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
-    create_appsmith_pg_db "$POSTGRES_DB_PATH"
-
     cp /opt/appsmith/postgres/appsmith_hba.conf "$POSTGRES_DB_PATH/pg_hba.conf"
+    # PostgreSQL requires strict file permissions for the pg_hba.conf file. Add file permission settings after copying the configuration file.
+    # 600 is the recommended permission for pg_hba.conf file for read and write access to the owner only.
+    chown postgres:postgres "$POSTGRES_DB_PATH/pg_hba.conf"
+    chmod 600 "$POSTGRES_DB_PATH/pg_hba.conf"
+
+    create_appsmith_pg_db "$POSTGRES_DB_PATH"
   else
     runEmbeddedPostgres=0
   fi
