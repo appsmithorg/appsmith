@@ -7,13 +7,12 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { LoDashStatic } from "lodash";
 
 export function defaultOptionValueValidation(
   value: unknown,
   props: JSONFormWidgetProps,
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _: any,
+  _: LoDashStatic,
 ): ValidationResponse {
   const hasLabelValueProperties = (
     // TODO: Fix this the next time the file is edited
