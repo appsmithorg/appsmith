@@ -192,6 +192,13 @@ export default class AppEditorEngine extends AppEngine {
     yield call(waitForFetchEnvironments);
     endSpan(waitForFetchEnvironmentsSpan);
 
+    yield call(
+      this.loadPluginsAndDatasources,
+      allResponses,
+      rootSpan,
+      applicationId,
+    );
+
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
     endSpan(loadPageThemesAndActionsSpan);
   }
@@ -199,6 +206,7 @@ export default class AppEditorEngine extends AppEngine {
   private *loadPluginsAndDatasources(
     allResponses: EditConsolidatedApi,
     rootSpan: Span,
+    applicationId: string,
   ) {
     const loadPluginsAndDatasourcesSpan = startNestedSpan(
       "AppEditorEngine.loadPluginsAndDatasources",
@@ -211,7 +219,12 @@ export default class AppEditorEngine extends AppEngine {
       getFeatureFlagsForEngine,
     );
     const { errorActions, initActions, successActions } =
-      getPageDependencyActions(currentWorkspaceId, featureFlags, allResponses);
+      getPageDependencyActions(
+        currentWorkspaceId,
+        featureFlags,
+        allResponses,
+        applicationId,
+      );
 
     if (!isAirgappedInstance) {
       initActions.push(fetchMockDatasources(mockDatasources));
@@ -259,7 +272,6 @@ export default class AppEditorEngine extends AppEngine {
       allResponses,
       rootSpan,
     );
-    yield call(this.loadPluginsAndDatasources, allResponses, rootSpan);
   }
 
   public *completeChore(rootSpan: Span) {

@@ -79,6 +79,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         if (actionDTO.getCollectionId() == null) {
             return this.updateSingleAction(id, actionDTO).flatMap(updatedAction -> updateLayoutService
                     .updatePageLayoutsByPageId(updatedAction.getPageId())
+                    .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                    .tap(Micrometer.observation(observationRegistry))
                     .thenReturn(updatedAction));
         } else if (actionDTO.getCollectionId().length() == 0) {
             // The Action has been removed from existing collection.
@@ -91,6 +93,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         actionDTO.setCollectionId(null);
                         return this.updateSingleAction(id, actionDTO).flatMap(updatedAction -> updateLayoutService
                                 .updatePageLayoutsByPageId(updatedAction.getPageId())
+                                .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .thenReturn(updatedAction));
                     });
         } else {
@@ -120,6 +124,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                 action1.getId());
                         return this.updateSingleAction(id, actionDTO).flatMap(updatedAction -> updateLayoutService
                                 .updatePageLayoutsByPageId(updatedAction.getPageId())
+                                .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .thenReturn(updatedAction));
                     });
         }
@@ -276,6 +282,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     return newActionService.save(newAction).flatMap(savedAction -> updateLayoutService
                             .updatePageLayoutsByPageId(
                                     savedAction.getUnpublishedAction().getPageId())
+                            .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                            .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(newActionService.generateActionByViewMode(savedAction, false)));
                 });
     }
@@ -289,6 +297,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .deleteUnpublishedAction(id)
                 .flatMap(actionDTO -> Mono.zip(
                         Mono.just(actionDTO), updateLayoutService.updatePageLayoutsByPageId(actionDTO.getPageId())))
+                .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMap(tuple -> {
                     ActionDTO actionDTO = tuple.getT1();
                     return Mono.just(actionDTO);
