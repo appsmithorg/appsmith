@@ -7,6 +7,7 @@ import {
 } from "./interceptors";
 import { REQUEST_TIMEOUT_MS } from "ee/constants/ApiConstants";
 import { convertObjectToQueryParams } from "utils/URLUtils";
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 export const apiRequestConfig = {
   baseURL: "/api/",
@@ -18,6 +19,30 @@ export const apiRequestConfig = {
 };
 
 const axiosInstance: AxiosInstance = axios.create();
+
+axiosInstance.defaults.transformResponse = [
+  function (...args) {
+    const transformResponseAr = axios.defaults.transformResponse;
+
+    // Pick up the transformFn from axios defaults and wrap it in with telemetry code so that we can capture how long it takes parse an api response
+    if (Array.isArray(transformResponseAr) && transformResponseAr?.[0]) {
+      const transfromFn = transformResponseAr?.[0];
+      const resp = startAndEndSpanForFn(
+        "axios.transformApiResponse",
+        { url: this.url },
+        () => transfromFn.call(this, ...args),
+      );
+
+      return resp;
+    } else {
+      // eslint-disable-next-line no-console
+      console.error("could not find the api transformerFn");
+
+      // return the data as it is.
+      return args[0];
+    }
+  },
+];
 
 axiosInstance.interceptors.request.use(apiRequestInterceptor);
 
