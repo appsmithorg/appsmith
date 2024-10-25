@@ -24,11 +24,11 @@ axiosInstance.defaults.transformResponse = [
   function (...args) {
     const transformResponseAr = axios.defaults.transformResponse;
 
-    // Pick up the transformFn from the defaults and wrap it in with telemetry code
+    // Pick up the transformFn from axios defaults and wrap it in with telemetry code so that we can capture how long it takes parse an api response
     if (Array.isArray(transformResponseAr) && transformResponseAr?.[0]) {
       const transfromFn = transformResponseAr?.[0];
       const resp = startAndEndSpanForFn(
-        "transformApiResponse",
+        "axios.transformApiResponse",
         { url: this.url },
         () => transfromFn.call(this, ...args),
       );
