@@ -15,6 +15,7 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ActionExecutionSolutionHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -132,6 +133,9 @@ class ActionExecutionSolutionCEImplTest {
     @SpyBean
     CommonConfig commonConfig;
 
+    @MockBean
+    ActionExecutionSolutionHelper actionExecutionSolutionHelper;
+
     @Autowired
     EnvironmentPermission environmentPermission;
 
@@ -162,7 +166,8 @@ class ActionExecutionSolutionCEImplTest {
                 environmentPermission,
                 configService,
                 tenantService,
-                commonConfig);
+                commonConfig,
+                actionExecutionSolutionHelper);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
