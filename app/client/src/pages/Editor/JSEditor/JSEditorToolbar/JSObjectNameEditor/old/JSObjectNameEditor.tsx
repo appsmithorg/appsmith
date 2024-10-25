@@ -28,13 +28,6 @@ import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { SaveActionNameParams } from "PluginActionEditor";
 
 export interface JSObjectNameEditorProps {
-  /*
-    This prop checks if page is API Pane or Query Pane or Curl Pane
-    So, that we can toggle between ads editable-text component and existing editable-text component
-    Right now, it's optional so that it doesn't impact any other pages other than API Pane.
-    In future, when default component will be ads editable-text, then we can remove this prop.
-  */
-  page?: string;
   disabled?: boolean;
   saveJSObjectName: (
     params: SaveActionNameParams,
