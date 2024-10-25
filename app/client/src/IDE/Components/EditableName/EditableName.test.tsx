@@ -195,5 +195,18 @@ describe("EditableName", () => {
       expect(exitEditing).toHaveBeenCalled();
       expect(onNameSave).not.toHaveBeenCalledWith(invalidTitle);
     });
+
+    test("prevents saving empty name", () => {
+      const { getByRole, onNameSave } = setup({ isEditing: true });
+      const input = getByRole("textbox");
+
+      fireEvent.change(input, { target: { value: "" } });
+      fireEvent.keyUp(input, KEY_CONFIG.ENTER);
+
+      expect(onNameSave).not.toHaveBeenCalledWith("");
+      expect(getByRole("tooltip")).toHaveTextContent(
+        "Please enter a valid name",
+      );
+    });
   });
 });
