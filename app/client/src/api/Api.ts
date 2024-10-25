@@ -19,6 +19,29 @@ export const apiRequestConfig = {
 
 const axiosInstance: AxiosInstance = axios.create();
 
+axiosInstance.defaults.transformResponse = [
+  function (...args) {
+    const transformResponseAr = axios.defaults.transformResponse;
+
+    if (Array.isArray(transformResponseAr) && transformResponseAr?.[0]) {
+      const transfromFn = transformResponseAr?.[0];
+      const resp = startAndEndSpanForFn(
+        "transformApiResponse",
+        { url: this.url },
+        transfromFn.call(this, ...args),
+      );
+
+      return resp;
+    } else {
+      // eslint-disable-next-line no-console
+      console.error("could not find the api transformFn transformerFn");
+
+      // return the data as it is.
+      return args[0];
+    }
+  },
+];
+
 axiosInstance.interceptors.request.use(apiRequestInterceptor);
 
 axiosInstance.interceptors.response.use(
