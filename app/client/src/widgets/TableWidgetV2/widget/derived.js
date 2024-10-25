@@ -446,16 +446,19 @@ export default {
 
       sortedTableData = transformedTableDataForSorting.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
-          const originalA = (props.tableData ?? transformedTableDataForSorting)[
-            a.__originalIndex__
-          ];
-          const originalB = (props.tableData ?? transformedTableDataForSorting)[
-            b.__originalIndex__
-          ];
-          const [processedA, processedB] = [
-            { ...a, ...originalA },
-            { ...b, ...originalB },
-          ];
+          let [processedA, processedB] = [a, b];
+
+          if (!selectColumnKeysWithSortByLabel.length) {
+            const originalA = (props.tableData ??
+              transformedTableDataForSorting)[a.__originalIndex__];
+            const originalB = (props.tableData ??
+              transformedTableDataForSorting)[b.__originalIndex__];
+
+            [processedA, processedB] = [
+              { ...a, ...originalA },
+              { ...b, ...originalB },
+            ];
+          }
 
           if (
             isEmptyOrNil(processedA[sortByColumnOriginalId]) ||
