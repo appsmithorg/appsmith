@@ -43,6 +43,10 @@ const ResultsCount = styled.div`
   color: var(--ads-v2-color-fg);
 `;
 
+const ErrorText = styled(Text)`
+  color: var(--ads-v2-colors-action-error-label-default-fg);
+`;
+
 interface QueryDebuggerTabsProps {
   actionSource: SourceEntity;
   currentActionConfig?: Action;
@@ -276,9 +280,7 @@ function QueryDebuggerTabs({
                 output.length > 1 ? "s" : ""
               }`}</Text>
             ) : (
-              <Text color="red" type={TextType.H5}>
-                {" Error"}
-              </Text>
+              <ErrorText type={TextType.H5}>{" Error"}</ErrorText>
             )}
           </Text>
         </ResultsCount>
