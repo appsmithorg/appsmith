@@ -30,7 +30,7 @@ axiosInstance.defaults.transformResponse = [
       const resp = startAndEndSpanForFn(
         "transformApiResponse",
         { url: this.url },
-        transfromFn.call(this, ...args),
+        () => transfromFn.call(this, ...args),
       );
 
       return resp;
