@@ -2,16 +2,15 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
-import type { AnyAction, Store } from "redux";
 import { ThemeProvider } from "styled-components";
 import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestUtils";
 import { lightTheme } from "selectors/themeSelectors";
 import { BrowserRouter as Router } from "react-router-dom";
+import { EditorViewMode } from "ee/entities/IDE/constants";
 import "@testing-library/jest-dom/extend-expect";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
-import type { ActionResponse } from "api/ActionAPI";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { EditorViewMode } from "ee/entities/IDE/constants";
+import type { ActionResponse } from "api/ActionAPI";
 
 const mockStore = configureStore([]);
 
@@ -81,7 +80,7 @@ const storeState = {
 };
 
 describe("ApiResponseView", () => {
-  let store: Store<any, AnyAction>;
+  let store = mockStore(storeState);
 
   beforeEach(() => {
     store = mockStore(storeState);
@@ -113,7 +112,6 @@ describe("ApiResponseView", () => {
         ?.classList.contains("select-text"),
     ).toBe(true);
   });
-
   it("should show record count as result if the query response returns records", () => {
     render(
       <Provider store={store}>
