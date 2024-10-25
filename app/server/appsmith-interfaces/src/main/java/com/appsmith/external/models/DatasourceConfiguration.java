@@ -35,6 +35,9 @@ public class DatasourceConfiguration implements AppsmithDomain {
     AuthenticationDTO authentication;
 
     @JsonView({Views.Public.class, FromRequest.class})
+    TlsConfiguration tlsConfiguration;
+
+    @JsonView({Views.Public.class, FromRequest.class})
     SSHConnection sshProxy;
 
     @JsonView({Views.Public.class, FromRequest.class})

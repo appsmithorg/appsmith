@@ -8,6 +8,8 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.TlsConfiguration;
+import com.appsmith.external.models.UploadedFile;
 import com.external.plugins.exceptions.RedisErrorMessages;
 import com.external.plugins.exceptions.RedisPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -62,7 +64,9 @@ public class RedisPluginTest {
 
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-
+        TlsConfiguration tlsConfiguration = new TlsConfiguration();
+        tlsConfiguration.setTlsEnabled(false);
+        datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
         return datasourceConfiguration;
     }
 
@@ -79,6 +83,9 @@ public class RedisPluginTest {
     @Test
     public void itShouldValidateDatasourceWithNoEndpoints() {
         DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
+        TlsConfiguration tlsConfiguration = new TlsConfiguration();
+        tlsConfiguration.setTlsEnabled(false);
+        invalidDatasourceConfiguration.setTlsConfiguration(tlsConfiguration);
 
         assertEquals(
                 Set.of(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
@@ -92,6 +99,10 @@ public class RedisPluginTest {
         Endpoint endpoint = new Endpoint();
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
+        TlsConfiguration tlsConfiguration = new TlsConfiguration();
+        tlsConfiguration.setTlsEnabled(false);
+        invalidDatasourceConfiguration.setTlsConfiguration(tlsConfiguration);
+
         assertEquals(
                 Set.of(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
@@ -104,6 +115,10 @@ public class RedisPluginTest {
         Endpoint endpoint = new Endpoint();
         endpoint.setHost("test-host");
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        TlsConfiguration tlsConfiguration = new TlsConfiguration();
+        tlsConfiguration.setTlsEnabled(false);
+        invalidDatasourceConfiguration.setTlsConfiguration(tlsConfiguration);
 
         // Since default port is picked, set of invalids should be empty.
         assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration), Set.of());
@@ -120,6 +135,10 @@ public class RedisPluginTest {
         invalidAuth.setUsername("username"); // skip password
         invalidDatasourceConfiguration.setAuthentication(invalidAuth);
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        TlsConfiguration tlsConfiguration = new TlsConfiguration();
+        tlsConfiguration.setTlsEnabled(false);
+        invalidDatasourceConfiguration.setTlsConfiguration(tlsConfiguration);
 
         assertEquals(
                 Set.of(RedisErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG),
@@ -141,6 +160,10 @@ public class RedisPluginTest {
         datasourceConfiguration.setAuthentication(auth);
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
+        TlsConfiguration tlsConfiguration = new TlsConfiguration();
+        tlsConfiguration.setTlsEnabled(false);
+        datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
+
         assertTrue(pluginExecutor.validateDatasource(datasourceConfiguration).isEmpty());
     }
 
@@ -155,6 +178,64 @@ public class RedisPluginTest {
                     assertTrue(datasourceTestResult.isSuccess());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithTlsEnabledAndMissingCACertificate() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        TlsConfiguration tlsConfiguration = new TlsConfiguration();
+        tlsConfiguration.setTlsEnabled(true);
+        tlsConfiguration.setVerifyTlsCertificate(true);
+        tlsConfiguration.setRequiresClientAuth(false);
+        datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
+        datasourceConfiguration.getTlsConfiguration().setVerifyTlsCertificate(true);
+
+        assertEquals(
+                Set.of(RedisErrorMessages.CA_CERTIFICATE_MISSING_ERROR_MSG),
+                pluginExecutor.validateDatasource(datasourceConfiguration));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithTlsEnabledAndMissingClientCertificate() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        TlsConfiguration tlsConfiguration = new TlsConfiguration();
+        tlsConfiguration.setTlsEnabled(true);
+        tlsConfiguration.setVerifyTlsCertificate(false);
+        tlsConfiguration.setRequiresClientAuth(true);
+        tlsConfiguration.setClientKeyFile(new UploadedFile("client-key", "base64Key"));
+        datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
+        assertEquals(
+                Set.of(RedisErrorMessages.TLS_CLIENT_AUTH_ENABLED_BUT_CLIENT_CERTIFICATE_MISSING_ERROR_MSG),
+                pluginExecutor.validateDatasource(datasourceConfiguration));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithTlsEnabledAndMissingKey() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        TlsConfiguration tlsConfiguration = new TlsConfiguration();
+        tlsConfiguration.setTlsEnabled(true);
+        tlsConfiguration.setVerifyTlsCertificate(false);
+        tlsConfiguration.setRequiresClientAuth(true);
+        tlsConfiguration.setClientCertificateFile(new UploadedFile("client-cert", "base64Key"));
+        datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
+        assertEquals(
+                Set.of(RedisErrorMessages.TLS_CLIENT_AUTH_ENABLED_BUT_CLIENT_KEY_MISSING_ERROR_MSG),
+                pluginExecutor.validateDatasource(datasourceConfiguration));
+    }
+
+    @Test
+    public void itShouldPassValidationWithTlsEnabledAndValidCertificates() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        TlsConfiguration tlsConfiguration = new TlsConfiguration();
+        tlsConfiguration.setTlsEnabled(true);
+        tlsConfiguration.setVerifyTlsCertificate(true);
+        tlsConfiguration.setRequiresClientAuth(true);
+        tlsConfiguration.setCaCertificateFile(new UploadedFile("ca-cert", "base64Key"));
+        tlsConfiguration.setClientCertificateFile(new UploadedFile("client-cert", "base64Key"));
+        tlsConfiguration.setClientKeyFile(new UploadedFile("client-key", "base64Key"));
+        datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
+
+        assertTrue(pluginExecutor.validateDatasource(datasourceConfiguration).isEmpty());
     }
 
     @Test

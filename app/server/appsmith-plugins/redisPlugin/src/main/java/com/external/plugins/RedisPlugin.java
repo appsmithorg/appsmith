@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
+import com.appsmith.external.models.TlsConfiguration;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.RedisErrorMessages;
@@ -45,6 +46,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
+import static com.external.utils.RedisTLSManager.createJedisPoolWithTLS;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Slf4j
@@ -261,9 +263,13 @@ public class RedisPlugin extends BasePlugin {
                         int timeout =
                                 (int) Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
                         URI uri = RedisURIUtils.getURI(datasourceConfiguration);
-                        JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout);
-                        log.debug(Thread.currentThread().getName() + ": Created Jedis pool.");
-                        return jedisPool;
+                        if (!datasourceConfiguration.getTlsConfiguration().getTlsEnabled()) {
+                            JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout);
+                            log.debug(Thread.currentThread().getName() + ": Created Jedis pool.");
+                            return jedisPool;
+                        } else {
+                            return createJedisPoolWithTLS(poolConfig, uri, timeout, datasourceConfiguration);
+                        }
                     })
                     .subscribeOn(scheduler);
         }
@@ -299,6 +305,33 @@ public class RedisPlugin extends BasePlugin {
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
             if (isAuthenticationMissing(auth)) {
                 invalids.add(RedisErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
+            }
+
+            TlsConfiguration tlsConfiguration = datasourceConfiguration.getTlsConfiguration();
+            if (tlsConfiguration.getTlsEnabled()) {
+                // Check for CA certificate if TLS verification is enabled
+                if (tlsConfiguration.getVerifyTlsCertificate()
+                        && (tlsConfiguration.getCaCertificateFile() == null
+                                || StringUtils.isNullOrEmpty(
+                                        tlsConfiguration.getCaCertificateFile().getBase64Content()))) {
+                    invalids.add(RedisErrorMessages.CA_CERTIFICATE_MISSING_ERROR_MSG);
+                }
+
+                // Check for client certificate and key if client authentication is required
+                if (tlsConfiguration.getRequiresClientAuth()) {
+                    if (tlsConfiguration.getClientCertificateFile() == null
+                            || StringUtils.isNullOrEmpty(
+                                    tlsConfiguration.getClientCertificateFile().getBase64Content())) {
+                        invalids.add(
+                                RedisErrorMessages.TLS_CLIENT_AUTH_ENABLED_BUT_CLIENT_CERTIFICATE_MISSING_ERROR_MSG);
+                    }
+
+                    if (tlsConfiguration.getClientKeyFile() == null
+                            || StringUtils.isNullOrEmpty(
+                                    tlsConfiguration.getClientKeyFile().getBase64Content())) {
+                        invalids.add(RedisErrorMessages.TLS_CLIENT_AUTH_ENABLED_BUT_CLIENT_KEY_MISSING_ERROR_MSG);
+                    }
+                }
             }
 
             return invalids;

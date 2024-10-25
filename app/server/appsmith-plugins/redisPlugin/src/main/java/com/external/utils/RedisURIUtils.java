@@ -13,9 +13,16 @@ public class RedisURIUtils {
     public static final Long DEFAULT_PORT = 6379L;
     private static final String REDIS_SCHEME = "redis://";
 
+    private static final String REDIS_SSL_SCHEME = "rediss://";
+
     public static URI getURI(DatasourceConfiguration datasourceConfiguration) throws URISyntaxException {
         StringBuilder builder = new StringBuilder();
-        builder.append(REDIS_SCHEME);
+
+        if (datasourceConfiguration.getTlsConfiguration().getTlsEnabled()) {
+            builder.append(REDIS_SSL_SCHEME);
+        } else {
+            builder.append(REDIS_SCHEME);
+        }
 
         String uriAuth = getUriAuth(datasourceConfiguration);
         builder.append(uriAuth);

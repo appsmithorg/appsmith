@@ -29,4 +29,19 @@ public class RedisErrorMessages extends BasePluginErrorMessages {
 
     public static final String DS_MISSING_PASSWORD_ERROR_MSG =
             "Could not find password. Please edit the 'Password' field to provide the password.";
+
+    /*
+    ************************************************************************************************************************************************
+                                       Error messages related to TLS configuration.
+    ************************************************************************************************************************************************
+    */
+
+    public static final String CA_CERTIFICATE_MISSING_ERROR_MSG =
+            "CA certificate is missing. Please upload the CA certificate.";
+
+    public static final String TLS_CLIENT_AUTH_ENABLED_BUT_CLIENT_CERTIFICATE_MISSING_ERROR_MSG =
+            "Client authentication is enabled but the client certificate is missing. Please upload the client certificate.";
+
+    public static final String TLS_CLIENT_AUTH_ENABLED_BUT_CLIENT_KEY_MISSING_ERROR_MSG =
+            "Client authentication is enabled but the client key is missing. Please upload the client key.";
 }
