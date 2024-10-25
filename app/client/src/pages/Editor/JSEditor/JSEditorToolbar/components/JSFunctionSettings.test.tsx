@@ -1,6 +1,6 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen, fireEvent } from "test/testUtils";
+import { render, screen } from "test/testUtils";
 import { JSFunctionSettings } from "./JSFunctionSettings";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
@@ -31,8 +31,6 @@ describe("JSFunctionSettings", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button"));
-
     expect(screen.getByLabelText(actions[0].name)).toBeDisabled();
   });
 
@@ -46,8 +44,6 @@ describe("JSFunctionSettings", () => {
         onUpdateSettings={onUpdateSettings}
       />,
     );
-
-    fireEvent.click(screen.getByRole("button"));
 
     expect(screen.getAllByRole("switch")).toHaveLength(actions.length);
   });
@@ -73,8 +69,6 @@ describe("JSFunctionSettings", () => {
         onUpdateSettings={onUpdateSettings}
       />,
     );
-
-    fireEvent.click(screen.getByRole("button"));
 
     const switchElement1 = screen.getByLabelText(updatedJSActions[0].name);
     const switchElement2 = screen.getByLabelText(updatedJSActions[1].name);

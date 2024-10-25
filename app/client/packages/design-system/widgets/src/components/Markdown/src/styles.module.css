@@ -1,12 +1,6 @@
 .markdown {
   color: var(--color-fg);
 
-  &::after,
-  &::before {
-    /* This is required to remove the compensators of capsizing that comes up due to use of `wds-body-text` class */
-    content: none !important;
-  }
-
   table {
     border: var(--border-width-1) solid var(--color-bd);
     border-collapse: separate;
@@ -97,7 +91,7 @@
     background-color: var(--color-bg-elevation-2);
     border-radius: var(--border-radius-elevation-3);
     outline: var(--border-width-1) solid var(--color-bg-neutral-subtle);
-    margin-bottom: var(--spacing-2);
+    margin-bottom: var(--inner-spacing-2);
     overflow: auto;
   }
 
