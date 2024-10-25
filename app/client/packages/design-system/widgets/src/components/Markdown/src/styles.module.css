@@ -97,7 +97,7 @@
     background-color: var(--color-bg-elevation-2);
     border-radius: var(--border-radius-elevation-3);
     outline: var(--border-width-1) solid var(--color-bg-neutral-subtle);
-    margin-bottom: var(--spacing-2);
+    margin-bottom: var(--inner-spacing-2);
     overflow: auto;
   }
 
