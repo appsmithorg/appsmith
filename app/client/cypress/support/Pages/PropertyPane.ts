@@ -177,6 +177,7 @@ export class PropertyPane {
   _dataIcon = (icon: string) => `[data-icon="${icon}"]`;
   _iconDropdown = "[data-test-id='virtuoso-scroller']";
   _dropdownControlError = "[data-testid='t---dropdown-control-error']";
+  _borderColorCursor = ".t--property-control-bordercolor .bp3-input-group div";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
