@@ -24,6 +24,7 @@ public interface PluginConstants {
         String APPSMITH_AI_PLUGIN = "appsmithai-plugin";
         String DATABRICKS_PLUGIN = "databricks-plugin";
         String AWS_LAMBDA_PLUGIN = "aws-lambda-plugin";
+        String MONGO_PLUGIN = "mongo-plugin";
     }
 
     public static final String DEFAULT_REST_DATASOURCE = "DEFAULT_REST_DATASOURCE";

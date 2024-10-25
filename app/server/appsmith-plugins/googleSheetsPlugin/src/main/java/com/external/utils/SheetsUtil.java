@@ -1,7 +1,11 @@
 package com.external.utils;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
+import com.external.config.MethodConfig;
+import com.external.constants.ErrorMessages;
 import com.external.enums.GoogleSheetMethodEnum;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -17,8 +21,10 @@ public class SheetsUtil {
     private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
     private static final int USER_AUTHORIZED_SHEET_IDS_INDEX = 1;
 
-    public static Set<String> getUserAuthorizedSheetIds(DatasourceConfiguration datasourceConfiguration) {
+    public static Set<String> validateAndGetUserAuthorizedSheetIds(
+            DatasourceConfiguration datasourceConfiguration, MethodConfig methodConfig) {
         OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
+        Set<String> userAuthorisedSheetIds = null;
         if (!isEmpty(datasourceConfiguration.getProperties())
                 && datasourceConfiguration.getProperties().size() > 1
                 && datasourceConfiguration.getProperties().get(USER_AUTHORIZED_SHEET_IDS_INDEX) != null
@@ -33,9 +39,23 @@ public class SheetsUtil {
                     .getProperties()
                     .get(USER_AUTHORIZED_SHEET_IDS_INDEX)
                     .getValue();
-            return new HashSet<String>(temp);
+            userAuthorisedSheetIds = new HashSet<String>(temp);
+
+            // This is added specifically for selected gsheets, so that whenever authorisation changes from one sheet to
+            // another
+            // We throw an error, this is done because when we use drive.file scope which is for selected sheets through
+            // file picker
+            // The access token for this scope grants access to all selected sheets across datasources
+            // we want to constraint the access for datasource to the sheet which was selected during ds authorisation
+            if (methodConfig != null
+                    && methodConfig.getSpreadsheetId() != null
+                    && !userAuthorisedSheetIds.contains(methodConfig.getSpreadsheetId())) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        ErrorMessages.MISSING_SPREADSHEET_URL_SELECTED_SHEETS_ERROR_MSG);
+            }
         }
-        return null;
+        return userAuthorisedSheetIds;
     }
 
     public static Map<String, String> getSpreadsheetData(

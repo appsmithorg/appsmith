@@ -4,12 +4,13 @@ import {
   agHelper,
   table as tableHelper,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
 
 describe(
   "Table widget inline editing functionality",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();
@@ -148,10 +149,16 @@ describe(
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
       cy.saveTableCellValue(0, 0);
-      cy.get(".t--widget-textwidget .bp3-ui-text").should(
-        "contain",
-        `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅"    }  }]`,
-      );
+      const exected = [
+        {
+          index: 0,
+          updatedFields: { step: "newValue" },
+          allFields: { step: "newValue", task: "Drop a table", status: "✅" },
+        },
+      ];
+      agHelper
+        .GetText(locators._textWidget, "text")
+        .should((text) => expect(JSON.parse(text)).to.deep.equal(exected));
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",

@@ -2,7 +2,9 @@ import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "Test placeholder value for port number for all datasources - tests #24960",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   () => {
     it("1. Test datasource port number placeholder", () => {
       // MsSQL

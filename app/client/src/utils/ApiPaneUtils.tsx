@@ -1,4 +1,4 @@
-import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
+import { CONTENT_TYPE_HEADER_KEY } from "../PluginActionEditor/constants/CommonApiConstants";
 import {
   getDynamicStringSegments,
   isDynamicValue,

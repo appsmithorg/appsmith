@@ -15,12 +15,12 @@ import EditorNavigation, {
 
 describe(
   "Modal Widget test cases",
-  { tags: ["@tag.Widget", "@tag.Modal"] },
+  { tags: ["@tag.Widget", "@tag.Modal", "@tag.Binding"] },
   function () {
     const image = (src: string) => 'img[src="' + src + '"]';
-    const jpgImg = "https://jpeg.org/images/jpegsystems-home.jpg";
-    const gifImg =
-      "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/5eeea355389655.59822ff824b72.gif";
+    const jpgImg =
+      "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg";
+    const gifImg = "https://docs.appsmith.com/img/multi-update-sql.gif";
 
     it("1. Modal widget functionality", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);

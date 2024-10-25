@@ -19,7 +19,7 @@ import EditorNavigation, {
 
 describe(
   "Validate JS Object Refactoring does not affect the comments & variables",
-  { tags: ["@tag.PropertyPane"] },
+  { tags: ["@tag.PropertyPane", "@tag.Binding"] },
   () => {
     let dsName: any;
 

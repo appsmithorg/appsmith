@@ -5,7 +5,7 @@ let workspaceId: any, appid: any;
 
 describe(
   "Create new workspace and invite user & validate all roles",
-  { tags: ["@tag.Workspace", "@tag.Sanity"] },
+  { tags: ["@tag.Workspace", "@tag.Sanity", "@tag.AccessControl"] },
   () => {
     it("1. Create new Workspace, Share with a user from UI & verify", () => {
       if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(true, false);

@@ -1,6 +1,6 @@
 describe(
   "List widget v2 Evaluated Popup",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   () => {
     it("1. List widget V2 with currentItem", () => {
       cy.dragAndDropToCanvas("listwidgetv2", {
@@ -18,17 +18,17 @@ describe(
         `{{[{
         id: "001",
         name: "Blue",
-        img: "https://assets.appsmith.com/widgets/default.png",
+        img: "http://host.docker.internal:4200/clouddefaultImage.png",
       },
       {
         id: "002",
         name: "Green",
-        img: "https://assets.appsmith.com/widgets/default.png",
+        img: "http://host.docker.internal:4200/clouddefaultImage.png",
       },
       {
         id: "003",
         name: "Red",
-        img: "https://assets.appsmith.com/widgets/default.png",
+        img: "http://host.docker.internal:4200/clouddefaultImage.png",
       }]}}`,
       );
 

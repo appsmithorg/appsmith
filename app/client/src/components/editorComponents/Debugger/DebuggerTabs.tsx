@@ -20,9 +20,9 @@ import {
   DEBUGGER_LOGS,
   INSPECT_ENTITY,
 } from "ee/constants/messages";
-import { DEBUGGER_TAB_KEYS } from "./helpers";
+import { DEBUGGER_TAB_KEYS } from "./constants";
 import EntityBottomTabs from "../EntityBottomTabs";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 import { IDEBottomView, ViewHideBehaviour, ViewDisplayMode } from "IDE";
 
 function DebuggerTabs() {

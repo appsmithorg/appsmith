@@ -10,20 +10,8 @@
     "prettier": "yarn g:prettier"
   },
   "devDependencies": {
-    "@svgr/webpack": "5.5.0",
-    "@types/emoji-mart": "3.0.4",
-    "@types/loadable__component": "^5.13.4",
-    "@types/react-form": "^4.0.2",
     "@types/react-table": "*",
-    "@types/react-tabs": "*",
-    "concurrently": "^7.3.0",
-    "eslint-config-react": "^1.1.7",
-    "eslint-plugin-storybook": "^0.6.8",
-    "identity-obj-proxy": "3.0.0",
-    "playwright": "^1.25.1",
-    "postcss": "^8.4.31",
-    "postcss-import": "^14.1.0",
-    "tsconfig-paths-webpack-plugin": "^3.5.2"
+    "identity-obj-proxy": "3.0.0"
   },
   "peerDependencies": {
     "@blueprintjs/core": "3.33.0",
@@ -53,8 +41,5 @@
         }
       }
     ]
-  },
-  "dependencies": {
-    "emoji-mart": "3.0.1"
   }
 }

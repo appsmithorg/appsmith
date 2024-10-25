@@ -46,9 +46,9 @@ const setterMethodsToTest = [
     property: "url",
     widget: WIDGET.AUDIO,
     actionBinding:
-      "{{Audio1.setURL('https://www.youtube.com/watch?v=JGwWNGJdvx8')}}",
+      "{{Audio1.setURL('http://host.docker.internal:4200/bird.mp4')}}",
     valueBinding: "{{Audio1.url}}",
-    expectedValue: "https://www.youtube.com/watch?v=JGwWNGJdvx8",
+    expectedValue: "http://host.docker.internal:4200/bird.mp4",
   },
   {
     name: "setPlaying",
@@ -156,7 +156,7 @@ Object.values(setterMethodsToTest).forEach(
 
 describe(
   "Linting warning for setter methods",
-  { tags: ["@tag.Widget"] },
+  { tags: ["@tag.Widget", "@tag.Binding"] },
   function () {
     it("Lint error when setter is used in a data field", function () {
       entityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON, 200, 200);

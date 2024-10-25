@@ -87,6 +87,7 @@ import { WDSPasswordInputWidget } from "modules/ui-builder/ui/wds/WDSPasswordInp
 import { WDSNumberInputWidget } from "modules/ui-builder/ui/wds/WDSNumberInputWidget";
 import { WDSMultilineInputWidget } from "modules/ui-builder/ui/wds/WDSMultilineInputWidget";
 import { WDSSelectWidget } from "modules/ui-builder/ui/wds/WDSSelectWidget";
+import { EEWDSWidgets } from "ee/modules/ui-builder/ui/wds";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -156,7 +157,6 @@ const DeprecatedWidgets = [
 ];
 
 const WDSWidgets = [
-  // WDS Widgets
   WDSButtonWidget,
   WDSInputWidget,
   WDSCheckboxWidget,
@@ -191,6 +191,7 @@ const Widgets = [
   ...WDSWidgets,
   ...DeprecatedWidgets,
   ...LegacyWidgets,
+  ...EEWDSWidgets,
 ] as (typeof BaseWidget)[];
 
 export default Widgets;

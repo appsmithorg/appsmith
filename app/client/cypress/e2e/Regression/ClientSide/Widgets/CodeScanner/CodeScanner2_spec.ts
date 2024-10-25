@@ -14,7 +14,7 @@ import EditorNavigation, {
 
 describe(
   "Code scanner widget tests",
-  { tags: ["@tag.Widget", "@tag.Scanner"] },
+  { tags: ["@tag.Widget", "@tag.Scanner", "@tag.Binding"] },
   () => {
     before(() => {
       //Reset video source to default

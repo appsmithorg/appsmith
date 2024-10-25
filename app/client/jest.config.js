@@ -1,11 +1,15 @@
 function parseConfig() {
   return "";
 }
+
 const LOG_LEVELS = ["debug", "error"];
 const CONFIG_LOG_LEVEL_INDEX = 1;
 
 module.exports = {
-  setupFiles: ["jest-canvas-mock"],
+  setupFiles: [
+    "jest-canvas-mock",
+    "<rootDir>/test/__mocks__/reactMarkdown.tsx",
+  ],
   roots: ["<rootDir>/src"],
   transform: {
     "^.+\\.(png|js|ts|tsx)$": "ts-jest",
@@ -17,7 +21,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    "<rootDir>/node_modules/(?!codemirror|konva|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never|axios)",
+    "<rootDir>/node_modules/(?!codemirror|konva|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never|axios|usehooks-ts)",
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
@@ -98,7 +102,10 @@ module.exports = {
       fusioncharts: {
         licenseKey: parseConfig("__APPSMITH_FUSIONCHARTS_LICENSE_KEY__"),
       },
-      enableMixpanel: parseConfig("__APPSMITH_SEGMENT_KEY__"),
+      mixpanel: {
+        enabled: parseConfig("__APPSMITH_SEGMENT_KEY__"),
+        apiKey: parseConfig("__APPSMITH_MIXPANEL_KEY__"),
+      },
       algolia: {
         apiId: parseConfig("__APPSMITH_ALGOLIA_API_ID__"),
         apiKey: parseConfig("__APPSMITH_ALGOLIA_API_KEY__"),

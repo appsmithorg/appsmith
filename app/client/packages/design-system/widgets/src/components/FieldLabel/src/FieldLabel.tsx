@@ -1,36 +1,37 @@
 import clsx from "clsx";
 import React from "react";
-import { Text, ContextualHelp } from "@appsmith/wds";
-import { Label as HeadlessLabel } from "react-aria-components";
+import { ContextualHelp, Text } from "@appsmith/wds";
+import { Label as HeadlessLabel, Group } from "react-aria-components";
+
 import styles from "./styles.module.css";
 import type { LabelProps } from "./types";
 
-export const FieldLabel = (props: LabelProps) => {
-  const { className, contextualHelp, isDisabled, isRequired, text, ...rest } =
-    props;
+export function FieldLabel(props: LabelProps) {
+  const { children, contextualHelp, isDisabled, isRequired, ...rest } = props;
 
-  if (!Boolean(text) && !Boolean(contextualHelp)) return null;
+  if (!Boolean(children) && !Boolean(contextualHelp)) return null;
 
   return (
-    <HeadlessLabel
-      aria-label={text}
-      className={clsx(className, styles.label)}
-      data-disabled={isDisabled}
-      data-field-label-wrapper
-      elementType="label"
-      {...rest}
+    <Group
+      className={styles.labelGroup}
+      data-field-label-wrapper=""
+      isDisabled={isDisabled}
     >
-      <Text fontWeight={600} lineClamp={1} size="caption">
-        {text}
+      <HeadlessLabel
+        {...rest}
+        className={clsx(styles.label)}
+        elementType="label"
+      >
+        <Text fontWeight={600} size="caption">
+          {children}
+        </Text>
         {Boolean(isRequired) && (
           <span aria-label="(required)" className={styles.necessityIndicator}>
             *
           </span>
         )}
-      </Text>
-      {Boolean(contextualHelp) && (
-        <ContextualHelp contextualHelp={contextualHelp} />
-      )}
-    </HeadlessLabel>
+      </HeadlessLabel>
+      <ContextualHelp contextualHelp={contextualHelp} />
+    </Group>
   );
-};
+}

@@ -1,11 +1,11 @@
 import React, { useCallback } from "react";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "./constants";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { useDispatch, useSelector } from "react-redux";
-import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
-import { setApiPaneDebuggerState } from "actions/apiPaneActions";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { setPluginActionEditorDebuggerState } from "../../store";
+import { getPluginActionDebuggerState } from "../../store";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { usePluginActionResponseTabs } from "./hooks";
 
@@ -16,11 +16,11 @@ function PluginActionResponse() {
 
   // TODO combine API and Query Debugger state
   const { open, responseTabHeight, selectedTab } = useSelector(
-    getApiPaneDebuggerState,
+    getPluginActionDebuggerState,
   );
 
   const toggleHide = useCallback(
-    () => dispatch(setApiPaneDebuggerState({ open: !open })),
+    () => dispatch(setPluginActionEditorDebuggerState({ open: !open })),
     [dispatch, open],
   );
 
@@ -32,14 +32,18 @@ function PluginActionResponse() {
         });
       }
 
-      dispatch(setApiPaneDebuggerState({ open: true, selectedTab: tabKey }));
+      dispatch(
+        setPluginActionEditorDebuggerState({ open: true, selectedTab: tabKey }),
+      );
     },
     [dispatch],
   );
 
   const updateResponsePaneHeight = useCallback(
     (height: number) => {
-      dispatch(setApiPaneDebuggerState({ responseTabHeight: height }));
+      dispatch(
+        setPluginActionEditorDebuggerState({ responseTabHeight: height }),
+      );
     },
     [dispatch],
   );
@@ -57,7 +61,7 @@ function PluginActionResponse() {
         expandedHeight={`${ActionExecutionResizerHeight}px`}
         isCollapsed={!open}
         onSelect={updateSelectedResponseTab}
-        selectedTabKey={selectedTab || tabs[0].key}
+        selectedTabKey={selectedTab || tabs[0]?.key}
         tabs={tabs}
       />
     </IDEBottomView>

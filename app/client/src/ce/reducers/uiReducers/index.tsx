@@ -3,7 +3,6 @@ import errorReducer from "reducers/uiReducers/errorReducer";
 import propertyPaneReducer from "reducers/uiReducers/propertyPaneReducer";
 import appViewReducer from "reducers/uiReducers/appViewReducer";
 import applicationsReducer from "ee/reducers/uiReducers/applicationsReducer";
-import apiPaneReducer from "ee/reducers/uiReducers/apiPaneReducer";
 import datasourcePaneReducer from "reducers/uiReducers/datasourcePaneReducer";
 import authReducer from "reducers/uiReducers/authReducer";
 import workspaceReducer from "ee/reducers/uiReducers/workspaceReducer";
@@ -12,7 +11,6 @@ import buildingBlockReducer from "reducers/uiReducers/buildingBlockReducer";
 import usersReducer from "reducers/uiReducers/usersReducer";
 import { widgetDraggingReducer } from "reducers/uiReducers/dragResizeReducer";
 import importReducer from "reducers/uiReducers/importReducer";
-import queryPaneReducer from "ee/reducers/uiReducers/queryPaneReducer";
 import helpReducer from "reducers/uiReducers/helpReducer";
 import apiNameReducer from "ee/reducers/uiReducers/apiNameReducer";
 import explorerReducer from "ee/reducers/uiReducers/explorerReducer";
@@ -48,8 +46,9 @@ import layoutConversionReducer from "reducers/uiReducers/layoutConversionReducer
 import oneClickBindingReducer from "reducers/uiReducers/oneClickBindingReducer";
 import activeFieldReducer from "reducers/uiReducers/activeFieldEditorReducer";
 import selectedWorkspaceReducer from "ee/reducers/uiReducers/selectedWorkspaceReducer";
-import ideReducer from "../../../reducers/uiReducers/ideReducer";
+import ideReducer from "reducers/uiReducers/ideReducer";
 import consolidatedPageLoadReducer from "reducers/uiReducers/consolidatedPageLoadReducer";
+import { pluginActionReducer } from "PluginActionEditor/store";
 
 export const uiReducerObject = {
   analytics: analyticsReducer,
@@ -59,7 +58,6 @@ export const uiReducerObject = {
   tableFilterPane: tableFilterPaneReducer,
   appView: appViewReducer,
   applications: applicationsReducer,
-  apiPane: apiPaneReducer,
   auth: authReducer,
   templates: templateReducer,
   buildingBlocks: buildingBlockReducer,
@@ -68,7 +66,6 @@ export const uiReducerObject = {
   users: usersReducer,
   widgetDragResize: widgetDraggingReducer,
   imports: importReducer,
-  queryPane: queryPaneReducer,
   datasourcePane: datasourcePaneReducer,
   datasourceName: datasourceNameReducer,
   help: helpReducer,
@@ -104,4 +101,5 @@ export const uiReducerObject = {
   activeField: activeFieldReducer,
   ide: ideReducer,
   consolidatedPageLoad: consolidatedPageLoadReducer,
+  pluginActionEditor: pluginActionReducer,
 };

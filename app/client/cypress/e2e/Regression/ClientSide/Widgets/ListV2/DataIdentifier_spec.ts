@@ -15,26 +15,26 @@ const data = [
   {
     id: "001",
     name: "Blue",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
     same: "1",
   },
   {
     id: "002",
     name: "Green",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
     same: "01",
   },
   {
     id: "003",
     name: "Red",
-    img: "https://assets.appsmith.com/widgets/default.png",
+    img: "http://host.docker.internal:4200/clouddefaultImage.png",
     same: 1,
   },
 ];
 
 describe(
   "List v2 - Data Identifier property",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("Listv2/ListV2WithNullPrimaryKey");

@@ -12,7 +12,7 @@ function checkSelectedRadioValue(selector, value) {
 
 describe(
   "RadioGroup widget testing",
-  { tags: ["@tag.Widget", "@tag.Radio"] },
+  { tags: ["@tag.Widget", "@tag.Radio", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("radioGroup_int_value_dsl");

@@ -14,7 +14,7 @@ import EditorNavigation, {
 
 describe(
   "Validate MySQL query UI flows - Bug 14054",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     let dsName: any;
 

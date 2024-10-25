@@ -16,12 +16,13 @@ import EditorNavigation, {
 
 describe(
   "Verify various Table_Filter combinations",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     it("1. Adding Data to Table Widget", function () {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
       //propPane.EnterJSContext("Table data", JSON.stringify(this.dataSet.TableInput));
       // turn on filtering for the table - it is disabled by default in this PR(#34593)
+      propPane.ExpandIfCollapsedSection("search\\&filters");
       agHelper.GetNClick(".t--property-control-allowfiltering input");
       table.AddSampleTableData();
       //propPane.EnterJSContext("Table Data", JSON.stringify(this.dataSet.TableInput));
@@ -174,13 +175,17 @@ describe(
         expect(afterSearch).to.eq("Software Engineer");
       });
       table.RemoveSearchTextNVerify("1", "v2");
+    });
 
-      // Search for a value in the table
-      table.SearchTable("20");
-      table.ReadTableRowColumnData(0, 2, "v2").then((afterSearch) => {
-        expect(afterSearch).to.eq("Product Manager");
+    it("12. Verify table filter for select column type", function () {
+      featureFlagIntercept({ release_table_cell_label_value_enabled: true });
+      table.OpenNFilterTable("role", "is exactly", "Product Manager");
+      table.ReadTableRowColumnData(0, 2, "v2").then(($cellData) => {
+        expect($cellData).to.eq("Product Manager");
       });
-      table.RemoveSearchTextNVerify("1", "v2");
+      table.ReadTableRowColumnData(1, 2, "v2").then(($cellData) => {
+        expect($cellData).to.eq("Product Manager");
+      });
     });
   },
 );

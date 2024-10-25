@@ -4,7 +4,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Table Widget V2 row multi select validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableV2NewDsl");
@@ -12,6 +12,7 @@ describe(
 
     it("1. Test multi select column shows when enable Multirowselection is true", function () {
       cy.openPropertyPane("tablewidgetv2");
+      _.propPane.ExpandIfCollapsedSection("rowselection");
       cy.get(widgetsPage.toggleEnableMultirowselection)
         .first()
         .click({ force: true });

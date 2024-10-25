@@ -10,7 +10,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
   "Table Widget V2 property pane feature validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2NewDslWithPagination");
@@ -62,6 +62,7 @@ describe(
       cy.moveToContentTab();
       // Chage deat search text value to "data"
       cy.backFromPropertyPanel();
+      propPane.ExpandIfCollapsedSection("search\\&filters");
       cy.testJsontext("defaultsearchtext", "data");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       table.WaitForTableEmpty("v2");

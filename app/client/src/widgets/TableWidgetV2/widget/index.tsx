@@ -138,7 +138,6 @@ import {
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { klonaRegularWithTelemetry } from "utils/helpers";
 
 const ReactTableComponent = lazy(async () =>
@@ -227,6 +226,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       )
         ? false
         : undefined,
+      customIsLoading: false,
+      customIsLoadingValue: "",
     };
   }
 
@@ -275,12 +276,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isVisibleDownload: false,
           });
 
-          if (
-            !!TableWidgetV2.getFeatureFlag(
-              FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
-            )
-          )
-            dynamicPropertyPathList.push({ key: "tableData" });
+          dynamicPropertyPathList.push({ key: "tableData" });
         }
 
         if (queryConfig.create) {
@@ -1217,6 +1213,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getWidgetView() {
     const {
+      customIsLoading,
+      customIsLoadingValue,
       delimiter,
       filteredTableData = [],
       isVisibleDownload,
@@ -1272,7 +1270,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
           isEditableCellsValid={this.props.isEditableCellsValid}
-          isLoading={this.props.isLoading}
+          isLoading={
+            customIsLoading
+              ? customIsLoadingValue || this.props.isLoading
+              : this.props.isLoading
+          }
           isSortable={this.props.isSortable ?? true}
           isVisibleDownload={isVisibleDownload}
           isVisibleFilters={isVisibleFilters}

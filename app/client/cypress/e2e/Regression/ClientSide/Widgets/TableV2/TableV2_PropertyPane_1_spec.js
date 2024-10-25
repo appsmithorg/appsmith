@@ -17,7 +17,7 @@ const emptyTableColumnNameData = require("../../../../../fixtures/TableWidgetDat
 
 describe(
   "Table Widget V2 property pane feature validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableV2NewDslWithPagination");
@@ -195,8 +195,7 @@ describe(
       });
 
       // Changing Column data type from "Date" to "Image"
-      const imageVal =
-        "https://images.pexels.com/photos/736230/pexels-photo-736230.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500";
+      const imageVal = "http://host.docker.internal:4200/453-200x300.jpg";
 
       cy.changeColumnType("Image");
       // "Moement "date" to "Image"

@@ -14,6 +14,7 @@ export function getUserSource() {
 
   return source;
 }
+
 declare global {
   interface Window {
     // Zipy is added via script tags in index.html
@@ -70,6 +71,7 @@ class AnalyticsUtil {
   static blockTrackEvent: boolean | undefined;
   static instanceId?: string = "";
   static blockErrorLogs = false;
+
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
   }
@@ -364,6 +366,7 @@ class AnalyticsUtil {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).analytics = undefined;
   }
+
   static setBlockErrorLogs(value: boolean) {
     AnalyticsUtil.blockErrorLogs = value;
   }

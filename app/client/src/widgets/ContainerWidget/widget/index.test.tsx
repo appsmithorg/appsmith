@@ -13,7 +13,7 @@ import {
 import { sagasToRunForTests } from "test/sagas";
 import { MockApplication } from "test/testCommon";
 import { UpdateAppViewer, UpdatedEditor } from "test/testMockedWidgets";
-import { render } from "test/testUtils";
+import { render, waitFor } from "test/testUtils";
 import { generateReactKey } from "widgets/WidgetUtils";
 
 const pageId = "0123456789abcdef00000000";
@@ -110,6 +110,8 @@ describe("ContainerWidget tests", () => {
       </MemoryRouter>,
       { initialState: appState, sagasToRun: sagasToRunForTests },
     );
-    expect(spyUseCanvasDragging).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(spyUseCanvasDragging).toHaveBeenCalled();
+    });
   });
 });

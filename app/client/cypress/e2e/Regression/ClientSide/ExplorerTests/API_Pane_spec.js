@@ -17,7 +17,7 @@ let ee = ObjectsRegistry.EntityExplorer,
 
 describe(
   "Entity explorer API pane related testcases",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     it("1. Empty Message validation for Widgets/API/Queries", function () {
       homePage.CreateNewWorkspace("EmptyMsgCheck", true);

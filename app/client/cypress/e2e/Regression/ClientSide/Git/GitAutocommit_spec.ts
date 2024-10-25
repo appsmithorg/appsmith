@@ -1,5 +1,4 @@
 import ReconnectLocators from "../../../../locators/ReconnectLocators";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   gitSync,
@@ -7,7 +6,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 
 let wsName: string;
-let repoName: string = "TED-testrepo1";
+let repoName: string = "TED-autocommit-test-1";
 
 describe(
   "Git Autocommit",
@@ -15,8 +14,15 @@ describe(
     tags: [
       "@tag.Git",
       "@tag.GitAutocommit",
-      "@tag.excludeForAirgap",
       "@tag.Sanity",
+      "@tag.TedMigration",
+      "@tag.AccessControl",
+      "@tag.Workflows",
+      "@tag.Module",
+      "@tag.Theme",
+      "@tag.JS",
+      "@tag.Container",
+      "@tag.ImportExport",
     ],
   },
   function () {

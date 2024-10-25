@@ -1,19 +1,13 @@
 import React, { memo } from "react";
-import { useSelector } from "react-redux";
 
-import { useParams } from "react-router-dom";
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { removeSpecialChars } from "utils/helpers";
-import type { AppState } from "ee/reducers";
 
-import { saveActionName } from "actions/pluginActionActions";
 import { Flex } from "@appsmith/ads";
-import { getActionByBaseId, getPlugin } from "ee/selectors/entitiesSelector";
 import NameEditorComponent, {
   IconBox,
-  IconWrapper,
   NameWrapper,
 } from "components/utils/NameEditorComponent";
 import {
@@ -21,14 +15,11 @@ import {
   ACTION_NAME_PLACEHOLDER,
   createMessage,
 } from "ee/constants/messages";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { getSavingStatusForActionName } from "selectors/actionSelectors";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import type { SaveActionNameParams } from "PluginActionEditor";
+import type { Action } from "entities/Action";
+import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
 
-interface SaveActionNameParams {
-  id: string;
-  name: string;
-}
 interface ActionNameEditorProps {
   /*
     This prop checks if page is API Pane or Query Pane or Curl Pane
@@ -38,38 +29,30 @@ interface ActionNameEditorProps {
   */
   enableFontStyling?: boolean;
   disabled?: boolean;
-  saveActionName?: (
+  saveActionName: (
     params: SaveActionNameParams,
   ) => ReduxAction<SaveActionNameParams>;
+  actionConfig?: Action | ModuleInstance;
+  icon?: JSX.Element;
+  saveStatus: { isSaving: boolean; error: boolean };
 }
 
 function ActionNameEditor(props: ActionNameEditorProps) {
-  const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
-
-  const currentActionConfig = useSelector((state: AppState) =>
-    getActionByBaseId(state, params.baseApiId || params.baseQueryId || ""),
-  );
-
-  const currentPlugin = useSelector((state: AppState) =>
-    getPlugin(state, currentActionConfig?.pluginId || ""),
-  );
-
-  const saveStatus = useSelector((state) =>
-    getSavingStatusForActionName(state, currentActionConfig?.id || ""),
-  );
+  const {
+    actionConfig,
+    disabled = false,
+    enableFontStyling = false,
+    icon = "",
+    saveActionName,
+    saveStatus,
+  } = props;
 
   return (
     <NameEditorComponent
-      /**
-       * This component is used by module editor in EE which uses a different
-       * action to save the name of an action. The current callers of this component
-       * pass the existing saveAction action but as fallback the saveActionName is used here
-       * as a guard.
-       */
-      dispatchAction={props.saveActionName || saveActionName}
-      id={currentActionConfig?.id}
+      id={actionConfig?.id}
       idUndefinedErrorMessage={ACTION_ID_NOT_FOUND_IN_URL}
-      name={currentActionConfig?.name}
+      name={actionConfig?.name}
+      onSaveName={saveActionName}
       saveStatus={saveStatus}
     >
       {({
@@ -85,28 +68,22 @@ function ActionNameEditor(props: ActionNameEditorProps) {
         isNew: boolean;
         saveStatus: { isSaving: boolean; error: boolean };
       }) => (
-        <NameWrapper enableFontStyling={props.enableFontStyling}>
+        <NameWrapper enableFontStyling={enableFontStyling}>
           <Flex
             alignItems="center"
             gap="spaces-3"
             overflow="hidden"
             width="100%"
           >
-            {currentPlugin && (
-              <IconBox>
-                <IconWrapper
-                  alt={currentPlugin.name}
-                  src={getAssetUrl(currentPlugin?.iconLocation)}
-                />
-              </IconBox>
-            )}
+            {icon && <IconBox className="t--plugin-icon-box">{icon}</IconBox>}
             <EditableText
               className="t--action-name-edit-field"
-              defaultValue={currentActionConfig ? currentActionConfig.name : ""}
-              disabled={props.disabled}
+              defaultValue={actionConfig ? actionConfig.name : ""}
+              disabled={disabled}
               editInteractionKind={EditInteractionKind.SINGLE}
               errorTooltipClass="t--action-name-edit-error"
               forceDefault={forceUpdate}
+              iconSize={"md"}
               isEditingDefault={isNew}
               isInvalid={isInvalidNameForEntity}
               onTextChanged={handleNameChange}

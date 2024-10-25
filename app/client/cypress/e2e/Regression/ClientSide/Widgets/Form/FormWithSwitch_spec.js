@@ -8,7 +8,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Switch Widget within Form widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Form"] },
+  { tags: ["@tag.Widget", "@tag.Form", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formSwitchDsl");

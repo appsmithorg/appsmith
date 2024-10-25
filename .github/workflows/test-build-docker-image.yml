@@ -356,8 +356,12 @@ jobs:
 
       - name: Place server artifacts-es
         run: |
+          run: |
           if [[ -f scripts/prepare_server_artifacts.sh ]]; then
             scripts/prepare_server_artifacts.sh
+          else
+            echo "No script found to prepare server artifacts"
+            exit 1
           fi
 
       - name: Set up Depot CLI
@@ -439,6 +443,9 @@ jobs:
         run: |
           if [[ -f scripts/prepare_server_artifacts.sh ]]; then
             scripts/prepare_server_artifacts.sh
+          else
+            echo "No script found to prepare server artifacts"
+            exit 1
           fi
 
       - name: Set up Depot CLI
@@ -487,6 +494,35 @@ jobs:
             '$ARGS.named'
           )"
 
+          curl -v https://slack.com/api/chat.postMessage \
+            --fail-with-body \
+            --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \
+            --header 'Content-Type: application/json; charset=utf-8' \
+            --data-raw "$body"
+
+
+  notify-slack-for-pg:
+    needs: ci-test-result
+    runs-on: ubuntu-latest
+
+    if: ( failure() && github.ref == 'refs/heads/pg' )
+
+    steps:
+      - name: Notify failure on workflow run and on Slack
+        run: |
+          set -o errexit
+          set -o nounset
+          set -o xtrace
+
+          run_url='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}'
+          slack_message="🚨 TBP workflow failed in <$run_url|${{ vars.EDITION }} attempt ${{ github.run_attempt }} (run ${{ github.run_id }})>."
+
+          # This is the ChannelId of the proj-postgres-sync channel.
+          body="$(jq -nc \
+            --arg channel C07JMLWEXDJ \
+            --arg text "$slack_message" \
+            '$ARGS.named'
+          )"
           curl -v https://slack.com/api/chat.postMessage \
             --fail-with-body \
             --header 'Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}' \

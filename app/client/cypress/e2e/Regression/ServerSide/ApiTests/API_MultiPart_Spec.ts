@@ -17,7 +17,7 @@ import EditorNavigation, {
 
 describe(
   "Validate API request body panel",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();
@@ -179,7 +179,7 @@ describe(
         .invoke("attr", "src")
         .then(($src) => {
           expect($src).not.eq(
-            "https://assets.appsmith.com/widgets/default.png",
+            "http://host.docker.internal:4200/clouddefaultImage.png",
           );
         });
       agHelper.AssertElementVisibility(locators._buttonByText("Select Files")); //verifying if reset!

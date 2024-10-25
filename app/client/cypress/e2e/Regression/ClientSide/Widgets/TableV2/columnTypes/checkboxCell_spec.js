@@ -30,11 +30,12 @@ const tableData = `[
 const checkboxSelector = " .bp3-checkbox input[type='checkbox']";
 describe(
   "Checkbox column type funtionality test",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
       // turn on filtering for the table - it is disabled by default in this PR(#34593)
+      _.propPane.ExpandIfCollapsedSection("search\\&filters");
       _.agHelper.GetNClick(".t--property-control-allowfiltering input");
       _.propPane.EnterJSContext("Table data", tableData);
       cy.editColumn("completed");

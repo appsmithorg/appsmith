@@ -19,7 +19,7 @@ import {
 
 describe(
   "Table Widget V2 Filtered Table data in autocomplete",
-  { tags: ["@tag.Widget", "@tag.Table", "@tag.Sanity"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Sanity", "@tag.Binding"] },
   function () {
     before("Table Widget V2 Functionality", () => {
       agHelper.AddDsl("tableV2AndTextDsl");
