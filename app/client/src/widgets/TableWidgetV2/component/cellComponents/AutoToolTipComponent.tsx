@@ -36,10 +36,15 @@ const MAX_WIDTH = 500;
 const TOOLTIP_OPEN_DELAY = 500;
 const MAX_CHARS_ALLOWED_IN_TOOLTIP = 200;
 
-function isButtonTextTruncated(element: HTMLElement) {
+export function isButtonTextTruncated(element: HTMLElement): boolean {
   const spanElement = element.querySelector("span");
-  const offsetWidth = spanElement?.offsetWidth ?? 0;
-  const scrollWidth = spanElement?.scrollWidth ?? 0;
+
+  if (!spanElement) {
+    return false;
+  }
+
+  const offsetWidth = spanElement.offsetWidth;
+  const scrollWidth = spanElement.scrollWidth;
 
   return scrollWidth > offsetWidth;
 }
@@ -179,16 +184,19 @@ function LinkWrapper(props: Props) {
   );
 }
 
-function AutoToolTipComponent(props: Props) {
-  const content = useToolTip(props.children, props.title);
-  const buttonContent = useToolTip(props.children, props.title, true);
+export function AutoToolTipComponent(props: Props) {
+  const content = useToolTip(
+    props.children,
+    props.title,
+    props.columnType === ColumnTypes.BUTTON,
+  );
 
   if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;
   }
 
   if (props.columnType === ColumnTypes.BUTTON && props.title) {
-    return buttonContent;
+    return content;
   }
 
   return (
