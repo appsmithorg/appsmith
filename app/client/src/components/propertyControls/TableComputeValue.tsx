@@ -175,22 +175,49 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
   };
 
   getComputedValue = (value: string, tableName: string) => {
-    if (
-      !isDynamicValue(value) &&
-      !this.props.additionalControlData?.isArrayValue
-    ) {
+    // Return the value if it's not dynamic and not an array
+    if (this.shouldReturnValueDirectly(value)) {
       return value;
     }
 
+    // Convert string to JavaScript expression
     const stringToEvaluate = stringToJS(value);
 
+    // Return empty if the evaluated string is empty
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
 
+    // Handle specific cases with "currentIndex" or "currentRow"
+    if (this.containsTableSpecificBindings(stringToEvaluate)) {
+      return this.buildTableSpecificBinding(stringToEvaluate, tableName);
+    }
+
+    // Wrap the evaluated string in double curly braces for binding
+    return this.wrapInDoubleCurlyBraces(stringToEvaluate);
+  };
+
+  shouldReturnValueDirectly = (value: string) => {
+    return (
+      !isDynamicValue(value) && !this.props.additionalControlData?.isArrayValue
+    );
+  };
+
+  containsTableSpecificBindings = (stringToEvaluate: string) => {
+    return (
+      stringToEvaluate.includes("currentIndex") ||
+      stringToEvaluate.includes("currentRow")
+    );
+  };
+
+  buildTableSpecificBinding = (stringToEvaluate: string, tableName: string) => {
     return `${ComputeTablePropertyControlV2.getBindingPrefix(
       tableName,
     )}${stringToEvaluate}${ComputeTablePropertyControlV2.bindingSuffix}`;
+  };
+
+  wrapInDoubleCurlyBraces = (stringToEvaluate: string) => {
+    return `{{${stringToEvaluate}}}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
