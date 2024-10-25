@@ -72,6 +72,10 @@ const QueryEditorHeader = (props: Props) => {
     currentActionConfig?.userPermissions,
   );
 
+  const isDatasourceSelectorEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_ide_datasource_selector_enabled,
+  );
+
   const currentPlugin = useSelector((state: AppState) =>
     getPlugin(state, currentActionConfig?.pluginId || ""),
   );
@@ -97,13 +101,15 @@ const QueryEditorHeader = (props: Props) => {
       </NameWrapper>
       <ActionsWrapper>
         {moreActionsMenu}
-        <DatasourceSelector
-          currentActionConfig={currentActionConfig}
-          dataSources={dataSources}
-          formName={formName}
-          onCreateDatasourceClick={onCreateDatasourceClick}
-          plugin={plugin}
-        />
+        {isDatasourceSelectorEnabled && (
+          <DatasourceSelector
+            currentActionConfig={currentActionConfig}
+            dataSources={dataSources}
+            formName={formName}
+            onCreateDatasourceClick={onCreateDatasourceClick}
+            plugin={plugin}
+          />
+        )}
         <Button
           className="t--run-query"
           data-guided-tour-iid="run-query"
