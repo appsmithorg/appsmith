@@ -21,7 +21,7 @@ export const Copy = ({ disabled }: Props) => {
       dispatch(
         copyActionRequest({
           id: action.id,
-          destinationPageId: pageId,
+          destinationEntityId: pageId,
           name: action.name,
         }),
       ),
