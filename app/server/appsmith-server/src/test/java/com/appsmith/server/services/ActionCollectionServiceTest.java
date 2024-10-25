@@ -48,6 +48,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
@@ -135,7 +136,7 @@ public class ActionCollectionServiceTest {
     @MockBean
     PluginExecutor pluginExecutor;
 
-    @MockBean
+    @SpyBean
     UpdateLayoutService updateLayoutService;
 
     Application testApp = null;
@@ -742,11 +743,6 @@ public class ActionCollectionServiceTest {
         action3.getActionConfiguration().setIsValid(false);
 
         actionCollectionDTO.setActions(List.of(action1, action2, action3));
-
-        Mockito.when(updateLayoutService.updatePageLayoutsByPageId(Mockito.anyString()))
-                .thenAnswer(invocationOnMock -> {
-                    return Mono.just(testPage.getId());
-                });
 
         ActionCollectionDTO createdActionCollectionDTO =
                 layoutCollectionService.createCollection(actionCollectionDTO).block();
