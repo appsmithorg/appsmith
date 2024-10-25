@@ -24,7 +24,7 @@ public class FlywayRepairConfig {
                         dataSourceProperties.getUrl(),
                         dataSourceProperties.getUsername(),
                         dataSourceProperties.getPassword())
-                .locations("classpath:db/migration") // Adjust path if needed
+                .locations("classpath:com/appsmith/server/migrations")
                 .baselineOnMigrate(true)
                 .baselineVersion("0")
                 .load();
