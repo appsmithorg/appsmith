@@ -14,6 +14,7 @@ import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
+import com.appsmith.server.dtos.WorkspaceTokenDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -30,10 +31,13 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
@@ -41,7 +45,13 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -80,6 +90,12 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
     private final WorkspaceServiceHelper workspaceServiceHelper;
+
+    @Value("${appsmith.integration.provider.signing.key}")
+    private String integrationProviderSigningKey;
+
+    @Value("${appsmith.integration.provider.project.id}")
+    private String integrationProviderProjectId;
 
     @Autowired
     public WorkspaceServiceCEImpl(
@@ -622,5 +638,44 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Override
     public Flux<Workspace> getAll(AclPermission permission) {
         return repository.findAll(permission);
+    }
+
+    private PrivateKey getPrivateKey() throws Exception {
+        // Decode the Base64-encoded private key
+        byte[] keyBytes = Base64.getDecoder().decode(integrationProviderSigningKey);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+
+        // Generate an RSA private key from the key specification
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(keySpec);
+    }
+
+    private String generateWorkspaceJWT(String workspaceId) throws Exception {
+        // Get the RSA private key
+        PrivateKey privateKey = getPrivateKey();
+
+        // Define the current time and expiration for the token
+        final Instant now = Instant.now();
+
+        // Build and sign the token with RS256 algorithm
+        final String token = Jwts.builder()
+                .setIssuer("Appsmith") // Token issuer
+                .setSubject(workspaceId) // Subject is the workspaceId
+                .setIssuedAt(new Date(now.toEpochMilli())) // Set issued at time
+                .setExpiration(new Date(now.plusSeconds(600).toEpochMilli())) // Token expiration (10 minutes later)
+                .signWith(privateKey, SignatureAlgorithm.RS256) // Sign with RSA private key
+                .compact(); // Build the token
+
+        return token;
+    }
+
+    @Override
+    public Mono<WorkspaceTokenDTO> generateWorkspaceToken(String workspaceId) throws Exception {
+        String jwtToken = generateWorkspaceJWT(workspaceId);
+        WorkspaceTokenDTO workspaceTokenDTO = new WorkspaceTokenDTO();
+        workspaceTokenDTO.setToken(jwtToken);
+        workspaceTokenDTO.setWorkspaceId(workspaceId);
+        workspaceTokenDTO.setProjectId(integrationProviderProjectId);
+        return Mono.just(workspaceTokenDTO);
     }
 }
