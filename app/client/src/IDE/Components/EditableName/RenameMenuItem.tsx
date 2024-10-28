@@ -12,10 +12,11 @@ export const RenameMenuItem = ({ disabled, entityId }: Props) => {
   const dispatch = useDispatch();
 
   const setRename = useCallback(() => {
+    // We add a delay to avoid having the focus stuck in the menu trigger
     setTimeout(() => {
       dispatch(setRenameEntity(entityId));
     }, 100);
-  }, [entityId]);
+  }, [dispatch, entityId]);
 
   return (
     <MenuItem
