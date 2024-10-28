@@ -166,7 +166,7 @@ export interface PropertyPaneControlConfig {
    * @param props - Current widget properties
    * @returns - Array of property updates
    *
-   * @example Used in tabs widget
+   * @example Used in tabs widget to update the label of the tab.
    */
   updateRelatedWidgetProperties?: (
     propertyName: string,
