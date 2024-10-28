@@ -57,7 +57,7 @@ public class ThemesConfig implements ApplicationListener<ApplicationReadyEvent> 
         try {
             themes = mapper.readValue(themesJson, Theme[].class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to parse system themes configuration: " + e.getMessage(), e);
         }
 
         Config publicPermissionGroupConfig =
