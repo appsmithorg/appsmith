@@ -1,7 +1,11 @@
 import type { AxiosProgressEvent, AxiosPromise } from "axios";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
-import type { WorkspaceRole, Workspace } from "ee/constants/workspaceConstants";
+import type {
+  WorkspaceRole,
+  Workspace,
+  WorkspaceToken,
+} from "ee/constants/workspaceConstants";
 
 export interface FetchWorkspacesResponse extends ApiResponse {
   data: Workspace[];
@@ -16,6 +20,10 @@ export interface FetchAllUsersResponse extends ApiResponse {
 
 export interface FetchAllRolesResponse extends ApiResponse {
   data: Workspace[];
+}
+
+export interface FetchWorkspaceTokenResponse extends ApiResponse {
+  data: WorkspaceToken;
 }
 
 export interface FetchWorkspaceRequest {
@@ -146,6 +154,13 @@ class WorkspaceApi extends Api {
     workspaceId: string,
   ): Promise<AxiosPromise<ApiResponse>> {
     return Api.delete(`${WorkspaceApi.workspacesURL}/${workspaceId}`);
+  }
+  static async fetchWorkspaceToken(
+    request: FetchWorkspaceRequest,
+  ): Promise<AxiosPromise<FetchWorkspaceTokenResponse>> {
+    return Api.get(
+      WorkspaceApi.workspacesURL + "/" + request.workspaceId + "/token",
+    );
   }
 }
 export default WorkspaceApi;

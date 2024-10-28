@@ -10,12 +10,13 @@ import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/perm
 import {
   getDatasources,
   getMockDatasources,
+  getPlugins,
 } from "ee/selectors/entitiesSelector";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { Text } from "@appsmith/ads";
@@ -43,6 +44,11 @@ import { isPluginActionCreating } from "PluginActionEditor/store";
 import { paragon } from "@useparagon/connect";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useParagonIntegrations } from "utils/paragonHooks";
+import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
+import { DATASOURCE_NAME_DEFAULT_PREFIX } from "constants/Datasource";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { PluginPackageName } from "entities/Action";
+import type { Plugin } from "api/PluginApi";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -179,12 +185,47 @@ function CreateNewDatasource({
 
 function ParagonIntegrations() {
   const { integrations } = useParagonIntegrations();
+  const dispatch = useDispatch();
+  const dsList: Datasource[] = useSelector(getDatasources);
+  const plugins: Plugin[] = useSelector(getPlugins);
+  const apiPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.REST_API,
+  );
+  const sequence = getUntitledDatasourceSequence(dsList);
   const handleOnClick = (type: string) => {
     paragon.installIntegration(type, {
       allowMultipleCredentials: true,
       accountType: "default",
       onSuccess: (event, user) => {
-        console.log(event, user);
+        console.log(event);
+        const name = DATASOURCE_NAME_DEFAULT_PREFIX + sequence;
+        dispatch({
+          type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
+          payload: {
+            type: "REMOTE",
+            pluginId: apiPlugin!.id,
+            datasourceStorages: {
+              unused_env: {
+                environmentId: "unused_env",
+                isValid: false,
+                datasourceConfiguration: {
+                  url: "https://proxy.useparagon.com",
+                  properties: Object.keys(event).reduce((acc, key) => {
+                    // @ts-expect-error
+                    acc.push({
+                      key: key as string,
+                      // @ts-expect-error
+                      value: event[key] as any,
+                    });
+                    return acc;
+                  }, []),
+                },
+                toastMessage: "EMPTY_TOAST_MESSAGE",
+              },
+            },
+            name,
+          },
+        });
       },
       onError: (err) => {
         console.log(err);

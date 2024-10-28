@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 
 import {
+  getDatasource,
   getIsActionConverting,
   getPageList,
   getPluginSettingConfigs,
@@ -39,6 +40,8 @@ import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { AppPluginActionEditor } from "pages/Editor/AppPluginActionEditor";
+import { getCurrentEnvironmentId } from "ce/selectors/environmentSelectors";
+import QueryEditor from "pages/Editor/QueryEditor";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
@@ -60,6 +63,23 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const apiName = action?.name || "";
   const pluginId = get(action, "pluginId", "");
   const datasourceId = action?.datasource.id || "";
+  if (datasourceId) {
+    const currentEnvironment = useSelector(getCurrentEnvironmentId);
+    const datasource = useSelector((state) =>
+      getDatasource(state, datasourceId),
+    );
+    const datasourceConfigurationProps =
+      datasource?.datasourceStorages?.[currentEnvironment]
+        ?.datasourceConfiguration?.properties;
+    if (
+      datasourceConfigurationProps &&
+      datasourceConfigurationProps.some(
+        ({ key }) => key === "integrationId" || key === "integrationType",
+      )
+    ) {
+      return <QueryEditor {...props} />;
+    }
+  }
   const plugins = useSelector(getPlugins);
   const pages = useSelector(getPageList);
   const pageName = getPageName(pages, basePageId);

@@ -19,7 +19,7 @@ import type { AppState } from "ee/reducers";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
-import type { UIComponentTypes } from "api/PluginApi";
+import { UIComponentTypes } from "api/PluginApi";
 import { EDITOR_TABS, SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
@@ -39,7 +39,11 @@ import RunHistory from "ee/components/RunHistory";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { getPluginNameFromId } from "ee/selectors/entitiesSelector";
+import {
+  getDatasource,
+  getPluginNameFromId,
+} from "ee/selectors/entitiesSelector";
+import { getCurrentEnvironmentId } from "ce/selectors/environmentSelectors";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -143,6 +147,80 @@ const StyledNotificationWrapper = styled.div`
     var(--ads-v2-spaces-7);
 `;
 
+const PARAGON_EDITOR_JSON = [
+  {
+    controlType: "DOUBLE_COLUMN_ZONE",
+    identifier: "FIND-Z1",
+    children: [
+      {
+        label: "Method",
+        configProperty: "actionConfiguration.formData.method",
+        controlType: "DROP_DOWN",
+        initialValue: "GET",
+        options: [
+          {
+            label: "GET",
+            value: "GET",
+          },
+          {
+            label: "POST",
+            value: "POST",
+          },
+          {
+            label: "PUT",
+            value: "PUT",
+          },
+          {
+            label: "DELETE",
+            value: "DELETE",
+          },
+        ],
+      },
+      {
+        label: "Api Path",
+        configProperty: "actionConfiguration.formData.apiPath",
+        controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+        evaluationSubstitutionType: "TEMPLATE",
+        placeholderText: "v1/example",
+      },
+    ],
+  },
+  {
+    controlType: "SECTION_V2",
+    identifier: "SECTION-ONE",
+    children: [
+      {
+        controlType: "SINGLE_COLUMN_ZONE",
+        identifier: "SO-Z2",
+        children: [
+          {
+            label: "Query Params",
+            configProperty: "actionConfiguration.formData.queryParams",
+            controlType: "KEYVALUE_ARRAY",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    controlType: "SECTION_V2",
+    identifier: "SECTION-TWO",
+    children: [
+      {
+        controlType: "SINGLE_COLUMN_ZONE",
+        identifier: "SO-Z3",
+        children: [
+          {
+            label: "Body",
+            configProperty: "actionConfiguration.formData.body",
+            controlType: "QUERY_DYNAMIC_TEXT",
+          },
+        ],
+      },
+    ],
+  },
+];
+
 interface QueryFormProps {
   onDeleteClick: () => void;
   onRunClick: () => void;
@@ -190,7 +268,6 @@ export function EditorJSONtoForm(props: Props) {
     actionResponse,
     dataSources,
     documentationLink,
-    editorConfig,
     formName,
     handleSubmit,
     isRunning,
@@ -199,8 +276,9 @@ export function EditorJSONtoForm(props: Props) {
     plugin,
     runErrorMessage,
     settingConfig,
-    uiComponent,
   } = props;
+
+  let { editorConfig, uiComponent } = props;
 
   const { actionRightPaneAdditionSections, notification } =
     useContext(QueryEditorContext);
@@ -273,6 +351,26 @@ export function EditorJSONtoForm(props: Props) {
     (!actionBody && SQL_DATASOURCES.includes(currentActionPluginName)) ||
     !isExecutePermitted;
 
+  const formData = props.formData;
+
+  // Paragon Integration
+  const datasource = useSelector((state) =>
+    getDatasource(state, props.datasourceId),
+  );
+  const currentEnvironment = useSelector(getCurrentEnvironmentId);
+  const datasourceConfigurationProps =
+    datasource?.datasourceStorages?.[currentEnvironment]
+      ?.datasourceConfiguration?.properties;
+  if (
+    datasourceConfigurationProps &&
+    datasourceConfigurationProps.some(
+      ({ key }) => key === "integrationId" || key === "integrationType",
+    )
+  ) {
+    editorConfig = PARAGON_EDITOR_JSON;
+    uiComponent = UIComponentTypes.UQIDbEditorForm;
+  }
+
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -326,7 +424,7 @@ export function EditorJSONtoForm(props: Props) {
                   >
                     <FormRender
                       editorConfig={editorConfig}
-                      formData={props.formData}
+                      formData={formData}
                       formEvaluationState={props.formEvaluationState}
                       formName={formName}
                       uiComponent={uiComponent}
