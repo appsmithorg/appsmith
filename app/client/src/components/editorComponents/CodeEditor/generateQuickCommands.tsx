@@ -24,7 +24,6 @@ export enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
   FUNCTION = "FUNCTION",
-  ASK_AI = "ASK_AI",
   SHOW_MORE = "SHOW_MORE",
 }
 
@@ -131,7 +130,6 @@ export const iconsByType = {
   [Shortcuts.FUNCTION]: (
     <Icon className="snippet-icon" name="snippet" size="md" />
   ),
-  [Shortcuts.ASK_AI]: <Icon className="magic" name="magic-line" size="md" />,
   [Shortcuts.SHOW_MORE]: (
     <Icon className="show-more-icon" name="more-horizontal-control" size="md" />
   ),
