@@ -6,7 +6,6 @@ import { setRenameEntity } from "actions/ideActions";
 export const useIsRenaming = (id: string) => {
   const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState(false);
-  const [forcedEdit, setForcedEdit] = useState(false);
 
   const isEditingViaExternal = useSelector(getIsRenaming(id));
 
@@ -14,12 +13,10 @@ export const useIsRenaming = (id: string) => {
     function onExternalEditEvent() {
       if (isEditingViaExternal) {
         setIsEditing(true);
-        setForcedEdit(true);
       }
 
       return () => {
         setIsEditing(false);
-        setForcedEdit(false);
       };
     },
     [isEditingViaExternal],
@@ -27,14 +24,12 @@ export const useIsRenaming = (id: string) => {
 
   const enterEditMode = useCallback(() => {
     setIsEditing(true);
-    setForcedEdit(false);
   }, []);
 
   const exitEditMode = useCallback(() => {
     dispatch(setRenameEntity(""));
     setIsEditing(false);
-    setForcedEdit(false);
-  }, [id]);
+  }, [dispatch]);
 
-  return { isEditing, forcedEdit, enterEditMode, exitEditMode };
+  return { isEditing, enterEditMode, exitEditMode };
 };

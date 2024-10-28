@@ -12,7 +12,9 @@ export const RenameMenuItem = ({ disabled, entityId }: Props) => {
   const dispatch = useDispatch();
 
   const setRename = useCallback(() => {
-    dispatch(setRenameEntity(entityId));
+    setTimeout(() => {
+      dispatch(setRenameEntity(entityId));
+    }, 100);
   }, [entityId]);
 
   return (

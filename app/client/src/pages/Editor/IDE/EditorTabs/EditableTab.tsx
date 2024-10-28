@@ -37,8 +37,7 @@ export function EditableTab(props: EditableTabProps) {
     entity,
   });
 
-  const { enterEditMode, exitEditMode, forcedEdit, isEditing } =
-    useIsRenaming(id);
+  const { enterEditMode, exitEditMode, isEditing } = useIsRenaming(id);
 
   const isLoading = useSelector((state) =>
     getIsSavingEntityName(state, { id, segment, entity }),
@@ -75,7 +74,6 @@ export function EditableTab(props: EditableTabProps) {
         isEditing={isEditing}
         isLoading={isLoading}
         name={title}
-        needsInteractionBeforeExit={forcedEdit}
         onNameSave={handleNameSave}
       />
     </FileTab>
