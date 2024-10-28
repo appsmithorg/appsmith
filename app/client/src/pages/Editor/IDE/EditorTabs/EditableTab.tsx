@@ -4,8 +4,8 @@ import { FileTab } from "IDE/Components/FileTab";
 import { type EntityItem } from "ee/entities/IDE/constants";
 import { useCurrentEditorState } from "../hooks";
 
-import { useSelector } from "react-redux";
-import { useBoolean, useEventCallback } from "usehooks-ts";
+import { useDispatch, useSelector } from "react-redux";
+import { useEventCallback } from "usehooks-ts";
 import { getIsSavingEntityName } from "ee/selectors/entitiesSelector";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
@@ -14,7 +14,7 @@ import {
   saveEntityName,
 } from "ee/entities/IDE/utils";
 import { noop } from "lodash";
-import { EditableName } from "IDE";
+import { EditableName, useIsRenaming } from "IDE";
 import { IconContainer } from "IDE/Components/FileTab/styles";
 
 interface EditableTabProps {
@@ -37,11 +37,8 @@ export function EditableTab(props: EditableTabProps) {
     entity,
   });
 
-  const {
-    setFalse: exitEditMode,
-    setTrue: enterEditMode,
-    value: isEditing,
-  } = useBoolean(false);
+  const { enterEditMode, exitEditMode, forcedEdit, isEditing } =
+    useIsRenaming(id);
 
   const isLoading = useSelector((state) =>
     getIsSavingEntityName(state, { id, segment, entity }),
@@ -54,9 +51,11 @@ export function EditableTab(props: EditableTabProps) {
 
   const handleDoubleClick = isChangePermitted ? enterEditMode : noop;
 
+  const dispatch = useDispatch();
+
   const handleNameSave = useCallback(
     (name: string) => {
-      saveEntityName({ params: { id, name }, segment, entity });
+      dispatch(saveEntityName({ params: { id, name }, segment, entity }));
       exitEditMode();
     },
     [entity, exitEditMode, id, segment],
@@ -76,6 +75,7 @@ export function EditableTab(props: EditableTabProps) {
         isEditing={isEditing}
         isLoading={isLoading}
         name={title}
+        needsInteractionBeforeExit={forcedEdit}
         onNameSave={handleNameSave}
       />
     </FileTab>

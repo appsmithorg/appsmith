@@ -14,7 +14,7 @@ import { ConvertToModuleCTA } from "../ConvertToModule";
 import { Move } from "./Move";
 import { Copy } from "./Copy";
 import { Delete } from "./Delete";
-import { Rename } from "./Rename";
+import { RenameMenuItem } from "IDE";
 
 export const ToolbarMenu = () => {
   const { action } = usePluginActionContext();
@@ -31,7 +31,7 @@ export const ToolbarMenu = () => {
 
   return (
     <>
-      <Rename disabled={!isChangePermitted} />
+      <RenameMenuItem disabled={!isChangePermitted} entityId={action.id} />
       <ConvertToModuleCTA />
       <Copy disabled={!isChangePermitted} />
       <Move disabled={!isChangePermitted} />
