@@ -111,10 +111,8 @@ public class ThemesConfig implements ApplicationListener<ApplicationReadyEvent> 
             // Add the access to this theme to the public permission group
             Theme finalSavedTheme = savedTheme;
             boolean isThemePermissionPresent = permissions.stream()
-                    .filter(p -> p.getAclPermission().equals(READ_THEMES)
-                            && p.getDocumentId().equals(finalSavedTheme.getId()))
-                    .findFirst()
-                    .isPresent();
+                    .anyMatch(p -> p.getAclPermission().equals(READ_THEMES)
+                            && p.getDocumentId().equals(finalSavedTheme.getId()));
             if (!isThemePermissionPresent) {
                 permissions.add(new Permission(finalSavedTheme.getId(), READ_THEMES));
             }
