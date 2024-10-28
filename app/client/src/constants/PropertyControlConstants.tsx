@@ -207,6 +207,12 @@ export interface PropertyPaneControlConfig {
    */
   invisible?: boolean;
   isBindProperty: boolean;
+  /**
+   * If true, it means the property triggers a widget action.
+   *
+   * @example
+   * OnClick property in Button widget is a trigger property that can trigger an action.
+   */
   isTriggerProperty: boolean;
   /**
    * Validation configuration for the property
@@ -230,6 +236,9 @@ export interface PropertyPaneControlConfig {
   /**
    * It is same as `dependencies` but these dependencies are not statically defined in the widget.
    * The callback is called  during rendering of the property control to get the latest dependencies.
+   *
+   * @example
+   * Used in CustomWidget to dynamically get the dependencies based on the current state of the widget.
    */
   dynamicDependencies?: (widget: WidgetProps) => string[];
   /**
