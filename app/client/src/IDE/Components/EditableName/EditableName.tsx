@@ -46,7 +46,7 @@ export const EditableName = ({
   });
 
   const attemptSave = () => {
-    const nameError = validateName(editableName);
+    const nameError = validate(editableName);
 
     if (nameError === null) {
       exitEditing();
@@ -68,6 +68,8 @@ export const EditableName = ({
     } else {
       setValidationError(nameError);
     }
+
+    return nameError;
   };
 
   const handleKeyUp = useEventCallback(
