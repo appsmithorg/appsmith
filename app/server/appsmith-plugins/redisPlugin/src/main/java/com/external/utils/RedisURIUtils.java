@@ -18,7 +18,8 @@ public class RedisURIUtils {
     public static URI getURI(DatasourceConfiguration datasourceConfiguration) throws URISyntaxException {
         StringBuilder builder = new StringBuilder();
 
-        if (datasourceConfiguration.getTlsConfiguration().getTlsEnabled()) {
+        if (datasourceConfiguration.getTlsConfiguration() != null
+                && datasourceConfiguration.getTlsConfiguration().getTlsEnabled()) {
             builder.append(REDIS_SSL_SCHEME);
         } else {
             builder.append(REDIS_SCHEME);

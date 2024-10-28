@@ -263,7 +263,10 @@ public class RedisPlugin extends BasePlugin {
                         int timeout =
                                 (int) Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
                         URI uri = RedisURIUtils.getURI(datasourceConfiguration);
-                        if (!datasourceConfiguration.getTlsConfiguration().getTlsEnabled()) {
+                        if (datasourceConfiguration.getTlsConfiguration() != null
+                                && !datasourceConfiguration
+                                        .getTlsConfiguration()
+                                        .getTlsEnabled()) {
                             JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout);
                             log.debug(Thread.currentThread().getName() + ": Created Jedis pool.");
                             return jedisPool;
@@ -308,7 +311,7 @@ public class RedisPlugin extends BasePlugin {
             }
 
             TlsConfiguration tlsConfiguration = datasourceConfiguration.getTlsConfiguration();
-            if (tlsConfiguration.getTlsEnabled()) {
+            if (tlsConfiguration != null && tlsConfiguration.getTlsEnabled()) {
                 // Check for CA certificate if TLS verification is enabled
                 if (tlsConfiguration.getVerifyTlsCertificate()
                         && (tlsConfiguration.getCaCertificateFile() == null

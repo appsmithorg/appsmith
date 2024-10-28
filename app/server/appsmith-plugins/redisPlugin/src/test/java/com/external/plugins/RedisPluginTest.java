@@ -57,6 +57,12 @@ public class RedisPluginTest {
         port = redis.getFirstMappedPort();
     }
 
+    private TlsConfiguration addTLSConfiguration(DatasourceConfiguration datasourceConfiguration) {
+        TlsConfiguration tlsConfiguration = new TlsConfiguration();
+        tlsConfiguration.setTlsEnabled(false);
+        return tlsConfiguration;
+    }
+
     private DatasourceConfiguration createDatasourceConfiguration() {
         Endpoint endpoint = new Endpoint();
         endpoint.setHost(host);
@@ -64,9 +70,8 @@ public class RedisPluginTest {
 
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-        TlsConfiguration tlsConfiguration = new TlsConfiguration();
-        tlsConfiguration.setTlsEnabled(false);
-        datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
+
+        datasourceConfiguration.setTlsConfiguration(addTLSConfiguration(datasourceConfiguration));
         return datasourceConfiguration;
     }
 
@@ -83,9 +88,7 @@ public class RedisPluginTest {
     @Test
     public void itShouldValidateDatasourceWithNoEndpoints() {
         DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
-        TlsConfiguration tlsConfiguration = new TlsConfiguration();
-        tlsConfiguration.setTlsEnabled(false);
-        invalidDatasourceConfiguration.setTlsConfiguration(tlsConfiguration);
+        invalidDatasourceConfiguration.setTlsConfiguration(addTLSConfiguration(invalidDatasourceConfiguration));
 
         assertEquals(
                 Set.of(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
@@ -98,10 +101,7 @@ public class RedisPluginTest {
 
         Endpoint endpoint = new Endpoint();
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-
-        TlsConfiguration tlsConfiguration = new TlsConfiguration();
-        tlsConfiguration.setTlsEnabled(false);
-        invalidDatasourceConfiguration.setTlsConfiguration(tlsConfiguration);
+        invalidDatasourceConfiguration.setTlsConfiguration(addTLSConfiguration(invalidDatasourceConfiguration));
 
         assertEquals(
                 Set.of(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
@@ -115,10 +115,7 @@ public class RedisPluginTest {
         Endpoint endpoint = new Endpoint();
         endpoint.setHost("test-host");
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-
-        TlsConfiguration tlsConfiguration = new TlsConfiguration();
-        tlsConfiguration.setTlsEnabled(false);
-        invalidDatasourceConfiguration.setTlsConfiguration(tlsConfiguration);
+        invalidDatasourceConfiguration.setTlsConfiguration(addTLSConfiguration(invalidDatasourceConfiguration));
 
         // Since default port is picked, set of invalids should be empty.
         assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration), Set.of());
@@ -135,10 +132,7 @@ public class RedisPluginTest {
         invalidAuth.setUsername("username"); // skip password
         invalidDatasourceConfiguration.setAuthentication(invalidAuth);
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-
-        TlsConfiguration tlsConfiguration = new TlsConfiguration();
-        tlsConfiguration.setTlsEnabled(false);
-        invalidDatasourceConfiguration.setTlsConfiguration(tlsConfiguration);
+        invalidDatasourceConfiguration.setTlsConfiguration(addTLSConfiguration(invalidDatasourceConfiguration));
 
         assertEquals(
                 Set.of(RedisErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG),
@@ -159,10 +153,7 @@ public class RedisPluginTest {
         endpoint.setPort(Long.valueOf(port));
         datasourceConfiguration.setAuthentication(auth);
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-
-        TlsConfiguration tlsConfiguration = new TlsConfiguration();
-        tlsConfiguration.setTlsEnabled(false);
-        datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
+        datasourceConfiguration.setTlsConfiguration(addTLSConfiguration(datasourceConfiguration));
 
         assertTrue(pluginExecutor.validateDatasource(datasourceConfiguration).isEmpty());
     }
@@ -188,7 +179,6 @@ public class RedisPluginTest {
         tlsConfiguration.setVerifyTlsCertificate(true);
         tlsConfiguration.setRequiresClientAuth(false);
         datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
-        datasourceConfiguration.getTlsConfiguration().setVerifyTlsCertificate(true);
 
         assertEquals(
                 Set.of(RedisErrorMessages.CA_CERTIFICATE_MISSING_ERROR_MSG),

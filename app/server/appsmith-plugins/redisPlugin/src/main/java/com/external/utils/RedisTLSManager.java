@@ -32,9 +32,14 @@ public class RedisTLSManager {
             throws Exception {
 
         TlsConfiguration tlsConfiguration = datasourceConfiguration.getTlsConfiguration();
-        boolean verifyTlsCertificate = tlsConfiguration.getVerifyTlsCertificate();
-        boolean requiresClientAuth = tlsConfiguration.getRequiresClientAuth();
-
+        if (tlsConfiguration == null) {
+            throw new IllegalArgumentException("TLS configuration is missing");
+        }
+        Boolean verifyTlsCertificate = tlsConfiguration.getVerifyTlsCertificate();
+        Boolean requiresClientAuth = tlsConfiguration.getRequiresClientAuth();
+        if (verifyTlsCertificate == null || requiresClientAuth == null) {
+            throw new IllegalArgumentException("TLS configuration flags cannot be null");
+        }
         SSLContext sslContext = SSLContext.getInstance("TLS");
         KeyManagerFactory keyManagerFactory = null;
 
