@@ -1,7 +1,5 @@
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import SelectComponent from "widgets/SelectWidget/component";
 import type { DropdownOption } from "widgets/SelectWidget/constants";
 import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
@@ -196,25 +194,17 @@ export const SelectCell = (props: SelectProps) => {
     .map((d: DropdownOption) => d.value)
     .indexOf(value);
 
-  const releaseTableSelectCellLabelValue = useFeatureFlag(
-    FEATURE_FLAG.release_table_cell_label_value_enabled,
-  );
-
   const cellLabelValue = useMemo(() => {
-    if (releaseTableSelectCellLabelValue) {
-      if (!options.length) return value;
+    if (!options.length) return value;
 
-      const selectedOption = options.find(
-        (option) => option[TableSelectColumnOptionKeys.VALUE] === value,
-      );
+    const selectedOption = options.find(
+      (option) => option[TableSelectColumnOptionKeys.VALUE] === value,
+    );
 
-      return selectedOption
-        ? selectedOption[TableSelectColumnOptionKeys.LABEL]
-        : "";
-    } else {
-      return value;
-    }
-  }, [releaseTableSelectCellLabelValue, value, options]);
+    return selectedOption
+      ? selectedOption[TableSelectColumnOptionKeys.LABEL]
+      : "";
+  }, [value, options]);
 
   if (isEditable && isCellEditable && isCellEditMode) {
     return (
