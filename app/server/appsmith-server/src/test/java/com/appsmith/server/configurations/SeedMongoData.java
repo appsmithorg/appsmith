@@ -15,7 +15,8 @@ import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.solutions.PolicySolution;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -36,7 +37,7 @@ import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 public class SeedMongoData {
 
     @Bean
-    ApplicationRunner init(
+    public ApplicationListener<ApplicationReadyEvent> init(
             UserRepositoryCake userRepository,
             UserRepositoryCake userRepositoryDirect,
             WorkspaceRepositoryCake workspaceRepository,
