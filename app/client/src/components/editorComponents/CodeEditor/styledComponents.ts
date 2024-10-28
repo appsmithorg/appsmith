@@ -51,7 +51,6 @@ export const EditorWrapper = styled.div<{
   codeEditorVisibleOverflow?: boolean;
   ctrlPressed: boolean;
   removeHoverAndFocusStyle?: boolean;
-  AIEnabled?: boolean;
   mode: string;
   maxHeight?: string | number;
 }>`

@@ -14,7 +14,6 @@ import {
   filterCompletions,
   getHintDetailsFromClassName,
 } from "./utils/sqlHint";
-import { isAISlashCommand } from "ee/components/editorComponents/GPT/trigger";
 
 export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
   editor.setOption("extraKeys", {
@@ -48,11 +47,7 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
       let shouldShow = false;
 
       if (additionalData?.isJsEditor) {
-        if (additionalData?.enableAIAssistance) {
-          shouldShow = !isAISlashCommand(editor);
-        } else {
-          shouldShow = true;
-        }
+        shouldShow = true;
       } else {
         shouldShow = checkIfCursorInsideBinding(editor);
       }

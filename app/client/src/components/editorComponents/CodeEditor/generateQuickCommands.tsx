@@ -10,12 +10,10 @@ import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import { Button, Icon } from "@appsmith/ads";
-import { APPSMITH_AI } from "ee/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
-import type { AIEditorContext } from "ee/components/editorComponents/GPT";
 import type { EntityTypeValue } from "ee/entities/DataTree/types";
 import history, { NavigationMethod } from "utils/history";
 import type { Plugin } from "api/PluginApi";
@@ -269,19 +267,15 @@ export const generateQuickCommands = (
   currentEntityType: EntityTypeValue,
   searchText: string,
   {
-    aiContext,
     datasources,
-    enableAIAssistance,
     executeCommand,
     pluginIdToPlugin,
   }: {
-    aiContext: AIEditorContext;
     datasources: Datasource[];
     executeCommand: (payload: SlashCommandPayload) => void;
     pluginIdToPlugin: Record<string, Plugin>;
     recentEntities: string[];
     featureFlags: FeatureFlags;
-    enableAIAssistance: boolean;
   },
   editor: CodeMirror.Editor,
   focusEditor: (focusOnLine?: number, chOffset?: number) => void,
@@ -393,24 +387,6 @@ export const generateQuickCommands = (
     };
   });
   const commonCommands: CommandsCompletion[] = [];
-
-  if (enableAIAssistance) {
-    const askGPT: CommandsCompletion = generateCreateNewCommand({
-      text: "",
-      displayText: APPSMITH_AI,
-      shortcut: Shortcuts.ASK_AI,
-      triggerCompletionsPostPick: true,
-      isBeta: true,
-      action: () => {
-        executeCommand({
-          actionType: SlashCommand.ASK_AI,
-          args: aiContext,
-        });
-      },
-    });
-
-    commonCommands.unshift(askGPT);
-  }
 
   if (currentEntityType !== ENTITY_TYPE.JSACTION) {
     // New binding command is not applicable in JS Objects

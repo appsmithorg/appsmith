@@ -19,7 +19,6 @@ import type {
   EntityNavigationData,
   NavigationData,
 } from "selectors/navigationSelectors";
-import { getAIContext } from "ee/components/editorComponents/GPT/trigger";
 import type { Plugin } from "api/PluginApi";
 
 export const getShowHintOptions = (
@@ -128,7 +127,6 @@ export const slashCommandHintHelper: HintHelper = (
       entityInfo: FieldEntityInformation,
       {
         datasources,
-        enableAIAssistance,
         executeCommand,
         featureFlags,
         focusEditor,
@@ -141,7 +139,6 @@ export const slashCommandHintHelper: HintHelper = (
         recentEntities: string[];
         entityId: string;
         featureFlags: FeatureFlags;
-        enableAIAssistance: boolean;
         focusEditor: (focusOnLine?: number, chOffset?: number) => void;
       },
     ): boolean => {
@@ -168,28 +165,16 @@ export const slashCommandHintHelper: HintHelper = (
 
       if (!shouldShowBinding) return false;
 
-      const aiContext = getAIContext({
-        currentLineValue,
-        cursorPosition,
-        editor,
-        slashIndex,
-        entityType,
-      });
-
-      if (!aiContext) return false;
-
       const list = generateQuickCommands(
         filteredEntitiesForSuggestions,
         currentEntityType,
         searchText,
         {
-          aiContext,
           datasources,
           executeCommand,
           pluginIdToPlugin,
           recentEntities,
           featureFlags,
-          enableAIAssistance,
         },
         editor,
         focusEditor,

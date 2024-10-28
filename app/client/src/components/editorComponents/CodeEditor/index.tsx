@@ -139,10 +139,7 @@ import {
 } from "./utils/saveAndAutoIndent";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
-import { AIWindow } from "ee/components/editorComponents/GPT";
-import { AskAIButton } from "ee/components/editorComponents/GPT/AskAIButton";
 import classNames from "classnames";
-import { isAIEnabled } from "ee/components/editorComponents/GPT/trigger";
 import {
   getAllDatasourceTableKeys,
   selectInstalledLibraries,
@@ -239,7 +236,6 @@ export type EditorProps = EditorStyleProps &
     highlightedTextClassName?: string;
     handleMouseEnter?: (event: MouseEvent) => void;
     handleMouseLeave?: () => void;
-    AIAssisted?: boolean;
     isReadOnly?: boolean;
     isRawView?: boolean;
     isJSObject?: boolean;
@@ -259,7 +255,6 @@ export type EditorProps = EditorStyleProps &
     lineCommentString?: string;
     evaluatedPopUpLabel?: string;
     removeHoverAndFocusStyle?: boolean;
-
     customErrors?: LintError[];
   };
 
@@ -279,7 +274,6 @@ interface State {
       })
     | undefined;
   isDynamic: boolean;
-  showAIWindow: boolean;
   ternToolTipActive: boolean;
 }
 
@@ -304,7 +298,6 @@ class CodeEditor extends Component<Props, State> {
   private peekOverlayExpressionIdentifier: PeekOverlayExpressionIdentifier;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
   currentLineNumber: number | null = null;
-  AIEnabled = false;
   private multiplexConfig?: MultiplexingModeConfig;
 
   constructor(props: Props) {
@@ -318,7 +311,6 @@ class CodeEditor extends Component<Props, State> {
       changeStarted: false,
       ctrlPressed: false,
       peekOverlayProps: undefined,
-      showAIWindow: false,
       ternToolTipActive: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
@@ -335,12 +327,6 @@ class CodeEditor extends Component<Props, State> {
       props.input.value,
     );
     this.multiplexConfig = MULTIPLEXING_MODE_CONFIGS[this.props.mode];
-    /**
-     * Decides if AI is enabled by looking at repo, feature flags, props and environment
-     */
-    this.AIEnabled =
-      isAIEnabled(this.props.featureFlags, this.props.mode) &&
-      Boolean(this.props.AIAssisted);
   }
 
   componentDidMount(): void {
@@ -570,30 +556,12 @@ class CodeEditor extends Component<Props, State> {
     const identifierHasChanged =
       getEditorIdentifier(this.props) !== getEditorIdentifier(prevProps);
 
-    const entityInformation = this.getEntityInformation();
-    const isWidgetType = entityInformation.entityType === ENTITY_TYPE.WIDGET;
-
-    const hasFocusedValueChanged =
-      getEditorIdentifier(this.props) !== this.props.focusedProperty;
-
-    if (hasFocusedValueChanged && isWidgetType) {
-      if (this.state.showAIWindow) {
-        this.setState({ showAIWindow: false });
-      }
-    }
-
-    if (identifierHasChanged) {
-      if (this.state.showAIWindow) {
-        this.setState({ showAIWindow: false });
-      }
-
-      if (shouldFocusOnPropertyControl()) {
-        setTimeout(() => {
-          if (this.props.editorIsFocused) {
-            this.editor.focus();
-          }
-        }, 200);
-      }
+    if (identifierHasChanged && shouldFocusOnPropertyControl()) {
+      setTimeout(() => {
+        if (this.props.editorIsFocused) {
+          this.editor.focus();
+        }
+      }, 200);
     } else if (this.props.editorLastCursorPosition) {
       // This is for when we want to change cursor positions
       // for e.g navigating to a line from the debugger
@@ -1191,7 +1159,6 @@ class CodeEditor extends Component<Props, State> {
               pluginIdToPlugin: this.props.pluginIdToPlugin,
               recentEntities: this.props.recentEntities,
               featureFlags: this.props.featureFlags,
-              enableAIAssistance: this.AIEnabled,
               focusEditor: this.focusEditor,
               executeCommand: this.props.executeCommand,
               isJsEditor: this.props.mode === EditorModes.JAVASCRIPT,
@@ -1220,13 +1187,7 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = (cm: CodeMirror.Editor, event: FocusEvent) => {
-    if (event && event.relatedTarget instanceof Element) {
-      if (event.relatedTarget.classList.contains("ai-trigger")) {
-        return;
-      }
-    }
-
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.props.resetActiveField();
     this.handleChange();
     this.setState({ isFocused: false });
@@ -1432,7 +1393,6 @@ class CodeEditor extends Component<Props, State> {
         pluginIdToPlugin: this.props.pluginIdToPlugin,
         recentEntities: this.props.recentEntities,
         featureFlags: this.props.featureFlags,
-        enableAIAssistance: this.AIEnabled,
         focusEditor: this.focusEditor,
         executeCommand: this.props.executeCommand,
         isJsEditor: this.props.mode === EditorModes.JAVASCRIPT,
@@ -1628,13 +1588,6 @@ class CodeEditor extends Component<Props, State> {
     );
   };
 
-  updateValueWithAIResponse = (value: string) => {
-    if (typeof value !== "string") return;
-
-    this.props.input?.onChange?.(value);
-    this.editor.setValue(value);
-  };
-
   render() {
     const {
       border,
@@ -1675,9 +1628,7 @@ class CodeEditor extends Component<Props, State> {
     }
 
     const showSlashCommandButton =
-      showLightningMenu !== false &&
-      !this.state.isFocused &&
-      !this.state.showAIWindow;
+      showLightningMenu !== false && !this.state.isFocused;
 
     /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
     if (this.props.errors) {
@@ -1691,7 +1642,6 @@ class CodeEditor extends Component<Props, State> {
     const showEvaluatedValue =
       this.showFeatures() &&
       (this.state.isDynamic || isInvalid) &&
-      !this.state.showAIWindow &&
       !this.state.peekOverlayProps &&
       !this.editor.state.completionActive &&
       !this.state.ternToolTipActive;
@@ -1726,16 +1676,6 @@ class CodeEditor extends Component<Props, State> {
           </Button>
         </div>
 
-        <div className="absolute bottom-[6px] right-[6px] z-4">
-          <AskAIButton
-            entity={entityInformation}
-            mode={this.props.mode}
-            onClick={() => {
-              this.setState({ showAIWindow: true });
-            }}
-          />
-        </div>
-
         <EvaluatedValuePopup
           dataTreePath={this.props.dataTreePath}
           editorRef={this.codeEditorTarget}
@@ -1753,96 +1693,79 @@ class CodeEditor extends Component<Props, State> {
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
         >
-          <AIWindow
-            currentValue={this.props.input.value}
-            dataTreePath={dataTreePath}
-            editor={this.editor}
-            enableAIAssistance={this.AIEnabled}
-            entitiesForNavigation={this.props.entitiesForNavigation}
-            entity={entityInformation}
-            isOpen={this.state.showAIWindow}
+          <EditorWrapper
+            border={border}
+            borderLess={borderLess}
+            className={`${className} ${replayHighlightClass} ${
+              isInvalid ? "t--codemirror-has-error" : ""
+            } w-full`}
+            codeEditorVisibleOverflow={codeEditorVisibleOverflow}
+            ctrlPressed={this.state.ctrlPressed}
+            disabled={disabled}
+            editorTheme={this.props.theme}
+            fillUp={fill}
+            hasError={isInvalid}
+            height={height}
+            hoverInteraction={hoverInteraction}
+            isFocused={this.state.isFocused}
+            isNotHover={this.state.isFocused || this.state.isOpened}
+            isRawView={this.props.isRawView}
+            isReadOnly={this.props.isReadOnly}
+            maxHeight={maxHeight}
             mode={this.props.mode}
-            onOpenChanged={(showAIWindow: boolean) => {
-              this.setState({ showAIWindow });
-            }}
-            triggerContext={this.props.expected}
-            update={this.updateValueWithAIResponse}
+            onMouseMove={this.handleLintTooltip}
+            onMouseOver={this.handleMouseMove}
+            ref={this.editorWrapperRef}
+            removeHoverAndFocusStyle={this.props?.removeHoverAndFocusStyle}
+            size={size}
           >
-            <EditorWrapper
-              AIEnabled
-              border={border}
-              borderLess={borderLess}
-              className={`${className} ${replayHighlightClass} ${
-                isInvalid ? "t--codemirror-has-error" : ""
-              } w-full`}
-              codeEditorVisibleOverflow={codeEditorVisibleOverflow}
-              ctrlPressed={this.state.ctrlPressed}
-              disabled={disabled}
-              editorTheme={this.props.theme}
-              fillUp={fill}
-              hasError={isInvalid}
-              height={height}
-              hoverInteraction={hoverInteraction}
-              isFocused={this.state.isFocused}
-              isNotHover={this.state.isFocused || this.state.isOpened}
-              isRawView={this.props.isRawView}
-              isReadOnly={this.props.isReadOnly}
-              maxHeight={maxHeight}
-              mode={this.props.mode}
-              onMouseMove={this.handleLintTooltip}
-              onMouseOver={this.handleMouseMove}
-              ref={this.editorWrapperRef}
-              removeHoverAndFocusStyle={this.props?.removeHoverAndFocusStyle}
-              size={size}
+            {this.state.peekOverlayProps && (
+              <PeekOverlayPopUp
+                hidePeekOverlay={() => this.hidePeekOverlay()}
+                {...this.state.peekOverlayProps}
+              />
+            )}
+            {this.props.leftIcon && (
+              <IconContainer>{this.props.leftIcon}</IconContainer>
+            )}
+
+            {this.props.leftImage && (
+              <img
+                alt="img"
+                className="leftImageStyles"
+                src={getAssetUrl(this.props.leftImage)}
+              />
+            )}
+            <div
+              className="CodeEditorTarget"
+              data-testid="code-editor-target"
+              ref={this.codeEditorTarget}
+              tabIndex={0}
             >
-              {this.state.peekOverlayProps && (
-                <PeekOverlayPopUp
-                  hidePeekOverlay={() => this.hidePeekOverlay()}
-                  {...this.state.peekOverlayProps}
-                />
-              )}
-              {this.props.leftIcon && (
-                <IconContainer>{this.props.leftIcon}</IconContainer>
-              )}
+              <CodeEditorSignPosting
+                editorTheme={this.props.theme}
+                forComp="editor"
+                isOpen={this.isBindingPromptOpen()}
+                mode={this.props.mode}
+                promptMessage={this.props.promptMessage}
+                showLightningMenu={this.props.showLightningMenu}
+              />
+            </div>
 
-              {this.props.leftImage && (
-                <img
-                  alt="img"
-                  className="leftImageStyles"
-                  src={getAssetUrl(this.props.leftImage)}
-                />
-              )}
-              <div
-                className="CodeEditorTarget"
-                data-testid="code-editor-target"
-                ref={this.codeEditorTarget}
-                tabIndex={0}
+            {this.props.link && (
+              <a
+                className="linkStyles"
+                href={this.props.link}
+                rel="noopener noreferrer"
+                target="_blank"
               >
-                <CodeEditorSignPosting
-                  editorTheme={this.props.theme}
-                  forComp="editor"
-                  isOpen={this.isBindingPromptOpen()}
-                  mode={this.props.mode}
-                  promptMessage={this.props.promptMessage}
-                  showLightningMenu={this.props.showLightningMenu}
-                />
-              </div>
-
-              {this.props.link && (
-                <a
-                  className="linkStyles"
-                  href={this.props.link}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  API documentation
-                </a>
-              )}
-              {this.props.rightIcon && (
-                <IconContainer>{this.props.rightIcon}</IconContainer>
-              )}
-            </EditorWrapper>
-          </AIWindow>
+                API documentation
+              </a>
+            )}
+            {this.props.rightIcon && (
+              <IconContainer>{this.props.rightIcon}</IconContainer>
+            )}
+          </EditorWrapper>
         </EvaluatedValuePopup>
       </DynamicAutocompleteInputWrapper>
     );
