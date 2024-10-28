@@ -55,3 +55,4 @@ export { SwitchIcon } from "./components/Icons/SwitchIcon";
 export { TableIcon } from "./components/Icons/TableIcon";
 export { ToolbarButtonsIcon } from "./components/Icons/ToolbarButtonsIcon";
 export { ZoneIcon } from "./components/Icons/ZoneIcon";
+export { AIAvatarCustomIcon } from "./components/CustomIcons/AIAvatarCustomIcon";

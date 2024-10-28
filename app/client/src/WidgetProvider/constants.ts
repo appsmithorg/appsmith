@@ -11,6 +11,7 @@ import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
+import type { SVGProps } from "react";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
@@ -150,8 +151,8 @@ export interface WidgetMethods {
   getCanvasHeightOffset?: GetCanvasHeightOffset;
   getEditorCallouts?: GetEditorCallouts;
   getOneClickBindingConnectableWidgetConfig?: GetOneClickBindingConnectableWidgetConfig;
-  IconCmp?: () => JSX.Element;
-  ThumbnailCmp?: () => JSX.Element;
+  IconCmp?: (props: SVGProps<SVGSVGElement>) => JSX.Element;
+  ThumbnailCmp?: (props: SVGProps<SVGSVGElement>) => JSX.Element;
 }
 
 type GetEditorCallouts = (props: WidgetProps) => WidgetCallout[];

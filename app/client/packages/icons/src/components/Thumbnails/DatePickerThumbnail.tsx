@@ -1,2 +1,4 @@
-import React from "react";
-export const DatePickerThumbnail = () => <svg xmlns="http://www.w3.org/2000/svg" width="72" height="76" fill="none"><rect width="55" height="23" x="8.5" y="26.5" fill="#fff" rx="2.5"/><rect width="55" height="23" x="8.5" y="26.5" stroke="#CDD5DF" rx="2.5"/><path stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round" d="M25.5 32.5h-10a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-10a1 1 0 0 0-1-1M22.5 36.5v8M18.5 36.5v8M14.5 36.5h12M14.5 40.5h12M17.5 34.5v-3m6 3v-3"/><path stroke="#99A4B3" stroke-linecap="round" stroke-linejoin="round" d="m56.5 36.5-3 3-3-3"/></svg>;
+import * as React from "react";
+import type { SVGProps } from "react";
+const DatePickerThumbnail = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={72} height={76} fill="none" {...props}><rect width={55} height={23} x={8.5} y={26.5} fill="#fff" rx={2.5} /><rect width={55} height={23} x={8.5} y={26.5} stroke="#CDD5DF" rx={2.5} /><path stroke="#CC3D00" strokeLinecap="round" strokeLinejoin="round" d="M25.5 32.5h-10a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-10a1 1 0 0 0-1-1M22.5 36.5v8M18.5 36.5v8M14.5 36.5h12M14.5 40.5h12M17.5 34.5v-3m6 3v-3" /><path stroke="#99A4B3" strokeLinecap="round" strokeLinejoin="round" d="m56.5 36.5-3 3-3-3" /></svg>;
+export { DatePickerThumbnail };

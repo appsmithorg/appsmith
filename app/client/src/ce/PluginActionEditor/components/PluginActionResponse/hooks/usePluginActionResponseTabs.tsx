@@ -61,24 +61,8 @@ function usePluginActionResponseTabs() {
     handleRunClick();
   };
 
-  if (IDEViewMode === EditorViewMode.FullScreen) {
-    tabs.push(
-      {
-        key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-        title: createMessage(DEBUGGER_ERRORS),
-        count: errorCount,
-        panelComponent: <ErrorLogs />,
-      },
-      {
-        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-        title: createMessage(DEBUGGER_LOGS),
-        panelComponent: <DebuggerLogs searchQuery={action.name} />,
-      },
-    );
-  }
-
   if (plugin.type === PluginType.API) {
-    return tabs.concat([
+    tabs.push(
       {
         key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
         title: createMessage(DEBUGGER_RESPONSE),
@@ -107,7 +91,7 @@ function usePluginActionResponseTabs() {
           />
         ),
       },
-    ]);
+    );
   }
 
   if (
@@ -119,8 +103,6 @@ function usePluginActionResponseTabs() {
       PluginType.INTERNAL,
     ].includes(plugin.type)
   ) {
-    const newTabs = [];
-
     const actionSource: SourceEntity = {
       type: SOURCE_ENTITY_TYPE.ACTION,
       name: action.name,
@@ -128,7 +110,7 @@ function usePluginActionResponseTabs() {
     };
 
     if (showSchema) {
-      newTabs.push({
+      tabs.push({
         key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
         title: "Schema",
         panelComponent: (
@@ -141,7 +123,7 @@ function usePluginActionResponseTabs() {
       });
     }
 
-    newTabs.push({
+    tabs.push({
       key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
@@ -156,8 +138,22 @@ function usePluginActionResponseTabs() {
         />
       ),
     });
+  }
 
-    return tabs.concat(newTabs);
+  if (IDEViewMode === EditorViewMode.FullScreen) {
+    tabs.push(
+      {
+        key: DEBUGGER_TAB_KEYS.ERROR_TAB,
+        title: createMessage(DEBUGGER_ERRORS),
+        count: errorCount,
+        panelComponent: <ErrorLogs />,
+      },
+      {
+        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+        title: createMessage(DEBUGGER_LOGS),
+        panelComponent: <DebuggerLogs searchQuery={action.name} />,
+      },
+    );
   }
 
   return tabs;
