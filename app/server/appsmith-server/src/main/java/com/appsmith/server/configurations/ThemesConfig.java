@@ -8,12 +8,14 @@ import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.ThemeRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.util.StreamUtils;
@@ -31,20 +33,32 @@ import static com.appsmith.server.constants.ce.FieldNameCE.PUBLIC_PERMISSION_GRO
 @Configuration
 @Slf4j
 @RequiredArgsConstructor
-public class ThemesConfig {
+public class ThemesConfig implements ApplicationListener<ApplicationReadyEvent> {
     private final ConfigRepository configRepository;
     private final PermissionGroupRepository permissionGroupRepository;
     private final ThemeRepository themeRepository;
 
-    @Bean
-    public boolean createSystemTheme() throws IOException {
-        final String themesJson = StreamUtils.copyToString(
-                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
-                Charset.defaultCharset());
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event) {
+        final String themesJson;
+        try {
+            themesJson = StreamUtils.copyToString(
+                    new DefaultResourceLoader()
+                            .getResource("system-themes.json")
+                            .getInputStream(),
+                    Charset.defaultCharset());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        Theme[] themes = mapper.readValue(themesJson, Theme[].class);
+        Theme[] themes = new Theme[0];
+        try {
+            themes = mapper.readValue(themesJson, Theme[].class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 
         Config publicPermissionGroupConfig =
                 configRepository.findByName(PUBLIC_PERMISSION_GROUP).orElse(null);
@@ -109,6 +123,5 @@ public class ThemesConfig {
         // Finally save the role which gives access to all the system themes to the anonymous user.
         publicPermissionGroup.setPermissions(permissions);
         permissionGroupRepository.save(publicPermissionGroup);
-        return true;
     }
 }

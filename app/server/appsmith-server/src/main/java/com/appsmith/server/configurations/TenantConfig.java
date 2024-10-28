@@ -7,7 +7,7 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.event.ApplicationStartedEvent;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Mono;
@@ -17,7 +17,7 @@ import static com.appsmith.external.models.BaseDomain.policySetToMap;
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
-public class TenantConfig implements ApplicationListener<ApplicationStartedEvent> {
+public class TenantConfig implements ApplicationListener<ApplicationReadyEvent> {
 
     private final TenantRepositoryCake tenantRepository;
     private final CacheableRepositoryHelper cachableRepositoryHelper;
@@ -39,7 +39,7 @@ public class TenantConfig implements ApplicationListener<ApplicationStartedEvent
     }
 
     @Override
-    public void onApplicationEvent(ApplicationStartedEvent event) {
+    public void onApplicationEvent(ApplicationReadyEvent event) {
         cleanupAndUpdateRefreshDefaultTenantPolicies().block();
     }
 }

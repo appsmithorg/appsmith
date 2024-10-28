@@ -16,7 +16,8 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.PolicySolution;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Optional;
@@ -30,7 +31,7 @@ import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 @Configuration
 @Slf4j
 @AllArgsConstructor
-public class UserConfig {
+public class UserConfig implements ApplicationListener<ApplicationReadyEvent> {
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final PolicySolution policySolution;
     private final PolicyGenerator policyGenerator;
@@ -43,8 +44,23 @@ public class UserConfig {
     /**
      * Responsible for creating super-users based on the admin emails provided in the environment.
      */
-    @Bean
-    public boolean createSuperUsers() {
+    public static void evictPermissionCacheForUsers(
+            Set<String> userIds, UserRepository userRepository, CacheableRepositoryHelper cacheableRepositoryHelper) {
+
+        if (userIds == null || userIds.isEmpty()) {
+            // Nothing to do here.
+            return;
+        }
+
+        userIds.forEach(userId -> {
+            userRepository.findById(userId).ifPresent(user -> cacheableRepositoryHelper
+                    .evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
+                    .block());
+        });
+    }
+
+    @Override
+    public void onApplicationEvent(ApplicationReadyEvent event) {
         // Read the admin emails from the environment and update the super-users accordingly
         String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
 
@@ -53,7 +69,6 @@ public class UserConfig {
         Optional<Config> instanceAdminConfigurationOptional = configRepository.findByName(FieldName.INSTANCE_CONFIG);
         if (instanceAdminConfigurationOptional.isEmpty()) {
             log.error("Instance configuration not found. Cannot create super users.");
-            return false;
         }
         Config instanceAdminConfiguration = instanceAdminConfigurationOptional.get();
 
@@ -64,14 +79,12 @@ public class UserConfig {
                 permissionGroupRepository.findById(instanceAdminPermissionGroupId);
         if (instanceAdminPGOptional.isEmpty()) {
             log.error("Instance admin permission group not found. Cannot create super users.");
-            return false;
         }
         PermissionGroup instanceAdminPG = instanceAdminPGOptional.get();
 
         Optional<Tenant> tenantOptional = tenantRepository.findBySlug("default");
         if (tenantOptional.isEmpty()) {
             log.error("Default tenant not found. Cannot create super users.");
-            return false;
         }
         Tenant tenant = tenantOptional.get();
 
@@ -110,21 +123,5 @@ public class UserConfig {
 
         instanceAdminPG.setAssignedToUserIds(userIds);
         permissionGroupRepository.save(instanceAdminPG);
-        return true;
-    }
-
-    public static void evictPermissionCacheForUsers(
-            Set<String> userIds, UserRepository userRepository, CacheableRepositoryHelper cacheableRepositoryHelper) {
-
-        if (userIds == null || userIds.isEmpty()) {
-            // Nothing to do here.
-            return;
-        }
-
-        userIds.forEach(userId -> {
-            userRepository.findById(userId).ifPresent(user -> cacheableRepositoryHelper
-                    .evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
-                    .block());
-        });
     }
 }
