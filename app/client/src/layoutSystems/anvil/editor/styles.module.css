@@ -3,4 +3,12 @@
   & > * {
     pointer-events: none;
   }
+
+  /*
+    This is a temporary solution. According to the product requirements, we need to make AI chat widget interactive.
+    This code can be deleted when full-fledged inline editing feature is implemented.
+  */
+  & [data-widget-name*="AIChat"] > * {
+    pointer-events: all;
+  }
 }
