@@ -16,6 +16,11 @@ export const useIsRenaming = (id: string) => {
         setIsEditing(true);
         setForcedEdit(true);
       }
+
+      return () => {
+        setIsEditing(false);
+        setForcedEdit(false);
+      };
     },
     [isEditingViaExternal],
   );

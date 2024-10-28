@@ -46,9 +46,9 @@ export const EditableName = ({
   });
 
   const attemptSave = () => {
-    validate(editableName);
+    const nameError = validateName(editableName);
 
-    if (validationError === null) {
+    if (nameError === null) {
       exitEditing();
       onNameSave(editableName);
     }
