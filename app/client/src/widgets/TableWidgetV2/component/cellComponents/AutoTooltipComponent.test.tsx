@@ -1,6 +1,5 @@
 import React from "react";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import AutoToolTipComponent from "./AutoToolTipComponent";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import "@testing-library/jest-dom";
@@ -21,7 +20,7 @@ test.each([
     "truncated button text",
     "This is a long text that will be truncated in the button",
   ],
-])("shows tooltip for %s", async (_, longText) => {
+])("shows tooltip for %s", (_, longText) => {
   const { getByText } = render(
     <AutoToolTipComponent columnType={ColumnTypes.BUTTON} title={longText}>
       <span
@@ -39,7 +38,7 @@ test.each([
   );
 
   fireEvent.mouseEnter(getByText(longText));
-  await screen.findByText(longText);
+  expect(getByText(longText)).toBeInTheDocument();
 });
 
 test("does not show tooltip for non-button types", () => {
@@ -62,7 +61,7 @@ test("handles empty tooltip", () => {
 
   expect(getByText("Empty button")).toBeInTheDocument();
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-})
+});
 
 test("renders content without tooltip for normal text", () => {
   const { getByText } = render(
@@ -74,7 +73,6 @@ test("renders content without tooltip for normal text", () => {
   expect(getByText("Normal Text")).toBeInTheDocument();
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });
-
 
 test("does not show tooltip for non-truncated text", () => {
   const shortText = "Short text";
