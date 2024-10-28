@@ -120,7 +120,7 @@ export interface PropertyPaneControlConfig {
    */
   label: string;
   /**
-   * Human-readable slugified name of the property.
+   * Human-readable slugified name of the property. Used to identify the property in the widget properties.
    */
   propertyName: string;
   /**
@@ -152,7 +152,10 @@ export interface PropertyPaneControlConfig {
    * path that is used to get evaluated value for the property.
    */
   dataTreePath?: string;
-  // used to define children property configs when the current property is a section
+  /**
+   * There is no requirement to define children for a control. This is just done to suffice types
+   * in places where controlConfig and sectionConfig are not differentiated.
+   */
   children?: PropertyPaneConfig[];
   panelConfig?: PanelConfig;
   /**
@@ -162,6 +165,8 @@ export interface PropertyPaneControlConfig {
    * @param propertyValue - New value of the property
    * @param props - Current widget properties
    * @returns - Array of property updates
+   *
+   * @example Used in tabs widget
    */
   updateRelatedWidgetProperties?: (
     propertyName: string,
