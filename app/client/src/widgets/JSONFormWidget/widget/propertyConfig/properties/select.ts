@@ -7,21 +7,13 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import type { LoDashStatic } from "lodash";
 
 export function defaultOptionValueValidation(
-  inputValue: unknown,
+  value: unknown,
   props: JSONFormWidgetProps,
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  _: any,
+  _: LoDashStatic,
 ): ValidationResponse {
-  const DEFAULT_ERROR_MESSAGE = {
-    name: "TypeError",
-    message:
-      'value should match: string | { "label": "label1", "value": "value1" }',
-  };
-  let value = inputValue;
-
   const hasLabelValueProperties = (
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,22 +30,7 @@ export function defaultOptionValueValidation(
 
   // If input value is empty string then we can fairly assume that the input
   // was cleared out and can be treated as undefined.
-  if (inputValue === undefined || inputValue === null || inputValue === "") {
-    return {
-      isValid: true,
-      parsed: inputValue,
-      messages: [{ name: "", message: "" }],
-    };
-  }
-
-  if (typeof inputValue === "string") {
-    try {
-      value = JSON.parse(inputValue);
-    } catch (e) {}
-  }
-
-  if (_.isString(value) || _.isFinite(value)) {
-    // When value is "", "green", 444
+  if (value === undefined || value === null || value === "") {
     return {
       isValid: true,
       parsed: value,
@@ -61,8 +38,22 @@ export function defaultOptionValueValidation(
     };
   }
 
-  if (hasLabelValueProperties(value)) {
-    // When value is {label: "green", value: "green"}
+  if (typeof value === "string") {
+    try {
+      const parsedValue = JSON.parse(value);
+
+      if (_.isObject(parsedValue)) {
+        value = parsedValue;
+      }
+    } catch (e) {}
+  }
+
+  if (
+    _.isString(value) ||
+    _.isFinite(value) ||
+    hasLabelValueProperties(value)
+  ) {
+    // When value is "", "green", 444
     return {
       isValid: true,
       parsed: value,
@@ -73,7 +64,13 @@ export function defaultOptionValueValidation(
   return {
     isValid: false,
     parsed: {},
-    messages: [DEFAULT_ERROR_MESSAGE],
+    messages: [
+      {
+        name: "TypeError",
+        message:
+          'value should match: string | { "label": "label1", "value": "value1" }',
+      },
+    ],
   };
 }
 

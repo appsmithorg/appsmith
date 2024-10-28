@@ -794,7 +794,8 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
 // Datasource structure
 
-export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
+export const SCHEMA_NOT_AVAILABLE = () =>
+  "We can't show schema for this datasource";
 export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
   `Tables in ${name}`;

@@ -226,9 +226,7 @@ export const normalizeArrayValue = (data: any[]) => {
   return data[0];
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const fieldTypeFor = (value: any): FieldType => {
+export const fieldTypeFor = (value: unknown): FieldType => {
   const dataType = dataTypeFor(value);
   const potentialFieldType = DATA_TYPE_POTENTIAL_FIELD[dataType];
   const subDataType = subDataTypeFor(value);

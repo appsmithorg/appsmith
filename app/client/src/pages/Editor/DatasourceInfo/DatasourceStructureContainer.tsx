@@ -7,18 +7,17 @@ import {
 import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import type { ReactElement } from "react";
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import DatasourceStructure from "./DatasourceStructure";
-import { Button, Flex, SearchInput, Text } from "@appsmith/ads";
+import { Flex, SearchInput, Text } from "@appsmith/ads";
 import { getIsFetchingDatasourceStructure } from "ee/selectors/entitiesSelector";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { PluginName } from "entities/Action";
 import { DatasourceStructureSearchContainer } from "./SchemaViewModeCSS";
-import { refreshDatasourceStructure } from "actions/datasourceActions";
 
 interface Props {
   datasourceId: string;
@@ -31,26 +30,15 @@ interface Props {
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
   customEditDatasourceFn?: () => void;
-  showRefresh?: boolean;
 }
 
 // leaving out DynamoDB and Firestore because they have a schema but not templates
 export const SCHEMALESS_PLUGINS: Array<string> = [
-  PluginName.SMTP,
-  PluginName.TWILIO,
-  PluginName.HUBSPOT,
-  PluginName.ELASTIC_SEARCH,
-  PluginName.AIRTABLE,
   PluginName.GRAPHQL,
   PluginName.REST_API,
-  PluginName.REDIS,
-  PluginName.GOOGLE_SHEETS,
-  PluginName.OPEN_AI,
-  PluginName.APPSMITH_AI,
 ];
 
 const Container = (props: Props) => {
-  const dispatch = useDispatch();
   const isLoading = useSelector((state: AppState) =>
     getIsFetchingDatasourceStructure(state, props.datasourceId),
   );
@@ -59,10 +47,6 @@ const Container = (props: Props) => {
   const [datasourceStructure, setDatasourceStructure] = useState<
     DatasourceStructureType | undefined
   >(props.datasourceStructure);
-
-  const refreshStructure = useCallback(() => {
-    dispatch(refreshDatasourceStructure(props.datasourceId, props.context));
-  }, []);
 
   useEffect(() => {
     if (datasourceStructure !== props.datasourceStructure) {
@@ -145,16 +129,6 @@ const Container = (props: Props) => {
       <DatasourceStructureSearchContainer
         className={`t--search-container--${props.context.toLowerCase()}`}
       >
-        {props.showRefresh ? (
-          <Button
-            className="datasourceStructure-refresh"
-            isIconButton
-            kind="tertiary"
-            onClick={refreshStructure}
-            size="md"
-            startIcon="refresh"
-          />
-        ) : null}
         <SearchInput
           className="datasourceStructure-search"
           endIcon="close"
