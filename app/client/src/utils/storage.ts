@@ -3,7 +3,6 @@ import moment from "moment";
 import localforage from "localforage";
 import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
 import { isNumber } from "lodash";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EditorViewMode } from "ee/entities/IDE/constants";
 import type { OverriddenFeatureFlags } from "./hooks/useFeatureFlagOverride";
 import { AvailableFeaturesToOverride } from "./hooks/useFeatureFlagOverride";
@@ -29,13 +28,9 @@ export const STORAGE_KEYS: {
   FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY:
     "FIRST_TIME_USER_ONBOARDING_TELEMETRY_CALLOUT_VISIBILITY",
   SIGNPOSTING_APP_STATE: "SIGNPOSTING_APP_STATE",
-  AI_SUGGESTED_PROMPTS_SHOWN: "AI_SUGGESTED_PROMPTS_SHOWN",
-  AI_TRIGGERED_FOR_PROPERTY_PANE: "AI_TRIGGERED",
-  AI_TRIGGERED_FOR_QUERY: "AI_TRIGGERED_FOR_QUERY",
   FEATURE_WALKTHROUGH: "FEATURE_WALKTHROUGH",
   USER_SIGN_UP: "USER_SIGN_UP",
   VERSION_UPDATE_STATE: "VERSION_UPDATE_STATE",
-  AI_RECENT_QUERIES: "AI_RECENT_QUERIES",
   CURRENT_ENV: "CURRENT_ENV",
   AI_KNOWLEDGE_BASE: "AI_KNOWLEDGE_BASE",
   PARTNER_PROGRAM_CALLOUT: "PARTNER_PROGRAM_CALLOUT",
@@ -344,66 +339,6 @@ export const getEnableStartSignposting = async () => {
   }
 };
 
-export const setAIRecentQuery = async (
-  applicationId: string,
-  query: string,
-  type: string,
-) => {
-  try {
-    const recentQueries: {
-      [applicationId: string]: {
-        [task: string]: string[];
-      };
-    } | null = (await store.getItem(STORAGE_KEYS.AI_RECENT_QUERIES)) || {};
-    const applicationRecentQueries = recentQueries[applicationId] || {};
-    let applicationTypeQueries = applicationRecentQueries[type] || [];
-
-    if (!applicationTypeQueries.includes(query)) {
-      if (applicationTypeQueries.length >= 3) {
-        applicationTypeQueries.pop();
-      }
-
-      applicationTypeQueries = [query, ...applicationTypeQueries];
-    }
-
-    await store.setItem(STORAGE_KEYS.AI_RECENT_QUERIES, {
-      ...recentQueries,
-      [applicationId]: {
-        ...applicationRecentQueries,
-        [type]: applicationTypeQueries,
-      },
-    });
-  } catch (error) {
-    log.error("An error occurred while setting AI_RECENT_QUERIES");
-    log.error(error);
-  }
-};
-
-export const getApplicationAIRecentQueriesByType = async (
-  applicationId: string,
-  type: string,
-) => {
-  const defaultRecentQueries: string[] = [];
-
-  try {
-    const recentQueries: {
-      [applicationId: string]: {
-        [task: string]: string[];
-      };
-    } | null = await store.getItem(STORAGE_KEYS.AI_RECENT_QUERIES);
-
-    return (
-      recentQueries?.[applicationId]?.[type]?.slice(0, 3) ??
-      defaultRecentQueries
-    );
-  } catch (error) {
-    log.error("An error occurred while fetching AI_RECENT_QUERIES");
-    log.error(error);
-
-    return defaultRecentQueries;
-  }
-};
-
 export const setFirstTimeUserOnboardingApplicationId = async (id: string) => {
   try {
     let ids: unknown = await store.getItem(
@@ -629,50 +564,6 @@ export const setFirstTimeUserOnboardingTelemetryCalloutVisibility = async (
   }
 };
 
-export const setAIPromptTriggered = async (mode: string) => {
-  try {
-    let noOfTimesAITriggered: number = await getAIPromptTriggered(mode);
-
-    if (noOfTimesAITriggered >= 5) {
-      return noOfTimesAITriggered;
-    }
-
-    const storageKey =
-      mode === EditorModes.TEXT_WITH_BINDING
-        ? STORAGE_KEYS.AI_TRIGGERED_FOR_PROPERTY_PANE
-        : STORAGE_KEYS.AI_TRIGGERED_FOR_QUERY;
-
-    noOfTimesAITriggered += 1;
-    await store.setItem(storageKey, noOfTimesAITriggered);
-
-    return noOfTimesAITriggered;
-  } catch (error) {
-    log.error("An error occurred while setting AI_TRIGGERED");
-    log.error(error);
-
-    return 0;
-  }
-};
-
-export const getAIPromptTriggered = async (mode: string) => {
-  try {
-    const storageKey =
-      mode === EditorModes.TEXT_WITH_BINDING
-        ? STORAGE_KEYS.AI_TRIGGERED_FOR_PROPERTY_PANE
-        : STORAGE_KEYS.AI_TRIGGERED_FOR_QUERY;
-
-    const flag: number | null = await store.getItem(storageKey);
-
-    if (flag === null) return 0;
-
-    return flag;
-  } catch (error) {
-    log.error("An error occurred while fetching AI_TRIGGERED");
-    log.error(error);
-
-    return 0;
-  }
-};
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const setFeatureWalkthroughShown = async (key: string, value: any) => {

@@ -1257,11 +1257,6 @@ const OneClickBindingActionTypes = {
     "SET_ONE_CLICK_BINDING_OPTIONS_VISIBILITY",
 };
 
-const AIActionTypes = {
-  UPDATE_AI_CONTEXT: "UPDATE_AI_CONTEXT",
-  UPDATE_AI_TRIGGERED: "UPDATE_AI_TRIGGERED",
-};
-
 const PlatformActionErrorTypes = {
   API_ERROR: "API_ERROR",
 };
@@ -1270,7 +1265,6 @@ export const ReduxActionTypes = {
   ...ActionActionTypes,
   ...AdminSettingsActionTypes,
   ...AnalyticsActionTypes,
-  ...AIActionTypes,
   ...AppCollabActionTypes,
   ...ApplicationActionTypes,
   ...AppThemeActionsTypes,

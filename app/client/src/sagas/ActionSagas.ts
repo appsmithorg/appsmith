@@ -33,7 +33,6 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
 import type { Plugin } from "api/PluginApi";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   fixActionPayloadForMongoQuery,
   getConfigInitialValues,
@@ -137,7 +136,6 @@ import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 import { shouldBeDefined } from "utils/helpers";
 import history from "utils/history";
-import { setAIPromptTriggered } from "utils/storage";
 import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { validateResponse } from "./ErrorSagas";
 import FocusRetention from "./FocusRetentionSaga";
@@ -1142,42 +1140,6 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       if (callback) callback(`{{${API.payload.name}.data}}`);
 
       break;
-    case SlashCommand.ASK_AI: {
-      const context = get(actionPayload, "payload.args", {});
-      const isJavascriptMode = context.mode === EditorModes.TEXT_WITH_BINDING;
-
-      const noOfTimesAIPromptTriggered: number = yield select(
-        (state) => state.ai.noOfTimesAITriggered,
-      );
-
-      const noOfTimesAIPromptTriggeredForQuery: number = yield select(
-        (state) => state.ai.noOfTimesAITriggeredForQuery,
-      );
-
-      const triggerCount = isJavascriptMode
-        ? noOfTimesAIPromptTriggered
-        : noOfTimesAIPromptTriggeredForQuery;
-
-      if (triggerCount < 5) {
-        const currentValue: number = yield setAIPromptTriggered(context.mode);
-
-        yield put({
-          type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
-          payload: {
-            value: currentValue,
-            mode: context.mode,
-          },
-        });
-      }
-
-      yield put({
-        type: ReduxActionTypes.UPDATE_AI_CONTEXT,
-        payload: {
-          context,
-        },
-      });
-      break;
-    }
   }
 }
 
