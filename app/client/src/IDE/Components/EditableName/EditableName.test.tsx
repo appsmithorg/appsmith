@@ -150,8 +150,6 @@ describe("EditableName", () => {
         target: { value: invalidTitle },
       });
 
-      // fireEvent.keyUp(inputElement, KEY_CONFIG.ENTER);
-
       expect(getByRole("tooltip")).toBeInTheDocument();
 
       expect(getByRole("tooltip").textContent).toEqual(validationError);
@@ -174,8 +172,12 @@ describe("EditableName", () => {
         target: { value: invalidTitle },
       });
 
+      fireEvent.keyUp(inputElement, KEY_CONFIG.ENTER);
       fireEvent.keyUp(inputElement, KEY_CONFIG.ESC);
 
+      expect(getByRole("tooltip")).toBeInTheDocument();
+
+      expect(getByRole("tooltip").textContent).toEqual("");
       expect(exitEditing).toHaveBeenCalled();
       expect(onNameSave).not.toHaveBeenCalledWith(invalidTitle);
     });
@@ -190,6 +192,7 @@ describe("EditableName", () => {
         target: { value: invalidTitle },
       });
 
+      fireEvent.keyUp(inputElement, KEY_CONFIG.ENTER);
       fireEvent.focusOut(inputElement);
       expect(getByRole("tooltip").textContent).toEqual("");
       expect(exitEditing).toHaveBeenCalled();
@@ -201,6 +204,7 @@ describe("EditableName", () => {
       const input = getByRole("textbox");
 
       fireEvent.change(input, { target: { value: "" } });
+      fireEvent.keyUp(input, KEY_CONFIG.ENTER);
 
       expect(onNameSave).not.toHaveBeenCalledWith("");
       expect(getByRole("tooltip")).toHaveTextContent(
