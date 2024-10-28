@@ -125,7 +125,7 @@
     "cypress-log-to-output": "^1.1.2",
     "cypress-repeat-pro": "^1.0.1",
     "d3-geo": "^3.1.0",
-    "date-fns": "2.30.0",
+    "date-fns": "^4.1.0",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
     "downloadjs": "^1.4.7",
