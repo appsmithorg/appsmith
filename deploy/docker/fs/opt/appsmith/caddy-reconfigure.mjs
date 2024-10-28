@@ -11,7 +11,7 @@ const AppsmithCaddy = process.env._APPSMITH_CADDY
 
 // Rate limit environment.
 const isRateLimitingEnabled = process.env.APPSMITH_RATE_LIMIT !== "disabled"
-const RATE_LIMIT = parseInt(process.env.APPSMITH_RATE_LIMIT || 100, 10)
+const RATE_LIMIT = parseInt(process.env.APPSMITH_RATE_LIMIT || 400, 10)
 
 let certLocation = null
 if (CUSTOM_DOMAIN !== "") {
