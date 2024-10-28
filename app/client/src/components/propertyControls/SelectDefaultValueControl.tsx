@@ -76,7 +76,6 @@ function InputText(props: InputTextProp) {
   return (
     <StyledDynamicInput>
       <LazyCodeEditor
-        AIAssisted
         dataTreePath={dataTreePath}
         evaluatedValue={evaluatedValue}
         expected={expected}

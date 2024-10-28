@@ -13,7 +13,6 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
 
 class DynamicTextField extends React.Component<
   BaseFieldProps &
@@ -36,7 +35,6 @@ class DynamicTextField extends React.Component<
       tabBehaviour: this.props.tabBehaviour || TabBehaviour.INPUT,
       theme: this.props.theme || EditorTheme.LIGHT,
       size: this.props.size || EditorSize.COMPACT,
-      AIAssisted: this.props.mode === editorSQLModes.POSTGRESQL_WITH_BINDING,
     };
 
     return (

@@ -81,7 +81,6 @@ export function TextView(props: TextViewProps) {
             <InputText
               additionalAutocomplete={props.additionalAutoComplete}
               dataTreePath={props.dataTreePath}
-              enableAI={false}
               evaluatedValue={value}
               expected={{
                 type: "string",
