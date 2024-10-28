@@ -53,9 +53,8 @@ import {
 } from "ee/sagas/userSagas";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
 import { isAirgapped } from "ee/utils/airgapHelpers";
-import { getAIPromptTriggered, setLatestGitBranchInLocal } from "utils/storage";
+import { setLatestGitBranchInLocal } from "utils/storage";
 import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 import { getPageDependencyActions } from "ee/entities/Engine/actionHelpers";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
@@ -328,29 +327,6 @@ export default class AppEditorEngine extends AppEngine {
         payload: [],
       });
     }
-
-    const noOfTimesAIPromptTriggered: number = yield getAIPromptTriggered(
-      EditorModes.TEXT_WITH_BINDING,
-    );
-
-    yield put({
-      type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
-      payload: {
-        value: noOfTimesAIPromptTriggered,
-        mode: EditorModes.TEXT_WITH_BINDING,
-      },
-    });
-
-    const noOfTimesAIPromptTriggeredForQuery: number =
-      yield getAIPromptTriggered(EditorModes.POSTGRESQL_WITH_BINDING);
-
-    yield put({
-      type: ReduxActionTypes.UPDATE_AI_TRIGGERED,
-      payload: {
-        value: noOfTimesAIPromptTriggeredForQuery,
-        mode: EditorModes.POSTGRESQL_WITH_BINDING,
-      },
-    });
 
     yield call(waitForWidgetConfigBuild);
     yield spawn(reportSWStatus);
