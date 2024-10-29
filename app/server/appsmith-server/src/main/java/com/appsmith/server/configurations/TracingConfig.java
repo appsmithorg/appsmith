@@ -3,15 +3,10 @@ package com.appsmith.server.configurations;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationPredicate;
 import io.micrometer.observation.ObservationView;
-import io.micrometer.tracing.Span;
 import io.micrometer.tracing.exporter.SpanExportingPredicate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.reactive.observation.ServerRequestObservationContext;
-
-import static com.appsmith.external.constants.spans.BaseSpan.APPSMITH_SPAN_PREFIX;
-import static com.appsmith.external.constants.spans.BaseSpan.AUTHENTICATE;
-import static com.appsmith.external.constants.spans.BaseSpan.AUTHORIZE;
 
 /**
  * This configuration file creates beans that are required to filter just Appsmith specific spans
@@ -46,15 +41,17 @@ public class TracingConfig {
     @Bean
     SpanExportingPredicate onlyAppsmithSpans() {
         return (finishedSpan) -> {
-            if ((finishedSpan.getKind() != null && finishedSpan.getKind().equals(Span.Kind.SERVER))
-                    || finishedSpan.getName().startsWith(APPSMITH_SPAN_PREFIX)
-                    || finishedSpan.getName().startsWith(AUTHENTICATE)
-                    || finishedSpan.getName().startsWith(AUTHORIZE)) {
-                // A span is either an http server request root or Appsmith specific or login related or signup related
-                return true;
-            } else {
-                return false;
-            }
+            //            if ((finishedSpan.getKind() != null && finishedSpan.getKind().equals(Span.Kind.SERVER))
+            //                    || finishedSpan.getName().startsWith(APPSMITH_SPAN_PREFIX)
+            //                    || finishedSpan.getName().startsWith(AUTHENTICATE)
+            //                    || finishedSpan.getName().startsWith(AUTHORIZE)) {
+            //                // A span is either an http server request root or Appsmith specific or login related or
+            // signup related
+            //                return true;
+            //            } else {
+            //                return false;
+            //            }
+            return true;
         };
     }
 }
