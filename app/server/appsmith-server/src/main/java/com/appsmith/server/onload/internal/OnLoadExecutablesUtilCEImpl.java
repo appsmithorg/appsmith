@@ -56,6 +56,8 @@ import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_DIRECTLY_REFE
 import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH;
 import static com.appsmith.external.constants.spans.OnLoadSpan.EXECUTABLE_NAME_TO_EXECUTABLE_MAP;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_ALL_EXECUTABLES_BY_CREATOR_ID;
+import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_ENTITY_PARENTS_MAP;
+import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_ENTITY_REFERENCES;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT;
 import static com.appsmith.external.constants.spans.OnLoadSpan.UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS;
 import static com.appsmith.external.helpers.MustacheHelper.EXECUTABLE_ENTITY_REFERENCES;
@@ -503,7 +505,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      */
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
             Mono<Map<String, Executable>> executableNameToExecutableMapMono, Set<String> bindings, int evalVersion) {
-        return getPossibleEntityReferences(executableNameToExecutableMapMono, bindings, evalVersion, null);
+        return getPossibleEntityReferences(executableNameToExecutableMapMono, bindings, evalVersion, null)
+                .name(GET_POSSIBLE_ENTITY_REFERENCES)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -526,7 +530,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         final int entityTypes = EXECUTABLE_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
 
         return executableNameToExecutableMono
-                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion))
+                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion)
+                        .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
+                        .tap(Micrometer.observation(observationRegistry)))
                 .map(tuple -> {
                     Map<String, Executable> executableMap = tuple.getT1();
                     // For each binding, here we receive a set of possible references to global entities
@@ -641,6 +647,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     bindingsInWidget,
                                     evalVersion,
                                     executableBindingsInDslRef)
+                            .name(GET_POSSIBLE_ENTITY_REFERENCES)
+                            .tap(Micrometer.observation(observationRegistry))
                             .flatMapMany(Flux::fromIterable)
                             // Add dependencies of the executables found in the DSL in the graph
                             // We are ignoring the widget references at this point
@@ -931,6 +939,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         // First fetch all the executables in the page whose name matches the words found in all the dynamic bindings
         Mono<List<EntityDependencyNode>> findAndAddExecutablesInBindingsMono = getPossibleEntityReferences(
                         executableNameToExecutableMapMono, dynamicBindings, evalVersion)
+                .name(GET_POSSIBLE_ENTITY_REFERENCES)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMapMany(Flux::fromIterable)
                 // Add dependencies of the executables found in the DSL in the graph.
                 .flatMap(possibleEntity -> {
@@ -1105,6 +1115,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     executableBindingsMap.get(bindingPath),
                                     evalVersion,
                                     bindingsInDsl)
+                            .name(GET_POSSIBLE_ENTITY_REFERENCES)
+                            .tap(Micrometer.observation(observationRegistry))
                             .flatMapMany(Flux::fromIterable)
                             .map(relatedDependencyNode -> {
                                 bindingsFromExecutables.add(relatedDependencyNode.getReferenceString());
@@ -1135,6 +1147,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         return Flux.fromIterable(widgetBindingMap.entrySet())
                 .flatMap(widgetBindingEntries -> getPossibleEntityParentsMap(
                                 widgetBindingEntries.getValue(), entityTypes, evalVersion)
+                        .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
+                        .tap(Micrometer.observation(observationRegistry))
                         .map(possibleParentsMap -> {
                             possibleParentsMap.entrySet().stream().forEach(entry -> {
                                 if (entry.getValue() == null || entry.getValue().isEmpty()) {
