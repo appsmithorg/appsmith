@@ -101,7 +101,7 @@
   );
   --icon-offset: calc((var(--input-height) - var(--icon-size)) / 2);
 
-  bottom: var(--icon-offset);
+  bottom: round(up, var(--icon-offset), 0.5px);
   right: var(--icon-offset);
 }
 
