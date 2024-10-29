@@ -837,7 +837,7 @@ Cypress.Commands.add("selectWidgetForReset", (value) => {
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(".react-datepicker .react-datepicker__day--today").click({
+  cy.get(".DayPicker-Day--today").click({
     force: true,
   });
   agHelper.AssertAutoSave();
