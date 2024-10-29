@@ -136,9 +136,7 @@ public class AstServiceCEImpl implements AstServiceCE {
 
         long endTime = System.nanoTime();
         double timeTakenMs = (endTime - startTime) / 1_000_000.0;
-        if (timeTakenMs > 1)
-            log.debug(String.format(
-                    "\nTime taken to get possible references from dynamic bindings: %.4f ms", timeTakenMs));
+        log.debug(String.format("\nTime taken to get possible references from dynamic bindings: %.4f ms", timeTakenMs));
 
         // TODO: add error handling scenario for when RTS is not accessible in fat container
         return res;
