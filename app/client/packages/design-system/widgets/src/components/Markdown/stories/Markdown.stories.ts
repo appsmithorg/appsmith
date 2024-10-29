@@ -13,7 +13,7 @@ export const Default: Story = {
   args: {
     children: `# Hello, Markdown!
 
-This is a paragraph with **bold** and *italic* text.
+This is a \`paragraph\` with **bold** and *italic* text.
 
 ## Code Example
 
