@@ -8,19 +8,17 @@ interface EditableTextProps {
   name: string;
   /** isLoading true will show a spinner **/
   isLoading?: boolean;
+  /** if a valid name is entered, the onNameSave
+   * will be called with the new name */
   onNameSave: (name: string) => void;
   /** Used in conjunction with exit editing to control
    *  this component input editable state  */
   isEditing: boolean;
-  /** When this is true, the exit out
-   *  of edit mode will be blocked till the
-   *  user has a keyboard interaction **/
-  needsInteractionBeforeExit?: boolean;
   /** Used in conjunction with exit editing to control this component
    *  input editable state This function will be called when the
-   *  user is trying to exit the editing mode. This can be
-   *  restricted by the needsInteractionBeforeExit prop **/
+   *  user is trying to exit the editing mode **/
   exitEditing: () => void;
+  /** Icon is replaced by spinner when isLoading is shown */
   icon: React.ReactNode;
   inputTestId?: string;
 }
@@ -32,12 +30,10 @@ export const EditableName = ({
   isEditing,
   isLoading = false,
   name,
-  needsInteractionBeforeExit,
   onNameSave,
 }: EditableTextProps) => {
   const previousName = usePrevious(name);
   const [editableName, setEditableName] = useState(name);
-  const [hasInteracted, setHasInteracted] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -74,8 +70,6 @@ export const EditableName = ({
 
   const handleKeyUp = useEventCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      setHasInteracted(true);
-
       if (e.key === "Enter") {
         if (editableName === name) {
           exitWithoutSaving();
@@ -112,12 +106,7 @@ export const EditableName = ({
     "focusout",
     function handleFocusOut() {
       if (isEditing) {
-        if (!hasInteracted && needsInteractionBeforeExit) {
-          // Refocus the input to ensure the user interacts with the input before exiting
-          inputRef.current?.focus();
-        } else {
-          exitWithoutSaving();
-        }
+        attemptSave();
       }
     },
     inputRef,
@@ -142,9 +131,7 @@ export const EditableName = ({
       if (isEditing && input) {
         setTimeout(() => {
           input.focus();
-        }, 400);
-      } else {
-        setHasInteracted(false);
+        }, 200);
       }
     },
     [isEditing],

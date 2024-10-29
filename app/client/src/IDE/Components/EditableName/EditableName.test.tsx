@@ -17,17 +17,12 @@ describe("EditableName", () => {
     ESC: { key: "Esc", keyCode: 27 },
   };
 
-  const setup = ({
-    forceEdit = false,
-    isEditing = false,
-    isLoading = false,
-  }) => {
+  const setup = ({ isEditing = false, isLoading = false }) => {
     // Define the props
     const props = {
       name,
       icon: <TabIcon />,
       isEditing,
-      forceEdit,
       onNameSave: mockOnNameSave,
       exitEditing: mockOnExitEditing,
       isLoading,
@@ -95,7 +90,7 @@ describe("EditableName", () => {
 
       await userEvent.click(document.body);
 
-      expect(onNameSave).not.toHaveBeenCalledWith(clickOutsideTitle);
+      expect(onNameSave).toHaveBeenCalledWith(clickOutsideTitle);
       expect(exitEditing).toHaveBeenCalled();
     });
 
@@ -156,7 +151,7 @@ describe("EditableName", () => {
 
       await userEvent.click(document.body);
 
-      expect(getByRole("tooltip").textContent).toEqual("");
+      expect(getByRole("tooltip").textContent).toEqual(validationError);
 
       expect(exitEditing).toHaveBeenCalled();
       expect(onNameSave).not.toHaveBeenCalledWith(invalidTitle);
@@ -192,7 +187,7 @@ describe("EditableName", () => {
       });
 
       fireEvent.focusOut(inputElement);
-      expect(getByRole("tooltip").textContent).toEqual("");
+      expect(getByRole("tooltip").textContent).toEqual(validationError);
       expect(exitEditing).toHaveBeenCalled();
       expect(onNameSave).not.toHaveBeenCalledWith(invalidTitle);
     });
@@ -208,43 +203,6 @@ describe("EditableName", () => {
       fireEvent.keyUp(input, KEY_CONFIG.ENTER);
 
       expect(onNameSave).not.toHaveBeenCalledWith("");
-    });
-  });
-
-  describe("force Edit behaviour", () => {
-    test("has the input in focus", () => {
-      const { getByRole } = setup({
-        isEditing: true,
-        forceEdit: true,
-      });
-      const input = getByRole("textbox");
-
-      expect(document.activeElement).toBe(input);
-    });
-    test("focus out will refocus input", () => {
-      const { getByRole } = setup({
-        isEditing: true,
-        forceEdit: true,
-      });
-      const input = getByRole("textbox");
-
-      fireEvent.focusOut(input);
-
-      expect(document.activeElement).toBe(input);
-    });
-    test("keyboard interaction allows focus out", async () => {
-      const { getByRole } = setup({
-        isEditing: true,
-        forceEdit: true,
-      });
-      const input = getByRole("textbox");
-
-      expect(input).toBeInTheDocument();
-
-      fireEvent.keyUp(input, { key: "U" });
-      await userEvent.click(document.body);
-
-      expect(document.activeElement).toBe(document.body);
     });
   });
 });
