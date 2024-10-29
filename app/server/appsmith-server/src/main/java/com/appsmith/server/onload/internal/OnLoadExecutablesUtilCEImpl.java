@@ -56,7 +56,6 @@ import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_DIRECTLY_REFE
 import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH;
 import static com.appsmith.external.constants.spans.OnLoadSpan.EXECUTABLE_NAME_TO_EXECUTABLE_MAP;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_ALL_EXECUTABLES_BY_CREATOR_ID;
-import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_ENTITY_PARENTS_MAP;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_ENTITY_REFERENCES;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT;
 import static com.appsmith.external.constants.spans.OnLoadSpan.UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS;
@@ -530,8 +529,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         final int entityTypes = EXECUTABLE_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
 
         return executableNameToExecutableMono
+                .name("appsmith.executableNameToExecutableMono.process")
+                .tap(Micrometer.observation(observationRegistry))
                 .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion)
-                        .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
+                        .name("appsmith.GPEPMap.getPossibleEntityReferences")
                         .tap(Micrometer.observation(observationRegistry)))
                 .map(tuple -> {
                     Map<String, Executable> executableMap = tuple.getT1();
@@ -601,9 +602,13 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(
             Set<String> bindings, int types, int evalVersion) {
-        Flux<Tuple2<String, Set<String>>> findingToReferencesFlux =
-                astService.getPossibleReferencesFromDynamicBinding(new ArrayList<>(bindings), evalVersion);
-        return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types);
+        Flux<Tuple2<String, Set<String>>> findingToReferencesFlux = astService
+                .getPossibleReferencesFromDynamicBinding(new ArrayList<>(bindings), evalVersion)
+                .name("appsmith.getPossibleReferencesFromDynamicBinding")
+                .tap(Micrometer.observation(observationRegistry));
+        return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types)
+                .name("appsmith.getPossibleEntityParentsMap")
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -1147,7 +1152,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         return Flux.fromIterable(widgetBindingMap.entrySet())
                 .flatMap(widgetBindingEntries -> getPossibleEntityParentsMap(
                                 widgetBindingEntries.getValue(), entityTypes, evalVersion)
-                        .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
+                        .name("appsmith.GPEPMap.addWidgetRelationshipToGraph")
                         .tap(Micrometer.observation(observationRegistry))
                         .map(possibleParentsMap -> {
                             possibleParentsMap.entrySet().stream().forEach(entry -> {

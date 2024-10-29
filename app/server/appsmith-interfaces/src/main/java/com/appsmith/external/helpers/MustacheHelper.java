@@ -4,6 +4,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.EntityDependencyNode;
 import com.appsmith.external.models.EntityReferenceType;
 import com.appsmith.external.models.MustacheBindingToken;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
 import org.springframework.beans.BeanWrapper;
@@ -34,6 +35,8 @@ import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUB
 
 @Slf4j
 public class MustacheHelper {
+
+    private static ObservationRegistry observationRegistry;
 
     /*
      * This pattern finds all the String which have been extracted from the mustache dynamic bindings.
@@ -70,6 +73,10 @@ public class MustacheHelper {
     // from the global identifiers found in a dynamic binding
     public static final int EXECUTABLE_ENTITY_REFERENCES = 0b01;
     public static final int WIDGET_ENTITY_REFERENCES = 0b10;
+
+    public MustacheHelper(ObservationRegistry observationRegistry) {
+        this.observationRegistry = observationRegistry;
+    }
 
     /**
      * Tokenize a Mustache template string into a list of plain text and Mustache interpolations.

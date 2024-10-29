@@ -8,6 +8,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RTSCaller;
 import com.appsmith.util.WebClientUtils;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +17,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.resources.ConnectionProvider;
@@ -38,10 +40,9 @@ import java.util.stream.Collectors;
 public class AstServiceCEImpl implements AstServiceCE {
 
     private final CommonConfig commonConfig;
-
     private final InstanceConfig instanceConfig;
-
     private final RTSCaller rtsCaller;
+    private final ObservationRegistry observationRegistry;
 
     private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
             .maxConnections(100)
@@ -116,7 +117,9 @@ public class AstServiceCEImpl implements AstServiceCE {
                         Mono.just(new HashSet<>(MustacheHelper.getPossibleParentsOld(bindingValue))));
             });
         }
-        return rtsCaller
+        long startTime = System.nanoTime();
+
+        Flux<Tuple2<String, Set<String>>> res = rtsCaller
                 .post("/rts-api/v1/ast/multiple-script-data", new GetIdentifiersRequestBulk(bindingValues, evalVersion))
                 .flatMapMany(spec -> spec.retrieve()
                         .bodyToMono(GetIdentifiersResponseBulk.class)
@@ -127,8 +130,18 @@ public class AstServiceCEImpl implements AstServiceCE {
                     long currentIndex = tuple2.getT1();
                     Set<String> references = tuple2.getT2().getReferences();
                     return Mono.zip(Mono.just(bindingValues.get((int) currentIndex)), Mono.just(references));
-                });
+                })
+                .name("appsmith.rts.multiple-script-data")
+                .tap(Micrometer.observation(observationRegistry));
+
+        long endTime = System.nanoTime();
+        double timeTakenMs = (endTime - startTime) / 1_000_000.0;
+        if (timeTakenMs > 1)
+            log.debug(String.format(
+                    "\nTime taken to get possible references from dynamic bindings: %.4f ms", timeTakenMs));
+
         // TODO: add error handling scenario for when RTS is not accessible in fat container
+        return res;
     }
 
     @Override
