@@ -94,7 +94,7 @@ public class ActionCollectionServiceTest {
     @Autowired
     RefactoringService refactoringService;
 
-    @Autowired
+    @SpyBean
     NewPageService newPageService;
 
     @Autowired
@@ -766,6 +766,13 @@ public class ActionCollectionServiceTest {
                     // collection as expected
                     Mockito.verify(updateLayoutService, Mockito.times(2))
                             .updatePageLayoutsByPageId(Mockito.anyString());
+
+                    // This gets called 4 times:
+                    // 2 times during createCollection -> a. getExistingEntityNames and b. updatePageLayoutsByPageId
+                    // 1 time during setup of this test case
+                    // 1 time during update action collection
+                    Mockito.verify(newPageService, Mockito.times(4))
+                            .findPageById(Mockito.anyString(), Mockito.any(), Mockito.anyBoolean());
                 })
                 .verifyComplete();
     }
