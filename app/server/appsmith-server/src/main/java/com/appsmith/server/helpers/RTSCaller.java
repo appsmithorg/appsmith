@@ -17,6 +17,8 @@ import reactor.netty.resources.ConnectionProvider;
 import java.time.Duration;
 import java.util.Map;
 
+import static com.appsmith.external.constants.MDCConstants.TRACE_ID;
+import static com.appsmith.external.constants.MDCConstants.TRACE_PARENT;
 import static com.appsmith.server.filters.MDCFilter.INTERNAL_REQUEST_ID_HEADER;
 import static com.appsmith.server.filters.MDCFilter.REQUEST_ID_HEADER;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -69,6 +71,10 @@ public class RTSCaller {
 
                 if (contextMap.containsKey(INTERNAL_REQUEST_ID_HEADER)) {
                     spec.header(INTERNAL_REQUEST_ID_HEADER, contextMap.get(INTERNAL_REQUEST_ID_HEADER));
+                }
+
+                if (contextMap.containsKey(TRACE_ID)) {
+                    spec.header(TRACE_PARENT, contextMap.get(TRACE_ID));
                 }
 
                 if (contextMap.containsKey(REQUEST_ID_HEADER)) {
