@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,8 +18,6 @@ import reactor.netty.resources.ConnectionProvider;
 import java.time.Duration;
 import java.util.Map;
 
-import static com.appsmith.external.constants.MDCConstants.TRACE_ID;
-import static com.appsmith.external.constants.MDCConstants.TRACE_PARENT;
 import static com.appsmith.server.filters.MDCFilter.INTERNAL_REQUEST_ID_HEADER;
 import static com.appsmith.server.filters.MDCFilter.REQUEST_ID_HEADER;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -26,12 +25,18 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Component
 public class RTSCaller {
 
+    private final ObservationRegistry observationRegistry;
+
     private WebClient webClient;
 
     @Value("${appsmith.rts.port:}")
     private String rtsPort;
 
     private static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
+
+    public RTSCaller(ObservationRegistry observationRegistry) {
+        this.observationRegistry = observationRegistry;
+    }
 
     @PostConstruct
     private void makeWebClient() {
@@ -55,6 +60,7 @@ public class RTSCaller {
                         .build())
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create(connectionProvider)))
                 .baseUrl("http://127.0.0.1:" + rtsPort)
+                .observationRegistry(observationRegistry)
                 .build();
     }
 
@@ -73,9 +79,9 @@ public class RTSCaller {
                     spec.header(INTERNAL_REQUEST_ID_HEADER, contextMap.get(INTERNAL_REQUEST_ID_HEADER));
                 }
 
-                if (contextMap.containsKey(TRACE_ID)) {
-                    spec.header(TRACE_PARENT, contextMap.get(TRACE_ID));
-                }
+                //                if (contextMap.containsKey(TRACE_PARENT)) {
+                //                    spec.header(TRACE_PARENT, contextMap.get(TRACE_ID));
+                //                }
 
                 if (contextMap.containsKey(REQUEST_ID_HEADER)) {
                     spec.header(REQUEST_ID_HEADER, contextMap.get(REQUEST_ID_HEADER));
