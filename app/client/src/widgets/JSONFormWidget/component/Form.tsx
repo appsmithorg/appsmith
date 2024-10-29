@@ -152,7 +152,7 @@ function Form<TValues = any>(
 ) {
   const valuesRef = useRef({});
   const methods = useForm();
-  const { formState, reset, watch } = methods;
+  const { formState, reset, trigger, watch } = methods;
   const { errors } = formState;
   const isFormInValid = !isEmpty(errors);
 
@@ -272,6 +272,12 @@ function Form<TValues = any>(
   useEffect(() => {
     onFormValidityUpdate(!isFormInValid);
   }, [onFormValidityUpdate, isFormInValid]);
+
+  useEffect(() => {
+    // This effect is to handle an edge-case:
+    // https://github.com/appsmithorg/appsmith/issues/28018
+    trigger();
+  }, [children, trigger]);
 
   return (
     <FormProvider {...methods}>
