@@ -189,7 +189,7 @@ describe(
     });
 
     it("1.8. should show the selectOptions data of a new row select cell when no data in the table", () => {
-      entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 350, 500);
+      entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 600, 750);
       EditorNavigation.SelectEntityByName("Table2", EntityType.Widget);
 
       // add base data
