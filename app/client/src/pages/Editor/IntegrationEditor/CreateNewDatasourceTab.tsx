@@ -44,11 +44,11 @@ import { isPluginActionCreating } from "PluginActionEditor/store";
 import { paragon } from "@useparagon/connect";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useParagonIntegrations } from "utils/paragonHooks";
-import { getUntitledDatasourceSequence } from "utils/DatasourceSagaUtils";
 import { DATASOURCE_NAME_DEFAULT_PREFIX } from "constants/Datasource";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { PluginPackageName } from "entities/Action";
 import type { Plugin } from "api/PluginApi";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -191,14 +191,16 @@ function ParagonIntegrations() {
   const apiPlugin = plugins.find(
     (plugin) => plugin.packageName === PluginPackageName.REST_API,
   );
-  const sequence = getUntitledDatasourceSequence(dsList);
+  const datasourceName = getNextEntityName(
+    DATASOURCE_NAME_DEFAULT_PREFIX,
+    dsList.map((el: Datasource) => el.name),
+  );
   const handleOnClick = (type: string) => {
     paragon.installIntegration(type, {
       allowMultipleCredentials: true,
       accountType: "default",
       onSuccess: (event, user) => {
         console.log(event);
-        const name = DATASOURCE_NAME_DEFAULT_PREFIX + sequence;
         dispatch({
           type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
           payload: {
@@ -223,7 +225,7 @@ function ParagonIntegrations() {
                 toastMessage: "EMPTY_TOAST_MESSAGE",
               },
             },
-            name,
+            name: datasourceName,
           },
         });
       },
