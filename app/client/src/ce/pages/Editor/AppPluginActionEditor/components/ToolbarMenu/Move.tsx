@@ -13,7 +13,11 @@ import {
 import { CONTEXT_MOVE, createMessage } from "ee/constants/messages";
 import { PageMenuItem } from "./PageMenuItem";
 
-export const Move = () => {
+interface Props {
+  disabled?: boolean;
+}
+
+export const Move = ({ disabled }: Props) => {
   const dispatch = useDispatch();
   const { action } = usePluginActionContext();
 
@@ -38,7 +42,7 @@ export const Move = () => {
 
   return (
     <MenuSub>
-      <MenuSubTrigger startIcon="swap-horizontal">
+      <MenuSubTrigger disabled={disabled} startIcon="swap-horizontal">
         {createMessage(CONTEXT_MOVE)}
       </MenuSubTrigger>
       <MenuSubContent>
