@@ -70,7 +70,6 @@ const processor = new BatchSpanProcessor(
 tracerProvider.addSpanProcessor(processor);
 tracerProvider.register({
   contextManager: new ZoneContextManager(),
-  propagator: new W3CTraceContextPropagator(),
 });
 
 const nrMetricsExporter = new OTLPMetricExporter({
