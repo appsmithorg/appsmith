@@ -17,8 +17,6 @@ import {
 } from "ee/constants/messages";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import type { SaveActionNameParams } from "PluginActionEditor";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { Action } from "entities/Action";
 import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
 
@@ -48,10 +46,6 @@ function ActionNameEditor(props: ActionNameEditorProps) {
     saveActionName,
     saveStatus,
   } = props;
-
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
 
   return (
     <NameEditorComponent
@@ -89,7 +83,7 @@ function ActionNameEditor(props: ActionNameEditorProps) {
               editInteractionKind={EditInteractionKind.SINGLE}
               errorTooltipClass="t--action-name-edit-error"
               forceDefault={forceUpdate}
-              iconSize={isActionRedesignEnabled ? "sm" : "md"}
+              iconSize={"md"}
               isEditingDefault={isNew}
               isInvalid={isInvalidNameForEntity}
               onTextChanged={handleNameChange}

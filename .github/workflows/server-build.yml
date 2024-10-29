@@ -23,6 +23,27 @@ on:
         type: string
         default: "false"
 
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "PR number for the workflow"
+        required: false
+        type: number
+      skip-tests:
+        description: "Skip tests flag"
+        required: false
+        type: string
+        default: "false"
+      branch:
+        description: "Branch for the build"
+        required: false
+        type: string
+      is-pg-build:
+        description: "Flag for PG build"
+        required: false
+        type: string
+        default: "false"
+
 # Change the working directory for all the jobs in this workflow
 defaults:
   run:

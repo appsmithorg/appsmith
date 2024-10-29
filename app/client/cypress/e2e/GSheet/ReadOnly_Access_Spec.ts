@@ -13,7 +13,9 @@ import {
 
 describe.skip(
   "GSheet-Functional Tests With Read Access",
-  { tags: ["@tag.Datasource", "@tag.GSheet"] },
+  {
+    tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     const workspaceName = "gsheet apps";
     const dataSourceName = {

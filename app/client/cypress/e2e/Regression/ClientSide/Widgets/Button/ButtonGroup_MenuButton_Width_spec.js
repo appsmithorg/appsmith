@@ -3,7 +3,7 @@ import { agHelper } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "In a button group widget, menu button width",
-  { tags: ["@tag.Widget", "@tag.Button"] },
+  { tags: ["@tag.Widget", "@tag.Button", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("ButtonGroup_MenuButton_Width_dsl");

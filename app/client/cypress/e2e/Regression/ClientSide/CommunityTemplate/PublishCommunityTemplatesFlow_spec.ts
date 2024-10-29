@@ -8,7 +8,15 @@ import {
 const communityForm = communityTemplates.locators._communityForm;
 describe(
   "Publish app to Community flow",
-  { tags: ["@tag.Templates", " @tag.excludeForAirgap"] },
+  {
+    tags: [
+      "@tag.Templates",
+      " @tag.excludeForAirgap",
+      "@tag.Git",
+      "@tag.ImportExport",
+      "@tag.Fork",
+    ],
+  },
   () => {
     afterEach(() => {
       agHelper.RefreshPage();

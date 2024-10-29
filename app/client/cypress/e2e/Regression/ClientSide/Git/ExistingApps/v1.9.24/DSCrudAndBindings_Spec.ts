@@ -13,7 +13,20 @@ import PageList from "../../../../../../support/Pages/PageList";
 
 describe(
   "Import and validate older app (app created in older versions of Appsmith) from Gitea",
-  { tags: ["@tag.Git", "@tag.Sanity", "@tag.TedMigration"] },
+  {
+    tags: [
+      "@tag.Git",
+      "@tag.Sanity",
+      "@tag.TedMigration",
+      "@tag.AccessControl",
+      "@tag.Workflows",
+      "@tag.Module",
+      "@tag.Theme",
+      "@tag.JS",
+      "@tag.Container",
+      "@tag.ImportExport",
+    ],
+  },
   function () {
     let appRepoName = "TED-migration-test-1",
       appName = "UpgradeAppToLatestVersion",

@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "Tabs widget Tests",
-  { tags: ["@tag.Widget", "@tag.Tab"] },
+  { tags: ["@tag.Widget", "@tag.Tab", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("tabsDsl");
@@ -189,7 +189,7 @@ describe(
     });
 
     // to work on redesign of the test, commenting for now
-    it.skip("7. Verify colors, borders and shadows", () => {
+    it("7. Verify colors, borders and shadows", () => {
       // Verify font color picker opens up
       propPane.MoveToTab("Style");
       agHelper.GetNClick(propPane._propertyControlColorPicker("accentcolor"));
@@ -220,11 +220,16 @@ describe(
       // Border Color
       propPane.SelectColorFromColorPicker("bordercolor", 13);
       assertHelper.AssertNetworkStatus("@updateLayout");
-      agHelper.AssertCSS(
-        tabs._tabsWidgetStyle,
-        "border-color",
-        "rgb(185, 28, 28)",
-      );
+
+      agHelper
+        .GetWidgetCSSFrAttribute(propPane._borderColorCursor, "color")
+        .then((color) => {
+          agHelper
+            .GetWidgetCSSFrAttribute(locators._widgetBorder, "color", 1)
+            .then((bgcolor) => {
+              expect(color).to.eq(bgcolor);
+            });
+        });
 
       agHelper.AssertAttribute(propPane._colorPickerInput, "type", "text", 2);
       propPane.TogglePropertyState("bordercolor", "On", "");

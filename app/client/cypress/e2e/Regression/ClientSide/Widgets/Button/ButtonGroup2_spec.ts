@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "Button Group Widget Test",
-  { tags: ["@tag.Widget", "@tag.Button"] },
+  { tags: ["@tag.Widget", "@tag.Button", "@tag.Binding"] },
   function () {
     before("Login to the app and navigate to the workspace", function () {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON_GROUP);

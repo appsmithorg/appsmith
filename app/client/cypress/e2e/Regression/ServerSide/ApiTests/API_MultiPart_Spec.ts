@@ -17,7 +17,7 @@ import EditorNavigation, {
 
 describe(
   "Validate API request body panel",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

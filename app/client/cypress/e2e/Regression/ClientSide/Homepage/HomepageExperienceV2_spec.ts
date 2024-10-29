@@ -8,7 +8,7 @@ import HomepageLocators from "../../../../locators/HomePage";
 
 describe(
   "Validate Homepage Experience V2 changes",
-  { tags: ["@tag.Workspace"] },
+  { tags: ["@tag.Workspace", "@tag.AccessControl"] },
   function () {
     before(() => {});
 

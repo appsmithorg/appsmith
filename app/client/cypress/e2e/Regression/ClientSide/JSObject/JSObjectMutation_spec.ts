@@ -6,7 +6,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 const commonlocators = require("../../../../locators/commonlocators.json");
 
-describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
+describe("JSObject testing", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
   before(() => {
     _.homePage.NavigateToHome();
     _.homePage.ImportApp("JSObjectMutationTestApp.json");

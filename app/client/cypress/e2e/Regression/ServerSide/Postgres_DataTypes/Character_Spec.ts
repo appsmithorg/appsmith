@@ -17,7 +17,7 @@ import EditorNavigation, {
 
 describe(
   "Character Datatype tests",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let dsName: any, query: string;
 

@@ -277,7 +277,7 @@ public class PostgresPlugin extends BasePlugin {
                 return executeCommon(connection, datasourceConfiguration, actionConfiguration, FALSE, null, null, null);
             }
 
-            // Prepared Statement
+            // Prepared statement
 
             // First extract all the bindings in order
             List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);

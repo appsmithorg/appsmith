@@ -23,7 +23,19 @@ import PageList from "../../../../../support/Pages/PageList";
 
 describe(
   "Git import flow ",
-  { tags: ["@tag.Git", "@tag.Sanity"] },
+  {
+    tags: [
+      "@tag.Git",
+      "@tag.Sanity",
+      "@tag.AccessControl",
+      "@tag.Workflows",
+      "@tag.Module",
+      "@tag.Theme",
+      "@tag.JS",
+      "@tag.Container",
+      "@tag.ImportExport",
+    ],
+  },
   function () {
     it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
       homePage.NavigateToHome();

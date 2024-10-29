@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "Tree Select widget Tests",
-  { tags: ["@tag.Widget", "@tag.Select"] },
+  { tags: ["@tag.Widget", "@tag.Select", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("formwidget", 500, 100);

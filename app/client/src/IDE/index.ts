@@ -54,6 +54,22 @@ export { default as IDEBottomView } from "./Components/BottomView";
  * It switches between different editor states
  */
 export { default as IDESidebar } from "./Components/Sidebar";
+/**
+ * IDESidePaneWrapper is used as a wrapper for side panes, which provides a border and optional padding
+ * and enforces 100% width and height to the parent.
+ */
+export { default as IDESidePaneWrapper } from "./Components/SidePaneWrapper";
+
+/**
+ * ToolbarSettingsPopover is a popover attached to a settings toggle button in the toolbar
+ */
+export { ToolbarSettingsPopover } from "./Components/ToolbarSettingsPopover";
+
+/**
+ * EditableName is a component that allows the user to edit the name of an entity
+ * It is used in the IDE for renaming pages, actions, queries, etc.
+ */
+export { EditableName } from "./Components/EditableName";
 
 /* ====================================================
     **** Interfaces ****

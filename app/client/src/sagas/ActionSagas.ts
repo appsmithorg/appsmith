@@ -1,3 +1,56 @@
+import { toast } from "@appsmith/ads";
+import { objectKeys } from "@appsmith/utils";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
+import {
+  setIdeEditorViewMode,
+  setShowQueryCreateNewModal,
+} from "actions/ideActions";
+import {
+  closeQueryActionTab,
+  closeQueryActionTabSuccess,
+  copyActionError,
+  copyActionSuccess,
+  createActionInit,
+  createActionSuccess,
+  createNewApiAction,
+  createNewQueryAction,
+  deleteActionSuccess,
+  fetchActionsForPage,
+  fetchActionsForPageSuccess,
+  type FetchActionsPayload,
+  moveActionError,
+  moveActionSuccess,
+  type SetActionPropertyPayload,
+  updateAction,
+  updateActionData,
+  updateActionProperty,
+  updateActionSuccess,
+} from "actions/pluginActionActions";
+import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
+import type { ActionCreateUpdateResponse } from "api/ActionAPI";
+import ActionAPI from "api/ActionAPI";
+import type { ApiResponse } from "api/ApiResponses";
+import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
+import PageApi from "api/PageApi";
+import type { Plugin } from "api/PluginApi";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import {
+  fixActionPayloadForMongoQuery,
+  getConfigInitialValues,
+} from "components/formControls/utils";
+import { INTEGRATION_TABS } from "constants/routes";
+import {
+  API_EDITOR_FORM_NAME,
+  QUERY_EDITOR_FORM_NAME,
+} from "ee/constants/forms";
+import {
+  ACTION_COPY_SUCCESS,
+  ACTION_MOVE_SUCCESS,
+  createMessage,
+  ERROR_ACTION_COPY_FAIL,
+  ERROR_ACTION_MOVE_FAIL,
+  ERROR_ACTION_RENAME_FAIL,
+} from "ee/constants/messages";
 import type {
   EvaluationReduxAction,
   ReduxAction,
@@ -6,6 +59,61 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
+import { EditorViewMode, IDE_TYPE } from "ee/entities/IDE/constants";
+import { getIDETypeByUrl } from "ee/entities/IDE/utils";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
+import {
+  apiEditorIdURL,
+  builderURL,
+  integrationEditorURL,
+  queryEditorIdURL,
+  saasEditorApiIdURL,
+} from "ee/RouteBuilder";
+import { updateActionAPICall } from "ee/sagas/ApiCallerSagas";
+import {
+  generateDestinationIdInfoForQueryDuplication,
+  resolveParentEntityMetadata,
+} from "ee/sagas/helpers";
+import { updateCanvasWithDSL } from "ee/sagas/PageSagas";
+import {
+  getAction,
+  getCurrentPageNameByActionId,
+  getDatasource,
+  getDatasources,
+  getDatasourceStructureById,
+  getEditorConfig,
+  getNewEntityName,
+  getPageNameByPageId,
+  getPlugin,
+  getSettingConfig,
+} from "ee/selectors/entitiesSelector";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import type {
+  Action,
+  ActionViewMode,
+  ApiAction,
+  ApiActionConfig,
+  BaseAction,
+  CreateActionDefaultsParams,
+  SlashCommandPayload,
+} from "entities/Action";
+import {
+  ActionCreationSourceTypeEnum,
+  isAPIAction,
+  isGraphqlPlugin,
+  PluginPackageName,
+  PluginType,
+  SlashCommand,
+} from "entities/Action";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { Datasource, DatasourceStructure } from "entities/Datasource";
+import { get, isEmpty, merge } from "lodash";
+import { DEFAULT_API_ACTION_CONFIG } from "PluginActionEditor/constants/ApiEditorConstants";
+import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "PluginActionEditor/constants/GraphQLEditorConstants";
+import { transformRestAction } from "PluginActionEditor/transformers/RestActionTransformer";
+import { getFormValues } from "redux-form";
 import {
   all,
   call,
@@ -18,133 +126,28 @@ import {
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
-import type { Datasource, DatasourceStructure } from "entities/Datasource";
-import type { ActionCreateUpdateResponse } from "api/ActionAPI";
-import ActionAPI from "api/ActionAPI";
-import type { ApiResponse } from "api/ApiResponses";
-import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
-import PageApi from "api/PageApi";
-import { updateCanvasWithDSL } from "ee/sagas/PageSagas";
-import {
-  closeQueryActionTab,
-  closeQueryActionTabSuccess,
-  createNewApiAction,
-  createNewQueryAction,
-  type FetchActionsPayload,
-  type SetActionPropertyPayload,
-} from "actions/pluginActionActions";
-import {
-  copyActionError,
-  copyActionSuccess,
-  createActionInit,
-  createActionSuccess,
-  deleteActionSuccess,
-  fetchActionsForPage,
-  fetchActionsForPageSuccess,
-  moveActionError,
-  moveActionSuccess,
-  updateAction,
-  updateActionData,
-  updateActionProperty,
-  updateActionSuccess,
-} from "actions/pluginActionActions";
-import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
-import { validateResponse } from "./ErrorSagas";
-import { transformRestAction } from "PluginActionEditor/transformers/RestActionTransformer";
 import {
   getCurrentBasePageId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import type {
-  Action,
-  ActionViewMode,
-  ApiAction,
-  ApiActionConfig,
-  BaseAction,
-  CreateActionDefaultsParams,
-  SlashCommandPayload,
-} from "entities/Action";
-import { isGraphqlPlugin, ActionCreationSourceTypeEnum } from "entities/Action";
-import {
-  isAPIAction,
-  PluginPackageName,
-  PluginType,
-  SlashCommand,
-} from "entities/Action";
-import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
-import {
-  getAction,
-  getCurrentPageNameByActionId,
-  getDatasource,
-  getDatasourceStructureById,
-  getDatasources,
-  getEditorConfig,
-  getPageNameByPageId,
-  getPlugin,
-  getSettingConfig,
-  getNewEntityName,
-} from "ee/selectors/entitiesSelector";
-import history from "utils/history";
-import { INTEGRATION_TABS } from "constants/routes";
-import {
-  ACTION_COPY_SUCCESS,
-  ACTION_MOVE_SUCCESS,
-  createMessage,
-  ERROR_ACTION_COPY_FAIL,
-  ERROR_ACTION_MOVE_FAIL,
-  ERROR_ACTION_RENAME_FAIL,
-} from "ee/constants/messages";
-import { get, isEmpty, merge } from "lodash";
-import {
-  fixActionPayloadForMongoQuery,
-  getConfigInitialValues,
-} from "components/formControls/utils";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { Plugin } from "api/PluginApi";
+import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
+import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 import { shouldBeDefined } from "utils/helpers";
+import history from "utils/history";
+import { setAIPromptTriggered } from "utils/storage";
+import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
+import { validateResponse } from "./ErrorSagas";
+import FocusRetention from "./FocusRetentionSaga";
 import {
-  apiEditorIdURL,
-  builderURL,
-  integrationEditorURL,
-  queryEditorIdURL,
-  saasEditorApiIdURL,
-} from "ee/RouteBuilder";
-import {
-  RequestPayloadAnalyticsPath,
   checkAndLogErrorsIfCyclicDependency,
   enhanceRequestPayloadWithEventData,
   getFromServerWhenNoPrefetchedResult,
+  RequestPayloadAnalyticsPath,
 } from "./helper";
-import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
-import { toast } from "@appsmith/ads";
-import { getFormValues } from "redux-form";
-import {
-  API_EDITOR_FORM_NAME,
-  QUERY_EDITOR_FORM_NAME,
-} from "ee/constants/forms";
-import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "PluginActionEditor/constants/GraphQLEditorConstants";
-import { DEFAULT_API_ACTION_CONFIG } from "PluginActionEditor/constants/ApiEditorConstants";
-import { fetchDatasourceStructure } from "actions/datasourceActions";
-import { setAIPromptTriggered } from "utils/storage";
-import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
-import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import { updateActionAPICall } from "ee/sagas/ApiCallerSagas";
-import FocusRetention from "./FocusRetentionSaga";
-import { resolveParentEntityMetadata } from "ee/sagas/helpers";
 import { handleQueryEntityRedirect } from "./IDESaga";
-import { EditorViewMode, IDE_TYPE } from "ee/entities/IDE/constants";
-import { getIDETypeByUrl } from "ee/entities/IDE/utils";
-import {
-  setIdeEditorViewMode,
-  setShowQueryCreateNewModal,
-} from "actions/ideActions";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
-import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
-import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -279,9 +282,7 @@ export function* getPluginActionDefaultValues(pluginId: string) {
  */
 export function* createActionRequestSaga(
   actionPayload: ReduxAction<
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    Partial<Action> & { eventData: any; pluginId: string }
+    Partial<Action> & { eventData?: unknown; pluginId: string }
   >,
 ) {
   const payload = { ...actionPayload.payload };
@@ -310,13 +311,11 @@ export function* createActionRequestSaga(
       DEFAULT_PREFIX.QUERY;
     }
 
-    const name: string = yield select(getNewEntityName, {
+    payload.name = yield select(getNewEntityName, {
       prefix,
       parentEntityId,
       parentEntityKey,
     });
-
-    payload.name = name;
   }
 
   yield put(createActionInit(payload));
@@ -745,16 +744,34 @@ function* moveActionSaga(
 }
 
 function* copyActionSaga(
-  action: ReduxAction<{ id: string; destinationPageId: string; name: string }>,
+  action: ReduxAction<{
+    id: string;
+    destinationEntityId: string;
+    name: string;
+  }>,
 ) {
-  let actionObject: Action = yield select(getAction, action.payload.id);
+  const { destinationEntityId, id, name } = action.payload;
+  let actionObject: Action = yield select(getAction, id);
+
+  const { parentEntityId, parentEntityKey } =
+    resolveParentEntityMetadata(actionObject);
+
+  if (!parentEntityId || !parentEntityKey) return;
+
   const newName: string = yield select(getNewEntityName, {
-    prefix: action.payload.name,
-    parentEntityId: action.payload.destinationPageId,
-    parentEntityKey: CreateNewActionKey.PAGE,
+    prefix: name,
+    parentEntityId: destinationEntityId,
+    parentEntityKey,
     suffix: "Copy",
     startWithoutIndex: true,
   });
+
+  const destinationEntityIdInfo = generateDestinationIdInfoForQueryDuplication(
+    destinationEntityId,
+    parentEntityKey,
+  );
+
+  if (objectKeys(destinationEntityIdInfo).length === 0) return;
 
   try {
     if (!actionObject) throw new Error("Could not find action to copy");
@@ -768,7 +785,7 @@ function* copyActionSaga(
 
     const copyAction = Object.assign({}, actionObject, {
       name: newName,
-      pageId: action.payload.destinationPageId,
+      ...destinationEntityIdInfo,
     }) as Partial<Action>;
 
     // Indicates that source of action creation is copy action
@@ -781,11 +798,15 @@ function* copyActionSaga(
     const datasources: Datasource[] = yield select(getDatasources);
 
     const isValidResponse: boolean = yield validateResponse(response);
-    const pageName: string = yield select(
-      getPageNameByPageId,
-      // @ts-expect-error: pageId not present on ActionCreateUpdateResponse
-      response.data.pageId,
-    );
+    let pageName: string = "";
+
+    if (parentEntityKey === CreateNewActionKey.PAGE) {
+      pageName = yield select(
+        getPageNameByPageId,
+        // @ts-expect-error: pageId not present on ActionCreateUpdateResponse
+        response.data.pageId,
+      );
+    }
 
     if (isValidResponse) {
       toast.show(
@@ -801,12 +822,14 @@ function* copyActionSaga(
       const originalActionId = get(
         actionObject,
         `${RequestPayloadAnalyticsPath}.originalActionId`,
-        action.payload.id,
+        id,
       );
 
       AnalyticsUtil.logEvent("DUPLICATE_ACTION", {
         // @ts-expect-error: name not present on ActionCreateUpdateResponse
         actionName: response.data.name,
+        parentEntityId,
+        parentEntityKey,
         pageName: pageName,
         actionId: response.data.id,
         originalActionId,
@@ -836,7 +859,8 @@ function* copyActionSaga(
 
     yield put(
       copyActionError({
-        ...action.payload,
+        id,
+        destinationEntityIdInfo,
         show: true,
         error: {
           message: errorMessage,
@@ -1039,21 +1063,23 @@ function* toggleActionExecuteOnLoadSaga(
 }
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
-  const {
-    baseId: baseActionId,
-    pageId,
-    pluginId,
-    pluginType,
-  } = actionPayload.payload;
+  const { baseId: baseActionId, pluginId, pluginType } = actionPayload.payload;
   const isApi = pluginType === PluginType.API;
   const isQuery = pluginType === PluginType.DB;
   const isSaas = pluginType === PluginType.SAAS;
-  const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
+  const { parentEntityId } = resolveParentEntityMetadata(actionPayload.payload);
+
+  if (!parentEntityId) return;
+
+  const baseParentEntityId: string = yield select(
+    convertToBaseParentEntityIdSelector,
+    parentEntityId,
+  );
 
   if (isApi) {
     history.push(
       apiEditorIdURL({
-        basePageId,
+        baseParentEntityId,
         baseApiId: baseActionId,
       }),
     );
@@ -1062,7 +1088,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
   if (isQuery) {
     history.push(
       queryEditorIdURL({
-        basePageId,
+        baseParentEntityId,
         baseQueryId: baseActionId,
       }),
     );
@@ -1076,7 +1102,7 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
 
     history.push(
       saasEditorApiIdURL({
-        basePageId,
+        baseParentEntityId,
         pluginPackageName: plugin.packageName,
         baseApiId: baseActionId,
       }),
