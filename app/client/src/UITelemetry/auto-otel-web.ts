@@ -9,7 +9,6 @@ import {
 } from "@opentelemetry/semantic-conventions/incubating";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import { getAppsmithConfigs } from "ee/configs";
-import { W3CTraceContextPropagator } from "@opentelemetry/core";
 import {
   MeterProvider,
   PeriodicExportingMetricReader,
