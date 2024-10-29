@@ -1,11 +1,10 @@
+import * as _ from "../../../../../../support/Objects/ObjectsCore";
 import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../../locators/commonlocators.json");
-import * as _ from "../../../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../../../support/Objects/FeatureFlags";
 
 describe(
   "Table widget - Select column type functionality",
@@ -206,7 +205,6 @@ describe(
 
     it("7. should check that on option select is working", () => {
       _.agHelper.CheckForPageSaveError();
-      featureFlagIntercept({ release_table_cell_label_value_enabled: true });
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       cy.get(".t--property-control-onoptionchange .t--js-toggle").click();
