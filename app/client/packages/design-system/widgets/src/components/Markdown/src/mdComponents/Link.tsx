@@ -10,7 +10,13 @@ export const a = (props: LinkProps) => {
   const { children, href } = props;
 
   return (
-    <Link data-component="a" href={href} rel="noreferrer" target="_blank">
+    <Link
+      data-component="a"
+      href={href}
+      rel="noreferrer"
+      target="_blank"
+      wordBreak="break-word"
+    >
       {children}
     </Link>
   );

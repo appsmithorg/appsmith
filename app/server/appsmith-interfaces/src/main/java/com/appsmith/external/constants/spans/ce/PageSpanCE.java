@@ -14,6 +14,9 @@ public class PageSpanCE {
     public static final String PREPARE_APPLICATION_PAGES_DTO_FROM_PAGES = PAGES + "generate_app_pages_dto";
     public static final String MIGRATE_DSL = PAGES + "migrate_dsl";
 
-    public static final String GET_PAGE_BY_ID = APPSMITH_SPAN_PREFIX + "get.page.unpublished";
-    public static final String GET_PAGE_BY_ID_AND_LAYOUTS_ID = APPSMITH_SPAN_PREFIX + "getPageByIdAndLayoutsId";
+    public static final String GET_PAGE_BY_ID = APPSMITH_SPAN_PREFIX + PAGES + "newPageService.findById";
+    public static final String GET_PAGE_BY_ID_AND_LAYOUTS_ID = APPSMITH_SPAN_PREFIX + PAGES + "getPageByIdAndLayoutsId";
+
+    // page level method added here
+    public static final String IS_NAME_ALLOWED = APPSMITH_SPAN_PREFIX + PAGES + "refactoringService.isNameAllowed";
 }

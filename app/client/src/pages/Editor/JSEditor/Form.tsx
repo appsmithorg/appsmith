@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { JSAction } from "entities/JSCollection";
 import type { DropdownOnSelect } from "@appsmith/ads-old";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { JSObjectNameEditorProps } from "./JSObjectNameEditor";
+import type { JSObjectNameEditorProps } from "./JSEditorToolbar/JSObjectNameEditor";
 import {
   setActiveJSAction,
   setJsPaneConfigSelectedTab,
@@ -68,6 +68,7 @@ interface JSFormProps {
   hideContextMenuOnEditor?: boolean;
   hideEditIconOnEditor?: boolean;
   notification?: React.ReactNode;
+  showNameEditor?: boolean;
 }
 
 type Props = JSFormProps;
@@ -108,6 +109,7 @@ function JSEditorForm({
   notification,
   onUpdateSettings,
   saveJSObjectName,
+  showNameEditor = false,
   showSettings = true,
 }: Props) {
   const theme = EditorTheme.LIGHT;
@@ -353,6 +355,7 @@ function JSEditorForm({
             onUpdateSettings={onUpdateSettings}
             saveJSObjectName={saveJSObjectName}
             selected={selectedJSActionOption}
+            showNameEditor={showNameEditor}
             showSettings={showSettings}
           />
           {notification && (

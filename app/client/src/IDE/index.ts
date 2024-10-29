@@ -65,6 +65,12 @@ export { default as IDESidePaneWrapper } from "./Components/SidePaneWrapper";
  */
 export { ToolbarSettingsPopover } from "./Components/ToolbarSettingsPopover";
 
+/**
+ * EditableName is a component that allows the user to edit the name of an entity
+ * It is used in the IDE for renaming pages, actions, queries, etc.
+ */
+export { EditableName } from "./Components/EditableName";
+
 /* ====================================================
     **** Interfaces ****
     Common types that are used by the different components of the IDE
