@@ -1191,11 +1191,12 @@ export class AggregateHelper {
 
   public ActionContextMenuSubItem({
     force = false,
-    index = 0,
     subAction,
     toastToValidate = "",
   }: SubActionParams) {
-    this.GetNClick(this.locator._contextMenuItem(subAction), index, force);
+    cy.xpath(this.locator._contextMenuItem(subAction)).trigger("click", {
+      force: force,
+    });
     this.Sleep(500);
     toastToValidate && this.AssertContains(toastToValidate);
   }

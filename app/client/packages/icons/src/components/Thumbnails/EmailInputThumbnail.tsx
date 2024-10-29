@@ -1,2 +1,4 @@
-import React from "react";
-export const EmailInputThumbnail = () => <svg xmlns="http://www.w3.org/2000/svg" width="72" height="76" fill="none"><rect width="55" height="23" x="8.5" y="26.5" fill="#fff" stroke="#CDD5DF" rx="2.5"/><path stroke="#CC3D00" stroke-linecap="round" d="M21.5 40.5H19a1.5 1.5 0 0 1-1.5-1.5v-2a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v3.5Zm0 0 1.026.342a1.5 1.5 0 0 0 1.974-1.423V36.5a4 4 0 0 0-4-4h-2a4 4 0 0 0-4 4v3a4 4 0 0 0 4 4H23"/><path stroke="#6A7585" stroke-linecap="round" stroke-linejoin="round" d="M51.5 43.5h2m2 0h-2m0 0v12m-2 0h4"/></svg>;
+import * as React from "react";
+import type { SVGProps } from "react";
+const EmailInputThumbnail = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={72} height={76} fill="none" {...props}><rect width={55} height={23} x={8.5} y={26.5} fill="#fff" stroke="#CDD5DF" rx={2.5} /><path stroke="#CC3D00" strokeLinecap="round" d="M21.5 40.5H19a1.5 1.5 0 0 1-1.5-1.5v-2a1.5 1.5 0 0 1 1.5-1.5h1a1.5 1.5 0 0 1 1.5 1.5v3.5Zm0 0 1.026.342a1.5 1.5 0 0 0 1.974-1.423V36.5a4 4 0 0 0-4-4h-2a4 4 0 0 0-4 4v3a4 4 0 0 0 4 4H23" /><path stroke="#6A7585" strokeLinecap="round" strokeLinejoin="round" d="M51.5 43.5h2m2 0h-2m0 0v12m-2 0h4" /></svg>;
+export { EmailInputThumbnail };
