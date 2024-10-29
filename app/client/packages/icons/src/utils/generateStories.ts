@@ -45,6 +45,7 @@ async function generateStories() {
     "Icons",
     "Icon set for Entity Explorer Panel, which provides a visual representation of the widgets.",
   );
+  await generateStory("CustomIcons", "Set of custom icons.");
   // eslint-disable-next-line no-console
   console.error("\x1b[32mStories generation completed successfully!\x1b[0m");
 }
