@@ -708,7 +708,7 @@ public class ActionCollectionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testUpdateUnpublishedActionCollection_withValidCollection_callsPageLayoutOnlyOnce() {
+    public void testUpdateUnpublishedActionCollection_withValidCollection_callsPageLayoutAndFindPageByIdOnlyOnce() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
@@ -770,7 +770,8 @@ public class ActionCollectionServiceTest {
                     // This gets called 4 times:
                     // 2 times during createCollection -> a. getExistingEntityNames and b. updatePageLayoutsByPageId
                     // 1 time during setup of this test case
-                    // 1 time during update action collection
+                    // 1 time during update action collection -> As expected as find page by id should be called only
+                    // once in updatePageLayoutsByPageId
                     Mockito.verify(newPageService, Mockito.times(4))
                             .findPageById(Mockito.anyString(), Mockito.any(), Mockito.anyBoolean());
                 })
