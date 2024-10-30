@@ -11,7 +11,7 @@ describe(
     let dateDp2;
 
     before(() => {
-      _.agHelper.AddDsl("uiBindDsl");
+      _.agHelper.AddDsl("uiBindnewDsl");
     });
     // Skipping tests due to issue - https://www.notion.so/appsmith/f353d8c6bd664f79ad858a42010cdfc8?v=f04cde23f6424aeb9d5a6e389cd172bd&p=0717892d43684c40bae4e2c87b8308cb&pm=s
     it("1. DatePicker-Text, Validate selectedDate functionality", function () {
