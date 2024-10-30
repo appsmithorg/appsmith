@@ -106,7 +106,6 @@
     "@uppy/url": "^1.5.16",
     "@uppy/utils": "^6.0.2",
     "@uppy/webcam": "^1.8.4",
-    "@welldone-software/why-did-you-render": "^4.2.5",
     "acorn": "8.10.0",
     "acorn-walk": "8.2.0",
     "appsmith-icons": "workspace:^",

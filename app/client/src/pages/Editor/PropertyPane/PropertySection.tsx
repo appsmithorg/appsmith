@@ -224,10 +224,4 @@ export const PropertySection = memo((props: PropertySectionProps) => {
 
 PropertySection.displayName = "PropertySection";
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(PropertySection as any).whyDidYouRender = {
-  logOnDifferentValues: false,
-};
-
 export default PropertySection;
