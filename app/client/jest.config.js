@@ -99,6 +99,10 @@ module.exports = {
           "__APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT__",
         ),
       },
+      observability: {
+        deploymentName: "jest-run",
+        serviceInstanceId: "appsmith-0",
+      },
       fusioncharts: {
         licenseKey: parseConfig("__APPSMITH_FUSIONCHARTS_LICENSE_KEY__"),
       },
