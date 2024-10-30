@@ -95,7 +95,7 @@
     overflow: auto;
   }
 
-  code:not(pre code) {
+  code:not(pre [data-component="code"]) {
     padding-inline: var(--inner-spacing-1);
     background: var(--color-bg-neutral-subtle);
     color: var(--color-fg-negative);
