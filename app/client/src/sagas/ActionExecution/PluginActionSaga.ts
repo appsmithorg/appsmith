@@ -1436,7 +1436,7 @@ function* executePluginActionSaga(
   let response: ActionExecutionResponse;
 
   try {
-    response = yield ActionAPI.executeAction(formData, timeout, parentSpan);
+    response = yield ActionAPI.executeAction(formData, timeout);
 
     const isError = isErrorResponse(response);
 
