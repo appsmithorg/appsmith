@@ -97,8 +97,10 @@
 
   code:not(pre code) {
     padding-inline: var(--inner-spacing-1);
-    background: var(--color-bg-accent-subtle);
+    background: var(--color-bg-negative-subtle);
+    color: var(--color-fg-negative);
     border-radius: var(--border-radius-elevation-3);
+    word-break: break-word;
   }
 
   pre {
