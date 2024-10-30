@@ -1,5 +1,5 @@
-import { Button, Flex, Text } from "@appsmith/wds";
 import type { ExtraProps } from "react-markdown";
+import { Button, Flex, Text } from "@appsmith/wds";
 import React, { useState, useCallback } from "react";
 import { useThemeContext } from "@appsmith/wds-theming";
 import {
@@ -13,7 +13,7 @@ type CodeProps = React.ClassAttributes<HTMLElement> &
   ExtraProps;
 
 export const Code = (props: CodeProps) => {
-  const { children, className, ...rest } = props;
+  const { children, className } = props;
   const match = /language-(\w+)/.exec(className ?? "");
   const theme = useThemeContext();
   const [copied, setCopied] = useState(false);
@@ -50,9 +50,7 @@ export const Code = (props: CodeProps) => {
       </SyntaxHighlighter>
     </div>
   ) : (
-    <code {...rest} className={className}>
-      {children}
-    </code>
+    <code className={className}>{children}</code>
   );
 };
 
