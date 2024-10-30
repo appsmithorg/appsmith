@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Spinner, Text, Tooltip } from "@appsmith/ads";
 import { useEventCallback, useEventListener } from "usehooks-ts";
 import { usePrevious } from "@mantine/hooks";
@@ -41,41 +47,49 @@ export const EditableName = ({
     entityName: name,
   });
 
-  const attemptSave = () => {
-    const nameError = validate(editableName);
-
-    if (nameError === null) {
-      exitEditing();
-      onNameSave(editableName);
-    }
-  };
-
-  const exitWithoutSaving = () => {
+  const exitWithoutSaving = useCallback(() => {
     exitEditing();
     setEditableName(name);
     setValidationError(null);
-  };
+  }, [exitEditing, name]);
 
-  const validate = (name: string) => {
-    const nameError = validateName(name);
+  const validate = useCallback(
+    (name: string) => {
+      const nameError = validateName(name);
 
-    if (nameError === null) {
-      setValidationError(null);
-    } else {
-      setValidationError(nameError);
+      if (nameError === null) {
+        setValidationError(null);
+      } else {
+        setValidationError(nameError);
+      }
+
+      return nameError;
+    },
+    [validateName],
+  );
+
+  const attemptSave = useCallback(() => {
+    const nameError = validate(editableName);
+
+    if (editableName === name) {
+      exitWithoutSaving();
+    } else if (nameError === null) {
+      exitEditing();
+      onNameSave(editableName);
     }
-
-    return nameError;
-  };
+  }, [
+    editableName,
+    exitEditing,
+    exitWithoutSaving,
+    name,
+    onNameSave,
+    validate,
+  ]);
 
   const handleKeyUp = useEventCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "Enter") {
-        if (editableName === name) {
-          exitWithoutSaving();
-        } else {
-          attemptSave();
-        }
+        attemptSave();
       } else if (e.key === "Escape") {
         exitWithoutSaving();
       }
