@@ -3,7 +3,6 @@ const generateJWT = () => {
 };
 
 export async function datasourceRequest(...args: any) {
-  console.log("Hello");
   const [requestType, apiPath, options = {}] = args;
   try {
     const PROJECT_ID = "PROJECT_ID";

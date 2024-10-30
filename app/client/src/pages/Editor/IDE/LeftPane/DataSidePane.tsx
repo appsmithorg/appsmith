@@ -56,51 +56,6 @@ interface DataSidePaneProps {
   dsUsageSelector?: (...args: any[]) => Record<string, string>;
 }
 
-function ParagonIntegrations() {
-  const { paragonUser } = useParagonUser();
-  const { integrations } = useParagonIntegrations();
-  const integrationsMap = keyBy(integrations, "type");
-  const paragonIntegrations = paragonUser?.integrations;
-
-  const onClickParagonIntegration = (
-    type: string,
-    selectedCredentialId: string,
-  ) => {
-    paragon.connect(type, {
-      selectedCredentialId,
-    });
-  };
-
-  if (!paragonIntegrations) return null;
-
-  const connectedIntegrations = objectKeys(paragonIntegrations).reduce(
-    (acc: any[], integrationKey) => {
-      const integrationArray =
-        paragonIntegrations[integrationKey]?.allCredentials || [];
-      acc = acc.concat(
-        integrationArray.map((data) => ({
-          className: "t--datasource",
-          title: integrationKey,
-          onClick: () => {
-            onClickParagonIntegration(integrationKey, data.id);
-          },
-          description: data.id,
-          descriptionType: "block",
-          startIcon: integrationsMap[integrationKey] ? (
-            <DatasourceIcon
-              src={getAssetUrl(integrationsMap[integrationKey].icon)}
-            />
-          ) : null,
-        })),
-      );
-      return acc;
-    },
-    [],
-  );
-
-  return <StyledList items={connectedIntegrations} />;
-}
-
 const DataSidePane = (props: DataSidePaneProps) => {
   const { dsUsageSelector = getDatasourceUsageCountForApp } = props;
   const editorType = useEditorType(history.location.pathname);
@@ -202,7 +157,6 @@ const DataSidePane = (props: DataSidePaneProps) => {
               />
             </Flex>
           ))}
-          <ParagonIntegrations />
         </Flex>
       </PaneBody>
     </Flex>

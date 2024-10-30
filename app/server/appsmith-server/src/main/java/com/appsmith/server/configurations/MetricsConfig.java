@@ -33,20 +33,21 @@ public class MetricsConfig {
 
     public static final String NEW_RELIC_MICROMETER_METRICS_ENDPOINT = "https://otlp.nr-data.net:4317";
     public static final String API_KEY = "api-key";
-    public static final String CONTAINER_NAME_KEY = "container.name";
-
+    public static final String DEPLOYMENT_NAME_KEY = "deployment.name";
+    public static final String SERVICE_INSTANCE_ID_KEY = "service.instance.id";
     public static final String SERVICE_NAME_KEY = "service.name";
+    public static final String SERVICE_NAME = "appsmith-server";
     public static final String INSTRUMENTATION_PROVIDER_KEY = "instrumentation.provider";
     public static final String MICROMETER = "micrometer";
-
-    @Value("${appsmith.newrelic.micrometer.metrics.application.name}")
-    private String newRelicApplicationName;
 
     @Value("${appsmith.newrelic.licensekey}")
     private String newRelicKey;
 
-    @Value("${appsmith.newrelic.micrometer.metrics.container.name}")
-    private String newRelicContainerName;
+    @Value("${appsmith.observability.deployment.name}")
+    private String deploymentName;
+
+    @Value("${appsmith.observability.service.instance.id}")
+    private String serviceInstanceId;
 
     private final CommonConfig commonConfig;
 
@@ -68,11 +69,12 @@ public class MetricsConfig {
         return OpenTelemetrySdk.builder()
                 .setMeterProvider(SdkMeterProvider.builder()
                         .setResource(Resource.getDefault().toBuilder()
-                                .put(SERVICE_NAME_KEY, newRelicApplicationName)
+                                .put(DEPLOYMENT_NAME_KEY, deploymentName)
+                                .put(SERVICE_NAME_KEY, SERVICE_NAME)
                                 // Include instrumentation.provider=micrometer to enable micrometer metrics
                                 // experience in New Relic
                                 .put(INSTRUMENTATION_PROVIDER_KEY, MICROMETER)
-                                .put(CONTAINER_NAME_KEY, newRelicContainerName)
+                                .put(SERVICE_INSTANCE_ID_KEY, serviceInstanceId)
                                 .build())
                         .registerMetricReader(PeriodicMetricReader.builder(OtlpGrpcMetricExporter.builder()
                                         .setEndpoint(NEW_RELIC_MICROMETER_METRICS_ENDPOINT)

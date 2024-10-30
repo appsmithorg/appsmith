@@ -204,7 +204,7 @@ function ParagonIntegrations() {
         dispatch({
           type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
           payload: {
-            type: "REMOTE",
+            type: "API",
             pluginId: apiPlugin!.id,
             datasourceStorages: {
               unused_env: {
