@@ -662,7 +662,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .setIssuer("Appsmith") // Token issuer
                 .setSubject(workspaceId) // Subject is the workspaceId
                 .setIssuedAt(new Date(now.toEpochMilli())) // Set issued at time
-                .setExpiration(new Date(now.plusSeconds(600).toEpochMilli())) // Token expiration (10 minutes later)
+                .setExpiration(new Date(now.plusSeconds(86400).toEpochMilli())) // Token expiration (1 day later)
                 .signWith(privateKey, SignatureAlgorithm.RS256) // Sign with RSA private key
                 .compact(); // Build the token
 
