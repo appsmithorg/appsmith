@@ -40,7 +40,6 @@ const tracerProvider = new WebTracerProvider({
     [ATTR_DEPLOYMENT_NAME]: deploymentName,
     [ATTR_SERVICE_INSTANCE_ID]: serviceInstanceId,
     [ATTR_SERVICE_NAME]: serviceName,
-    "extra": "extra",
   }),
 });
 

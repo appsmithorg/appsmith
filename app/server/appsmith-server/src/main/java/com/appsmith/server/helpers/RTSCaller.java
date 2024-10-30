@@ -79,10 +79,6 @@ public class RTSCaller {
                     spec.header(INTERNAL_REQUEST_ID_HEADER, contextMap.get(INTERNAL_REQUEST_ID_HEADER));
                 }
 
-                //                if (contextMap.containsKey(TRACE_PARENT)) {
-                //                    spec.header(TRACE_PARENT, contextMap.get(TRACE_ID));
-                //                }
-
                 if (contextMap.containsKey(REQUEST_ID_HEADER)) {
                     spec.header(REQUEST_ID_HEADER, contextMap.get(REQUEST_ID_HEADER));
                 }
