@@ -122,14 +122,6 @@ export const startAndEndSpanForFn = <T>(
   return res;
 };
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function wrapFnWithParentTraceContext(parentSpan: Span, fn: () => any) {
-  const parentContext = trace.setSpan(context.active(), parentSpan);
-
-  return context.with(parentContext, fn);
-}
-
 export function startAndEndSpan(
   spanName: string,
   startTime: number,
