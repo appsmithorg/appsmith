@@ -53,7 +53,7 @@ export class ApiPage {
     `.t--actionConfiguration\\.bodyFormData\\[${index}\\]\\.value\\.${index}`;
   _bodyTypeDropdown =
     "//span[text()='Type'][@class='rc-select-selection-placeholder']/ancestor::div";
-  _apiRunBtn = ".t--apiFormRunBtn";
+  _apiRunBtn = "[data-testid=\"t--run-action\"]";
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _responseBody = ".CodeMirror-code  span.cm-string.cm-property";
@@ -128,7 +128,7 @@ export class ApiPage {
     // }); // to check if Api1 = Api1 when Create Api invoked
 
     if (apiName) {
-      this.agHelper.RenameWithInPane(apiName);
+      this.agHelper.RenameQuery(apiName);
       this.agHelper.GetNAssertContains(this._entityName, apiName);
     }
     this.agHelper.AssertElementVisibility(this._resourceUrl);
@@ -461,7 +461,7 @@ export class ApiPage {
     this.agHelper.GetNClickByContains(".ads-v2-listitem", "GraphQL API");
     this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
-    if (apiName) this.agHelper.RenameWithInPane(apiName);
+    if (apiName) this.agHelper.RenameQuery(apiName);
     cy.get(this._resourceUrl).should("be.visible");
   }
 

@@ -727,7 +727,7 @@ export class DataSources {
   ) {
     this.agHelper.GetNClick(this._createBlankGraphQL);
     cy.get("@guid").then((uid) => {
-      this.agHelper.RenameWithInPane("GraphQL_API" + "_" + uid, true);
+      this.agHelper.RenameQuery("GraphQL_API" + "_" + uid);
 
       if (enterOrSelectUrl == "enter")
         this.apiPage.EnterURL(
@@ -764,7 +764,7 @@ export class DataSources {
     this.agHelper.ClearNType(this._graphQLHeaderValue, hValue);
     cy.get("@guid").then((uid: any) => {
       dataSourceName = dataSourceName + " " + uid;
-      this.agHelper.RenameWithInPane(dataSourceName, false);
+      this.agHelper.RenameDatasource(dataSourceName);
       this.SaveDatasource();
       cy.wrap(dataSourceName).as("dsName");
     });
@@ -906,7 +906,7 @@ export class DataSources {
     });
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
     this.AssertRunButtonVisibility();
-    if (queryName) this.agHelper.RenameWithInPane(queryName);
+    if (queryName) this.agHelper.RenameQuery(queryName);
     if (query) {
       this.EnterQuery(query);
       this.AssertRunButtonDisability(false);
@@ -1183,7 +1183,7 @@ export class DataSources {
         this.CreatePlugIn(DataSourceKVP[dsType]);
         guid = uid;
         dataSourceName = dsType + " " + guid;
-        this.agHelper.RenameWithInPane(dataSourceName, false);
+        this.agHelper.RenameDatasource(dataSourceName);
         // Execute the preDSConfigAction if it is defined
         if (!!preDSConfigAction) {
           preDSConfigAction.bind(this)(environment);
@@ -1241,7 +1241,7 @@ export class DataSources {
     if (query) {
       this.EnterQuery(query, sleep);
     }
-    if (queryName) this.agHelper.RenameWithInPane(queryName);
+    if (queryName) this.agHelper.RenameQuery(queryName);
   }
 
   public UpdateGraphqlQueryAndVariable(options?: {
@@ -1573,7 +1573,7 @@ export class DataSources {
     clientSecret: string,
     environment = this.dataManager.defaultEnviorment,
   ) {
-    if (dsName) this.agHelper.RenameWithInPane(dsName, false);
+    if (dsName) this.agHelper.RenameDatasource(dsName);
     // Fill Auth Form
     this.agHelper.TypeText(
       this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,

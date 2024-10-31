@@ -43,6 +43,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
           showArrow={false}
         >
           <Button
+            data-testid="t--run-action"
             isDisabled={blockExecution}
             isLoading={isRunning}
             kind="primary"

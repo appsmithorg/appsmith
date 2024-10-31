@@ -109,7 +109,7 @@ describe(
       });
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Mongo");
-      agHelper.RenameWithInPane("myinvalidds", false);
+      agHelper.RenameDatasource("myinvalidds");
 
       agHelper.ClearNType(dataSources._host(), "127.0.0.1");
       agHelper.ClearNType(dataSources._port, "8000");
@@ -136,7 +136,7 @@ describe(
       [1, 2].forEach((I) => {
         dataSources.NavigateToDSCreateNew();
         dataSources.CreatePlugIn("Mongo");
-        agHelper.RenameWithInPane(`dummy${I}`, false);
+        agHelper.RenameDatasource(`dummy${I}`);
 
         agHelper.ClearNType(dataSources._host(), "127.0.0.1");
         agHelper.ClearNType(dataSources._port, "8000");

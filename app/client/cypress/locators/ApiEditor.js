@@ -7,7 +7,7 @@ export default {
   addToPageBtn: ".t--addToPageBtn",
   ApiActionMenu: "[data-testid=\"more-action-trigger\"]",
   ApiDeleteBtn: ".t--apiFormDeleteBtn",
-  ApiRunBtn: ".t--apiFormRunBtn",
+  ApiRunBtn: "[data-testid=\"t--run-action\"]",
   addToPageBtnsId: ".t--addToPageButtons",
   ApiHomePage: ".t--apiHomePage",
   formActionButtons: ".t--formActionButtons",

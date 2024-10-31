@@ -50,7 +50,7 @@ describe.skip(
 
     it("1. Add and verify fetch details query", () => {
       entityExplorer.CreateNewDsQuery(dataSourceName.readNWrite);
-      agHelper.RenameWithInPane("Fetch_Details");
+      agHelper.RenameQuery("Fetch_Details");
       dataSources.ValidateNSelectDropdown(
         "Operation",
         "Fetch Many",

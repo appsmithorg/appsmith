@@ -51,7 +51,7 @@ describe(
           expect($noRecMsg).to.eq("No data records to show"),
         );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("selectRecords");
+      agHelper.RenameQuery("selectRecords");
     });
 
     it("3. Creating all queries - chartypes", () => {
@@ -63,7 +63,7 @@ describe(
         "Insert",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("insertRecord");
+      agHelper.RenameQuery("insertRecord");
 
       query = `UPDATE public."chartypes" SET
     "One(1)" = {{Updateone.text}},
@@ -77,7 +77,7 @@ describe(
         "Update",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("updateRecord");
+      agHelper.RenameQuery("updateRecord");
 
       query = `DELETE FROM public."chartypes"`;
       dataSources.createQueryWithDatasourceSchemaTemplate(
@@ -86,7 +86,7 @@ describe(
         "Delete",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("deleteAllRecords");
+      agHelper.RenameQuery("deleteAllRecords");
 
       query = `drop table public."chartypes"`;
       dataSources.createQueryWithDatasourceSchemaTemplate(
@@ -95,7 +95,7 @@ describe(
         "Delete",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("dropTable");
+      agHelper.RenameQuery("dropTable");
 
       query = `DELETE FROM public."chartypes" WHERE serialId = {{Table1.selectedRow.serialid}};`;
       dataSources.createQueryWithDatasourceSchemaTemplate(
@@ -104,7 +104,7 @@ describe(
         "Delete",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("deleteRecord");
+      agHelper.RenameQuery("deleteRecord");
     });
 
     it("4. Inserting record (null values) - chartypes", () => {

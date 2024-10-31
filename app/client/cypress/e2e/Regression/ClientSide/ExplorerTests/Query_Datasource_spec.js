@@ -63,11 +63,11 @@ describe(
         datasourceName,
         EntityType.Datasource,
       );
-      agHelper.RenameWithInPane(`${datasourceName}new`, false);
+      agHelper.RenameDatasource(`${datasourceName}new`);
       cy.contains(dataSources._datasourceCard, `${datasourceName}new`);
 
       // reverting the name
-      agHelper.RenameWithInPane(datasourceName, false);
+      agHelper.RenameDatasource(datasourceName);
 
       // going  to the query create page
       EditorNavigation.SelectEntityByName("Query1", EntityType.Query);

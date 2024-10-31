@@ -32,7 +32,7 @@ describe(
         inputData.tableName,
         "Insert",
       );
-      agHelper.RenameWithInPane("falseCases");
+      agHelper.RenameQuery("falseCases");
       inputData.falseResult.forEach((res_array, i) => {
         res_array.forEach((value) => {
           query =

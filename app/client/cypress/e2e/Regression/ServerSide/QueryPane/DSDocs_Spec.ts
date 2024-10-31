@@ -165,7 +165,7 @@ describe(
       cy.get("@guid").then((uid) => {
         dataSources.NavigateToDSCreateNew();
         dataSources.CreatePlugIn(pluginName);
-        agHelper.RenameWithInPane(pluginName + " " + uid, false);
+        agHelper.RenameDatasource(pluginName + " " + uid);
         dataSources.SaveDatasource();
         cy.wrap(pluginName + " " + uid).as("dsName");
       });

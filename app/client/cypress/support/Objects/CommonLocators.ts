@@ -9,8 +9,8 @@ export class CommonLocators {
   _animationSpnner = ".bp3-spinner-animation";
   _btnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
-  _queryName = ".t--action-name-edit-field span";
-  _queryNameTxt = ".t--action-name-edit-field input";
+  _queryName = ".editor-tab.active > .ads-v2-text";
+  _queryNameTxt = ".editor-tab.active > .ads-v2-text input";
   _editIcon = ".t--action-name-edit-icon";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";

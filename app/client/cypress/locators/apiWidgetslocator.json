@@ -60,5 +60,5 @@
   "paramValue": ".t--actionConfiguration\\.queryParameters\\[0\\]\\.value\\.0",
   "multipartTypeDropdown": "button:contains('Type')",
   "confirmBeforeExecute": "[name=confirmBeforeExecute]",
-  "runQueryButton": ".t--apiFormRunBtn"
+  "runQueryButton": "[data-testid=\"t--run-action\"]"
 }

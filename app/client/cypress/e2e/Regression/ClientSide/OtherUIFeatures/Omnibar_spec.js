@@ -66,7 +66,7 @@ describe("Omnibar functionality test cases", () => {
     assertHelper.AssertNetworkStatus("@createNewApi", 201);
     EditorNavigation.SelectEntityByName("Api1", EntityType.Api);
     agHelper.AssertURL("/api");
-    agHelper.RenameWithInPane(apiName);
+    agHelper.RenameQuery(apiName);
 
     agHelper.GetNClick(omnibar.globalSearch, 0, true);
     agHelper.GetNClickByContains(omnibar.categoryTitle, "Create new");
