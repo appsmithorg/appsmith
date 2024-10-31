@@ -291,7 +291,7 @@ class ImageComponent extends React.Component<
                 >
                   {/* Used for running onImageError and onImageLoad Functions since Background Image doesn't have the functionality */}
                   <img
-                    alt={this.props.widgetName}
+                    alt={this.props.alt}
                     onError={this.onImageError}
                     onLoad={this.onImageLoad}
                     src={this.props.imageUrl || this.props.defaultImageUrl}
@@ -410,6 +410,7 @@ export interface ImageComponentProps extends ComponentProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   borderRadius: string;
   boxShadow?: string;
+  alt?: string;
 }
 
 export default ImageComponent;

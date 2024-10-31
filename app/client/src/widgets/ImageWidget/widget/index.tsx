@@ -133,6 +133,16 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.IMAGE_URL },
           },
+          {
+            helpText: "Set alternative text for the image",
+            propertyName: "alt",
+            label: "Alternative text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Alternative text",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
         ],
       },
       {
@@ -328,6 +338,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
         disableDrag={(disable: boolean) => {
           this.disableDrag(disable);
         }}
+        alt={this.props.alt ? this.props.alt : undefined}
         enableDownload={this.props.enableDownload}
         enableRotation={this.props.enableRotation}
         imageUrl={this.props.image}
@@ -368,6 +379,7 @@ export interface ImageWidgetProps extends WidgetProps {
   onClick?: string;
   borderRadius: string;
   boxShadow?: string;
+  alt?: string;
 }
 
 export default ImageWidget;
