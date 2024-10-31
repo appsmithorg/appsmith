@@ -21,7 +21,7 @@ import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
   getIsMobileBreakPoint,
   getMetaWidgets,
-  getWidgetsForEval,
+  getWidgets,
   getWidgetsMeta,
 } from "sagas/selectors";
 import "url-search-params-polyfill";
@@ -117,27 +117,43 @@ const getJSActionsFromUnevaluatedTree = createSelector(
     return DataTreeFactory.jsActions(jsActions);
   },
 );
-const getWidgetsFromUnevaluatedTree = createSelector(
+
+const getModuleComponentsFromUnEvaluatedTree = createSelector(
   getModulesData,
-  getWidgetsForEval,
+
+  (moduleData) => {
+    const { moduleInputs, moduleInstanceEntities, moduleInstances } =
+      moduleData;
+
+    return DataTreeFactory.moduleComponents(
+      moduleInputs,
+      moduleInstances,
+      moduleInstanceEntities,
+    );
+  },
+);
+
+const getWidgetsFromUnevaluatedTree = createSelector(
+  getModuleComponentsFromUnEvaluatedTree,
+  getWidgets,
   getWidgetsMeta,
   getLoadingEntities,
   getLayoutSystemPayload,
   (moduleData, widgets, widgetsMeta, loadingEntities, layoutSystemPayload) => {
-    const { moduleInputs, moduleInstanceEntities, moduleInstances } =
-      moduleData;
     const { isMobile, layoutSystemType } = layoutSystemPayload;
 
-    return DataTreeFactory.widgets(
-      moduleInputs,
-      moduleInstances,
-      moduleInstanceEntities,
+    const widgetsDataTree = DataTreeFactory.widgets(
       widgets,
       widgetsMeta,
       loadingEntities,
       layoutSystemType,
       isMobile,
     );
+
+    return {
+      configTree: { ...moduleData.configTree, ...widgetsDataTree.configTree },
+      dataTree: { ...moduleData.dataTree, ...widgetsDataTree.dataTree },
+    };
   },
 );
 const getMetaWidgetsFromUnevaluatedTree = createSelector(

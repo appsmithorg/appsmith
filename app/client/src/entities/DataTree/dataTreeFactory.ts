@@ -54,9 +54,6 @@ export class DataTreeFactory {
   }
 
   static widgets(
-    moduleInputs: ModuleInputSection[],
-    moduleInstances: Record<string, ModuleInstance> | null,
-    moduleInstanceEntities: unknown,
     widgets: CanvasWidgetsReduxState,
     widgetsMeta: MetaState,
     loadingEntities: LoadingEntitiesState,
@@ -64,6 +61,36 @@ export class DataTreeFactory {
     isMobile: boolean,
   ) {
     const widgetsSpan = startRootSpan("DataTreeFactory.widgets");
+
+    const dataTree: UnEvalTree = {};
+    const configTree: ConfigTree = {};
+
+    Object.values(widgets).forEach((widget) => {
+      const { configEntity, unEvalEntity } = generateDataTreeWidget(
+        widget,
+        widgetsMeta[widget.metaWidgetId || widget.widgetId],
+        loadingEntities,
+        layoutSystemType,
+        isMobile,
+      );
+
+      dataTree[widget.widgetName] = unEvalEntity;
+      configTree[widget.widgetName] = configEntity;
+    });
+
+    endSpan(widgetsSpan);
+
+    return { dataTree, configTree };
+  }
+
+  public static moduleComponents(
+    moduleInputs: ModuleInputSection[],
+    moduleInstances: Record<string, ModuleInstance> | null,
+    moduleInstanceEntities: unknown,
+  ) {
+    const moduleComponentsSpan = startRootSpan(
+      "DataTreeFactory.moduleComponents",
+    );
 
     const dataTree: UnEvalTree = {};
     const configTree: ConfigTree = {};
@@ -92,22 +119,12 @@ export class DataTreeFactory {
       });
     }
 
-    Object.values(widgets).forEach((widget) => {
-      const { configEntity, unEvalEntity } = generateDataTreeWidget(
-        widget,
-        widgetsMeta[widget.metaWidgetId || widget.widgetId],
-        loadingEntities,
-        layoutSystemType,
-        isMobile,
-      );
+    endSpan(moduleComponentsSpan);
 
-      dataTree[widget.widgetName] = unEvalEntity;
-      configTree[widget.widgetName] = configEntity;
-    });
-
-    endSpan(widgetsSpan);
-
-    return { dataTree, configTree };
+    return {
+      dataTree,
+      configTree,
+    };
   }
 
   static jsActions(jsActions: JSCollectionDataState) {
