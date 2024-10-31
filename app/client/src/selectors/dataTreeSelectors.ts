@@ -11,8 +11,12 @@ import {
   getCurrentModuleActions,
   getCurrentModuleJSCollections,
 } from "ee/selectors/entitiesSelector";
-import type { WidgetEntity } from "ee/entities/DataTree/types";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import type { AppsmithEntity, WidgetEntity } from "ee/entities/DataTree/types";
+import type {
+  ConfigTree,
+  DataTree,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeTypes";
 import { DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
   getIsMobileBreakPoint,
@@ -21,7 +25,6 @@ import {
   getWidgetsMeta,
 } from "sagas/selectors";
 import "url-search-params-polyfill";
-import { getPageList } from "./appViewSelectors";
 import type { AppState } from "ee/reducers";
 import { getSelectedAppThemeProperties } from "./appThemingSelectors";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
@@ -35,6 +38,7 @@ import {
   getCurrentWorkflowActions,
   getCurrentWorkflowJSActions,
 } from "ee/selectors/workflowSelectors";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
@@ -55,26 +59,25 @@ const getLayoutSystemPayload = createSelector(
   },
 );
 
-const getCurrentActionEntities = createSelector(
+const getCurrentActionsEntities = createSelector(
   getCurrentActions,
   getCurrentModuleActions,
   getCurrentWorkflowActions,
+  (actions, moduleActions, workflowActions) => [
+    ...actions,
+    ...moduleActions,
+    ...workflowActions,
+  ],
+);
+const getCurrentJSActionsEntities = createSelector(
   getCurrentJSCollections,
   getCurrentModuleJSCollections,
   getCurrentWorkflowJSActions,
-  (
-    actions,
-    moduleActions,
-    workflowActions,
-    jsActions,
-    moduleJSActions,
-    workflowJsActions,
-  ) => {
-    return {
-      actions: [...actions, ...moduleActions, ...workflowActions],
-      jsActions: [...jsActions, ...moduleJSActions, ...workflowJsActions],
-    };
-  },
+  (jsActions, moduleJSActions, workflowJsActions) => [
+    ...jsActions,
+    ...moduleJSActions,
+    ...workflowJsActions,
+  ],
 );
 
 const getModulesData = createSelector(
@@ -90,55 +93,110 @@ const getModulesData = createSelector(
   },
 );
 
-export const getUnevaluatedDataTree = createSelector(
-  getCurrentActionEntities,
-  getWidgetsForEval,
-  getWidgetsMeta,
-  getPageList,
-  getAppData,
+const getActionsFromUnevaluatedTree = createSelector(
+  getCurrentActionsEntities,
   getPluginEditorConfigs,
   getPluginDependencyConfig,
-  getSelectedAppThemeProperties,
-  getMetaWidgets,
-  getLayoutSystemPayload,
-  getLoadingEntities,
-  getModulesData,
-  (
-    currentActionEntities,
-    widgets,
-    widgetsMeta,
-    pageListPayload,
-    appData,
-    editorConfigs,
-    pluginDependencyConfig,
-    selectedAppThemeProperty,
-    metaWidgets,
-    layoutSystemPayload,
-    loadingEntities,
-    modulesData,
-  ) => {
-    const pageList = pageListPayload || [];
-
-    return DataTreeFactory.create({
-      ...currentActionEntities,
-      widgets,
-      widgetsMeta,
-      pageList,
-      appData,
+  (actions, editorConfigs, pluginDependencyConfig) => {
+    const { configTree, dataTree } = DataTreeFactory.actions(
+      actions,
       editorConfigs,
       pluginDependencyConfig,
-      theme: selectedAppThemeProperty,
-      metaWidgets,
+    );
+
+    return {
+      configTree,
+      dataTree,
+    };
+  },
+);
+
+const getJSActionsFromUnevaluatedTree = createSelector(
+  getCurrentJSActionsEntities,
+  (jsActions) => {
+    return DataTreeFactory.jsActions(jsActions);
+  },
+);
+const getWidgetsFromUnevaluatedTree = createSelector(
+  getModulesData,
+  getWidgetsForEval,
+  getWidgetsMeta,
+  getLoadingEntities,
+  getLayoutSystemPayload,
+  (moduleData, widgets, widgetsMeta, loadingEntities, layoutSystemPayload) => {
+    const { moduleInputs, moduleInstanceEntities, moduleInstances } =
+      moduleData;
+    const { isMobile, layoutSystemType } = layoutSystemPayload;
+
+    return DataTreeFactory.widgets(
+      moduleInputs,
+      moduleInstances,
+      moduleInstanceEntities,
+      widgets,
+      widgetsMeta,
       loadingEntities,
-      ...layoutSystemPayload,
-      ...modulesData,
-    });
+      layoutSystemType,
+      isMobile,
+    );
+  },
+);
+const getMetaWidgetsFromUnevaluatedTree = createSelector(
+  getMetaWidgets,
+  getWidgetsMeta,
+  getLoadingEntities,
+  (metaWidgets, widgetsMeta, loadingEntities) => {
+    return DataTreeFactory.metaWidgets(
+      metaWidgets,
+      widgetsMeta,
+      loadingEntities,
+    );
   },
 );
 
 export const getEvaluationInverseDependencyMap = (state: AppState) =>
   state.evaluations.dependencies.inverseDependencyMap;
 
+export const getUnevaluatedDataTree = createSelector(
+  getActionsFromUnevaluatedTree,
+  getJSActionsFromUnevaluatedTree,
+  getWidgetsFromUnevaluatedTree,
+  getAppData,
+  getSelectedAppThemeProperties,
+  getMetaWidgetsFromUnevaluatedTree,
+  (actions, jsActions, widgets, appData, theme, metaWidgets) => {
+    let dataTree: UnEvalTree = {};
+    let configTree: ConfigTree = {};
+    const rootSpan = startRootSpan("DataTreeFactory.create");
+
+    configTree = {
+      ...actions.configTree,
+      ...jsActions.configTree,
+      ...widgets.configTree,
+    };
+    dataTree = {
+      ...actions.dataTree,
+      ...jsActions.dataTree,
+      ...widgets.dataTree,
+    };
+
+    dataTree.appsmith = {
+      ...appData,
+      // combine both persistent and transient state with the transient state
+      // taking precedence in case the key is the same
+      store: appData.store,
+      theme,
+    } as AppsmithEntity;
+    configTree = { ...configTree, ...metaWidgets.configTree };
+    dataTree = { ...dataTree, ...metaWidgets.dataTree };
+
+    endSpan(rootSpan);
+
+    return {
+      configTree,
+      unEvalTree: dataTree,
+    };
+  },
+);
 export const getIsWidgetLoading = createSelector(
   [getLoadingEntities, (_state: AppState, widgetName: string) => widgetName],
   (loadingEntities: LoadingEntitiesState, widgetName: string) =>
