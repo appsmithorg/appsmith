@@ -649,6 +649,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 .name(GET_POSSIBLE_ENTITY_REFERENCES)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMapMany(Flux::fromIterable)
+                // Add dependencies of the executables found in the DSL in the graph
+                // We are ignoring the widget references at this point
+                // TODO: Possible optimization in the future
                 .flatMap(possibleEntity -> {
                     // Iterate over the original map entries to set up widget nodes and dependencies.
                     widgetDynamicBindingsMap.forEach((widgetName, bindingsInWidget) -> {
@@ -659,6 +662,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                         if (bindingsInWidget.contains(possibleEntity.getValidEntityName())
                                 && getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
                             edgesRef.add(new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
+                            // This executable is directly referenced in the DSL. This executable is an ideal
+                            // candidate for on page load
                             executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
 
                             updateExecutableSelfReferencingPaths(possibleEntity)
@@ -1072,56 +1077,59 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         // Check if the executable has been deleted in unpublished state. If yes, ignore it.
         if (executable.getDeletedAt() != null) {
-            return Mono.empty();
+            return Mono.empty().then();
         }
 
         String name = entityDependencyNode.getValidEntityName();
 
         if (executablesFoundDuringWalk.containsKey(name)) {
             // This executable has already been found in our walk. Ignore this.
-            return Mono.empty();
+            return Mono.empty().then();
         }
         executablesFoundDuringWalk.put(name, entityDependencyNode);
 
         Map<String, Set<String>> executableBindingsMap = getExecutableBindingsMap(executable);
 
-        // Combine all bindings from executableBindingsMap into a single set
-        Set<String> allBindings =
-                executableBindingsMap.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
+        Set<String> allBindings = new HashSet<>();
+        executableBindingsMap.values().stream().forEach(bindings -> allBindings.addAll(bindings));
 
-        // Validate bindings
+        // TODO : Throw an error on executable save when bindings from dynamic binding path list do not match the json
+        //  path keys and get the client to recompute the dynamic binding path list and try again.
         if (!allBindings.containsAll(executable.getJsonPathKeys())) {
             Set<String> invalidBindings = new HashSet<>(executable.getJsonPathKeys());
             invalidBindings.removeAll(allBindings);
             log.error(
                     "Invalid dynamic binding path list for executable id {}. Not taking the following bindings in "
-                            + "consideration for computing on page load executables: {}",
+                            + "consideration for computing on page load executables : {}",
                     executable.getId(),
                     invalidBindings);
         }
 
-        return getPossibleEntityReferences(executableNameToExecutableMapMono, allBindings, evalVersion, bindingsInDsl)
-                .name(GET_POSSIBLE_ENTITY_REFERENCES)
-                .tap(Micrometer.observation(observationRegistry))
-                .flatMapMany(Flux::fromIterable)
-                .flatMap(relatedDependencyNode -> {
-                    bindingsFromExecutables.add(relatedDependencyNode.getReferenceString());
+        Set<String> bindingPaths = executableBindingsMap.keySet();
 
-                    // Iterate over the original executableBindingsMap to create dependency edges
-                    executableBindingsMap.keySet().forEach(bindingPath -> {
-                        EntityDependencyNode executableDependencyNode = new EntityDependencyNode(
-                                entityDependencyNode.getEntityReferenceType(),
-                                entityDependencyNode.getValidEntityName(),
-                                bindingPath,
-                                null,
-                                executable);
-
-                        ExecutableDependencyEdge edge =
-                                new ExecutableDependencyEdge(relatedDependencyNode, executableDependencyNode);
-                        edges.add(edge);
-                    });
-
-                    return Mono.just(relatedDependencyNode);
+        return Flux.fromIterable(bindingPaths)
+                .flatMap(bindingPath -> {
+                    log.debug("-----bindingPath-----\n" + bindingPath + "\n" + executableBindingsMap.get(bindingPath));
+                    EntityDependencyNode executableDependencyNode = new EntityDependencyNode(
+                            entityDependencyNode.getEntityReferenceType(),
+                            entityDependencyNode.getValidEntityName(),
+                            bindingPath,
+                            null,
+                            executable);
+                    return getPossibleEntityReferences(
+                                    executableNameToExecutableMapMono,
+                                    executableBindingsMap.get(bindingPath),
+                                    evalVersion,
+                                    bindingsInDsl)
+                            .flatMapMany(Flux::fromIterable)
+                            .map(relatedDependencyNode -> {
+                                bindingsFromExecutables.add(relatedDependencyNode.getReferenceString());
+                                ExecutableDependencyEdge edge =
+                                        new ExecutableDependencyEdge(relatedDependencyNode, executableDependencyNode);
+                                edges.add(edge);
+                                return relatedDependencyNode;
+                            })
+                            .collectList();
                 })
                 .collectList()
                 .then();
@@ -1157,9 +1165,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                 EntityReferenceType.WIDGET, widgetName, widgetPath, null, null);
 
                         bindings.forEach(binding -> {
-                            Set<EntityDependencyNode> parentNodes = possibleParentsMap.get(binding);
-                            if (parentNodes != null) {
-                                parentNodes.forEach(widgetDependencyNode -> {
+                            Set<EntityDependencyNode> widgetDependencyNodes = possibleParentsMap.get(binding);
+                            if (widgetDependencyNodes != null) {
+                                widgetDependencyNodes.forEach(widgetDependencyNode -> {
                                     ExecutableDependencyEdge edge =
                                             new ExecutableDependencyEdge(widgetDependencyNode, entityDependencyNode);
                                     edges.add(edge);
