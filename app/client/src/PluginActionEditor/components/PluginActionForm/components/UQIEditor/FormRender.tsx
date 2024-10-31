@@ -211,7 +211,7 @@ const FormRender = (props: Props) => {
 
     switch (section.controlType) {
       case "SECTION_V2":
-        return <Section>{children}</Section>;
+        return <Section isFullWidth={section.isFullWidth}>{children}</Section>;
 
       case "SINGLE_COLUMN_ZONE":
       case "DOUBLE_COLUMN_ZONE": {
