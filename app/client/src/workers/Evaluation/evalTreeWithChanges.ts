@@ -16,7 +16,6 @@ import {
 } from "./helpers";
 import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import { klona } from "klona/json";
 
 const getDefaultEvalResponse = (): EvalTreeResponseData => ({
   updates: "[]",
@@ -135,10 +134,9 @@ export const evaluateAndGenerateResponse = (
   );
 
   /** Make sure evalMetaUpdates is sanitized to prevent postMessage failure */
-  defaultResponse.evalMetaUpdates = klona([
-    ...(metaUpdates || []),
-    ...updateResponse.evalMetaUpdates,
-  ]);
+  defaultResponse.evalMetaUpdates = JSON.parse(
+    JSON.stringify([...(metaUpdates || []), ...updateResponse.evalMetaUpdates]),
+  );
 
   defaultResponse.staleMetaIds = updateResponse.staleMetaIds;
   defaultResponse.dependencies = dataTreeEvaluator.inverseDependencies;
