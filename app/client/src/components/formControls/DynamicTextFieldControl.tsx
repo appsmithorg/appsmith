@@ -23,9 +23,9 @@ import { getSqlEditorModeFromPluginName } from "components/editorComponents/Code
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { Flex } from "@appsmith/ads";
 
-const Wrapper = styled.div<{ fullWidth: boolean }>`
+const Wrapper = styled.div`
   min-width: 380px;
-  max-width: ${({ fullWidth }) => (fullWidth ? "100%" : "872px;")};
+  width: 100%;
   min-height: 200px;
   height: 100%;
   display: flex;
@@ -68,10 +68,7 @@ class DynamicTextControl extends BaseControl<
         : EditorModes.JSON_WITH_BINDING;
 
     return (
-      <Wrapper
-        className={`t--${configProperty} dynamic-text-field-control`}
-        fullWidth={isActionRedesignEnabled}
-      >
+      <Wrapper className={`t--${configProperty} dynamic-text-field-control`}>
         <Flex flex="1">
           <DynamicTextField
             dataTreePath={dataTreePath}
