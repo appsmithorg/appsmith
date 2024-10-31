@@ -1,10 +1,8 @@
 import React from "react";
-
-import { useLocation } from "react-router";
 import { FlexLayout, type FlexLayoutProps } from "./FlexLayout";
 
 export const MainCanvasWrapper = (props: FlexLayoutProps) => {
-  const { search } = useLocation();
+  const { search } = window.location;
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed") === "true";
 
