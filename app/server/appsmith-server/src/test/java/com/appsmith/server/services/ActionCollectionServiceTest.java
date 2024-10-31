@@ -28,6 +28,7 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -47,6 +48,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
@@ -133,6 +135,9 @@ public class ActionCollectionServiceTest {
 
     @MockBean
     PluginExecutor pluginExecutor;
+
+    @SpyBean
+    UpdateLayoutService updateLayoutService;
 
     Application testApp = null;
 
@@ -697,6 +702,70 @@ public class ActionCollectionServiceTest {
         StepVerifier.create(viewModeCollectionsMono)
                 .assertNext(viewModeCollections -> {
                     assertThat(viewModeCollections).isEmpty();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateUnpublishedActionCollection_withValidCollection_callsPageLayoutOnlyOnce() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testCollection1");
+        actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setWorkspaceId(workspaceId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("collectionBody");
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        // Create actions
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        action1.getActionConfiguration().setIsValid(false);
+
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("testAction2");
+        action2.setActionConfiguration(new ActionConfiguration());
+        action2.getActionConfiguration().setBody("mockBody");
+        action2.getActionConfiguration().setIsValid(false);
+
+        ActionDTO action3 = new ActionDTO();
+        action3.setName("testAction3");
+        action3.setActionConfiguration(new ActionConfiguration());
+        action3.getActionConfiguration().setBody("mockBody");
+        action3.getActionConfiguration().setIsValid(false);
+
+        actionCollectionDTO.setActions(List.of(action1, action2, action3));
+
+        ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        assert createdActionCollectionDTO != null;
+        assert createdActionCollectionDTO.getId() != null;
+        String createdActionCollectionId = createdActionCollectionDTO.getId();
+
+        applicationPageService.publish(testApp.getId(), true).block();
+
+        actionCollectionDTO.getActions().get(0).getActionConfiguration().setBody("updatedBody");
+
+        final Mono<ActionCollectionDTO> updatedActionCollectionDTO =
+                layoutCollectionService.updateUnpublishedActionCollection(
+                        createdActionCollectionId, actionCollectionDTO);
+
+        StepVerifier.create(updatedActionCollectionDTO)
+                .assertNext(actionCollectionDTO1 -> {
+                    assertEquals(createdActionCollectionId, actionCollectionDTO1.getId());
+
+                    // This invocation will happen here twice, once during create collection and once during update
+                    // collection as expected
+                    Mockito.verify(updateLayoutService, Mockito.times(2))
+                            .updatePageLayoutsByPageId(Mockito.anyString());
                 })
                 .verifyComplete();
     }
