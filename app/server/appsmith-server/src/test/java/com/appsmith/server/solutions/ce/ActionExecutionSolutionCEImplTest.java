@@ -133,7 +133,7 @@ class ActionExecutionSolutionCEImplTest {
     @SpyBean
     CommonConfig commonConfig;
 
-    @MockBean
+    @SpyBean
     ActionExecutionSolutionHelper actionExecutionSolutionHelper;
 
     @Autowired
