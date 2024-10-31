@@ -21,6 +21,7 @@ import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
 import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
 import {
+  getDatasource,
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
 } from "ee/selectors/entitiesSelector";
@@ -95,6 +96,10 @@ function QueryDebuggerTabs({
       state,
       currentActionConfig?.datasource?.id ?? "",
     ),
+  );
+
+  const datasource = useSelector((state) =>
+    getDatasource(state, currentActionConfig?.datasource?.id ?? ""),
   );
 
   useEffect(() => {
@@ -252,7 +257,7 @@ function QueryDebuggerTabs({
         <Schema
           currentActionId={currentActionConfig.id}
           datasourceId={currentActionConfig.datasource.id || ""}
-          datasourceName={currentActionConfig.datasource.name || ""}
+          datasourceName={datasource?.name || ""}
         />
       ),
     });
