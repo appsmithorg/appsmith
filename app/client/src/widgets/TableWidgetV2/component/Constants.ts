@@ -546,7 +546,7 @@ export enum IMAGE_VERTICAL_ALIGN {
 }
 
 export interface BaseCellComponentProps {
-  compactMode: string;
+  compactMode: CompactModeTypes;
   isHidden: boolean;
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
