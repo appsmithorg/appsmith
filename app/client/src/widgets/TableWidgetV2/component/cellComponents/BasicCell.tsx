@@ -7,7 +7,7 @@ import { TABLE_SIZES } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import AutoToolTipComponent from "./AutoToolTipComponent";
 import { importSvg } from "@appsmith/ads-old";
-import type { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
 const EditIcon = importSvg(
   async () => import("assets/icons/control/edit-variant1.svg"),
@@ -129,6 +129,14 @@ export const BasicCell = React.forwardRef(
       },
       [onEdit, disabledEditIcon, isCellEditable],
     );
+    const getContent = () => {
+      switch (columnType) {
+        case ColumnTypes.URL:
+          return <a href={url}>{value}</a>;
+        default:
+          return value;
+      }
+    };
 
     return (
       <Wrapper
@@ -158,7 +166,7 @@ export const BasicCell = React.forwardRef(
           url={url}
           verticalAlignment={verticalAlignment}
         >
-          <Content ref={contentRef}>{value}</Content>
+          <Content ref={contentRef}>{getContent()}</Content>
         </StyledAutoToolTipComponent>
         {isCellEditable && (
           <StyledEditIcon
