@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import {
   Flex,
   Tooltip,
@@ -70,7 +70,6 @@ import { useHref } from "pages/Editor/utils";
 import { viewerURL } from "ee/RouteBuilder";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { EditorTitle } from "./EditorTitle";
-import { useCurrentAppState } from "../hooks/useCurrentAppState";
 import { EditorState } from "ee/entities/IDE/constants";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
 import type { Page } from "entities/Page";
@@ -78,6 +77,7 @@ import { IDEHeader, IDEHeaderTitle } from "IDE";
 import { APPLICATIONS_URL } from "constants/routes";
 import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
 import useLibraryHeaderTitle from "ee/pages/Editor/IDE/Header/useLibraryHeaderTitle";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -119,7 +119,7 @@ const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
   }
 };
 
-const Header = () => {
+export const Header = memo(() => {
   const dispatch = useDispatch();
 
   // selectors
@@ -134,7 +134,6 @@ const Header = () => {
   const isGitConnected = useSelector(getIsGitConnected);
   const pageId = useSelector(getCurrentPageId) as string;
   const currentPage = useSelector(getPageById(pageId));
-  const appState = useCurrentAppState();
   const isSaving = useSelector(getIsPageSaving);
   const pageSaveError = useSelector(getPageSavingError);
 
@@ -156,6 +155,7 @@ const Header = () => {
     FEATURE_FLAG.license_private_embeds_enabled,
   );
 
+  const { appState } = identifyEntityFromPath(location.pathname);
   const deployLink = useHref(viewerURL, {
     basePageId: currentPage?.basePageId,
   });
@@ -352,6 +352,4 @@ const Header = () => {
       <Omnibar />
     </>
   );
-};
-
-export { Header };
+});

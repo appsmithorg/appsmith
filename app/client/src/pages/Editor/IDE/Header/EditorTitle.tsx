@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Popover, PopoverTrigger, PopoverContent } from "@appsmith/ads";
 
 import { createMessage, HEADER_TITLES } from "ee/constants/messages";
@@ -8,9 +8,9 @@ import { IDEHeaderEditorSwitcher } from "IDE";
 const EditorTitle = ({ title }: { title: string }) => {
   const [active, setActive] = useState(false);
 
-  const closeMenu = () => {
+  const closeMenu = useCallback(() => {
     setActive(false);
-  };
+  }, []);
 
   return (
     <Popover onOpenChange={setActive} open={active}>
