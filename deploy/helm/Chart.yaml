@@ -11,7 +11,7 @@ sources:
   - https://github.com/appsmithorg/appsmith
 home: https://www.appsmith.com/
 icon: https://assets.appsmith.com/appsmith-icon.png
-version: 2.2.0
+version: 2.2.1
 dependencies:
 - condition: redis.enabled
   name: redis
