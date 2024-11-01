@@ -1,5 +1,5 @@
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
-import _, { get, isEmpty } from "lodash";
+import _, { get, isEmpty, omit } from "lodash";
 import memoize from "micro-memoize";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
@@ -21,6 +21,7 @@ import WidgetFactory from "WidgetProvider/factory";
 import { getComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import { WIDGET_PROPS_TO_SKIP_FROM_EVAL } from "constants/WidgetConstants";
 
 /**
  *
@@ -176,13 +177,17 @@ export function getSetterConfig(
 // Widget changes only when dynamicBindingPathList changes.
 // Only meta properties change very often, for example typing in an input or selecting a table row.
 const generateDataTreeWidgetWithoutMeta = (
-  widget: FlattenedWidgetProps,
+  pureWidget: FlattenedWidgetProps,
 ): {
   dataTreeWidgetWithoutMetaProps: WidgetEntity;
   overridingMetaPropsMap: Record<string, boolean>;
   defaultMetaProps: Record<string, unknown>;
   entityConfig: WidgetEntityConfig;
 } => {
+  const widget = omit(
+    pureWidget,
+    Object.keys(WIDGET_PROPS_TO_SKIP_FROM_EVAL),
+  ) as FlattenedWidgetProps;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const derivedProps: any = {};
