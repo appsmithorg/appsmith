@@ -2,7 +2,7 @@ import type { Ref } from "react";
 import React, { useCallback, useMemo } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
-import type { BaseCellComponentProps, CompactModeTypes } from "../Constants";
+import type { BaseCellComponentProps, CompactMode } from "../Constants";
 import { TABLE_SIZES } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import AutoToolTipComponent from "./AutoToolTipComponent";
@@ -56,7 +56,7 @@ const Content = styled.div`
 const StyledEditIcon = styled.div<{
   accentColor?: string;
   backgroundColor?: string;
-  compactMode: CompactModeTypes;
+  compactMode: CompactMode;
   disabledEditIcon: boolean;
 }>`
   position: absolute;
