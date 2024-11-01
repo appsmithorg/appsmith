@@ -103,6 +103,7 @@ export function JSFunctionRun({
         <span>
           <Button
             className={testLocators.runJSAction}
+            data-testid={testLocators.runJSActionTestID}
             isDisabled={disabled}
             isLoading={isLoading}
             onClick={onButtonClick}

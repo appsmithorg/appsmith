@@ -86,6 +86,7 @@ export const JSFunctionRun = (props: Props) => {
       >
         <Button
           className={testLocators.runJSAction}
+          data-testid={testLocators.runJSActionTestID}
           isDisabled={props.disabled}
           isLoading={props.isLoading}
           onClick={props.onButtonClick}

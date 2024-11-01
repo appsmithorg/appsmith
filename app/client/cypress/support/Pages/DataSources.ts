@@ -118,7 +118,7 @@ export class DataSources {
     "']";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
-  _runQueryBtn = ".t--run-query";
+  _runQueryBtn = "[data-testid='t--run-action']";
   _newDatabases = "#new-datasources";
   _newDatasourceContainer = "#new-integrations-wrapper";
   _selectDatasourceDropdown = "[data-testid=t--datasource-dropdown]";

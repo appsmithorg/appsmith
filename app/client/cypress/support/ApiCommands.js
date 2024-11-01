@@ -11,6 +11,7 @@ import { ObjectsRegistry } from "./Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper;
 let dataSources = ObjectsRegistry.DataSources;
 let apiPage = ObjectsRegistry.ApiPage;
+let locator = ObjectsRegistry.CommonLocators;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -191,11 +192,10 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   dataSources.NavigateToDSCreateNew();
   cy.testCreateApiButton();
   cy.get("@createNewApi").then((response) => {
-    cy.get(ApiEditor.ApiNameField).should("be.visible");
+    cy.get(locator._queryName).should("be.visible");
     expect(response.response.body.responseMeta.success).to.eq(true);
-    cy.get(ApiEditor.ApiNameField)
-      .click()
-      .invoke("text")
+    cy.get(locator._queryName)
+      .invoke('text')
       .then((text) => {
         const someText = text;
         expect(someText).to.equal(response.response.body.data.name);

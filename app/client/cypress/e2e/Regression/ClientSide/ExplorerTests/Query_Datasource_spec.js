@@ -81,7 +81,7 @@ describe(
       dataSources.EnterQuery("select * from users");
 
       cy.EvaluateCurrentValue("select * from users");
-      cy.get(".t--action-name-edit-field").click({ force: true });
+
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
         action: "Show bindings",

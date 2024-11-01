@@ -189,13 +189,8 @@ describe(
       _.dataSources.CreateDataSource("Postgres");
       cy.wait(1000);
       _.dataSources.CreateQueryAfterDSSaved();
-      // Click the editing field
-      cy.get(".t--action-name-edit-field").click({
-        force: true,
-      });
 
-      // Click the editing field
-      cy.get(queryLocators.queryNameField).type("Query2");
+      _.agHelper.RenameQuery("Query2");
 
       // switching off Use Prepared Statement toggle
       _.dataSources.ToggleUsePreparedStatement(false);

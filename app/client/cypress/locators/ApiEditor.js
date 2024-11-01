@@ -3,7 +3,6 @@ export default {
   createBlankApiCard: ".t--createBlankApiCard",
   eachProviderCard: ".t--eachProviderCard",
   nameOfApi: ".t--nameOfApi",
-  ApiNameField: ".t--action-name-edit-field",
   addToPageBtn: ".t--addToPageBtn",
   ApiActionMenu: "[data-testid=\"t--more-action-trigger\"]",
   ApiDeleteBtn: ".t--apiFormDeleteBtn",

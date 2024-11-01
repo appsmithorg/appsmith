@@ -31,7 +31,7 @@ export class JSEditor {
   private assertHelper = ObjectsRegistry.AssertHelper;
 
   //#region Element locators
-  _runButton = "button.run-js-action";
+  _runButton = "[data-testid='t--run-js-action']";
   _settingsTab = "//span[text()='Settings']/parent::button";
   _codeTab = "//span[text()='Code']/parent::button";
   private _jsObjectParseErrorCallout =
@@ -43,8 +43,8 @@ export class JSEditor {
   private _onPageLoadSwitchStatus = (functionName: string) =>
     `//div[contains(@class, '${functionName}-on-page-load-setting')]//label/input`;
 
-  private _jsObjName = ".t--js-action-name-edit-field span";
-  public _jsObjTxt = ".t--js-action-name-edit-field input";
+  private _jsObjName = ".editor-tab.active > .ads-v2-text";
+  public _jsObjTxt = ".editor-tab.active > .ads-v2-text input";
   public _newJSobj = "span:contains('New JS object')";
   private _bindingsClose = ".t--entity-property-close";
   public _propertyList = ".binding";
@@ -113,11 +113,6 @@ export class JSEditor {
     );
     //Checking JS object was created successfully
     this.assertHelper.AssertNetworkStatus("@createNewJSCollection", 201);
-    this.agHelper.AssertElementVisibility(this._jsObjTxt);
-    // Assert that the name of the JS Object is focused when newly created
-    this.agHelper.PressEnter();
-    this.agHelper.PressEnter();
-    // Assert that the name of the JS Object is no longer in the editable form after pressing "enter"
     this.agHelper.AssertElementAbsence(this._jsObjTxt);
 
     this.agHelper.Sleep();
@@ -212,7 +207,7 @@ export class JSEditor {
   }
 
   public RenameJSObjFromPane(renameVal: string) {
-    cy.get(this._jsObjName).click({ force: true });
+    cy.get(this._jsObjName).dblclick({ force: true });
     cy.get(this._jsObjTxt)
       .clear()
       .type(renameVal, { force: true })
