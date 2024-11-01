@@ -7,7 +7,6 @@ import { getSavingStatusForJSObjectName } from "selectors/actionSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { Text as ADSText, Flex } from "@appsmith/ads";
 import styled from "styled-components";
-import { useBoolean } from "usehooks-ts";
 import { noop } from "lodash";
 import { useParams } from "react-router";
 import type { AppState } from "ee/reducers";
@@ -16,7 +15,7 @@ import {
   getPlugin,
 } from "ee/selectors/entitiesSelector";
 import { JSObjectNameEditor as OldJSObjectNameEditor } from "./old/JSObjectNameEditor";
-import { EditableName } from "IDE";
+import { EditableName, useIsRenaming } from "IDE";
 
 export interface SaveActionNameParams {
   id: string;
@@ -86,11 +85,9 @@ export const JSObjectNameEditor = ({
 
   const name = currentJSObjectConfig?.name || "";
 
-  const {
-    setFalse: exitEditMode,
-    setTrue: enterEditMode,
-    value: isEditing,
-  } = useBoolean(false);
+  const { enterEditMode, exitEditMode, isEditing } = useIsRenaming(
+    currentJSObjectConfig?.id || "",
+  );
 
   const handleDoubleClick = disabled ? noop : enterEditMode;
 

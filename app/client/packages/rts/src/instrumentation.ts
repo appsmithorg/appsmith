@@ -16,7 +16,7 @@ const provider = new NodeTracerProvider({
   resource: new Resource({
     [ATTR_DEPLOYMENT_NAME]: `${process.env.APPSMITH_DEPLOYMENT_NAME || "self-hosted"}`,
     [ATTR_SERVICE_INSTANCE_ID]: `${process.env.HOSTNAME || "appsmith-0"}`,
-    [ATTR_SERVICE_NAME]: "rts",
+    [ATTR_SERVICE_NAME]: "appsmith-rts",
   }),
 });
 

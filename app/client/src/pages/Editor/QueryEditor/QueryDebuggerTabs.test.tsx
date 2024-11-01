@@ -24,6 +24,7 @@ const storeState = {
     },
     datasources: {
       structure: {},
+      list: [],
     },
   },
   ui: {
