@@ -54,7 +54,7 @@ test("does not show tooltip for non-button types", () => {
 
 test("handles empty tooltip", () => {
   const { getByText } = render(
-    <AutoToolTipComponent columnType={ColumnTypes.BUTTON} title="">
+    <AutoToolTipComponent columnType={ColumnTypes.BUTTON} title="Empty button">
       <button>Empty button</button>
     </AutoToolTipComponent>,
   );
