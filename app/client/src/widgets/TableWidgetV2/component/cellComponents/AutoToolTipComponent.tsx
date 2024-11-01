@@ -137,7 +137,7 @@ interface Props {
   children: React.ReactNode;
   title: string;
   tableWidth?: number;
-  columnType?: string;
+  columnType?: ColumnTypes;
   className?: string;
   compactMode?: string;
   allowCellWrapping?: boolean;

@@ -7,6 +7,7 @@ import { TABLE_SIZES } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import AutoToolTipComponent from "./AutoToolTipComponent";
 import { importSvg } from "@appsmith/ads-old";
+import type { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
 const EditIcon = importSvg(
   async () => import("assets/icons/control/edit-variant1.svg"),
@@ -79,7 +80,7 @@ type PropType = BaseCellComponentProps & {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
-  columnType: string;
+  columnType: ColumnTypes;
   tableWidth: number;
   isCellEditable?: boolean;
   isCellEditMode?: boolean;
