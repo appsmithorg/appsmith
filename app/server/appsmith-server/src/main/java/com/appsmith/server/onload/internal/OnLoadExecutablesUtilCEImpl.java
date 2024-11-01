@@ -638,50 +638,48 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             Mono<Map<String, Executable>> executableNameToExecutableMapMono,
             Set<EntityDependencyNode> executableBindingsInDslRef,
             int evalVersion) {
-
-        // Collect all bindings from widgetDynamicBindingsMap into a single set.
-        Set<String> allBindings =
-                widgetDynamicBindingsMap.values().stream().flatMap(Set::stream).collect(Collectors.toSet());
-
-        // Pass the combined bindings set to getPossibleEntityReferences in one go.
-        return getPossibleEntityReferences(
-                        executableNameToExecutableMapMono, allBindings, evalVersion, executableBindingsInDslRef)
-                .name(GET_POSSIBLE_ENTITY_REFERENCES)
-                .tap(Micrometer.observation(observationRegistry))
-                .flatMapMany(Flux::fromIterable)
-                // Add dependencies of the executables found in the DSL in the graph
-                // We are ignoring the widget references at this point
-                // TODO: Possible optimization in the future
-                .flatMap(possibleEntity -> {
-                    // Iterate over the original map entries to set up widget nodes and dependencies.
-                    widgetDynamicBindingsMap.forEach((widgetName, bindingsInWidget) -> {
-                        EntityDependencyNode widgetDependencyNode = new EntityDependencyNode(
-                                EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
-
-                        // Check if possibleEntity matches any binding in the current widget's bindings.
-                        if (bindingsInWidget.contains(possibleEntity.getValidEntityName())
-                                && getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
-                            edgesRef.add(new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
-                            // This executable is directly referenced in the DSL. This executable is an ideal
-                            // candidate for on page load
-                            executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
-
-                            updateExecutableSelfReferencingPaths(possibleEntity)
-                                    .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
-                                    .tap(Micrometer.observation(observationRegistry))
-                                    .flatMap(executable -> extractAndSetExecutableBindingsInGraphEdges(
-                                            possibleEntity,
-                                            edgesRef,
-                                            bindingsFromExecutablesRef,
-                                            executableNameToExecutableMapMono,
-                                            executablesFoundDuringWalkRef,
-                                            null,
-                                            evalVersion))
-                                    .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
-                                    .tap(Micrometer.observation(observationRegistry));
-                        }
-                    });
-                    return Mono.just(possibleEntity);
+        return Flux.fromIterable(widgetDynamicBindingsMap.entrySet())
+                .flatMap(entry -> {
+                    String widgetName = entry.getKey();
+                    // For each widget in the DSL that has a dynamic binding,
+                    // we define an entity dependency node beforehand
+                    // This will be a leaf node in the DAG that is constructed for on page load dependencies
+                    EntityDependencyNode widgetDependencyNode =
+                            new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
+                    Set<String> bindingsInWidget = entry.getValue();
+                    return getPossibleEntityReferences(
+                                    executableNameToExecutableMapMono,
+                                    bindingsInWidget,
+                                    evalVersion,
+                                    executableBindingsInDslRef)
+                            .flatMapMany(Flux::fromIterable)
+                            // Add dependencies of the executables found in the DSL in the graph
+                            // We are ignoring the widget references at this point
+                            // TODO: Possible optimization in the future
+                            .flatMap(possibleEntity -> {
+                                if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
+                                    edgesRef.add(new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
+                                    // This executable is directly referenced in the DSL. This executable is an ideal
+                                    // candidate
+                                    // for on page load
+                                    executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
+                                    return updateExecutableSelfReferencingPaths(possibleEntity)
+                                            .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
+                                            .tap(Micrometer.observation(observationRegistry))
+                                            .flatMap(executable -> extractAndSetExecutableBindingsInGraphEdges(
+                                                    possibleEntity,
+                                                    edgesRef,
+                                                    bindingsFromExecutablesRef,
+                                                    executableNameToExecutableMapMono,
+                                                    executablesFoundDuringWalkRef,
+                                                    null,
+                                                    evalVersion))
+                                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                                            .tap(Micrometer.observation(observationRegistry))
+                                            .thenReturn(possibleEntity);
+                                }
+                                return Mono.just(possibleEntity);
+                            });
                 })
                 .collectList()
                 .thenReturn(edgesRef);
