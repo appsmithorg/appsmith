@@ -57,6 +57,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
         <Menu onOpenChange={toggleMenuOpen} open={isMenuOpen}>
           <MenuTrigger>
             <Button
+              data-testid="t--more-action-trigger"
               isIconButton
               kind="tertiary"
               size="sm"

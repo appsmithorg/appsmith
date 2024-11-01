@@ -5,7 +5,7 @@ export default {
   nameOfApi: ".t--nameOfApi",
   ApiNameField: ".t--action-name-edit-field",
   addToPageBtn: ".t--addToPageBtn",
-  ApiActionMenu: "[data-testid=\"more-action-trigger\"]",
+  ApiActionMenu: "[data-testid=\"t--more-action-trigger\"]",
   ApiDeleteBtn: ".t--apiFormDeleteBtn",
   ApiRunBtn: "[data-testid=\"t--run-action\"]",
   addToPageBtnsId: ".t--addToPageButtons",

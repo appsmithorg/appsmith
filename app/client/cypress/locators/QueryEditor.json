@@ -4,7 +4,7 @@
   "runQuery": "//span[text()='Run']/ancestor::button",
   "saveQuery": ".t--save-query",
   "deleteQuery": ".t--delete-query",
-  "queryMoreAction": "[data-testid=more-action-trigger]",
+  "queryMoreAction": "[data-testid=t--more-action-trigger]",
   "deleteUsingContext": ".t--apiFormDeleteBtn",
   "addDatasource": ".t--add-datasource",
   "editDatasourceButton": ".t--edit-datasource",
