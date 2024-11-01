@@ -56,7 +56,9 @@ import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_DIRECTLY_REFE
 import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH;
 import static com.appsmith.external.constants.spans.OnLoadSpan.EXECUTABLE_NAME_TO_EXECUTABLE_MAP;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_ALL_EXECUTABLES_BY_CREATOR_ID;
+import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_ENTITY_PARENTS_MAP;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_ENTITY_REFERENCES;
+import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_REFERENCES_FROM_DYNAMIC_BINDING;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT;
 import static com.appsmith.external.constants.spans.OnLoadSpan.UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS;
 import static com.appsmith.external.helpers.MustacheHelper.EXECUTABLE_ENTITY_REFERENCES;
@@ -529,10 +531,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         final int entityTypes = EXECUTABLE_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
 
         return executableNameToExecutableMono
-                .name("appsmith.executableNameToExecutableMono.process")
-                .tap(Micrometer.observation(observationRegistry))
                 .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion)
-                        .name("appsmith.GPEPMap.getPossibleEntityReferences")
+                        .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
                         .tap(Micrometer.observation(observationRegistry)))
                 .map(tuple -> {
                     Map<String, Executable> executableMap = tuple.getT1();
@@ -604,10 +604,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             Set<String> bindings, int types, int evalVersion) {
         Flux<Tuple2<String, Set<String>>> findingToReferencesFlux = astService
                 .getPossibleReferencesFromDynamicBinding(new ArrayList<>(bindings), evalVersion)
-                .name("appsmith.getPossibleReferencesFromDynamicBinding")
+                .name(GET_POSSIBLE_REFERENCES_FROM_DYNAMIC_BINDING)
                 .tap(Micrometer.observation(observationRegistry));
         return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types)
-                .name("appsmith.getPossibleEntityParentsMap")
+                .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
@@ -647,6 +647,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     EntityDependencyNode widgetDependencyNode =
                             new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
                     Set<String> bindingsInWidget = entry.getValue();
+
+                    log.debug("\n---------widgetDependencyNode----------\n" + widgetName + "\n"
+                            + widgetDependencyNode.getReferenceString());
+
                     return getPossibleEntityReferences(
                                     executableNameToExecutableMapMono,
                                     bindingsInWidget,
@@ -659,6 +663,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             // We are ignoring the widget references at this point
                             // TODO: Possible optimization in the future
                             .flatMap(possibleEntity -> {
+                                log.debug("\n----------possibleEntity---------\n" + possibleEntity.getValidEntityName()
+                                        + "\n" + possibleEntity.getReferenceString());
                                 if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
                                     edgesRef.add(new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
                                     // This executable is directly referenced in the DSL. This executable is an ideal
@@ -1151,7 +1157,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         // Call getPossibleEntityParentsMap with the combined bindings set.
         return getPossibleEntityParentsMap(allBindings, entityTypes, evalVersion)
-                .name("appsmith.GPEPMap.addWidgetRelationshipToGraph")
+                .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
                 .tap(Micrometer.observation(observationRegistry))
                 .map(possibleParentsMap -> {
                     widgetBindingMap.forEach((widgetPath, bindings) -> {

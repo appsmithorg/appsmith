@@ -117,9 +117,8 @@ public class AstServiceCEImpl implements AstServiceCE {
                         Mono.just(new HashSet<>(MustacheHelper.getPossibleParentsOld(bindingValue))));
             });
         }
-        long startTime = System.nanoTime();
 
-        Flux<Tuple2<String, Set<String>>> res = rtsCaller
+        return rtsCaller
                 .post("/rts-api/v1/ast/multiple-script-data", new GetIdentifiersRequestBulk(bindingValues, evalVersion))
                 .flatMapMany(spec -> spec.retrieve()
                         .bodyToMono(GetIdentifiersResponseBulk.class)
@@ -134,12 +133,7 @@ public class AstServiceCEImpl implements AstServiceCE {
                 .name("appsmith.rts.multiple-script-data")
                 .tap(Micrometer.observation(observationRegistry));
 
-        long endTime = System.nanoTime();
-        double timeTakenMs = (endTime - startTime) / 1_000_000.0;
-        log.debug(String.format("\nTime taken to get possible references from dynamic bindings: %.4f ms", timeTakenMs));
-
         // TODO: add error handling scenario for when RTS is not accessible in fat container
-        return res;
     }
 
     @Override
