@@ -132,7 +132,11 @@ export const BasicCell = React.forwardRef(
     const contentToRender = useMemo(() => {
       switch (columnType) {
         case ColumnTypes.URL:
-          return <a href={url}>{value}</a>;
+          return (
+            <a href={url} rel="noopener noreferrer" target="_blank">
+              {value}
+            </a>
+          );
         default:
           return value;
       }
