@@ -1,5 +1,5 @@
 import type { Ref } from "react";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
 import type { BaseCellComponentProps } from "../Constants";
@@ -129,14 +129,14 @@ export const BasicCell = React.forwardRef(
       },
       [onEdit, disabledEditIcon, isCellEditable],
     );
-    const getContent = () => {
+    const contentToRender = useMemo(() => {
       switch (columnType) {
         case ColumnTypes.URL:
           return <a href={url}>{value}</a>;
         default:
           return value;
       }
-    };
+    }, [columnType, url, value]);
 
     return (
       <Wrapper
@@ -166,7 +166,7 @@ export const BasicCell = React.forwardRef(
           url={url}
           verticalAlignment={verticalAlignment}
         >
-          <Content ref={contentRef}>{getContent()}</Content>
+          <Content ref={contentRef}>{contentToRender}</Content>
         </StyledAutoToolTipComponent>
         {isCellEditable && (
           <StyledEditIcon
