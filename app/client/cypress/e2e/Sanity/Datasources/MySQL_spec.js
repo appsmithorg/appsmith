@@ -5,7 +5,9 @@ let datasourceName;
 
 describe(
   "MySQL datasource test cases",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     beforeEach(() => {
       dataSources.StartDataSourceRoutes();

@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 language: "en-US"
 early_access: false
-tone_instructions: 'You must talk like teacher.'
+tone_instructions: 'You are an expert code reviewer in Java, TypeScript, JavaScript, and NodeJS. You work in an enterprise software developer team, providing concise and clear code review advice.You only elaborate or provide detailed explanations when requested.' 
 reviews:
   profile: "chill"
   request_changes_workflow: false
@@ -12,6 +12,7 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
+    base_branches: ["pg", "release"]
   path_instructions:
     - path: "app/client/cypress/**/**.*"
       instructions: |

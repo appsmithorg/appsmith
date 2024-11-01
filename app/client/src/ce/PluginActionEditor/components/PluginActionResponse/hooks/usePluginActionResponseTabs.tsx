@@ -17,20 +17,30 @@ import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import { PluginType } from "entities/Action";
 import { ApiResponse } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
 import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponseHeaders";
-import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import { getPluginActionDebuggerState } from "PluginActionEditor/store";
+import {
+  getPluginActionDebuggerState,
+  isActionRunning,
+} from "PluginActionEditor/store";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
-import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
-import Schema from "components/editorComponents/Debugger/Schema";
-import QueryResponseTab from "pages/Editor/QueryEditor/QueryResponseTab";
+import useShowSchema from "PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
+import Schema from "PluginActionEditor/components/PluginActionResponse/components/Schema";
+import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import {
+  useBlockExecution,
+  useHandleRunClick,
+  useAnalyticsOnRunClick,
+} from "PluginActionEditor/hooks";
+import useDebuggerTriggerClick from "components/editorComponents/Debugger/hooks/useDebuggerTriggerClick";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =
     usePluginActionContext();
+  const { handleRunClick } = useHandleRunClick();
+  const { callRunActionAnalytics } = useAnalyticsOnRunClick();
 
   const IDEViewMode = useSelector(getIDEViewMode);
   const errorCount = useSelector(getErrorCount);
@@ -40,7 +50,95 @@ function usePluginActionResponseTabs() {
 
   const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
 
+  const onDebugClick = useDebuggerTriggerClick();
+  const isRunning = useSelector(isActionRunning(action.id));
+  const blockExecution = useBlockExecution();
+
   const tabs: BottomTab[] = [];
+
+  const onRunClick = () => {
+    callRunActionAnalytics();
+    handleRunClick();
+  };
+
+  if (plugin.type === PluginType.API) {
+    tabs.push(
+      {
+        key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        title: createMessage(DEBUGGER_RESPONSE),
+        panelComponent: (
+          <ApiResponse
+            action={action}
+            actionResponse={actionResponse}
+            isRunDisabled={blockExecution}
+            isRunning={isRunning}
+            onRunClick={onRunClick}
+            responseTabHeight={responseTabHeight}
+            theme={EditorTheme.LIGHT}
+          />
+        ),
+      },
+      {
+        key: DEBUGGER_TAB_KEYS.HEADER_TAB,
+        title: createMessage(DEBUGGER_HEADERS),
+        panelComponent: (
+          <ApiResponseHeaders
+            actionResponse={actionResponse}
+            isRunDisabled={blockExecution}
+            isRunning={isRunning}
+            onDebugClick={onDebugClick}
+            onRunClick={onRunClick}
+          />
+        ),
+      },
+    );
+  }
+
+  if (
+    [
+      PluginType.DB,
+      PluginType.AI,
+      PluginType.REMOTE,
+      PluginType.SAAS,
+      PluginType.INTERNAL,
+    ].includes(plugin.type)
+  ) {
+    const actionSource: SourceEntity = {
+      type: SOURCE_ENTITY_TYPE.ACTION,
+      name: action.name,
+      id: action.id,
+    };
+
+    if (showSchema) {
+      tabs.push({
+        key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
+        title: "Schema",
+        panelComponent: (
+          <Schema
+            currentActionId={action.id}
+            datasourceId={datasource?.id || ""}
+            datasourceName={datasource?.name || ""}
+          />
+        ),
+      });
+    }
+
+    tabs.push({
+      key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+      title: createMessage(DEBUGGER_RESPONSE),
+      panelComponent: (
+        <QueryResponseTab
+          actionName={action.name}
+          actionSource={actionSource}
+          currentActionConfig={action}
+          isRunDisabled={blockExecution}
+          isRunning={isRunning}
+          onRunClick={onRunClick}
+          runErrorMessage={""} // TODO
+        />
+      ),
+    });
+  }
 
   if (IDEViewMode === EditorViewMode.FullScreen) {
     tabs.push(
@@ -56,88 +154,6 @@ function usePluginActionResponseTabs() {
         panelComponent: <DebuggerLogs searchQuery={action.name} />,
       },
     );
-  }
-
-  if (plugin.type === PluginType.API) {
-    return tabs.concat([
-      {
-        key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-        title: createMessage(DEBUGGER_RESPONSE),
-        panelComponent: (
-          <ApiResponse
-            action={action}
-            actionResponse={actionResponse}
-            isRunDisabled={false}
-            isRunning={false}
-            onRunClick={noop}
-            responseTabHeight={responseTabHeight}
-            theme={EditorTheme.LIGHT}
-          />
-        ),
-      },
-      {
-        key: DEBUGGER_TAB_KEYS.HEADER_TAB,
-        title: createMessage(DEBUGGER_HEADERS),
-        panelComponent: (
-          <ApiResponseHeaders
-            actionResponse={actionResponse}
-            isRunDisabled={false}
-            isRunning={false}
-            onDebugClick={noop}
-            onRunClick={noop}
-          />
-        ),
-      },
-    ]);
-  }
-
-  if (
-    [
-      PluginType.DB,
-      PluginType.AI,
-      PluginType.REMOTE,
-      PluginType.SAAS,
-      PluginType.INTERNAL,
-    ].includes(plugin.type)
-  ) {
-    const newTabs = [];
-
-    const actionSource: SourceEntity = {
-      type: SOURCE_ENTITY_TYPE.ACTION,
-      name: action.name,
-      id: action.id,
-    };
-
-    if (showSchema) {
-      newTabs.push({
-        key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
-        title: "Schema",
-        panelComponent: (
-          <Schema
-            currentActionId={action.id}
-            datasourceId={datasource?.id || ""}
-            datasourceName={datasource?.name || ""}
-          />
-        ),
-      });
-    }
-
-    newTabs.push({
-      key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-      title: createMessage(DEBUGGER_RESPONSE),
-      panelComponent: (
-        <QueryResponseTab
-          actionName={action.name}
-          actionSource={actionSource}
-          currentActionConfig={action}
-          isRunning={false}
-          onRunClick={noop}
-          runErrorMessage={""} // TODO
-        />
-      ),
-    });
-
-    return tabs.concat(newTabs);
   }
 
   return tabs;

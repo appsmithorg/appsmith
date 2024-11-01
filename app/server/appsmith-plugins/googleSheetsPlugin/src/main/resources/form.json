@@ -33,7 +33,7 @@
         {
           "label": "Permissions | Scope",
           "configProperty": "datasourceConfiguration.authentication.scopeString",
-          "controlType": "DROP_DOWN",
+          "controlType": "RADIO_BUTTON",
           "options": [
             {
               "label": "Read / Write / Delete | Selected google sheets",

@@ -29,46 +29,91 @@ import {
 } from "ee/workers/Evaluation/Actions";
 import { isWidgetActionOrJsObject } from "ee/entities/DataTree/utils";
 import { getValidEntityType } from "workers/common/DataTreeEvaluator/utils";
+import appComputationCache from "../AppComputationCache";
+import {
+  EComputationCacheName,
+  type ICacheProps,
+} from "../AppComputationCache/types";
 import type DependencyMap from "entities/DependencyMap";
+import {
+  profileFn,
+  type WebworkerSpanData,
+} from "UITelemetry/generateWebWorkerTraces";
+import type { SpanAttributes } from "UITelemetry/generateTraces";
 
-export function createDependencyMap(
+export async function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalTree: DataTree,
   configTree: ConfigTree,
+  cacheProps: ICacheProps,
+  webworkerSpans: Record<string, WebworkerSpanData | SpanAttributes> = {},
 ) {
   const { allKeys, dependencyMap } = dataTreeEvalRef;
+
   const allAppsmithInternalFunctions = convertArrayToObject(
     AppsmithFunctionsWithFields,
   );
   const setterFunctions = getAllSetterFunctions(unEvalTree, configTree);
 
-  dependencyMap.addNodes(
-    { ...allKeys, ...allAppsmithInternalFunctions, ...setterFunctions },
-    false,
-  );
-
-  Object.keys(configTree).forEach((entityName) => {
-    const entity = unEvalTree[entityName];
-    const entityConfig = configTree[entityName];
-    const entityDependencies = getEntityDependencies(
-      entity as DataTreeEntityObject,
-      entityConfig,
-      allKeys,
+  profileFn("createDependencyMap.addNodes", {}, webworkerSpans, async () => {
+    dependencyMap.addNodes(
+      { ...allKeys, ...allAppsmithInternalFunctions, ...setterFunctions },
+      false,
     );
+  });
 
-    for (const path of Object.keys(entityDependencies)) {
-      const pathDependencies = entityDependencies[path];
-      const { errors, references } = extractInfoFromBindings(
-        pathDependencies,
+  const dependencyMapCache =
+    await appComputationCache.getCachedComputationResult<
+      Record<string, string[]>
+    >({
+      cacheProps,
+      cacheName: EComputationCacheName.DEPENDENCY_MAP,
+    });
+
+  if (dependencyMapCache) {
+    profileFn("createDependencyMap.addDependency", {}, webworkerSpans, () => {
+      Object.entries(dependencyMapCache).forEach(([path, references]) => {
+        dependencyMap.addDependency(path, references);
+      });
+    });
+  } else {
+    let shouldCache = true;
+
+    Object.keys(configTree).forEach((entityName) => {
+      const entity = unEvalTree[entityName];
+      const entityConfig = configTree[entityName];
+      const entityDependencies = getEntityDependencies(
+        entity as DataTreeEntityObject,
+        entityConfig,
         allKeys,
       );
 
-      dependencyMap.addDependency(path, references);
-      dataTreeEvalRef.errors.push(...errors);
-    }
-  });
+      for (const path of Object.keys(entityDependencies)) {
+        const pathDependencies = entityDependencies[path];
+        const { errors, references } = extractInfoFromBindings(
+          pathDependencies,
+          allKeys,
+        );
 
-  DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
+        dependencyMap.addDependency(path, references);
+        dataTreeEvalRef.errors.push(...errors);
+
+        if (errors.length) {
+          shouldCache = false;
+        }
+      }
+    });
+
+    DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
+
+    if (shouldCache) {
+      await appComputationCache.cacheComputationResult({
+        cacheProps,
+        cacheName: EComputationCacheName.DEPENDENCY_MAP,
+        computationResult: dependencyMap.dependencies,
+      });
+    }
+  }
 
   return {
     dependencies: dependencyMap.dependencies,

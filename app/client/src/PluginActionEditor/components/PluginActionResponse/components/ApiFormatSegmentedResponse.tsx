@@ -7,7 +7,7 @@ import { Flex, SegmentedControl } from "@appsmith/ads";
 import type { ActionResponse } from "api/ActionAPI";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
-import { ResponseDisplayFormats } from "constants/ApiEditorConstants/CommonApiConstants";
+import { ResponseDisplayFormats } from "../../../constants/CommonApiConstants";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { ResponseFormatTabs } from "./ResponseFormatTabs";

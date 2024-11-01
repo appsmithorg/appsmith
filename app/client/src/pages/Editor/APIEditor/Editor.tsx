@@ -187,7 +187,6 @@ class ApiEditor extends React.Component<Props> {
             }
             isDeleting={isDeleting}
             isRunning={isRunning}
-            onDeleteClick={this.context.handleDeleteClick}
             onRunClick={this.context.handleRunClick}
             paginationType={paginationType}
             pluginId={pluginId}
@@ -205,7 +204,6 @@ class ApiEditor extends React.Component<Props> {
             isDeleting={isDeleting}
             isRunning={isRunning}
             match={this.props.match}
-            onDeleteClick={this.context.handleDeleteClick}
             onRunClick={this.context.handleRunClick}
             paginationType={paginationType}
             pluginId={pluginId}
@@ -231,9 +229,10 @@ class ApiEditor extends React.Component<Props> {
 
 const formStyles: CSSProperties = {
   position: "relative",
-  height: "100%",
   display: "flex",
   flexDirection: "column",
+  flexGrow: "1",
+  overflow: "auto",
 };
 
 // TODO: Fix this the next time the file is edited

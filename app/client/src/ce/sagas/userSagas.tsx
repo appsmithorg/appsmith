@@ -1,4 +1,4 @@
-import { call, put, race, select, take } from "redux-saga/effects";
+import { call, fork, put, race, select, take } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
@@ -190,27 +190,32 @@ export function* getCurrentUserSaga(action?: {
   }
 }
 
+function* intializeSmartLook(currentUser: User) {
+  if (!currentUser.isAnonymous && currentUser.username !== ANONYMOUS_USERNAME) {
+    yield AnalyticsUtil.identifyUser(currentUser);
+  }
+}
+
 export function* runUserSideEffectsSaga() {
   const currentUser: User = yield select(getCurrentUser);
   const { enableTelemetry } = currentUser;
   const isAirgappedInstance = isAirgapped();
 
   if (enableTelemetry) {
-    const promise = initializeAnalyticsAndTrackers();
+    // parallelize sentry and smart look initialization
 
-    if (promise instanceof Promise) {
-      const result: boolean = yield promise;
+    yield fork(intializeSmartLook, currentUser);
+    const initializeSentry = initializeAnalyticsAndTrackers();
 
-      if (result) {
+    if (initializeSentry instanceof Promise) {
+      const sentryInialized: boolean = yield initializeSentry;
+
+      if (sentryInialized) {
         yield put(segmentInitSuccess());
       } else {
         yield put(segmentInitUncertain());
       }
     }
-  }
-
-  if (!currentUser.isAnonymous && currentUser.username !== ANONYMOUS_USERNAME) {
-    enableTelemetry && AnalyticsUtil.identifyUser(currentUser);
   }
 
   const isFFFetched: boolean = yield select(getFeatureFlagsFetched);

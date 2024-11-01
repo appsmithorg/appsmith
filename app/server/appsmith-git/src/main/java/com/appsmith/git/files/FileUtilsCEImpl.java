@@ -47,6 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 import static com.appsmith.external.git.constants.GitConstants.ACTION_COLLECTION_LIST;
@@ -243,7 +244,7 @@ public class FileUtilsCEImpl implements FileInterface {
 
         Set<String> validPages = new HashSet<>();
         for (Map.Entry<String, Object> pageResource : pageEntries) {
-            Map<String, String> validWidgetToParentMap = new HashMap<>();
+            Map<String, String> validWidgetToParentMap = new ConcurrentHashMap<>();
             final String pageName = pageResource.getKey();
             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
             boolean isResourceUpdated =
@@ -255,7 +256,8 @@ public class FileUtilsCEImpl implements FileInterface {
                         pageSpecificDirectory.resolve(pageName + CommonConstants.JSON_EXTENSION));
                 Map<String, JSONObject> result = DSLTransformerHelper.flatten(
                         new JSONObject(applicationGitReference.getPageDsl().get(pageName)));
-                result.forEach((key, jsonObject) -> {
+                result.keySet().parallelStream().forEach(key -> {
+                    JSONObject jsonObject = result.get(key);
                     String widgetName = key.substring(key.lastIndexOf(CommonConstants.DELIMITER_POINT) + 1);
 
                     String childPath = DSLTransformerHelper.getPathToWidgetFile(key, jsonObject, widgetName);
@@ -291,8 +293,8 @@ public class FileUtilsCEImpl implements FileInterface {
             Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
             Set<Map.Entry<String, Object>> jsLibEntries =
                     applicationGitReference.getJsLibraries().entrySet();
-            Set<String> validJsLibs = new HashSet<>();
-            jsLibEntries.forEach(jsLibEntry -> {
+            Set<String> validJsLibs = ConcurrentHashMap.newKeySet();
+            jsLibEntries.parallelStream().forEach(jsLibEntry -> {
                 String uidString = jsLibEntry.getKey();
                 boolean isResourceUpdated = modifiedResources.isResourceUpdated(CUSTOM_JS_LIB_LIST, uidString);
 
@@ -308,18 +310,17 @@ public class FileUtilsCEImpl implements FileInterface {
         }
 
         // Create HashMap for valid actions and actionCollections
-        HashMap<String, Set<String>> validActionsMap = new HashMap<>();
-        HashMap<String, Set<String>> validActionCollectionsMap = new HashMap<>();
+        ConcurrentHashMap<String, Set<String>> validActionsMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, Set<String>> validActionCollectionsMap = new ConcurrentHashMap<>();
         validPages.forEach(validPage -> {
-            validActionsMap.put(validPage, new HashSet<>());
-            validActionCollectionsMap.put(validPage, new HashSet<>());
+            validActionsMap.put(validPage, ConcurrentHashMap.newKeySet());
+            validActionCollectionsMap.put(validPage, ConcurrentHashMap.newKeySet());
         });
 
         // Save actions
-        for (Map.Entry<String, Object> resource :
-                applicationGitReference.getActions().entrySet()) {
-            // queryName_pageName => nomenclature for the keys
-            // TODO queryName => for app level queries, this is not implemented yet
+        // queryName_pageName => nomenclature for the keys
+        // TODO queryName => for app level queries, this is not implemented yet
+        applicationGitReference.getActions().entrySet().parallelStream().forEach(resource -> {
             String[] names = resource.getKey().split(NAME_SEPARATOR);
             if (names.length > 1 && StringUtils.hasLength(names[1])) {
                 // For actions, we are referring to validNames to maintain unique file names as just name
@@ -349,7 +350,7 @@ public class FileUtilsCEImpl implements FileInterface {
                             .resolve(queryName + CommonConstants.JSON_EXTENSION));
                 }
             }
-        }
+        });
 
         validActionsMap.forEach((pageName, validActionNames) -> {
             Path pageSpecificDirectory = pageDirectory.resolve(pageName);
@@ -358,35 +359,38 @@ public class FileUtilsCEImpl implements FileInterface {
         });
 
         // Save JSObjects
-        for (Map.Entry<String, Object> resource :
-                applicationGitReference.getActionCollections().entrySet()) {
-            // JSObjectName_pageName => nomenclature for the keys
-            // TODO JSObjectName => for app level JSObjects, this is not implemented yet
-            String[] names = resource.getKey().split(NAME_SEPARATOR);
-            if (names.length > 1 && StringUtils.hasLength(names[1])) {
-                final String actionCollectionName = names[0];
-                final String pageName = names[1];
-                Path pageSpecificDirectory = pageDirectory.resolve(pageName);
-                Path actionCollectionSpecificDirectory = pageSpecificDirectory.resolve(ACTION_COLLECTION_DIRECTORY);
+        // JSObjectName_pageName => nomenclature for the keys
+        // TODO JSObjectName => for app level JSObjects, this is not implemented yet
+        applicationGitReference.getActionCollections().entrySet().parallelStream()
+                .forEach(resource -> {
+                    String[] names = resource.getKey().split(NAME_SEPARATOR);
+                    if (names.length > 1 && StringUtils.hasLength(names[1])) {
+                        final String actionCollectionName = names[0];
+                        final String pageName = names[1];
+                        Path pageSpecificDirectory = pageDirectory.resolve(pageName);
+                        Path actionCollectionSpecificDirectory =
+                                pageSpecificDirectory.resolve(ACTION_COLLECTION_DIRECTORY);
 
-                if (!validActionCollectionsMap.containsKey(pageName)) {
-                    validActionCollectionsMap.put(pageName, new HashSet<>());
-                }
-                validActionCollectionsMap.get(pageName).add(actionCollectionName);
-                boolean isResourceUpdated = modifiedResources != null
-                        && modifiedResources.isResourceUpdated(ACTION_COLLECTION_LIST, resource.getKey());
-                if (Boolean.TRUE.equals(isResourceUpdated)) {
-                    saveActionCollection(
-                            resource.getValue(),
-                            applicationGitReference.getActionCollectionBody().get(resource.getKey()),
-                            actionCollectionName,
-                            actionCollectionSpecificDirectory.resolve(actionCollectionName));
-                    // Delete the resource from the old file structure v2
-                    fileOperations.deleteFile(actionCollectionSpecificDirectory.resolve(
-                            actionCollectionName + CommonConstants.JSON_EXTENSION));
-                }
-            }
-        }
+                        if (!validActionCollectionsMap.containsKey(pageName)) {
+                            validActionCollectionsMap.put(pageName, new HashSet<>());
+                        }
+                        validActionCollectionsMap.get(pageName).add(actionCollectionName);
+                        boolean isResourceUpdated = modifiedResources != null
+                                && modifiedResources.isResourceUpdated(ACTION_COLLECTION_LIST, resource.getKey());
+                        if (Boolean.TRUE.equals(isResourceUpdated)) {
+                            saveActionCollection(
+                                    resource.getValue(),
+                                    applicationGitReference
+                                            .getActionCollectionBody()
+                                            .get(resource.getKey()),
+                                    actionCollectionName,
+                                    actionCollectionSpecificDirectory.resolve(actionCollectionName));
+                            // Delete the resource from the old file structure v2
+                            fileOperations.deleteFile(actionCollectionSpecificDirectory.resolve(
+                                    actionCollectionName + CommonConstants.JSON_EXTENSION));
+                        }
+                    }
+                });
 
         // Verify if the old files are deleted
         validActionCollectionsMap.forEach((pageName, validActionCollectionNames) -> {

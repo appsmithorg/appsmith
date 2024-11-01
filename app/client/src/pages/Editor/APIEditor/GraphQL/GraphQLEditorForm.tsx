@@ -12,8 +12,8 @@ import {
 } from "ee/selectors/entitiesSelector";
 import type { CommonFormProps } from "../CommonEditorForm";
 import CommonEditorForm from "../CommonEditorForm";
-import Pagination from "./Pagination";
-import { GRAPHQL_HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import Pagination from "PluginActionEditor/components/PluginActionForm/components/GraphQLEditor/Pagination";
+import { GRAPHQL_HTTP_METHOD_OPTIONS } from "PluginActionEditor/constants/GraphQLEditorConstants";
 import PostBodyData from "PluginActionEditor/components/PluginActionForm/components/GraphQLEditor/PostBodyData";
 
 type APIFormProps = {
@@ -21,8 +21,6 @@ type APIFormProps = {
 } & CommonFormProps;
 
 type Props = APIFormProps & InjectedFormProps<Action, APIFormProps>;
-
-const FORM_NAME = API_EDITOR_FORM_NAME;
 
 /**
  * Graphql Editor form which uses the Common Editor and pass on the differentiating components from the API Editor.
@@ -36,13 +34,12 @@ function GraphQLEditorForm(props: Props) {
     <CommonEditorForm
       {...props}
       bodyUIComponent={<PostBodyData actionName={actionName} />}
-      formName={FORM_NAME}
+      formName={API_EDITOR_FORM_NAME}
       httpsMethods={GRAPHQL_HTTP_METHOD_OPTIONS}
       paginationUIComponent={
         <Pagination
           actionName={actionName}
-          formName={FORM_NAME}
-          onTestClick={props.onRunClick}
+          formName={API_EDITOR_FORM_NAME}
           paginationType={props.paginationType}
           query={props.actionConfigurationBody}
         />
@@ -51,7 +48,7 @@ function GraphQLEditorForm(props: Props) {
   );
 }
 
-const selector = formValueSelector(FORM_NAME);
+const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
 export default connect(
   // TODO: Fix this the next time the file is edited
@@ -102,7 +99,7 @@ export default connect(
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reduxForm<Action, any>({
-    form: FORM_NAME,
+    form: API_EDITOR_FORM_NAME,
     enableReinitialize: true,
   })(GraphQLEditorForm),
 );

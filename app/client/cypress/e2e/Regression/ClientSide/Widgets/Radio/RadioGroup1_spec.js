@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Radiogroup Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Radio"] },
+  { tags: ["@tag.Widget", "@tag.Radio", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

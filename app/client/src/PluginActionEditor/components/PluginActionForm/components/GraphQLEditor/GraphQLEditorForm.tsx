@@ -2,18 +2,15 @@ import React from "react";
 import { reduxForm } from "redux-form";
 import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import CommonEditorForm from "../CommonEditorForm";
-import Pagination from "pages/Editor/APIEditor/GraphQL/Pagination";
-import { GRAPHQL_HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import Pagination from "./Pagination";
+import { GRAPHQL_HTTP_METHOD_OPTIONS } from "../../../../constants/GraphQLEditorConstants";
 import PostBodyData from "./PostBodyData";
-import { usePluginActionContext } from "PluginActionEditor";
+import { usePluginActionContext } from "../../../../PluginActionContext";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useGetFormActionValues from "../CommonEditorForm/hooks/useGetFormActionValues";
-
-const FORM_NAME = API_EDITOR_FORM_NAME;
 
 function GraphQLEditorForm() {
   const { action } = usePluginActionContext();
@@ -31,14 +28,13 @@ function GraphQLEditorForm() {
     <CommonEditorForm
       action={action}
       bodyUIComponent={<PostBodyData actionName={action.name} />}
-      formName={FORM_NAME}
+      formName={API_EDITOR_FORM_NAME}
       httpMethodOptions={GRAPHQL_HTTP_METHOD_OPTIONS}
       isChangePermitted={isChangePermitted}
       paginationUiComponent={
         <Pagination
           actionName={action.name}
-          formName={FORM_NAME}
-          onTestClick={noop}
+          formName={API_EDITOR_FORM_NAME}
           paginationType={action.actionConfiguration.paginationType}
           query={actionConfigurationBody}
           theme={theme}
@@ -48,6 +44,7 @@ function GraphQLEditorForm() {
   );
 }
 
-export default reduxForm({ form: FORM_NAME, enableReinitialize: true })(
-  GraphQLEditorForm,
-);
+export default reduxForm({
+  form: API_EDITOR_FORM_NAME,
+  enableReinitialize: true,
+})(GraphQLEditorForm);

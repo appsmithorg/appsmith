@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "checkboxgroupwidget Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Checkbox"] },
+  { tags: ["@tag.Widget", "@tag.Checkbox", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

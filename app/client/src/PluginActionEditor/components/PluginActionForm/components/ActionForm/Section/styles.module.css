@@ -1,0 +1,20 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-4);
+  width: 100%;
+  max-width: 800px;
+  justify-content: center;
+
+  &[data-standalone="false"] {
+    padding-block: var(--ads-v2-spaces-6);
+  }
+
+  &[data-standalone="false"]:not(:last-child) {
+    border-bottom: 1px solid var(--ads-v2-color-border);
+  }
+
+  &[data-fullwidth="true"] {
+    max-width: none;
+  }
+}

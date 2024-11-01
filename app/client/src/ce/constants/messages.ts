@@ -337,7 +337,7 @@ export const ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
 export const ERROR_ACTION_MOVE_FAIL = (actionName: string) =>
   `Error while moving action ${actionName}`;
 export const ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
-  `${actionName} action copied to page ${pageName} successfully`;
+  `${actionName} action copied ${pageName.length > 0 ? "to page " + pageName : ""} successfully`;
 export const ERROR_ACTION_COPY_FAIL = (actionName: string) =>
   `Error while copying action ${actionName}`;
 export const ERROR_ACTION_RENAME_FAIL = (actionName: string) =>
@@ -354,7 +354,7 @@ export const ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
 
 export const ACTION_ID_NOT_FOUND_IN_URL =
   "No correct API id or Query id found in the url.";
-export const JSOBJECT_ID_NOT_FOUND_IN_URL =
+export const JS_OBJECT_ID_NOT_FOUND_IN_URL =
   "No correct JS Object id found in the url.";
 
 export const DATASOURCE_CREATE = (dsName: string) =>
@@ -794,7 +794,8 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
 // Datasource structure
 
-export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
+export const SCHEMA_NOT_AVAILABLE = () =>
+  "We can't show schema for this datasource";
 export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
   `Tables in ${name}`;
@@ -1731,6 +1732,7 @@ export const CONTEXT_RENAME = () => "Rename";
 export const CONTEXT_SHOW_BINDING = () => "Show bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
+export const CONTEXT_DUPLICATE = () => "Duplicate";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
 export const CONFIRM_CONTEXT_DELETING = () => "Deleting";
@@ -2509,6 +2511,11 @@ export const FIELD_REQUIRED_MESSAGE = () => `This field is required`;
 
 export const PREPARED_STATEMENT_WARNING = {
   MESSAGE: () =>
-    "Prepared Statements are currently enabled, which may be causing the query error. Turn them off and try running the query again",
+    "Prepared statements are currently enabled, which may be causing the query error. Turn them off and try running the query again",
   LINK: () => "Open settings",
+};
+
+export const JS_EDITOR_SETTINGS = {
+  TITLE: () => "Settings",
+  ON_LOAD_TITLE: () => "Choose functions to run on page load",
 };

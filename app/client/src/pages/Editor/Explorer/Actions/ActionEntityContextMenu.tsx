@@ -20,6 +20,7 @@ import {
   CONTEXT_NO_PAGE,
   CONTEXT_SHOW_BINDING,
   createMessage,
+  CONTEXT_DUPLICATE,
 } from "ee/constants/messages";
 import { builderURL } from "ee/RouteBuilder";
 
@@ -33,8 +34,9 @@ import { useConvertToModuleOptions } from "ee/pages/Editor/Explorer/hooks";
 import { MODULE_TYPE } from "ee/constants/ModuleConstants";
 import { PluginType } from "entities/Action";
 import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 
-interface EntityContextMenuProps {
+export interface EntityContextMenuProps {
   id: string;
   name: string;
   className?: string;
@@ -45,7 +47,7 @@ interface EntityContextMenuProps {
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   // Import the context
   const context = useContext(FilesContext);
-  const { menuItems, parentEntityId } = context;
+  const { menuItems, parentEntityId, parentEntityType } = context;
   const baseParentEntityId = useSelector((state) =>
     convertToBaseParentEntityIdSelector(state, parentEntityId),
   );
@@ -53,12 +55,12 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   const { canDeleteAction, canManageAction } = props;
   const dispatch = useDispatch();
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const copyActionToPage = useCallback(
-    (actionId: string, actionName: string, pageId: string) =>
+  const copyAction = useCallback(
+    (actionId: string, actionName: string, destinationEntityId: string) =>
       dispatch(
         copyActionRequest({
           id: actionId,
-          destinationPageId: pageId,
+          destinationEntityId,
           name: actionName,
         }),
       ),
@@ -129,14 +131,26 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     menuItems.includes(ActionEntityContextMenuItemsEnum.COPY) &&
       canManageAction && {
         value: "copy",
-        onSelect: noop,
-        label: createMessage(CONTEXT_COPY),
-        children: menuPages.map((page) => {
-          return {
-            ...page,
-            onSelect: () => copyActionToPage(props.id, props.name, page.id),
-          };
-        }),
+        onSelect:
+          parentEntityType === ActionParentEntityType.PAGE
+            ? noop
+            : () => {
+                copyAction(props.id, props.name, parentEntityId);
+              },
+        label: createMessage(
+          parentEntityType === ActionParentEntityType.PAGE
+            ? CONTEXT_COPY
+            : CONTEXT_DUPLICATE,
+        ),
+        children:
+          parentEntityType === ActionParentEntityType.PAGE &&
+          menuPages.length > 0 &&
+          menuPages.map((page) => {
+            return {
+              ...page,
+              onSelect: () => copyAction(props.id, props.name, page.id),
+            };
+          }),
       },
     menuItems.includes(ActionEntityContextMenuItemsEnum.MOVE) &&
       canManageAction && {

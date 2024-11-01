@@ -7,7 +7,14 @@ import {
 
 describe(
   "Verify setting tab form controls not to have tooltip and tooltip (underline) styles",
-  { tags: ["@tag.Datasource", "@tag.Settings"] },
+  {
+    tags: [
+      "@tag.Datasource",
+      "@tag.Settings",
+      "@tag.Git",
+      "@tag.AccessControl",
+    ],
+  },
   function () {
     let guid, datasourceName;
 

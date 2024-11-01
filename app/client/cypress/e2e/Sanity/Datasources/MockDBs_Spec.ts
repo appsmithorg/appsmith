@@ -17,7 +17,14 @@ import PageList from "../../../support/Pages/PageList";
 
 describe(
   "Validate Mock Query Active Ds querying & count",
-  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
+  {
+    tags: [
+      "@tag.Datasource",
+      "@tag.excludeForAirgap",
+      "@tag.Git",
+      "@tag.AccessControl",
+    ],
+  },
   () => {
     it("1. Create Query from Mock Postgres DB & verify active queries count", () => {
       PageList.AddNewPage();

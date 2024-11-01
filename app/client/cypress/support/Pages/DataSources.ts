@@ -194,7 +194,7 @@ export class DataSources {
   _globalSearchInput = ".t--global-search-input";
   _gsScopeDropdown =
     "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
-  _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
+  _gsScopeOptions = ".ads-v2-radio-group";
   _queryTimeout = "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
@@ -325,9 +325,7 @@ export class DataSources {
       datasourceName,
     );
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
-    cy.get(
-      `div[role="listbox"] p[kind="span"]:contains("${tableName}")`,
-    ).click();
+    cy.get(`div[role="listbox"] p:contains("${tableName}")`).click();
     this.agHelper.GetNClick(this._generatePageBtn);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.ClickButton("Got it");

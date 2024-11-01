@@ -11,6 +11,7 @@ import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
 import { omit } from "lodash";
 import moment from "moment";
+import type { SVGProps } from "react";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetFeatures } from "utils/WidgetFeatures";
 import type { WidgetProps } from "../widgets/BaseWidget";
@@ -150,8 +151,8 @@ export interface WidgetMethods {
   getCanvasHeightOffset?: GetCanvasHeightOffset;
   getEditorCallouts?: GetEditorCallouts;
   getOneClickBindingConnectableWidgetConfig?: GetOneClickBindingConnectableWidgetConfig;
-  IconCmp?: () => JSX.Element;
-  ThumbnailCmp?: () => JSX.Element;
+  IconCmp?: (props: SVGProps<SVGSVGElement>) => JSX.Element;
+  ThumbnailCmp?: (props: SVGProps<SVGSVGElement>) => JSX.Element;
 }
 
 type GetEditorCallouts = (props: WidgetProps) => WidgetCallout[];
@@ -206,6 +207,10 @@ export enum BlueprintOperationTypes {
   BEFORE_PASTE = "BEFORE_PASTE",
   BEFORE_ADD = "BEFORE_ADD",
   UPDATE_CREATE_PARAMS_BEFORE_ADD = "UPDATE_CREATE_PARAMS_BEFORE_ADD",
+}
+
+export enum BlueprintOperationActionTypes {
+  CREATE_OR_UPDATE_DATASOURCE_WITH_ACTION = "CREATE_OR_UPDATE_DATASOURCE_WITH_ACTION",
 }
 
 export type FlattenedWidgetProps = WidgetProps & {

@@ -13,6 +13,10 @@ export interface INJECTED_CONFIGS {
     apiKey: string;
     ceKey: string;
   };
+  observability: {
+    deploymentName: string;
+    serviceInstanceId: string;
+  };
   newRelic: {
     enableNewRelic: boolean;
     accountId: string;
@@ -20,13 +24,15 @@ export interface INJECTED_CONFIGS {
     browserAgentlicenseKey: string;
     browserAgentEndpoint: string;
     otlpLicenseKey: string;
-    otlpServiceName: string;
     otlpEndpoint: string;
   };
   fusioncharts: {
     licenseKey: string;
   };
-  enableMixpanel: boolean;
+  mixpanel: {
+    enabled: boolean;
+    apiKey: string;
+  };
   cloudHosting: boolean;
   algolia: {
     apiId: string;
@@ -77,14 +83,21 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     fusioncharts: {
       licenseKey: process.env.REACT_APP_FUSIONCHARTS_LICENSE_KEY || "",
     },
-    enableMixpanel: process.env.REACT_APP_SEGMENT_KEY
-      ? process.env.REACT_APP_SEGMENT_KEY.length > 0
-      : false,
+    mixpanel: {
+      enabled: process.env.REACT_APP_SEGMENT_KEY
+        ? process.env.REACT_APP_SEGMENT_KEY.length > 0
+        : false,
+      apiKey: process.env.REACT_APP_MIXPANEL_KEY || "",
+    },
     algolia: {
       apiId: process.env.REACT_APP_ALGOLIA_API_ID || "",
       apiKey: process.env.REACT_APP_ALGOLIA_API_KEY || "",
       indexName: process.env.REACT_APP_ALGOLIA_SEARCH_INDEX_NAME || "",
       snippetIndex: process.env.REACT_APP_ALGOLIA_SNIPPET_INDEX_NAME || "",
+    },
+    observability: {
+      deploymentName: process.env.APPSMITH_DEPLOYMENT_NAME || "self-hosted",
+      serviceInstanceId: process.env.HOSTNAME || "appsmith-0",
     },
     newRelic: {
       enableNewRelic: !!process.env.APPSMITH_NEW_RELIC_ACCOUNT_ENABLE,
@@ -96,8 +109,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
         process.env.APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT || "",
       otlpLicenseKey: process.env.APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY || "",
       otlpEndpoint: process.env.APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME || "",
-      otlpServiceName:
-        process.env.APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT || "",
     },
     logLevel:
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
@@ -161,6 +172,18 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     ENV_CONFIG.segment.apiKey,
     APPSMITH_FEATURE_CONFIGS?.segment.apiKey,
   );
+  const mixpanel = getConfig(
+    ENV_CONFIG.mixpanel.apiKey,
+    APPSMITH_FEATURE_CONFIGS?.mixpanel.apiKey,
+  );
+  const observabilityDeploymentName = getConfig(
+    ENV_CONFIG.observability.deploymentName,
+    APPSMITH_FEATURE_CONFIGS?.observability.deploymentName,
+  );
+  const observabilityServiceInstanceId = getConfig(
+    ENV_CONFIG.observability.serviceInstanceId,
+    APPSMITH_FEATURE_CONFIGS?.observability.serviceInstanceId,
+  );
   const newRelicAccountId = getConfig(
     ENV_CONFIG.newRelic.accountId,
     APPSMITH_FEATURE_CONFIGS?.newRelic.accountId,
@@ -180,11 +203,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const newRelicOtlpLicenseKey = getConfig(
     ENV_CONFIG.newRelic.otlpLicenseKey,
     APPSMITH_FEATURE_CONFIGS?.newRelic.otlpLicenseKey,
-  );
-
-  const newRelicOtlpServiceName = getConfig(
-    ENV_CONFIG.newRelic.otlpServiceName,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.otlpServiceName,
   );
   const newRelicOtlpEndpoint = getConfig(
     ENV_CONFIG.newRelic.otlpEndpoint,
@@ -261,7 +279,11 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       browserAgentEndpoint: newRelicBrowserAgentEndpoint.value,
       otlpLicenseKey: newRelicOtlpLicenseKey.value,
       otlpEndpoint: newRelicOtlpEndpoint.value,
-      otlpServiceName: newRelicOtlpServiceName.value,
+    },
+    observability: {
+      deploymentName: observabilityDeploymentName.value,
+      serviceInstanceId: observabilityServiceInstanceId.value,
+      serviceName: "appsmith-client",
     },
     fusioncharts: {
       enabled: fusioncharts.enabled,
@@ -278,10 +300,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       enabled: googleRecaptchaSiteKey.enabled,
       apiKey: googleRecaptchaSiteKey.value,
     },
-    enableMixpanel:
-      ENV_CONFIG.enableMixpanel ||
-      APPSMITH_FEATURE_CONFIGS?.enableMixpanel ||
-      false,
+    mixpanel: {
+      enabled: segment.enabled,
+      apiKey: mixpanel.value,
+    },
     cloudHosting:
       ENV_CONFIG.cloudHosting ||
       APPSMITH_FEATURE_CONFIGS?.cloudHosting ||
