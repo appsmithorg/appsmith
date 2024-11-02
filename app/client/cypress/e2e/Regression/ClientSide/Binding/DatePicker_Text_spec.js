@@ -11,7 +11,7 @@ describe(
     let dateDp2;
 
     before(() => {
-      _.agHelper.AddDsl("uiBindnewDsl");
+      _.agHelper.AddDsl("uiBindDsl");
     });
     // Skipping tests due to issue - https://www.notion.so/appsmith/f353d8c6bd664f79ad858a42010cdfc8?v=f04cde23f6424aeb9d5a6e389cd172bd&p=0717892d43684c40bae4e2c87b8308cb&pm=s
     it("1. DatePicker-Text, Validate selectedDate functionality", function () {
@@ -42,6 +42,7 @@ describe(
         cy.get(publishPage.datepickerWidget + commonlocators.inputField)
           .eq(0)
           .click();
+        cy.SetDateToToday();
         cy.setDate(1, "ddd MMM DD YYYY", "v1");
         cy.get(commonlocators.labelTextStyle).should("contain", nextDay);
       });
@@ -76,6 +77,7 @@ describe(
       cy.get(formWidgetsPage.dayPickerToday).click();
       cy.get(formWidgetsPage.defaultDate).click();
       cy.setDate(1);
+
       /**
        *Validate the date in text widget
        */

@@ -837,7 +837,7 @@ Cypress.Commands.add("selectWidgetForReset", (value) => {
 });
 
 Cypress.Commands.add("SetDateToToday", () => {
-  cy.get(".DayPicker-Day--today").click({
+  cy.get("button:contains('Today')").click({
     force: true,
   });
   agHelper.AssertAutoSave();
