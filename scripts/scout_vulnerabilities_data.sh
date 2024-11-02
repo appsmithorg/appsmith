@@ -135,6 +135,7 @@ insert_vulns_into_db() {
     VALUES ('$product', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod')
     ON CONFLICT (scanner_tool, vurn_id) 
     DO UPDATE SET 
+        product = CASE WHEN vulnerability_tracking.product NOT LIKE '%$product%' THEN vulnerability_tracking.product || ', ' || EXCLUDED.product ELSE vulnerability_tracking.product END,
         priority = EXCLUDED.priority,
         pr_id = EXCLUDED.pr_id,
         pr_link = EXCLUDED.pr_link,
