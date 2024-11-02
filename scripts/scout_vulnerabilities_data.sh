@@ -130,12 +130,16 @@ insert_vulns_into_db() {
     product=$(echo "$product" | sed "s/'/''/g")
     scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
 
-    # Check for existing product list in the database for this vulnerability ID
+    # Check if product is already in the database for this vurn_id and scanner_tool
     existing_products=$(psql -t -c "SELECT product FROM vulnerability_tracking WHERE vurn_id = '$vurn_id' AND scanner_tool = '$scanner_tool'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" | xargs)
 
-    # Concatenate new product with existing products if necessary
-    if [[ -n "$existing_products" && "$existing_products" != *"$product"* ]]; then
-      product="$existing_products, $product"
+    # Only concatenate new product if it doesn't already exist
+    if [[ -z "$existing_products" || "$existing_products" != *"$product"* ]]; then
+      if [[ -n "$existing_products" ]]; then
+        product="$existing_products, $product"
+      fi
+    else
+      product="$existing_products"  # Keep existing product list as is
     fi
 
     # Insert the data and handle conflicts by updating specific fields on conflict
@@ -143,7 +147,6 @@ insert_vulns_into_db() {
     VALUES ('$product', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod')
     ON CONFLICT (scanner_tool, vurn_id) 
     DO UPDATE SET 
-        product = '$product',
         priority = EXCLUDED.priority,
         pr_id = EXCLUDED.pr_id,
         pr_link = EXCLUDED.pr_link,
