@@ -154,24 +154,10 @@ insert_vulns_into_db() {
   local query_file="insert_vulns.sql"
   echo "BEGIN;" > "$query_file"  # Start the transaction
 
-  # Create an associative array to hold existing entries from the database
-  declare -A existing_entries
-
-  # Fetch existing vulnerabilities from the database to avoid duplicates
-  psql -t -c "SELECT vurn_id, product, scanner_tool, priority FROM vulnerability_tracking WHERE scanner_tool = 'TRIVY'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" | while IFS='|' read -r db_vurn_id db_product db_scanner_tool db_priority; do
-    existing_entries["$db_product,$db_scanner_tool,$db_vurn_id"]="$db_priority"
-  done
-
   while IFS=, read -r vurn_id product scanner_tool priority; do
     # Skip empty lines
     if [[ -z "$vurn_id" || -z "$priority" || -z "$product" || -z "$scanner_tool" ]]; then
       echo "Skipping empty vulnerability entry"
-      continue
-    fi
-
-    # Check if the entry already exists
-    if [[ -n "${existing_entries["$product,$scanner_tool,$vurn_id"]}" ]]; then
-      echo "Entry for $vurn_id already exists in the database. Skipping."
       continue
     fi
 
@@ -189,11 +175,22 @@ insert_vulns_into_db() {
     product=$(echo "$product" | sed "s/'/''/g")
     scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
 
-    # Write each insert query to the SQL file
-    echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) VALUES ('$product', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod');" >> "$query_file"
+    # Write each insert query with ON CONFLICT handling to the SQL file
+    echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
+    VALUES ('$product', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod')
+    ON CONFLICT (scanner_tool, vurn_id) 
+    DO UPDATE SET 
+        priority = EXCLUDED.priority,
+        pr_id = EXCLUDED.pr_id,
+        pr_link = EXCLUDED.pr_link,
+        github_run_id = EXCLUDED.github_run_id,
+        update_date = EXCLUDED.update_date,
+        comments = EXCLUDED.comments,
+        owner = EXCLUDED.owner,
+        pod = EXCLUDED.pod;" >> "$query_file"
     
     ((count++))
-  done < $DIFF_OUTPUT_FILE
+  done < "$DIFF_OUTPUT_FILE"
 
   echo "COMMIT;" >> "$query_file"  # End the transaction
   echo "Queries written to $query_file."
@@ -211,7 +208,7 @@ insert_vulns_into_db() {
 }
 
 # Call the function to generate the insert queries and execute them
-if [ -s $DIFF_OUTPUT_FILE ]; then
+if [ -s "$DIFF_OUTPUT_FILE" ]; then
   insert_vulns_into_db
 else
   echo "No new vulnerabilities to insert."
