@@ -526,8 +526,8 @@ Cypress.Commands.add("getDate", (date, dateFormate) => {
 
 Cypress.Commands.add("setDate", (date, dateFormate, ver = "v2") => {
   if (ver == "v2") {
-    const expDate = dayjs().add(date, "days").format("dddd, MMMM DD");
-    cy.get(`.react-datepicker__day[aria-label^="Choose ${expDate}"]`).click();
+    const expDate = dayjs().add(date, "days").format("dddd, MMMM D");
+    cy.get(`.react-datepicker__day[aria-label^="Choose ${expDate}"]`).first().click();
   } else if (ver == "v1") {
     const expDate = dayjs().add(date, "days").format(dateFormate);
     const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;

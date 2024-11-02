@@ -76,7 +76,6 @@ describe(
       cy.get(formWidgetsPage.dayPickerToday).click();
       cy.get(formWidgetsPage.defaultDate).click();
       cy.setDate(1);
-
       /**
        *Validate the date in text widget
        */
