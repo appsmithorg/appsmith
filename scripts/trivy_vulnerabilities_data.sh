@@ -175,20 +175,22 @@ insert_vulns_into_db() {
     product=$(echo "$product" | sed "s/'/''/g")
     scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
 
-    # Check for existing entry and fetch current product list
+    # Fetch existing product list for the vulnerability
     existing_products=$(psql -t -c "SELECT product FROM vulnerability_tracking WHERE vurn_id = '$vurn_id' AND scanner_tool = '$scanner_tool'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" | xargs)
 
-    # Concatenate new product with existing products if necessary
+    # Append new product to existing list if not already present
     if [[ -n "$existing_products" && "$existing_products" != *"$product"* ]]; then
       product="$existing_products, $product"
+    elif [[ -z "$existing_products" ]]; then
+      product="$product"  # Set product as the only value if no existing entry
     fi
 
-    # Write each insert query with ON CONFLICT handling to the SQL file
+    # Write insert query with conflict handling to the SQL file
     echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
     VALUES ('$product', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod')
     ON CONFLICT (scanner_tool, vurn_id) 
     DO UPDATE SET 
-        product = '$product',
+        product = CASE WHEN vulnerability_tracking.product NOT LIKE '%$product%' THEN vulnerability_tracking.product || ', ' || EXCLUDED.product ELSE vulnerability_tracking.product END,
         priority = EXCLUDED.priority,
         pr_id = EXCLUDED.pr_id,
         pr_link = EXCLUDED.pr_link,
