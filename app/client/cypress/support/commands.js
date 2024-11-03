@@ -2,6 +2,7 @@
 /* eslint-disable cypress/no-assigning-return-values */
 /* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
 import { ANVIL_EDITOR_TEST } from "./Constants.js";
+import advancedFormat from "dayjs/plugin/advancedFormat";
 
 import EditorNavigation, {
   EntityType,
@@ -18,6 +19,7 @@ import { v4 as uuidv4 } from "uuid";
 const dayjs = require("dayjs");
 const loginPage = require("../locators/LoginPage.json");
 import homePage from "../locators/HomePage";
+dayjs.extend(advancedFormat);
 
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
