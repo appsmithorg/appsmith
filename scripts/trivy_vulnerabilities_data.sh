@@ -78,9 +78,11 @@ trivy image --db-repository public.ecr.aws/aquasecurity/trivy-db --java-db-repos
     exit 1
 }
 
+cat trivy_vulnerabilities.json
+
 # Process vulnerabilities and generate CSV
 if jq -e '.Results | length > 0' "trivy_vulnerabilities.json" > /dev/null; then
-    jq -r --arg product "$product_name" '.Results[].Vulnerabilities[] | "\(.VulnerabilityID),\($product),TRIVY,\(.Severity)"' "trivy_vulnerabilities.json" | sort -u > "$NEW_VULN_FILE"
+    jq -r --arg product "$product_name" '.Results[]? | .Vulnerabilities[]? | "\(.VulnerabilityID),\($product),TRIVY,\(.Severity)"' "trivy_vulnerabilities.json" | sort -u > "$NEW_VULN_FILE"
     echo "Vulnerabilities saved to $NEW_VULN_FILE"
 else
     echo "No vulnerabilities found for image: $IMAGE"
@@ -89,72 +91,72 @@ fi
 
 # Insert new vulnerabilities into PostgreSQL
 insert_vulns_into_db() {
-  local query_file="insert_vulns.sql"
+    local query_file="insert_vulns.sql"
 
-  echo "BEGIN;" > "$query_file"
+    echo "BEGIN;" > "$query_file"
 
-  while IFS=, read -r vurn_id product scanner_tool priority; do
-    if [[ -z "$vurn_id" || -z "$priority" || -z "$product" || -z "$scanner_tool" ]]; then
-      continue
-    fi
+    while IFS=, read -r vurn_id product scanner_tool priority; do
+        if [[ -z "$vurn_id" || -z "$priority" || -z "$product" || -z "$scanner_tool" ]]; then
+            continue
+        fi
 
-    local pr_id="${GITHUB_PR_ID:-}"
-    local pr_link="${GITHUB_PR_LINK:-}"
-    local created_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    local comments="Initial vulnerability report"
-    local owner="John Doe"
-    local pod="Security"
+        local pr_id="${GITHUB_PR_ID:-}"
+        local pr_link="${GITHUB_PR_LINK:-}"
+        local created_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        local comments="Initial vulnerability report"
+        local owner="John Doe"
+        local pod="Security"
 
-    # Escape single quotes
-    vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
-    priority=$(echo "$priority" | sed "s/'/''/g")
-    product=$(echo "$product" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//') # Remove pipe and trailing comma
-    scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//') # Remove pipe and trailing comma
+        # Escape single quotes
+        vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
+        priority=$(echo "$priority" | sed "s/'/''/g")
+        product=$(echo "$product" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//') # Remove pipe and trailing comma
+        scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//') # Remove pipe and trailing comma
 
-    # Fetch existing scanner_tool value for the vulnerability
-    existing_scanner_tool=$(psql -t -c "SELECT scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
+        # Fetch existing scanner_tool value for the vulnerability
+        existing_scanner_tool=$(psql -t -c "SELECT scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
 
-    if [ $? -eq 0 ]; then
-      # Combine existing and new scanner_tool values, ensuring uniqueness
-      combined_scanner_tools="$existing_scanner_tool,$scanner_tool"
-      unique_scanner_tools=$(echo "$combined_scanner_tools" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
+        if [ $? -eq 0 ]; then
+            # Combine existing and new scanner_tool values, ensuring uniqueness
+            combined_scanner_tools="$existing_scanner_tool,$scanner_tool"
+            unique_scanner_tools=$(echo "$combined_scanner_tools" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
+        else
+            unique_scanner_tools="$scanner_tool"
+        fi
+
+        # Add insert statement to the query file
+        echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
+        VALUES ('$product', '$unique_scanner_tools', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$created_date', '$comments', '$owner', '$pod')
+        ON CONFLICT (vurn_id) 
+        DO UPDATE SET 
+            product = EXCLUDED.product,
+            scanner_tool = '$unique_scanner_tools',
+            priority = EXCLUDED.priority,
+            pr_id = EXCLUDED.pr_id,
+            pr_link = EXCLUDED.pr_link,
+            github_run_id = EXCLUDED.github_run_id,
+            update_date = EXCLUDED.update_date,
+            comments = EXCLUDED.comments,
+            owner = EXCLUDED.owner,
+            pod = EXCLUDED.pod;" >> "$query_file"
+
+    done < "$NEW_VULN_FILE"
+
+    echo "COMMIT;" >> "$query_file"
+
+    if psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"; then
+        echo "Vulnerabilities successfully inserted into the database."
     else
-      unique_scanner_tools="$scanner_tool"
+        echo "Error: Failed to insert vulnerabilities. Check logs for details."
+        exit 1
     fi
-
-    # Add insert statement to the query file
-    echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
-    VALUES ('$product', '$unique_scanner_tools', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$created_date', '$comments', '$owner', '$pod')
-    ON CONFLICT (vurn_id) 
-    DO UPDATE SET 
-        product = EXCLUDED.product,
-        scanner_tool = '$unique_scanner_tools',
-        priority = EXCLUDED.priority,
-        pr_id = EXCLUDED.pr_id,
-        pr_link = EXCLUDED.pr_link,
-        github_run_id = EXCLUDED.github_run_id,
-        update_date = EXCLUDED.update_date,
-        comments = EXCLUDED.comments,
-        owner = EXCLUDED.owner,
-        pod = EXCLUDED.pod;" >> "$query_file"
-
-  done < "$NEW_VULN_FILE"
-
-  echo "COMMIT;" >> "$query_file"
-
-  if psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"; then
-    echo "Vulnerabilities successfully inserted into the database."
-  else
-    echo "Error: Failed to insert vulnerabilities. Check logs for details."
-    exit 1
-  fi
 }
 
 # Insert data if vulnerabilities are found
 if [ -s "$NEW_VULN_FILE" ]; then
-  insert_vulns_into_db
+    insert_vulns_into_db
 else
-  echo "No vulnerabilities to insert."
+    echo "No vulnerabilities to insert."
 fi
 
 # Cleanup
