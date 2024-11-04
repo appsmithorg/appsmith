@@ -11,6 +11,7 @@
   ],
   "plugins": [
     "react",
+    "eslint-plugin-react-compiler",
     "@typescript-eslint",
     "prettier",
     "sort-destructure-keys",
@@ -41,6 +42,7 @@
     "project": "./tsconfig.json"
   },
   "rules": {
+    "react-compiler/react-compiler": "warn",
     "padding-line-between-statements": [
       "error",
       { "blankLine": "always", "prev": "*", "next": "return" },

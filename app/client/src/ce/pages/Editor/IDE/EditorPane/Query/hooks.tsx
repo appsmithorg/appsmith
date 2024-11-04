@@ -1,4 +1,5 @@
-import { useCallback, useMemo } from "react";
+import { lazy, Suspense, useCallback, useMemo } from "react";
+import React from "react";
 import history from "utils/history";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -23,19 +24,17 @@ import {
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
-import ApiEditor from "pages/Editor/APIEditor";
 import type { UseRoutes } from "ee/entities/IDE/constants";
-import QueryEditor from "pages/Editor/QueryEditor";
-import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
 import type { AppState } from "ee/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import type { ListItemProps } from "@appsmith/ads";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
-import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { setListViewActiveState } from "actions/ideActions";
+import { retryPromise } from "utils/AppsmithUtils";
+import Skeleton from "widgets/Skeleton";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -114,47 +113,107 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
   return groups;
 };
 
+const ApiEditor = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(/* webpackChunkName: "APIEditor" */ "pages/Editor/APIEditor"),
+  ),
+);
+
+const AddQuery = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(
+        /* webpackChunkName: "AddQuery" */ "pages/Editor/IDE/EditorPane/Query/Add"
+      ),
+  ),
+);
+const QueryEditor = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(/* webpackChunkName: "QueryEditor" */ "pages/Editor/QueryEditor"),
+  ),
+);
+
+const QueryEmpty = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(
+        /* webpackChunkName: "QueryEmpty" */ "pages/Editor/QueryEditor/QueriesBlankState"
+      ),
+  ),
+);
+
 export const useQueryEditorRoutes = (path: string): UseRoutes => {
-  return [
-    {
-      key: "ApiEditor",
-      component: ApiEditor,
-      exact: true,
-      path: [
-        BUILDER_PATH + API_EDITOR_ID_PATH,
-        BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
-        BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
-      ],
-    },
-    {
-      key: "AddQuery",
-      exact: true,
-      component: AddQuery,
-      path: [`${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
-    },
-    {
-      key: "SAASEditor",
-      component: QueryEditor,
-      exact: true,
-      path: [
-        BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
-        BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
-        BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
-      ],
-    },
-    {
-      key: "QueryEditor",
-      component: QueryEditor,
-      exact: true,
-      path: [path + "/:baseQueryId"],
-    },
-    {
-      key: "QueryEmpty",
-      component: QueriesBlankState,
-      exact: true,
-      path: [path],
-    },
-  ];
+  return useMemo(
+    () => [
+      {
+        key: "ApiEditor",
+        component: (args) => {
+          return (
+            <Suspense fallback={<Skeleton />}>
+              <ApiEditor {...args} />
+            </Suspense>
+          );
+        },
+        exact: true,
+        path: [
+          BUILDER_PATH + API_EDITOR_ID_PATH,
+          BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
+          BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
+        ],
+      },
+      {
+        key: "AddQuery",
+        exact: true,
+        component: (args) => (
+          <Suspense fallback={<Skeleton />}>
+            <AddQuery {...args} />
+          </Suspense>
+        ),
+        path: [`${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
+      },
+      {
+        key: "SAASEditor",
+        component: (args) => {
+          return (
+            <Suspense fallback={<Skeleton />}>
+              <QueryEditor {...args} />
+            </Suspense>
+          );
+        },
+        exact: true,
+        path: [
+          BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
+          BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
+          BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
+        ],
+      },
+      {
+        key: "QueryEditor",
+        component: (args) => {
+          return (
+            <Suspense fallback={<Skeleton />}>
+              <QueryEditor {...args} />
+            </Suspense>
+          );
+        },
+        exact: true,
+        path: [path + "/:baseQueryId"],
+      },
+      {
+        key: "QueryEmpty",
+        component: (args) => (
+          <Suspense fallback={<Skeleton />}>
+            <QueryEmpty {...args} />
+          </Suspense>
+        ),
+        exact: true,
+        path: [path],
+      },
+    ],
+    [path],
+  );
 };
 
 export const useAddQueryListItems = () => {

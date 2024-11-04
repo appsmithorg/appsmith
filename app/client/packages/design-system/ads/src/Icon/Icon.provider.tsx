@@ -1068,6 +1068,10 @@ const ExternalLinkIcon = importRemixIcon(
   async () => import("remixicon-react/ExternalLinkLineIcon"),
 );
 
+const InputCursorMoveIcon = importSvg(
+  async () => import("../__assets__/icons/ads/input-cursor-move.svg"),
+);
+
 import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
 
 function PlayIconPNGWrapper() {
@@ -1363,6 +1367,7 @@ const ICON_LOOKUP = {
   "minimize-v3": MinimizeV3Icon,
   "maximize-v3": MaximizeV3Icon,
   "workflows-mono": WorkflowsMonochromeIcon,
+  "input-cursor-move": InputCursorMoveIcon,
   billing: BillingIcon,
   binding: Binding,
   book: BookIcon,
