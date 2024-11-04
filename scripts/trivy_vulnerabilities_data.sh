@@ -113,10 +113,11 @@ insert_vulns_into_db() {
         product=$(echo "$product" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//') # Remove pipe and trailing comma
         scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//') # Remove pipe and trailing comma
 
-        # Fetch existing scanner_tool value for the vulnerability
+        # Fetch existing product and scanner_tool values for the vulnerability
+        existing_product=$(psql -t -c "SELECT product FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
         existing_scanner_tool=$(psql -t -c "SELECT scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
 
-       if [ $? -eq 0 ]; then
+        if [ $? -eq 0 ]; then
             # Combine existing and new product values, ensuring uniqueness
             combined_products="$existing_product,$product"
             unique_products=$(echo "$combined_products" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
@@ -131,10 +132,10 @@ insert_vulns_into_db() {
 
         # Add insert statement to the query file
         echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
-        VALUES ('$product', '$unique_scanner_tools', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$created_date', '$comments', '$owner', '$pod')
+        VALUES ('$unique_products', '$unique_scanner_tools', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$created_date', '$comments', '$owner', '$pod')
         ON CONFLICT (vurn_id) 
         DO UPDATE SET 
-            product = EXCLUDED.product,
+            product = '$unique_products',
             scanner_tool = '$unique_scanner_tools',
             priority = EXCLUDED.priority,
             pr_id = EXCLUDED.pr_id,

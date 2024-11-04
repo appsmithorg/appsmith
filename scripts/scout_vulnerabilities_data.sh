@@ -85,7 +85,6 @@ docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk -v product_name="$product
 
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
-  local count=0
   local query_file="insert_vulns.sql"
   echo "BEGIN;" > "$query_file"
 
@@ -98,47 +97,40 @@ insert_vulns_into_db() {
     local pr_id="${GITHUB_PR_ID:-}"
     local pr_link="${GITHUB_PR_LINK:-}"
     local created_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    local update_date="$created_date"
     local comments="Initial vulnerability report"
     local owner="John Doe"
     local pod="Security"
 
     vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
     priority=$(echo "$priority" | sed "s/'/''/g")
-    product=$(echo "$product" | sed "s/'/''/g")
-    scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
+    product=$(echo "$product" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//')
+    scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//')
 
-    # Remove pipes from scanner_tool and trailing comma/pipe
-    scanner_tool=$(echo "$scanner_tool" | sed 's/|//g' | sed 's/[,\s]*$//')
-
+    # Fetch existing product and scanner_tool values for the current vulnerability ID
     existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
 
-    if [ $? -ne 0 ]; then
-      echo "Error fetching existing entry for vurn_id: $vurn_id. Skipping this entry."
-      continue
+    # Check if there’s an existing record for this vurn_id
+    if [[ -z "$existing_entry" ]]; then
+      # No existing record, so proceed with initial values for product and scanner_tool
+      combined_products="$product"
+      combined_scanner_tools="$scanner_tool"
+    else
+      # Extract existing product and scanner_tool values
+      existing_product=$(echo "$existing_entry" | awk '{print $1}')
+      existing_scanner_tool=$(echo "$existing_entry" | awk '{print $2}')
+
+      # Combine and deduplicate products and scanner tools
+      combined_products=$(echo "$existing_product,$product" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
+      combined_scanner_tools=$(echo "$existing_scanner_tool,$scanner_tool" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
     fi
 
-    existing_product=$(echo "$existing_entry" | awk '{print $1}')
-    existing_scanner_tool=$(echo "$existing_entry" | awk '{print $2}')
-
-    # Combine existing and new product values, ensuring uniqueness
-    combined_products="$existing_product,$product"
-    unique_products=$(echo "$combined_products" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
-
-    # Combine existing and new scanner_tool values, ensuring uniqueness
-    combined_scanner_tools="$existing_scanner_tool,$scanner_tool"
-    unique_scanner_tools=$(echo "$combined_scanner_tools" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
-
-    # Remove any trailing comma or pipe from unique_scanner_tools
-    unique_scanner_tools=$(echo "$unique_scanner_tools" | sed 's/[,\|]*$//')
-
-    # Write insert query with conflict handling to the SQL file
+    # Write the insert query with conflict handling to the SQL file
     echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
-    VALUES ('$unique_products', '$unique_scanner_tools', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod')
+    VALUES ('$combined_products', '$combined_scanner_tools', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$created_date', '$comments', '$owner', '$pod')
     ON CONFLICT (vurn_id) 
     DO UPDATE SET 
-        product = '$unique_products',
-        scanner_tool = '$unique_scanner_tools',
+        product = '$combined_products',
+        scanner_tool = '$combined_scanner_tools',
         priority = EXCLUDED.priority,
         pr_id = EXCLUDED.pr_id,
         pr_link = EXCLUDED.pr_link,
@@ -148,12 +140,12 @@ insert_vulns_into_db() {
         owner = EXCLUDED.owner,
         pod = EXCLUDED.pod;" >> "$query_file"
 
-    ((count++))
   done < "$CSV_OUTPUT_FILE"
 
   echo "COMMIT;" >> "$query_file"
   echo "Queries written to $query_file."
 
+  # Execute the SQL file
   psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"
 
   if [ $? -eq 0 ]; then
