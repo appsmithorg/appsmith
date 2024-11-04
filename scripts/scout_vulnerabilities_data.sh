@@ -112,7 +112,7 @@ insert_vulns_into_db() {
 
     # Fetch existing product and scanner_tool values for the vulnerability
     existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
-    
+
     if [ $? -ne 0 ]; then
       echo "Error fetching existing entry for vurn_id: $vurn_id. Skipping this entry."
       continue
@@ -159,6 +159,8 @@ insert_vulns_into_db() {
     echo "Vulnerabilities successfully inserted into the database."
   else
     echo "Error: Failed to insert vulnerabilities. Please check the database connection or query."
+    # Rollback the transaction if it was not successful
+    echo "ROLLBACK;" | psql "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME"
     exit 1
   fi
 }
