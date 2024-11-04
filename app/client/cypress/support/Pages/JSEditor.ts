@@ -32,7 +32,7 @@ export class JSEditor {
 
   //#region Element locators
   _runButton = "[data-testid='t--run-js-action']";
-  _settingsTab = "//span[text()='Settings']/parent::button";
+  _settingsTab = "[data-testid='t--js-editor-SETTINGS']";
   _codeTab = "//span[text()='Code']/parent::button";
   private _jsObjectParseErrorCallout =
     "div.t--js-response-parse-error-call-out";
@@ -277,7 +277,7 @@ export class JSEditor {
     // Set onPageLoad
     this.agHelper.CheckUncheck(this._onPageLoadSwitch(funName), onLoad);
     // Return to code tab
-    this.agHelper.GetNClick(this._codeTab);
+    this.agHelper.GetNClick(this._settingsTab);
   }
 
   /**
