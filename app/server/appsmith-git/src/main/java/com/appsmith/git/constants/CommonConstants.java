@@ -35,4 +35,9 @@ public class CommonConstants {
 
     public static final String WIDGET_ID = "widgetId";
     public static final String PARENT_ID = "parentId";
+
+    public static final String GIT_SAVE_ARTIFACT = "git.saveArtifact";
+    public static final String TIME_TAKEN_TO_SAVE_ARTIFACT = "Time taken to save Artifact";
+    public static final String GIT_DESERIALIZE_ARTIFACT = "git.deserializeArtifact";
+    public static final String TIME_TAKEN_TO_DESERIALIZE_ARTIFACT = "Time taken to deserialize Artifact from Git repo";
 }

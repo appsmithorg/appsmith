@@ -3,7 +3,7 @@ package com.appsmith.server.helpers.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.operations.FileOperations;
-import com.appsmith.external.helpers.Stopwatch;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.BaseDomain;
@@ -25,6 +25,9 @@ import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
+import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -66,6 +69,8 @@ public class CommonGitFileUtilsCE {
     public final int INDEX_LOCK_FILE_STALE_TIME = 300;
 
     private final JsonSchemaVersions jsonSchemaVersions;
+    private final MeterRegistry meterRegistry;
+    private final ObservationHelper observationHelper;
 
     private ArtifactGitFileUtils<?> getArtifactBasedFileHelper(ArtifactType artifactType) {
         if (ArtifactType.APPLICATION.equals(artifactType)) {
@@ -112,7 +117,9 @@ public class CommonGitFileUtilsCE {
            3. Save artifact to git repo
         */
         // TODO: see if event needs to be generalised or kept specific
-        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_SERIALIZE_APP_RESOURCES_TO_LOCAL_FILE.getEventName());
+        Timer.Sample sample = Timer.start(meterRegistry);
+        Span span = observationHelper.createSpan(AnalyticsEvents.GIT_SERIALIZE_APP_RESOURCES_TO_LOCAL_FILE.getEventName());
+        observationHelper.startSpan(span, true);
         ArtifactGitFileUtils<?> artifactGitFileUtils =
                 getArtifactBasedFileHelper(artifactExchangeJson.getArtifactJsonType());
         String artifactConstant = artifactGitFileUtils.getConstantsMap().get(FieldName.ARTIFACT_CONTEXT);
@@ -120,7 +127,10 @@ public class CommonGitFileUtilsCE {
         try {
             Mono<Path> repoPathMono = saveArtifactToLocalRepo(baseRepoSuffix, artifactExchangeJson, branchName);
             return Mono.zip(repoPathMono, sessionUserService.getCurrentUser()).flatMap(tuple -> {
-                stopwatch.stopTimer();
+                sample.stop(Timer.builder(CommonConstants.GIT_SAVE_ARTIFACT)
+                    .description(CommonConstants.TIME_TAKEN_TO_SAVE_ARTIFACT)
+                    .register(meterRegistry));
+                observationHelper.endSpan(span, true);
                 Path repoPath = tuple.getT1();
                 // Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/
                 final Map<String, Object> data = Map.of(
@@ -128,10 +138,7 @@ public class CommonGitFileUtilsCE {
                         repoPath.getParent().getFileName().toString(),
                         FieldName.ORGANIZATION_ID,
                         repoPath.getParent().getParent().getFileName().toString(),
-                        FieldName.FLOW_NAME,
-                        stopwatch.getFlow(),
-                        "executionTime",
-                        stopwatch.getExecutionTime());
+                    "executionTime", sample.toString());
                 return analyticsService
                         .sendEvent(
                                 AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
@@ -141,6 +148,7 @@ public class CommonGitFileUtilsCE {
             });
         } catch (IOException | GitAPIException e) {
             log.error("Error occurred while saving files to local git repo: ", e);
+            observationHelper.endSpan(span, false);
             throw Exceptions.propagate(e);
         }
     }
@@ -202,7 +210,9 @@ public class CommonGitFileUtilsCE {
     public Mono<ArtifactExchangeJson> reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
             String workspaceId, String baseArtifactId, String repoName, String branchName, ArtifactType artifactType) {
 
-        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE.getEventName());
+        Timer.Sample sample = Timer.start(meterRegistry);
+        Span span = observationHelper.createSpan(AnalyticsEvents.GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE.getEventName());
+        observationHelper.startSpan(span, true);
         ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
         Map<String, String> constantsMap = artifactGitFileUtils.getConstantsMap();
         return Mono.zip(
@@ -210,22 +220,26 @@ public class CommonGitFileUtilsCE {
                                 workspaceId, baseArtifactId, repoName, branchName, artifactType),
                         sessionUserService.getCurrentUser())
                 .flatMap(tuple -> {
-                    stopwatch.stopTimer();
+                    sample.stop(Timer.builder(CommonConstants.GIT_DESERIALIZE_ARTIFACT)
+                        .description(CommonConstants.TIME_TAKEN_TO_DESERIALIZE_ARTIFACT)
+                        .register(meterRegistry));
+                    observationHelper.endSpan(span, true);
                     final Map<String, Object> data = Map.of(
                             constantsMap.get(FieldName.ID),
                             baseArtifactId,
                             FieldName.ORGANIZATION_ID,
                             workspaceId,
-                            FieldName.FLOW_NAME,
-                            stopwatch.getFlow(),
-                            "executionTime",
-                            stopwatch.getExecutionTime());
+                        "executionTime", sample.toString());
                     return analyticsService
                             .sendEvent(
                                     AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(),
                                     tuple.getT2().getUsername(),
                                     data)
                             .thenReturn(tuple.getT1());
+                })
+                .doOnError(e -> {
+                    observationHelper.endSpan(span, false);
+                    log.error("Error deserializing artifact : {}", e.getMessage());
                 });
     }
 
