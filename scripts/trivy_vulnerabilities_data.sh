@@ -106,11 +106,11 @@ insert_vulns_into_db() {
         local owner="John Doe"
         local pod="Security"
 
-        # Escape single quotes for SQL
+        # Remove spaces and redundant commas, and escape single quotes for SQL
         vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
         priority=$(echo "$priority" | sed "s/'/''/g")
-        product=$(echo "$product" | sed "s/'/''/g" | sed 's/[|,]//g') # Clean product
-        scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g" | sed 's/[|,]//g') # Clean scanner_tool
+        product=$(echo "$product" | sed "s/'/''/g" | tr -d ' ' | sed 's/,*$//')
+        scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g" | tr -d ' ' | sed 's/,*$//')
 
         # Fetch existing product and scanner_tool values for the vulnerability
         existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
