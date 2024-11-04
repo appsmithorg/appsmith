@@ -6,11 +6,11 @@
   max-width: 800px;
   justify-content: center;
 
-  &[data-standalone="false"] {
+  &[data-withoutPadding="false"] {
     padding-block: var(--ads-v2-spaces-6);
   }
 
-  &[data-standalone="false"]:not(:last-child) {
+  &[data-withoutPadding="false"]:not(:last-child) {
     border-bottom: 1px solid var(--ads-v2-color-border);
   }
 
