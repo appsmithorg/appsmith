@@ -65,7 +65,6 @@ const defaultProps = {
   registerResetObserver: jest.fn(),
   resetButtonLabel: "Reset",
   resetButtonStyles: {},
-  schema: {},
   scrollContents: false,
   showReset: true,
   stretchBodyVertically: false,
