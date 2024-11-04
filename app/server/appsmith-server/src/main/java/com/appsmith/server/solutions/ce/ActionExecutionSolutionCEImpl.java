@@ -34,6 +34,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ExecuteActionMetaDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ActionExecutionSolutionHelper;
 import com.appsmith.server.helpers.DatasourceAnalyticsUtils;
 import com.appsmith.server.helpers.DateUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -119,6 +120,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
     private final TenantService tenantService;
+    private final ActionExecutionSolutionHelper actionExecutionSolutionHelper;
     private final CommonConfig commonConfig;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
@@ -147,7 +149,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             EnvironmentPermission environmentPermission,
             ConfigService configService,
             TenantService tenantService,
-            CommonConfig commonConfig) {
+            CommonConfig commonConfig,
+            ActionExecutionSolutionHelper actionExecutionSolutionHelper) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -167,6 +170,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.configService = configService;
         this.tenantService = tenantService;
         this.commonConfig = commonConfig;
+        this.actionExecutionSolutionHelper = actionExecutionSolutionHelper;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -245,15 +249,29 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         Mono<String> instanceIdMono = configService.getInstanceId();
         Mono<String> defaultTenantIdMono = tenantService.getDefaultTenantId();
 
-        return Mono.zip(instanceIdMono, defaultTenantIdMono).map(tuple -> {
-            String instanceId = tuple.getT1();
-            String tenantId = tuple.getT2();
-            executeActionDTO.setActionId(newAction.getId());
-            executeActionDTO.setWorkspaceId(newAction.getWorkspaceId());
-            executeActionDTO.setInstanceId(instanceId);
-            executeActionDTO.setTenantId(tenantId);
-            return executeActionDTO;
-        });
+        Mono<ExecuteActionDTO> systemInfoPopulatedExecuteActionDTOMono =
+                actionExecutionSolutionHelper.populateExecuteActionDTOWithSystemInfo(executeActionDTO);
+
+        return systemInfoPopulatedExecuteActionDTOMono.flatMap(
+                populatedExecuteActionDTO -> Mono.zip(instanceIdMono, defaultTenantIdMono)
+                        .map(tuple -> {
+                            String instanceId = tuple.getT1();
+                            String tenantId = tuple.getT2();
+                            populatedExecuteActionDTO.setActionId(newAction.getId());
+                            populatedExecuteActionDTO.setWorkspaceId(newAction.getWorkspaceId());
+                            populatedExecuteActionDTO.setInstanceId(instanceId);
+                            populatedExecuteActionDTO.setTenantId(tenantId);
+                            return populatedExecuteActionDTO;
+                        }));
+    }
+
+    /**
+     * Populates the requestParams with logged in userId.
+     * If the user is not logged in, set the parameter as anonymousUserId
+     *
+     */
+    protected Mono<ExecuteActionDTO> populateExecuteActionDTOWithUserId(ExecuteActionDTO executeActionDTO) {
+        return Mono.just(executeActionDTO);
     }
 
     /**

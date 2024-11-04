@@ -24,7 +24,6 @@ import {
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
-import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
 import {
   SAAS_EDITOR_API_ID_ADD_PATH,
   SAAS_EDITOR_API_ID_PATH,
@@ -38,7 +37,28 @@ import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { lazy, Suspense } from "react";
+import React from "react";
 
+import { retryPromise } from "utils/AppsmithUtils";
+import Skeleton from "widgets/Skeleton";
+
+const FirstTimeUserOnboardingChecklist = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(
+        /* webpackChunkName: "FirstTimeUserOnboardingChecklist" */ "pages/Editor/FirstTimeUserOnboarding/Checklist"
+      ),
+  ),
+);
+
+export const LazilyLoadedFirstTimeUserOnboardingChecklist = () => {
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <FirstTimeUserOnboardingChecklist />
+    </Suspense>
+  );
+};
 export interface RouteReturnType extends RouteProps {
   key: string;
 }
@@ -95,7 +115,9 @@ function useRoutes(path: string): RouteReturnType[] {
     },
     {
       key: "OnboardingChecklist",
-      component: isPreviewMode ? WidgetsEditor : OnboardingChecklist,
+      component: isPreviewMode
+        ? WidgetsEditor
+        : FirstTimeUserOnboardingChecklist,
       exact: true,
       path: `${path}${BUILDER_CHECKLIST_PATH}`,
     },

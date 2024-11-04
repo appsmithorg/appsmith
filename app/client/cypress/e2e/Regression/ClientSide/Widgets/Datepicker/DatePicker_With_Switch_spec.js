@@ -32,9 +32,9 @@ describe(
       EditorNavigation.SelectEntityByName("DatePicker1", EntityType.Widget);
 
       cy.get(formWidgetsPage.datePickerInput).click();
-      _.agHelper.GetNClick(widgetsPage.todayText)
+      _.agHelper.GetNClick(widgetsPage.todayText);
       cy.get(formWidgetsPage.defaultDate).click();
-      _.agHelper.GetNClick('.ads-v2-datepicker__calender-today');
+      _.agHelper.GetNClick(".ads-v2-datepicker__calender-today");
       cy.get(formWidgetsPage.defaultDate).click();
       cy.setDate(1, "ddd MMM DD YYYY");
       const nextDay = dayjs().format("DD/MM/YYYY");
@@ -56,8 +56,8 @@ describe(
 
     it("DatePicker-Date change and validate switch widget status", function () {
       cy.get(widgetsPage.datepickerInput).click({ force: true });
-      _.agHelper.GetNClick(widgetsPage.todayText)
-      _.agHelper.AssertClassExists('.bp3-switch', 't--switch-widget-active')
+      _.agHelper.GetNClick(widgetsPage.todayText);
+      _.agHelper.AssertClassExists(".bp3-switch", "t--switch-widget-active");
     });
   },
 );

@@ -1,0 +1,7 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+  <g id="input-cursor-move" clip-path="url(#clip0_3192_40313)">
+    <path id="Vector"
+          d="M5.33329 14V12.6667H7.33329V3.33333H5.33329V2H10.6666V3.33333H8.66663V12.6667H10.6666V14H5.33329ZM12.0333 4.7L15.3333 8L12.0333 11.3L11.0906 10.3573L13.448 8L11.0906 5.64267L12.0333 4.7ZM3.96663 4.7L4.90929 5.64267L2.55196 8L4.90929 10.3573L3.96663 11.3L0.666626 8L3.96663 4.7V4.7Z"
+          fill="currentColor"/>
+  </g>
+</svg>
