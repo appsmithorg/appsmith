@@ -92,7 +92,6 @@ fi
 # Insert new vulnerabilities into PostgreSQL
 insert_vulns_into_db() {
     local query_file="insert_vulns.sql"
-
     echo "BEGIN;" > "$query_file"
 
     while IFS=, read -r vurn_id product scanner_tool priority; do
@@ -107,22 +106,24 @@ insert_vulns_into_db() {
         local owner="John Doe"
         local pod="Security"
 
-        # Escape single quotes
+        # Escape single quotes for SQL
         vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
         priority=$(echo "$priority" | sed "s/'/''/g")
-        product=$(echo "$product" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//') # Remove pipe and trailing comma
-        scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//') # Remove pipe and trailing comma
+        product=$(echo "$product" | sed "s/'/''/g" | sed 's/[|,]//g') # Clean product
+        scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g" | sed 's/[|,]//g') # Clean scanner_tool
 
         # Fetch existing product and scanner_tool values for the vulnerability
-        existing_product=$(psql -t -c "SELECT product FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
-        existing_scanner_tool=$(psql -t -c "SELECT scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
+        existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
 
-        if [ $? -eq 0 ]; then
-            # Combine existing and new product values, ensuring uniqueness
+        if [ -n "$existing_entry" ]; then
+            # Parse existing products and tools
+            existing_product=$(echo "$existing_entry" | cut -d '|' -f 1 | tr -d ' ')
+            existing_scanner_tool=$(echo "$existing_entry" | cut -d '|' -f 2 | tr -d ' ')
+
+            # Merge with new values, ensuring uniqueness
             combined_products="$existing_product,$product"
             unique_products=$(echo "$combined_products" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
 
-            # Combine existing and new scanner_tool values, ensuring uniqueness
             combined_scanner_tools="$existing_scanner_tool,$scanner_tool"
             unique_scanner_tools=$(echo "$combined_scanner_tools" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
         else
@@ -130,7 +131,7 @@ insert_vulns_into_db() {
             unique_scanner_tools="$scanner_tool"
         fi
 
-        # Add insert statement to the query file
+        # Write the insert query to the SQL file
         echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
         VALUES ('$unique_products', '$unique_scanner_tools', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$created_date', '$comments', '$owner', '$pod')
         ON CONFLICT (vurn_id) 
@@ -145,11 +146,11 @@ insert_vulns_into_db() {
             comments = EXCLUDED.comments,
             owner = EXCLUDED.owner,
             pod = EXCLUDED.pod;" >> "$query_file"
-
     done < "$NEW_VULN_FILE"
 
     echo "COMMIT;" >> "$query_file"
 
+    # Execute the SQL file
     if psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"; then
         echo "Vulnerabilities successfully inserted into the database."
     else
@@ -158,7 +159,7 @@ insert_vulns_into_db() {
     fi
 }
 
-# Insert data if vulnerabilities are found
+# Run insertion if vulnerabilities are found
 if [ -s "$NEW_VULN_FILE" ]; then
     insert_vulns_into_db
 else

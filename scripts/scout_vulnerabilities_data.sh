@@ -101,30 +101,26 @@ insert_vulns_into_db() {
     local owner="John Doe"
     local pod="Security"
 
+    # Escape single quotes
     vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
     priority=$(echo "$priority" | sed "s/'/''/g")
     product=$(echo "$product" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//')
     scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//')
 
-    # Fetch existing product and scanner_tool values for the current vulnerability ID
+    # Fetch existing product and scanner_tool for this vulnerability ID
     existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
-
-    # Check if there’s an existing record for this vurn_id
+    
+    # Process fetched data
     if [[ -z "$existing_entry" ]]; then
-      # No existing record, so proceed with initial values for product and scanner_tool
       combined_products="$product"
       combined_scanner_tools="$scanner_tool"
     else
-      # Extract existing product and scanner_tool values
-      existing_product=$(echo "$existing_entry" | awk '{print $1}')
-      existing_scanner_tool=$(echo "$existing_entry" | awk '{print $2}')
-
-      # Combine and deduplicate products and scanner tools
+      IFS='|' read -r existing_product existing_scanner_tool <<< "$existing_entry"
       combined_products=$(echo "$existing_product,$product" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
       combined_scanner_tools=$(echo "$existing_scanner_tool,$scanner_tool" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
     fi
 
-    # Write the insert query with conflict handling to the SQL file
+    # Write the insert query to the SQL file
     echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
     VALUES ('$combined_products', '$combined_scanner_tools', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$created_date', '$comments', '$owner', '$pod')
     ON CONFLICT (vurn_id) 
@@ -145,13 +141,11 @@ insert_vulns_into_db() {
   echo "COMMIT;" >> "$query_file"
   echo "Queries written to $query_file."
 
-  # Execute the SQL file
-  psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"
-
-  if [ $? -eq 0 ]; then
+  # Execute the SQL file and rollback on failure
+  if psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"; then
     echo "Vulnerabilities successfully inserted into the database."
   else
-    echo "Error: Failed to insert vulnerabilities. Please check the database connection or query."
+    echo "Error: Failed to insert vulnerabilities. Performing rollback."
     echo "ROLLBACK;" | psql "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME"
     exit 1
   fi
