@@ -18,5 +18,7 @@ popd
 # Caddy may already be running for the loading page.
 "$_APPSMITH_CADDY" stop --config "$TMP/Caddyfile" || true
 
+export OTEL_SERVICE_NAME=appsmith-caddy
+
 exec "$_APPSMITH_CADDY" run --config "$TMP/Caddyfile"
 

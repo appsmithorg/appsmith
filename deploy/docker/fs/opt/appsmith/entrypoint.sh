@@ -503,6 +503,7 @@ init_loading_pages(){
   mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
   cp templates/loading.html "$WWW_PATH"
   node caddy-reconfigure.mjs
+  export OTEL_SERVICE_NAME=appsmith-caddy
   "$_APPSMITH_CADDY" start --config "$TMP/Caddyfile"
 }
 
