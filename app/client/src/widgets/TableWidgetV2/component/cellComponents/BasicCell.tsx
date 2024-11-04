@@ -74,6 +74,9 @@ const StyledEditIcon = styled.div<{
     }
   }
 `;
+const AnchorWithoutPointerEvents = styled.a`
+  pointer-events: none;
+`;
 
 export type PropType = BaseCellComponentProps & {
   accentColor: string;
@@ -133,9 +136,13 @@ export const BasicCell = React.forwardRef(
       switch (columnType) {
         case ColumnTypes.URL:
           return (
-            <a href={url} rel="noopener noreferrer" target="_blank">
+            <AnchorWithoutPointerEvents
+              href={url}
+              rel="noopener noreferrer"
+              style={{ pointerEvents: "none" }}
+            >
               {value}
-            </a>
+            </AnchorWithoutPointerEvents>
           );
         default:
           return value;
