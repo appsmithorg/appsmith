@@ -87,10 +87,9 @@ docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk -v product_name="$product
 insert_vulns_into_db() {
   local count=0
   local query_file="insert_vulns.sql"
-  echo "BEGIN;" > "$query_file"  # Start the transaction
+  echo "BEGIN;" > "$query_file"
 
   while IFS=, read -r vurn_id product scanner_tool priority; do
-    # Skip empty lines
     if [[ -z "$vurn_id" || -z "$priority" || -z "$product" || -z "$scanner_tool" ]]; then
       echo "Skipping empty vulnerability entry"
       continue
@@ -104,13 +103,11 @@ insert_vulns_into_db() {
     local owner="John Doe"
     local pod="Security"
 
-    # Escape single quotes in vulnerability ID, product, priority, and scanner_tool
     vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
     priority=$(echo "$priority" | sed "s/'/''/g")
     product=$(echo "$product" | sed "s/'/''/g")
     scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
 
-    # Fetch existing product and scanner_tool values for the vulnerability
     existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
 
     if [ $? -ne 0 ]; then
@@ -148,24 +145,20 @@ insert_vulns_into_db() {
     ((count++))
   done < "$CSV_OUTPUT_FILE"
 
-  echo "COMMIT;" >> "$query_file"  # End the transaction
+  echo "COMMIT;" >> "$query_file"
   echo "Queries written to $query_file."
 
-  # Execute the SQL file
   psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"
 
-  # Check if the execution was successful
   if [ $? -eq 0 ]; then
     echo "Vulnerabilities successfully inserted into the database."
   else
     echo "Error: Failed to insert vulnerabilities. Please check the database connection or query."
-    # Rollback the transaction if it was not successful
     echo "ROLLBACK;" | psql "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME"
     exit 1
   fi
 }
 
-# Call the function to generate the insert queries and execute them
 if [ -s "$CSV_OUTPUT_FILE" ]; then
   insert_vulns_into_db
 else

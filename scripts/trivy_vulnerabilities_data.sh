@@ -122,6 +122,9 @@ insert_vulns_into_db() {
       unique_scanner_tools="$scanner_tool"
     fi
 
+    # Remove trailing comma from product if needed
+    product=$(echo "$product" | sed 's/,$//')
+
     # Add insert statement to the query file
     echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
     VALUES ('$product', '$unique_scanner_tools', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$created_date', '$comments', '$owner', '$pod')
