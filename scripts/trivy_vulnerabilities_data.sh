@@ -78,7 +78,6 @@ trivy image --db-repository public.ecr.aws/aquasecurity/trivy-db --java-db-repos
     exit 1
 }
 
-cat trivy_vulnerabilities.json
 
 # Process vulnerabilities and generate CSV
 if jq -e '.Results | length > 0' "trivy_vulnerabilities.json" > /dev/null; then
@@ -88,6 +87,8 @@ else
     echo "No vulnerabilities found for image: $IMAGE"
     echo "No vulnerabilities found." > "$NEW_VULN_FILE"
 fi
+
+cat trivy_vulnerabilities_new.csv
 
 # Insert new vulnerabilities into PostgreSQL
 insert_vulns_into_db() {
@@ -116,11 +117,16 @@ insert_vulns_into_db() {
         # Fetch existing scanner_tool value for the vulnerability
         existing_scanner_tool=$(psql -t -c "SELECT scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
 
-        if [ $? -eq 0 ]; then
+       if [ $? -eq 0 ]; then
+            # Combine existing and new product values, ensuring uniqueness
+            combined_products="$existing_product,$product"
+            unique_products=$(echo "$combined_products" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
+
             # Combine existing and new scanner_tool values, ensuring uniqueness
             combined_scanner_tools="$existing_scanner_tool,$scanner_tool"
             unique_scanner_tools=$(echo "$combined_scanner_tools" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
         else
+            unique_products="$product"
             unique_scanner_tools="$scanner_tool"
         fi
 
