@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Check required environment variables
+# Check required environment variables
 required_vars=("DB_HOST" "DB_NAME" "DB_USER" "DB_PWD")
 for var in "${required_vars[@]}"; do
   if [ -z "${!var}" ] || [[ "${!var}" == "your_${var,,}" ]]; then
@@ -14,16 +14,14 @@ DB_NAME="${DB_NAME}"
 DB_USER="${DB_USER}"
 DB_PWD="${DB_PWD}"
 
-# Assign the parameters from the workflow
+# Assign parameters from the workflow
 IMAGE="$1"
 GITHUB_PR_ID="$2"
 GITHUB_PR_LINK="$3"
 GITHUB_RUN_ID="$4"
 OLD_VULN_FILE="${5:-vulnerability_base_data.csv}"
 
-
-# Define the maximum number of retries
-MAX_RETRIES=3
+MAX_RETRIES=5
 
 # Function to install Trivy with retry logic
 install_trivy_with_retry() {
@@ -33,23 +31,14 @@ install_trivy_with_retry() {
     while [[ $count -lt $MAX_RETRIES ]]; do
         echo "Attempting to install Trivy (attempt $((count + 1)))..."
         
-        # Fetch the latest release dynamically instead of hardcoding
         TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
-        TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_"$TRIVY_VERSION"_Linux-64bit.tar.gz"
-        echo "Attempting to install $TRIVY_VERSION from $TRIVY_URL"
-        # Download and extract Trivy
-        curl -sfL "$TRIVY_URL" | tar -xzf - trivy
+        TRIVY_URL="https://github.com/aquasecurity/trivy/releases/download/v$TRIVY_VERSION/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz"
         
-        # Check if extraction was successful
+        curl -sfL "$TRIVY_URL" | tar -xzf - trivy
         if [[ $? -eq 0 ]]; then
-            # Create a local bin directory if it doesn't exist
             mkdir -p "$HOME/bin"
-            # Move Trivy to the local bin directory
             mv trivy "$HOME/bin/"
-            # Manually add the bin directory to PATH for this session
             export PATH="$HOME/bin:$PATH"
-
-            # Check if Trivy is successfully installed
             if command -v trivy &> /dev/null; then
                 success=true
                 break
@@ -64,11 +53,10 @@ install_trivy_with_retry() {
         echo "Error: Trivy installation failed after $MAX_RETRIES attempts."
         exit 1
     fi
-
     echo "Trivy installed successfully."
 }
 
-# Check if Trivy is installed, if not, install it with retry logic
+# Check if Trivy is installed, if not, install it
 if ! command -v trivy &> /dev/null; then
     install_trivy_with_retry
 fi
@@ -79,7 +67,7 @@ DIFF_OUTPUT_FILE="trivy_vulnerabilities_diff.csv"
 rm -f "$NEW_VULN_FILE" "$DIFF_OUTPUT_FILE"
 touch "$OLD_VULN_FILE"
 
-# Extract the product name from the image name
+# Determine product name based on the image name
 case "$IMAGE" in
     *appsmith/appsmith-ce:*) product_name="CE" ;;
     *appsmith/appsmith-ee:*) product_name="EE" ;;
@@ -91,106 +79,80 @@ esac
 run_trivy_scan() {
     echo "Cleaning up Trivy data..."
     trivy clean --all
-
     echo "Running Trivy scan for image: $IMAGE..."
-    if ! trivy image \
-        --db-repository public.ecr.aws/aquasecurity/trivy-db \
-        --java-db-repository public.ecr.aws/aquasecurity/trivy-java-db \
-        --insecure \
-        --format json \
-        "$IMAGE" > "trivy_vulnerabilities.json"; then
+    if ! trivy image --db-repository public.ecr.aws/aquasecurity/trivy-db --java-db-repository public.ecr.aws/aquasecurity/trivy-java-db --insecure --format json "$IMAGE" > "trivy_vulnerabilities.json"; then
         echo "Error: Trivy is not available or the image does not exist."
         exit 1
     fi
 }
 
-# Call the function to run the scan
+# Run the scan
 run_trivy_scan
 
-# Process vulnerabilities and generate the desired CSV format
+# Process vulnerabilities and generate CSV
 if jq -e '.Results | length > 0' "trivy_vulnerabilities.json" > /dev/null; then
-    jq -r --arg product "$product_name" '.Results[].Vulnerabilities[] | "\(.VulnerabilityID),\($product),TRIVY,\(.Severity)"' "trivy_vulnerabilities.json" | sed 's/^\s*//;s/\s*$//' | sort -u > "$NEW_VULN_FILE"
+    jq -r --arg product "$product_name" '.Results[].Vulnerabilities[] | "\(.VulnerabilityID),\($product),TRIVY,\(.Severity)"' "trivy_vulnerabilities.json" | sort -u > "$NEW_VULN_FILE"
     echo "Vulnerabilities saved to $NEW_VULN_FILE"
 else
     echo "No vulnerabilities found for image: $IMAGE"
     echo "No vulnerabilities found." > "$NEW_VULN_FILE"
 fi
 
-# Compare new vulnerabilities with the old file
-if [ -s "$NEW_VULN_FILE" ]; then
-    sort "$OLD_VULN_FILE" -o "$OLD_VULN_FILE"  # Sort the old vulnerabilities file
-    sort "$NEW_VULN_FILE" -o "$NEW_VULN_FILE"  # Sort the new vulnerabilities file
-    
-    # Get the difference between new and old vulnerabilities
-    comm -13 "$OLD_VULN_FILE" "$NEW_VULN_FILE" > "$DIFF_OUTPUT_FILE"
+# Compare vulnerabilities with the old file
+sort "$OLD_VULN_FILE" -o "$OLD_VULN_FILE"
+sort "$NEW_VULN_FILE" -o "$NEW_VULN_FILE"
+comm -13 "$OLD_VULN_FILE" "$NEW_VULN_FILE" > "$DIFF_OUTPUT_FILE"
 
-    if [ -s "$DIFF_OUTPUT_FILE" ]; then
-        echo "New vulnerabilities found and recorded in $DIFF_OUTPUT_FILE."
-    else
-        echo "No new vulnerabilities found for image: $IMAGE."
-    fi
+if [ -s "$DIFF_OUTPUT_FILE" ]; then
+    echo "New vulnerabilities found and recorded in $DIFF_OUTPUT_FILE."
 else
     echo "No new vulnerabilities found for image: $IMAGE."
 fi
 
-
 # Cleanup JSON file
 rm -f "trivy_vulnerabilities.json"
 
-# Output for verification
-echo "Fetching passed data..."
-cat "$OLD_VULN_FILE"
-echo ""
-echo "Fetching new data..."
-cat "$NEW_VULN_FILE"
-echo ""
-echo "Fetching diff..."
-cat $DIFF_OUTPUT_FILE
-echo ""
-
-# Insert new vulnerabilities into the PostgreSQL database using psql
+# Insert new vulnerabilities into PostgreSQL
 insert_vulns_into_db() {
-  local count=0
   local query_file="insert_vulns.sql"
-  echo "BEGIN;" > "$query_file"  # Start the transaction
+  echo "BEGIN;" > "$query_file" 
 
   while IFS=, read -r vurn_id product scanner_tool priority; do
-    # Skip empty lines
     if [[ -z "$vurn_id" || -z "$priority" || -z "$product" || -z "$scanner_tool" ]]; then
-      echo "Skipping empty vulnerability entry"
       continue
     fi
 
     local pr_id="$GITHUB_PR_ID"
     local pr_link="$GITHUB_PR_LINK"
     local created_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    local update_date="$created_date"
     local comments="Initial vulnerability report"
     local owner="John Doe"
     local pod="Security"
 
-    # Escape single quotes in vulnerability ID, product, and priority
     vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
     priority=$(echo "$priority" | sed "s/'/''/g")
     product=$(echo "$product" | sed "s/'/''/g")
     scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
 
-    # Fetch existing product list for the vulnerability
-    existing_products=$(psql -t -c "SELECT product FROM vulnerability_tracking WHERE vurn_id = '$vurn_id' AND scanner_tool = '$scanner_tool'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" | xargs)
+    existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" | xargs)
+    existing_product=$(echo "$existing_entry" | awk '{print $1}')
+    existing_scanner_tool=$(echo "$existing_entry" | awk '{print $2}')
 
-    # Combine existing and new product, ensuring uniqueness
-    if [[ -n "$existing_products" ]]; then
-      combined_products="$existing_products, $product"
-      # Remove duplicates and format the combined string
-      product=$(echo "$combined_products" | tr ', ' '\n' | sort -u | tr '\n' ',' | sed 's/,$//')
+    if [[ -n "$existing_product" ]]; then
+      combined_products="$existing_product, $product"
+      product=$(echo "$combined_products" | tr ', ' '\n' | sort -u | tr '\n' ',' | sed 's/^,//;s/,$//')
+    fi
+    if [[ -n "$existing_scanner_tool" ]]; then
+      combined_scanner_tools="$existing_scanner_tool, $scanner_tool"
+      scanner_tool=$(echo "$combined_scanner_tools" | tr ', ' '\n' | sort -u | tr '\n' ',' | sed 's/^,//;s/,$//')
     fi
 
-    # Write insert query with conflict handling to the SQL file
     echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
-    VALUES ('$product', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod')
-    ON CONFLICT (scanner_tool, vurn_id) 
+    VALUES ('$product', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$created_date', '$comments', '$owner', '$pod')
+    ON CONFLICT (vurn_id) 
     DO UPDATE SET 
         product = EXCLUDED.product,
+        scanner_tool = EXCLUDED.scanner_tool,
         priority = EXCLUDED.priority,
         pr_id = EXCLUDED.pr_id,
         pr_link = EXCLUDED.pr_link,
@@ -200,25 +162,20 @@ insert_vulns_into_db() {
         owner = EXCLUDED.owner,
         pod = EXCLUDED.pod;" >> "$query_file"
 
-    ((count++))
   done < "$DIFF_OUTPUT_FILE"
 
-  echo "COMMIT;" >> "$query_file"  # End the transaction
-  echo "Queries written to $query_file."
-
-  # Execute the SQL file
+  echo "COMMIT;" >> "$query_file"
   psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"
 
-  # Check if the execution was successful
   if [ $? -eq 0 ]; then
     echo "Vulnerabilities successfully inserted into the database."
   else
-    echo "Error: Failed to insert vulnerabilities. Please check the database connection or query."
+    echo "Error: Failed to insert vulnerabilities."
     exit 1
   fi
 }
 
-# Call the function to generate the insert queries and execute them
+# Insert data if any new vulnerabilities found
 if [ -s "$DIFF_OUTPUT_FILE" ]; then
   insert_vulns_into_db
 else

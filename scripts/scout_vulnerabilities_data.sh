@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Check required environment variables
+# Check required environment variables
 required_vars=("DB_HOST" "DB_NAME" "DB_USER" "DB_PWD")
 for var in "${required_vars[@]}"; do
   if [ -z "${!var}" ] || [[ "${!var}" == "your_${var,,}" ]]; then
@@ -25,7 +25,7 @@ OLD_VULN_FILE="${5:-vulnerability_base_data.csv}"
 install_docker_scout() {
     echo "Installing Docker Scout..."
     local attempts=0
-    while [ $attempts -lt 3 ]; do
+    while [ $attempts -lt 5 ]; do
         echo "Attempt $((attempts + 1))..."
         curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
         sh install-scout.sh &> install_scout_log.txt
@@ -75,33 +75,13 @@ docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk -v product_name="$product
 {
     # Check for valid vulnerability data and format it correctly
     if ($2 != "" && $3 ~ /^CVE-/) {
-        # Extract severity level, CVE ID and format output correctly
+        # Extract severity level, CVE ID, and format output correctly
         print $3","product_name",""SCOUT"","$2
     }
 }' | sort -u > "$CSV_OUTPUT_FILE"
 
 # Check if the CSV output file is empty
 [ -s "$CSV_OUTPUT_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$CSV_OUTPUT_FILE"
-
-# Compare new vulnerabilities against old vulnerabilities
-echo "Comparing new vulnerabilities with existing vulnerabilities in $OLD_VULN_FILE..."
-if [ -s "$OLD_VULN_FILE" ]; then
-    awk -F, 'NR==FNR {seen[$1","$2","$3","$4]; next} !($1","$2","$3","$4 in seen)' "$OLD_VULN_FILE" "$CSV_OUTPUT_FILE" > "scout_vulnerabilities_diff.csv"
-else
-    echo "$OLD_VULN_FILE is empty. All new vulnerabilities will be included."
-    cp "$CSV_OUTPUT_FILE" "scout_vulnerabilities_diff.csv"
-fi
-
-# Output for verification
-echo "Fetching passed data..."
-cat "$OLD_VULN_FILE"
-echo ""
-echo "Fetching new data..."
-cat "$CSV_OUTPUT_FILE"
-echo ""
-echo "Fetching diff..."
-cat "scout_vulnerabilities_diff.csv"
-echo ""
 
 # Insert new vulnerabilities into the PostgreSQL database using psql
 insert_vulns_into_db() {
@@ -124,25 +104,32 @@ insert_vulns_into_db() {
     local owner="John Doe"
     local pod="Security"
 
-    # Escape single quotes in vulnerability ID, product, and priority
+    # Escape single quotes in vulnerability ID, product, priority, and scanner_tool
     vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
     priority=$(echo "$priority" | sed "s/'/''/g")
     product=$(echo "$product" | sed "s/'/''/g")
     scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
 
-    # Fetch existing products and merge them uniquely with the new product
-    existing_products=$(psql -t -c "SELECT product FROM vulnerability_tracking WHERE vurn_id = '$vurn_id' AND scanner_tool = '$scanner_tool'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" | xargs)
-    combined_products="$existing_products,$product"
-    
-    # Remove duplicates, trim spaces, and eliminate any leading/trailing commas
+    # Fetch existing product and scanner_tool values for the vulnerability
+    existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" | xargs)
+    existing_product=$(echo "$existing_entry" | awk '{print $1}')
+    existing_scanner_tool=$(echo "$existing_entry" | awk '{print $2}')
+
+    # Combine existing and new product values, ensuring uniqueness
+    combined_products="$existing_product,$product"
     unique_products=$(echo "$combined_products" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
+
+    # Combine existing and new scanner_tool values, ensuring uniqueness
+    combined_scanner_tools="$existing_scanner_tool,$scanner_tool"
+    unique_scanner_tools=$(echo "$combined_scanner_tools" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
 
     # Write insert query with conflict handling to the SQL file
     echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
-    VALUES ('$unique_products', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod')
-    ON CONFLICT (scanner_tool, vurn_id) 
+    VALUES ('$unique_products', '$unique_scanner_tools', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod')
+    ON CONFLICT (vurn_id) 
     DO UPDATE SET 
         product = '$unique_products',
+        scanner_tool = '$unique_scanner_tools',
         priority = EXCLUDED.priority,
         pr_id = EXCLUDED.pr_id,
         pr_link = EXCLUDED.pr_link,
@@ -153,7 +140,7 @@ insert_vulns_into_db() {
         pod = EXCLUDED.pod;" >> "$query_file"
 
     ((count++))
-  done < "scout_vulnerabilities_diff.csv"
+  done < "$CSV_OUTPUT_FILE"
 
   echo "COMMIT;" >> "$query_file"  # End the transaction
   echo "Queries written to $query_file."
@@ -171,7 +158,7 @@ insert_vulns_into_db() {
 }
 
 # Call the function to generate the insert queries and execute them
-if [ -s "scout_vulnerabilities_diff.csv" ]; then
+if [ -s "$CSV_OUTPUT_FILE" ]; then
   insert_vulns_into_db
 else
   echo "No new vulnerabilities to insert."
