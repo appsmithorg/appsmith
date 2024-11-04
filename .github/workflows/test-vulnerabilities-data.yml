@@ -124,20 +124,20 @@ jobs:
             "${{ github.event.pull_request.html_url }}" \
             "${{ github.run_id }}"
 
-      - name: Run Trivy vulnerability data script
-        if: always()
-        env:
-          DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
-          DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
-          DB_USER: ${{ secrets.CYPRESS_DB_USER }}
-          DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
-          chmod +x scripts/trivy_vulnerabilities_data.sh
-          ./scripts/trivy_vulnerabilities_data.sh \
-            "${{ inputs.image_name }}" \
-            "${{ github.event.pull_request.number }}" \
-            "${{ github.event.pull_request.html_url }}" \
-            "${{ github.run_id }}"
+      # - name: Run Trivy vulnerability data script
+      #   if: always()
+      #   env:
+      #     DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+      #     DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+      #     DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+      #     DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      #     chmod +x scripts/trivy_vulnerabilities_data.sh
+      #     ./scripts/trivy_vulnerabilities_data.sh \
+      #       "${{ inputs.image_name }}" \
+      #       "${{ github.event.pull_request.number }}" \
+      #       "${{ github.event.pull_request.html_url }}" \
+      #       "${{ github.run_id }}"
             

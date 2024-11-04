@@ -132,10 +132,10 @@ insert_vulns_into_db() {
 
     # Fetch existing products and merge them uniquely with the new product
     existing_products=$(psql -t -c "SELECT product FROM vulnerability_tracking WHERE vurn_id = '$vurn_id' AND scanner_tool = '$scanner_tool'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" | xargs)
-    combined_products="$existing_products, $product"
+    combined_products="$existing_products,$product"
     
-    # Remove duplicates and format combined product string
-    unique_products=$(echo "$combined_products" | tr ', ' '\n' | sort -u | tr '\n' ',' | sed 's/,$//')
+    # Remove duplicates, trim spaces, and eliminate any leading/trailing commas
+    unique_products=$(echo "$combined_products" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
 
     # Write insert query with conflict handling to the SQL file
     echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
