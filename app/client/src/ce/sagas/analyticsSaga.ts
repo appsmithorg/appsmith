@@ -4,14 +4,14 @@ import { call, select } from "redux-saga/effects";
 import type { APP_MODE } from "entities/App";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
-import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getAppMode } from "ee/selectors/entitiesSelector";
+import { getAppMode, getJSCollection } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
 import { getWidget } from "sagas/selectors";
 import { getUserSource } from "ee/utils/AnalyticsUtil";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import type { JSCollection } from "entities/JSCollection";
 
 export interface UserAndAppDetails {
   pageId: string;
@@ -58,8 +58,6 @@ export function* logDynamicTriggerExecution({
   errors: unknown;
   triggerMeta: TriggerMeta;
 }) {
-  if (triggerMeta.triggerKind !== TriggerKind.EVENT_EXECUTION) return;
-
   const isUnsuccessfulExecution = isArray(errors) && errors.length > 0;
   const {
     appId,
@@ -74,6 +72,10 @@ export function* logDynamicTriggerExecution({
   }: UserAndAppDetails = yield call(getUserAndAppDetails);
   const widget: ReturnType<typeof getWidget> | undefined = yield select(
     (state: AppState) => getWidget(state, triggerMeta.source?.id || ""),
+  );
+  const jsCollection: JSCollection | undefined = yield select(
+    getJSCollection,
+    triggerMeta?.source?.id || "",
   );
 
   const dynamicPropertyPathList = widget?.dynamicPropertyPathList;
@@ -100,6 +102,7 @@ export function* logDynamicTriggerExecution({
     propertyName: triggerMeta.triggerPropertyName,
     instanceId,
     isJSToggled,
+    isModuleInstance: Boolean(jsCollection?.moduleInstanceId),
   });
 
   AnalyticsUtil.logEvent(
@@ -125,6 +128,7 @@ export function* logDynamicTriggerExecution({
       propertyName: triggerMeta.triggerPropertyName,
       instanceId,
       isJSToggled,
+      isModuleInstance: Boolean(jsCollection?.moduleInstanceId),
     },
   );
 }
