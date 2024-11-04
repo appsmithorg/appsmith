@@ -108,8 +108,8 @@ insert_vulns_into_db() {
     # Escape single quotes
     vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
     priority=$(echo "$priority" | sed "s/'/''/g")
-    product=$(echo "$product" | sed "s/'/''/g")
-    scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
+    product=$(echo "$product" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//') # Remove pipe and trailing comma
+    scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g" | sed 's/[|]//g' | sed 's/,$//') # Remove pipe and trailing comma
 
     # Fetch existing scanner_tool value for the vulnerability
     existing_scanner_tool=$(psql -t -c "SELECT scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
@@ -121,9 +121,6 @@ insert_vulns_into_db() {
     else
       unique_scanner_tools="$scanner_tool"
     fi
-
-    # Remove trailing comma from product if needed
-    product=$(echo "$product" | sed 's/,$//')
 
     # Add insert statement to the query file
     echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 

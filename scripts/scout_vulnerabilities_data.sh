@@ -108,6 +108,9 @@ insert_vulns_into_db() {
     product=$(echo "$product" | sed "s/'/''/g")
     scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
 
+    # Remove pipes from scanner_tool
+    scanner_tool=$(echo "$scanner_tool" | sed 's/|//g')
+
     existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
 
     if [ $? -ne 0 ]; then
