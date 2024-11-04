@@ -96,8 +96,8 @@ insert_vulns_into_db() {
       continue
     fi
 
-    local pr_id="$GITHUB_PR_ID"
-    local pr_link="$GITHUB_PR_LINK"
+    local pr_id="${GITHUB_PR_ID:-}"
+    local pr_link="${GITHUB_PR_LINK:-}"
     local created_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
     local update_date="$created_date"
     local comments="Initial vulnerability report"
@@ -111,7 +111,13 @@ insert_vulns_into_db() {
     scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
 
     # Fetch existing product and scanner_tool values for the vulnerability
-    existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" | xargs)
+    existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
+    
+    if [ $? -ne 0 ]; then
+      echo "Error fetching existing entry for vurn_id: $vurn_id. Skipping this entry."
+      continue
+    fi
+
     existing_product=$(echo "$existing_entry" | awk '{print $1}')
     existing_scanner_tool=$(echo "$existing_entry" | awk '{print $2}')
 
