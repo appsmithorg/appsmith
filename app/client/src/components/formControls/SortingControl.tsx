@@ -54,13 +54,15 @@ const orderFieldConfig: any = {
 
 const SortingContainer = styled.div`
   display: flex;
-  gap: 5px;
+  gap: var(--ads-v2-spaces-4);
   flex-direction: column;
+  border-top: 1px solid var(--ads-v2-color-border);
+  padding-top: var(--ads-v2-spaces-4);
 `;
 
 const SortingDropdownContainer = styled.div`
   display: flex;
-  gap: 5px;
+  gap: var(--ads-v2-spaces-4);
 `;
 
 const SortingFields = styled.div<{ isBreakpointSmall: boolean }>`
@@ -69,7 +71,9 @@ const SortingFields = styled.div<{ isBreakpointSmall: boolean }>`
     isBreakpointSmall ? "1fr" : "1fr 180px"};
   grid-template-rows: ${({ isBreakpointSmall }) =>
     isBreakpointSmall ? "1fr 1fr" : "1fr"};
-  gap: 5px;
+  column-gap: var(--ads-v2-spaces-4);
+  row-gap: var(--ads-v2-spaces-2);
+  width: 100%;
 `;
 
 const ButtonWrapper = styled.div`
@@ -159,9 +163,6 @@ function SortingComponent(props: SortingComponentProps) {
                 <FormControl
                   config={{
                     ...columnFieldConfig,
-                    customStyles: {
-                      width: "100%",
-                    },
                     configProperty: columnPath,
                     nestedFormControl: true,
                   }}

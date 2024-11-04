@@ -90,7 +90,7 @@ const CenteredIconButton = styled(Button)<{
 `;
 
 // We are setting a background color for the last two nested levels
-const handleSecondaryBoxBackgroudColor = (
+const handleSecondaryBoxBackgroundColor = (
   currentNestingLevel: number,
   nestedLevels: number,
 ) => {
@@ -113,11 +113,12 @@ const SecondaryBox = styled.div<{
   display: flex;
   flex-direction: column;
   position: relative;
-  border-radius: var(--ads-v2-border-radius);
   border: solid 1px var(--ads-v2-color-border);
   border-width: ${(props) => (props?.showBorder ? "1px" : "0px")};
   padding: ${(props) =>
-    props?.showBorder ? "0px 12px 12px 8px" : "4px 12px 12px 0px"};
+    props?.showBorder ? "4px 12px 12px 8px" : "4px 0 12px 0"};
+  border-top: 1px solid var(--ads-v2-color-border);
+
   width: 100%;
   // Setting a max width to not have it really elongate on very large screens
   max-width: 2000px;
@@ -125,11 +126,10 @@ const SecondaryBox = styled.div<{
   ${(props) =>
     props.size === "small" &&
     `
-    ${handleSecondaryBoxBackgroudColor(
+    ${handleSecondaryBoxBackgroundColor(
       props.currentNestingLevel,
       props.nestedLevels,
     )}
-    padding-bottom: 12px;
   `}
 `;
 
@@ -139,14 +139,13 @@ const ConditionWrapper = styled.div<{ size: string }>`
   flex-direction: row;
   align-items: center;
   width: 100%;
-  gap: 5px;
+  gap: var(--ads-v2-spaces-4);
   margin-top: var(--ads-v2-spaces-3);
   margin-bottom: 5px;
 
   ${(props) =>
     props.size === "small" &&
     `
-    // margin-top: 0px;
     gap: 0px;
     flex-direction: column;
     align-items: start;
@@ -163,8 +162,8 @@ const ConditionBox = styled.div<{ size?: string }>`
   // The 4 elements(3 input fields and a close button) are horizontally aligned
   // by default
   grid-template-columns: auto 100px auto max-content;
-  grid-column-gap: 5px;
-  grid-row-gap: 5px;
+  column-gap: var(--ads-v2-spaces-4);
+  row-gap: var(--ads-v2-spaces-2);
   width: 100%;
 
   ${(props) =>
@@ -178,7 +177,7 @@ const ConditionBox = styled.div<{ size?: string }>`
     // are verticall aligned one below the other.
     grid-template-columns: repeat(2, max-content);
     grid-template-rows: repeat(3, max-content);
-    grid-column-gap: 5px;
+    column-gap: var(--ads-v2-spaces-4);
     // The three input fields will be in the first column
     & :not(:nth-child(4)) {
       grid-column-start: 1;
@@ -196,7 +195,7 @@ const ConditionBox = styled.div<{ size?: string }>`
 const ActionBox = styled.div<{ marginLeft: string; size: string }>`
   display: flex;
   flex-direction: row;
-  gap: 5px;
+  row-gap: var(--ads-v2-spaces-2);
   background-color: inherit;
   margin-left: ${(props) => props.marginLeft};
 
@@ -210,16 +209,15 @@ const ActionBox = styled.div<{ marginLeft: string; size: string }>`
 const GroupConditionBox = styled.div<{ size: string }>`
   display: flex;
   flex-direction: row;
-  gap: 5px;
+  gap: var(--ads-v2-spaces-4);
   width: 100%;
 
   ${(props) =>
     props.size === "small" &&
     `
-  gap: 5px;
-  margin: 5px 0px;
-  flex-direction: row;
-  min-width: max-content;
+    margin: 5px 0px;
+    flex-direction: row;
+    min-width: max-content;
   `}
 `;
 
@@ -308,9 +306,8 @@ function ConditionBlock(props: any) {
   // Smallest width of the component below which the individual input fields don't
   // decrease in width anymore so we decide to shift to small space layout at this point
   const size = useResponsiveBreakpoints(targetRef, [{ small: 505 }]);
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const formValues: any = useSelector((state) =>
+
+  const formValues = useSelector((state) =>
     getFormValues(props.formName)(state),
   );
 
@@ -413,6 +410,7 @@ function ConditionBlock(props: any) {
                   <CenteredIconButton
                     alignSelf={"start"}
                     data-testid={`t--where-clause-delete-[${index}]`}
+                    isIconButton
                     kind="tertiary"
                     onClick={(e: React.MouseEvent) => {
                       e.stopPropagation();
