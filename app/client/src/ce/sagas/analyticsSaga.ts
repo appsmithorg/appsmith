@@ -6,12 +6,12 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import { isArray } from "lodash";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { getAppMode, getJSCollection } from "ee/selectors/entitiesSelector";
+import { getAllJSCollections, getAppMode } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
 import { getWidget } from "sagas/selectors";
 import { getUserSource } from "ee/utils/AnalyticsUtil";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import type { JSCollection } from "entities/JSCollection";
+import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 
 export interface UserAndAppDetails {
   pageId: string;
@@ -73,10 +73,12 @@ export function* logDynamicTriggerExecution({
   const widget: ReturnType<typeof getWidget> | undefined = yield select(
     (state: AppState) => getWidget(state, triggerMeta.source?.id || ""),
   );
-  const jsCollection: JSCollection | undefined = yield select(
-    getJSCollection,
-    triggerMeta?.source?.id || "",
+  const jsCollectionsData: JSCollectionData[] =
+    yield select(getAllJSCollections);
+  const jsCollectionData = (jsCollectionsData || []).find(
+    ({ config }) => config.id === triggerMeta?.source?.id || "",
   );
+  const jsCollection = jsCollectionData?.config;
 
   const dynamicPropertyPathList = widget?.dynamicPropertyPathList;
   const isJSToggled = !!dynamicPropertyPathList?.find(
