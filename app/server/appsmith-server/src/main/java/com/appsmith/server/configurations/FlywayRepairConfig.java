@@ -1,14 +1,17 @@
 package com.appsmith.server.configurations;
 
+import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.output.MigrateResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.context.annotation.Bean;
+import org.springframework.boot.context.event.ApplicationStartingEvent;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class FlywayRepairConfig {
+@Slf4j
+public class FlywayRepairConfig implements ApplicationListener<ApplicationStartingEvent> {
 
     private final DataSourceProperties dataSourceProperties;
 
@@ -17,9 +20,9 @@ public class FlywayRepairConfig {
         this.dataSourceProperties = dataSourceProperties;
     }
 
-    @Bean
-    public Flyway flyway() {
-        return Flyway.configure()
+    @Override
+    public void onApplicationEvent(ApplicationStartingEvent event) {
+        Flyway flyway = Flyway.configure()
                 .dataSource(
                         dataSourceProperties.getUrl(),
                         dataSourceProperties.getUsername(),
@@ -28,15 +31,8 @@ public class FlywayRepairConfig {
                 .baselineOnMigrate(true)
                 .baselineVersion("0")
                 .load();
-    }
-
-    // ApplicationRunner bean to run migrations at startup
-    // TODO - Remove this once the pg and release branch is merged
-    @Bean
-    public ApplicationRunner flywayMigrationRunner(Flyway flyway) {
-        return args -> {
-            flyway.repair(); // Fixes any inconsistencies in the schema history
-            flyway.migrate();
-        };
+        flyway.repair();
+        MigrateResult result = flyway.migrate();
+        log.info(" Migration completed, total time " + result.getTotalMigrationTime());
     }
 }
