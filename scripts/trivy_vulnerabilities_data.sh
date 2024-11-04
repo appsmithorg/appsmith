@@ -88,7 +88,6 @@ else
     echo "No vulnerabilities found." > "$NEW_VULN_FILE"
 fi
 
-cat trivy_vulnerabilities_new.csv
 
 # Insert new vulnerabilities into PostgreSQL
 insert_vulns_into_db() {

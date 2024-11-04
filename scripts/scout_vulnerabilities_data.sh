@@ -108,8 +108,8 @@ insert_vulns_into_db() {
     product=$(echo "$product" | sed "s/'/''/g")
     scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
 
-    # Remove pipes from scanner_tool
-    scanner_tool=$(echo "$scanner_tool" | sed 's/|//g')
+    # Remove pipes from scanner_tool and trailing comma/pipe
+    scanner_tool=$(echo "$scanner_tool" | sed 's/|//g' | sed 's/[,\s]*$//')
 
     existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
 
@@ -128,6 +128,9 @@ insert_vulns_into_db() {
     # Combine existing and new scanner_tool values, ensuring uniqueness
     combined_scanner_tools="$existing_scanner_tool,$scanner_tool"
     unique_scanner_tools=$(echo "$combined_scanner_tools" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
+
+    # Remove any trailing comma or pipe from unique_scanner_tools
+    unique_scanner_tools=$(echo "$unique_scanner_tools" | sed 's/[,\|]*$//')
 
     # Write insert query with conflict handling to the SQL file
     echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
