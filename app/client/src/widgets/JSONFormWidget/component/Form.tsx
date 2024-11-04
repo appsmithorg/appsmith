@@ -279,22 +279,17 @@ function Form<TValues = any>(
 
     const computeFieldVisibilityMap = (
       schemaItem: SchemaItem,
-      parentPath = "",
     ): Record<string, boolean> => {
       let visibilityMap: Record<string, boolean> = {};
 
       if (schemaItem.fieldType === "Object" && schemaItem.children) {
         // For object types, recursively process children
-        Object.entries(schemaItem.children).forEach(
-          ([key, child]: [string, SchemaItem]) => {
-            const childPath = parentPath ? `${parentPath}.${key}` : key;
-
-            visibilityMap = {
-              ...visibilityMap,
-              ...computeFieldVisibilityMap(child, childPath),
-            };
-          },
-        );
+        Object.values(schemaItem.children).forEach((child: SchemaItem) => {
+          visibilityMap = {
+            ...visibilityMap,
+            ...computeFieldVisibilityMap(child),
+          };
+        });
       } else if (
         schemaItem.fieldType === "Array" &&
         schemaItem.children?.__array_item__
@@ -302,10 +297,7 @@ function Form<TValues = any>(
         // For array types, process the array item schema
         visibilityMap = {
           ...visibilityMap,
-          ...computeFieldVisibilityMap(
-            schemaItem.children.__array_item__,
-            parentPath,
-          ),
+          ...computeFieldVisibilityMap(schemaItem.children.__array_item__),
         };
       }
 
