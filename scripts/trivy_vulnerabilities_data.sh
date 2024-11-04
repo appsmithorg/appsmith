@@ -91,16 +91,13 @@ fi
 insert_vulns_into_db() {
   local query_file="insert_vulns.sql"
 
-  # Clear previous query file content and start a transaction block
   echo "BEGIN;" > "$query_file"
 
-  # Loop through each vulnerability record in NEW_VULN_FILE
   while IFS=, read -r vurn_id product scanner_tool priority; do
     if [[ -z "$vurn_id" || -z "$priority" || -z "$product" || -z "$scanner_tool" ]]; then
       continue
     fi
 
-    # Variables for database insertion
     local pr_id="${GITHUB_PR_ID:-}"
     local pr_link="${GITHUB_PR_LINK:-}"
     local created_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -108,19 +105,30 @@ insert_vulns_into_db() {
     local owner="John Doe"
     local pod="Security"
 
-    # Escape single quotes in the variables
+    # Escape single quotes
     vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
     priority=$(echo "$priority" | sed "s/'/''/g")
     product=$(echo "$product" | sed "s/'/''/g")
     scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
 
+    # Fetch existing scanner_tool value for the vulnerability
+    existing_scanner_tool=$(psql -t -c "SELECT scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
+
+    if [ $? -eq 0 ]; then
+      # Combine existing and new scanner_tool values, ensuring uniqueness
+      combined_scanner_tools="$existing_scanner_tool,$scanner_tool"
+      unique_scanner_tools=$(echo "$combined_scanner_tools" | tr ',' '\n' | sed '/^$/d' | sort -u | tr '\n' ',' | sed 's/^,//; s/,$//')
+    else
+      unique_scanner_tools="$scanner_tool"
+    fi
+
     # Add insert statement to the query file
     echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
-    VALUES ('$product', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$created_date', '$comments', '$owner', '$pod')
+    VALUES ('$product', '$unique_scanner_tools', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$created_date', '$comments', '$owner', '$pod')
     ON CONFLICT (vurn_id) 
     DO UPDATE SET 
         product = EXCLUDED.product,
-        scanner_tool = EXCLUDED.scanner_tool,
+        scanner_tool = '$unique_scanner_tools',
         priority = EXCLUDED.priority,
         pr_id = EXCLUDED.pr_id,
         pr_link = EXCLUDED.pr_link,
@@ -132,10 +140,8 @@ insert_vulns_into_db() {
 
   done < "$NEW_VULN_FILE"
 
-  # Commit the transaction
   echo "COMMIT;" >> "$query_file"
 
-  # Execute the SQL statements
   if psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"; then
     echo "Vulnerabilities successfully inserted into the database."
   else
