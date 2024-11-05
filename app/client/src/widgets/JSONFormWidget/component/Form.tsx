@@ -275,7 +275,9 @@ function Form<TValues = any>(
   }, [onFormValidityUpdate, isFormInValid]);
 
   useEffect(() => {
-    if (!schema) return;
+    if (!schema || Object.keys(schema).length === 0) {
+      return;
+    }
 
     const computeFieldVisibilityMap = (
       schemaItem: SchemaItem,
