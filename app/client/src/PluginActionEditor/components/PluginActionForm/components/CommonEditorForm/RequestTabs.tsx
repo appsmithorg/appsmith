@@ -24,7 +24,7 @@ const SettingsWrapper = styled.div`
 `;
 const StyledTabPanel = styled(TabPanel)`
   height: calc(100% - 50px);
-  overflow: scroll;
+  overflow: auto;
 `;
 
 export function RequestTabs(props: {
