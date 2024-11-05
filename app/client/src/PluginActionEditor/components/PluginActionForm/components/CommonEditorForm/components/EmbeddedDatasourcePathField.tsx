@@ -92,6 +92,7 @@ const DatasourceContainer = styled.div`
   position: relative;
   align-items: center;
   height: 36px;
+  gap: var(--ads-v2-spaces-4);
   .t--datasource-editor {
     background-color: var(--ads-v2-color-bg);
     .cm-s-duotone-light.CodeMirror {
@@ -100,10 +101,6 @@ const DatasourceContainer = styled.div`
     .CodeEditorTarget {
       z-index: ${Indices.Layer5};
     }
-  }
-
-  .t--store-as-datasource {
-    margin-left: 10px;
   }
 `;
 
