@@ -35,7 +35,7 @@ const getAppParams = memoizeOne(
 
     const {
       applicationSlug,
-      appMode,
+      appMode = "",
       basePageId: pageId,
       branchName,
     } = applicationParams || {};
