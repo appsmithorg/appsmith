@@ -10,9 +10,31 @@ export default {
     let dateValid = true;
 
     if (!!props.minDate && !!props.maxDate) {
-      dateValid = !!selectedDate
-        ? selectedDate.isBetween(minDate, maxDate)
-        : !props.isRequired;
+      if (!selectedDate) {
+        dateValid = !props.isRequired;
+      } else {
+        let granularityToCheck = undefined;
+        let inclusivityMarkers = undefined;
+
+        switch (props.timePrecision) {
+          case "None":
+            granularityToCheck = "day";
+            inclusivityMarkers = "[]";
+            break;
+          case "second":
+          case "minute":
+          case "millisecond":
+            granularityToCheck = props.timePrecision;
+            inclusivityMarkers = "[]";
+            break;
+        }
+        dateValid = selectedDate.isBetween(
+          minDate,
+          maxDate,
+          granularityToCheck,
+          inclusivityMarkers,
+        );
+      }
     } else if (!!props.minDate) {
       dateValid = !!selectedDate
         ? selectedDate.isAfter(minDate)
