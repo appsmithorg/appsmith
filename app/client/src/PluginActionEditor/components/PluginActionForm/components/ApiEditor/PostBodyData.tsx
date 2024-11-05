@@ -28,7 +28,6 @@ import { Select, Option } from "@appsmith/ads";
 const PostBodyContainer = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 12px 0px 0px;
   background-color: var(--ads-v2-color-bg);
   height: 100%;
   gap: var(--ads-v2-spaces-4);
