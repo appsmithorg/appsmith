@@ -73,7 +73,7 @@ function PluginActionResponse() {
   // When multiple page load queries exist, we want to response tab by default for all of them
   // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
   useEffect(() => {
-    if (!!action?.id) {
+    if (action?.id) {
       setShowResponseOnFirstLoad(false);
     }
   }, [action?.id]);
