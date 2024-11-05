@@ -56,8 +56,6 @@ const SortingContainer = styled.div`
   display: flex;
   gap: var(--ads-v2-spaces-4);
   flex-direction: column;
-  border-top: 1px solid var(--ads-v2-color-border);
-  padding-top: var(--ads-v2-spaces-4);
 `;
 
 const SortingDropdownContainer = styled.div`

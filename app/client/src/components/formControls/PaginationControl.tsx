@@ -25,8 +25,6 @@ const PaginationContainer = styled.div`
   column-gap: var(--ads-v2-spaces-4);
   row-gap: var(--ads-v2-spaces-2);
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  border-top: 1px solid var(--ads-v2-color-border);
-  padding-top: var(--ads-v2-spaces-4);
 `;
 
 // using query dynamic input text for both so user can dynamically change these values.

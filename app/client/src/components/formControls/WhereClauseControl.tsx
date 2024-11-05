@@ -114,10 +114,10 @@ const SecondaryBox = styled.div<{
   flex-direction: column;
   position: relative;
   border: solid 1px var(--ads-v2-color-border);
+  border-radius: var(--ads-v2-border-radius);
   border-width: ${(props) => (props?.showBorder ? "1px" : "0px")};
   padding: ${(props) =>
-    props?.showBorder ? "4px 12px 12px 8px" : "4px 0 12px 0"};
-  border-top: 1px solid var(--ads-v2-color-border);
+    props?.showBorder ? "0px 12px 12px 8px" : "4px 0px 12px 0px"};
 
   width: 100%;
   // Setting a max width to not have it really elongate on very large screens
