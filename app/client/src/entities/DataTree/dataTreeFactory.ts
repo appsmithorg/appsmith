@@ -24,6 +24,8 @@ import type {
   DependencyMap,
   FormEditorConfigs,
 } from "utils/DynamicBindingUtils";
+import type { DataTreeSeed } from "ee/entities/DataTree/types";
+
 export class DataTreeFactory {
   public static metaWidgets(
     metaWidgets: MetaWidgetsReduxState,
@@ -52,11 +54,10 @@ export class DataTreeFactory {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public static widgets(
     moduleInputs: Module["inputsForm"],
     moduleInstances: Record<string, ModuleInstance> | null,
-    moduleInstanceEntities: null,
+    moduleInstanceEntities: DataTreeSeed["moduleInstanceEntities"],
     widgets: CanvasWidgetsReduxState,
     widgetsMeta: MetaState,
     loadingEntities: LoadingEntitiesState,
