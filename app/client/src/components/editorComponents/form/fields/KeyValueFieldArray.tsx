@@ -52,7 +52,7 @@ const Flex = styled.div<{ size: number }>`
   ${(props) =>
     props.size === 3
       ? `
-    margin-left: 8px;
+    margin-left: var(--ads-v2-spaces-3);
   `
       : null};
 `;
