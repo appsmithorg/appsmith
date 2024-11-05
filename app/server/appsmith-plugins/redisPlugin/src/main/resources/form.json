@@ -58,6 +58,78 @@
           ]
         }
       ]
+    },
+    {
+      "sectionName": "TLS Configuration",
+      "id": 3,
+      "children": [
+        {
+          "sectionName": null,
+          "children": [
+            {
+              "label": "Enable TLS",
+              "configProperty": "datasourceConfiguration.tlsConfiguration.tlsEnabled",
+              "controlType": "CHECKBOX",
+              "initialValue": false
+            },
+            {
+              "label": "Verify TLS Certificate",
+              "configProperty": "datasourceConfiguration.tlsConfiguration.verifyTlsCertificate",
+              "controlType": "CHECKBOX",
+              "initialValue": false,
+              "hidden": {
+                "path": "datasourceConfiguration.tlsConfiguration.tlsEnabled",
+                "comparison": "NOT_EQUALS",
+                "value": true
+              }
+            },
+            {
+              "label": "Upload CA Certificate",
+              "configProperty": "datasourceConfiguration.tlsConfiguration.caCertificateFile",
+              "controlType": "FILE_PICKER",
+              "encrypted": true,
+              "hidden": {
+                "path": "datasourceConfiguration.tlsConfiguration.tlsEnabled",
+                "comparison": "NOT_EQUALS",
+                "value": true
+              }
+            },
+            {
+              "label": "Requires TLS Client Authentication",
+              "configProperty": "datasourceConfiguration.tlsConfiguration.requiresClientAuth",
+              "controlType": "CHECKBOX",
+              "initialValue": false,
+              "hidden": {
+                "path": "datasourceConfiguration.tlsConfiguration.tlsEnabled",
+                "comparison": "NOT_EQUALS",
+                "value": true
+              }
+            },
+            {
+              "label": "Upload Client Certificate",
+              "configProperty": "datasourceConfiguration.tlsConfiguration.clientCertificateFile",
+              "controlType": "FILE_PICKER",
+              "encrypted": true,
+              "hidden": {
+                "path": "datasourceConfiguration.tlsConfiguration.requiresClientAuth",
+                "comparison": "EQUALS",
+                "value": false
+              }
+            },
+            {
+              "label": "Upload Client Key",
+              "configProperty": "datasourceConfiguration.tlsConfiguration.clientKeyFile",
+              "controlType": "FILE_PICKER",
+              "encrypted": true,
+              "hidden": {
+                "path": "datasourceConfiguration.tlsConfiguration.requiresClientAuth",
+                "comparison": "EQUALS",
+                "value": false
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }
