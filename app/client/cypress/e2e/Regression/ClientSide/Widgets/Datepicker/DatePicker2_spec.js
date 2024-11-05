@@ -22,7 +22,7 @@ describe(
     it("DatePicker-Date Name validation", function () {
       // changing the date to today
       cy.get(formWidgetsPage.defaultDate).click();
-      cy.SetDateToToday();
+      cy.get(formWidgetsPage.dayPickerToday).click();
 
       //changing the Button Name
       cy.widgetText(

@@ -78,5 +78,6 @@
   "minDateTextArea" : ".t--property-control-mindate  .CodeMirror textarea",
   "minDateInput" : ".t--property-control-mindate .ads-v2-input__input-section-input",
   "datePickerInput": ".t--widget-datepickerwidget2 .bp3-input",
-  "dayPickerNextButton": ".DayPicker-NavButton--next"
+  "dayPickerNextButton": ".DayPicker-NavButton--next",
+  "dayPickerToday": ".ads-v2-datepicker__calender-today"
 }
