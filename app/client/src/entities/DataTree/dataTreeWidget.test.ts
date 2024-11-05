@@ -225,8 +225,6 @@ describe("generateDataTreeWidget", () => {
       parentColumnSpace: 0,
       parentRowSpace: 0,
       rightColumn: 0,
-      renderMode: RenderModes.CANVAS,
-      version: 0,
       topRow: 0,
       widgetId: "123",
       widgetName: "Input1",
