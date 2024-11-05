@@ -148,6 +148,7 @@ jobs:
         working-directory: "."
         run: |
           sudo /etc/init.d/ssh stop ;
+          sudo systemctl disable --now ssh.socket
           mkdir -p ~/git-server/keys
           ted_tag="${{inputs.ted_tag}}"
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \

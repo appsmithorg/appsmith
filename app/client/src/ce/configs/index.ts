@@ -283,7 +283,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     observability: {
       deploymentName: observabilityDeploymentName.value,
       serviceInstanceId: observabilityServiceInstanceId.value,
-      serviceName: "frontend",
+      serviceName: "appsmith-client",
     },
     fusioncharts: {
       enabled: fusioncharts.enabled,
