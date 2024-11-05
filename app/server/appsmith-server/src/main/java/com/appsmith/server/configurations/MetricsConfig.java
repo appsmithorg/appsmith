@@ -1,8 +1,10 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.server.annotations.ConditionalOnMicrometerMetricsEnabled;
+import io.micrometer.common.KeyValue;
 import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.observation.ObservationFilter;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.aop.ObservedAspect;
 import io.opentelemetry.api.OpenTelemetry;
@@ -18,6 +20,7 @@ import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import io.opentelemetry.sdk.resources.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.autoconfigure.observation.ObservationRegistryCustomizer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -101,5 +104,19 @@ public class MetricsConfig {
     @ConditionalOnExpression("${logging.verbose.enabled}")
     ObservedAspect observedAspect(ObservationRegistry observationRegistry) {
         return new ObservedAspect(observationRegistry);
+    }
+
+    @Bean
+    public ObservationRegistryCustomizer<ObservationRegistry> observationRegistryCustomizer() {
+        return registry -> registry.observationConfig().observationFilter(addGlobalTags());
+    }
+
+    private ObservationFilter addGlobalTags() {
+        return (observation) -> {
+            observation.addLowCardinalityKeyValue(KeyValue.of(DEPLOYMENT_NAME_KEY, deploymentName));
+            observation.addLowCardinalityKeyValue(KeyValue.of(SERVICE_NAME_KEY, SERVICE_NAME));
+            observation.addLowCardinalityKeyValue(KeyValue.of(SERVICE_INSTANCE_ID_KEY, serviceInstanceId));
+            return observation;
+        };
     }
 }

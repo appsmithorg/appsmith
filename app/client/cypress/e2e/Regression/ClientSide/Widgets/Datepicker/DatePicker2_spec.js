@@ -30,13 +30,13 @@ describe(
         formWidgetsPage.datepickerWidget,
         widgetsPage.widgetNameSpan,
       );
-
       // change the date to next day
       cy.get(formWidgetsPage.defaultDate).click();
 
       /**
        * setDate--> is a Command to select the date in the date picker
        */
+
       cy.setDate(1);
       const nextDay = dayjs().add(1, "days").format("DD/MM/YYYY");
       cy.log(nextDay);

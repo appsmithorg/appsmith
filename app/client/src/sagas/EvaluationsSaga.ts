@@ -350,9 +350,13 @@ export function* evaluateAndExecuteDynamicTrigger(
   callbackData?: Array<any>,
   globalContext?: Record<string, unknown>,
 ) {
+  const rootSpan = startRootSpan("DataTreeFactory.create");
+
   const unEvalTree: ReturnType<typeof getUnevaluatedDataTree> = yield select(
     getUnevaluatedDataTree,
   );
+
+  endSpan(rootSpan);
 
   log.debug({ execute: dynamicTrigger });
   const response: { errors: EvaluationError[]; result: unknown } = yield call(
@@ -497,8 +501,12 @@ export function* executeJSFunction(
 export // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* validateProperty(property: string, value: any, props: WidgetProps) {
+  const rootSpan = startRootSpan("DataTreeFactory.create");
+
   const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
     yield select(getUnevaluatedDataTree);
+
+  endSpan(rootSpan);
   const configTree = unEvalAndConfigTree.configTree;
   const entityConfig = configTree[props.widgetName] as WidgetEntityConfig;
   const validation = entityConfig?.validationPaths[property];
@@ -661,9 +669,14 @@ function* evalAndLintingHandler(
     return;
   }
 
+  const rootSpan = startRootSpan("DataTreeFactory.create");
+
   // Generate all the data needed for both eval and linting
   const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
     yield select(getUnevaluatedDataTree);
+
+  endSpan(rootSpan);
+
   const postEvalActions = getPostEvalActions(action);
   const fn: (...args: unknown[]) => CallEffect<unknown> | ForkEffect<unknown> =
     isBlockingCall ? call : fork;
