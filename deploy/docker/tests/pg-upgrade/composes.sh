@@ -2,53 +2,46 @@
 # set -o errexit
 # set -x
 
-compose_appsmith_version() {
+generate_compose_file() {
     local version=$1
-    check_appsmith_repo
+    check_appsmith_edition
+
+    local STACK_PATH=${APPSMITH_STACK_PATH:-/tmp/stacks-postgresupgrade}
     cat <<EOF >docker-compose.yml
 services:
     appsmith:
         image: index.docker.io/appsmith/appsmith-$edition:$version
-
         container_name: appsmith
         ports:
             - "80:80"
             - "443:443"
         volumes:
-            - /tmp/stacks-postgresupgrade:/appsmith-stacks
+            - $STACK_PATH:/appsmith-stacks
         environment:
             - APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
         restart: unless-stopped
 EOF
+}
 
+compose_appsmith_version() {
+    local version=$1
+    generate_compose_file $version
     docker compose up -d
 }
 
 compose_appsmith_latest() {
     local version=latest
-    check_appsmith_repo
-    cat <<EOF >docker-compose.yml
-services:
-    appsmith:
-        image: index.docker.io/appsmith/appsmith-$edition:$version
-        container_name: appsmith
-        ports:
-            - "80:80"
-            - "443:443"
-        volumes:
-            - /tmp/stacks-postgresupgrade:/appsmith-stacks
-        environment:
-            - APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
-        restart: unless-stopped
-EOF
+    check_appsmith_edition
 
+    generate_compose_file $version
     docker compose pull &&
         docker compose up -d
 }
 
 compose_appsmith_local() {
     local version=latest
-    check_appsmith_repo
+    check_appsmith_edition
+
     cat <<EOF >docker-compose.yml
 services:
     appsmith:
@@ -73,7 +66,7 @@ cleanup() {
     sudo rm -rf /tmp/stacks-postgresupgrade/
 }
 
-check_appsmith_repo() {
+check_appsmith_edition() {
     export edition=ce
     if [[ "$(git remote get-url origin)" == *appsmithorg/appsmith-ee* ]]; then
         export edition=ee

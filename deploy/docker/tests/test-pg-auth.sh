@@ -14,7 +14,7 @@ update_db_url() {
 }
 
 # Function to check if the Appsmith instance is up
-check_appsmith_instance() {
+is_appsmith_instance_ready() {
   local max_retries=200
   local retry_count=0
   local response_code
@@ -35,7 +35,7 @@ check_appsmith_instance() {
 get_appsmith_password() {
   local password
   password=$(docker exec appsmith bash -c "grep -i 'APPSMITH_DB_URL' /appsmith-stacks/configuration/docker.env | sed -n 's/^.*\/\/appsmith:\([^@]*\)@.*$/\1/p'")
-  echo "$password"
+  printf "%s" "$password"
 }
 
 # Function to check the read access to databases
@@ -119,7 +119,7 @@ test_postgres_auth_enabled_upgrade_from_147tolocal() {
     done
 
     # Check if the Appsmith instance is up
-    if check_appsmith_instance; then
+    if is_appsmith_instance_ready; then
         echo "Appsmith instance is up and running."
 
         # Check if the postgres user has read access to databases
@@ -163,7 +163,7 @@ test_postgres_auth_enabled_upgrade_from_147tolocal() {
     done
     
     # Check if the Appsmith instance is up
-    if check_appsmith_instance; then
+    if is_appsmith_instance_ready; then
         echo "Appsmith instance is up and running."
 
         # Check if the Appsmith user has read access to databases
