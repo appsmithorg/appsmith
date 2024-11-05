@@ -33,7 +33,7 @@ const KeyValueStackContainer = styled.div<CustomStack>`
 // `;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
-  margin-bottom: ${(props) => props.theme.spaces[2] - 1}px;
+  margin-bottom: var(--ads-v2-spaces-3);
   ${FormLabel} {
     width: 100%;
   }
@@ -52,7 +52,7 @@ const Flex = styled.div<{ size: number }>`
   ${(props) =>
     props.size === 3
       ? `
-    margin-left: 5px;
+    margin-left: 8px;
   `
       : null};
 `;
@@ -81,7 +81,7 @@ const DynamicTextFieldWithDropdownWrapper = styled.div`
 
 const DynamicDropdownFieldWrapper = styled.div`
   position: relative;
-  margin-left: 5px;
+  margin-left: var(--ads-v2-spaces-3);
   border-color: var(--ads-v2-color-border);
   color: var(--ads-v2-color-fg);
 
