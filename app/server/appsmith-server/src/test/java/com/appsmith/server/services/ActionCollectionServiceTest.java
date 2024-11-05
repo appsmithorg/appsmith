@@ -26,6 +26,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -94,7 +95,7 @@ public class ActionCollectionServiceTest {
     @Autowired
     RefactoringService refactoringService;
 
-    @SpyBean
+    @Autowired
     NewPageService newPageService;
 
     @Autowired
@@ -708,7 +709,8 @@ public class ActionCollectionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void testUpdateUnpublishedActionCollection_withValidCollection_callsPageLayoutAndFindPageByIdOnlyOnce() {
+    public void
+            testUpdateUnpublishedActionCollection_withValidCollection_callsPageLayoutOnlyOnceAndAssertCyclicDependencyError() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
@@ -727,7 +729,7 @@ public class ActionCollectionServiceTest {
         ActionDTO action1 = new ActionDTO();
         action1.setName("testAction1");
         action1.setActionConfiguration(new ActionConfiguration());
-        action1.getActionConfiguration().setBody("mockBody");
+        action1.getActionConfiguration().setBody("initial body");
         action1.getActionConfiguration().setIsValid(false);
 
         ActionDTO action2 = new ActionDTO();
@@ -744,15 +746,35 @@ public class ActionCollectionServiceTest {
 
         actionCollectionDTO.setActions(List.of(action1, action2, action3));
 
+        Layout layout = testPage.getLayouts().get(0);
+        ArrayList dslList = (ArrayList) layout.getDsl().get("children");
+        JSONObject tableDsl = (JSONObject) dslList.get(0);
+        tableDsl.put("tableData", "{{testCollection1.testAction1.data}}");
+        JSONArray temp2 = new JSONArray();
+        temp2.add(new JSONObject(Map.of("key", "tableData")));
+        tableDsl.put("dynamicBindingPathList", temp2);
+        JSONArray temp3 = new JSONArray();
+        temp3.add(new JSONObject(Map.of("key", "tableData")));
+        tableDsl.put("dynamicPropertyPathList", temp3);
+        layout.getDsl().put("widgetName", "MainContainer");
+
+        testPage.setLayouts(List.of(layout));
+        PageDTO updatedPage =
+                newPageService.updatePage(testPage.getId(), testPage).block();
+
+        // Create Js object
         ActionCollectionDTO createdActionCollectionDTO =
                 layoutCollectionService.createCollection(actionCollectionDTO).block();
         assert createdActionCollectionDTO != null;
         assert createdActionCollectionDTO.getId() != null;
         String createdActionCollectionId = createdActionCollectionDTO.getId();
 
-        applicationPageService.publish(testApp.getId(), true).block();
-
-        actionCollectionDTO.getActions().get(0).getActionConfiguration().setBody("updatedBody");
+        // Update JS object to create cyclic dependency
+        actionCollectionDTO.getActions().stream()
+                .filter(action -> "testAction1".equals(action.getName()))
+                .findFirst()
+                .ifPresent(action ->
+                        action.getActionConfiguration().setBody("function () {\n  return Table1.tableData;\n}"));
 
         final Mono<ActionCollectionDTO> updatedActionCollectionDTO =
                 layoutCollectionService.updateUnpublishedActionCollection(
@@ -767,13 +789,10 @@ public class ActionCollectionServiceTest {
                     Mockito.verify(updateLayoutService, Mockito.times(2))
                             .updatePageLayoutsByPageId(Mockito.anyString());
 
-                    // This gets called 4 times:
-                    // 2 times during createCollection -> a. getExistingEntityNames and b. updatePageLayoutsByPageId
-                    // 1 time during setup of this test case
-                    // 1 time during update action collection -> As expected as find page by id should be called only
-                    // once in updatePageLayoutsByPageId
-                    Mockito.verify(newPageService, Mockito.times(4))
-                            .findPageById(Mockito.anyString(), Mockito.any(), Mockito.anyBoolean());
+                    assertEquals(1, actionCollectionDTO1.getErrorReports().size());
+                    assertEquals(
+                            AppsmithError.CYCLICAL_DEPENDENCY_ERROR.getAppErrorCode(),
+                            actionCollectionDTO1.getErrorReports().get(0).getCode());
                 })
                 .verifyComplete();
     }
