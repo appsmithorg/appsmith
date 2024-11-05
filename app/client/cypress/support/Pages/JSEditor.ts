@@ -5,6 +5,7 @@ import {
   PageLeftPane,
   PagePaneSegment,
 } from "./EditorNavigation";
+import { PluginEditorToolbar } from "./IDE/PluginEditorToolbar";
 
 export interface ICreateJSObjectOptions {
   paste: boolean;
@@ -29,10 +30,19 @@ export class JSEditor {
   public ee = ObjectsRegistry.EntityExplorer;
   public propPane = ObjectsRegistry.PropertyPane;
   private assertHelper = ObjectsRegistry.AssertHelper;
+  private runButtonLocator = "[data-testid='t--run-js-action']";
+  private settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
+  private contextMenuTriggerLocator = "[data-testid='t--more-action-trigger']";
+  private runFunctionSelectLocator = "[data-testid='t--js-function-run']";
 
-  //#region Element locators
-  _runButton = "[data-testid='t--run-js-action']";
-  _settingsTab = "[data-testid='t--js-editor-SETTINGS']";
+
+  public toolbar = new PluginEditorToolbar(
+    this.runButtonLocator,
+    this.settingsTriggerLocator,
+    this.contextMenuTriggerLocator,
+    this.runFunctionSelectLocator,
+  );;
+
   _codeTab = "//span[text()='Code']/parent::button";
   private _jsObjectParseErrorCallout =
     "div.t--js-response-parse-error-call-out";
@@ -162,7 +172,7 @@ export class JSEditor {
       this.agHelper.Sleep(2000);
       //clicking 1 times & waits for 2 second for result to be populated!
       Cypress._.times(1, () => {
-        this.agHelper.GetNClick(this._runButton, 0, true);
+        this.toolbar.clickRunButton();
         this.agHelper.Sleep(2000);
       });
       cy.get(this.locator._empty).should("not.exist");
@@ -200,7 +210,7 @@ export class JSEditor {
   }
 
   public RunJSObj() {
-    this.agHelper.GetNClick(this._runButton);
+    this.toolbar.clickRunButton();
     this.agHelper.Sleep(); //for function to run
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 15000);
     this.agHelper.AssertElementAbsence(this.locator._empty, 5000);
@@ -264,7 +274,7 @@ export class JSEditor {
   }
 
   public VerifyAsyncFuncSettings(funName: string, onLoad = true) {
-    this.agHelper.GetNClick(this._settingsTab);
+    this.toolbar.toggleSettings();
     this.agHelper.AssertExistingCheckedState(
       this._onPageLoadSwitchStatus(funName),
       onLoad.toString(),
@@ -273,11 +283,11 @@ export class JSEditor {
 
   public EnableDisableAsyncFuncSettings(funName: string, onLoad = true) {
     // Navigate to Settings tab
-    this.agHelper.GetNClick(this._settingsTab);
+    this.toolbar.toggleSettings();
     // Set onPageLoad
     this.agHelper.CheckUncheck(this._onPageLoadSwitch(funName), onLoad);
     // Return to code tab
-    this.agHelper.GetNClick(this._settingsTab);
+    this.toolbar.toggleSettings();
   }
 
   /**

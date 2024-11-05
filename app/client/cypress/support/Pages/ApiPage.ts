@@ -7,6 +7,7 @@ import {
 } from "./EditorNavigation";
 import * as _ from "../Objects/ObjectsCore";
 import ApiEditor from "../../locators/ApiEditor";
+import { PluginActionForm } from "./PluginActionForm";
 
 type RightPaneTabs = "datasources" | "connections";
 
@@ -14,6 +15,7 @@ export class ApiPage {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
   private assertHelper = ObjectsRegistry.AssertHelper;
+  private pluginActionForm = new PluginActionForm();
 
   // private datasources = ObjectsRegistry.DataSources;
 
@@ -258,20 +260,20 @@ export class ApiPage {
   }
 
   SetAPITimeout(timeout: number, toVerifySave = true) {
-    this.SelectPaneTab("Settings");
+    this.pluginActionForm.toolbar.toggleSettings();
     cy.xpath(this._queryTimeout).clear().type(timeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     toVerifySave && this.agHelper.AssertAutoSave();
     this.SelectPaneTab("Headers");
   }
 
   ToggleOnPageLoadRun(enable = true || false) {
-    this.SelectPaneTab("Settings");
+    this.pluginActionForm.toolbar.toggleSettings();
     if (enable) this.agHelper.CheckUncheck(this._onPageLoad, true);
     else this.agHelper.CheckUncheck(this._onPageLoad, false);
   }
 
   ToggleConfirmBeforeRunning(enable = true || false) {
-    this.SelectPaneTab("Settings");
+    this.pluginActionForm.toolbar.toggleSettings();
     if (enable) this.agHelper.CheckUncheck(this._confirmBeforeRunning, true);
     else this.agHelper.CheckUncheck(this._confirmBeforeRunning, false);
   }
@@ -283,7 +285,6 @@ export class ApiPage {
       | "Body"
       | "Pagination"
       | "Authentication"
-      | "Settings"
       | "Response"
       | "Errors"
       | "Logs"

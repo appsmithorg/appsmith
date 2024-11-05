@@ -11,6 +11,7 @@ import EditorNavigation, {
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
 import { anvilLocators } from "./Anvil/Locators";
+import { PluginActionForm } from "./PluginActionForm";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -54,6 +55,7 @@ export class DataSources {
   private apiPage = ObjectsRegistry.ApiPage;
   private dataManager = ObjectsRegistry.DataManager;
   private assertHelper = ObjectsRegistry.AssertHelper;
+  private pluginActionForm = new PluginActionForm();
 
   public ContainerKVP = (containerName: string) => {
     return {
@@ -1115,7 +1117,7 @@ export class DataSources {
   }
 
   ToggleUsePreparedStatement(enable = true || false) {
-    this.apiPage.SelectPaneTab("Settings");
+    this.pluginActionForm.toolbar.toggleSettings();
     if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
     else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
     this.apiPage.SelectPaneTab("Query");

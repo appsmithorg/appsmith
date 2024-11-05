@@ -59,6 +59,7 @@ export const JSFunctionRun = (props: Props) => {
       <Menu>
         <MenuTrigger>
           <Button
+            data-testid="t--js-function-run"
             endIcon="arrow-down-s-line"
             isDisabled={props.disabled}
             kind="tertiary"
