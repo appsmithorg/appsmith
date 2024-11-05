@@ -146,10 +146,7 @@ describe("GlobalSearch", { tags: ["@tag.Sanity"] }, function () {
     cy.get(globalSearchLocators.blankDatasource).first().click({ force: true });
     cy.get(datasourceHomeLocators.createAuthApiDatasource).click();
     cy.get(datasourceLocators.datasourceTitleLocator).click();
-    cy.get(`${datasourceLocators.datasourceTitleLocator} input`)
-      .clear()
-      .type("omnibarApiDatasource", { force: true })
-      .blur();
+    _.agHelper.RenameQuery("omnibarApiDatasource");
 
     cy.fillAuthenticatedAPIForm();
     cy.saveDatasource();

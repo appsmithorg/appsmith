@@ -7,11 +7,13 @@ import ApiEditor from "../locators/ApiEditor";
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 import { ObjectsRegistry } from "./Objects/Registry";
+import { PluginActionForm } from "./Pages/PluginActionForm";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 let dataSources = ObjectsRegistry.DataSources;
 let apiPage = ObjectsRegistry.ApiPage;
 let locator = ObjectsRegistry.CommonLocators;
+let pluginActionForm = new PluginActionForm();
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -212,8 +214,7 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
       { force: true },
     );
   cy.WaitAutoSave();
-  cy.get(ApiEditor.formActionButtons).should("be.visible");
-  cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
+  cy.get(pluginActionForm.locators.actionRunButton).should("not.be.disabled");
 });
 
 // Cypress.Commands.add("callApi", (apiname) => {
