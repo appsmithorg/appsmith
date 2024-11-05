@@ -61,3 +61,10 @@ export const setListViewActiveState = (payload: boolean) => {
     payload,
   };
 };
+
+export const setRenameEntity = (id: string) => {
+  return {
+    type: ReduxActionTypes.SET_RENAME_ENTITY,
+    payload: id,
+  };
+};

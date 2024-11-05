@@ -6,8 +6,8 @@ import {
 import { shallowEqual, useSelector } from "react-redux";
 import type { AppState } from "ee/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
-import { useEventCallback } from "usehooks-ts";
 import { isNameValid, removeSpecialChars } from "utils/helpers";
+import { useCallback } from "react";
 
 interface UseNameEditorProps {
   entityName: string;
@@ -25,15 +25,18 @@ export function useNameEditor(props: UseNameEditorProps) {
     shallowEqual,
   );
 
-  const validateName = useEventCallback((name: string): string | null => {
-    if (!name || name.trim().length === 0) {
-      return createMessage(ACTION_INVALID_NAME_ERROR);
-    } else if (name !== entityName && !isNameValid(name, usedEntityNames)) {
-      return createMessage(nameErrorMessage, name);
-    }
+  const validateName = useCallback(
+    (name: string): string | null => {
+      if (!name || name.trim().length === 0) {
+        return createMessage(ACTION_INVALID_NAME_ERROR);
+      } else if (name !== entityName && !isNameValid(name, usedEntityNames)) {
+        return createMessage(nameErrorMessage, name);
+      }
 
-    return null;
-  });
+      return null;
+    },
+    [entityName, nameErrorMessage, usedEntityNames],
+  );
 
   return {
     validateName,
