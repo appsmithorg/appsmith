@@ -1,2 +1,4 @@
-import React from "react";
-export const ToolbarButtonsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path fill="#000" fill-rule="evenodd" d="M5 5.5a.5.5 0 0 0-1 0V7H2.5a.5.5 0 0 0 0 1H4v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H5zM13.854 5.854a.5.5 0 0 0-.708-.708l-3 3a.5.5 0 0 0 .708.708zM9.775 9.765a.375.375 0 1 0-.53-.53l-.01.01a.375.375 0 0 0 .53.53z" clip-rule="evenodd"/><path stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".5" d="M13.5 3.5h-11a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2"/></svg>;
+import * as React from "react";
+import type { SVGProps } from "react";
+const ToolbarButtonsIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} fill="none" {...props}><path fill="#000" fillRule="evenodd" d="M5 5.5a.5.5 0 0 0-1 0V7H2.5a.5.5 0 0 0 0 1H4v1.5a.5.5 0 0 0 1 0V8h1.5a.5.5 0 0 0 0-1H5zM13.854 5.854a.5.5 0 0 0-.708-.708l-3 3a.5.5 0 0 0 .708.708zM9.775 9.765a.375.375 0 1 0-.53-.53l-.01.01a.375.375 0 0 0 .53.53z" clipRule="evenodd" /><path stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeOpacity={0.5} d="M13.5 3.5h-11a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2" /></svg>;
+export { ToolbarButtonsIcon };

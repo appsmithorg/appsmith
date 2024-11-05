@@ -1,2 +1,4 @@
-import React from "react";
-export const EmailInputIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".25" d="M12.5 6.5h1m1 0h-1m0 0v8m-1 0h2"/><path stroke="#000" stroke-linecap="round" stroke-linejoin="round" d="M14.5 2.5h-12a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h7"/><path stroke="#000" stroke-linecap="round" d="M6.5 8.5v-1a1 1 0 0 0-1-1v0a1 1 0 0 0-1 1v0a1 1 0 0 0 1 1zm0 0h.667c.736 0 1.333-.597 1.333-1.333v0A2.667 2.667 0 0 0 5.833 4.5H5.5a3 3 0 0 0-3 3v0a3 3 0 0 0 3 3h2"/></svg>;
+import * as React from "react";
+import type { SVGProps } from "react";
+const EmailInputIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} fill="none" {...props}><path stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeOpacity={0.25} d="M12.5 6.5h1m1 0h-1m0 0v8m-1 0h2" /><path stroke="#000" strokeLinecap="round" strokeLinejoin="round" d="M14.5 2.5h-12a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h7" /><path stroke="#000" strokeLinecap="round" d="M6.5 8.5v-1a1 1 0 0 0-1-1v0a1 1 0 0 0-1 1v0a1 1 0 0 0 1 1zm0 0h.667c.736 0 1.333-.597 1.333-1.333v0A2.667 2.667 0 0 0 5.833 4.5H5.5a3 3 0 0 0-3 3v0a3 3 0 0 0 3 3h2" /></svg>;
+export { EmailInputIcon };
