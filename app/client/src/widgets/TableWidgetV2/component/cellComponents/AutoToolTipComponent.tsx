@@ -159,7 +159,6 @@ export function AutoToolTipComponent(props: Props) {
     props.columnType === ColumnTypes.BUTTON,
   );
 
-  const isHyperLink = props.columnType === ColumnTypes.URL;
   let contentToRender;
 
   switch (props.columnType) {
@@ -196,16 +195,8 @@ export function AutoToolTipComponent(props: Props) {
         isCellDisabled={props.isCellDisabled}
         isCellVisible={props.isCellVisible}
         isHidden={props.isHidden}
-        isHyperLink={isHyperLink}
+        isHyperLink={props.columnType === ColumnTypes.URL}
         isTextType
-        onClick={
-          isHyperLink
-            ? (e: React.MouseEvent<HTMLDivElement>) => {
-                e.stopPropagation();
-                window.open(props.url, "_blank");
-              }
-            : undefined
-        }
         textColor={props.textColor}
         textSize={props.textSize}
         verticalAlignment={props.verticalAlignment}
