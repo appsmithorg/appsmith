@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
-  isValidDate: (props, moment, _) => {
+  isValidDate: (props, moment) => {
     // Early return if no date is selected and it's not required
     if (!props.selectedDate && !props.isRequired) {
       return true;
@@ -18,10 +17,21 @@ export default {
       return !props.isRequired;
     }
 
-    // Get comparison settings based on time precision
-    const { granularity, inclusivity } = getDateComparisonSettings(
-      props.timePrecision,
-    );
+    // Set comparison settings based on time precision
+    let granularity, inclusivity;
+
+    switch (props.timePrecision) {
+      case "None":
+        granularity = "day";
+        inclusivity = "[]";
+        break;
+      case "second":
+      case "minute":
+      case "millisecond":
+        granularity = props.timePrecision;
+        inclusivity = "[]";
+        break;
+    }
 
     // Check date range constraints
     if (minDate && maxDate) {
@@ -29,34 +39,14 @@ export default {
     }
 
     if (minDate) {
-      return selectedDate.isAfter(minDate, granularity, inclusivity);
+      return selectedDate.isAfter(minDate);
     }
 
     if (maxDate) {
-      return selectedDate.isBefore(maxDate, granularity, inclusivity);
+      return selectedDate.isBefore(maxDate);
     }
 
     return true;
   },
   //
 };
-
-function getDateComparisonSettings(timePrecision) {
-  const settings = {
-    granularity: undefined,
-    inclusivity: "[]", // Include both bounds by default
-  };
-
-  switch (timePrecision) {
-    case "None":
-      settings.granularity = "day";
-      break;
-    case "second":
-    case "minute":
-    case "millisecond":
-      settings.granularity = timePrecision;
-      break;
-  }
-
-  return settings;
-}
