@@ -11,7 +11,7 @@ import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
 import { BaseButton as Button } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
 import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
-import type { Schema, SchemaItem } from "../constants";
+import type { Schema } from "../constants";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
 import { klonaRegularWithTelemetry } from "utils/helpers";
@@ -151,9 +151,8 @@ function Form<TValues = any>(
     | null,
 ) {
   const valuesRef = useRef({});
-  const previousVisibilityRef = useRef<Record<string, boolean>>({});
   const methods = useForm();
-  const { formState, reset, trigger, watch } = methods;
+  const { formState, reset, watch } = methods;
   const { errors } = formState;
   const isFormInValid = !isEmpty(errors);
 
@@ -273,60 +272,6 @@ function Form<TValues = any>(
   useEffect(() => {
     onFormValidityUpdate(!isFormInValid);
   }, [onFormValidityUpdate, isFormInValid]);
-
-  useEffect(() => {
-    if (!schema || Object.keys(schema).length === 0) {
-      return;
-    }
-
-    const computeFieldVisibilityMap = (
-      schemaItem: SchemaItem,
-    ): Record<string, boolean> => {
-      let visibilityMap: Record<string, boolean> = {};
-
-      if (schemaItem.fieldType === "Object" && schemaItem.children) {
-        // For object types, recursively process children
-        Object.values(schemaItem.children).forEach((child: SchemaItem) => {
-          visibilityMap = {
-            ...visibilityMap,
-            ...computeFieldVisibilityMap(child),
-          };
-        });
-      } else if (
-        schemaItem.fieldType === "Array" &&
-        schemaItem.children?.__array_item__
-      ) {
-        // For array types, process the array item schema
-        visibilityMap = {
-          ...visibilityMap,
-          ...computeFieldVisibilityMap(schemaItem.children.__array_item__),
-        };
-      }
-
-      // Add current item's visibility
-      if (schemaItem.accessor) {
-        visibilityMap[schemaItem.accessor] = !!schemaItem.isVisible;
-      }
-
-      return visibilityMap;
-    };
-
-    const currentVisibility = computeFieldVisibilityMap(
-      schema[ROOT_SCHEMA_KEY],
-    );
-
-    const fieldsWithVisibilityChange = Object.entries(currentVisibility)
-      .filter(([accessor, isVisible]) => {
-        return previousVisibilityRef.current[accessor] !== isVisible;
-      })
-      .map(([accessor]) => accessor);
-
-    if (fieldsWithVisibilityChange.length > 0) {
-      trigger(fieldsWithVisibilityChange);
-    }
-
-    previousVisibilityRef.current = currentVisibility;
-  }, [schema, trigger, previousVisibilityRef]);
 
   return (
     <FormProvider {...methods}>
