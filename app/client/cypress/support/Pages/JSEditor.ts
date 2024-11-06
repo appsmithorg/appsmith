@@ -278,6 +278,7 @@ export class JSEditor {
       this._onPageLoadSwitchStatus(funName),
       onLoad.toString(),
     );
+    this.toolbar.toggleSettings();
   }
 
   public EnableDisableAsyncFuncSettings(funName: string, onLoad = true) {

@@ -66,7 +66,7 @@ describe(
     });
 
     function VerifyFunctionDropdown(functions: string[]) {
-      cy.get(jsEditor.runFunctionSelectLocator).click();
+      cy.get(jsEditor.runFunctionSelectLocator).click({ force: true });
       cy.get(jsEditor._funcDropdownOptions).then(function ($ele) {
         expect($ele.eq(0).text()).to.be.oneOf(functions);
         expect($ele.eq(1).text()).to.be.oneOf(functions);
@@ -76,7 +76,7 @@ describe(
         expect($ele.eq(5).text()).to.be.oneOf(functions);
         expect($ele.eq(6).text()).to.be.oneOf(functions);
       });
-      cy.get(jsEditor.runFunctionSelectLocator).click();
+      cy.get(jsEditor.runFunctionSelectLocator).click({ force: true });
     }
   },
 );
