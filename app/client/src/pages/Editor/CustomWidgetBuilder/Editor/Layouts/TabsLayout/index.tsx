@@ -4,6 +4,8 @@ import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import type { ContentProps } from "../../CodeEditors/types";
 import useLocalStorageState from "utils/hooks/useLocalStorageState";
 import classNames from "classnames";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 interface Props {
   tabs: Array<{
@@ -18,9 +20,13 @@ const LOCAL_STORAGE_KEYS = "custom-widget-layout-tabs-state";
 export default function TabLayout(props: Props) {
   const { tabs } = props;
 
+  const isDefaultAITab = useFeatureFlag(
+    FEATURE_FLAG.release_custom_widget_ai_builder,
+  );
+
   const [selectedTab, setSelectedTab] = useLocalStorageState<string>(
     LOCAL_STORAGE_KEYS,
-    tabs[0].title,
+    isDefaultAITab ? "AI" : tabs[0].title,
   );
 
   useEffect(() => {
