@@ -74,6 +74,7 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @SpringBootTest
 @Slf4j
@@ -793,6 +794,13 @@ public class ActionCollectionServiceTest {
                     assertEquals(
                             AppsmithError.CYCLICAL_DEPENDENCY_ERROR.getAppErrorCode(),
                             actionCollectionDTO1.getErrorReports().get(0).getCode());
+
+                    // Iterate over each action and assert that errorReports is null as action collection already has
+                    // error reports
+                    // it's not required in each action
+                    actionCollectionDTO
+                            .getActions()
+                            .forEach(action -> assertNull(action.getErrorReports(), "Error reports should be null"));
                 })
                 .verifyComplete();
     }
