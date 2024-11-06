@@ -234,5 +234,7 @@
   "propertyPaneSaveButton": ".t--property-pane-section-collapse-savebutton",
   "firstEditInput":"[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor input.bp3-input",
   "cellControlSwitch" : ".t--property-control-cellwrapping .ads-v2-switch",
-  "propertyControlLabel" : ".t--property-control-label"
+  "propertyControlLabel" : ".t--property-control-label",
+  "todayText": "span:contains('Today')",
+  "dayPickerToday": ".DayPicker-Day--today"
 }
