@@ -37,19 +37,11 @@ export default {
     }
 
     if (minDate) {
-      if (props.timePrecision === "None") {
-        return selectedDate.isSameOrAfter(minDate, granularity);
-      }
-
-      return selectedDate.isSame(minDate, granularity);
+      return selectedDate.isSameOrAfter(minDate, granularity);
     }
 
     if (maxDate) {
-      if (props.timePrecision === "None") {
-        return selectedDate.isSameOrBefore(maxDate, granularity);
-      }
-
-      return selectedDate.isBefore(maxDate, granularity);
+      return selectedDate.isSameOrBefore(maxDate, granularity);
     }
 
     return true;
