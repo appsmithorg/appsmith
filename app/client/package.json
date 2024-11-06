@@ -261,6 +261,7 @@
     "@types/deep-diff": "^1.0.0",
     "@types/dom-view-transitions": "^1.0.5",
     "@types/downloadjs": "^1.4.2",
+    "@types/estree": "^1.0.6",
     "@types/jest": "^27.4.1",
     "@types/jshint": "^2.12.0",
     "@types/lodash": "^4.14.120",
