@@ -57,7 +57,7 @@ export const JSEditorForm = (props: Props) => {
   }
 
   return (
-    <Flex flex="1" overflow="scroll">
+    <Flex flex="1" overflowY="scroll">
       <LazyCodeEditor
         AIAssisted
         blockCompletions={props.blockCompletions}

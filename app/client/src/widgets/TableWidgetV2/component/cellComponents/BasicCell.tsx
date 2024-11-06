@@ -1,12 +1,13 @@
 import type { Ref } from "react";
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
-import type { BaseCellComponentProps } from "../Constants";
+import type { BaseCellComponentProps, CompactMode } from "../Constants";
 import { TABLE_SIZES } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import AutoToolTipComponent from "./AutoToolTipComponent";
 import { importSvg } from "@appsmith/ads-old";
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
 const EditIcon = importSvg(
   async () => import("assets/icons/control/edit-variant1.svg"),
@@ -55,7 +56,7 @@ const Content = styled.div`
 const StyledEditIcon = styled.div<{
   accentColor?: string;
   backgroundColor?: string;
-  compactMode: string;
+  compactMode: CompactMode;
   disabledEditIcon: boolean;
 }>`
   position: absolute;
@@ -74,12 +75,12 @@ const StyledEditIcon = styled.div<{
   }
 `;
 
-type PropType = BaseCellComponentProps & {
+export type PropType = BaseCellComponentProps & {
   accentColor: string;
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
-  columnType: string;
+  columnType: ColumnTypes;
   tableWidth: number;
   isCellEditable?: boolean;
   isCellEditMode?: boolean;
@@ -128,6 +129,18 @@ export const BasicCell = React.forwardRef(
       },
       [onEdit, disabledEditIcon, isCellEditable],
     );
+    const contentToRender = useMemo(() => {
+      switch (columnType) {
+        case ColumnTypes.URL:
+          return (
+            <a href={url} rel="noopener noreferrer" target="_blank">
+              {value}
+            </a>
+          );
+        default:
+          return value;
+      }
+    }, [columnType, url, value]);
 
     return (
       <Wrapper
@@ -157,7 +170,7 @@ export const BasicCell = React.forwardRef(
           url={url}
           verticalAlignment={verticalAlignment}
         >
-          <Content ref={contentRef}>{value}</Content>
+          <Content ref={contentRef}>{contentToRender}</Content>
         </StyledAutoToolTipComponent>
         {isCellEditable && (
           <StyledEditIcon
