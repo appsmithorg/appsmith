@@ -1,5 +1,5 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import { apiPage, assertHelper } from "../../../../support/Objects/ObjectsCore";
+import { apiPage, assertHelper, agHelper } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Test curl import flow",
@@ -19,8 +19,7 @@ describe(
         assertHelper.AssertNetworkExecutionSuccess("@postExecute");
         cy.get("@curlImport").then((response) => {
           cy.expect(response.response.body.responseMeta.success).to.eq(true);
-          cy.get(apiwidget.ApiName)
-            .invoke("text")
+          agHelper.GetObjectName()
             .then((text) => {
               const someText = text;
               expect(someText).to.equal(response.response.body.data.name);

@@ -1051,7 +1051,7 @@ cy.all = function (...commands) {
 };
 
 Cypress.Commands.add("getEntityName", () => {
-  let entityName = cy.get(apiwidget.ApiName).invoke("text");
+  let entityName = agHelper.GetObjectName();
   return entityName;
 });
 

@@ -114,18 +114,12 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.get(apiwidget.ApiName).click({ force: true });
-  cy.get(apiwidget.apiTxt)
-    .clear()
-    .focus()
-    .type(apiname, { force: true, delay: 500 })
-    .should("have.value", apiname);
-  cy.get(".t--action-name-edit-error").should(($x) => {
+  agHelper.RenameQuery(apiname);
+  cy.get(".ads-v2-tooltip .ads-v2-text").should(($x) => {
     expect($x).contain(
       apiname.concat(" is already being used or is a restricted keyword."),
     );
   });
-  cy.get(apiwidget.apiTxt).blur();
 });
 
 Cypress.Commands.add("RenameEntity", (value, selectFirst) => {
@@ -144,12 +138,8 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
   agHelper.GetNClick(apiwidget.createapi);
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.get(apiwidget.ApiName).click({ force: true });
-  cy.get(apiwidget.apiTxt)
-    .clear()
-    .type(apiname, { force: true })
-    .should("have.value", apiname);
-  cy.get(".t--action-name-edit-error").should(($x) => {
+  agHelper.RenameQuery(apiname);
+  cy.get(".ads-v2-tooltip .ads-v2-text").should(($x) => {
     expect($x).contain(
       apiname.concat(" is already being used or is a restricted keyword."),
     );
