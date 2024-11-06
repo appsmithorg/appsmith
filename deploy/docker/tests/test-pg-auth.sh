@@ -2,15 +2,15 @@
 set -o errexit
 # set -x
 
-source ./pg-upgrade/composes.sh
+source ./composes.sh
 
 
 # Function to update the APPSMITH_DB_URL in docker.env
 # Once postgres is the default db, the APPSMITH_POSTGRES_DB_URL will be removed and this step won't be required anymore
 # Check run-java.sh for more details why we need to update the APPSMITH_DB_URL to point to postgres
 update_db_url() {
-  docker exec appsmith bash -c "sed -i 's|^APPSMITH_DB_URL=mongodb|# &|' /appsmith-stacks/configuration/docker.env"
-  docker exec appsmith bash -c "sed -i 's|^APPSMITH_POSTGRES_DB_URL=|APPSMITH_DB_URL=|' /appsmith-stacks/configuration/docker.env"
+  docker exec "${container_name}" bash -c "sed -i 's|^APPSMITH_DB_URL=mongodb|# &|' /appsmith-stacks/configuration/docker.env"
+  docker exec "${container_name}" bash -c "sed -i 's|^APPSMITH_POSTGRES_DB_URL=|APPSMITH_DB_URL=|' /appsmith-stacks/configuration/docker.env"
 }
 
 # Function to check if the Appsmith instance is up
@@ -34,7 +34,7 @@ is_appsmith_instance_ready() {
 # Function to read the password from the PostgreSQL URL in docker.env.sh
 get_appsmith_password() {
   local password
-  password=$(docker exec appsmith bash -c "grep -i 'APPSMITH_DB_URL' /appsmith-stacks/configuration/docker.env | sed -n 's/^.*\/\/appsmith:\([^@]*\)@.*$/\1/p'")
+  password=$(docker exec "${container_name}" bash -c "grep -i 'APPSMITH_DB_URL' /appsmith-stacks/configuration/docker.env | sed -n 's/^.*\/\/appsmith:\([^@]*\)@.*$/\1/p'")
   printf "%s" "$password"
 }
 
@@ -44,11 +44,11 @@ check_user_datasource_access_with_auth() {
   local appsmith_user_local_access
   local appsmith_user_remote_access
   password=$(get_appsmith_password)
-  docker exec -i appsmith bash -c "psql -h 127.0.0.1 -p 5432 -U appsmith -c '\l'" <<EOF
+  docker exec -i "${container_name}" bash -c "psql -h 127.0.0.1 -p 5432 -U appsmith -c '\l'" <<EOF
 $password
 EOF
   appsmith_user_remote_access=$?
-  docker exec -i appsmith bash -c "psql -p 5432 -U appsmith -c '\l'"
+  docker exec -i "${container_name}" bash -c "psql -p 5432 -U appsmith -c '\l'"
   appsmith_user_local_access=$?
   # Check if the Appsmith user has read access to databases
   if [[ $appsmith_user_local_access -ne 0 && $appsmith_user_remote_access -eq 0 ]]; then
@@ -57,10 +57,10 @@ EOF
     local pg_user_local_access
     local pg_user_remote_access
     # Check if the postgres user has read access to databases with local unix socket
-    docker exec -i appsmith bash -c "psql -p 5432 -U postgres -d appsmith -c '\l'"
+    docker exec -i "${container_name}" bash -c "psql -p 5432 -U postgres -d appsmith -c '\l'"
     pg_user_local_access=$?
     # Check if the postgres user does not have read access to databases with local tcp socket
-    docker exec -i appsmith bash -c "psql -h 127.0.0.1 -p 5432 -U postgres -d appsmith -c '\l'"
+    docker exec -i "${container_name}" bash -c "psql -h 127.0.0.1 -p 5432 -U postgres -d appsmith -c '\l'"
     pg_user_remote_access=$?
     if [[ $pg_user_local_access -eq 0 && $pg_user_remote_access -ne 0 ]]; then
         echo "postgres user has read access to databases with local unix socket: ✅"
@@ -81,7 +81,7 @@ EOF
 
 # Function to check if the Appsmith user has read access to databases
 check_user_datasource_access_wo_auth() {
-  docker exec appsmith bash -c "psql -h 127.0.0.1 -p 5432 -U postgres -c '\l'"
+  docker exec "${container_name}" bash -c "psql -h 127.0.0.1 -p 5432 -U postgres -c '\l'"
   if [[ $? -eq 0 ]]; then
     return 0
   fi
@@ -113,7 +113,7 @@ test_postgres_auth_enabled_upgrade_from_147tolocal() {
     echo "Starting Appsmith 147"
     compose_appsmith_version v1.47
     # Wait until postgres to come up
-    until docker exec appsmith pg_isready; do
+    until docker exec "${container_name}" pg_isready; do
         echo "Waiting for postgres to be up..."
         sleep 5
     done
@@ -138,7 +138,10 @@ test_postgres_auth_enabled_upgrade_from_147tolocal() {
     update_db_url
     echo "Remove container to reuse the same volume for local image"
     docker compose down --timeout 30 # wait upto timeout for graceful shutdown.
-    docker compose rm -fsv appsmith
+    # ensure the container exists before trying to remove it
+    docker compose ps -q "${container_name}" && \
+        docker compose rm -fsv "${container_name}" || \
+        echo "Container "${container_name}" does not exist."
 
     echo "Starting Appsmith local to check the auth"
     compose_appsmith_local
@@ -149,8 +152,8 @@ test_postgres_auth_enabled_upgrade_from_147tolocal() {
 
     while true; do
         retry_count=$((retry_count + 1))
-        if docker exec appsmith pg_isready &&
-            docker exec appsmith bash -c 'cat /appsmith-stacks/data/postgres/main/PG_VERSION' = "14"; then
+        if docker exec "${container_name}" pg_isready &&
+            docker exec "${container_name}" bash -c 'cat /appsmith-stacks/data/postgres/main/PG_VERSION' = "14"; then
             break
         fi
         if [ $retry_count -le $MAX_RETRIES ]; then
@@ -178,5 +181,6 @@ test_postgres_auth_enabled_upgrade_from_147tolocal() {
     echo "Test ${FUNCNAME[0]} Failed ❌"
 }
 
+container_name="appsmith-docker-test"
 
 test_postgres_auth_enabled_upgrade_from_147tolocal
