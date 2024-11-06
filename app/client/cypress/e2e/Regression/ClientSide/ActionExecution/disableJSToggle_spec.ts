@@ -11,7 +11,7 @@ import EditorNavigation, {
 
 describe(
   "Disable JS toggle when Action selector code is not parsable",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 200, 200);

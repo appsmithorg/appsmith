@@ -9,7 +9,7 @@ import {
 
 describe(
   "Video Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Video"] },
+  { tags: ["@tag.Widget", "@tag.Video", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.VIDEO);

@@ -7,6 +7,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,14 @@ public class ExecutableOnPageLoadServiceImpl extends ExecutableOnPageLoadService
             NewPageService newPageService,
             ApplicationService applicationService,
             ActionPermission actionPermission,
-            PagePermission pagePermission) {
-        super(newActionService, newPageService, applicationService, actionPermission, pagePermission);
+            PagePermission pagePermission,
+            ObservationRegistry observationRegistry) {
+        super(
+                newActionService,
+                newPageService,
+                applicationService,
+                actionPermission,
+                pagePermission,
+                observationRegistry);
     }
 }

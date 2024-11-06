@@ -229,7 +229,7 @@ public class MySqlPlugin extends BasePlugin {
                 return executeCommon(connectionContext, actionConfiguration, FALSE, null, null, requestData);
             }
 
-            // This has to be executed as Prepared Statement
+            // This has to be executed as prepared statement
             // First extract all the bindings in order
             List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a ? as expected in a prepared statement.

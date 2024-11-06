@@ -3,7 +3,9 @@ import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "MySQL datasource test cases",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     let datasourceName;
     it("1. Create, test, save then delete a MySQL datasource", function () {

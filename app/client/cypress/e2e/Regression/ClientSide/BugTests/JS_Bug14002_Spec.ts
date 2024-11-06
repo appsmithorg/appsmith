@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Invalid JSObject export statement",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Binding"] },
   function () {
     it("1. Shows error toast for invalid js object export statement", function () {
       const JSObjectWithInvalidExport = `{

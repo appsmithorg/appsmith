@@ -10,6 +10,11 @@
       color: var(--color-fg-$(color));
     }
   }
+
+  /* Adding as special case as we can't add neutral-subtle to $colors variable, as that variable is used generically for many components ( button ). */
+  &[data-color="neutral-subtle"] {
+    color: var(--color-fg-neutral-subtle);
+  }
 }
 
 .clampedText {

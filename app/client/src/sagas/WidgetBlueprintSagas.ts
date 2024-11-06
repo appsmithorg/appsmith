@@ -1,4 +1,8 @@
-import type { WidgetBlueprint } from "WidgetProvider/constants";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
+import {
+  BlueprintOperationActionTypes,
+  type WidgetBlueprint,
+} from "WidgetProvider/constants";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { generateReactKey } from "utils/generators";
@@ -13,6 +17,8 @@ import * as log from "loglevel";
 import { toast } from "@appsmith/ads";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import type { Action, PluginPackageName } from "../entities/Action";
+import { createOrUpdateDataSourceWithAction } from "./DatasourcesSagas";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -60,12 +66,15 @@ export interface UpdatePropertyArgs {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any;
 }
-export type BlueprintOperationAddActionFn = () => void;
+export type BlueprintOperationAddActionFn = (
+  widget: WidgetProps & { children?: WidgetProps[] },
+) => Generator;
 export type BlueprintOperationModifyPropsFn = (
   widget: WidgetProps & { children?: WidgetProps[] },
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   parent?: WidgetProps,
   layoutSystemType?: LayoutSystemTypes,
+  addActionResult?: ActionData,
 ) => UpdatePropertyArgs[] | undefined;
 
 export interface ChildOperationFnResponse {
@@ -97,10 +106,20 @@ export type BlueprintOperationFunction =
   | BlueprintBeforeOperationsFn;
 
 export type BlueprintOperationType = keyof typeof BlueprintOperationTypes;
+export type BlueprintOperationActionType =
+  keyof typeof BlueprintOperationActionTypes;
+
+export interface BlueprintOperationActionPayload {
+  pluginPackageName: PluginPackageName;
+  actionConfig: Action;
+  datasourceName?: string;
+}
 
 export interface BlueprintOperation {
   type: BlueprintOperationType;
   fn: BlueprintOperationFunction;
+  actionType?: BlueprintOperationActionType;
+  payload?: BlueprintOperationActionPayload;
 }
 
 export function* executeWidgetBlueprintOperations(
@@ -109,13 +128,19 @@ export function* executeWidgetBlueprintOperations(
   widgetId: string,
 ) {
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+  let addActionResult: ActionData = {} as ActionData;
 
-  operations.forEach((operation: BlueprintOperation) => {
+  for (const operation of operations) {
     const widget: WidgetProps & { children?: string[] | WidgetProps[] } = {
       ...widgets[widgetId],
     };
 
     switch (operation.type) {
+      case BlueprintOperationTypes.ADD_ACTION:
+        addActionResult =
+          yield executeWidgetBlueprintAddActionOperations(operation);
+
+        break;
       case BlueprintOperationTypes.MODIFY_PROPS:
         if (widget.children && widget.children.length > 0) {
           widget.children = (widget.children as string[]).map(
@@ -130,6 +155,7 @@ export function* executeWidgetBlueprintOperations(
           widgets,
           get(widgets, widget.parentId || "", undefined),
           layoutSystemType,
+          addActionResult,
         );
 
         updatePropertyPayloads &&
@@ -139,11 +165,42 @@ export function* executeWidgetBlueprintOperations(
           });
         break;
     }
-  });
+  }
 
   const result: { [widgetId: string]: FlattenedWidgetProps } = yield widgets;
 
   return result;
+}
+
+/**
+ * this saga executes the blueprint add action operation
+ * @param operation
+ */
+function* executeWidgetBlueprintAddActionOperations(
+  operation: BlueprintOperation,
+) {
+  switch (operation.actionType) {
+    case BlueprintOperationActionTypes.CREATE_OR_UPDATE_DATASOURCE_WITH_ACTION:
+      if (
+        !operation.payload?.pluginPackageName ||
+        !operation.payload?.actionConfig
+      )
+        return;
+
+      const { actionConfig, datasourceName, pluginPackageName } =
+        operation.payload;
+
+      // TODO Add the event to the watcher to avoid importing it and the associated cyclic dependencies.
+      // https://github.com/appsmithorg/appsmith-ee/pull/5368#discussion_r1804419760
+      const createdAction: ActionData =
+        yield createOrUpdateDataSourceWithAction(
+          pluginPackageName,
+          actionConfig,
+          datasourceName,
+        );
+
+      return createdAction;
+  }
 }
 
 /**

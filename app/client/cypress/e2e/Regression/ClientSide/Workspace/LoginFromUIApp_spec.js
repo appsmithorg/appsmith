@@ -8,7 +8,7 @@ import EditorNavigation, {
 
 describe(
   "Create page & delete page from UI",
-  { tags: ["@tag.Workspace"] },
+  { tags: ["@tag.Workspace", "@tag.AccessControl"] },
   function () {
     let pageid;
     it("1. Create page & delete page from UI", function () {

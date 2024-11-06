@@ -13,7 +13,7 @@ import EditorNavigation, {
 
 describe(
   "Table widget date column inline editing functionality",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("Table/DateCellEditingDSL");

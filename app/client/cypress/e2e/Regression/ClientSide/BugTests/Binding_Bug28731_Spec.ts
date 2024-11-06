@@ -10,7 +10,7 @@ import {
 
 describe(
   "transformed one-click binding",
-  { tags: ["@tag.JS", "@tag.Binding"] },
+  { tags: ["@tag.JS", "@tag.Binding", "@tag.Binding"] },
   function () {
     it("Transforms API data to match widget exppected type ", function () {
       // Create anAPI that mreturns object response

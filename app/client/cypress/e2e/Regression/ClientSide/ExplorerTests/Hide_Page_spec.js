@@ -9,7 +9,7 @@ import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 describe(
   "Hide / Show page test functionality",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     it("1. Hide/Show page test ", function () {
       PageList.AddNewPage(); // Page2

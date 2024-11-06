@@ -2,7 +2,8 @@ import React from "react";
 import type { AnimatedGridUnit } from "components/AnimatedGridLayout";
 import { useSelector } from "react-redux";
 import useWindowDimensions from "utils/hooks/useWindowDimensions";
-import { useCurrentAppState, useCurrentEditorState } from "../../hooks";
+import { useCurrentEditorState } from "../../hooks";
+import { useCurrentAppState } from "../../hooks/useCurrentAppState";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
@@ -15,6 +16,7 @@ import {
 import {
   APP_SETTINGS_PANE_WIDTH,
   APP_SIDEBAR_WIDTH,
+  APP_LIBRARIES_PANE_WIDTH,
 } from "constants/AppConstants";
 import { useEditorStateLeftPaneWidth } from "./useEditorStateLeftPaneWidth";
 import { type Area, Areas, SIDEBAR_WIDTH } from "../constants";
@@ -96,10 +98,10 @@ function useGridLayoutTemplate(): ReturnValue {
           } else {
             setColumns([
               SIDEBAR_WIDTH,
-              "255px",
+              `${APP_LIBRARIES_PANE_WIDTH}px`,
               (windowWidth -
                 APP_SIDEBAR_WIDTH -
-                255 +
+                APP_LIBRARIES_PANE_WIDTH +
                 "px") as AnimatedGridUnit,
               "0px",
             ]);

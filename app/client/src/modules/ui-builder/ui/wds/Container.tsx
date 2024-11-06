@@ -29,6 +29,7 @@ export function ContainerComponent(props: ContainerComponentProps) {
     <StyledContainerComponent
       className={`${generateClassName(props.widgetId)}`}
       data-elevation={props.elevatedBackground}
+      data-no-padding={props.noPadding}
       elevatedBackground={props.elevatedBackground}
       elevation={props.elevation}
     >
@@ -42,4 +43,5 @@ export interface ContainerComponentProps {
   children?: ReactNode;
   elevation: Elevations;
   elevatedBackground: boolean;
+  noPadding?: boolean;
 }

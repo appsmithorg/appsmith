@@ -256,16 +256,18 @@ jobs:
       - name: Set Commit Message
         env:
           EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
+          COMMIT_INFO_AUTHOR: ${{ github.event.commits[0].author.name }}
         run: |
-          if [[ ${{ inputs.pr }} -ne 0 && ${{github.event_name}} == 'repository_dispatch' ]]; then
-            echo "COMMIT_INFO_MESSAGE=${{ env.COMMIT_INFO_MESSAGE }}" >> $GITHUB_ENV
-          elif [[ ${{ inputs.pr }} -ne 0 && ${{github.event_name}} == 'workflow_dispatch' ]]; then
+          if [[ ${{ inputs.pr }} -ne 0 && ${{ github.event_name }} == 'repository_dispatch' ]]; then
+            echo "COMMIT_INFO_MESSAGE=$COMMIT_INFO_MESSAGE" >> $GITHUB_ENV
+          elif [[ ${{ inputs.pr }} -ne 0 && ${{ github.event_name }} == 'workflow_dispatch' ]]; then
             echo "COMMIT_INFO_MESSAGE=Workflow run on PR# ${{ inputs.pr }}" >> $GITHUB_ENV
           else
-            if [[ '${{env.EVENT_COMMITS}}' == 'null' ]]; then
-              echo "COMMIT_INFO_MESSAGE=${{ github.event_name }} by ${{ env.COMMIT_INFO_AUTHOR }}" >> $GITHUB_ENV
+            if [[ "$EVENT_COMMITS" == "null" ]]; then
+              echo "COMMIT_INFO_MESSAGE=${{ github.event_name }} by $COMMIT_INFO_AUTHOR" >> $GITHUB_ENV
             else
-              echo "COMMIT_INFO_MESSAGE=$(echo \"${{ env.EVENT_COMMITS }}\" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')" >> $GITHUB_ENV
+              COMMIT_FIRST_LINE=$(echo "$EVENT_COMMITS" | awk -F '\\\\n' '{print $1}' | sed 's/^\"//')
+              echo "COMMIT_INFO_MESSAGE=$COMMIT_FIRST_LINE" >> $GITHUB_ENV
             fi
           fi
 

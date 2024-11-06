@@ -12,6 +12,7 @@ import {
   CONFIRM_CONTEXT_DELETE,
   CONTEXT_MOVE,
   createMessage,
+  CONTEXT_RENAME,
 } from "ee/constants/messages";
 import { getPageListAsOptions } from "ee/selectors/entitiesSelector";
 import {
@@ -32,6 +33,7 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import type { JSCollection } from "entities/JSCollection";
+import { setRenameEntity } from "actions/ideActions";
 
 interface AppJSEditorContextMenuProps {
   pageId: string;
@@ -55,6 +57,13 @@ export function AppJSEditorContextMenu({
     isFeatureEnabled,
     jsCollection?.userPermissions || [],
   );
+
+  const renameJS = useCallback(() => {
+    // We add a delay to avoid having the focus stuck in the menu trigger
+    setTimeout(() => {
+      dispatch(setRenameEntity(jsCollection.id));
+    }, 100);
+  }, []);
 
   const copyJSCollectionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) => {
@@ -95,6 +104,14 @@ export function AppJSEditorContextMenu({
   };
 
   const menuPages = useSelector(getPageListAsOptions, equal);
+
+  const renameOption = {
+    icon: "input-cursor-move" as IconName,
+    value: "rename",
+    onSelect: renameJS,
+    label: createMessage(CONTEXT_RENAME),
+    disabled: !isChangePermitted,
+  };
 
   const copyOption = {
     icon: "duplicate" as IconName,
@@ -169,7 +186,7 @@ export function AppJSEditorContextMenu({
     className: "t--apiFormDeleteBtn error-menuitem",
   };
 
-  const options: ContextMenuOption[] = [];
+  const options: ContextMenuOption[] = [renameOption];
 
   if (isChangePermitted) {
     options.push(copyOption);

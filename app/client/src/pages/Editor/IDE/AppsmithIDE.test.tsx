@@ -154,7 +154,7 @@ describe("Drag and Drop widgets into Main container", () => {
     }));
   });
 
-  it("Drag to move widgets", () => {
+  it("Drag to move widgets", async () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const children: any = buildChildren([
@@ -190,7 +190,8 @@ describe("Drag and Drop widgets into Main container", () => {
     const propPane = component.queryByTestId("t--propertypane");
 
     expect(propPane).toBeNull();
-    const canvasWidgets = component.queryAllByTestId("test-widget");
+
+    const canvasWidgets = await component.findAllByTestId("test-widget");
 
     expect(canvasWidgets.length).toBe(1);
     // TODO: Fix this the next time the file is edited
@@ -275,7 +276,7 @@ describe("Drag and Drop widgets into Main container", () => {
     expect(finalPositions.top).not.toEqual(initPositions.top);
   });
 
-  it("When widgets are moved out of main container bounds move them back to previous position", () => {
+  it("When widgets are moved out of main container bounds move them back to previous position", async () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const children: any = buildChildren([
@@ -310,7 +311,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const propPane = component.queryByTestId("t--propertypane");
 
     expect(propPane).toBeNull();
-    const canvasWidgets = component.queryAllByTestId("test-widget");
+    const canvasWidgets = await component.findAllByTestId("test-widget");
 
     expect(canvasWidgets.length).toBe(1);
     // TODO: Fix this the next time the file is edited
@@ -499,7 +500,7 @@ describe("Drag and Drop widgets into Main container", () => {
   //   expect(finalPositions.top).toEqual(initPositions.top);
   // });
 
-  it("When widgets are out of bottom most bounds of parent canvas, canvas has to expand", () => {
+  it("When widgets are out of bottom most bounds of parent canvas, canvas has to expand", async () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const children: any = buildChildren([
@@ -544,7 +545,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const propPane = component.queryByTestId("t--propertypane");
 
     expect(propPane).toBeNull();
-    const canvasWidgets = component.queryAllByTestId("test-widget");
+    const canvasWidgets = await component.findAllByTestId("test-widget");
 
     expect(canvasWidgets.length).toBe(2);
 
@@ -639,7 +640,7 @@ describe("Drag and Drop widgets into Main container", () => {
     );
   });
 
-  it("Drag and Drop widget into an empty canvas", () => {
+  it("Drag and Drop widget into an empty canvas", async () => {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const children: any = buildChildren([]);
@@ -675,7 +676,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const containerButton: any = component.queryAllByText("Container");
+    const containerButton: any = await component.findAllByText("Container");
 
     act(() => {
       fireEvent.dragStart(containerButton[0]);
@@ -733,7 +734,7 @@ describe("Drag and Drop widgets into Main container", () => {
     expect(newlyAddedCanvas.length).toBe(1);
   });
 
-  it("Disallow drag if widget not focused", () => {
+  it("Disallow drag if widget not focused", async () => {
     const initialState = store.getState() as unknown as Partial<AppState>;
     const containerId = generateReactKey();
     const canvasId = generateReactKey();
@@ -778,6 +779,8 @@ describe("Drag and Drop widgets into Main container", () => {
       </MemoryRouter>,
       { initialState, sagasToRun: sagasToRunForTests },
     );
+    // wait for the dom to settle down by waitng for the widget to be loaded
+    const canvasWidgets = await component.findAllByTestId("test-widget");
 
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -789,8 +792,6 @@ describe("Drag and Drop widgets into Main container", () => {
     const draggableWidget: any = component.container.querySelector(
       ".t--draggable-containerwidget",
     );
-
-    const canvasWidgets = component.queryAllByTestId("test-widget");
 
     expect(canvasWidgets.length).toBe(1);
 
@@ -894,7 +895,7 @@ describe("Drag in a nested container", () => {
     }));
   });
 
-  it("container drags when focused on", () => {
+  it("container drags when focused on", async () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = renderNestedComponent();
@@ -902,6 +903,8 @@ describe("Drag in a nested container", () => {
     jest
       .spyOn(uiSelectors, "getSelectedWidgets")
       .mockReturnValue(["container-id"]);
+
+    const canvasWidgets = await component.findAllByTestId("test-widget");
 
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -913,8 +916,6 @@ describe("Drag in a nested container", () => {
     const draggableContainerWidget: any = component.container.querySelector(
       ".t--draggable-containerwidget",
     );
-
-    const canvasWidgets = component.queryAllByTestId("test-widget");
 
     expect(canvasWidgets.length).toBe(3);
 
@@ -975,7 +976,7 @@ describe("Drag in a nested container", () => {
     );
   });
 
-  it("nested widget drags when focused on", () => {
+  it("nested widget drags when focused on", async () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = renderNestedComponent();
@@ -983,6 +984,8 @@ describe("Drag in a nested container", () => {
     jest
       .spyOn(uiSelectors, "getSelectedWidgets")
       .mockReturnValue(["text-widget"]);
+
+    const canvasWidgets = await component.findAllByTestId("test-widget");
 
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -994,8 +997,6 @@ describe("Drag in a nested container", () => {
     const draggableTextWidget: any = component.container.querySelector(
       ".t--draggable-textwidget",
     );
-
-    const canvasWidgets = component.queryAllByTestId("test-widget");
 
     expect(canvasWidgets.length).toBe(3);
 
@@ -1054,10 +1055,11 @@ describe("Drag in a nested container", () => {
     expect(finalTextWidgetPositions).not.toStrictEqual(initTextWidgetPosition);
   });
 
-  it("does not let disabledWidget drag and parent widget position stays same", () => {
+  it("does not let disabledWidget drag and parent widget position stays same", async () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = renderNestedComponent();
+    const canvasWidgets = await component.findAllByTestId("test-widget");
 
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1089,8 +1091,6 @@ describe("Drag in a nested container", () => {
       left: inputWidget.style.left,
       top: inputWidget.style.top,
     };
-
-    const canvasWidgets = component.queryAllByTestId("test-widget");
 
     expect(canvasWidgets.length).toBe(3);
 

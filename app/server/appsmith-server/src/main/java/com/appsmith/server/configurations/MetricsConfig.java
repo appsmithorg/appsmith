@@ -1,8 +1,10 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.server.annotations.ConditionalOnMicrometerMetricsEnabled;
+import io.micrometer.common.KeyValue;
 import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.observation.ObservationFilter;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.aop.ObservedAspect;
 import io.opentelemetry.api.OpenTelemetry;
@@ -18,6 +20,7 @@ import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import io.opentelemetry.sdk.resources.Resource;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.autoconfigure.observation.ObservationRegistryCustomizer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,20 +36,21 @@ public class MetricsConfig {
 
     public static final String NEW_RELIC_MICROMETER_METRICS_ENDPOINT = "https://otlp.nr-data.net:4317";
     public static final String API_KEY = "api-key";
-    public static final String CONTAINER_NAME_KEY = "container.name";
-
+    public static final String DEPLOYMENT_NAME_KEY = "deployment.name";
+    public static final String SERVICE_INSTANCE_ID_KEY = "service.instance.id";
     public static final String SERVICE_NAME_KEY = "service.name";
+    public static final String SERVICE_NAME = "appsmith-server";
     public static final String INSTRUMENTATION_PROVIDER_KEY = "instrumentation.provider";
     public static final String MICROMETER = "micrometer";
-
-    @Value("${appsmith.newrelic.micrometer.metrics.application.name}")
-    private String newRelicApplicationName;
 
     @Value("${appsmith.newrelic.licensekey}")
     private String newRelicKey;
 
-    @Value("${appsmith.newrelic.micrometer.metrics.container.name}")
-    private String newRelicContainerName;
+    @Value("${appsmith.observability.deployment.name}")
+    private String deploymentName;
+
+    @Value("${appsmith.observability.service.instance.id}")
+    private String serviceInstanceId;
 
     private final CommonConfig commonConfig;
 
@@ -68,11 +72,12 @@ public class MetricsConfig {
         return OpenTelemetrySdk.builder()
                 .setMeterProvider(SdkMeterProvider.builder()
                         .setResource(Resource.getDefault().toBuilder()
-                                .put(SERVICE_NAME_KEY, newRelicApplicationName)
+                                .put(DEPLOYMENT_NAME_KEY, deploymentName)
+                                .put(SERVICE_NAME_KEY, SERVICE_NAME)
                                 // Include instrumentation.provider=micrometer to enable micrometer metrics
                                 // experience in New Relic
                                 .put(INSTRUMENTATION_PROVIDER_KEY, MICROMETER)
-                                .put(CONTAINER_NAME_KEY, newRelicContainerName)
+                                .put(SERVICE_INSTANCE_ID_KEY, serviceInstanceId)
                                 .build())
                         .registerMetricReader(PeriodicMetricReader.builder(OtlpGrpcMetricExporter.builder()
                                         .setEndpoint(NEW_RELIC_MICROMETER_METRICS_ENDPOINT)
@@ -99,5 +104,19 @@ public class MetricsConfig {
     @ConditionalOnExpression("${logging.verbose.enabled}")
     ObservedAspect observedAspect(ObservationRegistry observationRegistry) {
         return new ObservedAspect(observationRegistry);
+    }
+
+    @Bean
+    public ObservationRegistryCustomizer<ObservationRegistry> observationRegistryCustomizer() {
+        return registry -> registry.observationConfig().observationFilter(addGlobalTags());
+    }
+
+    private ObservationFilter addGlobalTags() {
+        return (observation) -> {
+            observation.addLowCardinalityKeyValue(KeyValue.of(DEPLOYMENT_NAME_KEY, deploymentName));
+            observation.addLowCardinalityKeyValue(KeyValue.of(SERVICE_NAME_KEY, SERVICE_NAME));
+            observation.addLowCardinalityKeyValue(KeyValue.of(SERVICE_INSTANCE_ID_KEY, serviceInstanceId));
+            return observation;
+        };
     }
 }

@@ -73,15 +73,20 @@ import {
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 import {
   getPluginActionConfigSelectedTab,
   getPluginActionDebuggerState,
+  getFormData,
+  setExtraFormData,
   setPluginActionEditorDebuggerState,
   setPluginActionEditorSelectedTab,
 } from "PluginActionEditor/store";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
+import {
+  API_EDITOR_TABS,
+  POST_BODY_FORMAT_OPTIONS,
+} from "PluginActionEditor/constants/CommonApiConstants";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [
@@ -152,9 +157,13 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
     },
     {
       type: FocusElementConfigType.Redux,
-      name: FocusElement.InputField,
-      selector: getFocusableInputField,
-      setter: setFocusableInputField,
+      name: FocusElement.PluginActionFormData,
+      selector: getFormData,
+      setter: setExtraFormData,
+      defaultValue: {
+        label: POST_BODY_FORMAT_OPTIONS.NONE,
+        value: POST_BODY_FORMAT_OPTIONS.NONE,
+      },
     },
     {
       type: FocusElementConfigType.Redux,

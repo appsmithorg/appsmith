@@ -18,7 +18,7 @@ import {
 
 describe(
   "Tests JS Libraries",
-  { tags: ["@tag.excludeForAirgap", "@tag.JS"] },
+  { tags: ["@tag.excludeForAirgap", "@tag.JS", "@tag.Binding"] },
   () => {
     it("1. Validates Library install/uninstall", () => {
       AppSidebar.navigate(AppSidebarButton.Libraries);

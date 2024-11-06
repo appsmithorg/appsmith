@@ -19,12 +19,25 @@ export const setPluginActionEditorSelectedTab = (payload: string) => ({
   },
 });
 
+export const openPluginActionSettings = (payload: boolean) => ({
+  type: ReduxActionTypes.OPEN_PLUGIN_ACTION_SETTINGS,
+  payload: {
+    settingsOpen: payload,
+  },
+});
+
 export const updatePostBodyContentType = (
   title: string,
-  apiId: string,
-): ReduxAction<{ title: string; apiId: string }> => ({
+): ReduxAction<{ title: string }> => ({
   type: ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
-  payload: { title, apiId },
+  payload: { title },
+});
+
+export const setExtraFormData = (
+  values: Record<string, { label: string; value: string }>,
+) => ({
+  type: ReduxActionTypes.SET_EXTRA_FORMDATA,
+  payload: { values },
 });
 
 export const changeApi = (

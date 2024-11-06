@@ -20,6 +20,7 @@ import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import useUnmountFieldValidation from "./useUnmountFieldValidation";
 
 type DateComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -133,6 +134,7 @@ function DateField({
     fieldName: name,
     fieldType,
   });
+  useUnmountFieldValidation({ fieldName: name });
 
   const onDateSelected = useCallback(
     (selectedValue: string) => {

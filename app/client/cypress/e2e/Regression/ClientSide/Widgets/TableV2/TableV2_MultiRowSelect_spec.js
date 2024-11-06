@@ -4,7 +4,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Table Widget V2 row multi select validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableV2NewDsl");

@@ -1,10 +1,10 @@
-interface Props {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  searchedPackages: any;
+import type { Package } from "ee/constants/PackageConstants";
+
+export interface PackageSearchItemProps {
+  searchedPackages: Package[];
 }
 
-const PackageSearchItem = (props: Props) => {
+const PackageSearchItem = (props: PackageSearchItemProps) => {
   // eslint-disable-next-line
   const { searchedPackages } = props;
 

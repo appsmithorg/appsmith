@@ -51,7 +51,10 @@ export const emptyChartData = (props: ChartWidgetProps) => {
     const builder = new EChartsDatasetBuilder(props.chartType, props.chartData);
 
     for (const seriesID in builder.filteredChartData) {
-      if (Object.keys(props.chartData[seriesID].data).length > 0) {
+      if (
+        Array.isArray(props.chartData[seriesID].data) &&
+        props.chartData[seriesID].data.length > 0
+      ) {
         return false;
       }
     }

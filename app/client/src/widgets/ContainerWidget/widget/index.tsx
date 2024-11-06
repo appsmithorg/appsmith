@@ -385,7 +385,11 @@ export class ContainerWidget extends BaseWidget<
       this.props.positioning !== Positioning.Vertical;
 
     return (
-      <ContainerComponent {...props} noScroll={isAutoHeightEnabled}>
+      <ContainerComponent
+        key={props.widgetId}
+        {...props}
+        noScroll={isAutoHeightEnabled}
+      >
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}
