@@ -1,6 +1,7 @@
 import { ECMA_VERSION } from "@shared/ast";
 import type { LintOptions } from "jshint";
 import isEntityFunction from "./utils/isEntityFunction";
+import { noFloatingPromisesLintRule } from "./customRules/noFloatingPromises";
 
 export const enum LINTER_VERSION {
   "JSHINT" = "JSHint",
@@ -51,7 +52,15 @@ export const lintOptions = (
         globals: eslintGlobals,
         sourceType: "script",
       },
+      plugins: {
+        customRules: {
+          rules: {
+            "no-floating-promises": noFloatingPromisesLintRule,
+          },
+        },
+      },
       rules: {
+        "customRules/no-floating-promises": "error",
         indent: ["off", "tab"],
         //indent: "off",
         eqeqeq: "off",
