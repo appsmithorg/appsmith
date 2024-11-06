@@ -213,5 +213,6 @@ export const DatasourceStructureSearchContainer = styled.div`
   }
   &.t--search-container--query-editor {
     padding-right: 0;
+    margin: 0;
   }
 `;

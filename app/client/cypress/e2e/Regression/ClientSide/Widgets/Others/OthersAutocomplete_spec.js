@@ -7,7 +7,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Autocomplete using slash command and mustache tests",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("slashcommandDsl");

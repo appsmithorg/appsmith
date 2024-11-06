@@ -61,6 +61,7 @@ const EditableTextWrapper = styled.div<{
     justify-content: flex-start;
     align-items: flex-start;
     width: 100%;
+
     & .${Classes.EDITABLE_TEXT} {
       background: ${(props) =>
         props.isEditing && !props.minimal
@@ -73,11 +74,13 @@ const EditableTextWrapper = styled.div<{
       max-width: 100%;
       overflow: hidden;
       display: flex;
+
       &:before,
       &:after {
         display: none;
       }
     }
+
     & div.${Classes.EDITABLE_TEXT_INPUT} {
       text-transform: none;
       width: 100%;
@@ -100,6 +103,7 @@ const TextContainer = styled.div<{
   color: var(--ads-v2-color-fg-emphasis-plus);
   display: flex;
   align-items: center;
+
   &&&& .${Classes.EDITABLE_TEXT} {
     & .${Classes.EDITABLE_TEXT_CONTENT} {
       &:hover {
@@ -108,6 +112,7 @@ const TextContainer = styled.div<{
       }
     }
   }
+
   &&& .${Classes.EDITABLE_TEXT_CONTENT}:hover {
     ${(props) =>
       props.underline

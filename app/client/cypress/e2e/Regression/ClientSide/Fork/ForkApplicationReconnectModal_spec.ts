@@ -8,7 +8,16 @@ let currentWorkspace: string, currentAppName: string, forkWorkspaceName: string;
 
 describe(
   "Fork application across workspaces",
-  { tags: ["@tag.Fork", "@tag.Sanity"] },
+  {
+    tags: [
+      "@tag.Fork",
+      "@tag.Sanity",
+      "@tag.Datasource",
+      "@tag.Git",
+      "@tag.Table",
+      "@tag.JS",
+    ],
+  },
   function () {
     it("Bug 24702: Signed user should be able to fork a public forkable app & Check if the forked application has the same dsl as the original", function () {
       // Create new workspace to create App in

@@ -14,16 +14,20 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -43,6 +47,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.LayoutSpan.ADD_WIDGET_RELATIONSHIP_TO_GRAPH;
+import static com.appsmith.external.constants.spans.LayoutSpan.COMPUTE_ON_PAGE_LOAD_EXECUTABLES_SCHEDULING_ORDER;
+import static com.appsmith.external.constants.spans.LayoutSpan.EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES;
+import static com.appsmith.external.constants.spans.LayoutSpan.FILTER_AND_TRANSFORM_SCHEDULING_ORDER_TO_DTO;
+import static com.appsmith.external.constants.spans.LayoutSpan.RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS;
+import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_DIRECTLY_REFERENCED_EXECUTABLES_TO_GRAPH;
+import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH;
+import static com.appsmith.external.constants.spans.OnLoadSpan.EXECUTABLE_NAME_TO_EXECUTABLE_MAP;
+import static com.appsmith.external.constants.spans.OnLoadSpan.GET_ALL_EXECUTABLES_BY_CREATOR_ID;
+import static com.appsmith.external.constants.spans.OnLoadSpan.GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT;
+import static com.appsmith.external.constants.spans.OnLoadSpan.UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS;
 import static com.appsmith.external.helpers.MustacheHelper.EXECUTABLE_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.WIDGET_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.getPossibleParents;
@@ -71,6 +86,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     // TODO : This should contain all the static global variables present on the page like `appsmith`, etc.
     // TODO : Add all the global variables exposed on the client side.
     private final Set<String> APPSMITH_GLOBAL_VARIABLES = Set.of();
+    private final ObservationRegistry observationRegistry;
+    private final ObservationHelperImpl observationHelper;
 
     /**
      * This function computes the sequenced on page load executables.
@@ -129,6 +146,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             .toList();
                 })
                 .collectMap(Tuple2::getT1, Tuple2::getT2)
+                .name(EXECUTABLE_NAME_TO_EXECUTABLE_MAP)
+                .tap(Micrometer.observation(observationRegistry))
                 .cache();
 
         Mono<Set<String>> executablesInCreatorContextMono = allExecutablesByCreatorIdFlux
@@ -140,14 +159,16 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         Mono<Set<ExecutableDependencyEdge>> directlyReferencedExecutablesToGraphMono =
                 addDirectlyReferencedExecutablesToGraph(
-                        edgesRef,
-                        executablesUsedInDSLRef,
-                        bindingsFromExecutablesRef,
-                        executablesFoundDuringWalkRef,
-                        widgetDynamicBindingsMap,
-                        executableNameToExecutableMapMono,
-                        executableBindingsInDslRef,
-                        evaluatedVersion);
+                                edgesRef,
+                                executablesUsedInDSLRef,
+                                bindingsFromExecutablesRef,
+                                executablesFoundDuringWalkRef,
+                                widgetDynamicBindingsMap,
+                                executableNameToExecutableMapMono,
+                                executableBindingsInDslRef,
+                                evaluatedVersion)
+                        .name(ADD_DIRECTLY_REFERENCED_EXECUTABLES_TO_GRAPH)
+                        .tap(Micrometer.observation(observationRegistry));
 
         // This following `createAllEdgesForPageMono` publisher traverses the executables and widgets to add all
         // possible edges between all possible entity paths
@@ -157,15 +178,17 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         Mono<Set<ExecutableDependencyEdge>> createAllEdgesForPageMono = directlyReferencedExecutablesToGraphMono
                 // Add dependencies of all on page load executables set by the user in the graph
                 .flatMap(updatedEdges -> addExplicitUserSetOnLoadExecutablesToGraph(
-                        creatorId,
-                        updatedEdges,
-                        explicitUserSetOnLoadExecutablesRef,
-                        executablesFoundDuringWalkRef,
-                        bindingsFromExecutablesRef,
-                        executableNameToExecutableMapMono,
-                        executableBindingsInDslRef,
-                        evaluatedVersion,
-                        creatorType))
+                                creatorId,
+                                updatedEdges,
+                                explicitUserSetOnLoadExecutablesRef,
+                                executablesFoundDuringWalkRef,
+                                bindingsFromExecutablesRef,
+                                executableNameToExecutableMapMono,
+                                executableBindingsInDslRef,
+                                evaluatedVersion,
+                                creatorType)
+                        .name(ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH)
+                        .tap(Micrometer.observation(observationRegistry)))
                 // For all the executables found so far, recursively walk the dynamic bindings of the executables to
                 // find more relationships with other executables (& widgets)
                 .flatMap(updatedEdges -> recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
@@ -174,11 +197,15 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                         bindingsFromExecutablesRef,
                         executableNameToExecutableMapMono,
                         evaluatedVersion))
+                .name(RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS)
+                .tap(Micrometer.observation(observationRegistry))
                 // At last, add all the widget relationships to the graph as well.
                 .zipWith(executablesInCreatorContextMono)
                 .flatMap(tuple -> {
                     Set<ExecutableDependencyEdge> updatedEdges = tuple.getT1();
-                    return addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap, evaluatedVersion);
+                    return addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap, evaluatedVersion)
+                            .name(ADD_WIDGET_RELATIONSHIP_TO_GRAPH)
+                            .tap(Micrometer.observation(observationRegistry));
                 });
 
         // Create a graph given edges
@@ -198,11 +225,20 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     Map<String, Executable> executableNameToExecutableMap = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
 
-                    return computeOnPageLoadExecutablesSchedulingOrder(
+                    Span computeOnPageLoadExecutablesSchedulingOrderSpan =
+                            observationHelper.createSpan(COMPUTE_ON_PAGE_LOAD_EXECUTABLES_SCHEDULING_ORDER);
+
+                    observationHelper.startSpan(computeOnPageLoadExecutablesSchedulingOrderSpan, true);
+
+                    List<Set<String>> executablesList = computeOnPageLoadExecutablesSchedulingOrder(
                             graph,
                             onLoadExecutableSetRef,
                             executableNameToExecutableMap,
                             explicitUserSetOnLoadExecutablesRef);
+
+                    observationHelper.endSpan(computeOnPageLoadExecutablesSchedulingOrderSpan, true);
+
+                    return executablesList;
                 })
                 .map(onPageLoadExecutablesSchedulingOrder -> {
                     // Find all explicitly turned on executables which haven't found their way into the scheduling order
@@ -237,6 +273,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                 onLoadExecutableSetRef,
                                 executableNameToExecutableMapMono,
                                 computeOnPageLoadScheduleNamesMono)
+                        .name(FILTER_AND_TRANSFORM_SCHEDULING_ORDER_TO_DTO)
+                        .tap(Micrometer.observation(observationRegistry))
                         .cache();
 
         // With the final on page load scheduling order, also set the on page load executables which would be updated
@@ -398,7 +436,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     protected Flux<Executable> getAllExecutablesByCreatorIdFlux(String creatorId, CreatorContextType creatorType) {
-        return pageExecutableOnLoadService.getAllExecutablesByCreatorIdFlux(creatorId);
+        return pageExecutableOnLoadService
+                .getAllExecutablesByCreatorIdFlux(creatorId)
+                .name(GET_ALL_EXECUTABLES_BY_CREATOR_ID)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -612,6 +653,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     // for on page load
                                     executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
                                     return updateExecutableSelfReferencingPaths(possibleEntity)
+                                            .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
+                                            .tap(Micrometer.observation(observationRegistry))
                                             .flatMap(executable -> extractAndSetExecutableBindingsInGraphEdges(
                                                     possibleEntity,
                                                     edgesRef,
@@ -620,6 +663,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                                     executablesFoundDuringWalkRef,
                                                     null,
                                                     evalVersion))
+                                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                                            .tap(Micrometer.observation(observationRegistry))
                                             .thenReturn(possibleEntity);
                                 }
                                 return Mono.just(possibleEntity);
@@ -891,6 +936,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 .flatMap(possibleEntity -> {
                     if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
                         return updateExecutableSelfReferencingPaths(possibleEntity)
+                                .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .then(extractAndSetExecutableBindingsInGraphEdges(
                                         possibleEntity,
                                         edges,
@@ -899,6 +946,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                         executablesFoundDuringWalk,
                                         null,
                                         evalVersion))
+                                .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .thenReturn(possibleEntity);
                     } else {
                         return Mono.empty();
@@ -910,7 +959,13 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             // Now that the next set of bindings have been found, find recursively all executables by these names
             // and their bindings
             return recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
-                    edges, executablesFoundDuringWalk, newBindings, executableNameToExecutableMapMono, evalVersion);
+                            edges,
+                            executablesFoundDuringWalk,
+                            newBindings,
+                            executableNameToExecutableMapMono,
+                            evalVersion)
+                    .name(RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS)
+                    .tap(Micrometer.observation(observationRegistry));
         });
     }
 
@@ -945,6 +1000,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         // First fetch all the executables which have been tagged as on load by the user explicitly.
         return getUnpublishedOnLoadExecutablesExplicitSetByUserInCreatorContextFlux(creatorId, creatorType)
+                .name(GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMap(this::fillSelfReferencingPaths)
                 // Add the vertices and edges to the graph for these executables
                 .flatMap(executable -> {
@@ -963,6 +1020,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     executablesFoundDuringWalkRef,
                                     executableBindingsInDsl,
                                     evalVersion)
+                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                            .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(executable);
                 })
                 .collectList()

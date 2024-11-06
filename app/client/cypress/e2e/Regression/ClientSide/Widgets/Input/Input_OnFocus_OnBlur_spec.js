@@ -14,7 +14,7 @@ const agHelper = ObjectsRegistry.AggregateHelper;
 
 describe(
   "Input Widget Property tests onFocus and onBlur",
-  { tags: ["@tag.Widget", "@tag.Input"] },
+  { tags: ["@tag.Widget", "@tag.Input", "@tag.Binding"] },
   function () {
     it("1. onBlur and onFocus should be triggered from the input widget", () => {
       cy.dragAndDropToCanvas(inputWidgetName, { x: 300, y: 200 });

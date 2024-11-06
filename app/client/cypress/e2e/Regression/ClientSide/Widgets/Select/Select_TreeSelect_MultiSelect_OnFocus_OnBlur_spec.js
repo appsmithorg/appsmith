@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Select, MultiSelect, Tree Select and Multi Tree Select Widget Property tests onFocus and onBlur",
-  { tags: ["@tag.Widget", "@tag.Select"] },
+  { tags: ["@tag.Widget", "@tag.Select", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("selectMultiSelectTreeSelectWidgetDsl");

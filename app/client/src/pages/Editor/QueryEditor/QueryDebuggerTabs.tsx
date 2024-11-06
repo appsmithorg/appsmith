@@ -14,13 +14,14 @@ import {
 } from "ee/constants/messages";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
-import Schema from "components/editorComponents/Debugger/Schema";
+import Schema from "PluginActionEditor/components/PluginActionResponse/components/Schema";
 import type { ActionResponse } from "api/ActionAPI";
 import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
-import QueryResponseTab from "./QueryResponseTab";
+import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
 import {
+  getDatasource,
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
 } from "ee/selectors/entitiesSelector";
@@ -43,9 +44,14 @@ const ResultsCount = styled.div`
   color: var(--ads-v2-color-fg);
 `;
 
+const ErrorText = styled(Text)`
+  color: var(--ads-v2-colors-action-error-label-default-fg);
+`;
+
 interface QueryDebuggerTabsProps {
   actionSource: SourceEntity;
   currentActionConfig?: Action;
+  isRunDisabled?: boolean;
   isRunning: boolean;
   actionName: string; // Check what and how to get
   runErrorMessage?: string;
@@ -59,6 +65,7 @@ function QueryDebuggerTabs({
   actionResponse,
   actionSource,
   currentActionConfig,
+  isRunDisabled = false,
   isRunning,
   onRunClick,
   runErrorMessage,
@@ -93,6 +100,10 @@ function QueryDebuggerTabs({
       state,
       currentActionConfig?.datasource?.id ?? "",
     ),
+  );
+
+  const datasource = useSelector((state) =>
+    getDatasource(state, currentActionConfig?.datasource?.id ?? ""),
   );
 
   useEffect(() => {
@@ -233,6 +244,7 @@ function QueryDebuggerTabs({
           actionName={actionName}
           actionSource={actionSource}
           currentActionConfig={currentActionConfig}
+          isRunDisabled={isRunDisabled}
           isRunning={isRunning}
           onRunClick={onRunClick}
           runErrorMessage={runErrorMessage}
@@ -249,7 +261,7 @@ function QueryDebuggerTabs({
         <Schema
           currentActionId={currentActionConfig.id}
           datasourceId={currentActionConfig.datasource.id || ""}
-          datasourceName={currentActionConfig.datasource.name || ""}
+          datasourceName={datasource?.name || ""}
         />
       ),
     });
@@ -266,11 +278,15 @@ function QueryDebuggerTabs({
     >
       {output && !!output.length && (
         <ResultsCount>
-          <Text type={TextType.P3}>
+          <Text data-testid="result-text" type={TextType.P3}>
             Result:
-            <Text type={TextType.H5}>{` ${output.length} Record${
-              output.length > 1 ? "s" : ""
-            }`}</Text>
+            {actionResponse?.isExecutionSuccess ? (
+              <Text type={TextType.H5}>{` ${output.length} Record${
+                output.length > 1 ? "s" : ""
+              }`}</Text>
+            ) : (
+              <ErrorText type={TextType.H5}>{" Error"}</ErrorText>
+            )}
           </Text>
         </ResultsCount>
       )}

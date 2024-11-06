@@ -16,6 +16,13 @@ describe(
       "@tag.GitAutocommit",
       "@tag.Sanity",
       "@tag.TedMigration",
+      "@tag.AccessControl",
+      "@tag.Workflows",
+      "@tag.Module",
+      "@tag.Theme",
+      "@tag.JS",
+      "@tag.Container",
+      "@tag.ImportExport",
     ],
   },
   function () {

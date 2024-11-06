@@ -8,6 +8,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.solutions.PolicySolution;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.time.Instant;
@@ -56,7 +57,17 @@ public class UpdateSuperUserMigrationHelperCE {
         user.setCreatedAt(Instant.now());
         user = mongoTemplate.save(user);
 
-        // Assign the user to the default permissions
+        PermissionGroup userManagementPermissionGroup = createUserManagementPermissionGroup(mongoTemplate, user);
+
+        Set<Policy> userPolicies = this.generateUserPolicy(
+                user, userManagementPermissionGroup, instanceAdminRole, tenant, policySolution, policyGenerator);
+
+        user.setPolicies(userPolicies);
+
+        return mongoTemplate.save(user);
+    }
+
+    @NotNull public static PermissionGroup createUserManagementPermissionGroup(MongoTemplate mongoTemplate, User user) {
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
         userManagementPermissionGroup.setName(user.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
@@ -66,12 +77,6 @@ public class UpdateSuperUserMigrationHelperCE {
         userManagementPermissionGroup.setAssignedToUserIds(Set.of(user.getId()));
 
         PermissionGroup savedPermissionGroup = mongoTemplate.save(userManagementPermissionGroup);
-
-        Set<Policy> userPolicies = this.generateUserPolicy(
-                user, savedPermissionGroup, instanceAdminRole, tenant, policySolution, policyGenerator);
-
-        user.setPolicies(userPolicies);
-
-        return mongoTemplate.save(user);
+        return savedPermissionGroup;
     }
 }

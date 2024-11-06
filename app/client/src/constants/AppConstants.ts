@@ -9,6 +9,7 @@ export const CANVAS_DEFAULT_MIN_ROWS = Math.ceil(
 export const DEFAULT_ENTITY_EXPLORER_WIDTH = 256;
 export const DEFAULT_PROPERTY_PANE_WIDTH = 288;
 export const APP_SETTINGS_PANE_WIDTH = 525;
+export const APP_LIBRARIES_PANE_WIDTH = 384;
 export const DEFAULT_EXPLORER_PANE_WIDTH = 255;
 export const SPLIT_SCREEN_RATIO = 0.404;
 

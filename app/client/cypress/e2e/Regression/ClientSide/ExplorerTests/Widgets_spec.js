@@ -7,7 +7,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Entity explorer tests related to widgets and validation",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("displayWidgetDsl");

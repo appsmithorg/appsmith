@@ -14,7 +14,7 @@ const data = [
 
 describe(
   "Custom column alias functionality",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("tableV2NewDsl");

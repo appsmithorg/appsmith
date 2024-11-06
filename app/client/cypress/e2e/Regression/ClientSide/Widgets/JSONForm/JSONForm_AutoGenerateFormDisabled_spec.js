@@ -13,7 +13,7 @@ import {
 
 describe(
   "JSON Form Widget AutoGenerate Disabled",
-  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Sanity"] },
+  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Sanity", "@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("jsonFormDslWithSchemaAndWithoutSourceData");

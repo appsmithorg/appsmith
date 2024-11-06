@@ -2,6 +2,7 @@
 /* eslint-disable cypress/no-assigning-return-values */
 /* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
 import { ANVIL_EDITOR_TEST } from "./Constants.js";
+import advancedFormat from "dayjs/plugin/advancedFormat";
 
 import EditorNavigation, {
   EntityType,
@@ -18,6 +19,7 @@ import { v4 as uuidv4 } from "uuid";
 const dayjs = require("dayjs");
 const loginPage = require("../locators/LoginPage.json");
 import homePage from "../locators/HomePage";
+dayjs.extend(advancedFormat);
 
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
@@ -524,10 +526,17 @@ Cypress.Commands.add("getDate", (date, dateFormate) => {
   return eDate;
 });
 
-Cypress.Commands.add("setDate", (date, dateFormate) => {
-  const expDate = dayjs().add(date, "days").format(dateFormate);
-  const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;
-  cy.get(sel).click();
+Cypress.Commands.add("setDate", (date, dateFormate, ver = "v2") => {
+  if (ver == "v2") {
+    const expDate = dayjs().add(date, "days").format("dddd, MMMM D");
+    cy.get(`.react-datepicker__day[aria-label^="Choose ${expDate}"]`)
+      .first()
+      .click();
+  } else if (ver == "v1") {
+    const expDate = dayjs().add(date, "days").format(dateFormate);
+    const sel = `.DayPicker-Day[aria-label=\"${expDate}\"]`;
+    cy.get(sel).click();
+  }
 });
 
 Cypress.Commands.add("validateDisableWidget", (widgetCss, disableCss) => {

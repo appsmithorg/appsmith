@@ -2,12 +2,7 @@ import fg from "fast-glob";
 import type { PathLike } from "fs";
 import fs from "fs-extra";
 import path from "path";
-
-const createReactComponent = (name: string, svg: string) => {
-  return `import React from "react";
-export const ${name} = () => ${svg};
-`;
-};
+import { transform } from "@svgr/core";
 
 async function generateComponents() {
   const entries = await fg("./src/icons/**/*.svg");
@@ -29,11 +24,23 @@ async function generateComponents() {
         case "Thumbnails":
           name += "Thumbnail";
           break;
+        case "CustomIcons":
+          name += "CustomIcon";
+          break;
       }
 
       await fs.writeFile(
         `./src/components/${dir}/${name}.tsx`,
-        createReactComponent(name, file),
+        await transform(
+          file,
+          {
+            plugins: ["@svgr/plugin-jsx"],
+            typescript: true,
+            exportType: "named",
+            namedExport: name,
+          },
+          { componentName: name },
+        ),
         "utf8",
         function (err) {
           // eslint-disable-next-line no-console

@@ -5,7 +5,7 @@ import {
   ReduxActionErrorTypes,
 } from "ee/constants/ReduxActionConstants";
 import type { JSCollection } from "entities/JSCollection";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 
 export enum JSEditorTab {
   CODE = "CODE",

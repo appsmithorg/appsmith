@@ -22,7 +22,7 @@ const jsObjectBody = `export default {
 	}
 }`;
 
-describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
+describe("Autocomplete tests", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
   it("1. Bug #17059 Autocomplete does not suggest same function name that belongs to a different object", () => {
     // create js object - JSObject1
     jsEditor.CreateJSObject(jsObjectBody, {
@@ -111,7 +111,7 @@ describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
     });
   });
 
-  it.skip("3. Bug #15429 Random keystrokes trigger autocomplete to show up", () => {
+  it("3. Bug #15429 Random keystrokes trigger autocomplete to show up", () => {
     // create js object & assert no hints just show up
     jsEditor.CreateJSObject(
       `export default

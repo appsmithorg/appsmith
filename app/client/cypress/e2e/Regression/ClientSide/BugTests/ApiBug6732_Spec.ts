@@ -4,7 +4,7 @@ const { apiPage } = _;
 
 describe(
   "Bug 6732 - this.params in IIFE function in API editor",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     it("1. this.params should be available in IIFE function in API editor", () => {
       apiPage.CreateApi("Api1", "GET");

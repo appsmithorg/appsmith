@@ -7,15 +7,15 @@
 */
 .anvilWidgetWrapper {
   /** If a section,zone and card have elevation, then add padding */
-  [data-elevation="true"][elevation="1"],
-  [data-elevation="true"][elevation="2"],
-  [data-elevation="true"][elevation="3"],
+  [data-elevation="true"][elevation="1"]:not([data-no-padding]),
+  [data-elevation="true"][elevation="2"]:not([data-no-padding]),
+  [data-elevation="true"][elevation="3"]:not([data-no-padding]),
   /** If a section has any zone with elevation, then add padding to all the zones that don't have elevation */
-  [elevation="1"]:has([elevation="2"][data-elevation="true"]) [elevation="2"][data-elevation="false"],
+  [elevation="1"]:has([elevation="2"][data-elevation="true"]) [elevation="2"][data-elevation="false"]:not([data-no-padding]),
   /** If a section has any card with elevation, then add padding to all the cards that don't have elevation */
-  [elevation="1"]:has([elevation="3"][data-elevation="true"]) [elevation="3"][data-elevation="false"],
+  [elevation="1"]:has([elevation="3"][data-elevation="true"]) [elevation="3"][data-elevation="false"]:not([data-no-padding]),
   /** If a zone has any card with elevation, then add padding to all the cards that don't have elevation,*/
-  [elevation="2"]:has([elevation="3"][data-elevation="true"]) [elevation="3"][data-elevation="false"] {
+  [elevation="2"]:has([elevation="3"][data-elevation="true"]) [elevation="3"][data-elevation="false"]:not([data-no-padding]) {
     padding-block: var(--outer-spacing-3);
     padding-inline: var(--outer-spacing-3);
   }

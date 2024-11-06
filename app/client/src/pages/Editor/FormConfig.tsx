@@ -41,6 +41,8 @@ const LabelWrapper = styled.div`
   .label-icon-wrapper {
     &.help {
       cursor: help;
+      text-decoration: underline dashed var(--ads-v2-color-border) from-font;
+      text-underline-position: under;
     }
   }
 `;
@@ -209,9 +211,10 @@ function renderFormConfigTop(props: {
           <>
             <FlexWrapper>
               <FormLabel
+                className="form-label"
                 config={props.config}
                 extraStyles={{
-                  marginBottom: shouldRenderSubtitle && "0px",
+                  marginBottom: (shouldRenderSubtitle || !subtitle) && "0px",
                   minWidth: !!props.changesViewType && "unset",
                 }}
               >
