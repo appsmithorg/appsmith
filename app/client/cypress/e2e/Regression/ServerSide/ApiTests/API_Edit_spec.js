@@ -56,7 +56,14 @@ describe(
       cy.log("Creation of FirstAPI Action successful");
       cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
       cy.get(apiwidget.settings).click({ force: true });
-      cy.get(apiwidget.confirmBeforeExecute).click({ force: true });
+      cy.get("body").then((body) => {
+        if (body.find(apiwidget.confirmBeforeExecute).length > 0) {
+          cy.get(apiwidget.confirmBeforeExecute).click({ force: true });
+        } else {
+          cy.get(apiwidget.settings).click({ force: true });
+          cy.get(apiwidget.confirmBeforeExecute).click({ force: true });
+        }
+      });
       cy.get(apiwidget.runQueryButton).click();
       cy.get(".ads-v2-modal__content").find("button").contains("No").click();
       cy.get(apiwidget.runQueryButton).children().should("have.length", 1);
