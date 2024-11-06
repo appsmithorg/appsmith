@@ -149,7 +149,7 @@ describe(
       propPane.MoveToTab("Content");
 
       [1, 2, 3, 4, 5].forEach(() => {
-        apiPage.CreateAndFillApi("https://www.appsmith.com/");
+        apiPage.CreateAndFillApi("https://www.google.com/");
       });
 
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
