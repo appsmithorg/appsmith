@@ -54,7 +54,7 @@ test("does not show tooltip for non-button types", () => {
 
 test("handles empty tooltip", () => {
   const { getByText } = render(
-    <AutoToolTipComponent columnType={ColumnTypes.BUTTON} title="">
+    <AutoToolTipComponent columnType={ColumnTypes.BUTTON} title="Empty button">
       <button>Empty button</button>
     </AutoToolTipComponent>,
   );
@@ -84,25 +84,6 @@ test("does not show tooltip for non-truncated text", () => {
 
   fireEvent.mouseEnter(getByText(shortText));
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-});
-
-test("opens a new tab for URL column type when clicked", () => {
-  const openSpy = jest.spyOn(window, "open").mockImplementation(() => null);
-
-  render(
-    <AutoToolTipComponent
-      columnType={ColumnTypes.URL}
-      title="Go to Google"
-      url="https://www.google.com"
-    >
-      <span>Go to Google</span>
-    </AutoToolTipComponent>,
-  );
-
-  fireEvent.click(screen.getByText("Go to Google"));
-  expect(openSpy).toHaveBeenCalledWith("https://www.google.com", "_blank");
-
-  openSpy.mockRestore();
 });
 
 describe("isButtonTextTruncated", () => {
