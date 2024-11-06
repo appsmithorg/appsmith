@@ -3,6 +3,7 @@ import styles from "./styles.module.css";
 import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import type { ContentProps } from "../../CodeEditors/types";
 import useLocalStorageState from "utils/hooks/useLocalStorageState";
+import classNames from "classnames";
 
 interface Props {
   tabs: Array<{
@@ -88,7 +89,10 @@ export default function TabLayout(props: Props) {
           </TabsList>
           {tabs.map((tab) => (
             <TabPanel
-              className={styles.tabPanel}
+              className={classNames(styles.tabPanel, {
+                "data-[state=inactive]:hidden": selectedTab !== tab.title,
+              })}
+              forceMount
               key={tab.title}
               value={tab.title}
             >
