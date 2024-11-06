@@ -149,7 +149,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<Datasource> createWithoutPermissions(
             Datasource datasource, Map<DBOpsType, List<DatasourceStorage>> datasourceStorageDryRunQueries) {
-        return createEx(datasource, null, true, datasourceStorageDryRunQueries);
+        return createEx(datasource, null, false, datasourceStorageDryRunQueries);
     }
 
     @Override

@@ -177,7 +177,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
                                             // customizations
                                             return repository
                                                     .delete(currentTheme)
-                                                    .then(applicationRepository.setAppTheme(
+                                                    .then(applicationRepository.updateAppTheme(
                                                             application.getId(),
                                                             savedTheme.getId(),
                                                             null,
@@ -185,7 +185,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
                                                     .thenReturn(savedTheme);
                                         } else {
                                             return applicationRepository
-                                                    .setAppTheme(
+                                                    .updateAppTheme(
                                                             application.getId(),
                                                             savedTheme.getId(),
                                                             null,
@@ -254,7 +254,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
                                     .then(
                                             // Set the system theme id as edit and published mode theme id to
                                             // application object
-                                            applicationRepository.setAppTheme(
+                                            applicationRepository.updateAppTheme(
                                                     applicationId,
                                                     editModeTheme.getId(),
                                                     editModeTheme.getId(),
@@ -321,7 +321,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
                     if (savedThemeTuple.getT2()) { // new theme created, update the application
                         if (applicationMode == ApplicationMode.EDIT) {
                             return applicationRepository
-                                    .setAppTheme(
+                                    .updateAppTheme(
                                             application.getId(),
                                             theme.getId(),
                                             null,
@@ -331,7 +331,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
                                     .thenReturn(theme);
                         } else {
                             return applicationRepository
-                                    .setAppTheme(
+                                    .updateAppTheme(
                                             application.getId(),
                                             null,
                                             theme.getId(),

@@ -2,6 +2,8 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.gson.InstanceCreator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -60,6 +62,11 @@ public class DatasourceStructure {
         }
     }
 
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value = DatasourceStructure.PrimaryKey.class, name = "primary key"),
+        @JsonSubTypes.Type(value = DatasourceStructure.ForeignKey.class, name = "foreign key")
+    })
     public interface Key extends Comparable<Key> {
         String getType();
 

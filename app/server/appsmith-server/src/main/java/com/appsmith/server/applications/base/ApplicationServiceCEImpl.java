@@ -902,7 +902,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<Integer> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
-        return repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
+        return repository.updateAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
     }
 
     @Override
