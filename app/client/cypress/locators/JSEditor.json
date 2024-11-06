@@ -2,7 +2,6 @@
     "runButton": "[data-testid='t--run-js-action']",
     "editNameField": ".bp3-editable-text-input",
     "outputConsole": ".CodeEditorTarget",
-    "jsObjectName": ".t--action-name-edit-field",
     "jsPage": ".form-row-header",
     "jsPageProperty": ".entity-context-menu",
     "propertyList": ".t--entity-property",

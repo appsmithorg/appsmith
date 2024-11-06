@@ -8,7 +8,6 @@
   "deleteUsingContext": ".t--apiFormDeleteBtn",
   "addDatasource": ".t--add-datasource",
   "editDatasourceButton": ".t--edit-datasource",
-  "queryNameField": ".t--action-name-edit-field input",
   "settings": "span:contains('Settings')",
   "query": "//span[text()='Query']/parent::button[@role='tab']",
   "switch": ".t--form-control-SWITCH input",
