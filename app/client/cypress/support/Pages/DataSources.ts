@@ -1313,15 +1313,14 @@ export class DataSources {
     queryTimeout = 20000,
     action: "QUERY" | "API" = "QUERY",
   ) {
-    this.agHelper.GetNClick(this._queryEditorTabs("Settings"));
+    // open the settings
+    this.pluginActionForm.toolbar.toggleSettings();
     cy.xpath(this._queryTimeout)
       .clear()
       .type(queryTimeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
-
-    if (action === "QUERY") {
-      this.agHelper.GetNClick(this._queryEditorTabs("Query"));
-    }
+    // close the settings
+    this.pluginActionForm.toolbar.toggleSettings();
   }
 
   //Update with new password in the datasource conf page

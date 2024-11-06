@@ -301,7 +301,7 @@ export class JSEditor {
   }
 
   public SelectFunctionDropdown(funName: string) {
-    cy.get(this._funcDropdown).click();
+    cy.get(this.runFunctionSelectLocator).click();
     this.agHelper.GetNClickByContains(this._funcDropdownOptions, funName);
   }
 

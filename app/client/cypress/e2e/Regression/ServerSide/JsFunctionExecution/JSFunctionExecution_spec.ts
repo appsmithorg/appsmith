@@ -410,8 +410,6 @@ describe(
           );
         },
       );
-      // Switch to settings tab
-      jsEditor.toolbar.toggleSettings();
       //After JSObj is created - check methods are in alphabetical order
       assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
