@@ -20,12 +20,29 @@ public class InitUtils {
         String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
         if ((datasourceConfiguration.getProperties().size() != 0)
                 && (datasourceConfiguration.getProperties().get(0).getKey().equals("integrationId"))) {
-            String apiPath = actionConfiguration.getFormData().get("apiPath").toString();
-            return String.format(
-                    "https://proxy.useparagon.com/projects/%s/sdk/proxy/%s%s",
-                    integrationProviderProjectId,
-                    datasourceConfiguration.getProperties().get(1).getValue(),
-                    apiPath);
+            String apiPath = actionConfiguration
+                    .getFormData()
+                    .getOrDefault("apiPath", "")
+                    .toString();
+            String actionType = actionConfiguration
+                    .getFormData()
+                    .getOrDefault("actionType", "")
+                    .toString();
+            String workflowId = actionConfiguration
+                    .getFormData()
+                    .getOrDefault("workflowId", "")
+                    .toString();
+            if (actionType.equals("workflow")) {
+                return String.format(
+                        "https://api.useparagon.com/projects/%s/sdk/triggers/%s",
+                        integrationProviderProjectId, workflowId);
+            } else {
+                return String.format(
+                        "https://proxy.useparagon.com/projects/%s/sdk/proxy/%s%s",
+                        integrationProviderProjectId,
+                        datasourceConfiguration.getProperties().get(1).getValue(),
+                        apiPath);
+            }
         }
         return datasourceConfiguration.getUrl().trim() + path.trim();
     }
