@@ -10,7 +10,9 @@ import {
 
 describe(
   "Datasource form OAuth2 client credentials related tests",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     let clientId, clientSecret;
 

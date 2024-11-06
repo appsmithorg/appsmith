@@ -3,7 +3,7 @@ import { agHelper, table } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table widget inline editing functionality",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

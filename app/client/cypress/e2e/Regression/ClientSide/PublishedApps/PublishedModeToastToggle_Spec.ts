@@ -11,7 +11,7 @@ const PAGE_LOAD_MSG = `The action "Incorrect_users" has failed.`;
 
 describe(
   "Published mode toggle toast with debug flag in the url",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("publishedModeToastToggleDsl");

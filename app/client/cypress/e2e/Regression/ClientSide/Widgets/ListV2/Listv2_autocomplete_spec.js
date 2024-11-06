@@ -12,7 +12,7 @@ function checkAutosuggestion(label, type) {
 
 describe(
   "List v2 - Property autocomplete",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   () => {
     before(() => {
       cy.addDsl(level3NestedList);

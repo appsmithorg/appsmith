@@ -7,7 +7,6 @@ import isString from "lodash/isString";
 import memoize from "micro-memoize";
 import { isObject, isUndefined } from "lodash";
 import { generateReactKey, isDynamicValue } from "../utils";
-import widgetConfigs from "../helpers/widget-configs.json";
 
 export const WidgetHeightLimits = {
   MAX_HEIGHT_IN_ROWS: 9000,
@@ -511,8 +510,33 @@ export function addSearchConfigToPanelConfig(config: readonly any[]) {
     return configItem;
   });
 }
+// Cache for lazy-loaded widget configurations
+let cachedWidgetConfigs: any | null = null;
 
-const getWidgetPropertyPaneContentConfig = (type: string): readonly any[] => {
+/*
+ Lazily load this file since it is very large and used in migrations for certain DSL versions. By lazily loading 
+ this large file it can be reduce the main chunk only be loaded for certain limited conditions.
+*/
+const loadWidgetConfig = async () => {
+  if (!cachedWidgetConfigs) {
+    try {
+      const { default: widgetConfigs } = await import(
+        "../helpers/widget-configs.json"
+      );
+
+      cachedWidgetConfigs = widgetConfigs; // Cache the module for future use
+    } catch (e) {
+      log.error("Error loading WidgetConfig", e);
+    }
+  }
+
+  return cachedWidgetConfigs;
+};
+
+const getWidgetPropertyPaneContentConfig = async (
+  type: string,
+): Promise<readonly any[]> => {
+  const widgetConfigs = await loadWidgetConfig();
   const propertyPaneContentConfig = (widgetConfigs as any)[type]
     .propertyPaneContentConfig;
 
@@ -540,7 +564,11 @@ const getWidgetPropertyPaneContentConfig = (type: string): readonly any[] => {
   }
 };
 
-const getWidgetPropertyPaneStyleConfig = (type: string): readonly any[] => {
+const getWidgetPropertyPaneStyleConfig = async (
+  type: string,
+): Promise<readonly any[]> => {
+  const widgetConfigs = await loadWidgetConfig();
+
   const propertyPaneStyleConfig = (widgetConfigs as any)[type]
     .propertyPaneStyleConfig;
 
@@ -567,14 +595,20 @@ const getWidgetPropertyPaneStyleConfig = (type: string): readonly any[] => {
   }
 };
 
-const getWidgetPropertyPaneCombinedConfig = (type: string): readonly any[] => {
-  const contentConfig = getWidgetPropertyPaneContentConfig(type);
-  const styleConfig = getWidgetPropertyPaneStyleConfig(type);
+const getWidgetPropertyPaneCombinedConfig = async (
+  type: string,
+): Promise<readonly any[]> => {
+  const contentConfig = await getWidgetPropertyPaneContentConfig(type);
+  const styleConfig = await getWidgetPropertyPaneStyleConfig(type);
 
   return [...contentConfig, ...styleConfig];
 };
 
-const getWidgetPropertyPaneConfig = (type: string): readonly any[] => {
+const getWidgetPropertyPaneConfig = async (
+  type: string,
+): Promise<readonly any[]> => {
+  const widgetConfigs = await loadWidgetConfig();
+
   const propertyPaneConfig = (widgetConfigs as any)[type].propertyPaneConfig;
 
   const features = (widgetConfigs as any)[type].features;
@@ -590,7 +624,7 @@ const getWidgetPropertyPaneConfig = (type: string): readonly any[] => {
 
     return enhancedPropertyPaneConfig;
   } else {
-    const config = getWidgetPropertyPaneCombinedConfig(type);
+    const config = await getWidgetPropertyPaneCombinedConfig(type);
 
     if (config === undefined) {
       log.error("Widget property pane config not defined", type);
@@ -957,14 +991,14 @@ const getAllPathsFromPropertyConfig = memoize(
   { maxSize: 1000 },
 );
 
-export const migrateIncorrectDynamicBindingPathLists = (
+export const migrateIncorrectDynamicBindingPathLists = async (
   currentDSL: Readonly<DSLWidget>,
-): DSLWidget => {
+): Promise<DSLWidget> => {
   const migratedDsl = {
     ...currentDSL,
   };
   const dynamicBindingPathList: any[] = [];
-  const propertyPaneConfig = getWidgetPropertyPaneConfig(currentDSL.type);
+  const propertyPaneConfig = await getWidgetPropertyPaneConfig(currentDSL.type);
   const { bindingPaths } = getAllPathsFromPropertyConfig(
     currentDSL,
     propertyPaneConfig,
@@ -984,8 +1018,10 @@ export const migrateIncorrectDynamicBindingPathLists = (
   migratedDsl.dynamicBindingPathList = dynamicBindingPathList;
 
   if (currentDSL.children) {
-    migratedDsl.children = currentDSL.children.map(
-      migrateIncorrectDynamicBindingPathLists,
+    migratedDsl.children = await Promise.all(
+      currentDSL.children.map(async (value) =>
+        migrateIncorrectDynamicBindingPathLists(value),
+      ),
     );
   }
 

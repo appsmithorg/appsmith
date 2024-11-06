@@ -77,7 +77,9 @@ export const StyledControlContainer = styled.div`
 
   /* Select all segments which is not a selected and last child */
   /* seperator */
-  &:not(:last-child):not([data-selected="true"]):after {
+  &:not(:last-child):not([data-selected="true"]):not(
+      :has(+ [data-selected="true"])
+    ):after {
     content: "";
     position: absolute;
     right: 0;

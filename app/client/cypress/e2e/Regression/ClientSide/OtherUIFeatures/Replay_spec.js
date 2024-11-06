@@ -14,7 +14,7 @@ import EditorNavigation, {
 
 describe(
   "Undo/Redo functionality",
-  { tags: ["@tag.Widget", "@tag.PropertyPane"] },
+  { tags: ["@tag.Widget", "@tag.PropertyPane", "@tag.Binding"] },
   function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 

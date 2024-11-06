@@ -10,7 +10,7 @@ const dsl = require("../../../../../fixtures/tableAndTextDsl.json");
 
 describe(
   "Table Widget Filtered Table data in autocomplete",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableAndTextDsl");

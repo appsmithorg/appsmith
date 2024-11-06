@@ -20,6 +20,13 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import { fetchPluginFormConfigsSuccess } from "actions/pluginActions";
 import { createJSCollectionSuccess } from "actions/jsActionActions";
+import { getInstanceId } from "ee/selectors/tenantSelectors";
+import {
+  getApplicationLastDeployedAt,
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+
 jest.mock("loglevel");
 
 describe("evaluateTreeSaga", () => {
@@ -40,8 +47,22 @@ describe("evaluateTreeSaga", () => {
         [select(getSelectedAppTheme), {}],
         [select(getAppMode), false],
         [select(getWidgetsMeta), {}],
+        [select(getInstanceId), "instanceId"],
+        [select(getCurrentApplicationId), "applicationId"],
+        [select(getCurrentPageId), "pageId"],
+        [
+          select(getApplicationLastDeployedAt),
+          new Date("11 September 2024").toISOString(),
+        ],
       ])
       .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
+        cacheProps: {
+          instanceId: "instanceId",
+          appId: "applicationId",
+          pageId: "pageId",
+          appMode: false,
+          timestamp: new Date("11 September 2024").toISOString(),
+        },
         unevalTree: unEvalAndConfigTree,
         widgetTypeConfigMap: undefined,
         widgets: {},
@@ -71,8 +92,22 @@ describe("evaluateTreeSaga", () => {
         [select(getSelectedAppTheme), {}],
         [select(getAppMode), false],
         [select(getWidgetsMeta), {}],
+        [select(getInstanceId), "instanceId"],
+        [select(getCurrentApplicationId), "applicationId"],
+        [select(getCurrentPageId), "pageId"],
+        [
+          select(getApplicationLastDeployedAt),
+          new Date("11 September 2024").toISOString(),
+        ],
       ])
       .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
+        cacheProps: {
+          instanceId: "instanceId",
+          appId: "applicationId",
+          pageId: "pageId",
+          appMode: false,
+          timestamp: new Date("11 September 2024").toISOString(),
+        },
         unevalTree: unEvalAndConfigTree,
         widgetTypeConfigMap: undefined,
         widgets: {},
@@ -111,8 +146,22 @@ describe("evaluateTreeSaga", () => {
         [select(getSelectedAppTheme), {}],
         [select(getAppMode), false],
         [select(getWidgetsMeta), {}],
+        [select(getInstanceId), "instanceId"],
+        [select(getCurrentApplicationId), "applicationId"],
+        [select(getCurrentPageId), "pageId"],
+        [
+          select(getApplicationLastDeployedAt),
+          new Date("11 September 2024").toISOString(),
+        ],
       ])
       .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
+        cacheProps: {
+          instanceId: "instanceId",
+          appId: "applicationId",
+          pageId: "pageId",
+          appMode: false,
+          timestamp: new Date("11 September 2024").toISOString(),
+        },
         unevalTree: unEvalAndConfigTree,
         widgetTypeConfigMap: undefined,
         widgets: {},

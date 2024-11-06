@@ -21,10 +21,14 @@ import { actionPathFromName } from "components/formControls/utils";
 import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { Flex } from "@appsmith/ads";
 
-const Wrapper = styled.div<{ fullWidth: boolean }>`
+const Wrapper = styled.div`
   min-width: 380px;
-  max-width: ${({ fullWidth }) => (fullWidth ? "100%" : "872px;")};
+  width: 100%;
+  min-height: 200px;
+  height: 100%;
+  display: flex;
 `;
 
 interface DynamicTextControlState {
@@ -64,25 +68,24 @@ class DynamicTextControl extends BaseControl<
         : EditorModes.JSON_WITH_BINDING;
 
     return (
-      <Wrapper
-        className={`t--${configProperty} dynamic-text-field-control`}
-        fullWidth={isActionRedesignEnabled}
-      >
-        <DynamicTextField
-          dataTreePath={dataTreePath}
-          disabled={this.props.disabled}
-          evaluatedPopUpLabel={this?.props?.label}
-          evaluationSubstitutionType={evaluationSubstitutionType}
-          height="200px"
-          mode={mode}
-          name={this.props.configProperty}
-          placeholder={placeholderText}
-          showLineNumbers={
-            isActionRedesignEnabled || this.props.showLineNumbers
-          }
-          size={EditorSize.EXTENDED}
-          tabBehaviour={TabBehaviour.INDENT}
-        />
+      <Wrapper className={`t--${configProperty} dynamic-text-field-control`}>
+        <Flex flex="1">
+          <DynamicTextField
+            dataTreePath={dataTreePath}
+            disabled={this.props.disabled}
+            evaluatedPopUpLabel={this?.props?.label}
+            evaluationSubstitutionType={evaluationSubstitutionType}
+            height="100%"
+            mode={mode}
+            name={this.props.configProperty}
+            placeholder={placeholderText}
+            showLineNumbers={
+              isActionRedesignEnabled || this.props.showLineNumbers
+            }
+            size={EditorSize.EXTENDED}
+            tabBehaviour={TabBehaviour.INDENT}
+          />
+        </Flex>
       </Wrapper>
     );
   }

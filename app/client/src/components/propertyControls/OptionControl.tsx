@@ -20,7 +20,7 @@ class OptionControl extends BaseControl<ControlProps> {
     options: SegmentedControlOption[],
     isUpdatedViaKeyboard = false,
   ) => {
-    this.updateProperty("options", options, isUpdatedViaKeyboard);
+    this.updateProperty(this.props.propertyName, options, isUpdatedViaKeyboard);
   };
 
   static getControlType() {

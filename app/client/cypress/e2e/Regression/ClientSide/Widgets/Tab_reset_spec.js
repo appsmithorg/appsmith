@@ -4,7 +4,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Tabs widget resetting",
-  { tags: ["@tag.Widget", "@tag.Tab"] },
+  { tags: ["@tag.Widget", "@tag.Tab", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tabsWidgetReset");

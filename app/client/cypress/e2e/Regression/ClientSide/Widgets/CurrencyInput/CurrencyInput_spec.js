@@ -6,7 +6,7 @@ const widgetInput = `.t--widget-${widgetName} input`;
 
 describe(
   "Currency widget - ",
-  { tags: ["@tag.Widget", "@tag.CurrencyInput"] },
+  { tags: ["@tag.Widget", "@tag.CurrencyInput", "@tag.Binding"] },
   () => {
     before(() => {
       _.agHelper.AddDsl("emptyDSL");

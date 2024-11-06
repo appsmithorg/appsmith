@@ -57,7 +57,7 @@ const createMySQLDatasourceQuery = () => {
   dataSources.CreateQueryForDS(dsName, `SELECT * FROM spacecrafts LIMIT 10;`);
 };
 
-describe("Linting", { tags: ["@tag.JS"] }, () => {
+describe("Linting", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 300, 300);
     dataSources.CreateDataSource("MySql");

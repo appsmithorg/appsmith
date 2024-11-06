@@ -18,6 +18,11 @@ let mongoDbUrl;
 let mongoDumpFile = null;
 const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
 
+// The minimum version of the MongoDB changeset that must be present in the mongockChangeLog collection to run this script.
+// This is to ensure we are migrating the data from the stable version of MongoDB.
+const MINIMUM_MONGO_CHANGESET = "add_empty_policyMap_for_null_entries";
+const MONGO_MIGRATION_COLLECTION = "mongockChangeLog";
+
 for (let i = 2; i < process.argv.length; ++i) {
   const arg = process.argv[i];
   if (arg.startsWith("--mongodb-url=") && !mongoDbUrl) {
@@ -77,6 +82,15 @@ if (isBaselineMode) {
 const collectionNames = await mongoDb.listCollections({}, { nameOnly: true }).toArray();
 const sortedCollectionNames = collectionNames.map(collection => collection.name).sort();
 
+// Verify that the MongoDB data has been migrated to a stable version i.e. v1.43 before we start migrating the data to Postgres.
+if (!await isMongoDataMigratedToStableVersion(mongoDb)) {
+  console.error("MongoDB migration check failed: Try upgrading the Appsmith instance to latest before opting for data migration.");
+  console.error(`Could not find the valid migration execution entry for "${MINIMUM_MONGO_CHANGESET}" in the "${MONGO_MIGRATION_COLLECTION}" collection.`);
+  await mongoClient.close();
+  mongoServer?.kill();
+  process.exit(1);
+}
+
 for await (const collectionName of sortedCollectionNames) {
 
   console.log("Collection:", collectionName);
@@ -91,7 +105,7 @@ for await (const collectionName of sortedCollectionNames) {
     if (isArchivedObject(doc)) {
       continue;
     }
-    transformFields(doc);
+    transformFields(doc);  // This now handles the _class to type transformation.
     if (doc.policyMap == null) {
       doc.policyMap = {};
     }
@@ -147,16 +161,52 @@ function replacer(key, value) {
  * Method to transform the data in the object to be compatible with Postgres.
  * Updates:
  * 1. Changes the _id field to id, and removes the _id field.
+ * 2. Replaces the _class field with the appropriate type field.
  * @param {Document} obj - The object to transform.
  * @returns {void} - No return value.
  */
 function transformFields(obj) {
   for (const key in obj) {
-    if (key === "_id") {  // Change the _id field to id
+    if (key === "_id") {
       obj.id = obj._id.toString();
       delete obj._id;
-    } else if (typeof obj[key] === "object") {
+    } else if (key === "_class") {
+      const type = mapClassToType(obj._class);
+      if (type) {
+        obj.type = type;  // Add the type field
+      }
+      delete obj._class;  // Remove the _class field
+    } else if (typeof obj[key] === "object" && obj[key] !== null) {
       transformFields(obj[key]);
     }
   }
+}
+
+/**
+ * Map the _class field to the appropriate type value. The DatasourceStorage class requires this check
+ * @param {string} _class - The _class field value.
+ * @returns {string|null} - The corresponding type value, or null if no match is found.
+ */
+function mapClassToType(_class) {
+  switch (_class) {
+    case "com.appsmith.external.models.DatasourceStructure$PrimaryKey":
+      return "primary key";
+    case "com.appsmith.external.models.DatasourceStructure$ForeignKey":
+      return "foreign key";
+    default:
+      return null;
+  }
+}
+
+/**
+ * Method to check if MongoDB data has migrated to a stable version before we start migrating the data to Postgres.
+ * @param {*} mongoDb - The MongoDB client.
+ * @returns {Promise<boolean>} - A promise that resolves to true if the data has been migrated to a stable version, false otherwise.
+ */
+async function isMongoDataMigratedToStableVersion(mongoDb) {
+  const doc = await mongoDb.collection(MONGO_MIGRATION_COLLECTION).findOne({
+    changeId: MINIMUM_MONGO_CHANGESET,
+    state: "EXECUTED",
+  });
+  return doc !== null;
 }

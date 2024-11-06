@@ -10,7 +10,7 @@ import EditorNavigation, {
 
 describe(
   "List widget V2 functionality with audio and video widgets",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("listV2AudioVideoDsl");

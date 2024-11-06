@@ -29,7 +29,7 @@ const assertLintErrorAndOutput = (
 
 describe(
   "Bug #15283 - Correctly parses JS Function",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Binding"] },
   () => {
     before(() => {
       ee.DragDropWidgetNVerify("singleselecttreewidget", 300, 500);

@@ -24,9 +24,9 @@ import {
   isActionRunning,
 } from "PluginActionEditor/store";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
-import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
-import Schema from "components/editorComponents/Debugger/Schema";
-import QueryResponseTab from "pages/Editor/QueryEditor/QueryResponseTab";
+import useShowSchema from "PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
+import Schema from "PluginActionEditor/components/PluginActionResponse/components/Schema";
+import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import {
@@ -61,24 +61,8 @@ function usePluginActionResponseTabs() {
     handleRunClick();
   };
 
-  if (IDEViewMode === EditorViewMode.FullScreen) {
-    tabs.push(
-      {
-        key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-        title: createMessage(DEBUGGER_ERRORS),
-        count: errorCount,
-        panelComponent: <ErrorLogs />,
-      },
-      {
-        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-        title: createMessage(DEBUGGER_LOGS),
-        panelComponent: <DebuggerLogs searchQuery={action.name} />,
-      },
-    );
-  }
-
   if (plugin.type === PluginType.API) {
-    return tabs.concat([
+    tabs.push(
       {
         key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
         title: createMessage(DEBUGGER_RESPONSE),
@@ -107,7 +91,7 @@ function usePluginActionResponseTabs() {
           />
         ),
       },
-    ]);
+    );
   }
 
   if (
@@ -119,8 +103,6 @@ function usePluginActionResponseTabs() {
       PluginType.INTERNAL,
     ].includes(plugin.type)
   ) {
-    const newTabs = [];
-
     const actionSource: SourceEntity = {
       type: SOURCE_ENTITY_TYPE.ACTION,
       name: action.name,
@@ -128,7 +110,7 @@ function usePluginActionResponseTabs() {
     };
 
     if (showSchema) {
-      newTabs.push({
+      tabs.push({
         key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
         title: "Schema",
         panelComponent: (
@@ -141,7 +123,7 @@ function usePluginActionResponseTabs() {
       });
     }
 
-    newTabs.push({
+    tabs.push({
       key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
@@ -149,14 +131,29 @@ function usePluginActionResponseTabs() {
           actionName={action.name}
           actionSource={actionSource}
           currentActionConfig={action}
+          isRunDisabled={blockExecution}
           isRunning={isRunning}
           onRunClick={onRunClick}
           runErrorMessage={""} // TODO
         />
       ),
     });
+  }
 
-    return tabs.concat(newTabs);
+  if (IDEViewMode === EditorViewMode.FullScreen) {
+    tabs.push(
+      {
+        key: DEBUGGER_TAB_KEYS.ERROR_TAB,
+        title: createMessage(DEBUGGER_ERRORS),
+        count: errorCount,
+        panelComponent: <ErrorLogs />,
+      },
+      {
+        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+        title: createMessage(DEBUGGER_LOGS),
+        panelComponent: <DebuggerLogs searchQuery={action.name} />,
+      },
+    );
   }
 
   return tabs;

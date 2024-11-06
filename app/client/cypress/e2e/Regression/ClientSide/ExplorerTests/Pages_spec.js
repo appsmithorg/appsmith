@@ -4,7 +4,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Pages", { tags: ["@tag.IDE"] }, function () {
+describe("Pages", { tags: ["@tag.IDE", "@tag.PropertyPane"] }, function () {
   let veryLongPageName = `abcdefghijklmnopqrstuvwxyz1234`;
   let apiName = "someApi";
 

@@ -113,6 +113,7 @@ export class JSEditor {
     );
     //Checking JS object was created successfully
     this.assertHelper.AssertNetworkStatus("@createNewJSCollection", 201);
+    cy.get(this._jsObjName).click({ force: true });
     this.agHelper.AssertElementVisibility(this._jsObjTxt);
     // Assert that the name of the JS Object is focused when newly created
     this.agHelper.PressEnter();

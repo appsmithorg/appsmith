@@ -21,7 +21,7 @@ export const Main: Story = {
   args: {
     target: "_blank",
     href: "https://appsmith.com",
-    children: "This is a link.",
+    children: "Appsmith.",
   },
 };
 

@@ -17,7 +17,7 @@ let dsName: any;
 
 describe(
   "Bug 9334: The Select widget value is sent as null when user switches between the pages",
-  { tags: ["@tag.Widget"] },
+  { tags: ["@tag.Widget", "@tag.Binding"] },
   function () {
     before("Change Theme & Create Postgress DS", () => {
       appSettings.OpenPaneAndChangeTheme("Pampas");

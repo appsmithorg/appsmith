@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import React from "react";
 import { importRemixIcon, importSvg } from "./loadables";
+
 const AddMoreIcon = importRemixIcon(
   async () => import("remixicon-react/AddCircleLineIcon"),
 );
@@ -1063,6 +1064,14 @@ const MaximizeV3Icon = importSvg(
   async () => import("../__assets__/icons/ads/maximize-v3-icon.svg"),
 );
 
+const ExternalLinkIcon = importRemixIcon(
+  async () => import("remixicon-react/ExternalLinkLineIcon"),
+);
+
+const InputCursorMoveIcon = importSvg(
+  async () => import("../__assets__/icons/ads/input-cursor-move.svg"),
+);
+
 import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
 
 function PlayIconPNGWrapper() {
@@ -1211,6 +1220,7 @@ const ICON_LOOKUP = {
   "link-2": Link2,
   "link-unlink": LinkUnlinkIcon,
   "links-line": LinksLineIcon,
+  "external-link-line": ExternalLinkIcon,
   "lock-2-line": Lock2LineIcon,
   "lock-password-line": LockPasswordLineIcon,
   "lock-unlock-line": LockUnlockLineIcon,
@@ -1357,6 +1367,7 @@ const ICON_LOOKUP = {
   "minimize-v3": MinimizeV3Icon,
   "maximize-v3": MaximizeV3Icon,
   "workflows-mono": WorkflowsMonochromeIcon,
+  "input-cursor-move": InputCursorMoveIcon,
   billing: BillingIcon,
   binding: Binding,
   book: BookIcon,
