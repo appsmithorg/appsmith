@@ -92,7 +92,7 @@ export class PropertyPane {
     "div.tab-view span:contains('" + type + "')";
 
   _dropdownSelectType = ".t--open-dropdown-Select-type";
-  _selectorViewLabel = '[data-testId="selector-view-label"]';
+  _selectorViewLabel = '[data-testid="selector-view-label"]';
   _textView = ".text-view";
   _selectorView = ".selector-view";
   _dropdownOptions =

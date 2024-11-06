@@ -21,7 +21,7 @@ const Section: React.FC<SectionProps> = ({
     <div
       className={classNames}
       data-fullwidth={isFullWidth.toString()}
-      data-withoutPadding={withoutPadding.toString()}
+      data-withoutpadding={withoutPadding.toString()}
       {...props}
     >
       {children}
