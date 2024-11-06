@@ -69,7 +69,7 @@ export const JSFunctionRun = (props: Props) => {
             {props.selected.label}
           </Button>
         </MenuTrigger>
-        <MenuContent align="end">
+        <MenuContent align="end" data-testid="t--js-functions-menu">
           {props.options.map((option) => (
             <JSFunctionItem
               key={option.label}

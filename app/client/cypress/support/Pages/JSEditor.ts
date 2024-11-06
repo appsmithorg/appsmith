@@ -30,10 +30,10 @@ export class JSEditor {
   public ee = ObjectsRegistry.EntityExplorer;
   public propPane = ObjectsRegistry.PropertyPane;
   private assertHelper = ObjectsRegistry.AssertHelper;
-  private runButtonLocator = "[data-testid='t--run-js-action']";
-  private settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
-  private contextMenuTriggerLocator = "[data-testid='t--more-action-trigger']";
-  private runFunctionSelectLocator = "[data-testid='t--js-function-run']";
+  public runButtonLocator = "[data-testid='t--run-js-action']";
+  public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
+  public contextMenuTriggerLocator = "[data-testid='t--more-action-trigger']";
+  public runFunctionSelectLocator = "[data-testid='t--js-function-run']";
 
 
   public toolbar = new PluginEditorToolbar(
@@ -70,9 +70,8 @@ export class JSEditor {
     "//div[@role='dialog']//*[contains(text(), '" +
     Cypress.env("MESSAGES")?.QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]";
-  _funcDropdown = ".t--formActionButtons .function-select-dropdown";
-  _funcDropdownValue = `${this._funcDropdown} p`;
-  _funcDropdownOptions = ".rc-virtual-list .rc-select-item-option p";
+  _funcDropdownValue = `${this.runFunctionSelectLocator} .ads-v2-button__content-children`;
+  _funcDropdownOptions = "[data-testid='t--js-functions-menu'] [role='menuitem'] > span > span";
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;
@@ -307,7 +306,7 @@ export class JSEditor {
   }
 
   public AssertSelectedFunction(funName: string) {
-    cy.get(this._funcDropdownValue).contains(funName).should("exist");
+    cy.get(this.runFunctionSelectLocator).contains(funName).should("exist");
   }
 
   public ConfirmationClick(type: "Yes" | "No") {
