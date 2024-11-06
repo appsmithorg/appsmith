@@ -43,7 +43,11 @@ import {
   getDatasource,
   getPluginNameFromId,
 } from "ee/selectors/entitiesSelector";
-import { getCurrentEnvironmentId } from "ce/selectors/environmentSelectors";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import {
+  useParagonIntegrationsWithWorklows,
+} from "utils/paragonHooks";
+import { klona } from "klona";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -154,7 +158,7 @@ const PARAGON_EDITOR_JSON = [
     children: [
       {
         label: "Method",
-        configProperty: "actionConfiguration.formData.method",
+        configProperty: "actionConfiguration.httpMethod",
         controlType: "DROP_DOWN",
         initialValue: "GET",
         options: [
@@ -177,11 +181,20 @@ const PARAGON_EDITOR_JSON = [
         ],
       },
       {
-        label: "Api Path",
-        configProperty: "actionConfiguration.formData.apiPath",
-        controlType: "QUERY_DYNAMIC_INPUT_TEXT",
-        evaluationSubstitutionType: "TEMPLATE",
-        placeholderText: "v1/example",
+        label: "Action Type",
+        configProperty: "actionConfiguration.formData.actionType",
+        controlType: "DROP_DOWN",
+        options: [
+          {
+            label: "Workflow",
+            value: "workflow",
+          },
+          {
+            label: "Api Path",
+            value: "api",
+          },
+        ],
+        initialValue: "workflow",
       },
     ],
   },
@@ -191,11 +204,30 @@ const PARAGON_EDITOR_JSON = [
     children: [
       {
         controlType: "SINGLE_COLUMN_ZONE",
+        identifier: "API_PATH",
+        children: [
+          {
+            label: "Api Path",
+            configProperty: "actionConfiguration.formData.apiPath",
+            controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+            evaluationSubstitutionType: "TEMPLATE",
+            placeholderText: "v1/example",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    controlType: "SECTION_V3",
+    identifier: "SECTION-TWO",
+    children: [
+      {
+        controlType: "SINGLE_COLUMN_ZONE",
         identifier: "SO-Z2",
         children: [
           {
             label: "Query Params",
-            configProperty: "actionConfiguration.formData.queryParams",
+            configProperty: "actionConfiguration.queryParameters",
             controlType: "KEYVALUE_ARRAY",
           },
         ],
@@ -203,8 +235,8 @@ const PARAGON_EDITOR_JSON = [
     ],
   },
   {
-    controlType: "SECTION_V2",
-    identifier: "SECTION-TWO",
+    controlType: "SECTION_V4",
+    identifier: "SECTION-THREE",
     children: [
       {
         controlType: "SINGLE_COLUMN_ZONE",
@@ -212,7 +244,7 @@ const PARAGON_EDITOR_JSON = [
         children: [
           {
             label: "Body",
-            configProperty: "actionConfiguration.formData.body",
+            configProperty: "actionConfiguration.body",
             controlType: "QUERY_DYNAMIC_TEXT",
           },
         ],
@@ -361,15 +393,36 @@ export function EditorJSONtoForm(props: Props) {
   const datasourceConfigurationProps =
     datasource?.datasourceStorages?.[currentEnvironment]
       ?.datasourceConfiguration?.properties;
-  if (
-    datasourceConfigurationProps &&
-    datasourceConfigurationProps.some(
-      ({ key }) => key === "integrationId" || key === "integrationType",
-    )
-  ) {
-    editorConfig = PARAGON_EDITOR_JSON;
+
+  const integrationId =
+    datasourceConfigurationProps?.find(({ key }) => key === "integrationId")
+      ?.value || "";
+
+  const integrationsWithWorkflows = useParagonIntegrationsWithWorklows();
+  const integrationData = integrationsWithWorkflows[integrationId];
+  if (integrationId && integrationData) {
+    const paragonEditorJson = klona(PARAGON_EDITOR_JSON);
+    paragonEditorJson[0].children.push({
+      controlType: "SINGLE_COLUMN_ZONE",
+      identifier: "WORKFLOW",
+      children: [
+        {
+          label: "Workflow",
+          configProperty: "actionConfiguration.formData.workflowId",
+          controlType: "DROP_DOWN",
+          initialValue: "",
+          options: integrationData.workflows.map((i) => ({
+            label: i.description,
+            value: i.id,
+          })),
+        },
+      ],
+    } as any);
+    editorConfig = paragonEditorJson;
     uiComponent = UIComponentTypes.UQIDbEditorForm;
   }
+
+  if (integrationId && !integrationData) return null;
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.

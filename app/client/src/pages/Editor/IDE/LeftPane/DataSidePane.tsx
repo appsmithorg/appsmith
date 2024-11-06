@@ -30,9 +30,6 @@ import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/perm
 import { EmptyState } from "../EditorPane/components/EmptyState";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
-import { useParagonIntegrations, useParagonUser } from "utils/paragonHooks";
-import { objectKeys } from "@appsmith/utils";
-import { paragon } from "@useparagon/connect";
 
 const PaneBody = styled.div`
   padding: var(--ads-v2-spaces-3) 0;

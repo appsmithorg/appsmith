@@ -176,7 +176,11 @@ const QueryResponseTab = (props: Props) => {
       // Pass the error to be shown in the error tab
       error = actionResponse.readableError
         ? getErrorAsString(actionResponse.readableError)
-        : getErrorAsString(actionResponse.body);
+        : getErrorAsString(
+            (actionResponse.body as any)?.message
+              ? (actionResponse.body as any).message
+              : actionResponse.body,
+          );
     } else if (isString(actionResponse.body)) {
       //reset error.
       error = "";
@@ -278,7 +282,10 @@ const QueryResponseTab = (props: Props) => {
                 </>
               ) : (
                 actionResponse.body && (
-                  <div data-testid="t--query-error">{actionResponse.body}</div>
+                  <div data-testid="t--query-error">
+                    {(actionResponse.body as any).message ||
+                      actionResponse.body}
+                  </div>
                 )
               ))}
             <LogHelper

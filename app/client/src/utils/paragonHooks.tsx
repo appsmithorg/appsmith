@@ -1,6 +1,10 @@
 import { paragon, type AuthenticatedConnectUser } from "@useparagon/connect";
-import type { IIntegrationMetadata } from "@useparagon/connect/dist/src/entities/integration.interface";
+import type {
+  IConnectIntegration,
+  IIntegrationMetadata,
+} from "@useparagon/connect/dist/src/entities/integration.interface";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { keyBy } from "lodash";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
@@ -36,4 +40,32 @@ export function useParagonIntegrations() {
   return {
     integrations,
   };
+}
+
+export function useParagonIntegrationsWithWorklows() {
+  const currentWorkspace = useSelector(getCurrentAppWorkspace);
+  const [integrations, setIntegrations] = useState<
+    Record<string, IConnectIntegration>
+  >({});
+
+  const getIntegrations = async () => {
+    const data = await fetch(
+      `https://api.useparagon.com/projects/${currentWorkspace.projectId}/sdk/integrations`,
+      {
+        headers: {
+          Authorization: `Bearer ${currentWorkspace.token}`,
+        },
+      },
+    ).then((res) => res.json());
+
+    setIntegrations(keyBy(data || [], "id"));
+  };
+
+  useEffect(() => {
+    if (currentWorkspace.token && currentWorkspace.projectId) {
+      getIntegrations();
+    }
+  }, [currentWorkspace.token]);
+
+  return integrations;
 }
