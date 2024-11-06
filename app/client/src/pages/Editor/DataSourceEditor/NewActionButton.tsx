@@ -155,7 +155,7 @@ function NewActionButton(props: NewActionButtonProps) {
       </MenuTrigger>
       <MenuContent
         align={"end"}
-        data-testId={"t--page-selection"}
+        data-testid={"t--page-selection"}
         height={pages.length <= 4 ? "fit-content" : "186px"}
         side={"bottom"}
       >

@@ -108,7 +108,7 @@ const Schema = (props: Props) => {
       overflow="hidden"
     >
       <Flex
-        data-testId="datasource-schema-container"
+        data-testid="datasource-schema-container"
         flex="1"
         flexDirection="column"
         gap="spaces-3"
