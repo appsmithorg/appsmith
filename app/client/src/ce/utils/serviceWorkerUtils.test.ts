@@ -212,6 +212,7 @@ describe("serviceWorkerUtils", () => {
       const expectedParams: TApplicationParams = {
         origin: "https://app.appsmith.com",
         basePageId,
+        applicationSlug: "my-app",
         baseApplicationId: undefined,
         branchName: "main",
         appMode: APP_MODE.EDIT,
@@ -227,6 +228,7 @@ describe("serviceWorkerUtils", () => {
       const expectedParams: TApplicationParams = {
         origin: "https://app.appsmith.com",
         basePageId,
+        applicationSlug: "my-app",
         baseApplicationId: undefined,
         branchName: "main",
         appMode: APP_MODE.PUBLISHED,
@@ -307,6 +309,7 @@ describe("serviceWorkerUtils", () => {
       );
       const expectedParams: TApplicationParams = {
         origin: "https://app.appsmith.com",
+        applicationSlug: "my-app",
         basePageId,
         baseApplicationId: undefined,
         branchName: "",
