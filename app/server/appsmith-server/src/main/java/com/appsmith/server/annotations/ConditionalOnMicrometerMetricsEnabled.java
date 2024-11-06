@@ -15,5 +15,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@ConditionalOnExpression("${appsmith.micrometer.metrics.enabled}")
+@ConditionalOnExpression("${appsmith.observability.metrics.enabled}")
 public @interface ConditionalOnMicrometerMetricsEnabled {}

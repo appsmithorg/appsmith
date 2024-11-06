@@ -95,6 +95,16 @@
     overflow: auto;
   }
 
+  code:not([class*="language-"]) {
+    padding-inline: var(--inner-spacing-1);
+    background: var(--color-bg-neutral-subtle);
+    color: var(--color-fg-negative);
+    border-radius: var(--border-radius-elevation-3);
+    word-break: break-word;
+    white-space: normal;
+    outline: var(--border-width-1) solid var(--color-bg-neutral-soft);
+  }
+
   pre {
     margin-top: var(--inner-spacing-4);
     margin-bottom: var(--inner-spacing-4);

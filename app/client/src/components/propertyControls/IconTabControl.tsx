@@ -12,8 +12,16 @@ import {
 } from "utils/AppsmithUtils";
 
 const StyledSegmentedControl = styled(SegmentedControl)`
+  &.ads-v2-segmented-control {
+    gap: 0;
+  }
+
   > .ads-v2-segmented-control__segments-container {
-    flex: 1 1 0%;
+    flex: 1 1 auto;
+  }
+
+  > .ads-v2-segmented-control__segments-container:has(.ads-v2-text) span {
+    padding: 0;
   }
 `;
 

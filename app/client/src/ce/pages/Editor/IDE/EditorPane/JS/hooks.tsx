@@ -1,4 +1,5 @@
-import { useCallback } from "react";
+import { lazy, Suspense, useCallback, useMemo } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -7,17 +8,16 @@ import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import type { UseRoutes } from "ee/entities/IDE/constants";
-import JSEditor from "pages/Editor/JSEditor";
-import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
 import { ADD_PATH } from "ee/constants/routes/appRoutes";
 import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
 import { getJSUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
-import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { setListViewActiveState } from "actions/ideActions";
+import { retryPromise } from "utils/AppsmithUtils";
+import Skeleton from "widgets/Skeleton";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
@@ -93,25 +93,64 @@ export const useGroupedAddJsOperations = (): GroupedAddOperations => {
   ];
 };
 
+const AddJS = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(
+        /* webpackChunkName: "AddJS" */ "pages/Editor/IDE/EditorPane/JS/Add"
+      ),
+  ),
+);
+const JSEditor = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(/* webpackChunkName: "JSEditor" */ "pages/Editor/JSEditor"),
+  ),
+);
+
+const JSEmpty = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(
+        /* webpackChunkName: "JSEmpty" */ "pages/Editor/JSEditor/JSBlankState"
+      ),
+  ),
+);
+
 export const useJSEditorRoutes = (path: string): UseRoutes => {
-  return [
-    {
-      exact: true,
-      key: "AddJS",
-      component: AddJS,
-      path: [`${path}${ADD_PATH}`, `${path}/:baseCollectionId${ADD_PATH}`],
-    },
-    {
-      exact: true,
-      key: "JSEditor",
-      component: JSEditor,
-      path: [path + "/:baseCollectionId"],
-    },
-    {
-      key: "JSEmpty",
-      component: JSBlankState,
-      exact: true,
-      path: [path],
-    },
-  ];
+  return useMemo(
+    () => [
+      {
+        exact: true,
+        key: "AddJS",
+        component: (args) => (
+          <Suspense fallback={<Skeleton />}>
+            <AddJS {...args} />
+          </Suspense>
+        ),
+        path: [`${path}${ADD_PATH}`, `${path}/:baseCollectionId${ADD_PATH}`],
+      },
+      {
+        exact: true,
+        key: "JSEditor",
+        component: (args) => (
+          <Suspense fallback={<Skeleton />}>
+            <JSEditor {...args} />
+          </Suspense>
+        ),
+        path: [path + "/:baseCollectionId"],
+      },
+      {
+        key: "JSEmpty",
+        component: (args) => (
+          <Suspense fallback={<Skeleton />}>
+            <JSEmpty {...args} />
+          </Suspense>
+        ),
+        exact: true,
+        path: [path],
+      },
+    ],
+    [path],
+  );
 };

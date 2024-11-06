@@ -8,6 +8,9 @@ import ListQuery from "../EditorPane/Query/List";
 import ListJSObjects from "../EditorPane/JS/List";
 
 const ListContainer = styled(Flex)`
+  position: absolute;
+  top: 32px;
+  padding-top: 4px;
   & .t--entity-item {
     grid-template-columns: 0 auto 1fr auto auto auto auto auto;
     height: 32px;
@@ -24,7 +27,6 @@ export const List = () => {
   return (
     <ListContainer
       bg="var(--ads-v2-color-bg)"
-      className="absolute top-[36px]" // space for tabs on top and then some padding
       data-testid="t--editorpane-list-view"
       h="calc(100% - 32px)"
       w="100%"
