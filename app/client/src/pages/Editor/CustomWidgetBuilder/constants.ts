@@ -13,9 +13,6 @@ export const CUSTOM_WIDGET_BUILDER_EVENTS = {
 export const LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN =
   "custom-widget-builder-context-state-is-reference-open";
 
-export const LOCAL_STORAGE_KEYS_SELECTED_LAYOUT =
-  "custom-widget-builder-context-state-selected-layout";
-
 export const DEFAULT_CONTEXT_VALUE = {
   name: "",
   widgetId: "",

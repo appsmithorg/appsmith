@@ -8,6 +8,7 @@ import StyleEditor, { TitleControls } from "./CodeEditors/StyleEditor";
 import JSEditor from "./CodeEditors/JSEditor";
 import type { ContentProps } from "./CodeEditors/types";
 import References from "./References";
+import { ChatBot } from "./ChatBot/ChatBot";
 
 export default function Editor() {
   const { isReferenceOpen } = useContext(CustomWidgetBuilderContext);
@@ -32,6 +33,10 @@ export default function Editor() {
             {
               title: "Javascript",
               children: (props: ContentProps) => <JSEditor {...props} />,
+            },
+            {
+              title: "AI",
+              children: (props: ContentProps) => <ChatBot {...props} />,
             },
           ]}
         />

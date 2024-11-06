@@ -3,7 +3,6 @@ import {
   CUSTOM_WIDGET_BUILDER_EVENTS,
   DEFAULT_CONTEXT_VALUE,
   LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN,
-  LOCAL_STORAGE_KEYS_SELECTED_LAYOUT,
 } from "./constants";
 import history from "utils/history";
 import useLocalStorageState from "utils/hooks/useLocalStorageState";
@@ -26,11 +25,6 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
   const [isReferenceOpen, setIsReferenceOpen] = useLocalStorageState<boolean>(
     LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN,
     true,
-  );
-
-  const [selectedLayout, setSelectedLayout] = useLocalStorageState<string>(
-    LOCAL_STORAGE_KEYS_SELECTED_LAYOUT,
-    "tabs",
   );
 
   const [contextValue, setContextValue] =
@@ -93,9 +87,6 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
       toggleReference: () => {
         setIsReferenceOpen(!isReferenceOpen);
       },
-      selectLayout: (layout) => {
-        setSelectedLayout(layout);
-      },
       close: () => {
         window.opener?.focus();
         window.close();
@@ -154,22 +145,16 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
         });
       },
     }),
-    [
-      contextValue.uncompiledSrcDoc,
-      setIsReferenceOpen,
-      isReferenceOpen,
-      setSelectedLayout,
-    ],
+    [contextValue.uncompiledSrcDoc, setIsReferenceOpen, isReferenceOpen],
   );
 
   const context = useMemo(
     () => ({
       ...contextValue,
       isReferenceOpen,
-      selectedLayout,
       ...contextFunctions,
     }),
-    [contextValue, contextFunctions, isReferenceOpen, selectedLayout],
+    [contextValue, contextFunctions, isReferenceOpen],
   );
 
   useEffect(replay, [contextValue.srcDoc]);
