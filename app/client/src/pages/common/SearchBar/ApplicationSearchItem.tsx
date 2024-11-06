@@ -36,7 +36,7 @@ const ApplicationSearchItem = (props: Props) => {
       </Text>
       {applicationsList.map((application: ApplicationPayload) => (
         <SearchListItem
-          data-testId={application.name}
+          data-testid={application.name}
           key={application.id}
           onClick={() => navigateToApplication(application.id)}
         >
