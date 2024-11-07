@@ -1,0 +1,72 @@
+<configuration>
+
+  <contextName>appsmith-server</contextName>
+
+  <property name="SERVICE_INSTANCE_ID" value="${HOSTNAME:-appsmith-0}" />
+  <property name="DEPLOYMENT_NAME" value="${APPSMITH_DEPLOYMENT_NAME:-self-hosted}" />
+
+  <!-- Conditional logging format based on the profile -->
+  <springProfile name="dev | test">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder>
+        <pattern>
+          [%d{ISO8601, UTC}] [%t] requestId=%X{X-Appsmith-Request-Id} userEmail=%X{userEmail} traceId=%X{traceId} spanId=%X{spanId} - %m%n
+        </pattern>
+      </encoder>
+    </appender>
+    <!-- Root logger configuration -->
+    <root level="INFO">
+      <!-- Refer the appropriate appender based on the profile -->
+      <appender-ref ref="CONSOLE" />
+    </root>
+  </springProfile>
+
+  <!-- Console appender with JSON format -->
+  <springProfile name="production">
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+        <providers>
+          <!-- Add basic information -->
+          <timestamp>
+            <fieldName>timestamp</fieldName>
+          </timestamp>
+
+          <contextName/>
+
+          <!-- Custom fields for deployment and service instance information -->
+          <customFields>
+            {
+              "deploymentName": "${DEPLOYMENT_NAME}",
+              "serviceInstanceId": "${SERVICE_INSTANCE_ID}"
+            }
+          </customFields>
+
+          <!-- Use PatternJsonProvider for structured fields -->
+          <pattern>
+            <pattern>
+              {
+                "level": "%level",
+                "logger": "%logger",
+                "thread": "%thread",
+                "message": "%message",
+                "exception": "%exception",
+                "requestId": "%X{X-Appsmith-Request-Id}",
+                "userEmail": "%X{userEmail}",
+                "traceId": "%X{traceId}",
+                "spanId": "%X{spanId}"
+              }
+            </pattern>
+          </pattern>
+        </providers>
+      </encoder>
+    </appender>
+    <!-- Root logger configuration -->
+    <root level="INFO">
+      <appender-ref ref="JSON_CONSOLE" />
+    </root>
+  </springProfile>
+
+
+  <logger name="com.appsmith" level="DEBUG" />
+  <logger name="com.external.plugins" level="DEBUG" />
+</configuration>
