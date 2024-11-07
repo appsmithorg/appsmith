@@ -16,6 +16,7 @@ import { ActionUpdateDependency } from "../constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import useUnmountFieldValidation from "./useUnmountFieldValidation";
 
 type RadioGroupComponentProps = FieldComponentBaseProps & {
   options: RadioOption[];
@@ -66,6 +67,7 @@ function RadioGroupField({
     fieldName: name,
     fieldType: schemaItem.fieldType,
   });
+  useUnmountFieldValidation({ fieldName: name });
 
   const onSelectionChange = useCallback(
     (selectedValue: string) => {

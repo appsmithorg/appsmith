@@ -299,6 +299,7 @@ function Form<TValues = any>(
                 <Button
                   {...resetButtonStyles}
                   className="t--jsonform-reset-btn"
+                  data-testid="t--jsonform-reset-btn"
                   onClick={(e) => onReset(schema, e)}
                   text={resetButtonLabel}
                   type="reset"
@@ -308,6 +309,7 @@ function Form<TValues = any>(
             <Button
               {...submitButtonStyles}
               className="t--jsonform-submit-btn"
+              data-testid="t--jsonform-submit-btn"
               disabled={disabledWhenInvalid && isFormInValid}
               loading={isSubmitting}
               onClick={onSubmit}

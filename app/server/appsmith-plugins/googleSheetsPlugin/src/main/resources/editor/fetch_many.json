@@ -198,6 +198,7 @@
           },
           "children": [
             {
+              "label": "",
               "configProperty": "actionConfiguration.formData.pagination.data",
               "controlType": "PAGINATION",
               "-subtitle": "Object",
