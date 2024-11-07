@@ -36,10 +36,8 @@ function PluginActionResponse() {
     function openResponseTabForPageLoadQueries() {
       // actionResponse and responseDisplayFormat is present only when query has response available
       if (
-        responseDisplayFormat &&
         !!responseDisplayFormat?.title &&
-        actionResponse &&
-        actionResponse.isExecutionSuccess
+        actionResponse?.isExecutionSuccess
       ) {
         dispatch(
           setPluginActionEditorDebuggerState({
@@ -49,7 +47,11 @@ function PluginActionResponse() {
         );
       }
     },
-    [responseDisplayFormat, actionResponse, dispatch],
+    [
+      responseDisplayFormat?.title,
+      actionResponse?.isExecutionSuccess,
+      dispatch,
+    ],
   );
 
   useEffect(
