@@ -83,6 +83,7 @@ docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk -v product_name="$product
 # Check if the CSV output file is empty
 [ -s "$CSV_OUTPUT_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$CSV_OUTPUT_FILE"
 
+
 # Compare each vulnerability with the database and store new ones in a CSV file
 compare_and_store_vulns() {
   local new_vulns_file="scout_new_vulnerabilities.csv"
