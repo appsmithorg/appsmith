@@ -153,7 +153,7 @@ test_postgres_auth_enabled_upgrade_from_147tolocal() {
     while true; do
         retry_count=$((retry_count + 1))
         if docker exec "${container_name}" pg_isready &&
-            docker exec "${container_name}" bash -c 'cat /appsmith-stacks/data/postgres/main/PG_VERSION' = "14"; then
+          [ "$(docker exec "${container_name}" bash -c 'cat /appsmith-stacks/data/postgres/main/PG_VERSION')" = "14" ]; then
             break
         fi
         if [ $retry_count -le $MAX_RETRIES ]; then
