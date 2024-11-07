@@ -34,10 +34,6 @@ export const FEATURE_FLAG = {
     "release_drag_drop_building_blocks_enabled",
   rollout_side_by_side_enabled: "rollout_side_by_side_enabled",
   rollout_eslint_enabled: "rollout_eslint_enabled",
-  ab_learnability_ease_of_initial_use_enabled:
-    "ab_learnability_ease_of_initial_use_enabled",
-  ab_learnability_discoverability_collapse_all_except_data_enabled:
-    "ab_learnability_discoverability_collapse_all_except_data_enabled",
   release_layout_conversion_enabled: "release_layout_conversion_enabled",
   release_anvil_toggle_enabled: "release_anvil_toggle_enabled",
   release_git_persist_branch_enabled: "release_git_persist_branch_enabled",
@@ -75,7 +71,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_appsmith_ai_query: false,
   release_actions_redesign_enabled: false,
   rollout_remove_feature_walkthrough_enabled: true,
-  rollout_js_enabled_one_click_binding_enabled: true,
   rollout_eslint_enabled: false,
   rollout_side_by_side_enabled: false,
   release_layout_conversion_enabled: false,
