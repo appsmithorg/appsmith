@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
 import { ActionExecutionResizerHeight } from "./constants";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
@@ -15,7 +15,7 @@ import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
 
 function PluginActionResponse() {
   const dispatch = useDispatch();
-  const { action, actionResponse, plugin } = usePluginActionContext();
+  const { actionResponse, plugin } = usePluginActionContext();
 
   const tabs = usePluginActionResponseTabs();
   const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
@@ -27,56 +27,44 @@ function PluginActionResponse() {
     getPluginActionDebuggerState,
   );
 
-  const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
-    useState<boolean>(false);
-
   const { responseDisplayFormat } =
     actionResponseDisplayDataFormats(actionResponse);
 
   // These useEffects are used to open the response tab by default for page load queries
   // as for page load queries, query response is available and can be shown in response tab
-  useEffect(() => {
-    // actionResponse and responseDisplayFormat is present only when query has response available
-    if (
-      responseDisplayFormat &&
-      !!responseDisplayFormat?.title &&
-      actionResponse &&
-      actionResponse.isExecutionSuccess &&
-      !showResponseOnFirstLoad
-    ) {
-      dispatch(
-        setPluginActionEditorDebuggerState({
-          open: true,
-          selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-        }),
-      );
-      setShowResponseOnFirstLoad(true);
-    }
-  }, [
-    responseDisplayFormat,
-    actionResponse,
-    showResponseOnFirstLoad,
-    dispatch,
-  ]);
+  useEffect(
+    function openResponseTabForPageLoadQueries() {
+      // actionResponse and responseDisplayFormat is present only when query has response available
+      if (
+        responseDisplayFormat &&
+        !!responseDisplayFormat?.title &&
+        actionResponse &&
+        actionResponse.isExecutionSuccess
+      ) {
+        dispatch(
+          setPluginActionEditorDebuggerState({
+            open: true,
+            selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+          }),
+        );
+      }
+    },
+    [responseDisplayFormat, actionResponse, dispatch],
+  );
 
-  useEffect(() => {
-    if (showSchema && !selectedTab) {
-      dispatch(
-        setPluginActionEditorDebuggerState({
-          open: true,
-          selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
-        }),
-      );
-    }
-  }, [showSchema, selectedTab, dispatch]);
-
-  // When multiple page load queries exist, we want to response tab by default for all of them
-  // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
-  useEffect(() => {
-    if (action?.id) {
-      setShowResponseOnFirstLoad(false);
-    }
-  }, [action?.id]);
+  useEffect(
+    function openSchemaTabWhenNoTabIsSelected() {
+      if (showSchema && !selectedTab) {
+        dispatch(
+          setPluginActionEditorDebuggerState({
+            open: true,
+            selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
+          }),
+        );
+      }
+    },
+    [showSchema, selectedTab, dispatch],
+  );
 
   const toggleHide = useCallback(
     () => dispatch(setPluginActionEditorDebuggerState({ open: !open })),
