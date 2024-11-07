@@ -40,11 +40,11 @@ RUN <<END
   rm -rf utils/node_modules/resolve/test
   cd -
 
-  # Ensure all *.sh scripts are executable.
-  find . -name node_modules -prune -or -type f -name '*.sh' -print -exec chmod +x '{}' ';'
+  # Make all `*.sh` files executable, excliding `node_modules`.
+  find . \( -name node_modules -prune \) -o \( -type f -name '*.sh' \) -exec chmod +x '{}' +
 
   # Ensure all custom command-scripts have executable permission
-  chmod +x /opt/bin/* *.sh /watchtower-hooks/*.sh
+  chmod +x /opt/bin/* /watchtower-hooks/*.sh
 
   # Disable setuid/setgid bits for the files inside container.
   find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -exec chmod -s '{}' + \) || true
