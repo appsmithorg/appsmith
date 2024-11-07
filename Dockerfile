@@ -40,7 +40,7 @@ RUN <<END
   rm -rf utils/node_modules/resolve/test
   cd -
 
-  # Make all `*.sh` files executable, excliding `node_modules`.
+  # Make all `*.sh` files executable, excluding `node_modules`.
   find . \( -name node_modules -prune \) -o \( -type f -name '*.sh' \) -exec chmod +x '{}' +
 
   # Ensure all custom command-scripts have executable permission
