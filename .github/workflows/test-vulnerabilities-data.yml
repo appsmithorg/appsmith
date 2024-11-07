@@ -145,14 +145,14 @@ jobs:
         if: always()
         run: |
           # Check if Scout vulnerabilities file is not empty
-          if [ -s "./scripts/scout_new_vulnerabilities.csv" ]; then
+          if [ -s "scout_new_vulnerabilities.csv" ]; then
             echo "Scout vulnerabilities detected."
             cat scout_new_vulnerabilities.csv
             exit 1  # Fail the job if data exists
           fi
           
           # Check if Trivy vulnerabilities file is not empty
-          if [ -s "./scripts/trivy_new_vulnerabilities.csv" ]; then
+          if [ -s "trivy_new_vulnerabilities.csv" ]; then
             echo "Trivy vulnerabilities detected."
             cat trivy_new_vulnerabilities.csv
             exit 1  # Fail the job if data exists
