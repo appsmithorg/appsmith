@@ -88,23 +88,16 @@ else
     echo "No vulnerabilities found." > "$NEW_VULN_FILE"
 fi
 
-
-# Insert new vulnerabilities into PostgreSQL
-insert_vulns_into_db() {
-    local query_file="insert_vulns.sql"
-    echo "BEGIN;" > "$query_file"
+# Compare each vulnerability with the database and store new ones in a CSV file
+compare_and_store_vulns() {
+    local new_vulns_file="trivy_new_vulnerabilities.csv"
+    
+    echo "vurn_id,product,scanner_tool,priority" > "$new_vulns_file"  # CSV header
 
     while IFS=, read -r vurn_id product scanner_tool priority; do
         if [[ -z "$vurn_id" || -z "$priority" || -z "$product" || -z "$scanner_tool" ]]; then
             continue
         fi
-
-        local pr_id="${GITHUB_PR_ID:-}"
-        local pr_link="${GITHUB_PR_LINK:-}"
-        local created_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-        local comments="Initial vulnerability report"
-        local owner="John Doe"
-        local pod="Security"
 
         # Remove spaces and redundant commas, and escape single quotes for SQL
         vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
@@ -112,7 +105,7 @@ insert_vulns_into_db() {
         product=$(echo "$product" | sed "s/'/''/g" | tr -d ' ' | sed 's/,*$//')
         scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g" | tr -d ' ' | sed 's/,*$//')
 
-        # Fetch existing product and scanner_tool values for the vulnerability
+        # Check if vurn_id exists in the database
         existing_entry=$(psql -t -c "SELECT product, scanner_tool FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
 
         if [ -n "$existing_entry" ]; then
@@ -131,39 +124,32 @@ insert_vulns_into_db() {
             unique_scanner_tools="$scanner_tool"
         fi
 
-        # Write the insert query to the SQL file
-        echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) 
-        VALUES ('$unique_products', '$unique_scanner_tools', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$created_date', '$comments', '$owner', '$pod')
-        ON CONFLICT (vurn_id) 
-        DO UPDATE SET 
-            product = '$unique_products',
-            scanner_tool = '$unique_scanner_tools',
-            priority = EXCLUDED.priority,
-            pr_id = EXCLUDED.pr_id,
-            pr_link = EXCLUDED.pr_link,
-            github_run_id = EXCLUDED.github_run_id,
-            update_date = EXCLUDED.update_date,
-            comments = EXCLUDED.comments,
-            owner = EXCLUDED.owner,
-            pod = EXCLUDED.pod;" >> "$query_file"
+        # If the vulnerability is new, store it in the CSV file
+        if [[ -z "$existing_entry" ]]; then
+            echo "$vurn_id,$unique_products,$unique_scanner_tools,$priority" >> "$new_vulns_file"
+            echo "New vulnerability detected: $vurn_id"
+        else
+            echo "Skipping existing vulnerability: $vurn_id"
+        fi
+
     done < "$NEW_VULN_FILE"
 
-    echo "COMMIT;" >> "$query_file"
-
-    # Execute the SQL file
-    if psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"; then
-        echo "Vulnerabilities successfully inserted into the database."
+    # Print the contents of new vulnerabilities
+    if [ -s "$new_vulns_file" ]; then
+        echo "****************************************************************"
+        echo "New vulnerabilities stored in $new_vulns_file:"
+        cat "$new_vulns_file"
+        echo "****************************************************************"
     else
-        echo "Error: Failed to insert vulnerabilities. Check logs for details."
-        exit 1
+        echo "No new vulnerabilities to store."
     fi
 }
 
-# Run insertion if vulnerabilities are found
+# Run comparison and storage if vulnerabilities are found
 if [ -s "$NEW_VULN_FILE" ]; then
-    insert_vulns_into_db
+    compare_and_store_vulns
 else
-    echo "No vulnerabilities to insert."
+    echo "No vulnerabilities to process."
 fi
 
 # Cleanup
