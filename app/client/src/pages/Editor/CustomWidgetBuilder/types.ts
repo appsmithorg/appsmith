@@ -28,6 +28,7 @@ export interface CustomWidgetBuilderContextValueType {
   //Custom widget name
   name: string;
   widgetId: string;
+  parentEntityId: string;
 
   isReferenceOpen: boolean;
 

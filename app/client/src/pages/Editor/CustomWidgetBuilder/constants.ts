@@ -16,6 +16,7 @@ export const LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN =
 export const DEFAULT_CONTEXT_VALUE = {
   name: "",
   widgetId: "",
+  parentEntityId: "",
   srcDoc: {
     html: "",
     js: "",

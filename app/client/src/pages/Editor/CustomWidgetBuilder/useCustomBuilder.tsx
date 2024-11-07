@@ -16,6 +16,8 @@ import {
 } from "./types";
 import { compileSrcDoc } from "./utility";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useEditorType } from "ee/hooks";
+import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 
 let connectionTimeout: number;
 
@@ -26,6 +28,9 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
     LOCAL_STORAGE_KEYS_IS_REFERENCE_OPEN,
     true,
   );
+
+  const editorType = useEditorType(location.pathname);
+  const { parentEntityId } = useParentEntityInfo(editorType);
 
   const [contextValue, setContextValue] =
     useState<CustomWidgetBuilderContextValueType>(DEFAULT_CONTEXT_VALUE);
@@ -171,6 +176,7 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
               ...prev,
               name: event.data.name,
               widgetId: event.data.widgetId,
+              parentEntityId,
               srcDoc: event.data.srcDoc,
               uncompiledSrcDoc: event.data.uncompiledSrcDoc,
               initialSrcDoc: event.data.uncompiledSrcDoc,
@@ -208,6 +214,7 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
               showConnectionLostMessage: false,
               name: event.data.name,
               widgetId: event.data.widgetId,
+              parentEntityId,
               srcDoc: event.data.srcDoc,
               uncompiledSrcDoc: event.data.uncompiledSrcDoc,
               initialSrcDoc: event.data.uncompiledSrcDoc,
