@@ -17,18 +17,10 @@ RUN <<END
     exit 1
   fi
 
-  if ! [ -f server/mongo/server.jar && -f server/pg/server.jar ]; then
+  if ! [ -f server/mongo/server.jar -a -f server/pg/server.jar ]; then
     echo "Missing one or both server.jar files in the right place. Are you using the build script?" >&2
     exit 1
   fi
-
-  mkdir -p ./editor ./rts
-
-  # Ensure all *.sh scripts are executable.
-  find . -name node_modules -prune -or -type f -name '*.sh' -print -exec chmod +x '{}' ';'
-
-  # Ensure all custom command-scripts have executable permission
-  chmod +x /opt/bin/*
 END
 
 # Add client UI - Application Layer
@@ -48,7 +40,11 @@ RUN <<END
   rm -rf utils/node_modules/resolve/test
   cd -
 
-  chmod +x /opt/bin/* *.sh /watchtower-hooks/*.sh
+  # Make all `*.sh` files executable, excluding `node_modules`.
+  find . \( -name node_modules -prune \) -o \( -type f -name '*.sh' \) -exec chmod +x '{}' +
+
+  # Ensure all custom command-scripts have executable permission
+  chmod +x /opt/bin/* /watchtower-hooks/*.sh
 
   # Disable setuid/setgid bits for the files inside container.
   find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -exec chmod -s '{}' + \) || true
