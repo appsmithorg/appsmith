@@ -1,33 +1,33 @@
 export default {
-  connectData: '[data-testId="t--one-click-binding-connect-data"]',
+  connectData: '[data-testid="t--one-click-binding-connect-data"]',
   datasourceDropdownSelector:
-    "[data-testId='t--one-click-binding-datasource-selector']",
+    "[data-testid='t--one-click-binding-datasource-selector']",
   datasourceDropdownOptionSelector: (query: string) =>
-    `[data-testId="t--one-click-binding-datasource-trigger"]:contains(${query})`,
+    `[data-testid="t--one-click-binding-datasource-trigger"]:contains(${query})`,
   dropdownOptionSelector: (query: string) =>
-    `[data-testId="t--one-click-binding-datasource-trigger"]:contains(${query})`,
+    `[data-testid="t--one-click-binding-datasource-trigger"]:contains(${query})`,
   datasourceQueryBindHeaderSelector:
-    "[data-testId='t--one-click-binding-datasource-selector--bind-to-query']",
+    "[data-testid='t--one-click-binding-datasource-selector--bind-to-query']",
   datasourceGenerateAQuerySelector:
-    "[data-testId='t--one-click-binding-datasource-selector--generate-a-query']",
+    "[data-testid='t--one-click-binding-datasource-selector--generate-a-query']",
   datasourceOtherActionsSelector:
-    "[data-testId='t--one-click-binding-datasource-selector--other-actions']",
+    "[data-testid='t--one-click-binding-datasource-selector--other-actions']",
   datasourceQuerySelector: (query?: string) =>
-    `[data-testId='t--one-click-binding-datasource-selector--query']${
+    `[data-testid='t--one-click-binding-datasource-selector--query']${
       query ? `:contains(${query})` : ""
     }`,
   datasourceSelector: (datasource?: string) =>
-    `[data-testId="t--one-click-binding-datasource-selector--datasource"]${
+    `[data-testid="t--one-click-binding-datasource-selector--datasource"]${
       datasource ? `:contains(${datasource})` : ""
     }`,
   otherActionSelector: (action?: string) =>
-    `[data-testId='t--one-click-binding-datasource-selector--other-action']${
+    `[data-testid='t--one-click-binding-datasource-selector--other-action']${
       action ? `:contains(${action})` : ""
     }`,
   tableOrSpreadsheetDropdown:
     '[data-testid="t--one-click-binding-table-selector"] .rc-select-selector',
   tableOrSpreadsheetDropdownOption: (table?: string) =>
-    `//div[@data-testId='t--one-click-binding-table-selector--table']//div[text()='${table}']`,
+    `//div[@data-testid='t--one-click-binding-table-selector--table']//div[text()='${table}']`,
   tableOrSpreadsheetSelectedOption: (table?: string) =>
     `[data-testid="t--one-click-binding-table-selector"] .rc-select-selection-item${
       table ? `:contains(${table})` : ""
@@ -35,24 +35,24 @@ export default {
   validTableRowData:
     '.t--widget-tablewidgetv2 [role="rowgroup"] [role="button"]',
   tableError: (error: string) =>
-    `[data-testId="t--one-click-binding-table-selector--error"]:contains(${error})`,
-  dateInput: `[data-testId="datepicker-container"] input`,
+    `[data-testid="t--one-click-binding-table-selector--error"]:contains(${error})`,
+  dateInput: `[data-testid="datepicker-container"] input`,
   dayViewFromDate: ".DayPicker-Day",
-  loadMore: "[data-testId='t--one-click-binding-datasource--load-more']",
-  datasourceSearch: `[data-testId="t--one-click-binding-datasource--search"]`,
+  loadMore: "[data-testid='t--one-click-binding-datasource--load-more']",
+  datasourceSearch: `[data-testid="t--one-click-binding-datasource--search"]`,
   searchableColumn:
-    '[data-testId="t--one-click-binding-column-searchableColumn"]',
-  formType: '[data-testId="t--one-click-binding-column-formType"]',
-  defaultValues: '[data-testId="t--one-click-binding-column-defaultValues"]',
-  dataIdentifier: '[data-testId="t--one-click-binding-column-dataIdentifier"]',
-  label: '[data-testId="t--one-click-binding-column-label"]',
-  value: '[data-testId="t--one-click-binding-column-value"]',
+    '[data-testid="t--one-click-binding-column-searchableColumn"]',
+  formType: '[data-testid="t--one-click-binding-column-formType"]',
+  defaultValues: '[data-testid="t--one-click-binding-column-defaultValues"]',
+  dataIdentifier: '[data-testid="t--one-click-binding-column-dataIdentifier"]',
+  label: '[data-testid="t--one-click-binding-column-label"]',
+  value: '[data-testid="t--one-click-binding-column-value"]',
   columnDropdownOption: (column: string, value?: string) =>
-    `[data-testId='t--one-click-binding-column-${column}--column']${
+    `[data-testid='t--one-click-binding-column-${column}--column']${
       value ? `:contains(${value})` : ""
     }`,
   columnSelectedOption: (column: string, value?: string) =>
-    `[data-testId="t--one-click-binding-column-${column}"] .rc-select-selection-item${
+    `[data-testid="t--one-click-binding-column-${column}"] .rc-select-selection-item${
       value ? `:contains(${value})` : ""
     }`,
   columnSelectorModalTrigger: '[data-testid="t--edit-fields-button"]',

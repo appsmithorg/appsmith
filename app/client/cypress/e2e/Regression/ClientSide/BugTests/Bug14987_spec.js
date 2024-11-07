@@ -31,7 +31,7 @@ describe(
       cy.xpath(queryLocators.querySettingsTab).click();
 
       cy.get(".label-icon-wrapper")
-        .contains("Run query on page load")
+        .contains("Run the query on page load")
         .parent()
         .then(($el) => {
           cy.window().then((win) => {
@@ -45,7 +45,7 @@ describe(
         });
 
       cy.get(".label-icon-wrapper")
-        .contains("Request confirmation before running query")
+        .contains("Request confirmation before running this query")
         .parent()
         .then(($el) => {
           cy.window().then((win) => {

@@ -39,13 +39,24 @@ COPY ./app/client/packages/rts/dist rts/
 
 ENV PATH /opt/bin:/opt/appsmith/utils/node_modules/.bin:/opt/java/bin:/opt/node/bin:$PATH
 
-RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
-  && chmod +x /opt/bin/* *.sh /watchtower-hooks/*.sh \
+RUN <<END
+  set -o errexit
+
+  cd ./utils
+  npm install --only=prod
+  npm install --only=prod -g .
+  rm -rf utils/node_modules/resolve/test
+  cd -
+
+  chmod +x /opt/bin/* *.sh /watchtower-hooks/*.sh
+
   # Disable setuid/setgid bits for the files inside container.
-  && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true \
-  && mkdir -p /.mongodb/mongosh /appsmith-stacks \
-  && chmod ugo+w /etc /appsmith-stacks \
-  && chmod -R ugo+w /var/run /.mongodb /etc/ssl /usr/local/share
+  find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -exec chmod -s '{}' + \) || true
+
+  mkdir -p /.mongodb/mongosh /appsmith-stacks
+  chmod ugo+w /etc /appsmith-stacks
+  chmod -R ugo+w /var/run /.mongodb /etc/ssl /usr/local/share
+END
 
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-check=/watchtower-hooks/pre-check.sh
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-update=/watchtower-hooks/pre-update.sh
