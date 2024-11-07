@@ -88,7 +88,6 @@ else
     echo "No vulnerabilities found." > "$NEW_VULN_FILE"
 fi
 
-
 # Compare each vulnerability with the database and store new ones in a CSV file
 compare_and_store_vulns() {
     local new_vulns_file="trivy_new_vulnerabilities.csv"
