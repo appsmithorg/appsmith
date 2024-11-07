@@ -4,9 +4,9 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import { usePluginActionContext } from "../../PluginActionContext";
 import styled from "styled-components";
 import {
-  API_EDITOR_TAB_TITLES,
   createMessage,
-  LEARN_MORE,
+  API_EDITOR_TAB_TITLES,
+  MORE_ON_QUERY_SETTINGS,
 } from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -94,7 +94,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
             kind="secondary"
             onClick={handleLearnMoreClick}
           >
-            {createMessage(LEARN_MORE)}
+            {createMessage(MORE_ON_QUERY_SETTINGS)}
           </LearnMoreLink>
         )}
       </SettingsWrapper>
