@@ -8,6 +8,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -42,6 +43,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -204,7 +206,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         if (isBlank(basePageId)) {
             return Mono.when(fetches).thenReturn(consolidatedAPIResponseDTO);
         }
-        Mono<Application> branchedApplicationMonoCached;
+
         Mono<String> baseApplicationIdMono = Mono.just("");
         if (isViewMode) {
             // Attempt to retrieve the application ID associated with the given base page ID from the cache.
@@ -213,40 +215,118 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     .switchIfEmpty(Mono.just(""))
                     .cast(String.class);
         }
+
         baseApplicationIdMono = baseApplicationIdMono
                 .name(getQualifiedSpanName(APPLICATION_ID_FETCH_REDIS_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry))
                 .cache();
 
-        Mono<NewPage> branchedPageMonoCached = newPageService
-                .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
+        Mono<Tuple2<Application, NewPage>> applicationAndPageTupleMono = baseApplicationIdMono
+                .flatMap(cachedBaseApplicationId -> {
+                    Mono<Application> applicationMono;
+                    Mono<NewPage> branchedPageMonoCached;
+
+                    branchedPageMonoCached = newPageService
+                            .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
+                            .cache();
+
+                    if (StringUtils.hasText(cachedBaseApplicationId)) {
+                        // Handle non-empty baseApplicationId
+                        applicationMono = applicationService.findByBaseIdBranchNameAndApplicationMode(
+                                cachedBaseApplicationId, branchName, mode);
+                    } else {
+                        // Handle empty or null baseApplicationId
+                        applicationMono = branchedPageMonoCached.flatMap(branchedPage ->
+                                // Use the application ID to find the complete application details.
+                                applicationService
+                                        .findByBranchedApplicationIdAndApplicationMode(
+                                                branchedPage.getApplicationId(), mode)
+                                        .flatMap(application -> {
+                                            if (isViewMode) {
+                                                // Update the cache with the new application’s base ID for future
+                                                // queries.
+                                                return cacheableRepositoryHelper
+                                                        .fetchBaseApplicationId(basePageId, application.getBaseId())
+                                                        .thenReturn(application)
+                                                        .name(getQualifiedSpanName(
+                                                                APPLICATION_ID_UPDATE_REDIS_SPAN, mode))
+                                                        .tap(Micrometer.observation(observationRegistry));
+                                            }
+                                            return Mono.just(application);
+                                        }));
+                    }
+
+                    if (StringUtils.hasText(branchName)) {
+
+                        // If in case the application is a non git connected application and the branch name url param
+                        // is present, then we must default to the app without any branches.
+                        return applicationMono.zipWith(branchedPageMonoCached).onErrorResume(error -> {
+                            // This situation would arise if page or application is not returned.
+                            // here we would land on error instead of empty because both apis which are being
+                            // called errors out on empty returns.
+
+                            log.info(
+                                    "application or page has for base pageId {} and branchName {} has not been found.",
+                                    basePageId,
+                                    branchName);
+                            if (error instanceof AppsmithException) {
+                                Mono<NewPage> basePageMono =
+                                        newPageService.findByBranchNameAndBasePageIdAndApplicationMode(
+                                                null, basePageId, mode);
+
+                                return basePageMono.flatMap(basePage -> {
+                                    if (StringUtils.hasText(basePage.getBranchName())) {
+                                        // If the branch name is present then the application is git connected
+                                        // the error should be thrown.
+                                        // TODO: verify if branch name could be residue from old git connection
+                                        // Application metadata is absolute check for the same.
+                                        return Mono.error(error);
+                                    }
+
+                                    return applicationService
+                                            .findByBranchedApplicationIdAndApplicationMode(
+                                                    basePage.getApplicationId(), mode)
+                                            .zipWith(basePageMono)
+                                            .map(tuple2 -> {
+                                                log.info(
+                                                        "The branchName url param should not be associated with application {} as this is not a git connected application",
+                                                        tuple2.getT1().getId());
+                                                return tuple2;
+                                            });
+                                });
+                            }
+
+                            return Mono.error(error);
+                        });
+                    }
+
+                    return applicationMono.flatMap(application -> {
+                        GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
+
+                        if (gitMetadata == null
+                                || gitMetadata.getDefaultBranchName().equals(gitMetadata.getBranchName())) {
+                            return Mono.just(application).zipWith(branchedPageMonoCached);
+                        }
+
+                        // The git connected application has not been queried with branch param,
+                        // and the base branch is not same as the default branch.
+                        // we need to find return the default branch from here.
+
+                        String defaultBranchName = gitMetadata.getDefaultBranchName();
+
+                        return applicationService
+                                .findByBaseIdBranchNameAndApplicationMode(application.getId(), defaultBranchName, mode)
+                                .zipWith(newPageService.findByBranchNameAndBasePageIdAndApplicationMode(
+                                        defaultBranchName, basePageId, mode));
+                    });
+                })
                 .cache();
 
-        branchedApplicationMonoCached = baseApplicationIdMono.flatMap(cachedBaseApplicationId -> {
-            if (!StringUtils.hasText(cachedBaseApplicationId)) {
-                // Handle empty or null baseApplicationId
-                return branchedPageMonoCached.flatMap(branchedPage ->
-                        // Use the application ID to find the complete application details.
-                        applicationService
-                                .findByBranchedApplicationIdAndApplicationMode(branchedPage.getApplicationId(), mode)
-                                .flatMap(application -> {
-                                    if (isViewMode) {
-                                        // Update the cache with the new application’s base ID for future
-                                        // queries.
-                                        return cacheableRepositoryHelper
-                                                .fetchBaseApplicationId(basePageId, application.getBaseId())
-                                                .thenReturn(application)
-                                                .name(getQualifiedSpanName(APPLICATION_ID_UPDATE_REDIS_SPAN, mode))
-                                                .tap(Micrometer.observation(observationRegistry));
-                                    }
-                                    return Mono.just(application);
-                                }));
-            } else {
-                // Handle non-empty baseApplicationId
-                return applicationService.findByBaseIdBranchNameAndApplicationMode(
-                        cachedBaseApplicationId, branchName, mode);
-            }
-        });
+        Mono<NewPage> branchedPageMonoCached =
+                applicationAndPageTupleMono.map(Tuple2::getT2).cache();
+
+        Mono<Application> branchedApplicationMonoCached =
+                applicationAndPageTupleMono.map(Tuple2::getT1).cache();
 
         branchedApplicationMonoCached = branchedApplicationMonoCached
                 .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
@@ -307,8 +387,9 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
         if (!isBlank(basePageId)) {
             /* Get current page */
-            fetches.add(applicationPageService
-                    .getPageAndMigrateDslByBranchAndBasePageId(basePageId, branchName, isViewMode, true)
+            fetches.add(branchedPageMonoCached
+                    .flatMap(branchedPage -> applicationPageService.getPageAndMigrateDslByBranchAndBasePageId(
+                            basePageId, branchedPage.getBranchName(), isViewMode, true))
                     .as(this::toResponseDTO)
                     .doOnError(e -> log.error("Error fetching current page", e))
                     .doOnSuccess(consolidatedAPIResponseDTO::setPageWithMigratedDsl)
@@ -320,11 +401,9 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         if (isViewMode) {
             /* Get list of all actions of the page in view mode */
             if (!isBlank(basePageId)) {
-                // When branchName is null, we don't need to fetch page from DB to derive pageId
-                // We can simply reuse the pageId that is passed by client to query actions
-                Mono<String> branchedPageIdMono = !StringUtils.hasText(branchName)
-                        ? Mono.just(basePageId)
-                        : branchedPageMonoCached.map(NewPage::getId);
+                // For a git connected application the desired branch name may differ from the base if no
+                // branch name is provided hence, we would still need to check this.
+                Mono<String> branchedPageIdMono = branchedPageMonoCached.map(NewPage::getId);
                 fetches.add(branchedPageIdMono
                         .flatMap(branchedPageId -> newActionService
                                 .getActionsForViewModeByPageId(branchedPageId)
