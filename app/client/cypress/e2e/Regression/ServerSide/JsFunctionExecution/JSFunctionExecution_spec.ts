@@ -399,8 +399,6 @@ describe(
       cy.get("@jsObjName").then((jsObjName: any) => {
         jsObj = jsObjName;
       });
-      // Switch to settings tab
-      jsEditor.toolbar.toggleSettings();
       // Add settings for each function (according to data)
       Object.values(FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
         (functionSetting) => {
@@ -410,12 +408,15 @@ describe(
           );
         },
       );
+
+      // open settings popup
+      jsEditor.toolbar.toggleSettings();
       //After JSObj is created - check methods are in alphabetical order
       assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
       agHelper.RefreshPage();
       agHelper.Sleep(2000); //for confirmatiom modal to appear before clicking on "Yes" button for CI runs
-      // Switch to settings tab and assert order
+      // open settings popup
       jsEditor.toolbar.toggleSettings();
       assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
     });
@@ -461,11 +462,12 @@ describe(
       agHelper.Sleep();
 
       EditorNavigation.SelectEntityByName(jsObj, EntityType.JSObject);
+
       jsEditor.toolbar.toggleSettings();
       assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
       // rename functions and assert order
-      agHelper.GetNClick(jsEditor._codeTab);
+      jsEditor.toolbar.toggleSettings();
       jsEditor.EditJSObj(getJSObject(FUNCTIONS_SETTINGS_RENAMED_DATA), false);
       agHelper.Sleep(3000);
       jsEditor.toolbar.toggleSettings();
@@ -497,8 +499,6 @@ return "yes";`;
         prettify: false,
       });
 
-      // Switch to settings tab
-      jsEditor.toolbar.toggleSettings();
       // Enable all settings
       jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true);
 

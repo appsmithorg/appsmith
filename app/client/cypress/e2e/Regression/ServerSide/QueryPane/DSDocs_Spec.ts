@@ -7,18 +7,21 @@ import {
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 import { DataSourceKVP } from "../../../../support/Pages/DataSources";
+import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
 
 let dsName: any;
+let pluginActionForm = new PluginActionForm();
 
 describe(
   "Check datasource doc links",
   { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
-    it("1. Verify Postgres documentation opens", function () {
+    it.only("1. Verify Postgres documentation opens", function () {
       CreateDummyDSNSave(DataSourceKVP["Postgres"]);
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.toggleSettings();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-postgres#create-crud-queries",

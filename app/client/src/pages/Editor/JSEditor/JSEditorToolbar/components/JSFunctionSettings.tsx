@@ -47,6 +47,7 @@ const FunctionSettingRow = (props: FunctionSettingsRowProps) => {
     <Flex
       className={`t--async-js-function-settings ${props.action.name}-on-page-load-setting`}
       gap="spaces-4"
+      id={`${props.action.name}-settings`}
       key={props.action.id}
       w="100%"
     >
