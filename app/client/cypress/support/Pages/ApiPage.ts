@@ -20,7 +20,6 @@ export class ApiPage {
   // private datasources = ObjectsRegistry.DataSources;
 
   _createapi = ".t--createBlankApiCard";
-  _resourceUrl = ".t--dataSourceField";
   private _headerKey = (index: number) =>
     ".t--actionConfiguration\\.headers\\[" +
     index +
@@ -133,7 +132,7 @@ export class ApiPage {
       this.agHelper.RenameQuery(apiName);
       this.agHelper.GetNAssertContains(this._entityName, apiName);
     }
-    this.agHelper.AssertElementVisibility(this._resourceUrl);
+    this.agHelper.AssertElementVisibility(ApiEditor.dataSourceField);
     if (apiVerb != "GET") this.SelectAPIVerb(apiVerb);
   }
 
@@ -160,7 +159,7 @@ export class ApiPage {
     this.agHelper.EnterValue(
       url,
       {
-        propFieldName: this._resourceUrl,
+        propFieldName: ApiEditor.dataSourceField,
         directInput: true,
         inputFieldName: "",
         apiOrQuery: "api",
@@ -463,7 +462,7 @@ export class ApiPage {
     this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
     if (apiName) this.agHelper.RenameQuery(apiName);
-    cy.get(this._resourceUrl).should("be.visible");
+    cy.get(ApiEditor.dataSourceField).should("be.visible");
   }
 
   AssertEmptyHeaderKeyValuePairsPresent(index: number) {

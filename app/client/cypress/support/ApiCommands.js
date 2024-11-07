@@ -195,14 +195,10 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   });
 
   cy.EnableAllCodeEditors();
-  cy.get(apiwidget.editResourceUrl)
-    .first()
-    .click({ force: true })
-    .type(
-      url + parameters,
-      { parseSpecialCharSequences: false },
-      { force: true },
-    );
+  cy.updateCodeInput(
+    ApiEditor.dataSourceField,
+    url + parameters,
+  );
   cy.WaitAutoSave();
   cy.get(pluginActionForm.locators.actionRunButton).should("not.be.disabled");
 });
