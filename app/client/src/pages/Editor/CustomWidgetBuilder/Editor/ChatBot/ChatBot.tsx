@@ -15,6 +15,21 @@ export const ChatBot = (props: ContentProps) => {
   );
   const chatType = "CUSTOM_WIDGET";
 
+  const handleSrcDocUpdates = useCallback(() => {
+    // Send src doc to the chatbot iframe
+    if (ref.current && ref.current.contentWindow && uncompiledSrcDoc) {
+      ref.current.contentWindow.postMessage(
+        {
+          html_code: uncompiledSrcDoc.html,
+          css_code: uncompiledSrcDoc.css,
+          js_code: uncompiledSrcDoc.js,
+          chatType,
+        },
+        "*",
+      );
+    }
+  }, [uncompiledSrcDoc, chatType]);
+
   const updateContents = useCallback(
     (event: MessageEvent) => {
       const iframeWindow =
@@ -22,6 +37,10 @@ export const ChatBot = (props: ContentProps) => {
 
       // Accept messages only from the current iframe
       if (event.source !== iframeWindow) return;
+
+      if (event.data === "CHAT_INITIALISED") {
+        handleSrcDocUpdates();
+      }
 
       if (!update) return;
 
@@ -37,7 +56,7 @@ export const ChatBot = (props: ContentProps) => {
         update("js", event.data.js_code);
       }
     },
-    [update],
+    [uncompiledSrcDoc, update],
   );
 
   useEffect(
@@ -51,23 +70,7 @@ export const ChatBot = (props: ContentProps) => {
     [updateContents],
   );
 
-  useEffect(
-    function handleSrcDocUpdates() {
-      // Send src doc to the chatbot iframe
-      if (ref.current && ref.current.contentWindow && uncompiledSrcDoc) {
-        ref.current.contentWindow.postMessage(
-          {
-            html_code: uncompiledSrcDoc.html,
-            css_code: uncompiledSrcDoc.css,
-            js_code: uncompiledSrcDoc.js,
-            chatType,
-          },
-          "*",
-        );
-      }
-    },
-    [uncompiledSrcDoc],
-  );
+  useEffect(handleSrcDocUpdates, [handleSrcDocUpdates]);
 
   const instanceId = `${widgetId}-${parentEntityId}`;
 
