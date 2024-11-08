@@ -180,6 +180,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     url: "api/v1/login",
     headers: {
       origin: baseURL,
+      "x-requested-by": "Appsmith",
     },
     followRedirect: true,
     body: {
