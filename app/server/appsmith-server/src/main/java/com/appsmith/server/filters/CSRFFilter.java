@@ -5,8 +5,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
@@ -57,13 +61,18 @@ public class CSRFFilter implements WebFilter {
             return fail(exchange);
         }
 
-        String csrfCookieValue = request.getCookies().get("x-csrf").get(0).getValue();
+        String csrfCookieValue = "";
+        final List<HttpCookie> csrfCookie = request.getCookies().get("x-csrf");
+        if (!CollectionUtils.isEmpty(csrfCookie)) {
+            csrfCookieValue = csrfCookie.get(0).getValue();
+        }
 
+        final String finalCookieValue = csrfCookieValue;
         return exchange.getFormData()
                 .mapNotNull(d -> d.getFirst("csrf"))
                 .defaultIfEmpty("")
                 .flatMap(field -> {
-                    if (StringUtils.isNotEmpty(csrfCookieValue) && csrfCookieValue.equals(field)) {
+                    if (StringUtils.isNotEmpty(finalCookieValue) && finalCookieValue.equals(field)) {
                         return chain.filter(exchange);
                     }
 

@@ -53,7 +53,7 @@ public class CsrfTest {
 
         final WebTestClient.ResponseSpec response = spec.body(body).exchange();
 
-        if ("_csrf".equals(t.formParam) && "XSRF-TOKEN".equals(t.cookieName)) {
+        if ("csrf".equals(t.formParam) && "x-csrf".equals(t.cookieName)) {
             // Redirects to error because the username/password are incorrect, and that's okay. The fact that it
             // attempted a login is test enough here.
             response.expectStatus()
@@ -70,10 +70,10 @@ public class CsrfTest {
     private static Stream<Arguments> testParams() {
         final List<String> urls = List.of(Url.LOGIN_URL, Url.USER_URL, Url.USER_URL + "/super");
 
-        final List<String> formParams = new ArrayList<>(List.of("_csrf", "_wrong_csrf"));
+        final List<String> formParams = new ArrayList<>(List.of("csrf", "_wrong_csrf"));
         formParams.add(null);
 
-        final List<String> headerNames = new ArrayList<>(List.of("XSRF-TOKEN", "SOMETHING-ELSE"));
+        final List<String> headerNames = new ArrayList<>(List.of("x-csrf", "SOMETHING-ELSE"));
         headerNames.add(null);
 
         List<Arguments> args = new ArrayList<>();
