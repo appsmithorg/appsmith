@@ -151,6 +151,23 @@ describe("ResizeObserver", () => {
     };
   });
 
+  it("should setup ResizeObserver on mount", () => {
+    const mockObserver = jest.fn();
+
+    window.ResizeObserver = jest.fn().mockImplementation(() => ({
+      observe: mockObserver,
+      disconnect: jest.fn(),
+      unobserve: jest.fn(),
+    }));
+    render(
+      <MockFormWrapper>
+        <SelectField {...defaultProps} />
+      </MockFormWrapper>,
+    );
+
+    expect(mockObserver).toHaveBeenCalled();
+  });
+
   it("should cleanup ResizeObserver on unmount", () => {
     const { unmount } = render(
       <MockFormWrapper>
