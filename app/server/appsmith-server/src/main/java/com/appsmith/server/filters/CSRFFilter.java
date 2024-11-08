@@ -57,10 +57,10 @@ public class CSRFFilter implements WebFilter {
             return fail(exchange);
         }
 
-        String csrfCookieValue = request.getCookies().get("XSRF-TOKEN").get(0).getValue();
+        String csrfCookieValue = request.getCookies().get("x-csrf").get(0).getValue();
 
         return exchange.getFormData()
-                .mapNotNull(d -> d.getFirst("_csrf"))
+                .mapNotNull(d -> d.getFirst("csrf"))
                 .defaultIfEmpty("")
                 .flatMap(field -> {
                     if (StringUtils.isNotEmpty(csrfCookieValue) && csrfCookieValue.equals(field)) {

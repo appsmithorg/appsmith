@@ -22,13 +22,11 @@ do NOT have a `X-Requested-By` header.
  */
 
 export default function CsrfTokenInput() {
-  return <input name="_csrf" type="hidden" value={getOrGenerateCsrfToken()} />;
+  return <input name="csrf" type="hidden" value={getOrGenerateCsrfToken()} />;
 }
 
 function getOrGenerateCsrfToken(): string {
-  let token: string | undefined = document.cookie.match(
-    /\bXSRF-TOKEN=([-a-z0-9]+)/i,
-  )?.[1];
+  let token: string | undefined = document.cookie.match(/\bx-csrf=(\w+)/i)?.[1];
 
   /*
   Problem: On logout, server clears the `XSRF-TOKEN` cookie, so that when the login page is "loaded", a new token cookie
@@ -43,7 +41,7 @@ function getOrGenerateCsrfToken(): string {
     token =
       Math.random().toString(36).substring(2) +
       Math.random().toString(36).substring(2);
-    document.cookie = "XSRF-TOKEN=" + token;
+    document.cookie = "x-csrf=" + token;
   }
 
   return token;
