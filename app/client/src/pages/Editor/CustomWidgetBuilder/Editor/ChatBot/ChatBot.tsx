@@ -10,9 +10,10 @@ import { CustomWidgetBuilderContext } from "../..";
 
 export const ChatBot = (props: ContentProps) => {
   const ref = useRef<HTMLIFrameElement>(null);
-  const { parentEntityId, srcDoc, update, widgetId } = useContext(
+  const { parentEntityId, uncompiledSrcDoc, update, widgetId } = useContext(
     CustomWidgetBuilderContext,
   );
+  const chatType = "CUSTOM_WIDGET";
 
   const updateContents = useCallback(
     (event: MessageEvent) => {
@@ -53,20 +54,25 @@ export const ChatBot = (props: ContentProps) => {
   useEffect(
     function handleSrcDocUpdates() {
       // Send src doc to the chatbot iframe
-      if (ref.current && ref.current.contentWindow && srcDoc) {
+      if (ref.current && ref.current.contentWindow && uncompiledSrcDoc) {
         ref.current.contentWindow.postMessage(
-          { html_code: srcDoc.html, css_code: srcDoc.css, js_code: srcDoc.js },
+          {
+            html_code: uncompiledSrcDoc.html,
+            css_code: uncompiledSrcDoc.css,
+            js_code: uncompiledSrcDoc.js,
+            chatType,
+          },
           "*",
         );
       }
     },
-    [srcDoc],
+    [uncompiledSrcDoc],
   );
 
   const instanceId = `${widgetId}-${parentEntityId}`;
 
   const srcUrl = useMemo(() => {
-    return `https://internal.appsmith.com/app/app-builder-bot/custom-widget-bot-672b2020d37b7d0b29dcfa71?embed=true&chatType=CUSTOM_WIDGET&chatInstance=${instanceId}`;
+    return `https://internal.appsmith.com/app/app-builder-bot/custom-widget-bot-672b2020d37b7d0b29dcfa71?embed=true&chatType=${chatType}&chatInstance=${instanceId}`;
   }, [instanceId]);
 
   return (
