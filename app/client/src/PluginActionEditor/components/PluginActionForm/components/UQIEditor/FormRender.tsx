@@ -170,7 +170,7 @@ const FormRender = (props: Props) => {
     if (section.hasOwnProperty("controlType")) {
       // If component is type section, render it's children
       if (Object.hasOwn(section, "children")) {
-        return rederNodeWithChildren(section, formName);
+        return renderNodeWithChildren(section, formName);
       }
 
       try {
@@ -201,7 +201,7 @@ const FormRender = (props: Props) => {
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rederNodeWithChildren = (section: any, formName: string) => {
+  const renderNodeWithChildren = (section: any, formName: string) => {
     if (!Object.hasOwn(section, "children")) return;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
