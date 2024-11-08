@@ -189,17 +189,15 @@ export function* getCurrentUserSaga(action?: {
   }
 }
 
-function* init(currentUser: User) {
+function* initTrackers(currentUser: User) {
   const initializeSentry = initializeAnalyticsAndTrackers(currentUser);
 
-  if (initializeSentry instanceof Promise) {
-    const sentryInialized: boolean = yield initializeSentry;
+  const sentryInitialized: boolean = yield initializeSentry;
 
-    if (sentryInialized) {
-      yield put(segmentInitSuccess());
-    } else {
-      yield put(segmentInitUncertain());
-    }
+  if (sentryInitialized) {
+    yield put(segmentInitSuccess());
+  } else {
+    yield put(segmentInitUncertain());
   }
 }
 
@@ -209,7 +207,7 @@ export function* runUserSideEffectsSaga() {
   const isAirgappedInstance = isAirgapped();
 
   if (enableTelemetry) {
-    yield fork(init, currentUser);
+    yield fork(initTrackers, currentUser);
   }
 
   const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
