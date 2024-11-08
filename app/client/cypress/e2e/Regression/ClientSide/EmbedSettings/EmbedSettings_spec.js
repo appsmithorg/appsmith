@@ -39,6 +39,9 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
       .click()
       .wait(1000);
     _.agHelper.GetNClick("[data-testid='copy-application-url']");
+    _.agHelper.WaitUntilEleAppear(
+      "//span[contains(text(),'Copied application url')]",
+    );
     _.agHelper.GiveChromeCopyPermission();
 
     cy.window()
@@ -65,6 +68,9 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
       .click()
       .wait(1000);
     _.agHelper.GetNClick("[data-testid='copy-application-url']");
+    _.agHelper.WaitUntilEleAppear(
+      "//span[contains(text(),'Copied application url')]",
+    );
     cy.window()
       .its("navigator.clipboard")
       .invoke("readText")
