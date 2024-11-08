@@ -165,7 +165,7 @@ public class SecurityConfig {
                 new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
 
         return http.addFilterAt(this::sanityCheckFilter, SecurityWebFiltersOrder.FIRST)
-                // The native CSRF solution doesn't work with WebFlux, yet, but only for WebMVC. So we make our own.
+                // The native CSRF solution is too much for use with an SPA like Appsmith. We make our own simple one.
                 .csrf(csrfSpec -> csrfSpec.disable())
                 .addFilterAt(new CSRFFilter(objectMapper), SecurityWebFiltersOrder.CSRF)
                 // Default security headers configuration from
@@ -185,7 +185,6 @@ public class SecurityConfig {
                 .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
                         // The following endpoints are allowed to be accessed without authentication
                         .matchers(
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.HEALTH_CHECK),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/super"),
