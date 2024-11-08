@@ -191,7 +191,7 @@ export class DataSources {
     _nextCursorValue:
       ".t--apiFormPaginationNextCursorValue .CodeMirror textarea",
   };
-  _queryDoc = ".t--action-settings-documentation-link";
+  _queryDoc = ".t--datasource-documentation-link";
   _globalSearchModal = ".t--global-search-modal";
   _globalSearchInput = ".t--global-search-input";
   _gsScopeDropdown =

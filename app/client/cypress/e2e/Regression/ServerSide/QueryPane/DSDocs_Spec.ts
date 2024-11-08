@@ -21,7 +21,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
-        pluginActionForm.toolbar.toggleSettings();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-postgres#create-crud-queries",
