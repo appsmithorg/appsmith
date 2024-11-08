@@ -263,7 +263,7 @@ public class ConsolidatedAPIServiceImplTest {
         samplePageDTO.setName("samplePageDTO");
         doReturn(Mono.just(samplePageDTO))
                 .when(spyApplicationPageService)
-                .getPageAndMigrateDslByBranchAndBasePageId(anyString(), anyString(), anyBoolean(), anyBoolean());
+                .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
 
         ActionViewDTO sampleActionViewDTO = new ActionViewDTO();
         sampleActionViewDTO.setName("sampleActionViewDTO");
@@ -433,7 +433,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         doReturn(Mono.just(new PageDTO()))
                 .when(spyApplicationPageService)
-                .getPageAndMigrateDslByBranchAndBasePageId(anyString(), anyString(), anyBoolean(), anyBoolean());
+                .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
 
         doReturn(Mono.just(sampleApplicationPagesDTO))
                 .when(spyNewPageService)
@@ -455,7 +455,7 @@ public class ConsolidatedAPIServiceImplTest {
         doReturn(Mono.just(samplePageDTO))
                 .doReturn(Mono.just(samplePageDTO))
                 .when(spyApplicationPageService)
-                .getPageAndMigrateDslByBranchAndBasePageId(anyString(), anyString(), anyBoolean(), anyBoolean());
+                .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
 
         doReturn(Mono.just(samplePageDTO))
                 .doReturn(Mono.just(samplePageDTO))
@@ -941,7 +941,7 @@ public class ConsolidatedAPIServiceImplTest {
         samplePageDTO.setName("samplePageDTO");
         doReturn(Mono.just(samplePageDTO))
                 .when(spyApplicationPageService)
-                .getPageAndMigrateDslByBranchAndBasePageId(anyString(), eq(null), anyBoolean(), anyBoolean());
+                .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
 
         ActionViewDTO sampleActionViewDTO = new ActionViewDTO();
         sampleActionViewDTO.setName("sampleActionViewDTO");
@@ -1148,11 +1148,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         doReturn(Mono.just(new PageDTO()))
                 .when(spyApplicationPageService)
-                .getPageAndMigrateDslByBranchAndBasePageId(anyString(), anyString(), anyBoolean(), anyBoolean());
-
-        //        doReturn(Mono.just(sampleApplicationPagesDTO))
-        //            .when(spyNewPageService)
-        //            .createApplicationPagesDTO(any(), any(), anyBoolean(), anyBoolean());
+                .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
 
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
@@ -1170,7 +1166,7 @@ public class ConsolidatedAPIServiceImplTest {
         doReturn(Mono.just(samplePageDTO))
                 .doReturn(Mono.just(samplePageDTO))
                 .when(spyApplicationPageService)
-                .getPageAndMigrateDslByBranchAndBasePageId(anyString(), anyString(), anyBoolean(), anyBoolean());
+                .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
 
         doReturn(Mono.just(samplePageDTO))
                 .doReturn(Mono.just(samplePageDTO))

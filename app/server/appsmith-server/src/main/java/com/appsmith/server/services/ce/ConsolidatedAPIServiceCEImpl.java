@@ -388,8 +388,8 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         if (!isBlank(basePageId)) {
             /* Get current page */
             fetches.add(branchedPageMonoCached
-                    .flatMap(branchedPage -> applicationPageService.getPageAndMigrateDslByBranchAndBasePageId(
-                            basePageId, branchedPage.getBranchName(), isViewMode, true))
+                    .flatMap(branchedPage -> applicationPageService.getPageAndMigrateDslByBranchedPageId(
+                            branchedPage.getId(), isViewMode, true))
                     .as(this::toResponseDTO)
                     .doOnError(e -> log.error("Error fetching current page", e))
                     .doOnSuccess(consolidatedAPIResponseDTO::setPageWithMigratedDsl)
