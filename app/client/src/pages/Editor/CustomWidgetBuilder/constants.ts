@@ -59,3 +59,10 @@ export const CUSTOM_WIDGET_DEFAULT_MODEL_DOC_URL = `${CUSTOM_WIDGET_DOC_URL}#def
 export const CUSTOM_WIDGET_ONREADY_DOC_URL = `${CUSTOM_WIDGET_DOC_URL}#onready`;
 
 export const CUSTOM_WIDGET_HEIGHT_DOC_URL = `${CUSTOM_WIDGET_DOC_URL}#height`;
+
+export const CUSTOM_WIDGET_AI_CHAT_TYPE = "CUSTOM_WIDGET";
+
+export const CUSTOM_WIDGET_AI_INITIALISED_MESSAGE = "CHAT_INITIALISED";
+
+export const CUSTOM_WIDGET_AI_BOT_URL = (instanceId: string) =>
+  `https://internal.appsmith.com/app/app-builder-bot/custom-widget-bot-672b2020d37b7d0b29dcfa71?embed=true&chatType=${CUSTOM_WIDGET_AI_CHAT_TYPE}&chatInstance=${instanceId}&url=${encodeURIComponent(window.location.origin)}`;

@@ -7,13 +7,18 @@ import React, {
 } from "react";
 import type { ContentProps } from "../CodeEditors/types";
 import { CustomWidgetBuilderContext } from "../..";
+import {
+  CUSTOM_WIDGET_AI_BOT_URL,
+  CUSTOM_WIDGET_AI_CHAT_TYPE,
+  CUSTOM_WIDGET_AI_INITIALISED_MESSAGE,
+} from "../../constants";
+import { isObject } from "lodash";
 
 export const ChatBot = (props: ContentProps) => {
   const ref = useRef<HTMLIFrameElement>(null);
   const { parentEntityId, uncompiledSrcDoc, update, widgetId } = useContext(
     CustomWidgetBuilderContext,
   );
-  const chatType = "CUSTOM_WIDGET";
 
   const handleSrcDocUpdates = useCallback(() => {
     // Send src doc to the chatbot iframe
@@ -23,37 +28,45 @@ export const ChatBot = (props: ContentProps) => {
           html_code: uncompiledSrcDoc.html,
           css_code: uncompiledSrcDoc.css,
           js_code: uncompiledSrcDoc.js,
-          chatType,
+          chatType: CUSTOM_WIDGET_AI_CHAT_TYPE,
         },
         "*",
       );
     }
-  }, [uncompiledSrcDoc, chatType]);
+  }, [uncompiledSrcDoc]);
 
   const updateContents = useCallback(
-    (event: MessageEvent) => {
+    (
+      event: MessageEvent<
+        string | { html_code?: string; css_code?: string; js_code?: string }
+      >,
+    ) => {
       const iframeWindow =
         ref.current?.contentWindow || ref.current?.contentDocument?.defaultView;
 
       // Accept messages only from the current iframe
       if (event.source !== iframeWindow) return;
 
-      if (event.data === "CHAT_INITIALISED") {
+      if (event.data === CUSTOM_WIDGET_AI_INITIALISED_MESSAGE) {
         handleSrcDocUpdates();
+
+        return;
       }
 
       if (!update) return;
 
-      if (event.data.html_code) {
-        update("html", event.data.html_code);
-      }
+      if (isObject(event.data)) {
+        if (event.data.html_code) {
+          update("html", event.data.html_code);
+        }
 
-      if (event.data.css_code) {
-        update("css", event.data.css_code);
-      }
+        if (event.data.css_code) {
+          update("css", event.data.css_code);
+        }
 
-      if (event.data.html_code) {
-        update("js", event.data.js_code);
+        if (event.data.js_code) {
+          update("js", event.data.js_code);
+        }
       }
     },
     [uncompiledSrcDoc, update],
@@ -75,7 +88,7 @@ export const ChatBot = (props: ContentProps) => {
   const instanceId = `${widgetId}-${parentEntityId}`;
 
   const srcUrl = useMemo(() => {
-    return `https://internal.appsmith.com/app/app-builder-bot/custom-widget-bot-672b2020d37b7d0b29dcfa71?embed=true&chatType=${chatType}&chatInstance=${instanceId}&url=${encodeURIComponent(window.location.origin)}`;
+    return CUSTOM_WIDGET_AI_BOT_URL(instanceId);
   }, [instanceId]);
 
   return (
