@@ -1293,6 +1293,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                             AppsmithError.GIT_UPSTREAM_CHANGES.getErrorType(),
                             AppsmithError.GIT_UPSTREAM_CHANGES.getMessage(),
                             gitMetadata.getIsRepoPrivate())
+                    .then(releaseFileLock(artifact.getGitArtifactMetadata().getDefaultArtifactId()))
                     .flatMap(application1 -> Mono.error(new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES)));
         } else if (pushResult.contains("REJECTED_OTHERREASON") || pushResult.contains("pre-receive hook declined")) {
 
