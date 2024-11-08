@@ -266,15 +266,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     }
 
     /**
-     * Populates the requestParams with logged in userId.
-     * If the user is not logged in, set the parameter as anonymousUserId
-     *
-     */
-    protected Mono<ExecuteActionDTO> populateExecuteActionDTOWithUserId(ExecuteActionDTO executeActionDTO) {
-        return Mono.just(executeActionDTO);
-    }
-
-    /**
      * Executes the action(queries) by creating executeActionDTO and sending it to the plugin for further execution
      *
      * @param partFlux

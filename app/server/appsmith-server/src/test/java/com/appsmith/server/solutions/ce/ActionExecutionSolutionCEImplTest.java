@@ -109,7 +109,7 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     ApplicationService applicationService;
 
-    @MockBean
+    @SpyBean
     SessionUserService sessionUserService;
 
     @MockBean

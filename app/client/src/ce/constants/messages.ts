@@ -645,6 +645,7 @@ export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
   `${JSFunctionName} did not return any data. Did you add a return statement?`;
+export const MORE_ON_QUERY_SETTINGS = () => "More on query settings";
 
 export const REMOVE_CONFIRM_BEFORE_CALLING_HEADING = () =>
   `Remove 'Confirm before calling' `;
@@ -2517,5 +2518,5 @@ export const PREPARED_STATEMENT_WARNING = {
 
 export const JS_EDITOR_SETTINGS = {
   TITLE: () => "Settings",
-  ON_LOAD_TITLE: () => "Choose functions to run on page load",
+  ON_LOAD_TITLE: () => "Choose the functions to run on page load",
 };
