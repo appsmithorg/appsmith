@@ -72,7 +72,7 @@ export const ChatBot = (props: ContentProps) => {
   const instanceId = `${widgetId}-${parentEntityId}`;
 
   const srcUrl = useMemo(() => {
-    return `https://internal.appsmith.com/app/app-builder-bot/custom-widget-bot-672b2020d37b7d0b29dcfa71?embed=true&chatType=${chatType}&chatInstance=${instanceId}`;
+    return `https://internal.appsmith.com/app/app-builder-bot/custom-widget-bot-672b2020d37b7d0b29dcfa71?embed=true&chatType=${chatType}&chatInstance=${instanceId}&url=${encodeURIComponent(window.location.origin)}`;
   }, [instanceId]);
 
   return (
