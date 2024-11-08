@@ -214,4 +214,8 @@ public class FieldNameCE {
     public static final String ARCHIVE = "archive";
 
     public static final String DELETE = "delete";
+
+    public static final String GET = "get";
+
+    public static final String SAVE = "save";
 }
