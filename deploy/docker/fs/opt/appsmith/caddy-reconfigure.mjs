@@ -35,6 +35,9 @@ if (CUSTOM_DOMAIN !== "") {
 
 }
 
+// If timeout env variable is not set
+const readBodyTimeoutSeconds = Math.max(parseInt(process.env.APPSMITH_SERVER_TIMEOUT ?? "600", 10), 10)
+
 const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
   .replace(/;.*$/, "")
 
@@ -49,6 +52,10 @@ parts.push(`
   servers {
     trusted_proxies static 0.0.0.0/0
     metrics
+    timeouts {
+      read_body ${readBodyTimeoutSeconds}s
+      read_header 5s
+    }
   }
   ${isRateLimitingEnabled ? "order rate_limit before basicauth" : ""}
 }
