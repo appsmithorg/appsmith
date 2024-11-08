@@ -67,5 +67,11 @@
   & :global(.ads-v2-select > .rc-select-selector) {
     min-width: unset;
   }
+
+  /* Remove this once the config in DB is updated to use Section and Zone (Twilio, Airtable) */
+  & :global(.ar-form-info-text) {
+    max-width: unset;
+  }
+
   /* Removable section ends here */
 }
