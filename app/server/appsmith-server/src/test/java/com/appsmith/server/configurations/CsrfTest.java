@@ -73,15 +73,15 @@ public class CsrfTest {
         final List<String> formParams = new ArrayList<>(List.of("_csrf", "_wrong_csrf"));
         formParams.add(null);
 
-        final List<String> headerNames = new ArrayList<>(List.of("XSRF-TOKEN", "SOMETHING-ELSE"));
-        headerNames.add(null);
+        final List<String> cookieNames = new ArrayList<>(List.of("XSRF-TOKEN", "SOMETHING-ELSE"));
+        cookieNames.add(null);
 
         List<Arguments> args = new ArrayList<>();
 
         for (final String url : urls) {
             for (final String formParam : formParams) {
-                for (final String headerName : headerNames) {
-                    args.add(Arguments.of(new TestParams(url, formParam, headerName)));
+                for (final String cookieName : cookieNames) {
+                    args.add(Arguments.of(new TestParams(url, formParam, cookieName)));
                 }
             }
         }
