@@ -63,21 +63,19 @@ public class CsrfConfigCE implements Customizer<ServerHttpSecurity.CsrfSpec>, Se
         final ServerHttpRequest request = exchange.getRequest();
         final HttpMethod method = request.getMethod();
 
-        if (!HttpMethod.POST.equals(method)) {
-            // CSRF attack is done via HTML form submissions. HTML form submissions can only do GET and POST method
-            // requests. So, if the method is not POST, we don't have to do any further CSRF check.
-            // Curiously, we aren't checking GET method here, even though HTML forms support that.
-            // This is because GET requests should be handled as read-only requests, and assuming that is true, they are
+        if (HttpMethod.GET.equals(method) || HttpMethod.HEAD.equals(method)) {
+            // Semantically, GET requests should be handled as read-only requests, and assuming that is true, they are
             // safe from CSRF. While it looks like it's no-harm doing the CSRF token check for "GET" requests also, it
-            // means we can't simply open these endpoints in the browser and see the response. This can
-            // seriously inhibit troubleshooting and dev convenience.
+            // means we can't simply open these endpoints in the browser and see the response. This can seriously
+            // inhibit troubleshooting and developer convenience.
             // This is why it's important to ensure GET handlers don't have significant side effects.
             // Ref:
             // https://docs.spring.io/spring-security/reference/features/exploits/csrf.html#csrf-protection-read-only
             return ServerWebExchangeMatcher.MatchResult.notMatch();
         }
 
-        if (isUrlExemptedFromCsrf(request.getPath().value())) {
+        if (HttpMethod.POST.equals(method)
+                && isUrlExemptedFromCsrf(request.getPath().value())) {
             // We put this check exactly here, so that only POST requests can ever be exempted. This is intentional.
             return ServerWebExchangeMatcher.MatchResult.notMatch();
         }
