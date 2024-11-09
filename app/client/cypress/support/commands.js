@@ -940,6 +940,7 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
     url: "api/v1/users",
     headers: {
       "content-type": "application/json",
+      "X-Requested-By": "Appsmith",
     },
     followRedirect: false,
     form: true,

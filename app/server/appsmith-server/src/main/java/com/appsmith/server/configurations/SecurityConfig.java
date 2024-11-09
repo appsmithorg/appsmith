@@ -8,7 +8,6 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.filters.CSRFFilter;
 import com.appsmith.server.filters.ConditionalFilter;
 import com.appsmith.server.filters.LoginRateLimitFilter;
 import com.appsmith.server.helpers.RedirectHelper;
@@ -112,6 +111,9 @@ public class SecurityConfig {
     @Autowired
     private CustomOauth2ClientRepositoryManager oauth2ClientManager;
 
+    @Autowired
+    private CsrfConfig csrfConfig;
+
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
 
@@ -164,10 +166,9 @@ public class SecurityConfig {
         ServerAuthenticationEntryPointFailureHandler failureHandler =
                 new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
 
+        csrfConfig.applyTo(http);
+
         return http.addFilterAt(this::sanityCheckFilter, SecurityWebFiltersOrder.FIRST)
-                // The native CSRF solution is too much for use with an SPA like Appsmith. We make our own simple one.
-                .csrf(csrfSpec -> csrfSpec.disable())
-                .addFilterAt(new CSRFFilter(objectMapper), SecurityWebFiltersOrder.CSRF)
                 // Default security headers configuration from
                 // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html
                 .headers(headerSpec -> headerSpec
