@@ -23,8 +23,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.UUID;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-
 /**
  * This component has three purposes:
  * <ol>
@@ -88,11 +86,6 @@ public class CsrfConfigCE implements Customizer<ServerHttpSecurity.CsrfSpec>, Se
 
         if (X_REQUESTED_BY_VALUE.equals(headers.getFirst(X_REQUESTED_BY_NAME))) {
             // If `X-Request-By: Appsmith` header is present, CSRF check isn't needed.
-            return ServerWebExchangeMatcher.MatchResult.notMatch();
-        }
-
-        if (APPLICATION_JSON.equals(headers.getContentType())) {
-            // If `Content-Type: application/json` header is present, CSRF check isn't needed.
             return ServerWebExchangeMatcher.MatchResult.notMatch();
         }
 
