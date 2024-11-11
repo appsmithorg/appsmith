@@ -71,7 +71,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_appsmith_ai_query: false,
   release_actions_redesign_enabled: false,
   rollout_remove_feature_walkthrough_enabled: true,
-  rollout_js_enabled_one_click_binding_enabled: true,
   rollout_eslint_enabled: false,
   rollout_side_by_side_enabled: false,
   release_layout_conversion_enabled: false,
