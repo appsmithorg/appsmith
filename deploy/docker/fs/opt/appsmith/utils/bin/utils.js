@@ -179,7 +179,7 @@ function execCommandSilent(cmd, options) {
   });
 }
 
-function getDatabaseNameFromMongoURI(uri) {
+function getDatabaseNameFromDBURI(uri) {
   const uriParts = uri.split("/");
   return uriParts[uriParts.length - 1].split("?")[0];
 }
@@ -195,6 +195,6 @@ module.exports = {
   getCurrentAppsmithVersion,
   preprocessMongoDBURI,
   execCommandSilent,
-  getDatabaseNameFromMongoURI,
+  getDatabaseNameFromDBURI,
   getDburl
 };

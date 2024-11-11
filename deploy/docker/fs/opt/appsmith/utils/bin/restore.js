@@ -59,17 +59,37 @@ async function extractArchive(backupFilePath, restoreRootPath) {
 
 async function restoreDatabase(restoreContentsPath, dbUrl) {
   console.log('Restoring database...');
+  if (dbUrl.startsWith('mongodb')) {
+    await restore_mongo_db(restoreContentsPath, dbUrl);
+  } else if (dbUrl.includes('postgresql')) {
+    await restore_postgres_db(restoreContentsPath, dbUrl);
+  }
+  console.log('Restoring database completed');
+}
+
+async function restore_mongo_db(restoreContentsPath, dbUrl) {
   const cmd = ['mongorestore', `--uri=${dbUrl}`, '--drop', `--archive=${restoreContentsPath}/mongodb-data.gz`, '--gzip']
   try {
     const fromDbName = await getBackupDatabaseName(restoreContentsPath);
-    const toDbName = utils.getDatabaseNameFromMongoURI(dbUrl);
+    const toDbName = utils.getDatabaseNameFromDBURI(dbUrl);
     console.log("Restoring database from " + fromDbName + " to " + toDbName)
     cmd.push('--nsInclude=*', `--nsFrom=${fromDbName}.*`, `--nsTo=${toDbName}.*`)
   } catch (error) {
     console.warn('Error reading manifest file. Assuming same database name.', error);
   }
   await utils.execCommand(cmd);
-  console.log('Restoring database completed');
+}
+
+async function restore_postgres_db(restoreContentsPath, dbUrl) {
+  const cmd = ['pg_restore', '-U', 'postgres', '-c', `${restoreContentsPath}/pg-data.archive`];
+  try {
+    const toDbName = utils.getDatabaseNameFromDBURI(dbUrl);
+    console.log("Restoring database to " + toDbName);
+    cmd.push('-d' , toDbName);
+  } catch (error) {
+    console.warn('Error reading manifest file. Assuming same database name.', error);
+  }
+  await utils.execCommand(cmd);
 }
 
 async function restoreDockerEnvFile(restoreContentsPath, backupName, overwriteEncryptionKeys) {

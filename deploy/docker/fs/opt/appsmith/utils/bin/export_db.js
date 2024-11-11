@@ -7,9 +7,22 @@ function export_database() {
   console.log('export_database  ....');
   dbUrl = utils.getDburl();
   shell.mkdir('-p', [Constants.BACKUP_PATH]);
+  if (utils.getDburl().startsWith('mongodb')) {
+    executeMongoDumpCMD(destFolder, utils.getDburl())
+  } else if (utils.getDburl().startsWith('postgresql')) {
+    executePostgresDumpCMD(destFolder, utils.getDburl());
+  }
+  console.log('export_database done');
+}
+
+function executeMongoDumpCMD(dbUrl) {
   const cmd = `mongodump --uri='${dbUrl}' --archive='${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`;
   shell.exec(cmd);
-  console.log('export_database done');
+}
+
+function executePostgresDumpCMD(dbUrl) {
+  const cmd = `pg_dump ${dbUrl} -Fc -f '${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}'`;
+  shell.exec(cmd);
 }
 
 function stop_application() {
