@@ -4,7 +4,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../../support/Pages/PageList";
 const templateLocators = require("../../../../../locators/TemplatesLocators.json");
-import reconnectDatasourceLocators from "../../../../../locators/ReconnectLocators.js";
+import reconnectDatasourceLocators from "../../../../../locators/ReconnectLocators";
 
 describe(
   "Bug 17276 - Templates modal filtering",

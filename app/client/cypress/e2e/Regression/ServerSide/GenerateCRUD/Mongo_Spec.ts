@@ -100,7 +100,7 @@ describe(
       col1Text: string,
       col2Text: string,
       col3Text: string,
-      idIndex: number,
+      idIndex?: number,
     ) {
       agHelper.GetNClick(dataSources._generatePageBtn);
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);

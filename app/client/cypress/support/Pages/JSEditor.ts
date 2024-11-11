@@ -24,6 +24,12 @@ const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
 };
 
 export class JSEditor {
+  public completeReplace: any;
+  public lineNumber: any;
+  public paste: any;
+  public prettify: any;
+  public shouldCreateNewJSObj: any;
+  public toRun: any;
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
   public ee = ObjectsRegistry.EntityExplorer;

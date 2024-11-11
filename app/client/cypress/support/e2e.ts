@@ -19,14 +19,14 @@ import "cypress-real-events/support";
 import "cypress-wait-until";
 import "cypress-network-idle";
 import "cypress-xpath";
-import * as MESSAGES from "../../src/ce/constants/messages.ts";
+import * as MESSAGES from "../../src/ce/constants/messages";
 import "./ApiCommands";
 import "./commands";
 import { initLocalstorage, addIndexedDBKey } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
 import { initLocalstorageRegistry } from "./Objects/Registry";
-import RapidMode from "./RapidMode.ts";
+import RapidMode from "./RapidMode";
 import "cypress-mochawesome-reporter/register";
 import installLogsCollector from "cypress-terminal-report/src/installLogsCollector";
 import { CURRENT_REPO, REPO } from "../fixtures/REPO";
@@ -41,7 +41,7 @@ import "cypress-plugin-tab";
 import {
   FEATURE_WALKTHROUGH_INDEX_KEY,
   WALKTHROUGH_TEST_PAGE,
-} from "./Constants.js";
+} from "./Constants";
 const registerCypressGrep = require("@cypress/grep");
 /// <reference types="cypress-xpath" />
 

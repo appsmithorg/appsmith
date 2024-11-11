@@ -20,6 +20,7 @@ interface DragDropWidgetOptions {
 }
 
 export class AnvilDnDHelper {
+  public skipWidgetSearch: any;
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   protected agHelper = ObjectsRegistry.AggregateHelper;

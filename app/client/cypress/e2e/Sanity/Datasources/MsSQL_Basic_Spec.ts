@@ -362,7 +362,7 @@ describe(
       col1Text: string,
       col2Text: string,
       col3Text: string,
-      jsonFromHeader: string,
+      jsonFromHeader?: string,
     ) {
       agHelper.GetNClick(dataSources._generatePageBtn);
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);

@@ -1,7 +1,7 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 /* This file is used to maintain comman methods across tests , refer other *.js files for adding common methods */
-import { ANVIL_EDITOR_TEST } from "./Constants.js";
+import { ANVIL_EDITOR_TEST } from "./Constants";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 
 import EditorNavigation, {

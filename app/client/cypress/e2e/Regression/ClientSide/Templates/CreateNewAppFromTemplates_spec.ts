@@ -4,7 +4,7 @@ import {
   locators,
   templates,
 } from "../../../../support/Objects/ObjectsCore";
-import reconnectDatasourceLocators from "../../../../locators/ReconnectLocators.js";
+import reconnectDatasourceLocators from "../../../../locators/ReconnectLocators";
 
 describe(
   "Create new application from template",

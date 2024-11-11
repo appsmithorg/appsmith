@@ -47,6 +47,10 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 };
 
 export class AggregateHelper {
+  public apiOrQuery: any;
+  public directInput: any;
+  public inputFieldName: any;
+  public propFieldName: any;
   private locator = ObjectsRegistry.CommonLocators;
   private assertHelper = ObjectsRegistry.AssertHelper;
 
