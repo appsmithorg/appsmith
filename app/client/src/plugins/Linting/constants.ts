@@ -2,7 +2,7 @@ import { ECMA_VERSION } from "@shared/ast";
 import type { LintOptions } from "jshint";
 import isEntityFunction from "./utils/isEntityFunction";
 
-export enum LINTER_VERSION {
+export enum LINTER_TYPE {
   "JSHINT" = "JSHint",
   "ESLINT" = "ESLint",
 }
