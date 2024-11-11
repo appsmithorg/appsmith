@@ -13,8 +13,10 @@ import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReduc
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
+import { ANONYMOUS_USERNAME } from "../constants/userConstants";
+import type { User } from "constants/userConstants";
 
-export const initializeAnalyticsAndTrackers = async () => {
+export const initializeAnalyticsAndTrackers = async (currentUser: User) => {
   const appsmithConfigs = getAppsmithConfigs();
 
   try {
@@ -105,6 +107,10 @@ export const initializeAnalyticsAndTrackers = async () => {
   } catch (e) {
     Sentry.captureException(e);
     log.error(e);
+  }
+
+  if (!currentUser.isAnonymous && currentUser.username !== ANONYMOUS_USERNAME) {
+    await AnalyticsUtil.identifyUser(currentUser);
   }
 };
 
