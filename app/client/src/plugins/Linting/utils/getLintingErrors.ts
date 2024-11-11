@@ -25,7 +25,7 @@ import {
   IGNORED_LINT_ERRORS,
   lintOptions,
   SUPPORTED_WEB_APIS,
-  LINTER_VERSION,
+  LINTER_TYPE,
 } from "../constants";
 import type { getLintingErrorsProps } from "../types";
 import { JSLibraries } from "workers/common/JSLibrary";
@@ -45,12 +45,12 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 const EvaluationScriptPositions: Record<string, Position> = {};
 
 function getLinterVersion() {
-  let linterVersion = LINTER_VERSION.JSHINT;
+  let linterVersion = LINTER_TYPE.JSHINT;
 
   const flagValues = WorkerEnv.getFeatureFlags();
 
   if (flagValues?.[FEATURE_FLAG.rollout_eslint_enabled]) {
-    linterVersion = LINTER_VERSION.ESLINT;
+    linterVersion = LINTER_TYPE.ESLINT;
   }
 
   return linterVersion;
