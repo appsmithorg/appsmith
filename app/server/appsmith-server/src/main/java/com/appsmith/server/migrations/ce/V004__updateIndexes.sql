@@ -9,19 +9,19 @@ CREATE UNIQUE INDEX IF NOT EXISTS custom_js_libs_uidstring_key ON customjslib(ui
 
 -- new-action
 CREATE INDEX IF NOT EXISTS new_action_unpublished_datasource_id_idx
-    ON new_action(((unpublished_action ->> 'datasource')::jsonb ->> 'id'))
-    WHERE deleted_at IS NULL AND unpublished_action IS NOT NULL AND unpublished_action ->> 'datasource' IS NOT NULL;
+		ON new_action(((unpublished_action ->> 'datasource')::jsonb ->> 'id'))
+		WHERE deleted_at IS NULL AND unpublished_action IS NOT NULL AND unpublished_action ->> 'datasource' IS NOT NULL;
 CREATE INDEX IF NOT EXISTS new_action_published_datasource_id_idx
-    on new_action(((published_action ->> 'datasource')::jsonb ->> 'id'))
-    WHERE deleted_at IS NULL AND published_action IS NOT NULL AND published_action ->> 'datasource' IS NOT NULL;
+		on new_action(((published_action ->> 'datasource')::jsonb ->> 'id'))
+		WHERE deleted_at IS NULL AND published_action IS NOT NULL AND published_action ->> 'datasource' IS NOT NULL;
 
 -- plugin
 CREATE INDEX IF NOT EXISTS plugin_type_idx ON plugin (type);
 
 -- workspace
 CREATE INDEX IF NOT EXISTS workspace_policy_manage_workspace_tanantId_idx
-    ON workspace (((policy_map ->> 'manage:workspaces')::jsonb ->> 'permissionGroups'), tenant_id)
-    WHERE deleted_at IS NULL;
+		ON workspace (((policy_map ->> 'manage:workspaces')::jsonb ->> 'permissionGroups'), tenant_id)
+		WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS workspace_policy_read_workspace_tanantId_idx
-    ON workspace (((policy_map ->> 'read:workspaces')::jsonb ->> 'permissionGroups'), tenant_id)
-    WHERE deleted_at IS NULL;
+		ON workspace (((policy_map ->> 'read:workspaces')::jsonb ->> 'permissionGroups'), tenant_id)
+		WHERE deleted_at IS NULL;
