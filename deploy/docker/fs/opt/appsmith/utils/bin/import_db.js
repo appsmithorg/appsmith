@@ -9,9 +9,22 @@ const utils = require('./utils');
 function import_database() {
   console.log('import_database  ....')
   dbUrl = utils.getDburl();
-  const cmd = `mongorestore --uri='${dbUrl}' --drop --archive='${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`
-  shell.exec(cmd)
+  if (utils.getDburl().startsWith('mongodb')) {
+    restore_mongo_db();
+  } else if (utils.getDburl().startsWith('postgresql')) {
+    restore_postgres_db();
+  }
   console.log('import_database done')
+}
+
+restore_mongo_db = () => {
+  const cmd = `mongorestore --uri='${dbUrl}' --drop --archive='${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`;
+  shell.exec(cmd);
+}
+
+restore_postgres_db = () => {
+  const cmd = `pg_restore -U postgres -d appsmith -c ${Constants.RESTORE_PATH}/${Constants.POSTGRES_DUMP_FILE_NAME}`;
+  shell.exec(cmd);
 }
 
 function stop_application() {
@@ -20,6 +33,16 @@ function stop_application() {
 
 function start_application() {
   shell.exec('/usr/bin/supervisorctl start backend rts')
+}
+
+function get_table_or_collection_len() {
+  let count;
+  if (utils.getDburl().startsWith('mongodb')) {
+    count = shell.exec(`mongo ${utils.getDburl()} --quiet --eval "db.getCollectionNames().length"`)
+  } else if (utils.getDburl().startsWith('postgresql')) {
+    count = shell.exec(`psql -U postgres -d ${utils.getDburl()} -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'appsmith';"`)
+  }
+  return parseInt(count.stdout.toString().trimEnd())
 }
 
 // Main application workflow
@@ -37,8 +60,7 @@ const main = (forceOption) => {
 
     shell.echo('stop backend & rts application before import database')
     stop_application()
-    const shellCmdResult = shell.exec(`mongo ${process.env.APPSMITH_DB_URL} --quiet --eval "db.getCollectionNames().length"`)
-    const collectionsLen = parseInt(shellCmdResult.stdout.toString().trimEnd())
+    const collectionsLen = get_table_or_collection_len();
     if (collectionsLen > 0) {
       if (forceOption) {
         import_database()

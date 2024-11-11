@@ -56,6 +56,16 @@ test('Test mongodump CMD generaton', async () => {
   console.log(res)
 })
 
+test('Test postgresdump CMD generaton', async () => {
+  var dest = '/dest'
+  var appsmithMongoURI = 'postgresql://username:password@host/appsmith'
+  var cmd = 'pg_dump postgresql://username:password@host/appsmith -Fc -f /dest/pg-data.archive'
+  utils.execCommand =  jest.fn().mockImplementation(async (a) => a.join(' '));
+  const res = await backup.executePostgresDumpCMD(dest, appsmithMongoURI)
+  expect(res).toBe(cmd)
+  console.log(res)
+})
+
 test('Test get gitRoot path when APPSMITH_GIT_ROOT is \'\' ', () => {
   expect(backup.getGitRoot('')).toBe('/appsmith-stacks/git-storage')
 });
@@ -229,28 +239,28 @@ test('Test backup encryption function', async () => {
 test('Get DB name from Mongo URI 1', async () => {
   var mongodb_uri = "mongodb+srv://admin:password@test.cluster.mongodb.net/my_db_name?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin"
   var expectedDBName = 'my_db_name'
-  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri)
+  const dbName = utils.getDatabaseNameFromDBURI(mongodb_uri)
   expect(dbName).toEqual(expectedDBName)
 })
 
 test('Get DB name from Mongo URI 2', async () => {
   var mongodb_uri = "mongodb+srv://admin:password@test.cluster.mongodb.net/test123?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin"
   var expectedDBName = 'test123'
-  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri)
+  const dbName = utils.getDatabaseNameFromDBURI(mongodb_uri)
   expect(dbName).toEqual(expectedDBName)
 })
 
 test('Get DB name from Mongo URI 3', async () => {
   var mongodb_uri = "mongodb+srv://admin:password@test.cluster.mongodb.net/test123"
   var expectedDBName = 'test123'
-  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri)
+  const dbName = utils.getDatabaseNameFromDBURI(mongodb_uri)
   expect(dbName).toEqual(expectedDBName)
 })
 
 test('Get DB name from Mongo URI 4', async () => {
   var mongodb_uri = "mongodb://appsmith:pAssW0rd!@localhost:27017/appsmith"
   var expectedDBName = 'appsmith'
-  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri)
+  const dbName = utils.getDatabaseNameFromDBURI(mongodb_uri)
   expect(dbName).toEqual(expectedDBName)
 })
 
