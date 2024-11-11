@@ -22,13 +22,7 @@ const logLevel: LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL ||
 
 log.setLevel(logLevel);
 
-const API_BASE_URL = process.env.APPSMITH_API_BASE_URL;
-
-if (API_BASE_URL == null || API_BASE_URL === "") {
-  log.error("Please provide a valid value for `APPSMITH_API_BASE_URL`.");
-  process.exit(1);
-}
-
+const API_BASE_URL = process.env.APPSMITH_API_BASE_URL || "http://localhost:8080/api/v1";
 const APPSMITH_RTS_PORT = process.env.APPSMITH_RTS_PORT || 8091;
 
 //Disable x-powered-by header to prevent information disclosure
