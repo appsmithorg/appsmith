@@ -366,7 +366,9 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
 export const EDIT_DATASOURCE = () => "Edit";
-export const SAVE_DATASOURCE = () => "Save";
+export const SAVE_DATASOURCE = () => "Save URL";
+export const EDIT_DATASOURCE_TOOLTIP = () => "Edit datasource";
+export const SAVE_DATASOURCE_TOOLTIP = () => "Save URL as a datasource";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
@@ -645,6 +647,7 @@ export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
   `${JSFunctionName} did not return any data. Did you add a return statement?`;
+export const MORE_ON_QUERY_SETTINGS = () => "More on query settings";
 
 export const REMOVE_CONFIRM_BEFORE_CALLING_HEADING = () =>
   `Remove 'Confirm before calling' `;
@@ -2517,5 +2520,5 @@ export const PREPARED_STATEMENT_WARNING = {
 
 export const JS_EDITOR_SETTINGS = {
   TITLE: () => "Settings",
-  ON_LOAD_TITLE: () => "Choose functions to run on page load",
+  ON_LOAD_TITLE: () => "Choose the functions to run on page load",
 };

@@ -204,10 +204,7 @@ function renderFormConfigTop(props: {
   return (
     <div className="form-config-top" key={props.config.label}>
       {!nestedFormControl && // if the form control is a nested form control hide its label
-        (label?.length > 0 ||
-          encrypted ||
-          tooltipText ||
-          shouldRenderSubtitle) && (
+        (label?.length > 0 || encrypted || shouldRenderSubtitle) && (
           <>
             <FlexWrapper>
               <FormLabel

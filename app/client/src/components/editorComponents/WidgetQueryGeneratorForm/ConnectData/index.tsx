@@ -9,7 +9,7 @@ export function ConnectData({ btnText }: { btnText: string }) {
   if (show) {
     return (
       <StyledButton
-        data-testId="t--one-click-binding-connect-data"
+        data-testid="t--one-click-binding-connect-data"
         isDisabled={disabled}
         isLoading={isLoading}
         onClick={onClick}

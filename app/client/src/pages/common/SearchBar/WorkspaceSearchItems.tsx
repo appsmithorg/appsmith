@@ -33,7 +33,7 @@ const WorkspaceSearchItems = (props: Props) => {
       </Text>
       {workspacesList.map((workspace: Workspace) => (
         <SearchListItem
-          data-testId={workspace.name}
+          data-testid={workspace.name}
           key={workspace.id}
           onClick={() => {
             setIsDropdownOpen(false);

@@ -18,6 +18,7 @@ import { isPrimitive } from "../helper";
 import { isNil } from "lodash";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import useUnmountFieldValidation from "./useUnmountFieldValidation";
 
 interface MetaProps {
   filterText?: string;
@@ -106,6 +107,7 @@ function SelectField({
     fieldName: name,
     fieldType: schemaItem.fieldType,
   });
+  useUnmountFieldValidation({ fieldName: name });
 
   const [updateFilterText] = useUpdateInternalMetaState({
     propertyName: `${name}.filterText`,
