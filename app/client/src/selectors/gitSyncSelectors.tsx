@@ -6,6 +6,7 @@ import {
   getCurrentApplication,
 } from "ee/selectors/applicationSelectors";
 import type { Branch } from "entities/GitSync";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
@@ -280,3 +281,8 @@ export const isGitSettingsModalOpenSelector = (state: AppState) =>
 
 export const activeGitSettingsModalTabSelector = (state: AppState) =>
   state.ui.gitSync.activeGitSettingsModalTab;
+
+export const isGitPersistBranchEnabledSelector = createSelector(
+  selectFeatureFlags,
+  (featureFlags) => featureFlags.release_git_persist_branch_enabled ?? false,
+);

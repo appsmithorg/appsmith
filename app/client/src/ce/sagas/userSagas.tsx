@@ -1,4 +1,4 @@
-import { call, put, race, select, take } from "redux-saga/effects";
+import { call, fork, put, race, select, take } from "redux-saga/effects";
 import type {
   ReduxAction,
   ReduxActionWithPromise,
@@ -43,7 +43,6 @@ import {
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "ee/constants/forms";
 import type { User } from "constants/userConstants";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
   flushErrorsAndRedirect,
   safeCrashAppRequest,
@@ -190,27 +189,25 @@ export function* getCurrentUserSaga(action?: {
   }
 }
 
+function* initTrackers(currentUser: User) {
+  const initializeSentry = initializeAnalyticsAndTrackers(currentUser);
+
+  const sentryInitialized: boolean = yield initializeSentry;
+
+  if (sentryInitialized) {
+    yield put(segmentInitSuccess());
+  } else {
+    yield put(segmentInitUncertain());
+  }
+}
+
 export function* runUserSideEffectsSaga() {
   const currentUser: User = yield select(getCurrentUser);
   const { enableTelemetry } = currentUser;
   const isAirgappedInstance = isAirgapped();
 
   if (enableTelemetry) {
-    const promise = initializeAnalyticsAndTrackers();
-
-    if (promise instanceof Promise) {
-      const result: boolean = yield promise;
-
-      if (result) {
-        yield put(segmentInitSuccess());
-      } else {
-        yield put(segmentInitUncertain());
-      }
-    }
-  }
-
-  if (!currentUser.isAnonymous && currentUser.username !== ANONYMOUS_USERNAME) {
-    enableTelemetry && AnalyticsUtil.identifyUser(currentUser);
+    yield fork(initTrackers, currentUser);
   }
 
   const isFFFetched: boolean = yield select(getFeatureFlagsFetched);

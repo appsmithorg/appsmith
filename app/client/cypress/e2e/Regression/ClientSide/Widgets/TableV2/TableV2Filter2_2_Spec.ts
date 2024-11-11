@@ -12,7 +12,7 @@ import {
 
 describe(
   "Verify various Table_Filter combinations",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     it("1. Verify Full table data - download csv and download Excel", function () {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);

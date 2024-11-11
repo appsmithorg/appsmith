@@ -2,7 +2,7 @@ import { apiPage, dataManager } from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Validate API URL Evaluated value",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     it("1. Check if url object does not crash App", () => {
       apiPage.CreateApi("FirstAPI");

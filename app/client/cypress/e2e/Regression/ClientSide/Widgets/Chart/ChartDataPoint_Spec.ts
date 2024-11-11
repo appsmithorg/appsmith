@@ -16,7 +16,7 @@ let dataSet: any, dsl: any;
 
 describe(
   "Input widget test with default value from chart datapoint",
-  { tags: ["@tag.Widget", "@tag.Chart", "@tag.Sanity"] },
+  { tags: ["@tag.Widget", "@tag.Chart", "@tag.Sanity", "@tag.Binding"] },
   () => {
     //beforeEach - to enable re-attempt passing!
     beforeEach(() => {

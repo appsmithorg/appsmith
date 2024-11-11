@@ -1,14 +1,13 @@
 import { demoTableDataForSelect } from "../../../../../fixtures/Table/DemoTableData";
-import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import {
-  entityExplorer,
-  propPane,
-  deployMode,
-  table,
-  assertHelper,
-  locators,
-  draggableWidgets,
   agHelper,
+  assertHelper,
+  deployMode,
+  draggableWidgets,
+  entityExplorer,
+  locators,
+  propPane,
+  table,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -16,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "Verify various Table_Filter combinations",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     it("1. Adding Data to Table Widget", function () {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
@@ -145,9 +144,6 @@ describe(
 
     it("11. Verify table search includes label and value for table with select column type", () => {
       deployMode.NavigateBacktoEditor();
-      // This flag is turned on to allow the label show in the table select cell content
-      // when this feature is turned on fully, this flag will be removed
-      featureFlagIntercept({ release_table_cell_label_value_enabled: true });
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       propPane.EnterJSContext("Table data", demoTableDataForSelect);
 
@@ -178,7 +174,6 @@ describe(
     });
 
     it("12. Verify table filter for select column type", function () {
-      featureFlagIntercept({ release_table_cell_label_value_enabled: true });
       table.OpenNFilterTable("role", "is exactly", "Product Manager");
       table.ReadTableRowColumnData(0, 2, "v2").then(($cellData) => {
         expect($cellData).to.eq("Product Manager");

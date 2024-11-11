@@ -11,7 +11,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Container Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   function () {
     const items = JSON.parse(dsl.dsl.children[0].listData);
 

@@ -202,10 +202,10 @@ export const ComplexForm = () => {
           Ok
         </Button>
         <Modal
-          dataAttributes={{ "data-size": "small" }}
           initialFocus={2}
           isOpen={isModalOpen}
           setOpen={setModalOpen}
+          size="small"
           triggerRef={submitRef}
         >
           <ModalContent>

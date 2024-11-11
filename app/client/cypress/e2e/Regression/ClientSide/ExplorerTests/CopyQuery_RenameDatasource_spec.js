@@ -16,7 +16,7 @@ let datasourceName;
 
 describe(
   "Entity explorer tests related to copy query",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     beforeEach(() => {
       dataSources.StartDataSourceRoutes();

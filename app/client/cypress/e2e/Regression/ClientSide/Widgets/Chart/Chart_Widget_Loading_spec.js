@@ -9,7 +9,7 @@ import EditorNavigation, {
 let dsname;
 describe(
   "Chart Widget Skeleton Loading Functionality",
-  { tags: ["@tag.Widget", "@tag.Chart"] },
+  { tags: ["@tag.Widget", "@tag.Chart", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("ChartLoadingDsl");

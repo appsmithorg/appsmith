@@ -8,14 +8,14 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { Section, Zone } from "pages/Editor/ActionForm";
+import { Section, Zone } from "../ActionForm";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import FormLabel from "components/editorComponents/FormLabel";
 
 const PostBodyContainer = styled.div`
   &&&& .CodeMirror {
     height: auto;
-    min-height: 250px;
+    min-height: 150px;
   }
 `;
 
@@ -43,7 +43,7 @@ function PostBodyData(props: Props) {
 
   return (
     <PostBodyContainer>
-      <Section isFullWidth>
+      <Section isFullWidth withoutPadding>
         <Zone layout="single_column">
           <div className="t--graphql-query-editor">
             <StyledFormLabel>Query</StyledFormLabel>

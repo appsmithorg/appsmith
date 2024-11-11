@@ -17,6 +17,7 @@ import {
 } from "@blueprintjs/core/lib/esm/common/classes";
 import { importSvg } from "@appsmith/ads-old";
 import type { IconName } from "@blueprintjs/core";
+import log from "loglevel";
 
 // This export must be named "IconSize" to match the exports of @blueprintjs/core/lib/esm/components/icon
 export enum IconSize {
@@ -29,17 +30,21 @@ type IconMapType = Record<
   Record<IconSize, () => Promise<typeof import("*.svg")>>
 >;
 
-// Create a variable to cache the imported module
+// Cache for lazy-loaded svg imports
 let cachedSvgImportsMap: IconMapType | null = null;
 
 // Function to lazily load the file once
 const loadSvgImportsMapOnce = async () => {
   if (!cachedSvgImportsMap) {
-    const { default: svgImportsMap } = await import(
-      "components/designSystems/blueprintjs/icon/svgImportsMap"
-    );
+    try {
+      const { default: svgImportsMap } = await import(
+        "components/designSystems/blueprintjs/icon/svgImportsMap"
+      );
 
-    cachedSvgImportsMap = svgImportsMap; // Cache the module for future use
+      cachedSvgImportsMap = svgImportsMap; // Cache the module for future use
+    } catch (e) {
+      log.error("Error loading SvgImportsMap", e);
+    }
   }
 
   return cachedSvgImportsMap;
@@ -70,7 +75,7 @@ function Icon(props: IconProps) {
       // Load the cached svgImportsMap once
       const svgImportsMap = await loadSvgImportsMapOnce();
 
-      if (typeof icon === "string" && icon in svgImportsMap) {
+      if (svgImportsMap && typeof icon === "string" && icon in svgImportsMap) {
         const SvgIcon = await importSvg(svgImportsMap[icon][pixelGridSize]);
 
         setSvgIcon(() => SvgIcon); // Set the component as lazy-loaded

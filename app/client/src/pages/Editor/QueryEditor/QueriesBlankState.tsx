@@ -26,4 +26,4 @@ const QueriesBlankState = () => {
   );
 };
 
-export { QueriesBlankState };
+export default QueriesBlankState;

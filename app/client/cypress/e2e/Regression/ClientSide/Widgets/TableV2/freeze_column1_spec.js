@@ -9,7 +9,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Column freeze & unfreeze in canavs mode",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 200, y: 200 });

@@ -136,12 +136,18 @@ import DataStore from "workers/Evaluation/dataStore";
 import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
 import microDiff from "microdiff";
 import {
+  profileAsyncFn,
   profileFn,
   type WebworkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
 import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
+import appComputationCache from "../AppComputationCache";
+import {
+  EComputationCacheName,
+  type ICacheProps,
+} from "../AppComputationCache/types";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -235,16 +241,14 @@ export default class DataTreeEvaluator {
    * Method to create all data required for linting and
    * evaluation of the first tree
    */
-  setupFirstTree(
+  async setupFirstTree(
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
-  ): {
-    jsUpdates: Record<string, JSUpdate>;
-    evalOrder: string[];
-  } {
+    cacheProps: ICacheProps,
+  ) {
     this.setConfigTree(configTree);
 
     const totalFirstTreeSetupStartTime = performance.now();
@@ -287,19 +291,29 @@ export default class DataTreeEvaluator {
     );
     const allKeysGenerationStartTime = performance.now();
 
-    this.allKeys = getAllPaths(unEvalTreeWithStrigifiedJSFunctions);
+    this.allKeys = await appComputationCache.fetchOrCompute({
+      cacheProps,
+      cacheName: EComputationCacheName.ALL_KEYS,
+      computeFn: () => getAllPaths(unEvalTreeWithStrigifiedJSFunctions),
+    });
+
     const allKeysGenerationEndTime = performance.now();
 
     const createDependencyMapStartTime = performance.now();
 
-    const { dependencies, inverseDependencies } = profileFn(
+    const { dependencies, inverseDependencies } = await profileAsyncFn(
       "createDependencyMap",
-      undefined,
+      async () =>
+        createDependencyMap(
+          this,
+          localUnEvalTree,
+          configTree,
+          cacheProps,
+          webworkerTelemetry,
+        ),
       webworkerTelemetry,
-      () => {
-        return createDependencyMap(this, localUnEvalTree, configTree);
-      },
     );
+
     const createDependencyMapEndTime = performance.now();
 
     this.dependencies = dependencies;

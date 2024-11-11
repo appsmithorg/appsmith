@@ -36,7 +36,7 @@ const tableData = `[
 const switchSelector = " .bp3-switch input[type='checkbox']";
 describe(
   "Switch column type funtionality test",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
@@ -137,6 +137,7 @@ describe(
         cy.wait(100);
         agHelper.ValidateToastMessage("This is a test message");
       });
+      agHelper.ClickButton("Discard", { index: 0 }); // discard changes
     });
 
     it("4. Verify filter condition", () => {
@@ -151,7 +152,11 @@ describe(
 
       // filter and verify checked rows
       cy.getTableV2DataSelector("0", "4").then((selector) => {
-        cy.get(selector + switchSelector).should("be.checked");
+        agHelper.AssertExistingCheckedState(selector + switchSelector, "true");
+      });
+
+      cy.getTableV2DataSelector("1", "4").then((selector) => {
+        agHelper.AssertExistingCheckedState(selector + switchSelector, "true");
       });
 
       // Filter and verify unchecked rows
@@ -162,10 +167,7 @@ describe(
       cy.get(publishPage.applyFiltersBtn).click();
 
       cy.getTableV2DataSelector("0", "4").then((selector) => {
-        cy.get(selector + switchSelector).should("not.be.checked");
-      });
-      cy.getTableV2DataSelector("1", "4").then((selector) => {
-        cy.get(selector + switchSelector).should("not.be.checked");
+        agHelper.AssertExistingCheckedState(selector + switchSelector, "false");
       });
     });
 

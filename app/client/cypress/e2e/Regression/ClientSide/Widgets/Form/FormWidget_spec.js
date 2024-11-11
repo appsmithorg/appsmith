@@ -11,7 +11,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Form Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Form"] },
+  { tags: ["@tag.Widget", "@tag.Form", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formdsl");

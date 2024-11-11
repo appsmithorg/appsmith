@@ -5,7 +5,7 @@ const jsEditor = ObjectsRegistry.JSEditor,
 
 describe(
   "JS Execution of Higher-order-functions",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Binding"] },
   function () {
     it("1. Completes execution properly", function () {
       const JSObjectWithHigherOrderFunction = `export default{

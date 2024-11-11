@@ -1,5 +1,5 @@
 import localStorage from "utils/localStorage";
-import { render } from "test/testUtils";
+import { render, waitFor } from "test/testUtils";
 import { Route } from "react-router-dom";
 import { BUILDER_PATH } from "ee/constants/routes/appRoutes";
 import IDE from "pages/Editor/IDE/index";
@@ -19,8 +19,8 @@ const basePageId = "0123456789abcdef00000000";
 describe("IDE Render: JS", () => {
   localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   describe("JS Blank State", () => {
-    it("Renders Fullscreen Blank State", () => {
-      const { getByRole, getByText } = render(
+    it("Renders Fullscreen Blank State", async () => {
+      const { findByText, getByRole, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -31,7 +31,7 @@ describe("IDE Render: JS", () => {
       );
 
       // Main pane text
-      getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_state));
+      await findByText(createMessage(EDITOR_PANE_TEXTS.js_blank_state));
 
       // Left pane text
       getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_state_description));
@@ -68,8 +68,8 @@ describe("IDE Render: JS", () => {
       });
     });
 
-    it("Renders Fullscreen Add in Blank State", () => {
-      const { getByTestId, getByText } = render(
+    it("Renders Fullscreen Add in Blank State", async () => {
+      const { findByText, getByTestId, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -80,7 +80,7 @@ describe("IDE Render: JS", () => {
       );
 
       // Main pane text
-      getByText(createMessage(EDITOR_PANE_TEXTS.js_create_tab_title));
+      await findByText(createMessage(EDITOR_PANE_TEXTS.js_create_tab_title));
 
       // Left pane description
       getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_state_description));
@@ -117,7 +117,7 @@ describe("IDE Render: JS", () => {
   });
 
   describe("JS Edit Render", () => {
-    it("Renders JS routes in Full screen", () => {
+    it("Renders JS routes in Full screen", async () => {
       const page = PageFactory.build();
       const js1 = JSObjectFactory.build({
         pageId: page.pageId,
@@ -141,6 +141,15 @@ describe("IDE Render: JS", () => {
           initialState: state,
           featureFlags: FeatureFlags,
         },
+      );
+
+      await waitFor(
+        async () => {
+          const elements = getAllByText("JSObject1"); // Use the common test ID or selector
+
+          expect(elements).toHaveLength(3); // Wait until there are exactly 3 elements
+        },
+        { timeout: 3000, interval: 500 },
       );
 
       // There will be 3 JSObject1 text (Left pane list, editor tab and Editor form)

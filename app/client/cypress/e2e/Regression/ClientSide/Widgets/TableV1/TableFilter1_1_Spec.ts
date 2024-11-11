@@ -5,7 +5,7 @@ import EditorNavigation, {
 
 describe(
   "Verify various Table_Filter combinations",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tablev1NewDsl");

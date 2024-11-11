@@ -8,7 +8,7 @@ import homePage from "../../../../../locators/HomePage";
 
 describe(
   "Input Widget Multiline feature",
-  { tags: ["@tag.Widget", "@tag.Input"] },
+  { tags: ["@tag.Widget", "@tag.Input", "@tag.Binding"] },
   function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     it("1. Single-line text with different heights i.e. Auto height and Fixed", () => {
