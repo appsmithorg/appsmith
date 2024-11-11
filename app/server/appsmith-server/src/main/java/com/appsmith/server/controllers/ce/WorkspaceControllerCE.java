@@ -3,6 +3,7 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.AlloyWorkspaceTokenDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -112,5 +113,12 @@ public class WorkspaceControllerCE {
         return userWorkspaceService
                 .getUserWorkspacesByRecentlyUsedOrder()
                 .map(workspaces -> new ResponseDTO<>(HttpStatus.OK.value(), workspaces, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/{workspaceId}/alloyToken")
+    public Mono<ResponseDTO<AlloyWorkspaceTokenDTO>> generateAlloyWorkspaceToken(@PathVariable String workspaceId) {
+        return service.generateAlloyWorkspaceToken(workspaceId)
+                .map(workspaceTokenDTO -> new ResponseDTO<>(HttpStatus.OK.value(), workspaceTokenDTO, null));
     }
 }

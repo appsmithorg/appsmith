@@ -11,6 +11,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
+import com.appsmith.server.dtos.AlloyWorkspaceTokenDTO;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
@@ -30,10 +31,12 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.util.WebClientUtils;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
@@ -80,6 +83,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
     private final WorkspaceServiceHelper workspaceServiceHelper;
+
+    @Value("${appsmith.alloy.api.key}")
+    private String alloyApiKey;
 
     @Autowired
     public WorkspaceServiceCEImpl(
@@ -622,5 +628,44 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Override
     public Flux<Workspace> getAll(AclPermission permission) {
         return repository.findAll(permission);
+    }
+
+    private Mono<String> createUserInAlloy(String workspaceId) {
+        return WebClientUtils.builder()
+                .build()
+                .post()
+                .uri("https://embedded.runalloy.com/2024-03/users/")
+                .header("Authorization", String.format("Bearer %s", alloyApiKey))
+                .bodyValue(Map.of("username", workspaceId, "fullName", workspaceId))
+                .retrieve()
+                .bodyToMono(Map.class)
+                .map(response -> (String) response.get("userId"));
+    }
+
+    private Mono<String> createAlloyJWT(String userId) {
+        return WebClientUtils.builder()
+                .build()
+                .get()
+                .uri(String.format("https://embedded.runalloy.com/2024-03/users/%s/token", userId))
+                .header("Authorization", String.format("Bearer %s", alloyApiKey))
+                .retrieve()
+                .bodyToMono(Map.class)
+                .map(response -> (String) response.get("token"));
+    }
+
+    @Override
+    public Mono<AlloyWorkspaceTokenDTO> generateAlloyWorkspaceToken(String workspaceId) {
+        // create user in alloy
+        // create jwt token and return
+        AlloyWorkspaceTokenDTO alloyWorkspaceTokenDTO = new AlloyWorkspaceTokenDTO();
+        return createUserInAlloy(workspaceId)
+                .flatMap(userId -> {
+                    alloyWorkspaceTokenDTO.setUserId(userId);
+                    return createAlloyJWT(userId);
+                })
+                .flatMap(jwt -> {
+                    alloyWorkspaceTokenDTO.setToken(jwt);
+                    return Mono.just(alloyWorkspaceTokenDTO);
+                });
     }
 }
