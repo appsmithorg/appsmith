@@ -3,7 +3,6 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const queryLocators = require("../../../../../locators/QueryEditor.json");
 
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 

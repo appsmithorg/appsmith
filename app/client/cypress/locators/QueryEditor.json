@@ -8,8 +8,6 @@
   "deleteUsingContext": ".t--apiFormDeleteBtn",
   "addDatasource": ".t--add-datasource",
   "editDatasourceButton": ".t--edit-datasource",
-  "settings": "span:contains('Settings')",
-  "query": "//span[text()='Query']/parent::button[@role='tab']",
   "switch": ".t--form-control-SWITCH input",
   "queryResponse": "(//div[@class='table']//div[@class='tr'])[3]//div[@class='td']",
   "querySelect": "//div[contains(@class, 't--template-menu')]//div[text()='Select']",
@@ -23,5 +21,4 @@
   "snipeableTable": "//input[@type='search']",
   "suggestedWidgetChart": ".t--suggested-widget-CHART_WIDGET",
   "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
-  "querySettingsTab": "//span[contains(text(), 'Settings')]/parent::button"
 }

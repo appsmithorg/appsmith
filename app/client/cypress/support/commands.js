@@ -35,6 +35,7 @@ const welcomePage = require("../locators/welcomePage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import RapidMode from "./RapidMode";
 import { featureFlagIntercept } from "./Objects/FeatureFlags";
+import { PluginActionForm } from "./Pages/PluginActionForm.js";
 
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -47,6 +48,7 @@ const homePageTS = ObjectsRegistry.HomePage;
 const table = ObjectsRegistry.Table;
 
 const chainStart = Symbol();
+const pluginActionForm = new PluginActionForm();
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -1074,9 +1076,9 @@ Cypress.Commands.add("VerifyErrorMsgPresence", (errorMsgToVerifyAbsence) => {
 });
 
 Cypress.Commands.add("setQueryTimeout", (timeout) => {
-  cy.get(queryLocators.settings).click();
+  pluginActionForm.toolbar.toggleSettings();
   cy.xpath(queryLocators.queryTimeout).clear().type(timeout);
-  cy.xpath(queryLocators.query).click();
+  pluginActionForm.toolbar.toggleSettings();
 });
 
 Cypress.Commands.add("isInViewport", (element) => {

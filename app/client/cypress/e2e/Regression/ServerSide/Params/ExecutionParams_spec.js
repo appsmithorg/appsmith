@@ -3,19 +3,21 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 
 const publishPage = require("../../../../locators/publishWidgetspage.json");
-const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 import {
   agHelper,
   deployMode,
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
+import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
 
 describe(
   "API Panel Test Functionality",
   { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let datasourceName;
+    let pluginActionForm = new PluginActionForm();
+
     before(() => {
       agHelper.AddDsl("executionParamsDsl");
     });
@@ -36,9 +38,9 @@ describe(
       dataSources.CreateQueryAfterDSSaved(
         "select * from {{ this.params.tableName || 'users' }} limit 10",
       );
-      cy.get(queryLocators.settings).click({ force: true });
+      pluginActionForm.toolbar.toggleSettings();
       dataSources.ToggleUsePreparedStatement(false);
-      cy.xpath(queryLocators.query).click({ force: true });
+      pluginActionForm.toolbar.toggleSettings();
       cy.runQuery();
     });
 
