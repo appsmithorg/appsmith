@@ -212,15 +212,24 @@ public class SmtpPlugin extends BasePlugin {
             prop.put("mail.smtp.port", String.valueOf(port));
             prop.put("mail.smtp.ssl.trust", endpoint.getHost());
 
-            String username = authentication.getUsername();
-            String password = authentication.getPassword();
+            Session session;
 
-            Session session = Session.getInstance(prop, new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(username, password);
-                }
-            });
+            if (authentication != null && StringUtils.hasText(authentication.getUsername())
+                && StringUtils.hasText(authentication.getPassword())) {
+
+                String username = authentication.getUsername();
+                String password = authentication.getPassword();
+
+                session = Session.getInstance(prop, new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(username, password);
+                    }
+                });
+            } else {
+                prop.put("mail.smtp.auth", "false");
+                session = Session.getInstance(prop);
+            }
             return Mono.just(session);
         }
 
@@ -264,6 +273,10 @@ public class SmtpPlugin extends BasePlugin {
             log.debug(Thread.currentThread().getName() + ": testDatasource() called for SMTP plugin.");
             return Mono.fromCallable(() -> {
                         Set<String> invalids = new HashSet<>();
+
+                        boolean isAuthRequired = connection.getProperty("mail.smtp.auth") != null
+                            && connection.getProperty("mail.smtp.auth").equals("true");
+
                         try {
                             Transport transport = connection.getTransport();
                             if (transport != null) {
@@ -273,7 +286,9 @@ public class SmtpPlugin extends BasePlugin {
                         } catch (NoSuchProviderException e) {
                             invalids.add(SMTPErrorMessages.DS_NO_SUCH_PROVIDER_ERROR_MSG);
                         } catch (AuthenticationFailedException e) {
-                            invalids.add(SMTPErrorMessages.DS_AUTHENTICATION_FAILED_ERROR_MSG);
+                            if (isAuthRequired) {
+                                invalids.add(SMTPErrorMessages.DS_AUTHENTICATION_FAILED_ERROR_MSG);
+                            }
                         } catch (MessagingException e) {
                             log.error(e.getMessage());
                             invalids.add(SMTPErrorMessages.DS_CONNECTION_FAILED_TO_SMTP_SERVER_ERROR_MSG);

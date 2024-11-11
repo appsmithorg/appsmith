@@ -131,12 +131,10 @@ public class SmtpPluginTest {
 
     @Test
     public void testNullAuthentication() {
-        DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
-        invalidDatasourceConfiguration.setAuthentication(null);
+        DatasourceConfiguration noAuthDatasourceConfiguration = createDatasourceConfiguration();
+        noAuthDatasourceConfiguration.setAuthentication(null);
 
-        assertEquals(
-                Set.of(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR).getMessage()),
-                pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
+        assertEquals(0, pluginExecutor.validateDatasource(noAuthDatasourceConfiguration).size());
     }
 
     @Test
