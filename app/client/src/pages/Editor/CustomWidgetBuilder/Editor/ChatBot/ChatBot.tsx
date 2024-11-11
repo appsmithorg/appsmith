@@ -16,11 +16,15 @@ import { isObject } from "lodash";
 
 export const ChatBot = (props: ContentProps) => {
   const ref = useRef<HTMLIFrameElement>(null);
-  const { parentEntityId, uncompiledSrcDoc, update, widgetId } = useContext(
+  const lastUpdateFromBot = useRef<number>(0);
+  const { bulkUpdate, parentEntityId, uncompiledSrcDoc, widgetId } = useContext(
     CustomWidgetBuilderContext,
   );
 
   const handleSrcDocUpdates = useCallback(() => {
+    // Don't send updates back to bot if the last update came from the bot within the last 100ms
+    if (Date.now() - lastUpdateFromBot.current < 100) return;
+
     // Send src doc to the chatbot iframe
     if (ref.current && ref.current.contentWindow && uncompiledSrcDoc) {
       ref.current.contentWindow.postMessage(
@@ -53,23 +57,19 @@ export const ChatBot = (props: ContentProps) => {
         return;
       }
 
-      if (!update) return;
+      if (!bulkUpdate) return;
 
       if (isObject(event.data)) {
-        if (event.data.html_code) {
-          update("html", event.data.html_code);
-        }
+        lastUpdateFromBot.current = Date.now();
 
-        if (event.data.css_code) {
-          update("css", event.data.css_code);
-        }
-
-        if (event.data.js_code) {
-          update("js", event.data.js_code);
-        }
+        bulkUpdate({
+          html: event.data.html_code || "",
+          css: event.data.css_code || "",
+          js: event.data.js_code || "",
+        });
       }
     },
-    [uncompiledSrcDoc, update],
+    [bulkUpdate, handleSrcDocUpdates],
   );
 
   useEffect(
