@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
+import com.appsmith.server.newpages.projections.PageViewWithoutDSL;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import io.micrometer.observation.ObservationRegistry;
@@ -58,13 +59,12 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findByApplicationId(
-            String applicationId, AclPermission aclPermission, List<String> includeFields) {
+    public <T> Flux<T> findByApplicationId(
+            String applicationId, AclPermission aclPermission, Class<T> projectionClass) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
                 .permission(aclPermission)
-                .fields(includeFields)
-                .all();
+                .all(projectionClass);
     }
 
     @Override
@@ -126,7 +126,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
+    public Flux<PageViewWithoutDSL> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
         List<String> includedFields = List.of(
                 NewPage.Fields.applicationId,
                 NewPage.Fields.baseId,
@@ -145,9 +145,9 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         return this.queryBuilder()
                 .criteria(Bridge.in(NewPage.Fields.id, ids))
-                .fields(includedFields)
+                // .fields(includedFields)
                 .permission(aclPermission)
-                .all();
+                .all(PageViewWithoutDSL.class);
     }
 
     private BridgeQuery<NewPage> getNameCriterion(String name, Boolean viewMode) {

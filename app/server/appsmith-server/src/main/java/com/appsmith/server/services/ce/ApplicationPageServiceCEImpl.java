@@ -41,6 +41,7 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.newpages.projections.PageViewWithoutDSL;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -254,7 +255,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<List<NewPage>> getPagesBasedOnApplicationMode(
+    public Mono<List<PageViewWithoutDSL>> getPagesBasedOnApplicationMode(
             Application branchedApplication, ApplicationMode applicationMode) {
 
         Boolean viewMode = Boolean.FALSE;
@@ -283,7 +284,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         return newPageService
                 .findNewPagesByApplicationId(
-                        branchedApplication.getId(), pagePermission.getReadPermission(), projectedFieldNames)
+                        branchedApplication.getId(), pagePermission.getReadPermission(), PageViewWithoutDSL.class)
                 .filter(newPage -> pageIds.contains(newPage.getId()))
                 .collectList()
                 .name(getQualifiedSpanName(FETCH_PAGES_BY_APP_ID_DB, applicationMode))

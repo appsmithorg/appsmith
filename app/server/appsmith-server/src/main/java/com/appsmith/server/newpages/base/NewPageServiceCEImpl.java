@@ -16,6 +16,8 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.newpages.projections.PageDTOView;
+import com.appsmith.server.newpages.projections.PageViewWithoutDSL;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -268,7 +270,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 .zipWith(applicationMono)
                 .map(tuple -> {
                     log.debug("Retrieved Page DTOs from DB ...");
-                    List<NewPage> pagesFromDb = tuple.getT1();
+                    List<PageViewWithoutDSL> pagesFromDb = tuple.getT1();
                     Application application = tuple.getT2();
                     return getApplicationPagesDTO(application, pagesFromDb, view);
                 });
@@ -339,7 +341,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
      * @return : returns the getApplicationPagesDTO
      */
     public ApplicationPagesDTO getApplicationPagesDTO(
-            Application application, List<NewPage> newPages, boolean viewMode) {
+            Application application, List<PageViewWithoutDSL> newPages, boolean viewMode) {
 
         String homePageId = getHomePageId(application, viewMode);
         List<PageNameIdDTO> pageNameIdDTOList = new ArrayList<>();
@@ -360,7 +362,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             }
         }
 
-        for (NewPage pageFromDb : newPages) {
+        for (PageViewWithoutDSL pageFromDb : newPages) {
             PageNameIdDTO pageNameIdDTO = getPageNameIdDTO(pageFromDb, homePageId, viewMode);
             pageNameIdDTOList.add(pageNameIdDTO);
         }
@@ -382,18 +384,18 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return applicationPagesDTO;
     }
 
-    private static PageNameIdDTO getPageNameIdDTO(NewPage pageFromDb, String homePageId, boolean viewMode) {
+    private static PageNameIdDTO getPageNameIdDTO(PageViewWithoutDSL pageFromDb, String homePageId, boolean viewMode) {
         PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
         pageNameIdDTO.setId(pageFromDb.getId());
         pageNameIdDTO.setBaseId(pageFromDb.getBaseIdOrFallback());
 
-        PageDTO pageDTO;
+        PageDTOView pageDTO;
 
         if (Boolean.TRUE.equals(viewMode)) {
             if (pageFromDb.getPublishedPage() == null) {
                 // We are trying to fetch published pages, however;
                 // it doesn't exist because the page hasn't been published yet
-                throw new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageFromDb.getId());
+                throw new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, pageFromDb.id());
             }
             pageDTO = pageFromDb.getPublishedPage();
         } else {
@@ -405,7 +407,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         pageNameIdDTO.setSlug(pageDTO.getSlug());
         pageNameIdDTO.setIcon(pageDTO.getIcon());
         pageNameIdDTO.setCustomSlug(pageDTO.getCustomSlug());
-        pageNameIdDTO.setUserPermissions(pageFromDb.getUserPermissions());
+        // pageNameIdDTO.setUserPermissions(pageFromDb.getUserPermissions());
         pageNameIdDTO.setIsDefault(pageNameIdDTO.getId().equals(homePageId));
         return pageNameIdDTO;
     }
@@ -424,9 +426,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Flux<NewPage> findNewPagesByApplicationId(
-            String applicationId, AclPermission permission, List<String> includeFields) {
-        return repository.findByApplicationId(applicationId, permission, includeFields);
+    public <T> Flux<T> findNewPagesByApplicationId(String applicationId, AclPermission permission, Class<T> clazz) {
+        return repository.findByApplicationId(applicationId, permission, clazz);
     }
 
     @Override

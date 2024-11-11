@@ -7,6 +7,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.newpages.projections.PageViewWithoutDSL;
 import com.appsmith.server.services.CrudService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -27,8 +28,7 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Flux<NewPage> findNewPagesByApplicationId(String applicationId, AclPermission permission);
 
-    Flux<NewPage> findNewPagesByApplicationId(
-            String applicationId, AclPermission permission, List<String> includeFields);
+    <T> Flux<T> findNewPagesByApplicationId(String applicationId, AclPermission permission, Class<T> clazz);
 
     Mono<PageDTO> saveUnpublishedPage(PageDTO page);
 
@@ -81,7 +81,8 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Flux<NewPage> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields);
 
-    ApplicationPagesDTO getApplicationPagesDTO(Application application, List<NewPage> newPages, boolean viewMode);
+    ApplicationPagesDTO getApplicationPagesDTO(
+            Application application, List<PageViewWithoutDSL> newPages, boolean viewMode);
 
     Mono<ApplicationPagesDTO> createApplicationPagesDTO(
             Application branchedApplication, List<NewPage> newPages, boolean viewMode, boolean isRecentlyAccessed);

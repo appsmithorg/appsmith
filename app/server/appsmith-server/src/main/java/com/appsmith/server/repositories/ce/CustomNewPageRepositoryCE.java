@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.newpages.projections.PageViewWithoutDSL;
 import com.appsmith.server.repositories.AppsmithRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -16,7 +17,7 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission);
 
-    Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission, List<String> includeFields);
+    <T> Flux<T> findByApplicationId(String applicationId, AclPermission aclPermission, Class<T> projectionClass);
 
     Flux<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission);
 
@@ -28,7 +29,7 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     Mono<NewPage> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission aclPermission, Boolean viewMode);
 
-    Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission);
+    Flux<PageViewWithoutDSL> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission);
 
     Mono<String> getNameByPageId(String pageId, boolean isPublishedName);
 

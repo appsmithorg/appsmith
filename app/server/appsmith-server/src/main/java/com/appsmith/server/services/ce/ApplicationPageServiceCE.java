@@ -7,6 +7,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.newpages.projections.PageViewWithoutDSL;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -65,7 +66,7 @@ public interface ApplicationPageServiceCE {
 
     int getEvaluationVersion();
 
-    Mono<List<NewPage>> getPagesBasedOnApplicationMode(
+    Mono<List<PageViewWithoutDSL>> getPagesBasedOnApplicationMode(
             Application branchedApplication, ApplicationMode applicationMode);
 
     Mono<PageDTO> getPageDTOAfterMigratingDSL(NewPage newPage, boolean viewMode, boolean migrateDsl);
