@@ -1,3 +1,8 @@
+import {
+  createMessage,
+  CUSTOM_WIDGET_BUILDER_TAB_TITLE,
+} from "ee/constants/messages";
+
 export const CUSTOM_WIDGET_BUILDER_EVENTS = {
   READY: "READY",
   READY_ACK: "READY_ACK",
@@ -66,3 +71,12 @@ export const CUSTOM_WIDGET_AI_INITIALISED_MESSAGE = "CHAT_INITIALISED";
 
 export const CUSTOM_WIDGET_AI_BOT_URL = (instanceId: string) =>
   `https://internal.appsmith.com/app/app-builder-bot/custom-widget-bot-672b2020d37b7d0b29dcfa71?embed=true&chatType=${CUSTOM_WIDGET_AI_CHAT_TYPE}&chatInstance=${instanceId}&url=${encodeURIComponent(window.location.origin)}`;
+
+export const CUSTOM_WIDGET_AI_BOT_MESSAGE_RESPONSE_DEBOUNCE_TIMEOUT = 100;
+
+export const CUSTOM_WIDGET_BUILDER_TABS = {
+  AI: createMessage(CUSTOM_WIDGET_BUILDER_TAB_TITLE.AI),
+  HTML: createMessage(CUSTOM_WIDGET_BUILDER_TAB_TITLE.HTML),
+  STYLE: createMessage(CUSTOM_WIDGET_BUILDER_TAB_TITLE.STYLE),
+  JS: createMessage(CUSTOM_WIDGET_BUILDER_TAB_TITLE.JS),
+};

@@ -8,6 +8,7 @@ import React, {
 import type { ContentProps } from "../CodeEditors/types";
 import { CustomWidgetBuilderContext } from "../..";
 import {
+  CUSTOM_WIDGET_AI_BOT_MESSAGE_RESPONSE_DEBOUNCE_TIMEOUT,
   CUSTOM_WIDGET_AI_BOT_URL,
   CUSTOM_WIDGET_AI_CHAT_TYPE,
   CUSTOM_WIDGET_AI_INITIALISED_MESSAGE,
@@ -23,7 +24,12 @@ export const ChatBot = (props: ContentProps) => {
 
   const handleSrcDocUpdates = useCallback(() => {
     // Don't send updates back to bot if the last update came from the bot within the last 100ms
-    if (Date.now() - lastUpdateFromBot.current < 100) return;
+    if (
+      Date.now() - lastUpdateFromBot.current <
+      CUSTOM_WIDGET_AI_BOT_MESSAGE_RESPONSE_DEBOUNCE_TIMEOUT
+    ) {
+      return;
+    }
 
     // Send src doc to the chatbot iframe
     if (ref.current && ref.current.contentWindow && uncompiledSrcDoc) {

@@ -11,6 +11,7 @@ import References from "./References";
 import { ChatBot } from "./ChatBot/ChatBot";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { CUSTOM_WIDGET_BUILDER_TABS } from "../constants";
 
 export default function Editor() {
   const { isReferenceOpen } = useContext(CustomWidgetBuilderContext);
@@ -21,23 +22,23 @@ export default function Editor() {
   const tabs = useMemo(() => {
     const defaultTabs = [
       {
-        title: "HTML",
+        title: CUSTOM_WIDGET_BUILDER_TABS.HTML,
         children: (props: ContentProps) => <HTMLEditor {...props} />,
       },
       {
-        title: "Style",
+        title: CUSTOM_WIDGET_BUILDER_TABS.STYLE,
         titleControls: <TitleControls />,
         children: (props: ContentProps) => <StyleEditor {...props} />,
       },
       {
-        title: "Javascript",
+        title: CUSTOM_WIDGET_BUILDER_TABS.JS,
         children: (props: ContentProps) => <JSEditor {...props} />,
       },
     ];
 
     if (isAIEnabled) {
       defaultTabs.push({
-        title: "AI",
+        title: CUSTOM_WIDGET_BUILDER_TABS.AI,
         children: (props: ContentProps) => <ChatBot {...props} />,
       });
     }

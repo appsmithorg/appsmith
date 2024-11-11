@@ -6,6 +6,7 @@ import useLocalStorageState from "utils/hooks/useLocalStorageState";
 import classNames from "classnames";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { CUSTOM_WIDGET_BUILDER_TABS } from "../../../constants";
 
 interface Props {
   tabs: Array<{
@@ -26,7 +27,9 @@ export default function TabLayout(props: Props) {
 
   const [selectedTab, setSelectedTab] = useLocalStorageState<string>(
     LOCAL_STORAGE_KEYS,
-    isDefaultAITab ? "AI" : tabs[0].title,
+    isDefaultAITab
+      ? CUSTOM_WIDGET_BUILDER_TABS.AI
+      : CUSTOM_WIDGET_BUILDER_TABS.JS,
   );
 
   useEffect(() => {
