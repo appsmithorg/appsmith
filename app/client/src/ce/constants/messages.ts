@@ -2522,3 +2522,10 @@ export const JS_EDITOR_SETTINGS = {
   TITLE: () => "Settings",
   ON_LOAD_TITLE: () => "Choose the functions to run on page load",
 };
+
+export const CUSTOM_WIDGET_BUILDER_TAB_TITLE = {
+  AI: () => "AI",
+  HTML: () => "HTML",
+  STYLE: () => "Style",
+  JS: () => "Javascript",
+};
