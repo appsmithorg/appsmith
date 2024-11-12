@@ -16,7 +16,6 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const queryLocators = require("../../../../locators/QueryEditor.json");
 
 describe("Focus Retention of Inputs", { tags: ["@tag.IDE"] }, function () {
-
   let pluginActionForm = new PluginActionForm();
 
   before("Import the test application", () => {

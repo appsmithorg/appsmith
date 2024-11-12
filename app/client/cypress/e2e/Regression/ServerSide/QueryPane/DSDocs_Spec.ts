@@ -16,7 +16,7 @@ describe(
   "Check datasource doc links",
   { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
-    it.only("1. Verify Postgres documentation opens", function () {
+    it("1. Verify Postgres documentation opens", function () {
       CreateDummyDSNSave(DataSourceKVP["Postgres"]);
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;

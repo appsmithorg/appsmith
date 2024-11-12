@@ -35,13 +35,12 @@ export class JSEditor {
   public contextMenuTriggerLocator = "[data-testid='t--more-action-trigger']";
   public runFunctionSelectLocator = "[data-testid='t--js-function-run']";
 
-
   public toolbar = new PluginEditorToolbar(
     this.runButtonLocator,
     this.settingsTriggerLocator,
     this.contextMenuTriggerLocator,
     this.runFunctionSelectLocator,
-  );;
+  );
 
   _codeTab = "//span[text()='Code']/parent::button";
   private _jsObjectParseErrorCallout =
@@ -71,7 +70,8 @@ export class JSEditor {
     Cypress.env("MESSAGES")?.QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]";
   _funcDropdownValue = `${this.runFunctionSelectLocator} .ads-v2-button__content-children`;
-  _funcDropdownOptions = "[data-testid='t--js-functions-menu'] [role='menuitem'] > span > span";
+  _funcDropdownOptions =
+    "[data-testid='t--js-functions-menu'] [role='menuitem'] > span > span";
   _getJSFunctionSettingsId = (JSFunctionName: string) =>
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;

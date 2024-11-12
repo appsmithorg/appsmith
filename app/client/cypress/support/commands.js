@@ -48,7 +48,7 @@ const homePageTS = ObjectsRegistry.HomePage;
 const table = ObjectsRegistry.Table;
 
 const chainStart = Symbol();
-const pluginActionForm = new PluginActionForm();
+// const pluginActionForm = new PluginActionForm();
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -1076,9 +1076,9 @@ Cypress.Commands.add("VerifyErrorMsgPresence", (errorMsgToVerifyAbsence) => {
 });
 
 Cypress.Commands.add("setQueryTimeout", (timeout) => {
-  pluginActionForm.toolbar.toggleSettings();
+  // pluginActionForm.toolbar.toggleSettings();
   cy.xpath(queryLocators.queryTimeout).clear().type(timeout);
-  pluginActionForm.toolbar.toggleSettings();
+  // pluginActionForm.toolbar.toggleSettings();
 });
 
 Cypress.Commands.add("isInViewport", (element) => {

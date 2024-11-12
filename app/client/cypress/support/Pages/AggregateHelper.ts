@@ -227,12 +227,7 @@ export class AggregateHelper {
     renameVal: string;
     dblClick?: boolean;
   }) {
-    const {
-      nameLocator,
-      textInputLocator,
-      renameVal,
-      dblClick = false
-    } = args;
+    const { dblClick = false, nameLocator, renameVal, textInputLocator } = args;
 
     this.Sleep(300);
 
@@ -267,7 +262,7 @@ export class AggregateHelper {
       nameLocator: this.locator._queryName,
       textInputLocator: this.locator._queryNameTxt,
       renameVal,
-      dblClick: true
+      dblClick: true,
     });
   }
 

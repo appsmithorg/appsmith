@@ -1,11 +1,15 @@
 export class PluginEditorToolbar {
-
   private dropdownTrigger: string | undefined;
   private runButton: string;
   private settingsButton: string;
   private contextMenuTrigger: string;
 
-  constructor(runButton: string, settingsButton: string, contextMenuTrigger: string, dropdownTrigger?: string) {
+  constructor(
+    runButton: string,
+    settingsButton: string,
+    contextMenuTrigger: string,
+    dropdownTrigger?: string,
+  ) {
     this.dropdownTrigger = dropdownTrigger;
     this.runButton = runButton;
     this.settingsButton = settingsButton;
@@ -13,7 +17,7 @@ export class PluginEditorToolbar {
   }
 
   public openDropdownTrigger() {
-    if(!this.dropdownTrigger) {
+    if (!this.dropdownTrigger) {
       throw new Error("Dropdown trigger not defined");
     }
 
@@ -31,5 +35,4 @@ export class PluginEditorToolbar {
   public openContextMenu() {
     cy.get(this.contextMenuTrigger).click({ force: true });
   }
-
 }

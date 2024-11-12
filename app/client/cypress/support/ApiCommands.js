@@ -187,7 +187,7 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
     cy.get(locator._queryName).should("be.visible");
     expect(response.response.body.responseMeta.success).to.eq(true);
     cy.get(locator._queryName)
-      .invoke('text')
+      .invoke("text")
       .then((text) => {
         const someText = text;
         expect(someText).to.equal(response.response.body.data.name);
@@ -195,10 +195,7 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   });
 
   cy.EnableAllCodeEditors();
-  cy.updateCodeInput(
-    ApiEditor.dataSourceField,
-    url + parameters,
-  );
+  cy.updateCodeInput(ApiEditor.dataSourceField, url + parameters);
   cy.WaitAutoSave();
   cy.get(pluginActionForm.locators.actionRunButton).should("not.be.disabled");
 });

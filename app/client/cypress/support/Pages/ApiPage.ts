@@ -54,7 +54,7 @@ export class ApiPage {
     `.t--actionConfiguration\\.bodyFormData\\[${index}\\]\\.value\\.${index}`;
   _bodyTypeDropdown =
     "//span[text()='Type'][@class='rc-select-selection-placeholder']/ancestor::div";
-  _apiRunBtn = "[data-testid=\"t--run-action\"]";
+  _apiRunBtn = '[data-testid="t--run-action"]';
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _responseBody = ".CodeMirror-code  span.cm-string.cm-property";
