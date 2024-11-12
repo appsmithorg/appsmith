@@ -12,17 +12,22 @@ import {
   getIsFetchingDatasourceStructure,
   getPluginImages,
   getPluginIdFromDatasourceId,
+  getPluginDatasourceComponentFromId,
 } from "ee/selectors/entitiesSelector";
 import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
 import { find } from "lodash";
 import type { AppState } from "ee/reducers";
 import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
 import { getPluginActionDebuggerState } from "../../../store";
-import { refreshDatasourceStructure } from "actions/datasourceActions";
+import {
+  fetchDatasourceStructure,
+  refreshDatasourceStructure,
+} from "actions/datasourceActions";
 import history from "utils/history";
 import { datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { DatasourceComponentTypes } from "api/PluginApi";
 
 interface Props {
   datasourceId: string;
@@ -65,9 +70,30 @@ const Schema = (props: Props) => {
     getIsFetchingDatasourceStructure(state, props.datasourceId),
   );
 
+  const pluginDatasourceForm = useSelector((state) =>
+    getPluginDatasourceComponentFromId(state, pluginId || ""),
+  );
+
   useEffect(() => {
     setSelectedTable(undefined);
   }, [props.datasourceId]);
+
+  useEffect(() => {
+    if (
+      props.datasourceId &&
+      datasourceStructure === undefined &&
+      pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
+      dispatch(
+        fetchDatasourceStructure(
+          props.datasourceId,
+          true,
+          DatasourceStructureContext.QUERY_EDITOR,
+        ),
+      );
+    }
+  }, [props.datasourceId, datasourceStructure, dispatch, pluginDatasourceForm]);
+
   useEffect(() => {
     if (!selectedTable && datasourceStructure?.tables?.length && !isLoading) {
       setSelectedTable(datasourceStructure.tables[0].name);
@@ -108,7 +134,7 @@ const Schema = (props: Props) => {
       overflow="hidden"
     >
       <Flex
-        data-testId="datasource-schema-container"
+        data-testid="datasource-schema-container"
         flex="1"
         flexDirection="column"
         gap="spaces-3"

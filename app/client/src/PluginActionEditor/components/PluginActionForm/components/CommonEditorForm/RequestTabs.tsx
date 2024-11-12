@@ -22,13 +22,9 @@ const SettingsWrapper = styled.div`
     padding: 0;
   }
 `;
-const TabsListWrapper = styled.div`
-  padding: 0 var(--ads-v2-spaces-7);
-`;
 const StyledTabPanel = styled(TabPanel)`
   height: calc(100% - 50px);
   overflow: auto;
-  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 export function RequestTabs(props: {
@@ -61,31 +57,37 @@ export function RequestTabs(props: {
   );
 
   return (
-    <Tabs className="h-full" onValueChange={onValueChange} value={value}>
-      <TabsListWrapper>
-        <TabsList>
-          {Object.values(API_EDITOR_TABS)
-            .filter((tab) => {
-              return !(!props.showSettings && tab === API_EDITOR_TABS.SETTINGS);
-            })
-            .map((tab) => (
-              <Tab
-                data-testid={`t--api-editor-${tab}`}
-                key={tab}
-                notificationCount={
-                  tab == "HEADERS"
-                    ? headersCount
-                    : tab == "PARAMS"
-                      ? paramsCount
-                      : undefined
-                }
-                value={tab}
-              >
-                {createMessage(API_EDITOR_TAB_TITLES[tab])}
-              </Tab>
-            ))}
-        </TabsList>
-      </TabsListWrapper>
+    <Tabs
+      onValueChange={onValueChange}
+      style={{
+        height: "calc(100% - 36px)",
+        overflow: "hidden",
+        maxHeight: "unset",
+      }}
+      value={value}
+    >
+      <TabsList>
+        {Object.values(API_EDITOR_TABS)
+          .filter((tab) => {
+            return !(!props.showSettings && tab === API_EDITOR_TABS.SETTINGS);
+          })
+          .map((tab) => (
+            <Tab
+              data-testid={`t--api-editor-${tab}`}
+              key={tab}
+              notificationCount={
+                tab == "HEADERS"
+                  ? headersCount
+                  : tab == "PARAMS"
+                    ? paramsCount
+                    : undefined
+              }
+              value={tab}
+            >
+              {createMessage(API_EDITOR_TAB_TITLES[tab])}
+            </Tab>
+          ))}
+      </TabsList>
       <StyledTabPanel value={API_EDITOR_TABS.HEADERS}>
         <DatasourceConfig
           attributeName="header"

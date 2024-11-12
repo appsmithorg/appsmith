@@ -12,7 +12,7 @@ import { sagasToRunForTests } from "test/sagas";
 import userEvent from "@testing-library/user-event";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PageFactory } from "test/factories/PageFactory";
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { GoogleSheetFactory } from "test/factories/Actions/GoogleSheetFactory";
 
 const FeatureFlags = {
@@ -24,8 +24,8 @@ const basePageId = "0123456789abcdef00000000";
 describe("IDE URL rendering of Queries", () => {
   localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   describe("Query Blank State", () => {
-    it("Renders Fullscreen Blank State", () => {
-      const { getByRole, getByText } = render(
+    it("Renders Fullscreen Blank State", async () => {
+      const { findByText, getByRole, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -36,7 +36,7 @@ describe("IDE URL rendering of Queries", () => {
       );
 
       // Main pane text
-      getByText(createMessage(EDITOR_PANE_TEXTS.query_blank_state));
+      await findByText(createMessage(EDITOR_PANE_TEXTS.query_blank_state));
 
       // Left pane text
       getByText(createMessage(EDITOR_PANE_TEXTS.query_blank_state_description));
@@ -69,8 +69,8 @@ describe("IDE URL rendering of Queries", () => {
       getByText(/new query \/ api/i);
     });
 
-    it("Renders Fullscreen Add in Blank State", () => {
-      const { getByTestId, getByText } = render(
+    it("Renders Fullscreen Add in Blank State", async () => {
+      const { findByText, getByTestId, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -81,7 +81,9 @@ describe("IDE URL rendering of Queries", () => {
       );
 
       // Create options are rendered
-      getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
+      await findByText(
+        createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing),
+      );
       getByText("New datasource");
       getByText("REST API");
       // Check new tab presence
@@ -130,7 +132,7 @@ describe("IDE URL rendering of Queries", () => {
   });
 
   describe("API Routes", () => {
-    it("Renders Api routes in Full screen", () => {
+    it("Renders Api routes in Full screen", async () => {
       const page = PageFactory.build();
       const anApi = APIFactory.build({ pageId: page.pageId });
       const state = getIDETestState({
@@ -151,6 +153,15 @@ describe("IDE URL rendering of Queries", () => {
           initialState: state,
           featureFlags: FeatureFlags,
         },
+      );
+
+      await waitFor(
+        async () => {
+          const elements = getAllByText("Api1"); // Use the common test ID or selector
+
+          expect(elements).toHaveLength(3); // Wait until there are exactly 3 elements
+        },
+        { timeout: 3000, interval: 500 },
       );
 
       // There will be 3 Api1 text (Left pane list, editor tab and Editor form)
@@ -343,6 +354,14 @@ describe("IDE URL rendering of Queries", () => {
         },
       );
 
+      await waitFor(
+        async () => {
+          const elements = getAllByText("Query1"); // Use the common test ID or selector
+
+          expect(elements).toHaveLength(3); // Wait until there are exactly 3 elements
+        },
+        { timeout: 3000, interval: 500 },
+      );
       // There will be 3 Query1 text (Left pane list, editor tab and Editor form)
       expect(getAllByText("Query1").length).toBe(3);
       // Left pane active state

@@ -446,25 +446,42 @@ export default {
 
       sortedTableData = transformedTableDataForSorting.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
+          let [processedA, processedB] = [a, b];
+
+          if (!selectColumnKeysWithSortByLabel.length) {
+            const originalA = (props.tableData ??
+              transformedTableDataForSorting)[a.__originalIndex__];
+            const originalB = (props.tableData ??
+              transformedTableDataForSorting)[b.__originalIndex__];
+
+            [processedA, processedB] = [
+              { ...a, ...originalA },
+              { ...b, ...originalB },
+            ];
+          }
+
           if (
-            isEmptyOrNil(a[sortByColumnOriginalId]) ||
-            isEmptyOrNil(b[sortByColumnOriginalId])
+            isEmptyOrNil(processedA[sortByColumnOriginalId]) ||
+            isEmptyOrNil(processedB[sortByColumnOriginalId])
           ) {
             /* push null, undefined and "" values to the bottom. */
-            return isEmptyOrNil(a[sortByColumnOriginalId]) ? 1 : -1;
+            return isEmptyOrNil(processedA[sortByColumnOriginalId]) ? 1 : -1;
           } else {
             switch (columnType) {
               case "number":
               case "currency":
                 return sortByOrder(
-                  Number(a[sortByColumnOriginalId]) >
-                    Number(b[sortByColumnOriginalId]),
+                  Number(processedA[sortByColumnOriginalId]) >
+                    Number(processedB[sortByColumnOriginalId]),
                 );
               case "date":
                 try {
                   return sortByOrder(
-                    moment(a[sortByColumnOriginalId], inputFormat).isAfter(
-                      moment(b[sortByColumnOriginalId], inputFormat),
+                    moment(
+                      processedA[sortByColumnOriginalId],
+                      inputFormat,
+                    ).isAfter(
+                      moment(processedB[sortByColumnOriginalId], inputFormat),
                     ),
                   );
                 } catch (e) {
@@ -489,8 +506,8 @@ export default {
                 }
               default:
                 return sortByOrder(
-                  a[sortByColumnOriginalId].toString().toLowerCase() >
-                    b[sortByColumnOriginalId].toString().toLowerCase(),
+                  processedA[sortByColumnOriginalId].toString().toLowerCase() >
+                    processedB[sortByColumnOriginalId].toString().toLowerCase(),
                 );
             }
           }
@@ -676,6 +693,9 @@ export default {
 
     const finalTableData = sortedTableData.filter((row) => {
       let isSearchKeyFound = true;
+      const originalRow = (props.tableData ?? sortedTableData)[
+        row.__originalIndex__
+      ];
       const columnWithDisplayText = Object.values(props.primaryColumns).filter(
         (column) => column.columnType === "url" && column.displayText,
       );
@@ -780,7 +800,10 @@ export default {
       };
 
       if (searchKey) {
-        isSearchKeyFound = Object.values(_.omit(displayedRow, hiddenColumns))
+        isSearchKeyFound = [
+          ...Object.values(_.omit(displayedRow, hiddenColumns)),
+          ...Object.values(_.omit(originalRow, hiddenColumns)),
+        ]
           .join(", ")
           .toLowerCase()
           .includes(searchKey);
@@ -811,10 +834,15 @@ export default {
             ConditionFunctions[props.filters[i].condition];
 
           if (conditionFunction) {
-            filterResult = conditionFunction(
-              displayedRow[props.filters[i].column],
-              props.filters[i].value,
-            );
+            filterResult =
+              conditionFunction(
+                originalRow[props.filters[i].column],
+                props.filters[i].value,
+              ) ||
+              conditionFunction(
+                displayedRow[props.filters[i].column],
+                props.filters[i].value,
+              );
           }
         } catch (e) {
           filterResult = false;

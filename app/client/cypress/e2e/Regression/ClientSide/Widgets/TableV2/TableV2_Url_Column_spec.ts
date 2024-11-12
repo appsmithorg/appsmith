@@ -20,18 +20,23 @@ describe(
       table.ReadTableRowColumnData(3, 0, "v2").then(($cellData) => {
         expect($cellData).to.eq("Profile pic");
       });
-      table.AssertURLColumnNavigation(
-        0,
-        0,
-        "https://randomuser.me/api/portraits/med/women/39.jpg",
-        "v2",
-      );
-      table.AssertURLColumnNavigation(
-        3,
-        0,
-        "https://randomuser.me/api/portraits/med/men/52.jpg",
-        "v2",
-      );
+
+      agHelper
+        .GetElement(`${table._tableRowColumnData(0, 0, "v2")} a`)
+        .should(
+          "have.attr",
+          "href",
+          "https://randomuser.me/api/portraits/med/women/39.jpg",
+        )
+        .should("have.attr", "target", "_blank");
+      agHelper
+        .GetElement(`${table._tableRowColumnData(3, 0, "v2")} a`)
+        .should(
+          "have.attr",
+          "href",
+          "https://randomuser.me/api/portraits/med/men/52.jpg",
+        )
+        .should("have.attr", "target", "_blank");
     });
   },
 );

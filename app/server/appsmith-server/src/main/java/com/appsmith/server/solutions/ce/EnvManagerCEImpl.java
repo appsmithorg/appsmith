@@ -725,7 +725,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     @Override
     public Mono<Void> restart() {
-        return verifyCurrentUserIsSuper().then(restartWithoutAclCheck());
+        return verifyCurrentUserIsSuper().flatMap(user -> restartWithoutAclCheck());
     }
 
     /**
