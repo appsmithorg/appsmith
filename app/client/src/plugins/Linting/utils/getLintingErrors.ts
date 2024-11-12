@@ -45,15 +45,15 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 const EvaluationScriptPositions: Record<string, Position> = {};
 
 function getLinterType() {
-  let linterVersion = LINTER_TYPE.JSHINT;
+  let linterType = LINTER_TYPE.JSHINT;
 
   const flagValues = WorkerEnv.getFeatureFlags();
 
   if (flagValues?.[FEATURE_FLAG.rollout_eslint_enabled]) {
-    linterVersion = LINTER_TYPE.ESLINT;
+    linterType = LINTER_TYPE.ESLINT;
   }
 
-  return linterVersion;
+  return linterType;
 }
 
 function getEvaluationScriptPosition(scriptType: EvaluationScriptType) {
@@ -209,7 +209,7 @@ export default function getLintingErrors({
   scriptType,
   webworkerTelemetry,
 }: getLintingErrorsProps): LintError[] {
-  const linterVersion = getLinterType();
+  const linterType = getLinterType();
   const scriptPos = getEvaluationScriptPosition(scriptType);
   const lintingGlobalData = generateLintingGlobalData(data);
   const lintingOptions = lintOptions(lintingGlobalData);
@@ -218,7 +218,7 @@ export default function getLintingErrors({
     "Linter",
     // adding some metrics to compare the performance changes with eslint
     {
-      linter: linterVersion,
+      linter: linterType,
       linesOfCodeLinted: originalBinding.split("\n").length,
       codeSizeInChars: originalBinding.length,
     },
