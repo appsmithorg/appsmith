@@ -735,7 +735,6 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         Map<String, EntityDependencyNode> bindingToWidgetNodeMap = new HashMap<>();
         Set<String> allBindings = new HashSet<>();
 
-        // Populate bindingToWidgetNodeMap and allBindings
         widgetDynamicBindingsMap.forEach((widgetName, bindingsInWidget) -> {
             EntityDependencyNode widgetDependencyNode =
                     new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
