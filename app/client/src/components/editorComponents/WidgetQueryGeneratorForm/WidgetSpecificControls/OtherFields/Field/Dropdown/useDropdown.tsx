@@ -176,7 +176,7 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
     if (options && options.length > 0) {
       return (options as DropdownOptionType[])?.map((option) => (
         <Option
-          data-testId={`t--one-click-binding-column-${props.id}--column`}
+          data-testid={`t--one-click-binding-column-${props.id}--column`}
           key={option.id}
           value={option.value}
         >
@@ -186,7 +186,7 @@ export function useDropdown(props: OneClickDropdownFieldProps) {
     } else {
       return (
         <Option
-          data-testId="t--one-click-binding-no-connectable-widget"
+          data-testid="t--one-click-binding-no-connectable-widget"
           disabled
         >
           {createMessage(NO_CONNECTABLE_WIDGET_FOUND)}
