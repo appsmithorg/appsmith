@@ -10,8 +10,8 @@ LABEL maintainer="tech@appsmith.com"
 WORKDIR /opt/appsmith
 
 # The env variables are needed for Appsmith server to correctly handle non-roman scripts like Arabic.
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
 
 # Install dependency packages
 RUN set -o xtrace \
@@ -46,8 +46,8 @@ RUN set -o xtrace \
 # Install NodeJS
 RUN set -o xtrace \
   && mkdir -p /opt/node \
-  && file="$(curl -sS 'https://nodejs.org/dist/latest-v20.x/' | awk -F\" '$2 ~ /linux-'"$(uname -m | sed 's/x86_64/x64/; s/aarch64/arm64/')"'.tar.gz/ {print $2}')" \
-  && curl "https://nodejs.org/dist/latest-v20.x/$file" | tar -xz -C /opt/node --strip-components 1
+  && path="$(curl -LsS 'https://nodejs.org/dist/latest-v20.x/' | awk -F\" '$2 ~ /linux-'"$(uname -m | sed 's/x86_64/x64/; s/aarch64/arm64/')"'.tar.gz/ {print $2}')" \
+  && curl "https://nodejs.org$path" | tar -xz -C /opt/node --strip-components 1
 
 # Install Caddy
 RUN set -o xtrace \
