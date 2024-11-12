@@ -215,7 +215,7 @@ const getQuickActionButtons = ({
     },
     {
       className: "t--bottom-git-settings",
-      icon: "settings-2-line",
+      icon: "settings-v3",
       onClick: settings,
       tooltipText: createMessage(GIT_SETTINGS),
     },

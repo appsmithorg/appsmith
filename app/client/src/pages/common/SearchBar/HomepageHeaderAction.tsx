@@ -92,7 +92,7 @@ const HomepageHeaderAction = ({
               });
             }}
             size="md"
-            startIcon="settings-control"
+            startIcon="settings-v3"
           />
         </Tooltip>
       )}
