@@ -63,7 +63,7 @@ export const JSFunctionRun = (props: Props) => {
             isDisabled={props.disabled}
             kind="tertiary"
             size="sm"
-            startIcon="js-function"
+            startIcon="js-function-v2"
           >
             {props.selected.label}
           </Button>

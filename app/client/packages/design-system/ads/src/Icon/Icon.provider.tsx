@@ -963,6 +963,9 @@ const JSFile = importSvg(
 const JSFunction = importSvg(
   async () => import("../__assets__/icons/menu/js-function.svg"),
 );
+const JSFunctionV2 = importSvg(
+  async () => import("../__assets__/icons/menu/js-function-v2.svg"),
+);
 const QueryMain = importSvg(
   async () => import("../__assets__/icons/menu/query-main.svg"),
 );
@@ -1285,6 +1288,7 @@ const ICON_LOOKUP = {
   "js-icon-v2": JSIconV2,
   "js-file": JSFile,
   "js-function": JSFunction,
+  "js-function-v2": JSFunctionV2,
   "datasources-2": Datasources2,
   "arrow-left-line": ArrowLeftLineIcon,
   "arrow-right-line": ArrowRightLineIcon,
