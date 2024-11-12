@@ -528,6 +528,13 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      * @param evalVersion                       : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
      * @return A set of any possible reference found in the binding that qualifies as a global entity reference
      */
+    private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityReferencesMap(
+            Mono<Map<String, Executable>> executableNameToExecutableMapMono, Set<String> bindings, int evalVersion) {
+        return getPossibleEntityReferencesMap(executableNameToExecutableMapMono, bindings, evalVersion, null)
+                .name(GET_POSSIBLE_ENTITY_REFERENCES)
+                .tap(Micrometer.observation(observationRegistry));
+    }
+
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
             Mono<Map<String, Executable>> executableNameToExecutableMapMono, Set<String> bindings, int evalVersion) {
         return getPossibleEntityReferences(executableNameToExecutableMapMono, bindings, evalVersion, null)
@@ -626,9 +633,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      * @param bindingsInDsl                  : All references are also added to this set if they should be qualified to run on page load first.
      * @return A set of any possible reference found in the binding that qualifies as a global entity reference
      */
-    private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
+    private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityReferencesMap(
             Mono<Map<String, Executable>> executableNameToExecutableMono,
-            List<String> bindings,
+            Set<String> bindings,
             int evalVersion,
             Set<EntityDependencyNode> bindingsInDsl) {
         // We want to be finding both type of references
@@ -645,31 +652,35 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     // but we do not know if those entities exist in the global namespace yet
                     Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap = tuple.getT2();
 
-                    Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
+                    Map<String, Set<EntityDependencyNode>> possibleEntitiesReferencesToBindingMap = new HashMap<>();
 
                     // From these references, we will try to validate executable references at this point
                     // Each identified node is already annotated with the expected type of entity we need to search for
                     bindingToPossibleParentMap.entrySet().stream().forEach(entry -> {
                         Set<EntityDependencyNode> bindingsWithExecutableReference = new HashSet<>();
-                        entry.getValue().stream().forEach(binding -> {
+                        String binding = entry.getKey();
+                        Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
+                        entry.getValue().stream().forEach(possibleParent -> {
                             // For each possible reference node, check if the reference was to an executable
-                            Executable executable = executableMap.get(binding.getValidEntityName());
+                            Executable executable = executableMap.get(possibleParent.getValidEntityName());
 
                             if (executable != null) {
                                 // If it was, and had been identified as the same type of executable as what exists in
                                 // this app,
-                                if (binding.getEntityReferenceType().equals(executable.getEntityReferenceType())) {
+                                if (possibleParent
+                                        .getEntityReferenceType()
+                                        .equals(executable.getEntityReferenceType())) {
                                     // Copy over some data from the identified executable, this ensures that we do not
                                     // have
                                     // to query the DB again later
-                                    binding.setExecutable(executable);
-                                    bindingsWithExecutableReference.add(binding);
+                                    possibleParent.setExecutable(executable);
+                                    bindingsWithExecutableReference.add(possibleParent);
                                     // Only if this is not a direct JS function call,
                                     // add it to a possible on page load executable call.
                                     // This discards the following type:
                                     // {{ JSObject1.func() }}
-                                    if (!TRUE.equals(binding.getIsFunctionCall())) {
-                                        possibleEntitiesReferences.add(binding);
+                                    if (!TRUE.equals(possibleParent.getIsFunctionCall())) {
+                                        possibleEntitiesReferences.add(possibleParent);
                                     }
                                     // We're ignoring any reference that was identified as a widget but actually matched
                                     // an executable
@@ -680,10 +691,12 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                 // If the reference node was identified as a widget, directly add it as a possible
                                 // reference
                                 // Because we are not doing any validations for widget references at this point
-                                if (EntityReferenceType.WIDGET.equals(binding.getEntityReferenceType())) {
-                                    possibleEntitiesReferences.add(binding);
+                                if (EntityReferenceType.WIDGET.equals(possibleParent.getEntityReferenceType())) {
+                                    possibleEntitiesReferences.add(possibleParent);
                                 }
                             }
+
+                            possibleEntitiesReferencesToBindingMap.put(binding, possibleEntitiesReferences);
                         });
 
                         if (!bindingsWithExecutableReference.isEmpty() && bindingsInDsl != null) {
@@ -691,7 +704,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                         }
                     });
 
-                    return possibleEntitiesReferences;
+                    return possibleEntitiesReferencesToBindingMap;
                 });
     }
 
@@ -706,17 +719,6 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(
             Set<String> bindings, int types, int evalVersion) {
-        Flux<Tuple2<String, Set<String>>> findingToReferencesFlux = astService
-                .getPossibleReferencesFromDynamicBinding(new ArrayList<>(bindings), evalVersion)
-                .name(GET_POSSIBLE_REFERENCES_FROM_DYNAMIC_BINDING)
-                .tap(Micrometer.observation(observationRegistry));
-        return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types)
-                .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
-                .tap(Micrometer.observation(observationRegistry));
-    }
-
-    private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(
-            List<String> bindings, int types, int evalVersion) {
         Flux<Tuple2<String, Set<String>>> findingToReferencesFlux = astService
                 .getPossibleReferencesFromDynamicBinding(new ArrayList<>(bindings), evalVersion)
                 .name(GET_POSSIBLE_REFERENCES_FROM_DYNAMIC_BINDING)
@@ -754,48 +756,55 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             Set<EntityDependencyNode> executableBindingsInDslRef,
             int evalVersion) {
 
-        return Flux.fromIterable(widgetDynamicBindingsMap.entrySet())
-                .flatMap(entry -> {
-                    String widgetName = entry.getKey();
-                    // For each widget in the DSL that has a dynamic binding,
-                    // we define an entity dependency node beforehand
-                    // This will be a leaf node in the DAG that is constructed for on page load dependencies
-                    EntityDependencyNode widgetDependencyNode =
-                            new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
-                    Set<String> bindingsInWidget = entry.getValue();
-                    return getPossibleEntityReferences(
-                                    executableNameToExecutableMapMono,
-                                    bindingsInWidget,
-                                    evalVersion,
-                                    executableBindingsInDslRef)
-                            .flatMapMany(Flux::fromIterable)
-                            // Add dependencies of the executables found in the DSL in the graph
-                            // We are ignoring the widget references at this point
-                            // TODO: Possible optimization in the future
-                            .flatMap(possibleEntity -> {
-                                if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
-                                    edgesRef.add(new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
-                                    // This executable is directly referenced in the DSL. This executable is an ideal
-                                    // candidate
-                                    // for on page load
-                                    executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
-                                    return updateExecutableSelfReferencingPaths(possibleEntity)
-                                            .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
-                                            .tap(Micrometer.observation(observationRegistry))
-                                            .flatMap(executable -> extractAndSetExecutableBindingsInGraphEdges(
-                                                    possibleEntity,
-                                                    edgesRef,
-                                                    bindingsFromExecutablesRef,
-                                                    executableNameToExecutableMapMono,
-                                                    executablesFoundDuringWalkRef,
-                                                    null,
-                                                    evalVersion))
-                                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
-                                            .tap(Micrometer.observation(observationRegistry))
-                                            .thenReturn(possibleEntity);
-                                }
-                                return Mono.just(possibleEntity);
-                            });
+        Map<String, EntityDependencyNode> bindingToWidgetNodeMap = new HashMap<>();
+        Set<String> allBindings = new HashSet<>();
+
+        // Populate bindingToWidgetNodeMap and allBindings
+        widgetDynamicBindingsMap.forEach((widgetName, bindingsInWidget) -> {
+            EntityDependencyNode widgetDependencyNode =
+                    new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
+
+            bindingsInWidget.forEach(binding -> {
+                bindingToWidgetNodeMap.put(binding, widgetDependencyNode);
+                allBindings.add(binding);
+            });
+        });
+
+        Mono<Map<String, Set<EntityDependencyNode>>> bindingToPossibleEntityMapMono = getPossibleEntityReferencesMap(
+                executableNameToExecutableMapMono, allBindings, evalVersion, executableBindingsInDslRef);
+
+        return bindingToPossibleEntityMapMono
+                .flatMapMany(bindingToPossibleEntityMap -> Flux.fromIterable(bindingToPossibleEntityMap.entrySet()))
+                .flatMap(bindingEntry -> {
+                    String binding = bindingEntry.getKey();
+                    Set<EntityDependencyNode> possibleEntities = bindingEntry.getValue();
+
+                    EntityDependencyNode widgetDependencyNode = bindingToWidgetNodeMap.get(binding);
+
+                    // Process each possibleEntity for the current binding
+                    return Flux.fromIterable(possibleEntities).flatMap(possibleEntity -> {
+                        if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
+                            edgesRef.add(new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
+                            executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
+
+                            // Chain the methods as previously defined
+                            return updateExecutableSelfReferencingPaths(possibleEntity)
+                                    .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
+                                    .tap(Micrometer.observation(observationRegistry))
+                                    .flatMap(executable -> extractAndSetExecutableBindingsInGraphEdges(
+                                            possibleEntity,
+                                            edgesRef,
+                                            bindingsFromExecutablesRef,
+                                            executableNameToExecutableMapMono,
+                                            executablesFoundDuringWalkRef,
+                                            null,
+                                            evalVersion))
+                                    .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                                    .tap(Micrometer.observation(observationRegistry))
+                                    .thenReturn(possibleEntity);
+                        }
+                        return Mono.just(possibleEntity);
+                    });
                 })
                 .collectList()
                 .thenReturn(edgesRef);
