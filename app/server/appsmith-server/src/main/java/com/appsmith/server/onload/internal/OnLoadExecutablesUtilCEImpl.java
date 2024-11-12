@@ -67,30 +67,6 @@ import static com.appsmith.external.helpers.MustacheHelper.getPossibleParents;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
-// Simple Pair class for storing start and end indices
-class Pair<T, U> {
-    private final T first;
-    private final U second;
-
-    public Pair(T first, U second) {
-        this.first = first;
-        this.second = second;
-    }
-
-    public T getFirst() {
-        return first;
-    }
-
-    public U getSecond() {
-        return second;
-    }
-
-    @Override
-    public String toString() {
-        return "(" + first + ", " + second + ")";
-    }
-}
-
 @Slf4j
 @RequiredArgsConstructor
 public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
