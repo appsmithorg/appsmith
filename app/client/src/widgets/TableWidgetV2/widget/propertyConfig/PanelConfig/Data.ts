@@ -43,6 +43,10 @@ export default {
           value: ColumnTypes.DATE,
         },
         {
+          label: "HTML",
+          value: ColumnTypes.HTML,
+        },
+        {
           label: "Icon button",
           value: ColumnTypes.ICON_BUTTON,
         },

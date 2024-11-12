@@ -146,6 +146,7 @@ export enum ColumnTypes {
   CHECKBOX = "checkbox",
   SWITCH = "switch",
   CURRENCY = "currency",
+  HTML = "html",
 }
 
 export enum ReadOnlyColumnTypes {
