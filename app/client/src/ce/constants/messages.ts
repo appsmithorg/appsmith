@@ -366,7 +366,9 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
 export const EDIT_DATASOURCE = () => "Edit";
-export const SAVE_DATASOURCE = () => "Save";
+export const SAVE_DATASOURCE = () => "Save URL";
+export const EDIT_DATASOURCE_TOOLTIP = () => "Edit datasource";
+export const SAVE_DATASOURCE_TOOLTIP = () => "Save URL as a datasource";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
@@ -2519,4 +2521,11 @@ export const PREPARED_STATEMENT_WARNING = {
 export const JS_EDITOR_SETTINGS = {
   TITLE: () => "Settings",
   ON_LOAD_TITLE: () => "Choose the functions to run on page load",
+};
+
+export const CUSTOM_WIDGET_BUILDER_TAB_TITLE = {
+  AI: () => "AI",
+  HTML: () => "HTML",
+  STYLE: () => "Style",
+  JS: () => "Javascript",
 };

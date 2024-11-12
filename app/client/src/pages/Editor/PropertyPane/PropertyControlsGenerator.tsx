@@ -130,7 +130,7 @@ function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   ) : (
     <>
       {generatePropertyControl(
-        searchResults as readonly PropertyPaneConfig[],
+        searchResults,
         props,
         isSearchResult,
         enhancements,

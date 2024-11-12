@@ -25,6 +25,13 @@ setup_proxy_variables() {
     export NO_PROXY="127.0.0.1,$NO_PROXY"
   fi
 
+  # If one of NO_PROXY or no_proxy are set, copy it to the other. If both are set, prefer NO_PROXY.
+  if [[ -n ${NO_PROXY-} ]]; then
+    export no_proxy="$NO_PROXY"
+  elif [[ -n ${no_proxy-} ]]; then
+    export NO_PROXY="$no_proxy"
+  fi
+
   # If one of HTTPS_PROXY or https_proxy are set, copy it to the other. If both are set, prefer HTTPS_PROXY.
   if [[ -n ${HTTPS_PROXY-} ]]; then
     export https_proxy="$HTTPS_PROXY"
