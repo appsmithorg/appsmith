@@ -45,7 +45,7 @@ export const ToolbarSettingsPopover = (props: Props) => {
         <ToggleButton
           data-testid={props.dataTestId}
           disabled={props.disabled}
-          icon="settings-2-line"
+          icon="settings-v3"
           isSelected={isOpen}
           onClick={handleButtonClick}
           size="md"
