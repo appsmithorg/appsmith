@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.AlloyWorkspaceTokenDTO;
+import com.appsmith.server.dtos.AlloyWorkspaceUserCredentialDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.services.CrudService;
 import org.springframework.http.codec.multipart.Part;
@@ -46,4 +47,6 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
     Mono<String> getDefaultEnvironmentId(String workspaceId, AclPermission aclPermission);
 
     Mono<AlloyWorkspaceTokenDTO> generateAlloyWorkspaceToken(String workspaceId);
+
+    Mono<AlloyWorkspaceUserCredentialDTO> fetchAlloyUserCredentials(String workspaceId, String integrationType);
 }

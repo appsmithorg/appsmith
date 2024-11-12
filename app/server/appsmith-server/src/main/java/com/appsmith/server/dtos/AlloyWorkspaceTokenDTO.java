@@ -6,6 +6,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AlloyWorkspaceTokenDTO {
+    String workspaceId;
     String userId;
     String token;
 }
