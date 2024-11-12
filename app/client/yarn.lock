@@ -12669,6 +12669,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"alloy-frontend@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "alloy-frontend@npm:2.1.0"
+  checksum: 8884f31118de863726bd2f5f571178ff2f35fc1f854dfa253be10651a375795bcc35a0a46e35809d06a858043bce2267121147947e83db5ef248ffd5062a0875
+  languageName: node
+  linkType: hard
+
 "ally.js@npm:^1.4.1":
   version: 1.4.1
   resolution: "ally.js@npm:1.4.1"
@@ -12960,6 +12967,7 @@ __metadata:
     "@welldone-software/why-did-you-render": ^4.2.5
     acorn: 8.10.0
     acorn-walk: 8.2.0
+    alloy-frontend: ^2.1.0
     appsmith-icons: "workspace:^"
     assert-never: ^1.2.1
     astring: ^1.7.5

@@ -1,7 +1,11 @@
 import type { AxiosProgressEvent, AxiosPromise } from "axios";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
-import type { WorkspaceRole, Workspace } from "ee/constants/workspaceConstants";
+import type {
+  WorkspaceRole,
+  Workspace,
+  WorkspaceToken,
+} from "ee/constants/workspaceConstants";
 
 export interface FetchWorkspacesResponse extends ApiResponse {
   data: Workspace[];
@@ -21,6 +25,7 @@ export interface FetchAllRolesResponse extends ApiResponse {
 export interface FetchWorkspaceRequest {
   workspaceId: string;
   skipValidation?: boolean;
+  integrationType?: string;
 }
 
 export interface FetchAllUsersRequest {
@@ -57,6 +62,16 @@ export interface SaveWorkspaceLogo {
 
 export interface CreateWorkspaceRequest {
   name: string;
+}
+
+export interface FetchWorkspaceTokenResponse extends ApiResponse {
+  data: WorkspaceToken;
+}
+
+export interface FetchWorkspaceCredentialResponse extends ApiResponse {
+  data: {
+    credentialId: string;
+  };
 }
 
 class WorkspaceApi extends Api {
@@ -146,6 +161,25 @@ class WorkspaceApi extends Api {
     workspaceId: string,
   ): Promise<AxiosPromise<ApiResponse>> {
     return Api.delete(`${WorkspaceApi.workspacesURL}/${workspaceId}`);
+  }
+  static async fetchWorkspaceToken(
+    request: FetchWorkspaceRequest,
+  ): Promise<AxiosPromise<FetchWorkspaceTokenResponse>> {
+    return Api.get(
+      WorkspaceApi.workspacesURL + "/" + request.workspaceId + "/alloyToken",
+    );
+  }
+  static async fetchWorkspaceAlloyCredentials(
+    request: FetchWorkspaceRequest,
+  ): Promise<AxiosPromise<FetchWorkspaceCredentialResponse>> {
+    return Api.get(
+      WorkspaceApi.workspacesURL +
+        "/" +
+        request.workspaceId +
+        "/integrations/" +
+        request.integrationType +
+        "/getAllowUserCredentials",
+    );
   }
 }
 export default WorkspaceApi;

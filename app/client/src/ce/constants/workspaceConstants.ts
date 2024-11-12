@@ -5,7 +5,7 @@ export interface WorkspaceRole {
   isDefault?: boolean;
 }
 
-export interface Workspace {
+export interface Workspace extends WorkspaceToken {
   id: string;
   name: string;
   website?: string;
@@ -40,4 +40,9 @@ export interface WorkspaceUser {
 export enum ENTITY_TYPE {
   WORKSPACE = "Workspace",
   APPLICATION = "Application",
+}
+
+export interface WorkspaceToken {
+  userId?: string;
+  token?: string;
 }

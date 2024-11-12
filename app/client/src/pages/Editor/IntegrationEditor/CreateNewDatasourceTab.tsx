@@ -1,5 +1,5 @@
 import AddDatasourceSecurely from "./AddDatasourceSecurely";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { AppState } from "ee/reducers";
@@ -10,19 +10,20 @@ import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/perm
 import {
   getDatasources,
   getMockDatasources,
+  getPlugins,
 } from "ee/selectors/entitiesSelector";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { Text } from "@appsmith/ads";
 import MockDataSources from "./MockDataSources";
-import NewApiScreen from "./NewApi";
+import NewApiScreen, { ApiCard, CardContentWrapper } from "./NewApi";
 import NewQueryScreen from "./NewQuery";
-import { isAirgapped } from "ee/utils/airgapHelpers";
+import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import {
   createMessage,
@@ -40,6 +41,13 @@ import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
 import { isPluginActionCreating } from "PluginActionEditor/store";
+import { DATASOURCE_NAME_DEFAULT_PREFIX } from "constants/Datasource";
+import type { Plugin } from "api/PluginApi";
+import { PluginPackageName } from "entities/Action";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import AlloyUtils from "utils/AlloyUtils";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import WorkspaceApi from "ee/api/WorkspaceApi";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -174,6 +182,107 @@ function CreateNewDatasource({
   );
 }
 
+function AlloyIntegrations() {
+  const [integrations, setIntegrations] = useState([]);
+  const dispatch = useDispatch();
+  const dsList: Datasource[] = useSelector(getDatasources);
+  const currentWorkspace = useSelector(getCurrentAppWorkspace);
+  const plugins: Plugin[] = useSelector(getPlugins);
+  const apiPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.REST_API,
+  );
+  const datasourceName = getNextEntityName(
+    DATASOURCE_NAME_DEFAULT_PREFIX,
+    dsList.map((el: Datasource) => el.name),
+  );
+  const handleOnClick = (integrationId: string, integrationType: string) => {
+    AlloyUtils.alloy.install({
+      integrationId,
+      callback: async () => {
+        const response = await WorkspaceApi.fetchWorkspaceAlloyCredentials({
+          workspaceId: currentWorkspace.id,
+          integrationType,
+        });
+
+        dispatch({
+          type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
+          payload: {
+            type: "API",
+            pluginId: apiPlugin!.id,
+            datasourceStorages: {
+              unused_env: {
+                environmentId: "unused_env",
+                isValid: false,
+                datasourceConfiguration: {
+                  url: "https://embedded.runalloy.com/",
+                  properties: [
+                    {
+                      key: "integrationType",
+                      value: integrationType,
+                    },
+                    {
+                      key: "integrationId",
+                      value: integrationId,
+                    },
+                    {
+                      key: "credentialId",
+                      value: response.data.data.credentialId,
+                    },
+                  ],
+                },
+                toastMessage: "EMPTY_TOAST_MESSAGE",
+              },
+            },
+            name: datasourceName,
+          },
+        });
+      },
+      alwaysShowAuthentication: true,
+      hide: false,
+      title: `${integrationType} Integration`,
+    });
+  };
+
+  useEffect(() => {
+    const getIntegrations = async () => {
+      const data = await AlloyUtils.getIntegrations();
+      setIntegrations(data);
+    };
+
+    if (currentWorkspace.token) getIntegrations();
+  }, [currentWorkspace.token]);
+
+  return (
+    <>
+      {integrations.map((integration: any) => (
+        <ApiCard
+          className={`t--create-${integration.app}`}
+          key={integration.app}
+          onClick={() => {
+            handleOnClick(
+              integration.integrationId,
+              integration.app.toLowerCase(),
+            );
+          }}
+        >
+          <CardContentWrapper>
+            <img
+              alt={integration.name}
+              className={
+                "content-icon saasImage t--saas-" +
+                integration.integrationId +
+                "-image"
+              }
+              src={getAssetUrl(integration.icon)}
+            />
+            <p className="t--plugin-name textBtn">{integration.app}</p>
+          </CardContentWrapper>
+        </ApiCard>
+      ))}
+    </>
+  );
+}
+
 function CreateNewSaasIntegration({
   active,
   isCreating,
@@ -210,7 +319,9 @@ function CreateNewSaasIntegration({
           pageId={pageId}
           showSaasAPIs
           showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-        />
+        >
+          <AlloyIntegrations />
+        </NewApiScreen>
       </div>
     </>
   ) : null;

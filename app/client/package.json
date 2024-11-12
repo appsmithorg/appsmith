@@ -109,6 +109,7 @@
     "@welldone-software/why-did-you-render": "^4.2.5",
     "acorn": "8.10.0",
     "acorn-walk": "8.2.0",
+    "alloy-frontend": "^2.1.0",
     "appsmith-icons": "workspace:^",
     "assert-never": "^1.2.1",
     "astring": "^1.7.5",
