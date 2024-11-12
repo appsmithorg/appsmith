@@ -44,7 +44,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
-function getLinterVersion() {
+function getLinterType() {
   let linterVersion = LINTER_TYPE.JSHINT;
 
   const flagValues = WorkerEnv.getFeatureFlags();
@@ -209,7 +209,7 @@ export default function getLintingErrors({
   scriptType,
   webworkerTelemetry,
 }: getLintingErrorsProps): LintError[] {
-  const linterVersion = getLinterVersion();
+  const linterVersion = getLinterType();
   const scriptPos = getEvaluationScriptPosition(scriptType);
   const lintingGlobalData = generateLintingGlobalData(data);
   const lintingOptions = lintOptions(lintingGlobalData);
