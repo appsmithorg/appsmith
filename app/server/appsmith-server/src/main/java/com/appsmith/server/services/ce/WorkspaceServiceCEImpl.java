@@ -11,6 +11,8 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
+import com.appsmith.server.dtos.AlloyWorkspaceTokenDTO;
+import com.appsmith.server.dtos.AlloyWorkspaceUserCredentialDTO;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
@@ -30,10 +32,12 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.util.WebClientUtils;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
@@ -41,6 +45,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +85,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final WorkspacePermission workspacePermission;
     private final PermissionGroupPermission permissionGroupPermission;
     private final WorkspaceServiceHelper workspaceServiceHelper;
+
+    @Value("${appsmith.alloy.api.key}")
+    private String alloyApiKey;
 
     @Autowired
     public WorkspaceServiceCEImpl(
@@ -622,5 +630,128 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Override
     public Flux<Workspace> getAll(AclPermission permission) {
         return repository.findAll(permission);
+    }
+
+    private Mono<String> createUserInAlloy(String workspaceId) {
+        return WebClientUtils.builder()
+                .build()
+                .post()
+                .uri("https://embedded.runalloy.com/2024-03/users/")
+                .header("Authorization", String.format("Bearer %s", alloyApiKey))
+                .bodyValue(Map.of("username", workspaceId, "fullName", workspaceId))
+                .retrieve()
+                .bodyToMono(Map.class)
+                .map(response -> (String) response.get("userId"));
+    }
+
+    private Mono<String> createAlloyJWT(String userId) {
+        return WebClientUtils.builder()
+                .build()
+                .get()
+                .uri(String.format("https://embedded.runalloy.com/2024-03/users/%s/token", userId))
+                .header("Authorization", String.format("Bearer %s", alloyApiKey))
+                .retrieve()
+                .bodyToMono(Map.class)
+                .map(response -> (String) response.get("token"));
+    }
+
+    private Mono<Workspace> updateAlloyUserIdToWorkspace(Workspace workspace, String alloyUserId) {
+        workspace.setAlloyUserId(alloyUserId);
+        return repository.save(workspace);
+    }
+
+    @Override
+    public Mono<AlloyWorkspaceTokenDTO> generateAlloyWorkspaceToken(String workspaceId) {
+        // create user in alloy
+        // create jwt token and return
+        AlloyWorkspaceTokenDTO alloyWorkspaceTokenDTO = new AlloyWorkspaceTokenDTO();
+        alloyWorkspaceTokenDTO.setWorkspaceId(workspaceId);
+        Mono<Workspace> findWorkspaceMono = repository.findById(workspaceId, workspacePermission.getEditPermission());
+
+        return findWorkspaceMono
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
+                .flatMap(workspace -> {
+                    String alloyUserId = workspace.getAlloyUserId();
+                    if (alloyUserId != null && !alloyUserId.trim().isEmpty()) {
+                        alloyWorkspaceTokenDTO.setUserId(alloyUserId);
+                        return createAlloyJWT(alloyUserId);
+                    } else {
+                        return createUserInAlloy(workspaceId).flatMap(userId -> {
+                            alloyWorkspaceTokenDTO.setUserId(userId);
+                            return updateAlloyUserIdToWorkspace(workspace, userId)
+                                    .flatMap(updatedWorkspace -> createAlloyJWT(userId));
+                        });
+                    }
+                })
+                .flatMap(jwt -> {
+                    alloyWorkspaceTokenDTO.setToken(jwt);
+                    return Mono.just(alloyWorkspaceTokenDTO);
+                });
+    }
+
+    private Mono<Map> getAlloyUserCredentials(String userId) {
+        return WebClientUtils.builder()
+                .build()
+                .get()
+                .uri(String.format("https://embedded.runalloy.com/2024-03/users/%s/credentials", userId))
+                .header("Authorization", String.format("Bearer %s", alloyApiKey))
+                .retrieve()
+                .bodyToMono(Map.class);
+    }
+
+    private Map<String, Object> findMostRecentCredential(List<Map<String, Object>> credentials, String type) {
+        Map<String, Object> mostRecentCredential = null;
+        Instant mostRecentUpdate = Instant.MIN;
+
+        for (Map<String, Object> credential : credentials) {
+            if (credential.get("type").equals(type)) {
+                Instant updatedAt = Instant.parse((String) credential.get("updatedAt"));
+
+                if (updatedAt.isAfter(mostRecentUpdate)) {
+                    mostRecentUpdate = updatedAt;
+                    mostRecentCredential = credential;
+                }
+            }
+        }
+        return mostRecentCredential;
+    }
+
+    @Override
+    public Mono<AlloyWorkspaceUserCredentialDTO> fetchAlloyUserCredentials(String workspaceId, String integrationType) {
+        // fetch alloyUserId from workspaceId
+        // fetch user credentials from alloy
+        AlloyWorkspaceUserCredentialDTO alloyWorkspaceUserCredentialDTO = new AlloyWorkspaceUserCredentialDTO();
+        alloyWorkspaceUserCredentialDTO.setWorkspaceId(workspaceId);
+        Mono<Workspace> findWorkspaceMono = repository.findById(workspaceId, workspacePermission.getEditPermission());
+        return findWorkspaceMono
+                .switchIfEmpty(Mono.error(
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
+                .flatMap(workspace -> {
+                    String alloyUserId = workspace.getAlloyUserId();
+                    if (alloyUserId == null || alloyUserId.trim().isEmpty()) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND, "Alloy User for the workspace", workspaceId));
+                    }
+                    alloyWorkspaceUserCredentialDTO.setUserId(alloyUserId);
+                    return getAlloyUserCredentials(alloyUserId).zipWith(Mono.just(alloyUserId));
+                })
+                .flatMap(tuple -> {
+                    Map<String, Object> response = tuple.getT1();
+                    String alloyUserId = tuple.getT2();
+                    List<Map<String, Object>> credentials = (List<Map<String, Object>>) response.get("data");
+                    Map<String, Object> mostRecentCredential = findMostRecentCredential(credentials, integrationType);
+                    if (mostRecentCredential == null) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND, "Alloy Credential for user", alloyUserId));
+                    }
+                    alloyWorkspaceUserCredentialDTO.setCredentialId(
+                            mostRecentCredential.get("id").toString());
+                    alloyWorkspaceUserCredentialDTO.setCredentialName(
+                            mostRecentCredential.get("name").toString());
+                    alloyWorkspaceUserCredentialDTO.setCredentialType(
+                            mostRecentCredential.get("type").toString());
+                    return Mono.just(alloyWorkspaceUserCredentialDTO);
+                });
     }
 }
