@@ -7,22 +7,16 @@ function export_database() {
   console.log('export_database  ....');
   dbUrl = utils.getDburl();
   shell.mkdir('-p', [Constants.BACKUP_PATH]);
-  if (utils.getDburl().startsWith('mongodb')) {
-    executeMongoDumpCMD(destFolder, utils.getDburl())
-  } else if (utils.getDburl().startsWith('postgresql')) {
-    executePostgresDumpCMD(destFolder, utils.getDburl());
+  let cmd;
+  if (dbUrl.startsWith('mongodb')) {
+    cmd = `mongodump --uri='${dbUrl}' --archive='${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`;
+  } else if (dbUrl.startsWith('postgresql')) {
+    cmd = `pg_dump ${dbUrl} -Fc -f '${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}'`;
+  } else {
+    throw new Error('Unsupported database URL');
   }
+  shell.exec(cmd);
   console.log('export_database done');
-}
-
-function executeMongoDumpCMD(dbUrl) {
-  const cmd = `mongodump --uri='${dbUrl}' --archive='${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`;
-  shell.exec(cmd);
-}
-
-function executePostgresDumpCMD(dbUrl) {
-  const cmd = `pg_dump ${dbUrl} -Fc -f '${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}'`;
-  shell.exec(cmd);
 }
 
 function stop_application() {
