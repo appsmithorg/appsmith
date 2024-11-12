@@ -35,7 +35,7 @@ const welcomePage = require("../locators/welcomePage.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import RapidMode from "./RapidMode";
 import { featureFlagIntercept } from "./Objects/FeatureFlags";
-import { PluginActionForm } from "./Pages/PluginActionForm.js";
+import { PluginActionForm } from "./Pages/PluginActionForm";
 
 const propPane = ObjectsRegistry.PropertyPane;
 const agHelper = ObjectsRegistry.AggregateHelper;

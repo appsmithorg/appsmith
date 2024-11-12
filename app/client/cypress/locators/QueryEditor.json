@@ -20,5 +20,5 @@
   "copyURLicon": "//button/span[@icon='link']",
   "snipeableTable": "//input[@type='search']",
   "suggestedWidgetChart": ".t--suggested-widget-CHART_WIDGET",
-  "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
+  "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']"
 }
