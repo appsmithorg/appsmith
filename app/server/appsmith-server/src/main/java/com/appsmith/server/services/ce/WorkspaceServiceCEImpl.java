@@ -653,15 +653,31 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .map(response -> (String) response.get("token"));
     }
 
+    private Mono<Workspace> updateAlloyUserIdToWorkspace(Workspace workspace, String alloyUserId) {
+        workspace.setAlloyUserId(alloyUserId);
+        return repository.save(workspace);
+    }
+
     @Override
     public Mono<AlloyWorkspaceTokenDTO> generateAlloyWorkspaceToken(String workspaceId) {
         // create user in alloy
         // create jwt token and return
         AlloyWorkspaceTokenDTO alloyWorkspaceTokenDTO = new AlloyWorkspaceTokenDTO();
-        return createUserInAlloy(workspaceId)
-                .flatMap(userId -> {
-                    alloyWorkspaceTokenDTO.setUserId(userId);
-                    return createAlloyJWT(userId);
+        Mono<Workspace> findWorkspaceMono = repository.findById(workspaceId, workspacePermission.getEditPermission());
+
+        return findWorkspaceMono
+                .flatMap(workspace -> {
+                    String alloyUserId = workspace.getAlloyUserId();
+                    if (alloyUserId != null && !alloyUserId.trim().isEmpty()) {
+                        alloyWorkspaceTokenDTO.setUserId(alloyUserId);
+                        return createAlloyJWT(alloyUserId);
+                    } else {
+                        return createUserInAlloy(workspaceId).flatMap(userId -> {
+                            alloyWorkspaceTokenDTO.setUserId(userId);
+                            return updateAlloyUserIdToWorkspace(workspace, userId)
+                                    .flatMap(updatedWorkspace -> createAlloyJWT(userId));
+                        });
+                    }
                 })
                 .flatMap(jwt -> {
                     alloyWorkspaceTokenDTO.setToken(jwt);

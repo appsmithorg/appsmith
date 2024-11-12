@@ -53,6 +53,9 @@ public class Workspace extends BaseDomain {
     @JsonView(Views.Internal.class)
     private Boolean hasEnvironments;
 
+    @JsonView(Views.Public.class)
+    private String alloyUserId;
+
     @JsonView(Views.Internal.class)
     private Set<String> defaultPermissionGroups;
 
