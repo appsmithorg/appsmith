@@ -1,0 +1,66 @@
+import styled from "styled-components";
+import { Button, Text } from "@appsmith/ads";
+
+export const HelpSection = styled.div``;
+
+export const Root = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const STATUS_BAR_HEIGHT = 40;
+
+export const DataContainer = styled.div<{ $height: number }>`
+  height: calc(${({ $height }) => $height}px - 1px);
+  display: grid;
+  grid-template-rows: ${STATUS_BAR_HEIGHT}px 1fr;
+  grid-template-columns: 100%;
+  position: relative;
+  overflow: clip;
+`;
+
+export const Response = styled.div`
+  overflow: auto;
+`;
+
+export const StatusBar = styled.div`
+  position: sticky;
+  top: 0px;
+  display: flex;
+  justify-content: space-between;
+  height: ${STATUS_BAR_HEIGHT}px;
+  padding: 8px;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  z-index: var(--ads-v2-z-index-1);
+`;
+
+export const StatusBarInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: var(--ads-v2-spaces-2);
+`;
+
+export const Fab = styled(Button)<{ $isVisible: boolean }>`
+  && {
+    position: absolute;
+    right: 20px;
+    bottom: calc(${STATUS_BAR_HEIGHT}px + 20px);
+    box-shadow: 0px 1px 20px 0px rgba(76, 86, 100, 0.11);
+    z-index: var(--ads-v2-z-index-3);
+    opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
+    transition: opacity 0.25s;
+  }
+`;
+
+export const LoadingContainer = styled.div`
+  height: calc(100% - ${STATUS_BAR_HEIGHT}px);
+`;
+
+export const StatusBarText = styled(Text)<{
+  $isBold?: boolean;
+  $isError?: boolean;
+}>`
+  font-size: 13px;
+  ${({ $isBold }) => $isBold && `font-weight: 700;`}
+  ${({ $isError }) => $isError && `color: var(--ads-v2-color-fg-on-error);`}
+`;
