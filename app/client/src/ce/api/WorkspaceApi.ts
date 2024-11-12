@@ -178,7 +178,7 @@ class WorkspaceApi extends Api {
         request.workspaceId +
         "/integrations/" +
         request.integrationType +
-        "/getAllowUserCredentials",
+        "/getAlloyUserCredentials",
     );
   }
 }

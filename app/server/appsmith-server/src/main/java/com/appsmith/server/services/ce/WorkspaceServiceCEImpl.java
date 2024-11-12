@@ -746,7 +746,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                 AppsmithError.NO_RESOURCE_FOUND, "Alloy Credential for user", alloyUserId));
                     }
                     alloyWorkspaceUserCredentialDTO.setCredentialId(
-                            mostRecentCredential.get("id").toString());
+                            mostRecentCredential.get("credentialId").toString());
                     alloyWorkspaceUserCredentialDTO.setCredentialName(
                             mostRecentCredential.get("name").toString());
                     alloyWorkspaceUserCredentialDTO.setCredentialType(
