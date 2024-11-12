@@ -23,7 +23,7 @@ restore_mongo_db = () => {
 }
 
 restore_postgres_db = () => {
-  const cmd = `pg_restore -U postgres -d appsmith -c ${Constants.RESTORE_PATH}/${Constants.POSTGRES_DUMP_FILE_NAME}`;
+  const cmd = `pg_restore -U postgres -d appsmith --verbose --clean ${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}`;
   shell.exec(cmd);
 }
 
@@ -40,9 +40,9 @@ function get_table_or_collection_len() {
   if (utils.getDburl().startsWith('mongodb')) {
     count = shell.exec(`mongo ${utils.getDburl()} --quiet --eval "db.getCollectionNames().length"`)
   } else if (utils.getDburl().startsWith('postgresql')) {
-    count = shell.exec(`psql -U postgres -d ${utils.getDburl()} -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'appsmith';"`)
+    count = shell.exec(`psql -U postgres -d ${utils.getDburl()} -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'appsmith';"`)
   }
-  return parseInt(count.stdout.toString().trimEnd())
+  return parseInt(count.stdout.toString().trimEnd());
 }
 
 // Main application workflow
