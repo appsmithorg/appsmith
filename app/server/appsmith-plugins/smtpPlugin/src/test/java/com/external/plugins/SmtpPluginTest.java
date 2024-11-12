@@ -28,17 +28,10 @@ import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -58,6 +51,11 @@ public class SmtpPluginTest {
             .withExposedPorts(25)
             .withCommand("bin/maildev --base-pathname /maildev --incoming-user " + username + " --incoming-pass "
                     + password + " -s 25");
+
+    @Container
+    public static final GenericContainer<?> smtpWithoutAuth = new GenericContainer<>(DockerImageName.parse("maildev/maildev"))
+        .withExposedPorts(1025)
+        .withCommand("bin/maildev --base-pathname /maildev --smtp-port 1025 --incoming-user '' --incoming-pass ''");
 
     private final SmtpPlugin.SmtpPluginExecutor pluginExecutor = new SmtpPlugin.SmtpPluginExecutor();
 
@@ -135,6 +133,34 @@ public class SmtpPluginTest {
         noAuthDatasourceConfiguration.setAuthentication(null);
 
         assertEquals(0, pluginExecutor.validateDatasource(noAuthDatasourceConfiguration).size());
+    }
+
+    @Test
+    public void testConnectionWithoutAuth() {
+
+        String smtpHost = "localhost";
+        int smtpPort = smtpWithoutAuth.getMappedPort(1025);
+
+        Properties properties = new Properties();
+        properties.put("mail.transport.protocol", "smtp");
+        properties.put("mail.smtp.host", smtpHost);
+        properties.put("mail.smtp.port", String.valueOf(smtpPort));
+        // No authentication
+        properties.put("mail.smtp.auth", "false");
+        properties.put("mail.smtp.starttls.enable", "false");
+
+
+        try {
+            Session session = Session.getInstance(properties);
+            Transport transport = session.getTransport();
+            transport.connect();
+            assertTrue(true, "Successfully connected to MailDev SMTP server without authentication.");
+
+            transport.close();
+        } catch (MessagingException e) {
+            fail("Failed to connect to MailDev SMTP server: " + e.getMessage());
+        }
+
     }
 
     @Test

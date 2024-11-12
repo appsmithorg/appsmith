@@ -257,14 +257,6 @@ public class SmtpPlugin extends BasePlugin {
                     invalids.add(SMTPErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG);
                 }
             }
-
-            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (authentication == null
-                    || !StringUtils.hasText(authentication.getUsername())
-                    || !StringUtils.hasText(authentication.getPassword())) {
-                invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR).getMessage());
-            }
-
             return invalids;
         }
 
@@ -273,9 +265,6 @@ public class SmtpPlugin extends BasePlugin {
             log.debug(Thread.currentThread().getName() + ": testDatasource() called for SMTP plugin.");
             return Mono.fromCallable(() -> {
                         Set<String> invalids = new HashSet<>();
-
-                        boolean isAuthRequired = connection.getProperty("mail.smtp.auth") != null
-                            && connection.getProperty("mail.smtp.auth").equals("true");
 
                         try {
                             Transport transport = connection.getTransport();
@@ -286,9 +275,7 @@ public class SmtpPlugin extends BasePlugin {
                         } catch (NoSuchProviderException e) {
                             invalids.add(SMTPErrorMessages.DS_NO_SUCH_PROVIDER_ERROR_MSG);
                         } catch (AuthenticationFailedException e) {
-                            if (isAuthRequired) {
-                                invalids.add(SMTPErrorMessages.DS_AUTHENTICATION_FAILED_ERROR_MSG);
-                            }
+                            invalids.add(SMTPErrorMessages.DS_AUTHENTICATION_FAILED_ERROR_MSG);
                         } catch (MessagingException e) {
                             log.error(e.getMessage());
                             invalids.add(SMTPErrorMessages.DS_CONNECTION_FAILED_TO_SMTP_SERVER_ERROR_MSG);
