@@ -69,9 +69,7 @@ export interface FetchWorkspaceTokenResponse extends ApiResponse {
 }
 
 export interface FetchWorkspaceCredentialResponse extends ApiResponse {
-  data: {
-    credentialId: string;
-  };
+  credentialId: string;
 }
 
 class WorkspaceApi extends Api {

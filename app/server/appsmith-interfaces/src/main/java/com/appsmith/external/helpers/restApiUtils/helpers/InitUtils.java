@@ -12,6 +12,12 @@ public class InitUtils {
     public String initializeRequestUrl(
             ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
         String path = (actionConfiguration.getPath() == null) ? "" : actionConfiguration.getPath();
+        if ((datasourceConfiguration.getProperties().size() > 2)
+                && (datasourceConfiguration.getProperties().get(2).getKey().equals("credentialId"))) {
+            String credentialId =
+                    (String) datasourceConfiguration.getProperties().get(2).getValue();
+            return String.format("https://embedded.runalloy.com/2024-03/passthrough?credentialId=%s", credentialId);
+        }
         return datasourceConfiguration.getUrl().trim() + path.trim();
     }
 

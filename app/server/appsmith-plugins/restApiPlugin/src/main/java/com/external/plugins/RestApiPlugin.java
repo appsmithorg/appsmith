@@ -72,6 +72,18 @@ public class RestApiPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            // for alloy poc
+            if ((datasourceConfiguration.getProperties().size() > 2)
+                    && (datasourceConfiguration.getProperties().get(2).getKey().equals("credentialId"))) {
+                Property bearerTokenHeader = new Property();
+                bearerTokenHeader.setKey("Authorization");
+                bearerTokenHeader.setValue("Bearer lx88xhxteDfsTa4POjXCw");
+                List<Property> headers = datasourceConfiguration.getHeaders() == null
+                        ? new ArrayList<>()
+                        : datasourceConfiguration.getHeaders();
+                headers.add(bearerTokenHeader);
+                datasourceConfiguration.setHeaders(headers);
+            }
             log.debug(Thread.currentThread().getName()
                     + ": executeParameterized() called for RestAPI plugin. Executing the API call.");
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
