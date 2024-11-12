@@ -134,7 +134,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.IMAGE_URL },
           },
           {
-            helpText: "Set alternative text for the image",
+            helpText: "Sets alternative text for the image",
             propertyName: "alt",
             label: "Alternative text",
             controlType: "INPUT_TEXT",
