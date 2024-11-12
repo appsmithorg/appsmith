@@ -1,0 +1,540 @@
+{
+    "dsl": {
+      "widgetName": "MainContainer",
+      "backgroundColor": "none",
+      "rightColumn": 4896,
+      "snapColumns": 64,
+      "detachFromLayout": true,
+      "widgetId": "0",
+      "topRow": 0,
+      "bottomRow": 600,
+      "containerStyle": "none",
+      "snapRows": 124,
+      "parentRowSpace": 1,
+      "type": "CANVAS_WIDGET",
+      "canExtend": true,
+      "version": 90,
+      "minHeight": 1292,
+      "parentColumnSpace": 1,
+      "dynamicBindingPathList": [],
+      "leftColumn": 0,
+      "children": [
+        {
+          "boxShadow": "none",
+          "widgetName": "Container1",
+          "topRow": 0,
+          "bottomRow": 60,
+          "parentRowSpace": 38,
+          "type": "CONTAINER_WIDGET",
+          "parentColumnSpace": 75.25,
+          "dynamicBindingPathList": [],
+          "leftColumn": 0,
+          "children": [
+            {
+              "labelTextSize": "0.875rem",
+              "boxShadow": "none",
+              "backgroundColor": "#FFFFFF",
+              "widgetName": "utncsu66ty",
+              "rightColumn": 2408,
+              "orientation": "VERTICAL",
+              "snapColumns": 16,
+              "detachFromLayout": true,
+              "widgetId": "acizsl94my",
+              "containerStyle": "none",
+              "topRow": 0,
+              "bottomRow": 380,
+              "parentRowSpace": 1,
+              "isVisible": true,
+              "type": "CANVAS_WIDGET",
+              "canExtend": false,
+              "version": 1,
+              "isLoading": false,
+              "parentColumnSpace": 1,
+              "leftColumn": 0,
+              "dynamicBindingPathList": [],
+              "borderRadius": "0px",
+              "children": [
+                {
+                  "boxShadow": "none",
+                  "widgetName": "Text5",
+                  "topRow": 28,
+                  "bottomRow": 32,
+                  "parentRowSpace": 38,
+                  "type": "TEXT_WIDGET",
+                  "parentColumnSpace": 62.484375,
+                  "overflow": "NONE",
+                  "fontFamily": "System Default",
+                  "dynamicTriggerPathList": [],
+                  "leftColumn": 16,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "text"
+                    }
+                  ],
+                  "text": "{{DatePicker1.selectedDate}}",
+                  "labelTextSize": "0.875rem",
+                  "rightColumn": 32,
+                  "textAlign": "LEFT",
+                  "dynamicHeight": "FIXED",
+                  "widgetId": "t7c7i4gv0f",
+                  "isVisible": true,
+                  "fontStyle": "BOLD",
+                  "version": 1,
+                  "textColor": "#231F20",
+                  "parentId": "acizsl94my",
+                  "isLoading": false,
+                  "borderRadius": "0px",
+                  "maxDynamicHeight": 9000,
+                  "fontSize": "0.875rem",
+                  "minDynamicHeight": 4
+                },
+                {
+                  "needsErrorInfo": false,
+                  "boxShadow": "none",
+                  "mobileBottomRow": 12,
+                  "widgetName": "DatePicker1",
+                  "minDate": "1920-12-31T18:30:00.000Z",
+                  "dateFormat": "YYYY-MM-DD HH:mm",
+                  "topRow": 5,
+                  "bottomRow": 12,
+                  "shortcuts": false,
+                  "parentRowSpace": 10,
+                  "labelWidth": 5,
+                  "type": "DATE_PICKER_WIDGET2",
+                  "mobileRightColumn": 30,
+                  "animateLoading": true,
+                  "parentColumnSpace": 7.26171875,
+                  "leftColumn": 10,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "accentColor"
+                    },
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "labelPosition": "Top",
+                  "isDisabled": false,
+                  "key": "frcocd42ul",
+                  "labelTextSize": "0.875rem",
+                  "isRequired": false,
+                  "defaultDate": "2024-10-24T07:39:07.659Z",
+                  "rightColumn": 30,
+                  "dynamicHeight": "FIXED",
+                  "widgetId": "pwo88q4udx",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "minWidth": 450,
+                  "isVisible": true,
+                  "datePickerType": "DATE_PICKER",
+                  "label": "Label",
+                  "version": 2,
+                  "parentId": "acizsl94my",
+                  "labelAlignment": "left",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "mobileTopRow": 5,
+                  "timePrecision": "minute",
+                  "responsiveBehavior": "fill",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 10,
+                  "maxDynamicHeight": 9000,
+                  "firstDayOfWeek": 0,
+                  "closeOnSelection": true,
+                  "maxDate": "2121-12-31T18:29:00.000Z",
+                  "minDynamicHeight": 4
+                },
+                {
+                  "needsErrorInfo": false,
+                  "boxShadow": "none",
+                  "mobileBottomRow": 22,
+                  "widgetName": "DatePicker2",
+                  "minDate": "1920-12-31T18:30:00.000Z",
+                  "dateFormat": "YYYY-MM-DD HH:mm",
+                  "topRow": 14,
+                  "bottomRow": 21,
+                  "shortcuts": false,
+                  "parentRowSpace": 10,
+                  "labelWidth": 5,
+                  "type": "DATE_PICKER_WIDGET2",
+                  "mobileRightColumn": 29,
+                  "animateLoading": true,
+                  "parentColumnSpace": 7.26171875,
+                  "leftColumn": 10,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "accentColor"
+                    },
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "labelPosition": "Top",
+                  "isDisabled": false,
+                  "key": "frcocd42ul",
+                  "labelTextSize": "0.875rem",
+                  "isRequired": false,
+                  "defaultDate": "2024-10-24T07:39:07.659Z",
+                  "rightColumn": 30,
+                  "dynamicHeight": "FIXED",
+                  "widgetId": "gwcu42z6yn",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "minWidth": 450,
+                  "isVisible": true,
+                  "datePickerType": "DATE_PICKER",
+                  "label": "Label",
+                  "version": 2,
+                  "parentId": "acizsl94my",
+                  "labelAlignment": "left",
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "mobileTopRow": 15,
+                  "timePrecision": "minute",
+                  "responsiveBehavior": "fill",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 9,
+                  "maxDynamicHeight": 9000,
+                  "firstDayOfWeek": 0,
+                  "closeOnSelection": true,
+                  "maxDate": "2121-12-31T18:29:00.000Z",
+                  "minDynamicHeight": 4
+                }
+              ]
+            }
+          ],
+          "labelTextSize": "0.875rem",
+          "backgroundColor": "#FFFFFF",
+          "rightColumn": 56,
+          "orientation": "VERTICAL",
+          "snapColumns": 16,
+          "dynamicHeight": "FIXED",
+          "widgetId": "mp429a7dl3",
+          "containerStyle": "card",
+          "isVisible": true,
+          "version": 1,
+          "isLoading": false,
+          "borderRadius": "0px",
+          "maxDynamicHeight": 9000,
+          "minDynamicHeight": 4
+        },
+        {
+          "boxShadow": "none",
+          "widgetName": "Modal1",
+          "topRow": 0,
+          "bottomRow": 0,
+          "parentRowSpace": 1,
+          "type": "MODAL_WIDGET",
+          "shouldScrollContents": true,
+          "parentColumnSpace": 1,
+          "leftColumn": 0,
+          "dynamicBindingPathList": [],
+          "children": [
+            {
+              "boxShadow": "none",
+              "widgetName": "Canvas1",
+              "topRow": 0,
+              "bottomRow": 240,
+              "parentRowSpace": 1,
+              "canExtend": true,
+              "type": "CANVAS_WIDGET",
+              "shouldScrollContents": false,
+              "minHeight": 0,
+              "parentColumnSpace": 1,
+              "leftColumn": 0,
+              "dynamicBindingPathList": [],
+              "children": [
+                {
+                  "labelTextSize": "0.875rem",
+                  "isRequired": false,
+                  "boxShadow": "none",
+                  "widgetName": "Icon1",
+                  "rightColumn": 64,
+                  "onClick": "{{closeModal(Modal1.name)}}",
+                  "iconName": "cross",
+                  "buttonColor": "#2E3D49",
+                  "widgetId": "t3sjfihdb1",
+                  "topRow": 0,
+                  "bottomRow": 4,
+                  "isVisible": true,
+                  "type": "ICON_BUTTON_WIDGET",
+                  "version": 1,
+                  "parentId": "cwamdbv44c",
+                  "isLoading": false,
+                  "leftColumn": 60,
+                  "dynamicBindingPathList": [],
+                  "borderRadius": "0px",
+                  "buttonVariant": "TERTIARY",
+                  "iconSize": 24
+                },
+                {
+                  "boxShadow": "none",
+                  "widgetName": "Text4",
+                  "dynamicPropertyPathList": [
+                    {
+                      "key": "fontSize"
+                    }
+                  ],
+                  "topRow": 0,
+                  "bottomRow": 4,
+                  "type": "TEXT_WIDGET",
+                  "overflow": "NONE",
+                  "fontFamily": "System Default",
+                  "leftColumn": 0,
+                  "dynamicBindingPathList": [],
+                  "text": "Modal Title",
+                  "labelTextSize": "0.875rem",
+                  "rightColumn": 60,
+                  "dynamicHeight": "FIXED",
+                  "widgetId": "x893ud3zjh",
+                  "isVisible": true,
+                  "fontStyle": "BOLD",
+                  "version": 1,
+                  "textColor": "#231F20",
+                  "parentId": "cwamdbv44c",
+                  "isLoading": false,
+                  "borderRadius": "0px",
+                  "maxDynamicHeight": 9000,
+                  "fontSize": "1.5rem",
+                  "minDynamicHeight": 4
+                },
+                {
+                  "labelTextSize": "0.875rem",
+                  "boxShadow": "none",
+                  "widgetName": "Button2",
+                  "rightColumn": 52,
+                  "isDefaultClickDisabled": true,
+                  "buttonColor": "#03B365",
+                  "widgetId": "q9snwskqan",
+                  "topRow": 16,
+                  "bottomRow": 20,
+                  "isVisible": true,
+                  "type": "BUTTON_WIDGET",
+                  "version": 1,
+                  "recaptchaType": "V3",
+                  "parentId": "cwamdbv44c",
+                  "isLoading": false,
+                  "leftColumn": 40,
+                  "dynamicBindingPathList": [],
+                  "borderRadius": "0px",
+                  "buttonVariant": "PRIMARY",
+                  "text": "Cancel",
+                  "isDisabled": false
+                },
+                {
+                  "labelTextSize": "0.875rem",
+                  "boxShadow": "none",
+                  "widgetName": "Button3",
+                  "rightColumn": 64,
+                  "isDefaultClickDisabled": true,
+                  "buttonColor": "#03B365",
+                  "widgetId": "tufuj2kdpz",
+                  "topRow": 16,
+                  "bottomRow": 20,
+                  "isVisible": true,
+                  "type": "BUTTON_WIDGET",
+                  "version": 1,
+                  "recaptchaType": "V3",
+                  "parentId": "cwamdbv44c",
+                  "isLoading": false,
+                  "leftColumn": 52,
+                  "dynamicBindingPathList": [],
+                  "borderRadius": "0px",
+                  "buttonVariant": "PRIMARY",
+                  "text": "Confirm",
+                  "isDisabled": false
+                }
+              ],
+              "isDisabled": false,
+              "labelTextSize": "0.875rem",
+              "rightColumn": 0,
+              "detachFromLayout": true,
+              "widgetId": "cwamdbv44c",
+              "isVisible": true,
+              "version": 1,
+              "parentId": "bx9a2jg08o",
+              "blueprint": {
+                "view": [
+                  {
+                    "type": "ICON_WIDGET",
+                    "position": {
+                      "left": 15,
+                      "top": 0
+                    },
+                    "size": {
+                      "rows": 1,
+                      "cols": 1
+                    },
+                    "props": {
+                      "iconName": "cross",
+                      "iconSize": 24,
+                      "color": "#040627"
+                    }
+                  },
+                  {
+                    "type": "TEXT_WIDGET",
+                    "position": {
+                      "left": 0,
+                      "top": 0
+                    },
+                    "size": {
+                      "rows": 1,
+                      "cols": 15
+                    },
+                    "props": {
+                      "text": "Modal Title",
+                      "textStyle": "HEADING"
+                    }
+                  },
+                  {
+                    "type": "BUTTON_WIDGET",
+                    "position": {
+                      "left": 10,
+                      "top": 4
+                    },
+                    "size": {
+                      "rows": 1,
+                      "cols": 3
+                    },
+                    "props": {
+                      "text": "Cancel",
+                      "buttonStyle": "SECONDARY_BUTTON"
+                    }
+                  },
+                  {
+                    "type": "BUTTON_WIDGET",
+                    "position": {
+                      "left": 13,
+                      "top": 4
+                    },
+                    "size": {
+                      "rows": 1,
+                      "cols": 3
+                    },
+                    "props": {
+                      "text": "Confirm",
+                      "buttonStyle": "PRIMARY_BUTTON"
+                    }
+                  }
+                ],
+                "operations": [
+                  {
+                    "type": "MODIFY_PROPS"
+                  }
+                ]
+              },
+              "isLoading": false,
+              "borderRadius": "0px"
+            }
+          ],
+          "height": 240,
+          "labelTextSize": "0.875rem",
+          "rightColumn": 0,
+          "detachFromLayout": true,
+          "dynamicHeight": "FIXED",
+          "widgetId": "bx9a2jg08o",
+          "isVisible": false,
+          "canOutsideClickClose": true,
+          "canEscapeKeyClose": true,
+          "version": 2,
+          "parentId": "0",
+          "blueprint": {
+            "view": [
+              {
+                "type": "CANVAS_WIDGET",
+                "position": {
+                  "left": 0,
+                  "top": 0
+                },
+                "props": {
+                  "detachFromLayout": true,
+                  "canExtend": true,
+                  "isVisible": true,
+                  "isDisabled": false,
+                  "shouldScrollContents": false,
+                  "children": [],
+                  "blueprint": {
+                    "view": [
+                      {
+                        "type": "ICON_WIDGET",
+                        "position": {
+                          "left": 15,
+                          "top": 0
+                        },
+                        "size": {
+                          "rows": 1,
+                          "cols": 1
+                        },
+                        "props": {
+                          "iconName": "cross",
+                          "iconSize": 24,
+                          "color": "#040627"
+                        }
+                      },
+                      {
+                        "type": "TEXT_WIDGET",
+                        "position": {
+                          "left": 0,
+                          "top": 0
+                        },
+                        "size": {
+                          "rows": 1,
+                          "cols": 15
+                        },
+                        "props": {
+                          "text": "Modal Title",
+                          "textStyle": "HEADING"
+                        }
+                      },
+                      {
+                        "type": "BUTTON_WIDGET",
+                        "position": {
+                          "left": 10,
+                          "top": 4
+                        },
+                        "size": {
+                          "rows": 1,
+                          "cols": 3
+                        },
+                        "props": {
+                          "text": "Cancel",
+                          "buttonStyle": "SECONDARY_BUTTON"
+                        }
+                      },
+                      {
+                        "type": "BUTTON_WIDGET",
+                        "position": {
+                          "left": 13,
+                          "top": 4
+                        },
+                        "size": {
+                          "rows": 1,
+                          "cols": 3
+                        },
+                        "props": {
+                          "text": "Confirm",
+                          "buttonStyle": "PRIMARY_BUTTON"
+                        }
+                      }
+                    ],
+                    "operations": [
+                      {
+                        "type": "MODIFY_PROPS"
+                      }
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "isLoading": false,
+          "borderRadius": "0px",
+          "maxDynamicHeight": 9000,
+          "width": 456,
+          "minDynamicHeight": 4
+        }
+      ]
+    },
+    "layoutOnLoadActions": [],
+    "layoutOnLoadActionErrors": [],
+    "actionUpdates": [],
+    "messages": []
+}

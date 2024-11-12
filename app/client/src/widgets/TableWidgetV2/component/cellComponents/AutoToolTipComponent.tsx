@@ -137,7 +137,7 @@ interface Props {
   children: React.ReactNode;
   title: string;
   tableWidth?: number;
-  columnType?: string;
+  columnType?: ColumnTypes;
   className?: string;
   compactMode?: string;
   allowCellWrapping?: boolean;
@@ -152,38 +152,6 @@ interface Props {
   isCellDisabled?: boolean;
 }
 
-function LinkWrapper(props: Props) {
-  const content = useToolTip(props.children, props.title);
-
-  return (
-    <CellWrapper
-      allowCellWrapping={props.allowCellWrapping}
-      cellBackground={props.cellBackground}
-      className="cell-wrapper"
-      compactMode={props.compactMode}
-      fontStyle={props.fontStyle}
-      horizontalAlignment={props.horizontalAlignment}
-      isCellDisabled={props.isCellDisabled}
-      isCellVisible={props.isCellVisible}
-      isHidden={props.isHidden}
-      isHyperLink
-      isTextType
-      onClick={(e: React.MouseEvent<HTMLDivElement>) => {
-        e.stopPropagation();
-        window.open(props.url, "_blank");
-      }}
-      textColor={props.textColor}
-      textSize={props.textSize}
-      verticalAlignment={props.verticalAlignment}
-    >
-      <div className="link-text">{content}</div>
-      <OpenNewTabIconWrapper className="hidden-icon">
-        <OpenNewTabIcon />
-      </OpenNewTabIconWrapper>
-    </CellWrapper>
-  );
-}
-
 export function AutoToolTipComponent(props: Props) {
   const content = useToolTip(
     props.children,
@@ -191,12 +159,27 @@ export function AutoToolTipComponent(props: Props) {
     props.columnType === ColumnTypes.BUTTON,
   );
 
-  if (props.columnType === ColumnTypes.URL && props.title) {
-    return <LinkWrapper {...props} />;
-  }
+  let contentToRender;
 
-  if (props.columnType === ColumnTypes.BUTTON && props.title) {
-    return content;
+  switch (props.columnType) {
+    case ColumnTypes.BUTTON:
+      if (props.title) {
+        return content;
+      }
+
+      break;
+    case ColumnTypes.URL:
+      contentToRender = (
+        <>
+          <div className="link-text">{content}</div>
+          <OpenNewTabIconWrapper className="hidden-icon">
+            <OpenNewTabIcon />
+          </OpenNewTabIconWrapper>
+        </>
+      );
+      break;
+    default:
+      contentToRender = content;
   }
 
   return (
@@ -212,12 +195,13 @@ export function AutoToolTipComponent(props: Props) {
         isCellDisabled={props.isCellDisabled}
         isCellVisible={props.isCellVisible}
         isHidden={props.isHidden}
+        isHyperLink={props.columnType === ColumnTypes.URL}
         isTextType
         textColor={props.textColor}
         textSize={props.textSize}
         verticalAlignment={props.verticalAlignment}
       >
-        {content}
+        {contentToRender}
       </CellWrapper>
     </ColumnWrapper>
   );

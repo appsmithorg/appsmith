@@ -11,9 +11,11 @@ import { getCurrentBasePageId } from "selectors/editorSelectors";
 import {
   createMessage,
   EDIT_DATASOURCE,
+  EDIT_DATASOURCE_TOOLTIP,
   SAVE_DATASOURCE,
+  SAVE_DATASOURCE_TOOLTIP,
 } from "ee/constants/messages";
-import { Button } from "@appsmith/ads";
+import { Button, Tooltip } from "@appsmith/ads";
 
 interface storeDataSourceProps {
   datasourceId?: string;
@@ -58,19 +60,26 @@ function StoreAsDatasource(props: storeDataSourceProps) {
   };
 
   return (
-    <Button
-      className="t--store-as-datasource"
-      data-testid="t--store-as-datasource"
-      isDisabled={!props.enable}
-      kind="secondary"
-      onClick={saveOrEditDatasource}
-      size="md"
-      startIcon={props.shouldSave ? "database-2-line" : "pencil-line"}
+    <Tooltip
+      content={
+        props.shouldSave
+          ? createMessage(SAVE_DATASOURCE_TOOLTIP)
+          : createMessage(EDIT_DATASOURCE_TOOLTIP)
+      }
     >
-      {props.shouldSave
-        ? createMessage(SAVE_DATASOURCE)
-        : createMessage(EDIT_DATASOURCE)}
-    </Button>
+      <Button
+        className="t--store-as-datasource"
+        data-testid="t--store-as-datasource"
+        isDisabled={!props.enable}
+        kind="secondary"
+        onClick={saveOrEditDatasource}
+        size="md"
+      >
+        {props.shouldSave
+          ? createMessage(SAVE_DATASOURCE)
+          : createMessage(EDIT_DATASOURCE)}
+      </Button>
+    </Tooltip>
   );
 }
 

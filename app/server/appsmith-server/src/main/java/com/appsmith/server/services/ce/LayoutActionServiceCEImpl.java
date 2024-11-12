@@ -249,36 +249,40 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         String pageId = newAction.getUnpublishedAction().getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
-        return updateSingleAction(newAction.getId(), action)
-                .name(UPDATE_SINGLE_ACTION)
-                .tap(Micrometer.observation(observationRegistry))
-                .flatMap(updatedAction -> {
-                    // Update page layout is skipped for JS actions here because when JSobject is updated, we first
-                    // update all actions, action
-                    // collection and then we update the page layout, hence updating page layout with each action update
-                    // is not required here
-                    if (action.getPluginType() != PluginType.JS) {
-                        return updateLayoutService
-                                .updatePageLayoutsByPageId(pageId)
-                                .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
-                                .tap(Micrometer.observation(observationRegistry))
-                                .thenReturn(updatedAction);
-                    }
-                    return Mono.just(updatedAction);
-                })
-                .zipWhen(actionDTO -> newPageService.findPageById(pageId, pagePermission.getEditPermission(), false))
-                .map(tuple2 -> {
-                    ActionDTO actionDTO = tuple2.getT1();
-                    PageDTO pageDTO = tuple2.getT2();
-                    // redundant check
-                    if (pageDTO.getLayouts().size() > 0) {
-                        actionDTO.setErrorReports(pageDTO.getLayouts().get(0).getLayoutOnLoadActionErrors());
-                    }
-                    log.debug(
-                            "Update action based on context type completed, returning actionDTO with action id: {}",
-                            actionDTO != null ? actionDTO.getId() : null);
-                    return actionDTO;
-                });
+
+        // Update page layout is skipped for JS actions here because when JSobject is updated, we first
+        // update all actions, action
+        // collection and then we update the page layout, hence updating page layout with each action update
+        // is not required here
+        if (action.getPluginType() == PluginType.JS) {
+            return updateSingleAction(newAction.getId(), action)
+                    .name(UPDATE_SINGLE_ACTION)
+                    .tap(Micrometer.observation(observationRegistry));
+        } else {
+            return updateSingleAction(newAction.getId(), action)
+                    .name(UPDATE_SINGLE_ACTION)
+                    .tap(Micrometer.observation(observationRegistry))
+                    .flatMap(updatedAction -> updateLayoutService
+                            .updatePageLayoutsByPageId(pageId)
+                            .name(UPDATE_PAGE_LAYOUT_BY_PAGE_ID)
+                            .tap(Micrometer.observation(observationRegistry))
+                            .thenReturn(updatedAction))
+                    .zipWhen(
+                            actionDTO -> newPageService.findPageById(pageId, pagePermission.getEditPermission(), false))
+                    .map(tuple2 -> {
+                        ActionDTO actionDTO = tuple2.getT1();
+                        PageDTO pageDTO = tuple2.getT2();
+                        // redundant check
+                        if (pageDTO.getLayouts().size() > 0) {
+                            actionDTO.setErrorReports(
+                                    pageDTO.getLayouts().get(0).getLayoutOnLoadActionErrors());
+                        }
+                        log.debug(
+                                "Update action based on context type completed, returning actionDTO with action id: {}",
+                                actionDTO != null ? actionDTO.getId() : null);
+                        return actionDTO;
+                    });
+        }
     }
 
     @Override
