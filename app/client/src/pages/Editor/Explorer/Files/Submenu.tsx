@@ -94,7 +94,7 @@ export function ExplorerMenuContent({
       </div>
       <SearchInput
         autoFocus
-        data-testId="t--search-file-operation"
+        data-testid="t--search-file-operation"
         onChange={onChange}
         placeholder="Search datasources"
         value={query}

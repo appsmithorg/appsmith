@@ -100,7 +100,7 @@ function DatasourceDropdown() {
   const onChange = useCallback((value: string) => setSearchText(value), []);
 
   return (
-    <SelectWrapper data-testId="t--one-click-binding-datasource-selector">
+    <SelectWrapper data-testid="t--one-click-binding-datasource-selector">
       <Menu
         onOpenChange={(open: boolean) => {
           setOpen(open);
@@ -110,7 +110,7 @@ function DatasourceDropdown() {
       >
         <MenuTrigger>
           <StyledDropdownTrigger
-            data-testId="t--one-click-binding-datasource-trigger"
+            data-testid="t--one-click-binding-datasource-trigger"
             isDisabled={disabled}
             isValid={!error}
           >
@@ -131,7 +131,7 @@ function DatasourceDropdown() {
             <StyledInputContainer>
               <SearchInput
                 autoFocus
-                data-testId="t--one-click-binding-datasource--search"
+                data-testid="t--one-click-binding-datasource--search"
                 onChange={onChange}
                 size="md"
                 // @ts-expect-error Fix this the next time the file is edited
@@ -141,7 +141,7 @@ function DatasourceDropdown() {
             </StyledInputContainer>
 
             {!!connectToOptions.length && (
-              <StyledMenuGroupName data-testId="t--one-click-binding-datasource-selector--bind-to-query">
+              <StyledMenuGroupName data-testid="t--one-click-binding-datasource-selector--bind-to-query">
                 <Text kind="heading-xs">{constants?.connectToText}</Text>
               </StyledMenuGroupName>
             )}
@@ -156,7 +156,7 @@ function DatasourceDropdown() {
               .map((option) => {
                 return (
                   <MenuItem
-                    data-testId="t--one-click-binding-datasource-selector--query"
+                    data-testid="t--one-click-binding-datasource-selector--query"
                     key={option?.id}
                     onSelect={() => {
                       option?.onSelect(option?.value, option);
@@ -202,7 +202,7 @@ function DatasourceDropdown() {
               .map((option) => {
                 return (
                   <MenuItem
-                    data-testId="t--one-click-binding-datasource-selector--datasource"
+                    data-testid="t--one-click-binding-datasource-selector--datasource"
                     key={option.id}
                     onSelect={() => {
                       option?.onSelect?.(option.value || "", option);
@@ -248,7 +248,7 @@ function DatasourceDropdown() {
             {otherOptions.map((option: DropdownOptionType) => {
               return (
                 <MenuItem
-                  data-testId="t--one-click-binding-datasource-selector--other-action"
+                  data-testid="t--one-click-binding-datasource-selector--other-action"
                   key={option.id}
                   onSelect={() => {
                     option.onSelect?.(option.value || "", option);
