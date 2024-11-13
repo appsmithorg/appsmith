@@ -81,13 +81,21 @@ async function restore_mongo_db(restoreContentsPath, dbUrl) {
 }
 
 async function restore_postgres_db(restoreContentsPath, dbUrl) {
-  const cmd = ['pg_restore', '-U', 'postgres', '-c', `${restoreContentsPath}/pg-data.archive`];
-  try {
-    const toDbName = utils.getDatabaseNameFromDBURI(dbUrl);
-    console.log("Restoring database to " + toDbName);
-    cmd.push('-d' , toDbName);
-  } catch (error) {
-    console.warn('Error reading manifest file. Assuming same database name.', error);
+  const cmd = ['pg_restore', '--verbose', '--clean', `${restoreContentsPath}/pg-data.archive`];
+  if (dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1')) {
+    let dbName;
+    try {
+      dbName = utils.getDatabaseNameFromDBURI(dbUrl);
+      console.log("Restoring database to " + dbName);
+    } catch (error) {
+      console.warn('Error reading manifest file. Assuming same database name as appsmith.', error);
+      dbName = 'appsmith';
+    }
+    cmd.push('-d' , 'postgresql://localhost:5432/' + dbName);
+    // Use default user for local postgres
+    cmd.push('-U', 'postgres');
+  } else {
+    cmd.push('-d', dbUrl);
   }
   await utils.execCommand(cmd);
 }

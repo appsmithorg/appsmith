@@ -125,11 +125,12 @@ function getEncryptionPasswordFromUser(){
 
 async function exportDatabase(destFolder) {
   console.log('Exporting database');
+  const dbUrl = utils.getDburl();
   // Check the DB url
-  if (utils.getDburl().startsWith('mongodb')) {
-    await executeMongoDumpCMD(destFolder, utils.getDburl())
-  } else if (utils.getDburl().startsWith('postgresql')) {
-    await executePostgresDumpCMD(destFolder, utils.getDburl());
+  if (dbUrl.startsWith('mongodb')) {
+    await executeMongoDumpCMD(destFolder, dbUrl);
+  } else if (dbUrl.startsWith('postgresql')) {
+    await executePostgresDumpCMD(destFolder, dbUrl);
   }
   console.log('Exporting database done.');
 }
@@ -162,12 +163,12 @@ async function exportDockerEnvFile(destFolder, encryptArchive) {
   console.log('Exporting docker environment file done.');
 }
 
-async function executeMongoDumpCMD(destFolder, appsmithMongoURI) {
-  return await utils.execCommand(['mongodump', `--uri=${appsmithMongoURI}`, `--archive=${destFolder}/mongodb-data.gz`, '--gzip']);// generate cmd
+async function executeMongoDumpCMD(destFolder, dbUrl) {
+  return await utils.execCommand(['mongodump', `--uri=${dbUrl}`, `--archive=${destFolder}/mongodb-data.gz`, '--gzip']);// generate cmd
 }
 
-async function executePostgresDumpCMD(destFolder, appsmithDBURI) {
-  return await utils.execCommand(['pg_dump', appsmithDBURI, '-Fc', '-f', destFolder + '/pg-data.archive']);
+async function executePostgresDumpCMD(destFolder, dbUrl) {
+  return await utils.execCommand(['pg_dump', dbUrl, '-Fc', '-f', destFolder + '/pg-data.archive']);
 }
 
 async function createFinalArchive(destFolder, timestamp) {

@@ -10,20 +10,26 @@ function import_database() {
   console.log('import_database  ....')
   dbUrl = utils.getDburl();
   if (utils.getDburl().startsWith('mongodb')) {
-    restore_mongo_db();
+    restore_mongo_db(dbUrl);
   } else if (utils.getDburl().startsWith('postgresql')) {
-    restore_postgres_db();
+    restore_postgres_db(dbUrl);
   }
   console.log('import_database done')
 }
 
-restore_mongo_db = () => {
+restore_mongo_db = (dbUrl) => {
   const cmd = `mongorestore --uri='${dbUrl}' --drop --archive='${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`;
   shell.exec(cmd);
 }
 
-restore_postgres_db = () => {
-  const cmd = `pg_restore -U postgres -d appsmith --verbose --clean ${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}`;
+restore_postgres_db = (dbUrl) => {
+  let cmd;
+  if (dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1')) {
+    const toDbName = utils.getDatabaseNameFromDBURI(dbUrl);
+    cmd = `pg_restore -U postgres -d 'postgresql://localhost:5432/${toDbName}' --verbose --clean ${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}`;
+  } else {
+    cmd = `pg_restore -d ${dbUrl} --verbose --clean ${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}`;
+  }
   shell.exec(cmd);
 }
 
