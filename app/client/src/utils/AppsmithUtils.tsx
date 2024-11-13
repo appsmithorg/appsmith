@@ -13,8 +13,10 @@ import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReduc
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
 import { CreateNewActionKey } from "ee/entities/Engine/actionHelpers";
+import { ANONYMOUS_USERNAME } from "../constants/userConstants";
+import type { User } from "constants/userConstants";
 
-export const initializeAnalyticsAndTrackers = async () => {
+export const initializeAnalyticsAndTrackers = async (currentUser: User) => {
   const appsmithConfigs = getAppsmithConfigs();
 
   try {
@@ -96,11 +98,18 @@ export const initializeAnalyticsAndTrackers = async () => {
     if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
       if (appsmithConfigs.segment.apiKey) {
         // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
-        return AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
+        await AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
       } else if (appsmithConfigs.segment.ceKey) {
         // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
-        return AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
+        await AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
       }
+    }
+
+    if (
+      !currentUser.isAnonymous &&
+      currentUser.username !== ANONYMOUS_USERNAME
+    ) {
+      await AnalyticsUtil.identifyUser(currentUser);
     }
   } catch (e) {
     Sentry.captureException(e);
