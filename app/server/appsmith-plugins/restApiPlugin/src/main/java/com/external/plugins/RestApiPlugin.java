@@ -77,7 +77,7 @@ public class RestApiPlugin extends BasePlugin {
                     && (datasourceConfiguration.getProperties().get(2).getKey().equals("credentialId"))) {
                 Property bearerTokenHeader = new Property();
                 bearerTokenHeader.setKey("Authorization");
-                bearerTokenHeader.setValue("Bearer lx88xhxteDfsTa4POjXCw");
+                bearerTokenHeader.setValue("Bearer 87OjBApLSpdqZjwNCjz4D");
                 List<Property> headers = datasourceConfiguration.getHeaders() == null
                         ? new ArrayList<>()
                         : datasourceConfiguration.getHeaders();
