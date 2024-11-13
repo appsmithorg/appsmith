@@ -54,6 +54,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 import * as Styled from "./styles";
 import { useBoolean, useEventCallback, useHover } from "usehooks-ts";
+import { RESPONSE_TABLE_HEIGHT_OFFSET } from "./constants";
 
 interface Props {
   actionSource: SourceEntity;
@@ -73,9 +74,11 @@ interface Props {
 // // * On hover of query name and number of records, meta data of api run (outlined above) should show up as tooltip. (design)
 // // * Change result type from segmented control to a FAB with dropdown menu.
 // // * Change loading state button/spinner/spacing. (design)
-// * Change the empty state text and button alignment. (design)
-// * Update table appearance.
-// * Table columns have a fixed width of 170px now, this needs to be updated to min-width.
+// // * Change the empty state text and button alignment. (design)
+// // * Change segmented control naming
+// // * Update table appearance.
+// // * Table columns have a fixed width of 170px now, this needs to be updated to min-width.
+// * Fix FAB hover issue.
 // * Fix Cypress tests related to result type control change.
 
 // // ? Query name is a bold Text variant that is of weight 500 in ADS
@@ -182,14 +185,18 @@ export const QueryResponseTab = (props: Props) => {
       };
     });
 
-  const segmentedControlOptions =
+  const contentTypeOptions =
     responseBodyTabs &&
     responseBodyTabs.map((item) => {
       return { value: item.key, label: item.title };
     });
 
-  const [firstOption] = segmentedControlOptions;
-  const [selectedControl, setSelectedControl] = useState(firstOption?.value);
+  const [firstContentTypeOption] = contentTypeOptions;
+  const [selectedContentType, setSelectedContentType] = useState(
+    firstContentTypeOption?.value,
+  );
+
+  const contentType = selectedContentType || firstContentTypeOption?.value;
 
   const responseState =
     actionResponse && getUpdateTimestamp(actionResponse.request);
@@ -256,7 +263,7 @@ export const QueryResponseTab = (props: Props) => {
         messages.push([
           "size",
           "Response size",
-          `${(Number(5000) / 1000).toFixed(1)}kb`,
+          `${(Number(actionResponse.size) / 1000).toFixed(1)}kb`,
         ]);
       }
 
@@ -277,7 +284,7 @@ export const QueryResponseTab = (props: Props) => {
       const { value } = e.target.dataset;
 
       if (typeof value === "string") {
-        setSelectedControl(value);
+        setSelectedContentType(value);
         onResponseTabSelect(value);
       }
     }
@@ -291,6 +298,16 @@ export const QueryResponseTab = (props: Props) => {
           theme={EditorTheme.LIGHT}
         />
       </Styled.LoadingContainer>
+    );
+  }
+
+  if (!output && !errorMessage) {
+    return (
+      <NoResponse
+        isRunDisabled={isRunDisabled}
+        isRunning={isRunning}
+        onRunClick={handleRunClick}
+      />
     );
   }
 
@@ -413,10 +430,10 @@ export const QueryResponseTab = (props: Props) => {
             <Styled.Response>
               <ResponseFormatTabs
                 data={output}
-                responseType={
-                  selectedControl || segmentedControlOptions[0]?.value
+                responseType={contentType}
+                tableBodyHeight={
+                  responseTabHeight + RESPONSE_TABLE_HEIGHT_OFFSET
                 }
-                tableBodyHeight={responseTabHeight + 14}
               />
             </Styled.Response>
             <Menu onOpenChange={toggleContentTypeMenuOpen}>
@@ -429,9 +446,9 @@ export const QueryResponseTab = (props: Props) => {
                       : "arrow-down-s-line"
                   }
                   kind="secondary"
-                  startIcon={`content-type-${selectedControl.toLocaleLowerCase()}`}
+                  startIcon={`content-type-${contentType.toLocaleLowerCase()}`}
                 >
-                  {selectedControl}
+                  {selectedContentType}
                 </Styled.Fab>
               </MenuTrigger>
               <MenuContent loop>
@@ -439,7 +456,7 @@ export const QueryResponseTab = (props: Props) => {
                   <Text kind="body-s">View as</Text>
                 </MenuGroupName>
                 <MenuGroup>
-                  {segmentedControlOptions.map(({ label, value }) => (
+                  {contentTypeOptions.map(({ label, value }) => (
                     <MenuItem
                       data-value={value}
                       key={value}
