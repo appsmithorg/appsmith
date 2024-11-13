@@ -41,31 +41,26 @@ public class InstanceAdminControllerCE {
     @PutMapping(
             value = "/env",
             consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<ResponseDTO<Void>> saveEnvChangesJSON(
+    public Mono<ResponseDTO<Map<String, ?>>> saveEnvChangesJSON(
             @Valid @RequestBody Map<String, String> changes, @RequestHeader("Origin") String originHeader) {
         log.debug("Applying env updates {}", changes.keySet());
         return envManager
                 .applyChanges(changes, originHeader)
-                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+                .map(isRestarting ->
+                        new ResponseDTO<>(HttpStatus.OK.value(), Map.of("isRestarting", isRestarting), null));
     }
 
     @JsonView(Views.Public.class)
     @PutMapping(
             value = "/env",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public Mono<ResponseDTO<Void>> saveEnvChangesMultipartFormData(
+    public Mono<ResponseDTO<Map<String, ?>>> saveEnvChangesMultipartFormData(
             @RequestHeader("Origin") String originHeader, ServerWebExchange exchange) {
         log.debug("Applying env updates from form data");
         return exchange.getMultipartData()
                 .flatMap(formData -> envManager.applyChangesFromMultipartFormData(formData, originHeader))
-                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
-    }
-
-    @JsonView(Views.Public.class)
-    @PostMapping("/restart")
-    public Mono<ResponseDTO<Boolean>> restart() {
-        log.debug("Received restart request");
-        return envManager.restart().thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), true, null));
+                .map(isRestarting ->
+                        new ResponseDTO<>(HttpStatus.OK.value(), Map.of("isRestarting", isRestarting), null));
     }
 
     @JsonView(Views.Public.class)

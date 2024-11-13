@@ -73,13 +73,10 @@ export function* FetchAdminSettingsErrorSaga() {
 
 export function* SaveAdminSettingsSaga(
   action: ReduxAction<{
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    settings: Record<string, any>;
-    needsRestart: boolean;
+    settings: Record<string, string>;
   }>,
 ) {
-  const { needsRestart = true, settings } = action.payload;
+  const { settings } = action.payload;
 
   try {
     const hasDisableTelemetrySetting = settings.hasOwnProperty(
@@ -88,7 +85,7 @@ export function* SaveAdminSettingsSaga(
     const hasHideWatermarkSetting = settings.hasOwnProperty(
       "APPSMITH_HIDE_WATERMARK",
     );
-    const response: ApiResponse = yield call(
+    const response: ApiResponse<{ isRestarting: boolean }> = yield call(
       UserApi.saveAdminSettings,
       settings,
     );
@@ -123,7 +120,7 @@ export function* SaveAdminSettingsSaga(
         payload: settings,
       });
 
-      if (needsRestart) {
+      if (response.data.isRestarting) {
         yield put({
           type: ReduxActionTypes.RESTART_SERVER_POLL,
         });
@@ -141,11 +138,10 @@ export function* SaveAdminSettingsSaga(
 }
 
 export function* RestartServerPoll() {
-  yield call(UserApi.restartServer);
-  yield call(RestryRestartServerPoll);
+  yield call(RetryRestartServerPoll);
 }
 
-export function* RestryRestartServerPoll() {
+export function* RetryRestartServerPoll() {
   let pollCount = 0;
   const maxPollCount = RESTART_POLL_TIMEOUT / RESTART_POLL_INTERVAL;
 

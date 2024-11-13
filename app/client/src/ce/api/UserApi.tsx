@@ -234,10 +234,6 @@ export class UserApi extends Api {
     return Api.put(UserApi.adminSettingsURL, request);
   }
 
-  static async restartServer(): Promise<AxiosPromise<ApiResponse>> {
-    return Api.post(UserApi.restartServerURL);
-  }
-
   static async sendTestEmail(
     payload: SendTestEmailPayload,
   ): Promise<AxiosPromise<ApiResponse>> {

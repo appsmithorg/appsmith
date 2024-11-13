@@ -13,11 +13,11 @@ public interface EnvManagerCE {
 
     List<String> transformEnvContent(String envContent, Map<String, String> changes);
 
-    Mono<Void> applyChanges(Map<String, String> changes, String originHeader);
+    Mono<Boolean> applyChanges(Map<String, String> changes, String originHeader);
 
     Mono<Map<String, String>> applyChangesToEnvFileWithoutAclCheck(Map<String, String> changes);
 
-    Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader);
+    Mono<Boolean> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader);
 
     void setAnalyticsEventAction(
             Map<String, Object> properties, String newVariable, String originalVariable, String authEnv);
@@ -33,8 +33,6 @@ public interface EnvManagerCE {
     Mono<Map<String, String>> getAllNonEmpty();
 
     Mono<User> verifyCurrentUserIsSuper();
-
-    Mono<Void> restart();
 
     Mono<Void> restartWithoutAclCheck();
 

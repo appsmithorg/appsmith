@@ -4,7 +4,7 @@ import {
   FetchAdminSettingsErrorSaga,
   SaveAdminSettingsSaga,
   RestartServerPoll,
-  RestryRestartServerPoll,
+  RetryRestartServerPoll,
   SendTestEmail,
 } from "ce/sagas/SuperUserSagas";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
@@ -32,7 +32,7 @@ export function* InitSuperUserSaga() {
       takeLatest(ReduxActionTypes.RESTART_SERVER_POLL, RestartServerPoll),
       takeLatest(
         ReduxActionTypes.RETRY_RESTART_SERVER_POLL,
-        RestryRestartServerPoll,
+        RetryRestartServerPoll,
       ),
       takeLatest(ReduxActionTypes.SEND_TEST_EMAIL, SendTestEmail),
     ]);

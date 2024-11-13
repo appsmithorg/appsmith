@@ -46,6 +46,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
@@ -347,7 +348,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<Void> applyChanges(Map<String, String> changes, String originHeader) {
+    public Mono<Boolean> applyChanges(Map<String, String> changes, String originHeader) {
         // This flow is pertinent for any variables that need to change in the .env file or be saved in the tenant
         // configuration
         return verifyCurrentUserIsSuper()
@@ -427,7 +428,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                                 "true".equals(changesCopy.remove(APPSMITH_DISABLE_TELEMETRY.name())));
                     }
 
-                    return dependentTasks.then();
+                    // Restart if there's any changes in env variables, not just tenant configuration.
+                    final HashSet<String> changedKeys = new HashSet<>(changes.keySet());
+                    changedKeys.removeAll(allowedTenantConfiguration());
+                    boolean isRestarting = !changedKeys.isEmpty();
+                    if (isRestarting) {
+                        dependentTasks = dependentTasks.then(restartWithoutAclCheck());
+                    }
+
+                    return dependentTasks.thenReturn(isRestarting);
                 });
     }
 
@@ -471,7 +480,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     }
 
     @Override
-    public Mono<Void> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader) {
+    public Mono<Boolean> applyChangesFromMultipartFormData(MultiValueMap<String, Part> formData, String originHeader) {
         return Flux.fromIterable(formData.entrySet())
                 .flatMap(entry -> {
                     final String key = entry.getKey();
@@ -723,29 +732,27 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         });
     }
 
-    @Override
-    public Mono<Void> restart() {
-        return verifyCurrentUserIsSuper().flatMap(user -> restartWithoutAclCheck());
-    }
-
     /**
      * This function is used to restart the server using supervisorctl command and should be called internally within
-     * the server as the ACL checks are skipped. For client side calls we should use {@link EnvManagerCEImpl#restart()}
+     * the server as the ACL checks are skipped.
      *
      * @return  Returns a Mono<Void>
      */
     @Override
     public Mono<Void> restartWithoutAclCheck() {
         log.warn("Initiating restart via supervisor.");
-        try {
-            Runtime.getRuntime().exec(new String[] {
-                "supervisorctl", "restart", "backend", "editor", "rts",
-            });
-        } catch (IOException e) {
-            log.error("Error invoking supervisorctl to restart.", e);
-            return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-        }
-        return Mono.empty();
+        return Mono.fromRunnable(() -> {
+                    try {
+                        Runtime.getRuntime().exec(new String[] {
+                            "supervisorctl", "restart", "backend", "editor", "rts",
+                        });
+                    } catch (IOException e) {
+                        log.error("Error invoking supervisorctl to restart.", e);
+                        throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR);
+                    }
+                })
+                .subscribeOn(Schedulers.boundedElastic())
+                .then();
     }
 
     @Override
