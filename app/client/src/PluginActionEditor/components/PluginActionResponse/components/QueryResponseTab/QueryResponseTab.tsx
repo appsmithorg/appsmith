@@ -283,7 +283,7 @@ export const QueryResponseTab = (props: Props) => {
     }
   });
 
-  if (!isRunning) {
+  if (isRunning) {
     return (
       <Styled.LoadingContainer>
         <ActionExecutionInProgressView
