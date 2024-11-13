@@ -99,7 +99,6 @@ export class UserApi extends Api {
   static currentUserURL = "v1/users/me";
   static photoURL = "v1/users/photo";
   static featureFlagsURL = "v1/users/features";
-  static superUserURL = "v1/users/super";
   static adminSettingsURL = "v1/admin/env";
   static restartServerURL = "v1/admin/restart";
   static sendTestEmailURL = "/v1/admin/send-test-email";
@@ -212,12 +211,6 @@ export class UserApi extends Api {
     AxiosPromise<ApiResponse<FeatureFlags>>
   > {
     return Api.get(UserApi.featureFlagsURL);
-  }
-
-  static async createSuperUser(
-    request: CreateSuperUserRequest,
-  ): Promise<AxiosPromise<CreateUserResponse>> {
-    return Api.post(UserApi.superUserURL, request);
   }
 
   /*
