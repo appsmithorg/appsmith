@@ -177,6 +177,7 @@ export default {
           ColumnTypes.SWITCH,
           ColumnTypes.SELECT,
           ColumnTypes.CURRENCY,
+          ColumnTypes.HTML,
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
