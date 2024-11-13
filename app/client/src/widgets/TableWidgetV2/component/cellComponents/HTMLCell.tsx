@@ -84,15 +84,26 @@ export function HTMLCell(props: HTMLCellProps) {
     verticalAlignment,
   } = props;
 
+  const inteweaveCompatibleValue = useMemo(() => {
+    if (value === null || value === undefined) return "";
+
+    return String(value);
+  }, [value]);
+
   const shouldDisableLink = useMemo(() => {
-    const text = value || "";
-    const count: number = countOccurrences(text, "\n", false, 0);
+    const count: number = countOccurrences(
+      inteweaveCompatibleValue,
+      "\n",
+      false,
+      0,
+    );
 
     return (
-      (count === 0 && text.length > MAX_HTML_PARSING_LENGTH) ||
-      text.length > 50000
+      (count === 0 &&
+        inteweaveCompatibleValue.length > MAX_HTML_PARSING_LENGTH) ||
+      inteweaveCompatibleValue.length > 50000
     );
-  }, [value]);
+  }, [inteweaveCompatibleValue]);
 
   return (
     <CellWrapper
@@ -110,7 +121,7 @@ export function HTMLCell(props: HTMLCellProps) {
     >
       <HTMLContent>
         <Interweave
-          content={value}
+          content={inteweaveCompatibleValue}
           filters={[new LinkFilter()]}
           matchers={
             shouldDisableLink
