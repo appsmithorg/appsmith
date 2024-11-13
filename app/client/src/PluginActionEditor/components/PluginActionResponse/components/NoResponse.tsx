@@ -1,12 +1,10 @@
 import NoResponseSVG from "assets/images/no-response.svg";
-import { Classes, Text, TextType } from "@appsmith/ads-old";
-import {
-  EMPTY_RESPONSE_FIRST_HALF,
-  EMPTY_RESPONSE_LAST_HALF,
-} from "ee/constants/messages";
+import { Text, TextType } from "@appsmith/ads-old";
+import { EMPTY_RESPONSE_RUN } from "ee/constants/messages";
 import { Button } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
+import { TAB_BAR_HEIGHT } from "./constants";
 
 const StyledText = styled(Text)`
   &&&& {
@@ -15,25 +13,20 @@ const StyledText = styled(Text)`
 `;
 
 const NoResponseContainer = styled.div`
-  flex: 1;
   width: 100%;
+  height: calc(100% - ${TAB_BAR_HEIGHT}px);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  gap: 24px;
+`;
 
-  .${Classes.ICON} {
-    margin-right: 0;
-
-    svg {
-      width: 150px;
-      height: 150px;
-    }
-  }
-
-  .${Classes.TEXT} {
-    margin-top: ${(props) => props.theme.spaces[9]}px;
-  }
+const RunGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
 `;
 
 interface NoResponseProps {
@@ -49,8 +42,8 @@ export const NoResponse = ({
 }: NoResponseProps) => (
   <NoResponseContainer>
     <img alt="no-response-yet" src={NoResponseSVG} />
-    <div className="flex gap-2 items-center mt-4">
-      <StyledText type={TextType.P1}>{EMPTY_RESPONSE_FIRST_HALF()}</StyledText>
+    <RunGroup>
+      <StyledText type={TextType.P1}>{EMPTY_RESPONSE_RUN()}</StyledText>
       <Button
         isDisabled={isRunDisabled}
         isLoading={isRunning}
@@ -59,7 +52,6 @@ export const NoResponse = ({
       >
         Run
       </Button>
-      <StyledText type={TextType.P1}>{EMPTY_RESPONSE_LAST_HALF()}</StyledText>
-    </div>
+    </RunGroup>
   </NoResponseContainer>
 );
