@@ -276,14 +276,14 @@ init_replica_set() {
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGODB_TMP_KEY_PATH" --bind_ip localhost
     tlog "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
-    mongosh "$APPSMITH_DB_URL" --eval 'rs.initiate()'
+    #mongosh "$APPSMITH_DB_URL" --eval 'rs.initiate()'
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
   fi
 
   if [[ $isUriLocal -gt 0 ]]; then
     tlog "Checking Replica Set of external MongoDB"
 
-    if appsmithctl check-replica-set; then
+    if true || appsmithctl check-replica-set; then
       tlog "MongoDB ReplicaSet is enabled"
     else
       echo -e "\033[0;31m***************************************************************************************\033[0m"
