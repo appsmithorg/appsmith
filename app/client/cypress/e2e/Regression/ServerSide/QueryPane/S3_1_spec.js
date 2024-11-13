@@ -11,6 +11,7 @@ import {
   draggableWidgets,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import { Bottompane } from "../../../../support/Pages/IDE/Bottompane";
 
 let datasourceName;
 
@@ -19,6 +20,7 @@ describe(
   { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let fileName;
+    let bottomPane = new Bottompane();
 
     before(() => {
       agHelper.GenerateUUID();
@@ -189,8 +191,8 @@ describe(
       cy.typeValueNValidate(fileName, formControls.s3ListPrefix);
       dataSources.RunQuery({ toValidateResponse: false });
 
-      agHelper.GetNClick(dataSources._queryResponse("TABLE"));
-      agHelper.GetNClick(dataSources._queryResponse("JSON"));
+      bottomPane.response.switchResponseType("TABLE");
+      bottomPane.response.switchResponseType("JSON");
 
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(true);

@@ -12,6 +12,8 @@ import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
 import { anvilLocators } from "./Anvil/Locators";
 import { PluginActionForm } from "./PluginActionForm";
+import ApiEditor from "../../locators/ApiEditor";
+import { Bottompane } from "./IDE/Bottompane";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -56,6 +58,7 @@ export class DataSources {
   private dataManager = ObjectsRegistry.DataManager;
   private assertHelper = ObjectsRegistry.AssertHelper;
   private pluginActionForm = new PluginActionForm();
+  private bottomPane = new Bottompane();
 
   public ContainerKVP = (containerName: string) => {
     return {
@@ -161,6 +164,7 @@ export class DataSources {
     "//div[@data-testid='t--response-tab-segmented-control']//span[text()='" +
     responseType +
     "']";
+  // TODO: remove this when response UI is ready
   _queryRecordResult = (recordCount: number) =>
     `//div/span[text()='Result:']/span[number(substring-before(normalize-space(text()), ' Record')) >= ${recordCount}]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
@@ -736,7 +740,7 @@ export class DataSources {
           this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
         );
       else if (enterOrSelectUrl == "select") {
-        this.agHelper.GetNClick(this.apiPage._resourceUrl);
+        this.agHelper.GetNClick(ApiEditor.dataSourceField);
         this.agHelper.GetNClick(this._graphQlDsHintOption(dsNameToSelect));
       }
 
@@ -1139,16 +1143,16 @@ export class DataSources {
   ) {
     this.RunQuery();
     tableCheck &&
-      this.agHelper.AssertElementVisibility(this._queryResponse("TABLE"));
-    this.agHelper.AssertElementVisibility(this._queryResponse("JSON"));
-    this.agHelper.AssertElementVisibility(this._queryResponse("RAW"));
-    this.CheckResponseRecordsCount(expectedRecordsCount);
-  }
-
-  public CheckResponseRecordsCount(expectedRecordCount: number) {
+      this.agHelper.AssertElementVisibility(
+        this.bottomPane.response.getResponseTypeSelector("TABLE"),
+      );
     this.agHelper.AssertElementVisibility(
-      this._queryRecordResult(expectedRecordCount),
+      this.bottomPane.response.getResponseTypeSelector("JSON"),
     );
+    this.agHelper.AssertElementVisibility(
+      this.bottomPane.response.getResponseTypeSelector("RAW"),
+    );
+    this.bottomPane.response.validateRecordCount(expectedRecordsCount);
   }
 
   public CreateDataSource(
