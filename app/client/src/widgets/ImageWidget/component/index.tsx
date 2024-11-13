@@ -291,7 +291,7 @@ class ImageComponent extends React.Component<
                 >
                   {/* Used for running onImageError and onImageLoad Functions since Background Image doesn't have the functionality */}
                   <img
-                    alt={this.props.alt}
+                    alt={this.props.alt || this.props.widgetName || "Image"}
                     onError={this.onImageError}
                     onLoad={this.onImageLoad}
                     src={this.props.imageUrl || this.props.defaultImageUrl}
