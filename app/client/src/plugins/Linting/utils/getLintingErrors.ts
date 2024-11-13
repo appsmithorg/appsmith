@@ -25,6 +25,7 @@ import {
   IGNORED_LINT_ERRORS,
   lintOptions,
   SUPPORTED_WEB_APIS,
+  LINTER_TYPE,
 } from "../constants";
 import type { getLintingErrorsProps } from "../types";
 import { JSLibraries } from "workers/common/JSLibrary";
@@ -38,8 +39,22 @@ import { generate } from "astring";
 import getInvalidModuleInputsError from "ee/plugins/Linting/utils/getInvalidModuleInputsError";
 import { objectKeys } from "@appsmith/utils";
 import { profileFn } from "UITelemetry/generateWebWorkerTraces";
+import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
+
+function getLinterType() {
+  let linterType = LINTER_TYPE.JSHINT;
+
+  const flagValues = WorkerEnv.getFeatureFlags();
+
+  if (flagValues?.[FEATURE_FLAG.rollout_eslint_enabled]) {
+    linterType = LINTER_TYPE.ESLINT;
+  }
+
+  return linterType;
+}
 
 function getEvaluationScriptPosition(scriptType: EvaluationScriptType) {
   if (isEmpty(EvaluationScriptPositions)) {
@@ -194,6 +209,7 @@ export default function getLintingErrors({
   scriptType,
   webworkerTelemetry,
 }: getLintingErrorsProps): LintError[] {
+  const linterType = getLinterType();
   const scriptPos = getEvaluationScriptPosition(scriptType);
   const lintingGlobalData = generateLintingGlobalData(data);
   const lintingOptions = lintOptions(lintingGlobalData);
@@ -202,7 +218,7 @@ export default function getLintingErrors({
     "Linter",
     // adding some metrics to compare the performance changes with eslint
     {
-      linter: "JSHint",
+      linter: linterType,
       linesOfCodeLinted: originalBinding.split("\n").length,
       codeSizeInChars: originalBinding.length,
     },

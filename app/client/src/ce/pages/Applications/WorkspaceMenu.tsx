@@ -144,7 +144,7 @@ function WorkspaceMenu({
                 })
               }
             >
-              <Icon name="settings-2-line" size="md" />
+              <Icon name="settings-v3" size="md" />
               Settings
             </CustomMenuItem>
           </>
