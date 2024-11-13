@@ -139,9 +139,16 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
             label: "Alternative text",
             controlType: "INPUT_TEXT",
             placeholderText: "Alternative text",
-            isBindProperty: false,
+            isBindProperty: true,
+            defaultValue: "",
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: { 
+              type: ValidationTypes.TEXT,
+              params: {
+                required: true,
+                maxLength: 125
+              }
+            },
           },
         ],
       },
