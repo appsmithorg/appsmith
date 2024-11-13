@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactJson from "react-json-view";
 import {
@@ -53,7 +53,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 import * as Styled from "./styles";
-import { useBoolean, useEventCallback, useHover } from "usehooks-ts";
+import { useBoolean, useEventCallback } from "usehooks-ts";
 import { RESPONSE_TABLE_HEIGHT_OFFSET } from "./constants";
 
 interface Props {
@@ -78,7 +78,7 @@ interface Props {
 // // * Change segmented control naming
 // // * Update table appearance.
 // // * Table columns have a fixed width of 170px now, this needs to be updated to min-width.
-// * Fix FAB hover issue.
+// // * Fix FAB hover issue.
 // * Fix Cypress tests related to result type control change.
 
 // // ? Query name is a bold Text variant that is of weight 500 in ADS
@@ -99,8 +99,12 @@ export const QueryResponseTab = (props: Props) => {
   const { toggle: toggleContentTypeMenuOpen, value: isContentTypeMenuOpen } =
     useBoolean(false);
 
-  const dataContainerRef = useRef<HTMLDivElement>(null);
-  const isDataContainerHovered = useHover(dataContainerRef);
+  const {
+    setFalse: setIsNotHovered,
+    setTrue: setIsHovered,
+    value: isDataContainerHovered,
+  } = useBoolean(false);
+
   const isContentTypeSelectorVisible =
     isDataContainerHovered || isContentTypeMenuOpen;
 
@@ -196,7 +200,8 @@ export const QueryResponseTab = (props: Props) => {
     firstContentTypeOption?.value,
   );
 
-  const contentType = selectedContentType || firstContentTypeOption?.value;
+  const currentContentType =
+    selectedContentType || firstContentTypeOption?.value;
 
   const responseState =
     actionResponse && getUpdateTimestamp(actionResponse.request);
@@ -387,7 +392,8 @@ export const QueryResponseTab = (props: Props) => {
         selectedTabIndex !== -1 && (
           <Styled.DataContainer
             $height={responseTabHeight}
-            ref={dataContainerRef}
+            onMouseEnter={setIsHovered}
+            onMouseLeave={setIsNotHovered}
           >
             <Styled.StatusBar>
               {/* <SegmentedControl
@@ -412,7 +418,7 @@ export const QueryResponseTab = (props: Props) => {
                     {`${actionName}.run():`}
                   </Styled.StatusBarText>
                   {actionResponse?.isExecutionSuccess ? (
-                    <Styled.StatusBarText kind="code">{`${output.length} record${output.length > 1 && "s"}`}</Styled.StatusBarText>
+                    <Styled.StatusBarText kind="code">{`${output.length} record${output.length > 1 ? "s" : ""}`}</Styled.StatusBarText>
                   ) : (
                     <Styled.StatusBarText $isError kind="code">
                       Error
@@ -430,7 +436,7 @@ export const QueryResponseTab = (props: Props) => {
             <Styled.Response>
               <ResponseFormatTabs
                 data={output}
-                responseType={contentType}
+                responseType={currentContentType}
                 tableBodyHeight={
                   responseTabHeight + RESPONSE_TABLE_HEIGHT_OFFSET
                 }
@@ -446,9 +452,9 @@ export const QueryResponseTab = (props: Props) => {
                       : "arrow-down-s-line"
                   }
                   kind="secondary"
-                  startIcon={`content-type-${contentType.toLocaleLowerCase()}`}
+                  startIcon={`content-type-${currentContentType.toLocaleLowerCase()}`}
                 >
-                  {selectedContentType}
+                  {currentContentType}
                 </Styled.Fab>
               </MenuTrigger>
               <MenuContent loop>
@@ -471,13 +477,6 @@ export const QueryResponseTab = (props: Props) => {
             </Menu>
           </Styled.DataContainer>
         )}
-      {!output && !errorMessage && (
-        <NoResponse
-          isRunDisabled={isRunDisabled}
-          isRunning={isRunning}
-          onRunClick={handleRunClick}
-        />
-      )}
     </Styled.Root>
   );
 };
