@@ -168,7 +168,7 @@ async function executeMongoDumpCMD(destFolder, dbUrl) {
 }
 
 async function executePostgresDumpCMD(destFolder, dbUrl) {
-  return await utils.execCommand(['pg_dump', dbUrl, '-Fc', '-f', destFolder + '/pg-data.archive']);
+  return await utils.execCommand(['pg_dump', dbUrl, '--verbose', '-n', 'appsmith','-Fc', '-f', destFolder + '/pg-data.archive']);
 }
 
 async function createFinalArchive(destFolder, timestamp) {

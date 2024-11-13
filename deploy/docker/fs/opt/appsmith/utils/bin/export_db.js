@@ -1,4 +1,4 @@
-// Init function export mongodb
+// Init function export db
 const shell = require('shelljs');
 const Constants = require('./constants');
 const utils = require('./utils');
@@ -11,7 +11,8 @@ function export_database() {
   if (dbUrl.startsWith('mongodb')) {
     cmd = `mongodump --uri='${dbUrl}' --archive='${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`;
   } else if (dbUrl.startsWith('postgresql')) {
-    cmd = `pg_dump ${dbUrl} -Fc -f '${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}'`;
+    // Dump only the appsmith schema with custom format
+    cmd = `pg_dump ${dbUrl} --verbose -n appsmith -Fc -f '${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}'`;
   } else {
     throw new Error('Unsupported database URL');
   }

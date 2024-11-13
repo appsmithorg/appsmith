@@ -46,7 +46,7 @@ function get_table_or_collection_len() {
   if (utils.getDburl().startsWith('mongodb')) {
     count = shell.exec(`mongo ${utils.getDburl()} --quiet --eval "db.getCollectionNames().length"`)
   } else if (utils.getDburl().startsWith('postgresql')) {
-    count = shell.exec(`psql -U postgres -d ${utils.getDburl()} -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'appsmith';"`)
+    count = shell.exec(`psql -d ${utils.getDburl()} -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'appsmith';"`)
   }
   return parseInt(count.stdout.toString().trimEnd());
 }
