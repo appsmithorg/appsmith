@@ -132,6 +132,11 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         actionExecutionRequest.setExecutionParameters(existing.getExecutionParameters());
         actionExecutionRequest.setProperties(existing.getProperties());
 
+        // for alloy poc
+        if ((datasourceConfiguration.getProperties().size() > 2)
+                && (datasourceConfiguration.getProperties().get(2).getKey().equals("credentialId"))) {
+            isMultipart.set(true);
+        }
         // Apart from multipart, refer to the request that was actually sent
         if (!isMultipart.get()) {
             if (isBodySentWithApiRequest) {

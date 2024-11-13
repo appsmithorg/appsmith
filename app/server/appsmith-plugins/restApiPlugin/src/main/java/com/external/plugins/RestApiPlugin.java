@@ -82,6 +82,10 @@ public class RestApiPlugin extends BasePlugin {
                         ? new ArrayList<>()
                         : datasourceConfiguration.getHeaders();
                 headers.add(bearerTokenHeader);
+                Property contentTypeHeader = new Property();
+                contentTypeHeader.setKey("Content-Type");
+                contentTypeHeader.setValue("application/json");
+                headers.add(contentTypeHeader);
                 datasourceConfiguration.setHeaders(headers);
             }
             log.debug(Thread.currentThread().getName()
