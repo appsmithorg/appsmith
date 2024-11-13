@@ -50,7 +50,7 @@ const JSFileIcon = importSvg(
 );
 const LinkIcon = importSvg(async () => import("assets/icons/menu/link.svg"));
 const JSFunctionIcon = importSvg(
-  async () => import("assets/icons/menu/js-function-v2.svg"),
+  async () => import("assets/icons/menu/js-function.svg"),
 );
 const DataSourcesIconV2 = importSvg(
   async () => import("assets/icons/menu/datasources-2.svg"),

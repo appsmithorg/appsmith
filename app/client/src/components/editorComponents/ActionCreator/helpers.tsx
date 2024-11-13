@@ -608,7 +608,7 @@ export function getJSOptions(
               id: js.id,
               value: jsAction.config.name + "." + js.name,
               type: jsOption.value,
-              icon: <Icon name="js-function-v2" size="md" />,
+              icon: <Icon name="js-function" size="md" />,
               args: argValue,
             };
 
@@ -658,7 +658,7 @@ export function getJSOptions(
               id: js.id,
               value: jsModuleInstance.name + "." + js.name,
               type: jsOption.value,
-              icon: <Icon name="js-function-v2" size="md" />,
+              icon: <Icon name="js-function" size="md" />,
               args: argValue,
             };
 
