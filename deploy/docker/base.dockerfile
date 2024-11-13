@@ -44,10 +44,21 @@ RUN set -o xtrace \
   | tar -xz -C /opt/java --strip-components 1
 
 # Install NodeJS
-RUN set -o xtrace \
-  && mkdir -p /opt/node \
-  && path="$(curl -LsS 'https://nodejs.org/dist/latest-v20.x/' | awk -F\" '$2 ~ /linux-'"$(uname -m | sed 's/x86_64/x64/; s/aarch64/arm64/')"'.tar.gz/ {print $2}')" \
-  && curl "https://nodejs.org$path" | tar -xz -C /opt/node --strip-components 1
+RUN <<END
+  set -eo xtrace
+
+  mkdir -p /opt/node
+  arch="$(uname -m | sed 's/x86_64/x64/; s/aarch64/arm64/')"
+
+  curl -LOsS "https://nodejs.org/dist/latest-v20.x/SHASUMS256.txt"
+  filename="$(awk '/linux-'"$arch"'.tar.gz/ {print $2}' SHASUMS256.txt)"
+
+  curl -LOsS "https://nodejs.org/dist/latest-v20.x/$filename"
+  grep "$filename" SHASUMS256.txt | sha256sum -c -
+  tar -xzf "$filename" -C /opt/node --strip-components 1
+
+  rm "$filename" SHASUMS256.txt
+END
 
 # Install Caddy
 RUN set -o xtrace \
