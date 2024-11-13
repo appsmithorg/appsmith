@@ -4,7 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Audio Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Audio"] },
+  { tags: ["@tag.Widget", "@tag.Audio", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("audioWidgetDsl");

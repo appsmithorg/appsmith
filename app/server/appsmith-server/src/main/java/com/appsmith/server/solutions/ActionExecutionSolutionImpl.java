@@ -4,6 +4,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
+import com.appsmith.server.helpers.ActionExecutionSolutionHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -40,7 +41,8 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
             EnvironmentPermission environmentPermission,
             ConfigService configService,
             TenantService tenantService,
-            CommonConfig commonConfig) {
+            CommonConfig commonConfig,
+            ActionExecutionSolutionHelper actionExecutionSolutionHelper) {
         super(
                 newActionService,
                 actionPermission,
@@ -60,6 +62,7 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                 environmentPermission,
                 configService,
                 tenantService,
-                commonConfig);
+                commonConfig,
+                actionExecutionSolutionHelper);
     }
 }

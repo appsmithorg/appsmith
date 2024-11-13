@@ -26,8 +26,9 @@ export interface PluginActionEditorState {
   isDirty: Record<string, boolean>;
   runErrorMessage: Record<string, string>;
   selectedConfigTab?: string;
-  formData: Record<string, Record<string, { label: string; value: string }>>;
+  formData: Record<string, { label: string; value: string }>;
   debugger: PluginEditorDebuggerState;
+  settingsOpen?: boolean;
 }
 
 const initialState: PluginActionEditorState = {
@@ -42,6 +43,7 @@ const initialState: PluginActionEditorState = {
     open: false,
     responseTabHeight: ActionExecutionResizerHeight,
   },
+  settingsOpen: false,
 };
 
 export const handlers = {
@@ -142,13 +144,12 @@ export const handlers = {
   [ReduxActionTypes.SET_EXTRA_FORMDATA]: (
     state: PluginActionEditorState,
     action: ReduxAction<{
-      id: string;
       values: Record<string, { label: string; value: string }>;
     }>,
   ) => {
-    const { id, values } = action.payload;
+    const { values } = action.payload;
 
-    set(state, ["formData", id], values);
+    set(state, ["formData"], values);
   },
   [ReduxActionTypes.SET_PLUGIN_ACTION_EDITOR_FORM_SELECTED_TAB]: (
     state: PluginActionEditorState,
@@ -169,6 +170,14 @@ export const handlers = {
   },
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: PluginActionEditorState) => {
     state.isSaving = {};
+  },
+  [ReduxActionTypes.OPEN_PLUGIN_ACTION_SETTINGS]: (
+    state: PluginActionEditorState,
+    action: ReduxAction<{ settingsOpen: boolean }>,
+  ) => {
+    const { settingsOpen } = action.payload;
+
+    state.settingsOpen = settingsOpen;
   },
 };
 

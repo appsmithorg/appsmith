@@ -5,7 +5,7 @@ import {
 
 describe(
   "Bug 26126: Fix DS button disability",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     it("ensures save button is correctly updated when DS required fields change", function () {
       dataSources.NavigateToDSCreateNew();

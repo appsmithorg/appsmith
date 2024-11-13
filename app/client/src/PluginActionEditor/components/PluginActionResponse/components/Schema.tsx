@@ -1,21 +1,33 @@
-import { Flex } from "@appsmith/ads";
-import React, { useEffect, useState } from "react";
+import { Button, Flex, Link } from "@appsmith/ads";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   DatasourceStructureContext,
   type DatasourceColumns,
   type DatasourceKeys,
 } from "entities/Datasource";
 import { DatasourceStructureContainer as DatasourceStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
+  getPluginImages,
+  getPluginIdFromDatasourceId,
+  getPluginDatasourceComponentFromId,
 } from "ee/selectors/entitiesSelector";
 import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
 import { find } from "lodash";
 import type { AppState } from "ee/reducers";
 import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
 import { getPluginActionDebuggerState } from "../../../store";
+import {
+  fetchDatasourceStructure,
+  refreshDatasourceStructure,
+} from "actions/datasourceActions";
+import history from "utils/history";
+import { datasourcesEditorIdURL } from "ee/RouteBuilder";
+import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { DatasourceComponentTypes } from "api/PluginApi";
 
 interface Props {
   datasourceId: string;
@@ -24,10 +36,19 @@ interface Props {
 }
 
 const Schema = (props: Props) => {
+  const dispatch = useDispatch();
+
   const datasourceStructure = useSelector((state) =>
     getDatasourceStructureById(state, props.datasourceId),
   );
   const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
+
+  const pluginId = useSelector((state) =>
+    getPluginIdFromDatasourceId(state, props.datasourceId),
+  );
+  const pluginImages = useSelector((state) => getPluginImages(state));
+  const datasourceIcon = pluginId ? pluginImages[pluginId] : undefined;
+
   const [selectedTable, setSelectedTable] = useState<string>();
 
   const selectedTableItems = find(datasourceStructure?.tables, [
@@ -49,14 +70,48 @@ const Schema = (props: Props) => {
     getIsFetchingDatasourceStructure(state, props.datasourceId),
   );
 
+  const pluginDatasourceForm = useSelector((state) =>
+    getPluginDatasourceComponentFromId(state, pluginId || ""),
+  );
+
   useEffect(() => {
     setSelectedTable(undefined);
   }, [props.datasourceId]);
+
+  useEffect(() => {
+    if (
+      props.datasourceId &&
+      datasourceStructure === undefined &&
+      pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm
+    ) {
+      dispatch(
+        fetchDatasourceStructure(
+          props.datasourceId,
+          true,
+          DatasourceStructureContext.QUERY_EDITOR,
+        ),
+      );
+    }
+  }, [props.datasourceId, datasourceStructure, dispatch, pluginDatasourceForm]);
+
   useEffect(() => {
     if (!selectedTable && datasourceStructure?.tables?.length && !isLoading) {
       setSelectedTable(datasourceStructure.tables[0].name);
     }
   }, [selectedTable, props.datasourceId, isLoading, datasourceStructure]);
+
+  const refreshStructure = useCallback(() => {
+    dispatch(
+      refreshDatasourceStructure(
+        props.datasourceId,
+        DatasourceStructureContext.QUERY_EDITOR,
+      ),
+    );
+  }, [dispatch, props.datasourceId]);
+
+  const goToDatasource = useCallback(() => {
+    history.push(datasourcesEditorIdURL({ datasourceId: props.datasourceId }));
+  }, [props.datasourceId]);
 
   if (!datasourceStructure) {
     return (
@@ -73,23 +128,50 @@ const Schema = (props: Props) => {
   return (
     <Flex
       flexDirection="row"
-      gap="spaces-2"
+      gap="spaces-3"
       height={`${responseTabHeight - 45}px`}
       maxWidth="70rem"
       overflow="hidden"
     >
       <Flex
-        data-testId="datasource-schema-container"
+        data-testid="datasource-schema-container"
         flex="1"
         flexDirection="column"
+        gap="spaces-3"
         overflow="hidden"
-        px="spaces-3"
+        padding="spaces-3"
+        paddingRight="spaces-0"
       >
+        <Flex
+          alignItems={"center"}
+          gap="spaces-2"
+          justifyContent={"space-between"}
+        >
+          <Link onClick={goToDatasource}>
+            <Flex
+              alignItems={"center"}
+              gap="spaces-1"
+              justifyContent={"center"}
+            >
+              <EntityIcon height={`16px`} width={`16px`}>
+                <img alt="entityIcon" src={getAssetUrl(datasourceIcon)} />
+              </EntityIcon>
+              {props.datasourceName}
+            </Flex>
+          </Link>
+          <Button
+            className="datasourceStructure-refresh"
+            isIconButton
+            kind="tertiary"
+            onClick={refreshStructure}
+            size="sm"
+            startIcon="refresh"
+          />
+        </Flex>
         <DatasourceStructureList
           context={DatasourceStructureContext.QUERY_EDITOR}
           datasourceStructure={datasourceStructure}
           onEntityTableClick={setSelectedTable}
-          showRefresh
           step={0}
           tableName={selectedTable}
           {...props}

@@ -17,7 +17,7 @@ let datasourceName;
 
 describe(
   "Entity explorer tests related to query and datasource",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     before(() => {
       cy.generateUUID().then((uid) => {

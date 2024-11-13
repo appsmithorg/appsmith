@@ -23,7 +23,9 @@ let appName = "gsheet-app";
 let spreadSheetName = "test-sheet-automation-selected";
 describe(
   "GSheet-widget binding for selected sheet access",
-  { tags: ["@tag.Datasource", "@tag.GSheet"] },
+  {
+    tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     before("Setup app and spreadsheet", function () {
       //Setting up the app name

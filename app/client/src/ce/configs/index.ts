@@ -13,6 +13,10 @@ export interface INJECTED_CONFIGS {
     apiKey: string;
     ceKey: string;
   };
+  observability: {
+    deploymentName: string;
+    serviceInstanceId: string;
+  };
   newRelic: {
     enableNewRelic: boolean;
     accountId: string;
@@ -20,7 +24,6 @@ export interface INJECTED_CONFIGS {
     browserAgentlicenseKey: string;
     browserAgentEndpoint: string;
     otlpLicenseKey: string;
-    otlpServiceName: string;
     otlpEndpoint: string;
   };
   fusioncharts: {
@@ -92,6 +95,10 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       indexName: process.env.REACT_APP_ALGOLIA_SEARCH_INDEX_NAME || "",
       snippetIndex: process.env.REACT_APP_ALGOLIA_SNIPPET_INDEX_NAME || "",
     },
+    observability: {
+      deploymentName: process.env.APPSMITH_DEPLOYMENT_NAME || "self-hosted",
+      serviceInstanceId: process.env.HOSTNAME || "appsmith-0",
+    },
     newRelic: {
       enableNewRelic: !!process.env.APPSMITH_NEW_RELIC_ACCOUNT_ENABLE,
       accountId: process.env.APPSMITH_NEW_RELIC_ACCOUNT_ID || "",
@@ -102,8 +109,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
         process.env.APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT || "",
       otlpLicenseKey: process.env.APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY || "",
       otlpEndpoint: process.env.APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME || "",
-      otlpServiceName:
-        process.env.APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT || "",
     },
     logLevel:
       (process.env.REACT_APP_CLIENT_LOG_LEVEL as
@@ -171,6 +176,14 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     ENV_CONFIG.mixpanel.apiKey,
     APPSMITH_FEATURE_CONFIGS?.mixpanel.apiKey,
   );
+  const observabilityDeploymentName = getConfig(
+    ENV_CONFIG.observability.deploymentName,
+    APPSMITH_FEATURE_CONFIGS?.observability.deploymentName,
+  );
+  const observabilityServiceInstanceId = getConfig(
+    ENV_CONFIG.observability.serviceInstanceId,
+    APPSMITH_FEATURE_CONFIGS?.observability.serviceInstanceId,
+  );
   const newRelicAccountId = getConfig(
     ENV_CONFIG.newRelic.accountId,
     APPSMITH_FEATURE_CONFIGS?.newRelic.accountId,
@@ -190,11 +203,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const newRelicOtlpLicenseKey = getConfig(
     ENV_CONFIG.newRelic.otlpLicenseKey,
     APPSMITH_FEATURE_CONFIGS?.newRelic.otlpLicenseKey,
-  );
-
-  const newRelicOtlpServiceName = getConfig(
-    ENV_CONFIG.newRelic.otlpServiceName,
-    APPSMITH_FEATURE_CONFIGS?.newRelic.otlpServiceName,
   );
   const newRelicOtlpEndpoint = getConfig(
     ENV_CONFIG.newRelic.otlpEndpoint,
@@ -271,7 +279,11 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       browserAgentEndpoint: newRelicBrowserAgentEndpoint.value,
       otlpLicenseKey: newRelicOtlpLicenseKey.value,
       otlpEndpoint: newRelicOtlpEndpoint.value,
-      otlpServiceName: newRelicOtlpServiceName.value,
+    },
+    observability: {
+      deploymentName: observabilityDeploymentName.value,
+      serviceInstanceId: observabilityServiceInstanceId.value,
+      serviceName: "appsmith-client",
     },
     fusioncharts: {
       enabled: fusioncharts.enabled,

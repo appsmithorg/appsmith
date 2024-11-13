@@ -9,7 +9,7 @@ import {
   dataManager,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Peek overlay", { tags: ["@tag.JS"] }, () => {
+describe("Peek overlay", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
   it("1. Main test", () => {
     entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 500, 100);
     table.AddSampleTableData();

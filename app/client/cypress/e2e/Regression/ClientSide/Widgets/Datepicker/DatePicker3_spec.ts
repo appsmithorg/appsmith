@@ -8,7 +8,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-import { format } from "date-fns";
+import { format } from "date-fns/format.cjs";
 import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 import EditorNavigation, {
   EntityType,
@@ -16,7 +16,7 @@ import EditorNavigation, {
 
 describe(
   "Date picker widget testcases",
-  { tags: ["@tag.Widget", "@tag.Datepicker"] },
+  { tags: ["@tag.Widget", "@tag.Datepicker", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.DATEPICKER);

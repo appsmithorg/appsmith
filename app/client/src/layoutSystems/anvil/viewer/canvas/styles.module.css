@@ -1,4 +1,5 @@
 .anvil-canvas {
+  position: relative;
   container-type: inline-size;
   width: 100%;
   height: 100%;

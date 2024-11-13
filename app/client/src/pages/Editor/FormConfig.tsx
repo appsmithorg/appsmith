@@ -41,6 +41,8 @@ const LabelWrapper = styled.div`
   .label-icon-wrapper {
     &.help {
       cursor: help;
+      text-decoration: underline dashed var(--ads-v2-color-border) from-font;
+      text-underline-position: under;
     }
   }
 `;
@@ -202,16 +204,14 @@ function renderFormConfigTop(props: {
   return (
     <div className="form-config-top" key={props.config.label}>
       {!nestedFormControl && // if the form control is a nested form control hide its label
-        (label?.length > 0 ||
-          encrypted ||
-          tooltipText ||
-          shouldRenderSubtitle) && (
+        (label?.length > 0 || encrypted || shouldRenderSubtitle) && (
           <>
             <FlexWrapper>
               <FormLabel
+                className="form-label"
                 config={props.config}
                 extraStyles={{
-                  marginBottom: shouldRenderSubtitle && "0px",
+                  marginBottom: (shouldRenderSubtitle || !subtitle) && "0px",
                   minWidth: !!props.changesViewType && "unset",
                 }}
               >

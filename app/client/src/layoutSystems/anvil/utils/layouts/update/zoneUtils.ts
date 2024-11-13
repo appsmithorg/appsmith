@@ -58,7 +58,7 @@ export function* createZoneAndAddWidgets(
       updatedWidgets,
       draggedWidgets,
       highlight,
-      zoneProps,
+      zoneProps.widgetId,
     );
 
   return res;
@@ -68,13 +68,11 @@ export function* addWidgetsToZone(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
   highlight: AnvilHighlightInfo,
-  zone: WidgetProps,
+  zoneWidgetId: string,
 ) {
   let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
-  const zoneProps = { ...zone };
-  const preset: LayoutProps[] = zoneProps.layout;
+  const preset: LayoutProps[] = updatedWidgets[zoneWidgetId].layout;
   let zoneLayout: LayoutProps = preset[0];
-  const { widgetId: zoneWidgetId } = zoneProps;
 
   /**
    * If dragged widget is a new widget,
@@ -86,7 +84,6 @@ export function* addWidgetsToZone(
     zoneWidgetId,
     draggedWidgets,
   );
-  zoneProps.children = updatedWidgets[zoneWidgetId].children;
 
   /**
    * Split new widgets based on type.
@@ -127,14 +124,11 @@ export function* addWidgetsToZone(
   /**
    * Update zone widget with the updated preset.
    */
-  zoneProps.layout = [zoneLayout];
+  updatedWidgets[zoneWidgetId].layout = [zoneLayout];
 
   return {
-    canvasWidgets: {
-      ...updatedWidgets,
-      [zoneProps.widgetId]: zoneProps,
-    },
-    zone: zoneProps,
+    canvasWidgets: updatedWidgets,
+    zone: updatedWidgets[zoneWidgetId],
   };
 }
 
@@ -219,7 +213,7 @@ function* moveWidgetsToNewLayout(
     widgets,
     transformMovedWidgets(widgets, movedWidgets, highlight),
     highlight,
-    zone,
+    zone.widgetId,
   );
 
   return canvasWidgets;

@@ -2,7 +2,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Tabs widget on change of selection navigation usecases",
-  { tags: ["@tag.Widget", "@tag.Tab"] },
+  { tags: ["@tag.Widget", "@tag.Tab", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tabsWidgetReset");

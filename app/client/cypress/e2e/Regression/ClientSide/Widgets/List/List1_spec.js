@@ -3,7 +3,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Binding the list widget with text widget",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   function () {
     //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     it("1. Validate delete widget action from side bar", function () {

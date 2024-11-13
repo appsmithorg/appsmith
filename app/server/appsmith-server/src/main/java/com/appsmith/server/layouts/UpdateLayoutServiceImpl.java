@@ -1,6 +1,7 @@
 package com.appsmith.server.layouts;
 
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.onload.internal.OnLoadExecutablesUtil;
 import com.appsmith.server.services.AnalyticsService;
@@ -21,7 +22,8 @@ public class UpdateLayoutServiceImpl extends UpdateLayoutServiceCEImpl implement
             PagePermission pagePermission,
             ApplicationService applicationService,
             ObjectMapper objectMapper,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            ObservationHelperImpl observationHelper) {
         super(
                 onLoadExecutablesUtil,
                 sessionUserService,
@@ -30,6 +32,7 @@ public class UpdateLayoutServiceImpl extends UpdateLayoutServiceCEImpl implement
                 pagePermission,
                 applicationService,
                 objectMapper,
-                observationRegistry);
+                observationRegistry,
+                observationHelper);
     }
 }

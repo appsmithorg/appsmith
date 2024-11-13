@@ -7,7 +7,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "Datasource structure schema preview data",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     before(() => {
       dataSources.CreateDataSource("Postgres");

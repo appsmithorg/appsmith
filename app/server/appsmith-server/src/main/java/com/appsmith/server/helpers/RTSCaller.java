@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,12 +25,18 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @Component
 public class RTSCaller {
 
+    private final ObservationRegistry observationRegistry;
+
     private WebClient webClient;
 
     @Value("${appsmith.rts.port:}")
     private String rtsPort;
 
     private static final int MAX_IN_MEMORY_SIZE_IN_BYTES = 16 * 1024 * 1024;
+
+    public RTSCaller(ObservationRegistry observationRegistry) {
+        this.observationRegistry = observationRegistry;
+    }
 
     @PostConstruct
     private void makeWebClient() {
@@ -53,6 +60,7 @@ public class RTSCaller {
                         .build())
                 .clientConnector(new ReactorClientHttpConnector(HttpClient.create(connectionProvider)))
                 .baseUrl("http://127.0.0.1:" + rtsPort)
+                .observationRegistry(observationRegistry)
                 .build();
     }
 

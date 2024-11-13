@@ -13,7 +13,7 @@ export interface TextProps {
   /** Color of the text
    * @default inherit
    */
-  color?: keyof typeof COLORS;
+  color?: keyof typeof COLORS | "neutral-subtle";
   /** Sets the weight (or boldness) of the font
    * @default false
    */

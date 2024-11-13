@@ -15,7 +15,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 
 describe(
   "Table widget inline editing functionality",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

@@ -10,7 +10,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe(
   "Basic flow ",
-  { tags: ["@tag.Widget", "@tag.Table", "@tag.Sanity"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Sanity", "@tag.Binding"] },
   () => {
     before(() => {
       agHelper.RestoreLocalStorageCache();

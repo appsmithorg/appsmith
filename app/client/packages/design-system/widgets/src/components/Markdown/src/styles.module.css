@@ -1,12 +1,6 @@
 .markdown {
   color: var(--color-fg);
 
-  &::after,
-  &::before {
-    /* This is required to remove the compensators of capsizing that comes up due to use of `wds-body-text` class */
-    content: none !important;
-  }
-
   table {
     border: var(--border-width-1) solid var(--color-bd);
     border-collapse: separate;
@@ -74,34 +68,41 @@
     margin-bottom: var(--inner-spacing-1);
   }
 
-  [data-component="p"] {
-    margin-bottom: var(--inner-spacing-3);
-  }
-
   /* Lists */
   :is(ul, ol) {
     margin-top: var(--inner-spacing-2);
-    margin-bottom: var(--inner-spacing-4);
+    margin-bottom: var(--inner-spacing-3);
     padding-left: 0;
+    list-style: initial;
   }
 
   li {
     margin-bottom: var(--inner-spacing-2);
     margin-left: 1em;
     position: relative;
+    list-style-type: auto;
   }
 
-  [data-component="a"]:before,
-  [data-component="a"]:after {
-    content: none;
+  a {
+    display: inline-block;
   }
 
   [data-component="code"] {
     background-color: var(--color-bg-elevation-2);
     border-radius: var(--border-radius-elevation-3);
     outline: var(--border-width-1) solid var(--color-bg-neutral-subtle);
-    margin-bottom: var(--spacing-2);
+    margin-bottom: var(--inner-spacing-2);
     overflow: auto;
+  }
+
+  code:not([class*="language-"]) {
+    padding-inline: var(--inner-spacing-1);
+    background: var(--color-bg-neutral-subtle);
+    color: var(--color-fg-negative);
+    border-radius: var(--border-radius-elevation-3);
+    word-break: break-word;
+    white-space: normal;
+    outline: var(--border-width-1) solid var(--color-bg-neutral-soft);
   }
 
   pre {

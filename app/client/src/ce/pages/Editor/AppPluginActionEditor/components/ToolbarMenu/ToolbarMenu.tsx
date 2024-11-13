@@ -1,4 +1,5 @@
 import React from "react";
+import { MenuSeparator } from "@appsmith/ads";
 import {
   getHasDeleteActionPermission,
   getHasManageActionPermission,
@@ -13,7 +14,7 @@ import { ConvertToModuleCTA } from "../ConvertToModule";
 import { Move } from "./Move";
 import { Copy } from "./Copy";
 import { Delete } from "./Delete";
-import { MenuSeparator } from "@appsmith/ads";
+import { RenameMenuItem } from "IDE";
 
 export const ToolbarMenu = () => {
   const { action } = usePluginActionContext();
@@ -25,21 +26,18 @@ export const ToolbarMenu = () => {
   );
   const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
-    action?.userPermissions,
+    action.userPermissions,
   );
 
   return (
     <>
+      <RenameMenuItem disabled={!isChangePermitted} entityId={action.id} />
       <ConvertToModuleCTA />
-      {isChangePermitted && (
-        <>
-          <Copy />
-          <Move />
-        </>
-      )}
+      <Copy disabled={!isChangePermitted} />
+      <Move disabled={!isChangePermitted} />
       <Docs />
       <MenuSeparator />
-      {isDeletePermitted && <Delete />}
+      <Delete disabled={!isDeletePermitted} />
     </>
   );
 };

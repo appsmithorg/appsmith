@@ -20,6 +20,11 @@ export interface AppsmithUIConfigs {
     enabled: boolean;
     id: string;
   };
+  observability: {
+    deploymentName: string;
+    serviceInstanceId: string;
+    serviceName: string;
+  };
   newRelic: {
     enableNewRelic: boolean;
     accountId: string;
@@ -27,7 +32,6 @@ export interface AppsmithUIConfigs {
     browserAgentlicenseKey: string;
     browserAgentEndpoint: string;
     otlpLicenseKey: string;
-    otlpServiceName: string;
     otlpEndpoint: string;
   };
   segment: {

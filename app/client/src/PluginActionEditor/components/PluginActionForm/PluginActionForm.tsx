@@ -12,17 +12,17 @@ const PluginActionForm = () => {
   const { plugin } = usePluginActionContext();
 
   return (
-    <Flex flex="1" overflow="hidden" p="spaces-2" w="100%">
+    <Flex flex="1" overflow="hidden" p="spaces-4" w="100%">
       {plugin.uiComponent === UIComponentTypes.ApiEditorForm && (
         <APIEditorForm />
       )}
       {plugin.uiComponent === UIComponentTypes.GraphQLEditorForm && (
         <GraphQLEditorForm />
       )}
-      {plugin.uiComponent === UIComponentTypes.DbEditorForm ||
-        (plugin.uiComponent === UIComponentTypes.UQIDbEditorForm && (
-          <UQIEditorForm />
-        ))}
+      {(plugin.uiComponent === UIComponentTypes.DbEditorForm ||
+        plugin.uiComponent === UIComponentTypes.UQIDbEditorForm) && (
+        <UQIEditorForm />
+      )}
     </Flex>
   );
 };

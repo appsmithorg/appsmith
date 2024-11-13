@@ -23,7 +23,6 @@ import {
   getHasManageActionPermission,
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { ApiEditorContext } from "./ApiEditorContext";
-import ActionRightPane from "components/editorComponents/ActionRightPane";
 import RunHistory from "ee/components/RunHistory";
 import { HintMessages } from "PluginActionEditor/components/PluginActionForm/components/CommonEditorForm/HintMessages";
 import { InfoFields } from "PluginActionEditor/components/PluginActionForm/components/CommonEditorForm/InfoFields";
@@ -102,6 +101,7 @@ const TabbedViewContainer = styled.div`
   overflow: auto;
   position: relative;
   height: 100%;
+  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 const Wrapper = styled.div`
@@ -347,9 +347,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               <RunHistory />
             </SecondaryWrapper>
           </div>
-          <ActionRightPane
-            additionalSections={actionRightPaneAdditionSections}
-          />
+          {actionRightPaneAdditionSections}
         </Wrapper>
       </Form>
     </MainContainer>

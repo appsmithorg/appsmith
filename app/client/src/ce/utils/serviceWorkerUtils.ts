@@ -9,11 +9,12 @@ import {
   VIEWER_CUSTOM_PATH,
   BUILDER_PATH_DEPRECATED,
   VIEWER_PATH_DEPRECATED,
-} from "ee/constants/routes/appRoutes";
+} from "../constants/routes/appRoutes";
 
 interface TMatchResult {
   basePageId?: string;
   baseApplicationId?: string;
+  applicationSlug?: string;
 }
 
 export interface TApplicationParams {
@@ -22,6 +23,7 @@ export interface TApplicationParams {
   baseApplicationId?: string;
   branchName: string;
   appMode: APP_MODE;
+  applicationSlug?: string;
 }
 
 type TApplicationParamsOrNull = TApplicationParams | null;
@@ -57,33 +59,36 @@ export const getSearchQuery = (search = "", key: string) => {
 };
 
 export const getApplicationParamsFromUrl = (
-  url: URL,
+  urlParams: Pick<URL, "origin" | "pathname" | "search">,
 ): TApplicationParamsOrNull => {
+  const { origin, pathname, search } = urlParams;
   // Get the branch name from the query string
-  const branchName = getSearchQuery(url.search, "branch");
+  const branchName = getSearchQuery(search, "branch");
 
-  const matchedBuilder: Match<TMatchResult> = matchBuilderPath(url.pathname, {
+  const matchedBuilder: Match<TMatchResult> = matchBuilderPath(pathname, {
     end: false,
   });
-  const matchedViewer: Match<TMatchResult> = matchViewerPath(url.pathname);
+  const matchedViewer: Match<TMatchResult> = matchViewerPath(pathname);
 
   if (matchedBuilder) {
     return {
-      origin: url.origin,
+      origin,
       basePageId: matchedBuilder.params.basePageId,
       baseApplicationId: matchedBuilder.params.baseApplicationId,
       branchName,
       appMode: APP_MODE.EDIT,
+      applicationSlug: matchedBuilder.params.applicationSlug,
     };
   }
 
   if (matchedViewer) {
     return {
-      origin: url.origin,
+      origin,
       basePageId: matchedViewer.params.basePageId,
       baseApplicationId: matchedViewer.params.baseApplicationId,
       branchName,
       appMode: APP_MODE.PUBLISHED,
+      applicationSlug: matchedViewer.params.applicationSlug,
     };
   }
 

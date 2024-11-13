@@ -12,6 +12,10 @@
     grid-template-columns: 1fr;
   }
 
+  & > div:empty {
+    display: none;
+  }
+
   /*
    This section can be removed once the condition abouve each is resolved
   */
@@ -47,35 +51,7 @@
       }
     }
   }
-  /* PaginationControl hardcoded width is removed */
-  & :global(.t--form-control-PAGINATION) {
-    & > div {
-      grid-gap: 1rem !important;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
 
-      & > div {
-        width: unset !important;
-        margin-right: 0 !important;
-      }
-    }
-  }
-  /* SortingControl hardcoded width is removed */
-  & :global(.t--form-control-SORTING) {
-    & :global(.sorting-dropdown-container) {
-      width: unset;
-
-      & > div {
-        width: 100%;
-        flex: 1;
-      }
-    }
-  }
-  /* WhereClauseControl hardcoded width is removed */
-  & :global(.t--form-control-WHERE_CLAUSE) {
-    & > div {
-      padding-right: 0 !important;
-    }
-  }
   /* DynamicInputTextControl min height and width removed */
   & :global(.uqi-dynamic-input-text) {
     width: unset !important;
