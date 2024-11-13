@@ -181,7 +181,10 @@ function execCommandSilent(cmd, options) {
   return new Promise((resolve, reject) => {
     let isPromiseDone = false;
 
-    const p = childProcess.spawn(cmd[0], cmd.slice(1), options);
+    const p = childProcess.spawn(cmd[0], cmd.slice(1), {
+      ...options,
+      stdio: "ignore",
+    });
 
     p.on("close", (code) => {
       if (isPromiseDone) {
