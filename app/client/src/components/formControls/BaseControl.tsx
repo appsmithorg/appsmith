@@ -108,6 +108,7 @@ export interface ControlData {
   validator?: (value: string) => { isValid: boolean; message: string };
   isSecretExistsPath?: string;
   addMoreButtonLabel?: string;
+  datasourceId?: string;
 }
 export type FormConfigType = Omit<ControlData, "configProperty"> & {
   configProperty?: string;

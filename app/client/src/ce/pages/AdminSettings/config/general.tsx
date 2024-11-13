@@ -181,7 +181,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
 };
 
 export const config: AdminConfigType = {
-  icon: "settings-2-line",
+  icon: "settings-v3",
   type: SettingCategories.GENERAL,
   categoryType: CategoryType.GENERAL,
   controlType: SettingTypes.GROUP,
