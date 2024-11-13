@@ -1,6 +1,5 @@
 package com.external.plugins;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
@@ -53,7 +52,7 @@ public class SmtpPluginTest {
                     + password + " -s 25");
 
     @Container
-    public static final GenericContainer<?> smtpWithoutAuth = new GenericContainer<>(DockerImageName.parse("maildev/maildev"))
+    public static final GenericContainer smtpWithoutAuth = new GenericContainer(DockerImageName.parse("maildev/maildev"))
         .withExposedPorts(1025)
         .withCommand("bin/maildev --base-pathname /maildev --smtp-port 1025 --incoming-user '' --incoming-pass ''");
 
@@ -61,8 +60,13 @@ public class SmtpPluginTest {
 
     @BeforeAll
     public static void setup() {
-        host = smtp.getContainerIpAddress();
-        port = Long.valueOf(smtp.getFirstMappedPort());
+        //Initialize SMTP connection with default configuration (can be changed per test)
+        configureSmtpConnection(smtp); //Default
+    }
+
+    private static void configureSmtpConnection(GenericContainer container) {
+        host = container.getContainerIpAddress();
+        port = Long.valueOf(container.getFirstMappedPort());
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -128,39 +132,21 @@ public class SmtpPluginTest {
     }
 
     @Test
-    public void testNullAuthentication() {
-        DatasourceConfiguration noAuthDatasourceConfiguration = createDatasourceConfiguration();
-        noAuthDatasourceConfiguration.setAuthentication(null);
-
-        assertEquals(0, pluginExecutor.validateDatasource(noAuthDatasourceConfiguration).size());
-    }
-
-    @Test
     public void testConnectionWithoutAuth() {
+        configureSmtpConnection(smtpWithoutAuth);
+        DatasourceConfiguration noAuthDatasourceConfiguration = createDatasourceConfiguration();
+        noAuthDatasourceConfiguration.setAuthentication(null); // No authentication
 
-        String smtpHost = "localhost";
-        int smtpPort = smtpWithoutAuth.getMappedPort(1025);
+        Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(noAuthDatasourceConfiguration);
 
-        Properties properties = new Properties();
-        properties.put("mail.transport.protocol", "smtp");
-        properties.put("mail.smtp.host", smtpHost);
-        properties.put("mail.smtp.port", String.valueOf(smtpPort));
-        // No authentication
-        properties.put("mail.smtp.auth", "false");
-        properties.put("mail.smtp.starttls.enable", "false");
-
-
-        try {
-            Session session = Session.getInstance(properties);
-            Transport transport = session.getTransport();
-            transport.connect();
-            assertTrue(true, "Successfully connected to MailDev SMTP server without authentication.");
-
-            transport.close();
-        } catch (MessagingException e) {
-            fail("Failed to connect to MailDev SMTP server: " + e.getMessage());
-        }
-
+        StepVerifier.create(testDatasourceMono)
+            .assertNext(datasourceTestResult -> {
+                assertNotNull(datasourceTestResult);
+                assertTrue(datasourceTestResult.isSuccess());
+                assertTrue(datasourceTestResult.getInvalids().isEmpty());
+            })
+            .verifyComplete();
+        configureSmtpConnection(smtp);
     }
 
     @Test
