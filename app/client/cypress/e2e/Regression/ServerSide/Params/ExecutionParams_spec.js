@@ -9,14 +9,12 @@ import {
   deployMode,
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
-import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
 
 describe(
   "API Panel Test Functionality",
   { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let datasourceName;
-    let pluginActionForm = new PluginActionForm();
 
     before(() => {
       agHelper.AddDsl("executionParamsDsl");
@@ -38,9 +36,7 @@ describe(
       dataSources.CreateQueryAfterDSSaved(
         "select * from {{ this.params.tableName || 'users' }} limit 10",
       );
-      pluginActionForm.toolbar.toggleSettings();
       dataSources.ToggleUsePreparedStatement(false);
-      pluginActionForm.toolbar.toggleSettings();
       cy.runQuery();
     });
 

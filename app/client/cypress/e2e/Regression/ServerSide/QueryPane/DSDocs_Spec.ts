@@ -35,6 +35,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-mongodb#create-queries",
@@ -48,6 +49,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-mysql#create-queries",
@@ -61,6 +63,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-arango-db#using-queries-in-applications",
@@ -74,6 +77,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-amazon-s3#list-files",
@@ -87,6 +91,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "connect-data/reference/using-smtp",
@@ -103,6 +108,7 @@ describe(
         cy.get("@dsName").then(($dsName) => {
           dsName = $dsName;
           dataSources.CreateQueryAfterDSSaved();
+          pluginActionForm.toolbar.openContextMenu();
           deployMode.StubWindowNAssert(
             dataSources._queryDoc,
             "airtable#create-queries",
@@ -122,6 +128,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-oracle#create-queries",
@@ -140,6 +147,7 @@ describe(
       cy.get("@dsName").then(($dsName) => {
         dsName = $dsName;
         dataSources.CreateQueryAfterDSSaved();
+        pluginActionForm.toolbar.openContextMenu();
         deployMode.StubWindowNAssert(
           dataSources._queryDoc,
           "querying-firestore#understanding-commands",

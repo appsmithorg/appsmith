@@ -46,6 +46,8 @@ describe(
 
         EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
 
+        bottomPane.response.switchToResponseTab();
+
         agHelper.AssertElementVisibility(
           bottomPane.response.getResponseTypeSelector("TABLE"),
         );
