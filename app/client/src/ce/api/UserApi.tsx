@@ -4,11 +4,6 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type { ProductAlert } from "../../reducers/uiReducers/usersReducer";
 
-export interface LoginUserRequest {
-  email: string;
-  password: string;
-}
-
 export interface CreateUserRequest {
   email: string;
   password: string;
@@ -32,14 +27,6 @@ export interface TokenPasswordUpdateRequest {
 export interface VerifyTokenRequest {
   email: string;
   token: string;
-}
-
-export type FetchUserResponse = ApiResponse & {
-  id: string;
-};
-
-export interface FetchUserRequest {
-  id: string;
 }
 
 export interface LeaveWorkspaceRequest {
@@ -93,7 +80,6 @@ export class UserApi extends Api {
   static inviteUserURL = "v1/users/invite";
   static verifyInviteTokenURL = `${UserApi.inviteUserURL}/verify`;
   static confirmUserInviteURL = `${UserApi.inviteUserURL}/confirm`;
-  static addWorkspaceURL = `${UserApi.usersURL}/addWorkspace`;
   static leaveWorkspaceURL = `${UserApi.usersURL}/leaveWorkspace`;
   static logoutURL = "v1/logout";
   static currentUserURL = "v1/users/me";
@@ -101,7 +87,6 @@ export class UserApi extends Api {
   static featureFlagsURL = "v1/users/features";
   static superUserURL = "v1/users/super";
   static adminSettingsURL = "v1/admin/env";
-  static restartServerURL = "v1/admin/restart";
   static sendTestEmailURL = "/v1/admin/send-test-email";
 
   static async createUser(
@@ -114,12 +99,6 @@ export class UserApi extends Api {
     request: UpdateUserRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(UserApi.usersURL, request);
-  }
-
-  static async fetchUser(
-    request: FetchUserRequest,
-  ): Promise<AxiosPromise<FetchUserResponse>> {
-    return Api.get(UserApi.usersURL + "/" + request.id);
   }
 
   static async getCurrentUser(): Promise<AxiosPromise<ApiResponse>> {
@@ -250,5 +229,3 @@ export class UserApi extends Api {
     return Api.post(UserApi.resendEmailVerificationURL, { email });
   }
 }
-
-export default UserApi;
