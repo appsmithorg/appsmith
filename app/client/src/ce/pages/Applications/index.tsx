@@ -318,6 +318,7 @@ export function LeftPaneSection(props: {
             <Button
               data-testid="t--workspace-new-workspace-auto-create"
               isDisabled={props.isFetchingWorkspaces}
+              isIconButton
               kind="tertiary"
               onClick={createNewWorkspace}
               startIcon="add-line"
