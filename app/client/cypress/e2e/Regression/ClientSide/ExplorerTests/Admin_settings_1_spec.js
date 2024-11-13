@@ -134,9 +134,6 @@ describe(
         fromAddress = uuid;
         cy.get(adminsSettings.fromAddress).clear().type(`${uuid}@appsmith.com`);
       });
-      cy.intercept("POST", "/api/v1/admin/restart", {
-        body: { responseMeta: { status: 200, success: true }, data: true },
-      });
       cy.get(adminsSettings.saveButton).click();
       cy.wait("@postTenantConfig").then((interception) => {
         expect(interception.request.body.instanceName).to.equal(instanceName);
