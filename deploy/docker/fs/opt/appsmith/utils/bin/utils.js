@@ -85,6 +85,35 @@ function execCommand(cmd, options) {
   });
 }
 
+function execCommandReturningOutput(cmd, options) {
+  return new Promise((resolve, reject) => {
+    const p = childProcess.spawn(cmd[0], cmd.slice(1), options);
+
+    p.stdin.end()
+
+    const outChunks = [], errChunks = [];
+
+    p.stdout.setEncoding("utf8");
+    p.stdout.on("data", (data) => {
+      outChunks.push(data.toString());
+    });
+
+    p.stderr.setEncoding("utf8");
+    p.stderr.on("data", (data) => {
+      errChunks.push(data.toString());
+    })
+
+    p.on("close", (code) => {
+      const output = (outChunks.join("").trim() + "\n" + errChunks.join("").trim()).trim();
+      if (code === 0) {
+        resolve(output);
+      } else {
+        reject(output);
+      }
+    });
+  });
+}
+
 async function listLocalBackupFiles() {
   // Ascending order
   const backupFiles = [];
@@ -152,11 +181,9 @@ function execCommandSilent(cmd, options) {
   return new Promise((resolve, reject) => {
     let isPromiseDone = false;
 
-    const p = childProcess.spawn(cmd[0], cmd.slice(1), {
-      ...options,
-    });
+    const p = childProcess.spawn(cmd[0], cmd.slice(1), options);
 
-    p.on("exit", (code) => {
+    p.on("close", (code) => {
       if (isPromiseDone) {
         return;
       }
@@ -173,8 +200,7 @@ function execCommandSilent(cmd, options) {
         return;
       }
       isPromiseDone = true;
-      console.error("Error running command", err);
-      reject();
+      reject(err);
     });
   });
 }
@@ -189,6 +215,7 @@ module.exports = {
   start,
   stop,
   execCommand,
+  execCommandReturningOutput,
   listLocalBackupFiles,
   updateLastBackupErrorMailSentInMilliSec,
   getLastBackupErrorMailSentInMilliSec,
