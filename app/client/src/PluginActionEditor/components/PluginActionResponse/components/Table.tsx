@@ -39,7 +39,6 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
   width: 100%;
   height: auto;
   background: var(--ads-v2-color-bg);
-  border: 1px solid var(--ads-v2-color-border);
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -55,7 +54,6 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
     border-spacing: 0;
     color: var(--ads-v2-color-fg);
     position: relative;
-    background: var(--ads-v2-color-gray-50);
     display: table;
     width: 100%;
     height: auto;
@@ -71,13 +69,7 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
     }
     .tr {
       overflow: hidden;
-      border-right: 1px solid var(--ads-v2-color-border);
-      :nth-child(even) {
-        background: var(--ads-v2-color-gray-50);
-      }
-      :nth-child(odd) {
-        background: var(--ads-v2-color-bg);
-      }
+      border-bottom: 1px solid var(--ads-v2-color-black-75);
       &.selected-row {
         background: var(--ads-v2-color-bg-subtle);
         &:hover {
@@ -92,7 +84,6 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
     .td {
       margin: 0;
       padding: 9px 10px;
-      border-right: 1px solid var(--ads-v2-color-border);
       position: relative;
       font-size: ${TABLE_SIZES.ROW_FONT_SIZE}px;
       line-height: ${TABLE_SIZES.ROW_FONT_SIZE}px;
@@ -255,7 +246,7 @@ function Table(props: TableProps) {
 
   const defaultColumn = React.useMemo(
     () => ({
-      width: 170,
+      minWidth: 170,
     }),
     [],
   );
@@ -343,7 +334,7 @@ function Table(props: TableProps) {
       <TableWrapper
         className="t--table-response"
         data-guided-tour-id="query-table-response"
-        minColumnWidth={defaultColumn.width}
+        minColumnWidth={defaultColumn.minWidth}
       >
         <div className="tableWrap">
           <div {...getTableProps()} className="table">
