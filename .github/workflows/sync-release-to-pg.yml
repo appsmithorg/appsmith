@@ -59,9 +59,9 @@ jobs:
           CONFLICTING_COMMIT: ${{ env.CONFLICTING_COMMIT }}
         run: |
           # Prepare the message for Slack
-          message="Merge conflict detected while merging release into pg branch. Conflicted commits:\n"
+          message="Merge conflict detected while merging release into pg branch. Conflicted commits:"
           commit_url="$REPOSITORY_URL/commit/$CONFLICTING_COMMIT"
-          message+="$commit_url\n"
+          message+="$commit_url"
 
           # Send the message to Slack
           # This unwieldy horror of a sed command, converts standard Markdown links to Slack's unwieldy link syntax.
