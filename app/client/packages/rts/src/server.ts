@@ -12,9 +12,7 @@ import ast_routes from "./routes/ast_routes";
 import dsl_routes from "./routes/dsl_routes";
 import health_check_routes from "./routes/health_check_routes";
 
-const RTS_BASE_PATH = "/rts";
-
-export const RTS_BASE_API_PATH = "/rts-api/v1";
+import { RTS_BASE_PATH, RTS_BASE_API_PATH } from "@constants/routes";
 
 // Setting the logLevel for all log messages
 const logLevel: LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL ||
@@ -22,7 +20,6 @@ const logLevel: LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL ||
 
 log.setLevel(logLevel);
 
-const API_BASE_URL = process.env.APPSMITH_API_BASE_URL || "http://localhost:8080/api/v1";
 const APPSMITH_RTS_PORT = process.env.APPSMITH_RTS_PORT || 8091;
 
 //Disable x-powered-by header to prevent information disclosure
