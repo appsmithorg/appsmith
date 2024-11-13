@@ -226,7 +226,7 @@ function AlloyIntegrations() {
                     },
                     {
                       key: "credentialId",
-                      value: response.data.data.credentialId,
+                      value: response.data.credentialId,
                     },
                   ],
                 },
