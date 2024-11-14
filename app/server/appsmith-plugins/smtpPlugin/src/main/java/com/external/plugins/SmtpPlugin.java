@@ -214,8 +214,9 @@ public class SmtpPlugin extends BasePlugin {
 
             Session session;
 
-            if (authentication != null && StringUtils.hasText(authentication.getUsername())
-                && StringUtils.hasText(authentication.getPassword())) {
+            if (authentication != null
+                    && StringUtils.hasText(authentication.getUsername())
+                    && StringUtils.hasText(authentication.getPassword())) {
 
                 String username = authentication.getUsername();
                 String password = authentication.getPassword();
