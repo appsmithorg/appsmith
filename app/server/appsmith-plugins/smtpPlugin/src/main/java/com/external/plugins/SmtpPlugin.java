@@ -212,15 +212,24 @@ public class SmtpPlugin extends BasePlugin {
             prop.put("mail.smtp.port", String.valueOf(port));
             prop.put("mail.smtp.ssl.trust", endpoint.getHost());
 
-            String username = authentication.getUsername();
-            String password = authentication.getPassword();
+            Session session;
 
-            Session session = Session.getInstance(prop, new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(username, password);
-                }
-            });
+            if (authentication != null && StringUtils.hasText(authentication.getUsername())
+                && StringUtils.hasText(authentication.getPassword())) {
+
+                String username = authentication.getUsername();
+                String password = authentication.getPassword();
+
+                session = Session.getInstance(prop, new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(username, password);
+                    }
+                });
+            } else {
+                prop.put("mail.smtp.auth", "false");
+                session = Session.getInstance(prop);
+            }
             return Mono.just(session);
         }
 
@@ -248,14 +257,6 @@ public class SmtpPlugin extends BasePlugin {
                     invalids.add(SMTPErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG);
                 }
             }
-
-            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            if (authentication == null
-                    || !StringUtils.hasText(authentication.getUsername())
-                    || !StringUtils.hasText(authentication.getPassword())) {
-                invalids.add(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR).getMessage());
-            }
-
             return invalids;
         }
 
@@ -264,6 +265,7 @@ public class SmtpPlugin extends BasePlugin {
             log.debug(Thread.currentThread().getName() + ": testDatasource() called for SMTP plugin.");
             return Mono.fromCallable(() -> {
                         Set<String> invalids = new HashSet<>();
+
                         try {
                             Transport transport = connection.getTransport();
                             if (transport != null) {

@@ -1,6 +1,5 @@
 package com.external.plugins;
 
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
@@ -28,17 +27,18 @@ import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Set;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -59,12 +59,22 @@ public class SmtpPluginTest {
             .withCommand("bin/maildev --base-pathname /maildev --incoming-user " + username + " --incoming-pass "
                     + password + " -s 25");
 
+    @Container
+    public static final GenericContainer smtpWithoutAuth = new GenericContainer(DockerImageName.parse("maildev/maildev"))
+        .withExposedPorts(1025)
+        .withCommand("bin/maildev --base-pathname /maildev --smtp-port 1025 --incoming-user '' --incoming-pass ''");
+
     private final SmtpPlugin.SmtpPluginExecutor pluginExecutor = new SmtpPlugin.SmtpPluginExecutor();
 
     @BeforeAll
     public static void setup() {
-        host = smtp.getContainerIpAddress();
-        port = Long.valueOf(smtp.getFirstMappedPort());
+        //Initialize SMTP connection with default configuration (can be changed per test)
+        configureSmtpConnection(smtp); //Default
+    }
+
+    private static void configureSmtpConnection(GenericContainer container) {
+        host = container.getContainerIpAddress();
+        port = Long.valueOf(container.getFirstMappedPort());
     }
 
     private DatasourceConfiguration createDatasourceConfiguration() {
@@ -130,13 +140,21 @@ public class SmtpPluginTest {
     }
 
     @Test
-    public void testNullAuthentication() {
-        DatasourceConfiguration invalidDatasourceConfiguration = createDatasourceConfiguration();
-        invalidDatasourceConfiguration.setAuthentication(null);
+    public void testConnectionWithoutAuth() {
+        configureSmtpConnection(smtpWithoutAuth);
+        DatasourceConfiguration noAuthDatasourceConfiguration = createDatasourceConfiguration();
+        noAuthDatasourceConfiguration.setAuthentication(null); // No authentication
 
-        assertEquals(
-                Set.of(new AppsmithPluginException(AppsmithPluginError.PLUGIN_AUTHENTICATION_ERROR).getMessage()),
-                pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
+        Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(noAuthDatasourceConfiguration);
+
+        StepVerifier.create(testDatasourceMono)
+            .assertNext(datasourceTestResult -> {
+                assertNotNull(datasourceTestResult);
+                assertTrue(datasourceTestResult.isSuccess());
+                assertTrue(datasourceTestResult.getInvalids().isEmpty());
+            })
+            .verifyComplete();
+        configureSmtpConnection(smtp);
     }
 
     @Test
