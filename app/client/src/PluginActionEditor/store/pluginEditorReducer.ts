@@ -26,7 +26,7 @@ export interface PluginActionEditorState {
   isDirty: Record<string, boolean>;
   runErrorMessage: Record<string, string>;
   selectedConfigTab?: string;
-  formData: Record<string, Record<string, { label: string; value: string }>>;
+  formData: Record<string, { label: string; value: string }>;
   debugger: PluginEditorDebuggerState;
   settingsOpen?: boolean;
 }
@@ -144,13 +144,12 @@ export const handlers = {
   [ReduxActionTypes.SET_EXTRA_FORMDATA]: (
     state: PluginActionEditorState,
     action: ReduxAction<{
-      id: string;
       values: Record<string, { label: string; value: string }>;
     }>,
   ) => {
-    const { id, values } = action.payload;
+    const { values } = action.payload;
 
-    set(state, ["formData", id], values);
+    set(state, ["formData"], values);
   },
   [ReduxActionTypes.SET_PLUGIN_ACTION_EDITOR_FORM_SELECTED_TAB]: (
     state: PluginActionEditorState,

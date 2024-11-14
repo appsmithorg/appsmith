@@ -43,7 +43,6 @@ import {
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "ee/constants/forms";
 import type { User } from "constants/userConstants";
-import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
   flushErrorsAndRedirect,
   safeCrashAppRequest,
@@ -190,9 +189,15 @@ export function* getCurrentUserSaga(action?: {
   }
 }
 
-function* intializeSmartLook(currentUser: User) {
-  if (!currentUser.isAnonymous && currentUser.username !== ANONYMOUS_USERNAME) {
-    yield AnalyticsUtil.identifyUser(currentUser);
+function* initTrackers(currentUser: User) {
+  const initializeSentry = initializeAnalyticsAndTrackers(currentUser);
+
+  const sentryInitialized: boolean = yield initializeSentry;
+
+  if (sentryInitialized) {
+    yield put(segmentInitSuccess());
+  } else {
+    yield put(segmentInitUncertain());
   }
 }
 
@@ -202,20 +207,7 @@ export function* runUserSideEffectsSaga() {
   const isAirgappedInstance = isAirgapped();
 
   if (enableTelemetry) {
-    // parallelize sentry and smart look initialization
-
-    yield fork(intializeSmartLook, currentUser);
-    const initializeSentry = initializeAnalyticsAndTrackers();
-
-    if (initializeSentry instanceof Promise) {
-      const sentryInialized: boolean = yield initializeSentry;
-
-      if (sentryInialized) {
-        yield put(segmentInitSuccess());
-      } else {
-        yield put(segmentInitUncertain());
-      }
-    }
+    yield fork(initTrackers, currentUser);
   }
 
   const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
@@ -425,14 +417,13 @@ export function* inviteUsers(
 
 export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   try {
-    const { email, intercomConsentGiven, name, proficiency, role, useCase } =
+    const { email, intercomConsentGiven, name, proficiency, useCase } =
       action.payload;
 
     const response: ApiResponse = yield callAPI(UserApi.updateUser, {
       email,
       name,
       proficiency,
-      role,
       useCase,
       intercomConsentGiven,
     });

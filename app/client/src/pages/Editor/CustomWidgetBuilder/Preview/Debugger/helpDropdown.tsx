@@ -20,7 +20,12 @@ export default function HelpDropdown(props: DebuggerLog) {
   return (
     <Popover>
       <PopoverTrigger>
-        <Button kind="tertiary" size="sm" startIcon="question-line" />
+        <Button
+          isIconButton
+          kind="tertiary"
+          size="sm"
+          startIcon="question-line"
+        />
       </PopoverTrigger>
       <PopoverContent className={styles.consoleItemHelpContent}>
         <List

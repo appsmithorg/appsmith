@@ -1,8 +1,7 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext } from "react";
 import styles from "./styles.module.css";
 import { CustomWidgetBuilderContext } from "../..";
 import TabLayout from "./TabsLayout";
-import SplitLayout from "./SplitLayout";
 import type { ContentProps } from "../CodeEditors/types";
 
 interface Props {
@@ -18,17 +17,6 @@ export default function Layout(props: Props) {
 
   const context = useContext(CustomWidgetBuilderContext);
 
-  const layout = useMemo(() => {
-    switch (context.selectedLayout) {
-      case "tabs":
-        return <TabLayout tabs={content} />;
-      case "split":
-        return <SplitLayout rows={content} />;
-      default:
-        return <div>Tab Layout</div>;
-    }
-  }, [context.selectedLayout]);
-
   return (
     <div
       className={
@@ -37,7 +25,7 @@ export default function Layout(props: Props) {
           : styles.editorLayoutFullWidth
       }
     >
-      {layout}
+      <TabLayout tabs={content} />
     </div>
   );
 }

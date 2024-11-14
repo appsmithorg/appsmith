@@ -10,7 +10,6 @@ import { PaginationSubComponent } from "components/formControls/utils";
 
 export const StyledFormLabel = styled(FormLabel)`
   margin-top: 5px;
-  /* font-weight: 400; */
   font-size: 12px;
   color: var(--ads-v2-color-fg-muted);
   line-height: 12px;
@@ -19,14 +18,13 @@ export const StyledFormLabel = styled(FormLabel)`
 export const FormControlContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 270px;
-  margin-right: 1rem;
 `;
 
 const PaginationContainer = styled.div`
   display: grid;
-  grid-gap: 5px 5px;
-  grid-template-columns: repeat(auto-fill, 270px);
+  column-gap: var(--ads-v2-spaces-4);
+  row-gap: var(--ads-v2-spaces-2);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 `;
 
 // using query dynamic input text for both so user can dynamically change these values.
@@ -36,9 +34,6 @@ const valueFieldConfig: any = {
   key: "value",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
   placeholderText: "value",
-  customStyles: {
-    // width: "280px",
-  },
 };
 
 // TODO: Fix this the next time the file is edited
@@ -91,7 +86,6 @@ export function Pagination(props: {
   );
 
   const defaultStyles = {
-    // width: "280px",
     ...customStyles,
   };
 
@@ -115,7 +109,6 @@ export function Pagination(props: {
         />
         <StyledFormLabel>Limits the number of rows returned.</StyledFormLabel>
       </FormControlContainer>
-
       {/*  form control for Offset field */}
       <FormControlContainer>
         <FormControl

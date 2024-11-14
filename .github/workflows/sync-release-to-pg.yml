@@ -50,7 +50,36 @@ jobs:
       - name: Push changes
         if: env.MERGE_CONFLICT == 'false'
         run: |
-          git push origin pg
+          set -e
+          git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }} HEAD:pg || echo "PUSH_FAILURE=true" >> $GITHUB_ENV
+
+      - name: Capture push failure message
+        if: env.PUSH_FAILURE == 'true'
+        run: |
+          # Capture the last git error message
+          push_error_message=$(git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }} HEAD:pg 2>&1 | tail -n 1)
+          echo "PUSH_ERROR_MESSAGE=$push_error_message" >> $GITHUB_ENV
+
+      - name: Notify on push failure
+        if: env.PUSH_FAILURE == 'true'
+        env:
+          SLACK_MESSAGE: "Push to pg branch failed: ${{ env.PUSH_ERROR_MESSAGE }}"
+        run: |
+          # Format the Slack message
+          slack_message="${{ env.SLACK_MESSAGE }}"
+
+          # Set the Slack message body with channel ID and text
+          body="$(jq -nc \
+            --arg channel C07JMLWEXDJ \
+            --arg text "$slack_message" \
+            '$ARGS.named'
+          )"
+
+          # Send the message to Slack
+          curl -v https://slack.com/api/chat.postMessage \
+            --header "Authorization: Bearer ${{ secrets.SLACK_APPSMITH_ALERTS_TOKEN }}" \
+            --header "Content-Type: application/json; charset=utf-8" \
+            --data-raw "$body"
 
       - name: Notify on merge conflicts
         if: env.MERGE_CONFLICT == 'true'
@@ -59,9 +88,9 @@ jobs:
           CONFLICTING_COMMIT: ${{ env.CONFLICTING_COMMIT }}
         run: |
           # Prepare the message for Slack
-          message="Merge conflict detected while merging release into pg branch. Conflicted commits:\n"
+          message="Merge conflict detected while merging release into pg branch. Conflicted commits:"
           commit_url="$REPOSITORY_URL/commit/$CONFLICTING_COMMIT"
-          message+="$commit_url\n"
+          message+="$commit_url"
 
           # Send the message to Slack
           # This unwieldy horror of a sed command, converts standard Markdown links to Slack's unwieldy link syntax.

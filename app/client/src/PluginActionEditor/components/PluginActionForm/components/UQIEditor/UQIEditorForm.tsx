@@ -2,36 +2,33 @@ import React from "react";
 import FormRender from "./FormRender";
 import { usePluginActionContext } from "../../../../PluginActionContext";
 import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
-import { getFormValues, reduxForm } from "redux-form";
-import type { QueryAction, SaaSAction } from "entities/Action";
-import { useSelector } from "react-redux";
-import { getFormEvaluationState } from "selectors/formSelectors";
+import { reduxForm } from "redux-form";
 import { Flex } from "@appsmith/ads";
+import { useGoogleSheetsSetDefaultProperty } from "./hooks/useGoogleSheetsSetDefaultProperty";
+import { useFormData } from "./hooks/useFormData";
+import { useInitFormEvaluation } from "./hooks/useInitFormEvaluation";
 
 const UQIEditorForm = () => {
-  const { editorConfig, plugin } = usePluginActionContext();
+  const {
+    editorConfig,
+    plugin: { uiComponent },
+  } = usePluginActionContext();
 
-  const formData = useSelector(getFormValues(QUERY_EDITOR_FORM_NAME)) as
-    | QueryAction
-    | SaaSAction;
+  useInitFormEvaluation();
 
-  const formEvaluation = useSelector(getFormEvaluationState);
+  // Set default values for Google Sheets
+  useGoogleSheetsSetDefaultProperty();
 
-  let formEvaluationState = {};
-
-  // Fetching evaluations state only once the formData is populated
-  if (!!formData) {
-    formEvaluationState = formEvaluation[formData.id];
-  }
+  const { data, evaluationState } = useFormData();
 
   return (
     <Flex flexDirection="column" overflowY="scroll" w="100%">
       <FormRender
         editorConfig={editorConfig}
-        formData={formData}
-        formEvaluationState={formEvaluationState}
+        formData={data}
+        formEvaluationState={evaluationState}
         formName={QUERY_EDITOR_FORM_NAME}
-        uiComponent={plugin.uiComponent}
+        uiComponent={uiComponent}
       />
     </Flex>
   );

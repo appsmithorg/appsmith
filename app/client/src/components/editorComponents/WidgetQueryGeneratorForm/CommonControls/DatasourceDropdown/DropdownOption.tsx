@@ -59,7 +59,7 @@ export function LoadMoreOptions(props: LoadmoreProps) {
     return (
       <MenuItem>
         <div
-          data-testId="t--one-click-binding-datasource--load-more"
+          data-testid="t--one-click-binding-datasource--load-more"
           onMouseDown={(e) => {
             e?.stopPropagation();
           }}

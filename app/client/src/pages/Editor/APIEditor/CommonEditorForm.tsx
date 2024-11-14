@@ -101,6 +101,7 @@ const TabbedViewContainer = styled.div`
   overflow: auto;
   position: relative;
   height: 100%;
+  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 const Wrapper = styled.div`

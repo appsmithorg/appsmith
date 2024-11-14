@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Check required environment variables
+# Check required environment variables
 required_vars=("DB_HOST" "DB_NAME" "DB_USER" "DB_PWD")
 for var in "${required_vars[@]}"; do
   if [ -z "${!var}" ] || [[ "${!var}" == "your_${var,,}" ]]; then
@@ -25,7 +25,7 @@ OLD_VULN_FILE="${5:-vulnerability_base_data.csv}"
 install_docker_scout() {
     echo "Installing Docker Scout..."
     local attempts=0
-    while [ $attempts -lt 3 ]; do
+    while [ $attempts -lt 5 ]; do
         echo "Attempt $((attempts + 1))..."
         curl -fsSL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh -o install-scout.sh
         sh install-scout.sh &> install_scout_log.txt
@@ -75,7 +75,7 @@ docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk -v product_name="$product
 {
     # Check for valid vulnerability data and format it correctly
     if ($2 != "" && $3 ~ /^CVE-/) {
-        # Extract severity level, CVE ID and format output correctly
+        # Extract severity level, CVE ID, and format output correctly
         print $3","product_name",""SCOUT"","$2
     }
 }' | sort -u > "$CSV_OUTPUT_FILE"
@@ -83,91 +83,52 @@ docker scout cves "$IMAGE" | grep -E "✗ |CVE-" | awk -v product_name="$product
 # Check if the CSV output file is empty
 [ -s "$CSV_OUTPUT_FILE" ] || echo "No vulnerabilities found for image: $IMAGE" > "$CSV_OUTPUT_FILE"
 
-# Compare new vulnerabilities against old vulnerabilities
-echo "Comparing new vulnerabilities with existing vulnerabilities in $OLD_VULN_FILE..."
-if [ -s "$OLD_VULN_FILE" ]; then
-    awk -F, 'NR==FNR {seen[$1","$2","$3","$4]; next} !($1","$2","$3","$4 in seen)' "$OLD_VULN_FILE" "$CSV_OUTPUT_FILE" > "scout_vulnerabilities_diff.csv"
-else
-    echo "$OLD_VULN_FILE is empty. All new vulnerabilities will be included."
-    cp "$CSV_OUTPUT_FILE" "scout_vulnerabilities_diff.csv"
-fi
 
-# Output for verification
-echo "Fetching passed data..."
-cat "$OLD_VULN_FILE"
-echo ""
-echo "Fetching new data..."
-cat "$CSV_OUTPUT_FILE"
-echo ""
-echo "Fetching diff..."
-cat "scout_vulnerabilities_diff.csv"
-echo ""
-
-# Insert new vulnerabilities into the PostgreSQL database using psql
-insert_vulns_into_db() {
-  local count=0
-  local query_file="insert_vulns.sql"
-  echo "BEGIN;" > "$query_file"  # Start the transaction
-
-  # Create an associative array to hold existing entries from the database
-  declare -A existing_entries
-
-  # Fetch existing vulnerabilities from the database to avoid duplicates
-  psql -t -c "SELECT vurn_id, product, scanner_tool, priority FROM vulnerability_tracking WHERE scanner_tool = 'SCOUT'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" | while IFS='|' read -r db_vurn_id db_product db_scanner_tool db_priority; do
-    existing_entries["$db_product,$db_scanner_tool,$db_vurn_id"]="$db_priority"
-  done
+# Compare each vulnerability with the database and store new ones in a CSV file
+compare_and_store_vulns() {
+  local new_vulns_file="scout_new_vulnerabilities.csv"
+  
+  echo "vurn_id,product,scanner_tool,priority" > "$new_vulns_file"  # CSV header
 
   while IFS=, read -r vurn_id product scanner_tool priority; do
-    # Skip empty lines
     if [[ -z "$vurn_id" || -z "$priority" || -z "$product" || -z "$scanner_tool" ]]; then
       echo "Skipping empty vulnerability entry"
       continue
     fi
 
-    # Check if the entry already exists
-    if [[ -n "${existing_entries["$product,$scanner_tool,$vurn_id"]}" ]]; then
-      echo "Entry for $vurn_id already exists in the database. Skipping."
-      continue
+    # Clean up and trim spaces from input values
+    vurn_id=$(echo "$vurn_id" | sed "s/'/''/g" | sed 's/^[ \t]*//;s/[ \t]*$//')
+    priority=$(echo "$priority" | sed "s/'/''/g" | sed 's/^[ \t]*//;s/[ \t]*$//')
+    product=$(echo "$product" | sed "s/'/''/g" | sed 's/^[ \t]*//;s/[ \t]*$//' | tr -d '[:space:]')
+    scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g" | sed 's/^[ \t]*//;s/[ \t]*$//' | tr -d '[:space:]')
+
+    # Check if vurn_id exists in the database
+    existing_entry=$(psql -t -c "SELECT vurn_id FROM vulnerability_tracking WHERE vurn_id = '$vurn_id'" "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" 2>/dev/null)
+
+    if [[ -z "$existing_entry" ]]; then
+      # If vurn_id doesn't exist, store data in CSV file
+      echo "$vurn_id,$product,$scanner_tool,$priority" >> "$new_vulns_file"
+      echo "New vulnerability detected: $vurn_id"
+    else
+      echo "Skipping existing vulnerability: $vurn_id"
     fi
 
-    local pr_id="$GITHUB_PR_ID"
-    local pr_link="$GITHUB_PR_LINK"
-    local created_date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-    local update_date="$created_date"
-    local comments="Initial vulnerability report"
-    local owner="John Doe"
-    local pod="Security"
+  done < "$CSV_OUTPUT_FILE"
 
-    # Escape single quotes in vulnerability ID, product, and priority
-    vurn_id=$(echo "$vurn_id" | sed "s/'/''/g")
-    priority=$(echo "$priority" | sed "s/'/''/g")
-    product=$(echo "$product" | sed "s/'/''/g")
-    scanner_tool=$(echo "$scanner_tool" | sed "s/'/''/g")
-
-    # Write each insert query to the SQL file
-    echo "INSERT INTO vulnerability_tracking (product, scanner_tool, vurn_id, priority, pr_id, pr_link, github_run_id, created_date, update_date, comments, owner, pod) VALUES ('$product', '$scanner_tool', '$vurn_id', '$priority', '$pr_id', '$pr_link', '$GITHUB_RUN_ID', '$created_date', '$update_date', '$comments', '$owner', '$pod');" >> "$query_file"
-    
-    ((count++))
-  done < "scout_vulnerabilities_diff.csv"
-
-  echo "COMMIT;" >> "$query_file"  # End the transaction
-  echo "Queries written to $query_file."
-
-  # Execute the SQL file
-  psql -e "postgresql://$DB_USER:$DB_PWD@$DB_HOST/$DB_NAME" -f "$query_file"
-
-  # Check if the execution was successful
-  if [ $? -eq 0 ]; then
-    echo "Vulnerabilities successfully inserted into the database."
+  # Print the contents of new vulnerabilities
+  if [ -s "$new_vulns_file" ]; then
+    echo "****************************************************************"
+    echo "New vulnerabilities stored in $new_vulns_file:"
+    cat "$new_vulns_file"
+    echo "****************************************************************"
   else
-    echo "Error: Failed to insert vulnerabilities. Please check the database connection or query."
-    exit 1
+    echo "No new vulnerabilities to store."
   fi
 }
 
-# Call the function to generate the insert queries and execute them
-if [ -s "scout_vulnerabilities_diff.csv" ]; then
-  insert_vulns_into_db
+# Check if there are vulnerabilities to process
+if [ -s "$CSV_OUTPUT_FILE" ]; then
+  compare_and_store_vulns
 else
-  echo "No new vulnerabilities to insert."
+  echo "No vulnerabilities to process."
 fi

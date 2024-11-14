@@ -23,6 +23,7 @@ import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/u
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 import { evalErrorHandler } from "./EvalErrorHandler";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 export interface UpdateDataTreeMessageData {
   workerResponse: EvalTreeResponseData;
@@ -166,8 +167,12 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.UPDATE_DATATREE: {
       const { workerResponse } = data as UpdateDataTreeMessageData;
+      const rootSpan = startRootSpan("DataTreeFactory.create");
+
       const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
         yield select(getUnevaluatedDataTree);
+
+      endSpan(rootSpan);
 
       yield call(updateDataTreeHandler, {
         evalTreeResponse: workerResponse as EvalTreeResponseData,

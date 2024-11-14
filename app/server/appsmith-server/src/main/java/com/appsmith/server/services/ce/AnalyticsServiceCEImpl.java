@@ -141,7 +141,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                                     "isSuperUser", isSuperUser,
                                     "instanceId", instanceId,
                                     "mostRecentlyUsedWorkspaceId", tuple.getT4(),
-                                    "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
+                                    "role", "",
                                     "proficiency", ObjectUtils.defaultIfNull(userData.getProficiency(), ""),
                                     "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), ""))));
                     analytics.flush();
@@ -150,13 +150,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     }
 
     public void identifyInstance(
-            String instanceId,
-            String role,
-            String proficiency,
-            String useCase,
-            String adminEmail,
-            String adminFullName,
-            String ip) {
+            String instanceId, String proficiency, String useCase, String adminEmail, String adminFullName, String ip) {
         if (!isActive()) {
             return;
         }
@@ -167,7 +161,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         "isInstance",
                         true, // Is this "identify" data-point for a user or an instance?
                         ROLE,
-                        ObjectUtils.defaultIfNull(role, ""),
+                        "",
                         PROFICIENCY,
                         ObjectUtils.defaultIfNull(proficiency, ""),
                         GOAL,
