@@ -9,10 +9,12 @@ const utils = require('./utils');
 function import_database() {
   console.log('import_database  ....')
   dbUrl = utils.getDburl();
-  if (utils.getDburl().startsWith('mongodb')) {
+  if (dbUrl.startsWith('mongodb')) {
     restore_mongo_db(dbUrl);
-  } else if (utils.getDburl().startsWith('postgresql')) {
+  } else if (dbUrl.startsWith('postgresql')) {
     restore_postgres_db(dbUrl);
+  } else {
+    throw new Error('Unsupported database type, only MongoDB and PostgreSQL are supported');
   }
   console.log('import_database done')
 }
@@ -43,10 +45,13 @@ function start_application() {
 
 function get_table_or_collection_len() {
   let count;
-  if (utils.getDburl().startsWith('mongodb')) {
-    count = shell.exec(`mongo ${utils.getDburl()} --quiet --eval "db.getCollectionNames().length"`)
-  } else if (utils.getDburl().startsWith('postgresql')) {
-    count = shell.exec(`psql -d ${utils.getDburl()} -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'appsmith';"`)
+  const dbUrl = utils.getDburl();
+  if (dbUrl.startsWith('mongodb')) {
+    count = shell.exec(`mongo ${dbUrl} --quiet --eval "db.getCollectionNames().length"`)
+  } else if (dbUrl.startsWith('postgresql')) {
+    count = shell.exec(`psql -d ${dbUrl} -t -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'appsmith';"`)
+  } else {
+    throw new Error('Unsupported database type, only MongoDB and PostgreSQL are supported');
   }
   return parseInt(count.stdout.toString().trimEnd());
 }

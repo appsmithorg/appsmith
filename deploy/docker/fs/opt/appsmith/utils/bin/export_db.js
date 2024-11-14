@@ -12,9 +12,9 @@ function export_database() {
     cmd = `mongodump --uri='${dbUrl}' --archive='${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`;
   } else if (dbUrl.startsWith('postgresql')) {
     // Dump only the appsmith schema with custom format
-    cmd = `pg_dump ${dbUrl} --verbose -n appsmith -Fc -f '${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}'`;
+    cmd = `pg_dump ${dbUrl} -n appsmith -Fc -f '${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}'`;
   } else {
-    throw new Error('Unsupported database URL');
+    throw new Error('Unsupported database type, only MongoDB and PostgreSQL are supported');
   }
   shell.exec(cmd);
   console.log('export_database done');

@@ -179,6 +179,12 @@ function execCommandSilent(cmd, options) {
   });
 }
 
+/**
+ * Extracts database name from MongoDB or PostgreSQL connection URI
+ * @param {string} uri - Database connection URI
+ * @returns {string} Database name 
+ * @returns 
+ */
 function getDatabaseNameFromDBURI(uri) {
   const uriParts = uri.split("/");
   return uriParts[uriParts.length - 1].split("?")[0];

@@ -264,3 +264,17 @@ test('Get DB name from Mongo URI 4', async () => {
   expect(dbName).toEqual(expectedDBName)
 })
 
+test('Get DB name from PostgreSQL URI', async () => {
+  var pg_uri = "postgresql://user:password@host:5432/postgres_db"
+  var expectedDBName = 'postgres_db'
+  const dbName = utils.getDatabaseNameFromDBURI(pg_uri)
+  expect(dbName).toEqual(expectedDBName)
+})
+
+test('Get DB name from PostgreSQL URI with query params', async () => {
+  var pg_uri = "postgresql://user:password@host:5432/postgres_db?sslmode=disable"
+  var expectedDBName = 'postgres_db'
+  const dbName = utils.getDatabaseNameFromDBURI(pg_uri)
+  expect(dbName).toEqual(expectedDBName)
+})
+

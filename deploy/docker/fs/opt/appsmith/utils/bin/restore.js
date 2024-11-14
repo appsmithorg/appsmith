@@ -63,6 +63,8 @@ async function restoreDatabase(restoreContentsPath, dbUrl) {
     await restore_mongo_db(restoreContentsPath, dbUrl);
   } else if (dbUrl.includes('postgresql')) {
     await restore_postgres_db(restoreContentsPath, dbUrl);
+  } else {
+    throw new Error('Unsupported database type, only MongoDB and PostgreSQL are supported');
   }
   console.log('Restoring database completed');
 }
@@ -82,7 +84,9 @@ async function restore_mongo_db(restoreContentsPath, dbUrl) {
 
 async function restore_postgres_db(restoreContentsPath, dbUrl) {
   const cmd = ['pg_restore', '--verbose', '--clean', `${restoreContentsPath}/pg-data.archive`];
-  if (dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1')) {
+  const url = new URL(dbUrl);
+  const isLocalhost = ['localhost', '127.0.0.1'].includes(url.hostname);
+  if (isLocalhost) {
     let dbName;
     try {
       dbName = utils.getDatabaseNameFromDBURI(dbUrl);
