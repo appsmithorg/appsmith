@@ -19,6 +19,9 @@ import {
 } from "utils/editorContextUtils";
 import { getPlugin } from "ee/selectors/entitiesSelector";
 import GoogleSheetSchema from "./GoogleSheetSchema";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasCreateDatasourceActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 
 const TabsContainer = styled(Tabs)`
   height: 100%;
@@ -72,38 +75,49 @@ const DatasourceTabs = (props: DatasourceTabProps) => {
         )
       : false;
 
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canCreateDatasourceActions = getHasCreateDatasourceActionPermission(
+    isFeatureEnabled,
+    props.datasource?.userPermissions ?? [],
+  );
+
   return (
     <TabsContainer
       defaultValue={
-        isDatasourceValid || isPluginAuthorized
+        (isDatasourceValid || isPluginAuthorized) && canCreateDatasourceActions
           ? VIEW_MODE_TABS.VIEW_DATA
           : VIEW_MODE_TABS.CONFIGURATIONS
       }
     >
       <TabListWrapper className="t--datasource-tab-list">
-        <Tab value={VIEW_MODE_TABS.VIEW_DATA}>
-          {createMessage(DATASOURCE_VIEW_DATA_TAB)}
-        </Tab>
+        {canCreateDatasourceActions && (
+          <Tab value={VIEW_MODE_TABS.VIEW_DATA}>
+            {createMessage(DATASOURCE_VIEW_DATA_TAB)}
+          </Tab>
+        )}
         <Tab value={VIEW_MODE_TABS.CONFIGURATIONS}>
           {createMessage(DATASOURCE_CONFIGURATIONS_TAB)}
         </Tab>
       </TabListWrapper>
-      <TabPanelContainer
-        className="t--datasource-tab-container"
-        value={VIEW_MODE_TABS.VIEW_DATA}
-      >
-        {isGoogleSheetPlugin ? (
-          <GoogleSheetSchema
-            datasourceId={props.datasource.id}
-            pluginId={props.datasource?.pluginId}
-          />
-        ) : (
-          <DatasourceViewModeSchema
-            datasource={props.datasource}
-            setDatasourceViewModeFlag={setDatasourceViewModeFlagClick}
-          />
-        )}
-      </TabPanelContainer>
+      {canCreateDatasourceActions && (
+        <TabPanelContainer
+          className="t--datasource-tab-container"
+          value={VIEW_MODE_TABS.VIEW_DATA}
+        >
+          {isGoogleSheetPlugin ? (
+            <GoogleSheetSchema
+              datasourceId={props.datasource.id}
+              pluginId={props.datasource?.pluginId}
+            />
+          ) : (
+            <DatasourceViewModeSchema
+              datasource={props.datasource}
+              setDatasourceViewModeFlag={setDatasourceViewModeFlagClick}
+            />
+          )}
+        </TabPanelContainer>
+      )}
       <ConfigurationsTabPanelContainer
         className="t--datasource-tab-container"
         value={VIEW_MODE_TABS.CONFIGURATIONS}

@@ -178,7 +178,10 @@ function FormControl(props: FormControlProps) {
 
   const FormControlRenderMethod = (config = props.config) => {
     return FormControlFactory.createControl(
-      config,
+      {
+        ...config,
+        datasourceId: dsId,
+      },
       props.formName,
       props?.multipleConfig,
     );

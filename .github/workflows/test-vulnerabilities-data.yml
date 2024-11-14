@@ -61,4 +61,24 @@ jobs:
             "${{ github.event.pull_request.number }}" \
             "${{ github.event.pull_request.html_url }}" \
             "${{ github.run_id }}"
-            
+      
+      - name: Check for new vulnerabilities in Scout and Trivy files
+        if: always()
+        run: |
+          # Check if Scout vulnerabilities file has data after the header
+          if [ $(tail -n +2 scout_new_vulnerabilities.csv | wc -l) -gt 0 ]; then
+            echo "Scout vulnerabilities detected."
+            cat scout_new_vulnerabilities.csv
+            exit 1  # Fail the job if data exists
+          else
+            echo "No new Scout vulnerabilities detected."
+          fi
+                  
+          # Check if Trivy vulnerabilities file has data after the header
+          if [ $(tail -n +2 trivy_new_vulnerabilities.csv | wc -l) -gt 0 ]; then
+            echo "Trivy vulnerabilities detected."
+            cat trivy_new_vulnerabilities.csv
+            exit 1  # Fail the job if data exists
+          else
+            echo "No new Trivy vulnerabilities detected."
+          fi
