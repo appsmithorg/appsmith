@@ -98,7 +98,7 @@ describe(
       _.debuggerHelper.DoesConsoleLogExist(logString, false);
 
       // Run function and verify logs are visible
-      _.agHelper.GetNClick(_.jsEditor._runButton);
+      _.jsEditor.toolbar.clickRunButton();
       _.agHelper.GetNClick(_.jsEditor._logsTab);
       _.debuggerHelper.DoesConsoleLogExist(logString);
     });
