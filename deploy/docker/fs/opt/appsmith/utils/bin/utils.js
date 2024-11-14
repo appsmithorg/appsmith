@@ -154,9 +154,10 @@ function execCommandSilent(cmd, options) {
 
     const p = childProcess.spawn(cmd[0], cmd.slice(1), {
       ...options,
+      stdio: "ignore",
     });
 
-    p.on("exit", (code) => {
+    p.on("close", (code) => {
       if (isPromiseDone) {
         return;
       }
@@ -173,8 +174,7 @@ function execCommandSilent(cmd, options) {
         return;
       }
       isPromiseDone = true;
-      console.error("Error running command", err);
-      reject();
+      reject(err);
     });
   });
 }
