@@ -1,7 +1,4 @@
 const nodemailer = require('nodemailer');
-const shell = require('shelljs');
-
-
 const Constants = require('./constants');
 const utils = require('./utils');
 const logger = require('./logger');
@@ -66,7 +63,6 @@ async function sendBackupErrorToAdmins(err, backupTimestamp) {
     }
   } catch (err) {
     await logger.backup_error(err.stack);
-    return;
   }
 }
 

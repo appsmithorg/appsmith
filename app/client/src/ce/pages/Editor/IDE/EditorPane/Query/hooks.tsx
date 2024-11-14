@@ -51,18 +51,16 @@ export const useQueryAdd = () => {
       return;
     }
 
-    let url = "";
+    const url = getQueryUrl(currentEntityInfo);
 
-    url = getQueryUrl(currentEntityInfo);
     history.push(url);
-  }, [currentEntityInfo]);
+  }, [currentEntityInfo, dispatch, ideViewMode]);
 
   const closeAddQuery = useCallback(() => {
-    let url = "";
+    const url = getQueryUrl(currentEntityInfo, false);
 
-    url = getQueryUrl(currentEntityInfo, false);
     history.push(url);
-  }, [currentEntityInfo, ideViewMode]);
+  }, [currentEntityInfo]);
 
   return { openAddQuery, closeAddQuery };
 };
@@ -113,6 +111,15 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
   return groups;
 };
 
+const PluginActionEditor = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(
+        /* webpackChunkName: "PluginActionEditor" */ "pages/Editor/AppPluginActionEditor"
+      ),
+  ),
+);
+
 const ApiEditor = lazy(async () =>
   retryPromise(
     async () =>
@@ -145,13 +152,65 @@ const QueryEmpty = lazy(async () =>
 );
 
 export const useQueryEditorRoutes = (path: string): UseRoutes => {
-  return useMemo(
+  const isActionRedesignEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_actions_redesign_enabled,
+  );
+
+  const skeleton = useMemo(() => <Skeleton />, []);
+
+  const newComponents = useMemo(
+    () => [
+      {
+        key: "PluginActionEditor",
+        component: () => {
+          return (
+            <Suspense fallback={skeleton}>
+              <PluginActionEditor />
+            </Suspense>
+          );
+        },
+        path: [
+          BUILDER_PATH + API_EDITOR_ID_PATH,
+          BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
+          BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
+          BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
+          BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
+          BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
+          path + "/:baseQueryId",
+        ],
+        exact: true,
+      },
+      {
+        key: "AddQuery",
+        exact: true,
+        component: () => (
+          <Suspense fallback={skeleton}>
+            <AddQuery />
+          </Suspense>
+        ),
+        path: [`${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
+      },
+      {
+        key: "QueryEmpty",
+        component: () => (
+          <Suspense fallback={skeleton}>
+            <QueryEmpty />
+          </Suspense>
+        ),
+        exact: true,
+        path: [path],
+      },
+    ],
+    [path, skeleton],
+  );
+
+  const oldComponents = useMemo(
     () => [
       {
         key: "ApiEditor",
-        component: (args) => {
+        component: (args: object) => {
           return (
-            <Suspense fallback={<Skeleton />}>
+            <Suspense fallback={skeleton}>
               <ApiEditor {...args} />
             </Suspense>
           );
@@ -166,18 +225,18 @@ export const useQueryEditorRoutes = (path: string): UseRoutes => {
       {
         key: "AddQuery",
         exact: true,
-        component: (args) => (
-          <Suspense fallback={<Skeleton />}>
-            <AddQuery {...args} />
+        component: () => (
+          <Suspense fallback={skeleton}>
+            <AddQuery />
           </Suspense>
         ),
         path: [`${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
       },
       {
         key: "SAASEditor",
-        component: (args) => {
+        component: (args: object) => {
           return (
-            <Suspense fallback={<Skeleton />}>
+            <Suspense fallback={skeleton}>
               <QueryEditor {...args} />
             </Suspense>
           );
@@ -191,9 +250,9 @@ export const useQueryEditorRoutes = (path: string): UseRoutes => {
       },
       {
         key: "QueryEditor",
-        component: (args) => {
+        component: (args: object) => {
           return (
-            <Suspense fallback={<Skeleton />}>
+            <Suspense fallback={skeleton}>
               <QueryEditor {...args} />
             </Suspense>
           );
@@ -203,17 +262,23 @@ export const useQueryEditorRoutes = (path: string): UseRoutes => {
       },
       {
         key: "QueryEmpty",
-        component: (args) => (
-          <Suspense fallback={<Skeleton />}>
-            <QueryEmpty {...args} />
+        component: () => (
+          <Suspense fallback={skeleton}>
+            <QueryEmpty />
           </Suspense>
         ),
         exact: true,
         path: [path],
       },
     ],
-    [path],
+    [path, skeleton],
   );
+
+  if (isActionRedesignEnabled) {
+    return newComponents;
+  }
+
+  return oldComponents;
 };
 
 export const useAddQueryListItems = () => {
