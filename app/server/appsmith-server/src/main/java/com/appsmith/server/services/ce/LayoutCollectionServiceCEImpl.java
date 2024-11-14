@@ -317,7 +317,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
         // If duplicate action name exists, throw an error
         final Map<String, Long> actionNameCountMap = actionCollectionDTO.getActions().stream()
-                .collect(Collectors.groupingBy(ActionDTO::getName, Collectors.counting()));
+                .collect(Collectors.groupingBy(ActionDTO::getValidName, Collectors.counting()));
         List<String> duplicateNames = actionNameCountMap.entrySet().stream()
                 .filter(entry -> entry.getValue() > 1)
                 .map(Map.Entry::getKey)
