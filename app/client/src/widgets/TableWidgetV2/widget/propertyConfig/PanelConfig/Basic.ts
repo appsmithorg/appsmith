@@ -181,7 +181,7 @@ export default {
       controlType: "OPEN_CONFIG_PANEL",
       buttonConfig: {
         label: "Configure",
-        icon: "settings-2-line",
+        icon: "settings-v3",
       },
       label: "Configure menu items",
       isBindProperty: false,

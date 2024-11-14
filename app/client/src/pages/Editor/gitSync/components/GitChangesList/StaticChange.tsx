@@ -49,7 +49,7 @@ const allStaticChangeDefs: Record<
   [StaticChangeKind.SETTINGS]: (status: GitStatusData) => ({
     condition: status.modified.includes("application.json"),
     message: "Application settings modified",
-    iconName: "settings-2-line",
+    iconName: "settings-v3",
   }),
   [StaticChangeKind.THEME]: (status: GitStatusData) => ({
     condition: status.modified.includes("theme.json"),
