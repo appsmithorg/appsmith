@@ -70,19 +70,6 @@ export interface SendTestEmailPayload {
   password?: string;
 }
 
-export interface CreateSuperUserRequest {
-  email: string;
-  name: string;
-  source: "FORM";
-  state: "ACTIVATED";
-  isEnabled: boolean;
-  password: string;
-  role: "Developer";
-  companyName: string;
-  allowCollectingAnonymousData: boolean;
-  signupForNewsletter: boolean;
-}
-
 export class UserApi extends Api {
   static usersURL = "v1/users";
   static productAlertURL = "v1/product-alert/alert";
