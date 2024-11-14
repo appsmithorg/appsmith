@@ -112,6 +112,7 @@ export function TopStacked(props: NavigationProps) {
       {tabsScrollable && (
         <ScrollBtnContainer
           className="left-0 scroll-arrows"
+          isIconButton
           kind="tertiary"
           onMouseDown={() => startScrolling(true)}
           onMouseLeave={stopScrolling}
@@ -153,6 +154,7 @@ export function TopStacked(props: NavigationProps) {
       {tabsScrollable && (
         <ScrollBtnContainer
           className="right-0 scroll-arrows"
+          isIconButton
           kind="tertiary"
           onMouseDown={() => startScrolling(false)}
           onMouseLeave={stopScrolling}
