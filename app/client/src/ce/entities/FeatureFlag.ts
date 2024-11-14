@@ -30,6 +30,7 @@ export const FEATURE_FLAG = {
   release_actions_redesign_enabled: "release_actions_redesign_enabled",
   rollout_remove_feature_walkthrough_enabled:
     "rollout_remove_feature_walkthrough_enabled",
+  rollout_eslint_enabled: "rollout_eslint_enabled",
   release_drag_drop_building_blocks_enabled:
     "release_drag_drop_building_blocks_enabled",
   rollout_side_by_side_enabled: "rollout_side_by_side_enabled",
@@ -41,6 +42,7 @@ export const FEATURE_FLAG = {
     "release_ide_datasource_selector_enabled",
   release_table_custom_loading_state_enabled:
     "release_table_custom_loading_state_enabled",
+  release_custom_widget_ai_builder: "release_custom_widget_ai_builder",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -70,6 +72,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_appsmith_ai_query: false,
   release_actions_redesign_enabled: false,
   rollout_remove_feature_walkthrough_enabled: true,
+  rollout_eslint_enabled: false,
   rollout_side_by_side_enabled: false,
   release_layout_conversion_enabled: false,
   release_anvil_toggle_enabled: false,
@@ -77,6 +80,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_ide_animations_enabled: false,
   release_ide_datasource_selector_enabled: false,
   release_table_custom_loading_state_enabled: false,
+  release_custom_widget_ai_builder: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {
