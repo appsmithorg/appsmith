@@ -27,18 +27,17 @@ import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
@@ -60,16 +59,17 @@ public class SmtpPluginTest {
                     + password + " -s 25");
 
     @Container
-    public static final GenericContainer smtpWithoutAuth = new GenericContainer(DockerImageName.parse("maildev/maildev"))
-        .withExposedPorts(1025)
-        .withCommand("bin/maildev --base-pathname /maildev --smtp-port 1025 --incoming-user '' --incoming-pass ''");
+    public static final GenericContainer smtpWithoutAuth = new GenericContainer(
+                    DockerImageName.parse("maildev/maildev"))
+            .withExposedPorts(1025)
+            .withCommand("bin/maildev --base-pathname /maildev --smtp-port 1025 --incoming-user '' --incoming-pass ''");
 
     private final SmtpPlugin.SmtpPluginExecutor pluginExecutor = new SmtpPlugin.SmtpPluginExecutor();
 
     @BeforeAll
     public static void setup() {
-        //Initialize SMTP connection with default configuration (can be changed per test)
-        configureSmtpConnection(smtp); //Default
+        // Initialize SMTP connection with default configuration (can be changed per test)
+        configureSmtpConnection(smtp); // Default
     }
 
     private static void configureSmtpConnection(GenericContainer container) {
@@ -148,12 +148,12 @@ public class SmtpPluginTest {
         Mono<DatasourceTestResult> testDatasourceMono = pluginExecutor.testDatasource(noAuthDatasourceConfiguration);
 
         StepVerifier.create(testDatasourceMono)
-            .assertNext(datasourceTestResult -> {
-                assertNotNull(datasourceTestResult);
-                assertTrue(datasourceTestResult.isSuccess());
-                assertTrue(datasourceTestResult.getInvalids().isEmpty());
-            })
-            .verifyComplete();
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                    assertTrue(datasourceTestResult.isSuccess());
+                    assertTrue(datasourceTestResult.getInvalids().isEmpty());
+                })
+                .verifyComplete();
         configureSmtpConnection(smtp);
     }
 
