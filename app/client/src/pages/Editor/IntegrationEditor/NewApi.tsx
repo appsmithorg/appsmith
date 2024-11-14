@@ -142,6 +142,7 @@ interface ApiHomeScreenProps {
     apiType: string,
   ) => void;
   isOnboardingScreen?: boolean;
+  children?: JSX.Element;
 }
 
 type Props = ApiHomeScreenProps;
@@ -328,6 +329,7 @@ function NewApiScreen(props: Props) {
             </CardContentWrapper>
           </ApiCard>
         ))}
+        {props.children}
       </ApiCardsContainer>
     </StyledContainer>
   );

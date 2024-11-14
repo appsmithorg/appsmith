@@ -10,19 +10,20 @@ import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/perm
 import {
   getDatasources,
   getMockDatasources,
+  getPlugins,
 } from "ee/selectors/entitiesSelector";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import type { Datasource, MockDatasource } from "entities/Datasource";
 import scrollIntoView from "scroll-into-view-if-needed";
 import { Text } from "@appsmith/ads";
 import MockDataSources from "./MockDataSources";
-import NewApiScreen from "./NewApi";
+import NewApiScreen, { ApiCard, CardContentWrapper } from "./NewApi";
 import NewQueryScreen from "./NewQuery";
-import { isAirgapped } from "ee/utils/airgapHelpers";
+import { getAssetUrl, isAirgapped } from "ee/utils/airgapHelpers";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import {
   createMessage,
@@ -40,6 +41,14 @@ import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
 import { isPluginActionCreating } from "PluginActionEditor/store";
+import { paragon } from "@useparagon/connect";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { useParagonIntegrations } from "utils/paragonHooks";
+import { DATASOURCE_NAME_DEFAULT_PREFIX } from "constants/Datasource";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { PluginPackageName } from "entities/Action";
+import type { Plugin } from "api/PluginApi";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -174,6 +183,88 @@ function CreateNewDatasource({
   );
 }
 
+function ParagonIntegrations() {
+  const { integrations } = useParagonIntegrations();
+  const dispatch = useDispatch();
+  const dsList: Datasource[] = useSelector(getDatasources);
+  const plugins: Plugin[] = useSelector(getPlugins);
+  const apiPlugin = plugins.find(
+    (plugin) => plugin.packageName === PluginPackageName.REST_API,
+  );
+  const datasourceName = getNextEntityName(
+    DATASOURCE_NAME_DEFAULT_PREFIX,
+    dsList.map((el: Datasource) => el.name),
+  );
+  const handleOnClick = (type: string) => {
+    paragon.installIntegration(type, {
+      allowMultipleCredentials: true,
+      accountType: "default",
+      onSuccess: (event, user) => {
+        console.log(event);
+        dispatch({
+          type: ReduxActionTypes.CREATE_DATASOURCE_FROM_FORM_INIT,
+          payload: {
+            type: "API",
+            pluginId: apiPlugin!.id,
+            datasourceStorages: {
+              unused_env: {
+                environmentId: "unused_env",
+                isValid: false,
+                datasourceConfiguration: {
+                  url: "https://proxy.useparagon.com",
+                  properties: Object.keys(event).reduce((acc, key) => {
+                    // @ts-expect-error
+                    acc.push({
+                      key: key as string,
+                      // @ts-expect-error
+                      value: event[key] as any,
+                    });
+                    return acc;
+                  }, []),
+                },
+                toastMessage: "EMPTY_TOAST_MESSAGE",
+              },
+            },
+            name: datasourceName,
+          },
+        });
+      },
+      onError: (err) => {
+        console.log(err);
+      },
+    });
+  };
+
+  return (
+    <>
+      {integrations.map((integration) => (
+        <ApiCard
+          className={`t--create-${integration.type}`}
+          key={integration.name}
+          onClick={() => {
+            AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
+              pluginName: integration.name,
+              pluginPackageName: integration.type,
+            });
+            handleOnClick(integration.type);
+          }}
+        >
+          <CardContentWrapper>
+            <img
+              alt={integration.name}
+              className={
+                "content-icon saasImage t--saas-" + integration.type + "-image"
+              }
+              src={getAssetUrl(integration.icon)}
+            />
+            <p className="t--plugin-name textBtn">{integration.name}</p>
+          </CardContentWrapper>
+        </ApiCard>
+      ))}
+    </>
+  );
+}
+
 function CreateNewSaasIntegration({
   active,
   isCreating,
@@ -210,7 +301,9 @@ function CreateNewSaasIntegration({
           pageId={pageId}
           showSaasAPIs
           showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-        />
+        >
+          <ParagonIntegrations />
+        </NewApiScreen>
       </div>
     </>
   ) : null;

@@ -5,7 +5,7 @@ export interface WorkspaceRole {
   isDefault?: boolean;
 }
 
-export interface Workspace {
+export interface Workspace extends WorkspaceToken {
   id: string;
   name: string;
   website?: string;
@@ -35,6 +35,12 @@ export interface WorkspaceUser {
   isChangingRole: boolean;
   photoId?: string;
   roles: WorkspaceUserRoles[];
+}
+
+export interface WorkspaceToken {
+  workspaceId?: string;
+  token?: string;
+  projectId?: string;
 }
 
 export enum ENTITY_TYPE {

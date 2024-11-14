@@ -7,6 +7,7 @@ import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
+import com.appsmith.server.dtos.WorkspaceTokenDTO;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -112,5 +113,13 @@ public class WorkspaceControllerCE {
         return userWorkspaceService
                 .getUserWorkspacesByRecentlyUsedOrder()
                 .map(workspaces -> new ResponseDTO<>(HttpStatus.OK.value(), workspaces, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/{workspaceId}/token")
+    public Mono<ResponseDTO<WorkspaceTokenDTO>> generateWorkspaceToken(@PathVariable String workspaceId)
+            throws Exception {
+        return service.generateWorkspaceToken(workspaceId)
+                .map(workspaceTokenDTO -> new ResponseDTO<>(HttpStatus.OK.value(), workspaceTokenDTO, null));
     }
 }

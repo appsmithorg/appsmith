@@ -12110,6 +12110,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@useparagon/connect@npm:^1.0.18":
+  version: 1.0.18
+  resolution: "@useparagon/connect@npm:1.0.18"
+  dependencies:
+    hash.js: ^1.1.7
+    jwt-decode: ^3.1.2
+    react: ^17.0.2
+    tslib: 2.3.1
+  checksum: 968b3f3d824186b2335870d2c80117626698b6457253cfadb49fce073f2957e6b647470a89295b2fbc117a6b57d283722dd0f41283575895421722bb47b791b7
+  languageName: node
+  linkType: hard
+
 "@vitejs/plugin-react@npm:^4.3.1":
   version: 4.3.1
   resolution: "@vitejs/plugin-react@npm:4.3.1"
@@ -12957,6 +12969,7 @@ __metadata:
     "@uppy/url": ^1.5.16
     "@uppy/utils": ^6.0.2
     "@uppy/webcam": ^1.8.4
+    "@useparagon/connect": ^1.0.18
     "@welldone-software/why-did-you-render": ^4.2.5
     acorn: 8.10.0
     acorn-walk: 8.2.0
@@ -20224,7 +20237,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hash.js@npm:^1.0.0, hash.js@npm:^1.0.3":
+"hash.js@npm:^1.0.0, hash.js@npm:^1.0.3, hash.js@npm:^1.1.7":
   version: 1.1.7
   resolution: "hash.js@npm:1.1.7"
   dependencies:
@@ -23387,6 +23400,13 @@ __metadata:
     readable-stream: ~2.3.6
     setimmediate: ^1.0.5
   checksum: abc77bfbe33e691d4d1ac9c74c8851b5761fba6a6986630864f98d876f3fcc2d36817dfc183779f32c00157b5d53a016796677298272a714ae096dfe6b1c8b60
+  languageName: node
+  linkType: hard
+
+"jwt-decode@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "jwt-decode@npm:3.1.2"
+  checksum: 20a4b072d44ce3479f42d0d2c8d3dabeb353081ba4982e40b83a779f2459a70be26441be6c160bfc8c3c6eadf9f6380a036fbb06ac5406b5674e35d8c4205eeb
   languageName: node
   linkType: hard
 
@@ -32761,6 +32781,13 @@ __metadata:
   version: 2.3.0
   resolution: "tslib@npm:2.3.0"
   checksum: 8869694c26e4a7b56d449662fd54a4f9ba872c889d991202c74462bd99f10e61d5bd63199566c4284c0f742277736292a969642cc7b590f98727a7cae9529122
+  languageName: node
+  linkType: hard
+
+"tslib@npm:2.3.1":
+  version: 2.3.1
+  resolution: "tslib@npm:2.3.1"
+  checksum: de17a98d4614481f7fcb5cd53ffc1aaf8654313be0291e1bfaee4b4bb31a20494b7d218ff2e15017883e8ea9626599b3b0e0229c18383ba9dce89da2adf15cb9
   languageName: node
   linkType: hard
 

@@ -25,6 +25,7 @@ import type {
   FetchAllRolesRequest,
   SaveWorkspaceLogo,
   FetchWorkspacesResponse,
+  FetchWorkspaceTokenResponse,
 } from "ee/api/WorkspaceApi";
 import WorkspaceApi from "ee/api/WorkspaceApi";
 import type { ApiResponse } from "api/ApiResponses";
@@ -118,10 +119,18 @@ export function* fetchWorkspaceSaga(
     const isValidResponse: boolean = yield request.skipValidation ||
       validateResponse(response);
 
+    const responseToken: FetchWorkspaceTokenResponse = yield call(
+      WorkspaceApi.fetchWorkspaceToken,
+      request,
+    );
+
     if (isValidResponse && response) {
       yield put({
         type: ReduxActionTypes.FETCH_WORKSPACE_SUCCESS,
-        payload: response.data || {},
+        payload: {
+          ...(response.data || {}),
+          ...(responseToken.data || {}),
+        },
       });
     }
   } catch (error) {

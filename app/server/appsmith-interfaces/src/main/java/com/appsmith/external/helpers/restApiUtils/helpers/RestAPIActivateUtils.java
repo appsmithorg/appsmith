@@ -16,13 +16,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -38,6 +41,9 @@ import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
@@ -49,7 +55,11 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @NoArgsConstructor
+@Component
 public class RestAPIActivateUtils {
+    @Value("${appsmith.integration.provider.signing.key}")
+    private String integrationProviderSigningKey =
+            "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";
 
     public static final String SIGNATURE_HEADER_NAME = "X-APPSMITH-SIGNATURE";
     public static final String RESPONSE_DATA_TYPE = "X-APPSMITH-DATATYPE";
@@ -252,6 +262,35 @@ public class RestAPIActivateUtils {
         addSecretKey(webClientBuilder, datasourceConfiguration);
 
         return webClientBuilder;
+    }
+
+    private PrivateKey getPrivateKey() throws Exception {
+        // Decode the Base64-encoded private key
+        byte[] keyBytes = Base64.getDecoder().decode(integrationProviderSigningKey);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+
+        // Generate an RSA private key from the key specification
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(keySpec);
+    }
+
+    public String generateWorkspaceJWT(String workspaceId) throws Exception {
+        // Get the RSA private key
+        PrivateKey privateKey = getPrivateKey();
+
+        // Define the current time and expiration for the token
+        final Instant now = Instant.now();
+
+        // Build and sign the token with RS256 algorithm
+        final String token = Jwts.builder()
+                .setIssuer("Appsmith") // Token issuer
+                .setSubject(workspaceId) // Subject is the workspaceId
+                .setIssuedAt(new Date(now.toEpochMilli())) // Set issued at time
+                .setExpiration(new Date(now.plusSeconds(86400).toEpochMilli())) // Token expiration (1 day later)
+                .signWith(privateKey, SignatureAlgorithm.RS256) // Sign with RSA private key
+                .compact(); // Build the token
+
+        return token;
     }
 
     protected void addSecretKey(WebClient.Builder webClientBuilder, DatasourceConfiguration datasourceConfiguration)

@@ -72,6 +72,24 @@ public class RestApiPlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
+            // for paragon poc
+            if ((datasourceConfiguration.getProperties().size() != 0)
+                    && (datasourceConfiguration.getProperties().get(0).getKey().equals("integrationId"))) {
+                Property bearerTokenHeader = new Property();
+                bearerTokenHeader.setKey("Authorization");
+                String generatedToken;
+                try {
+                    generatedToken = restAPIActivateUtils.generateWorkspaceJWT(executeActionDTO.getWorkspaceId());
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                bearerTokenHeader.setValue("Bearer " + generatedToken);
+                List<Property> headers = datasourceConfiguration.getHeaders() == null
+                        ? new ArrayList<>()
+                        : datasourceConfiguration.getHeaders();
+                headers.add(bearerTokenHeader);
+                datasourceConfiguration.setHeaders(headers);
+            }
             log.debug(Thread.currentThread().getName()
                     + ": executeParameterized() called for RestAPI plugin. Executing the API call.");
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();

@@ -19,7 +19,7 @@ import type { AppState } from "ee/reducers";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
-import type { UIComponentTypes } from "api/PluginApi";
+import { UIComponentTypes } from "api/PluginApi";
 import { EDITOR_TABS, SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
@@ -39,7 +39,15 @@ import RunHistory from "ee/components/RunHistory";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { getPluginNameFromId } from "ee/selectors/entitiesSelector";
+import {
+  getDatasource,
+  getPluginNameFromId,
+} from "ee/selectors/entitiesSelector";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
+import {
+  useParagonIntegrationsWithWorklows,
+} from "utils/paragonHooks";
+import { klona } from "klona";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -143,6 +151,108 @@ const StyledNotificationWrapper = styled.div`
     var(--ads-v2-spaces-7);
 `;
 
+const PARAGON_EDITOR_JSON = [
+  {
+    controlType: "DOUBLE_COLUMN_ZONE",
+    identifier: "FIND-Z1",
+    children: [
+      {
+        label: "Method",
+        configProperty: "actionConfiguration.httpMethod",
+        controlType: "DROP_DOWN",
+        initialValue: "GET",
+        options: [
+          {
+            label: "GET",
+            value: "GET",
+          },
+          {
+            label: "POST",
+            value: "POST",
+          },
+          {
+            label: "PUT",
+            value: "PUT",
+          },
+          {
+            label: "DELETE",
+            value: "DELETE",
+          },
+        ],
+      },
+      {
+        label: "Action Type",
+        configProperty: "actionConfiguration.formData.actionType",
+        controlType: "DROP_DOWN",
+        options: [
+          {
+            label: "Workflow",
+            value: "workflow",
+          },
+          {
+            label: "Api Path",
+            value: "api",
+          },
+        ],
+        initialValue: "workflow",
+      },
+    ],
+  },
+  {
+    controlType: "SECTION_V2",
+    identifier: "SECTION-ONE",
+    children: [
+      {
+        controlType: "SINGLE_COLUMN_ZONE",
+        identifier: "API_PATH",
+        children: [
+          {
+            label: "Api Path",
+            configProperty: "actionConfiguration.formData.apiPath",
+            controlType: "QUERY_DYNAMIC_INPUT_TEXT",
+            evaluationSubstitutionType: "TEMPLATE",
+            placeholderText: "v1/example",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    controlType: "SECTION_V3",
+    identifier: "SECTION-TWO",
+    children: [
+      {
+        controlType: "SINGLE_COLUMN_ZONE",
+        identifier: "SO-Z2",
+        children: [
+          {
+            label: "Query Params",
+            configProperty: "actionConfiguration.queryParameters",
+            controlType: "KEYVALUE_ARRAY",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    controlType: "SECTION_V4",
+    identifier: "SECTION-THREE",
+    children: [
+      {
+        controlType: "SINGLE_COLUMN_ZONE",
+        identifier: "SO-Z3",
+        children: [
+          {
+            label: "Body",
+            configProperty: "actionConfiguration.body",
+            controlType: "QUERY_DYNAMIC_TEXT",
+          },
+        ],
+      },
+    ],
+  },
+];
+
 interface QueryFormProps {
   onDeleteClick: () => void;
   onRunClick: () => void;
@@ -190,7 +300,6 @@ export function EditorJSONtoForm(props: Props) {
     actionResponse,
     dataSources,
     documentationLink,
-    editorConfig,
     formName,
     handleSubmit,
     isRunning,
@@ -199,8 +308,9 @@ export function EditorJSONtoForm(props: Props) {
     plugin,
     runErrorMessage,
     settingConfig,
-    uiComponent,
   } = props;
+
+  let { editorConfig, uiComponent } = props;
 
   const { actionRightPaneAdditionSections, notification } =
     useContext(QueryEditorContext);
@@ -273,6 +383,47 @@ export function EditorJSONtoForm(props: Props) {
     (!actionBody && SQL_DATASOURCES.includes(currentActionPluginName)) ||
     !isExecutePermitted;
 
+  const formData = props.formData;
+
+  // Paragon Integration
+  const datasource = useSelector((state) =>
+    getDatasource(state, props.datasourceId),
+  );
+  const currentEnvironment = useSelector(getCurrentEnvironmentId);
+  const datasourceConfigurationProps =
+    datasource?.datasourceStorages?.[currentEnvironment]
+      ?.datasourceConfiguration?.properties;
+
+  const integrationId =
+    datasourceConfigurationProps?.find(({ key }) => key === "integrationId")
+      ?.value || "";
+
+  const integrationsWithWorkflows = useParagonIntegrationsWithWorklows();
+  const integrationData = integrationsWithWorkflows[integrationId];
+  if (integrationId && integrationData) {
+    const paragonEditorJson = klona(PARAGON_EDITOR_JSON);
+    paragonEditorJson[0].children.push({
+      controlType: "SINGLE_COLUMN_ZONE",
+      identifier: "WORKFLOW",
+      children: [
+        {
+          label: "Workflow",
+          configProperty: "actionConfiguration.formData.workflowId",
+          controlType: "DROP_DOWN",
+          initialValue: "",
+          options: integrationData.workflows.map((i) => ({
+            label: i.description,
+            value: i.id,
+          })),
+        },
+      ],
+    } as any);
+    editorConfig = paragonEditorJson;
+    uiComponent = UIComponentTypes.UQIDbEditorForm;
+  }
+
+  if (integrationId && !integrationData) return null;
+
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -326,7 +477,7 @@ export function EditorJSONtoForm(props: Props) {
                   >
                     <FormRender
                       editorConfig={editorConfig}
-                      formData={props.formData}
+                      formData={formData}
                       formEvaluationState={props.formEvaluationState}
                       formName={formName}
                       uiComponent={uiComponent}

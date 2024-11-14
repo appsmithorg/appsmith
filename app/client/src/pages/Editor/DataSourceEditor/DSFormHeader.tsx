@@ -28,6 +28,7 @@ import type { PluginType } from "entities/Action";
 import { useEditorType } from "ee/hooks";
 import { useHistory } from "react-router";
 import { useHeaderActions } from "ee/hooks/datasourceEditorHooks";
+import { paragon } from "@useparagon/connect";
 
 export const ActionWrapper = styled.div`
   display: flex;
@@ -172,6 +173,32 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
     showReconnectButton,
   });
 
+  const onClickConnect = () => {
+    const datasourceConfigurationProps = (datasource as Datasource)
+      ?.datasourceStorages?.[currentEnv]?.datasourceConfiguration?.properties;
+
+    const integrationId =
+      datasourceConfigurationProps?.find(({ key }) => key === "integrationId")
+        ?.value || "";
+    const integrationType =
+      datasourceConfigurationProps?.find(({ key }) => key === "integrationType")
+        ?.value || "";
+
+    if (!integrationId || !integrationType) return;
+
+    paragon.connect(integrationType, {
+      // selectedCredentialId: integrationId,
+      // allowMultipleCredentials: true,
+      accountType: "default",
+      onSuccess: (event, user) => {
+        console.log(event);
+      },
+      onError: (err) => {
+        console.log(err);
+      },
+    });
+  };
+
   return (
     <Header noBottomBorder={!!noBottomBorder}>
       <FormTitleContainer>
@@ -232,6 +259,20 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
           {headerActions && headerActions.generatePageButton
             ? headerActions.generatePageButton
             : null}
+          <Button
+            className={"t--connect-paragon"}
+            kind="secondary"
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            onClick={(e: any) => {
+              e.stopPropagation();
+              e.preventDefault();
+              onClickConnect();
+            }}
+            size="md"
+          >
+            Connect Paragon
+          </Button>
         </ActionWrapper>
       )}
     </Header>
