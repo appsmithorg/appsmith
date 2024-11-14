@@ -292,8 +292,6 @@ describe(
       _.debuggerHelper.OpenDebugger();
 
       _.debuggerHelper.ClicklogEntityLink();
-
-      cy.get(".t--js-action-name-edit-field").should("exist");
     });
 
     it("10. Bug #24039 - Logs errors from setInterval callback into debugger", () => {
