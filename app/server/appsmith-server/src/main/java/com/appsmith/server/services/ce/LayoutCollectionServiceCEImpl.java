@@ -315,18 +315,9 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         final Set<String> baseActionIds = new HashSet<>();
         baseActionIds.addAll(validBaseActionIds);
 
-        // If duplicate action name exists, throw an error
-        final Map<String, Long> actionNameCountMap = actionCollectionDTO.getActions().stream()
-                .collect(Collectors.groupingBy(ActionDTO::getValidName, Collectors.counting()));
-        List<String> duplicateNames = actionNameCountMap.entrySet().stream()
-                .filter(entry -> entry.getValue() > 1)
-                .map(Map.Entry::getKey)
+        List<ActionDTO> existingActions = actionCollectionDTO.getActions().stream()
+                .filter(action -> action.getId() != null)
                 .collect(Collectors.toList());
-
-        if (!duplicateNames.isEmpty()) {
-            return Mono.error(new AppsmithException(
-                    AppsmithError.DUPLICATE_KEY_USER_ERROR, duplicateNames.get(0), FieldName.NAME));
-        }
 
         final Mono<Map<String, String>> newValidActionIdsMono = branchedActionCollectionMono.flatMap(
                 branchedActionCollection -> Flux.fromIterable(actionCollectionDTO.getActions())
@@ -348,11 +339,23 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 actionDTO.setPluginType(actionCollectionDTO.getPluginType());
                                 actionDTO.setPluginId(actionCollectionDTO.getPluginId());
                                 actionDTO.setBranchName(branchedActionCollection.getBranchName());
+
+                                boolean isDuplicateActionName = existingActions.stream()
+                                        .anyMatch(action -> action.getValidName() != null
+                                                && action.getValidName().contains(actionDTO.getValidName()));
+
                                 // actionCollectionService is a new action, we need to create one
-                                return layoutActionService
-                                        .createSingleAction(actionDTO, Boolean.TRUE)
-                                        .name(CREATE_ACTION)
-                                        .tap(Micrometer.observation(observationRegistry));
+                                if (isDuplicateActionName) {
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.DUPLICATE_KEY_USER_ERROR,
+                                            actionDTO.getValidName(),
+                                            FieldName.NAME));
+                                } else {
+                                    return layoutActionService
+                                            .createSingleAction(actionDTO, Boolean.TRUE)
+                                            .name(CREATE_ACTION)
+                                            .tap(Micrometer.observation(observationRegistry));
+                                }
                             } else {
                                 actionDTO.setCollectionId(null);
                                 // Client only knows about the default action ID, fetch branched action id to update the
