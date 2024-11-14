@@ -13,7 +13,8 @@ import {
 } from "../component/CurrencyCodeDropdown";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import _ from "lodash";
-import derivedProperties from "./parsedDerivedProperties";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import * as Sentry from "@sentry/react";
@@ -422,9 +423,11 @@ class CurrencyInputWidget extends BaseInputWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
-      isValid: `{{(()=>{${derivedProperties.isValid}})()}}`,
-      value: `{{(()=>{${derivedProperties.value}})()}}`,
+      isValid: `{{(()=>{${parsedDerivedProperties.isValid}})()}}`,
+      value: `{{(()=>{${parsedDerivedProperties.value}})()}}`,
     };
   }
 

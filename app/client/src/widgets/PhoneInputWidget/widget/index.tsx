@@ -14,7 +14,8 @@ import {
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import _ from "lodash";
 import BaseInputWidget from "widgets/BaseInputWidget";
-import derivedProperties from "./parsedDerivedProperties";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import type { CountryCode } from "libphonenumber-js";
@@ -295,8 +296,10 @@ class PhoneInputWidget extends BaseInputWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
-      isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
+      isValid: `{{(() => {${parsedDerivedProperties.isValid}})()}}`,
     };
   }
 

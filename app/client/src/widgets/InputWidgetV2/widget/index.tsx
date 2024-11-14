@@ -39,7 +39,8 @@ import {
 import type { InputComponentProps } from "../component";
 import InputComponent from "../component";
 import { getParsedText, isInputTypeEmailOrPassword } from "./Utilities";
-import derivedProperties from "./parsedDerivedProperties";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
@@ -640,8 +641,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return merge(super.getDerivedPropertiesMap(), {
-      isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
+      isValid: `{{(() => {${parsedDerivedProperties.isValid}})()}}`,
     });
   }
 

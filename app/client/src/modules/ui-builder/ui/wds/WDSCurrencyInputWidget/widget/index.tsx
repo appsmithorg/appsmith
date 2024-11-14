@@ -6,7 +6,7 @@ import type { WidgetState } from "widgets/BaseWidget";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import { CurrencyInputComponent } from "../component";
-import derivedProperties from "./parsedDerivedProperties";
+
 import {
   formatCurrencyNumber,
   limitDecimalValue,
@@ -19,7 +19,9 @@ import {
 import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
+  parseDerivedProperties,
 } from "widgets/WidgetUtils";
+import derivedPropertyFns from "./derived";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
   AnvilConfig,
@@ -120,8 +122,10 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   }
 
   static getDerivedPropertiesMap() {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
-      isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
+      isValid: `{{(() => {${parsedDerivedProperties.isValid}})()}}`,
     };
   }
 
