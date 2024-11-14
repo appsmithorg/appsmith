@@ -1,4 +1,3 @@
-const shell = require("shelljs");
 const fsPromises = require("fs/promises");
 const Constants = require("./constants");
 const childProcess = require("child_process");
@@ -18,18 +17,25 @@ function showHelp() {
   console.log("\t--help\t\t\t" + "Show help.");
 }
 
-function stop(apps) {
-  const appsStr = apps.join(" ");
-  console.log("Stopping " + appsStr);
-  shell.exec("/usr/bin/supervisorctl stop " + appsStr);
-  console.log("Stopped " + appsStr);
+async function ensureSupervisorIsRunning() {
+  try {
+    await execCommandSilent(["/usr/bin/supervisorctl"]);
+  } catch (e) {
+    console.error('Supervisor is not running, exiting.');
+    throw e;
+  }
 }
 
-function start(apps) {
-  const appsStr = apps.join(" ");
-  console.log("Starting " + appsStr);
-  shell.exec("/usr/bin/supervisorctl start " + appsStr);
-  console.log("Started " + appsStr);
+async function stop(apps) {
+  console.log("Stopping", apps);
+  await execCommand(["/usr/bin/supervisorctl", "stop", ...apps]);
+  console.log("Stopped", apps);
+}
+
+async function start(apps) {
+  console.log("Starting", apps);
+  await execCommand(["/usr/bin/supervisorctl", "start", ...apps]);
+  console.log("Started", apps);
 }
 
 function getDburl() {
@@ -186,6 +192,7 @@ function getDatabaseNameFromMongoURI(uri) {
 
 module.exports = {
   showHelp,
+  ensureSupervisorIsRunning,
   start,
   stop,
   execCommand,
@@ -196,5 +203,5 @@ module.exports = {
   preprocessMongoDBURI,
   execCommandSilent,
   getDatabaseNameFromMongoURI,
-  getDburl
+  getDburl,
 };

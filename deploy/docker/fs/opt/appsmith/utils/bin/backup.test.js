@@ -34,7 +34,6 @@ it('Should not hould throw Error when the available size is >= MIN_REQUIRED_DISK
 it('Generates t', async () => {
   os.tmpdir =  jest.fn().mockReturnValue('temp/dir');
   fsPromises.mkdtemp =  jest.fn().mockImplementation((a) => a);
-  backup.generateBackupRootPath().then((response)=>{console.log(response)})
   const res = await backup.generateBackupRootPath()
   expect(res).toBe('temp/dir/appsmithctl-backup-')
 });
