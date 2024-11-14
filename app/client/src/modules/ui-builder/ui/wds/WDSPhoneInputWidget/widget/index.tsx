@@ -15,7 +15,8 @@ import { WDSBaseInputWidget } from "modules/ui-builder/ui/wds/WDSBaseInputWidget
 import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "modules/ui-builder/ui/wds/WDSBaseInputWidget/component/types";
-import derivedProperties from "modules/ui-builder/ui/wds/WDSCurrencyInputWidget/widget/parsedDerivedProperties";
+import derivedPropertyFns from "modules/ui-builder/ui/wds/WDSCurrencyInputWidget/widget/derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 
 import * as config from "../config";
 import { PhoneInputComponent } from "../component";
@@ -107,8 +108,10 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
-      isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
+      isValid: `{{(() => {${parsedDerivedProperties.isValid}})()}}`,
     };
   }
 
