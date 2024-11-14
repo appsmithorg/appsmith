@@ -57,7 +57,6 @@ export interface UpdateUserRequest {
   name?: string;
   email?: string;
   proficiency?: string;
-  role?: string;
   useCase?: string;
   intercomConsentGiven?: boolean;
 }
