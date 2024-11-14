@@ -438,7 +438,9 @@ export const QueryResponseTab = (props: Props) => {
                 data={output}
                 responseType={currentContentType}
                 tableBodyHeight={
-                  responseTabHeight + RESPONSE_TABLE_HEIGHT_OFFSET
+                  responseTabHeight +
+                  RESPONSE_TABLE_HEIGHT_OFFSET -
+                  scrollbarOffset
                 }
               />
             </Styled.Response>

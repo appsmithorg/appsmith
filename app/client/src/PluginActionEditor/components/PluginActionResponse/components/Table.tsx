@@ -43,7 +43,7 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
   display: flex;
   justify-content: space-between;
   flex-direction: column;
-  overflow: scroll;
+  overflow: auto;
   .tableWrap {
     height: 100%;
     display: block;
