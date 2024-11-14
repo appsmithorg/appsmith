@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import React, { useCallback } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { noop } from "lodash";
@@ -45,8 +45,8 @@ import {
   getPluginNameFromId,
 } from "ee/selectors/entitiesSelector";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
-import { klona } from "klona";
 import AlloyUtils from "utils/AlloyUtils";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 
 const ALLOY_EDITOR_JSON = [
   {
@@ -325,6 +325,8 @@ export function EditorJSONtoForm(props: Props) {
       action.baseId === params.baseQueryId,
   );
 
+  const currentWorkspace = useSelector(getCurrentAppWorkspace);
+
   const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
 
   const showSchema =
@@ -397,8 +399,6 @@ export function EditorJSONtoForm(props: Props) {
     datasourceConfigurationProps?.find(({ key }) => key === "integrationId")
       ?.value || "";
 
-  const integrationsWithWorkflows = AlloyUtils.getWorkflows();
-  console.log(integrationsWithWorkflows);
   // const integrationData = integrationsWithWorkflows[integrationId];
   // if (integrationId && integrationData) {
   // const paragonEditorJson = klona(PARAGON_EDITOR_JSON);
@@ -421,6 +421,33 @@ export function EditorJSONtoForm(props: Props) {
   editorConfig = ALLOY_EDITOR_JSON;
   uiComponent = UIComponentTypes.UQIDbEditorForm;
   // }
+
+  const runWorkflow = async () => {
+    const integrationsWithWorkflows = await AlloyUtils.getWorkflows();
+    console.log(integrationsWithWorkflows);
+    const data = await fetch(
+      "https://embedded.runalloy.com/2024-03/run/workflow",
+      {
+        headers: {
+          Authorization: "Bearer 87OjBApLSpdqZjwNCjz4D",
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          workflowName: integrationsWithWorkflows.data[0].name,
+          workflowId: integrationsWithWorkflows.data[0].workflowId,
+          userId: currentWorkspace.userId,
+          data: "{}",
+        }),
+        method: "POST",
+      },
+    ).then((res) => res.json());
+    console.log(data);
+  };
+
+  useEffect(() => {
+    runWorkflow();
+  }, []);
 
   // if (integrationId && !integrationData) return null;
 
@@ -472,6 +499,7 @@ export function EditorJSONtoForm(props: Props) {
                   className="tab-panel"
                   value={EDITOR_TABS.QUERY}
                 >
+                  <Button onClick={runWorkflow}>Run Workflow</Button>
                   <SettingsWrapper
                     data-testid={`t--action-form-${plugin?.type}`}
                   >
