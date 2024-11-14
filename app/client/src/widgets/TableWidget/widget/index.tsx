@@ -39,7 +39,8 @@ import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import type { ReactTableFilter } from "../component/Constants";
 import { OperatorTypes } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
-import derivedProperties from "./parseDerivedProperties";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 import { selectRowIndex, selectRowIndices } from "./utilities";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
@@ -425,15 +426,17 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap() {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
-      selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
-      triggeredRow: `{{(()=>{${derivedProperties.getTriggeredRow}})()}}`,
-      selectedRows: `{{(()=>{${derivedProperties.getSelectedRows}})()}}`,
-      pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
+      selectedRow: `{{(()=>{${parsedDerivedProperties.getSelectedRow}})()}}`,
+      triggeredRow: `{{(()=>{${parsedDerivedProperties.getTriggeredRow}})()}}`,
+      selectedRows: `{{(()=>{${parsedDerivedProperties.getSelectedRows}})()}}`,
+      pageSize: `{{(()=>{${parsedDerivedProperties.getPageSize}})()}}`,
       triggerRowSelection: "{{!!this.onRowSelected}}",
-      sanitizedTableData: `{{(()=>{${derivedProperties.getSanitizedTableData}})()}}`,
-      tableColumns: `{{(()=>{${derivedProperties.getTableColumns}})()}}`,
-      filteredTableData: `{{(()=>{ ${derivedProperties.getFilteredTableData}})()}}`,
+      sanitizedTableData: `{{(()=>{${parsedDerivedProperties.getSanitizedTableData}})()}}`,
+      tableColumns: `{{(()=>{${parsedDerivedProperties.getTableColumns}})()}}`,
+      filteredTableData: `{{(()=>{ ${parsedDerivedProperties.getFilteredTableData}})()}}`,
     };
   }
 

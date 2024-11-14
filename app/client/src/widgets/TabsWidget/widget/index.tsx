@@ -17,7 +17,8 @@ import type { WidgetState } from "../../BaseWidget";
 import BaseWidget from "../../BaseWidget";
 import TabsComponent from "../component";
 import type { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
-import derivedProperties from "./parseDerivedProperties";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import {
   isAutoHeightEnabledForWidget,
@@ -537,8 +538,10 @@ class TabsWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap() {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
-      selectedTab: `{{(()=>{${derivedProperties.getSelectedTab}})()}}`,
+      selectedTab: `{{(()=>{${parsedDerivedProperties.getSelectedTab}})()}}`,
     };
   }
 

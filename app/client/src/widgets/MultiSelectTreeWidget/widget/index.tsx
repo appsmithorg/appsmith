@@ -23,7 +23,8 @@ import {
   isCompactMode,
 } from "widgets/WidgetUtils";
 import MultiTreeSelectComponent from "../component";
-import derivedProperties from "./parseDerivedProperties";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -641,12 +642,14 @@ class MultiSelectTreeWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap() {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
       value: `{{this.selectedOptionValues}}`,
-      isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
-      flattenedOptions: `{{(()=>{${derivedProperties.getFlattenedOptions}})()}}`,
-      selectedOptionValues: `{{(()=>{${derivedProperties.getSelectedOptionValues}})()}}`,
-      selectedOptionLabels: `{{(()=>{${derivedProperties.getSelectedOptionLabels}})()}}`,
+      isValid: `{{(()=>{${parsedDerivedProperties.getIsValid}})()}}`,
+      flattenedOptions: `{{(()=>{${parsedDerivedProperties.getFlattenedOptions}})()}}`,
+      selectedOptionValues: `{{(()=>{${parsedDerivedProperties.getSelectedOptionValues}})()}}`,
+      selectedOptionLabels: `{{(()=>{${parsedDerivedProperties.getSelectedOptionLabels}})()}}`,
     };
   }
 

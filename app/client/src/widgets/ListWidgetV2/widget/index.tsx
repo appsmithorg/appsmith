@@ -7,7 +7,8 @@ import { floor, isEmpty, isNil, isString } from "lodash";
 import hash from "object-hash";
 import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import derivedProperties from "./parseDerivedProperties";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 import ListComponent, { ListComponentEmpty } from "../component";
 import ListPagination, {
   ServerSideListPagination,
@@ -283,8 +284,10 @@ class ListWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap() {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
-      childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
+      childAutoComplete: `{{(() => {${parsedDerivedProperties.getChildAutoComplete}})()}}`,
     };
   }
 

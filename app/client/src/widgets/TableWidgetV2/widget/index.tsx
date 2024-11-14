@@ -63,7 +63,8 @@ import {
   PaginationDirection,
   TABLE_COLUMN_ORDER_KEY,
 } from "../constants";
-import derivedProperties from "./parseDerivedProperties";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 import {
   createEditActionColumn,
   deleteLocalTableColumnOrderByWidgetId,
@@ -482,21 +483,23 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   static getDerivedPropertiesMap() {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
-      selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
-      triggeredRow: `{{(()=>{${derivedProperties.getTriggeredRow}})()}}`,
-      selectedRows: `{{(()=>{${derivedProperties.getSelectedRows}})()}}`,
-      pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
+      selectedRow: `{{(()=>{${parsedDerivedProperties.getSelectedRow}})()}}`,
+      triggeredRow: `{{(()=>{${parsedDerivedProperties.getTriggeredRow}})()}}`,
+      selectedRows: `{{(()=>{${parsedDerivedProperties.getSelectedRows}})()}}`,
+      pageSize: `{{(()=>{${parsedDerivedProperties.getPageSize}})()}}`,
       triggerRowSelection: "{{!!this.onRowSelected}}",
-      processedTableData: `{{(()=>{${derivedProperties.getProcessedTableData}})()}}`,
-      orderedTableColumns: `{{(()=>{${derivedProperties.getOrderedTableColumns}})()}}`,
-      filteredTableData: `{{(()=>{ ${derivedProperties.getFilteredTableData}})()}}`,
-      updatedRows: `{{(()=>{ ${derivedProperties.getUpdatedRows}})()}}`,
-      updatedRowIndices: `{{(()=>{ ${derivedProperties.getUpdatedRowIndices}})()}}`,
-      updatedRow: `{{(()=>{ ${derivedProperties.getUpdatedRow}})()}}`,
-      pageOffset: `{{(()=>{${derivedProperties.getPageOffset}})()}}`,
-      isEditableCellsValid: `{{(()=>{ ${derivedProperties.getEditableCellValidity}})()}}`,
-      tableHeaders: `{{(()=>{${derivedProperties.getTableHeaders}})()}}`,
+      processedTableData: `{{(()=>{${parsedDerivedProperties.getProcessedTableData}})()}}`,
+      orderedTableColumns: `{{(()=>{${parsedDerivedProperties.getOrderedTableColumns}})()}}`,
+      filteredTableData: `{{(()=>{ ${parsedDerivedProperties.getFilteredTableData}})()}}`,
+      updatedRows: `{{(()=>{ ${parsedDerivedProperties.getUpdatedRows}})()}}`,
+      updatedRowIndices: `{{(()=>{ ${parsedDerivedProperties.getUpdatedRowIndices}})()}}`,
+      updatedRow: `{{(()=>{ ${parsedDerivedProperties.getUpdatedRow}})()}}`,
+      pageOffset: `{{(()=>{${parsedDerivedProperties.getPageOffset}})()}}`,
+      isEditableCellsValid: `{{(()=>{ ${parsedDerivedProperties.getEditableCellValidity}})()}}`,
+      tableHeaders: `{{(()=>{${parsedDerivedProperties.getTableHeaders}})()}}`,
     };
   }
 

@@ -67,7 +67,8 @@ import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
 import IconSVG from "../icon.svg";
-import derivedProperties from "./parseDerivedProperties";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
@@ -606,11 +607,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   }
 
   static getDerivedPropertiesMap() {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
-      pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
-      selectedItem: `{{(()=>{${derivedProperties.getSelectedItem}})()}}`,
-      items: `{{(() => {${derivedProperties.getItems}})()}}`,
-      childAutoComplete: `{{(() => {${derivedProperties.getChildAutoComplete}})()}}`,
+      pageSize: `{{(()=>{${parsedDerivedProperties.getPageSize}})()}}`,
+      selectedItem: `{{(()=>{${parsedDerivedProperties.getSelectedItem}})()}}`,
+      items: `{{(() => {${parsedDerivedProperties.getItems}})()}}`,
+      childAutoComplete: `{{(() => {${parsedDerivedProperties.getChildAutoComplete}})()}}`,
     };
   }
 

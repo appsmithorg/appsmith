@@ -27,7 +27,8 @@ import {
   defaultValueExpressionPrefix,
   getDefaultValueExpressionSuffix,
 } from "../constants";
-import derivedProperties from "./parseDerivedProperties";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -772,12 +773,14 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   // https://github.com/appsmithorg/appsmith/issues/13664#issuecomment-1120814337
   static getDerivedPropertiesMap() {
-    return {
-      options: `{{(()=>{${derivedProperties.getOptions}})()}}`,
-      isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
-      selectedOptionValue: `{{(()=>{${derivedProperties.getSelectedOptionValue}})()}}`,
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
 
-      selectedOptionLabel: `{{(()=>{${derivedProperties.getSelectedOptionLabel}})()}}`,
+    return {
+      options: `{{(()=>{${parsedDerivedProperties.getOptions}})()}}`,
+      isValid: `{{(()=>{${parsedDerivedProperties.getIsValid}})()}}`,
+      selectedOptionValue: `{{(()=>{${parsedDerivedProperties.getSelectedOptionValue}})()}}`,
+
+      selectedOptionLabel: `{{(()=>{${parsedDerivedProperties.getSelectedOptionLabel}})()}}`,
     };
   }
 

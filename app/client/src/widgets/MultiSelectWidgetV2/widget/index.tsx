@@ -20,7 +20,8 @@ import {
   isCompactMode,
 } from "widgets/WidgetUtils";
 import MultiSelectComponent from "../component";
-import derivedProperties from "./parseDerivedProperties";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -754,12 +755,14 @@ class MultiSelectWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap() {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
-      options: `{{(()=>{${derivedProperties.getOptions}})()}}`,
+      options: `{{(()=>{${parsedDerivedProperties.getOptions}})()}}`,
       value: `{{this.selectedOptionValues}}`,
-      isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
-      selectedOptionValues: `{{(()=>{${derivedProperties.getSelectedOptionValues}})()}}`,
-      selectedOptionLabels: `{{(()=>{${derivedProperties.getSelectedOptionLabels}})()}}`,
+      isValid: `{{(()=>{${parsedDerivedProperties.getIsValid}})()}}`,
+      selectedOptionValues: `{{(()=>{${parsedDerivedProperties.getSelectedOptionValues}})()}}`,
+      selectedOptionLabels: `{{(()=>{${parsedDerivedProperties.getSelectedOptionLabels}})()}}`,
     };
   }
 

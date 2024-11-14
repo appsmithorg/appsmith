@@ -22,7 +22,8 @@ import {
   isCompactMode,
 } from "widgets/WidgetUtils";
 import SingleSelectTreeComponent from "../component";
-import derivedProperties from "./parseDerivedProperties";
+import derivedPropertyFns from "./derived";
+import { parseDerivedProperties } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
@@ -629,12 +630,14 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap() {
+    const parsedDerivedProperties = parseDerivedProperties(derivedPropertyFns);
+
     return {
       value: `{{this.selectedOptionValue}}`,
-      flattenedOptions: `{{(()=>{${derivedProperties.getFlattenedOptions}})()}}`,
-      isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
-      selectedOptionValue: `{{(()=>{${derivedProperties.getSelectedOptionValue}})()}}`,
-      selectedOptionLabel: `{{(()=>{${derivedProperties.getSelectedOptionLabel}})()}}`,
+      flattenedOptions: `{{(()=>{${parsedDerivedProperties.getFlattenedOptions}})()}}`,
+      isValid: `{{(()=>{${parsedDerivedProperties.getIsValid}})()}}`,
+      selectedOptionValue: `{{(()=>{${parsedDerivedProperties.getSelectedOptionValue}})()}}`,
+      selectedOptionLabel: `{{(()=>{${parsedDerivedProperties.getSelectedOptionLabel}})()}}`,
     };
   }
 
