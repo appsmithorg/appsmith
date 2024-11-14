@@ -210,7 +210,7 @@ myFun2: async () => {
       agHelper.GetNClick(jsEditor._lineinJsEditor(26));
 
       // click run button and take a snap to make sure prettify did not revert
-      agHelper.GetNClick(jsEditor._runButton);
+      _.jsEditor.toolbar.clickRunButton();
       agHelper.Sleep(); // allow time to run
       //Close bottom bar after execution.
       debuggerHelper.CloseBottomBar();
@@ -313,7 +313,7 @@ myFun2: async () => {
       agHelper.GetNClick(jsEditor._lineinJsEditor(26));
 
       // click run button and take a snap to make sure prettify did not revert
-      agHelper.GetNClick(jsEditor._runButton);
+      _.jsEditor.toolbar.clickRunButton();
       agHelper.Sleep(); // allow time to run
       //Close bottom bar after execution.
       debuggerHelper.CloseBottomBar();
