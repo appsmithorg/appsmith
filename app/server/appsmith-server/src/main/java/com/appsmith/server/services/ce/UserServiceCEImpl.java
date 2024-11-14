@@ -621,9 +621,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
 
         if (allUpdates.hasUserDataUpdates()) {
             final UserData updates = new UserData();
-            if (StringUtils.hasLength(allUpdates.getRole())) {
-                updates.setRole(allUpdates.getRole());
-            }
             if (StringUtils.hasLength(allUpdates.getProficiency())) {
                 updates.setProficiency(allUpdates.getProficiency());
             }
