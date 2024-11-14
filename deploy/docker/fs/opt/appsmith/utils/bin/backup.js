@@ -16,13 +16,7 @@ async function run() {
   let backupRootPath, archivePath, encryptionPassword;
   let encryptArchive = false;
 
-  try {
-    await utils.execCommandSilent(["/usr/bin/supervisorctl"]);
-  } catch (e) {
-    console.error('Supervisor is not running, exiting.');
-    process.exitCode = 1;
-    return;
-  }
+  await utils.ensureSupervisorIsRunning();
 
   try {
     console.log('Available free space at /appsmith-stacks');
@@ -31,7 +25,7 @@ async function run() {
 
     checkAvailableBackupSpace(availSpaceInBytes);
 
-    const backupRootPath = await generateBackupRootPath();
+    backupRootPath = await generateBackupRootPath();
     const backupContentsPath = getBackupContentsPath(backupRootPath, timestamp);
 
     await fsPromises.mkdir(backupContentsPath);
@@ -51,17 +45,17 @@ async function run() {
     }
     await exportDockerEnvFile(backupContentsPath, encryptArchive);
 
-    const archivePath = await createFinalArchive(backupRootPath, timestamp);
+    archivePath = await createFinalArchive(backupRootPath, timestamp);
     // shell.exec("openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -in " + archivePath + " -out " + archivePath + ".enc");
     if (encryptArchive){
         const encryptedArchivePath = await encryptBackupArchive(archivePath,encryptionPassword);
-        logger.backup_info('Finished creating an encrypted a backup archive at ' + encryptedArchivePath);
+        await logger.backup_info('Finished creating an encrypted a backup archive at ' + encryptedArchivePath);
         if (archivePath != null) {
           await fsPromises.rm(archivePath, { recursive: true, force: true });
         }
     }
     else {
-      logger.backup_info('Finished creating a backup archive at ' + archivePath);
+      await logger.backup_info('Finished creating a backup archive at ' + archivePath);
       console.log('********************************************************* IMPORTANT!!! *************************************************************');
       console.log('*** Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file **')
       console.log('*** These values are not included in the backup export.                                                                           **');
@@ -70,7 +64,7 @@ async function run() {
 
     await fsPromises.rm(backupRootPath, { recursive: true, force: true });
 
-    logger.backup_info('Finished taking a backup at ' + archivePath);
+    await logger.backup_info('Finished taking a backup at ' + archivePath);
 
   } catch (err) {
     errorCode = 1;
@@ -194,9 +188,8 @@ function getGitRoot(gitRoot) {
   return gitRoot
 }
 
-async function generateBackupRootPath() {
-  const backupRootPath = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'appsmithctl-backup-'));
-  return backupRootPath
+function generateBackupRootPath() {
+  return fsPromises.mkdtemp(path.join(os.tmpdir(), 'appsmithctl-backup-'));
 }
 
 function getBackupContentsPath(backupRootPath, timestamp) {
