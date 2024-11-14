@@ -436,10 +436,14 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     String name = action.getValidName();
                     CreatorContextType contextType =
                             action.getContextType() == null ? CreatorContextType.PAGE : action.getContextType();
-                    return refactoringService
-                            .isNameAllowed(page.getId(), contextType, layout.getId(), name)
-                            .name(IS_NAME_ALLOWED)
-                            .tap(Micrometer.observation(observationRegistry));
+
+                    if (!isJsAction) {
+                        return refactoringService
+                                .isNameAllowed(page.getId(), contextType, layout.getId(), name)
+                                .name(IS_NAME_ALLOWED)
+                                .tap(Micrometer.observation(observationRegistry));
+                    }
+                    return Mono.just(true);
                 })
                 .flatMap(nameAllowed -> {
                     // If the name is allowed, return pageMono for further processing

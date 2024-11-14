@@ -27,6 +27,7 @@ import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -75,6 +76,7 @@ import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Slf4j
@@ -803,5 +805,65 @@ public class ActionCollectionServiceTest {
                             .forEach(action -> assertNull(action.getErrorReports(), "Error reports should be null"));
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void
+            testUpdateUnpublishedActionCollection_createMultipleActionsWithSameName_returnsDuplicateActionNameError() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testCollection1");
+        actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setWorkspaceId(workspaceId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("collectionBody");
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        // Create actions
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("initial body");
+        action1.getActionConfiguration().setIsValid(false);
+        actionCollectionDTO.setActions(List.of(action1));
+
+        // Create Js object
+        ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        assert createdActionCollectionDTO != null;
+        assert createdActionCollectionDTO.getId() != null;
+        String createdActionCollectionId = createdActionCollectionDTO.getId();
+
+        // Update JS object to create two actions with same name
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("testAction1");
+        action2.setActionConfiguration(new ActionConfiguration());
+        action2.getActionConfiguration().setBody("mockBody");
+        action2.getActionConfiguration().setIsValid(false);
+
+        ActionDTO action3 = new ActionDTO();
+        action3.setName("testAction2");
+        action3.setActionConfiguration(new ActionConfiguration());
+        action3.getActionConfiguration().setBody("mockBody");
+        action3.getActionConfiguration().setIsValid(false);
+
+        actionCollectionDTO.setActions(
+                List.of(createdActionCollectionDTO.getActions().get(0), action2, action3));
+
+        final Mono<ActionCollectionDTO> updatedActionCollectionDTO =
+                layoutCollectionService.updateUnpublishedActionCollection(
+                        createdActionCollectionId, actionCollectionDTO);
+
+        StepVerifier.create(updatedActionCollectionDTO).verifyErrorSatisfies(error -> {
+            assertTrue(error instanceof AppsmithException);
+            String expectedMessage = "testCollection1.testAction1 already exists. Please use a different name";
+            assertEquals(expectedMessage, error.getMessage());
+        });
     }
 }

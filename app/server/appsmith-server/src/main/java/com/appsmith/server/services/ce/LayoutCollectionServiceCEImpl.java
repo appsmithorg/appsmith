@@ -315,6 +315,19 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         final Set<String> baseActionIds = new HashSet<>();
         baseActionIds.addAll(validBaseActionIds);
 
+        // If duplicate action name exists, throw an error
+        final Map<String, Long> actionNameCountMap = actionCollectionDTO.getActions().stream()
+                .collect(Collectors.groupingBy(ActionDTO::getName, Collectors.counting()));
+        List<String> duplicateNames = actionNameCountMap.entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        if (!duplicateNames.isEmpty()) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.DUPLICATE_KEY_USER_ERROR, duplicateNames.get(0), FieldName.NAME));
+        }
+
         final Mono<Map<String, String>> newValidActionIdsMono = branchedActionCollectionMono.flatMap(
                 branchedActionCollection -> Flux.fromIterable(actionCollectionDTO.getActions())
                         .flatMap(actionDTO -> {
