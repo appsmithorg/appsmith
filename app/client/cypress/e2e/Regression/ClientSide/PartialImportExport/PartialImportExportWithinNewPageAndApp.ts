@@ -7,6 +7,7 @@ import {
   entityItems,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
+import { EntityType } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
 const fixtureName = "ImportExport.json";
@@ -69,6 +70,12 @@ describe(
         "Queries",
         ["Api1"],
       );
+
+      agHelper.selectAndValidateWidgetNameAndProperty({
+        widgetName: "Table1",
+        propFieldName: "Table data",
+        valueToValidate: "{{Api1.data}}",
+      });
     });
 
     it("2. Should be able to import again in the same Page", () => {
@@ -78,9 +85,21 @@ describe(
         "Widgets",
         ["Table1", "Button1"],
       );
-      
-      agHelper.AssertElementLength(`${locators._widgetInDeployed('tablewidgetv2')}`, 2);
-      agHelper.AssertElementLength(`${locators._widgetInDeployed('buttonwidget')}`, 2);
+
+      agHelper.selectAndValidateWidgetNameAndProperty({
+        widgetName: "Table1",
+        propFieldName: "Table data",
+        valueToValidate: "{{Api1.data}}",
+      });
+
+      agHelper.AssertElementLength(
+        `${locators._widgetInDeployed("tablewidgetv2")}`,
+        2,
+      );
+      agHelper.AssertElementLength(
+        `${locators._widgetInDeployed("buttonwidget")}`,
+        2,
+      );
     });
 
     it("3. Should import the Page into new application", () => {
@@ -102,6 +121,12 @@ describe(
         "Queries",
         ["Api1"],
       );
+
+      agHelper.selectAndValidateWidgetNameAndProperty({
+        widgetName: "Table1",
+        propFieldName: "Table data",
+        valueToValidate: "{{Api1.data}}",
+      });
     });
   },
 );
