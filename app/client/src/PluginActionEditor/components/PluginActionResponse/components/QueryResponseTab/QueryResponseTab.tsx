@@ -55,6 +55,7 @@ import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import * as Styled from "./styles";
 import { useBoolean, useEventCallback } from "usehooks-ts";
 import { RESPONSE_TABLE_HEIGHT_OFFSET } from "./constants";
+import { scrollbarWidth } from "utils/helpers";
 
 interface Props {
   actionSource: SourceEntity;
@@ -79,8 +80,14 @@ interface Props {
 // // * Update table appearance.
 // // * Table columns have a fixed width of 170px now, this needs to be updated to min-width.
 // // * Fix FAB hover issue.
+// // * Account for scrollbars that are always shown.
+// // * Add status bar to error state, hide bind to UI button.
+// // * Add dashed underline for status bar fn name & meta.
+// * Update REST API
+// * Update GQL API
 // * Fix Cypress tests related to result type control change.
 
+// ? Make table stretchable - this is not easily accomplishable with the current table component, need to calculate column width manually.
 // // ? Query name is a bold Text variant that is of weight 500 in ADS
 // // ? Query name/info font size is larger in FE component - 14px vs 13px in Figma
 
@@ -119,6 +126,8 @@ export const QueryResponseTab = (props: Props) => {
 
   const { responseDataTypes, responseDisplayFormat } =
     actionResponseDisplayDataFormats(actionResponse);
+
+  const scrollbarOffset = scrollbarWidth();
 
   let output: Record<string, unknown>[] | string = "";
   let errorMessage = runErrorMessage;
@@ -328,52 +337,67 @@ export const QueryResponseTab = (props: Props) => {
         </Callout>
       )}
       {errorMessage && (
-        <ResponseTabErrorContainer>
-          <ResponseTabErrorContent>
-            <ResponseTabErrorDefaultMessage>
-              Your query failed to execute
+        <div>
+          <Styled.StatusBar>
+            <Styled.StatusBarInfo>
+              <Styled.StatusBarText $isBold kind="code">
+                {`${actionName}.run():`}
+              </Styled.StatusBarText>
+              <Styled.StatusBarText $isError kind="code">
+                Error
+              </Styled.StatusBarText>
+            </Styled.StatusBarInfo>
+          </Styled.StatusBar>
+          <ResponseTabErrorContainer>
+            <ResponseTabErrorContent>
+              <ResponseTabErrorDefaultMessage>
+                Your query failed to execute
+                {actionResponse &&
+                  (actionResponse.pluginErrorDetails || actionResponse.body) &&
+                  ":"}
+              </ResponseTabErrorDefaultMessage>
               {actionResponse &&
-                (actionResponse.pluginErrorDetails || actionResponse.body) &&
-                ":"}
-            </ResponseTabErrorDefaultMessage>
-            {actionResponse &&
-              (actionResponse.pluginErrorDetails ? (
-                <>
-                  <div data-testid="t--query-error">
-                    {actionResponse.pluginErrorDetails.downstreamErrorMessage ||
-                      actionResponse.pluginErrorDetails.appsmithErrorMessage}
-                  </div>
-                  {actionResponse.pluginErrorDetails.downstreamErrorCode && (
-                    <LogAdditionalInfo
-                      text={
-                        actionResponse.pluginErrorDetails.downstreamErrorCode
-                      }
-                    />
-                  )}
-                </>
-              ) : (
-                actionResponse.body && (
-                  <div data-testid="t--query-error">{actionResponse.body}</div>
-                )
-              ))}
-            <LogHelper
-              logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
-              name="PluginExecutionError"
-              pluginErrorDetails={
-                actionResponse && actionResponse.pluginErrorDetails
-              }
-              source={actionSource}
-            />
-          </ResponseTabErrorContent>
-          {actionResponse && actionResponse.request && (
-            <JsonWrapper
-              className="t--debugger-log-state"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ReactJson src={responseState} {...apiReactJsonProps} />
-            </JsonWrapper>
-          )}
-        </ResponseTabErrorContainer>
+                (actionResponse.pluginErrorDetails ? (
+                  <>
+                    <div data-testid="t--query-error">
+                      {actionResponse.pluginErrorDetails
+                        .downstreamErrorMessage ||
+                        actionResponse.pluginErrorDetails.appsmithErrorMessage}
+                    </div>
+                    {actionResponse.pluginErrorDetails.downstreamErrorCode && (
+                      <LogAdditionalInfo
+                        text={
+                          actionResponse.pluginErrorDetails.downstreamErrorCode
+                        }
+                      />
+                    )}
+                  </>
+                ) : (
+                  actionResponse.body && (
+                    <div data-testid="t--query-error">
+                      {actionResponse.body}
+                    </div>
+                  )
+                ))}
+              <LogHelper
+                logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
+                name="PluginExecutionError"
+                pluginErrorDetails={
+                  actionResponse && actionResponse.pluginErrorDetails
+                }
+                source={actionSource}
+              />
+            </ResponseTabErrorContent>
+            {actionResponse && actionResponse.request && (
+              <JsonWrapper
+                className="t--debugger-log-state"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ReactJson src={responseState} {...apiReactJsonProps} />
+              </JsonWrapper>
+            )}
+          </ResponseTabErrorContainer>
+        </div>
       )}
       {hintMessages && hintMessages.length > 0 && (
         <Styled.HelpSection>
@@ -392,6 +416,7 @@ export const QueryResponseTab = (props: Props) => {
         selectedTabIndex !== -1 && (
           <Styled.DataContainer
             $height={responseTabHeight}
+            data-testid="t--query-response-data-container"
             onMouseEnter={setIsHovered}
             onMouseLeave={setIsNotHovered}
           >
@@ -414,16 +439,13 @@ export const QueryResponseTab = (props: Props) => {
                 placement="bottom"
               >
                 <Styled.StatusBarInfo>
-                  <Styled.StatusBarText $isBold kind="code">
+                  <Styled.StatusBarText $hasTooltip $isBold kind="code">
                     {`${actionName}.run():`}
                   </Styled.StatusBarText>
-                  {actionResponse?.isExecutionSuccess ? (
-                    <Styled.StatusBarText kind="code">{`${output.length} record${output.length > 1 ? "s" : ""}`}</Styled.StatusBarText>
-                  ) : (
-                    <Styled.StatusBarText $isError kind="code">
-                      Error
-                    </Styled.StatusBarText>
-                  )}
+                  <Styled.StatusBarText
+                    $hasTooltip
+                    kind="code"
+                  >{`${output.length} record${output.length > 1 ? "s" : ""}`}</Styled.StatusBarText>
                 </Styled.StatusBarInfo>
               </Tooltip>
               <BindDataButton
@@ -448,6 +470,8 @@ export const QueryResponseTab = (props: Props) => {
               <MenuTrigger>
                 <Styled.Fab
                   $isVisible={isContentTypeSelectorVisible}
+                  aria-label={`Change response format. Current format: ${currentContentType}`}
+                  data-testid="t--query-response-type-trigger"
                   endIcon={
                     isContentTypeMenuOpen
                       ? "arrow-up-s-line"

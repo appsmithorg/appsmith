@@ -60,10 +60,14 @@ export const LoadingContainer = styled.div`
 interface StatusBarTextProps {
   $isBold?: boolean;
   $isError?: boolean;
+  $hasTooltip?: boolean;
 }
 
 export const StatusBarText = styled(Text)<StatusBarTextProps>`
   font-size: 13px;
+  ${({ $hasTooltip }) =>
+    $hasTooltip &&
+    `text-decoration: underline var(--ads-v2-color-border) dashed;`}
   ${({ $isBold }) => $isBold && `font-weight: 700;`}
   ${({ $isError }) => $isError && `color: var(--ads-v2-color-fg-on-error);`}
 `;
