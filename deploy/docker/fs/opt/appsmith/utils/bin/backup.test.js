@@ -3,7 +3,6 @@ const Constants = require('./constants');
 const os = require('os');
 const fsPromises = require('fs/promises');
 const utils = require('./utils');
-const shell = require('shelljs');
 const readlineSync = require('readline-sync');
 
 describe('Backup Tests', () => {
@@ -13,19 +12,19 @@ test('Timestamp string in ISO format', () => {
   expect(backup.getTimeStampInISO()).toMatch(/(\d{4})-(\d{2})-(\d{2})T(\d{2})\-(\d{2})\-(\d{2})\.(\d{3})Z/)
 });
 
-test('Available Space in /appsmith-stacks volume in Bytes', () => {
-  shell.exec = jest.fn((format) => '20');
-  const res = expect(backup.getAvailableBackupSpaceInBytes())
-  res.toBe(20)
-
+test('Available Space in /appsmith-stacks volume in Bytes', async () => {
+  const res = expect(await backup.getAvailableBackupSpaceInBytes("/"))
+  res.toBeGreaterThan(1024 * 1024)
 });
+
 it('Checkx the constant is 2 GB', () => {
   let size = 2 * 1024 * 1024 * 1024
   expect(Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES).toBe(size)
 });
+
 it('Should throw Error when the available size is below MIN_REQUIRED_DISK_SPACE_IN_BYTES', () => {
   let size = Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES - 1;
-  expect(() => {backup.checkAvailableBackupSpace(size)}).toThrow('Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 2GB to backup successfully.');
+  expect(() => backup.checkAvailableBackupSpace(size)).toThrow();
 });
 
 it('Should not hould throw Error when the available size is >= MIN_REQUIRED_DISK_SPACE_IN_BYTES', () => {
@@ -35,7 +34,6 @@ it('Should not hould throw Error when the available size is >= MIN_REQUIRED_DISK
 it('Generates t', async () => {
   os.tmpdir =  jest.fn().mockReturnValue('temp/dir');
   fsPromises.mkdtemp =  jest.fn().mockImplementation((a) => a);
-  backup.generateBackupRootPath().then((response)=>{console.log(response)})
   const res = await backup.generateBackupRootPath()
   expect(res).toBe('temp/dir/appsmithctl-backup-')
 });

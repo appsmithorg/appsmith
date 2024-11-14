@@ -9,7 +9,6 @@ import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
-import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -68,19 +67,6 @@ public class UserControllerCE {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Void> createFormEncoded(ServerWebExchange exchange) {
         return userSignup.signupAndLoginFromFormData(exchange);
-    }
-
-    @JsonView(Views.Public.class)
-    @PostMapping(
-            value = "/super",
-            consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<ResponseDTO<User>> createSuperUser(
-            @Valid @RequestBody UserSignupRequestDTO resource,
-            @RequestHeader("Origin") String originHeader,
-            ServerWebExchange exchange) {
-        return userSignup
-                .signupAndLoginSuper(resource, originHeader, exchange)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
