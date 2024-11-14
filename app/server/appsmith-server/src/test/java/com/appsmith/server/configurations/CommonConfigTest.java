@@ -27,6 +27,6 @@ public class CommonConfigTest {
         userData.setUserPermissions(null);
 
         String value = objectMapper.writeValueAsString(userData);
-        JSONAssert.assertEquals("{\"proficiency\":\"abcd\",\"role\":\"new_role\"}", value, true);
+        JSONAssert.assertEquals("{\"proficiency\":\"abcd\"}", value, true);
     }
 }
