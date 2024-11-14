@@ -840,7 +840,7 @@ public class ActionCollectionServiceTest {
         assert createdActionCollectionDTO.getId() != null;
         String createdActionCollectionId = createdActionCollectionDTO.getId();
 
-        // Update JS object to create two actions with same name
+        // Update JS object to create an action with same name as previously created action
         ActionDTO action2 = new ActionDTO();
         action2.setName("testAction1");
         action2.setActionConfiguration(new ActionConfiguration());
