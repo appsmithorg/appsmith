@@ -1,6 +1,5 @@
 export * from "ce/sagas/userSagas";
 import {
-  createUserSaga,
   getCurrentUserSaga,
   runUserSideEffectsSaga,
   forgotPasswordSaga,
@@ -23,7 +22,6 @@ import { takeLatest, all } from "redux-saga/effects";
 
 export default function* userSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.CREATE_USER_INIT, createUserSaga),
     takeLatest(ReduxActionTypes.FETCH_USER_INIT, getCurrentUserSaga),
     takeLatest(
       ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,

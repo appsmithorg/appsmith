@@ -17,7 +17,6 @@ import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -52,15 +51,6 @@ public class UserControllerCE {
     private final UserSignup userSignup;
     private final UserDataService userDataService;
     private final UserAndAccessManagementService userAndAccessManagementService;
-
-    @JsonView(Views.Public.class)
-    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource, ServerWebExchange exchange) {
-        return userSignup
-                .signupAndLogin(resource, exchange)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
-    }
 
     @JsonView(Views.Public.class)
     @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
