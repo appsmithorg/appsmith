@@ -300,13 +300,34 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                         });
                     }
 
-                    return applicationMono.flatMap(application -> {
+                    return applicationMono.zipWith(branchedPageMonoCached).flatMap(tuple2 -> {
+                        Application application = tuple2.getT1();
+                        NewPage branchedPage = tuple2.getT2();
+
                         GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
 
-                        if (gitMetadata == null
-                                || gitMetadata.getDefaultBranchName().equals(gitMetadata.getBranchName())) {
-                            return Mono.just(application).zipWith(branchedPageMonoCached);
+                        boolean isNotAGitApp = gitMetadata == null;
+                        boolean isDefaultBranchNameAbsent =
+                                isNotAGitApp || !StringUtils.hasText(gitMetadata.getDefaultBranchName());
+                        boolean isBranchDefault = !isDefaultBranchNameAbsent
+                                && gitMetadata.getDefaultBranchName().equals(gitMetadata.getBranchName());
+
+                        // This last check is specially for view mode, when a queried page which is not present
+                        // in default branch, and cacheable repository refers to the base application
+                        // from given page id. then the branched page may not belong to the base application
+                        // hence a validation is required.
+                        // This condition is always true for a non git app
+                        boolean isPageFromSameApplication = application.getId().equals(branchedPage.getApplicationId());
+
+                        if ((isNotAGitApp || isDefaultBranchNameAbsent || isBranchDefault)
+                                && (!isViewMode || isPageFromSameApplication)) {
+                            return applicationMono.zipWith(branchedPageMonoCached);
                         }
+
+                        log.info(
+                                "ConsolidatedApi for page id {}, and application id {} has been queried without a branch url param",
+                                branchedPage.getId(),
+                                application.getId());
 
                         // The git connected application has not been queried with branch param,
                         // and the base branch is not same as the default branch.
@@ -346,9 +367,9 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     List<NewPage> newPages = tuple2.getT2();
                     return newPageService.createApplicationPagesDTO(branchedApplication, newPages, isViewMode, true);
                 })
+                .doOnError(e -> log.error("Error fetching application pages", e))
                 .as(this::toResponseDTO)
                 .doOnSuccess(consolidatedAPIResponseDTO::setPages)
-                .doOnError(e -> log.error("Error fetching application pages", e))
                 .name(getQualifiedSpanName(PAGES_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry))
                 .cache();
