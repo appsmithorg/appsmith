@@ -1,33 +1,34 @@
-import { Button, Flex, Link } from "@appsmith/ads";
-import React, { useCallback, useEffect, useState } from "react";
+import { Flex } from "@appsmith/ads";
+import React, { useEffect, useState } from "react";
 import {
   DatasourceStructureContext,
   type DatasourceColumns,
   type DatasourceKeys,
 } from "entities/Datasource";
-import { DatasourceStructureContainer as DatasourceStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
+// import { DatasourceStructureContainer as DatasourceStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
-  getPluginImages,
+  // getPluginImages,
   getPluginIdFromDatasourceId,
   getPluginDatasourceComponentFromId,
 } from "ee/selectors/entitiesSelector";
-import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
+// import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
 import { find } from "lodash";
 import type { AppState } from "ee/reducers";
 import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
 import {
   fetchDatasourceStructure,
-  refreshDatasourceStructure,
+  // refreshDatasourceStructure,
 } from "actions/datasourceActions";
-import history from "utils/history";
-import { datasourcesEditorIdURL } from "ee/RouteBuilder";
-import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
+// import history from "utils/history";
+// import { datasourcesEditorIdURL } from "ee/RouteBuilder";
+// import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
+// import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { getPluginActionDebuggerState } from "PluginActionEditor/store";
+import { StatusDisplay } from "./StatusDisplay";
 
 interface Props {
   datasourceId: string;
@@ -46,8 +47,8 @@ const Schema = (props: Props) => {
   const pluginId = useSelector((state) =>
     getPluginIdFromDatasourceId(state, props.datasourceId),
   );
-  const pluginImages = useSelector((state) => getPluginImages(state));
-  const datasourceIcon = pluginId ? pluginImages[pluginId] : undefined;
+  // const pluginImages = useSelector((state) => getPluginImages(state));
+  // const datasourceIcon = pluginId ? pluginImages[pluginId] : undefined;
 
   const [selectedTable, setSelectedTable] = useState<string>();
 
@@ -63,8 +64,8 @@ const Schema = (props: Props) => {
     columnsAndKeys.push(...selectedTableItems.columns);
   }
 
-  const columns =
-    find(datasourceStructure?.tables, ["name", selectedTable])?.columns || [];
+  // const columns =
+  //   find(datasourceStructure?.tables, ["name", selectedTable])?.columns || [];
 
   const isLoading = useSelector((state: AppState) =>
     getIsFetchingDatasourceStructure(state, props.datasourceId),
@@ -114,18 +115,18 @@ const Schema = (props: Props) => {
     [selectedTable, props.datasourceId, isLoading, datasourceStructure],
   );
 
-  const refreshStructure = useCallback(() => {
-    dispatch(
-      refreshDatasourceStructure(
-        props.datasourceId,
-        DatasourceStructureContext.QUERY_EDITOR,
-      ),
-    );
-  }, [dispatch, props.datasourceId]);
+  // const refreshStructure = useCallback(() => {
+  //   dispatch(
+  //     refreshDatasourceStructure(
+  //       props.datasourceId,
+  //       DatasourceStructureContext.QUERY_EDITOR,
+  //     ),
+  //   );
+  // }, [dispatch, props.datasourceId]);
 
-  const goToDatasource = useCallback(() => {
-    history.push(datasourcesEditorIdURL({ datasourceId: props.datasourceId }));
-  }, [props.datasourceId]);
+  // const goToDatasource = useCallback(() => {
+  //   history.push(datasourcesEditorIdURL({ datasourceId: props.datasourceId }));
+  // }, [props.datasourceId]);
 
   if (!datasourceStructure) {
     return (
@@ -139,15 +140,23 @@ const Schema = (props: Props) => {
     );
   }
 
+  const renderContent = () => {
+    // if (isLoading) {
+    return (
+      <StatusDisplay height={`${responseTabHeight - 45}px`} state="FAILED" />
+    );
+    // }
+  };
+
   return (
     <Flex
       flexDirection="row"
       gap="spaces-3"
       height={`${responseTabHeight - 45}px`}
-      maxWidth="70rem"
       overflow="hidden"
     >
-      <Flex
+      {renderContent()}
+      {/* <Flex
         data-testid="t--datasource-schema-container"
         flex="1"
         flexDirection="column"
@@ -216,7 +225,7 @@ const Schema = (props: Props) => {
               />
             );
           })}
-      </Flex>
+      </Flex> */}
     </Flex>
   );
 };
