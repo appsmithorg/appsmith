@@ -13,6 +13,8 @@ import {
   TabPanel,
   Button,
   Link,
+  IDEHeader,
+  IDEHeaderTitle,
 } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { EditInteractionKind, SavingState } from "@appsmith/ads-old";
@@ -74,10 +76,10 @@ import { useCurrentAppState } from "../hooks/useCurrentAppState";
 import { EditorState } from "ee/entities/IDE/constants";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
 import type { Page } from "entities/Page";
-import { IDEHeader, IDEHeaderTitle } from "IDE";
 import { APPLICATIONS_URL } from "constants/routes";
 import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
 import useLibraryHeaderTitle from "ee/pages/Editor/IDE/Header/useLibraryHeaderTitle";
+import { AppsmithLink } from "pages/Editor/AppsmithLink";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -218,7 +220,7 @@ const Header = () => {
   return (
     <>
       <IDEHeader>
-        <IDEHeader.Left>
+        <IDEHeader.Left logo={<AppsmithLink />}>
           <HeaderTitleComponent appState={appState} currentPage={currentPage} />
           <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
         </IDEHeader.Left>

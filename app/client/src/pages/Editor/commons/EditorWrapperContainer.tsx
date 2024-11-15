@@ -4,7 +4,7 @@ import classNames from "classnames";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "../../../selectors/editorSelectors";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import { IDE_HEADER_HEIGHT } from "../../../IDE";
+import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 import { BOTTOM_BAR_HEIGHT } from "../../../components/BottomBar/constants";
 import { PROTECTED_CALLOUT_HEIGHT } from "../IDE/ProtectedCallout";
 

@@ -1,9 +1,13 @@
 import React, { useState } from "react";
-import { Popover, PopoverTrigger, PopoverContent } from "@appsmith/ads";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  IDEHeaderSwitcher,
+} from "@appsmith/ads";
 
 import { createMessage, HEADER_TITLES } from "ee/constants/messages";
 import { PagesSection } from "../EditorPane/PagesSection";
-import { IDEHeaderEditorSwitcher } from "IDE";
 
 const EditorTitle = ({ title }: { title: string }) => {
   const [active, setActive] = useState(false);
@@ -15,9 +19,9 @@ const EditorTitle = ({ title }: { title: string }) => {
   return (
     <Popover onOpenChange={setActive} open={active}>
       <PopoverTrigger>
-        <IDEHeaderEditorSwitcher
+        <IDEHeaderSwitcher
           active={active}
-          prefix={createMessage(HEADER_TITLES.EDITOR)}
+          prefix={createMessage(HEADER_TITLES.PAGES)}
           title={title}
           titleTestId="t--pages-switcher"
         />
