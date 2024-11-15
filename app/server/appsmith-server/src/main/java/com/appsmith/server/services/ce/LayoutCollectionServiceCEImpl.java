@@ -315,8 +315,12 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         final Set<String> baseActionIds = new HashSet<>();
         baseActionIds.addAll(validBaseActionIds);
 
-        List<ActionDTO> existingActions = actionCollectionDTO.getActions().stream()
-                .filter(action -> action.getId() != null)
+        // create duplicate name map
+        final Map<String, Long> actionNameCountMap = actionCollectionDTO.getActions().stream()
+                .collect(Collectors.groupingBy(ActionDTO::getName, Collectors.counting()));
+        List<String> duplicateNames = actionNameCountMap.entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
         final Mono<Map<String, String>> newValidActionIdsMono = branchedActionCollectionMono.flatMap(
@@ -340,15 +344,11 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 actionDTO.setPluginId(actionCollectionDTO.getPluginId());
                                 actionDTO.setBranchName(branchedActionCollection.getBranchName());
 
-                                boolean isDuplicateActionName = existingActions.stream()
-                                        .anyMatch(action -> action.getValidName() != null
-                                                && action.getValidName().contains(actionDTO.getValidName()));
-
                                 // actionCollectionService is a new action, we need to create one
-                                if (isDuplicateActionName) {
+                                if (duplicateNames.contains(actionDTO.getName())) {
                                     return Mono.error(new AppsmithException(
                                             AppsmithError.DUPLICATE_KEY_USER_ERROR,
-                                            actionDTO.getValidName(),
+                                            actionDTO.getName(),
                                             FieldName.NAME));
                                 } else {
                                     return layoutActionService
