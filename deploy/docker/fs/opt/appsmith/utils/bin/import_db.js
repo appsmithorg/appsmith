@@ -30,12 +30,12 @@ const main = (forceOption) => {
     check_supervisord_status_cmd = '/usr/bin/supervisorctl'
     shell.exec(check_supervisord_status_cmd, function (code) {
       if (code > 0) {
-        shell.echo('application is not running, starting supervisord')
+        console.log('application is not running, starting supervisord')
         shell.exec('/usr/bin/supervisord')
       }
     })
 
-    shell.echo('stop backend & rts application before import database')
+    console.log('stop backend & rts application before import database')
     stop_application()
     const shellCmdResult = shell.exec(`mongo ${process.env.APPSMITH_DB_URL} --quiet --eval "db.getCollectionNames().length"`)
     const collectionsLen = parseInt(shellCmdResult.stdout.toString().trimEnd())
@@ -44,9 +44,9 @@ const main = (forceOption) => {
         import_database()
         return
       }
-      shell.echo()
-      shell.echo('**************************** WARNING ****************************')
-      shell.echo(`Your target database is not empty, it has data in ${collectionsLen} collections.`)
+      console.log()
+      console.log('**************************** WARNING ****************************')
+      console.log(`Your target database is not empty, it has data in ${collectionsLen} collections.`)
       const input = readlineSync.question('Importing this DB will erase this data. Are you sure you want to proceed?[Yes/No] ')
       const answer = input && input.toLocaleUpperCase()
       if (answer === 'Y' || answer === 'YES') {
@@ -55,17 +55,17 @@ const main = (forceOption) => {
       } else if (answer === 'N' || answer === 'NO') {
         return
       }
-      shell.echo(`Your input is invalid. Please try to run import command again.`)
+      console.log(`Your input is invalid. Please try to run import command again.`)
       return
     } else {
       import_database()
       return
     }
   } catch (err) {
-    shell.echo(err)
+    console.log(err)
     errorCode = 1
   } finally {
-    shell.echo('start backend & rts application after import database')
+    console.log('start backend & rts application after import database')
     start_application()
     process.exit(errorCode)
   }

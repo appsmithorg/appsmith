@@ -111,16 +111,13 @@ if [[ $status_code -eq 401 ]]; then
     default_user_name="${tokens[0]}"
     default_user_password="${tokens[1]}"
 
-    curl -k -X POST 'http://localhost/api/v1/users/super' \
-    --header 'Content-Type: application/json' \
-    --data-raw '{
-        "name" : "'"$default_user_name"'",
-        "email" : "'"$default_user_name"'",
-        "source" : "FORM",
-        "state" : "ACTIVATED",
-        "isEnabled" : "true",
-        "password": "'"$default_user_password"'"
-    }'
+    curl http://localhost/api/v1/users/super \
+      --data-urlencode "name=$default_user_name" \
+      --data-urlencode "email=$default_user_name" \
+      --data-urlencode "password=$default_user_password" \
+      -d source=FORM \
+      -d state=ACTIVATED \
+      -d isEnabled=true
 
     curl -s --location --request POST 'https://hook.integromat.com/dkwb6i52am93pi30ojeboktvj32iw0fa' \
     --header 'Content-Type: text/plain' \

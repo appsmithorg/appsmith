@@ -16,7 +16,7 @@ function CodeBlock({ code }: CodeBlockProps) {
       }}
     >
       <Code>{code}</Code>
-      <Button kind="tertiary" startIcon="copy-control" />
+      <Button isIconButton kind="tertiary" startIcon="copy-control" />
     </Wrapper>
   );
 }

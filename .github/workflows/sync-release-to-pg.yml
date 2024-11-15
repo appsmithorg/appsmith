@@ -51,13 +51,13 @@ jobs:
         if: env.MERGE_CONFLICT == 'false'
         run: |
           set -e
-          git push origin pg || echo "PUSH_FAILURE=true" >> $GITHUB_ENV
+          git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }} HEAD:pg || echo "PUSH_FAILURE=true" >> $GITHUB_ENV
 
       - name: Capture push failure message
         if: env.PUSH_FAILURE == 'true'
         run: |
           # Capture the last git error message
-          push_error_message=$(git push origin pg 2>&1 | tail -n 1)
+          push_error_message=$(git push https://${{ secrets.PAT_GITHUB }}@github.com/${{ github.repository }} HEAD:pg 2>&1 | tail -n 1)
           echo "PUSH_ERROR_MESSAGE=$push_error_message" >> $GITHUB_ENV
 
       - name: Notify on push failure
