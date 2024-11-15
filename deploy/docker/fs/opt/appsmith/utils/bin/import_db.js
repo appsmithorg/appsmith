@@ -17,7 +17,7 @@ async function importDatabase() {
     console.error("Database import failed:", error);
     throw error;
   }
-  console.log("import_database done");
+  console.log("Imported the database successfully");
 }
 
 // Main application workflow
