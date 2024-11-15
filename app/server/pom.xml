@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.9</version>
+        <version>3.3.3</version>
         <relativePath/>
         <!-- lookup parent from repository -->
     </parent>
@@ -31,7 +31,6 @@
         <jackson.version>2.17.0</jackson.version>
         <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
-        <logback.version>1.4.14</logback.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <mockito.version>4.4.0</mockito.version>
@@ -48,8 +47,7 @@
         <snakeyaml.version>2.0</snakeyaml.version>
         <source.disabled>true</source.disabled>
         <spotless.version>2.36.0</spotless.version>
-        <spring-boot.version>3.0.9</spring-boot.version>
-        <testcontainers.version>1.19.3</testcontainers.version>
+        <testcontainers.version>1.20.1</testcontainers.version>
     </properties>
 
     <build>
@@ -136,6 +134,7 @@
                             <includes>
                                 <include>*.md</include>
                                 <include>.gitignore</include>
+                                <include>**/*.sql</include>
                             </includes>
                             <!-- define the steps to apply to those files -->
                             <trimTrailingWhitespace/>

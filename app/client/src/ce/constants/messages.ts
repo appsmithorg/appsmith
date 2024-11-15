@@ -247,6 +247,7 @@ export const FORK_APP = () => `Fork app`;
 export const SIGN_IN = () => `Sign in`;
 export const SHARE_APP = () => `Share app`;
 export const ALL_APPS = () => `All apps`;
+export const KNOW_MORE = () => "Know more";
 
 export const EDITOR_HEADER = {
   saving: () => "Saving",
@@ -336,7 +337,7 @@ export const ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
 export const ERROR_ACTION_MOVE_FAIL = (actionName: string) =>
   `Error while moving action ${actionName}`;
 export const ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
-  `${actionName} action copied to page ${pageName} successfully`;
+  `${actionName} action copied ${pageName.length > 0 ? "to page " + pageName : ""} successfully`;
 export const ERROR_ACTION_COPY_FAIL = (actionName: string) =>
   `Error while copying action ${actionName}`;
 export const ERROR_ACTION_RENAME_FAIL = (actionName: string) =>
@@ -353,7 +354,7 @@ export const ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR = (name: string) =>
 
 export const ACTION_ID_NOT_FOUND_IN_URL =
   "No correct API id or Query id found in the url.";
-export const JSOBJECT_ID_NOT_FOUND_IN_URL =
+export const JS_OBJECT_ID_NOT_FOUND_IN_URL =
   "No correct JS Object id found in the url.";
 
 export const DATASOURCE_CREATE = (dsName: string) =>
@@ -365,7 +366,9 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
 export const EDIT_DATASOURCE = () => "Edit";
-export const SAVE_DATASOURCE = () => "Save";
+export const SAVE_DATASOURCE = () => "Save URL";
+export const EDIT_DATASOURCE_TOOLTIP = () => "Edit datasource";
+export const SAVE_DATASOURCE_TOOLTIP = () => "Save URL as a datasource";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
@@ -644,6 +647,7 @@ export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
   `${JSFunctionName} did not return any data. Did you add a return statement?`;
+export const MORE_ON_QUERY_SETTINGS = () => "More on query settings";
 
 export const REMOVE_CONFIRM_BEFORE_CALLING_HEADING = () =>
   `Remove 'Confirm before calling' `;
@@ -793,7 +797,8 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
 // Datasource structure
 
-export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
+export const SCHEMA_NOT_AVAILABLE = () =>
+  "We can't show schema for this datasource";
 export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
   `Tables in ${name}`;
@@ -1730,6 +1735,7 @@ export const CONTEXT_RENAME = () => "Rename";
 export const CONTEXT_SHOW_BINDING = () => "Show bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
+export const CONTEXT_DUPLICATE = () => "Duplicate";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
 export const CONFIRM_CONTEXT_DELETING = () => "Deleting";
@@ -2508,6 +2514,18 @@ export const FIELD_REQUIRED_MESSAGE = () => `This field is required`;
 
 export const PREPARED_STATEMENT_WARNING = {
   MESSAGE: () =>
-    "Prepared Statements are currently enabled, which may be causing the query error. Turn them off and try running the query again",
+    "Prepared statements are currently enabled, which may be causing the query error. Turn them off and try running the query again",
   LINK: () => "Open settings",
+};
+
+export const JS_EDITOR_SETTINGS = {
+  TITLE: () => "Settings",
+  ON_LOAD_TITLE: () => "Choose the functions to run on page load",
+};
+
+export const CUSTOM_WIDGET_BUILDER_TAB_TITLE = {
+  AI: () => "AI",
+  HTML: () => "HTML",
+  STYLE: () => "Style",
+  JS: () => "Javascript",
 };

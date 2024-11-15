@@ -8,7 +8,7 @@ const totalRows = 100;
 
 describe(
   "Table Widget Virtualized Row",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 600 });

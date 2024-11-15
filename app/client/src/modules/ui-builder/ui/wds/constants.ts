@@ -1,4 +1,6 @@
+// use a relative path since the constants is used in cypress that does not support aliases
 import { getCanvasClassName } from "../../../../utils/generators";
+import { WDS_EE_WIDGET_MAP } from "../../../../ee/modules/ui-builder/ui/wds/constants";
 
 export const anvilWidgets = {
   SECTION_WIDGET: "SECTION_WIDGET",
@@ -62,6 +64,8 @@ export const WDS_V2_WIDGET_MAP = {
 
   // Anvil layout widgets
   ZONE_WIDGET: anvilWidgets.ZONE_WIDGET,
+
+  ...WDS_EE_WIDGET_MAP,
 };
 // getCanvasClassName adds class name to denote that this is scrollable canvas
 export const WDS_MODAL_WIDGET_CLASSNAME = `appsmith-modal-body ${getCanvasClassName()}`;

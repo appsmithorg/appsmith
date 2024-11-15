@@ -17,7 +17,7 @@ import EditorNavigation, {
 
 describe(
   "Widget Property Setters - Part II - Tc #2409",
-  { tags: ["@tag.Widget", "@tag.JS"] },
+  { tags: ["@tag.Widget", "@tag.JS", "@tag.Binding"] },
   () => {
     it("1. Bug 25287 - CurrencyInput does not update value when set using CurrencyInput.text", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.CURRENCY_INPUT);

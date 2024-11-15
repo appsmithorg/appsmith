@@ -11,3 +11,7 @@ export type {
   PluginActionNameEditorProps,
 } from "./components/PluginActionNameEditor";
 export { default as PluginActionNameEditor } from "./components/PluginActionNameEditor";
+
+export type { PluginActionEditorState } from "./store/pluginEditorReducer";
+
+export { DocsMenuItem } from "./components/PluginActionToolbar/components/DocsMenuItem";

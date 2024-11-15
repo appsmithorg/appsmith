@@ -14,13 +14,15 @@ import ErrorLogs from "./Debugger/Errors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
-import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/constants";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
 import type { Action } from "entities/Action";
 import { EMPTY_RESPONSE } from "./emptyResponse";
-import { setApiPaneDebuggerState } from "actions/apiPaneActions";
-import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
+import {
+  getPluginActionDebuggerState,
+  setPluginActionEditorDebuggerState,
+} from "PluginActionEditor/store";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import useDebuggerTriggerClick from "./Debugger/hooks/useDebuggerTriggerClick";
@@ -31,7 +33,7 @@ import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionRe
 interface Props {
   currentActionConfig: Action;
   theme?: EditorTheme;
-  disabled: boolean;
+  isRunDisabled: boolean;
   onRunClick: () => void;
   actionResponse?: ActionResponse;
   isRunning: boolean;
@@ -41,7 +43,7 @@ function ApiResponseView(props: Props) {
   const {
     actionResponse = EMPTY_RESPONSE,
     currentActionConfig,
-    disabled,
+    isRunDisabled = false,
     isRunning,
     theme = EditorTheme.LIGHT,
   } = props;
@@ -49,7 +51,7 @@ function ApiResponseView(props: Props) {
   const dispatch = useDispatch();
   const errorCount = useSelector(getErrorCount);
   const { open, responseTabHeight, selectedTab } = useSelector(
-    getApiPaneDebuggerState,
+    getPluginActionDebuggerState,
   );
 
   const ideViewMode = useSelector(getIDEViewMode);
@@ -72,7 +74,9 @@ function ApiResponseView(props: Props) {
         });
       }
 
-      dispatch(setApiPaneDebuggerState({ open: true, selectedTab: tabKey }));
+      dispatch(
+        setPluginActionEditorDebuggerState({ open: true, selectedTab: tabKey }),
+      );
     },
     [dispatch],
   );
@@ -80,7 +84,9 @@ function ApiResponseView(props: Props) {
   // update the height of the response pane on resize.
   const updateResponsePaneHeight = useCallback(
     (height: number) => {
-      dispatch(setApiPaneDebuggerState({ responseTabHeight: height }));
+      dispatch(
+        setPluginActionEditorDebuggerState({ responseTabHeight: height }),
+      );
     },
     [dispatch],
   );
@@ -93,7 +99,7 @@ function ApiResponseView(props: Props) {
         <ApiResponse
           action={currentActionConfig}
           actionResponse={actionResponse}
-          isRunDisabled={disabled}
+          isRunDisabled={isRunDisabled}
           isRunning={isRunning}
           onRunClick={onRunClick}
           responseTabHeight={responseTabHeight}
@@ -107,7 +113,7 @@ function ApiResponseView(props: Props) {
       panelComponent: (
         <ApiResponseHeaders
           actionResponse={actionResponse}
-          isRunDisabled={disabled}
+          isRunDisabled={isRunDisabled}
           isRunning={isRunning}
           onDebugClick={onDebugClick}
           onRunClick={onRunClick}
@@ -135,7 +141,7 @@ function ApiResponseView(props: Props) {
   // close the debugger
   //TODO: move this to a common place
   const toggleHide = useCallback(
-    () => dispatch(setApiPaneDebuggerState({ open: !open })),
+    () => dispatch(setPluginActionEditorDebuggerState({ open: !open })),
     [dispatch, open],
   );
 

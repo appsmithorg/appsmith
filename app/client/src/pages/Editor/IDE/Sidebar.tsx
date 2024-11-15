@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { builderURL } from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import history, { NavigationMethod } from "utils/history";
-import { useCurrentAppState } from "./hooks";
+import { useCurrentAppState } from "./hooks/useCurrentAppState";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "ee/actions/workspaceActions";
 import { IDESidebar, Condition } from "IDE";

@@ -13,7 +13,7 @@ import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 describe(
   "Validate basic operations on Entity explorer JSEditor structure",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   () => {
     const pageId = "Page1";
 

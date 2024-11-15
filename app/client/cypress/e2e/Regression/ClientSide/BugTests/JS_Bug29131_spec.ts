@@ -13,41 +13,45 @@ const jsObjectBody = `export default {
 	}
 }`;
 
-describe("Verifies JS object rename bug", { tags: ["@tag.JS"] }, () => {
-  it("Verify that a JS Object name is up for taking after it is deleted", () => {
-    jsEditor.CreateJSObject(jsObjectBody, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-      prettify: false,
+describe(
+  "Verifies JS object rename bug",
+  { tags: ["@tag.JS", "@tag.Binding"] },
+  () => {
+    it("Verify that a JS Object name is up for taking after it is deleted", () => {
+      jsEditor.CreateJSObject(jsObjectBody, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      });
+
+      jsEditor.CreateJSObject(jsObjectBody, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      });
+
+      jsEditor.RenameJSObjFromPane("JSObj2");
+
+      agHelper.ActionContextMenuWithInPane({
+        action: "Delete",
+        entityType: EntityItems.JSObject,
+      });
+
+      jsEditor.CreateJSObject(jsObjectBody, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      });
+
+      jsEditor.RenameJSObjFromPane("JSObj2");
+
+      PageLeftPane.assertPresence("JSObj2");
     });
-
-    jsEditor.CreateJSObject(jsObjectBody, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-      prettify: false,
-    });
-
-    jsEditor.RenameJSObjFromPane("JSObj2");
-
-    agHelper.ActionContextMenuWithInPane({
-      action: "Delete",
-      entityType: EntityItems.JSObject,
-    });
-
-    jsEditor.CreateJSObject(jsObjectBody, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-      prettify: false,
-    });
-
-    jsEditor.RenameJSObjFromPane("JSObj2");
-
-    PageLeftPane.assertPresence("JSObj2");
-  });
-});
+  },
+);

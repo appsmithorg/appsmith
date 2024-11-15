@@ -1,8 +1,9 @@
-import React, { forwardRef } from "react";
 import { Text } from "@appsmith/wds";
-import { Checkbox as HeadlessCheckbox } from "react-aria-components";
-import styles from "./styles.module.css";
+import React, { forwardRef } from "react";
 import type { ForwardedRef } from "react";
+import { Checkbox as HeadlessCheckbox } from "react-aria-components";
+
+import styles from "./styles.module.css";
 import type { SwitchProps } from "./types";
 
 const _Switch = (props: SwitchProps, ref: ForwardedRef<HTMLLabelElement>) => {

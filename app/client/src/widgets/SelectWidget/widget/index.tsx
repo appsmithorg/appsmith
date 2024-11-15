@@ -162,12 +162,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             onFilterUpdate: queryConfig.select.run,
           };
 
-          if (
-            !!SelectWidget.getFeatureFlag(
-              FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
-            )
-          )
-            dynamicPropertyPathList.push({ key: "sourceData" });
+          dynamicPropertyPathList.push({ key: "sourceData" });
         }
 
         return {

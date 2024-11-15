@@ -59,12 +59,16 @@ import {
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import type { CreateNewActionKeyInterface } from "ee/entities/Engine/actionHelpers";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import type { EntityItem } from "ee/entities/IDE/constants";
+import { EditorEntityTab, type EntityItem } from "ee/entities/IDE/constants";
 import {
   ActionUrlIcon,
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+import {
+  getIsSavingForApiName,
+  getIsSavingForJSObjectName,
+} from "selectors/ui";
 
 export enum GROUP_TYPES {
   API = "APIs",
@@ -869,28 +873,6 @@ export function getPageNameByPageId(state: AppState, pageId: string): string {
   return page ? page.pageName : "";
 }
 
-const getQueryPaneSavingMap = (state: AppState) => state.ui.queryPane.isSaving;
-
-export const getApiPaneSavingMap = (state: AppState) =>
-  state.ui.apiPane.isSaving;
-const getActionDirtyState = (state: AppState) => state.ui.apiPane.isDirty;
-
-export const isActionSaving = (id: string) =>
-  createSelector(
-    [getQueryPaneSavingMap, getApiPaneSavingMap],
-    (querySavingMap, apiSavingsMap) => {
-      return (
-        (id in querySavingMap && querySavingMap[id]) ||
-        (id in apiSavingsMap && apiSavingsMap[id])
-      );
-    },
-  );
-
-export const isActionDirty = (id: string) =>
-  createSelector([getActionDirtyState], (actionDirtyMap) => {
-    return id in actionDirtyMap && actionDirtyMap[id];
-  });
-
 export const getAppData = (state: AppState) => state.entities.app;
 
 export const getAppStoreData = (state: AppState): AppStoreState =>
@@ -1672,6 +1654,7 @@ export const getQuerySegmentItems = createSelector(
         key: action.config.baseId,
         type: action.config.pluginType,
         group,
+        userPermissions: action.config.userPermissions,
       };
     });
 
@@ -1686,6 +1669,7 @@ export const getJSSegmentItems = createSelector(
       title: js.config.name,
       key: js.config.baseId,
       type: PluginType.JS,
+      userPermissions: js.config.userPermissions,
     }));
 
     return items;
@@ -1713,3 +1697,22 @@ export const getDatasourceUsageCountForApp = createSelector(
     return actionDsMap;
   },
 );
+
+export interface IsSavingEntityNameParams {
+  id: string;
+  segment: EditorEntityTab;
+  entity?: EntityItem;
+}
+
+export const getIsSavingEntityName = (
+  state: AppState,
+  { id, segment }: IsSavingEntityNameParams,
+) => {
+  let isSavingEntityName = getIsSavingForApiName(state, id);
+
+  if (EditorEntityTab.JS === segment) {
+    isSavingEntityName = getIsSavingForJSObjectName(state, id);
+  }
+
+  return isSavingEntityName;
+};

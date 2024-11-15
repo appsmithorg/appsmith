@@ -5,7 +5,7 @@ import {
 import {
   HTTP_PROTOCOL,
   HTTP_PROTOCOL_VERSIONS,
-} from "constants/ApiEditorConstants/CommonApiConstants";
+} from "PluginActionEditor/constants/CommonApiConstants";
 
 export default [
   {
@@ -13,30 +13,29 @@ export default [
     id: 1,
     children: [
       {
-        label: "Run API on page load",
+        label: "Run the API on page load",
         configProperty: "executeOnLoad",
         controlType: "SWITCH",
-        subtitle: "Will refresh data each time the page is loaded",
       },
       {
-        label: "Request confirmation before running API",
+        label: "Request confirmation before running this API",
         configProperty: "confirmBeforeExecute",
         controlType: "SWITCH",
-        subtitle:
+        tooltipText:
           "Ask confirmation from the user each time before refreshing data",
       },
       {
         label: "Encode query params",
         configProperty: "actionConfiguration.encodeParamsToggle",
         controlType: "SWITCH",
-        subtitle:
+        tooltipText:
           "Encode query params for all APIs. Also encode form body when Content-Type header is set to x-www-form-encoded",
       },
       {
         label: "Smart JSON substitution",
         configProperty: "actionConfiguration.pluginSpecifiedTemplates[0].value",
         controlType: "SWITCH",
-        subtitle:
+        tooltipText:
           "Turning on this property fixes the JSON substitution of bindings in API body by adding/removing quotes intelligently and reduces developer errors",
         initialValue: true,
       },
@@ -45,8 +44,6 @@ export default [
         configProperty: "actionConfiguration.httpVersion",
         name: "actionConfiguration.httpVersion",
         controlType: "DROP_DOWN",
-        subtitle:
-          "Select the protocol that best suits your security and performance requirements.",
         initialValue: HTTP_PROTOCOL.HTTP11.label,
         options: HTTP_PROTOCOL_VERSIONS,
         placeholder: createMessage(HTTP_PROTOCOL_INPUT_PLACEHOLDER),

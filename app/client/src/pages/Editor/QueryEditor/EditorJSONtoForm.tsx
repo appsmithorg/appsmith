@@ -17,24 +17,29 @@ import {
 import { useParams } from "react-router";
 import type { AppState } from "ee/reducers";
 import { thinScrollbar } from "constants/DefaultTheme";
-import ActionRightPane from "components/editorComponents/ActionRightPane";
 import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
-import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import { EDITOR_TABS, SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
-import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
-import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
+import {
+  getPluginActionConfigSelectedTab,
+  setPluginActionEditorSelectedTab,
+} from "PluginActionEditor/store";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+import { DocsLink, openDoc } from "constants/DocumentationLinks";
 import { QueryEditorContext } from "./QueryEditorContext";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
-import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
+import useShowSchema from "PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
-import FormRender from "./FormRender";
+import FormRender from "PluginActionEditor/components/PluginActionForm/components/UQIEditor/FormRender";
 import QueryEditorHeader from "./QueryEditorHeader";
 import RunHistory from "ee/components/RunHistory";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasExecuteActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { getPluginNameFromId } from "ee/selectors/entitiesSelector";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -197,7 +202,7 @@ export function EditorJSONtoForm(props: Props) {
     uiComponent,
   } = props;
 
-  const { actionRightPaneAdditionSections, closeEditorLink, notification } =
+  const { actionRightPaneAdditionSections, notification } =
     useContext(QueryEditorContext);
 
   const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
@@ -230,11 +235,43 @@ export function EditorJSONtoForm(props: Props) {
     id: currentActionConfig ? currentActionConfig.id : "",
   };
 
-  const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
+  const selectedTab = useSelector(getPluginActionConfigSelectedTab);
 
-  const setSelectedConfigTab = useCallback((selectedIndex: string) => {
-    dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
-  }, []);
+  const setSelectedConfigTab = useCallback(
+    (selectedIndex: string) => {
+      dispatch(setPluginActionEditorSelectedTab(selectedIndex));
+    },
+    [dispatch],
+  );
+
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isExecutePermitted = getHasExecuteActionPermission(
+    isFeatureEnabled,
+    currentActionConfig?.userPermissions,
+  );
+
+  // get the current action's plugin name
+  const currentActionPluginName = useSelector((state: AppState) =>
+    getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
+  );
+
+  let actionBody = "";
+
+  if (!!currentActionConfig?.actionConfiguration) {
+    if ("formData" in currentActionConfig?.actionConfiguration) {
+      // if the action has a formData (the action is postUQI e.g. Oracle)
+      actionBody =
+        currentActionConfig.actionConfiguration.formData?.body?.data || "";
+    } else {
+      // if the action is pre UQI, the path is different e.g. mySQL
+      actionBody = currentActionConfig.actionConfiguration?.body || "";
+    }
+  }
+
+  // if (the body is empty and the action is an sql datasource) or the user does not have permission, block action execution.
+  const blockExecution =
+    (!actionBody && SQL_DATASOURCES.includes(currentActionPluginName)) ||
+    !isExecutePermitted;
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -243,107 +280,104 @@ export function EditorJSONtoForm(props: Props) {
   }
 
   return (
-    <>
-      {closeEditorLink}
-      <QueryFormContainer onSubmit={handleSubmit(noop)}>
-        <QueryEditorHeader
-          dataSources={dataSources}
-          formName={formName}
-          isRunning={isRunning}
-          onCreateDatasourceClick={onCreateDatasourceClick}
-          onRunClick={onRunClick}
-          plugin={plugin}
-        />
-        {notification && (
-          <StyledNotificationWrapper>{notification}</StyledNotificationWrapper>
-        )}
-        <Wrapper>
-          <div className="flex flex-1 w-full">
-            <SecondaryWrapper>
-              <TabContainerView>
-                <Tabs
-                  onValueChange={setSelectedConfigTab}
-                  value={selectedConfigTab || EDITOR_TABS.QUERY}
+    <QueryFormContainer onSubmit={handleSubmit(noop)}>
+      <QueryEditorHeader
+        dataSources={dataSources}
+        formName={formName}
+        isRunDisabled={blockExecution}
+        isRunning={isRunning}
+        onCreateDatasourceClick={onCreateDatasourceClick}
+        onRunClick={onRunClick}
+        plugin={plugin}
+      />
+      {notification && (
+        <StyledNotificationWrapper>{notification}</StyledNotificationWrapper>
+      )}
+      <Wrapper>
+        <div className="flex flex-1 w-full">
+          <SecondaryWrapper>
+            <TabContainerView>
+              <Tabs
+                onValueChange={setSelectedConfigTab}
+                value={selectedTab || EDITOR_TABS.QUERY}
+              >
+                <TabsListWrapper>
+                  <TabsList>
+                    <Tab
+                      data-testid={`t--query-editor-` + EDITOR_TABS.QUERY}
+                      value={EDITOR_TABS.QUERY}
+                    >
+                      Query
+                    </Tab>
+                    <Tab
+                      data-testid={`t--query-editor-` + EDITOR_TABS.SETTINGS}
+                      value={EDITOR_TABS.SETTINGS}
+                    >
+                      Settings
+                    </Tab>
+                  </TabsList>
+                </TabsListWrapper>
+                <TabPanelWrapper
+                  className="tab-panel"
+                  value={EDITOR_TABS.QUERY}
                 >
-                  <TabsListWrapper>
-                    <TabsList>
-                      <Tab
-                        data-testid={`t--query-editor-` + EDITOR_TABS.QUERY}
-                        value={EDITOR_TABS.QUERY}
-                      >
-                        Query
-                      </Tab>
-                      <Tab
-                        data-testid={`t--query-editor-` + EDITOR_TABS.SETTINGS}
-                        value={EDITOR_TABS.SETTINGS}
-                      >
-                        Settings
-                      </Tab>
-                    </TabsList>
-                  </TabsListWrapper>
-                  <TabPanelWrapper
-                    className="tab-panel"
-                    value={EDITOR_TABS.QUERY}
+                  <SettingsWrapper
+                    data-testid={`t--action-form-${plugin?.type}`}
                   >
-                    <SettingsWrapper
-                      data-testid={`t--action-form-${plugin?.type}`}
-                    >
-                      <FormRender
-                        editorConfig={editorConfig}
-                        formData={props.formData}
-                        formEvaluationState={props.formEvaluationState}
-                        formName={formName}
-                        uiComponent={uiComponent}
-                      />
-                    </SettingsWrapper>
-                  </TabPanelWrapper>
-                  <TabPanelWrapper value={EDITOR_TABS.SETTINGS}>
-                    <SettingsWrapper>
-                      <ActionSettings
-                        actionSettingsConfig={settingConfig}
-                        formName={formName}
-                      />
-                    </SettingsWrapper>
-                  </TabPanelWrapper>
-                </Tabs>
-                {documentationLink && (
-                  <Tooltip
-                    content={createMessage(DOCUMENTATION_TOOLTIP)}
-                    placement="top"
+                    <FormRender
+                      editorConfig={editorConfig}
+                      formData={props.formData}
+                      formEvaluationState={props.formEvaluationState}
+                      formName={formName}
+                      uiComponent={uiComponent}
+                    />
+                  </SettingsWrapper>
+                </TabPanelWrapper>
+                <TabPanelWrapper value={EDITOR_TABS.SETTINGS}>
+                  <SettingsWrapper>
+                    <ActionSettings
+                      actionSettingsConfig={settingConfig}
+                      formName={formName}
+                    />
+                  </SettingsWrapper>
+                </TabPanelWrapper>
+              </Tabs>
+              {documentationLink && (
+                <Tooltip
+                  content={createMessage(DOCUMENTATION_TOOLTIP)}
+                  placement="top"
+                >
+                  <DocumentationButton
+                    className="t--datasource-documentation-link"
+                    kind="tertiary"
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      handleDocumentationClick();
+                    }}
+                    size="sm"
+                    startIcon="book-line"
                   >
-                    <DocumentationButton
-                      className="t--datasource-documentation-link"
-                      kind="tertiary"
-                      onClick={(e: React.MouseEvent) => {
-                        e.stopPropagation();
-                        handleDocumentationClick();
-                      }}
-                      size="sm"
-                      startIcon="book-line"
-                    >
-                      {createMessage(DOCUMENTATION)}
-                    </DocumentationButton>
-                  </Tooltip>
-                )}
-              </TabContainerView>
-              <QueryDebuggerTabs
-                actionName={actionName}
-                actionResponse={actionResponse}
-                actionSource={actionSource}
-                currentActionConfig={currentActionConfig}
-                isRunning={isRunning}
-                onRunClick={onRunClick}
-                runErrorMessage={runErrorMessage}
-                showSchema={showSchema}
-              />
-              <RunHistory />
-            </SecondaryWrapper>
-          </div>
-          <ActionRightPane
-            additionalSections={actionRightPaneAdditionSections}
-          />
-        </Wrapper>
-      </QueryFormContainer>
-    </>
+                    {createMessage(DOCUMENTATION)}
+                  </DocumentationButton>
+                </Tooltip>
+              )}
+            </TabContainerView>
+            <QueryDebuggerTabs
+              actionName={actionName}
+              actionResponse={actionResponse}
+              actionSource={actionSource}
+              currentActionConfig={currentActionConfig}
+              isRunDisabled={blockExecution}
+              isRunning={isRunning}
+              onRunClick={onRunClick}
+              runErrorMessage={runErrorMessage}
+              showSchema={showSchema}
+            />
+            <RunHistory />
+          </SecondaryWrapper>
+        </div>
+        {actionRightPaneAdditionSections}
+      </Wrapper>
+    </QueryFormContainer>
   );
 }

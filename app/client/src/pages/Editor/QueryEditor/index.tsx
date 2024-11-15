@@ -13,7 +13,7 @@ import {
   getIsEditorInitialized,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { changeQuery } from "actions/queryPaneActions";
+import { changeQuery } from "PluginActionEditor/store";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import {
   getActionByBaseId,
@@ -41,7 +41,6 @@ import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
-import { AppPluginActionEditor } from "../AppPluginActionEditor";
 import { saveActionName } from "actions/pluginActionActions";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -186,14 +185,6 @@ function QueryEditor(props: QueryEditorProps) {
       />
     );
   }, [action?.name, isConverting, icon]);
-
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
-
-  if (isActionRedesignEnabled) {
-    return <AppPluginActionEditor />;
-  }
 
   return (
     <QueryEditorContextProvider

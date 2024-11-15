@@ -7,8 +7,8 @@ import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "ee/constants/messages";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import { isChildPropertyPath } from "utils/DynamicBindingUtils";
 import {
-  matchBuilderPath,
   matchApiPath,
+  matchBuilderPath,
   matchQueryPath,
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
@@ -22,8 +22,8 @@ const BlankStateWrapper = styled.div`
   justify-content: center;
   align-items: center;
   color: var(--ads-v2-color-fg);
-  ${getTypographyByKey("p1")}
 
+  ${getTypographyByKey("p1")}
   .debugger-shortcut {
     color: var(--ads-v2-color-fg);
     ${getTypographyByKey("h5")}
@@ -49,15 +49,6 @@ export function BlankState(props: {
       )}
     </BlankStateWrapper>
   );
-}
-
-export enum DEBUGGER_TAB_KEYS {
-  SCHEMA_TAB = "schema",
-  RESPONSE_TAB = "response",
-  HEADER_TAB = "headers",
-  ERROR_TAB = "ERROR",
-  LOGS_TAB = "LOGS_TAB",
-  INSPECT_TAB = "INSPECT_TAB",
 }
 
 export const SeverityIcon: Record<Severity, string> = {

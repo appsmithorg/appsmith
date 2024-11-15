@@ -1,5 +1,4 @@
 import OneClickBindingLocator from "../../../../locators/OneClickBindingLocator";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   apiPage,
@@ -23,10 +22,6 @@ describe(
   () => {
     let datasourceName: string;
     before(() => {
-      featureFlagIntercept({
-        rollout_js_enabled_one_click_binding_enabled: true,
-      });
-
       dataSources.CreateDataSource("Postgres");
 
       cy.get("@dsName").then((dsName) => {

@@ -1,6 +1,6 @@
 import React from "react";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "./Debugger/constants";
 import { Tab, TabPanel, Tabs, TabsList } from "@appsmith/ads";
 import styled from "styled-components";
 import { LIST_HEADER_HEIGHT, FOOTER_MARGIN } from "./Debugger/DebuggerLogs";
@@ -9,11 +9,14 @@ import type { RefObject } from "react";
 const TabPanelWrapper = styled(TabPanel)`
   margin-top: 0;
   height: calc(100% - ${LIST_HEADER_HEIGHT});
+
   &.ads-v2-tabs__panel {
     overflow: auto;
   }
+
   & .t--code-editor-wrapper.codeWrapper {
     height: calc(100% - ${FOOTER_MARGIN});
+
     & .CodeMirror-scroll {
       box-sizing: border-box;
     }

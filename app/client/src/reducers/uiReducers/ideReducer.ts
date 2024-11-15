@@ -13,7 +13,9 @@ export const IDETabsDefaultValue = {
 const initialState: IDEState = {
   view: EditorViewMode.FullScreen,
   tabs: {},
+  isListViewActive: false,
   showCreateModal: false,
+  renameEntity: "",
   ideCanvasSideBySideHover: {
     navigated: false,
     widgetTypes: [],
@@ -101,12 +103,30 @@ const ideReducer = createImmerReducer(initialState, {
   ) => {
     state.ideCanvasSideBySideHover.widgetTypes.push(action.payload);
   },
+  [ReduxActionTypes.SET_IS_LIST_VIEW_ACTIVE]: (
+    state: IDEState,
+    action: {
+      payload: boolean;
+    },
+  ) => {
+    state.isListViewActive = action.payload;
+  },
+  [ReduxActionTypes.SET_RENAME_ENTITY]: (
+    state: IDEState,
+    action: {
+      payload: string;
+    },
+  ) => {
+    state.renameEntity = action.payload;
+  },
 });
 
 export interface IDEState {
   view: EditorViewMode;
+  isListViewActive: boolean;
   tabs: ParentEntityIDETabs;
   showCreateModal: boolean;
+  renameEntity: string;
   ideCanvasSideBySideHover: IDECanvasSideBySideHover;
 }
 

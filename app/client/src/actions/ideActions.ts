@@ -54,3 +54,17 @@ export const recordAnalyticsForSideBySideNavigation = () => ({
 export const resetAnalyticsForSideBySideHover = () => ({
   type: ReduxActionTypes.RESET_ANALYTICS_FOR_SIDE_BY_SIDE_HOVER,
 });
+
+export const setListViewActiveState = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_IS_LIST_VIEW_ACTIVE,
+    payload,
+  };
+};
+
+export const setRenameEntity = (id: string) => {
+  return {
+    type: ReduxActionTypes.SET_RENAME_ENTITY,
+    payload: id,
+  };
+};

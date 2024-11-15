@@ -1487,18 +1487,15 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                     // Get the latest artifact mono with all the changes
                     ArtifactExchangeJson artifactExchangeJson = tuple.getT1();
                     Artifact artifact = tuple.getT2();
-                    return importService
-                            .importArtifactInWorkspaceFromGit(
-                                    artifact.getWorkspaceId(),
-                                    artifact.getId(),
-                                    artifactExchangeJson,
-                                    finalRemoteBranchName)
-                            .flatMap(artifact1 -> addAnalyticsForGitOperation(
-                                    AnalyticsEvents.GIT_CHECKOUT_REMOTE_BRANCH,
-                                    artifact1,
-                                    Boolean.TRUE.equals(
-                                            artifact1.getGitArtifactMetadata().getIsRepoPrivate())));
+                    return importService.importArtifactInWorkspaceFromGit(
+                            artifact.getWorkspaceId(), artifact.getId(), artifactExchangeJson, finalRemoteBranchName);
                 })
+                .flatMap(importedArtifact -> gitArtifactHelper.publishArtifact(importedArtifact, false))
+                .flatMap(publishedArtifact -> addAnalyticsForGitOperation(
+                        AnalyticsEvents.GIT_CHECKOUT_REMOTE_BRANCH,
+                        publishedArtifact,
+                        Boolean.TRUE.equals(
+                                publishedArtifact.getGitArtifactMetadata().getIsRepoPrivate())))
                 .tag(GitConstants.GitMetricConstants.CHECKOUT_REMOTE, TRUE.toString())
                 .name(GitSpan.OPS_CHECKOUT_BRANCH)
                 .tap(Micrometer.observation(observationRegistry));
@@ -1870,9 +1867,11 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                 gitPullDTO.setMergeStatus(status);
                                 gitPullDTO.setArtifact(importedBranchedArtifact);
 
-                                return this.commitArtifact(
-                                                commitDTO, baseArtifact, importedBranchedArtifact, false, false)
-                                        .thenReturn(gitPullDTO);
+                                return gitArtifactHelper
+                                        .publishArtifact(importedBranchedArtifact, false)
+                                        .then(commitArtifact(
+                                                        commitDTO, baseArtifact, importedBranchedArtifact, false, false)
+                                                .thenReturn(gitPullDTO));
                             });
                 });
     }

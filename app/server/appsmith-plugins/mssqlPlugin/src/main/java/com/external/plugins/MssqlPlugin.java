@@ -168,7 +168,7 @@ public class MssqlPlugin extends BasePlugin {
                 return executeCommon(hikariDSConnection, actionConfiguration, FALSE, null, null);
             }
 
-            // Prepared Statement
+            // Prepared statement
             // First extract all the bindings in order
             List<MustacheBindingToken> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
             // Replace all the bindings with a `?` as expected in a prepared statement.

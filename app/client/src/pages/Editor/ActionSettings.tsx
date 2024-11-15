@@ -4,6 +4,7 @@ import FormControl from "./FormControl";
 import log from "loglevel";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
+import { Text } from "@appsmith/ads";
 
 interface ActionSettingsProps {
   // TODO: Fix this the next time the file is edited
@@ -13,32 +14,44 @@ interface ActionSettingsProps {
   theme?: EditorTheme;
 }
 
-const FormRow = styled.div`
-  margin-bottom: ${(props) => props.theme.spaces[10] + 1}px;
-`;
-
 const ActionSettingsWrapper = styled.div`
   width: 100%;
   max-width: 600px;
   padding-bottom: 1px;
-  .form-config-top {
-    flex-grow: 1;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-4);
+
   .t--form-control-SWITCH {
     display: flex;
     flex-shrink: 0;
     align-items: center;
     margin-left: 24px;
   }
+
+  .form-config-top {
+    flex-grow: 1;
+    .form-label {
+      min-width: unset;
+      width: 100%;
+      line-height: 1.43;
+    }
+  }
 `;
 
 function ActionSettings(props: ActionSettingsProps): JSX.Element {
   return (
     <ActionSettingsWrapper>
-      {/* TODO: Fix this the next time the file is edited */}
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      {props.actionSettingsConfig.map((section: any) =>
-        renderEachConfig(section, props.formName),
+      {!props.actionSettingsConfig ? (
+        <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
+          Error: No settings config found
+        </Text>
+      ) : (
+        /* TODO: Fix this the next time the file is edited */
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        props.actionSettingsConfig.map((section: any) =>
+          renderEachConfig(section, props.formName),
+        )
       )}
     </ActionSettingsWrapper>
   );
@@ -55,9 +68,11 @@ const renderEachConfig = (section: any, formName: string): any => {
         const { configProperty } = formControlOrSection;
 
         return (
-          <FormRow key={configProperty}>
-            <FormControl config={formControlOrSection} formName={formName} />
-          </FormRow>
+          <FormControl
+            config={formControlOrSection}
+            formName={formName}
+            key={configProperty}
+          />
         );
       } catch (e) {
         log.error(e);

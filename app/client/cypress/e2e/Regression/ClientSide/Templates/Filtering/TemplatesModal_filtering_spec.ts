@@ -8,7 +8,15 @@ import reconnectDatasourceLocators from "../../../../../locators/ReconnectLocato
 
 describe(
   "Bug 17276 - Templates modal filtering",
-  { tags: ["@tag.excludeForAirgap", "@tag.Templates"] },
+  {
+    tags: [
+      "@tag.excludeForAirgap",
+      "@tag.Templates",
+      "@tag.Git",
+      "@tag.ImportExport",
+      "@tag.Fork",
+    ],
+  },
   () => {
     const NAME_FILTER = "order";
 

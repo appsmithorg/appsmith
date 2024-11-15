@@ -2,14 +2,9 @@ import React from "react";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { replayHighlightClass } from "globalStyles/portals";
-import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
-import styled from "styled-components";
+import EmbeddedDatasourcePathField from "./components/EmbeddedDatasourcePathField";
 import { Flex } from "@appsmith/ads";
-
-const DatasourceWrapper = styled.div`
-  margin-left: 8px;
-  width: 100%;
-`;
+import * as Styled from "./styles";
 
 export function InfoFields(props: {
   changePermitted: boolean;
@@ -20,8 +15,8 @@ export function InfoFields(props: {
   theme: EditorTheme.LIGHT;
 }) {
   return (
-    <Flex w="100%">
-      <div>
+    <Flex gap="spaces-4" w="100%">
+      <Styled.RequestMethodSelectContainer>
         <RequestDropdownField
           className={`t--apiFormHttpMethod ${replayHighlightClass}`}
           data-location-id={btoa("actionConfiguration.httpMethod")}
@@ -29,12 +24,11 @@ export function InfoFields(props: {
           name="actionConfiguration.httpMethod"
           options={props.options}
           placeholder="Method"
-          width={"110px"}
         >
           <div />
         </RequestDropdownField>
-      </div>
-      <DatasourceWrapper className="t--dataSourceField">
+      </Styled.RequestMethodSelectContainer>
+      <Styled.DatasourcePathFieldContainer className="t--dataSourceField">
         <EmbeddedDatasourcePathField
           actionName={props.actionName}
           codeEditorVisibleOverflow
@@ -44,7 +38,7 @@ export function InfoFields(props: {
           pluginId={props.pluginId}
           theme={props.theme}
         />
-      </DatasourceWrapper>
+      </Styled.DatasourcePathFieldContainer>
     </Flex>
   );
 }

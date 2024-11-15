@@ -5,20 +5,19 @@
       "id": 1,
       "children": [
         {
-          "label": "Run query on page load",
+          "label": "Run the query on page load",
           "configProperty": "executeOnLoad",
-          "controlType": "SWITCH",
-          "subtitle": "Will refresh data each time the page is loaded"
+          "controlType": "SWITCH"
         },
         {
-          "label": "Request confirmation before running query",
+          "label": "Request confirmation before running this query",
           "configProperty": "confirmBeforeExecute",
           "controlType": "SWITCH",
-          "subtitle": "Ask confirmation from the user each time before refreshing data"
+          "tooltipText": "Ask confirmation from the user each time before refreshing data"
         },
         {
           "label": "Smart JSON substitution",
-          "subtitle": "Turning on this property fixes the JSON substitution of bindings in the Row objects by adding/removing quotes intelligently and reduces developer errors",
+          "tooltipText": "Turning on this property fixes the JSON substitution of bindings in the Row objects by adding/removing quotes intelligently and reduces developer errors",
           "configProperty": "actionConfiguration.formData.smartSubstitution.data",
           "controlType": "SWITCH",
           "initialValue": true

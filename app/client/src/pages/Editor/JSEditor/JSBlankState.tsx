@@ -26,4 +26,4 @@ const JSBlankState = () => {
   );
 };
 
-export { JSBlankState };
+export default JSBlankState;

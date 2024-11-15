@@ -17,7 +17,7 @@ let jsName: any;
 
 describe(
   "JSObjects OnLoad Actions tests",
-  { tags: ["@tag.PropertyPane", "@tag.JS"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Binding"] },
   function () {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();
@@ -37,8 +37,8 @@ describe(
       cy.fixture("datasources").then((datasourceFormData: any) => {
         AppSidebar.navigate(AppSidebarButton.Editor);
         apiPage.CreateAndFillApi(
-          "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
-          "Quotes",
+          "http://host.docker.internal:5001",
+          "AppsmithTed",
           30000,
         );
         apiPage.ToggleConfirmBeforeRunning(true);
@@ -54,8 +54,8 @@ describe(
         `export default {
       callTrump: async () => {
         return WhatTrumpThinks.run()},
-      callQuotes: () => {
-        return Quotes.run().then(()=> Quotes.data.quoteText);}
+      callAppsmithTed: () => {
+        return AppsmithTed.run()}
     }`,
         {
           paste: true,
@@ -71,16 +71,16 @@ describe(
           jsName as string,
           EntityType.JSObject,
         );
-        jsEditor.EnableDisableAsyncFuncSettings("callQuotes", false); //OnPageLoad made true once mapped with widget
+        jsEditor.EnableDisableAsyncFuncSettings("callAppsmithTed", false); //OnPageLoad made true once mapped with widget
 
         EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
         propPane.UpdatePropertyFieldValue(
           "Default value",
-          "{{" + jsObjName + ".callQuotes.data}}",
+          "{{" + jsObjName + ".callAppsmithTed.data}}",
         );
         cy.get(locators._toastMsg)
           .children()
-          .should("contain", "Quotes") //Quotes api also since its .data is accessed in callQuotes()
+          .should("contain", "AppsmithTed")
           .and("contain", jsName as string)
           .and("contain", "will be executed automatically on page load");
 

@@ -61,3 +61,13 @@ export const getShowCreateNewModal = (state: AppState) =>
 
 export const getIdeCanvasSideBySideHoverState = (state: AppState) =>
   state.ui.ide.ideCanvasSideBySideHover;
+
+export const getListViewActiveState = (state: AppState) =>
+  state.ui.ide.isListViewActive;
+
+export const getRenameEntity = (state: AppState) => state.ui.ide.renameEntity;
+
+export const getIsRenaming = (id: string) =>
+  createSelector(getRenameEntity, (entityId) => {
+    return entityId === id;
+  });

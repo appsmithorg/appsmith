@@ -8,11 +8,7 @@ import {
   getPluginSettingConfigs,
   getPlugins,
 } from "ee/selectors/entitiesSelector";
-import {
-  deleteAction,
-  runAction,
-  saveActionName,
-} from "actions/pluginActionActions";
+import { runAction, saveActionName } from "actions/pluginActionActions";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Editor from "./Editor";
 import BackToCanvas from "components/common/BackToCanvas";
@@ -42,7 +38,6 @@ import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
-import { AppPluginActionEditor } from "pages/Editor/AppPluginActionEditor";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
@@ -162,33 +157,15 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     return <BackToCanvas basePageId={basePageId} />;
   }, [basePageId]);
 
-  const handleDeleteClick = useCallback(() => {
-    AnalyticsUtil.logEvent("DELETE_API_CLICK", {
-      apiName,
-      apiID: action?.id,
-      pageName,
-    });
-    dispatch(deleteAction({ id: action?.id ?? "", name: apiName }));
-  }, [pages, basePageId, apiName, action?.id, dispatch, pageName]);
-
   const notification = useMemo(() => {
     if (!isConverting) return null;
 
     return <ConvertEntityNotification icon={icon} name={action?.name || ""} />;
   }, [action?.name, isConverting, icon]);
 
-  const isActionRedesignEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_actions_redesign_enabled,
-  );
-
-  if (isActionRedesignEnabled) {
-    return <AppPluginActionEditor />;
-  }
-
   return (
     <ApiEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
-      handleDeleteClick={handleDeleteClick}
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
       notification={notification}

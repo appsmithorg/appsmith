@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "Tree Select widget Tests",
-  { tags: ["@tag.Widget", "@tag.Select"] },
+  { tags: ["@tag.Widget", "@tag.Select", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("formwidget", 500, 100);
@@ -170,7 +170,9 @@ describe(
     });
 
     it("5. Verify Api binding", () => {
-      apiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+      apiPage.CreateAndFillApi(
+        "http://host.docker.internal:5001/v1/dynamicrecords/getrecordsArray",
+      );
       apiPage.RunAPI();
       EditorNavigation.SelectEntityByName(
         "TreeSelect1",
@@ -181,7 +183,7 @@ describe(
       propPane.MoveToTab("Content");
       propPane.UpdatePropertyFieldValue(
         "Options",
-        `{{Api1.data.users.map((s)=>{return{"label":s.name,"value":s.name}})}}`,
+        `{{JSON.parse(Api1.data).map((item) => {return {"label":item.value, "value":item.abbr};})}}`,
       );
       agHelper.GetNClick(
         `${locators._widgetInDeployed("singleselecttreewidget")}`,
@@ -308,7 +310,7 @@ describe(
       propPane.ToggleJSMode("onOptionChange", true);
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
-        `{{download('http://host.docker.internal:4200/kiwi.svg', 'kiwi.svg', 'image/svg+xml').then(() => {
+        `{{download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower.svg', 'image/svg+xml').then(() => {
             showAlert('Download Success', '');
           });}}`,
       );

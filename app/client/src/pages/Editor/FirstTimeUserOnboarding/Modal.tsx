@@ -1,11 +1,29 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { MenuContent } from "@appsmith/ads";
 import styled from "styled-components";
-import Checklist from "./Checklist";
 import HelpMenu from "./HelpMenu";
 import { useDispatch } from "react-redux";
 import { showSignpostingModal } from "actions/onboardingActions";
 
+import { retryPromise } from "utils/AppsmithUtils";
+import Skeleton from "widgets/Skeleton";
+
+const Checklist = lazy(async () =>
+  retryPromise(
+    async () =>
+      import(
+        /* webpackChunkName: "FirstTimeUserOnboardingChecklist" */ "./Checklist"
+      ),
+  ),
+);
+
+export const LazilyLoadedChecklist = () => {
+  return (
+    <Suspense fallback={<Skeleton />}>
+      <Checklist />
+    </Suspense>
+  );
+};
 const SIGNPOSTING_POPUP_WIDTH = "360px";
 
 const StyledMenuContent = styled(MenuContent)<{ animate: boolean }>`
@@ -48,7 +66,7 @@ function OnboardingModal(props: {
       width={SIGNPOSTING_POPUP_WIDTH}
     >
       <Wrapper>
-        {!props.showIntercomConsent && <Checklist />}
+        {!props.showIntercomConsent && <LazilyLoadedChecklist />}
         <HelpMenu
           setShowIntercomConsent={props.setShowIntercomConsent}
           showIntercomConsent={props.showIntercomConsent}

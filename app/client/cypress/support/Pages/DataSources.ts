@@ -194,15 +194,15 @@ export class DataSources {
   _globalSearchInput = ".t--global-search-input";
   _gsScopeDropdown =
     "[data-testid^='datasourceStorages.'][data-testid$='.datasourceConfiguration.authentication.scopeString']";
-  _gsScopeOptions = ".ads-v2-select__dropdown .rc-select-item-option";
+  _gsScopeOptions = ".ads-v2-radio-group";
   _queryTimeout = "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _getStructureReq = "/api/v1/datasources/*/structure?ignoreCache=true";
   _editDatasourceFromActiveTab = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "')";
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
-  _dsTabSchema = "[data-testid='t--tab-schema']";
-  private _pageSelectionMenu = "[data-testId='t--page-selection']";
+  _dsTabSchema = "[data-testid='t--tab-SCHEMA_TAB']";
+  private _pageSelectionMenu = "[data-testid='t--page-selection']";
 
   private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
 
@@ -295,7 +295,7 @@ export class DataSources {
   _imgFireStoreLogo = "//img[contains(@src, 'firestore.svg')]";
   _dsVirtuosoElement = `div .t--schema-virtuoso-container`;
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
-  private _dsSchemaContainer = `[data-testId="datasource-schema-container"]`;
+  private _dsSchemaContainer = `[data-testid="datasource-schema-container"]`;
   private _dsVirtuosoElementTable = (targetTableName: string) =>
     `${this._dsSchemaEntityItem}[data-testid='t--entity-item-${targetTableName}']`;
   private _dsPageTabListItem = (buttonText: string) =>
@@ -325,9 +325,7 @@ export class DataSources {
       datasourceName,
     );
     this.agHelper.GetNClick(this._selectTableDropdown, 0, true);
-    cy.get(
-      `div[role="listbox"] p[kind="span"]:contains("${tableName}")`,
-    ).click();
+    cy.get(`div[role="listbox"] p:contains("${tableName}")`).click();
     this.agHelper.GetNClick(this._generatePageBtn);
     this.assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     this.agHelper.ClickButton("Got it");
@@ -1854,7 +1852,7 @@ export class DataSources {
     cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
       `getDatasourceStructureUpdated_${ds_entity_name}`,
     );
-    cy.get("[data-testid=t--tab-schema]").first().click({ force: true });
+    cy.get("[data-testid=t--tab-SCHEMA_TAB]").first().click({ force: true });
     this.RefreshDatasourceSchema();
     this.assertHelper
       .WaitForNetworkCall(`@getDatasourceStructureUpdated_${ds_entity_name}`)
