@@ -295,7 +295,7 @@ export class DataSources {
   _imgFireStoreLogo = "//img[contains(@src, 'firestore.svg')]";
   _dsVirtuosoElement = `div .t--schema-virtuoso-container`;
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
-  private _dsSchemaContainer = `[data-testid="datasource-schema-container"]`;
+  private _dsSchemaContainer = `[data-testid="t--datasource-schema-container"]`;
   private _dsVirtuosoElementTable = (targetTableName: string) =>
     `${this._dsSchemaEntityItem}[data-testid='t--entity-item-${targetTableName}']`;
   private _dsPageTabListItem = (buttonText: string) =>

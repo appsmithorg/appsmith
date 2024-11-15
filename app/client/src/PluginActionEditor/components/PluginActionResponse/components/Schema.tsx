@@ -74,31 +74,45 @@ const Schema = (props: Props) => {
     getPluginDatasourceComponentFromId(state, pluginId || ""),
   );
 
-  useEffect(() => {
-    setSelectedTable(undefined);
-  }, [props.datasourceId]);
+  useEffect(
+    function resetSelectedTable() {
+      setSelectedTable(undefined);
+    },
+    [props.datasourceId],
+  );
 
-  useEffect(() => {
-    if (
-      props.datasourceId &&
-      datasourceStructure === undefined &&
-      pluginDatasourceForm !== DatasourceComponentTypes.RestAPIDatasourceForm
-    ) {
-      dispatch(
-        fetchDatasourceStructure(
-          props.datasourceId,
-          true,
-          DatasourceStructureContext.QUERY_EDITOR,
-        ),
-      );
-    }
-  }, [props.datasourceId, datasourceStructure, dispatch, pluginDatasourceForm]);
+  useEffect(
+    function fetchDatasourceStructureEffect() {
+      function fetchStructure() {
+        if (
+          props.datasourceId &&
+          datasourceStructure === undefined &&
+          pluginDatasourceForm !==
+            DatasourceComponentTypes.RestAPIDatasourceForm
+        ) {
+          dispatch(
+            fetchDatasourceStructure(
+              props.datasourceId,
+              true,
+              DatasourceStructureContext.QUERY_EDITOR,
+            ),
+          );
+        }
+      }
 
-  useEffect(() => {
-    if (!selectedTable && datasourceStructure?.tables?.length && !isLoading) {
-      setSelectedTable(datasourceStructure.tables[0].name);
-    }
-  }, [selectedTable, props.datasourceId, isLoading, datasourceStructure]);
+      fetchStructure();
+    },
+    [props.datasourceId, datasourceStructure, dispatch, pluginDatasourceForm],
+  );
+
+  useEffect(
+    function selectFirstTable() {
+      if (!selectedTable && datasourceStructure?.tables?.length && !isLoading) {
+        setSelectedTable(datasourceStructure.tables[0].name);
+      }
+    },
+    [selectedTable, props.datasourceId, isLoading, datasourceStructure],
+  );
 
   const refreshStructure = useCallback(() => {
     dispatch(
@@ -134,7 +148,7 @@ const Schema = (props: Props) => {
       overflow="hidden"
     >
       <Flex
-        data-testid="datasource-schema-container"
+        data-testid="t--datasource-schema-container"
         flex="1"
         flexDirection="column"
         gap="spaces-3"
