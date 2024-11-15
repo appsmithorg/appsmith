@@ -151,7 +151,6 @@ import {
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
-  generateTemplateFormURL,
   integrationEditorURL,
   saasEditorDatasourceIdURL,
 } from "ee/RouteBuilder";
@@ -189,6 +188,7 @@ import { executeGoogleApi } from "./loadGoogleApi";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { getCurrentModuleId } from "ee/selectors/modulesSelector";
 import type { ApplicationPayload } from "entities/Application";
+import { openGeneratePageModal } from "pages/Editor/GeneratePage/helpers";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -339,41 +339,38 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       const isGeneratePageInitiator =
         getIsGeneratePageInitiator(isGeneratePageMode);
 
+      if (skipRedirection) {
+        return;
+      }
+
+      let url = "";
+      const plugin: Plugin = yield select(getPlugin, response.data.pluginId);
+
+      if (plugin && plugin.type === PluginType.SAAS) {
+        url = saasEditorDatasourceIdURL({
+          basePageId,
+          pluginPackageName: plugin.packageName,
+          datasourceId: response.data.id,
+          params: {
+            viewMode: true,
+          },
+        });
+      } else {
+        url = datasourcesEditorIdURL({
+          basePageId,
+          datasourceId: response.data.id,
+          params: omit(getQueryParams(), "viewMode"),
+        });
+      }
+
+      history.push(url);
+
       if (isGeneratePageInitiator) {
-        history.push(
-          generateTemplateFormURL({
-            basePageId,
-            params: {
-              datasourceId: response.data.id,
-            },
+        yield put(
+          openGeneratePageModal({
+            datasourceId: response.data.id,
           }),
         );
-      } else {
-        if (skipRedirection) {
-          return;
-        }
-
-        let url = "";
-        const plugin: Plugin = yield select(getPlugin, response.data.pluginId);
-
-        if (plugin && plugin.type === PluginType.SAAS) {
-          url = saasEditorDatasourceIdURL({
-            basePageId,
-            pluginPackageName: plugin.packageName,
-            datasourceId: response.data.id,
-            params: {
-              viewMode: true,
-            },
-          });
-        } else {
-          url = datasourcesEditorIdURL({
-            basePageId,
-            datasourceId: response.data.id,
-            params: omit(getQueryParams(), "viewMode"),
-          });
-        }
-
-        history.push(url);
       }
     }
   } catch (error) {
@@ -1519,7 +1516,6 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const actionRouteInfo = get(state, "ui.datasourcePane.actionRouteInfo");
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
     yield select(getGenerateCRUDEnabledPluginMap);
-  const basePageId: string = yield select(getCurrentBasePageId);
   const updatedDatasource = action.payload;
 
   const { queryParams = {} } = action;
@@ -1529,19 +1525,6 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   );
 
   if (
-    isGeneratePageInitiator &&
-    updatedDatasource.pluginId &&
-    generateCRUDSupportedPlugin[updatedDatasource.pluginId]
-  ) {
-    history.push(
-      generateTemplateFormURL({
-        basePageId,
-        params: {
-          datasourceId: updatedDatasource.id,
-        },
-      }),
-    );
-  } else if (
     actionRouteInfo &&
     updatedDatasource.id === actionRouteInfo.datasourceId &&
     action.redirect
@@ -1550,6 +1533,18 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
       apiEditorIdURL({
         baseParentEntityId: actionRouteInfo.baseParentEntityId || "",
         baseApiId: actionRouteInfo.baseApiId!,
+      }),
+    );
+  }
+
+  if (
+    isGeneratePageInitiator &&
+    updatedDatasource.pluginId &&
+    generateCRUDSupportedPlugin[updatedDatasource.pluginId]
+  ) {
+    yield put(
+      openGeneratePageModal({
+        datasourceId: updatedDatasource.id,
       }),
     );
   }

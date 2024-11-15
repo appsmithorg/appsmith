@@ -20,6 +20,10 @@ import type { Page } from "entities/Page";
 const initialState: PageListReduxState = {
   pages: [],
   isGeneratingTemplatePage: false,
+  isGeneratePageModalOpen: {
+    value: false,
+    params: {},
+  },
   baseApplicationId: "",
   applicationId: "",
   currentBasePageId: "",
@@ -235,6 +239,27 @@ export const pageListReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.SET_GENERATE_PAGE_MODAL_OPEN]: (
+    state: PageListReduxState,
+    action: ReduxAction<GeneratePageModalParams>,
+  ) => {
+    return {
+      ...state,
+      isGeneratePageModalOpen: {
+        value: true,
+        params: action.payload || {},
+      },
+    };
+  },
+  [ReduxActionTypes.SET_GENERATE_PAGE_MODAL_CLOSE]: (
+    state: PageListReduxState,
+  ) => ({
+    ...state,
+    isGeneratePageModalOpen: {
+      ...state.isGeneratePageModalOpen,
+      value: false,
+    },
+  }),
   [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT]: (
     state: PageListReduxState,
   ) => {
@@ -299,6 +324,11 @@ export interface AppLayoutConfig {
   type: SupportedLayouts;
 }
 
+export interface GeneratePageModalParams {
+  datasourceId?: string;
+  new_page?: boolean;
+}
+
 export interface PageListReduxState {
   pages: Page[];
   baseApplicationId: string;
@@ -309,6 +339,10 @@ export interface PageListReduxState {
   defaultPageId: string;
   appLayout?: AppLayoutConfig;
   isGeneratingTemplatePage?: boolean;
+  isGeneratePageModalOpen?: {
+    value: boolean;
+    params?: GeneratePageModalParams;
+  };
   loading: Record<string, boolean>;
 }
 

@@ -2,8 +2,6 @@ import React, { useMemo, useState } from "react";
 import { AddButtonWrapper, EntityClassNames } from "../Entity";
 import EntityAddButton from "../Entity/AddButton";
 import styled from "styled-components";
-import history from "utils/history";
-import { generateTemplateFormURL } from "ee/RouteBuilder";
 import { useParams } from "react-router";
 import { useDispatch } from "react-redux";
 import type { ExplorerURLParams } from "ee/pages/Editor/Explorer/helpers";
@@ -32,6 +30,7 @@ import {
   LayoutSystemFeatures,
   useLayoutSystemFeatures,
 } from "layoutSystems/common/useLayoutSystemFeatures";
+import { openGeneratePageModal } from "pages/Editor/GeneratePage/helpers";
 
 const Wrapper = styled.div`
   .title {
@@ -85,7 +84,7 @@ function AddPageContextMenu({
       items.push({
         title: createMessage(GENERATE_PAGE_ACTION_TITLE),
         icon: "database-2-line",
-        onClick: () => history.push(generateTemplateFormURL({ basePageId })),
+        onClick: () => dispatch(openGeneratePageModal()),
         "data-testid": "generate-page",
         key: "GENERATE_PAGE",
       });
