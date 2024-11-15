@@ -92,7 +92,7 @@ export class PropertyPane {
     "div.tab-view span:contains('" + type + "')";
 
   _dropdownSelectType = ".t--open-dropdown-Select-type";
-  _selectorViewLabel = '[data-testId="selector-view-label"]';
+  _selectorViewLabel = '[data-testid="selector-view-label"]';
   _textView = ".text-view";
   _selectorView = ".selector-view";
   _dropdownOptions =
@@ -177,6 +177,7 @@ export class PropertyPane {
   _dataIcon = (icon: string) => `[data-icon="${icon}"]`;
   _iconDropdown = "[data-test-id='virtuoso-scroller']";
   _dropdownControlError = "[data-testid='t---dropdown-control-error']";
+  _borderColorCursor = ".t--property-control-bordercolor .bp3-input-group div";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
@@ -685,5 +686,21 @@ export class PropertyPane {
     this.agHelper
       .GetElement(this._propertyToggle(propertyName))
       .should(state === "enabled" ? "be.checked" : "not.be.checked");
+  }
+
+  public ExpandIfCollapsedSection(sectionName: string) {
+    cy.get(`.t--property-pane-section-collapse-${sectionName}`)
+      .scrollIntoView()
+      .then(($element) => {
+        cy.wrap($element)
+          .siblings(".bp3-collapse")
+          .then(($sibling) => {
+            const siblingHeight = $sibling.height(); // Get the height of the sibling element
+
+            if (!siblingHeight) {
+              $element.click();
+            }
+          });
+      });
   }
 }

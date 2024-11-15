@@ -32,9 +32,10 @@ export const createDatasourceFromForm = (
   };
 };
 
-export const createTempDatasourceFromForm = (
-  payload: CreateDatasourceConfig | Datasource,
-) => {
+export const createTempDatasourceFromForm = (payload: {
+  pluginId: string;
+  type: PluginType;
+}) => {
   return {
     type: ReduxActionTypes.CREATE_TEMP_DATASOURCE_FROM_FORM_SUCCESS,
     payload,

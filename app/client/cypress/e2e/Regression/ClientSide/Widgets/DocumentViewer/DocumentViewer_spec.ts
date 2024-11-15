@@ -16,15 +16,14 @@ import EditorNavigation, {
 
 const ppt =
   "http://host.docker.internal:4200/ppt-on-population-pptxafa26c44-208f-46a3-89cc-8a5c020b6863.pptx";
-const pngImage =
-  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb8umIiCU_K6ac-xS-ni4y6SP7XAd8C7Ms3Q&usqp=CAU";
+const pngImage = "https://www.appsmith.com/favicon.png";
 const jpgImage =
   "https://community.appsmith.com/sites/default/files/styles/small_thumbnail/public/2024-03/aws-logo.jpg?itok=yG4bpfFs";
 const pdf = "http://host.docker.internal:4200/sample-pdf-file.pdf";
 
 describe(
   "DocumentViewer Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.DocumentViewer"] },
+  { tags: ["@tag.Widget", "@tag.DocumentViewer", "@tag.Binding"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("filepickerwidgetv2", 400, 900);
@@ -211,10 +210,7 @@ describe(
       agHelper.AssertElementExist(
         locators._widgetInDeployed("documentviewerwidget"),
       );
-      agHelper.AssertContains(
-        "Current file type is not supported",
-        "not.exist",
-      );
+      agHelper.AssertContains("Current file type is not supported");
       deployMode.NavigateBacktoEditor();
       //Should not show an jpg image file"
       EditorNavigation.SelectEntityByName("DocumentViewer1", EntityType.Widget);

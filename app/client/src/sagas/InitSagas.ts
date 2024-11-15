@@ -219,7 +219,6 @@ export function* getInitResponses({
 }: {
   applicationId?: string;
   basePageId?: string;
-  branch?: string;
   mode?: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
   // TODO: Fix this the next time the file is edited
@@ -241,10 +240,13 @@ export function* getInitResponses({
       shouldInitialiseUserDetails,
     );
 
+    const rootSpan = startRootSpan("fetch-consolidated-api");
     const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
       yield mode === APP_MODE.EDIT
         ? ConsolidatedPageLoadApi.getConsolidatedPageLoadDataEdit(params)
         : ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
+
+    endSpan(rootSpan);
 
     const isValidResponse: boolean = yield validateResponse(
       initConsolidatedApiResponse,

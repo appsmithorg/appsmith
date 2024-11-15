@@ -1,7 +1,5 @@
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import SelectComponent from "widgets/SelectWidget/component";
 import type { DropdownOption } from "widgets/SelectWidget/constants";
 import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
@@ -13,6 +11,7 @@ import {
 } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import { BasicCell } from "./BasicCell";
+import type { ColumnTypes } from "widgets/TableWidget/component/Constants";
 
 const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
@@ -63,7 +62,7 @@ type SelectProps = BaseCellComponentProps & {
   alias: string;
   accentColor: string;
   autoOpen: boolean;
-  columnType: string;
+  columnType: ColumnTypes;
   borderRadius: string;
   options?: DropdownOption[];
   onFilterChange: (
@@ -196,25 +195,17 @@ export const SelectCell = (props: SelectProps) => {
     .map((d: DropdownOption) => d.value)
     .indexOf(value);
 
-  const releaseTableSelectCellLabelValue = useFeatureFlag(
-    FEATURE_FLAG.release_table_cell_label_value_enabled,
-  );
-
   const cellLabelValue = useMemo(() => {
-    if (releaseTableSelectCellLabelValue) {
-      if (!options.length) return value;
+    if (!options.length) return value;
 
-      const selectedOption = options.find(
-        (option) => option[TableSelectColumnOptionKeys.VALUE] === value,
-      );
+    const selectedOption = options.find(
+      (option) => option[TableSelectColumnOptionKeys.VALUE] === value,
+    );
 
-      return selectedOption
-        ? selectedOption[TableSelectColumnOptionKeys.LABEL]
-        : "";
-    } else {
-      return value;
-    }
-  }, [releaseTableSelectCellLabelValue, value, options]);
+    return selectedOption
+      ? selectedOption[TableSelectColumnOptionKeys.LABEL]
+      : "";
+  }, [value, options]);
 
   if (isEditable && isCellEditable && isCellEditMode) {
     return (

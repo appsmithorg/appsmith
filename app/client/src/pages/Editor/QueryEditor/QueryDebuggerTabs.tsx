@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getErrorCount } from "selectors/debuggerSelectors";
 import { Text, TextType } from "@appsmith/ads-old";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import {
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
@@ -14,25 +14,28 @@ import {
 } from "ee/constants/messages";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
-import Schema from "components/editorComponents/Debugger/Schema";
+import Schema from "PluginActionEditor/components/PluginActionResponse/components/Schema";
 import type { ActionResponse } from "api/ActionAPI";
 import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
-import QueryResponseTab from "./QueryResponseTab";
+import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
 import {
+  getDatasource,
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
 } from "ee/selectors/entitiesSelector";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { DatasourceStructureContext } from "entities/Datasource";
-import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
-import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
+import {
+  getPluginActionDebuggerState,
+  setPluginActionEditorDebuggerState,
+} from "PluginActionEditor/store";
 import { actionResponseDisplayDataFormats } from "../utils";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
-import { IDEBottomView, ViewHideBehaviour } from "../../../IDE";
+import { IDEBottomView, ViewHideBehaviour } from "IDE";
 
 const ResultsCount = styled.div`
   position: absolute;
@@ -41,9 +44,14 @@ const ResultsCount = styled.div`
   color: var(--ads-v2-color-fg);
 `;
 
+const ErrorText = styled(Text)`
+  color: var(--ads-v2-colors-action-error-label-default-fg);
+`;
+
 interface QueryDebuggerTabsProps {
   actionSource: SourceEntity;
   currentActionConfig?: Action;
+  isRunDisabled?: boolean;
   isRunning: boolean;
   actionName: string; // Check what and how to get
   runErrorMessage?: string;
@@ -57,6 +65,7 @@ function QueryDebuggerTabs({
   actionResponse,
   actionSource,
   currentActionConfig,
+  isRunDisabled = false,
   isRunning,
   onRunClick,
   runErrorMessage,
@@ -68,7 +77,7 @@ function QueryDebuggerTabs({
   const dispatch = useDispatch();
 
   const { open, responseTabHeight, selectedTab } = useSelector(
-    getQueryPaneDebuggerState,
+    getPluginActionDebuggerState,
   );
 
   const { responseDisplayFormat } =
@@ -93,6 +102,10 @@ function QueryDebuggerTabs({
     ),
   );
 
+  const datasource = useSelector((state) =>
+    getDatasource(state, currentActionConfig?.datasource?.id ?? ""),
+  );
+
   useEffect(() => {
     if (
       currentActionConfig?.datasource?.id &&
@@ -107,7 +120,12 @@ function QueryDebuggerTabs({
         ),
       );
     }
-  }, []);
+  }, [
+    currentActionConfig,
+    datasourceStructure,
+    dispatch,
+    pluginDatasourceForm,
+  ]);
 
   // These useEffects are used to open the response tab by default for page load queries
   // as for page load queries, query response is available and can be shown in response tab
@@ -121,25 +139,30 @@ function QueryDebuggerTabs({
       !showResponseOnFirstLoad
     ) {
       dispatch(
-        setQueryPaneDebuggerState({
+        setPluginActionEditorDebuggerState({
           open: true,
           selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
         }),
       );
       setShowResponseOnFirstLoad(true);
     }
-  }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
+  }, [
+    responseDisplayFormat,
+    actionResponse,
+    showResponseOnFirstLoad,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (showSchema && !selectedTab) {
       dispatch(
-        setQueryPaneDebuggerState({
+        setPluginActionEditorDebuggerState({
           open: true,
           selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
         }),
       );
     }
-  }, [showSchema, currentActionConfig?.id, selectedTab]);
+  }, [showSchema, selectedTab, dispatch]);
 
   // When multiple page load queries exist, we want to response tab by default for all of them
   // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
@@ -170,17 +193,27 @@ function QueryDebuggerTabs({
     }
   }
 
-  const setQueryResponsePaneHeight = useCallback((height: number) => {
-    dispatch(setQueryPaneDebuggerState({ responseTabHeight: height }));
-  }, []);
+  const setQueryResponsePaneHeight = useCallback(
+    (height: number) => {
+      dispatch(
+        setPluginActionEditorDebuggerState({ responseTabHeight: height }),
+      );
+    },
+    [dispatch],
+  );
 
   const onToggle = useCallback(() => {
-    dispatch(setQueryPaneDebuggerState({ open: !open }));
-  }, [open]);
+    dispatch(setPluginActionEditorDebuggerState({ open: !open }));
+  }, [dispatch, open]);
 
-  const setSelectedResponseTab = useCallback((tabKey: string) => {
-    dispatch(setQueryPaneDebuggerState({ open: true, selectedTab: tabKey }));
-  }, []);
+  const setSelectedResponseTab = useCallback(
+    (tabKey: string) => {
+      dispatch(
+        setPluginActionEditorDebuggerState({ open: true, selectedTab: tabKey }),
+      );
+    },
+    [dispatch],
+  );
 
   const ideViewMode = useSelector(getIDEViewMode);
 
@@ -204,13 +237,14 @@ function QueryDebuggerTabs({
 
   if (currentActionConfig) {
     responseTabs.unshift({
-      key: "response",
+      key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <QueryResponseTab
           actionName={actionName}
           actionSource={actionSource}
           currentActionConfig={currentActionConfig}
+          isRunDisabled={isRunDisabled}
           isRunning={isRunning}
           onRunClick={onRunClick}
           runErrorMessage={runErrorMessage}
@@ -221,13 +255,13 @@ function QueryDebuggerTabs({
 
   if (showSchema && currentActionConfig && currentActionConfig.datasource) {
     responseTabs.unshift({
-      key: "schema",
+      key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
       title: "Schema",
       panelComponent: (
         <Schema
           currentActionId={currentActionConfig.id}
           datasourceId={currentActionConfig.datasource.id || ""}
-          datasourceName={currentActionConfig.datasource.name || ""}
+          datasourceName={datasource?.name || ""}
         />
       ),
     });
@@ -244,11 +278,15 @@ function QueryDebuggerTabs({
     >
       {output && !!output.length && (
         <ResultsCount>
-          <Text type={TextType.P3}>
+          <Text data-testid="result-text" type={TextType.P3}>
             Result:
-            <Text type={TextType.H5}>{` ${output.length} Record${
-              output.length > 1 ? "s" : ""
-            }`}</Text>
+            {actionResponse?.isExecutionSuccess ? (
+              <Text type={TextType.H5}>{` ${output.length} Record${
+                output.length > 1 ? "s" : ""
+              }`}</Text>
+            ) : (
+              <ErrorText type={TextType.H5}>{" Error"}</ErrorText>
+            )}
           </Text>
         </ResultsCount>
       )}

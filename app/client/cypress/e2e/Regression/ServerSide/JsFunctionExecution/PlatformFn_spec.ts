@@ -11,7 +11,7 @@ import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Tests functionality of platform function",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Binding"] },
   () => {
     it("1. Tests access to outer variable", () => {
       apiPage.CreateAndFillApi(

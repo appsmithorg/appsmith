@@ -8,8 +8,6 @@ import axios from "axios";
 import type { Action, ActionViewMode } from "entities/Action";
 import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
-import type { OtlpSpan } from "UITelemetry/generateTraces";
-import { wrapFnWithParentTraceContext } from "UITelemetry/generateTraces";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 export interface Property {
@@ -233,17 +231,10 @@ class ActionAPI extends API {
   static async executeAction(
     executeAction: FormData,
     timeout?: number,
-    parentSpan?: OtlpSpan,
   ): Promise<AxiosPromise<ActionExecutionResponse>> {
     ActionAPI.abortActionExecutionTokenSource = axios.CancelToken.source();
 
-    if (!parentSpan) {
-      return this.executeApiCall(executeAction, timeout);
-    }
-
-    return wrapFnWithParentTraceContext(parentSpan, async () => {
-      return await this.executeApiCall(executeAction, timeout);
-    });
+    return await this.executeApiCall(executeAction, timeout);
   }
 
   static async moveAction(moveRequest: MoveActionRequest) {

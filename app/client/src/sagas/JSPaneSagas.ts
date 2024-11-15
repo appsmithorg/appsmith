@@ -86,7 +86,7 @@ import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUt
 import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import {
   getJSActionPathNameToDisplay,
   isBrowserExecutionAllowed,

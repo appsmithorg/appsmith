@@ -199,7 +199,6 @@ export interface DataTreeSeed {
   pluginDependencyConfig: Record<string, DependencyMap>;
   widgets: CanvasWidgetsReduxState;
   widgetsMeta: MetaState;
-  pageList: Page[];
   appData: AppDataState;
   jsActions: JSCollectionDataState;
   theme: AppTheme["properties"];

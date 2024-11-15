@@ -1,10 +1,14 @@
-import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import type { InputComponentProps } from "../component";
-import InputComponent from "../component";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+} from "WidgetProvider/constants";
+import { ICON_NAMES } from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,
@@ -13,44 +17,40 @@ import {
   INPUT_DEFAULT_TEXT_MIN_NUM_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "ee/constants/messages";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { ICON_NAMES } from "WidgetProvider/constants";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import BaseInputWidget from "widgets/BaseInputWidget";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { isNil, isNumber, merge, toString } from "lodash";
-import derivedProperties from "./parsedDerivedProperties";
-import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
+import React from "react";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { mergeWidgetConfig } from "utils/helpers";
+import BaseInputWidget from "widgets/BaseInputWidget";
 import {
   InputTypes,
   NumberInputStepButtonPosition,
 } from "widgets/BaseInputWidget/constants";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { getParsedText, isInputTypeEmailOrPassword } from "./Utilities";
+import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
+import type { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import {
-  isAutoHeightEnabledForWidget,
   DefaultAutocompleteDefinitions,
+  isAutoHeightEnabledForWidget,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-} from "WidgetProvider/constants";
-import { LabelPosition } from "components/constants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import type { InputComponentProps } from "../component";
+import InputComponent from "../component";
+import { getParsedText, isInputTypeEmailOrPassword } from "./Utilities";
+import derivedProperties from "./parsedDerivedProperties";
 
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 
 import type {
-  SnipingModeProperty,
   PropertyUpdates,
+  SnipingModeProperty,
 } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 export function defaultValueValidation(
   // TODO: Fix this the next time the file is edited
@@ -300,6 +300,13 @@ function InputTypeUpdateHook(
 }
 
 class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
+  constructor(props: InputWidgetProps) {
+    super(props);
+    this.state = {
+      isFocused: false,
+    };
+  }
+
   static type = "INPUT_WIDGET_V2";
 
   static getConfig() {
@@ -641,7 +648,9 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
-    return merge(super.getMetaPropertiesMap(), {
+    const baseMetaProperties = BaseInputWidget.getMetaPropertiesMap();
+
+    return merge(baseMetaProperties, {
       inputText: "",
       text: "",
     });
@@ -663,8 +672,10 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
   }
 
   handleFocusChange = (focusState: boolean) => {
+    this.setState({ isFocused: focusState });
+
     if (focusState) {
-      this.props.updateWidgetMetaProperty("isFocused", focusState, {
+      this.executeAction({
         triggerPropertyName: "onFocus",
         dynamicString: this.props.onFocus,
         event: {
@@ -674,7 +685,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     }
 
     if (!focusState) {
-      this.props.updateWidgetMetaProperty("isFocused", focusState, {
+      this.executeAction({
         triggerPropertyName: "onBlur",
         dynamicString: this.props.onBlur,
         event: {
@@ -898,7 +909,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         rtl={this.props.rtl}
-        showError={!!this.props.isFocused}
+        showError={!!this.state.isFocused}
         spellCheck={!!this.props.isSpellCheck}
         stepSize={1}
         tooltip={this.props.tooltip}

@@ -23,7 +23,9 @@ let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
 describe.skip(
   "GSheet Miscellaneous Tests",
-  { tags: ["@tag.Datasource", "@tag.GSheet"] },
+  {
+    tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     const columnHeaders = [
       "uniq_id",

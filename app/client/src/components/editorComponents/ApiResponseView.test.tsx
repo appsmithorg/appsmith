@@ -50,7 +50,7 @@ const storeState = {
         errorCount: 0,
       },
     },
-    apiPane: {
+    pluginActionEditor: {
       debugger: {
         open: true,
         responseTabHeight: 200,
@@ -81,7 +81,7 @@ describe("ApiResponseView", () => {
           <Router>
             <ApiResponseView
               currentActionConfig={Api1}
-              disabled={false}
+              isRunDisabled={false}
               isRunning={false}
               onRunClick={noop}
             />

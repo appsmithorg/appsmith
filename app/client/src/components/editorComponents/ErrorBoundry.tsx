@@ -8,6 +8,7 @@ import type { ReactNode, CSSProperties } from "react";
 interface Props {
   children: ReactNode;
   style?: CSSProperties;
+  fallback?: ReactNode;
 }
 interface State {
   hasError: boolean;
@@ -47,17 +48,17 @@ class ErrorBoundary extends React.Component<Props, State> {
         className="error-boundary"
         style={this.props.style}
       >
-        {this.state.hasError ? (
-          <p>
-            Oops, Something went wrong.
-            <br />
-            <RetryLink onClick={() => this.setState({ hasError: false })}>
-              Click here to retry
-            </RetryLink>
-          </p>
-        ) : (
-          this.props.children
-        )}
+        {this.state.hasError
+          ? this.props.fallback || (
+              <p>
+                Oops, Something went wrong.
+                <br />
+                <RetryLink onClick={() => this.setState({ hasError: false })}>
+                  Click here to retry
+                </RetryLink>
+              </p>
+            )
+          : this.props.children}
       </ErrorBoundaryContainer>
     );
   }

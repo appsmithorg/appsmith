@@ -8,7 +8,7 @@ let datasourceName;
 
 describe(
   "Add widget - Postgress DataSource",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     beforeEach(() => {
       dataSources.StartDataSourceRoutes();

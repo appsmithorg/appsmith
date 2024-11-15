@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   "Test Create Api and Bind to Button widget",
-  { tags: ["@tag.JS"] },
+  { tags: ["@tag.JS", "@tag.Binding"] },
   function () {
     before("Test_Add users api and execute api", () => {
       agHelper.AddDsl("buttonApiDsl");

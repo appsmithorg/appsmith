@@ -1,0 +1,94 @@
+.radio {
+  display: flex;
+  align-items: center;
+  gap: var(--inner-spacing-2);
+  cursor: pointer;
+  min-width: fit-content;
+
+  &:before {
+    --radio-border-width: var(--border-width-2);
+    --radio-border-color: var(--color-bd-neutral);
+    /* Note: we are using box-shadow as the border to avoid the border from
+    changing the size of the radio and icon */
+    --radio-box-shadow: 0px 0px 0px var(--radio-border-width)
+      var(--radio-border-color) inset;
+
+    content: "";
+    width: var(--sizing-5);
+    height: var(--sizing-5);
+    box-shadow: var(--radio-box-shadow);
+    border-radius: 100%;
+    color: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    flex-shrink: 0;
+  }
+
+  &[data-hovered]:not([data-disabled="true"]):before {
+    --radio-border-color: var(--color-bd-neutral-hover);
+  }
+
+  /**
+ * ----------------------------------------------------------------------------
+ * CHECKED  AND INDETERMINATE - BUT NOT DISABLED
+ *-----------------------------------------------------------------------------
+ */
+  &[data-selected="true"]:before {
+    --radio-border-color: var(--color-bg-accent);
+    --radio-box-shadow: 0px 0px 0px 4px var(--color-bg-accent) inset;
+
+    background: var(--color-fg-on-accent);
+  }
+
+  &[data-hovered][data-selected="true"]:not([data-disabled="true"]):before {
+    --radio-border-color: var(--color-bg-accent-hover);
+    --radio-box-shadow: 0px 0px 0px 4px var(--color-bg-accent-hover) inset;
+
+    background: var(--color-fg-on-accent);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * FOCUS
+  *-----------------------------------------------------------------------------
+  */
+  &[data-focus-visible]:before {
+    box-shadow:
+      var(--radio-box-shadow),
+      0 0 0 2px var(--color-bg),
+      0 0 0 4px var(--color-bd-focus);
+  }
+
+  /**
+ * ----------------------------------------------------------------------------
+ * ERROR ( INVALID )
+ *-----------------------------------------------------------------------------
+ */
+  &[data-invalid]:before {
+    --radio-border-color: var(--color-bd-negative);
+  }
+
+  &[data-hovered][data-invalid]:before {
+    --radio-border-color: var(--color-bd-negative-hover);
+  }
+
+  &[data-invalid][data-selected="true"]:before {
+    --radio-box-shadow: 0px 0px 0px 4px var(--color-bg-negative) inset;
+  }
+
+  &[data-hovered][data-invalid][data-selected="true"]:before {
+    --radio-box-shadow: 0px 0px 0px 4px var(--color-bg-negative-hover) inset;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-disabled] {
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
+  }
+}

@@ -3,8 +3,6 @@ const path = require('path');
 const os = require('os');
 const readlineSync = require('readline-sync');
 
-const shell = require('shelljs');
-
 const utils = require('./utils');
 const Constants = require('./constants');
 const command_args = process.argv.slice(3);
@@ -174,14 +172,10 @@ async function run() {
   let cleanupArchive = false;
   let overwriteEncryptionKeys = true;
   let backupFilePath;
-  try {
-    shell.exec('/usr/bin/supervisorctl >/dev/null 2>&1', function (code) {
-      if (code > 0) {
-        shell.echo('application is not running, starting supervisord');
-        shell.exec('/usr/bin/supervisord');
-      }
-    });
 
+  await utils.ensureSupervisorIsRunning();
+
+  try {
     let backupFileName = await getBackupFileName();
     if (backupFileName == null) {
       process.exit(errorCode);
@@ -209,7 +203,7 @@ async function run() {
 
       console.log('****************************************************************');
       console.log('Restoring Appsmith instance from the backup at ' + backupFilePath);
-      utils.stop(['backend', 'rts']);
+      await utils.stop(["backend", "rts"]);
       await restoreDatabase(restoreContentsPath, utils.getDburl());
       await restoreDockerEnvFile(restoreContentsPath, backupName, overwriteEncryptionKeys);
       await restoreGitStorageArchive(restoreContentsPath, backupName);
@@ -224,7 +218,7 @@ async function run() {
     if (cleanupArchive){
       await fsPromises.rm(backupFilePath, { force: true });
     }
-    utils.start(['backend', 'rts']);
+    await utils.start(["backend", "rts"]);
     process.exit(errorCode);
 
   }

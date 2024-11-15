@@ -190,7 +190,7 @@ app/client/src/ce/JSFunctionExecutionSaga.ts @ApekshaBhosale
 app/client/src/ee/JSFunctionExecutionSaga.ts @ApekshaBhosale
 
 # Enterprise Success
-app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/**/* @sharat87 @abhvsn
+app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/**/* @sharat87 @abhvsn @AnaghHegde
 
 # DevOps & Shri
 deploy/**/* @sharat87 @pratapaprasanna

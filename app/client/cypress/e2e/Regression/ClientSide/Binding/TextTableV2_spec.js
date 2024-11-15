@@ -5,7 +5,6 @@ import EditorNavigation, {
 const commonlocators = require("../../../../locators/commonlocators.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 import {
-  entityExplorer,
   agHelper,
   deployMode,
   propPane,
@@ -113,6 +112,7 @@ describe(
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
         "Container3",
       ]);
+      propPane.ExpandIfCollapsedSection("rowselection");
       cy.testJsontext("defaultselectedrow", "2");
       cy.wait("@updateLayout");
       cy.get(commonlocators.TableV2Row)

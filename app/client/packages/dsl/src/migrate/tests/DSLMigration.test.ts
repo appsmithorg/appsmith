@@ -938,85 +938,82 @@ describe("Test all the migrations are running", () => {
   afterAll(() => {
     jest.clearAllMocks();
   });
-  migrations.forEach((migration: Migration) => {
-    /**
-     * Generates mock fucntion for each migration function.
-     * Mocks the implementation
-     */
-    const version = migration.version ?? 0;
+  test("assert migration functions being called when migrate dsl has been called ", async () => {
+    migrations.forEach((migration: Migration) => {
+      /**
+       * Generates mock fucntion for each migration function.
+       * Mocks the implementation
+       */
+      const version = migration.version ?? 0;
 
-    mockFnObj[version] = [];
+      mockFnObj[version] = [];
 
-    migration.functionLookup.forEach((lookup) => {
-      const { functionName, moduleObj } = lookup;
-
-      if (moduleObj) {
-        mockFnObj[version].push({
-          spyOnFunc: jest
-            .spyOn(moduleObj, functionName)
-            .mockImplementation((dsl: any) => {
-              /**
-               * We need to delete the children property on the first migration(calculateDynamicHeight),
-               * to avoid the recursion in the second migration(updateContainers)
-               */
-              dsl && delete dsl.children;
-
-              return {
-                version: dsl?.version,
-                validationFuncName: functionName,
-              };
-            }),
-        });
-      }
-    });
-  });
-
-  // Runs all the migrations
-  DSLMigrations.migrateDSL(originalDSLForDSLMigrations as unknown as DSLWidget);
-
-  migrations.forEach((item: any, testIdx: number) => {
-    const { functionLookup, version } = item;
-    const dslVersion = version ?? 0;
-
-    functionLookup.forEach(
-      (lookup: { moduleObj: any; functionName: string }, index: number) => {
+      migration.functionLookup.forEach((lookup) => {
         const { functionName, moduleObj } = lookup;
 
         if (moduleObj) {
-          const mockObj = mockFnObj[dslVersion][index].spyOnFunc;
-          const calls = mockObj.mock?.calls;
-          const results = mockObj.mock?.results;
-          const resultsLastIdx = mockObj.mock.results.length - 1;
+          mockFnObj[version].push({
+            spyOnFunc: jest
+              .spyOn(moduleObj, functionName)
+              .mockImplementation((dsl: any) => {
+                /**
+                 * We need to delete the children property on the first migration(calculateDynamicHeight),
+                 * to avoid the recursion in the second migration(updateContainers)
+                 */
+                dsl && delete dsl.children;
 
-          describe(`Test ${testIdx}:`, () => {
-            test(`Has ${functionName} function executed?`, () => {
-              // Check if the migration function is called
-              expect(results[resultsLastIdx].value.validationFuncName).toEqual(
-                functionName,
-              );
-            });
-
-            // Check if the migration function is called with the current DSL version
-            calls.forEach((args: any) => {
-              test(`Does ${functionName} executes with DSL version: ${version}?`, () => {
-                if (args[0]?.version === version) {
-                  expect(args[0]?.version).toEqual(version);
-                }
-              });
-              test(`For ${functionName}, is the ${args[0]?.version} registerd in tests?`, () => {
-                expect(
-                  Object.keys(mockFnObj).includes(
-                    args[0]?.version.toString() ?? "0",
-                  ),
-                ).toBe(true);
-              });
-            });
+                return {
+                  version: dsl?.version,
+                  validationFuncName: functionName,
+                };
+              }),
           });
         }
-      },
-    );
-  });
+      });
+    });
 
+    // Runs all the migrations
+    await DSLMigrations.migrateDSL(
+      originalDSLForDSLMigrations as unknown as DSLWidget,
+    );
+
+    migrations.forEach((item: any) => {
+      const { functionLookup, version } = item;
+      const dslVersion = version ?? 0;
+
+      functionLookup.forEach(
+        (lookup: { moduleObj: any; functionName: string }, index: number) => {
+          const { functionName, moduleObj } = lookup;
+
+          if (moduleObj) {
+            const mockObj = mockFnObj[dslVersion][index].spyOnFunc;
+            const calls = mockObj.mock?.calls;
+            const results = mockObj.mock?.results;
+            const resultsLastIdx = mockObj.mock.results.length - 1;
+
+            // Check if the migration function is called
+            expect(results[resultsLastIdx].value.validationFuncName).toEqual(
+              functionName,
+            );
+            // Check if the migration function is called with the current DSL version
+            calls.forEach((args: any) => {
+              // Does functionName executes with the correct DSL version number
+              if (args[0]?.version === version) {
+                expect(args[0]?.version).toEqual(version);
+              }
+
+              // For a functionName is the correct DSL version registed in test cases
+              expect(
+                Object.keys(mockFnObj).includes(
+                  args[0]?.version.toString() ?? "0",
+                ),
+              ).toBe(true);
+            });
+          }
+        },
+      );
+    });
+  });
   test("Check the migration count matches the lates page version", () => {
     expect(migrations.length).toEqual(DSLMigrations.LATEST_DSL_VERSION);
   });

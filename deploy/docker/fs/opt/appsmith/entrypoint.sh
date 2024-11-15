@@ -6,6 +6,7 @@ tlog "Running as: $(id)"
 
 stacks_path=/appsmith-stacks
 
+export APPSMITH_PG_DATABASE="appsmith"
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
 export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
 
@@ -22,6 +23,13 @@ setup_proxy_variables() {
   fi
   if ! echo "$no_proxy_lines" | grep -q '^127.0.0.1$'; then
     export NO_PROXY="127.0.0.1,$NO_PROXY"
+  fi
+
+  # If one of NO_PROXY or no_proxy are set, copy it to the other. If both are set, prefer NO_PROXY.
+  if [[ -n ${NO_PROXY-} ]]; then
+    export no_proxy="$NO_PROXY"
+  elif [[ -n ${no_proxy-} ]]; then
+    export NO_PROXY="$no_proxy"
   fi
 
   # If one of HTTPS_PROXY or https_proxy are set, copy it to the other. If both are set, prefer HTTPS_PROXY.
@@ -432,6 +440,7 @@ init_postgres() {
       tlog "Initializing local Postgres data folder"
       su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
+    create_appsmith_pg_db "$POSTGRES_DB_PATH"
   else
     runEmbeddedPostgres=0
   fi
@@ -451,6 +460,40 @@ safe_init_postgres() {
     tlog "init_postgres failed with exit status $exit_status."
     runEmbeddedPostgres=0
   fi
+}
+
+# Method to create a appsmith database in the postgres 
+# Args:
+#     POSTGRES_DB_PATH (string): Path to the postgres data directory
+# Returns:
+#     None
+# Example:
+#     create_appsmith_pg_db "/appsmith-stacks/data/postgres/main"
+create_appsmith_pg_db() {
+  POSTGRES_DB_PATH=$1
+  # Start the postgres , wait for it to be ready and create a appsmith db
+  su postgres -c "env PATH='$PATH' pg_ctl -D $POSTGRES_DB_PATH -l $POSTGRES_DB_PATH/logfile start"
+  echo "Waiting for Postgres to start"
+  local max_attempts=300
+  local attempt=0
+
+  until su postgres -c "env PATH='$PATH' pg_isready -h 127.0.0.1"; do
+    if (( attempt >= max_attempts )); then
+      echo "Postgres failed to start within 300 seconds."
+      return 1
+    fi
+    tlog "Waiting for Postgres to be ready... Attempt $((++attempt))/$max_attempts"
+    sleep 1
+  done
+  # Check if the appsmith DB is present
+  DB_EXISTS=$(su postgres -c "env PATH='$PATH' psql -tAc \"SELECT 1 FROM pg_database WHERE datname='${APPSMITH_PG_DATABASE}'\"")
+
+  if [[ "$DB_EXISTS" != "1" ]]; then
+    su postgres -c "env PATH='$PATH' psql -c \"CREATE DATABASE ${APPSMITH_PG_DATABASE}\""
+  else
+    echo "Database ${APPSMITH_PG_DATABASE} already exists."
+  fi
+  su postgres -c "env PATH='$PATH' pg_ctl -D $POSTGRES_DB_PATH stop"
 }
 
 setup_caddy() {

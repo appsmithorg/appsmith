@@ -4,7 +4,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Text Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.Text"] },
+  { tags: ["@tag.Widget", "@tag.Text", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("displayWidgetDsl");

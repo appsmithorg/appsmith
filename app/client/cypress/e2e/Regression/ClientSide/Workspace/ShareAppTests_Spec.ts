@@ -13,7 +13,7 @@ const appNavigationLocators = require("../../../../locators/AppNavigation.json")
 
 describe(
   "Create new workspace and share with a user",
-  { tags: ["@tag.Workspace", "@tag.Sanity"] },
+  { tags: ["@tag.Workspace", "@tag.Sanity", "@tag.AccessControl"] },
   function () {
     let workspaceId: string, appid: string, currentUrl: any;
 
@@ -113,6 +113,7 @@ describe(
       agHelper.AssertElementExist(homePage._appEditIcon);
       agHelper.GetNClick(homePage._appEditIcon, 0, true);
       agHelper.AssertElementAbsence(locators._loading);
+      assertHelper.AssertNetworkStatus("@getConsolidatedData", 200, true);
       agHelper.GetNClick(inviteModal.locators._shareButton, 0, true);
       agHelper.GetNClick(homePage._sharePublicToggle, 0, true);
       agHelper.GetNClick(locators._dialogCloseButton, 0, true);

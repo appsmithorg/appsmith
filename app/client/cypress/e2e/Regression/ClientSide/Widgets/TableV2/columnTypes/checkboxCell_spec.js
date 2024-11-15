@@ -30,11 +30,12 @@ const tableData = `[
 const checkboxSelector = " .bp3-checkbox input[type='checkbox']";
 describe(
   "Checkbox column type funtionality test",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   () => {
     before(() => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
       // turn on filtering for the table - it is disabled by default in this PR(#34593)
+      _.propPane.ExpandIfCollapsedSection("search\\&filters");
       _.agHelper.GetNClick(".t--property-control-allowfiltering input");
       _.propPane.EnterJSContext("Table data", tableData);
       cy.editColumn("completed");
@@ -144,6 +145,7 @@ describe(
           .contains("This is a test message")
           .should("be.visible");
       });
+      _.agHelper.ClickButton("Discard", { index: 0 }); // discard changes
     });
 
     it("4. Verify filter condition", () => {
@@ -158,7 +160,17 @@ describe(
 
       // filter and verify checked rows
       cy.getTableV2DataSelector("0", "4").then((selector) => {
-        cy.get(selector + checkboxSelector).should("be.checked");
+        _.agHelper.AssertExistingCheckedState(
+          selector + checkboxSelector,
+          "true",
+        );
+      });
+
+      cy.getTableV2DataSelector("1", "4").then((selector) => {
+        _.agHelper.AssertExistingCheckedState(
+          selector + checkboxSelector,
+          "true",
+        );
       });
 
       // Filter and verify unchecked rows
@@ -169,10 +181,10 @@ describe(
       cy.get(publishPage.applyFiltersBtn).click();
 
       cy.getTableV2DataSelector("0", "4").then((selector) => {
-        cy.get(selector + checkboxSelector).should("not.be.checked");
-      });
-      cy.getTableV2DataSelector("1", "4").then((selector) => {
-        cy.get(selector + checkboxSelector).should("not.be.checked");
+        _.agHelper.AssertExistingCheckedState(
+          selector + checkboxSelector,
+          "false",
+        );
       });
     });
 

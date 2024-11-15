@@ -4,7 +4,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
   "RichTextEditor Widget Functionality in Form",
-  { tags: ["@tag.Widget", "@tag.Form", "@tag.TextEditor"] },
+  { tags: ["@tag.Widget", "@tag.Form", "@tag.TextEditor", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formWithRTEDsl");

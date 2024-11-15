@@ -77,7 +77,7 @@ import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "ee/utils/planHelpers";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import type { ChangeQueryPayload } from "actions/queryPaneActions";
+import type { ChangeQueryPayload } from "PluginActionEditor/store";
 import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,

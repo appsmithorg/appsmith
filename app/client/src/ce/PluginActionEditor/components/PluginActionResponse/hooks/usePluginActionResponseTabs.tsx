@@ -4,7 +4,7 @@ import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { useSelector } from "react-redux";
 import { EditorViewMode } from "ee/entities/IDE/constants";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import {
   createMessage,
   DEBUGGER_ERRORS,
@@ -17,20 +17,128 @@ import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import { PluginType } from "entities/Action";
 import { ApiResponse } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
 import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponseHeaders";
-import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
+import {
+  getPluginActionDebuggerState,
+  isActionRunning,
+} from "PluginActionEditor/store";
+import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
+import useShowSchema from "PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
+import Schema from "PluginActionEditor/components/PluginActionResponse/components/Schema";
+import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
+import type { SourceEntity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import {
+  useBlockExecution,
+  useHandleRunClick,
+  useAnalyticsOnRunClick,
+} from "PluginActionEditor/hooks";
+import useDebuggerTriggerClick from "components/editorComponents/Debugger/hooks/useDebuggerTriggerClick";
 
 function usePluginActionResponseTabs() {
-  const { action, actionResponse, plugin } = usePluginActionContext();
+  const { action, actionResponse, datasource, plugin } =
+    usePluginActionContext();
+  const { handleRunClick } = useHandleRunClick();
+  const { callRunActionAnalytics } = useAnalyticsOnRunClick();
 
   const IDEViewMode = useSelector(getIDEViewMode);
   const errorCount = useSelector(getErrorCount);
+  const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
 
-  const { responseTabHeight } = useSelector(getApiPaneDebuggerState);
+  const showSchema = useShowSchema(plugin.id) && pluginRequireDatasource;
+
+  const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
+
+  const onDebugClick = useDebuggerTriggerClick();
+  const isRunning = useSelector(isActionRunning(action.id));
+  const blockExecution = useBlockExecution();
 
   const tabs: BottomTab[] = [];
+
+  const onRunClick = () => {
+    callRunActionAnalytics();
+    handleRunClick();
+  };
+
+  if (plugin.type === PluginType.API) {
+    tabs.push(
+      {
+        key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        title: createMessage(DEBUGGER_RESPONSE),
+        panelComponent: (
+          <ApiResponse
+            action={action}
+            actionResponse={actionResponse}
+            isRunDisabled={blockExecution}
+            isRunning={isRunning}
+            onRunClick={onRunClick}
+            responseTabHeight={responseTabHeight}
+            theme={EditorTheme.LIGHT}
+          />
+        ),
+      },
+      {
+        key: DEBUGGER_TAB_KEYS.HEADER_TAB,
+        title: createMessage(DEBUGGER_HEADERS),
+        panelComponent: (
+          <ApiResponseHeaders
+            actionResponse={actionResponse}
+            isRunDisabled={blockExecution}
+            isRunning={isRunning}
+            onDebugClick={onDebugClick}
+            onRunClick={onRunClick}
+          />
+        ),
+      },
+    );
+  }
+
+  if (
+    [
+      PluginType.DB,
+      PluginType.AI,
+      PluginType.REMOTE,
+      PluginType.SAAS,
+      PluginType.INTERNAL,
+    ].includes(plugin.type)
+  ) {
+    const actionSource: SourceEntity = {
+      type: SOURCE_ENTITY_TYPE.ACTION,
+      name: action.name,
+      id: action.id,
+    };
+
+    if (showSchema) {
+      tabs.push({
+        key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
+        title: "Schema",
+        panelComponent: (
+          <Schema
+            currentActionId={action.id}
+            datasourceId={datasource?.id || ""}
+            datasourceName={datasource?.name || ""}
+          />
+        ),
+      });
+    }
+
+    tabs.push({
+      key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+      title: createMessage(DEBUGGER_RESPONSE),
+      panelComponent: (
+        <QueryResponseTab
+          actionName={action.name}
+          actionSource={actionSource}
+          currentActionConfig={action}
+          isRunDisabled={blockExecution}
+          isRunning={isRunning}
+          onRunClick={onRunClick}
+          runErrorMessage={""} // TODO
+        />
+      ),
+    });
+  }
 
   if (IDEViewMode === EditorViewMode.FullScreen) {
     tabs.push(
@@ -46,39 +154,6 @@ function usePluginActionResponseTabs() {
         panelComponent: <DebuggerLogs searchQuery={action.name} />,
       },
     );
-  }
-
-  if (plugin.type === PluginType.API) {
-    return tabs.concat([
-      {
-        key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-        title: createMessage(DEBUGGER_RESPONSE),
-        panelComponent: (
-          <ApiResponse
-            action={action}
-            actionResponse={actionResponse}
-            isRunDisabled={false}
-            isRunning={false}
-            onRunClick={noop}
-            responseTabHeight={responseTabHeight}
-            theme={EditorTheme.LIGHT}
-          />
-        ),
-      },
-      {
-        key: DEBUGGER_TAB_KEYS.HEADER_TAB,
-        title: createMessage(DEBUGGER_HEADERS),
-        panelComponent: (
-          <ApiResponseHeaders
-            actionResponse={actionResponse}
-            isRunDisabled={false}
-            isRunning={false}
-            onDebugClick={noop}
-            onRunClick={noop}
-          />
-        ),
-      },
-    ]);
   }
 
   return tabs;

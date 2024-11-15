@@ -93,10 +93,7 @@ const FlexContainer = styled.div`
 const KeyValueStackContainer = styled.div`
   padding: 0;
 `;
-const KeyValueFlexContainer = styled.div`
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[14]}px 0 0;
-`;
+const KeyValueFlexContainer = styled.div``;
 const FormRowWithLabel = styled(FormRow)`
   flex-wrap: wrap;
 

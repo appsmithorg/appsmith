@@ -1,4 +1,4 @@
-import { Select } from "@appsmith/wds";
+import { Select, ListBoxItem } from "@appsmith/wds";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import isNumber from "lodash/isNumber";
@@ -20,7 +20,6 @@ import {
 } from "../config";
 import { validateInput } from "./helpers";
 import type { WDSSelectWidgetProps } from "./types";
-import type { FieldListPopoverItem } from "@appsmith/wds";
 
 const isTrueObject = (item: unknown): item is Record<string, unknown> => {
   return Object.prototype.toString.call(item) === "[object Object]";
@@ -135,9 +134,7 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
     commitBatchMetaUpdates();
   };
 
-  optionsToSelectItems = (
-    options: WDSSelectWidgetProps["options"],
-  ): FieldListPopoverItem[] => {
+  optionsToSelectItems = (options: WDSSelectWidgetProps["options"]) => {
     if (Array.isArray(options)) {
       const items = options.map((option) => ({
         label: option[this.props.optionLabel || "label"] as string,
@@ -171,11 +168,16 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
         isInvalid={validation.validationStatus === "invalid"}
-        items={this.optionsToSelectItems(options)}
         onSelectionChange={this.handleChange}
         placeholder={placeholderText}
         selectedKey={selectedOptionValue}
-      />
+      >
+        {this.optionsToSelectItems(options).map((option) => (
+          <ListBoxItem key={option.id} textValue={option.label}>
+            {option.label}
+          </ListBoxItem>
+        ))}
+      </Select>
     );
   }
 }
