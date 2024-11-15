@@ -939,9 +939,6 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
   cy.request({
     method: "POST",
     url: "api/v1/users",
-    headers: {
-      "content-type": "application/json",
-    },
     followRedirect: false,
     form: true,
     body: {
