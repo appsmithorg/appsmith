@@ -10,7 +10,11 @@ import {
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+
+const APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT =
+  process.env.APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT ||
+  "http://localhost:4318";
 
 const provider = new NodeTracerProvider({
   resource: new Resource({
@@ -21,7 +25,7 @@ const provider = new NodeTracerProvider({
 });
 
 const nrTracesExporter = new OTLPTraceExporter({
-  url: `${process.env.APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT}/v1/traces`,
+  url: `${APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT}/v1/traces`,
   headers: {
     "api-key": `${process.env.APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY}`,
   },
