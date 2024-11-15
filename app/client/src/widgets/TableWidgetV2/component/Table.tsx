@@ -30,7 +30,11 @@ import {
 } from "./Constants";
 import { Colors } from "constants/Colors";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { type EditableCell, type TableVariant } from "../constants";
+import {
+  ColumnTypes,
+  type EditableCell,
+  type TableVariant,
+} from "../constants";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
@@ -326,7 +330,9 @@ export function Table(props: TableProps) {
   const shouldUseVirtual =
     props.serverSidePaginationEnabled &&
     !props.columns.some(
-      (column) => !!column.columnProperties.allowCellWrapping,
+      (column) =>
+        !!column.columnProperties.allowCellWrapping ||
+        column.metaProperties?.type === ColumnTypes.HTML,
     );
 
   useEffect(() => {
