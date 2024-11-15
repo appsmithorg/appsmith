@@ -1,47 +1,40 @@
-// Init function export mongodb
-const shell = require('shelljs');
 const readlineSync = require('readline-sync');
 const process = require('process');
 const Constants = require('./constants');
 const utils = require('./utils');
 
-
-function import_database() {
+async function importDatabase() {
   console.log('import_database  ....')
-  dbUrl = utils.getDburl();
-  const cmd = `mongorestore --uri='${dbUrl}' --drop --archive='${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`
-  shell.exec(cmd)
+  await utils.execCommand([
+    "mongorestore",
+    "--uri=" + utils.getDburl(),
+    "--drop",
+    `--archive=${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}`,
+    "--gzip",
+  ]);
   console.log('import_database done')
 }
 
-function stop_application() {
-  shell.exec('/usr/bin/supervisorctl stop backend rts')
-}
-
-function start_application() {
-  shell.exec('/usr/bin/supervisorctl start backend rts')
-}
-
 // Main application workflow
-const main = (forceOption) => {
+async function run(forceOption) {
   let errorCode = 0
+
+  await utils.ensureSupervisorIsRunning();
+
   try {
-
-    check_supervisord_status_cmd = '/usr/bin/supervisorctl'
-    shell.exec(check_supervisord_status_cmd, function (code) {
-      if (code > 0) {
-        console.log('application is not running, starting supervisord')
-        shell.exec('/usr/bin/supervisord')
-      }
-    })
-
     console.log('stop backend & rts application before import database')
-    stop_application()
-    const shellCmdResult = shell.exec(`mongo ${process.env.APPSMITH_DB_URL} --quiet --eval "db.getCollectionNames().length"`)
+    await utils.stop(["backend", "rts"]);
+    const shellCmdResult = await utils.execCommandReturningOutput([
+      "mongo",
+      process.env.APPSMITH_DB_URL,
+      "--quiet",
+      "--eval",
+      "db.getCollectionNames().length",
+    ]);
     const collectionsLen = parseInt(shellCmdResult.stdout.toString().trimEnd())
     if (collectionsLen > 0) {
       if (forceOption) {
-        import_database()
+        await importDatabase()
         return
       }
       console.log()
@@ -50,27 +43,25 @@ const main = (forceOption) => {
       const input = readlineSync.question('Importing this DB will erase this data. Are you sure you want to proceed?[Yes/No] ')
       const answer = input && input.toLocaleUpperCase()
       if (answer === 'Y' || answer === 'YES') {
-        import_database()
+        await importDatabase()
         return
       } else if (answer === 'N' || answer === 'NO') {
         return
       }
       console.log(`Your input is invalid. Please try to run import command again.`)
-      return
     } else {
-      import_database()
-      return
+      await importDatabase()
     }
   } catch (err) {
     console.log(err)
     errorCode = 1
   } finally {
     console.log('start backend & rts application after import database')
-    start_application()
+    await utils.start(["backend", "rts"]);
     process.exit(errorCode)
   }
 }
 
 module.exports = {
-  runImportDatabase: main,
+  run,
 }
