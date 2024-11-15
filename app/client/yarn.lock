@@ -251,6 +251,7 @@ __metadata:
     "@tabler/icons-react": ^3.10.0
     "@types/fs-extra": ^11.0.4
     "@types/react-syntax-highlighter": ^15.5.13
+    "@types/react-transition-group": ^4.4.11
     clsx: ^2.0.0
     eslint-plugin-storybook: ^0.6.10
     lodash: "*"
@@ -11163,6 +11164,15 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: ecaae8df36cd8cfeb89080d52534856acc3789bad9a6e369ff5119426377c827b4e5b5daa638507f2c1c2fd6c994bf45de288a698143178cd4049c2cd8b77b35
+  languageName: node
+  linkType: hard
+
+"@types/react-transition-group@npm:^4.4.11":
+  version: 4.4.11
+  resolution: "@types/react-transition-group@npm:4.4.11"
+  dependencies:
+    "@types/react": "*"
+  checksum: a6e3b2e4363cb019e256ae4f19dadf9d7eb199da1a5e4109bbbf6a132821884044d332e9c74b520b1e5321a7f545502443fd1ce0b18649c8b510fa4220b0e5c2
   languageName: node
   linkType: hard
 
