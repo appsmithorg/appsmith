@@ -4,7 +4,7 @@ const Constants = require('./constants');
 const utils = require('./utils');
 
 async function importDatabase() {
-  console.log("import_database  ....");
+  console.log("Importing the database");
   try {
     await utils.execCommand([
       "mongorestore",
