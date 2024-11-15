@@ -2025,8 +2025,10 @@ public class CommonGitServiceCETest {
                     // names should be same as the name from the application JSON
                     assertThat(editModeThemeInBranchedApp.getDisplayName())
                             .isEqualTo(editModeCustomTheme.getDisplayName());
+                    // While checking out from remote, it's also published.
+                    // When published, the resources are copied from unpublished field to published filed.
                     assertThat(viewModeThemeInBranchedApp.getDisplayName())
-                            .isEqualTo(viewModeCustomTheme.getDisplayName());
+                            .isEqualTo(editModeCustomTheme.getDisplayName());
                 })
                 .verifyComplete();
     }

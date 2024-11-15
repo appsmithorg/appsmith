@@ -9,7 +9,6 @@ import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
-import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -18,7 +17,6 @@ import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -55,32 +53,10 @@ public class UserControllerCE {
     private final UserAndAccessManagementService userAndAccessManagementService;
 
     @JsonView(Views.Public.class)
-    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource, ServerWebExchange exchange) {
-        return userSignup
-                .signupAndLogin(resource, exchange)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
-    }
-
-    @JsonView(Views.Public.class)
     @PostMapping(consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Void> createFormEncoded(ServerWebExchange exchange) {
         return userSignup.signupAndLoginFromFormData(exchange);
-    }
-
-    @JsonView(Views.Public.class)
-    @PostMapping(
-            value = "/super",
-            consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public Mono<ResponseDTO<User>> createSuperUser(
-            @Valid @RequestBody UserSignupRequestDTO resource,
-            @RequestHeader("Origin") String originHeader,
-            ServerWebExchange exchange) {
-        return userSignup
-                .signupAndLoginSuper(resource, originHeader, exchange)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)

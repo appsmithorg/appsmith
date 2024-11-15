@@ -205,7 +205,7 @@ export function DraggableListCard(props: RenderComponentProps) {
             }}
             onFocus={(e) => e.stopPropagation()}
             size="sm"
-            startIcon="settings-2-line"
+            startIcon="settings-v3"
           />
         )}
         {showDelete && (
