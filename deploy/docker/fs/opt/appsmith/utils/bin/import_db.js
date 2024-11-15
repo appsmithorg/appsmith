@@ -24,13 +24,18 @@ async function run(forceOption) {
   try {
     console.log('stop backend & rts application before import database')
     await utils.stop(["backend", "rts"]);
-    const shellCmdResult = await utils.execCommandReturningOutput([
-      "mongo",
-      process.env.APPSMITH_DB_URL,
-      "--quiet",
-      "--eval",
-      "db.getCollectionNames().length",
-    ]);
+    try {
+      const shellCmdResult = await utils.execCommandReturningOutput([
+        "mongo",
+        process.env.APPSMITH_DB_URL,
+        "--quiet",
+        "--eval",
+        "db.getCollectionNames().length",
+      ]);
+    } catch (error) {
+      console.error("Failed to execute mongo command:", error);
+      throw error;
+    }
     const collectionsLen = parseInt(shellCmdResult.stdout.toString().trimEnd())
     if (collectionsLen > 0) {
       if (forceOption) {

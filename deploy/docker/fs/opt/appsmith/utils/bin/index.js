@@ -38,8 +38,13 @@ if (["import-db", "import_db", "im"].includes(command)) {
   console.log("Importing database");
   // Get Force option flag to run import DB immediately
   const forceOption = process.argv[3] === "-f";
-  import_db.run(forceOption);
-  console.log("Importing database done");
+  try {
+    import_db.run(forceOption);
+    console.log("Importing database done");
+  } catch (error) {
+    console.error("Failed to import database:", error.message);
+    process.exit(1);
+  }
   return;
 }
 
