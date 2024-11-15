@@ -4,15 +4,20 @@ const Constants = require('./constants');
 const utils = require('./utils');
 
 async function importDatabase() {
-  console.log('import_database  ....')
-  await utils.execCommand([
-    "mongorestore",
-    "--uri=" + utils.getDburl(),
-    "--drop",
-    `--archive=${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}`,
-    "--gzip",
-  ]);
-  console.log('import_database done')
+  console.log("import_database  ....");
+  try {
+    await utils.execCommand([
+      "mongorestore",
+      "--uri=" + utils.getDburl(),
+      "--drop",
+      `--archive=${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}`,
+      "--gzip",
+    ]);
+  } catch (error) {
+    console.error("Database import failed:", error);
+    throw error;
+  }
+  console.log("import_database done");
 }
 
 // Main application workflow
