@@ -18,7 +18,6 @@ import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
 import { find } from "lodash";
 import type { AppState } from "ee/reducers";
 import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
-import { getPluginActionDebuggerState } from "../../../store";
 import {
   fetchDatasourceStructure,
   refreshDatasourceStructure,
@@ -28,6 +27,7 @@ import { datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { DatasourceComponentTypes } from "api/PluginApi";
+import { getPluginActionDebuggerState } from "PluginActionEditor/store";
 
 interface Props {
   datasourceId: string;
