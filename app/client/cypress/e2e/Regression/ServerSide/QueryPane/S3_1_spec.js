@@ -1,5 +1,7 @@
 /// <reference types="Cypress" />
 
+import BottomPane from "../../../../support/Pages/IDE/BottomPane";
+
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const formControls = require("../../../../locators/FormControl.json");
@@ -189,8 +191,8 @@ describe(
       cy.typeValueNValidate(fileName, formControls.s3ListPrefix);
       dataSources.RunQuery({ toValidateResponse: false });
 
-      agHelper.GetNClick(dataSources._queryResponse("TABLE"));
-      agHelper.GetNClick(dataSources._queryResponse("JSON"));
+      BottomPane.response.switchResponseType("TABLE");
+      BottomPane.response.switchResponseType("JSON");
 
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(true);
