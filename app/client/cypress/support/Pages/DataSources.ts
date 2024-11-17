@@ -11,6 +11,7 @@ import EditorNavigation, {
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
 import { anvilLocators } from "./Anvil/Locators";
+import BottomPane from "./IDE/BottomPane";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -1137,17 +1138,18 @@ export class DataSources {
     tableCheck = true,
   ) {
     this.RunQuery();
-    tableCheck &&
-      this.agHelper.AssertElementVisibility(this._queryResponse("TABLE"));
-    this.agHelper.AssertElementVisibility(this._queryResponse("JSON"));
-    this.agHelper.AssertElementVisibility(this._queryResponse("RAW"));
-    this.CheckResponseRecordsCount(expectedRecordsCount);
-  }
-
-  public CheckResponseRecordsCount(expectedRecordCount: number) {
-    this.agHelper.AssertElementVisibility(
-      this._queryRecordResult(expectedRecordCount),
-    );
+    if (tableCheck) {
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("TABLE"),
+      );
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
+    }
+    BottomPane.response.validateRecordCount(expectedRecordsCount);
   }
 
   public CreateDataSource(
