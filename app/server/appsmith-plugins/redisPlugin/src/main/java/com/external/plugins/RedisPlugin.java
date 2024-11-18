@@ -263,8 +263,8 @@ public class RedisPlugin extends BasePlugin {
                         int timeout =
                                 (int) Duration.ofSeconds(CONNECTION_TIMEOUT).toMillis();
                         URI uri = RedisURIUtils.getURI(datasourceConfiguration);
-                        if (datasourceConfiguration.getTlsConfiguration() != null
-                                && !datasourceConfiguration
+                        if (datasourceConfiguration.getTlsConfiguration() == null
+                                || !datasourceConfiguration
                                         .getTlsConfiguration()
                                         .getTlsEnabled()) {
                             JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout);

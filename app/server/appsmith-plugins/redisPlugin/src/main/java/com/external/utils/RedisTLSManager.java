@@ -13,12 +13,14 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
+import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -42,90 +44,128 @@ public class RedisTLSManager {
         }
         SSLContext sslContext = SSLContext.getInstance("TLS");
         KeyManagerFactory keyManagerFactory = null;
+        try {
+            // Handle client authentication if required, regardless of certificate verification
+            if (requiresClientAuth) {
 
-        // Handle client authentication if required, regardless of certificate verification
-        if (requiresClientAuth) {
+                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 
-            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+                X509Certificate clientCert = null;
 
-            // Load client certificate
-            String clientCertContent =
-                    new String(tlsConfiguration.getClientCertificateFile().getDecodedContent(), StandardCharsets.UTF_8);
-            X509Certificate clientCert = (X509Certificate)
-                    certificateFactory.generateCertificate(new ByteArrayInputStream(clientCertContent.getBytes()));
+                byte[] clientCertBytes =
+                        tlsConfiguration.getClientCertificateFile().getDecodedContent();
 
-            // Load client private key
-            String clientKey =
-                    new String(tlsConfiguration.getClientKeyFile().getDecodedContent(), StandardCharsets.UTF_8);
-            PrivateKey privateKey = loadPrivateKey(clientKey);
+                try (ByteArrayInputStream certInputStream = new ByteArrayInputStream(clientCertBytes)) {
+                    clientCert = (X509Certificate) certificateFactory.generateCertificate(certInputStream);
 
-            // KeyStore for client authentication
-            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            keyStore.load(null, null);
-            keyStore.setKeyEntry("client-key", privateKey, null, new X509Certificate[] {clientCert});
-
-            keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            keyManagerFactory.init(keyStore, null);
-        }
-
-        // Handle server certificate verification
-        TrustManager[] trustManagers;
-        if (verifyTlsCertificate) {
-
-            // CA certificate verification
-            String caCertContent =
-                    new String(tlsConfiguration.getCaCertificateFile().getDecodedContent(), StandardCharsets.UTF_8);
-
-            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-            X509Certificate caCert = (X509Certificate)
-                    certificateFactory.generateCertificate(new ByteArrayInputStream(caCertContent.getBytes()));
-
-            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            trustStore.load(null, null);
-            trustStore.setCertificateEntry("ca-cert", caCert);
-
-            TrustManagerFactory trustManagerFactory =
-                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-            trustManagerFactory.init(trustStore);
-            trustManagers = trustManagerFactory.getTrustManagers();
-        } else {
-            trustManagers = new TrustManager[] {
-                new X509TrustManager() {
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return new X509Certificate[0];
-                    }
-
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
-
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                } catch (CertificateException e) {
+                    log.error("Error occurred while parsing client certificate: " + e.getMessage());
+                    throw e;
+                } finally {
+                    java.util.Arrays.fill(clientCertBytes, (byte) 0);
                 }
-            };
+
+                PrivateKey privateKey = null;
+
+                byte[] clientKeyBytes = tlsConfiguration.getClientKeyFile().getDecodedContent();
+
+                try {
+                    privateKey = loadPrivateKey(clientKeyBytes);
+                } catch (Exception e) {
+                    log.error("Error occurred while parsing private key: " + e.getMessage());
+                    throw e;
+                } finally {
+                    java.util.Arrays.fill(clientKeyBytes, (byte) 0);
+                }
+
+                // KeyStore for client authentication
+                KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                keyStore.load(null, null);
+                keyStore.setKeyEntry("client-key", privateKey, null, new X509Certificate[] {clientCert});
+
+                keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                keyManagerFactory.init(keyStore, null);
+            }
+
+            // Handle server certificate verification
+            TrustManager[] trustManagers;
+            if (verifyTlsCertificate) {
+
+                String caCertContent =
+                        new String(tlsConfiguration.getCaCertificateFile().getDecodedContent(), StandardCharsets.UTF_8);
+
+                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+                X509Certificate caCert = (X509Certificate)
+                        certificateFactory.generateCertificate(new ByteArrayInputStream(caCertContent.getBytes()));
+
+                KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                trustStore.load(null, null);
+                trustStore.setCertificateEntry("ca-cert", caCert);
+
+                TrustManagerFactory trustManagerFactory =
+                        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                trustManagerFactory.init(trustStore);
+                trustManagers = trustManagerFactory.getTrustManagers();
+            } else {
+                trustManagers = new TrustManager[] {
+                    new X509TrustManager() {
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[0];
+                        }
+
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                    }
+                };
+            }
+
+            // Initialize SSL context with appropriate managers
+            sslContext.init(
+                    requiresClientAuth ? keyManagerFactory.getKeyManagers() : null, trustManagers, new SecureRandom());
+            SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+            // Create and return JedisPool with TLS
+            JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout, sslSocketFactory, null, null);
+            log.debug(Thread.currentThread().getName() + ": Created Jedis pool with TLS.");
+            return jedisPool;
+        } catch (CertificateException | IOException e) {
+            log.error("Error occurred during TLS setup (Certificate or I/O issue): {}", e.getMessage(), e);
+            throw e;
+        } catch (Exception e) {
+            log.error("Unexpected error occurred while creating Jedis pool with TLS: {}", e.getMessage(), e);
+            throw e;
         }
-
-        // Initialize SSL context with appropriate managers
-        sslContext.init(
-                requiresClientAuth ? keyManagerFactory.getKeyManagers() : null, trustManagers, new SecureRandom());
-
-        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
-
-        // Create and return JedisPool with TLS
-        JedisPool jedisPool = new JedisPool(poolConfig, uri, timeout, sslSocketFactory, null, null);
-        log.debug(Thread.currentThread().getName() + ": Created Jedis pool with TLS.");
-        return jedisPool;
     }
 
-    private static PrivateKey loadPrivateKey(String clientKey) throws Exception {
-        clientKey = clientKey
-                .replace("-----BEGIN PRIVATE KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", "")
-                .replaceAll("\\s", "");
+    private static PrivateKey loadPrivateKey(byte[] keyBytes) throws Exception {
+        byte[] decodedKey = null;
+        try {
+            String keyString = new String(keyBytes);
 
-        byte[] keyBytes = Base64.getDecoder().decode(clientKey);
-        PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        return kf.generatePrivate(spec);
+            String keyType = "RSA";
+            if (keyString.contains("BEGIN EC PRIVATE KEY")) {
+                keyType = "EC";
+            }
+
+            String cleanKey =
+                    keyString.replaceAll("-----(?:BEGIN|END)[^-]+-----", "").replaceAll("\\s", "");
+
+            decodedKey = Base64.getDecoder().decode(cleanKey);
+
+            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(decodedKey);
+            KeyFactory kf = KeyFactory.getInstance(keyType);
+            return kf.generatePrivate(spec);
+        } catch (Exception e) {
+            log.error("Unexpected error while loading private key: {}", e.getMessage(), e);
+            throw e;
+        } finally {
+            if (decodedKey != null) {
+                java.util.Arrays.fill(decodedKey, (byte) 0);
+            }
+        }
     }
 }
