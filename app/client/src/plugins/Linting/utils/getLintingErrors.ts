@@ -41,6 +41,7 @@ import { objectKeys } from "@appsmith/utils";
 import { profileFn } from "UITelemetry/generateWebWorkerTraces";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { Linter } from "eslint";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -89,6 +90,60 @@ function generateLintingGlobalData(data: Record<string, unknown>) {
   );
 
   return globalData;
+}
+
+function sanitizeESLintErrors(
+  lintErrors: Linter.LintMessage[],
+  scriptPos: Position,
+): Linter.LintMessage[] {
+  return lintErrors.reduce((result: Linter.LintMessage[], lintError) => {
+    // Ignored errors should not be reported
+    if (IGNORED_LINT_ERRORS.includes(lintError.ruleId || "")) return result;
+
+    /** Some error messages reference line numbers,
+     * Eg. Expected '{a}' to match '{b}' from line {c} and instead saw '{d}'
+     * these line numbers need to be re-calculated based on the binding location.
+     * Errors referencing line numbers outside the user's script should also be ignored
+     * */
+    let message = lintError.message;
+    const matchedLines = message.match(/line \d/gi);
+    const lineNumbersInErrorMessage = new Set<number>();
+    let isInvalidErrorMessage = false;
+
+    if (matchedLines) {
+      matchedLines.forEach((lineStatement) => {
+        const digitString = lineStatement.split(" ")[1];
+        const digit = Number(digitString);
+
+        if (isNumber(digit)) {
+          if (digit < scriptPos.line) {
+            // referenced line number is outside the scope of user's script
+            isInvalidErrorMessage = true;
+          } else {
+            lineNumbersInErrorMessage.add(digit);
+          }
+        }
+      });
+    }
+
+    if (isInvalidErrorMessage) return result;
+
+    if (lineNumbersInErrorMessage.size) {
+      Array.from(lineNumbersInErrorMessage).forEach((lineNumber) => {
+        message = message.replaceAll(
+          `line ${lineNumber}`,
+          `line ${lineNumber - scriptPos.line + 1}`,
+        );
+      });
+    }
+
+    result.push({
+      ...lintError,
+      message,
+    });
+
+    return result;
+  }, []);
 }
 
 function sanitizeJSHintErrors(
@@ -161,6 +216,47 @@ const getLintErrorMessage = (
   }
 };
 
+function convertESLintErrorToAppsmithLintError(
+  eslintError: Linter.LintMessage,
+  script: string,
+  originalBinding: string,
+  scriptPos: Position,
+  //isJSObject = false,
+): LintError {
+  const { column, endColumn = 0, line, message, ruleId } = eslintError;
+
+  // Compute actual error position
+  const actualErrorLineNumber = line - scriptPos.line;
+  const actualErrorCh =
+    line === scriptPos.line
+      ? eslintError.column - scriptPos.ch
+      : eslintError.column;
+  //const lintErrorMessage = getLintErrorMessage(
+  //  reason,
+  //  code,
+  //  [a, b, c, d],
+  //  isJSObject,
+  //);
+
+  return {
+    errorType: PropertyEvaluationErrorType.LINT,
+    raw: script,
+    severity: getLintSeverity(ruleId || "", message),
+    errorMessage: {
+      name: "LintingError",
+      message: message,
+    },
+    errorSegment: "",
+    originalBinding,
+    // By keeping track of these variables we can highlight the exact text that caused the error.
+    variables: [],
+    lintLength: Math.max(endColumn - column, 0),
+    code: ruleId || "",
+    line: actualErrorLineNumber,
+    ch: actualErrorCh,
+  };
+}
+
 function convertJsHintErrorToAppsmithLintError(
   jsHintError: JSHintError,
   script: string,
@@ -214,6 +310,9 @@ export default function getLintingErrors({
   const lintingGlobalData = generateLintingGlobalData(data);
   const lintingOptions = lintOptions(lintingGlobalData, linterType);
 
+  let messages: Linter.LintMessage[] = [];
+  let lintErrors: LintError[] = [];
+
   profileFn(
     "Linter",
     // adding some metrics to compare the performance changes with eslint
@@ -223,18 +322,45 @@ export default function getLintingErrors({
       codeSizeInChars: originalBinding.length,
     },
     webworkerTelemetry,
-    () => jshint(script, lintingOptions),
+    () => {
+      if (linterType === LINTER_TYPE.JSHINT) {
+        jshint(script, lintingOptions);
+      } else if (linterType === LINTER_TYPE.ESLINT) {
+        const linter = new Linter();
+
+        messages = linter.verify(script, lintingOptions);
+      }
+    },
   );
-  const sanitizedJSHintErrors = sanitizeJSHintErrors(jshint.errors, scriptPos);
-  const jshintErrors: LintError[] = sanitizedJSHintErrors.map((lintError) =>
-    convertJsHintErrorToAppsmithLintError(
-      lintError,
-      script,
-      originalBinding,
+
+  if (linterType === LINTER_TYPE.JSHINT) {
+    const sanitizedJSHintErrors = sanitizeJSHintErrors(
+      jshint.errors,
       scriptPos,
-      options?.isJsObject,
-    ),
-  );
+    );
+
+    lintErrors = sanitizedJSHintErrors.map((lintError) =>
+      convertJsHintErrorToAppsmithLintError(
+        lintError,
+        script,
+        originalBinding,
+        scriptPos,
+        options?.isJsObject,
+      ),
+    );
+  } else {
+    const sanitizedESLintErrors = sanitizeESLintErrors(messages, scriptPos);
+
+    lintErrors = sanitizedESLintErrors.map((lintError) =>
+      convertESLintErrorToAppsmithLintError(
+        lintError,
+        script,
+        originalBinding,
+        scriptPos,
+      ),
+    );
+  }
+
   const customLintErrors = getCustomErrorsFromScript(
     script,
     data,
@@ -243,7 +369,7 @@ export default function getLintingErrors({
     options?.isJsObject,
   );
 
-  return jshintErrors.concat(customLintErrors);
+  return lintErrors.concat(customLintErrors);
 }
 
 function getInvalidWidgetPropertySetterErrors({

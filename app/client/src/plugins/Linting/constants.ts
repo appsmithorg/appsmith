@@ -37,7 +37,7 @@ export const lintOptions = (
       globals: globalData,
       loopfunc: true,
     } as LintOptions;
-  } else if (linterType === LINTER_TYPE.ESLINT) {
+  } else {
     const eslintGlobals: Record<string, "writable" | "readonly"> = {};
 
     for (const key in globalData) {
