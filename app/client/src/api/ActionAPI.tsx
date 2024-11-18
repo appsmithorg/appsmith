@@ -28,6 +28,7 @@ export type PaginationField = "PREV" | "NEXT";
 
 export interface ExecuteActionRequest extends APIRequest {
   actionId: string;
+  workspaceId: string;
   params?: Property[];
   paginationField?: PaginationField;
   viewMode: boolean;

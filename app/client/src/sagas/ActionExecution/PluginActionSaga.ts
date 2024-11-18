@@ -172,6 +172,7 @@ import {
   isActionSaving,
   setPluginActionEditorDebuggerState,
 } from "PluginActionEditor/store";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1398,9 +1399,11 @@ function* executePluginActionSaga(
 
   const appMode: APP_MODE | undefined = yield select(getAppMode);
   const timeout: number | undefined = yield select(getActionTimeout, actionId);
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
 
   const executeActionRequest: ExecuteActionRequest = {
-    actionId: actionId,
+    actionId,
+    workspaceId,
     viewMode: appMode === APP_MODE.PUBLISHED,
     paramProperties: {},
     analyticsProperties: {
