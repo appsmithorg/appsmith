@@ -1,6 +1,7 @@
 import { ECMA_VERSION } from "@shared/ast";
 import type { LintOptions } from "jshint";
 import isEntityFunction from "./utils/isEntityFunction";
+import type { Linter } from "eslint-linter-browserify";
 
 export enum LINTER_TYPE {
   "JSHINT" = "JSHint",
@@ -38,7 +39,11 @@ export const lintOptions = (
       loopfunc: true,
     } as LintOptions;
   } else {
-    const eslintGlobals: Record<string, "writable" | "readonly"> = {};
+    const eslintGlobals: Record<string, "writable" | "readonly"> = {
+      setTimeout: "readonly",
+      clearTimeout: "readonly",
+      console: "readonly",
+    };
 
     for (const key in globalData) {
       if (globalData.hasOwnProperty(key)) {
@@ -53,7 +58,6 @@ export const lintOptions = (
         sourceType: "script",
       },
       rules: {
-        indent: ["off", "tab"],
         eqeqeq: "off",
         curly: "off",
         "no-extend-native": "error",
@@ -72,7 +76,7 @@ export const lintOptions = (
         "no-unused-expressions": "off",
         "no-loop-func": "off",
       },
-    };
+    } as Linter.Config;
   }
 };
 
