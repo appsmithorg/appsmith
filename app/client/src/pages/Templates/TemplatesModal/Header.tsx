@@ -11,7 +11,7 @@ interface TemplateModalHeaderProps {
 
 function TemplateModalHeader(props: TemplateModalHeaderProps) {
   return (
-    <Flex className={props.className}>
+    <Flex alignItems="center" className={props.className}>
       {createMessage(ADD_PAGE_FROM_TEMPLATE_MODAL.title)}
     </Flex>
   );
