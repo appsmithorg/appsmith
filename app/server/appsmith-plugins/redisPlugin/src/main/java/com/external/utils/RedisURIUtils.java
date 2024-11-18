@@ -3,12 +3,14 @@ package com.external.utils;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.util.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
+@Slf4j
 public class RedisURIUtils {
     public static final Long DEFAULT_PORT = 6379L;
     private static final String REDIS_SCHEME = "redis://";
@@ -21,6 +23,10 @@ public class RedisURIUtils {
         if (datasourceConfiguration.getTlsConfiguration() != null
                 && datasourceConfiguration.getTlsConfiguration().getTlsEnabled()) {
             builder.append(REDIS_SSL_SCHEME);
+            Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
+            if (endpoint.getPort() != null && endpoint.getPort() == DEFAULT_PORT) {
+                log.warn("Using default non-TLS port {} with TLS enabled", DEFAULT_PORT);
+            }
         } else {
             builder.append(REDIS_SCHEME);
         }

@@ -28,6 +28,7 @@ import redis.clients.jedis.JedisPool;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -48,6 +49,14 @@ public class RedisPluginTest {
 
     private static String host;
     private static Integer port;
+    private static final String MOCK_CA_CERTIFICATE =
+            "-----BEGIN CERTIFICATE-----\n" + "MIIC...mock-ca-cert...\n" + "-----END CERTIFICATE-----";
+
+    private static final String MOCK_CLIENT_CERTIFICATE =
+            "-----BEGIN CERTIFICATE-----\n" + "MIIC...mock-client-cert...\n" + "-----END CERTIFICATE-----";
+
+    private static final String MOCK_PRIVATE_KEY =
+            "-----BEGIN PRIVATE KEY-----\n" + "MIIEv...mock-private-key...\n" + "-----END PRIVATE KEY-----";
 
     private RedisPlugin.RedisPluginExecutor pluginExecutor = new RedisPlugin.RedisPluginExecutor();
 
@@ -55,6 +64,17 @@ public class RedisPluginTest {
     public static void setup() {
         host = redis.getContainerIpAddress();
         port = redis.getFirstMappedPort();
+    }
+
+    public static UploadedFile createUploadedFile(String fileName, String content, String mimeType) {
+        if (fileName == null || content == null || mimeType == null) {
+            throw new IllegalArgumentException("File name, content, and MIME type cannot be null");
+        }
+
+        String base64Content =
+                "data:" + mimeType + ";base64," + Base64.getEncoder().encodeToString(content.getBytes());
+
+        return new UploadedFile(fileName, base64Content);
     }
 
     private TlsConfiguration addTLSConfiguration(DatasourceConfiguration datasourceConfiguration) {
@@ -72,6 +92,32 @@ public class RedisPluginTest {
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
         datasourceConfiguration.setTlsConfiguration(addTLSConfiguration(datasourceConfiguration));
+        return datasourceConfiguration;
+    }
+
+    private DatasourceConfiguration createDatasourceConfigurationWithTLSEnabled() {
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(host);
+        endpoint.setPort(Long.valueOf(port));
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        String base64CaCert = Base64.getEncoder().encodeToString(MOCK_CA_CERTIFICATE.getBytes());
+        String base64ClientCert = Base64.getEncoder().encodeToString(MOCK_CLIENT_CERTIFICATE.getBytes());
+        String base64PrivateKey = Base64.getEncoder().encodeToString(MOCK_PRIVATE_KEY.getBytes());
+
+        TlsConfiguration tlsConfiguration = new TlsConfiguration();
+        tlsConfiguration.setTlsEnabled(true);
+        tlsConfiguration.setVerifyTlsCertificate(true);
+        tlsConfiguration.setCaCertificateFile(
+                createUploadedFile("ca-cert.crt", base64CaCert, "application/x-x509-ca-cert"));
+        tlsConfiguration.setRequiresClientAuth(true);
+        tlsConfiguration.setClientCertificateFile(
+                createUploadedFile("client-cert.crt", base64ClientCert, "application/x-x509-ca-cert"));
+        tlsConfiguration.setClientKeyFile(
+                createUploadedFile("client-key.key", base64PrivateKey, "application/x-pem-file"));
+        datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
         return datasourceConfiguration;
     }
 
@@ -226,6 +272,18 @@ public class RedisPluginTest {
         datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
 
         assertTrue(pluginExecutor.validateDatasource(datasourceConfiguration).isEmpty());
+    }
+
+    @Test
+    public void itShouldTestDatasourceWithTlsEnabledAndValidCertificates() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfigurationWithTLSEnabled();
+        Mono<DatasourceTestResult> datasourceTestResultMono = pluginExecutor.testDatasource(datasourceConfiguration);
+
+        StepVerifier.create(datasourceTestResultMono)
+                .assertNext(datasourceTestResult -> {
+                    assertNotNull(datasourceTestResult);
+                })
+                .verifyComplete();
     }
 
     @Test

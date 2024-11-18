@@ -50,16 +50,28 @@ public class RedisTLSManager {
 
                 CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 
+                X509Certificate clientCert;
                 // Load client certificate
-                String clientCertContent = new String(
-                        tlsConfiguration.getClientCertificateFile().getDecodedContent(), StandardCharsets.UTF_8);
-                X509Certificate clientCert = (X509Certificate)
-                        certificateFactory.generateCertificate(new ByteArrayInputStream(clientCertContent.getBytes()));
+                byte[] clientCertBytes =
+                        tlsConfiguration.getClientCertificateFile().getDecodedContent();
+                try (ByteArrayInputStream certInputStream = new ByteArrayInputStream(clientCertBytes)) {
+                    clientCert = (X509Certificate) certificateFactory.generateCertificate(certInputStream);
+                    // Use the clientCert object as needed
+                } finally {
+                    // Clear sensitive data from memory
+                    java.util.Arrays.fill(clientCertBytes, (byte) 0);
+                }
 
+                PrivateKey privateKey;
                 // Load client private key
-                String clientKey =
-                        new String(tlsConfiguration.getClientKeyFile().getDecodedContent(), StandardCharsets.UTF_8);
-                PrivateKey privateKey = loadPrivateKey(clientKey);
+                byte[] clientKeyBytes = tlsConfiguration.getClientKeyFile().getDecodedContent();
+                try {
+                    privateKey = loadPrivateKey(clientKeyBytes);
+                    // Use the privateKey object as needed
+                } finally {
+                    // Clear sensitive data from memory
+                    java.util.Arrays.fill(clientKeyBytes, (byte) 0);
+                }
 
                 // KeyStore for client authentication
                 KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -108,8 +120,9 @@ public class RedisTLSManager {
             }
 
             // Initialize SSL context with appropriate managers
+            SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
             sslContext.init(
-                    requiresClientAuth ? keyManagerFactory.getKeyManagers() : null, trustManagers, new SecureRandom());
+                    requiresClientAuth ? keyManagerFactory.getKeyManagers() : null, trustManagers, secureRandom);
 
             SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
@@ -126,21 +139,31 @@ public class RedisTLSManager {
         }
     }
 
-    private static PrivateKey loadPrivateKey(String clientKey) throws Exception {
+    private static PrivateKey loadPrivateKey(byte[] keyBytes) throws Exception {
+        byte[] decodedKey = null;
         try {
-            clientKey = clientKey
-                    .replace("-----BEGIN PRIVATE KEY-----", "")
-                    .replace("-----END PRIVATE KEY-----", "")
-                    .replaceAll("\\s", "");
+            String keyString = new String(keyBytes);
 
-            byte[] keyBytes = Base64.getDecoder().decode(clientKey);
-            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
-            KeyFactory kf = KeyFactory.getInstance("RSA");
+            String keyType = "RSA";
+            if (keyString.contains("BEGIN EC PRIVATE KEY")) {
+                keyType = "EC";
+            }
+
+            String cleanKey =
+                    keyString.replaceAll("-----(?:BEGIN|END)[^-]+-----", "").replaceAll("\\s", "");
+
+            decodedKey = Base64.getDecoder().decode(cleanKey);
+
+            PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(decodedKey);
+            KeyFactory kf = KeyFactory.getInstance(keyType);
             return kf.generatePrivate(spec);
         } catch (Exception e) {
-            // Catch all other exceptions
             log.error("Unexpected error while loading private key: {}", e.getMessage(), e);
             throw e;
+        } finally {
+            if (decodedKey != null) {
+                java.util.Arrays.fill(decodedKey, (byte) 0);
+            }
         }
     }
 }
