@@ -17,10 +17,10 @@ export const getIsGeneratingTemplatePage = createSelector(
 );
 
 export const getIsGeneratePageModalOpen = (state: AppState) =>
-  state.entities.pageList.isGeneratePageModalOpen?.value;
+  state.entities.pageList.generatePage?.modalOpen;
 
 export const getGeneratePageModalParams = (state: AppState) =>
-  state.entities.pageList.isGeneratePageModalOpen?.params;
+  state.entities.pageList.generatePage?.params;
 
 export const convertToPageIdSelector = (state: AppState, basePageId: string) =>
   state.entities.pageList.pages?.find((page) => page.basePageId === basePageId)

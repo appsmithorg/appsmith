@@ -28,7 +28,7 @@ import { isEnabledForPreviewData } from "utils/editorContextUtils";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { EditorNames } from "./";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
-import { openGeneratePageModal } from "pages/Editor/GeneratePage/helpers";
+import { openGeneratePageModal } from "pages/Editor/GeneratePage/store/generatePageActions";
 
 export interface HeaderActionProps {
   datasource: Datasource | ApiDatasourceForm | undefined;

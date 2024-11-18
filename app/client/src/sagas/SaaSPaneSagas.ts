@@ -24,7 +24,7 @@ import {
 } from "ee/selectors/applicationSelectors";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
-import { openGeneratePageModal } from "pages/Editor/GeneratePage/helpers";
+import { openGeneratePageModal } from "pages/Editor/GeneratePage/store/generatePageActions";
 
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,

@@ -84,7 +84,7 @@ import {
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
-import { openGeneratePageModal } from "pages/Editor/GeneratePage/helpers";
+import { openGeneratePageModal } from "pages/Editor/GeneratePage/store/generatePageActions";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {

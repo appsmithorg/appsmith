@@ -14,7 +14,10 @@ import {
 import GeneratePageForm from "./components/GeneratePageForm/GeneratePageForm";
 import { useSelector, useDispatch } from "react-redux";
 import { getIsGeneratePageModalOpen } from "selectors/pageListSelectors";
-import { closeGeneratePageModal, openGeneratePageModal } from "./helpers";
+import {
+  closeGeneratePageModal,
+  openGeneratePageModal,
+} from "./store/generatePageActions";
 
 function GeneratePageModal() {
   const dispatch = useDispatch();

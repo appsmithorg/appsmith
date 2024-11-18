@@ -72,7 +72,7 @@ import equal from "fast-deep-equal";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
-import { closeGeneratePageModal } from "../../helpers";
+import { closeGeneratePageModal } from "../../store/generatePageActions";
 
 //  ---------- Styles ----------
 

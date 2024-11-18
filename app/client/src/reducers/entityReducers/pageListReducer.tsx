@@ -20,8 +20,8 @@ import type { Page } from "entities/Page";
 const initialState: PageListReduxState = {
   pages: [],
   isGeneratingTemplatePage: false,
-  isGeneratePageModalOpen: {
-    value: false,
+  generatePage: {
+    modalOpen: false,
     params: {},
   },
   baseApplicationId: "",
@@ -245,8 +245,8 @@ export const pageListReducer = createReducer(initialState, {
   ) => {
     return {
       ...state,
-      isGeneratePageModalOpen: {
-        value: true,
+      generatePage: {
+        modalOpen: true,
         params: action.payload || {},
       },
     };
@@ -255,9 +255,9 @@ export const pageListReducer = createReducer(initialState, {
     state: PageListReduxState,
   ) => ({
     ...state,
-    isGeneratePageModalOpen: {
-      ...state.isGeneratePageModalOpen,
-      value: false,
+    generatePage: {
+      ...state.generatePage,
+      modalOpen: false,
     },
   }),
   [ReduxActionTypes.GENERATE_TEMPLATE_PAGE_INIT]: (
@@ -339,8 +339,8 @@ export interface PageListReduxState {
   defaultPageId: string;
   appLayout?: AppLayoutConfig;
   isGeneratingTemplatePage?: boolean;
-  isGeneratePageModalOpen?: {
-    value: boolean;
+  generatePage?: {
+    modalOpen: boolean;
     params?: GeneratePageModalParams;
   };
   loading: Record<string, boolean>;

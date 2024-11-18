@@ -30,7 +30,7 @@ import {
   LayoutSystemFeatures,
   useLayoutSystemFeatures,
 } from "layoutSystems/common/useLayoutSystemFeatures";
-import { openGeneratePageModal } from "pages/Editor/GeneratePage/helpers";
+import { openGeneratePageModal } from "pages/Editor/GeneratePage/store/generatePageActions";
 
 const Wrapper = styled.div`
   .title {

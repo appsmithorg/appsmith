@@ -56,7 +56,7 @@ import {
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useEditorType } from "ee/hooks";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
-import { openGeneratePageModal } from "../GeneratePage/helpers";
+import { openGeneratePageModal } from "../GeneratePage/store/generatePageActions";
 
 const Wrapper = styled.div`
   padding: 15px;

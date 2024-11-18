@@ -188,7 +188,7 @@ import { executeGoogleApi } from "./loadGoogleApi";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { getCurrentModuleId } from "ee/selectors/modulesSelector";
 import type { ApplicationPayload } from "entities/Application";
-import { openGeneratePageModal } from "pages/Editor/GeneratePage/helpers";
+import { openGeneratePageModal } from "pages/Editor/GeneratePage/store/generatePageActions";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
