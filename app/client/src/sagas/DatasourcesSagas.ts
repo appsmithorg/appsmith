@@ -188,7 +188,7 @@ import { executeGoogleApi } from "./loadGoogleApi";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { getCurrentModuleId } from "ee/selectors/modulesSelector";
 import type { ApplicationPayload } from "entities/Application";
-import { openGeneratePageModal } from "pages/Editor/GeneratePage/store/generatePageActions";
+import { openGeneratePageModalWithSelectedDS } from "../utils/GeneratePageUtils";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -365,13 +365,10 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
 
       history.push(url);
 
-      if (isGeneratePageInitiator) {
-        yield put(
-          openGeneratePageModal({
-            datasourceId: response.data.id,
-          }),
-        );
-      }
+      yield call(openGeneratePageModalWithSelectedDS, {
+        shouldOpenModalWIthSelectedDS: Boolean(isGeneratePageInitiator),
+        datasourceId: response.data.id,
+      });
     }
   } catch (error) {
     yield put({
@@ -1537,17 +1534,14 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
     );
   }
 
-  if (
-    isGeneratePageInitiator &&
-    updatedDatasource.pluginId &&
-    generateCRUDSupportedPlugin[updatedDatasource.pluginId]
-  ) {
-    yield put(
-      openGeneratePageModal({
-        datasourceId: updatedDatasource.id,
-      }),
-    );
-  }
+  yield call(openGeneratePageModalWithSelectedDS, {
+    shouldOpenModalWIthSelectedDS: Boolean(
+      isGeneratePageInitiator &&
+        updatedDatasource.pluginId &&
+        generateCRUDSupportedPlugin[updatedDatasource.pluginId],
+    ),
+    datasourceId: updatedDatasource.id,
+  });
 
   yield put({
     type: ReduxActionTypes.STORE_AS_DATASOURCE_COMPLETE,

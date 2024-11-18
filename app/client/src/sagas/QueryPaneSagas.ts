@@ -84,7 +84,7 @@ import {
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
-import { openGeneratePageModal } from "pages/Editor/GeneratePage/store/generatePageActions";
+import { openGeneratePageModalWithSelectedDS } from "../utils/GeneratePageUtils";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
@@ -485,18 +485,15 @@ function* handleDatasourceCreatedSaga(
   // then we check if the current plugin is supported for generate page with data functionality
   // and finally isDBCreated ensures that datasource is not in temporary state and
   // user has explicitly saved the datasource, before redirecting back to generate page
-  if (
-    isGeneratePageInitiator &&
-    updatedDatasource.pluginId &&
-    generateCRUDSupportedPlugin[updatedDatasource.pluginId] &&
-    isDBCreated
-  ) {
-    yield put(
-      openGeneratePageModal({
-        datasourceId: updatedDatasource.id,
-      }),
-    );
-  }
+  yield call(openGeneratePageModalWithSelectedDS, {
+    shouldOpenModalWIthSelectedDS: Boolean(
+      isGeneratePageInitiator &&
+        updatedDatasource.pluginId &&
+        generateCRUDSupportedPlugin[updatedDatasource.pluginId] &&
+        isDBCreated,
+    ),
+    datasourceId: updatedDatasource.id,
+  });
 }
 
 function* handleNameChangeSaga(

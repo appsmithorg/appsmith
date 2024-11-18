@@ -1,4 +1,4 @@
-import { all, put, select, takeEvery } from "redux-saga/effects";
+import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import type { ApplicationPayload } from "entities/Application";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
@@ -24,7 +24,7 @@ import {
 } from "ee/selectors/applicationSelectors";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
-import { openGeneratePageModal } from "pages/Editor/GeneratePage/store/generatePageActions";
+import { openGeneratePageModalWithSelectedDS } from "../utils/GeneratePageUtils";
 
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
@@ -82,18 +82,15 @@ function* handleDatasourceCreatedSaga(
   // then we check if the current plugin is supported for generate page with data functionality
   // and finally isDBCreated ensures that datasource is not in temporary state and
   // user has explicitly saved the datasource, before redirecting back to generate page
-  if (
-    isGeneratePageInitiator &&
-    updatedDatasource.pluginId &&
-    generateCRUDSupportedPlugin[updatedDatasource.pluginId] &&
-    isDBCreated
-  ) {
-    yield put(
-      openGeneratePageModal({
-        datasourceId: updatedDatasource.id,
-      }),
-    );
-  }
+  yield call(openGeneratePageModalWithSelectedDS, {
+    shouldOpenModalWIthSelectedDS: Boolean(
+      isGeneratePageInitiator &&
+        updatedDatasource.pluginId &&
+        generateCRUDSupportedPlugin[updatedDatasource.pluginId] &&
+        isDBCreated,
+    ),
+    datasourceId: updatedDatasource.id,
+  });
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
