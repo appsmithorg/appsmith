@@ -45,7 +45,7 @@ import { Linter } from "eslint-linter-browserify";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
-function getLinterType() {
+export function getLinterType() {
   let linterType = LINTER_TYPE.JSHINT;
 
   const flagValues = WorkerEnv.getFeatureFlags();
