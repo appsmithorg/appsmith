@@ -585,8 +585,8 @@ function GeneratePageForm() {
     };
 
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
-    dispatch(closeGeneratePageModal());
     dispatch(generateTemplateToUpdatePage(payload));
+    dispatch(closeGeneratePageModal());
   };
 
   const handleFormSubmit = () => {
