@@ -674,6 +674,7 @@ function GeneratePageForm() {
         <Label>{createMessage(GEN_CRUD_DATASOURCE_DROPDOWN_LABEL)}</Label>
         <Select
           data-testid="t--datasource-dropdown"
+          getPopupContainer={(triggerNode) => triggerNode.parentNode.parentNode}
           onChange={(value) => {
             if (value === CONNECT_NEW_DATASOURCE_OPTION_ID) {
               routeToCreateNewDatasource();
@@ -738,6 +739,9 @@ function GeneratePageForm() {
 
           <Select
             data-testid="t--table-dropdown"
+            getPopupContainer={(triggerNode) =>
+              triggerNode.parentNode.parentNode
+            }
             isDisabled={!!tableDropdownErrorMsg}
             isLoading={fetchingDatasourceConfigs}
             isValid={!tableDropdownErrorMsg}
@@ -811,6 +815,9 @@ function GeneratePageForm() {
               </Row>
               <Select
                 data-testid="t--table-dropdown"
+                getPopupContainer={(triggerNode) =>
+                  triggerNode.parentNode.parentNode
+                }
                 isDisabled={selectedTableColumnOptions.length === 0}
                 onChange={(value) =>
                   onSelectColumn(
