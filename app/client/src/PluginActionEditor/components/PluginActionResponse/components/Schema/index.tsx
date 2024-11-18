@@ -19,7 +19,7 @@ import { DatasourceSelector } from "./DatasourceSelector";
 import { SchemaTables } from "./SchemaTables";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { omit } from "lodash";
+import { isEmpty, omit } from "lodash";
 import { getQueryParams } from "utils/URLUtils";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { TableColumns } from "./TableColumns";
@@ -121,6 +121,8 @@ const Schema = (props: Props) => {
     if (!datasourceStructure) return "NOSCHEMA";
 
     if (datasourceStructure && "error" in datasourceStructure) return "FAILED";
+
+    if (isEmpty(datasourceStructure)) return "CANTSHOW";
 
     return null;
   };

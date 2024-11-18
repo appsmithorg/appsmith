@@ -2280,6 +2280,8 @@ export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";
 export const FAILED_RECORDS_MESSAGE_TEXT = () =>
   "There was an error connecting to the datasource. Please check the datasource configuration and retry.";
 export const DATASOURCE_SWITCHER_MENU_GROUP_NAME = () => "Select a datasource";
+export const CANT_SHOW_SCHEMA = () =>
+  "We can’t show the schema for this datasource";
 
 export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_DESCRIPTION = () =>

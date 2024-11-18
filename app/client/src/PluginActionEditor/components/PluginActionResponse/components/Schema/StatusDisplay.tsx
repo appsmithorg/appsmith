@@ -15,6 +15,7 @@ import {
   EMPTY_SCHEMA_MESSAGE_TEXT,
   EDIT_DATASOURCE,
   LOADING_RECORDS_TITLE_TEXT,
+  CANT_SHOW_SCHEMA,
 } from "ee/constants/messages";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
@@ -25,7 +26,8 @@ type IStates =
   | "NOSCHEMA"
   | "NODATA"
   | "FAILED"
-  | "NOCOLUMNS";
+  | "NOCOLUMNS"
+  | "CANTSHOW";
 
 interface IProps {
   state: IStates;
@@ -34,7 +36,7 @@ interface IProps {
 
 const StateData: Record<
   IStates,
-  { title: string; message?: string; image: string | ReactNode }
+  { title?: string; message?: string; image: string | ReactNode }
 > = {
   SCHEMA_LOADING: {
     title: createMessage(LOADING_SCHEMA_TITLE_TEXT),
@@ -64,6 +66,10 @@ const StateData: Record<
   NOCOLUMNS: {
     title: createMessage(EMPTY_TABLE_TITLE_TEXT),
     message: createMessage(NO_COLUMNS_MESSAGE_TEXT),
+    image: getAssetUrl(`${ASSETS_CDN_URL}/empty-state.svg`),
+  },
+  CANTSHOW: {
+    message: createMessage(CANT_SHOW_SCHEMA),
     image: getAssetUrl(`${ASSETS_CDN_URL}/empty-state.svg`),
   },
 };
