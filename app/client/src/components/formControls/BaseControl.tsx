@@ -109,6 +109,7 @@ export interface ControlData {
   isSecretExistsPath?: string;
   addMoreButtonLabel?: string;
   datasourceId?: string;
+  workspaceId?: string;
 }
 export type FormConfigType = Omit<ControlData, "configProperty"> & {
   configProperty?: string;

@@ -23,6 +23,7 @@
     "@storybook/addon-viewport": "^8.2.7",
     "@storybook/blocks": "^8.2.7",
     "@storybook/components": "^8.2.7",
+    "@storybook/core-events": "^8.3.2",
     "@storybook/manager-api": "^8.2.7",
     "@storybook/preset-create-react-app": "^8.2.7",
     "@storybook/react-vite": "^8.2.7",
@@ -37,7 +38,6 @@
   "dependencies": {
     "@appsmith/wds": "workspace:^",
     "@appsmith/wds-theming": "workspace:^",
-    "@storybook/core-events": "^8.3.2",
     "glob": "^11.0.0"
   }
 }
