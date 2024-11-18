@@ -21,6 +21,6 @@
     }
   },
   "include": ["src/**/*", "src/**/*.json"],
-  "exclude": ["jest.config.js", "src/test", "index.js", "build.js"],
+  "exclude": ["jest.config.js", "src/test", "index.js", "build.js", "src/ctl"],
   "lib": ["es2015"]
 }

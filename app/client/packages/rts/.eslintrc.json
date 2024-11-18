@@ -1,6 +1,6 @@
 {
   "extends": ["../../.eslintrc.base.json"],
-  "ignorePatterns": ["dist", "server.test.ts", "build.js"],
+  "ignorePatterns": ["dist", "server.test.ts", "build.js", "src/ctl"],
   "rules": {
     "@typescript-eslint/prefer-nullish-coalescing": "off",
     "@typescript-eslint/strict-boolean-expressions": "off",
