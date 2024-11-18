@@ -585,6 +585,7 @@ function GeneratePageForm() {
     };
 
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_FORM_SUBMIT");
+    dispatch(closeGeneratePageModal());
     dispatch(generateTemplateToUpdatePage(payload));
   };
 
@@ -596,7 +597,6 @@ function GeneratePageForm() {
     };
 
     generatePageAction(payload);
-    dispatch(closeGeneratePageModal());
   };
 
   const goToEditDatasource = () => {
