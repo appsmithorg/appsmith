@@ -168,16 +168,6 @@ describe("Backup Tests", () => {
     expect(res).toEqual(expectedBackupFiles);
   });
 
-  test("Cleanup Backups when limit is 4 and there are 2 files", async () => {
-    const backupArchivesLimit = 4;
-    fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
-    var backupFiles = ["file1", "file2"];
-    var expectedBackupFiles = ["file1", "file2"];
-    const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
-    console.log(res);
-    expect(res).toEqual(expectedBackupFiles);
-  });
-
   test("Cleanup Backups when limit is 2 and there is 1 file", async () => {
     const backupArchivesLimit = 4;
     fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
