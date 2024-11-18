@@ -282,7 +282,7 @@ describe("getLintAnnotations()", () => {
 
     const annotations = getLintAnnotations(value, errors, {});
 
-    expect(annotations[0].to.ch).toBe(13);
+    expect(annotations[0].to?.ch).toBe(13);
   });
 
   it("should calculate lintlength when not provided", () => {
@@ -307,7 +307,7 @@ describe("getLintAnnotations()", () => {
 
     const annotations = getLintAnnotations(value, errors, {});
 
-    expect(annotations[0].to.ch).toBe(13);
+    expect(annotations[0].to?.ch).toBe(13);
   });
 });
 
