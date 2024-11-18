@@ -9,8 +9,6 @@ import {
 } from "ee/constants/ReduxActionConstants";
 import { reset } from "redux-form";
 import type {
-  CreateUserRequest,
-  CreateUserResponse,
   ForgotPasswordRequest,
   VerifyTokenRequest,
   TokenPasswordUpdateRequest,
@@ -87,56 +85,6 @@ import type {
 } from "reducers/uiReducers/usersReducer";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
-import * as Sentry from "@sentry/react";
-import { Severity } from "@sentry/react";
-export function* createUserSaga(
-  action: ReduxActionWithPromise<CreateUserRequest>,
-) {
-  const { email, password, reject, resolve } = action.payload;
-
-  try {
-    const request: CreateUserRequest = { email, password };
-    const response: CreateUserResponse = yield callAPI(
-      UserApi.createUser,
-      request,
-    );
-    //TODO(abhinav): DRY this
-    const isValidResponse: boolean = yield validateResponse(response);
-
-    if (!isValidResponse) {
-      const errorMessage = getResponseErrorMessage(response);
-
-      yield call(reject, { _error: errorMessage });
-    } else {
-      //@ts-expect-error: response is of type unknown
-      const { email, id, name } = response.data;
-
-      yield put({
-        type: ReduxActionTypes.CREATE_USER_SUCCESS,
-        payload: {
-          email,
-          name,
-          id,
-        },
-      });
-      yield call(resolve);
-    }
-  } catch (error) {
-    yield call(reject, { _error: (error as Error).message });
-    yield put({
-      type: ReduxActionErrorTypes.CREATE_USER_ERROR,
-      payload: {
-        error,
-      },
-    });
-    Sentry.captureException("Sign up failed", {
-      level: Severity.Error,
-      extra: {
-        error: error,
-      },
-    });
-  }
-}
 
 export function* waitForSegmentInit(skipWithAnonymousId: boolean) {
   if (skipWithAnonymousId && AnalyticsUtil.getAnonymousId()) return;
@@ -417,14 +365,13 @@ export function* inviteUsers(
 
 export function* updateUserDetailsSaga(action: ReduxAction<UpdateUserRequest>) {
   try {
-    const { email, intercomConsentGiven, name, proficiency, role, useCase } =
+    const { email, intercomConsentGiven, name, proficiency, useCase } =
       action.payload;
 
     const response: ApiResponse = yield callAPI(UserApi.updateUser, {
       email,
       name,
       proficiency,
-      role,
       useCase,
       intercomConsentGiven,
     });

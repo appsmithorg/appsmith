@@ -30,6 +30,8 @@ export * from "./components/ListBox";
 export * from "./components/ListBoxItem";
 export * from "./components/MenuItem";
 export * from "./components/Markdown";
+export * from "./components/Sidebar";
+export * from "./components/Sheet";
 
 export * from "./utils";
 export * from "./hooks";

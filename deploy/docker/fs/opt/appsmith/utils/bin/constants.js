@@ -11,9 +11,9 @@ const LAST_ERROR_MAIL_TS = "/appsmith-stacks/data/backup/last-error-mail-ts"
 
 const ENV_PATH = "/appsmith-stacks/configuration/docker.env"
 
-const MIN_REQUIRED_DISK_SPACE_IN_BYTES = 2147483648 // 2GB
+const MIN_REQUIRED_DISK_SPACE_IN_BYTES = 2_147_483_648 // 2GB
 
-const DURATION_BETWEEN_BACKUP_ERROR_MAILS_IN_MILLI_SEC = 21600000 // 6 hrs
+const DURATION_BETWEEN_BACKUP_ERROR_MAILS_IN_MILLI_SEC = 21_600_000 // 6 hrs
 
 const APPSMITH_DEFAULT_BACKUP_ARCHIVE_LIMIT = 4 // 4 backup archives
 

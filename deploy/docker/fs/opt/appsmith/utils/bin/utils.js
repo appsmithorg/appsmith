@@ -1,4 +1,3 @@
-const shell = require("shelljs");
 const fsPromises = require("fs/promises");
 const Constants = require("./constants");
 const childProcess = require("child_process");
@@ -18,18 +17,25 @@ function showHelp() {
   console.log("\t--help\t\t\t" + "Show help.");
 }
 
-function stop(apps) {
-  const appsStr = apps.join(" ");
-  console.log("Stopping " + appsStr);
-  shell.exec("/usr/bin/supervisorctl stop " + appsStr);
-  console.log("Stopped " + appsStr);
+async function ensureSupervisorIsRunning() {
+  try {
+    await execCommandSilent(["/usr/bin/supervisorctl"]);
+  } catch (e) {
+    console.error('Supervisor is not running, exiting.');
+    throw e;
+  }
 }
 
-function start(apps) {
-  const appsStr = apps.join(" ");
-  console.log("Starting " + appsStr);
-  shell.exec("/usr/bin/supervisorctl start " + appsStr);
-  console.log("Started " + appsStr);
+async function stop(apps) {
+  console.log("Stopping", apps);
+  await execCommand(["/usr/bin/supervisorctl", "stop", ...apps]);
+  console.log("Stopped", apps);
+}
+
+async function start(apps) {
+  console.log("Starting", apps);
+  await execCommand(["/usr/bin/supervisorctl", "start", ...apps]);
+  console.log("Started", apps);
 }
 
 function getDburl() {
@@ -81,6 +87,35 @@ function execCommand(cmd, options) {
       isPromiseDone = true;
       console.error("Error running command", err);
       reject();
+    });
+  });
+}
+
+function execCommandReturningOutput(cmd, options) {
+  return new Promise((resolve, reject) => {
+    const p = childProcess.spawn(cmd[0], cmd.slice(1), options);
+
+    p.stdin.end()
+
+    const outChunks = [], errChunks = [];
+
+    p.stdout.setEncoding("utf8");
+    p.stdout.on("data", (data) => {
+      outChunks.push(data.toString());
+    });
+
+    p.stderr.setEncoding("utf8");
+    p.stderr.on("data", (data) => {
+      errChunks.push(data.toString());
+    })
+
+    p.on("close", (code) => {
+      const output = (outChunks.join("").trim() + "\n" + errChunks.join("").trim()).trim();
+      if (code === 0) {
+        resolve(output);
+      } else {
+        reject(output);
+      }
     });
   });
 }
@@ -154,9 +189,10 @@ function execCommandSilent(cmd, options) {
 
     const p = childProcess.spawn(cmd[0], cmd.slice(1), {
       ...options,
+      stdio: "ignore",
     });
 
-    p.on("exit", (code) => {
+    p.on("close", (code) => {
       if (isPromiseDone) {
         return;
       }
@@ -173,8 +209,7 @@ function execCommandSilent(cmd, options) {
         return;
       }
       isPromiseDone = true;
-      console.error("Error running command", err);
-      reject();
+      reject(err);
     });
   });
 }
@@ -186,9 +221,11 @@ function getDatabaseNameFromMongoURI(uri) {
 
 module.exports = {
   showHelp,
+  ensureSupervisorIsRunning,
   start,
   stop,
   execCommand,
+  execCommandReturningOutput,
   listLocalBackupFiles,
   updateLastBackupErrorMailSentInMilliSec,
   getLastBackupErrorMailSentInMilliSec,
@@ -196,5 +233,5 @@ module.exports = {
   preprocessMongoDBURI,
   execCommandSilent,
   getDatabaseNameFromMongoURI,
-  getDburl
+  getDburl,
 };

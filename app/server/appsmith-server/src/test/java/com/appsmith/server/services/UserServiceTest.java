@@ -427,21 +427,6 @@ public class UserServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateRoleOfUser() {
-        UserUpdateDTO updateUser = new UserUpdateDTO();
-        updateUser.setRole("New role of user");
-        final Mono<UserData> resultMono =
-                userService.updateCurrentUser(updateUser, null).then(userDataService.getForUserEmail("api_user"));
-        StepVerifier.create(resultMono)
-                .assertNext(userData -> {
-                    assertNotNull(userData);
-                    assertThat(userData.getRole()).isEqualTo("New role of user");
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void updateIntercomConsentOfUser() {
         final Mono<UserData> userDataMono = userDataService.getForUserEmail("api_user");
         StepVerifier.create(userDataMono)
@@ -499,10 +484,9 @@ public class UserServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void updateNameRoleAndUseCaseOfUser() {
+    public void updateNameAndUseCaseOfUser() {
         UserUpdateDTO updateUser = new UserUpdateDTO();
         updateUser.setName("New name of user here");
-        updateUser.setRole("New role of user");
         updateUser.setUseCase("New use case");
         final Mono<Tuple2<User, UserData>> resultMono = userService
                 .updateCurrentUser(updateUser, null)
@@ -514,7 +498,6 @@ public class UserServiceTest {
                     assertNotNull(user);
                     assertNotNull(userData);
                     assertEquals("New name of user here", user.getName());
-                    assertEquals("New role of user", userData.getRole());
                     assertEquals("New use case", userData.getUseCase());
                 })
                 .verifyComplete();
