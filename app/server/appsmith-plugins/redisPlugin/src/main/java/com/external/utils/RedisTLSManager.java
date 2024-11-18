@@ -60,6 +60,7 @@ public class RedisTLSManager {
 
                 } catch (CertificateException e) {
                     log.error("Error occurred while parsing client certificate: " + e.getMessage());
+                    throw e;
                 } finally {
                     java.util.Arrays.fill(clientCertBytes, (byte) 0);
                 }
@@ -72,6 +73,7 @@ public class RedisTLSManager {
                     privateKey = loadPrivateKey(clientKeyBytes);
                 } catch (Exception e) {
                     log.error("Error occurred while parsing private key: " + e.getMessage());
+                    throw e;
                 } finally {
                     java.util.Arrays.fill(clientKeyBytes, (byte) 0);
                 }
