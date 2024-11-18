@@ -102,15 +102,7 @@ if ! ./build.sh > /dev/null; then
   echo RTS build failed >&2
   exit 1
 fi
-pretty_print "RTS build successful. Starting CTL build ..."
-
-popd
-pushd app/client/packages/ctl/ > /dev/null
-if ! yarn build; then
-  echo ctl build failed >&2
-  exit 1
-fi
-pretty_print "CTL build successful. Starting Docker build ..."
+pretty_print "RTS build successful. Starting Docker build ..."
 
 popd
 bash "$(dirname "$0")/generate_info_json.sh"
