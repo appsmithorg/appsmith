@@ -15,8 +15,11 @@
     "start": "./start-server.sh"
   },
   "dependencies": {
-    "@opentelemetry/instrumentation-http": "^0.53.0",
-    "@opentelemetry/sdk-trace-node": "^1.26.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.54.2",
+    "@opentelemetry/instrumentation": "^0.54.2",
+    "@opentelemetry/instrumentation-http": "^0.54.2",
+    "@opentelemetry/resources": "^1.27.0",
+    "@opentelemetry/sdk-trace-node": "^1.27.0",
     "@opentelemetry/semantic-conventions": "^1.27.0",
     "@shared/ast": "workspace:^",
     "axios": "^1.7.4",
