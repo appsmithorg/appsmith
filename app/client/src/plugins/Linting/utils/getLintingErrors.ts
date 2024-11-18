@@ -41,7 +41,7 @@ import { objectKeys } from "@appsmith/utils";
 import { profileFn } from "UITelemetry/generateWebWorkerTraces";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { Linter } from "eslint";
+import { Linter } from "eslint-linter-browserify";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
