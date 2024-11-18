@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
@@ -11,6 +12,7 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
@@ -20,6 +22,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
+import com.appsmith.server.dtos.ConsolidatedAPIResponseDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -63,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
@@ -131,6 +135,9 @@ public class ActionCollectionServiceTest {
 
     @Autowired
     ApplicationService applicationService;
+
+    @Autowired
+    ConsolidatedAPIService consolidatedAPIService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -801,6 +808,136 @@ public class ActionCollectionServiceTest {
                     actionCollectionDTO
                             .getActions()
                             .forEach(action -> assertNull(action.getErrorReports(), "Error reports should be null"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testLayoutOnLoadActions_withTwoWidgetsAndSameBinding_callsCorrectActions() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testCollection1");
+        actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setWorkspaceId(workspaceId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("collectionBody");
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        // Create actions
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("myFunction");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("return [{\"key\": \"value\"}];");
+        action1.getActionConfiguration().setIsValid(true);
+
+        ActionDTO action2 = new ActionDTO();
+        action2.setName("testAction2");
+        action2.setActionConfiguration(new ActionConfiguration());
+        action2.getActionConfiguration().setBody("mockBody");
+        action2.getActionConfiguration().setIsValid(false);
+
+        ActionDTO action3 = new ActionDTO();
+        action3.setName("testAction3");
+        action3.setActionConfiguration(new ActionConfiguration());
+        action3.getActionConfiguration().setBody("mockBody");
+        action3.getActionConfiguration().setIsValid(false);
+
+        actionCollectionDTO.setActions(List.of(action1, action2, action3));
+
+        // Create Layout with Table and Text Widgets
+        Layout layout = testPage.getLayouts().get(0);
+        layout.getDsl().put("widgetName", "MainContainer");
+        ArrayList dslList = (ArrayList) layout.getDsl().get("children");
+        JSONObject tableDsl = (JSONObject) dslList.get(0);
+        tableDsl.put("tableData", "{{testCollection1.myFunction.data}}");
+        JSONArray temp2 = new JSONArray();
+        temp2.add(new JSONObject(Map.of("key", "tableData")));
+        tableDsl.put("dynamicBindingPathList", temp2);
+        JSONArray temp3 = new JSONArray();
+        temp3.add(new JSONObject(Map.of("key", "tableData")));
+        tableDsl.put("dynamicPropertyPathList", temp3);
+
+        JSONObject textDsl = new JSONObject();
+        textDsl.put("widgetName", "Text1");
+        textDsl.put("type", "TEXT_WIDGET");
+        textDsl.put("text", "{{testCollection1.myFunction.data}}");
+        JSONArray textDslTemp2 = new JSONArray();
+        textDslTemp2.add(new JSONObject(Map.of("key", "text")));
+        textDsl.put("dynamicBindingPathList", textDslTemp2);
+        JSONArray textDslTemp3 = new JSONArray();
+        textDslTemp3.add(new JSONObject(Map.of("key", "text")));
+        textDsl.put("dynamicPropertyPathList", textDslTemp3);
+
+        layout.setLayoutOnLoadActions(List.of());
+
+        dslList.add(textDsl);
+
+        testPage.setLayouts(List.of(layout));
+
+        PageDTO updatedPage =
+                newPageService.updatePage(testPage.getId(), testPage).block();
+
+        // Create Js object
+        ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        assert createdActionCollectionDTO != null;
+        assert createdActionCollectionDTO.getId() != null;
+        String createdActionCollectionId = createdActionCollectionDTO.getId();
+
+        // Update JS object body to simulate action collection
+        actionCollectionDTO.getActions().stream()
+                .filter(action -> "myFunction".equals(action.getName()))
+                .findFirst()
+                .ifPresent(action -> action.getActionConfiguration().setBody("return [{\"key\": \"value\"}];"));
+
+        final Mono<ActionCollectionDTO> updatedActionCollectionDTOMono =
+                layoutCollectionService.updateUnpublishedActionCollection(
+                        createdActionCollectionId, actionCollectionDTO);
+
+        final Mono<ConsolidatedAPIResponseDTO> consolidatedAPIResponseDTOMono =
+                consolidatedAPIService.getConsolidatedInfoForPageLoad(
+                        testPage.getId(), testApp.getId(), null, ApplicationMode.EDIT);
+
+        StepVerifier.create(updatedActionCollectionDTOMono.zipWith(consolidatedAPIResponseDTOMono))
+                .assertNext(tuple -> {
+                    ActionCollectionDTO actionCollectionDTO1 = tuple.getT1();
+
+                    assertEquals(createdActionCollectionId, actionCollectionDTO1.getId());
+
+                    // Verify layout update service call count
+                    Mockito.verify(updateLayoutService, Mockito.times(2))
+                            .updatePageLayoutsByPageId(Mockito.anyString());
+
+                    // Ensure there are no error reports in action collection actions
+                    actionCollectionDTO1
+                            .getActions()
+                            .forEach(action -> assertNull(action.getErrorReports(), "Error reports should be null"));
+
+                    ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = tuple.getT2();
+                    List<Set<DslExecutableDTO>> layoutOnLoadActions = consolidatedAPIResponseDTO
+                            .getPageWithMigratedDsl()
+                            .getData()
+                            .getLayouts()
+                            .get(0)
+                            .getLayoutOnLoadActions();
+
+                    // Extract the `name` properties
+                    List<Set<String>> actualNames = layoutOnLoadActions.stream()
+                            .map(set ->
+                                    set.stream().map(DslExecutableDTO::getName).collect(Collectors.toSet()))
+                            .collect(Collectors.toList());
+
+                    // Define the expected names
+                    List<Set<String>> expectedNames = List.of(Set.of("testCollection1.myFunction"));
+
+                    // Assert that the names match
+                    assertEquals(expectedNames, actualNames, "layoutOnLoadActions should contain the expected names");
                 })
                 .verifyComplete();
     }
