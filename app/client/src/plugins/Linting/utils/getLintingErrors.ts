@@ -299,6 +299,7 @@ function convertJsHintErrorToAppsmithLintError(
 
 export default function getLintingErrors({
   data,
+  // this is added to help with tests, once jshint is removed, this param can be removed
   getLinterTypeFn = getLinterType,
   options,
   originalBinding,
