@@ -258,6 +258,57 @@ describe("getLintAnnotations()", () => {
       },
     ]);
   });
+
+  it("should use provided lintlength when available", () => {
+    const value = `{{ variable }}`;
+    const errors: LintError[] = [
+      {
+        errorType: PropertyEvaluationErrorType.LINT,
+        raw: "variable",
+        severity: Severity.WARNING,
+        errorMessage: {
+          name: "LintingError",
+          message: "Lint error message.",
+        },
+        errorSegment: "variable",
+        originalBinding: "variable",
+        variables: ["variable"],
+        code: "W001",
+        line: 0,
+        ch: 3,
+        lintLength: 8, // Provided lint length
+      },
+    ];
+
+    const annotations = getLintAnnotations(value, errors, {});
+
+    expect(annotations[0].to.ch).toBe(13);
+  });
+
+  it("should calculate lintlength when not provided", () => {
+    const value = `{{ variable }}`;
+    const errors: LintError[] = [
+      {
+        errorType: PropertyEvaluationErrorType.LINT,
+        raw: "variable",
+        severity: Severity.WARNING,
+        errorMessage: {
+          name: "LintingError",
+          message: "Lint error message.",
+        },
+        errorSegment: "variable",
+        originalBinding: "variable",
+        variables: ["variable"],
+        code: "W001",
+        line: 0,
+        ch: 3,
+      },
+    ];
+
+    const annotations = getLintAnnotations(value, errors, {});
+
+    expect(annotations[0].to.ch).toBe(13);
+  });
 });
 
 describe("getFirstNonEmptyPosition", () => {
