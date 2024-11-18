@@ -52,7 +52,7 @@ describe(
         200,
       );
 
-      agHelper.AssertContains("Generate page from data");
+      agHelper.AssertContains("Generate a page based on your data");
       agHelper.GetNClick(generatePage.selectTableDropdown);
       agHelper.GetNClickByContains(
         generatePage.dropdownOption,

@@ -6,11 +6,14 @@ import {
   ModalHeader,
   Text,
 } from "@appsmith/ads";
-import { GENERATE_PAGE_FORM_TITLE, createMessage } from "ee/constants/messages";
+import {
+  createMessage,
+  GENERATE_PAGE_FORM_TITLE,
+  GENERATE_PAGE_FORM_SUB_TITLE,
+} from "ee/constants/messages";
 import GeneratePageForm from "./components/GeneratePageForm/GeneratePageForm";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { getIsGeneratePageModalOpen } from "selectors/pageListSelectors";
-import { useDispatch } from "react-redux";
 import { closeGeneratePageModal, openGeneratePageModal } from "./helpers";
 
 function GeneratePageModal() {
@@ -30,11 +33,11 @@ function GeneratePageModal() {
 
   return (
     <Modal onOpenChange={handleModalOpenChange} open={isOpen}>
-      <ModalContent>
+      <ModalContent style={{ width: "444px" }}>
         <ModalHeader>{createMessage(GENERATE_PAGE_FORM_TITLE)}</ModalHeader>
         <ModalBody>
           <Text renderAs="p">
-            Auto create a simple CRUD interface on top of your data
+            {createMessage(GENERATE_PAGE_FORM_SUB_TITLE)}
           </Text>
           <GeneratePageForm />
         </ModalBody>
