@@ -1,19 +1,8 @@
 import { getScriptType } from "workers/Evaluation/evaluate";
 import { CustomLintErrorCode, LINTER_TYPE } from "../constants";
-import getLintingErrors, { getLinterType } from "../utils/getLintingErrors";
+import getLintingErrors from "../utils/getLintingErrors";
 
 const webworkerTelemetry = {};
-
-jest.mock("../utils/getLintingErrors", () => {
-  const originalModule = jest.requireActual("../utils/getLintingErrors");
-
-  return {
-    __esModule: true, // Ensure it treats the module as an ES module
-    ...originalModule, // Spread all the original exports
-    default: jest.fn(originalModule.default), // Mock the default export properly
-    getLinterType: jest.fn(), // Mock the named export separately
-  };
-});
 
 const linterTypes = [
   { linterType: LINTER_TYPE.JSHINT, name: "JSHint" },
@@ -23,9 +12,6 @@ const linterTypes = [
 describe.each(linterTypes)(
   "getLintingErrors with engine $name",
   ({ linterType }) => {
-    beforeAll(() => {
-      (getLinterType as jest.Mock).mockReturnValue(linterType);
-    });
     describe("1. Verify lint errors are not shown for supported window APIs", () => {
       const data = {};
 
@@ -36,6 +22,7 @@ describe.each(linterTypes)(
         const scriptType = getScriptType(false, true);
 
         const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
           data,
           originalBinding,
           script,
@@ -53,6 +40,7 @@ describe.each(linterTypes)(
         const scriptType = getScriptType(false, true);
 
         const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
           webworkerTelemetry,
           data,
           originalBinding,
@@ -70,6 +58,7 @@ describe.each(linterTypes)(
         const scriptType = getScriptType(false, true);
 
         const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
           webworkerTelemetry,
           data,
           originalBinding,
@@ -91,6 +80,7 @@ describe.each(linterTypes)(
         const scriptType = getScriptType(false, true);
 
         const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
           webworkerTelemetry,
           data,
           originalBinding,
@@ -107,6 +97,7 @@ describe.each(linterTypes)(
         const scriptType = getScriptType(false, true);
 
         const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
           webworkerTelemetry,
           data,
           originalBinding,
@@ -123,6 +114,7 @@ describe.each(linterTypes)(
         const scriptType = getScriptType(false, true);
 
         const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
           webworkerTelemetry,
           data,
           originalBinding,
@@ -157,6 +149,7 @@ describe.each(linterTypes)(
         const scriptType = getScriptType(false, false);
 
         const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
           webworkerTelemetry,
           data,
           options,
@@ -181,6 +174,7 @@ describe.each(linterTypes)(
         const scriptType = getScriptType(false, false);
 
         const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
           webworkerTelemetry,
           data,
           options,
@@ -204,6 +198,7 @@ describe.each(linterTypes)(
         const scriptType = getScriptType(false, false);
 
         const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
           webworkerTelemetry,
           data,
           options,
