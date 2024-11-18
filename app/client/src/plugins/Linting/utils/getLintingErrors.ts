@@ -212,7 +212,7 @@ export default function getLintingErrors({
   const linterType = getLinterType();
   const scriptPos = getEvaluationScriptPosition(scriptType);
   const lintingGlobalData = generateLintingGlobalData(data);
-  const lintingOptions = lintOptions(lintingGlobalData);
+  const lintingOptions = lintOptions(lintingGlobalData, linterType);
 
   profileFn(
     "Linter",
