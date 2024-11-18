@@ -41,6 +41,9 @@ import { INTEGRATION_TABS } from "constants/routes";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { change } from "redux-form";
+import { useDispatch } from "react-redux";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 
 interface Props {
   datasourceId: string;
@@ -54,6 +57,7 @@ interface DATASOURCES_OPTIONS_TYPE {
 }
 
 const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
+  const dispatch = useDispatch();
   const [open, setIsOpen] = React.useState(false);
   const activeActionBaseId = useActiveActionBaseId();
   const currentActionConfig = useSelector((state) =>
@@ -115,9 +119,6 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
       [],
     );
 
-  // eslint-disable-next-line no-console
-  console.log(`AB -> showDatasourceSelector = ${showDatasourceSelector}`);
-
   if (!showDatasourceSelector || !isChangePermitted) {
     return (
       <CurrentDataSource
@@ -128,8 +129,13 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
     );
   }
 
+  // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
   const onOpenChange = (newOpen: boolean) => {
     setIsOpen(newOpen);
+  };
+
+  const handleMenuSelect = (value: string) => {
+    dispatch(change(QUERY_EDITOR_FORM_NAME, "datasource.id", value));
   };
 
   return (
@@ -156,7 +162,10 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
           </MenuGroupName>
           <MenuGroup>
             {DATASOURCES_OPTIONS.map((option) => (
-              <MenuItem key={option.value} onSelect={() => {}}>
+              <MenuItem
+                key={option.value}
+                onSelect={() => handleMenuSelect(option.value)}
+              >
                 <Flex alignItems={"center"} gap="spaces-2">
                   <img
                     alt="Datasource"
