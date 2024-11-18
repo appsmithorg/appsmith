@@ -1,11 +1,14 @@
-const { MongoClient, MongoServerError} = require("mongodb");
+const { MongoClient, MongoServerError } = require("mongodb");
 const { preprocessMongoDBURI } = require("./utils");
 
 async function exec() {
-  const client = new MongoClient(preprocessMongoDBURI(process.env.APPSMITH_DB_URL), {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
+  const client = new MongoClient(
+    preprocessMongoDBURI(process.env.APPSMITH_DB_URL),
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
+  );
 
   let isReplicaSetEnabled = false;
 
@@ -30,7 +33,11 @@ async function checkReplicaSet(client) {
         .watch()
         .on("change", (change) => console.log(change))
         .on("error", (err) => {
-          if (err instanceof MongoServerError && err.toString() == "MongoServerError: The $changeStream stage is only supported on replica sets") {
+          if (
+            err instanceof MongoServerError &&
+            err.toString() ==
+              "MongoServerError: The $changeStream stage is only supported on replica sets"
+          ) {
             console.log("Replica set not enabled");
           } else {
             console.error("Error even from changeStream", err);
