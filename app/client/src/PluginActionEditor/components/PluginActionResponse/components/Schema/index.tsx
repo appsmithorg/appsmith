@@ -1,34 +1,28 @@
 import { Flex } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
-import {
-  DatasourceStructureContext,
-  type DatasourceColumns,
-  type DatasourceKeys,
-} from "entities/Datasource";
-// import { DatasourceStructureContainer as DatasourceStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
+import { DatasourceStructureContext } from "entities/Datasource";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
-  // getPluginImages,
   getPluginIdFromDatasourceId,
   getPluginDatasourceComponentFromId,
 } from "ee/selectors/entitiesSelector";
-// import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
-import { find } from "lodash";
 import type { AppState } from "ee/reducers";
-import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
-import {
-  fetchDatasourceStructure,
-  // refreshDatasourceStructure,
-} from "actions/datasourceActions";
-// import history from "utils/history";
-// import { datasourcesEditorIdURL } from "ee/RouteBuilder";
-// import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-// import { getAssetUrl } from "ee/utils/airgapHelpers";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
+import history from "utils/history";
+import { datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { getPluginActionDebuggerState } from "PluginActionEditor/store";
 import { StatusDisplay } from "./StatusDisplay";
+import { DatasourceSelector } from "./DatasourceSelector";
+import { SchemaTables } from "./SchemaTables";
+import { DatasourceEditEntryPoints } from "constants/Datasource";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { omit } from "lodash";
+import { getQueryParams } from "utils/URLUtils";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { TableColumns } from "./TableColumns";
 
 interface Props {
   datasourceId: string;
@@ -42,30 +36,16 @@ const Schema = (props: Props) => {
   const datasourceStructure = useSelector((state) =>
     getDatasourceStructureById(state, props.datasourceId),
   );
+
   const { responseTabHeight } = useSelector(getPluginActionDebuggerState);
 
   const pluginId = useSelector((state) =>
     getPluginIdFromDatasourceId(state, props.datasourceId),
   );
-  // const pluginImages = useSelector((state) => getPluginImages(state));
-  // const datasourceIcon = pluginId ? pluginImages[pluginId] : undefined;
+
+  const currentPageId = useSelector(getCurrentPageId);
 
   const [selectedTable, setSelectedTable] = useState<string>();
-
-  const selectedTableItems = find(datasourceStructure?.tables, [
-    "name",
-    selectedTable,
-  ]);
-
-  const columnsAndKeys: Array<DatasourceColumns | DatasourceKeys> = [];
-
-  if (selectedTableItems) {
-    columnsAndKeys.push(...selectedTableItems.keys);
-    columnsAndKeys.push(...selectedTableItems.columns);
-  }
-
-  // const columns =
-  //   find(datasourceStructure?.tables, ["name", selectedTable])?.columns || [];
 
   const isLoading = useSelector((state: AppState) =>
     getIsFetchingDatasourceStructure(state, props.datasourceId),
@@ -115,117 +95,89 @@ const Schema = (props: Props) => {
     [selectedTable, props.datasourceId, isLoading, datasourceStructure],
   );
 
-  // const refreshStructure = useCallback(() => {
-  //   dispatch(
-  //     refreshDatasourceStructure(
-  //       props.datasourceId,
-  //       DatasourceStructureContext.QUERY_EDITOR,
-  //     ),
-  //   );
-  // }, [dispatch, props.datasourceId]);
+  // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
+  const editDatasource = () => {
+    const entryPoint = DatasourceEditEntryPoints.QUERY_EDITOR_DATASOURCE_SCHEMA;
 
-  // const goToDatasource = useCallback(() => {
-  //   history.push(datasourcesEditorIdURL({ datasourceId: props.datasourceId }));
-  // }, [props.datasourceId]);
+    AnalyticsUtil.logEvent("EDIT_DATASOURCE_CLICK", {
+      datasourceId: props.datasourceId,
+      pluginName: "",
+      entryPoint: entryPoint,
+    });
 
-  if (!datasourceStructure) {
+    const url = datasourcesEditorIdURL({
+      basePageId: currentPageId,
+      datasourceId: props.datasourceId,
+      params: { ...omit(getQueryParams(), "viewMode"), viewMode: false },
+      generateEditorPath: true,
+    });
+
+    history.push(url);
+  };
+
+  const getStatusState = () => {
+    if (isLoading) return "SCHEMA_LOADING";
+
+    if (!datasourceStructure) return "NOSCHEMA";
+
+    if (datasourceStructure && "error" in datasourceStructure) return "FAILED";
+
+    return null;
+  };
+
+  const statusState = getStatusState();
+
+  const renderStatus = () => {
+    if (!statusState) {
+      return null;
+    }
+
     return (
-      <Flex alignItems="center" flex="1" height="100%" justifyContent="center">
-        {isLoading ? (
-          <RenderInterimDataState state="LOADING" />
-        ) : (
-          <RenderInterimDataState state="NODATA" />
-        )}
-      </Flex>
+      <>
+        <Flex padding="spaces-3">
+          <DatasourceSelector
+            datasourceId={props.datasourceId}
+            datasourceName={props.datasourceName}
+          />
+        </Flex>
+        <StatusDisplay editDatasource={editDatasource} state={statusState} />
+      </>
     );
-  }
+  };
 
   const renderContent = () => {
-    // if (isLoading) {
+    if (statusState) {
+      return null;
+    }
+
     return (
-      <StatusDisplay height={`${responseTabHeight - 45}px`} state="FAILED" />
+      <Flex h="100%">
+        <SchemaTables
+          currentActionId={props.currentActionId}
+          datasourceId={props.datasourceId}
+          datasourceName={props.datasourceName}
+          datasourceStructure={datasourceStructure}
+          selectedTable={selectedTable}
+          setSelectedTable={setSelectedTable}
+        />
+        <TableColumns
+          datasourceStructure={datasourceStructure}
+          isLoading={isLoading}
+          selectedTable={selectedTable}
+        />
+      </Flex>
     );
-    // }
   };
 
   return (
     <Flex
-      flexDirection="row"
+      flexDirection="column"
       gap="spaces-3"
       height={`${responseTabHeight - 45}px`}
       overflow="hidden"
     >
+      {renderStatus()}
       {renderContent()}
-      {/* <Flex
-        data-testid="t--datasource-schema-container"
-        flex="1"
-        flexDirection="column"
-        gap="spaces-3"
-        overflow="hidden"
-        padding="spaces-3"
-        paddingRight="spaces-0"
-      >
-        <Flex
-          alignItems={"center"}
-          gap="spaces-2"
-          justifyContent={"space-between"}
-        >
-          <Link onClick={goToDatasource}>
-            <Flex
-              alignItems={"center"}
-              gap="spaces-1"
-              justifyContent={"center"}
-            >
-              <EntityIcon height={`16px`} width={`16px`}>
-                <img alt="entityIcon" src={getAssetUrl(datasourceIcon)} />
-              </EntityIcon>
-              {props.datasourceName}
-            </Flex>
-          </Link>
-          <Button
-            className="datasourceStructure-refresh"
-            isIconButton
-            kind="tertiary"
-            onClick={refreshStructure}
-            size="sm"
-            startIcon="refresh"
-          />
-        </Flex>
-        <DatasourceStructureList
-          context={DatasourceStructureContext.QUERY_EDITOR}
-          datasourceStructure={datasourceStructure}
-          onEntityTableClick={setSelectedTable}
-          step={0}
-          tableName={selectedTable}
-          {...props}
-        />
-      </Flex>
-      <Flex
-        borderLeft="1px solid var(--ads-v2-color-border)"
-        flex="1"
-        flexDirection="column"
-        height={`${responseTabHeight - 45}px`}
-        justifyContent={
-          isLoading || columns.length === 0 ? "center" : "flex-start"
-        }
-        overflowY="scroll"
-        padding="spaces-3"
-      >
-        {isLoading ? <RenderInterimDataState state="LOADING" /> : null}
-        {!isLoading && columns.length === 0 ? (
-          <RenderInterimDataState state="NOCOLUMNS" />
-        ) : null}
-        {!isLoading &&
-          columnsAndKeys.map((field, index) => {
-            return (
-              <DatasourceField
-                field={field}
-                key={`${field.name}${index}`}
-                step={0}
-              />
-            );
-          })}
-      </Flex> */}
     </Flex>
   );
 };

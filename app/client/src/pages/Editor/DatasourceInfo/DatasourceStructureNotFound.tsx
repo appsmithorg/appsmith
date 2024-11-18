@@ -42,6 +42,7 @@ const DatasourceStructureNotFound = (props: Props) => {
 
   const basePageId = useSelector(getCurrentBasePageId);
 
+  // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
   const editDatasource = () => {
     let entryPoint = DatasourceEditEntryPoints.QUERY_EDITOR_DATASOURCE_SCHEMA;
 
