@@ -299,13 +299,14 @@ function convertJsHintErrorToAppsmithLintError(
 
 export default function getLintingErrors({
   data,
+  getLinterTypeFn = getLinterType,
   options,
   originalBinding,
   script,
   scriptType,
   webworkerTelemetry,
 }: getLintingErrorsProps): LintError[] {
-  const linterType = getLinterType();
+  const linterType = getLinterTypeFn();
   const scriptPos = getEvaluationScriptPosition(scriptType);
   const lintingGlobalData = generateLintingGlobalData(data);
   const lintingOptions = lintOptions(lintingGlobalData, linterType);
