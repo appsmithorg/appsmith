@@ -24,6 +24,7 @@ import {
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
 } from "ee/constants/messages";
 import { Icon, Option, Select, Input, Tooltip } from "@appsmith/ads";
+import { closeGeneratePageModal } from "../../store/generatePageActions";
 
 interface Props {
   googleSheetPluginId: string;
@@ -262,6 +263,8 @@ function GoogleSheetForm(props: Props) {
 
       generatePageAction(payload);
     }
+
+    dispatch(closeGeneratePageModal());
   };
 
   const debouncedFetchColumns = useCallback(
