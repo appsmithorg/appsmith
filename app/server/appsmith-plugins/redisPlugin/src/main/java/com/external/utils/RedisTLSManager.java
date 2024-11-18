@@ -50,26 +50,29 @@ public class RedisTLSManager {
 
                 CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 
-                X509Certificate clientCert;
-                // Load client certificate
+                X509Certificate clientCert = null;
+
                 byte[] clientCertBytes =
                         tlsConfiguration.getClientCertificateFile().getDecodedContent();
+
                 try (ByteArrayInputStream certInputStream = new ByteArrayInputStream(clientCertBytes)) {
                     clientCert = (X509Certificate) certificateFactory.generateCertificate(certInputStream);
-                    // Use the clientCert object as needed
+
+                } catch (CertificateException e) {
+                    log.error("Error occurred while parsing client certificate: " + e.getMessage());
                 } finally {
-                    // Clear sensitive data from memory
                     java.util.Arrays.fill(clientCertBytes, (byte) 0);
                 }
 
-                PrivateKey privateKey;
-                // Load client private key
+                PrivateKey privateKey = null;
+
                 byte[] clientKeyBytes = tlsConfiguration.getClientKeyFile().getDecodedContent();
+
                 try {
                     privateKey = loadPrivateKey(clientKeyBytes);
-                    // Use the privateKey object as needed
+                } catch (Exception e) {
+                    log.error("Error occurred while parsing private key: " + e.getMessage());
                 } finally {
-                    // Clear sensitive data from memory
                     java.util.Arrays.fill(clientKeyBytes, (byte) 0);
                 }
 
@@ -86,7 +89,6 @@ public class RedisTLSManager {
             TrustManager[] trustManagers;
             if (verifyTlsCertificate) {
 
-                // CA certificate verification
                 String caCertContent =
                         new String(tlsConfiguration.getCaCertificateFile().getDecodedContent(), StandardCharsets.UTF_8);
 
@@ -120,10 +122,8 @@ public class RedisTLSManager {
             }
 
             // Initialize SSL context with appropriate managers
-            SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
             sslContext.init(
-                    requiresClientAuth ? keyManagerFactory.getKeyManagers() : null, trustManagers, secureRandom);
-
+                    requiresClientAuth ? keyManagerFactory.getKeyManagers() : null, trustManagers, new SecureRandom());
             SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
 
             // Create and return JedisPool with TLS
