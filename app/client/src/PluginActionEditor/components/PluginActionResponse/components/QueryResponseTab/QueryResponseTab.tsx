@@ -67,30 +67,6 @@ interface Props {
   actionName: string;
 }
 
-// // Move bind data button to the new header component & change its title in the process. (design)
-// // Add query name .run as prefix for the header row. This uses code variant of ads text component. (design)
-// // Move number of records to the new header component.
-// // * Remove paddings in tabs
-// // * Acquire query duration & HTTP status and add request execution time to redux.
-// // * On hover of query name and number of records, meta data of api run (outlined above) should show up as tooltip. (design)
-// // * Change result type from segmented control to a FAB with dropdown menu.
-// // * Change loading state button/spinner/spacing. (design)
-// // * Change the empty state text and button alignment. (design)
-// // * Change segmented control naming
-// // * Update table appearance.
-// // * Table columns have a fixed width of 170px now, this needs to be updated to min-width.
-// // * Fix FAB hover issue.
-// // * Account for scrollbars that are always shown.
-// // * Add status bar to error state, hide bind to UI button.
-// // * Add dashed underline for status bar fn name & meta.
-// * Update REST API
-// * Update GQL API
-// * Fix Cypress tests related to result type control change.
-
-// ? Make table stretchable - this is not easily accomplishable with the current table component, need to calculate column width manually.
-// // ? Query name is a bold Text variant that is of weight 500 in ADS
-// // ? Query name/info font size is larger in FE component - 14px vs 13px in Figma
-
 export const QueryResponseTab = (props: Props) => {
   const {
     actionName,
@@ -421,18 +397,6 @@ export const QueryResponseTab = (props: Props) => {
             onMouseLeave={setIsNotHovered}
           >
             <Styled.StatusBar>
-              {/* <SegmentedControl
-                data-testid="t--response-tab-segmented-control"
-                defaultValue={segmentedControlOptions[0]?.value}
-                isFullWidth={false}
-                onChange={(value) => {
-                  setSelectedControl(value);
-                  onResponseTabSelect(value);
-                }}
-                options={segmentedControlOptions}
-                value={selectedControl}
-              /> */}
-
               <Tooltip
                 content={queryTooltipContent}
                 isDisabled={!queryTooltipContent}
@@ -490,6 +454,7 @@ export const QueryResponseTab = (props: Props) => {
                 <MenuGroup>
                   {contentTypeOptions.map(({ label, value }) => (
                     <MenuItem
+                      data-testid="t--query-response-type-menu-item"
                       data-value={value}
                       key={value}
                       onSelect={handleContentTypeChange}

@@ -77,7 +77,7 @@ describe(
         "List files",
       );
 
-      dataSources.RunQueryNVerifyResponseViews(100);
+      dataSources.runQueryAndVerifyResponseViews(100);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,

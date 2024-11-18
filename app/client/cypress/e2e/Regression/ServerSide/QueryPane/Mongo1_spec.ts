@@ -333,7 +333,7 @@ describe(
         "Find",
       );
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
-      dataSources.RunQueryNVerifyResponseViews(1, false);
+      dataSources.runQueryAndVerifyResponseViews(1, false);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -352,7 +352,7 @@ describe(
         directInput: false,
         inputFieldName: "Query",
       });
-      dataSources.RunQueryNVerifyResponseViews(1, false);
+      dataSources.runQueryAndVerifyResponseViews(1, false);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -738,7 +738,7 @@ describe(
         "Aggregate",
       );
       dataSources.ValidateNSelectDropdown("Command", "Aggregate");
-      dataSources.RunQueryNVerifyResponseViews(7, false);
+      dataSources.runQueryAndVerifyResponseViews(7, false);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -899,7 +899,7 @@ describe(
         "Find",
       );
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
-      dataSources.RunQueryNVerifyResponseViews(4, false);
+      dataSources.runQueryAndVerifyResponseViews(4, false);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,

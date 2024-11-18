@@ -1133,6 +1133,7 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("@saveAction", 200);
   }
 
+  /** @deprecated */
   public RunQueryNVerifyResponseViews(
     expectedRecordsCount = 1,
     tableCheck = true,
@@ -1147,6 +1148,27 @@ export class DataSources {
       );
       this.agHelper.AssertElementVisibility(
         BottomPane.response.getResponseTypeSelector("RAW"),
+      );
+    }
+    BottomPane.response.validateRecordCount(expectedRecordsCount);
+  }
+
+  public runQueryAndVerifyResponseViews(
+    expectedRecordsCount = 1,
+    tableCheck = true,
+  ) {
+    this.RunQuery();
+    if (tableCheck) {
+      BottomPane.response.openResponseTypeMenu();
+
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeMenuItem("TABLE"),
+      );
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeMenuItem("JSON"),
+      );
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeMenuItem("RAW"),
       );
     }
     BottomPane.response.validateRecordCount(expectedRecordsCount);

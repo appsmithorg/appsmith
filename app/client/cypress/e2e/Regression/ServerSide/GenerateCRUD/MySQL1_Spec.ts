@@ -163,7 +163,7 @@ describe(
       agHelper.FocusElement(locators._codeMirrorTextArea);
       //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
-      dataSources.RunQueryNVerifyResponseViews();
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertTableInVirtuosoList(dsName, "productlines");
 
       agHelper.ActionContextMenuWithInPane({
@@ -279,7 +279,7 @@ describe(
       agHelper.FocusElement(locators._codeMirrorTextArea);
       //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
-      dataSources.RunQueryNVerifyResponseViews();
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertTableInVirtuosoList(dsName, "Stores", false);
     });
 

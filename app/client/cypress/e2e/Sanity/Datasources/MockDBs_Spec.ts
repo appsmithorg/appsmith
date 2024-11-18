@@ -42,7 +42,7 @@ describe(
           'SELECT * FROM public."users" LIMIT 10;',
         );
 
-        dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
+        dataSources.runQueryAndVerifyResponseViews(); //minimum 1 rows are expected
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
@@ -57,7 +57,7 @@ describe(
           expect(interception.request.body.source).to.equal("SELF");
         });
 
-        dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
+        dataSources.runQueryAndVerifyResponseViews(); //minimum 1 rows are expected
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
