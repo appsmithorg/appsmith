@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Text, IDEHeaderDropdown } from "@appsmith/ads";
+import { Text, IDEHeaderDropdown, ListItemContainer } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
@@ -76,7 +76,9 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
           />
         ) : null}
       </IDEHeaderDropdown.Header>
-      <IDEHeaderDropdown.Body>{pageElements}</IDEHeaderDropdown.Body>
+      <IDEHeaderDropdown.Body>
+        <ListItemContainer>{pageElements}</ListItemContainer>
+      </IDEHeaderDropdown.Body>
     </IDEHeaderDropdown>
   );
 };

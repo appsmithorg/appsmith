@@ -1,5 +1,5 @@
 import React from "react";
-import { Flex } from "../Flex";
+import { Flex } from "../../Flex";
 import { IDE_HEADER_HEIGHT, LOGO_WIDTH } from "./IDEHeader.constants";
 
 interface ChildrenProps {

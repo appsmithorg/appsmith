@@ -11,7 +11,7 @@ export { IDE_HEADER_HEIGHT, LOGO_WIDTH } from "./IDEHeader.constants";
  * IDEHeaderSwitcher can be used for a trigger component to show a dropdown for pages, modules
  * or any list of elements in the header E.g., Pages / Page 1
  */
-export { IDEHeaderSwitcher } from "./IDEHeaderSwitcher";
+export { IDEHeaderSwitcher } from "./HeaderSwitcher";
 
 /**
  * IDEHeaderTitle is a small text styled wrapper that is suitable to be used inside IDEHeader

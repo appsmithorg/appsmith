@@ -1,6 +1,6 @@
 import React from "react";
-import { Flex } from "../Flex";
-import { Text } from "../Text";
+import { Flex } from "../../Flex";
+import { Text } from "../../Text";
 
 /**
  * Handy little styled component that can be used to render the title in the IDEHeader component

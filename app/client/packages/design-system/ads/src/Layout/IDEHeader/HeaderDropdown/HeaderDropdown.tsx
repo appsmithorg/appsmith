@@ -1,29 +1,6 @@
-import { Flex } from "../Flex";
+import { Flex } from "../../../Flex";
 import React from "react";
-import styled from "styled-components";
-
-const Container = styled(Flex)`
-  & .t--entity-item {
-    grid-template-columns: 0 auto 1fr auto auto auto auto auto;
-    height: 32px;
-
-    & .t--entity-name {
-      padding-left: var(--ads-v2-spaces-3);
-    }
-  }
-`;
-
-const HeaderWrapper = styled.div`
-  padding: var(--ads-v2-spaces-3);
-  padding-right: var(--ads-v2-spaces-2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 40px;
-  span {
-    line-height: 20px;
-  }
-`;
+import * as Styled from "./styles";
 
 interface EditorHeaderDropdown {
   children: React.ReactNode;
@@ -40,14 +17,14 @@ interface EditorHeaderDropdownBody {
 
 export function IDEHeaderDropdown({ children }: EditorHeaderDropdown) {
   return (
-    <Container
+    <Flex
       flexDirection="column"
       justifyContent="center"
       maxHeight="300px"
       overflow="hidden"
     >
       {children}
-    </Container>
+    </Flex>
   );
 }
 
@@ -55,7 +32,11 @@ function IDEHeaderDropdownHeader({
   children,
   className,
 }: EditorHeaderDropdownHeader) {
-  return <HeaderWrapper className={className}>{children}</HeaderWrapper>;
+  return (
+    <Styled.HeaderWrapper className={className}>
+      {children}
+    </Styled.HeaderWrapper>
+  );
 }
 
 function IDEHeaderDropdownBody({ children }: EditorHeaderDropdownBody) {
