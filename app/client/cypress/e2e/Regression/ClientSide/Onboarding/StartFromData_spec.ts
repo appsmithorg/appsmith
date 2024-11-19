@@ -10,7 +10,14 @@ import {
 
 describe(
   "Start with data userflow : Create different datasources and save",
-  { tags: ["@tag.excludeForAirgap", "@tag.Datasource"] },
+  {
+    tags: [
+      "@tag.excludeForAirgap",
+      "@tag.Datasource",
+      "@tag.Git",
+      "@tag.AccessControl",
+    ],
+  },
   function () {
     beforeEach(() => {
       homePage.Signout();

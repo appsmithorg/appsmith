@@ -17,7 +17,7 @@ import EditorNavigation, {
 
 describe(
   "Category Slider spec",
-  { tags: ["@tag.Widget", "@tag.Slider"] },
+  { tags: ["@tag.Widget", "@tag.Slider", "@tag.Binding"] },
   () => {
     const options = `[
     {

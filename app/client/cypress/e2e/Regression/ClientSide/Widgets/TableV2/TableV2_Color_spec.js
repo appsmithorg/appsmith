@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget V2 property pane feature validation",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     beforeEach(() => {
       _.agHelper.RestoreLocalStorageCache();

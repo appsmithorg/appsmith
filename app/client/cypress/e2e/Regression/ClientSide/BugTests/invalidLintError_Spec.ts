@@ -5,7 +5,7 @@ const jsEditor = ObjectsRegistry.JSEditor,
   ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper;
 
-describe("Linting", { tags: ["@tag.JS"] }, () => {
+describe("Linting", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
   });

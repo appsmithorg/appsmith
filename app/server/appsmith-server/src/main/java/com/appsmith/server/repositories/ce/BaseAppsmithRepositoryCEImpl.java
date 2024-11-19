@@ -8,6 +8,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.FieldInfo;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
@@ -62,7 +63,9 @@ import java.util.Set;
 
 import static com.appsmith.external.helpers.ReflectionHelpers.getAllFields;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUPS;
+import static com.appsmith.server.helpers.ce.ReflectionHelpers.extractFieldPaths;
 import static com.appsmith.server.helpers.ce.ReflectionHelpers.map;
+import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.keyToExpression;
 
 /**
  * In case you are wondering why we have two different repository implementation classes i.e.
@@ -297,8 +300,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
                     if (!projectionClass.getSimpleName().equals(genericDomain.getSimpleName())) {
                         List<Selection<?>> projectionFields = new ArrayList<>();
-                        // TODO: Nested fields are not supported yet.
-                        getAllFields(projectionClass).forEach(f -> projectionFields.add(root.get(f.getName())));
+                        // Extract all field paths dynamically from the projection class
+                        // Map of projection field path to the class type
+                        List<FieldInfo> fieldPaths = extractFieldPaths(projectionClass);
+
+                        for (FieldInfo fieldInfo : fieldPaths) {
+                            projectionFields.add(keyToExpression(fieldInfo.type(), root, cb, fieldInfo.fullPath()));
+                        }
                         cq.multiselect(projectionFields);
                     }
 
@@ -309,11 +317,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     }
 
                     return Mono.fromSupplier(query::getResultList)
-                            .map(tuple -> {
+                            .map(rows -> {
                                 if (genericDomain.getSimpleName().equals(projectionClass.getSimpleName())) {
-                                    return (List<P>) tuple;
+                                    return (List<P>) rows;
                                 }
-                                return map((List<Object[]>) tuple, projectionClass);
+                                return map((List<Object[]>) rows, projectionClass);
                             })
                             .onErrorResume(NoResultException.class, e -> Mono.just(Collections.emptyList()));
                 })
@@ -371,11 +379,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     }
 
                     return Mono.fromSupplier(entityManager.createQuery(cq)::getSingleResult)
-                            .map(tuple -> {
+                            .map(row -> {
                                 if (genericDomain.getSimpleName().equals(projectionClass.getSimpleName())) {
-                                    return (P) tuple;
+                                    return (P) row;
                                 }
-                                return map((Object[]) tuple, projectionClass);
+                                return map((Object[]) row, projectionClass);
                             })
                             .onErrorResume(NoResultException.class, e -> Mono.empty());
                 })

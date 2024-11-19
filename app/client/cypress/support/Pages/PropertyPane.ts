@@ -92,7 +92,7 @@ export class PropertyPane {
     "div.tab-view span:contains('" + type + "')";
 
   _dropdownSelectType = ".t--open-dropdown-Select-type";
-  _selectorViewLabel = '[data-testId="selector-view-label"]';
+  _selectorViewLabel = '[data-testid="selector-view-label"]';
   _textView = ".text-view";
   _selectorView = ".selector-view";
   _dropdownOptions =
@@ -177,6 +177,7 @@ export class PropertyPane {
   _dataIcon = (icon: string) => `[data-icon="${icon}"]`;
   _iconDropdown = "[data-test-id='virtuoso-scroller']";
   _dropdownControlError = "[data-testid='t---dropdown-control-error']";
+  _borderColorCursor = ".t--property-control-bordercolor .bp3-input-group div";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));

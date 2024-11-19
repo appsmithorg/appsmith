@@ -10,7 +10,7 @@ const {
 
 describe(
   "Admin settings page",
-  { tags: ["@tag.IDE", "@tag.excludeForAirgap"] },
+  { tags: ["@tag.IDE", "@tag.excludeForAirgap", "@tag.PropertyPane"] },
   function () {
     it("1. should test that authentication page redirects", () => {
       cy.visit(adminSettingsHelper.routes.GENERAL, { timeout: 60000 });

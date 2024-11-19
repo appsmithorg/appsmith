@@ -17,6 +17,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
 import { LabelPosition } from "components/constants";
+import useUnmountFieldValidation from "./useUnmountFieldValidation";
 
 type SwitchComponentOwnProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -70,6 +71,7 @@ function SwitchField({
     fieldType: schemaItem.fieldType,
     isValid: isValueValid,
   });
+  useUnmountFieldValidation({ fieldName: name });
 
   const onSwitchChange = useCallback(
     (value: boolean) => {

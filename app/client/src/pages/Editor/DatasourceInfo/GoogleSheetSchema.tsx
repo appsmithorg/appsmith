@@ -10,7 +10,7 @@ import {
 import type { DropdownOptions } from "../GeneratePage/components/constants";
 import { DEFAULT_DROPDOWN_OPTION } from "../GeneratePage/components/constants";
 import { isEmpty } from "lodash";
-import Table from "pages/Editor/QueryEditor/Table";
+import Table from "PluginActionEditor/components/PluginActionResponse/components/Table";
 import {
   getCurrentApplicationId,
   getPagePermissions,
@@ -399,7 +399,7 @@ function GoogleSheetSchema(props: Props) {
   return (
     <ViewModeSchemaContainer>
       <DataWrapperContainer>
-        <StructureContainer data-testId="datasource-schema-container">
+        <StructureContainer data-testid="datasource-schema-container">
           {datasource && (
             <DatasourceStructureHeader
               datasource={datasource}

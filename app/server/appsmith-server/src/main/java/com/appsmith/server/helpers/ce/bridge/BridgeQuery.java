@@ -237,7 +237,7 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
         return this;
     }
 
-    private static <R> Expression<R> keyToExpression(
+    public static <R> Expression<R> keyToExpression(
             @NonNull Class<R> type, @NonNull Root<?> root, @NonNull CriteriaBuilder cb, @NonNull String key) {
         if (key.contains(".")) {
             final List<String> parts = List.of(key.split("\\."));

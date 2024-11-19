@@ -18,7 +18,7 @@ import type {
 import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { Context, ReactNode, RefObject } from "react";
+import type { Context, ReactNode, RefObject, SVGProps } from "react";
 import { Component } from "react";
 import type {
   ModifyMetaWidgetPayload,
@@ -587,8 +587,8 @@ export interface WidgetCardProps {
   isBeta?: boolean;
   tags?: WidgetTags[];
   isSearchWildcard?: boolean;
-  IconCmp?: () => JSX.Element;
-  ThumbnailCmp?: () => JSX.Element;
+  IconCmp?: (props: SVGProps<SVGSVGElement>) => JSX.Element;
+  ThumbnailCmp?: (props: SVGProps<SVGSVGElement>) => JSX.Element;
 }
 
 export const WidgetOperations = {

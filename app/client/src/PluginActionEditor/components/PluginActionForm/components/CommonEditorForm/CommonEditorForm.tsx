@@ -29,7 +29,13 @@ const CommonEditorForm = (props: Props) => {
   } = useGetFormActionValues();
 
   return (
-    <Flex flexDirection="column" gap="spaces-3" w="100%">
+    <Flex
+      flex="1"
+      flexDirection="column"
+      gap="spaces-3"
+      overflow="hidden"
+      w="100%"
+    >
       <InfoFields
         actionName={action.name}
         changePermitted={props.isChangePermitted}

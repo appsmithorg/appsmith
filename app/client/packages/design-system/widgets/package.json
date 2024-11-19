@@ -28,11 +28,14 @@
     "lodash": "*",
     "react-aria-components": "^1.2.1",
     "react-markdown": "^9.0.1",
-    "react-syntax-highlighter": "^15.5.0"
+    "react-syntax-highlighter": "^15.5.0",
+    "react-transition-group": "^4.4.5",
+    "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "@types/react-transition-group": "^4.4.11",
     "eslint-plugin-storybook": "^0.6.10"
   },
   "peerDependencies": {

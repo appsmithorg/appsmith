@@ -22,7 +22,14 @@ import EditorNavigation, {
 if (CURRENT_REPO == REPO.CE) {
   describe(
     "Validate Arango & CURL Import Datasources",
-    { tags: ["@tag.Datasource", "@tag.Sanity"] },
+    {
+      tags: [
+        "@tag.Datasource",
+        "@tag.Sanity",
+        "@tag.Git",
+        "@tag.AccessControl",
+      ],
+    },
     () => {
       let dsName: any,
         collectionName = "countries_places_to_visit",

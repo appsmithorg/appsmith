@@ -25,6 +25,13 @@ setup_proxy_variables() {
     export NO_PROXY="127.0.0.1,$NO_PROXY"
   fi
 
+  # If one of NO_PROXY or no_proxy are set, copy it to the other. If both are set, prefer NO_PROXY.
+  if [[ -n ${NO_PROXY-} ]]; then
+    export no_proxy="$NO_PROXY"
+  elif [[ -n ${no_proxy-} ]]; then
+    export NO_PROXY="$no_proxy"
+  fi
+
   # If one of HTTPS_PROXY or https_proxy are set, copy it to the other. If both are set, prefer HTTPS_PROXY.
   if [[ -n ${HTTPS_PROXY-} ]]; then
     export https_proxy="$HTTPS_PROXY"
@@ -468,8 +475,15 @@ create_appsmith_pg_db() {
   # Start the postgres , wait for it to be ready and create a appsmith db
   su postgres -c "env PATH='$PATH' pg_ctl -D $POSTGRES_DB_PATH -l $POSTGRES_DB_PATH/logfile start"
   echo "Waiting for Postgres to start"
-  until su postgres -c "env PATH='$PATH' pg_isready -d postgres"; do
-    tlog "Waiting for Postgres to be ready..."
+  local max_attempts=300
+  local attempt=0
+
+  until su postgres -c "env PATH='$PATH' pg_isready -h 127.0.0.1"; do
+    if (( attempt >= max_attempts )); then
+      echo "Postgres failed to start within 300 seconds."
+      return 1
+    fi
+    tlog "Waiting for Postgres to be ready... Attempt $((++attempt))/$max_attempts"
     sleep 1
   done
   # Check if the appsmith DB is present

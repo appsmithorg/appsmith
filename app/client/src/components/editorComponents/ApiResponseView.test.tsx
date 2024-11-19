@@ -81,7 +81,7 @@ describe("ApiResponseView", () => {
           <Router>
             <ApiResponseView
               currentActionConfig={Api1}
-              disabled={false}
+              isRunDisabled={false}
               isRunning={false}
               onRunClick={noop}
             />

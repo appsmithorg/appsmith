@@ -27,10 +27,12 @@ import {
 } from "ee/selectors/entitiesSelector";
 import { get } from "lodash";
 import { SQL_PLUGINS_DEFAULT_TEMPLATE_TYPE } from "constants/Datasource";
-import TemplateMenu from "./QueryEditor/TemplateMenu";
-import { SQL_DATASOURCES } from "../../constants/QueryEditorConstants";
+import TemplateMenu from "PluginActionEditor/components/PluginActionForm/components/UQIEditor/TemplateMenu";
+import { SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { Datasource, DatasourceStructure } from "entities/Datasource";
 import { getCurrentEditingEnvironmentId } from "ee/selectors/environmentSelectors";
+import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -48,6 +50,7 @@ function FormControl(props: FormControlProps) {
 
   const dispatch = useDispatch();
   const currentEditingEnvId = useSelector(getCurrentEditingEnvironmentId);
+  const featureFlags = useSelector(selectFeatureFlags);
 
   // adding this to prevent excessive rerendering
   const [convertFormToRaw, setConvertFormToRaw] = useState(false);
@@ -60,7 +63,11 @@ function FormControl(props: FormControlProps) {
       .datasourceStorages[currentEditingEnvId];
   }
 
-  const hidden = isHidden(formValueForEvaluatingHiddenObj, props.config.hidden);
+  const hidden = isHidden(
+    formValueForEvaluatingHiddenObj,
+    props.config.hidden,
+    featureFlags,
+  );
   const configErrors: EvaluationError[] = useSelector(
     (state: AppState) =>
       getConfigErrors(state, {
@@ -88,6 +95,7 @@ function FormControl(props: FormControlProps) {
   const pluginName: string = useSelector((state: AppState) =>
     getPluginNameFromId(state, pluginId),
   );
+  const workspaceId = useSelector(getCurrentWorkspaceId);
 
   // moving creation of template to the formControl layer, this way any formControl created can potentially have a template system.
   const isNewQuery =
@@ -172,7 +180,11 @@ function FormControl(props: FormControlProps) {
 
   const FormControlRenderMethod = (config = props.config) => {
     return FormControlFactory.createControl(
-      config,
+      {
+        ...config,
+        datasourceId: dsId,
+        workspaceId,
+      },
       props.formName,
       props?.multipleConfig,
     );

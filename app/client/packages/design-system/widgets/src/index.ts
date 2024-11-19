@@ -1,4 +1,3 @@
-export * from "./components/AIChat";
 export * from "./components/Icon";
 export * from "./components/Button";
 export * from "./components/IconButton";
@@ -30,7 +29,9 @@ export * from "./components/Radio";
 export * from "./components/ListBox";
 export * from "./components/ListBoxItem";
 export * from "./components/MenuItem";
-export * from "./components/ChatInput";
+export * from "./components/Markdown";
+export * from "./components/Sidebar";
+export * from "./components/Sheet";
 
 export * from "./utils";
 export * from "./hooks";

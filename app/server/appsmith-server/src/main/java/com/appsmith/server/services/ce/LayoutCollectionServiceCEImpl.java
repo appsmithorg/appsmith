@@ -376,6 +376,17 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 .name(DELETE_ACTION)
                 .tap(Micrometer.observation(observationRegistry));
 
+        String body = actionCollectionDTO.getBody();
+        Number lineCount = 0;
+        if (body != null && !body.isEmpty()) {
+            lineCount = body.split("\n").length;
+        }
+        Number actionCount = 0;
+        if (actionCollectionDTO.getActions() != null
+                && !actionCollectionDTO.getActions().isEmpty()) {
+            actionCount = actionCollectionDTO.getActions().size();
+        }
+
         return deleteNonExistingActionMono
                 .then(newValidActionIdsMono)
                 .flatMap(tuple -> {
@@ -393,6 +404,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     });
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
+                .tag("lineCount", lineCount.toString())
+                .tag("actionCount", actionCount.toString())
                 .name(ACTION_COLLECTION_UPDATE)
                 .tap(Micrometer.observation(observationRegistry))
                 .zipWith(ReactiveContextUtils.getCurrentUser())

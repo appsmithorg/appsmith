@@ -16,12 +16,15 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
+import BottomPane from "../../../../support/Pages/IDE/BottomPane";
 
 let dsName: any;
 
 describe(
   "Validate Mongo Query Pane Validations",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   () => {
     before(() => {
       //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach
@@ -427,8 +430,12 @@ describe(
           parseInt(JSON.stringify(resObj.response.body.data.body.n)),
         ).to.eq(3);
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -460,8 +467,12 @@ describe(
           parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
         ).to.eq(0);
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -503,8 +514,12 @@ describe(
           parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
         ).to.eq(2);
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -541,8 +556,12 @@ describe(
           parseInt(JSON.stringify(resObj.response.body.data.body.nModified)),
         ).to.eq(1);
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -568,8 +587,12 @@ describe(
           parseInt(JSON.stringify(resObj.response.body.data.body.n)),
         ).to.eq(0);
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -597,8 +620,12 @@ describe(
           parseInt(JSON.stringify(resObj.response.body.data.body.n)),
         ).to.eq(1);
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -630,8 +657,12 @@ describe(
           2,
         );
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -651,8 +682,12 @@ describe(
           7,
         );
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -684,8 +719,12 @@ describe(
           JSON.parse(JSON.stringify(resObj.response.body.data.body.values[1])),
         ).to.eql("51e062189c6ae665454e301d");
       });
-      agHelper.AssertElementVisibility(dataSources._queryResponse("JSON"));
-      agHelper.AssertElementVisibility(dataSources._queryResponse("RAW"));
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,

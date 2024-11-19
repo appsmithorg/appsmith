@@ -204,3 +204,12 @@ export const queryAddURL = (props: URLBuilderParams): string =>
     ...props,
     suffix: `queries/add`,
   });
+
+export const appLibrariesURL = (): string =>
+  urlBuilder.build({
+    suffix: "libraries",
+  });
+export const appPackagesURL = (): string =>
+  urlBuilder.build({
+    suffix: "packages",
+  });

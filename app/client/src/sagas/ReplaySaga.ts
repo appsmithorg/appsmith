@@ -55,7 +55,7 @@ import {
   isQueryAction,
   isSaaSAction,
 } from "entities/Action";
-import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants";
+import { API_EDITOR_TABS } from "PluginActionEditor/constants/CommonApiConstants";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
 import type { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";

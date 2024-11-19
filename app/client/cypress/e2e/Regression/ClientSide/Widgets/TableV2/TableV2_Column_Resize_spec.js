@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget V2 Functionality with Hidden and Resized Columns",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("tableV2ResizedColumnsDsl");

@@ -9,7 +9,7 @@ import React, { forwardRef } from "react";
 import type { TextProps } from "./types";
 import styles from "./styles.module.css";
 
-const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
+const _Text = (props: TextProps, ref: Ref<HTMLDivElement>) => {
   const {
     children,
     className,

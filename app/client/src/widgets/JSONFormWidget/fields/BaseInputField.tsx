@@ -37,6 +37,7 @@ import {
 import type { InputHTMLType } from "widgets/BaseInputWidget/component";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { BASE_LABEL_TEXT_SIZE } from "../component/FieldLabel";
+import useUnmountFieldValidation from "./useUnmountFieldValidation";
 
 export type BaseInputComponentProps = FieldComponentBaseProps &
   FieldEventProps & {
@@ -240,6 +241,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
     fieldType: schemaItem.fieldType,
     isValid: isValueValid,
   });
+  useUnmountFieldValidation({ fieldName: name });
 
   const { inputRef } = useEvents<HTMLInputElement | HTMLTextAreaElement>({
     fieldBlurHandler: onBlur,

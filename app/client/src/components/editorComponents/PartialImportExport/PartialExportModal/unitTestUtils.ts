@@ -9772,8 +9772,9 @@ export const defaultAppState = {
                 },
               },
               {
-                label: "Use Prepared Statement",
-                info: "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
+                label: "Use prepared statements",
+                tooltipText:
+                  "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
                 configProperty:
                   "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 controlType: "SWITCH",
@@ -10037,21 +10038,20 @@ export const defaultAppState = {
             id: 1,
             children: [
               {
-                label: "Run query on page load",
+                label: "Run the query on page load",
                 configProperty: "executeOnLoad",
                 controlType: "SWITCH",
-                subtitle: "Will refresh data each time the page is loaded",
               },
               {
-                label: "Request confirmation before running query",
+                label: "Request confirmation before running this query",
                 configProperty: "confirmBeforeExecute",
                 controlType: "SWITCH",
-                subtitle:
+                tooltipText:
                   "Ask confirmation from the user each time before refreshing data",
               },
               {
                 label: "Smart BSON substitution",
-                subtitle:
+                tooltipText:
                   "Turning on this property fixes the BSON substitution of bindings in the Mongo BSON document by adding/removing quotes intelligently and reduces developer errors",
                 configProperty:
                   "actionConfiguration.formData.smartSubstitution.data",
@@ -10074,21 +10074,20 @@ export const defaultAppState = {
             id: 1,
             children: [
               {
-                label: "Run query on page load",
+                label: "Run the query on page load",
                 configProperty: "executeOnLoad",
                 controlType: "SWITCH",
-                subtitle: "Will refresh data each time the page is loaded",
               },
               {
-                label: "Request confirmation before running query",
+                label: "Request confirmation before running this query",
                 configProperty: "confirmBeforeExecute",
                 controlType: "SWITCH",
-                subtitle:
+                tooltipText:
                   "Ask confirmation from the user each time before refreshing data",
               },
               {
-                label: "Use Prepared Statement",
-                subtitle:
+                label: "Use prepared statements",
+                tooltipText:
                   "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
                 configProperty:
                   "actionConfiguration.pluginSpecifiedTemplates[0].value",
@@ -10111,23 +10110,22 @@ export const defaultAppState = {
             id: 1,
             children: [
               {
-                label: "Run API on page load",
+                label: "Run the API on page load",
                 configProperty: "executeOnLoad",
                 controlType: "SWITCH",
-                subtitle: "Will refresh data each time the page is loaded",
               },
               {
-                label: "Request confirmation before running API",
+                label: "Request confirmation before running this API",
                 configProperty: "confirmBeforeExecute",
                 controlType: "SWITCH",
-                subtitle:
+                tooltipText:
                   "Ask confirmation from the user each time before refreshing data",
               },
               {
                 label: "Encode query params",
                 configProperty: "actionConfiguration.encodeParamsToggle",
                 controlType: "SWITCH",
-                subtitle:
+                tooltipText:
                   "Encode query params for all APIs. Also encode form body when Content-Type header is set to x-www-form-encoded",
               },
               {
@@ -10135,7 +10133,7 @@ export const defaultAppState = {
                 configProperty:
                   "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 controlType: "SWITCH",
-                subtitle:
+                tooltipText:
                   "Turning on this property fixes the JSON substitution of bindings in API body by adding/removing quotes intelligently and reduces developer errors",
                 initialValue: true,
               },
@@ -10144,8 +10142,6 @@ export const defaultAppState = {
                 configProperty: "actionConfiguration.httpVersion",
                 name: "actionConfiguration.httpVersion",
                 controlType: "DROP_DOWN",
-                subtitle:
-                  "Select the protocol that best suits your security and performance requirements.",
                 initialValue: "HTTP/1.1",
                 options: [
                   {
@@ -10180,23 +10176,22 @@ export const defaultAppState = {
             id: 1,
             children: [
               {
-                label: "Run API on page load",
+                label: "Run the API on page load",
                 configProperty: "executeOnLoad",
                 controlType: "SWITCH",
-                subtitle: "Will refresh data each time the page is loaded",
               },
               {
-                label: "Request confirmation before running API",
+                label: "Request confirmation before running this API",
                 configProperty: "confirmBeforeExecute",
                 controlType: "SWITCH",
-                subtitle:
+                tooltipText:
                   "Ask confirmation from the user each time before refreshing data",
               },
               {
                 label: "Encode query params",
                 configProperty: "actionConfiguration.encodeParamsToggle",
                 controlType: "SWITCH",
-                subtitle:
+                tooltipText:
                   "Encode query params for all APIs. Also encode form body when Content-Type header is set to x-www-form-encoded",
               },
               {
@@ -10204,7 +10199,7 @@ export const defaultAppState = {
                 configProperty:
                   "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 controlType: "SWITCH",
-                subtitle:
+                tooltipText:
                   "Turning on this property fixes the JSON substitution of bindings in API body by adding/removing quotes intelligently and reduces developer errors",
                 initialValue: true,
               },
@@ -10213,8 +10208,6 @@ export const defaultAppState = {
                 configProperty: "actionConfiguration.httpVersion",
                 name: "actionConfiguration.httpVersion",
                 controlType: "DROP_DOWN",
-                subtitle:
-                  "Select the protocol that best suits your security and performance requirements.",
                 initialValue: "HTTP/1.1",
                 options: [
                   {

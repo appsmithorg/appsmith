@@ -6,6 +6,7 @@ import type { COLORS, SIZES } from "../../../shared";
 export const BUTTON_VARIANTS = {
   filled: "Filled",
   outlined: "Outlined",
+  subtle: "Subtle",
   ghost: "Ghost",
 } as const;
 

@@ -17,7 +17,7 @@ const fieldPrefix = ".t--jsonformfield";
 
 describe(
   "JSON Form Widget Field Change",
-  { tags: ["@tag.Widget", "@tag.JSONForm"] },
+  { tags: ["@tag.Widget", "@tag.JSONForm", "@tag.Binding"] },
   () => {
     before(() => {
       cy.addDsl(dslWithSchema);

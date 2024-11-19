@@ -3,7 +3,7 @@ import { agHelper, propPane } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table Widget text wrapping functionality",
-  { tags: ["@tag.Widget", "@tag.Table"] },
+  { tags: ["@tag.Widget", "@tag.Table", "@tag.Binding"] },
   function () {
     afterEach(() => {
       agHelper.SaveLocalStorageCache();

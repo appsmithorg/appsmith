@@ -14,7 +14,7 @@ const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
 describe(
   " File Picker Widget",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("Listv2/simpleLargeListv2");
