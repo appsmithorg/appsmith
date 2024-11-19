@@ -24,9 +24,12 @@ public class RedisURIUtils {
                 && datasourceConfiguration.getTlsConfiguration() != null
                 && datasourceConfiguration.getTlsConfiguration().getTlsEnabled()) {
             builder.append(REDIS_SSL_SCHEME);
-            Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
-            if (endpoint.getPort() != null && endpoint.getPort() == DEFAULT_PORT) {
-                log.warn("Using default non-TLS port {} with TLS enabled", DEFAULT_PORT);
+            if (datasourceConfiguration.getEndpoints() != null
+                    && !datasourceConfiguration.getEndpoints().isEmpty()) {
+                Endpoint endpoint = datasourceConfiguration.getEndpoints().get(0);
+                if (endpoint.getPort() != null && endpoint.getPort() == DEFAULT_PORT) {
+                    log.warn("Using default non-TLS port {} with TLS enabled", DEFAULT_PORT);
+                }
             }
         } else {
             builder.append(REDIS_SCHEME);
