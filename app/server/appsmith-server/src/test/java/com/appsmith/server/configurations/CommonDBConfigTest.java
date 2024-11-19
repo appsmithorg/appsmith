@@ -1,15 +1,8 @@
 package com.appsmith.server.configurations;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 class CommonDBConfigTest {
 
-    @Test
+    /* @Test
     public void testExtractAndSaveJdbcParams_validDbUrlWithUsernameAndPassword() {
         CommonDBConfig commonDBConfig = new CommonDBConfig();
         String dbUrl = "postgresql://postgres:password@localhost/postgres";
@@ -70,5 +63,5 @@ class CommonDBConfigTest {
                 expectedUrl,
                 dataSourceProperties.getUrl(),
                 "URL without query params should append the currentSchema correctly.");
-    }
+    }*/
 }

@@ -2,7 +2,6 @@ package com.appsmith.server.configurations;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +40,7 @@ public class CommonDBConfig {
 
     @Bean
     @Primary
-    public DataSourceProperties configurePostgresDB() {
+    public CustomHikariDataSource configurePostgresDB() {
         if (!appsmithDbUrl.contains("postgresql")) {
             return null;
         }
@@ -53,41 +52,45 @@ public class CommonDBConfig {
      * Method to extract Jdbc props from the given DB URL
      * Expected DB URL: postgresql://{username}:{password}@localhost:{port}/{db_name}
      */
-    public DataSourceProperties extractJdbcProperties(String dbUrl) {
-        DataSourceProperties ds = new DataSourceProperties();
+    public CustomHikariDataSource extractJdbcProperties(String dbUrl) {
         try {
             URI uri = new URI(dbUrl);
+
             if (!StringUtils.hasLength(uri.getHost())) {
-                String errorString = String.format(
+                throw new IllegalArgumentException(String.format(
                         "Malformed DB URL! Expected format: postgresql://{username}:{password}@localhost:{port}/{db_name}, provided url is %s",
-                        dbUrl);
-                throw new IllegalArgumentException(errorString);
+                        dbUrl));
             }
+
             String userInfo = uri.getUserInfo();
+            String username = null;
+            String password = null;
             if (StringUtils.hasLength(userInfo)) {
                 String[] userDetails = userInfo.split(":");
-                ds.setUsername(userDetails[0]);
-                ds.setPassword(userDetails[1]);
+                username = userDetails[0];
+                password = userDetails[1];
             }
-            // If the port is not mentioned, default it to the standard PostgreSQL port 5432
+
+            // Default port to 5432 if not mentioned
             int port = uri.getPort() == -1 ? 5432 : uri.getPort();
 
-            // Check if the URL already has query parameters
+            // Check for query parameters
             String query = uri.getQuery();
-            String updatedUrl;
-            if (StringUtils.hasLength(query)) {
-                // Append currentSchema=appsmith if there are already parameters
-                updatedUrl = String.format(
-                        "%s%s://%s:%s%s?%s&currentSchema=appsmith",
-                        JDBC_PREFIX, uri.getScheme(), uri.getHost(), port, uri.getPath(), query);
-            } else {
-                // No parameters, just append currentSchema
-                updatedUrl = String.format(
-                        "%s%s://%s:%s%s?currentSchema=appsmith",
-                        JDBC_PREFIX, uri.getScheme(), uri.getHost(), port, uri.getPath());
-            }
-            ds.setUrl(updatedUrl);
-            return ds;
+            String updatedUrl = StringUtils.hasLength(query)
+                    ? String.format(
+                            "%s%s://%s:%s%s?%s&currentSchema=appsmith",
+                            JDBC_PREFIX, uri.getScheme(), uri.getHost(), port, uri.getPath(), query)
+                    : String.format(
+                            "%s%s://%s:%s%s?currentSchema=appsmith",
+                            JDBC_PREFIX, uri.getScheme(), uri.getHost(), port, uri.getPath());
+
+            // Create a CustomHikariDataSource
+            CustomHikariDataSource dataSource = new CustomHikariDataSource();
+            dataSource.setJdbcUrl(updatedUrl);
+            dataSource.setUsername(username);
+            dataSource.setPassword(password);
+
+            return dataSource;
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }

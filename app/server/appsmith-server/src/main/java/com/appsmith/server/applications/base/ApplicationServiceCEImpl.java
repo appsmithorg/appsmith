@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CustomHikariDataSource;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
@@ -102,6 +103,8 @@ public class ApplicationServiceCEImpl
 
     private final PlatformTransactionManager transactionManager;
 
+    private final CustomHikariDataSource customHikariDataSource;
+
     @Autowired
     public ApplicationServiceCEImpl(
             Validator validator,
@@ -119,7 +122,8 @@ public class ApplicationServiceCEImpl
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
             ObservationRegistry observationRegistry,
-            PlatformTransactionManager transactionManager) {
+            PlatformTransactionManager transactionManager,
+            CustomHikariDataSource customHikariDataSource) {
 
         super(validator, repositoryDirect, repository, analyticsService);
         this.policySolution = policySolution;
@@ -134,6 +138,7 @@ public class ApplicationServiceCEImpl
         this.workspacePermission = workspacePermission;
         this.observationRegistry = observationRegistry;
         this.transactionManager = transactionManager;
+        this.customHikariDataSource = customHikariDataSource;
     }
 
     @Override
@@ -1082,11 +1087,16 @@ public class ApplicationServiceCEImpl
         def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
 
         // Begin the transaction manually
-        TransactionStatus transactionStatus = transactionManager.getTransaction(new DefaultTransactionDefinition());
-        // return Mono.just(new Application());
+        TransactionStatus transactionStatus = transactionManager.getTransaction(def);
+
         return Mono.deferContextual(ctx -> {
+                    String reqId = ctx.getOrDefault("reqId", null);
+                    if (reqId == null) {
+                        return Mono.error(new IllegalStateException("reqId is missing from the context."));
+                    }
+
                     return Mono.just(transactionStatus).flatMap(transactionStatus1 -> {
-                        System.out.println(transactionStatus1.getTransactionName() + "---------------------- ");
+                        // Fetch or create the connection for the reqId
 
                         return repository
                                 .findByCtx(id, transactionStatus)
@@ -1097,7 +1107,6 @@ public class ApplicationServiceCEImpl
                                 .flatMap(obj -> {
                                     Application update = new Application();
                                     update.setName("ggwp");
-
                                     return this.saveError(update, transactionStatus);
                                 })
                                 .doOnSuccess(result -> {
@@ -1109,41 +1118,23 @@ public class ApplicationServiceCEImpl
                                     if (!transactionStatus.isCompleted()) {
                                         transactionManager.rollback(transactionStatus); // Rollback transaction on error
                                     }
+                                })
+                                .doFinally(signalType -> {
+                                    customHikariDataSource.releaseConnection(reqId); // Clean up the connection
                                 });
                     });
                 })
-                .contextWrite(context -> context.put(TransactionStatus.class, transactionStatus));
+                .contextWrite(
+                        context -> context.put("reqId", "someGeneratedReqId")); // Replace with actual reqId generator
     }
 
     public Mono<Integer> saveApp(Application application, TransactionStatus transactionStatus) {
-        /*if (!StringUtils.isEmpty(application.getName())) {
-            application.setSlug(TextUtils.makeSlug(application.getName()));
-        }
-
-        if (application.getApplicationVersion() != null) {
-            int appVersion = application.getApplicationVersion();
-            if (appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
-                return Mono.error(
-                    new AppsmithException(AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
-            }
-        }
-        return repository.save(application).flatMap(this::setTransientFields);*/
+        // Pass the connection to the repository
         return repository.saveApp(application, transactionStatus);
     }
 
     public Mono<Application> saveError(Application application, TransactionStatus transactionStatus) {
-        /*if (!StringUtils.isEmpty(application.getName())) {
-            application.setSlug(TextUtils.makeSlug(application.getName()));
-        }
-
-        if (application.getApplicationVersion() != null) {
-            int appVersion = application.getApplicationVersion();
-            if (appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
-                return Mono.error(
-                    new AppsmithException(AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
-            }
-        }
-        return repository.save(application).flatMap(this::setTransientFields);*/
+        // Simulate error with reqId context
         return Mono.error(
                 new AppsmithException(AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
     }

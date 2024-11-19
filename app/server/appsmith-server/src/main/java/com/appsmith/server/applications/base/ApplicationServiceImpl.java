@@ -1,5 +1,6 @@
 package com.appsmith.server.applications.base;
 
+import com.appsmith.server.configurations.CustomHikariDataSource;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
@@ -40,7 +41,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
             ObservationRegistry observationRegistry,
-            PlatformTransactionManager transactionManager) {
+            PlatformTransactionManager transactionManager,
+            CustomHikariDataSource customHikariDataSource) {
         super(
                 validator,
                 repositoryDirect,
@@ -57,6 +59,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 workspaceService,
                 workspacePermission,
                 observationRegistry,
-                transactionManager);
+                transactionManager,
+                customHikariDataSource);
     }
 }
