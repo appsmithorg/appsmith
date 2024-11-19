@@ -133,5 +133,7 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
 };
 
 export default reduxForm<Action, CustomProps>({
-  form: QUERY_EDITOR_FORM_NAME, // Unique form name
+  form: QUERY_EDITOR_FORM_NAME,
+  destroyOnUnmount: false,
+  enableReinitialize: true,
 })(DatasourceSelector);
