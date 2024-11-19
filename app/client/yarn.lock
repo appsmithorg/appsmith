@@ -12777,7 +12777,7 @@ __metadata:
     axios: ^1.7.4
     babel-plugin-lodash: ^3.3.4
     babel-plugin-module-resolver: ^4.1.0
-    browserslist: latest
+    browserslist: ^4.21.4
     chalk: ^4.1.1
     classnames: ^2.3.1
     clsx: ^1.2.1
