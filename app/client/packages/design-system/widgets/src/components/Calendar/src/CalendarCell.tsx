@@ -1,9 +1,14 @@
 import React from "react";
 import { Text } from "@appsmith/wds";
-import { CalendarCell as HeadlessCalendarCell } from "react-aria-components";
+import {
+  CalendarCell as HeadlessCalendarCell,
+  type CalendarCellProps as HeadlessCalendarCellProps,
+} from "react-aria-components";
 
 import styles from "./styles.module.css";
-import type { CalendarCellProps } from "./types";
+
+export type CalendarCellProps = HeadlessCalendarCellProps &
+  React.RefAttributes<HTMLTableCellElement>;
 
 function CalendarCell(props: CalendarCellProps) {
   const { date } = props;

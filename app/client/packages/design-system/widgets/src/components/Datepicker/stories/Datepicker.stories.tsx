@@ -29,7 +29,6 @@ export const WithDefaultValue: Story = {
   args: {
     label: "Default Value",
     value: parseDate("2023-06-15"),
-    placeholder: "Date with default value",
   },
   render: (args) => (
     <Flex width="sizing-60">
@@ -47,7 +46,7 @@ export const Sizes: Story = {
       {objectKeys(SIZES)
         .filter((size) => !["xSmall", "large"].includes(size))
         .map((size) => (
-          <DatePicker key={size} placeholder={size} size={size} />
+          <DatePicker key={size} size={size} />
         ))}
     </Flex>
   ),
@@ -55,7 +54,6 @@ export const Sizes: Story = {
 
 export const Loading: Story = {
   args: {
-    placeholder: "Loading",
     isLoading: true,
   },
 };
