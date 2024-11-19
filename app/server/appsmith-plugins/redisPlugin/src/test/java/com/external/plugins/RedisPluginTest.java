@@ -77,7 +77,7 @@ public class RedisPluginTest {
         return new UploadedFile(fileName, base64Content);
     }
 
-    private TlsConfiguration addTLSConfiguration(DatasourceConfiguration datasourceConfiguration) {
+    private TlsConfiguration addTLSConfiguration() {
         TlsConfiguration tlsConfiguration = new TlsConfiguration();
         tlsConfiguration.setTlsEnabled(false);
         return tlsConfiguration;
@@ -91,7 +91,7 @@ public class RedisPluginTest {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
-        datasourceConfiguration.setTlsConfiguration(addTLSConfiguration(datasourceConfiguration));
+        datasourceConfiguration.setTlsConfiguration(addTLSConfiguration());
         return datasourceConfiguration;
     }
 
@@ -134,7 +134,7 @@ public class RedisPluginTest {
     @Test
     public void itShouldValidateDatasourceWithNoEndpoints() {
         DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
-        invalidDatasourceConfiguration.setTlsConfiguration(addTLSConfiguration(invalidDatasourceConfiguration));
+        invalidDatasourceConfiguration.setTlsConfiguration(addTLSConfiguration());
 
         assertEquals(
                 Set.of(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
@@ -147,7 +147,7 @@ public class RedisPluginTest {
 
         Endpoint endpoint = new Endpoint();
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-        invalidDatasourceConfiguration.setTlsConfiguration(addTLSConfiguration(invalidDatasourceConfiguration));
+        invalidDatasourceConfiguration.setTlsConfiguration(addTLSConfiguration());
 
         assertEquals(
                 Set.of(RedisErrorMessages.DS_MISSING_HOST_ADDRESS_ERROR_MSG),
@@ -161,7 +161,7 @@ public class RedisPluginTest {
         Endpoint endpoint = new Endpoint();
         endpoint.setHost("test-host");
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-        invalidDatasourceConfiguration.setTlsConfiguration(addTLSConfiguration(invalidDatasourceConfiguration));
+        invalidDatasourceConfiguration.setTlsConfiguration(addTLSConfiguration());
 
         // Since default port is picked, set of invalids should be empty.
         assertEquals(pluginExecutor.validateDatasource(invalidDatasourceConfiguration), Set.of());
@@ -178,7 +178,7 @@ public class RedisPluginTest {
         invalidAuth.setUsername("username"); // skip password
         invalidDatasourceConfiguration.setAuthentication(invalidAuth);
         invalidDatasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-        invalidDatasourceConfiguration.setTlsConfiguration(addTLSConfiguration(invalidDatasourceConfiguration));
+        invalidDatasourceConfiguration.setTlsConfiguration(addTLSConfiguration());
 
         assertEquals(
                 Set.of(RedisErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG),
@@ -199,7 +199,7 @@ public class RedisPluginTest {
         endpoint.setPort(Long.valueOf(port));
         datasourceConfiguration.setAuthentication(auth);
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
-        datasourceConfiguration.setTlsConfiguration(addTLSConfiguration(datasourceConfiguration));
+        datasourceConfiguration.setTlsConfiguration(addTLSConfiguration());
 
         assertTrue(pluginExecutor.validateDatasource(datasourceConfiguration).isEmpty());
     }
