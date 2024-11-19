@@ -7,15 +7,13 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
 function useDataSourceNavigation() {
   const goToDatasource = useCallback((datasourceId: string) => {
-    history.push(datasourcesEditorIdURL({ datasourceId }));
+    history.push(
+      datasourcesEditorIdURL({ datasourceId, generateEditorPath: true }),
+    );
   }, []);
 
   const onCreateDatasourceClick = useCallback(
-    (
-      selectedTab,
-      pageId?: string,
-      entryPoint: string = DatasourceCreateEntryPoints.QUERY_EDITOR,
-    ) => {
+    (selectedTab, pageId?: string) => {
       history.push(
         integrationEditorURL({
           basePageId: pageId,
@@ -24,7 +22,7 @@ function useDataSourceNavigation() {
       );
 
       AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
-        entryPoint,
+        entryPoint: DatasourceCreateEntryPoints.QUERY_EDITOR,
       });
     },
     [],
