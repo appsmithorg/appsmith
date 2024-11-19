@@ -904,17 +904,20 @@ public class ActionCollectionServiceTest {
                 consolidatedAPIService.getConsolidatedInfoForPageLoad(
                         testPage.getId(), testApp.getId(), null, ApplicationMode.EDIT);
 
-        StepVerifier.create(updatedActionCollectionDTOMono.zipWith(consolidatedAPIResponseDTOMono))
+        StepVerifier.create(updatedActionCollectionDTOMono.zipWhen(actionCollectionDTO1 -> {
+                    return consolidatedAPIResponseDTOMono;
+                }))
                 .assertNext(tuple -> {
                     ActionCollectionDTO actionCollectionDTO1 = tuple.getT1();
 
+                    // Assert updated action collection's properties
                     assertEquals(createdActionCollectionId, actionCollectionDTO1.getId());
 
                     // Verify layout update service call count
                     Mockito.verify(updateLayoutService, Mockito.times(2))
                             .updatePageLayoutsByPageId(Mockito.anyString());
 
-                    // Ensure there are no error reports in action collection actions
+                    // Ensure no error reports in action collection actions
                     actionCollectionDTO1
                             .getActions()
                             .forEach(action -> assertNull(action.getErrorReports(), "Error reports should be null"));
