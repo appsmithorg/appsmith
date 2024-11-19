@@ -6,11 +6,22 @@
   max-width: 800px;
   justify-content: center;
 
-  &[data-standalone="false"] {
+  &[data-withoutpadding="true"] {
+    padding: 0;
+  }
+
+  /* We do not want padding above the first section */
+  &[data-withoutpadding="false"]:first-child {
+    padding-bottom: var(--ads-v2-spaces-6);
+  }
+
+  /* All other sections expect first will have padding top and bottom */
+  &[data-withoutpadding="false"]:not(:first-child) {
     padding-block: var(--ads-v2-spaces-6);
   }
 
-  &[data-standalone="false"]:not(:last-child) {
+  /* We will also render a border below sections expect for the last section */
+  &[data-withoutpadding="false"]:not(:last-child) {
     border-bottom: 1px solid var(--ads-v2-color-border);
   }
 

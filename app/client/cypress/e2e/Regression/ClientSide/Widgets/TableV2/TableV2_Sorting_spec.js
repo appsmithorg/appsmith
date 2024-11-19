@@ -1,8 +1,7 @@
-import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../../support/Pages/PageList";
 const testdata = require("../../../../../fixtures/testdata.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-import PageList from "../../../../../support/Pages/PageList";
 
 const demoTableData = `
 {{
@@ -117,9 +116,6 @@ describe(
     });
 
     it("2. Verifies that default sorting works for a select column using the value property", function () {
-      // This flag is turned on to allow the label show in the table select cell content
-      // when this feature is turned on fully, this flag will be removed
-      featureFlagIntercept({ release_table_cell_label_value_enabled: true });
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });
       _.propPane.EnterJSContext("Table data", demoTableData);
 
@@ -169,9 +165,6 @@ describe(
     });
 
     it("3. Verifies that sorting works for the select column type when sortBy is set to label", function () {
-      // This flag is turned on to allow the label show in the table select cell content
-      // when this feature is turned on fully, this flag will be removed
-      featureFlagIntercept({ release_table_cell_label_value_enabled: true });
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });
       _.propPane.EnterJSContext("Table data", demoTableData);
 

@@ -38,6 +38,14 @@ if (CUSTOM_DOMAIN !== "") {
 const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
   .replace(/;.*$/, "")
 
+const monitoringParts = [{
+  path: "/monitoring/traces",
+  rewrite: "/v1/traces",
+}, {
+  path: "/monitoring/metrics",
+  rewrite: "/v1/metrics",
+}];
+
 const parts = []
 
 parts.push(`
@@ -138,6 +146,20 @@ parts.push(`
   handle /rts/* {
     import reverse_proxy 8091
   }
+
+${
+  monitoringParts.map((telemetry) => `
+  handle ${telemetry.path} {
+    @unauthorized not header api-key "${process.env.APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY}"
+    respond @unauthorized "Forbidden" 403
+
+    @method_not_allowed not method POST
+    respond @method_not_allowed "Method Not Allowed" 405
+
+    rewrite * ${telemetry.rewrite}
+    import reverse_proxy 4318
+  }`).join("\n")
+}
 
   redir /supervisor /supervisor/
   handle_path /supervisor/* {

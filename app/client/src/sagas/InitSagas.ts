@@ -240,10 +240,13 @@ export function* getInitResponses({
       shouldInitialiseUserDetails,
     );
 
+    const rootSpan = startRootSpan("fetch-consolidated-api");
     const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
       yield mode === APP_MODE.EDIT
         ? ConsolidatedPageLoadApi.getConsolidatedPageLoadDataEdit(params)
         : ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
+
+    endSpan(rootSpan);
 
     const isValidResponse: boolean = yield validateResponse(
       initConsolidatedApiResponse,

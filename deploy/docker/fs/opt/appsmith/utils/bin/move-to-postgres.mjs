@@ -6,8 +6,8 @@
  * @param {boolean} isBaselineMode - Flag indicating whether the script is running in baseline mode.
  * @returns {Promise<void>} - A promise that resolves when the data migration is complete.
  */
-import {spawn} from "child_process";
-import {MongoClient} from "mongodb";
+import { spawn } from "child_process";
+import { MongoClient } from "mongodb";
 import * as fs from "node:fs";
 
 let isBaselineMode = false;
@@ -18,6 +18,11 @@ let mongoDbUrl;
 let mongoDumpFile = null;
 const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
 
+// The minimum version of the MongoDB changeset that must be present in the mongockChangeLog collection to run this script.
+// This is to ensure we are migrating the data from the stable version of MongoDB.
+const MINIMUM_MONGO_CHANGESET = "add_empty_policyMap_for_null_entries";
+const MONGO_MIGRATION_COLLECTION = "mongockChangeLog";
+
 for (let i = 2; i < process.argv.length; ++i) {
   const arg = process.argv[i];
   if (arg.startsWith("--mongodb-url=") && !mongoDbUrl) {
@@ -26,7 +31,9 @@ for (let i = 2; i < process.argv.length; ++i) {
     mongoDumpFile = extractValueFromArg(arg);
   } else if (arg === "--baseline") {
     isBaselineMode = true;
-    console.warn("Running in baseline mode. If you're not an Appsmith team member, we sure hope you know what you're doing.")
+    console.warn(
+      "Running in baseline mode. If you're not an Appsmith team member, we sure hope you know what you're doing.",
+    );
   } else {
     console.error("Unknown/unexpected argument: " + arg);
     process.exit(1);
@@ -40,16 +47,25 @@ if (!mongoDbUrl && !mongoDumpFile) {
 
 let mongoServer;
 if (mongoDumpFile) {
-  fs.mkdirSync("/tmp/db-tmp", {recursive: true});
+  fs.mkdirSync("/tmp/db-tmp", { recursive: true });
 
-  mongoServer = spawn("mongod", ["--bind_ip_all", "--dbpath", "/tmp/db-tmp", "--port", "27500"], {
-    stdio: "inherit",
-  });
+  mongoServer = spawn(
+    "mongod",
+    ["--bind_ip_all", "--dbpath", "/tmp/db-tmp", "--port", "27500"],
+    {
+      stdio: "inherit",
+    },
+  );
 
   mongoDbUrl = "mongodb://localhost/tmp";
 
   // mongorestore 'mongodb://localhost/' --archive=mongodb-data.gz --gzip --nsFrom='appsmith.*' --nsTo='appsmith.*'
-  spawn("mongorestore", [mongoDbUrl, "--archive=" + mongoDumpFile, "--gzip", "--noIndexRestore"]);
+  spawn("mongorestore", [
+    mongoDbUrl,
+    "--archive=" + mongoDumpFile,
+    "--gzip",
+    "--noIndexRestore",
+  ]);
 }
 
 const mongoClient = new MongoClient(mongoDbUrl);
@@ -66,32 +82,49 @@ const filters = {};
 if (isBaselineMode) {
   filters.config = {
     // Remove the "appsmith_registered" value, since this is baseline static data, and we want new instances to do register.
-    name: {$ne: "appsmith_registered"},
+    name: { $ne: "appsmith_registered" },
   };
   filters.plugin = {
     // Remove saas plugins so they can be fetched from CS again, as usual.
-    packageName: {$ne: "saas-plugin"},
+    packageName: { $ne: "saas-plugin" },
   };
 }
 
-const collectionNames = await mongoDb.listCollections({}, { nameOnly: true }).toArray();
-const sortedCollectionNames = collectionNames.map(collection => collection.name).sort();
+const collectionNames = await mongoDb
+  .listCollections({}, { nameOnly: true })
+  .toArray();
+const sortedCollectionNames = collectionNames
+  .map((collection) => collection.name)
+  .sort();
+
+// Verify that the MongoDB data has been migrated to a stable version i.e. v1.43 before we start migrating the data to Postgres.
+if (!(await isMongoDataMigratedToStableVersion(mongoDb))) {
+  console.error(
+    "MongoDB migration check failed: Try upgrading the Appsmith instance to latest before opting for data migration.",
+  );
+  console.error(
+    `Could not find the valid migration execution entry for "${MINIMUM_MONGO_CHANGESET}" in the "${MONGO_MIGRATION_COLLECTION}" collection.`,
+  );
+  await mongoClient.close();
+  mongoServer?.kill();
+  process.exit(1);
+}
 
 for await (const collectionName of sortedCollectionNames) {
-
   console.log("Collection:", collectionName);
   if (isBaselineMode && collectionName.startsWith("mongock")) {
     continue;
   }
   let outFile = null;
-  for await (const doc of mongoDb.collection(collectionName).find(filters[collectionName])) {
-
+  for await (const doc of mongoDb
+    .collection(collectionName)
+    .find(filters[collectionName])) {
     // Skip archived objects as they are not migrated during the Mongock migration which may end up failing for the
     // constraints in the Postgres DB.
     if (isArchivedObject(doc)) {
       continue;
     }
-    transformFields(doc);  // This now handles the _class to type transformation.
+    transformFields(doc); // This now handles the _class to type transformation.
     if (doc.policyMap == null) {
       doc.policyMap = {};
     }
@@ -133,14 +166,14 @@ function toJsonSortedKeys(obj) {
 
 function replacer(key, value) {
   // Ref: https://gist.github.com/davidfurlong/463a83a33b70a3b6618e97ec9679e490
-  return value instanceof Object && !Array.isArray(value) ?
-    Object.keys(value)
-      .sort()
-      .reduce((sorted, key) => {
-        sorted[key] = value[key];
-        return sorted
-      }, {}) :
-    value;
+  return value instanceof Object && !Array.isArray(value)
+    ? Object.keys(value)
+        .sort()
+        .reduce((sorted, key) => {
+          sorted[key] = value[key];
+          return sorted;
+        }, {})
+    : value;
 }
 
 /**
@@ -159,9 +192,9 @@ function transformFields(obj) {
     } else if (key === "_class") {
       const type = mapClassToType(obj._class);
       if (type) {
-        obj.type = type;  // Add the type field
+        obj.type = type; // Add the type field
       }
-      delete obj._class;  // Remove the _class field
+      delete obj._class; // Remove the _class field
     } else if (typeof obj[key] === "object" && obj[key] !== null) {
       transformFields(obj[key]);
     }
@@ -182,4 +215,17 @@ function mapClassToType(_class) {
     default:
       return null;
   }
+}
+
+/**
+ * Method to check if MongoDB data has migrated to a stable version before we start migrating the data to Postgres.
+ * @param {*} mongoDb - The MongoDB client.
+ * @returns {Promise<boolean>} - A promise that resolves to true if the data has been migrated to a stable version, false otherwise.
+ */
+async function isMongoDataMigratedToStableVersion(mongoDb) {
+  const doc = await mongoDb.collection(MONGO_MIGRATION_COLLECTION).findOne({
+    changeId: MINIMUM_MONGO_CHANGESET,
+    state: "EXECUTED",
+  });
+  return doc !== null;
 }

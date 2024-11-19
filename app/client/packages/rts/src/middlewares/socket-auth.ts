@@ -2,7 +2,7 @@ import type { Socket } from "socket.io";
 import log from "loglevel";
 import axios from "axios";
 
-const API_BASE_URL = process.env.APPSMITH_API_BASE_URL;
+import { BASE_APPSMITH_API_URL } from "@constants/routes";
 
 export async function tryAuth(socket: Socket) {
   /* ********************************************************* */
@@ -35,7 +35,7 @@ export async function tryAuth(socket: Socket) {
   try {
     response = await axios.request({
       method: "GET",
-      url: API_BASE_URL + "/users/me",
+      url: BASE_APPSMITH_API_URL + "/users/me",
       headers: {
         Cookie: sessionCookie,
       },

@@ -15,7 +15,6 @@ import AppJSEditorContextMenu from "./AppJSEditorContextMenu";
 import { updateFunctionProperty } from "actions/jsPaneActions";
 import type { OnUpdateSettingsProps } from "./JSEditorToolbar";
 import { saveJSObjectName } from "actions/jsActionActions";
-
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
 `;

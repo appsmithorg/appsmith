@@ -13,6 +13,7 @@ import { JSHeader } from "./JSHeader";
 import { JSFunctionSettings } from "./components/JSFunctionSettings";
 import type { JSFunctionSettingsProps } from "./components/old/JSFunctionSettings";
 import { convertJSActionsToDropdownOptions } from "./utils";
+import { JSObjectNameEditor } from "./JSObjectNameEditor";
 
 interface Props {
   changePermitted: boolean;
@@ -33,6 +34,7 @@ interface Props {
   jsActions: JSAction[];
   selected: JSActionDropdownOption;
   onUpdateSettings: JSFunctionSettingsProps["onUpdateSettings"];
+  showNameEditor?: boolean;
   showSettings: boolean;
 }
 
@@ -59,7 +61,14 @@ export const JSEditorToolbar = (props: Props) => {
   // Render the IDEToolbar with JSFunctionRun and JSFunctionSettings components
   return (
     <IDEToolbar>
-      <IDEToolbar.Left />
+      <IDEToolbar.Left>
+        {props.showNameEditor && (
+          <JSObjectNameEditor
+            disabled={!props.changePermitted || props.hideEditIconOnEditor}
+            saveJSObjectName={props.saveJSObjectName}
+          />
+        )}
+      </IDEToolbar.Left>
       <IDEToolbar.Right>
         <div className="t--formActionButtons">
           <JSFunctionRun

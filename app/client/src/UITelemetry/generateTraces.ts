@@ -14,10 +14,9 @@ import {
   osName,
   osVersion,
 } from "react-device-detect";
-import { APP_MODE } from "entities/App";
-import { matchBuilderPath, matchViewerPath } from "constants/routes";
 import nanoid from "nanoid";
 import memoizeOne from "memoize-one";
+import { getApplicationParamsFromUrl } from "ee/utils/serviceWorkerUtils";
 
 const GENERATOR_TRACE = "generator-tracer";
 
@@ -26,25 +25,36 @@ export type SpanAttributes = Attributes;
 
 const OTLP_SESSION_ID = nanoid();
 
-const getAppMode = memoizeOne((pathname: string) => {
-  const isEditorUrl = matchBuilderPath(pathname);
-  const isViewerUrl = matchViewerPath(pathname);
+const getAppParams = memoizeOne(
+  (origin: string, pathname: string, search: string) => {
+    const applicationParams = getApplicationParamsFromUrl({
+      origin,
+      pathname,
+      search,
+    });
 
-  const appMode = isEditorUrl
-    ? APP_MODE.EDIT
-    : isViewerUrl
-      ? APP_MODE.PUBLISHED
-      : "";
+    const {
+      applicationSlug,
+      appMode = "",
+      basePageId: pageId,
+      branchName,
+    } = applicationParams || {};
 
-  return appMode;
-});
+    return {
+      appMode,
+      pageId,
+      branchName,
+      applicationSlug,
+    };
+  },
+);
 
 export const getCommonTelemetryAttributes = () => {
-  const pathname = window.location.pathname;
-  const appMode = getAppMode(pathname);
+  const { origin, pathname, search } = window.location;
+  const appParams = getAppParams(origin, pathname, search);
 
   return {
-    appMode,
+    ...appParams,
     deviceType,
     browserName,
     browserVersion,
@@ -121,14 +131,6 @@ export const startAndEndSpanForFn = <T>(
 
   return res;
 };
-
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function wrapFnWithParentTraceContext(parentSpan: Span, fn: () => any) {
-  const parentContext = trace.setSpan(context.active(), parentSpan);
-
-  return context.with(parentContext, fn);
-}
 
 export function startAndEndSpan(
   spanName: string,

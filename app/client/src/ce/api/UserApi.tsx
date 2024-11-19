@@ -4,21 +4,6 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type { ProductAlert } from "../../reducers/uiReducers/usersReducer";
 
-export interface LoginUserRequest {
-  email: string;
-  password: string;
-}
-
-export interface CreateUserRequest {
-  email: string;
-  password: string;
-}
-
-export type CreateUserResponse = ApiResponse & {
-  email: string;
-  id: string;
-};
-
 export interface ForgotPasswordRequest {
   email: string;
 }
@@ -32,14 +17,6 @@ export interface TokenPasswordUpdateRequest {
 export interface VerifyTokenRequest {
   email: string;
   token: string;
-}
-
-export type FetchUserResponse = ApiResponse & {
-  id: string;
-};
-
-export interface FetchUserRequest {
-  id: string;
 }
 
 export interface LeaveWorkspaceRequest {
@@ -57,7 +34,6 @@ export interface UpdateUserRequest {
   name?: string;
   email?: string;
   proficiency?: string;
-  role?: string;
   useCase?: string;
   intercomConsentGiven?: boolean;
 }
@@ -70,19 +46,6 @@ export interface SendTestEmailPayload {
   password?: string;
 }
 
-export interface CreateSuperUserRequest {
-  email: string;
-  name: string;
-  source: "FORM";
-  state: "ACTIVATED";
-  isEnabled: boolean;
-  password: string;
-  role: "Developer";
-  companyName: string;
-  allowCollectingAnonymousData: boolean;
-  signupForNewsletter: boolean;
-}
-
 export class UserApi extends Api {
   static usersURL = "v1/users";
   static productAlertURL = "v1/product-alert/alert";
@@ -93,33 +56,19 @@ export class UserApi extends Api {
   static inviteUserURL = "v1/users/invite";
   static verifyInviteTokenURL = `${UserApi.inviteUserURL}/verify`;
   static confirmUserInviteURL = `${UserApi.inviteUserURL}/confirm`;
-  static addWorkspaceURL = `${UserApi.usersURL}/addWorkspace`;
   static leaveWorkspaceURL = `${UserApi.usersURL}/leaveWorkspace`;
   static logoutURL = "v1/logout";
   static currentUserURL = "v1/users/me";
   static photoURL = "v1/users/photo";
   static featureFlagsURL = "v1/users/features";
-  static superUserURL = "v1/users/super";
   static adminSettingsURL = "v1/admin/env";
   static restartServerURL = "v1/admin/restart";
   static sendTestEmailURL = "/v1/admin/send-test-email";
-
-  static async createUser(
-    request: CreateUserRequest,
-  ): Promise<AxiosPromise<CreateUserResponse>> {
-    return Api.post(UserApi.usersURL, request);
-  }
 
   static async updateUser(
     request: UpdateUserRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
     return Api.put(UserApi.usersURL, request);
-  }
-
-  static async fetchUser(
-    request: FetchUserRequest,
-  ): Promise<AxiosPromise<FetchUserResponse>> {
-    return Api.get(UserApi.usersURL + "/" + request.id);
   }
 
   static async getCurrentUser(): Promise<AxiosPromise<ApiResponse>> {
@@ -212,12 +161,6 @@ export class UserApi extends Api {
     AxiosPromise<ApiResponse<FeatureFlags>>
   > {
     return Api.get(UserApi.featureFlagsURL);
-  }
-
-  static async createSuperUser(
-    request: CreateSuperUserRequest,
-  ): Promise<AxiosPromise<CreateUserResponse>> {
-    return Api.post(UserApi.superUserURL, request);
   }
 
   /*

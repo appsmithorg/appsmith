@@ -11,6 +11,7 @@ import EditorNavigation, {
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
 import { anvilLocators } from "./Anvil/Locators";
+import BottomPane from "./IDE/BottomPane";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -202,7 +203,7 @@ export class DataSources {
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
   _dsTabSchema = "[data-testid='t--tab-SCHEMA_TAB']";
-  private _pageSelectionMenu = "[data-testId='t--page-selection']";
+  private _pageSelectionMenu = "[data-testid='t--page-selection']";
 
   private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
 
@@ -295,7 +296,7 @@ export class DataSources {
   _imgFireStoreLogo = "//img[contains(@src, 'firestore.svg')]";
   _dsVirtuosoElement = `div .t--schema-virtuoso-container`;
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
-  private _dsSchemaContainer = `[data-testId="datasource-schema-container"]`;
+  private _dsSchemaContainer = `[data-testid="datasource-schema-container"]`;
   private _dsVirtuosoElementTable = (targetTableName: string) =>
     `${this._dsSchemaEntityItem}[data-testid='t--entity-item-${targetTableName}']`;
   private _dsPageTabListItem = (buttonText: string) =>
@@ -1137,17 +1138,18 @@ export class DataSources {
     tableCheck = true,
   ) {
     this.RunQuery();
-    tableCheck &&
-      this.agHelper.AssertElementVisibility(this._queryResponse("TABLE"));
-    this.agHelper.AssertElementVisibility(this._queryResponse("JSON"));
-    this.agHelper.AssertElementVisibility(this._queryResponse("RAW"));
-    this.CheckResponseRecordsCount(expectedRecordsCount);
-  }
-
-  public CheckResponseRecordsCount(expectedRecordCount: number) {
-    this.agHelper.AssertElementVisibility(
-      this._queryRecordResult(expectedRecordCount),
-    );
+    if (tableCheck) {
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("TABLE"),
+      );
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
+    }
+    BottomPane.response.validateRecordCount(expectedRecordsCount);
   }
 
   public CreateDataSource(

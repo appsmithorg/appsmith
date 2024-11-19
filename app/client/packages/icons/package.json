@@ -18,6 +18,8 @@
     "react": "^16.8.0 || ^17.0.0-rc.1 || ^18.0.0"
   },
   "devDependencies": {
+    "@svgr/core": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
     "fast-glob": "^3.3.2",
     "figmagic": "^4.5.13",
     "fs-extra": "^11.2.0",

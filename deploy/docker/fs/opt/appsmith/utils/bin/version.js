@@ -1,4 +1,4 @@
-const utils = require('./utils');
+const utils = require("./utils");
 
 async function exec() {
   let version = null;
@@ -10,9 +10,8 @@ async function exec() {
   }
   if (version) {
     console.log(version);
-  }
-  else {
-    console.error("Error: could not find the current Appsmith version")
+  } else {
+    console.error("Error: could not find the current Appsmith version");
     process.exit(1);
   }
 }

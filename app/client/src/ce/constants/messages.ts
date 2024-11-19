@@ -337,7 +337,7 @@ export const ACTION_MOVE_SUCCESS = (actionName: string, pageName: string) =>
 export const ERROR_ACTION_MOVE_FAIL = (actionName: string) =>
   `Error while moving action ${actionName}`;
 export const ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
-  `${actionName} action copied to page ${pageName} successfully`;
+  `${actionName} action copied ${pageName.length > 0 ? "to page " + pageName : ""} successfully`;
 export const ERROR_ACTION_COPY_FAIL = (actionName: string) =>
   `Error while copying action ${actionName}`;
 export const ERROR_ACTION_RENAME_FAIL = (actionName: string) =>
@@ -366,7 +366,9 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
 export const EDIT_DATASOURCE = () => "Edit";
-export const SAVE_DATASOURCE = () => "Save";
+export const SAVE_DATASOURCE = () => "Save URL";
+export const EDIT_DATASOURCE_TOOLTIP = () => "Edit datasource";
+export const SAVE_DATASOURCE_TOOLTIP = () => "Save URL as a datasource";
 export const SAVE_DATASOURCE_MESSAGE = () =>
   "Save the URL as a datasource to access authentication settings";
 export const EDIT_DATASOURCE_MESSAGE = () =>
@@ -645,6 +647,7 @@ export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
   `${JSFunctionName} did not return any data. Did you add a return statement?`;
+export const MORE_ON_QUERY_SETTINGS = () => "More on query settings";
 
 export const REMOVE_CONFIRM_BEFORE_CALLING_HEADING = () =>
   `Remove 'Confirm before calling' `;
@@ -749,7 +752,10 @@ export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
 export const GENERATE_PAGE_ACTION_TITLE = () => "Generate page with data";
 
-export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
+export const GENERATE_PAGE_FORM_TITLE = () =>
+  "Generate a page based on your data";
+export const GENERATE_PAGE_FORM_SUB_TITLE = () =>
+  "Use your datasource's schema to generate a simple CRUD page.";
 
 export const GEN_CRUD_SUCCESS_MESSAGE = () =>
   "Hurray! Your application is ready for use.";
@@ -794,7 +800,8 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
 // Datasource structure
 
-export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
+export const SCHEMA_NOT_AVAILABLE = () =>
+  "We can't show schema for this datasource";
 export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
   `Tables in ${name}`;
@@ -1731,6 +1738,7 @@ export const CONTEXT_RENAME = () => "Rename";
 export const CONTEXT_SHOW_BINDING = () => "Show bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
+export const CONTEXT_DUPLICATE = () => "Duplicate";
 export const CONTEXT_DELETE = () => "Delete";
 export const CONFIRM_CONTEXT_DELETE = () => "Are you sure?";
 export const CONFIRM_CONTEXT_DELETING = () => "Deleting";
@@ -2515,5 +2523,12 @@ export const PREPARED_STATEMENT_WARNING = {
 
 export const JS_EDITOR_SETTINGS = {
   TITLE: () => "Settings",
-  ON_LOAD_TITLE: () => "Choose functions to run on page load",
+  ON_LOAD_TITLE: () => "Choose the functions to run on page load",
+};
+
+export const CUSTOM_WIDGET_BUILDER_TAB_TITLE = {
+  AI: () => "AI",
+  HTML: () => "HTML",
+  STYLE: () => "Style",
+  JS: () => "Javascript",
 };
