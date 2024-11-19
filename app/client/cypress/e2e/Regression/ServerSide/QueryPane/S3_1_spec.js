@@ -191,8 +191,7 @@ describe(
       cy.typeValueNValidate(fileName, formControls.s3ListPrefix);
       dataSources.RunQuery({ toValidateResponse: false });
 
-      BottomPane.response.switchResponseType("TABLE");
-      BottomPane.response.switchResponseType("JSON");
+      BottomPane.response.selectResponseResponseTypeFromMenu("JSON");
 
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(true);

@@ -1162,14 +1162,16 @@ export class DataSources {
       BottomPane.response.openResponseTypeMenu();
 
       this.agHelper.AssertElementVisibility(
-        BottomPane.response.getResponseTypeMenuItem("TABLE"),
+        BottomPane.response.locators.responseTypeMenuItem("TABLE"),
       );
       this.agHelper.AssertElementVisibility(
-        BottomPane.response.getResponseTypeMenuItem("JSON"),
+        BottomPane.response.locators.responseTypeMenuItem("JSON"),
       );
       this.agHelper.AssertElementVisibility(
-        BottomPane.response.getResponseTypeMenuItem("RAW"),
+        BottomPane.response.locators.responseTypeMenuItem("RAW"),
       );
+
+      BottomPane.response.closeResponseTypeMenu();
     }
     BottomPane.response.validateRecordCount(expectedRecordsCount);
   }

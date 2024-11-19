@@ -47,7 +47,7 @@ describe(
         BottomPane.response.switchToResponseTab();
         BottomPane.response.openResponseTypeMenu();
         agHelper.AssertElementVisibility(
-          BottomPane.response.getResponseTypeMenuItem("TABLE"),
+          BottomPane.response.locators.responseTypeMenuItem("TABLE"),
         );
       });
     });
