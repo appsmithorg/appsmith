@@ -63,9 +63,16 @@ jobs:
         run: yarn install --immutable
 
       - name: Build
+        env:
+          REACT_APP_ENVIRONMENT: "PRODUCTION"
+          REACT_APP_FUSIONCHARTS_LICENSE_KEY: "${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY2 }}"
+          REACT_APP_SEGMENT_CE_KEY: "${{ secrets.APPSMITH_SEGMENT_CE_KEY2 }}"
+          REACT_APP_INTERCOM_APP_ID: "${{ secrets.APPSMITH_INTERCOM_ID2 }}"
+          REACT_APP_VERSION_EDITION: "Community"
         run: |
           echo 'export const VERSION = "${{ needs.prelude.outputs.tag }}"' > src/version.js
           yarn build
+          ls -l build
 
       # Tar the bundles to speed up the upload & download process
       - name: Tar the rts bundles
