@@ -1,0 +1,117 @@
+.sheet {
+  position: fixed;
+  background: var(--color-bg-elevation-3);
+  width: 80%;
+}
+
+.overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-neutral-opacity);
+  z-index: var(--z-index-99);
+  contain: strict;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.dialog {
+  height: 100%;
+}
+
+.overlay[data-entering] {
+  animation: fade-in 0.3s ease-in-out;
+}
+
+.overlay[data-exiting] {
+  animation: fade-out 0.3s ease-in-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.start {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  max-width: 90%;
+  height: 100%;
+}
+
+.start[data-entering] {
+  animation: slide-in-start 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.start[data-exiting] {
+  animation: slide-out-start 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.end {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  max-width: 90%;
+  height: 100%;
+}
+
+.end[data-entering] {
+  animation: slide-in-end 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.end[data-exiting] {
+  animation: slide-out-end 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slide-in-start {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out-start {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes slide-in-end {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-out-end {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
