@@ -1,0 +1,19 @@
+.input:is([data-date-input]) {
+  display: flex;
+  gap: calc(var(--inner-spacing-1) / 2);
+  align-items: center;
+}
+
+.input:is([data-date-input]) [data-focused="true"] {
+  background-color: var(--color-bg-accent);
+  color: var(--color-fg-on-accent);
+  box-shadow: 0 0 0 1px var(--color-bd-focus);
+}
+
+.popover {
+  overflow: auto;
+}
+
+.dialog .timeField {
+  padding: var(--outer-spacing-3);
+}

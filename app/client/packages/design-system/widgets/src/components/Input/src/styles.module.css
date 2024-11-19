@@ -128,7 +128,9 @@
  * ----------------------------------------------------------------------------
  */
 .inputGroup[data-hovered]
-  .input:not(:is([data-focused], [data-readonly], [data-disabled])) {
+  .input:not(
+    :is([data-focused], [data-readonly], [data-disabled], [data-focus-within])
+  ) {
   background-color: var(--color-bg-neutral-subtle-hover);
   box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-subtle-hover);
 }
@@ -202,7 +204,7 @@
  * FOCUSSED
  * ----------------------------------------------------------------------------
  */
-.input[data-focused]:not([data-readonly]) {
+.input:is([data-focused], [data-focus-within]):not([data-readonly]) {
   background-color: transparent;
   box-shadow: 0 0 0 2px var(--color-bd-focus);
 }
