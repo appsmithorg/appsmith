@@ -142,7 +142,15 @@ const Schema = (props: Props) => {
             datasourceName={props.datasourceName}
           />
         </Flex>
-        <StatusDisplay editDatasource={editDatasource} state={statusState} />
+        <StatusDisplay
+          editDatasource={editDatasource}
+          errorMessage={
+            datasourceStructure?.error && "message" in datasourceStructure.error
+              ? datasourceStructure.error.message
+              : ""
+          }
+          state={statusState}
+        />
       </>
     );
   };

@@ -32,6 +32,7 @@ type IStates =
 interface IProps {
   state: IStates;
   editDatasource?: () => void;
+  errorMessage?: string;
 }
 
 const StateData: Record<
@@ -74,7 +75,7 @@ const StateData: Record<
   },
 };
 
-const StatusDisplay = ({ editDatasource, state }: IProps) => {
+const StatusDisplay = ({ editDatasource, errorMessage, state }: IProps) => {
   const { image, message, title } = StateData[state];
 
   return (
@@ -103,7 +104,9 @@ const StatusDisplay = ({ editDatasource, state }: IProps) => {
         maxWidth="400px"
       >
         <Text kind="heading-xs">{title}</Text>
-        <Text kind="body-m">{message}</Text>
+        <Text kind="body-m">
+          {state === "FAILED" && errorMessage ? errorMessage : message}
+        </Text>
         {state === "FAILED" && (
           <Button
             className="mt-[16px]"
