@@ -1,14 +1,13 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { Flex, Link } from "@appsmith/ads";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import history from "utils/history";
-import { datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { useSelector } from "react-redux";
 import {
   getPluginIdFromDatasourceId,
   getPluginImages,
 } from "ee/selectors/entitiesSelector";
+import { useDataSourceNavigation } from "ee/PluginActionEditor/hooks/useDataSourceNavigation";
 
 interface iProps {
   type: "link" | "trigger";
@@ -22,9 +21,7 @@ const CurrentDataSource = ({ datasourceId, datasourceName, type }: iProps) => {
     pluginImages: getPluginImages(state),
   }));
 
-  const goToDatasource = useCallback(() => {
-    history.push(datasourcesEditorIdURL({ datasourceId }));
-  }, [datasourceId]);
+  const { goToDatasource } = useDataSourceNavigation();
 
   const datasourceIcon = pluginId ? pluginImages?.[pluginId] : undefined;
 
@@ -42,7 +39,7 @@ const CurrentDataSource = ({ datasourceId, datasourceName, type }: iProps) => {
   );
 
   return type === "link" ? (
-    <Link onClick={goToDatasource}>{content}</Link>
+    <Link onClick={() => goToDatasource(datasourceId)}>{content}</Link>
   ) : (
     content
   );

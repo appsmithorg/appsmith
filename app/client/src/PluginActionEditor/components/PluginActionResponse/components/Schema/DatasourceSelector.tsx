@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import {
   Button,
@@ -35,15 +35,12 @@ import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { CurrentDataSource } from "./CurrentDataSource";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
-import history from "utils/history";
-import { integrationEditorURL } from "ee/RouteBuilder";
 import { INTEGRATION_TABS } from "constants/routes";
-import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { change } from "redux-form";
 import { useDispatch } from "react-redux";
 import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
+import { useDataSourceNavigation } from "ee/PluginActionEditor/hooks/useDataSourceNavigation";
 
 interface Props {
   datasourceId: string;
@@ -88,20 +85,7 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
   const showDatasourceSelector = doesPluginRequireDatasource(plugin);
   const pluginImages = useSelector(getPluginImages);
 
-  const onCreateDatasourceClick = useCallback(() => {
-    history.push(
-      integrationEditorURL({
-        basePageId: currentActionConfig?.pageId,
-        selectedTab: INTEGRATION_TABS.NEW,
-      }),
-    );
-    // Event for datasource creation click
-    const entryPoint = DatasourceCreateEntryPoints.QUERY_EDITOR;
-
-    AnalyticsUtil.logEvent("NAVIGATE_TO_CREATE_NEW_DATASOURCE_PAGE", {
-      entryPoint,
-    });
-  }, [currentActionConfig?.pageId]);
+  const { onCreateDatasourceClick } = useDataSourceNavigation();
 
   const DATASOURCES_OPTIONS: Array<DATASOURCES_OPTIONS_TYPE> =
     dataSources.reduce(
@@ -178,7 +162,14 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
             ))}
           </MenuGroup>
           {canCreateDatasource && (
-            <MenuItem onSelect={() => onCreateDatasourceClick()}>
+            <MenuItem
+              onSelect={() =>
+                onCreateDatasourceClick(
+                  INTEGRATION_TABS.NEW,
+                  currentActionConfig?.pageId,
+                )
+              }
+            >
               <Flex gap="spaces-2">
                 <Icon className="createIcon" name="plus" size="md" />
                 {createMessage(CREATE_NEW_DATASOURCE)}
