@@ -3,6 +3,7 @@ class Response {
     responseTab: "[data-testid='t--tab-RESPONSE_TAB']",
     responseDataContainer: "[data-testid='t--query-response-data-container']",
     responseTypeMenuTrigger: "[data-testid='t--query-response-type-trigger']",
+    responseRecordCount: "[data-testid='t--query-response-record-count']",
 
     /** @deprecated */
     responseType(type: string): string {
@@ -10,7 +11,7 @@ class Response {
     },
 
     responseTypeMenuItem(type: string) {
-      return `div[data-testid="t--query-response-type-menu-item"][data-value="${type}"]`;
+      return `[data-testid="t--query-response-type-menu-item"][data-value="${type}"]`;
     },
   };
 
@@ -29,7 +30,7 @@ class Response {
 
   public openResponseTypeMenu() {
     cy.get(this.locators.responseDataContainer).realHover();
-    cy.get(this.locators.responseTypeMenuTrigger).realClick();
+    cy.get(this.locators.responseTypeMenuTrigger).click({ force: true });
   }
 
   public selectResponseResponseTypeFromMenu(type: string): void {
@@ -39,11 +40,14 @@ class Response {
   }
 
   public closeResponseTypeMenu() {
-    cy.get("body").realClick({ x: 0, y: 0 });
+    cy.get(this.locators.responseTypeMenuTrigger).realClick();
   }
 
-  // TODO: Implement this method when response UI is ready
-  public validateRecordCount(count: number): void {}
+  public validateRecordCount(count: number): void {
+    cy.get(this.locators.responseRecordCount)
+      .invoke("text")
+      .should("match", new RegExp(`^${count}\\b`));
+  }
 }
 
 export { Response };

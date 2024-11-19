@@ -1150,7 +1150,6 @@ export class DataSources {
         BottomPane.response.getResponseTypeSelector("RAW"),
       );
     }
-    BottomPane.response.validateRecordCount(expectedRecordsCount);
   }
 
   public runQueryAndVerifyResponseViews(
@@ -1173,6 +1172,7 @@ export class DataSources {
 
       BottomPane.response.closeResponseTypeMenu();
     }
+
     BottomPane.response.validateRecordCount(expectedRecordsCount);
   }
 

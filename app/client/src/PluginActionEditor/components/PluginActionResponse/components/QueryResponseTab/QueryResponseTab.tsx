@@ -408,6 +408,7 @@ export const QueryResponseTab = (props: Props) => {
                   </Styled.StatusBarText>
                   <Styled.StatusBarText
                     $hasTooltip
+                    data-testid="t--query-response-record-count"
                     kind="code"
                   >{`${output.length} record${output.length > 1 ? "s" : ""}`}</Styled.StatusBarText>
                 </Styled.StatusBarInfo>
