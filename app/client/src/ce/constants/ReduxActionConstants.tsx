@@ -349,8 +349,6 @@ const SnippingModeActionTypes = {
 };
 
 const UserAuthActionTypes = {
-  CREATE_USER_INIT: "CREATE_USER_INIT",
-  CREATE_USER_SUCCESS: "CREATE_USER_SUCCESS",
   RESET_USER_PASSWORD_INIT: "RESET_USER_PASSWORD_INIT",
   RESET_USER_PASSWORD_SUCCESS: "RESET_USER_PASSWORD_SUCCESS",
   FORGOT_PASSWORD_INIT: "FORGOT_PASSWORD_INIT",
@@ -370,7 +368,6 @@ const UserAuthActionTypes = {
   GET_OAUTH_ACCESS_TOKEN_SUCCESS: "GET_OAUTH_ACCESS_TOKEN_SUCCESS",
 };
 const UserAuthActionErrorTypes = {
-  CREATE_USER_ERROR: "CREATE_USER_ERROR",
   RESET_USER_PASSWORD_ERROR: "RESET_USER_PASSWORD_ERROR",
   FORGOT_PASSWORD_ERROR: "FORGOT_PASSWORD_ERROR",
   RESET_PASSWORD_VERIFY_TOKEN_ERROR: "RESET_PASSWORD_VERIFY_TOKEN_ERROR",
@@ -500,6 +497,7 @@ const IDEActionTypes = {
   CLOSE_QUERY_ACTION_TAB_SUCCESS: "CLOSE_QUERY_ACTION_TAB_SUCCESS",
   SET_IS_LIST_VIEW_ACTIVE: "SET_IS_LIST_VIEW_ACTIVE",
   OPEN_PLUGIN_ACTION_SETTINGS: "OPEN_PLUGIN_ACTION_SETTINGS",
+  SET_RENAME_ENTITY: "SET_RENAME_ENTITY",
 };
 
 const IDEActionErrorTypes = {
@@ -1072,6 +1070,17 @@ const CurlImportActionErrorTypes = {
   SUBMIT_CURL_FORM_ERROR: "SUBMIT_CURL_FORM_ERROR",
 };
 
+const GeneratePageActionTypes = {
+  SET_GENERATE_PAGE_MODAL_OPEN: "SET_GENERATE_PAGE_MODAL_OPEN",
+  SET_GENERATE_PAGE_MODAL_CLOSE: "SET_GENERATE_PAGE_MODAL_CLOSE",
+  SUBMIT_GENERATE_PAGE_FORM_INIT: "SUBMIT_GENERATE_PAGE_FORM_INIT",
+  SUBMIT_GENERATE_PAGE_FORM_SUCCESS: "SUBMIT_GENERATE_PAGE_FORM_SUCCESS",
+};
+
+const GeneratePageActionErrorTypes = {
+  SUBMIT_GENERATE_PAGE_FORM_ERROR: "SUBMIT_GENERATE_PAGE_FORM_ERROR",
+};
+
 const BatchUpdateActionTypes = {
   BATCHED_UPDATE: "BATCHED_UPDATE",
   EXECUTE_BATCH: "EXECUTE_BATCH",
@@ -1278,12 +1287,13 @@ export const ReduxActionTypes = {
   ...AppSettingsActionTypes,
   ...BatchUpdateActionTypes,
   ...BuildingBlocksActionTypes,
-  ...DatasourceEditorActionTypes,
   ...CurlImportActionTypes,
+  ...DatasourceEditorActionTypes,
   ...ErrorManagementActionTypes,
   ...ExplorerActionTypes,
   ...EvaluationActionTypes,
   ...FeatureFlagActionTypes,
+  ...GeneratePageActionTypes,
   ...GitActionTypes,
   ...HelpActionTypes,
   ...IDEActionTypes,
@@ -1326,6 +1336,7 @@ export const ReduxActionErrorTypes = {
   ...DatasourceEditorActionErrorTypes,
   ...EvaluationActionErrorTypes,
   ...FeatureFlagActionErrorTypes,
+  ...GeneratePageActionErrorTypes,
   ...GitActionErrorTypes,
   ...IDEActionErrorTypes,
   ...ImportExportActionErrorTypes,

@@ -21,6 +21,7 @@ import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
 import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
 import {
+  getDatasource,
   getDatasourceStructureById,
   getPluginDatasourceComponentFromId,
 } from "ee/selectors/entitiesSelector";
@@ -41,6 +42,10 @@ const ResultsCount = styled.div`
   right: ${(props) => props.theme.spaces[17] + 1}px;
   top: 9px;
   color: var(--ads-v2-color-fg);
+`;
+
+const ErrorText = styled(Text)`
+  color: var(--ads-v2-colors-action-error-label-default-fg);
 `;
 
 interface QueryDebuggerTabsProps {
@@ -95,6 +100,10 @@ function QueryDebuggerTabs({
       state,
       currentActionConfig?.datasource?.id ?? "",
     ),
+  );
+
+  const datasource = useSelector((state) =>
+    getDatasource(state, currentActionConfig?.datasource?.id ?? ""),
   );
 
   useEffect(() => {
@@ -252,7 +261,7 @@ function QueryDebuggerTabs({
         <Schema
           currentActionId={currentActionConfig.id}
           datasourceId={currentActionConfig.datasource.id || ""}
-          datasourceName={currentActionConfig.datasource.name || ""}
+          datasourceName={datasource?.name || ""}
         />
       ),
     });
@@ -269,11 +278,15 @@ function QueryDebuggerTabs({
     >
       {output && !!output.length && (
         <ResultsCount>
-          <Text type={TextType.P3}>
+          <Text data-testid="result-text" type={TextType.P3}>
             Result:
-            <Text type={TextType.H5}>{` ${output.length} Record${
-              output.length > 1 ? "s" : ""
-            }`}</Text>
+            {actionResponse?.isExecutionSuccess ? (
+              <Text type={TextType.H5}>{` ${output.length} Record${
+                output.length > 1 ? "s" : ""
+              }`}</Text>
+            ) : (
+              <ErrorText type={TextType.H5}>{" Error"}</ErrorText>
+            )}
           </Text>
         </ResultsCount>
       )}

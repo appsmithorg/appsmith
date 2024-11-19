@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { usePluginActionContext } from "../PluginActionContext";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getHasManageActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
@@ -8,12 +8,10 @@ import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ActionUrlIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { Spinner, Text as ADSText, Tooltip, Flex } from "@appsmith/ads";
-import { usePrevious } from "@mantine/hooks";
+import { Flex } from "@appsmith/ads";
 import styled from "styled-components";
-import { useNameEditor } from "utils/hooks/useNameEditor";
-import { useBoolean, useEventCallback, useEventListener } from "usehooks-ts";
 import { noop } from "lodash";
+import { EditableName, useIsRenaming } from "IDE";
 
 export interface SaveActionNameParams {
   id: string;
@@ -30,7 +28,7 @@ export const NameWrapper = styled(Flex)`
   height: 100%;
   position: relative;
   font-size: 12px;
-  color: var(--ads-v2-colors-text-default);
+  color: var(--ads-v2-color-fg);
   cursor: pointer;
   gap: var(--ads-v2-spaces-2);
   align-items: center;
@@ -50,152 +48,46 @@ export const IconContainer = styled.div`
   }
 `;
 
-export const Text = styled(ADSText)`
-  min-width: 3ch;
-  padding: 0 var(--ads-v2-spaces-1);
-  font-weight: 500;
-`;
-
-const PluginActionNameEditor = (props: PluginActionNameEditorProps) => {
+const PluginActionNameEditor = ({
+  saveActionName,
+}: PluginActionNameEditorProps) => {
   const { action, plugin } = usePluginActionContext();
 
-  const title = action.name;
-  const previousTitle = usePrevious(title);
-  const [editableTitle, setEditableTitle] = useState(title);
-  const [validationError, setValidationError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
   const isLoading = useSelector(
-    (state) => getSavingStatusForActionName(state, action?.id || "").isSaving,
+    (state) => getSavingStatusForActionName(state, action.id).isSaving,
   );
 
-  const { handleNameSave, normalizeName, validateName } = useNameEditor({
-    entityId: action.id,
-    entityName: title,
-    nameSaveAction: props.saveActionName,
-  });
-
-  const {
-    setFalse: exitEditMode,
-    setTrue: enterEditMode,
-    value: isEditing,
-  } = useBoolean(false);
+  const { enterEditMode, exitEditMode, isEditing } = useIsRenaming(action.id);
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isChangePermitted = getHasManageActionPermission(
     isFeatureEnabled,
     action?.userPermissions,
   );
-
-  const currentTitle =
-    isEditing || isLoading || title !== editableTitle ? editableTitle : title;
   const iconUrl = getAssetUrl(plugin?.iconLocation) || "";
   const icon = ActionUrlIcon(iconUrl);
 
-  const handleKeyUp = useEventCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === "Enter") {
-        const nameError = validateName(editableTitle);
+  const handleDoubleClick = isChangePermitted ? enterEditMode : noop;
 
-        if (nameError === null) {
-          exitEditMode();
-          handleNameSave(editableTitle);
-        } else {
-          setValidationError(nameError);
-        }
-      } else if (e.key === "Escape") {
-        exitEditMode();
-        setEditableTitle(title);
-        setValidationError(null);
-      } else {
-        setValidationError(null);
-      }
+  const dispatch = useDispatch();
+
+  const handleNameSave = useCallback(
+    (name: string) => {
+      dispatch(saveActionName({ id: action.id, name }));
     },
-  );
-
-  const handleTitleChange = useEventCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setEditableTitle(normalizeName(e.target.value));
-    },
-  );
-
-  const handleEnterEditMode = useEventCallback(() => {
-    setEditableTitle(title);
-    enterEditMode();
-  });
-
-  const handleDoubleClick = isChangePermitted ? handleEnterEditMode : noop;
-
-  const inputProps = useMemo(
-    () => ({
-      onKeyUp: handleKeyUp,
-      onChange: handleTitleChange,
-      autoFocus: true,
-      style: {
-        paddingTop: 0,
-        paddingBottom: 0,
-        left: -1,
-        top: -1,
-      },
-    }),
-    [handleKeyUp, handleTitleChange],
-  );
-
-  useEventListener(
-    "focusout",
-    function handleFocusOut() {
-      if (isEditing) {
-        const nameError = validateName(editableTitle);
-
-        exitEditMode();
-
-        if (nameError === null) {
-          handleNameSave(editableTitle);
-        } else {
-          setEditableTitle(title);
-          setValidationError(null);
-        }
-      }
-    },
-    inputRef,
-  );
-
-  useEffect(
-    function syncEditableTitle() {
-      if (!isEditing && previousTitle !== title) {
-        setEditableTitle(title);
-      }
-    },
-    [title, previousTitle, isEditing],
-  );
-
-  useEffect(
-    function recaptureFocusInEventOfFocusRetention() {
-      const input = inputRef.current;
-
-      if (isEditing && input) {
-        setTimeout(() => {
-          input.focus();
-        }, 200);
-      }
-    },
-    [isEditing],
+    [action.id, saveActionName],
   );
 
   return (
     <NameWrapper onDoubleClick={handleDoubleClick}>
-      {icon && !isLoading ? <IconContainer>{icon}</IconContainer> : null}
-      {isLoading && <Spinner size="sm" />}
-
-      <Tooltip content={validationError} visible={Boolean(validationError)}>
-        <Text
-          inputProps={inputProps}
-          inputRef={inputRef}
-          isEditable={isEditing}
-          kind="body-s"
-        >
-          {currentTitle}
-        </Text>
-      </Tooltip>
+      <EditableName
+        exitEditing={exitEditMode}
+        icon={<IconContainer>{icon}</IconContainer>}
+        isEditing={isEditing}
+        isLoading={isLoading}
+        name={action.name}
+        onNameSave={handleNameSave}
+      />
     </NameWrapper>
   );
 };

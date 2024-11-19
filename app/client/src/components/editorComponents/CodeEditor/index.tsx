@@ -1710,6 +1710,7 @@ class CodeEditor extends Component<Props, State> {
               "commands-button invisible",
               !showSlashCommandButton && "!hidden",
             )}
+            isIconButton
             kind="tertiary"
             onClick={() => {
               const newValue =

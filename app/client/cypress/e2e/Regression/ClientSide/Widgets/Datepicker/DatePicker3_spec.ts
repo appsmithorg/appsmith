@@ -8,7 +8,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-import { format } from "date-fns";
+import { format } from "date-fns/format.cjs";
 import { datePickerlocators } from "../../../../../locators/WidgetLocators";
 import EditorNavigation, {
   EntityType,

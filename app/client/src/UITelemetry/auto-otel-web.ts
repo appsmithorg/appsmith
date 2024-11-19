@@ -1,40 +1,35 @@
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
 import { ZoneContextManager } from "@opentelemetry/context-zone";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { Resource } from "@opentelemetry/resources";
 import {
-  SEMRESATTRS_SERVICE_NAME,
-  SEMRESATTRS_SERVICE_VERSION,
-  SEMRESATTRS_SERVICE_INSTANCE_ID,
-} from "@opentelemetry/semantic-conventions";
+  ATTR_DEPLOYMENT_NAME,
+  ATTR_SERVICE_INSTANCE_ID,
+} from "@opentelemetry/semantic-conventions/incubating";
+import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import { getAppsmithConfigs } from "ee/configs";
-import { W3CTraceContextPropagator } from "@opentelemetry/core";
 import {
   MeterProvider,
   PeriodicExportingMetricReader,
 } from "@opentelemetry/sdk-metrics";
 import {
-  OTLPMetricExporter,
   AggregationTemporalityPreference,
+  OTLPMetricExporter,
 } from "@opentelemetry/exporter-metrics-otlp-http";
-import type { Context, TextMapSetter } from "@opentelemetry/api";
 import { metrics } from "@opentelemetry/api";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import { PageLoadInstrumentation } from "./PageLoadInstrumentation";
+import { getWebAutoInstrumentations } from "@opentelemetry/auto-instrumentations-web";
 
 enum CompressionAlgorithm {
   NONE = "none",
   GZIP = "gzip",
 }
-const { newRelic } = getAppsmithConfigs();
-const {
-  applicationId,
-  browserAgentEndpoint,
-  otlpEndpoint,
-  otlpLicenseKey,
-  otlpServiceName,
-} = newRelic;
+const { newRelic, observability } = getAppsmithConfigs();
+const { browserAgentEndpoint, otlpLicenseKey } = newRelic;
+
+const { deploymentName, serviceInstanceId, serviceName } = observability;
 
 // This base domain is used to filter out the Smartlook requests from the browser agent
 // There are some requests made to subdomains of smartlook.cloud which will also be filtered out
@@ -42,14 +37,14 @@ const smartlookBaseDomain = "smartlook.cloud";
 
 const tracerProvider = new WebTracerProvider({
   resource: new Resource({
-    [SEMRESATTRS_SERVICE_NAME]: otlpServiceName,
-    [SEMRESATTRS_SERVICE_INSTANCE_ID]: applicationId,
-    [SEMRESATTRS_SERVICE_VERSION]: "1.0.0",
+    [ATTR_DEPLOYMENT_NAME]: deploymentName,
+    [ATTR_SERVICE_INSTANCE_ID]: serviceInstanceId,
+    [ATTR_SERVICE_NAME]: serviceName,
   }),
 });
 
 const nrTracesExporter = new OTLPTraceExporter({
-  url: `${otlpEndpoint}/v1/traces`,
+  url: addPathToCurrentUrl("/monitoring/traces"),
   compression: CompressionAlgorithm.GZIP,
   headers: {
     "api-key": otlpLicenseKey,
@@ -71,38 +66,15 @@ const processor = new BatchSpanProcessor(
   },
 );
 
-const W3C_OTLP_TRACE_HEADER = "traceparent";
-const CUSTOM_OTLP_TRACE_HEADER = "traceparent-otlp";
-
-//We are overriding the default header "traceparent" used for trace context because the browser
-// agent shares the same header's distributed tracing
-class CustomW3CTraceContextPropagator extends W3CTraceContextPropagator {
-  inject(
-    context: Context,
-    carrier: Record<string, unknown>,
-    setter: TextMapSetter,
-  ) {
-    // Call the original inject method to get the default traceparent header
-    super.inject(context, carrier, setter);
-
-    // Modify the carrier to use a different header
-    if (carrier[W3C_OTLP_TRACE_HEADER]) {
-      carrier[CUSTOM_OTLP_TRACE_HEADER] = carrier[W3C_OTLP_TRACE_HEADER];
-      delete carrier[W3C_OTLP_TRACE_HEADER]; // Remove the original traceparent header
-    }
-  }
-}
-
 tracerProvider.addSpanProcessor(processor);
 tracerProvider.register({
   contextManager: new ZoneContextManager(),
-  propagator: new CustomW3CTraceContextPropagator(),
 });
 
 const nrMetricsExporter = new OTLPMetricExporter({
   compression: CompressionAlgorithm.GZIP,
   temporalityPreference: AggregationTemporalityPreference.DELTA,
-  url: `${otlpEndpoint}/v1/metrics`,
+  url: addPathToCurrentUrl("/monitoring/metrics"),
   headers: {
     "api-key": otlpLicenseKey,
   },
@@ -110,9 +82,9 @@ const nrMetricsExporter = new OTLPMetricExporter({
 
 const meterProvider = new MeterProvider({
   resource: new Resource({
-    [SEMRESATTRS_SERVICE_NAME]: otlpServiceName,
-    [SEMRESATTRS_SERVICE_INSTANCE_ID]: applicationId,
-    [SEMRESATTRS_SERVICE_VERSION]: "1.0.0",
+    [ATTR_DEPLOYMENT_NAME]: deploymentName,
+    [ATTR_SERVICE_INSTANCE_ID]: serviceInstanceId,
+    [ATTR_SERVICE_NAME]: serviceName,
   }),
   readers: [
     new PeriodicExportingMetricReader({
@@ -132,9 +104,26 @@ registerInstrumentations({
     new PageLoadInstrumentation({
       ignoreResourceUrls: [
         browserAgentEndpoint,
-        otlpEndpoint,
+        addPathToCurrentUrl("/monitoring/traces"),
+        addPathToCurrentUrl("/monitoring/metrics"),
         smartlookBaseDomain,
       ],
     }),
+    getWebAutoInstrumentations({
+      "@opentelemetry/instrumentation-xml-http-request": {
+        enabled: true,
+      },
+    }),
   ],
 });
+
+// Replaces the pathname of the current URL with the provided path.
+function addPathToCurrentUrl(path: string) {
+  const origin = window.location.origin;
+
+  const currentUrl = new URL(origin);
+
+  currentUrl.pathname = path.startsWith("/") ? path : `/${path}`;
+
+  return currentUrl.toString();
+}
