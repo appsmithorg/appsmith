@@ -1,6 +1,7 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.server.configurations.ProjectProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,11 @@ public class ResponseMetaDTO {
     private boolean success = true;
 
     private ErrorDTO error;
+
+    /**
+     * Include server version all responses sent to the client.
+     */
+    private final String version = ProjectProperties.getVersion();
 
     public ResponseMetaDTO(int status, String message, boolean success) {
         this.status = status;
