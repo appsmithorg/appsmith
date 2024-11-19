@@ -1045,6 +1045,10 @@ public class ActionCollectionServiceTest {
                             .forEach(action -> assertNull(action.getErrorReports(), "Error reports should be null"));
 
                     ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = tuple.getT2();
+                    log.debug("\n\n\n-----consolidatedAPIResponseDTO :\n\n\n"
+                            + consolidatedAPIResponseDTO
+                                    .getPageWithMigratedDsl()
+                                    .toString() + "\n\n\n");
                     List<Set<DslExecutableDTO>> layoutOnLoadActions = consolidatedAPIResponseDTO
                             .getPageWithMigratedDsl()
                             .getData()
