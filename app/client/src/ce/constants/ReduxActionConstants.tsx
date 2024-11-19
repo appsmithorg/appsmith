@@ -1070,6 +1070,17 @@ const CurlImportActionErrorTypes = {
   SUBMIT_CURL_FORM_ERROR: "SUBMIT_CURL_FORM_ERROR",
 };
 
+const GeneratePageActionTypes = {
+  SET_GENERATE_PAGE_MODAL_OPEN: "SET_GENERATE_PAGE_MODAL_OPEN",
+  SET_GENERATE_PAGE_MODAL_CLOSE: "SET_GENERATE_PAGE_MODAL_CLOSE",
+  SUBMIT_GENERATE_PAGE_FORM_INIT: "SUBMIT_GENERATE_PAGE_FORM_INIT",
+  SUBMIT_GENERATE_PAGE_FORM_SUCCESS: "SUBMIT_GENERATE_PAGE_FORM_SUCCESS",
+};
+
+const GeneratePageActionErrorTypes = {
+  SUBMIT_GENERATE_PAGE_FORM_ERROR: "SUBMIT_GENERATE_PAGE_FORM_ERROR",
+};
+
 const BatchUpdateActionTypes = {
   BATCHED_UPDATE: "BATCHED_UPDATE",
   EXECUTE_BATCH: "EXECUTE_BATCH",
@@ -1276,12 +1287,13 @@ export const ReduxActionTypes = {
   ...AppSettingsActionTypes,
   ...BatchUpdateActionTypes,
   ...BuildingBlocksActionTypes,
-  ...DatasourceEditorActionTypes,
   ...CurlImportActionTypes,
+  ...DatasourceEditorActionTypes,
   ...ErrorManagementActionTypes,
   ...ExplorerActionTypes,
   ...EvaluationActionTypes,
   ...FeatureFlagActionTypes,
+  ...GeneratePageActionTypes,
   ...GitActionTypes,
   ...HelpActionTypes,
   ...IDEActionTypes,
@@ -1324,6 +1336,7 @@ export const ReduxActionErrorTypes = {
   ...DatasourceEditorActionErrorTypes,
   ...EvaluationActionErrorTypes,
   ...FeatureFlagActionErrorTypes,
+  ...GeneratePageActionErrorTypes,
   ...GitActionErrorTypes,
   ...IDEActionErrorTypes,
   ...ImportExportActionErrorTypes,
