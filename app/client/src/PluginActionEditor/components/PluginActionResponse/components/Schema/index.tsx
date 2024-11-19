@@ -15,7 +15,7 @@ import { datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { getPluginActionDebuggerState } from "PluginActionEditor/store";
 import { StatusDisplay } from "./StatusDisplay";
-import { DatasourceSelector } from "./DatasourceSelector";
+import DatasourceSelector from "./DatasourceSelector";
 import { SchemaTables } from "./SchemaTables";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";

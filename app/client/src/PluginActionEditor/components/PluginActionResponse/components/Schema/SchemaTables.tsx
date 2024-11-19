@@ -5,7 +5,7 @@ import {
 } from "entities/Datasource";
 import { DatasourceStructureContainer as DatasourceStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import React, { useCallback } from "react";
-import { DatasourceSelector } from "./DatasourceSelector";
+import DatasourceSelector from "./DatasourceSelector";
 import { refreshDatasourceStructure } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";

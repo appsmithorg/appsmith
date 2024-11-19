@@ -1,22 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import {
-  Button,
-  Flex,
-  Icon,
-  Menu,
-  MenuContent,
-  MenuGroup,
-  MenuGroupName,
-  MenuItem,
-  MenuTrigger,
-  Text,
-} from "@appsmith/ads";
-import {
-  CREATE_NEW_DATASOURCE,
-  createMessage,
-  DATASOURCE_SWITCHER_MENU_GROUP_NAME,
-} from "ee/constants/messages";
+import { Flex } from "@appsmith/ads";
+import { CREATE_NEW_DATASOURCE, createMessage } from "ee/constants/messages";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import {
@@ -36,26 +21,29 @@ import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors"
 import { CurrentDataSource } from "./CurrentDataSource";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { INTEGRATION_TABS } from "constants/routes";
-import { getAssetUrl } from "ee/utils/airgapHelpers";
-import { change } from "redux-form";
-import { useDispatch } from "react-redux";
 import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import { useDataSourceNavigation } from "ee/PluginActionEditor/hooks/useDataSourceNavigation";
+import MenuField from "components/editorComponents/form/fields/MenuField";
+import type { InjectedFormProps } from "redux-form";
+import { reduxForm } from "redux-form";
+import type { Action } from "entities/Action";
 
-interface Props {
+interface CustomProps {
   datasourceId: string;
   datasourceName: string;
 }
 
+type Props = InjectedFormProps<Action, CustomProps> & CustomProps;
+
 interface DATASOURCES_OPTIONS_TYPE {
   label: string;
   value: string;
-  image: string;
+  image?: string;
+  icon?: string;
+  onSelect?: (value: string) => void;
 }
 
 const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
-  const dispatch = useDispatch();
-  const [open, setIsOpen] = React.useState(false);
   const activeActionBaseId = useActiveActionBaseId();
   const currentActionConfig = useSelector((state) =>
     activeActionBaseId
@@ -103,6 +91,19 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
       [],
     );
 
+  if (canCreateDatasource) {
+    DATASOURCES_OPTIONS.push({
+      label: createMessage(CREATE_NEW_DATASOURCE),
+      value: "create",
+      icon: "plus",
+      onSelect: () =>
+        onCreateDatasourceClick(
+          INTEGRATION_TABS.NEW,
+          currentActionConfig?.pageId,
+        ),
+    });
+  }
+
   if (!showDatasourceSelector || !isChangePermitted) {
     return (
       <CurrentDataSource
@@ -113,73 +114,24 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
     );
   }
 
-  // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
-  const onOpenChange = (newOpen: boolean) => {
-    setIsOpen(newOpen);
-  };
-
-  const handleMenuSelect = (value: string) => {
-    dispatch(change(QUERY_EDITOR_FORM_NAME, "datasource.id", value));
-  };
-
   return (
     <Flex>
-      <Menu onOpenChange={onOpenChange}>
-        <MenuTrigger>
-          <Button
-            endIcon={open ? "arrow-up-s-line" : "arrow-down-s-line"}
-            kind="tertiary"
-            size="sm"
-          >
-            <CurrentDataSource
-              datasourceId={datasourceId}
-              datasourceName={datasourceName}
-              type="trigger"
-            />
-          </Button>
-        </MenuTrigger>
-        <MenuContent align="start" loop width="235px">
-          <MenuGroupName asChild>
-            <Text kind="body-s">
-              {createMessage(DATASOURCE_SWITCHER_MENU_GROUP_NAME)}
-            </Text>
-          </MenuGroupName>
-          <MenuGroup>
-            {DATASOURCES_OPTIONS.map((option) => (
-              <MenuItem
-                key={option.value}
-                onSelect={() => handleMenuSelect(option.value)}
-              >
-                <Flex alignItems={"center"} gap="spaces-2">
-                  <img
-                    alt="Datasource"
-                    className="plugin-image h-[12px] w-[12px]"
-                    src={getAssetUrl(option.image)}
-                  />
-                  {option.label}
-                </Flex>
-              </MenuItem>
-            ))}
-          </MenuGroup>
-          {canCreateDatasource && (
-            <MenuItem
-              onSelect={() =>
-                onCreateDatasourceClick(
-                  INTEGRATION_TABS.NEW,
-                  currentActionConfig?.pageId,
-                )
-              }
-            >
-              <Flex gap="spaces-2">
-                <Icon className="createIcon" name="plus" size="md" />
-                {createMessage(CREATE_NEW_DATASOURCE)}
-              </Flex>
-            </MenuItem>
-          )}
-        </MenuContent>
-      </Menu>
+      <MenuField
+        className={"t--switch-datasource"}
+        formName={QUERY_EDITOR_FORM_NAME}
+        name="datasource.id"
+        options={DATASOURCES_OPTIONS}
+      >
+        <CurrentDataSource
+          datasourceId={datasourceId}
+          datasourceName={datasourceName}
+          type="trigger"
+        />
+      </MenuField>
     </Flex>
   );
 };
 
-export { DatasourceSelector };
+export default reduxForm<Action, CustomProps>({
+  form: QUERY_EDITOR_FORM_NAME, // Unique form name
+})(DatasourceSelector);
