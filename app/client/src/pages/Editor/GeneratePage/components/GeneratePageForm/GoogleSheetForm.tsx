@@ -301,6 +301,9 @@ function GoogleSheetForm(props: Props) {
 
           <Select
             data-testid="t--sheetName-dropdown"
+            getPopupContainer={(triggerNode) =>
+              triggerNode.parentNode.parentNode
+            }
             isLoading={isFetchingSheetsList}
             onChange={(value) =>
               onSelectSheetOption(
