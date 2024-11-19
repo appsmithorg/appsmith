@@ -114,6 +114,7 @@
     "astring": "^1.7.5",
     "async-mutex": "^0.5.0",
     "axios": "^1.7.4",
+    "browserslist": "latest",
     "classnames": "^2.3.1",
     "clsx": "^1.2.1",
     "codemirror": "^5.65.13",
