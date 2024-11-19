@@ -21,7 +21,6 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
 import {
   datasourcesEditorIdURL,
-  generateTemplateFormURL,
   saasEditorDatasourceIdURL,
 } from "ee/RouteBuilder";
 import {
@@ -57,6 +56,7 @@ import {
 } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { useEditorType } from "ee/hooks";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import { openGeneratePageModal } from "../GeneratePage/store/generatePageActions";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -266,13 +266,10 @@ function DatasourceCard(props: DatasourceCardProps) {
     }
 
     AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
-    history.push(
-      generateTemplateFormURL({
-        basePageId,
-        params: {
-          datasourceId: datasource.id,
-          new_page: true,
-        },
+    dispatch(
+      openGeneratePageModal({
+        datasourceId: datasource.id,
+        new_page: true,
       }),
     );
   };
