@@ -11,11 +11,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.PrivateKey;
@@ -37,9 +35,8 @@ public class RedisTLSManager {
         if (tlsConfiguration == null) {
             throw new IllegalArgumentException("TLS configuration is missing");
         }
-        Boolean verifyTlsCertificate = tlsConfiguration.getVerifyTlsCertificate();
         Boolean requiresClientAuth = tlsConfiguration.getRequiresClientAuth();
-        if (verifyTlsCertificate == null || requiresClientAuth == null) {
+        if (requiresClientAuth == null) {
             throw new IllegalArgumentException("TLS configuration flags cannot be null");
         }
         SSLContext sslContext = SSLContext.getInstance("TLS");
@@ -87,41 +84,12 @@ public class RedisTLSManager {
                 keyManagerFactory.init(keyStore, null);
             }
 
-            // Handle server certificate verification
-            TrustManager[] trustManagers;
-            if (verifyTlsCertificate) {
-
-                String caCertContent =
-                        new String(tlsConfiguration.getCaCertificateFile().getDecodedContent(), StandardCharsets.UTF_8);
-
-                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-                X509Certificate caCert = (X509Certificate)
-                        certificateFactory.generateCertificate(new ByteArrayInputStream(caCertContent.getBytes()));
-
-                KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                trustStore.load(null, null);
-                trustStore.setCertificateEntry("ca-cert", caCert);
-
-                TrustManagerFactory trustManagerFactory =
-                        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                trustManagerFactory.init(trustStore);
-                trustManagers = trustManagerFactory.getTrustManagers();
-            } else {
-                trustManagers = new TrustManager[] {
-                    new X509TrustManager() {
-                        @Override
-                        public X509Certificate[] getAcceptedIssuers() {
-                            return new X509Certificate[0];
-                        }
-
-                        @Override
-                        public void checkClientTrusted(X509Certificate[] certs, String authType) {}
-
-                        @Override
-                        public void checkServerTrusted(X509Certificate[] certs, String authType) {}
-                    }
-                };
-            }
+            // Use OS trust store for server certificate verification
+            log.debug("Using OS default trust store for server certificate verification.");
+            TrustManagerFactory trustManagerFactory =
+                    TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            trustManagerFactory.init((KeyStore) null);
+            TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
 
             // Initialize SSL context with appropriate managers
             sslContext.init(

@@ -36,9 +36,6 @@ public class RedisErrorMessages extends BasePluginErrorMessages {
     ************************************************************************************************************************************************
     */
 
-    public static final String CA_CERTIFICATE_MISSING_ERROR_MSG =
-            "CA certificate is missing. Please upload the CA certificate.";
-
     public static final String TLS_CLIENT_AUTH_ENABLED_BUT_CLIENT_CERTIFICATE_MISSING_ERROR_MSG =
             "Client authentication is enabled but the client certificate is missing. Please upload the client certificate.";
 

@@ -109,9 +109,6 @@ public class RedisPluginTest {
 
         TlsConfiguration tlsConfiguration = new TlsConfiguration();
         tlsConfiguration.setTlsEnabled(true);
-        tlsConfiguration.setVerifyTlsCertificate(true);
-        tlsConfiguration.setCaCertificateFile(
-                createUploadedFile("ca-cert.crt", base64CaCert, "application/x-x509-ca-cert"));
         tlsConfiguration.setRequiresClientAuth(true);
         tlsConfiguration.setClientCertificateFile(
                 createUploadedFile("client-cert.crt", base64ClientCert, "application/x-x509-ca-cert"));
@@ -218,25 +215,10 @@ public class RedisPluginTest {
     }
 
     @Test
-    public void itShouldValidateDatasourceWithTlsEnabledAndMissingCACertificate() {
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        TlsConfiguration tlsConfiguration = new TlsConfiguration();
-        tlsConfiguration.setTlsEnabled(true);
-        tlsConfiguration.setVerifyTlsCertificate(true);
-        tlsConfiguration.setRequiresClientAuth(false);
-        datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
-
-        assertEquals(
-                Set.of(RedisErrorMessages.CA_CERTIFICATE_MISSING_ERROR_MSG),
-                pluginExecutor.validateDatasource(datasourceConfiguration));
-    }
-
-    @Test
     public void itShouldValidateDatasourceWithTlsEnabledAndMissingClientCertificate() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         TlsConfiguration tlsConfiguration = new TlsConfiguration();
         tlsConfiguration.setTlsEnabled(true);
-        tlsConfiguration.setVerifyTlsCertificate(false);
         tlsConfiguration.setRequiresClientAuth(true);
         tlsConfiguration.setClientKeyFile(new UploadedFile("client-key", "base64Key"));
         datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
@@ -250,7 +232,6 @@ public class RedisPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         TlsConfiguration tlsConfiguration = new TlsConfiguration();
         tlsConfiguration.setTlsEnabled(true);
-        tlsConfiguration.setVerifyTlsCertificate(false);
         tlsConfiguration.setRequiresClientAuth(true);
         tlsConfiguration.setClientCertificateFile(new UploadedFile("client-cert", "base64Key"));
         datasourceConfiguration.setTlsConfiguration(tlsConfiguration);
@@ -264,9 +245,7 @@ public class RedisPluginTest {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
         TlsConfiguration tlsConfiguration = new TlsConfiguration();
         tlsConfiguration.setTlsEnabled(true);
-        tlsConfiguration.setVerifyTlsCertificate(true);
         tlsConfiguration.setRequiresClientAuth(true);
-        tlsConfiguration.setCaCertificateFile(new UploadedFile("ca-cert", "base64Key"));
         tlsConfiguration.setClientCertificateFile(new UploadedFile("client-cert", "base64Key"));
         tlsConfiguration.setClientKeyFile(new UploadedFile("client-key", "base64Key"));
         datasourceConfiguration.setTlsConfiguration(tlsConfiguration);

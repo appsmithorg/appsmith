@@ -73,28 +73,6 @@
               "initialValue": false
             },
             {
-              "label": "Verify TLS Certificate",
-              "configProperty": "datasourceConfiguration.tlsConfiguration.verifyTlsCertificate",
-              "controlType": "CHECKBOX",
-              "initialValue": false,
-              "hidden": {
-                "path": "datasourceConfiguration.tlsConfiguration.tlsEnabled",
-                "comparison": "NOT_EQUALS",
-                "value": true
-              }
-            },
-            {
-              "label": "Upload CA Certificate",
-              "configProperty": "datasourceConfiguration.tlsConfiguration.caCertificateFile",
-              "controlType": "FILE_PICKER",
-              "encrypted": true,
-              "hidden": {
-                "path": "datasourceConfiguration.tlsConfiguration.tlsEnabled",
-                "comparison": "NOT_EQUALS",
-                "value": true
-              }
-            },
-            {
               "label": "Requires TLS Client Authentication",
               "configProperty": "datasourceConfiguration.tlsConfiguration.requiresClientAuth",
               "controlType": "CHECKBOX",

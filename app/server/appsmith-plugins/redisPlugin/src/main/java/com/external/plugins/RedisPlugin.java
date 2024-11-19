@@ -312,13 +312,6 @@ public class RedisPlugin extends BasePlugin {
 
             TlsConfiguration tlsConfiguration = datasourceConfiguration.getTlsConfiguration();
             if (tlsConfiguration != null && tlsConfiguration.getTlsEnabled()) {
-                // Check for CA certificate if TLS verification is enabled
-                if (tlsConfiguration.getVerifyTlsCertificate()
-                        && (tlsConfiguration.getCaCertificateFile() == null
-                                || StringUtils.isNullOrEmpty(
-                                        tlsConfiguration.getCaCertificateFile().getBase64Content()))) {
-                    invalids.add(RedisErrorMessages.CA_CERTIFICATE_MISSING_ERROR_MSG);
-                }
 
                 // Check for client certificate and key if client authentication is required
                 if (tlsConfiguration.getRequiresClientAuth()) {

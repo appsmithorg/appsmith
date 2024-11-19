@@ -20,17 +20,11 @@ public class TlsConfiguration {
     Boolean tlsEnabled;
 
     @JsonView({Views.Public.class, FromRequest.class})
-    Boolean verifyTlsCertificate;
-
-    @JsonView({Views.Public.class, FromRequest.class})
-    UploadedFile caCertificateFile;
-
-    @JsonView({Views.Public.class, FromRequest.class})
     Boolean requiresClientAuth;
 
     @JsonView({Views.Public.class, FromRequest.class})
     UploadedFile clientCertificateFile;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({FromRequest.class})
     UploadedFile clientKeyFile;
 }
