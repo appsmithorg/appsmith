@@ -1049,6 +1049,13 @@ public class ActionCollectionServiceTest {
                             + consolidatedAPIResponseDTO
                                     .getPageWithMigratedDsl()
                                     .toString() + "\n\n\n");
+
+                    log.info("\n\n\n-----consolidatedAPIResponseDTO :\n\n\n"
+                            + consolidatedAPIResponseDTO
+                                    .getPageWithMigratedDsl()
+                                    .getErrorDisplay()
+                            + "\n\n\n");
+
                     List<Set<DslExecutableDTO>> layoutOnLoadActions = consolidatedAPIResponseDTO
                             .getPageWithMigratedDsl()
                             .getData()
