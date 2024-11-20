@@ -29,16 +29,10 @@ COPY ./app/client/build editor/
 # Add RTS - Application Layer
 COPY ./app/client/packages/rts/dist rts/
 
-ENV PATH /opt/bin:/opt/appsmith/utils/node_modules/.bin:/opt/java/bin:/opt/node/bin:$PATH
+ENV PATH /opt/bin:/opt/java/bin:/opt/node/bin:$PATH
 
 RUN <<END
   set -o errexit
-
-  cd ./utils
-  npm install --only=prod
-  npm install --only=prod -g .
-  rm -rf utils/node_modules/resolve/test
-  cd -
 
   # Make all `*.sh` files executable, excluding `node_modules`.
   find . \( -name node_modules -prune \) -o \( -type f -name '*.sh' \) -exec chmod +x '{}' +
