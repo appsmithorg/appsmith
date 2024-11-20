@@ -132,7 +132,28 @@ export const WithRenderProps: Story = {
     >
       <Sidebar {...args}>
         {({ isAnimating, state }) => (
-          <Text>{isAnimating ? "Animating" : state}</Text>
+          <Flex direction="column" gap="spacing-2" padding="spacing-4">
+            <Text color="neutral-subtle" size="caption">
+              Sidebar State
+            </Text>
+            <Flex direction="column" gap="spacing-3" marginTop="spacing-2">
+              <Flex alignItems="center" gap="spacing-2">
+                <Icon
+                  name={
+                    state === "collapsed"
+                      ? "arrows-diagonal-2"
+                      : "arrows-diagonal-minimize"
+                  }
+                />
+                <Flex gap="spacing-1">
+                  <Text size="body">{state}</Text>
+                  <Text color="neutral-subtle" size="caption">
+                    {isAnimating ? "(Animating)" : ""}
+                  </Text>
+                </Flex>
+              </Flex>
+            </Flex>
+          </Flex>
         )}
       </Sidebar>
       <SidebarInset>
