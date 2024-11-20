@@ -2,7 +2,6 @@ import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import {
   Sidebar,
-  SidebarContent,
   SidebarTrigger,
   SidebarProvider,
   SidebarInset,
@@ -23,6 +22,7 @@ const meta: Meta<typeof Sidebar> = {
     },
   },
   args: {
+    title: "Sidebar",
     side: "start",
     variant: "sidebar",
   },
@@ -34,9 +34,7 @@ const meta: Meta<typeof Sidebar> = {
       }}
     >
       <Sidebar {...args}>
-        <SidebarContent>
-          <DemoContent />
-        </SidebarContent>
+        <DemoContent />
       </Sidebar>
       <Flex alignItems="start" margin="spacing-4" width="100%">
         <SidebarTrigger />
@@ -114,6 +112,28 @@ export const VariantInset: Story = {
     >
       <Sidebar {...args}>
         <DemoContent />
+      </Sidebar>
+      <SidebarInset>
+        <Flex alignItems="start" margin="spacing-4" width="100%">
+          <SidebarTrigger />
+        </Flex>
+      </SidebarInset>
+    </SidebarProvider>
+  ),
+};
+
+export const WithRenderProps: Story = {
+  render: (args) => (
+    <SidebarProvider
+      style={{
+        height: "50vh",
+        border: "1px solid var(--color-bd-elevation-1)",
+      }}
+    >
+      <Sidebar {...args}>
+        {({ isAnimating, state }) => (
+          <Text>{isAnimating ? "Animating" : state}</Text>
+        )}
       </Sidebar>
       <SidebarInset>
         <Flex alignItems="start" margin="spacing-4" width="100%">
