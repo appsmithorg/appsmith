@@ -51,7 +51,7 @@ const _SidebarContent = (
             />
           )}
         </Flex>
-        <Flex className={styles.citationSidebarContent}>{children}</Flex>
+        <div className={styles.sidebarContentInner}>{children}</div>
       </Flex>
     </div>
   );

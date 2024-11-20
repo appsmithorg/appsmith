@@ -185,6 +185,13 @@
   height: 100%;
 }
 
+.sidebarContentInner {
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+}
+
 /**
  *-----------------------------------------------------
  * SIDEBAR INSET
