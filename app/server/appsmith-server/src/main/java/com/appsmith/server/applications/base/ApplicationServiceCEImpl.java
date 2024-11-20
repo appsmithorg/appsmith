@@ -77,6 +77,7 @@ import static com.appsmith.external.constants.spans.ce.ApplicationSpanCE.APPLICA
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
+import static com.appsmith.server.constants.ce.FieldNameCE.TX_CONTEXT;
 import static com.appsmith.server.helpers.ReactorUtils.asMono;
 import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 
@@ -1085,7 +1086,7 @@ public class ApplicationServiceCEImpl
         EntityManager em = entityManagerFactory.createEntityManager();
         em.getTransaction().begin();
         Mono<Application> applicationMono = repository
-                .findById(id, applicationPermission.getEditPermission(), em)
+                .findById(id, applicationPermission.getEditPermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 //                .flatMap(obj -> {
@@ -1095,14 +1096,15 @@ public class ApplicationServiceCEImpl
                 .flatMap(obj -> {
                     Application update = new Application();
                     update.setSlug("updated_name_1");
-                    return repository.updateById(id, update, null, em);
+                    return repository.updateById(id, update, null);
                 })
                 .flatMap(obj -> {
                     Application update = new Application();
                     update.setName("updated_name");
                     // return Mono.error(new RuntimeException("Error"));
-                    return repository.updateById(id, update, null, em);
-                });
+                    return repository.updateById(id, update, null);
+                })
+                .contextWrite(ctx -> ctx.put(TX_CONTEXT, em));
 
         return applicationMono
                 .doOnSuccess(application -> {

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DatasourceStorageRepositoryCE extends BaseRepository<DatasourceStorage, String> {
-    List<DatasourceStorage> findByDatasourceId(String datasourceId);
+    List<DatasourceStorage> findByDatasourceId(String datasourceId, EntityManager entityManager);
 
-    Optional<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
+    Optional<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId, EntityManager entityManager);
 }

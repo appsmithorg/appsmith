@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface CustomJSLibRepositoryCE extends AppsmithRepository<CustomJSLib> {
-    Optional<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib);
+    Optional<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib, EntityManager entityManager);
 
-    List<CustomJSLib> findCustomJsLibsInContext(Set<CustomJSLibContextDTO> customJSLibContextDTOS);
+    List<CustomJSLib> findCustomJsLibsInContext(Set<CustomJSLibContextDTO> customJSLibContextDTOS, EntityManager entityManager);
 }

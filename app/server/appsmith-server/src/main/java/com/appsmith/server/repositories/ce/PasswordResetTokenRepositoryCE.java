@@ -7,5 +7,5 @@ import java.util.Optional;
 
 public interface PasswordResetTokenRepositoryCE extends BaseRepository<PasswordResetToken, String> {
 
-    Optional<PasswordResetToken> findByEmail(String email);
+    Optional<PasswordResetToken> findByEmail(String email, EntityManager entityManager);
 }

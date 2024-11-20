@@ -8,7 +8,7 @@ import com.appsmith.server.repositories.AppsmithRepository;
 import java.util.Optional;
 
 public interface CustomConfigRepositoryCE extends AppsmithRepository<Config> {
-    Optional<Config> findByName(String name, AclPermission permission, User currentUser);
+    Optional<Config> findByName(String name, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    Optional<Config> findByNameAsUser(String name, User user, AclPermission permission, User currentUser);
+    Optional<Config> findByNameAsUser(String name, User user, AclPermission permission, User currentUser, EntityManager entityManager);
 }

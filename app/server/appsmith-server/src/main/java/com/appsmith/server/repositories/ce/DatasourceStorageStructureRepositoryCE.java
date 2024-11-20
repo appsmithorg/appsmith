@@ -9,5 +9,5 @@ import java.util.Optional;
 public interface DatasourceStorageStructureRepositoryCE
         extends BaseRepository<DatasourceStorageStructure, String>, CustomDatasourceStorageStructureRepository {
 
-    Optional<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
+    Optional<DatasourceStorageStructure> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId, EntityManager entityManager);
 }

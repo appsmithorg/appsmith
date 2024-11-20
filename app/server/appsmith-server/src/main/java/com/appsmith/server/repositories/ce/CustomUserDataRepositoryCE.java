@@ -7,11 +7,11 @@ import java.util.Optional;
 
 public interface CustomUserDataRepositoryCE extends AppsmithRepository<UserData> {
 
-    int saveReleaseNotesViewedVersion(String userId, String version);
+    int saveReleaseNotesViewedVersion(String userId, String version, EntityManager entityManager);
 
-    Optional<Void> removeEntitiesFromRecentlyUsedList(String userId, String workspaceId);
+    Optional<Void> removeEntitiesFromRecentlyUsedList(String userId, String workspaceId, EntityManager entityManager);
 
-    Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId);
+    Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId, EntityManager entityManager);
 
-    int updateByUserId(String userId, UserData userData);
+    int updateByUserId(String userId, UserData userData, EntityManager entityManager);
 }

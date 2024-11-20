@@ -10,9 +10,9 @@ import java.util.Set;
 public interface PermissionGroupRepositoryCE
         extends BaseRepository<PermissionGroup, String>, CustomPermissionGroupRepository {
 
-    List<PermissionGroup> findAllByIdIn(Set<String> ids);
+    List<PermissionGroup> findAllByIdIn(Set<String> ids, EntityManager entityManager);
 
-    List<PermissionGroup> findByDefaultWorkspaceId(String defaultWorkspaceId);
+    List<PermissionGroup> findByDefaultWorkspaceId(String defaultWorkspaceId, EntityManager entityManager);
 
-    List<PermissionGroup> findByDefaultDomainIdAndDefaultDomainType(String defaultDomainId, String domainType);
+    List<PermissionGroup> findByDefaultDomainIdAndDefaultDomainType(String defaultDomainId, String domainType, EntityManager entityManager);
 }

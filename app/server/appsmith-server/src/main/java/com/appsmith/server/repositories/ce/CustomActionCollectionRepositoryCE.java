@@ -13,34 +13,34 @@ import java.util.Optional;
 public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<ActionCollection> {
 
     List<ActionCollection> findByApplicationId(
-            String applicationId, AclPermission permission, User currentUser, Sort sort);
+            String applicationId, AclPermission permission, User currentUser, Sort sort, EntityManager entityManager);
 
     List<ActionCollection> findByApplicationId(
-            String applicationId, Optional<AclPermission> permission, User currentUser, Optional<Sort> sort);
+            String applicationId, Optional<AclPermission> permission, User currentUser, Optional<Sort> sort, EntityManager entityManager);
 
     List<ActionCollection> findNonComposedByApplicationIdAndViewMode(
-            String applicationId, boolean viewMode, AclPermission permission, User currentUser);
+            String applicationId, boolean viewMode, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    List<ActionCollection> findByPageId(String pageId, AclPermission permission, User currentUser);
+    List<ActionCollection> findByPageId(String pageId, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    List<ActionCollection> findByPageId(String pageId);
+    List<ActionCollection> findByPageId(String pageId, EntityManager entityManager);
 
     Optional<ActionCollection> findByBranchNameAndBaseCollectionId(
-            String branchName, String baseCollectionId, AclPermission permission, User currentUser);
+            String branchName, String baseCollectionId, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission, User currentUser);
+    List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields);
+    List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields, EntityManager entityManager);
 
     List<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
-            String contextId, CreatorContextType contextType, AclPermission permission, User currentUser);
+            String contextId, CreatorContextType contextType, AclPermission permission, User currentUser, EntityManager entityManager);
 
     List<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
-            String contextId, CreatorContextType contextType, AclPermission permission, User currentUser);
+            String contextId, CreatorContextType contextType, AclPermission permission, User currentUser, EntityManager entityManager);
 
     List<ActionCollection> findByPageIdAndViewMode(
-            String pageId, boolean viewMode, AclPermission permission, User currentUser);
+            String pageId, boolean viewMode, AclPermission permission, User currentUser, EntityManager entityManager);
 
     List<ActionCollection> findAllNonComposedByPageIdAndViewMode(
-            String pageId, boolean viewMode, AclPermission permission, User currentUser);
+            String pageId, boolean viewMode, AclPermission permission, User currentUser, EntityManager entityManager);
 }

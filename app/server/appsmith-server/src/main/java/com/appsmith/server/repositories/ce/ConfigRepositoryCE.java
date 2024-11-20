@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface ConfigRepositoryCE extends BaseRepository<Config, String>, CustomConfigRepository {
 
-    Optional<Config> findByName(String name);
+    Optional<Config> findByName(String name, EntityManager entityManager);
 }

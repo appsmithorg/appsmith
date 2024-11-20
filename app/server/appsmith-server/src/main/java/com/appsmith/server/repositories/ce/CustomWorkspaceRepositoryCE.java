@@ -12,10 +12,10 @@ import java.util.Set;
 
 public interface CustomWorkspaceRepositoryCE extends AppsmithRepository<Workspace> {
 
-    Optional<Workspace> findByName(String name, AclPermission permission, User currentUser);
+    Optional<Workspace> findByName(String name, AclPermission permission, User currentUser, EntityManager entityManager);
 
     List<Workspace> findByIdsIn(
-            Set<String> workspaceIds, String tenantId, AclPermission permission, User currentUser, Sort sort);
+            Set<String> workspaceIds, String tenantId, AclPermission permission, User currentUser, Sort sort, EntityManager entityManager);
 
-    List<Workspace> findAll(AclPermission permission, User currentUser);
+    List<Workspace> findAll(AclPermission permission, User currentUser, EntityManager entityManager);
 }

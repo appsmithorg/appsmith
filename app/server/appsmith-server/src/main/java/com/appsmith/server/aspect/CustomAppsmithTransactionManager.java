@@ -11,6 +11,8 @@ import org.aspectj.lang.reflect.MethodSignature;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.TX_CONTEXT;
+
 @RequiredArgsConstructor
 @Slf4j
 @Aspect
@@ -28,10 +30,12 @@ public class CustomAppsmithTransactionManager {
 
         if (Mono.class.isAssignableFrom(returnType)) {
             return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()))
+                    .contextWrite(ctx -> ctx.put(TX_CONTEXT, entityManager))
                     .doOnSuccess(success -> entityManager.getTransaction().commit())
                     .doOnError(error -> entityManager.getTransaction().rollback());
         } else if (Flux.class.isAssignableFrom(returnType)) {
             return ((Flux<?>) joinPoint.proceed(joinPoint.getArgs()))
+                    .contextWrite(ctx -> ctx.put(TX_CONTEXT, entityManager))
                     .doOnComplete(() -> {
                         entityManager.getTransaction().commit();
                         entityManager.close();

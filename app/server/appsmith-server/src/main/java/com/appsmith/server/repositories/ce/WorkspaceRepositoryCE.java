@@ -15,9 +15,9 @@ public interface WorkspaceRepositoryCE extends BaseRepository<Workspace, String>
                     + "WHERE id = ? "
                     + "AND jsonb_path_exists(plugins, '$[*].pluginId ? (@ == $p)',  jsonb_build_object('p', ?))",
             nativeQuery = true)
-    Optional<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId);
+    Optional<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId, EntityManager entityManager);
 
-    Optional<Workspace> findByName(String name);
+    Optional<Workspace> findByName(String name, EntityManager entityManager);
 
-    Optional<Long> countByDeletedAtNull();
+    Optional<Long> countByDeletedAtNull(, EntityManager entityManager);
 }

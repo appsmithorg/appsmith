@@ -10,10 +10,10 @@ import java.util.Optional;
 
 public interface ApplicationSnapshotRepositoryCE
         extends CustomApplicationSnapshotRepositoryCE, BaseRepository<ApplicationSnapshot, String> {
-    List<ApplicationSnapshot> findByApplicationId(String applicationId);
+    List<ApplicationSnapshot> findByApplicationId(String applicationId, EntityManager entityManager);
 
     @Transactional
-    Optional<Void> deleteAllByApplicationId(String applicationId);
+    Optional<Void> deleteAllByApplicationId(String applicationId, EntityManager entityManager);
 
-    Optional<ApplicationSnapshotResponseDTO> findByApplicationIdAndChunkOrder(String applicationId, Integer chunkOrder);
+    Optional<ApplicationSnapshotResponseDTO> findByApplicationIdAndChunkOrder(String applicationId, Integer chunkOrder, EntityManager entityManager);
 }

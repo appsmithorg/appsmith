@@ -12,19 +12,19 @@ import java.util.Optional;
 @Repository
 public interface ApplicationRepositoryCE extends BaseRepository<Application, String>, CustomApplicationRepository {
 
-    Optional<Application> findByName(String name);
+    Optional<Application> findByName(String name, EntityManager entityManager);
 
-    List<Application> findByIdIn(List<String> ids);
+    List<Application> findByIdIn(List<String> ids, EntityManager entityManager);
 
-    List<Application> findByWorkspaceId(String workspaceId);
+    List<Application> findByWorkspaceId(String workspaceId, EntityManager entityManager);
 
-    Optional<Long> countByWorkspaceId(String workspaceId);
+    Optional<Long> countByWorkspaceId(String workspaceId, EntityManager entityManager);
 
-    List<IdOnly> findIdsByWorkspaceId(String workspaceId);
+    List<IdOnly> findIdsByWorkspaceId(String workspaceId, EntityManager entityManager);
 
-    List<Application> findByClonedFromApplicationId(String clonedFromApplicationId);
+    List<Application> findByClonedFromApplicationId(String clonedFromApplicationId, EntityManager entityManager);
 
-    Optional<Long> countByDeletedAtNull();
+    Optional<Long> countByDeletedAtNull(, EntityManager entityManager);
 
-    Optional<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
+    Optional<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration, EntityManager entityManager);
 }

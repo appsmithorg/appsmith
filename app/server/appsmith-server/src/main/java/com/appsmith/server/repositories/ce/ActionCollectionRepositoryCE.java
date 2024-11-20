@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ActionCollectionRepositoryCE
         extends BaseRepository<ActionCollection, String>, CustomActionCollectionRepository {
-    List<ActionCollection> findByApplicationId(String applicationId);
+    List<ActionCollection> findByApplicationId(String applicationId, EntityManager entityManager);
 
-    List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds);
+    List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds, EntityManager entityManager);
 }

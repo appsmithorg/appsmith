@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface UserDataRepositoryCE extends BaseRepository<UserData, String>, CustomUserDataRepository {
 
-    Optional<UserData> findByUserId(String userId);
+    Optional<UserData> findByUserId(String userId, EntityManager entityManager);
 
     /**
      * Fetches a list of UserData objects from DB where userId matches with the provided a list of userId.
@@ -20,5 +20,5 @@ public interface UserDataRepositoryCE extends BaseRepository<UserData, String>, 
      * @param userIds List of userId strings
      * @return Flux of UserData with only the photoAssetId and userId fields
      */
-    List<UserDataProfilePhotoProjection> findByUserIdIn(Collection<String> userIds);
+    List<UserDataProfilePhotoProjection> findByUserIdIn(Collection<String> userIds, EntityManager entityManager);
 }

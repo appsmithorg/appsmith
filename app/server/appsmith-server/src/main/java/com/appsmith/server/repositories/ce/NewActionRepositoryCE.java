@@ -15,15 +15,15 @@ import java.util.Optional;
 public interface NewActionRepositoryCE extends BaseRepository<NewAction, String>, CustomNewActionRepository {
 
     @Query(value = "SELECT a FROM NewAction a WHERE a.applicationId = :applicationId AND a.deletedAt IS NULL")
-    List<NewAction> findByApplicationId(String applicationId);
+    List<NewAction> findByApplicationId(String applicationId, EntityManager entityManager);
 
-    List<NewAction> findAllByIdIn(Collection<String> ids);
+    List<NewAction> findAllByIdIn(Collection<String> ids, EntityManager entityManager);
 
-    Optional<Long> countByDeletedAtNull();
+    Optional<Long> countByDeletedAtNull(, EntityManager entityManager);
 
-    List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds);
+    List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds, EntityManager entityManager);
 
-    List<IdAndDatasourceIdNewActionView> findIdAndDatasourceIdByApplicationIdIn(List<String> applicationIds);
+    List<IdAndDatasourceIdNewActionView> findIdAndDatasourceIdByApplicationIdIn(List<String> applicationIds, EntityManager entityManager);
 
     @Query(
             """
@@ -32,5 +32,5 @@ public interface NewActionRepositoryCE extends BaseRepository<NewAction, String>
             WHERE a.applicationId = :applicationId AND a.deletedAt IS NULL
             GROUP BY a.pluginType
         """)
-    List<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
+    List<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId, EntityManager entityManager);
 }

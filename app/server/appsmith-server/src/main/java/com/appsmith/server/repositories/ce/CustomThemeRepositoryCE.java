@@ -9,16 +9,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustomThemeRepositoryCE extends AppsmithRepository<Theme> {
-    List<Theme> getApplicationThemes(String applicationId, AclPermission permission, User currentUser);
+    List<Theme> getApplicationThemes(String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    List<Theme> getSystemThemes(AclPermission permission, User currentUser);
+    List<Theme> getSystemThemes(AclPermission permission, User currentUser, EntityManager entityManager);
 
-    Optional<Theme> getSystemThemeByName(String themeName, AclPermission permission, User currentUser);
+    Optional<Theme> getSystemThemeByName(String themeName, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    Optional<Theme> getSystemThemeByName(String themeName);
+    Optional<Theme> getSystemThemeByName(String themeName, EntityManager entityManager);
 
-    Optional<Boolean> archiveByApplicationId(String applicationId, AclPermission permission, User currentUser);
+    Optional<Boolean> archiveByApplicationId(String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
 
     Optional<Boolean> archiveDraftThemesById(
-            String editModeThemeId, String publishedModeThemeId, AclPermission permission, User currentUser);
+            String editModeThemeId, String publishedModeThemeId, AclPermission permission, User currentUser, EntityManager entityManager);
 }

@@ -10,8 +10,8 @@ import java.util.Optional;
 
 public interface CustomDatasourceRepositoryCE extends AppsmithRepository<Datasource> {
 
-    List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission, User currentUser);
+    List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager);
 
     Optional<Datasource> findByNameAndWorkspaceId(
-            String name, String workspaceId, AclPermission permission, User currentUser);
+            String name, String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager);
 }

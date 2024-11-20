@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public interface NewPageRepositoryCE extends BaseRepository<NewPage, String>, CustomNewPageRepository {
 
-    List<NewPage> findByApplicationId(String applicationId);
+    List<NewPage> findByApplicationId(String applicationId, EntityManager entityManager);
 
-    Optional<Long> countByDeletedAtNull();
+    Optional<Long> countByDeletedAtNull(, EntityManager entityManager);
 
-    List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds);
+    List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds, EntityManager entityManager);
 }

@@ -165,12 +165,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     public Optional<T> updateById(
             @NonNull String id, @NonNull T resource, AclPermission permission, User currentUser, EntityManager em) {
-        if (!em.getTransaction().isActive()) {
-            String errMessage = String.format(
-                    "Unable to locate the transaction for updating the entity with id %s and type %s",
-                    id, resource.getClass().getSimpleName());
-            throw new TransactionRequiredException(errMessage);
-        }
+//        if (!em.getTransaction().isActive()) {
+//            String errMessage = String.format(
+//                    "Unable to locate the transaction for updating the entity with id %s and type %s",
+//                    id, resource.getClass().getSimpleName());
+//            throw new TransactionRequiredException(errMessage);
+//        }
         // Set policies to null in the update object
         resource.setPolicies(null);
 

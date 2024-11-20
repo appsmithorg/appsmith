@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface CustomPluginRepositoryCE extends AppsmithRepository<Plugin> {
-    List<Plugin> findDefaultPluginIcons();
+    List<Plugin> findDefaultPluginIcons(, EntityManager entityManager);
 
-    List<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields);
+    List<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields, EntityManager entityManager);
 }

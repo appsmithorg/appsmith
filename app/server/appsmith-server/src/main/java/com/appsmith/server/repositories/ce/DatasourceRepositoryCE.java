@@ -11,11 +11,11 @@ import java.util.Set;
 
 public interface DatasourceRepositoryCE extends BaseRepository<Datasource, String>, CustomDatasourceRepository {
 
-    List<Datasource> findByIdIn(List<String> ids);
+    List<Datasource> findByIdIn(List<String> ids, EntityManager entityManager);
 
-    List<Datasource> findAllByWorkspaceId(String workspaceId);
+    List<Datasource> findAllByWorkspaceId(String workspaceId, EntityManager entityManager);
 
-    Optional<Long> countByDeletedAtNull();
+    Optional<Long> countByDeletedAtNull(, EntityManager entityManager);
 
-    List<IdPoliciesOnly> findIdsAndPolicyMapByIdIn(Set<String> datasourceIds);
+    List<IdPoliciesOnly> findIdsAndPolicyMapByIdIn(Set<String> datasourceIds, EntityManager entityManager);
 }

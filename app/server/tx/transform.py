@@ -24,8 +24,8 @@ MONO_WRAPPER_NON_OPTIONAL = (
     SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s)"
 )
 FLUX_WRAPPER = "asFlux(() -> %s)"
-FLUX_WRAPPER_WITH_USER_CONTEXT = "ReactiveContextUtils.getCurrentUser().flatMapMany(currentUser -> %s)"
-MONO_WRAPPER_WITH_USER_CONTEXT = "ReactiveContextUtils.getCurrentUser().flatMap(currentUser -> %s)"
+FLUX_WRAPPER_WITH_USER_CONTEXT = "ReactiveContextUtils.getCurrentUser().zipWith(Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))).flatMapMany(tuple2 -> %s)"
+MONO_WRAPPER_WITH_USER_CONTEXT = "ReactiveContextUtils.getCurrentUser().zipWith(Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))).flatMap(tuple2 -> %s)"
 
 
 def apply(p, tx):
@@ -133,6 +133,18 @@ def add_user_arg(domain):
         # Remove duplicate User currentUser arguments
         regex = r"User\s+currentUser,\s*User\s+currentUser"
         subst = "User currentUser"
+        content = re.sub(regex, subst, content)
+        update_file(full_path, content)
+
+def add_entity_manager_arg(domain):
+    for full_path in chain(repo_interfaces(domain), repo_classes(domain)):
+        content = (
+            read_file(full_path)
+            .replace(");", ", EntityManager entityManager);")
+        )
+        # Remove duplicate User currentUser arguments
+        regex = r"EntityManager\s+entityManager,\s*EntityManager\s+entityManager"
+        subst = "EntityManager entityManager"
         content = re.sub(regex, subst, content)
         update_file(full_path, content)
 
@@ -287,16 +299,19 @@ def generate_cake_class(domain):
     import java.util.Optional;
     import java.util.Set;
 
+    import static com.appsmith.server.constants.FieldName.TX_CONTEXT;
     import static com.appsmith.server.helpers.ReactorUtils.asFlux;
     import static com.appsmith.server.helpers.ReactorUtils.asMono;
 
     @Component
     public class {domain}RepositoryCake extends BaseCake<{domain}, {domain}Repository> {{
         private final {domain}Repository repository;
+        private final EntityManager entityManager;
 
-        public {domain}RepositoryCake({domain}Repository repository) {{
+        public {domain}RepositoryCake({domain}Repository repository, EntityManager entityManager) {{
             super(repository, {domain}.class);
             this.repository = repository;
+            this.entityManager = entityManager;
         }}
 
         {f"public QueryAllParams<{domain}> queryBuilder() {{ return repository.queryBuilder(); }}"
@@ -403,6 +418,7 @@ def convert(domain):
     to_entity(domain)
     # switch_repo_types(domain)
     add_user_arg(domain)
+    add_entity_manager_arg(domain)
     generate_cake_class(domain)
     # use_cake(domain)  # Commenting this out since we want both cake and repo to co-exist now.
 

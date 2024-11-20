@@ -6,5 +6,5 @@ import com.appsmith.server.repositories.BaseRepository;
 import java.util.Optional;
 
 public interface EmailVerificationTokenRepositoryCE extends BaseRepository<EmailVerificationToken, String> {
-    Optional<EmailVerificationToken> findByEmail(String email);
+    Optional<EmailVerificationToken> findByEmail(String email, EntityManager entityManager);
 }
