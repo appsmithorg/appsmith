@@ -137,10 +137,20 @@ def add_user_arg(domain):
         update_file(full_path, content)
 
 def add_entity_manager_arg(domain):
-    for full_path in chain(repo_interfaces(domain), repo_classes(domain)):
+    for full_path in chain(repo_interfaces(domain)):
         content = (
             read_file(full_path)
             .replace(");", ", EntityManager entityManager);")
+        )
+        # Remove duplicate User currentUser arguments
+        regex = r"EntityManager\s+entityManager,\s*EntityManager\s+entityManager"
+        subst = "EntityManager entityManager"
+        content = re.sub(regex, subst, content)
+        update_file(full_path, content)
+    for full_path in chain(repo_classes(domain)):
+        content = (
+            read_file(full_path)
+            .replace(")", ", EntityManager entityManager)")
         )
         # Remove duplicate User currentUser arguments
         regex = r"EntityManager\s+entityManager,\s*EntityManager\s+entityManager"
