@@ -10,7 +10,7 @@ describe("cn function", () => {
   });
 
   it("should deduplicate class names", () => {
-    expect(cn("class1", "class1", "class2")).toBe("class1 class2");
+    expect(cn("w-full", "w-full", "class2")).toBe("w-full class2");
   });
 
   it("should merge Tailwind classes correctly", () => {
