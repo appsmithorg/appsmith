@@ -161,6 +161,16 @@ export const useQueryEditorRoutes = (path: string): UseRoutes => {
   const newComponents = useMemo(
     () => [
       {
+        key: "AddQuery",
+        exact: true,
+        component: () => (
+          <Suspense fallback={skeleton}>
+            <AddQuery />
+          </Suspense>
+        ),
+        path: [`${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
+      },
+      {
         key: "PluginActionEditor",
         component: () => {
           return (
@@ -179,16 +189,6 @@ export const useQueryEditorRoutes = (path: string): UseRoutes => {
           path + "/:baseQueryId",
         ],
         exact: true,
-      },
-      {
-        key: "AddQuery",
-        exact: true,
-        component: () => (
-          <Suspense fallback={skeleton}>
-            <AddQuery />
-          </Suspense>
-        ),
-        path: [`${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
       },
       {
         key: "QueryEmpty",

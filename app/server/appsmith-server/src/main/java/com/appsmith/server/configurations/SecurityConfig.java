@@ -28,6 +28,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
@@ -42,6 +43,7 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -228,8 +230,16 @@ public class SecurityConfig {
                         .authenticationFailureHandler(failureHandler)
                         .loginPage(Url.LOGIN_URL)
                         .authenticationEntryPoint(authenticationEntryPoint)
-                        .requiresAuthenticationMatcher(
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
+                        .requiresAuthenticationMatcher(exchange -> {
+                            final ServerHttpRequest request = exchange.getRequest();
+                            return HttpMethod.POST.equals(request.getMethod())
+                                            && Url.LOGIN_URL.equals(
+                                                    request.getPath().toString())
+                                            && MediaType.APPLICATION_FORM_URLENCODED.equalsTypeAndSubtype(
+                                                    request.getHeaders().getContentType())
+                                    ? ServerWebExchangeMatcher.MatchResult.match()
+                                    : ServerWebExchangeMatcher.MatchResult.notMatch();
+                        })
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler))
                 // For Github SSO Login, check transformation class: CustomOAuth2UserServiceImpl

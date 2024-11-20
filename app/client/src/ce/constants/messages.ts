@@ -752,7 +752,10 @@ export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
 export const GENERATE_PAGE_ACTION_TITLE = () => "Generate page with data";
 
-export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
+export const GENERATE_PAGE_FORM_TITLE = () =>
+  "Generate a page based on your data";
+export const GENERATE_PAGE_FORM_SUB_TITLE = () =>
+  "Use your datasource's schema to generate a simple CRUD page.";
 
 export const GEN_CRUD_SUCCESS_MESSAGE = () =>
   "Hurray! Your application is ready for use.";

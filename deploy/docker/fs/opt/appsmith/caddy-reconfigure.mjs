@@ -38,6 +38,14 @@ if (CUSTOM_DOMAIN !== "") {
 const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
   .replace(/;.*$/, "")
 
+const monitoringParts = [{
+  path: "/monitoring/traces",
+  rewrite: "/v1/traces",
+}, {
+  path: "/monitoring/metrics",
+  rewrite: "/v1/metrics",
+}];
+
 const parts = []
 
 parts.push(`
@@ -139,6 +147,20 @@ parts.push(`
     import reverse_proxy 8091
   }
 
+${
+  monitoringParts.map((telemetry) => `
+  handle ${telemetry.path} {
+    @unauthorized not header api-key "${process.env.APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY}"
+    respond @unauthorized "Forbidden" 403
+
+    @method_not_allowed not method POST
+    respond @method_not_allowed "Method Not Allowed" 405
+
+    rewrite * ${telemetry.rewrite}
+    import reverse_proxy 4318
+  }`).join("\n")
+}
+
   redir /supervisor /supervisor/
   handle_path /supervisor/* {
     import reverse_proxy 9001
@@ -146,7 +168,10 @@ parts.push(`
 
   ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {
-      key {http.request.client_ip}
+      # This key is designed to work irrespective of any load balancers running on the Appsmith container.
+      # We use "+" as the separator here since we don't expect it in any of the placeholder values here, and has no
+      # significance in header value syntax.
+      key {header.Forwarded}+{header.X-Forwarded-For}+{remote_host}
       events ${RATE_LIMIT}
       window 1s
     }
