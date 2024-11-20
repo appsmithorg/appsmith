@@ -86,6 +86,7 @@ describe(
         paste: true,
         completeReplace: true,
         toRun: false,
+        prettify: false,
         shouldCreateNewJSObj: true,
       });
 
@@ -139,6 +140,7 @@ describe(
         paste: true,
         completeReplace: true,
         toRun: false,
+        prettify: false,
         shouldCreateNewJSObj: true,
       });
 
@@ -170,17 +172,17 @@ describe(
       agHelper.GetNClick(propPane._actionSelectorPopupClose);
       agHelper.ClickButton("Submit");
       agHelper.AssertURL(thirdPartyUrl);
-      agHelper.BrowserNavigation(-1);
+      agHelper.VisitNAssert(pageTwoUrl);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
       agHelper.AssertURL(thirdPartyUrl);
-      agHelper.BrowserNavigation(-1);
-      agHelper.RefreshPage();
-      deployMode.NavigateBacktoEditor();
+      agHelper.VisitNAssert(pageTwoUrl);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
       const jsObjectBody = `export default {
           myFun1 () {
@@ -192,6 +194,7 @@ describe(
         paste: true,
         completeReplace: true,
         toRun: false,
+        prettify: false,
         shouldCreateNewJSObj: true,
       });
 
@@ -200,17 +203,17 @@ describe(
       propPane.EnterJSContext("onClick", "{{JSObject3.myFun1()}}", true, false);
       agHelper.ClickButton("Submit");
       agHelper.AssertURL(thirdPartyUrl);
-      agHelper.BrowserNavigation(-1);
+      agHelper.VisitNAssert(pageTwoUrl);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
       agHelper.AssertURL(thirdPartyUrl);
-      agHelper.BrowserNavigation(-1);
-      agHelper.RefreshPage();
-      deployMode.NavigateBacktoEditor();
+      agHelper.VisitNAssert(pageTwoUrl);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     });
 
     it("4. To verify navigation to a hidden page in same as well a new window", () => {
@@ -225,6 +228,7 @@ describe(
         pageTwoUrl = url;
       });
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", false);
       propPane.SelectPlatformFunction("onClick", "Navigate to");
       propPane.SelectActionByTitleAndValue("Navigate to", "Select page");
@@ -254,6 +258,7 @@ describe(
         paste: true,
         completeReplace: true,
         toRun: false,
+        prettify: false,
         shouldCreateNewJSObj: true,
       });
 
