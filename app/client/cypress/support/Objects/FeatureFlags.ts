@@ -42,7 +42,6 @@ export const getConsolidatedDataApi = (
       ) {
         const originalResponse = res?.body;
         const updatedResponse = produce(originalResponse, (draft: any) => {
-          console.log("request headers", req.headers);
           draft.data.responseMeta.version = req.headers["x-appsmith-version"];
           draft.data.featureFlags.data = {
             ...flags,
