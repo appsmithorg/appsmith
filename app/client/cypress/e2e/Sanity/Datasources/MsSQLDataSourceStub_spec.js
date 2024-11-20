@@ -16,9 +16,6 @@ describe(
       cy.generateUUID().then((UUID) => {
         datasourceName = `MsSQL MOCKDS ${UUID}`;
         cy.renameDatasource(datasourceName);
-        cy.intercept("POST", "/api/v1/datasources/test", {
-          fixture: "testAction.json",
-        }).as("testDatasource");
         cy.testSaveDatasource(false);
         dataSources.DeleteDatasourceFromWithinDS(datasourceName);
       });
@@ -28,9 +25,6 @@ describe(
       cy.NavigateToDatasourceEditor();
       cy.get(datasource.MsSQL).click();
       cy.fillMsSQLDatasourceForm(true);
-      cy.intercept("POST", "/api/v1/datasources/test", {
-        fixture: "testAction.json",
-      }).as("testDatasource");
       cy.testSaveDatasource(false);
       cy.get("@saveDatasource").then((httpResponse) => {
         datasourceName = JSON.stringify(

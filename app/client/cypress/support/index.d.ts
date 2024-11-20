@@ -192,8 +192,6 @@ declare namespace Cypress {
 
     SignupFromAPI(uname: string, pword: string);
 
-    startInterceptRoutesForMySQL();
-
     startInterceptRoutesForMongo();
 
     startInterceptRoutesForS3();

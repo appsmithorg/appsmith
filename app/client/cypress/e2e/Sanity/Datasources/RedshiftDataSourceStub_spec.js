@@ -2,6 +2,7 @@ const datasource = require("../../../locators/DatasourcesEditor.json");
 let datasourceName;
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
+import { DataSources } from "../../../support/Pages/DataSources";
 
 describe(
   "Redshift datasource test cases",
@@ -21,9 +22,6 @@ describe(
         datasourceName = `Redshift MOCKDS ${UUID}`;
         cy.renameDatasource(datasourceName);
       });
-      cy.intercept("POST", "/api/v1/datasources/test", {
-        fixture: "testAction.json",
-      }).as("testDatasource");
       cy.testSaveDatasource(false);
     });
 
@@ -35,9 +33,6 @@ describe(
         datasourceName = `Redshift MOCKDS ${UUID}`;
         cy.renameDatasource(datasourceName);
       });
-      cy.intercept("POST", "/api/v1/datasources/test", {
-        fixture: "testAction.json",
-      }).as("testDatasource");
       cy.testSaveDatasource(false);
       cy.deleteDatasource(datasourceName);
     });

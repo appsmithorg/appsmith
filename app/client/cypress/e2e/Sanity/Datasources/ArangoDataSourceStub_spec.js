@@ -11,9 +11,6 @@ describe(
       dataSources.CreatePlugIn("ArangoDB");
       agHelper.RenameWithInPane("ArangoWithnoTrailing", false);
       cy.fillArangoDBDatasourceForm();
-      cy.intercept("POST", "/api/v1/datasources/test", {
-        fixture: "testAction.json",
-      }).as("testDatasource");
       cy.testSaveDatasource(false);
       dataSources.DeleteDatasourceFromWithinDS("ArangoWithnoTrailing");
     });
@@ -23,9 +20,6 @@ describe(
       dataSources.CreatePlugIn("ArangoDB");
       agHelper.RenameWithInPane("ArangoWithTrailing", false);
       cy.fillArangoDBDatasourceForm(true);
-      cy.intercept("POST", "/api/v1/datasources/test", {
-        fixture: "testAction.json",
-      }).as("testDatasource");
       cy.testSaveDatasource(false);
     });
 

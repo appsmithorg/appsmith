@@ -24,10 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.InvalidMediaTypeException;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
@@ -111,6 +108,9 @@ public class SecurityConfig {
 
     @Autowired
     private CustomOauth2ClientRepositoryManager oauth2ClientManager;
+
+    @Autowired
+    private ProjectProperties projectProperties;
 
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
@@ -274,10 +274,12 @@ public class SecurityConfig {
     }
 
     private Mono<Void> sanityCheckFilter(ServerWebExchange exchange, WebFilterChain chain) {
+        final HttpHeaders headers = exchange.getRequest().getHeaders();
+
         // 1. Check if the content-type is valid at all. Mostly just checks if it contains a `/`.
         MediaType contentType;
         try {
-            contentType = exchange.getRequest().getHeaders().getContentType();
+            contentType = headers.getContentType();
         } catch (InvalidMediaTypeException e) {
             return writeErrorResponse(exchange, chain, e.getMessage());
         }
@@ -288,6 +290,12 @@ public class SecurityConfig {
                 && !MediaType.APPLICATION_FORM_URLENCODED.equalsTypeAndSubtype(contentType)
                 && !MediaType.MULTIPART_FORM_DATA.equalsTypeAndSubtype(contentType)) {
             return writeErrorResponse(exchange, chain, "Unsupported Content-Type");
+        }
+
+        // 3. Check Appsmith version, if present. Not making this a mandatory check for now, but reconsider later.
+        final String versionHeaderValue = headers.getFirst("X-Appsmith-Version");
+        if (!projectProperties.getVersion().equals(versionHeaderValue)) {
+            return writeErrorResponse(exchange, chain, "Mismatched Appsmith Version");
         }
 
         return chain.filter(exchange);

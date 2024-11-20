@@ -58,6 +58,12 @@ export const apiRequestInterceptor = (config: InternalAxiosRequestConfig) => {
     addEnvironmentHeader,
     addAnonymousUserIdHeader,
     addPerformanceMonitoringHeaders,
+    (config: InternalAxiosRequestConfig) => {
+      config.headers = config.headers || {};
+      config.headers["X-Appsmith-Version"] = getAppsmithConfigs().appVersion.id;
+
+      return config;
+    },
   );
 
   return interceptorPipeline(config);

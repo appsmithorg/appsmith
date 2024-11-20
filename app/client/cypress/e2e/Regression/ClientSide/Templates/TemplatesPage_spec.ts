@@ -21,12 +21,15 @@ describe(
             method: "GET",
             url: "/api/v1/app-templates",
           },
-          {
-            statusCode: 200,
-            body: data,
+          (req) => {
+            data.responseMeta.version = req.headers["X-Appsmith-Version"];
+            req.reply({
+              statusCode: 200,
+              body: data,
+            });
           },
         ).as("fetchAllTemplates");
-        agHelper.RefreshPage(); //is important for below intercept to go thru!
+        agHelper.RefreshPage(); //is important for below intercept to go through!
         PageList.AddNewPage("Add page from template");
         agHelper.AssertElementVisibility(templates.locators._templateDialogBox);
         cy.wait("@fetchAllTemplates").then(({ request, response }) => {

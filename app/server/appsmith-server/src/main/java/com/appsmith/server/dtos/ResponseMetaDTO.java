@@ -26,7 +26,7 @@ public class ResponseMetaDTO {
     /**
      * Include server version all responses sent to the client.
      */
-    private final String version = ProjectProperties.getVersion();
+    private final String version = ProjectProperties.getInstanceVersion();
 
     public ResponseMetaDTO(int status, String message, boolean success) {
         this.status = status;

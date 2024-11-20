@@ -40,7 +40,7 @@ public class ProjectProperties {
         }
     }
 
-    public static String getVersion() {
+    public static String getInstanceVersion() {
         return instance.version;
     }
 }

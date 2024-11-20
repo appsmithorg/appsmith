@@ -23,13 +23,6 @@ describe(
   "Validate MySQL Generate CRUD with JSON Form",
   { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
-    // beforeEach(function() {
-    //   if (INTERCEPT.MYSQL) {
-    //     cy.log("MySQL DB is not found. Using intercept");
-    //     //dataSources.StartInterceptRoutesForMySQL();
-    //   } else cy.log("MySQL DB is found, hence using actual DB");
-    // });
-
     it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
       dataSources.CreateDataSource("MySql");
       cy.get("@dsName").then(($dsName) => {

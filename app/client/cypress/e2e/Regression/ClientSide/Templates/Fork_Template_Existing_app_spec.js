@@ -115,19 +115,22 @@ describe(
             method: "GET",
             url: "/api/v1/app-templates",
           },
-          {
-            statusCode: 200,
-            body: data,
+          (req) => {
+            data.responseMeta.version = req.headers["X-Appsmith-Version"];
+            req.reply({
+              statusCode: 200,
+              body: data,
+            });
           },
         ).as("fetchAllTemplates");
-        agHelper.RefreshPage(); //is important for intercept to go thru!
+        agHelper.RefreshPage(); //is important for intercept to go through!
 
         PageList.AddNewPage("Add page from template");
 
         agHelper.AssertElementVisibility(template.templateDialogBox);
         cy.wait("@fetchAllTemplates");
-        cy.get("@fetchAllTemplates").then(({ request, response }) => {
-          // in the fixture data we are sending some tempaltes with `allowPageImport: false`
+        cy.get("@fetchAllTemplates").then(({ response }) => {
+          // in the fixture data we are sending some templates with `allowPageImport: false`
           cy.get(template.templateCard).should(
             "not.have.length",
             response.body.data.length,
