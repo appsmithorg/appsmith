@@ -407,6 +407,7 @@ public class ApplicationServiceCETest {
 
     @AfterEach
     public void cleanup() {
+        /*
         User currentUser = sessionUserService.getCurrentUser().block();
         if (currentUser == null || !currentUser.getEmail().equals("api_user")) {
             // Since no setup was done, hence no cleanup needs to happen
@@ -417,7 +418,9 @@ public class ApplicationServiceCETest {
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
-        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
+        // Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
+
+         */
     }
 
     private <T extends BaseDomain> Mono<T> getArchivedResource(String id, Class<T> domainClass) {
@@ -4535,5 +4538,27 @@ public class ApplicationServiceCETest {
                 .fetchBaseApplicationId(basePageId2Ref.get(), null)
                 .block();
         assertThat(cachedBaseAppId2).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void test() {
+        Application application = new Application();
+        application.setName("Application " + UUID.randomUUID());
+        application.setWorkspaceId(workspaceId);
+        application = applicationPageService.createApplication(application).block();
+        Mono<Application> resultMono = applicationService
+                .findSaveUpdateApp(application.getId())
+                .flatMap(app -> applicationService.findById(app.getId()))
+                .onErrorResume(e -> {
+                    log.error("Error occurred while updating application", e);
+                    return Mono.just(new Application());
+                });
+
+        StepVerifier.create(resultMono)
+                .assertNext(app -> {
+                    assertThat(app.getName()).isEqualTo("updated_name");
+                })
+                .verifyComplete();
     }
 }

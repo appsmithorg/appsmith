@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.TransactionRequiredException;
 import jakarta.persistence.Transient;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -36,6 +37,7 @@ import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.annotations.Type;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,6 +95,7 @@ import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.keyToExpression;
  * <p>
  * <a href="https://theappsmith.slack.com/archives/CPQNLFHTN/p1711966160274399">Ref Slack thread</a>.
  */
+@Slf4j
 public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> implements AppsmithRepository<T> {
 
     @Autowired
@@ -142,6 +145,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return queryBuilder().byId(id).permission(permission, currentUser).one();
     }
 
+    public Optional<T> findById(String id, AclPermission permission, User currentUser, EntityManager entityManager) {
+        return queryBuilder()
+                .byId(id)
+                .permission(permission, currentUser)
+                .entityManager(entityManager)
+                .one();
+    }
+
     public Optional<T> getById(String id) {
         return queryBuilder().byId(id).one();
     }
@@ -149,13 +160,53 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @Transactional
     @Modifying
     public Optional<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission, User currentUser) {
+        return updateById(id, resource, permission, currentUser, entityManager);
+    }
+
+    public Optional<T> updateById(
+            @NonNull String id, @NonNull T resource, AclPermission permission, User currentUser, EntityManager em) {
+        if (!em.getTransaction().isActive()) {
+            String errMessage = String.format(
+                    "Unable to locate the transaction for updating the entity with id %s and type %s",
+                    id, resource.getClass().getSimpleName());
+            throw new TransactionRequiredException(errMessage);
+        }
         // Set policies to null in the update object
         resource.setPolicies(null);
 
-        final QueryAllParams<T> q = queryBuilder().byId(id).permission(permission, currentUser);
+        final QueryAllParams<T> q =
+                queryBuilder().byId(id).permission(permission, currentUser).entityManager(em);
 
         q.updateFirst(buildUpdateFromSparseResource(resource));
 
+        try {
+            // Detach the entity from the custom entity manager to avoid any side effects of the entity being managed.
+            // With the custom entity manager which is being used for the transaction, the update op is not altering
+            // the existing managed entity and hence the downstream still gets the non-updated entity. We need to
+            // detach the existing entity first and fetch again to get the updated entity.
+            //
+            // e.g.
+            // This doesn't work:
+            // 1. Fetch entity with id=1
+            // 2. Update entity with id=1
+            // 3. Fetch entity with id=1 again
+            // The entity fetched in step 3 will not have the updated values.
+            //
+            // This works:
+            // 1. Fetch entity with id=1
+            // 2. Update entity with id=1
+            // 3. Detach entity fetched in step 1
+            // 4. Fetch entity with id=1 again
+            // The entity fetched in step 4 will have the updated values.
+            if (em != entityManager) {
+                // In case the entity is not managed by the entity manager we are making an extra DB call
+                // TODO(Abhijeet): Detach the entity only if it is managed by the entity manager to avoid the extra DB
+                //  call
+                em.detach(q.one().orElse(null));
+            }
+        } catch (Exception e) {
+            log.error("Exception during entity detach: ", e);
+        }
         return q.one();
     }
 
@@ -344,8 +395,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     if (params.getPermission() != null && permissionGroups.isEmpty()) {
                         return Mono.empty();
                     }
-
-                    final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+                    EntityManager em = params.getEntityManager() == null ? entityManager : params.getEntityManager();
+                    final CriteriaBuilder cb = em.getCriteriaBuilder();
                     CriteriaQuery<?> cq = cb.createQuery(projectionClass);
                     // We are creating the query with generic return type as Object[] and then mapping it to the
                     // projection class using the constructor. This is required because Hibernate can't associate the
@@ -378,7 +429,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         cq.multiselect(projectionFields);
                     }
 
-                    return Mono.fromSupplier(entityManager.createQuery(cq)::getSingleResult)
+                    return Mono.fromSupplier(em.createQuery(cq)::getSingleResult)
                             .map(row -> {
                                 if (genericDomain.getSimpleName().equals(projectionClass.getSimpleName())) {
                                     return (P) row;
@@ -509,7 +560,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             permissionGroups = new ArrayList<>(permissionGroupsSet);
         }
 
-        final EntityManager em = getEntityManager();
+        final EntityManager em = params.getEntityManager() == null ? getEntityManager() : params.getEntityManager();
 
         final CriteriaBuilder cb = em.getCriteriaBuilder();
         final CriteriaQuery<T> cq = cb.createQuery(genericDomain);

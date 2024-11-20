@@ -6,6 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
+import jakarta.persistence.EntityManager;
 import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.data.domain.Sort;
@@ -35,6 +36,7 @@ public class QueryAllParams<T extends BaseDomain> {
     private int limit = NO_RECORD_LIMIT;
     private int skip = NO_SKIP;
     private User user;
+    private EntityManager entityManager;
 
     /**
      * When this flag is true, permission checks will include the affects of anonymous user permissions. This is the
@@ -155,6 +157,11 @@ public class QueryAllParams<T extends BaseDomain> {
 
     public QueryAllParams<T> includeAnonymousUserPermissions(boolean value) {
         includeAnonymousUserPermissions = value;
+        return this;
+    }
+
+    public QueryAllParams<T> entityManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
         return this;
     }
 

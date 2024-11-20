@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
+import jakarta.persistence.EntityManager;
 
 import java.util.Collection;
 import java.util.List;
@@ -13,6 +14,8 @@ import java.util.Optional;
 public interface AppsmithRepository<T extends BaseDomain> {
 
     Optional<T> findById(String id, AclPermission permission, User currentUser);
+
+    Optional<T> findById(String id, AclPermission permission, User currentUser, EntityManager em);
 
     /**
      * This method is used to find a domain by its ID without checking for permissions. This method should be used
@@ -23,6 +26,8 @@ public interface AppsmithRepository<T extends BaseDomain> {
     Optional<T> getById(String id);
 
     Optional<T> updateById(String id, T resource, AclPermission permission, User currentUser);
+
+    Optional<T> updateById(String id, T resource, AclPermission permission, User currentUser, EntityManager em);
 
     int updateByIdWithoutPermissionCheck(String id, BridgeUpdate update);
 

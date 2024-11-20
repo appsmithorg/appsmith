@@ -46,6 +46,8 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     @Autowired
     private CacheableRepositoryHelper cacheableRepositoryHelper;
 
+    protected final Class<T> genericDomain;
+
     // ---------------------------------------------------
     // Wrappers for methods from BaseRepository
     // ---------------------------------------------------
@@ -150,28 +152,34 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     }
 
     public Mono<T> findById(String id, AclPermission permission) {
+        return findById(id, permission, entityManager);
+    }
+
+    public Mono<T> findById(String id, AclPermission permission, EntityManager em) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
                 .flatMap(this::getAllPermissionGroupsForUser)
                 .map(ArrayList::new)
                 .map(permissionGroups -> {
-                    final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-                    final CriteriaQuery<BaseDomain> cq = cb.createQuery(BaseDomain.class);
-                    final Root<BaseDomain> root = cq.from(BaseDomain.class);
+                    final CriteriaBuilder cb = em.getCriteriaBuilder();
+                    final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
+                    final Root<T> root = cq.from(genericDomain);
 
-                    cq.where(cb.and(
-                            cb.equal(root.get(FieldName.ID), id),
-                            cb.function(
-                                    "jsonb_exists_any",
-                                    Boolean.class,
-                                    cb.function(
-                                            "jsonb_extract_path",
-                                            String.class,
-                                            root.get(BaseDomain.Fields.policyMap),
-                                            cb.literal(permission.getValue()),
-                                            cb.literal(PERMISSION_GROUPS)),
-                                    cb.literal(permissionGroups.toArray(new String[0])))));
-                    return (T) entityManager.createQuery(cq).getSingleResult();
+                    if (permission != null) {
+                        cq.where(cb.and(
+                                cb.equal(root.get(FieldName.ID), id),
+                                cb.function(
+                                        "jsonb_exists_any",
+                                        Boolean.class,
+                                        cb.function(
+                                                "jsonb_extract_path",
+                                                String.class,
+                                                root.get(BaseDomain.Fields.policyMap),
+                                                cb.literal(permission.getValue()),
+                                                cb.literal(PERMISSION_GROUPS)),
+                                        cb.literal(permissionGroups.toArray(new String[0])))));
+                    }
+                    return em.createQuery(cq).getSingleResult();
                 })
                 .subscribeOn(Schedulers.boundedElastic());
     }

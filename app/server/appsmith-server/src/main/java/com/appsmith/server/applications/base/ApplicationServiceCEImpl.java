@@ -1,9 +1,11 @@
 package com.appsmith.server.applications.base;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.constants.TransactionPropagation;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.annotations.CustomAppsmithTransaction;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
@@ -46,6 +48,8 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -58,6 +62,7 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.sql.DataSource;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,6 +98,8 @@ public class ApplicationServiceCEImpl
     private final WorkspaceService workspaceService;
     private final WorkspacePermission workspacePermission;
     private final ObservationRegistry observationRegistry;
+    private final DataSource dataSource;
+    private final EntityManagerFactory entityManagerFactory;
 
     private static final Integer MAX_RETRIES = 5;
 
@@ -112,7 +119,9 @@ public class ApplicationServiceCEImpl
             UserDataService userDataService,
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            DataSource dataSource,
+            EntityManagerFactory entityManagerFactory) {
 
         super(validator, repositoryDirect, repository, analyticsService);
         this.policySolution = policySolution;
@@ -126,6 +135,8 @@ public class ApplicationServiceCEImpl
         this.workspaceService = workspaceService;
         this.workspacePermission = workspacePermission;
         this.observationRegistry = observationRegistry;
+        this.dataSource = dataSource;
+        this.entityManagerFactory = entityManagerFactory;
     }
 
     @Override
@@ -1066,5 +1077,52 @@ public class ApplicationServiceCEImpl
                 .tap(Micrometer.observation(observationRegistry))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)));
+    }
+
+    @Override
+    @CustomAppsmithTransaction(propagation = TransactionPropagation.REQUIRED)
+    public Mono<Application> findSaveUpdateApp(String id) {
+        EntityManager em = entityManagerFactory.createEntityManager();
+        em.getTransaction().begin();
+        Mono<Application> applicationMono = repository
+                .findById(id, applicationPermission.getEditPermission(), em)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+                //                .flatMap(obj -> {
+                //                    obj.setSlug("updated_name_1");
+                //                    return repository.save(obj, em);
+                //                })
+                .flatMap(obj -> {
+                    Application update = new Application();
+                    update.setSlug("updated_name_1");
+                    return repository.updateById(id, update, null, em);
+                })
+                .flatMap(obj -> {
+                    Application update = new Application();
+                    update.setName("updated_name");
+                    // return Mono.error(new RuntimeException("Error"));
+                    return repository.updateById(id, update, null, em);
+                });
+
+        return applicationMono
+                .doOnSuccess(application -> {
+                    try {
+                        em.getTransaction().commit();
+                    } catch (Exception e) {
+                        log.error("Error committing transaction", e);
+                        em.getTransaction().rollback();
+                    } finally {
+                        em.close();
+                    }
+                })
+                .doOnError(throwable -> {
+                    try {
+                        em.getTransaction().rollback();
+                    } catch (Exception e) {
+                        log.error("Error rolling back transaction", e);
+                    } finally {
+                        em.close();
+                    }
+                });
     }
 }

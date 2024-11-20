@@ -36,8 +36,8 @@ import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ConsolidatedAPIService;
@@ -1440,7 +1440,7 @@ public class ConsolidatedAPIServiceImplTest {
         when(mockUserDataService.getFeatureFlagsForCurrentUser()).thenReturn(Mono.just(sampleFeatureFlagMap));
 
         when(mockUserDataService.updateLastUsedResourceAndWorkspaceList(any(), any(), any()))
-            .thenReturn(Mono.just(new UserData()));
+                .thenReturn(Mono.just(new UserData()));
 
         Tenant sampleTenant = new Tenant();
         sampleTenant.setDisplayName("sampleTenant");
@@ -1449,7 +1449,7 @@ public class ConsolidatedAPIServiceImplTest {
         ProductAlertResponseDTO sampleProductAlertResponseDTO = new ProductAlertResponseDTO();
         sampleProductAlertResponseDTO.setTitle("sampleProductAlert");
         when(mockProductAlertService.getSingleApplicableMessage())
-            .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
+                .thenReturn(Mono.just(List.of(sampleProductAlertResponseDTO)));
 
         final String WORKSPACE_ID = "sampleWorkspaceId";
         final String DEFAULT_APPLICATION_ID = "defaultApplicationId";
@@ -1475,12 +1475,12 @@ public class ConsolidatedAPIServiceImplTest {
 
         // caching the base application id for the test case.
         cacheableRepositoryHelper
-            .fetchBaseApplicationId(FEATURE_PAGE_ID, BASE_APPLICATION_ID)
-            .block();
+                .fetchBaseApplicationId(FEATURE_PAGE_ID, BASE_APPLICATION_ID)
+                .block();
 
         doReturn(Mono.just(baseBranchApplication))
-            .when(spyApplicationService)
-            .findByBaseIdBranchNameAndApplicationMode(eq(BASE_APPLICATION_ID), eq(null), any());
+                .when(spyApplicationService)
+                .findByBaseIdBranchNameAndApplicationMode(eq(BASE_APPLICATION_ID), eq(null), any());
 
         ApplicationPage defaultApplicationPage = new ApplicationPage();
         defaultApplicationPage.setIsDefault(true);
@@ -1499,8 +1499,8 @@ public class ConsolidatedAPIServiceImplTest {
         defaultBranchApplication.setPages(List.of(defaultApplicationPage));
 
         doReturn(Mono.just(defaultBranchApplication))
-            .when(spyApplicationService)
-            .findByBaseIdBranchNameAndApplicationMode(eq(BASE_APPLICATION_ID), eq(DEFAULT_BRANCH), any());
+                .when(spyApplicationService)
+                .findByBaseIdBranchNameAndApplicationMode(eq(BASE_APPLICATION_ID), eq(DEFAULT_BRANCH), any());
 
         NewPage featureBranchPage = new NewPage();
         featureBranchPage.setId(FEATURE_PAGE_ID);
@@ -1508,12 +1508,12 @@ public class ConsolidatedAPIServiceImplTest {
         featureBranchPage.setUnpublishedPage(new PageDTO());
 
         doReturn(Mono.just(featureBranchPage))
-            .when(spyNewPageService)
-            .findByBranchNameAndBasePageIdAndApplicationMode(eq(null), eq(FEATURE_PAGE_ID), any());
+                .when(spyNewPageService)
+                .findByBranchNameAndBasePageIdAndApplicationMode(eq(null), eq(FEATURE_PAGE_ID), any());
 
         doReturn(Mono.just(new PageDTO()))
-            .when(spyApplicationPageService)
-            .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
+                .when(spyApplicationPageService)
+                .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
 
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
@@ -1523,25 +1523,25 @@ public class ConsolidatedAPIServiceImplTest {
         CustomJSLib sampleCustomJSLib = new CustomJSLib();
         sampleCustomJSLib.setName("sampleJSLib");
         doReturn(Mono.just(List.of(sampleCustomJSLib)))
-            .when(spyCustomJSLibService)
-            .getAllJSLibsInContext(anyString(), any(), anyBoolean());
+                .when(spyCustomJSLibService)
+                .getAllJSLibsInContext(anyString(), any(), anyBoolean());
 
         PageDTO samplePageDTO = new PageDTO();
         samplePageDTO.setName("samplePageDTO");
         doReturn(Mono.just(samplePageDTO))
-            .doReturn(Mono.just(samplePageDTO))
-            .when(spyApplicationPageService)
-            .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
+                .doReturn(Mono.just(samplePageDTO))
+                .when(spyApplicationPageService)
+                .getPageAndMigrateDslByBranchedPageId(anyString(), anyBoolean(), anyBoolean());
 
         doReturn(Mono.just(samplePageDTO))
-            .doReturn(Mono.just(samplePageDTO))
-            .when(spyApplicationPageService)
-            .getPageDTOAfterMigratingDSL(any(), anyBoolean(), anyBoolean());
+                .doReturn(Mono.just(samplePageDTO))
+                .when(spyApplicationPageService)
+                .getPageDTOAfterMigratingDSL(any(), anyBoolean(), anyBoolean());
 
         doReturn(Mono.just(samplePageDTO))
-            .doReturn(Mono.just(samplePageDTO))
-            .when(spyApplicationPageService)
-            .getPageDTOAfterMigratingDSL(any(), anyBoolean(), anyBoolean());
+                .doReturn(Mono.just(samplePageDTO))
+                .when(spyApplicationPageService)
+                .getPageDTOAfterMigratingDSL(any(), anyBoolean(), anyBoolean());
 
         ActionDTO sampleActionDTO = new ActionDTO();
         sampleActionDTO.setName("sampleActionDTO");
@@ -1551,8 +1551,8 @@ public class ConsolidatedAPIServiceImplTest {
         ActionCollectionDTO sampleActionCollectionDTO = new ActionCollectionDTO();
         sampleActionCollectionDTO.setName("sampleActionCollectionDTO");
         doReturn(Flux.just(sampleActionCollectionDTO))
-            .when(spyActionCollectionService)
-            .getPopulatedActionCollectionsByViewMode(any(), anyBoolean());
+                .when(spyActionCollectionService)
+                .getPopulatedActionCollectionsByViewMode(any(), anyBoolean());
 
         PageNameIdDTO samplePageNameIdDTO = new PageNameIdDTO();
         samplePageNameIdDTO.setName("samplePageNameIdDTO");
@@ -1575,7 +1575,7 @@ public class ConsolidatedAPIServiceImplTest {
         sampleAiPlugin.setId("sampleAiPluginId");
         sampleAiPlugin.setPackageName(APPSMITH_AI_PLUGIN);
         when(mockPluginService.getInWorkspace(anyString()))
-            .thenReturn(Flux.just(samplePlugin, sampleRestApiPlugin, sampleGraphqlPlugin, sampleAiPlugin));
+                .thenReturn(Flux.just(samplePlugin, sampleRestApiPlugin, sampleGraphqlPlugin, sampleAiPlugin));
 
         Datasource sampleDatasource = new Datasource();
         sampleDatasource.setName("sampleDatasource");
@@ -1593,33 +1593,33 @@ public class ConsolidatedAPIServiceImplTest {
         when(mockMockDataService.getMockDataSet()).thenReturn(Mono.just(sampleMockDataDTO));
 
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
-            consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                FEATURE_PAGE_ID, null, null, ApplicationMode.PUBLISHED);
+                consolidatedAPIService.getConsolidatedInfoForPageLoad(
+                        FEATURE_PAGE_ID, null, null, ApplicationMode.PUBLISHED);
         StepVerifier.create(consolidatedInfoForPageLoad)
-            .assertNext(consolidatedAPIResponseDTO -> {
-                assertNotNull(consolidatedAPIResponseDTO);
+                .assertNext(consolidatedAPIResponseDTO -> {
+                    assertNotNull(consolidatedAPIResponseDTO);
 
-                ResponseDTO<ApplicationPagesDTO> pages = consolidatedAPIResponseDTO.getPages();
-                ResponseDTO<PageDTO> pageWithMigratedDsl = consolidatedAPIResponseDTO.getPageWithMigratedDsl();
+                    ResponseDTO<ApplicationPagesDTO> pages = consolidatedAPIResponseDTO.getPages();
+                    ResponseDTO<PageDTO> pageWithMigratedDsl = consolidatedAPIResponseDTO.getPageWithMigratedDsl();
 
-                assertNull(pages.getData());
-                assertNotNull(pages.getResponseMeta());
-                assertNotNull(pages.getResponseMeta().getError());
+                    assertNull(pages.getData());
+                    assertNotNull(pages.getResponseMeta());
+                    assertNotNull(pages.getResponseMeta().getError());
 
-                assertThat(pages.getResponseMeta().getError().getCode())
-                    .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
-                assertThat(pages.getResponseMeta().getError().getMessage())
-                    .isEqualTo("Unable to find page featurePageId, defaultBranch");
+                    assertThat(pages.getResponseMeta().getError().getCode())
+                            .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
+                    assertThat(pages.getResponseMeta().getError().getMessage())
+                            .isEqualTo("Unable to find page featurePageId, defaultBranch");
 
-                assertNull(pageWithMigratedDsl.getData());
-                assertNotNull(pageWithMigratedDsl.getResponseMeta());
-                assertNotNull(pageWithMigratedDsl.getResponseMeta().getError());
+                    assertNull(pageWithMigratedDsl.getData());
+                    assertNotNull(pageWithMigratedDsl.getResponseMeta());
+                    assertNotNull(pageWithMigratedDsl.getResponseMeta().getError());
 
-                assertThat(pageWithMigratedDsl.getResponseMeta().getError().getCode())
-                    .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
-                assertThat(pageWithMigratedDsl.getResponseMeta().getError().getMessage())
-                    .isEqualTo("Unable to find page featurePageId, defaultBranch");
-            })
-            .verifyComplete();
+                    assertThat(pageWithMigratedDsl.getResponseMeta().getError().getCode())
+                            .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
+                    assertThat(pageWithMigratedDsl.getResponseMeta().getError().getMessage())
+                            .isEqualTo("Unable to find page featurePageId, defaultBranch");
+                })
+                .verifyComplete();
     }
 }

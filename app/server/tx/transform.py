@@ -273,6 +273,7 @@ def generate_cake_class(domain):
     import com.appsmith.server.repositories.*;
     import com.appsmith.server.helpers.ReactiveContextUtils;
     import com.appsmith.server.repositories.ce.params.QueryAllParams;
+    import jakarta.persistence.EntityManager;
     import org.springframework.stereotype.Component;
     import org.springframework.data.domain.Sort;
     import reactor.core.publisher.Flux;
@@ -294,7 +295,7 @@ def generate_cake_class(domain):
         private final {domain}Repository repository;
 
         public {domain}RepositoryCake({domain}Repository repository) {{
-            super(repository);
+            super(repository, {domain}.class);
             this.repository = repository;
         }}
 
