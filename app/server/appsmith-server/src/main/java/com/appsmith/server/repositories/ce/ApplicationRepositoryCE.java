@@ -4,6 +4,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomApplicationRepository;
+import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

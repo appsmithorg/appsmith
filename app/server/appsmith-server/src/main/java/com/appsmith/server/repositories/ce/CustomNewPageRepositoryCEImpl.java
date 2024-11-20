@@ -14,6 +14,7 @@ import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micrometer.observation.ObservationRegistry;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +37,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Optional<NewPage> findById(
-            String id, AclPermission permission, User currentUser, List<String> projectedFields) {
+            String id, AclPermission permission, User currentUser, List<String> projectedFields, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.id, id))
                 .permission(permission, currentUser)
@@ -45,7 +46,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public List<NewPage> findByApplicationId(String applicationId, AclPermission permission, User currentUser) {
+    public List<NewPage> findByApplicationId(String applicationId, AclPermission permission, User currentUser, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
                 .permission(permission, currentUser)
@@ -54,7 +55,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findByApplicationId(
-            String applicationId, AclPermission permission, User currentUser, List<String> includeFields) {
+            String applicationId, AclPermission permission, User currentUser, List<String> includeFields, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
                 .permission(permission, currentUser)
@@ -64,7 +65,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findByApplicationIdAndNonDeletedEditMode(
-            String applicationId, AclPermission permission, User currentUser) {
+            String applicationId, AclPermission permission, User currentUser, EntityManager entityManager) {
         BridgeQuery<NewPage> q = Bridge.<NewPage>equal(NewPage.Fields.applicationId, applicationId)
                 // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
                 // exist. To handle this, only fetch non-deleted pages
@@ -74,7 +75,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Optional<NewPage> findByIdAndLayoutsIdAndViewMode(
-            String id, String layoutId, AclPermission permission, User currentUser, Boolean viewMode) {
+            String id, String layoutId, AclPermission permission, User currentUser, Boolean viewMode, EntityManager entityManager) {
         // TODO(Shri): Why is this method's code different from that in `release` branch.
 
         final boolean isViewMode = Boolean.TRUE.equals(viewMode);
@@ -112,7 +113,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Optional<NewPage> findByNameAndViewMode(
-            String name, AclPermission permission, User currentUser, Boolean viewMode) {
+            String name, AclPermission permission, User currentUser, Boolean viewMode, EntityManager entityManager) {
         final BridgeQuery<NewPage> q = getNameCriterion(name, viewMode);
 
         if (Boolean.FALSE.equals(viewMode)) {
@@ -126,7 +127,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Optional<NewPage> findByNameAndApplicationIdAndViewMode(
-            String name, String applicationId, Boolean viewMode, AclPermission permission, User currentUser) {
+            String name, String applicationId, Boolean viewMode, AclPermission permission, User currentUser, EntityManager entityManager) {
         BridgeQuery<NewPage> q = getNameCriterion(name, viewMode).equal(NewPage.Fields.applicationId, applicationId);
 
         if (Boolean.FALSE.equals(viewMode)) {
@@ -139,7 +140,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public List<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission permission, User currentUser) {
+    public List<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission permission, User currentUser, EntityManager entityManager) {
         List<String> includedFields = List.of(
                 NewPage.Fields.applicationId,
                 NewPage.Fields.baseId,
@@ -170,7 +171,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Optional<String> getNameByPageId(String pageId, boolean isPublishedName) {
+    public Optional<String> getNameByPageId(String pageId, boolean isPublishedName, EntityManager entityManager) {
         return queryBuilder().byId(pageId).one().map(p -> {
             PageDTO page = (isPublishedName ? p.getPublishedPage() : p.getUnpublishedPage());
             if (page != null) {
@@ -185,9 +186,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Optional<NewPage> findPageByBranchNameAndBasePageId(
             String branchName,
             String basePageId,
-            AclPermission permission,
-            User currentUser,
-            List<String> projectedFieldNames) {
+            AclPermission permission, User currentUser,
+            List<String> projectedFieldNames, EntityManager entityManager) {
 
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
@@ -210,7 +210,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     public Optional<String> findBranchedPageId(
-            String branchName, String defaultPageId, AclPermission permission, User currentUser) {
+            String branchName, String defaultPageId, AclPermission permission, User currentUser, EntityManager entityManager) {
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
                 Bridge.equal(NewPage.Fields.baseId, defaultPageId);
@@ -224,7 +224,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public List<NewPage> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields) {
+    public List<NewPage> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.in(NewPage.Fields.applicationId, applicationIds))
                 .fields(includedFields)
@@ -234,7 +234,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     @Modifying
     @Transactional
-    public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission, User currentUser) {
+    public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission, User currentUser, EntityManager entityManager) {
         int count = queryBuilder()
                 .permission(permission, currentUser)
                 .criteria(Bridge.in(NewPage.Fields.id, pageIds))
@@ -246,7 +246,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public List<NewPage> findAllByApplicationIdsWithoutPermission(
-            List<String> applicationIds, List<String> includeFields) {
+            List<String> applicationIds, List<String> includeFields, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
@@ -256,7 +256,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     @Transactional
     @Modifying
-    public Optional<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap) {
+    public Optional<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap, EntityManager entityManager) {
         final BridgeQuery<NewPage> q = Bridge.equal(NewPage.Fields.id, pageId);
 
         BridgeUpdate update = Bridge.update();

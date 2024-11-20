@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.services.SessionUserService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -23,7 +24,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     private final SessionUserService sessionUserService;
 
     @Override
-    public Optional<Workspace> findByName(String name, AclPermission permission, User currentUser) {
+    public Optional<Workspace> findByName(String name, AclPermission permission, User currentUser, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(Workspace.Fields.name, name))
                 .permission(permission, currentUser)
@@ -32,7 +33,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<Workspace> findByIdsIn(
-            Set<String> workspaceIds, String tenantId, AclPermission permission, User currentUser, Sort sort) {
+            Set<String> workspaceIds, String tenantId, AclPermission permission, User currentUser, Sort sort, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.<Workspace>in(Workspace.Fields.id, workspaceIds)
                         .equal(Workspace.Fields.tenantId, tenantId))
@@ -42,7 +43,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<Workspace> findAll(AclPermission permission, User currentUser) {
+    public List<Workspace> findAll(AclPermission permission, User currentUser, EntityManager entityManager) {
         return Flux.fromIterable(queryBuilder()
                         .criteria(Bridge.equal(Workspace.Fields.tenantId, currentUser.getTenantId()))
                         .sort(Sort.by(Sort.Order.asc(Workspace.Fields.createdAt))) // Sort by name by createdAt

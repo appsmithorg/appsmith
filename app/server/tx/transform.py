@@ -150,14 +150,18 @@ def add_entity_manager_arg(domain):
     for full_path in chain(repo_classes(domain)):
         content = (
             read_file(full_path)
-            .replace(")", ", EntityManager entityManager)")
         )
-        # Remove duplicate User currentUser arguments
+        # Append EntityManager entityManager to method arguments
+        content = re.sub(
+            r"(public\s+\S+\s+\w+\s*\([^)]*?)\)",
+            r"\1, EntityManager entityManager)",
+            content
+        )
+        # Remove duplicate EntityManager entityManager arguments
         regex = r"EntityManager\s+entityManager,\s*EntityManager\s+entityManager"
         subst = "EntityManager entityManager"
         content = re.sub(regex, subst, content)
         update_file(full_path, content)
-
 
 def replace_exact_word(text, old_word, new_word):
     # Create a regex pattern to match the exact word
@@ -254,6 +258,7 @@ def generate_cake_class(domain):
             call = re.sub(r"<[^<>]+?>", "", call)
 
         signature_wo_user_context = replace_exact_word(signature, ", User currentUser", "")
+        signature_wo_user_context = replace_exact_word(signature_wo_user_context, ", EntityManager entityManager", "")
         call = re.sub(
             # Replace type declarations, and leave the argument names.
             r"[A-Za-z.]+?\s(\w+)([,)])", r"\1\2", call

@@ -7,6 +7,7 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashSet;
@@ -17,7 +18,7 @@ import java.util.Set;
 public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User> implements CustomUserRepositoryCE {
 
     @Override
-    public Optional<User> findByEmail(String email, AclPermission permission, User currentUser) {
+    public Optional<User> findByEmail(String email, AclPermission permission, User currentUser, EntityManager entityManager) {
         BridgeQuery<User> emailCriteria = Bridge.equal(User.Fields.email, email);
         return queryBuilder()
                 .criteria(emailCriteria)
@@ -32,7 +33,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
      * @return Boolean, indicated where there exists at least one user in the system or not.
      */
     @Override
-    public Optional<Boolean> isUsersEmpty() {
+    public Optional<Boolean> isUsersEmpty(, EntityManager entityManager) {
         return Optional.of(queryBuilder()
                 .criteria(Bridge.notIn(User.Fields.email, getSystemGeneratedUserEmails()))
                 .limit(1)

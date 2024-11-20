@@ -7,6 +7,7 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Modifying;
@@ -20,7 +21,7 @@ import java.util.Optional;
 @Slf4j
 public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Theme> implements CustomThemeRepositoryCE {
     @Override
-    public List<Theme> getApplicationThemes(String applicationId, AclPermission permission, User currentUser) {
+    public List<Theme> getApplicationThemes(String applicationId, AclPermission permission, User currentUser, EntityManager entityManager) {
         BridgeQuery<Theme> appThemeCriteria = Bridge.equal(Theme.Fields.applicationId, applicationId);
         BridgeQuery<Theme> systemThemeCriteria = Bridge.isTrue(Theme.Fields.isSystemTheme);
         return queryBuilder()
@@ -30,7 +31,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     }
 
     @Override
-    public List<Theme> getSystemThemes(AclPermission permission, User currentUser) {
+    public List<Theme> getSystemThemes(AclPermission permission, User currentUser, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.isTrue(Theme.Fields.isSystemTheme))
                 .permission(permission, currentUser)
@@ -38,7 +39,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     }
 
     @Override
-    public Optional<Theme> getSystemThemeByName(String themeName, AclPermission permission, User currentUser) {
+    public Optional<Theme> getSystemThemeByName(String themeName, AclPermission permission, User currentUser, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equalIgnoreCase(Theme.Fields.name, themeName).isTrue(Theme.Fields.isSystemTheme))
                 .permission(permission, currentUser)
@@ -46,14 +47,14 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     }
 
     @Override
-    public Optional<Theme> getSystemThemeByName(String themeName) {
+    public Optional<Theme> getSystemThemeByName(String themeName, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equalIgnoreCase(Theme.Fields.name, themeName).isTrue(Theme.Fields.isSystemTheme))
                 .one();
     }
 
     public Optional<Boolean> archiveThemeByCriteria(
-            BridgeQuery<Theme> criteria, AclPermission permission, User currentUser) {
+            BridgeQuery<Theme> criteria, AclPermission permission, User currentUser, EntityManager entityManager) {
         return Optional.of(queryBuilder()
                         .criteria(criteria)
                         .permission(permission, currentUser)
@@ -64,7 +65,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Modifying
     @Transactional
     @Override
-    public Optional<Boolean> archiveByApplicationId(String applicationId, AclPermission permission, User currentUser) {
+    public Optional<Boolean> archiveByApplicationId(String applicationId, AclPermission permission, User currentUser, EntityManager entityManager) {
         return archiveThemeByCriteria(Bridge.equal(Theme.Fields.applicationId, applicationId), permission, currentUser);
     }
 
@@ -72,7 +73,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Transactional
     @Override
     public Optional<Boolean> archiveDraftThemesById(
-            String editModeThemeId, String publishedModeThemeId, AclPermission permission, User currentUser) {
+            String editModeThemeId, String publishedModeThemeId, AclPermission permission, User currentUser, EntityManager entityManager) {
         BridgeQuery<Theme> criteria = Bridge.<Theme>in(
                         Theme.Fields.id, CollectionUtils.ofNonNulls(editModeThemeId, publishedModeThemeId))
                 .isFalse(Theme.Fields.isSystemTheme);

@@ -5,6 +5,7 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.projections.UserRecentlyUsedEntitiesProjection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Expression;
@@ -23,7 +24,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     @Transactional
     @Modifying
-    public int saveReleaseNotesViewedVersion(String userId, String version) {
+    public int saveReleaseNotesViewedVersion(String userId, String version, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .updateFirst(Bridge.update().set(UserData.Fields.releaseNotesViewedVersion, version));
@@ -32,7 +33,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     @Transactional
     @Modifying
-    public Optional<Void> removeEntitiesFromRecentlyUsedList(String userId, String workspaceId) {
+    public Optional<Void> removeEntitiesFromRecentlyUsedList(String userId, String workspaceId, EntityManager entityManager) {
         /* Move to this piece of code, instead of direct entityManager use.
         BridgeUpdate update = new BridgeUpdate();
         RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
@@ -65,7 +66,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     }
 
     @Override
-    public Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
+    public Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .one(UserRecentlyUsedEntitiesProjection.class)
@@ -80,7 +81,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Modifying
     @Transactional
     @Override
-    public int updateByUserId(String userId, UserData userData) {
+    public int updateByUserId(String userId, UserData userData, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .updateFirst(userData);
