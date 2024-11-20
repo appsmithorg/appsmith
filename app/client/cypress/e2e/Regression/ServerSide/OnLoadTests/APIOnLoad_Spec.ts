@@ -46,7 +46,7 @@ describe(
     it("2. Shows when API failed to load on page load.", function () {
       cy.fixture("testdata").then(function (dataSet: any) {
         apiPage.CreateAndFillApi(
-          "https://www.appsmith.com/" + dataSet.methods,
+          "https://www.google.com/" + dataSet.methods,
           "PageLoadApi2",
         );
       });
