@@ -151,7 +151,6 @@ import {
 import {
   apiEditorIdURL,
   datasourcesEditorIdURL,
-  generateTemplateFormURL,
   integrationEditorURL,
   saasEditorDatasourceIdURL,
 } from "ee/RouteBuilder";
@@ -189,6 +188,7 @@ import { executeGoogleApi } from "./loadGoogleApi";
 import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 import { getCurrentModuleId } from "ee/selectors/modulesSelector";
 import type { ApplicationPayload } from "entities/Application";
+import { openGeneratePageModalWithSelectedDS } from "../utils/GeneratePageUtils";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -339,42 +339,36 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       const isGeneratePageInitiator =
         getIsGeneratePageInitiator(isGeneratePageMode);
 
-      if (isGeneratePageInitiator) {
-        history.push(
-          generateTemplateFormURL({
-            basePageId,
-            params: {
-              datasourceId: response.data.id,
-            },
-          }),
-        );
-      } else {
-        if (skipRedirection) {
-          return;
-        }
-
-        let url = "";
-        const plugin: Plugin = yield select(getPlugin, response.data.pluginId);
-
-        if (plugin && plugin.type === PluginType.SAAS) {
-          url = saasEditorDatasourceIdURL({
-            basePageId,
-            pluginPackageName: plugin.packageName,
-            datasourceId: response.data.id,
-            params: {
-              viewMode: true,
-            },
-          });
-        } else {
-          url = datasourcesEditorIdURL({
-            basePageId,
-            datasourceId: response.data.id,
-            params: omit(getQueryParams(), "viewMode"),
-          });
-        }
-
-        history.push(url);
+      if (skipRedirection) {
+        return;
       }
+
+      let url = "";
+      const plugin: Plugin = yield select(getPlugin, response.data.pluginId);
+
+      if (plugin && plugin.type === PluginType.SAAS) {
+        url = saasEditorDatasourceIdURL({
+          basePageId,
+          pluginPackageName: plugin.packageName,
+          datasourceId: response.data.id,
+          params: {
+            viewMode: true,
+          },
+        });
+      } else {
+        url = datasourcesEditorIdURL({
+          basePageId,
+          datasourceId: response.data.id,
+          params: omit(getQueryParams(), "viewMode"),
+        });
+      }
+
+      history.push(url);
+
+      yield call(openGeneratePageModalWithSelectedDS, {
+        shouldOpenModalWIthSelectedDS: Boolean(isGeneratePageInitiator),
+        datasourceId: response.data.id,
+      });
     }
   } catch (error) {
     yield put({
@@ -1519,7 +1513,6 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const actionRouteInfo = get(state, "ui.datasourcePane.actionRouteInfo");
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
     yield select(getGenerateCRUDEnabledPluginMap);
-  const basePageId: string = yield select(getCurrentBasePageId);
   const updatedDatasource = action.payload;
 
   const { queryParams = {} } = action;
@@ -1529,19 +1522,6 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   );
 
   if (
-    isGeneratePageInitiator &&
-    updatedDatasource.pluginId &&
-    generateCRUDSupportedPlugin[updatedDatasource.pluginId]
-  ) {
-    history.push(
-      generateTemplateFormURL({
-        basePageId,
-        params: {
-          datasourceId: updatedDatasource.id,
-        },
-      }),
-    );
-  } else if (
     actionRouteInfo &&
     updatedDatasource.id === actionRouteInfo.datasourceId &&
     action.redirect
@@ -1553,6 +1533,15 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
       }),
     );
   }
+
+  yield call(openGeneratePageModalWithSelectedDS, {
+    shouldOpenModalWIthSelectedDS: Boolean(
+      isGeneratePageInitiator &&
+        updatedDatasource.pluginId &&
+        generateCRUDSupportedPlugin[updatedDatasource.pluginId],
+    ),
+    datasourceId: updatedDatasource.id,
+  });
 
   yield put({
     type: ReduxActionTypes.STORE_AS_DATASOURCE_COMPLETE,

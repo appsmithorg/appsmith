@@ -135,6 +135,7 @@ export const getLintAnnotations = (
       code,
       errorMessage,
       line,
+      lintLength,
       originalBinding,
       severity,
       variables,
@@ -157,16 +158,20 @@ export const getLintAnnotations = (
       });
     }
 
-    let variableLength = 1;
+    let calculatedLintLength = 1;
 
+    // If lint length is provided, then skip the length calculation logic
+    if (lintLength && lintLength > 0) {
+      calculatedLintLength = lintLength;
+    }
     // Find the variable with minimal length
-    if (variables) {
+    else if (variables) {
       for (const variable of variables) {
         if (variable) {
-          variableLength =
-            variableLength === 1
+          calculatedLintLength =
+            calculatedLintLength === 1
               ? String(variable).length
-              : Math.min(String(variable).length, variableLength);
+              : Math.min(String(variable).length, calculatedLintLength);
         }
       }
     }
@@ -205,7 +210,7 @@ export const getLintAnnotations = (
         };
         const to = {
           line: from.line,
-          ch: from.ch + variableLength,
+          ch: from.ch + calculatedLintLength,
         };
 
         annotations.push({

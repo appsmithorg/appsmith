@@ -1,5 +1,5 @@
-const fsPromises = require('fs/promises');
-const Constants = require('./constants');
+const fsPromises = require("fs/promises");
+const Constants = require("./constants");
 
 async function backup_error(err) {
   console.error(err);
@@ -8,7 +8,10 @@ async function backup_error(err) {
   } catch (error) {
     await fsPromises.mkdir(Constants.APPSMITHCTL_LOG_PATH);
   }
-  await fsPromises.appendFile(Constants.APPSMITHCTL_LOG_PATH + '/backup.log', new Date().toISOString() + ' [ ERROR ] ' + err  + '\n');
+  await fsPromises.appendFile(
+    Constants.APPSMITHCTL_LOG_PATH + "/backup.log",
+    new Date().toISOString() + " [ ERROR ] " + err + "\n",
+  );
 }
 
 async function backup_info(msg) {
@@ -18,7 +21,10 @@ async function backup_info(msg) {
   } catch (error) {
     await fsPromises.mkdir(Constants.APPSMITHCTL_LOG_PATH);
   }
-  await fsPromises.appendFile(Constants.APPSMITHCTL_LOG_PATH + '/backup.log', new Date().toISOString() + ' [ INFO ] ' + msg + '\n');
+  await fsPromises.appendFile(
+    Constants.APPSMITHCTL_LOG_PATH + "/backup.log",
+    new Date().toISOString() + " [ INFO ] " + msg + "\n",
+  );
 }
 
 module.exports = {

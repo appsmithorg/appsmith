@@ -12,7 +12,6 @@ import {
   BUILDER_PATH_DEPRECATED,
   DATA_SOURCES_EDITOR_ID_PATH,
   DATA_SOURCES_EDITOR_LIST_PATH,
-  GENERATE_TEMPLATE_FORM_PATH,
   INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
@@ -33,7 +32,6 @@ import {
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
-import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
@@ -138,12 +136,6 @@ function useRoutes(path: string): RouteReturnType[] {
       component: isPreviewMode ? WidgetsEditor : DatasourceForm,
       exact: true,
       path: `${path}${SAAS_EDITOR_DATASOURCE_ID_PATH}`,
-    },
-    {
-      key: "GeneratePage",
-      component: isPreviewMode ? WidgetsEditor : GeneratePage,
-      exact: true,
-      path: `${path}${GENERATE_TEMPLATE_FORM_PATH}`,
     },
   ];
 }
