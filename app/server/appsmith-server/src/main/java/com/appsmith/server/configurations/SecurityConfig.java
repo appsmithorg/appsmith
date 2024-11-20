@@ -25,6 +25,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.*;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
@@ -39,6 +40,7 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -54,17 +56,7 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.appsmith.server.constants.Url.ACTION_COLLECTION_URL;
-import static com.appsmith.server.constants.Url.ACTION_URL;
-import static com.appsmith.server.constants.Url.APPLICATION_URL;
-import static com.appsmith.server.constants.Url.ASSET_URL;
-import static com.appsmith.server.constants.Url.CUSTOM_JS_LIB_URL;
-import static com.appsmith.server.constants.Url.PAGE_URL;
-import static com.appsmith.server.constants.Url.PRODUCT_ALERT;
-import static com.appsmith.server.constants.Url.TENANT_URL;
-import static com.appsmith.server.constants.Url.THEME_URL;
-import static com.appsmith.server.constants.Url.USAGE_PULSE_URL;
-import static com.appsmith.server.constants.Url.USER_URL;
+import static com.appsmith.server.constants.Url.*;
 import static com.appsmith.server.constants.ce.UrlCE.CONSOLIDATED_API_URL;
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -228,8 +220,16 @@ public class SecurityConfig {
                         .authenticationFailureHandler(failureHandler)
                         .loginPage(Url.LOGIN_URL)
                         .authenticationEntryPoint(authenticationEntryPoint)
-                        .requiresAuthenticationMatcher(
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
+                        .requiresAuthenticationMatcher(exchange -> {
+                            final ServerHttpRequest request = exchange.getRequest();
+                            return HttpMethod.POST.equals(request.getMethod())
+                                            && Url.LOGIN_URL.equals(
+                                                    request.getPath().toString())
+                                            && MediaType.APPLICATION_FORM_URLENCODED.equalsTypeAndSubtype(
+                                                    request.getHeaders().getContentType())
+                                    ? ServerWebExchangeMatcher.MatchResult.match()
+                                    : ServerWebExchangeMatcher.MatchResult.notMatch();
+                        })
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler))
                 // For Github SSO Login, check transformation class: CustomOAuth2UserServiceImpl
