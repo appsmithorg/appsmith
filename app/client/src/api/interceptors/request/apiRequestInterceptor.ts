@@ -49,21 +49,23 @@ const addAnonymousUserIdHeader = (config: InternalAxiosRequestConfig) => {
   return _addAnonymousUserIdHeader(config, { anonymousId, segmentEnabled });
 };
 
+const addVersionHeader = (config: InternalAxiosRequestConfig) => {
+  config.headers = config.headers || {};
+  config.headers["X-Appsmith-Version"] = getAppsmithConfigs().appVersion.id;
+
+  return config;
+};
+
 export const apiRequestInterceptor = (config: InternalAxiosRequestConfig) => {
   const interceptorPipeline = compose<InternalAxiosRequestConfig>(
     blockAirgappedRoutes,
     addRequestedByHeader,
+    addVersionHeader,
     addGitBranchHeader,
     increaseGitApiTimeout,
     addEnvironmentHeader,
     addAnonymousUserIdHeader,
     addPerformanceMonitoringHeaders,
-    (config: InternalAxiosRequestConfig) => {
-      config.headers = config.headers || {};
-      config.headers["X-Appsmith-Version"] = getAppsmithConfigs().appVersion.id;
-
-      return config;
-    },
   );
 
   return interceptorPipeline(config);

@@ -116,7 +116,7 @@ describe(
             url: "/api/v1/app-templates",
           },
           (req) => {
-            data.responseMeta.version = req.headers["X-Appsmith-Version"];
+            data.responseMeta.version = req.headers["x-appsmith-version"];
             req.reply({
               statusCode: 200,
               body: data,

@@ -201,7 +201,7 @@ describe(
                   "Provided file format is incompatible, please upgrade your instance to resolve this conflict.",
                 errorType: "INTERNAL_ERROR",
               },
-              version: req.headers["X-Appsmith-Version"],
+              version: req.headers["x-appsmith-version"],
             },
           },
           delay: 1000,

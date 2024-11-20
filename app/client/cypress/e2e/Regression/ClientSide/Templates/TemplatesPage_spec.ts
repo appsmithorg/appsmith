@@ -22,7 +22,7 @@ describe(
             url: "/api/v1/app-templates",
           },
           (req) => {
-            data.responseMeta.version = req.headers["X-Appsmith-Version"];
+            data.responseMeta.version = req.headers["x-appsmith-version"];
             req.reply({
               statusCode: 200,
               body: data,
@@ -32,9 +32,9 @@ describe(
         agHelper.RefreshPage(); //is important for below intercept to go through!
         PageList.AddNewPage("Add page from template");
         agHelper.AssertElementVisibility(templates.locators._templateDialogBox);
-        cy.wait("@fetchAllTemplates").then(({ request, response }) => {
+        cy.wait("@fetchAllTemplates").then(({ response }) => {
           if (response) {
-            // in the fixture data we are sending some tempaltes with `allowPageImport: false`
+            // in the fixture data we are sending some templates with `allowPageImport: false`
 
             const templatesFilteredForAllowPageImport =
               response.body.data.filter((card: any) => !!card.allowPageImport);

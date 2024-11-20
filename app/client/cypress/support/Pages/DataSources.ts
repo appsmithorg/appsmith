@@ -1934,7 +1934,7 @@ export class DataSources {
         responseMeta: {
           status: 200,
           success: true,
-          version: req.headers["X-Appsmith-Version"],
+          version: req.headers["x-appsmith-version"],
         },
         data: {
           invalids: [],
