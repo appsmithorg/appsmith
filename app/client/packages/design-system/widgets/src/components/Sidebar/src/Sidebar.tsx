@@ -1,11 +1,13 @@
 import clsx from "clsx";
 import * as React from "react";
-import { type Ref, useRef } from "react";
-import { Sheet } from "../../Sheet";
-import { useSidebar } from "./use-sidebar";
-import styles from "./styles.module.css";
-import type { SidebarProps } from "./types";
+import { type Ref, useRef, useState } from "react";
 import { CSSTransition } from "react-transition-group";
+
+import { Sheet } from "../../Sheet";
+import styles from "./styles.module.css";
+import { useSidebar } from "./use-sidebar";
+import type { SidebarProps } from "./types";
+
 import { SidebarContent } from "./SidebarContent";
 
 const _Sidebar = (props: SidebarProps, ref: Ref<HTMLDivElement>) => {
@@ -22,7 +24,7 @@ const _Sidebar = (props: SidebarProps, ref: Ref<HTMLDivElement>) => {
     variant = "sidebar",
     ...rest
   } = props;
-  const [isAnimating, setIsAnimating] = React.useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const { isMobile, setState, state } = useSidebar();
   const sidebarRef = useRef<HTMLDivElement>();
 
