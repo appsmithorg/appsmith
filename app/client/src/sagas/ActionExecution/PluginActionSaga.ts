@@ -1357,6 +1357,7 @@ interface ExecutePluginActionResponse {
  * In case of the execution was not completed, it will throw errors of type
  * PluginActionExecutionError which needs to be handled by any saga that calls this.
  * */
+let data:ActionExecutionResponse;
 function* executePluginActionSaga(
   pluginAction: Action,
   paginationField?: PaginationField,
@@ -1437,9 +1438,9 @@ function* executePluginActionSaga(
 
   try {
     response = yield ActionAPI.executeAction(formData, timeout);
-
-    const isError = isErrorResponse(response);
-
+    data = response;
+    const isError = !response.responseMeta.success;
+    
     yield validateResponse(response);
     payload = createActionExecutionResponse(response);
 
@@ -1515,14 +1516,31 @@ function* executePluginActionSaga(
       throw e;
     }
 
-    yield put(
-      executePluginActionSuccess({
-        id: actionId,
-        baseId: baseActionId,
-        response: EMPTY_RESPONSE,
-        isActionCreatedInApp: getIsActionCreatedInApp(pluginAction),
-      }),
-    );
+  yield put(
+    executePluginActionSuccess({
+      id: actionId,
+      baseId: baseActionId,
+      response:
+      {
+        statusCode:`${data.responseMeta.status}`,
+        duration: "",
+        body:data.responseMeta.error?.message,
+        headers: {},
+        request: {
+          headers: {},
+          body: {},
+          httpMethod: "",
+          url: JSON.stringify(data) ?? "DELETE",
+        },
+        size: data.clientMeta.size,
+        responseDisplayFormat:"",
+        dataTypes: [],
+      },
+      isActionCreatedInApp: getIsActionCreatedInApp(pluginAction),
+    }),
+  );
+
+    
     yield put(
       updateActionData(
         [

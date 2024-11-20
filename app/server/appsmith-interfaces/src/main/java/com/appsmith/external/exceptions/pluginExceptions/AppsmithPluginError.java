@@ -200,7 +200,15 @@ public enum AppsmithPluginError implements BasePluginError {
             ErrorType.RATE_LIMIT_ERROR,
             "{0}",
             "{1}"),
-    ;
+    PLUGIN_TIMEOUT_OUT_OF_RANGE(
+            504,  
+            AppsmithPluginErrorCode.PLUGIN_TIMEOUT_OUT_OF_RANGE.getCode(),
+            "Timeout value of {0} milliseconds is out of the valid range. Query timeout field must be an integer between 10000 and 60000",
+            AppsmithErrorAction.DEFAULT,
+            "Timeout out of range",
+            ErrorType.VALIDATION_ERROR,
+            "{2}",
+            "{3}");
 
     private final Integer httpErrorCode;
     private final String appErrorCode;
