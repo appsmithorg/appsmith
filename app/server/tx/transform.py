@@ -256,6 +256,7 @@ def generate_cake_class(domain):
         while "<" in call:
             # Remove all generics in type definitions.
             call = re.sub(r"<[^<>]+?>", "", call)
+            call.replace("currentUser","tuple2.getT1()").replace("entityManager","tuple2.getT2()")
 
         signature_wo_user_context = replace_exact_word(signature, ", User currentUser", "")
         signature_wo_user_context = replace_exact_word(signature_wo_user_context, ", EntityManager entityManager", "")
