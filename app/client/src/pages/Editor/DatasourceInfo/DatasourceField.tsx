@@ -75,7 +75,9 @@ export function DatabaseColumns(props: DatabaseFieldProps) {
           mouseEnterDelay={2}
           showArrow={false}
         >
-          <FieldName ref={nameRef}>{fieldName}</FieldName>
+          <FieldName className="t--field-name" ref={nameRef}>
+            {fieldName}
+          </FieldName>
         </Tooltip>
         <FieldValue>{fieldType}</FieldValue>
         {icon && fieldKeys && (

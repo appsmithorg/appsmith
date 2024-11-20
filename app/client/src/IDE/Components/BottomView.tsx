@@ -38,6 +38,7 @@ const ViewWrapper = styled.div`
   & {
     .ads-v2-tabs__list {
       padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
+      padding-left: var(--ads-v2-spaces-3);
     }
   }
 

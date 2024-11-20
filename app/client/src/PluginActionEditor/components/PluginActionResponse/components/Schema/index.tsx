@@ -183,7 +183,7 @@ const Schema = (props: Props) => {
     <Flex
       flexDirection="column"
       gap="spaces-3"
-      height={`${responseTabHeight - 45}px`}
+      height={`${responseTabHeight - 42}px`}
       overflow="hidden"
     >
       {renderStatus()}

@@ -56,6 +56,7 @@ const SchemaTables = ({
       gap="spaces-3"
       overflow="hidden"
       padding="spaces-3"
+      paddingBottom="spaces-0"
       w="400px"
     >
       <Flex

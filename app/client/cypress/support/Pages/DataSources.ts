@@ -265,7 +265,7 @@ export class DataSources {
     "')]/ancestor::div[@class='form-config-top']/following-sibling::div//div[contains(@class, 'rc-select-multiple')]";
   private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
   private _datasourceStructureHeader = ".datasourceStructure-header";
-  _datasourceSchemaColumn = ".t--datasource-column";
+  _datasourceSchemaColumn = ".t--datasource-column .t--field-name";
   _datasourceStructureSearchInput = ".datasourceStructure-search input";
   _jsModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
   public _queryEditorCollapsibleIcon = ".collapsible-icon";

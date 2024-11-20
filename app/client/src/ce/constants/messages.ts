@@ -804,7 +804,7 @@ export const SCHEMA_NOT_AVAILABLE = () =>
   "We can't show schema for this datasource";
 export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
-  `Tables in ${name}`;
+  `Search tables in ${name}`;
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";
