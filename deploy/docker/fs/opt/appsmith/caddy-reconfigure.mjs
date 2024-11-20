@@ -168,7 +168,10 @@ ${
 
   ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {
-      key {http.request.client_ip}
+      # This key is designed to work irrespective of any load balancers running on the Appsmith container.
+      # We use "+" as the separator here since we don't expect it in any of the placeholder values here, and has no
+      # significance in header value syntax.
+      key {header.Forwarded}+{header.X-Forwarded-For}+{remote_host}
       events ${RATE_LIMIT}
       window 1s
     }
