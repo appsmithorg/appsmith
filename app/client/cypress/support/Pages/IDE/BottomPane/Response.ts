@@ -1,3 +1,10 @@
+type ComparisonOperator = "eq" | "gt" | "gte" | "lt" | "lte";
+
+interface ValidationParams {
+  count: number;
+  operator: ComparisonOperator;
+}
+
 class Response {
   public locators = {
     responseTab: "[data-testid='t--tab-RESPONSE_TAB']",
@@ -15,10 +22,10 @@ class Response {
     },
   };
 
-  /** @deprecated */
+  /** @deprecated: method will be deleted when segmented control in response pane is replaced */
   public getResponseTypeSelector = this.locators.responseType;
 
-  /** @deprecated */
+  /** @deprecated: method will be deleted when segmented control in response pane is replaced */
   public switchResponseType(type: string): void {
     this.switchToResponseTab();
     cy.xpath(this.locators.responseType(type)).click({ force: true });
@@ -43,10 +50,52 @@ class Response {
     cy.get(this.locators.responseTypeMenuTrigger).realClick();
   }
 
-  public validateRecordCount(count: number): void {
+  public validateRecordCount({ count, operator }: ValidationParams): void {
     cy.get(this.locators.responseRecordCount)
       .invoke("text")
-      .should("match", new RegExp(`^${count}\\b`));
+      .then((text) => {
+        const extractedCount = parseInt(text.match(/\d+/)?.[0] || "0", 10);
+
+        switch (operator) {
+          case "eq":
+            if (extractedCount !== count) {
+              throw new Error(
+                `Expected count to equal ${count}, but got ${extractedCount}`,
+              );
+            }
+            break;
+          case "gt":
+            if (extractedCount <= count) {
+              throw new Error(
+                `Expected count > ${count}, but got ${extractedCount}`,
+              );
+            }
+            break;
+          case "gte":
+            if (extractedCount < count) {
+              throw new Error(
+                `Expected count >= ${count}, but got ${extractedCount}`,
+              );
+            }
+            break;
+          case "lt":
+            if (extractedCount >= count) {
+              throw new Error(
+                `Expected count < ${count}, but got ${extractedCount}`,
+              );
+            }
+            break;
+          case "lte":
+            if (extractedCount > count) {
+              throw new Error(
+                `Expected count <= ${count}, but got ${extractedCount}`,
+              );
+            }
+            break;
+          default:
+            throw new Error(`Invalid comparison operator: ${operator}`);
+        }
+      });
   }
 }
 

@@ -79,7 +79,7 @@ describe(
 
     it("2. Validate Select record from Postgress datasource & verify query response", () => {
       dataSources.CreateQueryForDS(dsName, "SELECT * FROM Stores LIMIT 10");
-      dataSources.runQueryAndVerifyResponseViews(10);
+      dataSources.runQueryAndVerifyResponseViews({ count: 10 });
       dataSources.AssertQueryTableResponse(5, "2112");
       dataSources.AssertQueryTableResponse(6, "Mike's Liquors");
       // Commenting this deletion of query to make the generate crud work on the new page instead of the current page

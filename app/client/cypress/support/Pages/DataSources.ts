@@ -1152,28 +1152,33 @@ export class DataSources {
     }
   }
 
-  public runQueryAndVerifyResponseViews(
-    expectedRecordsCount = 1,
-    tableCheck = true,
-  ) {
+  public runQueryAndVerifyResponseViews({
+    count = 1,
+    operator = "eq",
+    responseTypes = ["TABLE", "JSON", "RAW"],
+  }: {
+    count?: number;
+    operator?: Parameters<
+      typeof BottomPane.response.validateRecordCount
+    >[0]["operator"];
+    responseTypes?: ("TABLE" | "JSON" | "RAW")[];
+  } = {}) {
     this.RunQuery();
-    if (tableCheck) {
-      BottomPane.response.openResponseTypeMenu();
 
-      this.agHelper.AssertElementVisibility(
-        BottomPane.response.locators.responseTypeMenuItem("TABLE"),
-      );
-      this.agHelper.AssertElementVisibility(
-        BottomPane.response.locators.responseTypeMenuItem("JSON"),
-      );
-      this.agHelper.AssertElementVisibility(
-        BottomPane.response.locators.responseTypeMenuItem("RAW"),
-      );
+    BottomPane.response.openResponseTypeMenu();
 
-      BottomPane.response.closeResponseTypeMenu();
-    }
+    responseTypes.forEach((responseType) => {
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.locators.responseTypeMenuItem(responseType),
+      );
+    });
 
-    BottomPane.response.validateRecordCount(expectedRecordsCount);
+    BottomPane.response.closeResponseTypeMenu();
+
+    BottomPane.response.validateRecordCount({
+      count,
+      operator,
+    });
   }
 
   public CreateDataSource(

@@ -70,7 +70,7 @@ describe(
         "public.vessels",
         "Select",
       );
-      dataSources.runQueryAndVerifyResponseViews(10);
+      dataSources.runQueryAndVerifyResponseViews({ count: 10 });
       dataSources.AssertQueryTableResponse(0, "371681");
       dataSources.AssertQueryTableResponse(6, "Passenger");
       agHelper.ActionContextMenuWithInPane({

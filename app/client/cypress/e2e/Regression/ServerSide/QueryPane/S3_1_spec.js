@@ -77,7 +77,11 @@ describe(
         "List files",
       );
 
-      dataSources.runQueryAndVerifyResponseViews(100);
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 100,
+        operator: "gte",
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,

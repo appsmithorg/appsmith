@@ -30,32 +30,32 @@ describe(
       //Add HSET
       dataSources.CreateQueryAfterDSSaved();
       dataSources.EnterQuery(hSetReceipe);
-      dataSources.runQueryAndVerifyResponseViews(1); //verify all views are returned!
+      dataSources.runQueryAndVerifyResponseViews(); //verify all views are returned!
       dataSources.AssertQueryTableResponse(0, "4"); //Success response for 4 keys inserted via above HSET!
 
       //Read only one key from above HSET
       dataSources.EnterQuery(hGetKeys);
-      dataSources.runQueryAndVerifyResponseViews(1); //verify all views are returned!
+      dataSources.runQueryAndVerifyResponseViews(); //verify all views are returned!
       dataSources.AssertQueryTableResponse(0, "Vegetable Stir Fry");
 
       //Read more than one key from above HSET
       dataSources.EnterQuery(hMGet);
-      dataSources.runQueryAndVerifyResponseViews(2);
+      dataSources.runQueryAndVerifyResponseViews({ count: 2 }); //verify all views are returned!
       dataSources.AssertQueryTableResponse(0, "easy");
       dataSources.AssertQueryTableResponse(1, "Vegetable Stir Fry");
 
       //Update key value in HSET
       dataSources.EnterQuery(hUpdate);
-      dataSources.runQueryAndVerifyResponseViews(1); //verify all views are returned!
+      dataSources.runQueryAndVerifyResponseViews(); //verify all views are returned!
 
       //validate updated key
       dataSources.EnterQuery(getUpdatedKey);
-      dataSources.runQueryAndVerifyResponseViews(1);
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertQueryTableResponse(0, "medium");
 
       //Get All keys from HSET
       dataSources.EnterQuery(getAll);
-      dataSources.runQueryAndVerifyResponseViews(8); //4 keys, 4 values
+      dataSources.runQueryAndVerifyResponseViews({ count: 8 }); //4 keys, 4 values
       dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
         expect($cellData).to.be.oneOf([
           "name",
@@ -70,11 +70,11 @@ describe(
 
       //Ading one more key/value to HSET
       dataSources.EnterQuery(addNewKeyValue);
-      dataSources.runQueryAndVerifyResponseViews(1);
+      dataSources.runQueryAndVerifyResponseViews();
 
       //Verify new key/value also added to HSET
       dataSources.EnterQuery(getAll);
-      dataSources.runQueryAndVerifyResponseViews(10); //5 keys, 5 values
+      dataSources.runQueryAndVerifyResponseViews({ count: 10 }); //5 keys, 5 values
       dataSources.ReadQueryTableResponse(0).then(($cellData: any) => {
         expect($cellData).to.be.oneOf([
           "name",
@@ -87,11 +87,11 @@ describe(
 
       //Deleting the Hash key
       dataSources.EnterQuery(deletehKey);
-      dataSources.runQueryAndVerifyResponseViews(1);
+      dataSources.runQueryAndVerifyResponseViews();
 
       //Verify Deletion is success
       dataSources.EnterQuery(hGetKeys);
-      dataSources.runQueryAndVerifyResponseViews(); //5 keys, 5 values
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertQueryTableResponse(0, "null");
 
       // Delete the query & datasource

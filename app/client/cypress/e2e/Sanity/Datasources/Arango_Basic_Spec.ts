@@ -232,7 +232,7 @@ if (CURRENT_REPO == REPO.CE) {
       FILTER place.type == "Natural"
         RETURN { country: doc.country, name: place.name }`;
         dataSources.EnterQuery(query);
-        dataSources.runQueryAndVerifyResponseViews(5); //Verify all records are filtered
+        dataSources.runQueryAndVerifyResponseViews({ count: 5 }); //Verify all records are filtered
         dataSources.AssertQueryTableResponse(0, "Japan");
         dataSources.AssertQueryTableResponse(1, "Mount Fuji");
         dataSources.AssertQueryTableResponse(6, "Brazil"); //Widget binding is verified here
@@ -276,7 +276,7 @@ if (CURRENT_REPO == REPO.CE) {
     FILTER document._key == "1"
     RETURN document`;
         dataSources.EnterQuery(query);
-        dataSources.runQueryAndVerifyResponseViews(1);
+        dataSources.runQueryAndVerifyResponseViews();
         dataSources.AssertQueryTableResponse(3, "Australia");
 
         //Delete record from collection
@@ -287,7 +287,7 @@ if (CURRENT_REPO == REPO.CE) {
         );
         query = `REMOVE "1" in ${collectionName}`;
         dataSources.EnterQuery(query);
-        dataSources.runQueryAndVerifyResponseViews(1); //Removing Australia
+        dataSources.runQueryAndVerifyResponseViews(); //Removing Australia
 
         //Verify no records return for the deleted key
         query = `FOR document IN ${collectionName}

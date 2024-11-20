@@ -259,7 +259,7 @@ describe(
       //Validating use of extention
       query = `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; CREATE EXTENSION IF NOT EXISTS "pgcrypto"`;
       dataSources.CreateQueryForDS(dsName, query, "verifyUUIDFunctions");
-      dataSources.runQueryAndVerifyResponseViews(1);
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertQueryResponseHeaders(["affectedRows"]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("0");
@@ -297,7 +297,7 @@ describe(
       //Validating Addition of new column taking default value form package method
       query = `ALTER TABLE uuidtype ADD COLUMN newUUID uuid DEFAULT uuid_generate_v4();`;
       dataSources.EnterQuery(query);
-      dataSources.runQueryAndVerifyResponseViews(1);
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertQueryResponseHeaders(["affectedRows"]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("0");
@@ -314,7 +314,7 @@ describe(
       //Validating altering the new column default value to generate id from pgcrypto package
       query = `ALTER TABLE uuidtype ALTER COLUMN newUUID SET DEFAULT gen_random_uuid();`;
       dataSources.EnterQuery(query);
-      dataSources.runQueryAndVerifyResponseViews(1);
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertQueryResponseHeaders(["affectedRows"]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("0");
