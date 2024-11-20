@@ -1,7 +1,6 @@
 import React, { useRef } from "react";
 import { DATASOURCE_FIELD_ICONS_MAP } from "../Explorer/ExplorerIcons";
 import styled from "styled-components";
-import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
 import { Tooltip, Tag, Flex } from "@appsmith/ads";
 import { isEllipsisActive } from "utils/helpers";
 
@@ -39,8 +38,20 @@ const Content = styled.div`
   gap: var(--ads-v2-spaces-2);
 `;
 
+const FieldKeyLabel = styled.span`
+  &:first-letter {
+    text-transform: capitalize;
+  }
+`;
+
+interface FieldProps {
+  name: string;
+  type: string;
+  keys?: string[];
+}
+
 interface DatabaseFieldProps {
-  field: DatasourceColumns | DatasourceKeys;
+  field: FieldProps;
   step: number;
 }
 
@@ -48,7 +59,11 @@ export function DatabaseColumns(props: DatabaseFieldProps) {
   const field = props.field;
   const fieldName = field.name;
   const fieldType = field.type;
-  const icon = DATASOURCE_FIELD_ICONS_MAP[fieldType];
+  const fieldKeys = field.keys;
+  const icon =
+    fieldKeys && fieldKeys.length > 0
+      ? DATASOURCE_FIELD_ICONS_MAP[fieldKeys[0]]
+      : null;
   const nameRef = useRef<HTMLDivElement | null>(null);
 
   return (
@@ -62,15 +77,14 @@ export function DatabaseColumns(props: DatabaseFieldProps) {
         >
           <FieldName ref={nameRef}>{fieldName}</FieldName>
         </Tooltip>
-        {icon ? (
+        <FieldValue>{fieldType}</FieldValue>
+        {icon && fieldKeys && (
           <Tag isClosable={false} size="md">
-            <Flex gap="spaces-2">
+            <Flex gap="spaces-1">
               {icon}
-              {fieldType}
+              <FieldKeyLabel>{fieldKeys[0]}</FieldKeyLabel>
             </Flex>
           </Tag>
-        ) : (
-          <FieldValue>{fieldType}</FieldValue>
         )}
       </Content>
     </Wrapper>
