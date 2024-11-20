@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type PropsWithChildren } from "react";
 import { Flex } from "../../Flex";
 import { IDE_HEADER_HEIGHT, LOGO_WIDTH } from "./IDEHeader.constants";
 
@@ -6,7 +6,7 @@ interface ChildrenProps {
   children: React.ReactNode | React.ReactNode[];
 }
 
-const Left = (props: ChildrenProps & { logo: React.ReactNode }) => {
+const Left = (props: PropsWithChildren<{ logo: React.ReactNode }>) => {
   return (
     <Flex
       alignItems="center"
@@ -63,6 +63,7 @@ export const IDEHeader = (props: ChildrenProps) => {
   return (
     <Flex
       alignItems="center"
+      background="var(--ads-v2-color-bg)"
       borderBottom="1px solid var(--ads-v2-color-border)"
       className="t--editor-header"
       height={IDE_HEADER_HEIGHT + "px"}

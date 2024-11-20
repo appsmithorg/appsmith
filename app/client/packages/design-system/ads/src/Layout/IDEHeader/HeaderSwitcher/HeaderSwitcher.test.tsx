@@ -3,14 +3,16 @@ import { render, fireEvent, screen } from "@testing-library/react";
 import { IDEHeaderSwitcher } from "./IDEHeaderSwitcher";
 import "@testing-library/jest-dom";
 
-describe("HeaderEditorSwitcher", () => {
+describe("HeaderSwitcher", () => {
   const mockOnClick = jest.fn();
+  const mockSetActive = jest.fn();
   const defaultProps = {
     prefix: "Prefix",
     title: "Title",
     titleTestId: "titleTestId",
     active: false,
     onClick: mockOnClick,
+    setActive: mockSetActive,
   };
 
   it("renders with correct props", () => {
@@ -86,6 +88,7 @@ describe("HeaderEditorSwitcher", () => {
         className={className}
         data-testid={testId} // Additional prop
         prefix="Prefix"
+        setActive={mockSetActive}
         title="Title"
         titleTestId="titleTestId"
       />,
