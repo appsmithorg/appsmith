@@ -220,6 +220,7 @@
     "socket.io-client": "^4.5.4",
     "sql-formatter": "12.2.0",
     "styled-components": "^5.3.6",
+    "tailwind-merge": "^2.5.4",
     "tailwindcss": "^3.3.3",
     "tern": "^0.21.0",
     "tinycolor2": "^1.4.2",

@@ -13013,6 +13013,7 @@ __metadata:
     socket.io-client: ^4.5.4
     sql-formatter: 12.2.0
     styled-components: ^5.3.6
+    tailwind-merge: ^2.5.4
     tailwindcss: ^3.3.3
     tern: ^0.21.0
     tinycolor2: ^1.4.2
@@ -32000,6 +32001,13 @@ __metadata:
   version: 5.2.1
   resolution: "tabbable@npm:5.2.1"
   checksum: d26e9eeb880c4c78b59244bac2c931ad46f6c64a01e5c15ba6da348dc86442222912733846a9e63373342a81fa15d4afb31267606b38431510d10b0fb9ec9bba
+  languageName: node
+  linkType: hard
+
+"tailwind-merge@npm:^2.5.4":
+  version: 2.5.4
+  resolution: "tailwind-merge@npm:2.5.4"
+  checksum: c22adafebd23fc3c7f0ad25935791c10816d4a46460f000ebca4de8d8d22f7652a3746a3d9146599a4648aa92ab390340f6ded04b9152afd2b75fd96929399db
   languageName: node
   linkType: hard
 
