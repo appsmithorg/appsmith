@@ -157,6 +157,8 @@ export const QueryResponseTab = (props: Props) => {
     }
   }
 
+  const recordCount = output?.length ?? 1;
+
   const responseBodyTabs =
     responseDataTypes &&
     responseDataTypes.map((dataType, index) => {
@@ -280,6 +282,10 @@ export const QueryResponseTab = (props: Props) => {
     }
   });
 
+  const handleJsonWrapperClick = useEventCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation(),
+  );
+
   if (isRunning) {
     return (
       <Styled.LoadingContainer>
@@ -367,7 +373,7 @@ export const QueryResponseTab = (props: Props) => {
             {actionResponse && actionResponse.request && (
               <JsonWrapper
                 className="t--debugger-log-state"
-                onClick={(e) => e.stopPropagation()}
+                onClick={handleJsonWrapperClick}
               >
                 <ReactJson src={responseState} {...apiReactJsonProps} />
               </JsonWrapper>
@@ -410,7 +416,7 @@ export const QueryResponseTab = (props: Props) => {
                     $hasTooltip
                     data-testid="t--query-response-record-count"
                     kind="code"
-                  >{`${output.length} record${output.length > 1 ? "s" : ""}`}</Styled.StatusBarText>
+                  >{`${recordCount} record${recordCount > 1 ? "s" : ""}`}</Styled.StatusBarText>
                 </Styled.StatusBarInfo>
               </Tooltip>
               <BindDataButton
