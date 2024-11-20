@@ -294,7 +294,7 @@ public class SecurityConfig {
 
         // 3. Check Appsmith version, if present. Not making this a mandatory check for now, but reconsider later.
         final String versionHeaderValue = headers.getFirst("X-Appsmith-Version");
-        if (!projectProperties.getVersion().equals(versionHeaderValue)) {
+        if (versionHeaderValue != null && !projectProperties.getVersion().equals(versionHeaderValue)) {
             return writeErrorResponse(exchange, chain, "Mismatched Appsmith Version");
         }
 
