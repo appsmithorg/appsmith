@@ -12,7 +12,23 @@ module.exports = {
   ],
   roots: ["<rootDir>/src"],
   transform: {
-    "^.+\\.(png|js|ts|tsx)$": "ts-jest",
+    "^.+\\.(png|js|ts|tsx)$": [
+      "ts-jest",
+      {
+        isolatedModules: true,
+        diagnostics: {
+          ignoreCodes: [1343],
+        },
+        astTransformers: {
+          before: [
+            {
+              path: "node_modules/ts-jest-mock-import-meta",
+              options: { metaObjectReplacement: { url: "https://www.url.com" } },
+            },
+          ],
+        },
+      }
+    ],
   },
   testEnvironment: "jsdom",
   testTimeout: 9000,
@@ -52,22 +68,10 @@ module.exports = {
       "<rootDir>/node_modules/@blueprintjs/select/lib/esnext",
     "@appsmith/ads": "<rootDir>/node_modules/@appsmith/ads",
     "^canvas$": "jest-canvas-mock",
+    "^entities/(.*)$": "<rootDir>/src/entities/$1",  // Match 'entities/*'
+
   },
   globals: {
-    "ts-jest": {
-      isolatedModules: true,
-      diagnostics: {
-        ignoreCodes: [1343],
-      },
-      astTransformers: {
-        before: [
-          {
-            path: "node_modules/ts-jest-mock-import-meta",
-            options: { metaObjectReplacement: { url: "https://www.url.com" } },
-          },
-        ],
-      },
-    },
     APPSMITH_FEATURE_CONFIGS: {
       sentry: {
         dsn: parseConfig("__APPSMITH_SENTRY_DSN__"),
