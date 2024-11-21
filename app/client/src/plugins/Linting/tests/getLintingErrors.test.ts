@@ -213,5 +213,81 @@ describe.each(linterTypes)(
         );
       });
     });
+
+    describe("4. Config rule tests", () => {
+      // Test for 'undef: true' (Disallow use of undeclared variables)
+      it("1. Should error on use of undeclared variables", () => {
+        const data = {};
+        const originalBinding = "{{ x + 1 }}";
+        const script = "x + 1"; // 'x' is undeclared
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have at least one error for 'x' being undefined
+        expect(lintErrors.length).toBeGreaterThan(0);
+        // Check if the error code corresponds to undefined variable
+        expect(
+          lintErrors.some(
+            (error) =>
+              error.errorMessage.name === "LintingError" &&
+              error.errorMessage.message === "'x' is not defined.",
+          ),
+        ).toBe(true);
+      });
+
+      // Test for 'noempty: false' (Allow empty blocks)
+      it("2. Should allow empty blocks without errors", () => {
+        const data = {};
+        const originalBinding = "{{ if (true) { } }}";
+        const script = "if (true) { }";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have no errors
+        expect(lintErrors.length).toEqual(0);
+      });
+
+      // Test for 'eqeqeq: false' (Allow '==' and '!=')
+      it("3. Should allow '==' and '!=' without errors", () => {
+        const data = { x: 5, y: "5" };
+        const originalBinding = "{{ x == y }}";
+        const script = "x == y";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have no errors for using '=='
+        expect(lintErrors.length).toEqual(0);
+      });
+    });
   },
 );
