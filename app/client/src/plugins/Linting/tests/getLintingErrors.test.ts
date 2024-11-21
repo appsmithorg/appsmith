@@ -215,8 +215,84 @@ describe.each(linterTypes)(
     });
 
     describe("4. Config rule tests", () => {
+      // Test for 'eqeqeq: false' (Allow '==' and '!=')
+      it("1. Should allow '==' and '!=' without errors", () => {
+        const data = { x: 5, y: "5" };
+        const originalBinding = "{{ x == y }}";
+        const script = "x == y";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have no errors for using '=='
+        expect(lintErrors.length).toEqual(0);
+      });
+
+      // Test for `curly: false` (Blocks can be added without {}, eg if (x) return true
+      it("2. Should allow blocks without brackets", () => {
+        const data = {};
+        const originalBinding = "{{ if (true) console.log('ok') }}";
+        const script = "if (true) console.log('ok')";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have no errors
+        expect(lintErrors.length).toEqual(0);
+      });
+
+      // Test for 'freeze: true' (Do not allow mutations of native objects)
+      it("3. Should error when modifying native objects", () => {
+        const data = {};
+        const originalBinding = "{{ Array.prototype.myFunc = function() {} }}";
+        const script = "Array.prototype.myFunc = function() {}";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have at least one error for modifying native objects
+        expect(lintErrors.length).toBeGreaterThan(0);
+        expect(
+          lintErrors.some(
+            (error) =>
+              error.errorMessage.name === "LintingError" &&
+              (error.errorMessage.message ===
+                "Extending prototype of native object: 'Array'." ||
+                error.errorMessage.message ===
+                  "Array prototype is read only, properties should not be added."),
+          ),
+        ).toBe(true);
+      });
+
       // Test for 'undef: true' (Disallow use of undeclared variables)
-      it("1. Should error on use of undeclared variables", () => {
+      it("4. Should error on use of undeclared variables", () => {
         const data = {};
         const originalBinding = "{{ x + 1 }}";
         const script = "x + 1"; // 'x' is undeclared
@@ -246,7 +322,7 @@ describe.each(linterTypes)(
       });
 
       // Test for 'noempty: false' (Allow empty blocks)
-      it("2. Should allow empty blocks without errors", () => {
+      it("6. Should allow empty blocks without errors", () => {
         const data = {};
         const originalBinding = "{{ if (true) { } }}";
         const script = "if (true) { }";
@@ -264,28 +340,6 @@ describe.each(linterTypes)(
 
         expect(Array.isArray(lintErrors)).toBe(true);
         // Should have no errors
-        expect(lintErrors.length).toEqual(0);
-      });
-
-      // Test for 'eqeqeq: false' (Allow '==' and '!=')
-      it("3. Should allow '==' and '!=' without errors", () => {
-        const data = { x: 5, y: "5" };
-        const originalBinding = "{{ x == y }}";
-        const script = "x == y";
-
-        const scriptType = getScriptType(false, true);
-
-        const lintErrors = getLintingErrors({
-          getLinterTypeFn: () => linterType,
-          data,
-          originalBinding,
-          script,
-          scriptType,
-          webworkerTelemetry,
-        });
-
-        expect(Array.isArray(lintErrors)).toBe(true);
-        // Should have no errors for using '=='
         expect(lintErrors.length).toEqual(0);
       });
     });
