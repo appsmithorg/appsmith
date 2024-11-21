@@ -2,7 +2,7 @@ type ComparisonOperator = "eq" | "gt" | "gte" | "lt" | "lte";
 
 interface ValidationParams {
   count: number;
-  operator: ComparisonOperator;
+  operator?: ComparisonOperator;
 }
 
 class Response {
@@ -50,7 +50,10 @@ class Response {
     cy.get(this.locators.responseTypeMenuTrigger).realClick();
   }
 
-  public validateRecordCount({ count, operator }: ValidationParams): void {
+  public validateRecordCount({
+    count,
+    operator = "eq",
+  }: ValidationParams): void {
     cy.get(this.locators.responseRecordCount)
       .invoke("text")
       .then((text) => {
