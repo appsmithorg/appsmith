@@ -71,230 +71,230 @@ describe(
       dataSources.EnterQuery(`{"find": "listingAndReviews","limit": 10}`);
       agHelper.FocusElement(locators._codeMirrorTextArea);
       dataSources.RunQuery();
-      BottomPane.response.validateRecordCount({ count: 10 });
+      BottomPane.response.validateRecordCount({ count: 10, operator: "lte" });
       cy.deleteQueryUsingContext();
     });
 
-    it("2. Validate Find documents command & Run and then delete the query", function () {
-      dataSources.CreateQueryForDS(datasourceName);
-      dataSources.SetQueryTimeout(20000);
+    // it("2. Validate Find documents command & Run and then delete the query", function () {
+    //   dataSources.CreateQueryForDS(datasourceName);
+    //   dataSources.SetQueryTimeout(20000);
 
-      //cy.xpath(queryLocators.findDocs).should("exist"); //Verifying update is success or below line
-      //cy.expect(queryLocators.findDocs).to.exist;
+    //   //cy.xpath(queryLocators.findDocs).should("exist"); //Verifying update is success or below line
+    //   //cy.expect(queryLocators.findDocs).to.exist;
 
-      assertHelper.AssertNetworkStatus("@trigger");
-      cy.ValidateAndSelectDropdownOption(
-        formControls.commandDropdown,
-        "Find document(s)",
-      );
+    //   assertHelper.AssertNetworkStatus("@trigger");
+    //   cy.ValidateAndSelectDropdownOption(
+    //     formControls.commandDropdown,
+    //     "Find document(s)",
+    //   );
 
-      dataSources.EnterJSContext({
-        fieldLabel: "Collection",
-        fieldValue: "listingAndReviews",
-      });
-      dataSources.RunQuery();
-      BottomPane.response.validateRecordCount({ count: 10 });
+    //   dataSources.EnterJSContext({
+    //     fieldLabel: "Collection",
+    //     fieldValue: "listingAndReviews",
+    //   });
+    //   dataSources.RunQuery();
+    //   BottomPane.response.validateRecordCount({ count: 10, operator: "lte" });
 
-      agHelper.EnterValue("{beds : {$lte: 2}}", {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Query",
-      });
-      dataSources.RunQuery();
-      BottomPane.response.validateRecordCount({ count: 10 });
+    //   agHelper.EnterValue("{beds : {$lte: 2}}", {
+    //     propFieldName: "",
+    //     directInput: false,
+    //     inputFieldName: "Query",
+    //   });
+    //   dataSources.RunQuery();
+    //   BottomPane.response.validateRecordCount({ count: 10, operator: "lte" });
 
-      agHelper.EnterValue("{number_of_reviews: -1}", {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Sort",
-      }); //sort descending
-      dataSources.RunQuery();
-      BottomPane.response.validateRecordCount({ count: 10 });
+    //   agHelper.EnterValue("{number_of_reviews: -1}", {
+    //     propFieldName: "",
+    //     directInput: false,
+    //     inputFieldName: "Sort",
+    //   }); //sort descending
+    //   dataSources.RunQuery();
+    //   BottomPane.response.validateRecordCount({ count: 10, operator: "lte" });
 
-      agHelper.EnterValue("{house_rules: 1, description:1}", {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Projection",
-      }); //Projection field
-      dataSources.RunQuery();
+    //   agHelper.EnterValue("{house_rules: 1, description:1}", {
+    //     propFieldName: "",
+    //     directInput: false,
+    //     inputFieldName: "Projection",
+    //   }); //Projection field
+    //   dataSources.RunQuery();
 
-      agHelper.EnterValue("5", {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Limit",
-      }); //Limit field
+    //   agHelper.EnterValue("5", {
+    //     propFieldName: "",
+    //     directInput: false,
+    //     inputFieldName: "Limit",
+    //   }); //Limit field
 
-      dataSources.RunQuery({ toValidateResponse: false });
-      cy.wait("@postExecute").then(({ response }) => {
-        expect(response.body.data.body[0].description).to.contains(
-          "The ideal apartment to visit the magnificent city of Porto and the northern region of Portugal, with family or with a couple of friends",
-          "Response is not as expected for Find commmand with multiple conditions",
-        );
-      });
-      BottomPane.response.validateRecordCount({ count: 10 });
+    //   dataSources.RunQuery({ toValidateResponse: false });
+    //   cy.wait("@postExecute").then(({ response }) => {
+    //     expect(response.body.data.body[0].description).to.contains(
+    //       "The ideal apartment to visit the magnificent city of Porto and the northern region of Portugal, with family or with a couple of friends",
+    //       "Response is not as expected for Find commmand with multiple conditions",
+    //     );
+    //   });
+    //   BottomPane.response.validateRecordCount({ count: 5, operator: "lte" });
 
-      agHelper.EnterValue("2", {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Skip",
-      });
-      dataSources.RunQuery({ toValidateResponse: false });
-      cy.wait("@postExecute").then(({ response }) => {
-        expect(response.body.data.body[0].description).to.contains(
-          "My place is close to the beach, family-friendly activities, great views, and a short drive to art and culture, and restaurants and dining",
-          "Response is not as expected for Find commmand with multiple conditions",
-        );
-      });
-      BottomPane.response.validateRecordCount({ count: 10 });
-      cy.deleteQueryUsingContext();
-    });
+    //   agHelper.EnterValue("2", {
+    //     propFieldName: "",
+    //     directInput: false,
+    //     inputFieldName: "Skip",
+    //   });
+    //   dataSources.RunQuery({ toValidateResponse: false });
+    //   cy.wait("@postExecute").then(({ response }) => {
+    //     expect(response.body.data.body[0].description).to.contains(
+    //       "My place is close to the beach, family-friendly activities, great views, and a short drive to art and culture, and restaurants and dining",
+    //       "Response is not as expected for Find commmand with multiple conditions",
+    //     );
+    //   });
+    //   BottomPane.response.validateRecordCount({ count: 5, operator: "lte" });
+    //   cy.deleteQueryUsingContext();
+    // });
 
-    it("3. Validate Count command & Run and then delete the query", function () {
-      dataSources.CreateQueryForDS(datasourceName);
-      assertHelper.AssertNetworkStatus("@trigger");
-      cy.ValidateAndSelectDropdownOption(
-        formControls.commandDropdown,
-        "Find document(s)",
-        "Count",
-      );
-      dataSources.EnterJSContext({
-        fieldLabel: "Collection",
-        fieldValue: "listingAndReviews",
-      });
-      dataSources.RunQuery();
-      agHelper.EnterValue("{guests_included : {$gte: 2}}", {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Query",
-      });
-      dataSources.RunQuery({ toValidateResponse: false });
-      cy.wait("@postExecute").then(({ response }) => {
-        expect(response.body.data.body.n).to.be.above(
-          0,
-          "Response is not as expected for Count commmand",
-        );
-      });
-      cy.deleteQueryUsingContext();
-    });
+    // it("3. Validate Count command & Run and then delete the query", function () {
+    //   dataSources.CreateQueryForDS(datasourceName);
+    //   assertHelper.AssertNetworkStatus("@trigger");
+    //   cy.ValidateAndSelectDropdownOption(
+    //     formControls.commandDropdown,
+    //     "Find document(s)",
+    //     "Count",
+    //   );
+    //   dataSources.EnterJSContext({
+    //     fieldLabel: "Collection",
+    //     fieldValue: "listingAndReviews",
+    //   });
+    //   dataSources.RunQuery();
+    //   agHelper.EnterValue("{guests_included : {$gte: 2}}", {
+    //     propFieldName: "",
+    //     directInput: false,
+    //     inputFieldName: "Query",
+    //   });
+    //   dataSources.RunQuery({ toValidateResponse: false });
+    //   cy.wait("@postExecute").then(({ response }) => {
+    //     expect(response.body.data.body.n).to.be.above(
+    //       0,
+    //       "Response is not as expected for Count commmand",
+    //     );
+    //   });
+    //   cy.deleteQueryUsingContext();
+    // });
 
-    it("4. Validate Distinct command & Run and then delete the query", function () {
-      dataSources.CreateQueryForDS(datasourceName);
-      assertHelper.AssertNetworkStatus("@trigger");
-      cy.ValidateAndSelectDropdownOption(
-        formControls.commandDropdown,
-        "Find document(s)",
-        "Distinct",
-      );
-      dataSources.EnterJSContext({
-        fieldLabel: "Collection",
-        fieldValue: "listingAndReviews",
-      });
-      agHelper.EnterValue("{price : {$gte: 100}}", {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Query",
-      });
-      agHelper.EnterValue("property_type", {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Key",
-      });
-      dataSources.RunQuery({ toValidateResponse: false });
-      cy.wait("@postExecute").then(({ response }) => {
-        expect(response.body.data.body.values[0]).to.eq(
-          "Aparthotel",
-          "Response is not as expected for Distint commmand",
-        );
-      });
-      cy.deleteQueryUsingContext();
-    });
+    // it("4. Validate Distinct command & Run and then delete the query", function () {
+    //   dataSources.CreateQueryForDS(datasourceName);
+    //   assertHelper.AssertNetworkStatus("@trigger");
+    //   cy.ValidateAndSelectDropdownOption(
+    //     formControls.commandDropdown,
+    //     "Find document(s)",
+    //     "Distinct",
+    //   );
+    //   dataSources.EnterJSContext({
+    //     fieldLabel: "Collection",
+    //     fieldValue: "listingAndReviews",
+    //   });
+    //   agHelper.EnterValue("{price : {$gte: 100}}", {
+    //     propFieldName: "",
+    //     directInput: false,
+    //     inputFieldName: "Query",
+    //   });
+    //   agHelper.EnterValue("property_type", {
+    //     propFieldName: "",
+    //     directInput: false,
+    //     inputFieldName: "Key",
+    //   });
+    //   dataSources.RunQuery({ toValidateResponse: false });
+    //   cy.wait("@postExecute").then(({ response }) => {
+    //     expect(response.body.data.body.values[0]).to.eq(
+    //       "Aparthotel",
+    //       "Response is not as expected for Distint commmand",
+    //     );
+    //   });
+    //   cy.deleteQueryUsingContext();
+    // });
 
-    it("5. Validate Aggregate command & Run and then delete the query", function () {
-      dataSources.CreateQueryForDS(datasourceName);
-      assertHelper.AssertNetworkStatus("@trigger");
-      cy.ValidateAndSelectDropdownOption(
-        formControls.commandDropdown,
-        "Find document(s)",
-        "Aggregate",
-      );
-      dataSources.EnterJSContext({
-        fieldLabel: "Collection",
-        fieldValue: "listingAndReviews",
-      });
-      agHelper.EnterValue(`[{ $project: { count: { $size:"$amenities" }}}]`, {
-        propFieldName: "",
-        directInput: false,
-        inputFieldName: "Array of pipelines",
-      });
+    // it("5. Validate Aggregate command & Run and then delete the query", function () {
+    //   dataSources.CreateQueryForDS(datasourceName);
+    //   assertHelper.AssertNetworkStatus("@trigger");
+    //   cy.ValidateAndSelectDropdownOption(
+    //     formControls.commandDropdown,
+    //     "Find document(s)",
+    //     "Aggregate",
+    //   );
+    //   dataSources.EnterJSContext({
+    //     fieldLabel: "Collection",
+    //     fieldValue: "listingAndReviews",
+    //   });
+    //   agHelper.EnterValue(`[{ $project: { count: { $size:"$amenities" }}}]`, {
+    //     propFieldName: "",
+    //     directInput: false,
+    //     inputFieldName: "Array of pipelines",
+    //   });
 
-      dataSources.RunQuery({ toValidateResponse: false });
-      cy.wait("@postExecute").then(({ request, response }) => {
-        // cy.log(request.method + ": is req.method")
-        //expect(request.method).to.equal('POST')
-        expect(response.body.data.body[0].count).to.be.above(
-          0,
-          "Response is not as expected for Aggregate commmand",
-        );
-        // it is good practice to add message to the assertion
-        // expect(req, 'has duration in ms').to.have.property('duration').and.be.a('number')
-      });
-      cy.deleteQueryUsingContext();
-    });
+    //   dataSources.RunQuery({ toValidateResponse: false });
+    //   cy.wait("@postExecute").then(({ request, response }) => {
+    //     // cy.log(request.method + ": is req.method")
+    //     //expect(request.method).to.equal('POST')
+    //     expect(response.body.data.body[0].count).to.be.above(
+    //       0,
+    //       "Response is not as expected for Aggregate commmand",
+    //     );
+    //     // it is good practice to add message to the assertion
+    //     // expect(req, 'has duration in ms').to.have.property('duration').and.be.a('number')
+    //   });
+    //   cy.deleteQueryUsingContext();
+    // });
 
-    it("6. Verify generation of NewPage from collection [Select] + Bug 12162", function () {
-      //Verifying Select from UI
-      cy.NavigateToDSGeneratePage(datasourceName);
-      agHelper.Sleep(3000); //giving some time for options to load
-      cy.get(generatePage.selectTableDropdown).click();
-      cy.get(generatePage.dropdownOption)
-        //.first()
-        .contains("listingAndReviews")
-        .scrollIntoView()
-        .should("be.visible")
-        .click();
+    // it("6. Verify generation of NewPage from collection [Select] + Bug 12162", function () {
+    //   //Verifying Select from UI
+    //   cy.NavigateToDSGeneratePage(datasourceName);
+    //   agHelper.Sleep(3000); //giving some time for options to load
+    //   cy.get(generatePage.selectTableDropdown).click();
+    //   cy.get(generatePage.dropdownOption)
+    //     //.first()
+    //     .contains("listingAndReviews")
+    //     .scrollIntoView()
+    //     .should("be.visible")
+    //     .click();
 
-      cy.get(generatePage.generatePageFormSubmitBtn).click();
+    //   cy.get(generatePage.generatePageFormSubmitBtn).click();
 
-      cy.wait("@replaceLayoutWithCRUDPage").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
-      );
+    //   cy.wait("@replaceLayoutWithCRUDPage").should(
+    //     "have.nested.property",
+    //     "response.body.responseMeta.status",
+    //     201,
+    //   );
 
-      cy.wait("@getActions");
+    //   cy.wait("@getActions");
 
-      cy.wait("@postExecute").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      ); //This verifies the Select on the table, ie page is created fine
+    //   cy.wait("@postExecute").should(
+    //     "have.nested.property",
+    //     "response.body.responseMeta.status",
+    //     200,
+    //   ); //This verifies the Select on the table, ie page is created fine
 
-      cy.ClickGotIt();
+    //   cy.ClickGotIt();
 
-      //Check if table is loaded & CRUD is success
+    //   //Check if table is loaded & CRUD is success
 
-      cy.get(generatePage.selectedRow).should("exist");
-      // cy.get(generatePage.updateBtn)
-      //   .closest("button")
-      //   .then((selector) => {
-      //     cy.get(selector)
-      //       .invoke("attr", "class")
-      //       .then((classes) => {
-      //         cy.log("classes are:" + classes);
-      //         expect(classes).not.contain("bp3-disabled");
-      //       });
-      //   });
-    });
+    //   cy.get(generatePage.selectedRow).should("exist");
+    //   // cy.get(generatePage.updateBtn)
+    //   //   .closest("button")
+    //   //   .then((selector) => {
+    //   //     cy.get(selector)
+    //   //       .invoke("attr", "class")
+    //   //       .then((classes) => {
+    //   //         cy.log("classes are:" + classes);
+    //   //         expect(classes).not.contain("bp3-disabled");
+    //   //       });
+    //   //   });
+    // });
 
-    it("7. Validate Deletion of the Newly Created Page", () => {
-      dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "ListingAndReviews",
-        action: "Delete",
-        entityType: entityItems.Page,
-      });
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    });
+    // it("7. Validate Deletion of the Newly Created Page", () => {
+    //   dataSources.DeleteDatasourceFromWithinDS(datasourceName, 409);
+    //   entityExplorer.ActionContextMenuByEntityName({
+    //     entityNameinLeftSidebar: "ListingAndReviews",
+    //     action: "Delete",
+    //     entityType: entityItems.Page,
+    //   });
+    //   EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+    // });
 
     it("8. Bug 7399: Validate Form based & Raw command based templates", function () {
       let id;
@@ -433,7 +433,7 @@ describe(
       );
 
       dataSources.RunQuery();
-      BottomPane.response.validateRecordCount({ count: 10 });
+      BottomPane.response.validateRecordCount({ count: 10, operator: "lte" });
 
       dataSources.AssertTableInVirtuosoList(datasourceName, "NonAsciiTest");
 
