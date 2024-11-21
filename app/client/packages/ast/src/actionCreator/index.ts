@@ -236,7 +236,7 @@ export const setCallbackFunctionField = (
     currentValueAstWithComments,
     0,
     undefined,
-    (type, node) => isCallExpressionNode(node),
+    (_type, node) => isCallExpressionNode(node),
   );
 
   if (found) {
@@ -717,7 +717,7 @@ export const replaceActionInQuery = (
   });
 
   simple(astWithComments, {
-    CallExpression(node) {
+    CallExpression(node: Node) {
       if (
         isCallExpressionNode(node) &&
         isMemberExpressionNode(node.callee) &&
@@ -989,7 +989,7 @@ export function getThenCatchBlocksFromQuery(
       astWithComments,
       0,
       undefined,
-      function (type, node) {
+      function (_type, node) {
         if (isCallExpressionNode(node)) {
           if (isMemberExpressionNode(node.callee)) {
             if (node.callee.object === rootCallExpression) {
@@ -1020,7 +1020,7 @@ export function getThenCatchBlocksFromQuery(
     }
 
     const secondBlockType = firstBlockType === "then" ? "catch" : "then";
-    const secondBlock = findNodeAt(ast, 0, undefined, function (type, node) {
+    const secondBlock = findNodeAt(ast, 0, undefined, function (_type, node) {
       if (isCallExpressionNode(node)) {
         if (isMemberExpressionNode(node.callee)) {
           if (node.callee.object === firstBlock) {
@@ -1073,7 +1073,7 @@ export function setThenBlockInQuery(
       astWithComments,
       0,
       undefined,
-      function (type, node) {
+      function (_type, node) {
         if (isCallExpressionNode(node)) {
           if (isMemberExpressionNode(node.callee)) {
             if (node.callee.object === rootCallExpression) {
@@ -1117,7 +1117,7 @@ export function setThenBlockInQuery(
       astWithComments,
       0,
       undefined,
-      function (type, node) {
+      function (_type, node) {
         if (isCallExpressionNode(node)) {
           if (isMemberExpressionNode(node.callee)) {
             if (node.callee.object === rootCallExpression) {
@@ -1393,7 +1393,7 @@ function findNodeWithCalleeAndProperty(
 ) {
   if (!ast || !callee || !property) return undefined;
 
-  return findNodeAt(ast, 0, undefined, function (type, node) {
+  return findNodeAt(ast, 0, undefined, function (_type, node) {
     if (isCallExpressionNode(node)) {
       if (isMemberExpressionNode(node.callee)) {
         if (node.callee.object === callee) {
@@ -1431,7 +1431,7 @@ export function getFunctionParams(code: string, evaluationVersion: number) {
 
 export function getQueryParam(
   code: string,
-  number: number,
+  _number: number,
   evaluationVersion: number,
 ) {
   try {

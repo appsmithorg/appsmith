@@ -1,7 +1,7 @@
-const readlineSync = require("readline-sync");
-const process = require("process");
-const Constants = require("./constants");
-const utils = require("./utils");
+import readlineSync from "readline-sync";
+import process from "process";
+import * as Constants from "./constants";
+import * as utils from "./utils";
 
 async function importDatabase() {
   console.log("Importing the database");
@@ -21,7 +21,7 @@ async function importDatabase() {
 }
 
 // Main application workflow
-async function run(forceOption) {
+export async function run(forceOption) {
   let errorCode = 0;
 
   await utils.ensureSupervisorIsRunning();
@@ -29,8 +29,9 @@ async function run(forceOption) {
   try {
     console.log("stop backend & rts application before import database");
     await utils.stop(["backend", "rts"]);
+    let shellCmdResult: string;
     try {
-      const shellCmdResult = await utils.execCommandReturningOutput([
+      shellCmdResult = await utils.execCommandReturningOutput([
         "mongo",
         process.env.APPSMITH_DB_URL,
         "--quiet",
@@ -41,7 +42,7 @@ async function run(forceOption) {
       console.error("Failed to execute mongo command:", error);
       throw error;
     }
-    const collectionsLen = parseInt(shellCmdResult.stdout.toString().trimEnd());
+    const collectionsLen = parseInt(shellCmdResult.trimEnd());
     if (collectionsLen > 0) {
       if (forceOption) {
         await importDatabase();
@@ -79,7 +80,3 @@ async function run(forceOption) {
     process.exit(errorCode);
   }
 }
-
-module.exports = {
-  run,
-};

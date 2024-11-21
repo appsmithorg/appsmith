@@ -1,7 +1,7 @@
-const nodemailer = require("nodemailer");
-const Constants = require("./constants");
-const utils = require("./utils");
-const logger = require("./logger");
+import nodemailer from "nodemailer";
+import * as Constants from "./constants";
+import * as utils from "./utils";
+import * as logger from "./logger";
 
 const mailEnabled = process.env.APPSMITH_MAIL_ENABLED;
 const mailFrom = process.env.APPSMITH_MAIL_FROM;
@@ -11,7 +11,7 @@ const mailUser = process.env.APPSMITH_MAIL_USERNAME;
 const mailPass = process.env.APPSMITH_MAIL_PASSWORD;
 const mailTo = process.env.APPSMITH_ADMIN_EMAILS;
 
-async function sendBackupErrorToAdmins(err, backupTimestamp) {
+export async function sendBackupErrorToAdmins(err, backupTimestamp) {
   console.log("Sending Error mail to admins.");
   try {
     if (
@@ -77,7 +77,7 @@ async function sendBackupErrorToAdmins(err, backupTimestamp) {
           user: mailUser,
           pass: mailPass,
         },
-      });
+      } as any);
 
       await transporter.sendMail({
         from: mailFrom,
@@ -90,7 +90,3 @@ async function sendBackupErrorToAdmins(err, backupTimestamp) {
     await logger.backup_error(err.stack);
   }
 }
-
-module.exports = {
-  sendBackupErrorToAdmins,
-};
