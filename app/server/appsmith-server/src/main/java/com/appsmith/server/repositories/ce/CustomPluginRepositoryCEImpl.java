@@ -12,7 +12,7 @@ public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plu
         implements CustomPluginRepositoryCE {
 
     @Override
-    public List<Plugin> findDefaultPluginIcons(, EntityManager entityManager) {
+    public List<Plugin> findDefaultPluginIcons(EntityManager entityManager) {
         List<String> projections = List.of(Plugin.Fields.name, Plugin.Fields.packageName, Plugin.Fields.iconLocation);
         return queryBuilder()
                 .criteria(Bridge.isTrue(Plugin.Fields.defaultInstall))
