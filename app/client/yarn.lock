@@ -13033,6 +13033,7 @@ __metadata:
     react-json-view: ^1.21.3
     react-media-recorder: ^1.6.1
     react-modal: ^3.15.1
+    react-multi-date-picker: ^4.4.1
     react-page-visibility: ^7.0.0
     react-player: ^2.3.1
     react-qr-barcode-scanner: ^1.0.6
@@ -28568,6 +28569,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-date-object@npm:^2.1.8":
+  version: 2.1.9
+  resolution: "react-date-object@npm:2.1.9"
+  checksum: 47df9fe2450419a6fa8d0f72beb1468ae6b4361c9012c99d3b4c55b39baf0e6ba380a53c3bdf571879ddc93bd0f212262135ccd32b096066c0aba466dfacf4f3
+  languageName: node
+  linkType: hard
+
 "react-datepicker@npm:^4.10.0":
   version: 4.11.0
   resolution: "react-datepicker@npm:4.11.0"
@@ -28724,6 +28732,16 @@ __metadata:
   peerDependencies:
     react: 17.0.2
   checksum: 1c1eaa3bca7c7228d24b70932e3d7c99e70d1d04e13bb0843bbf321582bc25d7961d6b8a6978a58a598af2af496d1cedcfb1bf65f6b0960a0a8161cb8dab743c
+  languageName: node
+  linkType: hard
+
+"react-element-popper@npm:^2.1.6":
+  version: 2.1.7
+  resolution: "react-element-popper@npm:2.1.7"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: b1d918c11f9749227fa8d8d5721788f67ff1f1071899e091b61b2e4682c5001d00374791781e161ddf54d0d8f28876dfbbf8295172e5cf0fbe246c941c492066
   languageName: node
   linkType: hard
 
@@ -28909,6 +28927,19 @@ __metadata:
     react: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
     react-dom: ^0.14.0 || ^15.0.0 || ^16 || ^17 || ^18
   checksum: ee99ca312c35bcec9ef0868babf970ce03c52801731e29be336bb6bdc867a1ecf00a73e1fb5bc3b1b1ef66ceb0c9b4a0199fadb85b1b9829f731409951b018f0
+  languageName: node
+  linkType: hard
+
+"react-multi-date-picker@npm:^4.4.1":
+  version: 4.5.2
+  resolution: "react-multi-date-picker@npm:4.5.2"
+  dependencies:
+    react-date-object: ^2.1.8
+    react-element-popper: ^2.1.6
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 6ed0e03f2c07d409c1d0db040a94d6aa632f81b62d017c0167b90d51a7587ade8b29abcd520ef0d41a93253d37607e8275cff9f4c9c748875fafb49f4e9efc99
   languageName: node
   linkType: hard
 
