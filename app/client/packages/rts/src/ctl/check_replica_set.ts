@@ -1,13 +1,14 @@
-const { MongoClient, MongoServerError } = require("mongodb");
-const { preprocessMongoDBURI } = require("./utils");
+import { MongoClient, MongoServerError } from "mongodb";
 
-async function exec() {
+import { preprocessMongoDBURI } from "./utils";
+
+export async function exec() {
   const client = new MongoClient(
     preprocessMongoDBURI(process.env.APPSMITH_DB_URL),
     {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-    },
+    } as any,
   );
 
   let isReplicaSetEnabled = false;
@@ -23,9 +24,9 @@ async function exec() {
   process.exit(isReplicaSetEnabled ? 0 : 1);
 }
 
-async function checkReplicaSet(client) {
+async function checkReplicaSet(client: MongoClient) {
   await client.connect();
-  return await new Promise((resolve) => {
+  return await new Promise<boolean>((resolve) => {
     try {
       const changeStream = client
         .db()
@@ -56,7 +57,3 @@ async function checkReplicaSet(client) {
     }
   });
 }
-
-module.exports = {
-  exec,
-};

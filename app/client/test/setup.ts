@@ -3,6 +3,9 @@ import { handlers } from "./__mocks__/apiHandlers";
 import "../src/polyfills/requestIdleCallback";
 import { Crypto } from "@peculiar/webcrypto";
 
+// since global crypto is immutable, we need to first delete it and then use the
+// peculiar crypto lisrc/sagas/helper.test.tsb
+delete global['crypto'];
 global.crypto = new Crypto();
 
 export const server = setupServer(...handlers);

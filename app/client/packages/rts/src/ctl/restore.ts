@@ -1,12 +1,12 @@
-const fsPromises = require("fs/promises");
-const path = require("path");
-const os = require("os");
-const readlineSync = require("readline-sync");
+// @ts-ignore
+import fsPromises from "fs/promises";
+import path from "path";
+import os from "os";
+import readlineSync from "readline-sync";
+import * as utils from "./utils";
+import * as Constants from "./constants";
 
-const utils = require("./utils");
-const Constants = require("./constants");
 const command_args = process.argv.slice(3);
-const { getCurrentAppsmithVersion } = require("./utils");
 
 async function getBackupFileName() {
   const backupFiles = await utils.listLocalBackupFiles();
@@ -44,7 +44,7 @@ async function getBackupFileName() {
     backupFileIndex >= 0 &&
     backupFileIndex < backupFiles.length
   ) {
-    return backupFiles[parseInt(backupFileIndex, 10)];
+    return backupFiles[backupFileIndex];
   } else {
     console.log(
       "Invalid input, please try the command again with a valid option",
@@ -221,7 +221,7 @@ async function restoreGitStorageArchive(restoreContentsPath, backupName) {
 }
 
 async function checkRestoreVersionCompatability(restoreContentsPath) {
-  const currentVersion = await getCurrentAppsmithVersion();
+  const currentVersion = await utils.getCurrentAppsmithVersion();
   const manifest_data = await fsPromises.readFile(
     restoreContentsPath + "/manifest.json",
     { encoding: "utf8" },
@@ -280,7 +280,7 @@ async function getBackupDatabaseName(restoreContentsPath) {
   return db_name;
 }
 
-async function run() {
+export async function run() {
   let errorCode = 0;
   let cleanupArchive = false;
   let overwriteEncryptionKeys = true;
@@ -354,7 +354,3 @@ async function run() {
 function isArchiveEncrypted(backupFilePath) {
   return backupFilePath.endsWith(".enc");
 }
-
-module.exports = {
-  run,
-};

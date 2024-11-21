@@ -1,16 +1,17 @@
-const fsPromises = require("fs/promises");
-const path = require("path");
-const os = require("os");
-const utils = require("./utils");
-const Constants = require("./constants");
-const logger = require("./logger");
-const mailer = require("./mailer");
-const tty = require("tty");
-const readlineSync = require("readline-sync");
+// @ts-ignore
+import fsPromises from "fs/promises";
+import path from "path";
+import os from "os";
+import * as utils from "./utils";
+import * as Constants from "./constants";
+import * as logger from "./logger";
+import * as mailer from "./mailer";
+import tty from "tty";
+import readlineSync from "readline-sync";
 
 const command_args = process.argv.slice(3);
 
-async function run() {
+export async function run() {
   const timestamp = getTimeStampInISO();
   let errorCode = 0;
   let backupRootPath, archivePath, encryptionPassword;
@@ -39,7 +40,7 @@ async function run() {
 
     if (
       !command_args.includes("--non-interactive") &&
-      tty.isatty(process.stdout.fd)
+      tty.isatty((process.stdout as any).fd)
     ) {
       encryptionPassword = getEncryptionPasswordFromUser();
       if (encryptionPassword == -1) {
@@ -116,7 +117,7 @@ async function run() {
   }
 }
 
-async function encryptBackupArchive(archivePath, encryptionPassword) {
+export async function encryptBackupArchive(archivePath, encryptionPassword) {
   const encryptedArchivePath = archivePath + ".enc";
   await utils.execCommand([
     "openssl",
@@ -135,7 +136,7 @@ async function encryptBackupArchive(archivePath, encryptionPassword) {
   return encryptedArchivePath;
 }
 
-function getEncryptionPasswordFromUser() {
+export function getEncryptionPasswordFromUser() {
   for (const _ of [1, 2, 3]) {
     const encryptionPwd1 = readlineSync.question(
       "Enter a password to encrypt the backup archive: ",
@@ -208,7 +209,7 @@ async function exportDockerEnvFile(destFolder, encryptArchive) {
   console.log("Exporting docker environment file done.");
 }
 
-async function executeMongoDumpCMD(destFolder, appsmithMongoURI) {
+export async function executeMongoDumpCMD(destFolder, appsmithMongoURI) {
   return await utils.execCommand([
     "mongodump",
     `--uri=${appsmithMongoURI}`,
@@ -238,7 +239,7 @@ async function createFinalArchive(destFolder, timestamp) {
 
 async function postBackupCleanup() {
   console.log("Starting the cleanup task after taking a backup.");
-  let backupArchivesLimit = getBackupArchiveLimit(
+  const backupArchivesLimit = getBackupArchiveLimit(
     process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT,
   );
   const backupFiles = await utils.listLocalBackupFiles();
@@ -248,7 +249,8 @@ async function postBackupCleanup() {
   }
   console.log("Cleanup task completed.");
 }
-async function executeCopyCMD(srcFolder, destFolder) {
+
+export async function executeCopyCMD(srcFolder, destFolder) {
   return await utils.execCommand([
     "ln",
     "-s",
@@ -257,22 +259,22 @@ async function executeCopyCMD(srcFolder, destFolder) {
   ]);
 }
 
-function getGitRoot(gitRoot) {
+export function getGitRoot(gitRoot?) {
   if (gitRoot == null || gitRoot === "") {
     gitRoot = "/appsmith-stacks/git-storage";
   }
   return gitRoot;
 }
 
-function generateBackupRootPath() {
+export function generateBackupRootPath() {
   return fsPromises.mkdtemp(path.join(os.tmpdir(), "appsmithctl-backup-"));
 }
 
-function getBackupContentsPath(backupRootPath, timestamp) {
+export function getBackupContentsPath(backupRootPath, timestamp) {
   return backupRootPath + "/appsmith-backup-" + timestamp;
 }
 
-function removeSensitiveEnvData(content) {
+export function removeSensitiveEnvData(content) {
   // Remove encryption and Mongodb data from docker.env
   const output_lines = [];
   content.split(/\r?\n/).forEach((line) => {
@@ -287,13 +289,13 @@ function removeSensitiveEnvData(content) {
   return output_lines.join("\n");
 }
 
-function getBackupArchiveLimit(backupArchivesLimit) {
+export function getBackupArchiveLimit(backupArchivesLimit?) {
   if (!backupArchivesLimit)
     backupArchivesLimit = Constants.APPSMITH_DEFAULT_BACKUP_ARCHIVE_LIMIT;
   return backupArchivesLimit;
 }
 
-async function removeOldBackups(backupFiles, backupArchivesLimit) {
+export async function removeOldBackups(backupFiles, backupArchivesLimit) {
   while (backupFiles.length > backupArchivesLimit) {
     const fileName = backupFiles.shift();
     await fsPromises.rm(Constants.BACKUP_PATH + "/" + fileName);
@@ -301,36 +303,19 @@ async function removeOldBackups(backupFiles, backupArchivesLimit) {
   return backupFiles;
 }
 
-function getTimeStampInISO() {
+export function getTimeStampInISO() {
   return new Date().toISOString().replace(/:/g, "-");
 }
 
-async function getAvailableBackupSpaceInBytes(path) {
+export async function getAvailableBackupSpaceInBytes(path) {
   const stat = await fsPromises.statfs(path);
   return stat.bsize * stat.bfree;
 }
 
-function checkAvailableBackupSpace(availSpaceInBytes) {
+export function checkAvailableBackupSpace(availSpaceInBytes) {
   if (availSpaceInBytes < Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES) {
     throw new Error(
       "Not enough space available at /appsmith-stacks. Please ensure availability of at least 2GB to backup successfully.",
     );
   }
 }
-
-module.exports = {
-  run,
-  getTimeStampInISO,
-  getAvailableBackupSpaceInBytes,
-  checkAvailableBackupSpace,
-  generateBackupRootPath,
-  getBackupContentsPath,
-  executeMongoDumpCMD,
-  getGitRoot,
-  executeCopyCMD,
-  removeSensitiveEnvData,
-  getBackupArchiveLimit,
-  removeOldBackups,
-  getEncryptionPasswordFromUser,
-  encryptBackupArchive,
-};
