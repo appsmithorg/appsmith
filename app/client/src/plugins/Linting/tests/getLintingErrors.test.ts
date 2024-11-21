@@ -500,10 +500,14 @@ describe.each(linterTypes)(
 
       // Test for 'funcscope: true' (Allow variable definitions inside control statements)
       it("12. Should allow variable definitions inside control statements without errors", () => {
-        const data = {};
+        const data = {
+          THIS_CONTEXT: {},
+        };
         const originalBinding =
-          "{{ if (true) { var x = 1; } console.log(x); }}";
-        const script = "if (true) { var x = 1; } console.log(x);";
+          "myFun1() {\n\t\tif (true) { var x = 1; console.log(x); } x+=1;\n\t};";
+        const script =
+          "\n  function $$closedFn () {\n    const $$result = {myFun1() {\n\t\tif (true) { var x = 1; console.log(x); } x+=1;\n\t}};\n    return $$result;\n  }\n  $$closedFn.call(THIS_CONTEXT);\n";
+        const options = { isJsObject: true };
 
         const scriptType = getScriptType(false, true);
 
@@ -513,6 +517,7 @@ describe.each(linterTypes)(
           originalBinding,
           script,
           scriptType,
+          options,
           webworkerTelemetry,
         });
 
