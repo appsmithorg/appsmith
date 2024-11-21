@@ -1,4 +1,4 @@
-import { all, put, select, takeEvery } from "redux-saga/effects";
+import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import type { ApplicationPayload } from "entities/Application";
 import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
@@ -10,11 +10,7 @@ import {
 import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import {
-  generateTemplateFormURL,
-  saasEditorApiIdURL,
-  saasEditorDatasourceIdURL,
-} from "ee/RouteBuilder";
+import { saasEditorApiIdURL, saasEditorDatasourceIdURL } from "ee/RouteBuilder";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";
@@ -28,6 +24,7 @@ import {
 } from "ee/selectors/applicationSelectors";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
+import { openGeneratePageModalWithSelectedDS } from "../utils/GeneratePageUtils";
 
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
@@ -63,25 +60,7 @@ function* handleDatasourceCreatedSaga(
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
     yield select(getGenerateCRUDEnabledPluginMap);
 
-  // isGeneratePageInitiator ensures that datasource is being created from generate page with data
-  // then we check if the current plugin is supported for generate page with data functionality
-  // and finally isDBCreated ensures that datasource is not in temporary state and
-  // user has explicitly saved the datasource, before redirecting back to generate page
   if (
-    isGeneratePageInitiator &&
-    updatedDatasource.pluginId &&
-    generateCRUDSupportedPlugin[updatedDatasource.pluginId] &&
-    isDBCreated
-  ) {
-    history.push(
-      generateTemplateFormURL({
-        basePageId,
-        params: {
-          datasourceId: updatedDatasource.id,
-        },
-      }),
-    );
-  } else if (
     !currentApplicationIdForCreateNewApp ||
     (!!currentApplicationIdForCreateNewApp && payload.id !== TEMP_DATASOURCE_ID)
   ) {
@@ -98,6 +77,20 @@ function* handleDatasourceCreatedSaga(
       }),
     );
   }
+
+  // isGeneratePageInitiator ensures that datasource is being created from generate page with data
+  // then we check if the current plugin is supported for generate page with data functionality
+  // and finally isDBCreated ensures that datasource is not in temporary state and
+  // user has explicitly saved the datasource, before redirecting back to generate page
+  yield call(openGeneratePageModalWithSelectedDS, {
+    shouldOpenModalWIthSelectedDS: Boolean(
+      isGeneratePageInitiator &&
+        updatedDatasource.pluginId &&
+        generateCRUDSupportedPlugin[updatedDatasource.pluginId] &&
+        isDBCreated,
+    ),
+    datasourceId: updatedDatasource.id,
+  });
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {

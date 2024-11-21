@@ -28,6 +28,7 @@ import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.solutions.UpdateSuperUserMigrationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.solutions.PolicySolution;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -446,14 +447,11 @@ public class DatabaseChangelog2 {
     /**
      * Changing the order of this function to 10000 so that it always gets executed at the end.
      * This ensures that any permission changes for super users happen once all other migrations are completed
-     *
-     * @param mongoTemplate
-     * @param cacheableRepositoryHelper
      */
     @ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true)
     public void updateSuperUsers(
             MongoTemplate mongoTemplate,
-            CacheableRepositoryHelper cacheableRepositoryHelper,
+            PermissionGroupRepository permissionGroupRepository,
             PolicySolution policySolution,
             PolicyGenerator policyGenerator) {
         // Read the admin emails from the environment and update the super users accordingly
@@ -499,7 +497,7 @@ public class DatabaseChangelog2 {
 
         Set<String> oldSuperUsers = instanceAdminPG.getAssignedToUserIds();
         Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
-        evictPermissionCacheForUsers(updatedUserIds, mongoTemplate, cacheableRepositoryHelper);
+        evictPermissionCacheForUsers(updatedUserIds, mongoTemplate, permissionGroupRepository);
 
         Update update = new Update().set(PermissionGroup.Fields.assignedToUserIds, userIds);
         mongoTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);
