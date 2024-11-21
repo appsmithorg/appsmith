@@ -808,7 +808,7 @@ export function canTranslateToUI(
         canTranslate = false;
       }
     },
-    LogicalExpression(node: Node) {
+    LogicalExpression(node) {
       // @ts-expect-error: types not matched
       if (isCallExpressionNode(node.left) || isCallExpressionNode(node.right)) {
         canTranslate = false;
