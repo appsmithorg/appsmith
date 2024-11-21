@@ -1,3 +1,4 @@
+// @ts-ignore
 import fsPromises from "fs/promises";
 import path from "path";
 import os from "os";
@@ -39,7 +40,7 @@ export async function run() {
 
     if (
       !command_args.includes("--non-interactive") &&
-      tty.isatty(process.stdout.fd)
+      tty.isatty((process.stdout as any).fd)
     ) {
       encryptionPassword = getEncryptionPasswordFromUser();
       if (encryptionPassword == -1) {
