@@ -497,6 +497,51 @@ describe.each(linterTypes)(
         expect(lintError.severity).toBe(Severity.ERROR);
         expect(lintError.errorMessage.message).toBe(expectedMessage);
       });
+
+      // Test for 'funcscope: true' (Allow variable definitions inside control statements)
+      it("12. Should allow variable definitions inside control statements without errors", () => {
+        const data = {};
+        const originalBinding =
+          "{{ if (true) { var x = 1; } console.log(x); }}";
+        const script = "if (true) { var x = 1; } console.log(x);";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have no errors
+        expect(lintErrors.length).toEqual(0);
+      });
+
+      // Test for 'sub: true' (Allow all property accessors)
+      it("13. Should allow bracket notation property access without errors", () => {
+        const data = { obj: { property: 1 } };
+        const originalBinding = "{{ obj['property']; }}";
+        const script = "obj['property'];";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have no errors for using bracket notation
+        expect(lintErrors.length).toEqual(0);
+      });
     });
   },
 );
