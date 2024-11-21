@@ -20,10 +20,12 @@ SUBSCRIBE_WRAPPER = (
     "%s.subscribeOn(Schedulers.boundedElastic())"
 )
 MONO_WRAPPER = "asMono(() -> %s)"
+MONO_WRAPPER_WITH_ENTITY_MANAGER = "Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager))).flatMap(entityManager -> asMono(() -> %s))"
 MONO_WRAPPER_NON_OPTIONAL = (
     SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s)"
 )
 FLUX_WRAPPER = "asFlux(() -> %s)"
+FLUX_WRAPPER_WITH_ENTITY_MANAGER = "Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager))).flatMapMany(entityManager -> asFlux(() -> %s))"
 FLUX_WRAPPER_WITH_USER_CONTEXT = "ReactiveContextUtils.getCurrentUser().zipWith(Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))).flatMapMany(tuple2 -> %s)"
 MONO_WRAPPER_WITH_USER_CONTEXT = "ReactiveContextUtils.getCurrentUser().zipWith(Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))).flatMap(tuple2 -> %s)"
 
@@ -157,9 +159,20 @@ def add_entity_manager_arg(domain):
             r"\1, EntityManager entityManager)",
             content
         )
+        content = content.replace(".one", ".entityManager(entityManager).one")
+        content = content.replace(".all", ".entityManager(entityManager).all")
+        content = content.replace(".first", ".entityManager(entityManager).first")
+        content = content.replace(".count", ".entityManager(entityManager).count")
+        content = content.replace(".updateAll", ".entityManager(entityManager).updateAll")
+        content = content.replace(".updateFirst", ".entityManager(entityManager).updateFirst")
+        content = content.replace(".entityManager(entityManager).entityManager(entityManager)", ".entityManager(entityManager)")
+
         # Remove duplicate EntityManager entityManager arguments
         regex = r"EntityManager\s+entityManager,\s*EntityManager\s+entityManager"
         subst = "EntityManager entityManager"
+        content = re.sub(regex, subst, content)
+        regex = r".entityManager\s+(entityManager)\s*.entityManager\s+(entityManager)"
+        subst = ".entityManager(entityManager)"
         content = re.sub(regex, subst, content)
         update_file(full_path, content)
 
@@ -235,10 +248,10 @@ def generate_cake_class(domain):
 
         if ret_type.startswith("Optional"):
             ret_type = ret_type.replace("Optional", "Mono")
-            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % MONO_WRAPPER if "AclPermission" in signature else MONO_WRAPPER
+            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % MONO_WRAPPER if "AclPermission" in signature else MONO_WRAPPER_WITH_ENTITY_MANAGER
         elif ret_type.startswith(("List", "Iterable")):
             ret_type = ret_type.replace("List", "Flux").replace("Iterable", "Flux")
-            wrapper = FLUX_WRAPPER_WITH_USER_CONTEXT % FLUX_WRAPPER if "AclPermission" in signature else FLUX_WRAPPER
+            wrapper = FLUX_WRAPPER_WITH_USER_CONTEXT % FLUX_WRAPPER if "AclPermission" in signature else FLUX_WRAPPER_WITH_ENTITY_MANAGER
         elif ret_type.startswith("Mono<"):
             wrapper = SUBSCRIBE_WRAPPER
         elif not ret_type.islower():
@@ -256,20 +269,25 @@ def generate_cake_class(domain):
         while "<" in call:
             # Remove all generics in type definitions.
             call = re.sub(r"<[^<>]+?>", "", call)
-            call.replace("currentUser","tuple2.getT1()").replace("entityManager","tuple2.getT2()")
 
         signature_wo_user_context = replace_exact_word(signature, ", User currentUser", "")
-        signature_wo_user_context = replace_exact_word(signature_wo_user_context, ", EntityManager entityManager", "")
+        signature_wo_user_and_entity_mgr = replace_exact_word(signature_wo_user_context, "EntityManager entityManager", "")
+        signature_wo_user_and_entity_mgr = signature_wo_user_and_entity_mgr.replace(", )", ")")
         call = re.sub(
             # Replace type declarations, and leave the argument names.
             r"[A-Za-z.]+?\s(\w+)([,)])", r"\1\2", call
         ).replace("baseRepository", "repository")
+
+        # Replace currentUser and entityManager with tuple2.getT1() and tuple2.getT2() respectively in the call.
+        if "tuple2" in wrapper:
+            call = call.replace("currentUser", "tuple2.getT1()").replace("entityManager", "tuple2.getT2()")
+
         reactor_methods.append(
-            f"/** @see {method.ref} */\n"
-            + "public "
+            # f"/** @see {method.ref} */\n"
+            f"public "
             + ret_type
             + " "
-            + signature_wo_user_context
+            + signature_wo_user_and_entity_mgr
             + " {\n    return "
             + (wrapper % ("repository." + call))
             + ";\n}\n"

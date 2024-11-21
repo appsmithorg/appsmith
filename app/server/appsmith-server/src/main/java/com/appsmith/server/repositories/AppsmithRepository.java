@@ -13,9 +13,7 @@ import java.util.Optional;
 
 public interface AppsmithRepository<T extends BaseDomain> {
 
-    Optional<T> findById(String id, AclPermission permission, User currentUser);
-
-    Optional<T> findById(String id, AclPermission permission, User currentUser, EntityManager em);
+    Optional<T> findById(String id, AclPermission permission, User currentUser, EntityManager entityManager);
 
     /**
      * This method is used to find a domain by its ID without checking for permissions. This method should be used
@@ -23,13 +21,12 @@ public interface AppsmithRepository<T extends BaseDomain> {
      * @param id ID of the domain to be found
      * @return Domain with the given ID if it exists, empty otherwise
      */
-    Optional<T> getById(String id);
+    Optional<T> getById(String id, EntityManager entityManager);
 
-    Optional<T> updateById(String id, T resource, AclPermission permission, User currentUser);
+    Optional<T> updateById(
+            String id, T resource, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    Optional<T> updateById(String id, T resource, AclPermission permission, User currentUser, EntityManager em);
-
-    int updateByIdWithoutPermissionCheck(String id, BridgeUpdate update);
+    int updateByIdWithoutPermissionCheck(String id, BridgeUpdate update, EntityManager entityManager);
 
     /*no-cake*/ QueryAllParams<T> queryBuilder();
 
@@ -37,7 +34,8 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     T setUserPermissionsInObject(T obj, User user);
 
-    T updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission, User currentUser);
+    T updateAndReturn(
+            String id, BridgeUpdate updateObj, AclPermission permission, User currentUser, EntityManager entityManager);
 
     /**
      * This method uses the mongodb bulk operation to save a list of new actions. When calling this method, please note
@@ -50,7 +48,9 @@ public interface AppsmithRepository<T extends BaseDomain> {
      * @param domainList List of domains that'll be saved in bulk
      * @return List of actions that were passed in the method
      */
-    Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> domainList);
+    Optional<Void> bulkInsert(
+            BaseRepository<T, String> baseRepository, List<T> domainList, EntityManager entityManager);
 
-    Optional<Void> bulkUpdate(BaseRepository<T, String> baseRepository, List<T> domainList);
+    Optional<Void> bulkUpdate(
+            BaseRepository<T, String> baseRepository, List<T> domainList, EntityManager entityManager);
 }

@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.AppsmithRepository;
+import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
@@ -13,14 +14,17 @@ import java.util.Set;
 
 public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewAction> {
 
-    List<NewAction> findByApplicationId(String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
+    List<NewAction> findByApplicationId(
+            String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
 
     Optional<NewAction> findByUnpublishedNameAndPageId(
             String name, String pageId, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    List<NewAction> findByPageId(String pageId, AclPermission permission, User currentUser, EntityManager entityManager);
+    List<NewAction> findByPageId(
+            String pageId, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    List<NewAction> findByPageId(String pageId, Optional<AclPermission> permission, User currentUser, EntityManager entityManager);
+    List<NewAction> findByPageId(
+            String pageId, Optional<AclPermission> permission, User currentUser, EntityManager entityManager);
 
     List<NewAction> findByPageId(String pageId, EntityManager entityManager);
 
@@ -34,58 +38,111 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
             String pageId, AclPermission permission, User currentUser, EntityManager entityManager);
 
     List<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
-            String name, List<String> pageIds, Boolean viewMode, AclPermission permission, User currentUser, Sort sort, EntityManager entityManager);
-
-    List<NewAction> findByApplicationId(String applicationId, AclPermission permission, User currentUser, Sort sort, EntityManager entityManager);
-
-    List<NewAction> findPublishedActionsByPageIdAndExcludedPluginType(
-            String pageId, List<String> pluginTypes, AclPermission permission, User currentUser, Sort sort, EntityManager entityManager);
-
-    List<NewAction> findPublishedActionsByAppIdAndExcludedPluginType(
-            String appId, List<String> pluginTypes, AclPermission permission, User currentUser, Sort sort, EntityManager entityManager);
+            String name,
+            List<String> pageIds,
+            Boolean viewMode,
+            AclPermission permission,
+            User currentUser,
+            Sort sort,
+            EntityManager entityManager);
 
     List<NewAction> findByApplicationId(
-            String applicationId, Optional<AclPermission> permission, User currentUser, Optional<Sort> sort, EntityManager entityManager);
+            String applicationId, AclPermission permission, User currentUser, Sort sort, EntityManager entityManager);
+
+    List<NewAction> findPublishedActionsByPageIdAndExcludedPluginType(
+            String pageId,
+            List<String> pluginTypes,
+            AclPermission permission,
+            User currentUser,
+            Sort sort,
+            EntityManager entityManager);
+
+    List<NewAction> findPublishedActionsByAppIdAndExcludedPluginType(
+            String appId,
+            List<String> pluginTypes,
+            AclPermission permission,
+            User currentUser,
+            Sort sort,
+            EntityManager entityManager);
+
+    List<NewAction> findByApplicationId(
+            String applicationId,
+            Optional<AclPermission> permission,
+            User currentUser,
+            Optional<Sort> sort,
+            EntityManager entityManager);
 
     List<NewAction> findByApplicationIdAndViewMode(
-            String applicationId, Boolean viewMode, AclPermission permission, User currentUser, EntityManager entityManager);
+            String applicationId,
+            Boolean viewMode,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager);
 
     Optional<Long> countByDatasourceId(String datasourceId, EntityManager entityManager);
 
     Optional<NewAction> findByBranchNameAndBaseActionId(
-            String branchName, String baseActionId, Boolean viewMode, AclPermission permission, User currentUser, EntityManager entityManager);
+            String branchName,
+            String baseActionId,
+            Boolean viewMode,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager);
 
-    List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission, User currentUser, EntityManager entityManager);
+    List<NewAction> findByPageIds(
+            List<String> pageIds, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    List<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission, User currentUser, EntityManager entityManager);
+    List<NewAction> findByPageIds(
+            List<String> pageIds, Optional<AclPermission> permission, User currentUser, EntityManager entityManager);
 
     List<NewAction> findNonJsActionsByApplicationIdAndViewMode(
-            String applicationId, Boolean viewMode, AclPermission permission, User currentUser, EntityManager entityManager);
+            String applicationId,
+            Boolean viewMode,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager);
 
     List<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
-            String name, List<String> pageIds, Boolean viewMode, AclPermission permission, User currentUser, Sort sort, EntityManager entityManager);
+            String name,
+            List<String> pageIds,
+            Boolean viewMode,
+            AclPermission permission,
+            User currentUser,
+            Sort sort,
+            EntityManager entityManager);
 
-    Optional<Void> publishActions(String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
+    Optional<Void> publishActions(
+            String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
 
     Optional<Integer> archiveDeletedUnpublishedActions(
             String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    List<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields, EntityManager entityManager);
+    List<NewAction> findAllByApplicationIdsWithoutPermission(
+            List<String> applicationIds, List<String> includeFields, EntityManager entityManager);
 
     List<NewAction> findAllByCollectionIds(
-            List<String> collectionIds, boolean viewMode, AclPermission permission, User currentUser, EntityManager entityManager);
+            List<String> collectionIds,
+            boolean viewMode,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager);
 
     List<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId,
             CreatorContextType contextType,
-            AclPermission permission, User currentUser,
-            boolean includeJs, EntityManager entityManager);
+            AclPermission permission,
+            User currentUser,
+            boolean includeJs,
+            EntityManager entityManager);
 
     List<NewAction> findAllPublishedActionsByContextIdAndContextType(
             String contextId,
             CreatorContextType contextType,
-            AclPermission permission, User currentUser,
-            boolean includeJs, EntityManager entityManager);
+            AclPermission permission,
+            User currentUser,
+            boolean includeJs,
+            EntityManager entityManager);
 
-    List<NewAction> findAllByApplicationIds(List<String> branchedArtifactIds, List<String> includedFields, EntityManager entityManager);
+    List<NewAction> findAllByApplicationIds(
+            List<String> branchedArtifactIds, List<String> includedFields, EntityManager entityManager);
 }

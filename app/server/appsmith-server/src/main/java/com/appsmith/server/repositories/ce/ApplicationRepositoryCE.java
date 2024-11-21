@@ -25,7 +25,8 @@ public interface ApplicationRepositoryCE extends BaseRepository<Application, Str
 
     List<Application> findByClonedFromApplicationId(String clonedFromApplicationId, EntityManager entityManager);
 
-    Optional<Long> countByDeletedAtNull(, EntityManager entityManager);
+    Optional<Long> countByDeletedAtNull(EntityManager entityManager);
 
-    Optional<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration, EntityManager entityManager);
+    Optional<Application> findByIdAndExportWithConfiguration(
+            String id, boolean exportWithConfiguration, EntityManager entityManager);
 }

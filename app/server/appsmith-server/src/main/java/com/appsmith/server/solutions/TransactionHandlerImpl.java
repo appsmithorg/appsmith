@@ -8,7 +8,6 @@ import com.appsmith.server.repositories.DatasourceStorageRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.ThemeRepository;
-import com.appsmith.server.solutions.ce.TransactionHandlerCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;

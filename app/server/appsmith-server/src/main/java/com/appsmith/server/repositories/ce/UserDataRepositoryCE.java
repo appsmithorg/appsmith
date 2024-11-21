@@ -4,6 +4,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.projections.UserDataProfilePhotoProjection;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomUserDataRepository;
+import jakarta.persistence.EntityManager;
 
 import java.util.Collection;
 import java.util.List;

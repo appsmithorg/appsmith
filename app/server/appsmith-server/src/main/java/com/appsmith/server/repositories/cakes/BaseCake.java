@@ -41,9 +41,6 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     private final R repository;
 
     @Autowired
-    private EntityManager entityManager;
-
-    @Autowired
     private CacheableRepositoryHelper cacheableRepositoryHelper;
 
     protected final Class<T> genericDomain;
@@ -149,10 +146,6 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
 
     public Mono<T> findById(String id) {
         return Mono.fromSupplier(() -> repository.findById(id).orElse(null)).subscribeOn(Schedulers.boundedElastic());
-    }
-
-    public Mono<T> findById(String id, AclPermission permission) {
-        return findById(id, permission, entityManager);
     }
 
     public Mono<T> findById(String id, AclPermission permission, EntityManager em) {

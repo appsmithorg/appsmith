@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.repositories.BaseRepository;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 
 import java.util.List;
@@ -15,5 +16,6 @@ public interface ApplicationSnapshotRepositoryCE
     @Transactional
     Optional<Void> deleteAllByApplicationId(String applicationId, EntityManager entityManager);
 
-    Optional<ApplicationSnapshotResponseDTO> findByApplicationIdAndChunkOrder(String applicationId, Integer chunkOrder, EntityManager entityManager);
+    Optional<ApplicationSnapshotResponseDTO> findByApplicationIdAndChunkOrder(
+            String applicationId, Integer chunkOrder, EntityManager entityManager);
 }

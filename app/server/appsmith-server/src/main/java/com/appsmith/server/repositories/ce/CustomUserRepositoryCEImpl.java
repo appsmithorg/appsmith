@@ -33,7 +33,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
      * @return Boolean, indicated where there exists at least one user in the system or not.
      */
     @Override
-    public Optional<Boolean> isUsersEmpty(, EntityManager entityManager) {
+    public Optional<Boolean> isUsersEmpty(EntityManager entityManager) {
         return Optional.of(queryBuilder()
                 .criteria(Bridge.notIn(User.Fields.email, getSystemGeneratedUserEmails()))
                 .limit(1)

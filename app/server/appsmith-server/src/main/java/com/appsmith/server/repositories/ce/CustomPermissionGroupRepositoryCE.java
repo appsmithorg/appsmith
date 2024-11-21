@@ -5,6 +5,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.AppsmithRepository;
+import jakarta.persistence.EntityManager;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,8 @@ public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<Pe
 
     int updateById(String id, BridgeUpdate updateObj, EntityManager entityManager);
 
-    List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager);
+    List<PermissionGroup> findByDefaultWorkspaceId(
+            String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager);
 
     List<PermissionGroup> findByDefaultWorkspaceIds(
             Set<String> workspaceIds, AclPermission permission, User currentUser, EntityManager entityManager);
@@ -31,7 +33,9 @@ public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<Pe
     List<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds,
             Optional<List<String>> includeFields,
-            Optional<AclPermission> permission, User currentUser, EntityManager entityManager);
+            Optional<AclPermission> permission,
+            User currentUser,
+            EntityManager entityManager);
 
     Set<String> getPermissionGroupsForUser(User user, EntityManager entityManager);
 

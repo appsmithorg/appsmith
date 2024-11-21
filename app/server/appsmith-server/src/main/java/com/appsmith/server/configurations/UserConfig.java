@@ -14,6 +14,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.PolicySolution;
+import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +40,7 @@ public class UserConfig {
     private final ConfigRepository configRepository;
     private final TenantRepository tenantRepository;
     private final UpdateSuperUserHelper updateSuperUserHelper = new UpdateSuperUserHelper();
+    private final EntityManager entityManager;
 
     /**
      * Responsible for creating super-users based on the admin emails provided in the environment.
@@ -50,7 +52,8 @@ public class UserConfig {
 
         Set<String> adminEmails = TextUtils.csvToSet(adminEmailsStr);
 
-        Optional<Config> instanceAdminConfigurationOptional = configRepository.findByName(FieldName.INSTANCE_CONFIG);
+        Optional<Config> instanceAdminConfigurationOptional =
+                configRepository.findByName(FieldName.INSTANCE_CONFIG, entityManager);
         if (instanceAdminConfigurationOptional.isEmpty()) {
             log.error("Instance configuration not found. Cannot create super users.");
             return false;
@@ -68,7 +71,7 @@ public class UserConfig {
         }
         PermissionGroup instanceAdminPG = instanceAdminPGOptional.get();
 
-        Optional<Tenant> tenantOptional = tenantRepository.findBySlug("default");
+        Optional<Tenant> tenantOptional = tenantRepository.findBySlug("default", entityManager);
         if (tenantOptional.isEmpty()) {
             log.error("Default tenant not found. Cannot create super users.");
             return false;

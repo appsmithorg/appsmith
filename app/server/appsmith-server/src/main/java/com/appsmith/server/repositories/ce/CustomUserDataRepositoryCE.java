@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.repositories.AppsmithRepository;
+import jakarta.persistence.EntityManager;
 
 import java.util.Optional;
 

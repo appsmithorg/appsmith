@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomUserRepository;
+import jakarta.persistence.EntityManager;
 
 import java.time.Instant;
 import java.util.List;
@@ -17,7 +18,7 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
 
     List<User> findAllByEmailIn(Set<String> emails, EntityManager entityManager);
 
-    Optional<Long> countByDeletedAtNull(, EntityManager entityManager);
+    Optional<Long> countByDeletedAtNull(EntityManager entityManager);
 
     /**
      * This method returns the count of all users that are not deleted and are not system generated.
@@ -26,7 +27,8 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
      *                               generated is returned.
      * @return  The count of all users that are not deleted and are not system generated.
      */
-    Optional<Long> countByDeletedAtIsNullAndIsSystemGeneratedIsNot(Boolean excludeSystemGenerated, EntityManager entityManager);
+    Optional<Long> countByDeletedAtIsNullAndIsSystemGeneratedIsNot(
+            Boolean excludeSystemGenerated, EntityManager entityManager);
 
     Optional<Long> countByDeletedAtIsNullAndLastActiveAtGreaterThanAndIsSystemGeneratedIsNot(
             Instant lastActiveAt, Boolean excludeSystemGenerated, EntityManager entityManager);

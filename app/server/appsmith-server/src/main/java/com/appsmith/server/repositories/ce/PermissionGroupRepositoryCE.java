@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomPermissionGroupRepository;
+import jakarta.persistence.EntityManager;
 
 import java.util.List;
 import java.util.Set;
@@ -14,5 +15,6 @@ public interface PermissionGroupRepositoryCE
 
     List<PermissionGroup> findByDefaultWorkspaceId(String defaultWorkspaceId, EntityManager entityManager);
 
-    List<PermissionGroup> findByDefaultDomainIdAndDefaultDomainType(String defaultDomainId, String domainType, EntityManager entityManager);
+    List<PermissionGroup> findByDefaultDomainIdAndDefaultDomainType(
+            String defaultDomainId, String domainType, EntityManager entityManager);
 }

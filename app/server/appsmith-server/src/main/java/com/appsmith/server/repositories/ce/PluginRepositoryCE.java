@@ -4,6 +4,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomPluginRepository;
+import jakarta.persistence.EntityManager;
 
 import java.util.List;
 import java.util.Optional;

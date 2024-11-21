@@ -22,7 +22,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.TransactionRequiredException;
 import jakarta.persistence.Transient;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -141,10 +140,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return map;
     }
 
-    public Optional<T> findById(String id, AclPermission permission, User currentUser) {
-        return queryBuilder().byId(id).permission(permission, currentUser).one();
-    }
-
     public Optional<T> findById(String id, AclPermission permission, User currentUser, EntityManager entityManager) {
         return queryBuilder()
                 .byId(id)
@@ -153,24 +148,20 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .one();
     }
 
-    public Optional<T> getById(String id) {
-        return queryBuilder().byId(id).one();
+    public Optional<T> getById(String id, EntityManager entityManager) {
+        return queryBuilder().byId(id).entityManager(entityManager).one();
     }
 
     @Transactional
     @Modifying
-    public Optional<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission, User currentUser) {
-        return updateById(id, resource, permission, currentUser, entityManager);
-    }
-
     public Optional<T> updateById(
             @NonNull String id, @NonNull T resource, AclPermission permission, User currentUser, EntityManager em) {
-//        if (!em.getTransaction().isActive()) {
-//            String errMessage = String.format(
-//                    "Unable to locate the transaction for updating the entity with id %s and type %s",
-//                    id, resource.getClass().getSimpleName());
-//            throw new TransactionRequiredException(errMessage);
-//        }
+        //        if (!em.getTransaction().isActive()) {
+        //            String errMessage = String.format(
+        //                    "Unable to locate the transaction for updating the entity with id %s and type %s",
+        //                    id, resource.getClass().getSimpleName());
+        //            throw new TransactionRequiredException(errMessage);
+        //        }
         // Set policies to null in the update object
         resource.setPolicies(null);
 
@@ -212,8 +203,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     @Transactional
     @Modifying
-    public int updateByIdWithoutPermissionCheck(@NonNull String id, BridgeUpdate update) {
-        return queryBuilder().byId(id).updateFirst(update);
+    public int updateByIdWithoutPermissionCheck(@NonNull String id, BridgeUpdate update, EntityManager em) {
+        return queryBuilder().byId(id).entityManager(em).updateFirst(update);
     }
 
     @Modifying
@@ -225,7 +216,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             String branchName,
             String branchNamePath,
             AclPermission permission,
-            User currentUser) {
+            User currentUser,
+            EntityManager em) {
         final BridgeQuery<BaseDomain> q = Bridge.equal(baseIdPath, baseId);
 
         if (StringUtils.hasLength(branchName)) {
@@ -235,8 +227,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         final BridgeUpdate update = Bridge.update();
         fieldNameValueMap.forEach(update::set);
 
-        final int count =
-                queryBuilder().criteria(q).permission(permission, currentUser).updateFirst(update);
+        final int count = queryBuilder()
+                .criteria(q)
+                .permission(permission, currentUser)
+                .entityManager(em)
+                .updateFirst(update);
         return Optional.of(count);
     }
 
@@ -247,7 +242,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             String idPath,
             Map<String, Object> fieldNameValueMap,
             AclPermission permission,
-            User currentUser) {
+            User currentUser,
+            EntityManager em) {
         final BridgeQuery<T> builder = Bridge.equal(idPath, id);
         BridgeUpdate update = new BridgeUpdate();
         fieldNameValueMap.forEach(update::set);
@@ -255,6 +251,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         final int count = queryBuilder()
                 .criteria(builder)
                 .permission(permission, currentUser)
+                .entityManager(em)
                 .updateFirst(update);
         return Optional.of(count);
     }
@@ -309,7 +306,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         return Mono.just(Collections.<P>emptyList());
                     }
 
-                    final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+                    EntityManager em = params.getEntityManager() == null ? entityManager : params.getEntityManager();
+                    final CriteriaBuilder cb = em.getCriteriaBuilder();
                     CriteriaQuery<?> cq = cb.createQuery(projectionClass);
 
                     // We are creating the query with generic return type as Object[] and then mapping it to the
@@ -361,7 +359,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         cq.multiselect(projectionFields);
                     }
 
-                    final TypedQuery<?> query = entityManager.createQuery(cq);
+                    final TypedQuery<?> query = em.createQuery(cq);
 
                     if (params.getLimit() > 0) {
                         query.setMaxResults(params.getLimit());
@@ -457,8 +455,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     if (params.getPermission() != null && permissionGroups.isEmpty()) {
                         return Mono.just(0L);
                     }
-
-                    final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+                    EntityManager em = params.getEntityManager() == null ? entityManager : params.getEntityManager();
+                    final CriteriaBuilder cb = em.getCriteriaBuilder();
                     final CriteriaQuery<Long> cq = cb.createQuery(Long.class);
                     final Root<T> root = cq.from(genericDomain);
 
@@ -480,7 +478,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     cq.select(cb.count(root));
 
                     // All public access is via a single permission group. Fetch the same and set the cache with it.
-                    return Mono.fromSupplier(entityManager.createQuery(cq)::getSingleResult)
+                    return Mono.fromSupplier(em.createQuery(cq)::getSingleResult)
                             .onErrorResume(NoResultException.class, e -> Mono.empty());
                 })
                 .blockOptional();
@@ -707,8 +705,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @Modifying
     @Transactional
     // @Override
-    public int updateFirst(BridgeQuery<T> query, T resource) {
-        return queryBuilder().criteria(query).updateFirst(resource);
+    public int updateFirst(BridgeQuery<T> query, T resource, EntityManager entityManager) {
+        return queryBuilder().entityManager(entityManager).criteria(query).updateFirst(resource);
     }
 
     public T setUserPermissionsInObject(T obj, User user) {
@@ -821,13 +819,24 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      */
     @Transactional
     @Modifying
-    public T updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission, User currentUser) {
-        int modifiedCount =
-                queryBuilder().byId(id).permission(permission, currentUser).updateFirst(updateObj);
-        return queryBuilder().byId(id).permission(permission, currentUser).one().orElse(null);
+    public T updateAndReturn(
+            String id, BridgeUpdate updateObj, AclPermission permission, User currentUser, EntityManager em) {
+        int modifiedCount = queryBuilder()
+                .byId(id)
+                .permission(permission, currentUser)
+                .entityManager(em)
+                .updateFirst(updateObj);
+        return queryBuilder()
+                .byId(id)
+                .permission(permission, currentUser)
+                .entityManager(em)
+                .one()
+                .orElse(null);
     }
 
-    public Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities) {
+    @Transactional
+    @Modifying
+    public Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities, EntityManager em) {
         if (CollectionUtils.isEmpty(entities)) {
             return Optional.empty();
         }
@@ -842,28 +851,33 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             seenIds.add(id);
         }
 
-        baseRepository.saveAll(entities);
+        em.persist(entities);
         return Optional.empty();
     }
 
-    public Optional<Void> bulkUpdate(BaseRepository<T, String> baseRepository, List<T> domainObjects) {
+    @Transactional
+    @Modifying
+    public Optional<Void> bulkUpdate(
+            BaseRepository<T, String> baseRepository, List<T> domainObjects, EntityManager em) {
         if (CollectionUtils.isEmpty(domainObjects)) {
             return Optional.empty();
         }
+        Class<?> domainClass = domainObjects.get(0).getClass();
 
         final Map<String, T> updatesById = new HashMap<>();
         domainObjects.forEach(e -> updatesById.put(e.getId(), e));
 
-        final List<T> entitiesToSave = new ArrayList<>();
-        baseRepository
-                .findAllById(domainObjects.stream().map(BaseDomain::getId).toList())
-                .forEach(entitiesToSave::add);
+        BridgeQuery<?> query =
+                Bridge.in(BaseDomain.Fields.id, updatesById.keySet()).isNull(BaseDomain.Fields.deletedAt);
+
+        final List<T> entitiesToSave =
+                queryBuilder().criteria(query).entityManager(entityManager).all();
 
         for (final T e : entitiesToSave) {
             AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(updatesById.get(e.getId()), e);
         }
 
-        baseRepository.saveAll(entitiesToSave);
+        em.persist(entitiesToSave);
         return Optional.empty();
     }
 

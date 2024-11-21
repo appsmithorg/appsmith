@@ -17,11 +17,14 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     Optional<Application> findByIdAndWorkspaceId(
             String id, String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    Optional<Application> findByName(String name, AclPermission permission, User currentUser, EntityManager entityManager);
+    Optional<Application> findByName(
+            String name, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    List<Application> findByWorkspaceId(String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager);
+    List<Application> findByWorkspaceId(
+            String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    List<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission, User currentUser, EntityManager entityManager);
+    List<Application> findByMultipleWorkspaceIds(
+            Set<String> workspaceIds, AclPermission permission, User currentUser, EntityManager entityManager);
 
     /**
      * Finds all the applications that are directly assigned to the user.
@@ -32,9 +35,11 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
      */
     List<Application> findAllUserApps(AclPermission permission, User currentUser, EntityManager entityManager);
 
-    List<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
+    List<Application> findByClonedFromApplicationId(
+            String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    Optional<Integer> addPageToApplication(String applicationId, String pageId, boolean isDefault, String basePageId, EntityManager entityManager);
+    Optional<Integer> addPageToApplication(
+            String applicationId, String pageId, boolean isDefault, String basePageId, EntityManager entityManager);
 
     /*@Modifying
     @Query(value = "UPDATE Application SET pages = :pages WHERE id = :applicationId")
@@ -47,13 +52,19 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     Optional<Void> setDefaultPage(String applicationId, String pageId, EntityManager entityManager);
 
     Optional<Application> getApplicationByGitBranchAndBaseApplicationId(
-            String baseApplicationId, String branchName, AclPermission permission, User currentUser, EntityManager entityManager);
+            String baseApplicationId,
+            String branchName,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager);
 
     Optional<Application> getApplicationByGitBranchAndBaseApplicationId(
             String baseApplicationId,
             List<String> projectionFieldNames,
             String branchName,
-            AclPermission permission, User currentUser, EntityManager entityManager);
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager);
 
     List<Application> getApplicationByGitBaseApplicationId(
             String baseApplicationId, AclPermission permission, User currentUser, EntityManager entityManager);
@@ -62,34 +73,52 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
             String applicationId,
             String editModeThemeId,
             String publishedModeThemeId,
-            AclPermission permission, User currentUser, EntityManager entityManager);
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager);
 
     Optional<Long> getGitConnectedApplicationWithPrivateRepoCount(String workspaceId, EntityManager entityManager);
 
     List<Application> getGitConnectedApplicationByWorkspaceId(
             String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager);
 
-    Optional<Application> getApplicationByBaseApplicationIdAndDefaultBranch(String baseApplicationId, EntityManager entityManager);
+    Optional<Application> getApplicationByBaseApplicationIdAndDefaultBranch(
+            String baseApplicationId, EntityManager entityManager);
 
     Optional<Integer> updateFieldById(
             String id,
             String idPath,
             Map<String, Object> fieldNameValueMap,
-            AclPermission permission, User currentUser, EntityManager entityManager);
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager);
 
     Optional<Long> countByNameAndWorkspaceId(
-            String applicationName, String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager);
+            String applicationName,
+            String workspaceId,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager);
 
     List<String> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
-            String workspaceId, AclPermission permission, User currentUser, String permissionGroupId, EntityManager entityManager);
+            String workspaceId,
+            AclPermission permission,
+            User currentUser,
+            String permissionGroupId,
+            EntityManager entityManager);
 
     Optional<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
             AclPermission permission, User currentUser, String permissionGroupId, EntityManager entityManager);
 
-    int unprotectAllBranches(String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
+    int unprotectAllBranches(
+            String applicationId, AclPermission permission, User currentUser, EntityManager entityManager);
 
     int protectBranchedApplications(
-            String applicationId, List<String> branchNames, AclPermission permission, User currentUser, EntityManager entityManager);
+            String applicationId,
+            List<String> branchNames,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager);
 
     List<String> findBranchedApplicationIdsByBaseApplicationId(String baseApplicationId, EntityManager entityManager);
 

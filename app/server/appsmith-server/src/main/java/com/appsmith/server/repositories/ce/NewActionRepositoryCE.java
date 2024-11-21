@@ -6,6 +6,7 @@ import com.appsmith.server.newactions.projections.IdAndDatasourceIdNewActionView
 import com.appsmith.server.projections.IdPoliciesOnly;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomNewActionRepository;
+import jakarta.persistence.EntityManager;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
@@ -19,11 +20,12 @@ public interface NewActionRepositoryCE extends BaseRepository<NewAction, String>
 
     List<NewAction> findAllByIdIn(Collection<String> ids, EntityManager entityManager);
 
-    Optional<Long> countByDeletedAtNull(, EntityManager entityManager);
+    Optional<Long> countByDeletedAtNull(EntityManager entityManager);
 
     List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds, EntityManager entityManager);
 
-    List<IdAndDatasourceIdNewActionView> findIdAndDatasourceIdByApplicationIdIn(List<String> applicationIds, EntityManager entityManager);
+    List<IdAndDatasourceIdNewActionView> findIdAndDatasourceIdByApplicationIdIn(
+            List<String> applicationIds, EntityManager entityManager);
 
     @Query(
             """
