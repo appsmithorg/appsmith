@@ -15,8 +15,8 @@ import EditorNavigation, {
 import PageList from "../../../../support/Pages/PageList";
 
 describe(
-  "JS to non-JS mode in Action Selector",
-  { tags: ["@tag.JS", "@tag.Binding"] },
+  "To verify action selector navigate to functions",
+  { tags: ["@tag.JS"] },
   () => {
     let pageTwoUrl: string = "";
     before(() => {

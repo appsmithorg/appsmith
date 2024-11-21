@@ -342,4 +342,6 @@ export class CommonLocators {
   _propertyCollapseBody = ".bp3-collapse-body";
   _propertyCollapse = ".bp3-collapse";
   _widgetBorder = ".t--draggable-tabswidget div div div";
+  _modalButtonText = "[data-testid='modal-wrapper'] .bp3-button";
+  _showBoundary = ".show-boundary";
 }

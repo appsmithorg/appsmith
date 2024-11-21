@@ -14,8 +14,8 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
-  "JS to non-JS mode in Action Selector",
-  { tags: ["@tag.JS", "@tag.Binding"] },
+  "To verify the action selector - Show Alert functions",
+  { tags: ["@tag.JS"] },
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
