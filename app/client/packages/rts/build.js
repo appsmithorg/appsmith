@@ -44,7 +44,7 @@ const getWorkflowDependencies = () => {
 const bundle = async () => {
   return esbuild
     .build({
-      entryPoints: ["src/server.ts"],
+      entryPoints: ["src/server.ts", "src/ctl/index.js"],
       bundle: true,
       sourcemap: true,
       platform: "node",

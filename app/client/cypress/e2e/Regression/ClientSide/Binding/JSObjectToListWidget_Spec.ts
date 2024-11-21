@@ -2,15 +2,14 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import BottomPane from "../../../../support/Pages/IDE/Bottompane";
+
 let valueToTest: any, jsName: any;
-import { Bottompane } from "../../../../support/Pages/IDE/Bottompane";
 
 describe(
   "Validate JSObj binding to Table widget",
   { tags: ["@tag.Binding"] },
   () => {
-    let bottomPane: Bottompane = new Bottompane();
-
     before(() => {
       _.agHelper.AddDsl("listwidgetdsl");
     });
@@ -20,7 +19,7 @@ describe(
         _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
       );
       _.apiPage.RunAPI();
-      bottomPane.response.switchResponseType("JSON");
+      BottomPane.response.switchResponseType("JSON");
       _.apiPage.ReadApiResponsebyKey("name");
       cy.get("@apiResp").then((value) => {
         valueToTest = value;

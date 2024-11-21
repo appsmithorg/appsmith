@@ -1,7 +1,7 @@
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
 import { ZoneContextManager } from "@opentelemetry/context-zone";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { Resource } from "@opentelemetry/resources";
 import {
   ATTR_DEPLOYMENT_NAME,
@@ -14,8 +14,8 @@ import {
   PeriodicExportingMetricReader,
 } from "@opentelemetry/sdk-metrics";
 import {
-  OTLPMetricExporter,
   AggregationTemporalityPreference,
+  OTLPMetricExporter,
 } from "@opentelemetry/exporter-metrics-otlp-http";
 import { metrics } from "@opentelemetry/api";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
@@ -27,7 +27,7 @@ enum CompressionAlgorithm {
   GZIP = "gzip",
 }
 const { newRelic, observability } = getAppsmithConfigs();
-const { browserAgentEndpoint, otlpEndpoint, otlpLicenseKey } = newRelic;
+const { browserAgentEndpoint, otlpLicenseKey } = newRelic;
 
 const { deploymentName, serviceInstanceId, serviceName } = observability;
 
@@ -44,7 +44,7 @@ const tracerProvider = new WebTracerProvider({
 });
 
 const nrTracesExporter = new OTLPTraceExporter({
-  url: `${otlpEndpoint}/v1/traces`,
+  url: addPathToCurrentUrl("/monitoring/traces"),
   compression: CompressionAlgorithm.GZIP,
   headers: {
     "api-key": otlpLicenseKey,
@@ -74,7 +74,7 @@ tracerProvider.register({
 const nrMetricsExporter = new OTLPMetricExporter({
   compression: CompressionAlgorithm.GZIP,
   temporalityPreference: AggregationTemporalityPreference.DELTA,
-  url: `${otlpEndpoint}/v1/metrics`,
+  url: addPathToCurrentUrl("/monitoring/metrics"),
   headers: {
     "api-key": otlpLicenseKey,
   },
@@ -104,7 +104,8 @@ registerInstrumentations({
     new PageLoadInstrumentation({
       ignoreResourceUrls: [
         browserAgentEndpoint,
-        otlpEndpoint,
+        addPathToCurrentUrl("/monitoring/traces"),
+        addPathToCurrentUrl("/monitoring/metrics"),
         smartlookBaseDomain,
       ],
     }),
@@ -115,3 +116,14 @@ registerInstrumentations({
     }),
   ],
 });
+
+// Replaces the pathname of the current URL with the provided path.
+function addPathToCurrentUrl(path: string) {
+  const origin = window.location.origin;
+
+  const currentUrl = new URL(origin);
+
+  currentUrl.pathname = path.startsWith("/") ? path : `/${path}`;
+
+  return currentUrl.toString();
+}

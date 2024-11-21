@@ -8,7 +8,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-import { Bottompane } from "../../../../support/Pages/IDE/Bottompane";
+import BottomPane from "../../../../support/Pages/IDE/Bottompane";
 
 let dsName: any;
 let queryName: string;
@@ -17,8 +17,6 @@ describe(
   "Bug 28287: Binding query to widget, check query response in query editor on page load",
   { tags: ["@tag.Binding", "@tag.Widget"] },
   function () {
-    let bottomPane: Bottompane = new Bottompane();
-
     before("Drag drop a text widget", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
     });
@@ -46,10 +44,10 @@ describe(
 
         EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
 
-        bottomPane.response.switchToResponseTab();
+        BottomPane.response.switchToResponseTab();
 
         agHelper.AssertElementVisibility(
-          bottomPane.response.getResponseTypeSelector("TABLE"),
+          BottomPane.response.getResponseTypeSelector("TABLE"),
         );
       });
     });

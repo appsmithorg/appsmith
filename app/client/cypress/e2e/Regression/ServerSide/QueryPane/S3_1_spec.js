@@ -1,5 +1,7 @@
 /// <reference types="Cypress" />
 
+import BottomPane from "../../../../support/Pages/IDE/BottomPane";
+
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const formControls = require("../../../../locators/FormControl.json");
@@ -11,7 +13,6 @@ import {
   draggableWidgets,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
-import { Bottompane } from "../../../../support/Pages/IDE/Bottompane";
 
 let datasourceName;
 
@@ -20,7 +21,6 @@ describe(
   { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let fileName;
-    let bottomPane = new Bottompane();
 
     before(() => {
       agHelper.GenerateUUID();
@@ -191,8 +191,8 @@ describe(
       cy.typeValueNValidate(fileName, formControls.s3ListPrefix);
       dataSources.RunQuery({ toValidateResponse: false });
 
-      bottomPane.response.switchResponseType("TABLE");
-      bottomPane.response.switchResponseType("JSON");
+      BottomPane.response.switchResponseType("TABLE");
+      BottomPane.response.switchResponseType("JSON");
 
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(true);

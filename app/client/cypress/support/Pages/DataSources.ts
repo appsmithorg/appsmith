@@ -13,7 +13,7 @@ import PageList from "./PageList";
 import { anvilLocators } from "./Anvil/Locators";
 import { PluginActionForm } from "./PluginActionForm";
 import ApiEditor from "../../locators/ApiEditor";
-import { Bottompane } from "./IDE/Bottompane";
+import BottomPane from "./IDE/BottomPane";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -58,7 +58,6 @@ export class DataSources {
   private dataManager = ObjectsRegistry.DataManager;
   private assertHelper = ObjectsRegistry.AssertHelper;
   private pluginActionForm = new PluginActionForm();
-  private bottomPane = new Bottompane();
 
   public ContainerKVP = (containerName: string) => {
     return {
@@ -1142,17 +1141,18 @@ export class DataSources {
     tableCheck = true,
   ) {
     this.RunQuery();
-    tableCheck &&
+    if (tableCheck) {
       this.agHelper.AssertElementVisibility(
-        this.bottomPane.response.getResponseTypeSelector("TABLE"),
+        BottomPane.response.getResponseTypeSelector("TABLE"),
       );
-    this.agHelper.AssertElementVisibility(
-      this.bottomPane.response.getResponseTypeSelector("JSON"),
-    );
-    this.agHelper.AssertElementVisibility(
-      this.bottomPane.response.getResponseTypeSelector("RAW"),
-    );
-    this.bottomPane.response.validateRecordCount(expectedRecordsCount);
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
+    }
+    BottomPane.response.validateRecordCount(expectedRecordsCount);
   }
 
   public CreateDataSource(

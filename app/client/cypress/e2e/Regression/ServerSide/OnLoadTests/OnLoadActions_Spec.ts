@@ -13,14 +13,12 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-import { Bottompane } from "../../../../support/Pages/IDE/Bottompane";
+import BottomPane from "../../../../support/Pages/IDE/BottomPane";
 
 describe(
   "Layout OnLoad Actions tests",
   { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Sanity", "@tag.Binding"] },
   function () {
-    let bottomPane: Bottompane = new Bottompane();
-
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();
     });
@@ -58,7 +56,7 @@ describe(
       );
 
       apiPage.RunAPI();
-      bottomPane.response.switchResponseType("JSON");
+      BottomPane.response.switchResponseType("JSON");
 
       apiPage.CreateAndFillApi(
         "http://host.docker.internal:5001/v1/favqs/qotd",
@@ -67,7 +65,7 @@ describe(
       );
       apiPage.EnterHeader("dependency", "{{RandomUser.data}}"); //via Params tab
       apiPage.RunAPI();
-      bottomPane.response.switchResponseType("JSON");
+      BottomPane.response.switchResponseType("JSON");
 
       apiPage.CreateAndFillApi(
         "http://host.docker.internal:5001/v1/boredapi/activity",
@@ -76,7 +74,7 @@ describe(
       );
       apiPage.EnterHeader("dependency", "{{InspiringQuotes.data.data}}");
       apiPage.RunAPI();
-      bottomPane.response.switchResponseType("JSON");
+      BottomPane.response.switchResponseType("JSON");
 
       apiPage.CreateAndFillApi(
         "http://host.docker.internal:5001/v1/genderize/sampledata",
@@ -85,7 +83,7 @@ describe(
       );
       apiPage.EnterParams("name", "{{RandomUser.data[0].name}}"); //via Params tab
       apiPage.RunAPI();
-      bottomPane.response.switchResponseType("JSON");
+      BottomPane.response.switchResponseType("JSON");
 
       //Adding dependency in right order matters!
       EditorNavigation.SelectEntityByName("Image1", EntityType.Widget);
@@ -165,7 +163,7 @@ describe(
         value: "{{RandomUser.data[0].name}}",
       }); // verifies Bug 10055
       apiPage.RunAPI();
-      bottomPane.response.switchResponseType("JSON");
+      BottomPane.response.switchResponseType("JSON");
 
       deployMode.DeployApp(
         locators._widgetInDeployed("textwidget"),
