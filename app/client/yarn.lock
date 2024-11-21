@@ -10827,6 +10827,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/nodemailer@npm:^6.4.17":
+  version: 6.4.17
+  resolution: "@types/nodemailer@npm:6.4.17"
+  dependencies:
+    "@types/node": "*"
+  checksum: 498b702575111494a42cf9cdd3d399f0308c3b3b0244e7f53008924327955a16b39ba0bf99a5ccf17af9fd2bc50a61a76ae7e8a75498a426ea2f828a05202eab
+  languageName: node
+  linkType: hard
+
 "@types/normalize-package-data@npm:^2.4.0":
   version: 2.4.1
   resolution: "@types/normalize-package-data@npm:2.4.1"
@@ -11071,6 +11080,13 @@ __metadata:
     "@types/scheduler": "*"
     csstype: ^3.0.2
   checksum: a51b98dd87838d161278fdf9dd78e6a4ff8c018f406d6647f77963e144fb52a8beee40c89fd0e7e840eaeaa8bd9fe2f34519410540b1a52d43a6f8b4d2fbce33
+  languageName: node
+  linkType: hard
+
+"@types/readline-sync@npm:^1.4.8":
+  version: 1.4.8
+  resolution: "@types/readline-sync@npm:1.4.8"
+  checksum: 9d69fe944d6a26fb1f6a08d205cb9f6107379570ad0b2081df613ccc7414caa026be9307343afcdd3c93b16939ce2e4a76187c33082301a5c7a2bd5d4a7759ee
   languageName: node
   linkType: hard
 
@@ -12740,6 +12756,8 @@ __metadata:
     "@shared/ast": "workspace:^"
     "@types/express": ^4.17.14
     "@types/jest": ^29.2.3
+    "@types/nodemailer": ^6.4.17
+    "@types/readline-sync": ^1.4.8
     axios: ^1.7.4
     dotenv: 10.0.0
     express: ^4.20.0
