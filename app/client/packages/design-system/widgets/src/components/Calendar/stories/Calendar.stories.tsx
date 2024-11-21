@@ -17,14 +17,12 @@ const meta: Meta<typeof Calendar> = {
 export default meta;
 type Story = StoryObj<typeof Calendar>;
 
-// Basic calendar with default settings
 export const Default: Story = {
   args: {
     defaultValue: today(getLocalTimeZone()),
   },
 };
 
-// Calendar with a minimum selectable date
 export const WithMinDate: Story = {
   args: {
     defaultValue: today(getLocalTimeZone()),
@@ -32,7 +30,13 @@ export const WithMinDate: Story = {
   },
 };
 
-// Calendar with a disabled state
+export const WithMaxDate: Story = {
+  args: {
+    defaultValue: today(getLocalTimeZone()),
+    maxValue: today(getLocalTimeZone()).add({ days: 10 }),
+  },
+};
+
 export const Disabled: Story = {
   args: {
     defaultValue: today(getLocalTimeZone()),
@@ -40,7 +44,6 @@ export const Disabled: Story = {
   },
 };
 
-// Calendar with a read-only state
 export const ReadOnly: Story = {
   args: {
     defaultValue: today(getLocalTimeZone()),
