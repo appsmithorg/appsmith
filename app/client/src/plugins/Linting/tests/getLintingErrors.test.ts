@@ -370,12 +370,10 @@ describe.each(linterTypes)(
         const data = {
           THIS_CONTEXT: {},
         };
-        const originalBinding = "myFun1() {\n\t\tconsole.log('test')\n\t}";
+        const originalBinding = "myFun1() {\n\t\tconsole.log('test');\n\t};";
         const script =
-          "\n  function $$closedFn () {\n    const $$result = {myFun1() {\n\t\tconsole.log('test')\n\t}}\n    return $$result\n  }\n  $$closedFn.call(THIS_CONTEXT)\n";
+          "\n  function $$closedFn () {\n    const $$result = {myFun1() {\n\t\tconsole.log('test');\n\t}};\n    return $$result;\n  }\n  $$closedFn.call(THIS_CONTEXT);\n";
         const options = { isJsObject: true };
-        //const originalBinding = "{{ console.log('some statement') }}";
-        //const script = "console.log('some statement')";
 
         const scriptType = getScriptType(false, true);
 
@@ -423,6 +421,33 @@ describe.each(linterTypes)(
 
         expect(lintError.severity).toBe(Severity.WARNING);
         expect(lintError.errorMessage.message).toBe(expectedMessage);
+      });
+
+      // Test for 'unused: 'strict'' (if a variable is defined, it should be used)
+      it("9. should allow expressions without trailing semicolon", () => {
+        const data = {
+          THIS_CONTEXT: {},
+        };
+        const originalBinding = "myFun1() {\n\t\tconsole.log('test')\n\t}";
+        const script =
+          "\n  function $$closedFn () {\n    const $$result = {myFun1() {\n\t\tconsole.log('test')\n\t}}\n    return $$result\n  }\n  $$closedFn.call(THIS_CONTEXT)\n";
+        const options = { isJsObject: true };
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          options,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have no errors
+        expect(lintErrors.length).toEqual(0);
       });
     });
   },
