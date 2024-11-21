@@ -449,6 +449,28 @@ describe.each(linterTypes)(
         // Should have no errors
         expect(lintErrors.length).toEqual(0);
       });
+
+      // Test for 'boss: true' (Allow assignments in conditions)
+      it("10. Should allow assignments in conditions without errors", () => {
+        const data = { a: 0, b: 1 };
+        const originalBinding = "{{ if (a = b) { console.log(a); } }}";
+        const script = "if (a = b) { console.log(a); }";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have no errors for assignments in conditions
+        expect(lintErrors.length).toEqual(0);
+      });
     });
   },
 );
