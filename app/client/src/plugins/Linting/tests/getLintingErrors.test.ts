@@ -472,7 +472,7 @@ describe.each(linterTypes)(
       });
 
       // Test for 'evil: false' (Disallow use of eval)
-      it("11. Should error when 'eval' is used", () => {
+      it("11a. Should error when 'eval' is used", () => {
         const data = {};
         const originalBinding = "{{ eval('var a = 1;') }}";
         const script = "eval('var a = 1;');";
@@ -496,6 +496,32 @@ describe.each(linterTypes)(
 
         expect(lintError.severity).toBe(Severity.ERROR);
         expect(lintError.errorMessage.message).toBe(expectedMessage);
+      });
+
+      // Test for 'evil: false' (Disallow use of eval)
+      it("11b. should error on indirect eval", () => {
+        const data = {};
+        const originalBinding = "{{ (0, eval)('var a = 1;') }}";
+        const script = "(0, eval)('var a = 1;');";
+
+        const scriptType = getScriptType(false, true);
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        const expectedErrorMessage =
+          linterType === LINTER_TYPE.JSHINT
+            ? "Unorthodox function invocation."
+            : "eval can be harmful.";
+
+        expect(lintErrors.length).toEqual(1);
+        expect(lintErrors[0].severity).toBe(Severity.ERROR);
+        expect(lintErrors[0].errorMessage.message).toBe(expectedErrorMessage);
       });
 
       // Test for 'funcscope: true' (Allow variable definitions inside control statements)
