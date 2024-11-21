@@ -13,6 +13,7 @@ describe("HeaderSwitcher", () => {
     active: false,
     onClick: mockOnClick,
     setActive: mockSetActive,
+    children: <span>Test</span>,
   };
 
   it("renders with correct props", () => {
@@ -91,7 +92,9 @@ describe("HeaderSwitcher", () => {
         setActive={mockSetActive}
         title="Title"
         titleTestId="titleTestId"
-      />,
+      >
+        <span>Test</span>
+      </IDEHeaderSwitcher>,
     );
 
     // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access

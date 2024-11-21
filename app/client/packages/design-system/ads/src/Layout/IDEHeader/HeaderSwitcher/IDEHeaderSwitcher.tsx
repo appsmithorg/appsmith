@@ -27,6 +27,7 @@ export const IDEHeaderSwitcher = React.forwardRef(
       setActive,
       title,
       titleTestId,
+      ...rest
     } = props;
 
     const separator = title ? " /" : "";
@@ -41,8 +42,10 @@ export const IDEHeaderSwitcher = React.forwardRef(
           <Styled.SwitchTrigger
             active={active}
             className={`flex align-center items-center justify-center ${className}`}
+            data-testid={titleTestId}
             onClick={onClick}
             ref={ref}
+            {...rest}
           >
             <Text
               color="var(--ads-v2-colors-content-label-inactive-fg)"
