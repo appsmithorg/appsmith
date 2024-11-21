@@ -46,8 +46,12 @@ export const WithHeaderTitle = () => {
       <IDEHeader.Left logo={<Icon name="upload-cloud" size="md" />}>
         <IDEHeaderTitle title="Settings" />
       </IDEHeader.Left>
-      <IDEHeader.Center />
-      <IDEHeader.Right />
+      <IDEHeader.Center>
+        <div />
+      </IDEHeader.Center>
+      <IDEHeader.Right>
+        <div />
+      </IDEHeader.Right>
     </IDEHeader>
   );
 };
@@ -94,8 +98,12 @@ export const WithHeaderDropdown = () => {
           </Flex>
         </IDEHeaderSwitcher>
       </IDEHeader.Left>
-      <IDEHeader.Center />
-      <IDEHeader.Right />
+      <IDEHeader.Center>
+        <div />
+      </IDEHeader.Center>
+      <IDEHeader.Right>
+        <div />
+      </IDEHeader.Right>
     </IDEHeader>
   );
 };
