@@ -542,6 +542,28 @@ describe.each(linterTypes)(
         // Should have no errors for using bracket notation
         expect(lintErrors.length).toEqual(0);
       });
+
+      // Test for 'expr: true' (Allow expressions where statements are expected)
+      it("14. Should allow expressions as statements without errors", () => {
+        const data = { a: true, b: false };
+        const originalBinding = "{{ a || b; }}";
+        const script = "a || b;";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have no errors for expressions used as statements
+        expect(lintErrors.length).toEqual(0);
+      });
     });
   },
 );
