@@ -309,15 +309,6 @@ export const QueryResponseTab = (props: Props) => {
 
   return (
     <Styled.Root>
-      {showPreparedStatementWarning && (
-        <Callout
-          data-testid="t--prepared-statement-warning"
-          kind="warning"
-          links={preparedStatementCalloutLinks}
-        >
-          {createMessage(PREPARED_STATEMENT_WARNING.MESSAGE)}
-        </Callout>
-      )}
       {errorMessage && (
         <div>
           <Styled.StatusBar>
@@ -380,6 +371,15 @@ export const QueryResponseTab = (props: Props) => {
             )}
           </ResponseTabErrorContainer>
         </div>
+      )}
+      {showPreparedStatementWarning && (
+        <Callout
+          data-testid="t--prepared-statement-warning"
+          kind="warning"
+          links={preparedStatementCalloutLinks}
+        >
+          {createMessage(PREPARED_STATEMENT_WARNING.MESSAGE)}
+        </Callout>
       )}
       {hintMessages && hintMessages.length > 0 && (
         <Styled.HelpSection>
