@@ -24,13 +24,6 @@ jest.mock("../src/api/Api.ts", () => ({
   default: class Api { },
 }));
 
-// Polyfill for `structuredClone` if not available
-if (typeof global.structuredClone === "undefined") {
-  global.structuredClone = (obj) => {
-    return JSON.parse(JSON.stringify(obj));
-  };
-}
-
 beforeAll(() => {
   window.IntersectionObserver = jest
     .fn()

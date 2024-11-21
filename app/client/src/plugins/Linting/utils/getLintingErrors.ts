@@ -221,7 +221,6 @@ function convertESLintErrorToAppsmithLintError(
   script: string,
   originalBinding: string,
   scriptPos: Position,
-  //isJSObject = false,
 ): LintError {
   const { column, endColumn = 0, line, message, ruleId } = eslintError;
 
@@ -231,12 +230,6 @@ function convertESLintErrorToAppsmithLintError(
     line === scriptPos.line
       ? eslintError.column - scriptPos.ch
       : eslintError.column;
-  //const lintErrorMessage = getLintErrorMessage(
-  //  reason,
-  //  code,
-  //  [a, b, c, d],
-  //  isJSObject,
-  //);
 
   return {
     errorType: PropertyEvaluationErrorType.LINT,
