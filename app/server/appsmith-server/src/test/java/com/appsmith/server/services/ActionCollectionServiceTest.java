@@ -12,7 +12,6 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
@@ -22,7 +21,6 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
-import com.appsmith.server.dtos.ConsolidatedAPIResponseDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
@@ -137,9 +135,6 @@ public class ActionCollectionServiceTest {
 
     @Autowired
     ApplicationService applicationService;
-
-    @Autowired
-    ConsolidatedAPIService consolidatedAPIService;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -1022,57 +1017,29 @@ public class ActionCollectionServiceTest {
                 layoutCollectionService.updateUnpublishedActionCollection(
                         createdActionCollectionId, actionCollectionDTO);
 
-        final Mono<ConsolidatedAPIResponseDTO> consolidatedAPIResponseDTOMono =
-                consolidatedAPIService.getConsolidatedInfoForPageLoad(
-                        testPage.getId(), testApp.getId(), null, ApplicationMode.EDIT);
+        Mono<PageDTO> pageWithMigratedDSLMono =
+                applicationPageService.getPageAndMigrateDslByBranchedPageId(testPage.getId(), false, true);
 
         StepVerifier.create(updatedActionCollectionDTOMono.zipWhen(actionCollectionDTO1 -> {
-                    return consolidatedAPIResponseDTOMono;
+                    return pageWithMigratedDSLMono;
                 }))
                 .assertNext(tuple -> {
                     ActionCollectionDTO actionCollectionDTO1 = tuple.getT1();
-
-                    // Assert updated action collection's properties
                     assertEquals(createdActionCollectionId, actionCollectionDTO1.getId());
-
-                    // Verify layout update service call count
                     Mockito.verify(updateLayoutService, Mockito.times(2))
                             .updatePageLayoutsByPageId(Mockito.anyString());
-
-                    // Ensure no error reports in action collection actions
                     actionCollectionDTO1
                             .getActions()
                             .forEach(action -> assertNull(action.getErrorReports(), "Error reports should be null"));
 
-                    ConsolidatedAPIResponseDTO consolidatedAPIResponseDTO = tuple.getT2();
-                    log.info("\n\n\n-----consolidatedAPIResponseDTO :\n\n\n"
-                            + consolidatedAPIResponseDTO
-                                    .getPageWithMigratedDsl()
-                                    .toString() + "\n\n\n");
-
-                    log.info("\n\n\n-----consolidatedAPIResponseDTO :\n\n\n"
-                            + consolidatedAPIResponseDTO
-                                    .getPageWithMigratedDsl()
-                                    .getErrorDisplay()
-                            + "\n\n\n");
-
-                    List<Set<DslExecutableDTO>> layoutOnLoadActions = consolidatedAPIResponseDTO
-                            .getPageWithMigratedDsl()
-                            .getData()
-                            .getLayouts()
-                            .get(0)
-                            .getLayoutOnLoadActions();
-
-                    // Extract the `name` properties
+                    PageDTO pageWithMigratedDSL = tuple.getT2();
+                    List<Set<DslExecutableDTO>> layoutOnLoadActions =
+                            pageWithMigratedDSL.getLayouts().get(0).getLayoutOnLoadActions();
                     List<Set<String>> actualNames = layoutOnLoadActions.stream()
                             .map(set ->
                                     set.stream().map(DslExecutableDTO::getName).collect(Collectors.toSet()))
                             .collect(Collectors.toList());
-
-                    // Define the expected names
                     List<Set<String>> expectedNames = List.of(Set.of("testCollection1.myFunction"));
-
-                    // Assert that the names match
                     assertEquals(expectedNames, actualNames, "layoutOnLoadActions should contain the expected names");
                 })
                 .verifyComplete();
