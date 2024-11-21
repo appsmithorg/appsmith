@@ -1,6 +1,6 @@
 import { Response } from "./Response";
 
-class Bottompane {
+class BottomPane {
   public readonly response: Response;
 
   constructor() {
@@ -8,4 +8,4 @@ class Bottompane {
   }
 }
 
-export { Bottompane };
+export default new BottomPane();
