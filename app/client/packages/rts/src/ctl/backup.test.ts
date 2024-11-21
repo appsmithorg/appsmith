@@ -1,7 +1,7 @@
 jest.mock("./utils", () => ({
   ...jest.requireActual("./utils"),
   execCommand: jest.fn().mockImplementation(async (a) => a.join(" ")),
-}))
+}));
 
 import * as backup from "./backup";
 import * as Constants from "./constants";
