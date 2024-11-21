@@ -1,8 +1,8 @@
-const fsPromises = require("fs/promises");
-const Constants = require("./constants");
-const utils = require("./utils");
+import fsPromises from "fs/promises";
+import * as Constants from "./constants";
+import * as utils from "./utils";
 
-async function exportDatabase() {
+export async function exportDatabase() {
   console.log("export_database  ....");
   const dbUrl = utils.getDburl();
   await fsPromises.mkdir(Constants.BACKUP_PATH, { recursive: true });
@@ -15,7 +15,7 @@ async function exportDatabase() {
   console.log("export_database done");
 }
 
-async function run() {
+export async function run() {
   let errorCode = 0;
 
   await utils.ensureSupervisorIsRunning();
@@ -42,8 +42,3 @@ async function run() {
     process.exit(errorCode);
   }
 }
-
-module.exports = {
-  run,
-  exportDatabase,
-};
