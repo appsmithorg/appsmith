@@ -61,39 +61,19 @@ class Response {
 
         switch (operator) {
           case "eq":
-            if (extractedCount !== count) {
-              throw new Error(
-                `Expected count to equal ${count}, but got ${extractedCount}`,
-              );
-            }
+            expect(extractedCount).to.equal(count);
             break;
           case "gt":
-            if (extractedCount <= count) {
-              throw new Error(
-                `Expected count > ${count}, but got ${extractedCount}`,
-              );
-            }
+            expect(extractedCount).to.be.greaterThan(count);
             break;
           case "gte":
-            if (extractedCount < count) {
-              throw new Error(
-                `Expected count >= ${count}, but got ${extractedCount}`,
-              );
-            }
+            expect(extractedCount).to.be.at.least(count);
             break;
           case "lt":
-            if (extractedCount >= count) {
-              throw new Error(
-                `Expected count < ${count}, but got ${extractedCount}`,
-              );
-            }
+            expect(extractedCount).to.be.lessThan(count);
             break;
           case "lte":
-            if (extractedCount > count) {
-              throw new Error(
-                `Expected count <= ${count}, but got ${extractedCount}`,
-              );
-            }
+            expect(extractedCount).to.be.at.most(count);
             break;
           default:
             throw new Error(`Invalid comparison operator: ${operator}`);
