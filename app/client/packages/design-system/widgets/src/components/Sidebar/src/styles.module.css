@@ -79,6 +79,11 @@
     left 300ms ease-in-out,
     right 300ms ease-in-out,
     width 300ms ease-in-out;
+  background-color: var(--color-bg-elevation-2);
+}
+
+[data-state="full-width"] .sidebar {
+  width: 100%;
 }
 
 @container (min-width: 768px) {
