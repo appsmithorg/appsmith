@@ -800,16 +800,13 @@ export function canTranslateToUI(
   simple(astWithComments, {
     ConditionalExpression(node) {
       if (
-        // @ts-expect-error: types not matched
         isCallExpressionNode(node.consequent) ||
-        // @ts-expect-error: types not matched
         isCallExpressionNode(node.alternate)
       ) {
         canTranslate = false;
       }
     },
     LogicalExpression(node) {
-      // @ts-expect-error: types not matched
       if (isCallExpressionNode(node.left) || isCallExpressionNode(node.right)) {
         canTranslate = false;
       }
@@ -912,12 +909,10 @@ export function getMainAction(
     ExpressionStatement(node) {
       simple(node, {
         CallExpression(node) {
-          // @ts-expect-error: types not matched
           if (node.callee.type === NodeTypes.Identifier) {
             mainAction = generate(node, { comments: true }).trim();
           } else {
             mainAction =
-              // @ts-expect-error: types not matched
               generate(node.callee, { comments: true }).trim() + "()";
           }
         },
