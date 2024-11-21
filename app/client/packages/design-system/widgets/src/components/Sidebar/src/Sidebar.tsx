@@ -18,13 +18,12 @@ const _Sidebar = (props: SidebarProps, ref: Ref<HTMLDivElement>) => {
     onEntered: onEnteredProp,
     onExit: onExitProp,
     onExited: onExitedProp,
-    side = "start",
     title,
     variant = "sidebar",
     ...rest
   } = props;
   const [isAnimating, setIsAnimating] = useState(false);
-  const { state } = useSidebar();
+  const { side, state } = useSidebar();
   const sidebarRef = useRef<HTMLDivElement>();
 
   const onEnter = () => {

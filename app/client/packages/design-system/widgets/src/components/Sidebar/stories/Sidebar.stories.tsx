@@ -18,7 +18,6 @@ const meta: Meta<typeof Sidebar> = {
   },
   args: {
     title: "Sidebar",
-    side: "start",
   },
   render: (args) => (
     <SidebarProvider
@@ -28,12 +27,12 @@ const meta: Meta<typeof Sidebar> = {
         border: "1px solid var(--color-bd-elevation-1)",
       }}
     >
-      <Sidebar {...args}>
-        <DemoContent />
-      </Sidebar>
       <Flex alignItems="start" margin="spacing-4" width="100%">
         <SidebarTrigger />
       </Flex>
+      <Sidebar {...args}>
+        <DemoContent />
+      </Sidebar>
     </SidebarProvider>
   ),
 };
@@ -67,23 +66,22 @@ export const Default: Story = {
   args: {},
 };
 
-export const SideRight: Story = {
-  args: {
-    side: "end",
-  },
+export const SideLeft: Story = {
+  args: {},
   render: (args) => (
     <SidebarProvider
+      side="start"
       style={{
         height: "50vh",
         border: "1px solid var(--color-bd-elevation-1)",
       }}
     >
-      <Flex alignItems="start" margin="spacing-4" width="100%">
-        <SidebarTrigger />
-      </Flex>
       <Sidebar {...args}>
         <DemoContent />
       </Sidebar>
+      <Flex alignItems="start" margin="spacing-4" width="100%">
+        <SidebarTrigger />
+      </Flex>
     </SidebarProvider>
   ),
 };
@@ -96,6 +94,9 @@ export const WithRenderProps: Story = {
         border: "1px solid var(--color-bd-elevation-1)",
       }}
     >
+      <Flex alignItems="start" margin="spacing-4" width="100%">
+        <SidebarTrigger />
+      </Flex>
       <Sidebar {...args}>
         {({ isAnimating, state }) => (
           <Flex direction="column" gap="spacing-2" padding="spacing-4">
@@ -122,9 +123,6 @@ export const WithRenderProps: Story = {
           </Flex>
         )}
       </Sidebar>
-      <Flex alignItems="start" margin="spacing-4" width="100%">
-        <SidebarTrigger />
-      </Flex>
     </SidebarProvider>
   ),
 };
