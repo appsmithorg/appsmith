@@ -494,28 +494,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 });
     }
 
-    /**
-     * This method is used to find all possible global entity references in the given set of bindings.
-     * We'll be able to find valid executable references only at this point. For widgets, we just assume that all
-     * references are possible candidates
-     *
-     * @param executableNameToExecutableMapMono : This map is used to filter only valid executable references in bindings
-     * @param bindings                          : The set of bindings to find references from
-     * @param evalVersion                       : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
-     * @return A set of any possible reference found in the binding that qualifies as a global entity reference
-     */
-    private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityReferencesMap(
-            Mono<Map<String, Executable>> executableNameToExecutableMapMono, List<String> bindings, int evalVersion) {
-        return getPossibleEntityReferencesMap(executableNameToExecutableMapMono, bindings, evalVersion, null)
-                .name(GET_POSSIBLE_ENTITY_REFERENCES)
-                .tap(Micrometer.observation(observationRegistry));
-    }
-
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
             Mono<Map<String, Executable>> executableNameToExecutableMapMono, Set<String> bindings, int evalVersion) {
-        return getPossibleEntityReferences(executableNameToExecutableMapMono, bindings, evalVersion, null)
-                .name(GET_POSSIBLE_ENTITY_REFERENCES)
-                .tap(Micrometer.observation(observationRegistry));
+        return getPossibleEntityReferences(executableNameToExecutableMapMono, bindings, evalVersion, null);
     }
 
     /**
@@ -598,17 +579,6 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 });
     }
 
-    /**
-     * Similar to the overridden method, this method is used to find all possible global entity references in the given set of bindings.
-     * However, here we are assuming that the call came from when we were trying to analyze the DSL.
-     * For such cases, we also want to capture entity references that would be qualified to run on page load first.
-     *
-     * @param executableNameToExecutableMono : This map is used to filter only valid executable references in bindings
-     * @param bindings                       : The set of bindings to find references from
-     * @param evalVersion                    : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
-     * @param bindingsInDsl                  : All references are also added to this set if they should be qualified to run on page load first.
-     * @return A set of any possible reference found in the binding that qualifies as a global entity reference
-     */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityReferencesMap(
             Mono<Map<String, Executable>> executableNameToExecutableMono,
             List<String> bindings,

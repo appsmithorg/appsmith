@@ -1018,7 +1018,7 @@ public class ActionCollectionServiceTest {
                         createdActionCollectionId, actionCollectionDTO);
 
         Mono<PageDTO> pageWithMigratedDSLMono =
-                applicationPageService.getPageAndMigrateDslByBranchedPageId(testPage.getId(), false, true);
+                applicationPageService.getPageAndMigrateDslByBranchedPageId(testPage.getId(), false, false);
 
         StepVerifier.create(updatedActionCollectionDTOMono.zipWhen(actionCollectionDTO1 -> {
                     return pageWithMigratedDSLMono;
