@@ -954,18 +954,12 @@ public class ActionCollectionServiceTest {
         action1.getActionConfiguration().setIsValid(true);
 
         ActionDTO action2 = new ActionDTO();
-        action2.setName("testAction2");
+        action2.setName("myFunction2");
         action2.setActionConfiguration(new ActionConfiguration());
         action2.getActionConfiguration().setBody("mockBody");
         action2.getActionConfiguration().setIsValid(false);
 
-        ActionDTO action3 = new ActionDTO();
-        action3.setName("testAction3");
-        action3.setActionConfiguration(new ActionConfiguration());
-        action3.getActionConfiguration().setBody("mockBody");
-        action3.getActionConfiguration().setIsValid(false);
-
-        actionCollectionDTO.setActions(List.of(action1, action2, action3));
+        actionCollectionDTO.setActions(List.of(action1, action2));
 
         // Create Layout with Table and Text Widgets
         Layout layout = testPage.getLayouts().get(0);
@@ -983,7 +977,7 @@ public class ActionCollectionServiceTest {
         JSONObject textDsl = new JSONObject();
         textDsl.put("widgetName", "Text1");
         textDsl.put("type", "TEXT_WIDGET");
-        textDsl.put("text", "{{testCollection1.myFunction.data}}");
+        textDsl.put("text", "{{testCollection1.myFunction.data}} + {{testCollection1.myFunction2.data}}");
         JSONArray textDslTemp2 = new JSONArray();
         textDslTemp2.add(new JSONObject(Map.of("key", "text")));
         textDsl.put("dynamicBindingPathList", textDslTemp2);
@@ -1006,12 +1000,6 @@ public class ActionCollectionServiceTest {
         assert createdActionCollectionDTO != null;
         assert createdActionCollectionDTO.getId() != null;
         String createdActionCollectionId = createdActionCollectionDTO.getId();
-
-        // Update JS object body to simulate action collection
-        actionCollectionDTO.getActions().stream()
-                .filter(action -> "myFunction".equals(action.getName()))
-                .findFirst()
-                .ifPresent(action -> action.getActionConfiguration().setBody("return [{\"key\": \"value\"}];"));
 
         final Mono<ActionCollectionDTO> updatedActionCollectionDTOMono =
                 layoutCollectionService.updateUnpublishedActionCollection(
@@ -1039,7 +1027,8 @@ public class ActionCollectionServiceTest {
                             .map(set ->
                                     set.stream().map(DslExecutableDTO::getName).collect(Collectors.toSet()))
                             .collect(Collectors.toList());
-                    List<Set<String>> expectedNames = List.of(Set.of("testCollection1.myFunction"));
+                    List<Set<String>> expectedNames =
+                            List.of(Set.of("testCollection1.myFunction", "testCollection1.myFunction2"));
                     assertEquals(expectedNames, actualNames, "layoutOnLoadActions should contain the expected names");
                 })
                 .verifyComplete();
