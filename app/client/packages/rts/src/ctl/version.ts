@@ -1,6 +1,6 @@
-const utils = require("./utils");
+import * as utils from "./utils";
 
-async function exec() {
+export async function exec() {
   let version = null;
   try {
     version = await utils.getCurrentAppsmithVersion();
@@ -15,7 +15,3 @@ async function exec() {
     process.exit(1);
   }
 }
-
-module.exports = {
-  exec,
-};

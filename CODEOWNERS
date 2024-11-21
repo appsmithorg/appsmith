@@ -195,6 +195,7 @@ app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/**/* @sh
 # DevOps & Shri
 deploy/**/* @sharat87 @pratapaprasanna
 .github/workflows/*.yml @sharat87
+app/client/packages/ctl/**/* @sharat87 @pratapaprasanna
 app/server/**/pom.xml @sharat87
 app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/BaseAppsmithRepositoryCEImpl.java @sharat87
 app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/params/QueryAllParams.java @sharat87

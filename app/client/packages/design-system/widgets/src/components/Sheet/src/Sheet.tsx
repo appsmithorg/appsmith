@@ -15,7 +15,9 @@ export function _Sheet(props: SheetProps, ref: Ref<HTMLDivElement>) {
     children,
     className,
     isOpen,
+    onEnter,
     onEntered,
+    onExit,
     onExited,
     onOpenChange,
     position = "start",
@@ -31,7 +33,9 @@ export function _Sheet(props: SheetProps, ref: Ref<HTMLDivElement>) {
     <CSSTransition
       in={isOpen}
       nodeRef={overlayRef}
+      onEnter={onEnter}
       onEntered={onEntered}
+      onExit={onExit}
       onExited={onExited}
       timeout={300}
       unmountOnExit
