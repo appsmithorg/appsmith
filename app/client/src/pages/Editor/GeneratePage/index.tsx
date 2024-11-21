@@ -1,54 +1,52 @@
-import React from "react";
-import styled from "styled-components";
-import PageContent from "./components/PageContent";
-import { Text } from "@appsmith/ads";
-import { BackButton } from "components/utils/helperComponents";
+import React, { useCallback } from "react";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  Text,
+} from "@appsmith/ads";
+import {
+  createMessage,
+  GENERATE_PAGE_FORM_TITLE,
+  GENERATE_PAGE_FORM_SUB_TITLE,
+} from "ee/constants/messages";
+import GeneratePageForm from "./components/GeneratePageForm/GeneratePageForm";
+import { useSelector, useDispatch } from "react-redux";
+import { getIsGeneratePageModalOpen } from "selectors/pageListSelectors";
+import {
+  closeGeneratePageModal,
+  openGeneratePageModal,
+} from "./store/generatePageActions";
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  height: 100%;
-  padding: var(--ads-v2-spaces-7);
-`;
+function GeneratePageModal() {
+  const dispatch = useDispatch();
+  const isOpen = useSelector(getIsGeneratePageModalOpen);
 
-const HeadingContainer = styled.div`
-  display: flex;
-  padding-top: var(--ads-v2-spaces-4);
-`;
-
-const Header = styled.div`
-  width: 100%;
-
-  > a {
-    margin: 0;
-  }
-`;
-
-function GeneratePage() {
-  const isGenerateFormPage = window.location.pathname.includes("/form");
-  const heading = isGenerateFormPage ? "Quick page wizard" : "New page";
+  const handleModalOpenChange = useCallback(
+    (modalState: boolean) => {
+      if (modalState) {
+        dispatch(openGeneratePageModal());
+      } else {
+        dispatch(closeGeneratePageModal());
+      }
+    },
+    [dispatch],
+  );
 
   return (
-    <Container>
-      {isGenerateFormPage ? (
-        <Header>
-          <BackButton />
-        </Header>
-      ) : null}
-
-      <HeadingContainer>
-        <Text kind="heading-l">{heading}</Text>
-      </HeadingContainer>
-      {isGenerateFormPage ? (
-        <Text renderAs="p">
-          Auto create a simple CRUD interface on top of your data
-        </Text>
-      ) : null}
-
-      <PageContent />
-    </Container>
+    <Modal onOpenChange={handleModalOpenChange} open={isOpen}>
+      <ModalContent style={{ width: "444px" }}>
+        <ModalHeader>{createMessage(GENERATE_PAGE_FORM_TITLE)}</ModalHeader>
+        <ModalBody>
+          <Text renderAs="p">
+            {createMessage(GENERATE_PAGE_FORM_SUB_TITLE)}
+          </Text>
+          <GeneratePageForm />
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   );
 }
 
-export default GeneratePage;
+export default GeneratePageModal;
