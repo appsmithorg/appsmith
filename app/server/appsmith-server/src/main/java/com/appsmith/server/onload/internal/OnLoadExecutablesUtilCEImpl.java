@@ -529,6 +529,16 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 });
     }
 
+    /**
+     * This function is used to get all executable possibleEntities for the bindings. It first finds all the possible entity
+     * references in the widget bindings and then processes them to find the possible entity references that are executable.
+     *
+     * @param executableNameToExecutableMono
+     * @param bindings
+     * @param evalVersion
+     * @param bindingsInDsl
+     * @return
+     */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityReferencesMap(
             Mono<Map<String, Executable>> executableNameToExecutableMono,
             List<String> bindings,
@@ -554,6 +564,19 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 });
     }
 
+    /**
+     * This method filters out the possibleParents to make sure only the parents that are part of executableMap are kept.
+     * According to the type of the parent,
+     * - the parent is added to the set of possibleEntitiesReferences or
+     * - the parent is added to the set of possibleEntitiesReferencesToBindingMap with the binding as the key
+     *
+     * @param bindingToPossibleParentMap
+     * @param executableMap
+     * @param bindingsInDsl
+     * @param aggregateToSet
+     * @param <T>
+     * @return
+     */
     private <T> T processBindingToParentMap(
             Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap,
             Map<String, Executable> executableMap,

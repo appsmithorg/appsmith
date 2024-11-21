@@ -712,6 +712,34 @@ public class ActionCollectionServiceTest {
                 .verifyComplete();
     }
 
+    private ActionDTO createAction(String actionName, String body, boolean isValid) {
+        ActionDTO testAction = new ActionDTO();
+        testAction.setName(actionName);
+        testAction.setActionConfiguration(new ActionConfiguration());
+        testAction.getActionConfiguration().setBody(body);
+        testAction.getActionConfiguration().setIsValid(isValid);
+        return testAction;
+    }
+
+    private ActionCollectionDTO createActionCollection(String collectionName, String body, PluginType pluginType) {
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName(collectionName);
+        actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setWorkspaceId(workspaceId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody(body);
+        actionCollectionDTO.setPluginType(pluginType);
+        return actionCollectionDTO;
+    }
+
+    private JSONArray createDynamicList(String key, String value) {
+        JSONArray temp2 = new JSONArray();
+        temp2.add(new JSONObject(Map.of(key, value)));
+        return temp2;
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void
@@ -720,34 +748,12 @@ public class ActionCollectionServiceTest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
-        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setName("testCollection1");
-        actionCollectionDTO.setPageId(testPage.getId());
-        actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setWorkspaceId(workspaceId);
-        actionCollectionDTO.setPluginId(datasource.getPluginId());
-        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
-        actionCollectionDTO.setBody("collectionBody");
-        actionCollectionDTO.setPluginType(PluginType.JS);
+        ActionCollectionDTO actionCollectionDTO =
+                createActionCollection("testCollection1", "collectionBody", PluginType.JS);
 
-        // Create actions
-        ActionDTO action1 = new ActionDTO();
-        action1.setName("testAction1");
-        action1.setActionConfiguration(new ActionConfiguration());
-        action1.getActionConfiguration().setBody("initial body");
-        action1.getActionConfiguration().setIsValid(false);
-
-        ActionDTO action2 = new ActionDTO();
-        action2.setName("testAction2");
-        action2.setActionConfiguration(new ActionConfiguration());
-        action2.getActionConfiguration().setBody("mockBody");
-        action2.getActionConfiguration().setIsValid(false);
-
-        ActionDTO action3 = new ActionDTO();
-        action3.setName("testAction3");
-        action3.setActionConfiguration(new ActionConfiguration());
-        action3.getActionConfiguration().setBody("mockBody");
-        action3.getActionConfiguration().setIsValid(false);
+        ActionDTO action1 = createAction("testAction1", "initial body", false);
+        ActionDTO action2 = createAction("testAction2", "mockBody", false);
+        ActionDTO action3 = createAction("testAction3", "mockBody", false);
 
         actionCollectionDTO.setActions(List.of(action1, action2, action3));
 
@@ -755,12 +761,8 @@ public class ActionCollectionServiceTest {
         ArrayList dslList = (ArrayList) layout.getDsl().get("children");
         JSONObject tableDsl = (JSONObject) dslList.get(0);
         tableDsl.put("tableData", "{{testCollection1.testAction1.data}}");
-        JSONArray temp2 = new JSONArray();
-        temp2.add(new JSONObject(Map.of("key", "tableData")));
-        tableDsl.put("dynamicBindingPathList", temp2);
-        JSONArray temp3 = new JSONArray();
-        temp3.add(new JSONObject(Map.of("key", "tableData")));
-        tableDsl.put("dynamicPropertyPathList", temp3);
+        tableDsl.put("dynamicBindingPathList", createDynamicList("key", "tableData"));
+        tableDsl.put("dynamicPropertyPathList", createDynamicList("key", "tableData"));
         layout.getDsl().put("widgetName", "MainContainer");
 
         testPage.setLayouts(List.of(layout));
@@ -817,22 +819,10 @@ public class ActionCollectionServiceTest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
-        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setName("testCollection1");
-        actionCollectionDTO.setPageId(testPage.getId());
-        actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setWorkspaceId(workspaceId);
-        actionCollectionDTO.setPluginId(datasource.getPluginId());
-        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
-        actionCollectionDTO.setBody("collectionBody");
-        actionCollectionDTO.setPluginType(PluginType.JS);
+        ActionCollectionDTO actionCollectionDTO =
+                createActionCollection("testCollection1", "collectionBody", PluginType.JS);
 
-        // Create actions
-        ActionDTO action1 = new ActionDTO();
-        action1.setName("testAction1");
-        action1.setActionConfiguration(new ActionConfiguration());
-        action1.getActionConfiguration().setBody("initial body");
-        action1.getActionConfiguration().setIsValid(false);
+        ActionDTO action1 = createAction("testAction1", "initial body", false);
         actionCollectionDTO.setActions(List.of(action1));
 
         // Create Js object
@@ -842,18 +832,8 @@ public class ActionCollectionServiceTest {
         assert createdActionCollectionDTO.getId() != null;
         String createdActionCollectionId = createdActionCollectionDTO.getId();
 
-        // Update JS object to create an action with same name as previously created action
-        ActionDTO action2 = new ActionDTO();
-        action2.setName("testAction1");
-        action2.setActionConfiguration(new ActionConfiguration());
-        action2.getActionConfiguration().setBody("mockBody");
-        action2.getActionConfiguration().setIsValid(false);
-
-        ActionDTO action3 = new ActionDTO();
-        action3.setName("testAction2");
-        action3.setActionConfiguration(new ActionConfiguration());
-        action3.getActionConfiguration().setBody("mockBody");
-        action3.getActionConfiguration().setIsValid(false);
+        ActionDTO action2 = createAction("testAction1", "mockBody", false);
+        ActionDTO action3 = createAction("testAction2", "mockBody", false);
 
         actionCollectionDTO.setActions(
                 List.of(createdActionCollectionDTO.getActions().get(0), action2, action3));
@@ -877,22 +857,9 @@ public class ActionCollectionServiceTest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
-        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setName("testCollection1");
-        actionCollectionDTO.setPageId(testPage.getId());
-        actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setWorkspaceId(workspaceId);
-        actionCollectionDTO.setPluginId(datasource.getPluginId());
-        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
-        actionCollectionDTO.setBody("collectionBody");
-        actionCollectionDTO.setPluginType(PluginType.JS);
-
-        // Create actions
-        ActionDTO action1 = new ActionDTO();
-        action1.setName("testAction1");
-        action1.setActionConfiguration(new ActionConfiguration());
-        action1.getActionConfiguration().setBody("initial body");
-        action1.getActionConfiguration().setIsValid(false);
+        ActionCollectionDTO actionCollectionDTO =
+                createActionCollection("testCollection1", "collectionBody", PluginType.JS);
+        ActionDTO action1 = createAction("testAction1", "initial body", false);
         actionCollectionDTO.setActions(List.of(action1));
 
         // Create Js object
@@ -903,17 +870,8 @@ public class ActionCollectionServiceTest {
         String createdActionCollectionId = createdActionCollectionDTO.getId();
 
         // Update JS object to create an action with same name as previously created action
-        ActionDTO action2 = new ActionDTO();
-        action2.setName("testAction2");
-        action2.setActionConfiguration(new ActionConfiguration());
-        action2.getActionConfiguration().setBody("mockBody");
-        action2.getActionConfiguration().setIsValid(false);
-
-        ActionDTO action3 = new ActionDTO();
-        action3.setName("testAction2");
-        action3.setActionConfiguration(new ActionConfiguration());
-        action3.getActionConfiguration().setBody("mockBody");
-        action3.getActionConfiguration().setIsValid(false);
+        ActionDTO action2 = createAction("testAction2", "mockBody", false);
+        ActionDTO action3 = createAction("testAction2", "mockBody", false);
 
         actionCollectionDTO.setActions(
                 List.of(createdActionCollectionDTO.getActions().get(0), action2, action3));
@@ -936,28 +894,12 @@ public class ActionCollectionServiceTest {
         Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
 
-        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setName("testCollection1");
-        actionCollectionDTO.setPageId(testPage.getId());
-        actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setWorkspaceId(workspaceId);
-        actionCollectionDTO.setPluginId(datasource.getPluginId());
-        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
-        actionCollectionDTO.setBody("collectionBody");
-        actionCollectionDTO.setPluginType(PluginType.JS);
+        ActionCollectionDTO actionCollectionDTO =
+                createActionCollection("testCollection1", "collectionBody", PluginType.JS);
 
         // Create actions
-        ActionDTO action1 = new ActionDTO();
-        action1.setName("myFunction");
-        action1.setActionConfiguration(new ActionConfiguration());
-        action1.getActionConfiguration().setBody("return [{\"key\": \"value\"}];");
-        action1.getActionConfiguration().setIsValid(true);
-
-        ActionDTO action2 = new ActionDTO();
-        action2.setName("myFunction2");
-        action2.setActionConfiguration(new ActionConfiguration());
-        action2.getActionConfiguration().setBody("mockBody");
-        action2.getActionConfiguration().setIsValid(false);
+        ActionDTO action1 = createAction("myFunction", "return [{\"key\": \"value\"}];", true);
+        ActionDTO action2 = createAction("myFunction2", "mockBody", false);
 
         actionCollectionDTO.setActions(List.of(action1, action2));
 
@@ -967,23 +909,15 @@ public class ActionCollectionServiceTest {
         ArrayList dslList = (ArrayList) layout.getDsl().get("children");
         JSONObject tableDsl = (JSONObject) dslList.get(0);
         tableDsl.put("tableData", "{{testCollection1.myFunction.data}}");
-        JSONArray temp2 = new JSONArray();
-        temp2.add(new JSONObject(Map.of("key", "tableData")));
-        tableDsl.put("dynamicBindingPathList", temp2);
-        JSONArray temp3 = new JSONArray();
-        temp3.add(new JSONObject(Map.of("key", "tableData")));
-        tableDsl.put("dynamicPropertyPathList", temp3);
+        tableDsl.put("dynamicBindingPathList", createDynamicList("key", "tableData"));
+        tableDsl.put("dynamicPropertyPathList", createDynamicList("key", "tableData"));
 
         JSONObject textDsl = new JSONObject();
         textDsl.put("widgetName", "Text1");
         textDsl.put("type", "TEXT_WIDGET");
         textDsl.put("text", "{{testCollection1.myFunction.data}} + {{testCollection1.myFunction2.data}}");
-        JSONArray textDslTemp2 = new JSONArray();
-        textDslTemp2.add(new JSONObject(Map.of("key", "text")));
-        textDsl.put("dynamicBindingPathList", textDslTemp2);
-        JSONArray textDslTemp3 = new JSONArray();
-        textDslTemp3.add(new JSONObject(Map.of("key", "text")));
-        textDsl.put("dynamicPropertyPathList", textDslTemp3);
+        textDsl.put("dynamicBindingPathList", createDynamicList("key", "text"));
+        textDsl.put("dynamicPropertyPathList", createDynamicList("key", "text"));
 
         layout.setLayoutOnLoadActions(List.of());
 
