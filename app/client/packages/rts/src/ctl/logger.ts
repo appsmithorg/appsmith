@@ -1,3 +1,4 @@
+// @ts-ignore
 import fsPromises from "fs/promises";
 import * as Constants from "./constants";
 
