@@ -56,8 +56,6 @@ import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_DIRECTLY_REFE
 import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH;
 import static com.appsmith.external.constants.spans.OnLoadSpan.EXECUTABLE_NAME_TO_EXECUTABLE_MAP;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_ALL_EXECUTABLES_BY_CREATOR_ID;
-import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_ENTITY_PARENTS_MAP;
-import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_REFERENCES_FROM_DYNAMIC_BINDING;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT;
 import static com.appsmith.external.constants.spans.OnLoadSpan.UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS;
 import static com.appsmith.external.helpers.MustacheHelper.EXECUTABLE_ENTITY_REFERENCES;
@@ -521,58 +519,13 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 .zipWith(getPossibleEntityParentsMap(new ArrayList<>(bindings), entityTypes, evalVersion))
                 .map(tuple -> {
                     Map<String, Executable> executableMap = tuple.getT1();
-                    // For each binding, here we receive a set of possible references to global entities
-                    // At this point we're guaranteed that these references are made to possible variables,
-                    // but we do not know if those entities exist in the global namespace yet
                     Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap = tuple.getT2();
-
-                    Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
-
-                    // From these references, we will try to validate executable references at this point
-                    // Each identified node is already annotated with the expected type of entity we need to search for
-                    bindingToPossibleParentMap.entrySet().stream().forEach(entry -> {
-                        Set<EntityDependencyNode> bindingsWithExecutableReference = new HashSet<>();
-                        entry.getValue().stream().forEach(binding -> {
-                            // For each possible reference node, check if the reference was to an executable
-                            Executable executable = executableMap.get(binding.getValidEntityName());
-
-                            if (executable != null) {
-                                // If it was, and had been identified as the same type of executable as what exists in
-                                // this app,
-                                if (binding.getEntityReferenceType().equals(executable.getEntityReferenceType())) {
-                                    // Copy over some data from the identified executable, this ensures that we do not
-                                    // have
-                                    // to query the DB again later
-                                    binding.setExecutable(executable);
-                                    bindingsWithExecutableReference.add(binding);
-                                    // Only if this is not a direct JS function call,
-                                    // add it to a possible on page load executable call.
-                                    // This discards the following type:
-                                    // {{ JSObject1.func() }}
-                                    if (!TRUE.equals(binding.getIsFunctionCall())) {
-                                        possibleEntitiesReferences.add(binding);
-                                    }
-                                    // We're ignoring any reference that was identified as a widget but actually matched
-                                    // an executable
-                                    // We wouldn't have discarded JS collection names here, but this is just an
-                                    // optimization, so it's fine
-                                }
-                            } else {
-                                // If the reference node was identified as a widget, directly add it as a possible
-                                // reference
-                                // Because we are not doing any validations for widget references at this point
-                                if (EntityReferenceType.WIDGET.equals(binding.getEntityReferenceType())) {
-                                    possibleEntitiesReferences.add(binding);
-                                }
-                            }
-                        });
-
-                        if (!bindingsWithExecutableReference.isEmpty() && bindingsInDsl != null) {
-                            bindingsInDsl.addAll(bindingsWithExecutableReference);
-                        }
-                    });
-
-                    return possibleEntitiesReferences;
+                    return processBindingToParentMap(
+                            bindingToPossibleParentMap,
+                            executableMap,
+                            bindingsInDsl,
+                            true // do not aggregate into a single set
+                            );
                 });
     }
 
@@ -592,61 +545,55 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     // At this point we're guaranteed that these references are made to possible variables,
                     // but we do not know if those entities exist in the global namespace yet
                     Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap = tuple.getT2();
-
-                    Map<String, Set<EntityDependencyNode>> possibleEntitiesReferencesToBindingMap = new HashMap<>();
-
-                    // From these references, we will try to validate executable references at this point
-                    // Each identified node is already annotated with the expected type of entity we need to search for
-                    bindingToPossibleParentMap.entrySet().stream().forEach(entry -> {
-                        Set<EntityDependencyNode> bindingsWithExecutableReference = new HashSet<>();
-                        String binding = entry.getKey();
-                        Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
-                        entry.getValue().stream().forEach(possibleParent -> {
-                            // For each possible reference node, check if the reference was to an executable
-                            Executable executable = executableMap.get(possibleParent.getValidEntityName());
-
-                            if (executable != null) {
-                                // If it was, and had been identified as the same type of executable as what exists in
-                                // this app,
-                                if (possibleParent
-                                        .getEntityReferenceType()
-                                        .equals(executable.getEntityReferenceType())) {
-                                    // Copy over some data from the identified executable, this ensures that we do not
-                                    // have
-                                    // to query the DB again later
-                                    possibleParent.setExecutable(executable);
-                                    bindingsWithExecutableReference.add(possibleParent);
-                                    // Only if this is not a direct JS function call,
-                                    // add it to a possible on page load executable call.
-                                    // This discards the following type:
-                                    // {{ JSObject1.func() }}
-                                    if (!TRUE.equals(possibleParent.getIsFunctionCall())) {
-                                        possibleEntitiesReferences.add(possibleParent);
-                                    }
-                                    // We're ignoring any reference that was identified as a widget but actually matched
-                                    // an executable
-                                    // We wouldn't have discarded JS collection names here, but this is just an
-                                    // optimization, so it's fine
-                                }
-                            } else {
-                                // If the reference node was identified as a widget, directly add it as a possible
-                                // reference
-                                // Because we are not doing any validations for widget references at this point
-                                if (EntityReferenceType.WIDGET.equals(possibleParent.getEntityReferenceType())) {
-                                    possibleEntitiesReferences.add(possibleParent);
-                                }
-                            }
-
-                            possibleEntitiesReferencesToBindingMap.put(binding, possibleEntitiesReferences);
-                        });
-
-                        if (!bindingsWithExecutableReference.isEmpty() && bindingsInDsl != null) {
-                            bindingsInDsl.addAll(bindingsWithExecutableReference);
-                        }
-                    });
-
-                    return possibleEntitiesReferencesToBindingMap;
+                    return processBindingToParentMap(
+                            bindingToPossibleParentMap,
+                            executableMap,
+                            bindingsInDsl,
+                            false // do not aggregate into a single set
+                            );
                 });
+    }
+
+    private <T> T processBindingToParentMap(
+            Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap,
+            Map<String, Executable> executableMap,
+            Set<EntityDependencyNode> bindingsInDsl,
+            boolean aggregateToSet) {
+        Map<String, Set<EntityDependencyNode>> possibleEntitiesReferencesToBindingMap = new HashMap<>();
+        Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
+
+        bindingToPossibleParentMap.forEach((binding, possibleParents) -> {
+            Set<EntityDependencyNode> bindingsWithExecutableReference = new HashSet<>();
+            Set<EntityDependencyNode> currentBindingReferences = new HashSet<>();
+
+            for (EntityDependencyNode possibleParent : possibleParents) {
+                Executable executable = executableMap.get(possibleParent.getValidEntityName());
+
+                if (executable != null
+                        && possibleParent.getEntityReferenceType().equals(executable.getEntityReferenceType())) {
+                    possibleParent.setExecutable(executable);
+                    bindingsWithExecutableReference.add(possibleParent);
+
+                    if (!TRUE.equals(possibleParent.getIsFunctionCall())) {
+                        currentBindingReferences.add(possibleParent);
+                    }
+                } else if (EntityReferenceType.WIDGET.equals(possibleParent.getEntityReferenceType())) {
+                    currentBindingReferences.add(possibleParent);
+                }
+            }
+
+            if (!bindingsWithExecutableReference.isEmpty() && bindingsInDsl != null) {
+                bindingsInDsl.addAll(bindingsWithExecutableReference);
+            }
+
+            if (aggregateToSet) {
+                possibleEntitiesReferences.addAll(currentBindingReferences);
+            } else {
+                possibleEntitiesReferencesToBindingMap.put(binding, currentBindingReferences);
+            }
+        });
+
+        return aggregateToSet ? (T) possibleEntitiesReferences : (T) possibleEntitiesReferencesToBindingMap;
     }
 
     /**
@@ -660,13 +607,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(
             List<String> bindings, int types, int evalVersion) {
-        Flux<Tuple2<String, Set<String>>> findingToReferencesFlux = astService
-                .getPossibleReferencesFromDynamicBinding(bindings, evalVersion)
-                .name(GET_POSSIBLE_REFERENCES_FROM_DYNAMIC_BINDING)
-                .tap(Micrometer.observation(observationRegistry));
-        return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types)
-                .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
-                .tap(Micrometer.observation(observationRegistry));
+        Flux<Tuple2<String, Set<String>>> findingToReferencesFlux =
+                astService.getPossibleReferencesFromDynamicBinding(bindings, evalVersion);
+        return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types);
     }
 
     /**
@@ -700,9 +643,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         Map<String, Set<EntityDependencyNode>> bindingToWidgetNodesMap = new HashMap<>();
         List<String> allBindings = new ArrayList<>();
 
-        widgetDynamicBindingsMap.forEach((widgetName, bindingsInWidget) -> {
-            EntityDependencyNode widgetDependencyNode =
-                    new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
+        widgetDynamicBindingsMap.forEach((widgetPropertyPath, bindingsInWidget) -> {
+            EntityDependencyNode widgetDependencyNode = new EntityDependencyNode(
+                    EntityReferenceType.WIDGET, widgetPropertyPath, widgetPropertyPath, null, null);
 
             bindingsInWidget.forEach(binding -> {
                 bindingToWidgetNodesMap
