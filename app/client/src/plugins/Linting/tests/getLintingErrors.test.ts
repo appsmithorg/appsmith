@@ -1,6 +1,7 @@
 import { getScriptType } from "workers/Evaluation/evaluate";
 import { CustomLintErrorCode, LINTER_TYPE } from "../constants";
 import getLintingErrors from "../utils/getLintingErrors";
+import { Severity } from "entities/AppsmithConsole";
 
 const webworkerTelemetry = {};
 
@@ -278,17 +279,16 @@ describe.each(linterTypes)(
 
         expect(Array.isArray(lintErrors)).toBe(true);
         // Should have at least one error for modifying native objects
-        expect(lintErrors.length).toBeGreaterThan(0);
-        expect(
-          lintErrors.some(
-            (error) =>
-              error.errorMessage.name === "LintingError" &&
-              (error.errorMessage.message ===
-                "Extending prototype of native object: 'Array'." ||
-                error.errorMessage.message ===
-                  "Array prototype is read only, properties should not be added."),
-          ),
-        ).toBe(true);
+        expect(lintErrors.length).toBe(1);
+        const lintError = lintErrors[0];
+        const expectedErrorMessage =
+          linterType === LINTER_TYPE.JSHINT
+            ? "Extending prototype of native object: 'Array'."
+            : "Array prototype is read only, properties should not be added.";
+
+        expect(lintError.severity).toBe(Severity.ERROR);
+
+        expect(lintError.errorMessage.message).toContain(expectedErrorMessage);
       });
 
       // Test for 'undef: true' (Disallow use of undeclared variables)
@@ -310,15 +310,37 @@ describe.each(linterTypes)(
 
         expect(Array.isArray(lintErrors)).toBe(true);
         // Should have at least one error for 'x' being undefined
-        expect(lintErrors.length).toBeGreaterThan(0);
+        expect(lintErrors.length).toBe(1);
         // Check if the error code corresponds to undefined variable
-        expect(
-          lintErrors.some(
-            (error) =>
-              error.errorMessage.name === "LintingError" &&
-              error.errorMessage.message === "'x' is not defined.",
-          ),
-        ).toBe(true);
+        const lintError = lintErrors[0];
+        const expectedErrorMessage = "'x' is not defined.";
+
+        expect(lintError.severity).toBe(Severity.ERROR);
+
+        expect(lintError.errorMessage.message).toContain(expectedErrorMessage);
+      });
+
+      // Test for 'forin: false' (Doesn't require filtering for..in loops with obj.hasOwnProperty())
+      it("5. Should allow unflitered forin loops without error", () => {
+        const data = { obj: { a: 1, b: 2 } };
+        const originalBinding =
+          "{{ for (var key in obj) { console.log(key); } }}";
+        const script = "for (var key in obj) { console.log(key); }";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have no errors for unfiltered 'for-in' loops
+        expect(lintErrors.length).toEqual(0);
       });
 
       // Test for 'noempty: false' (Allow empty blocks)
@@ -341,6 +363,66 @@ describe.each(linterTypes)(
         expect(Array.isArray(lintErrors)).toBe(true);
         // Should have no errors
         expect(lintErrors.length).toEqual(0);
+      });
+
+      // Test for 'strict: false' (strict mode is not enforced)
+      it("7. should allow blocks without strict mode enabled", () => {
+        const data = {
+          THIS_CONTEXT: {},
+        };
+        const originalBinding = "myFun1() {\n\t\tconsole.log('test')\n\t}";
+        const script =
+          "\n  function $$closedFn () {\n    const $$result = {myFun1() {\n\t\tconsole.log('test')\n\t}}\n    return $$result\n  }\n  $$closedFn.call(THIS_CONTEXT)\n";
+        const options = { isJsObject: true };
+        //const originalBinding = "{{ console.log('some statement') }}";
+        //const script = "console.log('some statement')";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          options,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have no errors for missing 'use strict'
+        expect(lintErrors.length).toEqual(0);
+      });
+
+      // Test for 'unused: 'strict'' (if a variable is defined, it should be used)
+      it("8. should throw error for unused variables", () => {
+        const data = {};
+        const originalBinding = "{{ const x = 1; }}";
+        const script = "const x = 1;";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        // Should have no errors
+        expect(lintErrors.length).toEqual(1);
+        const lintError = lintErrors[0];
+
+        const expectedMessage =
+          linterType === LINTER_TYPE.JSHINT
+            ? "'x' is defined but never used."
+            : "'x' is assigned a value but never used.";
+
+        expect(lintError.severity).toBe(Severity.WARNING);
+        expect(lintError.errorMessage.message).toBe(expectedMessage);
       });
     });
   },
