@@ -102,12 +102,14 @@
   width: calc(var(--sidebar-width-icon));
 }
 
-.mainSidebar[data-side="start"] .sidebar {
-  border-inline-end: var(--border-width-1) solid var(--color-bd-elevation-1);
-}
+@container (width > 550px) {
+  .mainSidebar[data-side="start"] .sidebar {
+    border-inline-end: var(--border-width-1) solid var(--color-bd-elevation-1);
+  }
 
-.mainSidebar[data-side="end"] .sidebar {
-  border-inline-start: var(--border-width-1) solid var(--color-bd-elevation-1);
+  .mainSidebar[data-side="end"] .sidebar {
+    border-inline-start: var(--border-width-1) solid var(--color-bd-elevation-1);
+  }
 }
 
 .mainSidebar[data-state="full-width"][data-side="start"] .sidebar {
