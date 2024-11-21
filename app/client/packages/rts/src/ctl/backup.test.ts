@@ -1,15 +1,20 @@
-const backup = require("./backup");
-const Constants = require("./constants");
-const os = require("os");
-const fsPromises = require("fs/promises");
-const utils = require("./utils");
-const readlineSync = require("readline-sync");
+jest.mock("./utils", () => ({
+  ...jest.requireActual("./utils"),
+  execCommand: jest.fn().mockImplementation(async (a) => a.join(" ")),
+}));
+
+import * as backup from "./backup";
+import * as Constants from "./constants";
+import os from "os";
+import fsPromises from "fs/promises";
+import * as utils from "./utils";
+import readlineSync from "readline-sync";
 
 describe("Backup Tests", () => {
   test("Timestamp string in ISO format", () => {
     console.log(backup.getTimeStampInISO());
     expect(backup.getTimeStampInISO()).toMatch(
-      /(\d{4})-(\d{2})-(\d{2})T(\d{2})\-(\d{2})\-(\d{2})\.(\d{3})Z/,
+      /(\d{4})-(\d{2})-(\d{2})T(\d{2})-(\d{2})-(\d{2})\.(\d{3})Z/,
     );
   });
 
@@ -18,23 +23,23 @@ describe("Backup Tests", () => {
     res.toBeGreaterThan(1024 * 1024);
   });
 
-  it("Checkx the constant is 2 GB", () => {
-    let size = 2 * 1024 * 1024 * 1024;
+  it("Check the constant is 2 GB", () => {
+    const size = 2 * 1024 * 1024 * 1024;
     expect(Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES).toBe(size);
   });
 
   it("Should throw Error when the available size is below MIN_REQUIRED_DISK_SPACE_IN_BYTES", () => {
-    let size = Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES - 1;
+    const size = Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES - 1;
     expect(() => backup.checkAvailableBackupSpace(size)).toThrow();
   });
 
-  it("Should not hould throw Error when the available size is >= MIN_REQUIRED_DISK_SPACE_IN_BYTES", () => {
+  it("Should not should throw Error when the available size is >= MIN_REQUIRED_DISK_SPACE_IN_BYTES", () => {
     expect(() => {
       backup.checkAvailableBackupSpace(
         Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES,
       );
     }).not.toThrow(
-      "Not enough space avaliable at /appsmith-stacks. Please ensure availability of atleast 5GB to backup successfully.",
+      "Not enough space available at /appsmith-stacks. Please ensure availability of at least 5GB to backup successfully.",
     );
   });
 
@@ -46,19 +51,18 @@ describe("Backup Tests", () => {
   });
 
   test("Test backup contents path generation", () => {
-    var root = "/rootDir";
-    var timestamp = "0000-00-0T00-00-00.00Z";
+    const root = "/rootDir";
+    const timestamp = "0000-00-0T00-00-00.00Z";
     expect(backup.getBackupContentsPath(root, timestamp)).toBe(
       "/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z",
     );
   });
 
-  test("Test mongodump CMD generaton", async () => {
-    var dest = "/dest";
-    var appsmithMongoURI = "mongodb://username:password@host/appsmith";
-    var cmd =
+  test("Test mongodump CMD generation", async () => {
+    const dest = "/dest";
+    const appsmithMongoURI = "mongodb://username:password@host/appsmith";
+    const cmd =
       "mongodump --uri=mongodb://username:password@host/appsmith --archive=/dest/mongodb-data.gz --gzip";
-    utils.execCommand = jest.fn().mockImplementation(async (a) => a.join(" "));
     const res = await backup.executeMongoDumpCMD(dest, appsmithMongoURI);
     expect(res).toBe(cmd);
     console.log(res);
@@ -77,10 +81,9 @@ describe("Backup Tests", () => {
   });
 
   test("Test ln command generation", async () => {
-    var gitRoot = "/appsmith-stacks/git-storage";
-    var dest = "/destdir";
-    var cmd = "ln -s /appsmith-stacks/git-storage /destdir/git-storage";
-    utils.execCommand = jest.fn().mockImplementation(async (a) => a.join(" "));
+    const gitRoot = "/appsmith-stacks/git-storage";
+    const dest = "/destdir";
+    const cmd = "ln -s /appsmith-stacks/git-storage /destdir/git-storage";
     const res = await backup.executeCopyCMD(gitRoot, dest);
     expect(res).toBe(cmd);
     console.log(res);
@@ -127,8 +130,8 @@ describe("Backup Tests", () => {
   test("Cleanup Backups when limit is 4 and there are 5 files", async () => {
     const backupArchivesLimit = 4;
     fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
-    var backupFiles = ["file1", "file2", "file3", "file4", "file5"];
-    var expectedBackupFiles = ["file2", "file3", "file4", "file5"];
+    const backupFiles = ["file1", "file2", "file3", "file4", "file5"];
+    const expectedBackupFiles = ["file2", "file3", "file4", "file5"];
     const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
     console.log(res);
 
@@ -138,8 +141,8 @@ describe("Backup Tests", () => {
   test("Cleanup Backups when limit is 2 and there are 5 files", async () => {
     const backupArchivesLimit = 2;
     fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
-    var backupFiles = ["file1", "file2", "file3", "file4", "file5"];
-    var expectedBackupFiles = ["file4", "file5"];
+    const backupFiles = ["file1", "file2", "file3", "file4", "file5"];
+    const expectedBackupFiles = ["file4", "file5"];
     const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
     console.log(res);
 
@@ -149,8 +152,8 @@ describe("Backup Tests", () => {
   test("Cleanup Backups when limit is 4 and there are 4 files", async () => {
     const backupArchivesLimit = 4;
     fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
-    var backupFiles = ["file1", "file2", "file3", "file4"];
-    var expectedBackupFiles = ["file1", "file2", "file3", "file4"];
+    const backupFiles = ["file1", "file2", "file3", "file4"];
+    const expectedBackupFiles = ["file1", "file2", "file3", "file4"];
     const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
     console.log(res);
 
@@ -160,8 +163,8 @@ describe("Backup Tests", () => {
   test("Cleanup Backups when limit is 4 and there are 2 files", async () => {
     const backupArchivesLimit = 4;
     fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
-    var backupFiles = ["file1", "file2"];
-    var expectedBackupFiles = ["file1", "file2"];
+    const backupFiles = ["file1", "file2"];
+    const expectedBackupFiles = ["file1", "file2"];
     const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
     console.log(res);
 
@@ -171,8 +174,8 @@ describe("Backup Tests", () => {
   test("Cleanup Backups when limit is 2 and there is 1 file", async () => {
     const backupArchivesLimit = 4;
     fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
-    var backupFiles = ["file1"];
-    var expectedBackupFiles = ["file1"];
+    const backupFiles = ["file1"];
+    const expectedBackupFiles = ["file1"];
     const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
     console.log(res);
     expect(res).toEqual(expectedBackupFiles);
@@ -181,24 +184,22 @@ describe("Backup Tests", () => {
   test("Cleanup Backups when limit is 2 and there is no file", async () => {
     const backupArchivesLimit = 4;
     fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
-    var backupFiles = [];
-    var expectedBackupFiles = [];
+    const backupFiles = [];
+    const expectedBackupFiles = [];
     const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
     console.log(res);
     expect(res).toEqual(expectedBackupFiles);
   });
 
-  test("Test get encryption password from user prompt whene both passords are the same", async () => {
+  test("Test get encryption password from user prompt when both passwords are the same", async () => {
     const password = "password#4321";
-    readlineSync.question = jest.fn().mockImplementation((a) => {
-      return password;
-    });
+    readlineSync.question = jest.fn().mockImplementation(() => password);
     const password_res = backup.getEncryptionPasswordFromUser();
 
     expect(password_res).toEqual(password);
   });
 
-  test("Test get encryption password from user prompt when both passords are the different", async () => {
+  test("Test get encryption password from user prompt when both passwords are the different", async () => {
     const password = "password#4321";
     readlineSync.question = jest.fn().mockImplementation((a) => {
       if (a == "Enter the above password again: ") {
@@ -214,9 +215,6 @@ describe("Backup Tests", () => {
   test("Get encrypted archive path", async () => {
     const archivePath = "/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z";
     const encryptionPassword = "password#4321";
-    utils.execCommand = jest
-      .fn()
-      .mockImplementation(async (a) => console.log(a));
     const encArchivePath = await backup.encryptBackupArchive(
       archivePath,
       encryptionPassword,
@@ -228,9 +226,6 @@ describe("Backup Tests", () => {
   });
 
   test("Test backup encryption function", async () => {
-    utils.execCommand = jest
-      .fn()
-      .mockImplementation(async (a) => console.log(a));
     const archivePath = "/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z";
     const encryptionPassword = "password#123";
     const res = await backup.encryptBackupArchive(
@@ -243,32 +238,32 @@ describe("Backup Tests", () => {
 });
 
 test("Get DB name from Mongo URI 1", async () => {
-  var mongodb_uri =
+  const mongodb_uri =
     "mongodb+srv://admin:password@test.cluster.mongodb.net/my_db_name?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin";
-  var expectedDBName = "my_db_name";
+  const expectedDBName = "my_db_name";
   const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri);
   expect(dbName).toEqual(expectedDBName);
 });
 
 test("Get DB name from Mongo URI 2", async () => {
-  var mongodb_uri =
+  const mongodb_uri =
     "mongodb+srv://admin:password@test.cluster.mongodb.net/test123?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin";
-  var expectedDBName = "test123";
+  const expectedDBName = "test123";
   const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri);
   expect(dbName).toEqual(expectedDBName);
 });
 
 test("Get DB name from Mongo URI 3", async () => {
-  var mongodb_uri =
+  const mongodb_uri =
     "mongodb+srv://admin:password@test.cluster.mongodb.net/test123";
-  var expectedDBName = "test123";
+  const expectedDBName = "test123";
   const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri);
   expect(dbName).toEqual(expectedDBName);
 });
 
 test("Get DB name from Mongo URI 4", async () => {
-  var mongodb_uri = "mongodb://appsmith:pAssW0rd!@localhost:27017/appsmith";
-  var expectedDBName = "appsmith";
+  const mongodb_uri = "mongodb://appsmith:pAssW0rd!@localhost:27017/appsmith";
+  const expectedDBName = "appsmith";
   const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri);
   expect(dbName).toEqual(expectedDBName);
 });
