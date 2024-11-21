@@ -410,7 +410,6 @@ describe.each(linterTypes)(
         });
 
         expect(Array.isArray(lintErrors)).toBe(true);
-        // Should have no errors
         expect(lintErrors.length).toEqual(1);
         const lintError = lintErrors[0];
 
@@ -470,6 +469,33 @@ describe.each(linterTypes)(
         expect(Array.isArray(lintErrors)).toBe(true);
         // Should have no errors for assignments in conditions
         expect(lintErrors.length).toEqual(0);
+      });
+
+      // Test for 'evil: false' (Disallow use of eval)
+      it("11. Should error when 'eval' is used", () => {
+        const data = {};
+        const originalBinding = "{{ eval('var a = 1;') }}";
+        const script = "eval('var a = 1;');";
+
+        const scriptType = getScriptType(false, true);
+
+        const lintErrors = getLintingErrors({
+          getLinterTypeFn: () => linterType,
+          data,
+          originalBinding,
+          script,
+          scriptType,
+          webworkerTelemetry,
+        });
+
+        expect(Array.isArray(lintErrors)).toBe(true);
+        expect(lintErrors.length).toEqual(1);
+        const lintError = lintErrors[0];
+
+        const expectedMessage = "eval can be harmful.";
+
+        expect(lintError.severity).toBe(Severity.ERROR);
+        expect(lintError.errorMessage.message).toBe(expectedMessage);
       });
     });
   },
