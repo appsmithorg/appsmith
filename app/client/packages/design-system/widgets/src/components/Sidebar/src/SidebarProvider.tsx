@@ -81,7 +81,6 @@ export const _SidebarProvider = (
         ref={ref}
         style={
           {
-            "--sidebar-width": SIDEBAR_CONSTANTS.WIDTH.DESKTOP,
             "--sidebar-width-icon": SIDEBAR_CONSTANTS.WIDTH.ICON,
             ...style,
           } as React.CSSProperties

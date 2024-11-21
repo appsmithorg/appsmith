@@ -13,18 +13,23 @@
  *-----------------------------------------------------
  */
 .mainSidebar {
-  display: none;
+  --sidebar-width: 100cqw;
+  display: block;
   color: var(--color-fg);
-}
-
-@container (min-width: 768px) {
-  .mainSidebar {
-    display: block;
-  }
 }
 
 .mainSidebar[data-collapsible="icon"] {
   overflow: hidden;
+}
+
+[data-state="full-width"] .sidebar {
+  --sidebar-width: 100cqw;
+}
+
+@container (width > 550px) {
+  .mainSidebar {
+    --sidebar-width: min(50cqw, 1024px);
+  }
 }
 
 /**
@@ -57,11 +62,6 @@
   width: var(--sidebar-width-icon);
 }
 
-.mainSidebar[data-variant="floating"][data-collapsible="icon"] .fakeSidebar,
-.mainSidebar[data-variant="inset"][data-collapsible="icon"] .fakeSidebar {
-  width: calc(var(--sidebar-width-icon) + var(--inner-spacing-2));
-}
-
 /**
  *-----------------------------------------------------
  * SIDEBAR
@@ -72,7 +72,7 @@
   top: 0;
   bottom: 0;
   z-index: 10;
-  display: none;
+  display: flex;
   height: 100%;
   width: var(--sidebar-width);
   transition:
@@ -80,16 +80,6 @@
     right 300ms ease-in-out,
     width 300ms ease-in-out;
   background-color: var(--color-bg-elevation-2);
-}
-
-[data-state="full-width"] .sidebar {
-  width: 100%;
-}
-
-@container (min-width: 768px) {
-  .sidebar {
-    display: flex;
-  }
 }
 
 .mainSidebar[data-side="start"] .sidebar {
@@ -108,45 +98,23 @@
   right: calc(var(--sidebar-width) * -1);
 }
 
-.mainSidebar[data-variant="floating"] .sidebar,
-.mainSidebar[data-variant="inset"] .sidebar {
-  padding: var(--inner-spacing-2);
-}
-
 .mainSidebar[data-collapsible="icon"] .sidebar {
   width: calc(var(--sidebar-width-icon));
 }
 
-.mainSidebar[data-variant="floating"][data-collapsible="icon"] .sidebar,
-.mainSidebar[data-variant="inset"][data-collapsible="icon"] .sidebar {
-  width: calc(var(--sidebar-width-icon) + var(--inner-spacing-2) + 2px);
-}
-
-.mainSidebar[data-side="start"]:not([data-variant="floating"]):not(
-    [data-variant="inset"]
-  )
-  .sidebar {
+.mainSidebar[data-side="start"] .sidebar {
   border-inline-end: var(--border-width-1) solid var(--color-bd-elevation-1);
 }
 
-.mainSidebar[data-side="end"]:not([data-variant="floating"]):not(
-    [data-variant="inset"]
-  )
-  .sidebar {
+.mainSidebar[data-side="end"] .sidebar {
   border-inline-start: var(--border-width-1) solid var(--color-bd-elevation-1);
 }
 
-.mainSidebar[data-state="full-width"][data-side="start"]:is(
-    [data-variant="sidebar"]
-  )
-  .sidebar {
+.mainSidebar[data-state="full-width"][data-side="start"] .sidebar {
   border-inline-end: none;
 }
 
-.mainSidebar[data-state="full-width"][data-side="end"]:is(
-    [data-variant="sidebar"]
-  )
-  .sidebar {
+.mainSidebar[data-state="full-width"][data-side="end"] .sidebar {
   border-inline-start: none;
 }
 
@@ -170,12 +138,6 @@
   border-inline-end: var(--border-width-1) solid var(--color-bd-subtle);
 }
 
-.mainSidebar[data-variant="floating"] .sidebarContainer {
-  border-radius: var(--border-radius-elevation-3);
-  border: var(--border-width-1) solid var(--color-bd);
-  box-shadow: var(--box-shadow-1);
-}
-
 /**
  *-----------------------------------------------------
  * SIDEBAR CONTENT
@@ -194,45 +156,18 @@
 
 /**
  *-----------------------------------------------------
- * SIDEBAR INSET
- *-----------------------------------------------------
- */
-.sidebarInset {
-  position: relative;
-  display: flex;
-  min-height: 100%;
-  flex: 1;
-  flex-direction: column;
-  background-color: var(--background);
-}
-
-[data-variant="inset"] ~ .sidebarInset {
-  min-height: calc(100% - var(--inner-spacing-2) * 2);
-}
-
-@container (min-width: 768px) {
-  [data-variant="inset"] ~ .sidebarInset {
-    margin: var(--inner-spacing-2);
-    border-radius: var(--border-radius-elevation-3);
-    box-shadow: var(--box-shadow-1);
-    border: var(--border-width-1) solid var(--color-bd);
-  }
-
-  /* Handle margin when sidebar is collapsed */
-  [data-state="collapsed"][data-variant="inset"] ~ .sidebarInset {
-    margin-left: var(--inner-spacing-2);
-  }
-
-  [data-variant="inset"] ~ .sidebarInset {
-    margin-left: 0;
-  }
-}
-
-/**
- *-----------------------------------------------------
  * SIDEBAR HEADER
  *-----------------------------------------------------
  */
 .sidebarHeader {
+  height: var(--sizing-13);
+  padding: 0 var(--inner-spacing-2);
   border-bottom: var(--border-width-1) solid var(--color-bd-elevation-1);
+}
+
+.sidebarTitle {
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin: 0 var(--sizing-14);
 }
