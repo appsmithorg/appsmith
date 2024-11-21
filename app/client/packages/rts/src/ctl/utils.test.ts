@@ -1,5 +1,6 @@
-const { describe, test, expect } = require("@jest/globals");
-const utils = require("./utils");
+import { describe, expect, test } from "@jest/globals";
+
+import * as utils from "./utils";
 
 describe("execCommandReturningOutput", () => {
   test("Output of echo", async () => {

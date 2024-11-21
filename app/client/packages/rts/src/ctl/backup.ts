@@ -258,7 +258,7 @@ export async function executeCopyCMD(srcFolder, destFolder) {
   ]);
 }
 
-export function getGitRoot(gitRoot) {
+export function getGitRoot(gitRoot?) {
   if (gitRoot == null || gitRoot === "") {
     gitRoot = "/appsmith-stacks/git-storage";
   }
@@ -288,7 +288,7 @@ export function removeSensitiveEnvData(content) {
   return output_lines.join("\n");
 }
 
-export function getBackupArchiveLimit(backupArchivesLimit) {
+export function getBackupArchiveLimit(backupArchivesLimit?) {
   if (!backupArchivesLimit)
     backupArchivesLimit = Constants.APPSMITH_DEFAULT_BACKUP_ARCHIVE_LIMIT;
   return backupArchivesLimit;

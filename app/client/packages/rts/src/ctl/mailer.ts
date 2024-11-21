@@ -77,7 +77,7 @@ export async function sendBackupErrorToAdmins(err, backupTimestamp) {
           user: mailUser,
           pass: mailPass,
         },
-      });
+      } as any);
 
       await transporter.sendMail({
         from: mailFrom,
