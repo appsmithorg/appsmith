@@ -235,7 +235,8 @@
     "web-vitals": "3.5.2",
     "webpack-retry-chunk-load-plugin": "^3.1.1",
     "yjs": "^13.5.12",
-    "zipcelx": "^1.6.2"
+    "zipcelx": "^1.6.2",
+    "react-multi-date-picker": "^4.4.1"
   },
   "browserslist": [
     ">0.2%",
