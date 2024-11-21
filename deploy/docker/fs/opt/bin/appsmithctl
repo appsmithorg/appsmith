@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# An alias to `ctl`.
+exec ctl "$@"
