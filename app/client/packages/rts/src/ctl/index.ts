@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 
-const process = require("process");
-const utils = require("./utils");
-const export_db = require("./export_db.js");
-const import_db = require("./import_db.js");
-const check_replica_set = require("./check_replica_set.js");
-const version = require("./version.js");
-const mongo_shell_utils = require("./mongo_shell_utils.js");
+import process from "process";
+import { showHelp } from "./utils";
+import * as export_db from "./export_db";
+import * as import_db from "./import_db";
+import * as backup from "./backup";
+import * as restore from "./restore";
+import * as check_replica_set from "./check_replica_set";
+import * as version from "./version";
+import * as mongo_shell_utils from "./mongo_shell_utils";
+import { config } from "dotenv";
 
 const APPLICATION_CONFIG_PATH = "/appsmith-stacks/configuration/docker.env";
 
@@ -17,7 +20,7 @@ if (!process.env.APPSMITH_DB_URL) {
 }
 
 // Loading latest application configuration
-require("dotenv").config({ path: APPLICATION_CONFIG_PATH });
+config({ path: APPLICATION_CONFIG_PATH });
 
 // AGAIN: Check if APPSMITH_DB_URL is set, if not set, fall back to APPSMITH_MONGODB_URI
 if (!process.env.APPSMITH_DB_URL) {
@@ -31,10 +34,7 @@ if (["export-db", "export_db", "ex"].includes(command)) {
   console.log("Exporting database");
   export_db.run();
   console.log("Export database done");
-  return;
-}
-
-if (["import-db", "import_db", "im"].includes(command)) {
+} else if (["import-db", "import_db", "im"].includes(command)) {
   console.log("Importing database");
   // Get Force option flag to run import DB immediately
   const forceOption = process.argv[3] === "-f";
@@ -45,26 +45,20 @@ if (["import-db", "import_db", "im"].includes(command)) {
     console.error("Failed to import database:", error.message);
     process.exit(1);
   }
-  return;
-}
-
-if (["check-replica-set", "check_replica_set", "crs"].includes(command)) {
+} else if (
+  ["check-replica-set", "check_replica_set", "crs"].includes(command)
+) {
   check_replica_set.exec();
-  return;
-}
-
-if (["backup", "restore"].includes(command)) {
-  require(`./${command}.js`).run(process.argv.slice(3));
-  return;
-}
-
-if (["appsmith-version", "appsmith_version", "version"].includes(command)) {
+} else if (["backup"].includes(command)) {
+  backup.run();
+} else if (["restore"].includes(command)) {
+  restore.run();
+} else if (
+  ["appsmith-version", "appsmith_version", "version"].includes(command)
+) {
   version.exec();
-  return;
+} else if (["mongo-eval", "mongo_eval", "mongoEval"].includes(command)) {
+  mongo_shell_utils.exec();
+} else {
+  showHelp();
 }
-if (["mongo-eval", "mongo_eval", "mongoEval"].includes(command)) {
-  mongo_shell_utils.exec(process.argv.slice(3));
-  return;
-}
-
-utils.showHelp();

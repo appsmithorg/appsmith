@@ -1,7 +1,7 @@
-const fsPromises = require("fs/promises");
-const Constants = require("./constants");
+import fsPromises from "fs/promises";
+import * as Constants from "./constants";
 
-async function backup_error(err) {
+export async function backup_error(err) {
   console.error(err);
   try {
     await fsPromises.access(Constants.APPSMITHCTL_LOG_PATH);
@@ -14,7 +14,7 @@ async function backup_error(err) {
   );
 }
 
-async function backup_info(msg) {
+export async function backup_info(msg) {
   console.log(msg);
   try {
     await fsPromises.access(Constants.APPSMITHCTL_LOG_PATH);
@@ -26,8 +26,3 @@ async function backup_info(msg) {
     new Date().toISOString() + " [ INFO ] " + msg + "\n",
   );
 }
-
-module.exports = {
-  backup_error,
-  backup_info,
-};

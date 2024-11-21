@@ -1,8 +1,8 @@
-const utils = require("./utils");
+import * as utils from "./utils";
 
 const command_args = process.argv.slice(3);
 
-async function exec() {
+export async function exec() {
   let errorCode = 0;
   try {
     await execMongoEval(command_args[0], process.env.APPSMITH_DB_URL);
@@ -25,7 +25,3 @@ async function execMongoEval(queryExpression, appsmithMongoURI) {
     `--eval=${queryExpression}`,
   ]);
 }
-
-module.exports = {
-  exec,
-};
