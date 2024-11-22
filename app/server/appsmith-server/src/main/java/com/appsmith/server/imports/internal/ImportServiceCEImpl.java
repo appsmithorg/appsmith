@@ -519,7 +519,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                         log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
                         return Mono.error(new AppsmithException(
-                                        AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
+                                AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                     });
 
             return importMono

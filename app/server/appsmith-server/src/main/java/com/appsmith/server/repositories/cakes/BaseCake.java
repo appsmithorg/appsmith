@@ -4,7 +4,6 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -21,24 +20,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUPS;
 import static com.appsmith.server.constants.ce.FieldNameCE.TX_CONTEXT;
-import static com.appsmith.server.helpers.ReactorUtils.asFlux;
-import static com.appsmith.server.helpers.ReactorUtils.asMono;
+import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -47,65 +42,42 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
 
     @Autowired
     private CacheableRepositoryHelper cacheableRepositoryHelper;
+
     @Autowired
     private EntityManager entityManager;
 
     protected final Class<T> genericDomain;
 
-    // ---------------------------------------------------
-    // Wrappers for methods from BaseRepository
-    // ---------------------------------------------------
-
-    @Deprecated(forRemoval = true)
-    public Mono<T> archive(T entity) {
-        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-            .flatMap(em -> Mono.fromSupplier(() -> repository.archive(entity, em)).subscribeOn(Schedulers.boundedElastic()));
-    }
-
-    public Mono<Boolean> archiveAllById(Collection<String> ids) {
-        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-            .flatMap(em -> Mono.fromSupplier(() -> repository.archiveAllById(ids, em) > 0).subscribeOn(Schedulers.boundedElastic());
-    }
-
-    public Mono<Boolean> archiveById(String id) {
-        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-            .flatMap(em -> Mono.fromSupplier(() -> repository.archiveById(id, em) > 0).subscribeOn(Schedulers.boundedElastic()));
-    }
-
-    // ---------------------------------------------------
-    // Wrappers for methods from CRUDRepository
-    // ---------------------------------------------------
     public Mono<T> save(T entity) {
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-            .flatMap(em -> {
-
+                .flatMap(em -> {
                     final boolean isNew = entity.getId() == null;
                     if (isNew) {
                         entity.setId(generateId());
                     }
                     return Mono.fromSupplier(() -> {
-                        try {
-                            em.persist(entity);
-                            final T savedEntity = em.find(genericDomain, entity.getId());
-                            copyTransientFieldValues(entity, savedEntity, 1);
-                            return savedEntity;
-                        } catch (DataIntegrityViolationException e) {
-                            // save wasn't successful, reset the id if it was generated
-                            if (isNew) {
-                                entity.setId(null);
-                            }
-                            throw e;
-                        } catch (Exception e) {
-                            // This should NEVER happen in live/production environments.
-                            if (isNew) {
-                                entity.setId(null);
-                            }
-                            log.error("Couldn't save entity", e);
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .subscribeOn(Schedulers.boundedElastic());
-            });
+                                try {
+                                    em.persist(entity);
+                                    final T savedEntity = em.find(genericDomain, entity.getId());
+                                    copyTransientFieldValues(entity, savedEntity, 1);
+                                    return savedEntity;
+                                } catch (DataIntegrityViolationException e) {
+                                    // save wasn't successful, reset the id if it was generated
+                                    if (isNew) {
+                                        entity.setId(null);
+                                    }
+                                    throw e;
+                                } catch (Exception e) {
+                                    // This should NEVER happen in live/production environments.
+                                    if (isNew) {
+                                        entity.setId(null);
+                                    }
+                                    log.error("Couldn't save entity", e);
+                                    throw new RuntimeException(e);
+                                }
+                            })
+                            .subscribeOn(Schedulers.boundedElastic());
+                });
     }
 
     /**
@@ -151,14 +123,9 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
         return UUID.randomUUID().toString();
     }
 
-    public Flux<T> findAll() {
-        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-            .flatMapMany(em -> asFlux(() -> repository.findAll(em)));
-    }
-
     public Mono<T> findById(String id) {
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-            .flatMap(em -> Mono.fromSupplier(() -> repository.findById(id, em).orElse(null)).subscribeOn(Schedulers.boundedElastic()));
+                .flatMap(em -> asMonoDirect(() -> em.find(genericDomain, id)));
     }
 
     public Mono<T> findById(String id, AclPermission permission) {
@@ -209,52 +176,27 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                 });
     }
 
-    public Flux<T> findAllById(Collection<String> ids) {
-        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-            .flatMapMany(em -> Mono.fromSupplier(() -> repository.findAllById(ids, em))
-                .flatMapMany(Flux::fromIterable)
-                .subscribeOn(Schedulers.boundedElastic()));
-    }
-
     @Transactional
     @Modifying
     public Mono<T> updateById(String id, T updates, AclPermission permission) {
         updates.setId(null);
 
         return findById(id, permission)
-            .zipWith(Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager))))
-            .flatMap(tuple2 -> {
-                final T existingEntity = tuple2.getT1();
-                final EntityManager em = tuple2.getT2();
-                AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(updates, existingEntity);
-                em.persist(existingEntity);
-                return findById(id, permission);
-            });
+                .zipWith(Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager))))
+                .flatMap(tuple2 -> {
+                    final T existingEntity = tuple2.getT1();
+                    final EntityManager em = tuple2.getT2();
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(updates, existingEntity);
+                    em.persist(existingEntity);
+                    return findById(id, permission);
+                });
     }
 
-    // TODO: This should be soft delete, not hard delete.
-    public Mono<Void> deleteAll() {
-        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-            .flatMap(em -> Mono.<Void>fromRunnable(() -> repository.deleteAll(em))).then();
-    }
-
-    public Mono<Void> deleteById(String id) {
-        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-            .flatMap(em -> Mono.<Void>fromRunnable(() -> repository.deleteById(id, em)).subscribeOn(Schedulers.boundedElastic()));
-    }
-
+    @Modifying
+    @Transactional
     public Mono<Void> delete(T entity) {
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-            .flatMap(em -> Mono.<Void>fromRunnable(() -> repository.deleteById(entity.getId(), entityManager)).subscribeOn(Schedulers.boundedElastic()));
-    }
-
-    public Mono<Long> count() {
-        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-            .flatMap(em -> Mono.fromCallable(() -> repository.count(em)).subscribeOn(Schedulers.boundedElastic()));
-    }
-
-    public Flux<T> saveAll(Iterable<T> entities) {
-        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-            .flatMapMany(em -> asFlux(() -> repository.saveAll(entities, em)));
+                .flatMap(em -> asMonoDirect(() -> repository.deleteById(entity.getId(), em)))
+                .then();
     }
 }

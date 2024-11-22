@@ -211,7 +211,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<Void> deleteAll() {
-        return repository.deleteAll(); // */
+        return repository.deleteAll().then();
     }
 
     @Override

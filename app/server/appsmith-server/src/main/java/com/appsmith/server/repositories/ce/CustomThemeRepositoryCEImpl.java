@@ -74,7 +74,8 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Override
     public Optional<Boolean> archiveByApplicationId(
             String applicationId, AclPermission permission, User currentUser, EntityManager entityManager) {
-        return archiveThemeByCriteria(Bridge.equal(Theme.Fields.applicationId, applicationId), permission, currentUser, entityManager);
+        return archiveThemeByCriteria(
+                Bridge.equal(Theme.Fields.applicationId, applicationId), permission, currentUser, entityManager);
     }
 
     @Modifying

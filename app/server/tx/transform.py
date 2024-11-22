@@ -60,6 +60,9 @@ def del_postgres_dep(content: str):
 
 
 def repo_interfaces(domain):
+    # In case of CustomJSLib domain remove the prefix Custom and only change if the custom is the prefix
+    regex = r"^Custom"
+    domain = re.sub(regex, "", domain)
     return list(
         filter(
             Path.exists,
@@ -80,6 +83,7 @@ def repo_interfaces(domain):
 
 
 def repo_classes(domain):
+    domain = domain.replace("CustomJSLib", "JSLib")
     return list(
         filter(
             Path.exists,

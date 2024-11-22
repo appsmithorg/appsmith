@@ -30,7 +30,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitUtils;
-import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -48,7 +47,6 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
-import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -77,7 +75,6 @@ import static com.appsmith.external.constants.spans.ce.ApplicationSpanCE.APPLICA
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
-import static com.appsmith.server.constants.ce.FieldNameCE.TX_CONTEXT;
 import static com.appsmith.server.helpers.ReactorUtils.asMono;
 import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 
@@ -146,9 +143,8 @@ public class ApplicationServiceCEImpl
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return ReactiveContextUtils.getCurrentUser()
-                .flatMap(user ->
-                        asMono(() -> repositoryDirect.findById(id, applicationPermission.getReadPermission(), user)))
+        return repository
+                .findById(id, applicationPermission.getReadPermission())
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
@@ -1083,8 +1079,6 @@ public class ApplicationServiceCEImpl
     @Override
     @CustomAppsmithTransaction(propagation = TransactionPropagation.REQUIRED)
     public Mono<Application> findSaveUpdateApp(String id) {
-        EntityManager em = entityManagerFactory.createEntityManager();
-        em.getTransaction().begin();
         Mono<Application> applicationMono = repository
                 .findById(id, applicationPermission.getEditPermission())
                 .switchIfEmpty(
@@ -1103,28 +1097,14 @@ public class ApplicationServiceCEImpl
                     update.setName("updated_name");
                     // return Mono.error(new RuntimeException("Error"));
                     return repository.updateById(id, update, null);
-                })
-                .contextWrite(ctx -> ctx.put(TX_CONTEXT, em));
+                });
 
         return applicationMono
                 .doOnSuccess(application -> {
-                    try {
-                        em.getTransaction().commit();
-                    } catch (Exception e) {
-                        log.error("Error committing transaction", e);
-                        em.getTransaction().rollback();
-                    } finally {
-                        em.close();
-                    }
+                    log.info("Application updated successfully");
                 })
                 .doOnError(throwable -> {
-                    try {
-                        em.getTransaction().rollback();
-                    } catch (Exception e) {
-                        log.error("Error rolling back transaction", e);
-                    } finally {
-                        em.close();
-                    }
+                    log.error("Error updating application", throwable);
                 });
     }
 }

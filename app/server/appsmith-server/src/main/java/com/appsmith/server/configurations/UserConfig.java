@@ -9,18 +9,19 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.UpdateSuperUserHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.ConfigRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.TenantRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.solutions.PolicySolution;
-import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -35,99 +36,83 @@ public class UserConfig {
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final PolicySolution policySolution;
     private final PolicyGenerator policyGenerator;
-    private final UserRepository userRepository;
-    private final PermissionGroupRepository permissionGroupRepository;
-    private final ConfigRepository configRepository;
-    private final TenantRepository tenantRepository;
+    private final UserRepositoryCake userRepository;
+    private final PermissionGroupRepositoryCake permissionGroupRepository;
+    private final ConfigRepositoryCake configRepository;
+    private final TenantRepositoryCake tenantRepository;
     private final UpdateSuperUserHelper updateSuperUserHelper = new UpdateSuperUserHelper();
-    private final EntityManager entityManager;
 
     /**
      * Responsible for creating super-users based on the admin emails provided in the environment.
      */
     @Bean
-    public boolean createSuperUsers() {
+    public Mono<Boolean> createSuperUsers() {
         // Read the admin emails from the environment and update the super-users accordingly
         String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
 
         Set<String> adminEmails = TextUtils.csvToSet(adminEmailsStr);
 
-        Optional<Config> instanceAdminConfigurationOptional =
-                configRepository.findByName(FieldName.INSTANCE_CONFIG, entityManager);
-        if (instanceAdminConfigurationOptional.isEmpty()) {
-            log.error("Instance configuration not found. Cannot create super users.");
-            return false;
-        }
-        Config instanceAdminConfiguration = instanceAdminConfigurationOptional.get();
+        Mono<PermissionGroup> instanceAdminConfigurationMono = configRepository
+                .findByName(FieldName.INSTANCE_CONFIG)
+                .switchIfEmpty(Mono.error(
+                        new IllegalStateException("Instance configuration not found. Cannot create super users.")))
+                .map(Config::getConfig)
+                .map(config -> (String) config.get(DEFAULT_PERMISSION_GROUP))
+                .flatMap(permissionGroupRepository::findById)
+                .switchIfEmpty(Mono.error(new IllegalStateException(
+                        "Instance admin permission group not found. Cannot create super users.")));
 
-        String instanceAdminPermissionGroupId =
-                (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
+        Mono<Tenant> tenantMono = tenantRepository.findBySlug("default");
 
-        Optional<PermissionGroup> instanceAdminPGOptional =
-                permissionGroupRepository.findById(instanceAdminPermissionGroupId);
-        if (instanceAdminPGOptional.isEmpty()) {
-            log.error("Instance admin permission group not found. Cannot create super users.");
-            return false;
-        }
-        PermissionGroup instanceAdminPG = instanceAdminPGOptional.get();
-
-        Optional<Tenant> tenantOptional = tenantRepository.findBySlug("default", entityManager);
-        if (tenantOptional.isEmpty()) {
-            log.error("Default tenant not found. Cannot create super users.");
-            return false;
-        }
-        Tenant tenant = tenantOptional.get();
-
-        Set<String> userIds = adminEmails.stream()
-                .map(String::trim)
-                .map(String::toLowerCase)
-                .map(email -> {
-                    User user = null;
-                    Optional<User> userOptional = userRepository.findByEmail(email);
-                    if (userOptional.isPresent()) {
-                        user = userOptional.get();
-                    }
-
-                    if (user == null) {
-                        log.info("Creating super user with username {}", email);
-                        user = updateSuperUserHelper.createNewUser(
-                                email,
-                                tenant,
-                                instanceAdminPG,
-                                userRepository,
-                                permissionGroupRepository,
-                                policySolution,
-                                policyGenerator);
-                    }
-
-                    return user.getId();
+        return Mono.zip(instanceAdminConfigurationMono, tenantMono)
+                .flatMap(tuple -> {
+                    PermissionGroup instanceAdminPG = tuple.getT1();
+                    Tenant tenant = tuple.getT2();
+                    List<String> updatedAdminEmails = adminEmails.stream()
+                            .map(String::trim)
+                            .map(String::toLowerCase)
+                            .collect(Collectors.toList());
+                    return Flux.fromIterable(updatedAdminEmails)
+                            .flatMap(email -> userRepository
+                                    .findByEmail(email)
+                                    .switchIfEmpty(updateSuperUserHelper.createNewUser(
+                                            email,
+                                            tenant,
+                                            instanceAdminPG,
+                                            userRepository,
+                                            permissionGroupRepository,
+                                            policySolution,
+                                            policyGenerator)))
+                            .map(User::getId)
+                            .collect(Collectors.toSet())
+                            .flatMap(userIds -> {
+                                Set<String> oldSuperUsers = instanceAdminPG.getAssignedToUserIds();
+                                if (oldSuperUsers == null || oldSuperUsers.isEmpty()) {
+                                    oldSuperUsers = Set.of();
+                                }
+                                Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
+                                instanceAdminPG.setAssignedToUserIds(userIds);
+                                return evictPermissionCacheForUsers(updatedUserIds)
+                                        .then(permissionGroupRepository.save(instanceAdminPG));
+                            });
                 })
-                .collect(Collectors.toSet());
-
-        Set<String> oldSuperUsers = instanceAdminPG.getAssignedToUserIds();
-        if (oldSuperUsers == null || oldSuperUsers.isEmpty()) {
-            oldSuperUsers = Set.of();
-        }
-        Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
-        evictPermissionCacheForUsers(updatedUserIds, userRepository, cacheableRepositoryHelper);
-
-        instanceAdminPG.setAssignedToUserIds(userIds);
-        permissionGroupRepository.save(instanceAdminPG);
-        return true;
+                .thenReturn(true);
     }
 
-    public static void evictPermissionCacheForUsers(
-            Set<String> userIds, UserRepository userRepository, CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public Mono<Void> evictPermissionCacheForUsers(Set<String> userIds) {
 
         if (userIds == null || userIds.isEmpty()) {
             // Nothing to do here.
-            return;
+            return Mono.empty();
         }
 
-        userIds.forEach(userId -> {
-            userRepository.findById(userId).ifPresent(user -> cacheableRepositoryHelper
-                    .evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
-                    .block());
-        });
+        return Flux.fromIterable(userIds)
+                .flatMap(userId -> {
+                    return userRepository
+                            .findById(userId)
+                            .flatMap(user -> permissionGroupRepository.evictPermissionGroupsUser(
+                                    user.getEmail(), user.getTenantId()));
+                })
+                .then();
     }
 }

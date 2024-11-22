@@ -1,13 +1,12 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.Permission;
-import com.appsmith.server.repositories.ConfigRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -17,11 +16,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.util.StreamUtils;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
@@ -32,83 +35,84 @@ import static com.appsmith.server.constants.ce.FieldNameCE.PUBLIC_PERMISSION_GRO
 @Slf4j
 @RequiredArgsConstructor
 public class ThemesConfig {
-    private final ConfigRepository configRepository;
-    private final PermissionGroupRepository permissionGroupRepository;
-    private final ThemeRepository themeRepository;
+    private final ConfigRepositoryCake configRepository;
+    private final PermissionGroupRepositoryCake permissionGroupRepository;
+    private final ThemeRepositoryCake themeRepository;
 
     @Bean
-    public boolean createSystemTheme() throws IOException {
+    public Mono<Boolean> createSystemTheme() throws IOException {
         final String themesJson = StreamUtils.copyToString(
                 new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
                 Charset.defaultCharset());
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        Theme[] themes = mapper.readValue(themesJson, Theme[].class);
+        List<Theme> themes =
+                Arrays.stream(mapper.readValue(themesJson, Theme[].class)).toList();
 
-        Config publicPermissionGroupConfig =
-                configRepository.findByName(PUBLIC_PERMISSION_GROUP).orElse(null);
-        if (publicPermissionGroupConfig == null) {
-            throw new IllegalStateException("Public permission group not found in the database.");
-        }
+        Mono<String> permissionGroupIdMono = configRepository
+                .findByName(PUBLIC_PERMISSION_GROUP)
+                .switchIfEmpty(
+                        Mono.error(new IllegalStateException("Public permission group not found in the database.")))
+                .map(config -> config.getConfig().getAsString(PERMISSION_GROUP_ID));
 
-        String permissionGroupId = publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID);
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupIdMono
+                .flatMap(permissionGroupId -> permissionGroupRepository.findById(permissionGroupId))
+                .switchIfEmpty(
+                        Mono.error(new IllegalStateException("Public permission group not found in the database.")));
 
-        PermissionGroup publicPermissionGroup =
-                permissionGroupRepository.findById(permissionGroupId).orElse(null);
-
-        if (publicPermissionGroup == null) {
-            throw new IllegalStateException("Public permission group not found in the database.");
-        }
-        // Initialize the permissions for the role
-        HashSet<Permission> permissions = new HashSet<>();
-        if (publicPermissionGroup.getPermissions() != null) {
-            permissions.addAll(publicPermissionGroup.getPermissions());
-        }
-
-        Policy policyWithCurrentPermission = Policy.builder()
-                .permission(READ_THEMES.getValue())
-                .permissionGroups(Set.of(publicPermissionGroup.getId()))
-                .build();
-
-        for (Theme theme : themes) {
-            theme.setSystemTheme(true);
-            theme.setCreatedAt(Instant.now());
-            theme.setPolicies(new HashSet<>(Set.of(policyWithCurrentPermission)));
-
-            themeRepository.getSystemThemeByName(theme.getName());
-            Theme savedTheme =
-                    themeRepository.getSystemThemeByName(theme.getName()).orElse(null);
-
-            if (savedTheme == null) { // this theme does not exist, create it
-                savedTheme = themeRepository.save(theme);
-            } else { // theme already found, update
-                savedTheme.setDisplayName(theme.getDisplayName());
-                savedTheme.setPolicies(theme.getPolicies());
-                savedTheme.setConfig(theme.getConfig());
-                savedTheme.setProperties(theme.getProperties());
-                savedTheme.setStylesheet(theme.getStylesheet());
-                if (savedTheme.getCreatedAt() == null) {
-                    savedTheme.setCreatedAt(Instant.now());
-                }
-                savedTheme = themeRepository.save(savedTheme);
+        return publicPermissionGroupMono.flatMap(publicPermissionGroup -> {
+            // Initialize the permissions for the role
+            HashSet<Permission> permissions = new HashSet<>();
+            if (publicPermissionGroup.getPermissions() != null) {
+                permissions.addAll(publicPermissionGroup.getPermissions());
             }
 
-            // Add the access to this theme to the public permission group
-            Theme finalSavedTheme = savedTheme;
-            boolean isThemePermissionPresent = permissions.stream()
-                    .filter(p -> p.getAclPermission().equals(READ_THEMES)
-                            && p.getDocumentId().equals(finalSavedTheme.getId()))
-                    .findFirst()
-                    .isPresent();
-            if (!isThemePermissionPresent) {
-                permissions.add(new Permission(finalSavedTheme.getId(), READ_THEMES));
-            }
-        }
+            Policy policyWithCurrentPermission = Policy.builder()
+                    .permission(READ_THEMES.getValue())
+                    .permissionGroups(Set.of(publicPermissionGroup.getId()))
+                    .build();
 
-        // Finally save the role which gives access to all the system themes to the anonymous user.
-        publicPermissionGroup.setPermissions(permissions);
-        permissionGroupRepository.save(publicPermissionGroup);
-        return true;
+            return Flux.fromIterable(themes)
+                    .flatMap(theme -> {
+                        theme.setSystemTheme(true);
+                        theme.setCreatedAt(Instant.now());
+                        theme.setPolicies(new HashSet<>(Set.of(policyWithCurrentPermission)));
+
+                        Mono<Theme> savedThemeMono = themeRepository.getSystemThemeByName(theme.getName());
+                        return savedThemeMono
+                                .switchIfEmpty(themeRepository.save(theme)) // this theme does not exist, create it
+                                .flatMap(savedTheme -> {
+                                    // theme already found, update
+                                    savedTheme.setDisplayName(theme.getDisplayName());
+                                    savedTheme.setPolicies(theme.getPolicies());
+                                    savedTheme.setConfig(theme.getConfig());
+                                    savedTheme.setProperties(theme.getProperties());
+                                    savedTheme.setStylesheet(theme.getStylesheet());
+                                    if (savedTheme.getCreatedAt() == null) {
+                                        savedTheme.setCreatedAt(Instant.now());
+                                    }
+                                    return themeRepository.save(savedTheme);
+                                })
+                                .flatMap(savedTheme -> {
+                                    // Add the access to this theme to the public permission group
+                                    boolean isThemePermissionPresent = permissions.stream()
+                                            .anyMatch(p -> p.getAclPermission().equals(READ_THEMES)
+                                                    && p.getDocumentId().equals(savedTheme.getId()));
+                                    if (!isThemePermissionPresent) {
+                                        permissions.add(new Permission(savedTheme.getId(), READ_THEMES));
+                                    }
+                                    return Mono.just(savedTheme);
+                                })
+                                .thenReturn(permissions)
+                                .flatMap(permissionHashSet -> {
+                                    // Finally save the role which gives access to all the system themes to the
+                                    // anonymous user.
+                                    publicPermissionGroup.setPermissions(permissionHashSet);
+                                    return permissionGroupRepository.save(publicPermissionGroup);
+                                });
+                    })
+                    .then(Mono.just(true));
+        });
     }
 }

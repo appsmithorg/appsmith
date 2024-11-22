@@ -363,7 +363,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
                                             AppsmithError.NO_RESOURCE_FOUND,
                                             FieldName.TOKEN,
                                             emailTokenDTO.getToken())))
-                                    .flatMap(passwordResetTokenRepository::delete)
+                                    .flatMap(token -> passwordResetTokenRepository.deleteById(token.getId()))
                                     .then(repository.save(userFromDb))
                                     .doOnSuccess(result -> {
                                         // In a separate thread, we delete all other sessions of this user.

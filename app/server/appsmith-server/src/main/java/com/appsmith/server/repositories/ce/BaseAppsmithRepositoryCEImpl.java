@@ -845,7 +845,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             seenIds.add(id);
         }
 
-        baseRepository.save(entities);
+        entities.forEach(em::persist);
         return Optional.empty();
     }
 
@@ -871,7 +871,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(updatesById.get(e.getId()), e);
         }
 
-        em.persist(entitiesToSave);
+        entitiesToSave.forEach(em::persist);
         return Optional.empty();
     }
 

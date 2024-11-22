@@ -74,7 +74,8 @@ public class ConfigServiceCEImpl implements ConfigServiceCE {
                 .findByName(name)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.CONFIG, name)))
-                .flatMap(repository::delete); // */
+                .flatMap(config -> repository.deleteById(config.getId()))
+                .then();
     }
 
     @Override

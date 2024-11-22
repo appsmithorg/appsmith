@@ -402,7 +402,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public List<String> findAllBranchedApplicationIdsByBranchedApplicationId(
             String branchedApplicationId, AclPermission permission, User currentUser, EntityManager entityManager) {
-        Optional<Application> branchedApplicationMono = this.findById(branchedApplicationId, permission, currentUser, entityManager);
+        Optional<Application> branchedApplicationMono =
+                this.findById(branchedApplicationId, permission, currentUser, entityManager);
 
         if (branchedApplicationMono.isEmpty()) {
             return List.of();

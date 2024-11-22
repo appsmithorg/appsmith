@@ -2,14 +2,8 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.io.Serializable;
@@ -18,26 +12,33 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 @NoRepositoryBean
 public interface BaseRepository<T extends BaseDomain, ID extends Serializable> {
 
     default Optional<T> findById(ID id, EntityManager entityManager) {
-        return Optional.ofNullable(entityManager.createQuery("FROM " + getDomainClass().getSimpleName() + " e WHERE e.id = :id AND e.deletedAt IS NULL", getDomainClass())
-            .setParameter("id", id)
-            .getSingleResult());
+        return Optional.ofNullable(entityManager
+                .createQuery(
+                        "FROM " + getDomainClass().getSimpleName() + " e WHERE e.id = :id AND e.deletedAt IS NULL",
+                        getDomainClass())
+                .setParameter("id", id)
+                .getSingleResult());
     }
 
     default List<T> findAllById(Collection<ID> ids, EntityManager entityManager) {
-        return entityManager.createQuery("FROM " + getDomainClass().getSimpleName() + " e WHERE e.id IN :ids AND e.deletedAt IS NULL", getDomainClass())
-            .setParameter("ids", ids)
-            .getResultList();
+        return entityManager
+                .createQuery(
+                        "FROM " + getDomainClass().getSimpleName() + " e WHERE e.id IN :ids AND e.deletedAt IS NULL",
+                        getDomainClass())
+                .setParameter("ids", ids)
+                .getResultList();
     }
 
     default List<T> findAll(EntityManager entityManager) {
-        return entityManager.createQuery("FROM " + getDomainClass().getSimpleName() + " e WHERE e.deletedAt IS NULL", getDomainClass())
-            .getResultList();
+        return entityManager
+                .createQuery(
+                        "FROM " + getDomainClass().getSimpleName() + " e WHERE e.deletedAt IS NULL", getDomainClass())
+                .getResultList();
     }
 
     /**
@@ -50,7 +51,7 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable> {
     @Deprecated(forRemoval = true)
     @Modifying
     @Transactional
-    /*no-cake*/default T archive(T entity, EntityManager entityManager) {
+    default T archive(T entity, EntityManager entityManager) {
         if (entity.isDeleted()) {
             return entity;
         }
@@ -69,11 +70,13 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable> {
      */
     @Modifying
     @Transactional
-    /*no-cake*/ default int archiveById(String id, EntityManager entityManager) {
-        return entityManager.createQuery("UPDATE " + getDomainClass().getSimpleName() + " e SET e.deletedAt = :instant WHERE e.deletedAt IS NULL AND e.id = :id")
-            .setParameter("instant", Instant.now())
-            .setParameter("id", id)
-            .executeUpdate();
+    default int archiveById(String id, EntityManager entityManager) {
+        return entityManager
+                .createQuery("UPDATE " + getDomainClass().getSimpleName()
+                        + " e SET e.deletedAt = :instant WHERE e.deletedAt IS NULL AND e.id = :id")
+                .setParameter("instant", Instant.now())
+                .setParameter("id", id)
+                .executeUpdate();
     }
 
     /**
@@ -85,26 +88,31 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable> {
      */
     @Modifying
     @Transactional
-    /*no-cake*/ default int archiveAllById(Collection<ID> ids, EntityManager entityManager) {
-        return entityManager.createQuery("UPDATE " + getDomainClass().getSimpleName() + " e SET e.deletedAt = :instant WHERE e.deletedAt IS NULL AND e.id IN :ids")
-            .setParameter("instant", Instant.now())
-            .setParameter("ids", ids)
-            .executeUpdate();
+    default Boolean archiveAllById(Collection<ID> ids, EntityManager entityManager) {
+        return entityManager
+                        .createQuery("UPDATE " + getDomainClass().getSimpleName()
+                                + " e SET e.deletedAt = :instant WHERE e.deletedAt IS NULL AND e.id IN :ids")
+                        .setParameter("instant", Instant.now())
+                        .setParameter("ids", ids)
+                        .executeUpdate()
+                > 0;
     }
 
     @Modifying
     @Transactional
     default int deleteById(String id, EntityManager entityManager) {
-        return entityManager.createQuery("DELETE FROM " + getDomainClass().getSimpleName() + " e WHERE e.id = :id")
-            .setParameter("id", id)
-            .executeUpdate();
+        return entityManager
+                .createQuery("DELETE FROM " + getDomainClass().getSimpleName() + " e WHERE e.id = :id")
+                .setParameter("id", id)
+                .executeUpdate();
     }
 
     @Modifying
     @Transactional
     default int deleteAll(EntityManager entityManager) {
-        return entityManager.createQuery("DELETE FROM " + getDomainClass().getSimpleName() + " e WHERE e.deletedAt IS NULL")
-            .executeUpdate();
+        return entityManager
+                .createQuery("DELETE FROM " + getDomainClass().getSimpleName() + " e WHERE e.deletedAt IS NULL")
+                .executeUpdate();
     }
 
     @Modifying
@@ -115,17 +123,17 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable> {
     }
 
     default Long count(EntityManager entityManager) {
-        return entityManager.createQuery("SELECT COUNT(e) FROM " + getDomainClass().getSimpleName() + " e WHERE e.deletedAt IS NULL", Long.class)
-            .getSingleResult();
+        return entityManager
+                .createQuery(
+                        "SELECT COUNT(e) FROM " + getDomainClass().getSimpleName() + " e WHERE e.deletedAt IS NULL",
+                        Long.class)
+                .getSingleResult();
     }
 
     // Helper method to infer the domain class
     @SuppressWarnings("unchecked")
     private Class<T> getDomainClass() {
         // Infer the domain class from the generic type
-        return (Class<T>) ((ParameterizedType) getClass()
-            .getGenericInterfaces()[0])
-            .getActualTypeArguments()[0];
+        return (Class<T>) ((ParameterizedType) getClass().getGenericInterfaces()[0]).getActualTypeArguments()[0];
     }
-
 }

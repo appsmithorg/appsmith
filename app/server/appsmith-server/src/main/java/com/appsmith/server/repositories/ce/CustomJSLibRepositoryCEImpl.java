@@ -5,6 +5,7 @@ import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import jakarta.persistence.EntityManager;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,14 +16,15 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
         implements CustomJSLibRepositoryCE {
 
     @Override
-    public Optional<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
+    public Optional<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib, EntityManager entityManager) {
         BridgeQuery<CustomJSLib> bridgeQuery = Bridge.equal(CustomJSLib.Fields.uidString, customJSLib.getUidString());
 
-        return queryBuilder().criteria(bridgeQuery).one();
+        return queryBuilder().criteria(bridgeQuery).entityManager(entityManager).one();
     }
 
     @Override
-    public List<CustomJSLib> findCustomJsLibsInContext(Set<CustomJSLibContextDTO> customJSLibContextDTOS) {
+    public List<CustomJSLib> findCustomJsLibsInContext(
+            Set<CustomJSLibContextDTO> customJSLibContextDTOS, EntityManager entityManager) {
 
         Set<String> uidStrings = customJSLibContextDTOS.stream()
                 .map(CustomJSLibContextDTO::getUidString)
@@ -30,6 +32,6 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
 
         BridgeQuery<CustomJSLib> bridgeQuery = Bridge.in(CustomJSLib.Fields.uidString, uidStrings);
 
-        return queryBuilder().criteria(bridgeQuery).all();
+        return queryBuilder().criteria(bridgeQuery).entityManager(entityManager).all();
     }
 }
