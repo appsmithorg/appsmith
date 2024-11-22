@@ -21,10 +21,7 @@ public class ProjectProperties {
     private String version = "UNKNOWN";
     private String commitSha = "UNKNOWN";
 
-    private static ProjectProperties instance;
-
     public ProjectProperties(ObjectMapper objectMapper) {
-        instance = this;
         try {
             Path infoJsonPath = Paths.get(INFO_JSON_PATH);
             if (Files.exists(infoJsonPath)) {
@@ -38,9 +35,5 @@ public class ProjectProperties {
             // Ignore the exception and return "UNKNOWN" as the version
             log.debug("Error reading version from info.json {}", e.getMessage());
         }
-    }
-
-    public static String getInstanceVersion() {
-        return instance.version;
     }
 }

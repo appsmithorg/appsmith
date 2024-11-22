@@ -2,7 +2,6 @@ const datasource = require("../../../locators/DatasourcesEditor.json");
 let datasourceName;
 import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
-import { DataSources } from "../../../support/Pages/DataSources";
 
 describe(
   "Redshift datasource test cases",

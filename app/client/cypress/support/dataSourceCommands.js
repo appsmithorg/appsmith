@@ -47,11 +47,13 @@ Cypress.Commands.add("testSaveDatasource", (expectedRes = true) => {
   if (!expectedRes) {
     cy.intercept("POST", "/api/v1/datasources/test", (req) =>
       req.reply({
+        headers: {
+          "x-appsmith-version": req.headers["x-appsmith-version"],
+        },
         body: {
           responseMeta: {
             status: 200,
             success: true,
-            version: req.headers["x-appsmith-version"],
           },
           data: {
             invalids: [],

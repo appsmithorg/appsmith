@@ -16,18 +16,14 @@ describe(
   () => {
     it("1. Templates Modal should have show only 'allowPageImport:true' templates", () => {
       cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {
-        cy.intercept(
-          {
-            method: "GET",
-            url: "/api/v1/app-templates",
-          },
-          (req) => {
-            data.responseMeta.version = req.headers["x-appsmith-version"];
-            req.reply({
-              statusCode: 200,
-              body: data,
-            });
-          },
+        cy.intercept("GET", "/api/v1/app-templates", (req) =>
+          req.reply({
+            statusCode: 200,
+            headers: {
+              "x-appsmith-version": req.headers["x-appsmith-version"],
+            },
+            body: data,
+          }),
         ).as("fetchAllTemplates");
         agHelper.RefreshPage(); //is important for below intercept to go through!
         PageList.AddNewPage("Add page from template");

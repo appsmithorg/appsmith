@@ -191,6 +191,9 @@ describe(
       agHelper.AssertElementVisibility(gitSyncLocators.discardChanges);
       cy.intercept("PUT", "/api/v1/git/discard/app/*", (req) =>
         req.reply({
+          headers: {
+            "x-appsmith-version": req.headers["x-appsmith-version"],
+          },
           body: {
             responseMeta: {
               status: 500,
@@ -201,7 +204,6 @@ describe(
                   "Provided file format is incompatible, please upgrade your instance to resolve this conflict.",
                 errorType: "INTERNAL_ERROR",
               },
-              version: req.headers["x-appsmith-version"],
             },
           },
           delay: 1000,

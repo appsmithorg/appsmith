@@ -37,8 +37,6 @@ import AppsmithConsole from "../utils/AppsmithConsole";
 import type { SourceEntity } from "../entities/AppsmithConsole";
 import { getAppMode } from "ee/selectors/applicationSelectors";
 import { APP_MODE } from "../entities/App";
-import { getAppsmithConfigs } from "ee/configs";
-import { handleVersionUpdate } from "./WebsocketSagas/versionUpdatePrompt";
 
 const shouldShowToast = (action: string) => {
   return action in toastMessageErrorTypes;
@@ -125,14 +123,6 @@ export function* validateResponse(
         show,
       },
     });
-  }
-
-  const { appVersion } = getAppsmithConfigs();
-
-  if (response.responseMeta.version !== appVersion.id) {
-    handleVersionUpdate(appVersion, response.responseMeta.version);
-
-    return false;
   }
 
   if (response.responseMeta.success) {
