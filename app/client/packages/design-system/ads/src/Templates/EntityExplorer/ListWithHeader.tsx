@@ -7,7 +7,7 @@ interface Props {
   headerText: string;
   headerControls?: React.ReactNode;
   maxHeight?: string;
-  children: React.ReactNode[];
+  children: React.ReactNode | React.ReactNode[];
 }
 
 export const ListWithHeader = (props: Props) => {
