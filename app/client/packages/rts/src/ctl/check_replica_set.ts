@@ -26,6 +26,7 @@ export async function exec() {
 
 async function checkReplicaSet(client: MongoClient) {
   await client.connect();
+
   return await new Promise<boolean>((resolve) => {
     try {
       const changeStream = client
@@ -43,6 +44,7 @@ async function checkReplicaSet(client: MongoClient) {
           } else {
             console.error("Error even from changeStream", err);
           }
+
           resolve(false);
         });
 

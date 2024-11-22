@@ -1,4 +1,3 @@
-// @ts-ignore
 import fsPromises from "fs/promises";
 import * as Constants from "./constants";
 import * as utils from "./utils";
@@ -6,6 +5,7 @@ import * as utils from "./utils";
 export async function exportDatabase() {
   console.log("export_database  ....");
   const dbUrl = utils.getDburl();
+
   await fsPromises.mkdir(Constants.BACKUP_PATH, { recursive: true });
   await utils.execCommand([
     "mongodump",

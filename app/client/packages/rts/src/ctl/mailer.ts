@@ -59,6 +59,7 @@ export async function sendBackupErrorToAdmins(err, backupTimestamp) {
       if (instanceName) {
         text = text + "Appsmith instance name: " + instanceName + "\n";
       }
+
       if (domainName) {
         text =
           text +
@@ -68,6 +69,7 @@ export async function sendBackupErrorToAdmins(err, backupTimestamp) {
           "/settings/general" +
           "\n";
       }
+
       text = text + "\n" + err.stack;
 
       const transporter = nodemailer.createTransport({

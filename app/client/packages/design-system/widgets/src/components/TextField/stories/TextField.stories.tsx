@@ -1,11 +1,11 @@
 import React from "react";
 import { Form } from "react-aria-components";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Flex, Icon, TextInput, Button } from "@appsmith/wds";
+import { Flex, Icon, TextField, Button } from "@appsmith/wds";
 
-const meta: Meta<typeof TextInput> = {
-  title: "WDS/Widgets/TextInput",
-  component: TextInput,
+const meta: Meta<typeof TextField> = {
+  title: "WDS/Widgets/TextField",
+  component: TextField,
   tags: ["autodocs"],
   args: {
     placeholder: "Write something...",
@@ -13,7 +13,7 @@ const meta: Meta<typeof TextInput> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof TextInput>;
+type Story = StoryObj<typeof TextField>;
 
 export const Main: Story = {
   args: {
@@ -36,12 +36,11 @@ export const WithContextualHelp: Story = {
 };
 
 export const WithPrefixAndSuffix: Story = {
-  render: (args) => (
+  render: () => (
     <Flex direction="column" gap="spacing-4">
-      <TextInput {...args} suffix={<Icon name="user" size="medium" />} />
-      <TextInput {...args} prefix={<Icon name="user" size="medium" />} />
-      <TextInput
-        {...args}
+      <TextField suffix={<Icon name="user" size="medium" />} />
+      <TextField prefix={<Icon name="user" size="medium" />} />
+      <TextField
         prefix={<Icon name="user" size="medium" />}
         suffix={<Icon name="user" size="medium" />}
       />
@@ -79,16 +78,14 @@ export const Readonly: Story = {
 };
 
 export const Size: Story = {
-  render: (args) => (
+  render: () => (
     <Flex direction="column" gap="spacing-4">
-      <TextInput
-        {...args}
+      <TextField
         label="Small"
         prefix={<Icon name="user" size="medium" />}
         size="small"
       />
-      <TextInput
-        {...args}
+      <TextField
         label="Medium"
         prefix={<Icon name="user" size="medium" />}
         size="medium"
@@ -98,11 +95,10 @@ export const Size: Story = {
 };
 
 export const Validation: Story = {
-  render: (args) => (
+  render: () => (
     <Form onSubmit={(e) => e.preventDefault()}>
       <Flex direction="column" gap="spacing-3" width="sizing-60">
-        <TextInput
-          {...args}
+        <TextField
           errorMessage="Please enter a valid email address"
           isRequired
           label="Email"

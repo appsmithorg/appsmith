@@ -1,5 +1,5 @@
 import React from "react";
-import { TextInput } from "@appsmith/wds";
+import { TextField } from "@appsmith/wds";
 
 export interface SearchProps {
   isVisibleSearch?: boolean;
@@ -12,7 +12,7 @@ export const Search = (props: SearchProps) => {
   const { excludeFromTabOrder, isVisibleSearch, onSearch, searchKey } = props;
 
   return isVisibleSearch ? (
-    <TextInput
+    <TextField
       excludeFromTabOrder={excludeFromTabOrder}
       onChange={onSearch}
       placeholder="Search..."
