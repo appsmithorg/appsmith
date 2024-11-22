@@ -21,12 +21,14 @@ import java.util.Optional;
 @Slf4j
 public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Theme> implements CustomThemeRepositoryCE {
     @Override
-    public List<Theme> getApplicationThemes(String applicationId, AclPermission permission, User currentUser, EntityManager entityManager) {
+    public List<Theme> getApplicationThemes(
+            String applicationId, AclPermission permission, User currentUser, EntityManager entityManager) {
         BridgeQuery<Theme> appThemeCriteria = Bridge.equal(Theme.Fields.applicationId, applicationId);
         BridgeQuery<Theme> systemThemeCriteria = Bridge.isTrue(Theme.Fields.isSystemTheme);
         return queryBuilder()
                 .criteria(Bridge.or(appThemeCriteria, systemThemeCriteria))
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
@@ -35,14 +37,17 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         return queryBuilder()
                 .criteria(Bridge.isTrue(Theme.Fields.isSystemTheme))
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
-    public Optional<Theme> getSystemThemeByName(String themeName, AclPermission permission, User currentUser, EntityManager entityManager) {
+    public Optional<Theme> getSystemThemeByName(
+            String themeName, AclPermission permission, User currentUser, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equalIgnoreCase(Theme.Fields.name, themeName).isTrue(Theme.Fields.isSystemTheme))
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .one();
     }
 
@@ -50,6 +55,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     public Optional<Theme> getSystemThemeByName(String themeName, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equalIgnoreCase(Theme.Fields.name, themeName).isTrue(Theme.Fields.isSystemTheme))
+                .entityManager(entityManager)
                 .one();
     }
 
@@ -58,6 +64,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         return Optional.of(queryBuilder()
                         .criteria(criteria)
                         .permission(permission, currentUser)
+                        .entityManager(entityManager)
                         .updateAll(Bridge.update().set(Theme.Fields.deletedAt, Instant.now()))
                 > 0);
     }
@@ -65,18 +72,23 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Modifying
     @Transactional
     @Override
-    public Optional<Boolean> archiveByApplicationId(String applicationId, AclPermission permission, User currentUser, EntityManager entityManager) {
-        return archiveThemeByCriteria(Bridge.equal(Theme.Fields.applicationId, applicationId), permission, currentUser);
+    public Optional<Boolean> archiveByApplicationId(
+            String applicationId, AclPermission permission, User currentUser, EntityManager entityManager) {
+        return archiveThemeByCriteria(Bridge.equal(Theme.Fields.applicationId, applicationId), permission, currentUser, entityManager);
     }
 
     @Modifying
     @Transactional
     @Override
     public Optional<Boolean> archiveDraftThemesById(
-            String editModeThemeId, String publishedModeThemeId, AclPermission permission, User currentUser, EntityManager entityManager) {
+            String editModeThemeId,
+            String publishedModeThemeId,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager) {
         BridgeQuery<Theme> criteria = Bridge.<Theme>in(
                         Theme.Fields.id, CollectionUtils.ofNonNulls(editModeThemeId, publishedModeThemeId))
                 .isFalse(Theme.Fields.isSystemTheme);
-        return archiveThemeByCriteria(criteria, permission, currentUser);
+        return archiveThemeByCriteria(criteria, permission, currentUser, entityManager);
     }
 }

@@ -31,12 +31,17 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     public List<PermissionGroup> findByAssignedToUserIdsIn(String userId, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.jsonIn(userId, PermissionGroup.Fields.assignedToUserIds))
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
     public List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
-            String userId, String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager) {
+            String userId,
+            String workspaceId,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager) {
         BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>jsonIn(
                         userId, PermissionGroup.Fields.assignedToUserIds)
                 .equal(PermissionGroup.Fields.defaultDomainId, workspaceId)
@@ -45,6 +50,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         return queryBuilder()
                 .criteria(query)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
@@ -55,7 +61,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         if (id == null) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
         }
-        return queryBuilder().byId(id).updateFirst(updateObj);
+        return queryBuilder().byId(id).entityManager(entityManager).updateFirst(updateObj);
     }
 
     @Override
@@ -67,6 +73,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         return queryBuilder()
                 .criteria(query)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
@@ -79,6 +86,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         return queryBuilder()
                 .criteria(query)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
@@ -90,8 +98,9 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Optional<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId, EntityManager entityManager) {
-        return this.evictPermissionGroupsUser(email, tenantId);
+    public Optional<Void> evictAllPermissionGroupCachesForUser(
+            String email, String tenantId, EntityManager entityManager) {
+        return this.evictPermissionGroupsUser(email, tenantId, entityManager);
     }
 
     @Override
@@ -108,13 +117,16 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     public List<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds,
             Optional<List<String>> includeFields,
-            Optional<AclPermission> permission, User currentUser, EntityManager entityManager) {
+            Optional<AclPermission> permission,
+            User currentUser,
+            EntityManager entityManager) {
         BridgeQuery<PermissionGroup> assignedToUserIdCriteria =
                 Bridge.in(PermissionGroup.Fields.assignedToUserIds, userIds);
         return queryBuilder()
                 .criteria(assignedToUserIdCriteria)
                 .fields(includeFields.orElse(null))
                 .permission(permission.orElse(null), currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 }

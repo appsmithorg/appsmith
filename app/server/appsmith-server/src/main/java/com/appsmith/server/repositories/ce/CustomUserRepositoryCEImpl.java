@@ -18,11 +18,13 @@ import java.util.Set;
 public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User> implements CustomUserRepositoryCE {
 
     @Override
-    public Optional<User> findByEmail(String email, AclPermission permission, User currentUser, EntityManager entityManager) {
+    public Optional<User> findByEmail(
+            String email, AclPermission permission, User currentUser, EntityManager entityManager) {
         BridgeQuery<User> emailCriteria = Bridge.equal(User.Fields.email, email);
         return queryBuilder()
                 .criteria(emailCriteria)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .one();
     }
 
@@ -37,6 +39,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
         return Optional.of(queryBuilder()
                 .criteria(Bridge.notIn(User.Fields.email, getSystemGeneratedUserEmails()))
                 .limit(1)
+                .entityManager(entityManager)
                 .all(IdOnly.class)
                 .isEmpty());
     }

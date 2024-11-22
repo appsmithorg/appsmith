@@ -9,12 +9,10 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
-import com.appsmith.server.repositories.DryOperationRepository;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.TransactionHandler;
 import com.google.gson.GsonBuilder;
 import org.springframework.stereotype.Service;
 
@@ -30,9 +28,7 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
             ImportableService<Datasource> datasourceImportableService,
             GsonBuilder gsonBuilder,
             ArtifactExchangeJsonAdapter artifactExchangeJsonAdapter,
-            JsonSchemaMigration jsonSchemaMigration,
-            DryOperationRepository dryOperationRepository,
-            TransactionHandler transactionHandler) {
+            JsonSchemaMigration jsonSchemaMigration) {
         super(
                 applicationImportService,
                 sessionUserService,
@@ -43,8 +39,6 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
                 datasourceImportableService,
                 gsonBuilder,
                 artifactExchangeJsonAdapter,
-                jsonSchemaMigration,
-                dryOperationRepository,
-                transactionHandler);
+                jsonSchemaMigration);
     }
 }

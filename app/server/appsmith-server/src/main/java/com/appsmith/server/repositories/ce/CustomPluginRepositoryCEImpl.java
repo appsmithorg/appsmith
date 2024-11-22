@@ -17,14 +17,17 @@ public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plu
         return queryBuilder()
                 .criteria(Bridge.isTrue(Plugin.Fields.defaultInstall))
                 .fields(projections)
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
-    public List<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields, EntityManager entityManager) {
+    public List<Plugin> findAllByIdsWithoutPermission(
+            Set<String> ids, List<String> includeFields, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.in(Plugin.Fields.id, ids))
                 .fields(includeFields)
+                .entityManager(entityManager)
                 .all();
     }
 }

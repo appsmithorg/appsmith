@@ -171,7 +171,7 @@ def add_entity_manager_arg(domain):
         regex = r"EntityManager\s+entityManager,\s*EntityManager\s+entityManager"
         subst = "EntityManager entityManager"
         content = re.sub(regex, subst, content)
-        regex = r".entityManager\s+(entityManager)\s*.entityManager\s+(entityManager)"
+        regex = r".entityManager\(entityManager\)\s*.entityManager\(entityManager\)"
         subst = ".entityManager(entityManager)"
         content = re.sub(regex, subst, content)
         update_file(full_path, content)
@@ -350,12 +350,6 @@ def generate_cake_class(domain):
 
         {f"public QueryAllParams<{domain}> queryBuilder() {{ return repository.queryBuilder(); }}"
         if "AppsmithRepository" in extra_repo_interfaces else ""}
-
-        // From CrudRepository
-        public Flux<{domain}> saveAll(Iterable<{domain}> entities) {{
-            return {FLUX_WRAPPER % "repository.saveAll(entities)"};
-        }}
-        // End from CrudRepository
     """
     )
 

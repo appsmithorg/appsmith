@@ -3,7 +3,6 @@ package com.appsmith.server.imports.internal;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.aspect.TransactionAspect;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ImportExportConstants;
@@ -26,12 +25,10 @@ import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
-import com.appsmith.server.repositories.DryOperationRepository;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.TransactionHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
@@ -49,9 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static com.appsmith.server.constants.ce.FieldNameCE.TRANSACTION_CONTEXT;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -71,8 +65,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private final GsonBuilder gsonBuilder;
     private final ArtifactExchangeJsonAdapter artifactExchangeJsonAdapter;
     private final JsonSchemaMigration jsonSchemaMigration;
-    private final DryOperationRepository dryOperationRepository;
-    private final TransactionHandler transactionHandler;
 
     /**
      * This method provides the importService specific to the artifact based on the ArtifactType.
@@ -420,7 +412,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
         String artifactContextString = artifactSpecificConstantsMap.get(FieldName.ARTIFACT_CONTEXT);
 
-        ConcurrentHashMap<String, TransactionAspect.DBOps> entityMap = new ConcurrentHashMap<>();
+        // ConcurrentHashMap<String, TransactionAspect.DBOps> entityMap = new ConcurrentHashMap<>();
 
         // step 1: Schema Migration
         Mono<? extends ArtifactExchangeJson> migratedArtifactJsonMono = artifactBasedImportService
@@ -521,15 +513,13 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                             importingMetaDTO))
                     .flatMap(importableArtifact ->
                             updateImportableArtifact(artifactBasedImportService, importableArtifact))
-                    .contextWrite(context -> context.put(TRANSACTION_CONTEXT, entityMap))
+                    // .contextWrite(context -> context.put(TRANSACTION_CONTEXT, entityMap))
                     .onErrorResume(throwable -> {
                         // clean up stale entities and modified entities back to the original state from the db
                         String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                         log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
-                        return transactionHandler
-                                .cleanUpDatabase(entityMap)
-                                .then(Mono.error(new AppsmithException(
-                                        AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage)));
+                        return Mono.error(new AppsmithException(
+                                        AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                     });
 
             return importMono

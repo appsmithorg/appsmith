@@ -17,10 +17,12 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
     @Override
     @Transactional
     @Modifying
-    public int updateStructure(String datasourceId, String environmentId, DatasourceStructure structure, EntityManager entityManager) {
+    public int updateStructure(
+            String datasourceId, String environmentId, DatasourceStructure structure, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(DatasourceStorageStructure.Fields.datasourceId, datasourceId)
                         .equal(DatasourceStorageStructure.Fields.environmentId, environmentId))
+                .entityManager(entityManager)
                 .updateFirst(Bridge.update().set(DatasourceStorageStructure.Fields.structure, structure));
     }
 }

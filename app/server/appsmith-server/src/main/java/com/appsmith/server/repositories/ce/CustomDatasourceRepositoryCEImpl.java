@@ -15,12 +15,14 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         implements CustomDatasourceRepositoryCE {
 
     @Override
-    public List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager) {
+    public List<Datasource> findAllByWorkspaceId(
+            String workspaceId, AclPermission permission, User currentUser, EntityManager entityManager) {
         Sort sort = Sort.by(Datasource.Fields.name);
         return queryBuilder()
                 .criteria(Bridge.equal(Datasource.Fields.workspaceId, workspaceId))
                 .permission(permission, currentUser)
                 .sort(sort)
+                .entityManager(entityManager)
                 .all();
     }
 
@@ -30,6 +32,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         return queryBuilder()
                 .criteria(Bridge.equal(Datasource.Fields.name, name).equal(Datasource.Fields.workspaceId, workspaceId))
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .one();
     }
 }

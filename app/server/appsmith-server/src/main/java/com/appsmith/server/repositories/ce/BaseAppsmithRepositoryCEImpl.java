@@ -156,12 +156,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @Modifying
     public Optional<T> updateById(
             @NonNull String id, @NonNull T resource, AclPermission permission, User currentUser, EntityManager em) {
-        //        if (!em.getTransaction().isActive()) {
-        //            String errMessage = String.format(
-        //                    "Unable to locate the transaction for updating the entity with id %s and type %s",
-        //                    id, resource.getClass().getSimpleName());
-        //            throw new TransactionRequiredException(errMessage);
-        //        }
         // Set policies to null in the update object
         resource.setPolicies(null);
 
@@ -189,7 +183,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             // 3. Detach entity fetched in step 1
             // 4. Fetch entity with id=1 again
             // The entity fetched in step 4 will have the updated values.
-            if (em != entityManager) {
+            if (em != entityManager && em != null) {
                 // In case the entity is not managed by the entity manager we are making an extra DB call
                 // TODO(Abhijeet): Detach the entity only if it is managed by the entity manager to avoid the extra DB
                 //  call
@@ -851,7 +845,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             seenIds.add(id);
         }
 
-        em.persist(entities);
+        baseRepository.save(entities);
         return Optional.empty();
     }
 

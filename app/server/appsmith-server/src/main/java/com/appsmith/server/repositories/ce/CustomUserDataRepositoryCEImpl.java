@@ -27,13 +27,15 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     public int saveReleaseNotesViewedVersion(String userId, String version, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
+                .entityManager(entityManager)
                 .updateFirst(Bridge.update().set(UserData.Fields.releaseNotesViewedVersion, version));
     }
 
     @Override
     @Transactional
     @Modifying
-    public Optional<Void> removeEntitiesFromRecentlyUsedList(String userId, String workspaceId, EntityManager entityManager) {
+    public Optional<Void> removeEntitiesFromRecentlyUsedList(
+            String userId, String workspaceId, EntityManager entityManager) {
         /* Move to this piece of code, instead of direct entityManager use.
         BridgeUpdate update = new BridgeUpdate();
         RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
@@ -41,11 +43,10 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         update.pull(UserData.Fields.recentlyUsedEntityIds, recentlyUsedEntityDTO);
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
-                .updateFirst(update)
+                .entityManager(entityManager).updateFirst(update)
                 .then();
         */
 
-        var entityManager = getEntityManager();
         final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         final CriteriaUpdate<UserData> cu = cb.createCriteriaUpdate(UserData.class);
         final Root<UserData> root = cu.getRoot();
@@ -69,6 +70,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     public Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
+                .entityManager(entityManager)
                 .one(UserRecentlyUsedEntitiesProjection.class)
                 .map(userData -> {
                     final List<RecentlyUsedEntityDTO> recentlyUsedWorkspaceIds = userData.getRecentlyUsedEntityIds();
@@ -84,6 +86,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     public int updateByUserId(String userId, UserData userData, EntityManager entityManager) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
+                .entityManager(entityManager)
                 .updateFirst(userData);
     }
 }

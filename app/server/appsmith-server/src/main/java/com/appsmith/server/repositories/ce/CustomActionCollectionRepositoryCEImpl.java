@@ -28,12 +28,17 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 .criteria(bridgeQuery)
                 .permission(permission, currentUser)
                 .sort(sort)
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
     public List<ActionCollection> findByApplicationId(
-            String applicationId, Optional<AclPermission> permission, User currentUser, Optional<Sort> sort, EntityManager entityManager) {
+            String applicationId,
+            Optional<AclPermission> permission,
+            User currentUser,
+            Optional<Sort> sort,
+            EntityManager entityManager) {
 
         final BridgeQuery<ActionCollection> bridgeQuery = Bridge.<ActionCollection>equal(
                         ActionCollection.Fields.applicationId, applicationId)
@@ -43,6 +48,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 .criteria(bridgeQuery)
                 .permission(permission.orElse(null), currentUser)
                 .sort(sort.orElse(null))
+                .entityManager(entityManager)
                 .all();
     }
 
@@ -62,18 +68,24 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     public List<ActionCollection> findNonComposedByApplicationIdAndViewMode(
-            String applicationId, boolean viewMode, AclPermission permission, User currentUser, EntityManager entityManager) {
+            String applicationId,
+            boolean viewMode,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager) {
         BridgeQuery<ActionCollection> bridgeQuery =
                 getBridgeQueryForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
         return queryBuilder()
                 .criteria(bridgeQuery)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
-    public List<ActionCollection> findByPageId(String pageId, AclPermission permission, User currentUser, EntityManager entityManager) {
+    public List<ActionCollection> findByPageId(
+            String pageId, AclPermission permission, User currentUser, EntityManager entityManager) {
         String unpublishedPage = ActionCollection.Fields.unpublishedCollection_pageId;
         String publishedPage = ActionCollection.Fields.publishedCollection_pageId;
 
@@ -83,46 +95,63 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         return queryBuilder()
                 .criteria(bridgeQuery)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
     public List<ActionCollection> findByPageId(String pageId, EntityManager entityManager) {
-        return this.findByPageId(pageId, null, null);
+        return this.findByPageId(pageId, null, null, entityManager);
     }
 
     @Override
     public Optional<ActionCollection> findByBranchNameAndBaseCollectionId(
-            String branchName, String baseCollectionId, AclPermission permission, User currentUser, EntityManager entityManager) {
+            String branchName,
+            String baseCollectionId,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager) {
         final BridgeQuery<ActionCollection> bq = Bridge.<ActionCollection>equal(
                         ActionCollection.Fields.baseId, baseCollectionId)
                 .equal(ActionCollection.Fields.branchName, branchName);
 
-        return queryBuilder().criteria(bq).permission(permission, currentUser).one();
+        return queryBuilder()
+                .criteria(bq)
+                .permission(permission, currentUser)
+                .entityManager(entityManager)
+                .one();
     }
 
     @Override
-    public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission, User currentUser, EntityManager entityManager) {
+    public List<ActionCollection> findByPageIds(
+            List<String> pageIds, AclPermission permission, User currentUser, EntityManager entityManager) {
         BridgeQuery<ActionCollection> pageIdCriteria =
                 Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
         return queryBuilder()
                 .criteria(pageIdCriteria)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
-    public List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields, EntityManager entityManager) {
+    public List<ActionCollection> findAllByApplicationIds(
+            List<String> applicationIds, List<String> includeFields, EntityManager entityManager) {
         BridgeQuery<ActionCollection> applicationCriteria = Bridge.in(FieldName.APPLICATION_ID, applicationIds);
         return queryBuilder()
                 .criteria(Bridge.in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
     public List<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
-            String contextId, CreatorContextType contextType, AclPermission permission, User currentUser, EntityManager entityManager) {
+            String contextId,
+            CreatorContextType contextType,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager) {
         String contextIdPath = ActionCollection.Fields.unpublishedCollection_pageId;
         String contextTypePath = ActionCollection.Fields.unpublishedCollection_contextType;
         BridgeQuery<ActionCollection> contextIdAndContextTypeCriteria =
@@ -130,12 +159,17 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         return queryBuilder()
                 .criteria(contextIdAndContextTypeCriteria)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
     @Override
     public List<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
-            String contextId, CreatorContextType contextType, AclPermission permission, User currentUser, EntityManager entityManager) {
+            String contextId,
+            CreatorContextType contextType,
+            AclPermission permission,
+            User currentUser,
+            EntityManager entityManager) {
         String contextIdPath = ActionCollection.Fields.publishedCollection_pageId;
         String contextTypePath = ActionCollection.Fields.publishedCollection_contextType;
         BridgeQuery<ActionCollection> contextIdAndContextTypeCriteria =
@@ -143,6 +177,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         return queryBuilder()
                 .criteria(contextIdAndContextTypeCriteria)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
@@ -154,6 +189,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         return queryBuilder()
                 .criteria(query)
                 .permission(permission, currentUser)
+                .entityManager(entityManager)
                 .all();
     }
 
@@ -180,6 +216,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findAllNonComposedByPageIdAndViewMode(
             String pageId, boolean viewMode, AclPermission permission, User currentUser, EntityManager entityManager) {
-        return this.findByPageIdAndViewMode(pageId, viewMode, permission, currentUser);
+        return this.findByPageIdAndViewMode(pageId, viewMode, permission, currentUser, entityManager);
     }
 }

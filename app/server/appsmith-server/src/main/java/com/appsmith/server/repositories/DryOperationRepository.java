@@ -7,7 +7,9 @@ import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
+import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
 import jakarta.annotation.PostConstruct;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -36,6 +38,8 @@ public class DryOperationRepository {
     private final ApplicationRepository applicationRepository;
 
     private final TransactionTemplate transactionTemplate;
+
+    private final EntityManager entityManager;
 
     private Map<Class<?>, AppsmithRepository<?>> repoByEntityClass;
 
@@ -69,15 +73,15 @@ public class DryOperationRepository {
         return (List<Theme>) themeRepository.saveAll(theme);
     }
 
-    private Integer archiveTheme(List<String> themeIds) {
-        return themeRepository.archiveAllById(themeIds);
+    private int archiveTheme(List<String> themeIds) {
+        return themeRepository.archiveAllById(themeIds, entityManager);
     }
 
     private List<Theme> updateTheme(List<Theme> themes) {
         return themes.stream()
                 .map(themeToBeUpdated -> {
                     return themeRepository
-                            .updateById(themeToBeUpdated.getId(), themeToBeUpdated, null, null)
+                            .updateById(themeToBeUpdated.getId(), themeToBeUpdated, null, null, entityManager)
                             .orElse(null);
                 })
                 .toList();
@@ -86,7 +90,7 @@ public class DryOperationRepository {
     private Optional<Application> updateApplication(Application application) {
         String id = application.getId();
         application.setId(null);
-        return applicationRepository.updateById(id, application, null, null);
+        return applicationRepository.updateById(id, application, null, null, entityManager);
     }
 
     public Mono<Void> executeAllDbOps(MappedImportableResourcesDTO mappedImportableResourcesDTO) {

@@ -33,7 +33,7 @@ import static com.appsmith.server.helpers.ReactorUtils.asFlux;
 @RequiredArgsConstructor
 public abstract class BaseService<
                 R extends BaseRepository<T, ID> & AppsmithRepository<T>,
-                C extends BaseCake<T, ? extends CrudRepository<T, String>>,
+                C extends BaseCake<T, ? extends BaseRepository<T, String>>,
                 T extends BaseDomain,
                 ID extends Serializable>
         implements CrudService<T, ID> {
