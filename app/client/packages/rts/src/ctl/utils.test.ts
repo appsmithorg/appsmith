@@ -9,6 +9,7 @@ describe("execCommandReturningOutput", () => {
       "hello",
       "world",
     ]);
+
     expect(result).toBe("hello world");
   });
 
@@ -18,6 +19,7 @@ describe("execCommandReturningOutput", () => {
       "--eval",
       "console.log('to out')",
     ]);
+
     expect(result).toBe("to out");
   });
 
@@ -27,6 +29,7 @@ describe("execCommandReturningOutput", () => {
       "--eval",
       "console.error('to err')",
     ]);
+
     expect(result).toBe("to err");
   });
 
@@ -36,6 +39,7 @@ describe("execCommandReturningOutput", () => {
       "--eval",
       "console.log('to out'); console.error('to err')",
     ]);
+
     expect(result).toBe("to out\nto err");
   });
 
@@ -45,6 +49,7 @@ describe("execCommandReturningOutput", () => {
       "--eval",
       "console.error('to err'); console.log('to out')",
     ]);
+
     expect(result).toBe("to out\nto err");
   });
 });
@@ -56,6 +61,7 @@ describe("execCommandSilent", () => {
 
   test("silences stdout and stderr", async () => {
     const consoleSpy = jest.spyOn(console, "log");
+
     await utils.execCommandSilent(["node", "--eval", "console.log('test')"]);
     expect(consoleSpy).not.toHaveBeenCalled();
     consoleSpy.mockRestore();
