@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import java.io.Serializable;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @NoRepositoryBean
-public interface BaseRepository<T extends BaseDomain, ID extends Serializable> {
+public interface BaseRepository<T extends BaseDomain, ID extends Serializable> extends CrudRepository<T, ID> {
 
     default Optional<T> findById(ID id, EntityManager entityManager) {
         return Optional.ofNullable(entityManager
