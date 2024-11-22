@@ -7,6 +7,8 @@ export interface SheetProps
    * @default 'start'
    */
   position?: "start" | "end";
+  onEnter?: () => void;
   onEntered?: () => void;
+  onExit?: () => void;
   onExited?: () => void;
 }

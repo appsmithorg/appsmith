@@ -16,6 +16,12 @@ export const getIsGeneratingTemplatePage = createSelector(
   (pageList: PageListReduxState) => pageList.isGeneratingTemplatePage,
 );
 
+export const getIsGeneratePageModalOpen = (state: AppState) =>
+  state.entities.pageList.generatePage?.modalOpen;
+
+export const getGeneratePageModalParams = (state: AppState) =>
+  state.entities.pageList.generatePage?.params;
+
 export const convertToPageIdSelector = (state: AppState, basePageId: string) =>
   state.entities.pageList.pages?.find((page) => page.basePageId === basePageId)
     ?.pageId;

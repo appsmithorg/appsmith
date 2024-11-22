@@ -49,12 +49,12 @@ describe("UI to Code", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
     agHelper.GetNClick(propPane._navigateToType("URL"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Enter URL"),
-      "https://www.appsmith.com",
+      "https://www.google.com",
     );
     agHelper.GetNClick(propPane._actionSelectorPopupClose);
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{showAlert('Hello!', '');navigateTo('https://www.appsmith.com', {}, 'SAME_WINDOW');}}`,
+      `{{showAlert('Hello!', '');navigateTo('https://www.google.com', {}, 'SAME_WINDOW');}}`,
     );
 
     // Add third action
@@ -80,7 +80,7 @@ describe("UI to Code", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
     // Validate the code
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{showAlert('Hello!', '');navigateTo('https://www.appsmith.com', {}, 'SAME_WINDOW');storeValue('secret-key', 'secret-value');copyToClipboard('text to copy');}}`,
+      `{{showAlert('Hello!', '');navigateTo('https://www.google.com', {}, 'SAME_WINDOW');storeValue('secret-key', 'secret-value');copyToClipboard('text to copy');}}`,
     );
 
     // Delete the third action
@@ -97,7 +97,7 @@ describe("UI to Code", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
     // Assert the code for the remaining actions
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{showAlert('Hello!', '');navigateTo('https://www.appsmith.com', {}, 'SAME_WINDOW');copyToClipboard('text to copy');}}`,
+      `{{showAlert('Hello!', '');navigateTo('https://www.google.com', {}, 'SAME_WINDOW');copyToClipboard('text to copy');}}`,
     );
 
     // Delete the first action
@@ -113,7 +113,7 @@ describe("UI to Code", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
     // Assert the code for the remaining actions
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{navigateTo('https://www.appsmith.com', {}, 'SAME_WINDOW');copyToClipboard('text to copy');}}`,
+      `{{navigateTo('https://www.google.com', {}, 'SAME_WINDOW');copyToClipboard('text to copy');}}`,
     );
   });
 
@@ -132,13 +132,13 @@ describe("UI to Code", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
     agHelper.GetNClick(propPane._navigateToType("URL"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Enter URL"),
-      "https://www.appsmith.com",
+      "https://www.google.com",
     );
     agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{showAlert('Hello!', '');navigateTo('https://www.appsmith.com', {}, 'SAME_WINDOW');}}`,
+      `{{showAlert('Hello!', '');navigateTo('https://www.google.com', {}, 'SAME_WINDOW');}}`,
     );
 
     // Add third action
@@ -165,7 +165,7 @@ describe("UI to Code", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{showAlert('Hello!', '');navigateTo('https://www.appsmith.com', {}, 'SAME_WINDOW');storeValue('secret-key', 'secret-value');copyToClipboard('text to copy');}}`,
+      `{{showAlert('Hello!', '');navigateTo('https://www.google.com', {}, 'SAME_WINDOW');storeValue('secret-key', 'secret-value');copyToClipboard('text to copy');}}`,
     );
 
     // Delete the third action
@@ -197,7 +197,7 @@ describe("UI to Code", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{showAlert('Hello!', '');navigateTo('https://www.appsmith.com', {}, 'SAME_WINDOW');storeValue('secret-key', 'secret-value');copyToClipboard('text to copy');}}`,
+      `{{showAlert('Hello!', '');navigateTo('https://www.google.com', {}, 'SAME_WINDOW');storeValue('secret-key', 'secret-value');copyToClipboard('text to copy');}}`,
     );
   });
 
@@ -216,13 +216,13 @@ describe("UI to Code", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
     agHelper.GetNClick(propPane._navigateToType("URL"));
     agHelper.TypeText(
       propPane._actionSelectorFieldByLabel("Enter URL"),
-      "https://www.appsmith.com",
+      "https://www.google.com",
     );
     agHelper.GetNClick(propPane._actionSelectorPopupClose);
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{showAlert('Hello!', '');navigateTo('https://www.appsmith.com', {}, 'SAME_WINDOW');}}`,
+      `{{showAlert('Hello!', '');navigateTo('https://www.google.com', {}, 'SAME_WINDOW');}}`,
     );
 
     // Add third action
@@ -249,7 +249,7 @@ describe("UI to Code", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{showAlert('Hello!', '');navigateTo('https://www.appsmith.com', {}, 'SAME_WINDOW');storeValue('secret-key', 'secret-value');copyToClipboard('text to copy');}}`,
+      `{{showAlert('Hello!', '');navigateTo('https://www.google.com', {}, 'SAME_WINDOW');storeValue('secret-key', 'secret-value');copyToClipboard('text to copy');}}`,
     );
 
     // Delete the third action
@@ -286,7 +286,7 @@ describe("UI to Code", { tags: ["@tag.JS", "@tag.Binding"] }, () => {
 
     propPane.ValidateJSFieldValue(
       "onClick",
-      `{{navigateTo('https://www.appsmith.com', {}, 'SAME_WINDOW');copyToClipboard('text to copy');}}`,
+      `{{navigateTo('https://www.google.com', {}, 'SAME_WINDOW');copyToClipboard('text to copy');}}`,
     );
   });
 
