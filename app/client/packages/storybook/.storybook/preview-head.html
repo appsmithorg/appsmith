@@ -11,17 +11,17 @@
     font-family: var(--font-family) !important;
   }
 
-  th, td,
+  th:not(.sb-unstyled th), td:not(.sb-unstyled td),
   .css-s230ta {
     border-color: var(--color-bd) !important;
   }
 
-  td,
+  td:not(.sb-unstyled td),
   .css-s230ta {
     background-color: var(--color-bg-elevation-1) !important;
   }
 
-  code:not(:has(span)),
+  code:not(:has(span)):not(.sb-unstyled code),
   .css-o1d7ko {
     background-color: var(--color-bg-accent-subtle) !important;
     color: var(--color-fg-on-accent-subtle) !important;
@@ -29,7 +29,7 @@
   }
 
   /** Note: adding this so that all links are styled the same way excepts the one that are in the story */
-  a:not(.docs-story a) {
+  a:not(.docs-story a):not(.sb-unstyled a) {
     color: var(--color-fg-accent) !important;
   }
 
