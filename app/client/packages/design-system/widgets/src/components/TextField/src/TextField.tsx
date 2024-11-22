@@ -3,9 +3,9 @@ import React from "react";
 import { FieldError, FieldLabel, Input, inputFieldStyles } from "@appsmith/wds";
 import { TextField as HeadlessTextField } from "react-aria-components";
 
-import type { TextInputProps } from "./types";
+import type { TextFieldProps } from "./types";
 
-export function TextInput(props: TextInputProps) {
+export function TextField(props: TextFieldProps) {
   const {
     contextualHelp,
     errorMessage,
