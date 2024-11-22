@@ -11,7 +11,7 @@ const Toolbar = (props: ToolbarProps) => {
   const [shadow, setShadow] = useState(false);
   const toolbarRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(function handleScrollEffect() {
+  useEffect(function scrollHandler() {
     const handleScroll = debounce((e: Event) => {
       const scrolledElement = e.target as HTMLElement;
 
@@ -22,24 +22,25 @@ const Toolbar = (props: ToolbarProps) => {
       setShadow(isScrolled);
     }, 20);
 
+    let adjacentElement: HTMLElement | null = null;
+
     if (toolbarRef.current) {
-      const adjacentElement = toolbarRef.current
-        .nextElementSibling as HTMLElement;
+      adjacentElement = toolbarRef.current.nextElementSibling as HTMLElement;
 
       if (adjacentElement) {
         adjacentElement.addEventListener("scroll", handleScroll, {
           capture: true,
         });
       }
-
-      return () => {
-        if (adjacentElement) {
-          adjacentElement.removeEventListener("scroll", handleScroll, {
-            capture: true,
-          });
-        }
-      };
     }
+
+    return () => {
+      if (adjacentElement) {
+        adjacentElement.removeEventListener("scroll", handleScroll, {
+          capture: true,
+        });
+      }
+    };
   }, []);
 
   return (
