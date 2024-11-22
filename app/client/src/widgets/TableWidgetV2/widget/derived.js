@@ -438,6 +438,15 @@ export default {
           return isAscOrder ? -1 : 1;
         }
       };
+      const getTextFromHTML = (html) => {
+        if (!html) return "";
+
+        const div = document.createElement("div");
+
+        div.innerHTML = html;
+
+        return div.textContent || div.innerText || "";
+      };
 
       const transformedTableDataForSorting =
         selectColumnKeysWithSortByLabel.length
@@ -504,6 +513,15 @@ export default {
                     );
                   }
                 }
+              case "html":
+                return sortByOrder(
+                  getTextFromHTML(
+                    processedA[sortByColumnOriginalId],
+                  ).toLowerCase() >
+                    getTextFromHTML(
+                      processedB[sortByColumnOriginalId],
+                    ).toLowerCase(),
+                );
               default:
                 return sortByOrder(
                   processedA[sortByColumnOriginalId].toString().toLowerCase() >
