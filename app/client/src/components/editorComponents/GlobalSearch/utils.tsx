@@ -28,7 +28,7 @@ import {
   createNewAPIBasedOnParentEntity,
   createNewJSCollectionBasedOnParentEntity,
 } from "ee/actions/helpers";
-import { openCurlImportModal } from "pages/Editor/CurlImport/helpers";
+import { openCurlImportModal } from "pages/Editor/CurlImport/store/curlImportActions";
 
 export type SelectEvent =
   | React.MouseEvent

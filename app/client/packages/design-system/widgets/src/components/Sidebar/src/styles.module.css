@@ -1,0 +1,238 @@
+.sidebarWrapper {
+  display: flex;
+  min-height: 100%;
+  width: 100%;
+  position: relative;
+  contain: strict;
+  container-type: inline-size;
+}
+
+/**
+ *-----------------------------------------------------
+ * MAIN SIDEBAR
+ *-----------------------------------------------------
+ */
+.mainSidebar {
+  display: none;
+  color: var(--color-fg);
+}
+
+@container (min-width: 768px) {
+  .mainSidebar {
+    display: block;
+  }
+}
+
+.mainSidebar[data-collapsible="icon"] {
+  overflow: hidden;
+}
+
+/**
+ *-----------------------------------------------------
+ * FAKE SIDEBAR
+ *-----------------------------------------------------
+ */
+.fakeSidebar {
+  position: relative;
+  height: 100%;
+  width: var(--sidebar-width);
+  background-color: transparent;
+  transition: width 300ms ease-in-out;
+}
+
+.mainSidebar[data-side="right"] .fakeSidebar {
+  transform: rotate(180deg);
+}
+
+/* Handle collapsible states for fakeSidebar */
+[data-collapsible="offcanvas"] .fakeSidebar {
+  width: 0;
+}
+
+[data-side="right"] .fakeSidebar {
+  transform: rotate(180deg);
+}
+
+[data-collapsible="icon"] .fakeSidebar {
+  width: var(--sidebar-width-icon);
+}
+
+.mainSidebar[data-variant="floating"][data-collapsible="icon"] .fakeSidebar,
+.mainSidebar[data-variant="inset"][data-collapsible="icon"] .fakeSidebar {
+  width: calc(var(--sidebar-width-icon) + var(--inner-spacing-2));
+}
+
+/**
+ *-----------------------------------------------------
+ * SIDEBAR
+ *-----------------------------------------------------
+ */
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 10;
+  display: none;
+  height: 100%;
+  width: var(--sidebar-width);
+  transition:
+    left 300ms ease-in-out,
+    right 300ms ease-in-out,
+    width 300ms ease-in-out;
+  background-color: var(--color-bg-elevation-2);
+}
+
+[data-state="full-width"] .sidebar {
+  width: 100%;
+}
+
+@container (min-width: 768px) {
+  .sidebar {
+    display: flex;
+  }
+}
+
+.mainSidebar[data-side="start"] .sidebar {
+  left: 0;
+}
+
+.mainSidebar[data-side="end"] .sidebar {
+  right: 0;
+}
+
+.mainSidebar[data-collapsible="offcanvas"][data-side="start"] .sidebar {
+  left: calc(var(--sidebar-width) * -1);
+}
+
+.mainSidebar[data-collapsible="offcanvas"][data-side="end"] .sidebar {
+  right: calc(var(--sidebar-width) * -1);
+}
+
+.mainSidebar[data-variant="floating"] .sidebar,
+.mainSidebar[data-variant="inset"] .sidebar {
+  padding: var(--inner-spacing-2);
+}
+
+.mainSidebar[data-collapsible="icon"] .sidebar {
+  width: calc(var(--sidebar-width-icon));
+}
+
+.mainSidebar[data-variant="floating"][data-collapsible="icon"] .sidebar,
+.mainSidebar[data-variant="inset"][data-collapsible="icon"] .sidebar {
+  width: calc(var(--sidebar-width-icon) + var(--inner-spacing-2) + 2px);
+}
+
+.mainSidebar[data-side="start"]:not([data-variant="floating"]):not(
+    [data-variant="inset"]
+  )
+  .sidebar {
+  border-inline-end: var(--border-width-1) solid var(--color-bd-elevation-1);
+}
+
+.mainSidebar[data-side="end"]:not([data-variant="floating"]):not(
+    [data-variant="inset"]
+  )
+  .sidebar {
+  border-inline-start: var(--border-width-1) solid var(--color-bd-elevation-1);
+}
+
+.mainSidebar[data-state="full-width"][data-side="start"]:is(
+    [data-variant="sidebar"]
+  )
+  .sidebar {
+  border-inline-end: none;
+}
+
+.mainSidebar[data-state="full-width"][data-side="end"]:is(
+    [data-variant="sidebar"]
+  )
+  .sidebar {
+  border-inline-start: none;
+}
+
+/**
+ *-----------------------------------------------------
+ * SIDEBAR CONTAINER
+ *-----------------------------------------------------
+ */
+.sidebarContainer {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+}
+
+[data-side="end"] .sidebarContainer {
+  border-inline-start: var(--border-width-1) solid var(--color-bd-subtle);
+}
+
+[data-side="start"] .sidebarContainer {
+  border-inline-end: var(--border-width-1) solid var(--color-bd-subtle);
+}
+
+.mainSidebar[data-variant="floating"] .sidebarContainer {
+  border-radius: var(--border-radius-elevation-3);
+  border: var(--border-width-1) solid var(--color-bd);
+  box-shadow: var(--box-shadow-1);
+}
+
+/**
+ *-----------------------------------------------------
+ * SIDEBAR CONTENT
+ *-----------------------------------------------------
+ */
+.sidebarContent {
+  height: 100%;
+}
+
+.sidebarContentInner {
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/**
+ *-----------------------------------------------------
+ * SIDEBAR INSET
+ *-----------------------------------------------------
+ */
+.sidebarInset {
+  position: relative;
+  display: flex;
+  min-height: 100%;
+  flex: 1;
+  flex-direction: column;
+  background-color: var(--background);
+}
+
+[data-variant="inset"] ~ .sidebarInset {
+  min-height: calc(100% - var(--inner-spacing-2) * 2);
+}
+
+@container (min-width: 768px) {
+  [data-variant="inset"] ~ .sidebarInset {
+    margin: var(--inner-spacing-2);
+    border-radius: var(--border-radius-elevation-3);
+    box-shadow: var(--box-shadow-1);
+    border: var(--border-width-1) solid var(--color-bd);
+  }
+
+  /* Handle margin when sidebar is collapsed */
+  [data-state="collapsed"][data-variant="inset"] ~ .sidebarInset {
+    margin-left: var(--inner-spacing-2);
+  }
+
+  [data-variant="inset"] ~ .sidebarInset {
+    margin-left: 0;
+  }
+}
+
+/**
+ *-----------------------------------------------------
+ * SIDEBAR HEADER
+ *-----------------------------------------------------
+ */
+.sidebarHeader {
+  border-bottom: var(--border-width-1) solid var(--color-bd-elevation-1);
+}
