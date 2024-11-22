@@ -42,11 +42,13 @@ export async function start(apps) {
 
 export function getDburl() {
   let dbUrl = "";
+
   try {
     const env_array = fs
       .readFileSync(Constants.ENV_PATH, "utf8")
       .toString()
       .split("\n");
+
     for (const i in env_array) {
       if (
         env_array[i].startsWith("APPSMITH_MONGODB_URI") ||
@@ -61,14 +63,16 @@ export function getDburl() {
   }
   const dbEnvUrl =
     process.env.APPSMITH_DB_URL || process.env.APPSMITH_MONGO_DB_URI;
+
   // Make sure dbEnvUrl takes precedence over dbUrl
   if (dbEnvUrl && dbEnvUrl !== "undefined") {
     dbUrl = dbEnvUrl.trim();
   }
+
   return dbUrl;
 }
 
-export function execCommand(cmd: string[], options?) {
+export async function execCommand(cmd: string[], options?) {
   return new Promise<void>((resolve, reject) => {
     let isPromiseDone = false;
 
@@ -81,7 +85,9 @@ export function execCommand(cmd: string[], options?) {
       if (isPromiseDone) {
         return;
       }
+
       isPromiseDone = true;
+
       if (code === 0) {
         resolve();
       } else {
@@ -93,6 +99,7 @@ export function execCommand(cmd: string[], options?) {
       if (isPromiseDone) {
         return;
       }
+
       isPromiseDone = true;
       console.error("Error running command", err);
       reject();
@@ -100,7 +107,7 @@ export function execCommand(cmd: string[], options?) {
   });
 }
 
-export function execCommandReturningOutput(cmd, options?) {
+export async function execCommandReturningOutput(cmd, options?) {
   return new Promise<string>((resolve, reject) => {
     const p = childProcess.spawn(cmd[0], cmd.slice(1), options);
 
@@ -125,6 +132,7 @@ export function execCommandReturningOutput(cmd, options?) {
         "\n" +
         errChunks.join("").trim()
       ).trim();
+
       if (code === 0) {
         resolve(output);
       } else {
@@ -137,6 +145,7 @@ export function execCommandReturningOutput(cmd, options?) {
 export async function listLocalBackupFiles() {
   // Ascending order
   const backupFiles = [];
+
   await fsPromises
     .readdir(Constants.BACKUP_PATH)
     .then((filenames) => {
@@ -149,6 +158,7 @@ export async function listLocalBackupFiles() {
     .catch((err) => {
       console.log(err);
     });
+
   return backupFiles;
 }
 
@@ -160,6 +170,7 @@ export async function updateLastBackupErrorMailSentInMilliSec(ts) {
 export async function getLastBackupErrorMailSentInMilliSec() {
   try {
     const ts = await fsPromises.readFile(Constants.LAST_ERROR_MAIL_TS, "utf8");
+
     return parseInt(ts, 10);
   } catch (error) {
     return 0;
@@ -179,6 +190,7 @@ export function preprocessMongoDBURI(uri /* string */) {
   const cs = new ConnectionString(uri);
 
   const params = cs.searchParams;
+
   params.set("appName", "appsmithctl");
 
   if (
@@ -205,7 +217,7 @@ export function preprocessMongoDBURI(uri /* string */) {
   return cs.toString();
 }
 
-export function execCommandSilent(cmd, options?) {
+export async function execCommandSilent(cmd, options?) {
   return new Promise<void>((resolve, reject) => {
     let isPromiseDone = false;
 
@@ -218,7 +230,9 @@ export function execCommandSilent(cmd, options?) {
       if (isPromiseDone) {
         return;
       }
+
       isPromiseDone = true;
+
       if (code === 0) {
         resolve();
       } else {
@@ -230,6 +244,7 @@ export function execCommandSilent(cmd, options?) {
       if (isPromiseDone) {
         return;
       }
+
       isPromiseDone = true;
       reject(err);
     });
@@ -238,5 +253,6 @@ export function execCommandSilent(cmd, options?) {
 
 export function getDatabaseNameFromMongoURI(uri) {
   const uriParts = uri.split("/");
+
   return uriParts[uriParts.length - 1].split("?")[0];
 }

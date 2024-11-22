@@ -1,16 +1,7 @@
 {
-  "extends": ["../../../../.eslintrc.base.json"],
+  "extends": ["../../.eslintrc.json"],
   "rules": {
     "@typescript-eslint/ban-ts-comment": "off",
-    "@typescript-eslint/prefer-nullish-coalescing": "off",
-    "@typescript-eslint/strict-boolean-expressions": "off",
-    "@typescript-eslint/no-explicit-any": "off",
-    "testing-library/no-debugging-utils": "off",
-    "@typescript-eslint/no-var-requires": "off",
-    "padding-line-between-statements": "off",
-    "no-console": "off",
-    "@typescript-eslint/promise-function-async": "off",
-    "@typescript-eslint/no-unused-vars": "off",
-    "sort-destructure-keys/sort-destructure-keys": "off"
+    "no-console": "off"
   }
 }
