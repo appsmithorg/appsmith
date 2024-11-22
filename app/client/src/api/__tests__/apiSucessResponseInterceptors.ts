@@ -1,5 +1,6 @@
 import axios from "axios";
 import { apiSuccessResponseInterceptor } from "api/interceptors";
+import { getAppsmithConfigs } from "ee/configs";
 
 describe("Api success response interceptors", () => {
   beforeAll(() => {
@@ -15,6 +16,7 @@ describe("Api success response interceptors", () => {
           headers: {
             "content-length": 123,
             "content-type": "application/json",
+            "x-appsmith-version": getAppsmithConfigs().appVersion.id,
           },
           config,
         });
