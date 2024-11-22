@@ -4,6 +4,7 @@ const command_args = process.argv.slice(3);
 
 export async function exec() {
   let errorCode = 0;
+
   try {
     await execMongoEval(command_args[0], process.env.APPSMITH_DB_URL);
   } catch (err) {
@@ -16,9 +17,11 @@ export async function exec() {
 
 async function execMongoEval(queryExpression, appsmithMongoURI) {
   queryExpression = queryExpression.trim();
+
   if (command_args.includes("--pretty")) {
     queryExpression += ".pretty()";
   }
+
   return await utils.execCommand([
     "mongosh",
     appsmithMongoURI,

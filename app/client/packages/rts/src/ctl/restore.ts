@@ -1,4 +1,3 @@
-// @ts-ignore
 import fsPromises from "fs/promises";
 import path from "path";
 import os from "os";
@@ -10,14 +9,17 @@ const command_args = process.argv.slice(3);
 
 async function getBackupFileName() {
   const backupFiles = await utils.listLocalBackupFiles();
+
   console.log(
     "\n" +
       backupFiles.length +
       " Appsmith backup file(s) found: [Sorted in ascending/chronological order]",
   );
+
   if (backupFiles.length == 0) {
     return;
   }
+
   console.log(
     "----------------------------------------------------------------",
   );
@@ -25,11 +27,13 @@ async function getBackupFileName() {
   console.log(
     "----------------------------------------------------------------",
   );
+
   for (let i = 0; i < backupFiles.length; i++) {
     if (i === backupFiles.length - 1)
       console.log(i + "\t|\t" + backupFiles[i] + " <--Most recent backup");
     else console.log(i + "\t|\t" + backupFiles[i]);
   }
+
   console.log(
     "----------------------------------------------------------------",
   );
@@ -38,6 +42,7 @@ async function getBackupFileName() {
     readlineSync.question("Please enter the backup file index: "),
     10,
   );
+
   if (
     !isNaN(backupFileIndex) &&
     Number.isInteger(backupFileIndex) &&
@@ -54,8 +59,14 @@ async function getBackupFileName() {
 
 async function decryptArchive(encryptedFilePath, backupFilePath) {
   console.log("Enter the password to decrypt the backup archive:");
-  for (const _ of [1, 2, 3]) {
+
+  for (const attempt of [1, 2, 3]) {
+    if (attempt > 1) {
+      console.log("Retry attempt", attempt);
+    }
+
     const decryptionPwd = readlineSync.question("", { hideEchoBack: true });
+
     try {
       await utils.execCommandSilent([
         "openssl",
@@ -72,11 +83,13 @@ async function decryptArchive(encryptedFilePath, backupFilePath) {
         "-k",
         decryptionPwd,
       ]);
+
       return true;
     } catch (error) {
       console.log("Invalid password. Please try again:");
     }
   }
+
   return false;
 }
 
@@ -101,9 +114,11 @@ async function restoreDatabase(restoreContentsPath, dbUrl) {
     `--archive=${restoreContentsPath}/mongodb-data.gz`,
     "--gzip",
   ];
+
   try {
     const fromDbName = await getBackupDatabaseName(restoreContentsPath);
     const toDbName = utils.getDatabaseNameFromMongoURI(dbUrl);
+
     console.log("Restoring database from " + fromDbName + " to " + toDbName);
     cmd.push(
       "--nsInclude=*",
@@ -130,6 +145,7 @@ async function restoreDockerEnvFile(
   const updatedbUrl = utils.getDburl();
   let encryptionPwd = process.env.APPSMITH_ENCRYPTION_PASSWORD;
   let encryptionSalt = process.env.APPSMITH_ENCRYPTION_SALT;
+
   await utils.execCommand([
     "mv",
     dockerEnvFile,
@@ -140,6 +156,7 @@ async function restoreDockerEnvFile(
     restoreContentsPath + "/docker.env",
     dockerEnvFile,
   ]);
+
   if (overwriteEncryptionKeys) {
     if (encryptionPwd && encryptionSalt) {
       const input = readlineSync.question(
@@ -148,6 +165,7 @@ async function restoreDockerEnvFile(
       Or Type "n"/"No" to provide encryption key & password corresponding to the original Appsmith instance that is being restored.\n',
       );
       const answer = input && input.toLocaleUpperCase();
+
       if (answer === "N" || answer === "NO") {
         encryptionPwd = readlineSync.question(
           "Enter the APPSMITH_ENCRYPTION_PASSWORD: ",
@@ -180,6 +198,7 @@ async function restoreDockerEnvFile(
         },
       );
     }
+
     await fsPromises.appendFile(
       dockerEnvFile,
       "\nAPPSMITH_ENCRYPTION_PASSWORD=" +
@@ -204,6 +223,7 @@ async function restoreDockerEnvFile(
         process.env.APPSMITH_MONGODB_PASSWORD,
     );
   }
+
   console.log("Restoring docker environment file completed");
 }
 
@@ -211,6 +231,7 @@ async function restoreGitStorageArchive(restoreContentsPath, backupName) {
   console.log("Restoring git-storage archive");
   // TODO: Consider APPSMITH_GIT_ROOT env for later iterations
   const gitRoot = "/appsmith-stacks/git-storage";
+
   await utils.execCommand(["mv", gitRoot, gitRoot + "-" + backupName]);
   await utils.execCommand([
     "mv",
@@ -228,6 +249,7 @@ async function checkRestoreVersionCompatability(restoreContentsPath) {
   );
   const manifest_json = JSON.parse(manifest_data);
   const restoreVersion = manifest_json["appsmithVersion"];
+
   console.log("Current Appsmith Version: " + currentVersion);
   console.log("Restore Appsmith Version: " + restoreVersion);
 
@@ -251,6 +273,7 @@ async function checkRestoreVersionCompatability(restoreContentsPath) {
     const confirm = readlineSync.question(
       'Press Enter to continue \nOr Type "c" to cancel the restore process.\n',
     );
+
     if (confirm.toLowerCase() === "c") {
       process.exit(0);
     }
@@ -259,6 +282,7 @@ async function checkRestoreVersionCompatability(restoreContentsPath) {
 
 async function getBackupDatabaseName(restoreContentsPath) {
   let db_name = "appsmith";
+
   if (command_args.includes("--backup-db-name")) {
     for (let i = 0; i < command_args.length; i++) {
       if (command_args[i].startsWith("--backup-db-name")) {
@@ -271,12 +295,14 @@ async function getBackupDatabaseName(restoreContentsPath) {
       { encoding: "utf8" },
     );
     const manifest_json = JSON.parse(manifest_data);
+
     if ("dbName" in manifest_json) {
       db_name = manifest_json["dbName"];
     }
   }
 
   console.log("Backup Database Name: " + db_name);
+
   return db_name;
 }
 
@@ -290,15 +316,18 @@ export async function run() {
 
   try {
     let backupFileName = await getBackupFileName();
+
     if (backupFileName == null) {
       process.exit(errorCode);
     } else {
       backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
+
       if (isArchiveEncrypted(backupFileName)) {
         const encryptedBackupFilePath = path.join(
           Constants.BACKUP_PATH,
           backupFileName,
         );
+
         backupFileName = backupFileName.replace(".enc", "");
         backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
         cleanupArchive = true;
@@ -307,6 +336,7 @@ export async function run() {
           encryptedBackupFilePath,
           backupFilePath,
         );
+
         if (!decryptSuccess) {
           console.log(
             "You have entered the incorrect password multiple times. Aborting the restore process.",
@@ -315,6 +345,7 @@ export async function run() {
           process.exit(errorCode);
         }
       }
+
       const backupName = backupFileName.replace(/\.tar\.gz$/, "");
       const restoreRootPath = await fsPromises.mkdtemp(os.tmpdir());
       const restoreContentsPath = path.join(restoreRootPath, backupName);
@@ -346,6 +377,7 @@ export async function run() {
     if (cleanupArchive) {
       await fsPromises.rm(backupFilePath, { force: true });
     }
+
     await utils.start(["backend", "rts"]);
     process.exit(errorCode);
   }
