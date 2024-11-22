@@ -281,6 +281,16 @@ export default {
       return [];
     }
 
+    const getTextFromHTML = (html) => {
+      if (!html) return "";
+
+      const div = document.createElement("div");
+
+      div.innerHTML = html;
+
+      return div.textContent || div.innerText || "";
+    };
+
     /* extend processedTableData with values from
      *  - computedValues, in case of normal column
      *  - empty values, in case of derived column
@@ -437,15 +447,6 @@ export default {
         } else {
           return isAscOrder ? -1 : 1;
         }
-      };
-      const getTextFromHTML = (html) => {
-        if (!html) return "";
-
-        const div = document.createElement("div");
-
-        div.innerHTML = html;
-
-        return div.textContent || div.innerText || "";
       };
 
       const transformedTableDataForSorting =
@@ -717,6 +718,9 @@ export default {
       const columnWithDisplayText = Object.values(props.primaryColumns).filter(
         (column) => column.columnType === "url" && column.displayText,
       );
+      const columnWithHTML = Object.values(props.primaryColumns).filter(
+        (column) => column.columnType === "html",
+      );
 
       /*
        * For select columns with label and values, we need to include the label value
@@ -799,6 +803,11 @@ export default {
         });
       }
 
+      const HTMLValues = columnWithHTML.reduce((acc, column) => {
+        acc[column.alias] = getTextFromHTML(row[column.alias]);
+
+        return acc;
+      }, {});
       const displayedRow = {
         ...row,
         ...labelValuesForSelectCell,
@@ -815,6 +824,7 @@ export default {
 
           return acc;
         }, {}),
+        ...HTMLValues,
       };
 
       if (searchKey) {
