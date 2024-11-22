@@ -10831,12 +10831,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=10.0.0, @types/node@npm:>=13.7.0":
-  version: 20.8.10
-  resolution: "@types/node@npm:20.8.10"
+"@types/node@npm:*, @types/node@npm:>=10.0.0, @types/node@npm:>=13.7.0, @types/node@npm:^22.9.1":
+  version: 22.9.1
+  resolution: "@types/node@npm:22.9.1"
   dependencies:
-    undici-types: ~5.26.4
-  checksum: 7c61190e43e8074a1b571e52ff14c880bc67a0447f2fe5ed0e1a023eb8a23d5f815658edb98890f7578afe0f090433c4a635c7c87311762544e20dd78723e515
+    undici-types: ~6.19.8
+  checksum: dee25051e8d89f38b2b26c0714ce60acd1e3f9b1b946131ce3c6e64d626a134f1bec2d948f7ead3da0136aeb7672234f066f97f8290e6aead236e43f4ecb5a68
   languageName: node
   linkType: hard
 
@@ -12820,6 +12820,7 @@ __metadata:
     "@shared/ast": "workspace:^"
     "@types/express": ^4.17.14
     "@types/jest": ^29.2.3
+    "@types/node": ^22.9.1
     "@types/nodemailer": ^6.4.17
     "@types/readline-sync": ^1.4.8
     axios: ^1.7.4
@@ -33376,6 +33377,13 @@ __metadata:
   version: 5.26.5
   resolution: "undici-types@npm:5.26.5"
   checksum: 3192ef6f3fd5df652f2dc1cd782b49d6ff14dc98e5dced492aa8a8c65425227da5da6aafe22523c67f035a272c599bb89cfe803c1db6311e44bed3042fc25487
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:~6.19.8":
+  version: 6.19.8
+  resolution: "undici-types@npm:6.19.8"
+  checksum: de51f1b447d22571cf155dfe14ff6d12c5bdaec237c765085b439c38ca8518fc360e88c70f99469162bf2e14188a7b0bcb06e1ed2dc031042b984b0bb9544017
   languageName: node
   linkType: hard
 

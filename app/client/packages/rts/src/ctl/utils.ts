@@ -1,8 +1,6 @@
-// @ts-ignore
 import fsPromises from "fs/promises";
 import * as Constants from "./constants";
 import childProcess from "child_process";
-// @ts-ignore
 import fs from "node:fs";
 import { ConnectionString } from "mongodb-connection-string-url";
 

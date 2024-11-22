@@ -6,7 +6,6 @@ jest.mock("./utils", () => ({
 import * as backup from "./backup";
 import * as Constants from "./constants";
 import os from "os";
-// @ts-ignore
 import fsPromises from "fs/promises";
 import * as utils from "./utils";
 import readlineSync from "readline-sync";
