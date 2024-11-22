@@ -83,12 +83,12 @@ function PageSettings(props: { page: Page }) {
   const [isDefaultSaving, setIsDefaultSaving] = useState(false);
 
   const pathPreview = useCallback(getUrlPreview, [
-    page.pageId,
+    page.basePageId,
     pageName,
     page.pageName,
     customSlug,
     page.customSlug,
-  ])(page.pageId, pageName, page.pageName, customSlug, page.customSlug);
+  ])(page.basePageId, pageName, page.pageName, customSlug, page.customSlug);
 
   const conflictingNames = useSelector(
     (state: AppState) => getUsedActionNames(state, ""),
