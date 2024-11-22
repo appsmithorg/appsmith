@@ -71,8 +71,6 @@ public class MustacheHelper {
     public static final int EXECUTABLE_ENTITY_REFERENCES = 0b01;
     public static final int WIDGET_ENTITY_REFERENCES = 0b10;
 
-    public MustacheHelper() {}
-
     /**
      * Tokenize a Mustache template string into a list of plain text and Mustache interpolations.
      *
