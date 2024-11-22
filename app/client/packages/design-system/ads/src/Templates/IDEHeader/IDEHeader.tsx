@@ -66,7 +66,7 @@ export const IDEHeader = (props: ChildrenProps) => {
       background="var(--ads-v2-color-bg)"
       borderBottom="1px solid var(--ads-v2-color-border)"
       className="t--editor-header"
-      height={IDE_HEADER_HEIGHT + "px"}
+      height={`${IDE_HEADER_HEIGHT}px`}
       overflow="hidden"
       width="100%"
     >

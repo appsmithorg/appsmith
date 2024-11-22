@@ -75,7 +75,6 @@ import { EditorTitle } from "./EditorTitle";
 import { useCurrentAppState } from "../hooks/useCurrentAppState";
 import { EditorState } from "ee/entities/IDE/constants";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
-import type { Page } from "entities/Page";
 import { APPLICATIONS_URL } from "constants/routes";
 import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
 import useLibraryHeaderTitle from "ee/pages/Editor/IDE/Header/useLibraryHeaderTitle";
@@ -91,10 +90,9 @@ const { cloudHosting } = getAppsmithConfigs();
 
 interface HeaderTitleProps {
   appState: EditorState;
-  currentPage?: Page;
 }
 
-const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
+const HeaderTitleComponent = ({ appState }: HeaderTitleProps) => {
   const libraryHeaderTitle = useLibraryHeaderTitle();
 
   switch (appState) {
@@ -106,7 +104,7 @@ const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
         />
       );
     case EditorState.EDITOR:
-      return <EditorTitle key={appState} title={currentPage?.pageName || ""} />;
+      return <EditorTitle key={appState} />;
     case EditorState.SETTINGS:
       return (
         <IDEHeaderTitle
@@ -117,7 +115,7 @@ const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
     case EditorState.LIBRARIES:
       return <IDEHeaderTitle key={appState} title={libraryHeaderTitle} />;
     default:
-      return <EditorTitle key={appState} title={currentPage?.pageName || ""} />;
+      return <EditorTitle key={appState} />;
   }
 };
 
@@ -221,7 +219,7 @@ const Header = () => {
     <>
       <IDEHeader>
         <IDEHeader.Left logo={<AppsmithLink />}>
-          <HeaderTitleComponent appState={appState} currentPage={currentPage} />
+          <HeaderTitleComponent appState={appState} />
           <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
         </IDEHeader.Left>
         <IDEHeader.Center>

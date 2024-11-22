@@ -1,10 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import {
-  ListItemContainer,
-  ListHeaderContainer,
-  Text,
-  Flex,
-} from "@appsmith/ads";
+import { ListWithHeader } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
@@ -66,39 +61,35 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
     [pages, location.pathname],
   );
 
+  const createPageContextMenu = useMemo(() => {
+    if (!canCreatePages) return null;
+
+    return (
+      <AddPageContextMenu
+        buttonSize="sm"
+        className={`${EntityClassNames.ADD_BUTTON} group pages`}
+        createPageCallback={createPageCallback}
+        onItemSelected={onItemSelected}
+        onMenuClose={onMenuClose}
+        openMenu={isMenuOpen}
+      />
+    );
+  }, [
+    canCreatePages,
+    createPageCallback,
+    isMenuOpen,
+    onItemSelected,
+    onMenuClose,
+  ]);
+
   return (
-    <Flex
-      flexDirection="column"
-      justifyContent="center"
+    <ListWithHeader
+      headerControls={createPageContextMenu}
+      headerText={`All Pages (${pages.length})`}
       maxHeight={"300px"}
-      overflow="hidden"
     >
-      <ListHeaderContainer className="pages">
-        <Text kind="heading-xs">{`All Pages (${pages.length})`}</Text>
-        {canCreatePages ? (
-          <AddPageContextMenu
-            buttonSize="sm"
-            className={`${EntityClassNames.ADD_BUTTON} group pages`}
-            createPageCallback={createPageCallback}
-            onItemSelected={onItemSelected}
-            onMenuClose={onMenuClose}
-            openMenu={isMenuOpen}
-          />
-        ) : null}
-      </ListHeaderContainer>
-      <ListItemContainer>
-        <Flex
-          alignItems="center"
-          flex="1"
-          flexDirection="column"
-          overflow="auto"
-          px="spaces-2"
-          width="100%"
-        >
-          {pageElements}
-        </Flex>
-      </ListItemContainer>
-    </Flex>
+      {pageElements}
+    </ListWithHeader>
   );
 };
 

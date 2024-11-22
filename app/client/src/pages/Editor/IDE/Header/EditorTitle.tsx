@@ -1,25 +1,33 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import { IDEHeaderSwitcher } from "@appsmith/ads";
 
 import { createMessage, HEADER_TITLES } from "ee/constants/messages";
 import { PagesSection } from "../EditorPane/PagesSection";
+import { useBoolean } from "usehooks-ts";
+import { useSelector } from "react-redux";
+import { getCurrentPageId, getPageById } from "selectors/editorSelectors";
 
-const EditorTitle = ({ title }: { title: string }) => {
-  const [active, setActive] = useState(false);
+const EditorTitle = () => {
+  const {
+    setFalse: setMenuClose,
+    setValue: setMenuState,
+    value: isMenuOpen,
+  } = useBoolean(false);
 
-  const closeMenu = useCallback(() => {
-    setActive(false);
-  }, []);
+  const pageId = useSelector(getCurrentPageId) as string;
+  const currentPage = useSelector(getPageById(pageId));
+
+  if (!currentPage) return null;
 
   return (
     <IDEHeaderSwitcher
-      active={active}
+      active={isMenuOpen}
       prefix={createMessage(HEADER_TITLES.PAGES)}
-      setActive={setActive}
-      title={title}
+      setActive={setMenuState}
+      title={currentPage.pageName}
       titleTestId="t--pages-switcher"
     >
-      <PagesSection onItemSelected={closeMenu} />
+      <PagesSection onItemSelected={setMenuClose} />
     </IDEHeaderSwitcher>
   );
 };
