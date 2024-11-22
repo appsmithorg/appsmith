@@ -293,7 +293,7 @@ export function getGitRoot(gitRoot?) {
   return gitRoot;
 }
 
-export function generateBackupRootPath() {
+export async function generateBackupRootPath() {
   return fsPromises.mkdtemp(path.join(os.tmpdir(), "appsmithctl-backup-"));
 }
 

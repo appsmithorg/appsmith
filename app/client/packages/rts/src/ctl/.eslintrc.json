@@ -1,7 +1,6 @@
 {
   "extends": ["../../.eslintrc.json"],
   "rules": {
-    "@typescript-eslint/ban-ts-comment": "off",
     "no-console": "off"
   }
 }
