@@ -20,7 +20,7 @@ export const Main: Story = {
   args: {},
   render: (args) => (
     <Flex width="sizing-60">
-      <DatePicker {...args} />
+      <DatePicker {...args} popoverClassName="sb-unstyled" />
     </Flex>
   ),
 };
@@ -32,7 +32,7 @@ export const WithDefaultValue: Story = {
   },
   render: (args) => (
     <Flex width="sizing-60">
-      <DatePicker {...args} />
+      <DatePicker {...args} popoverClassName="sb-unstyled" />
     </Flex>
   ),
 };
@@ -46,7 +46,7 @@ export const Sizes: Story = {
       {objectKeys(SIZES)
         .filter((size) => !["xSmall", "large"].includes(size))
         .map((size) => (
-          <DatePicker key={size} size={size} />
+          <DatePicker key={size} popoverClassName="sb-unstyled" size={size} />
         ))}
     </Flex>
   ),
@@ -73,7 +73,11 @@ export const Validation: Story = {
       }}
     >
       <Flex direction="column" gap="spacing-5" width="sizing-60">
-        <DatePicker isRequired label="Validation" />
+        <DatePicker
+          isRequired
+          label="Validation"
+          popoverClassName="sb-unstyled"
+        />
         <Button type="submit">Submit</Button>
       </Flex>
     </form>
@@ -104,10 +108,26 @@ export const MinDate: Story = {
 export const Granularity: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-5" width="sizing-100">
-      <DatePicker granularity="day" label="Day" />
-      <DatePicker granularity="hour" label="Hour" />
-      <DatePicker granularity="minute" label="Minute" />
-      <DatePicker granularity="second" label="Second" />
+      <DatePicker
+        granularity="day"
+        label="Day"
+        popoverClassName="sb-unstyled"
+      />
+      <DatePicker
+        granularity="hour"
+        label="Hour"
+        popoverClassName="sb-unstyled"
+      />
+      <DatePicker
+        granularity="minute"
+        label="Minute"
+        popoverClassName="sb-unstyled"
+      />
+      <DatePicker
+        granularity="second"
+        label="Second"
+        popoverClassName="sb-unstyled"
+      />
     </Flex>
   ),
 };

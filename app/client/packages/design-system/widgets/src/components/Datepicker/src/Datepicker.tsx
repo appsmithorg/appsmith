@@ -29,6 +29,7 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
     isRequired,
     label,
     placeholderValue,
+    popoverClassName,
     size = "medium",
     ...rest
   } = props;
@@ -82,7 +83,7 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
             <FieldError>{errorMessage}</FieldError>
             <Popover
               UNSTABLE_portalContainer={root}
-              className={datePickerStyles.popover}
+              className={clsx(datePickerStyles.popover, popoverClassName)}
             >
               <Dialog className={datePickerStyles.dialog}>
                 <Calendar />
