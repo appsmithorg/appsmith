@@ -1,3 +1,4 @@
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import type { TableColumnProps } from "../../Constants";
 import { isString } from "lodash";
 
@@ -35,7 +36,11 @@ export const transformTableDataIntoCsv = (props: {
             ? value.replace("\n", " ")
             : value;
 
-        if (isString(value) && value.includes(",")) {
+        const shouldQuote =
+          (isString(value) && value.includes(",")) ||
+          column.metaProperties.type === ColumnTypes.HTML;
+
+        if (shouldQuote) {
           csvDataRow.push(`"${value}"`);
         } else {
           csvDataRow.push(value);
