@@ -808,22 +808,25 @@ export default {
 
         return acc;
       }, {});
+
+      const URLValues = columnWithDisplayText.reduce((acc, column) => {
+        let displayText;
+
+        if (_.isArray(column.displayText)) {
+          displayText = column.displayText[row.__originalIndex__];
+        } else {
+          displayText = column.displayText;
+        }
+
+        acc[column.alias] = displayText;
+
+        return acc;
+      }, {});
+
       const displayedRow = {
         ...row,
         ...labelValuesForSelectCell,
-        ...columnWithDisplayText.reduce((acc, column) => {
-          let displayText;
-
-          if (_.isArray(column.displayText)) {
-            displayText = column.displayText[row.__originalIndex__];
-          } else {
-            displayText = column.displayText;
-          }
-
-          acc[column.alias] = displayText;
-
-          return acc;
-        }, {}),
+        ...URLValues,
         ...HTMLValues,
       };
 
