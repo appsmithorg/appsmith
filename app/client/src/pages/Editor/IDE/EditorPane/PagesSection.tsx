@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { ListWithHeader } from "@appsmith/ads";
+import { ListItemContainer, ListWithHeader } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
@@ -49,16 +49,18 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
     dispatch(
       createNewPageFromEntities(applicationId, name, workspaceId, instanceId),
     );
-  }, [dispatch, pages, applicationId]);
+  }, [pages, dispatch, applicationId, workspaceId, instanceId]);
 
   const onMenuClose = useCallback(() => setIsMenuOpen(false), [setIsMenuOpen]);
 
   const pageElements = useMemo(
     () =>
       pages.map((page) => (
-        <PageElement key={page.pageId} onClick={onItemSelected} page={page} />
+        <ListItemContainer key={page.pageId}>
+          <PageElement onClick={onItemSelected} page={page} />
+        </ListItemContainer>
       )),
-    [pages, location.pathname],
+    [pages, location.pathname, onItemSelected],
   );
 
   const createPageContextMenu = useMemo(() => {
@@ -84,6 +86,7 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
 
   return (
     <ListWithHeader
+      headerClassName={"pages"}
       headerControls={createPageContextMenu}
       headerText={`All Pages (${pages.length})`}
       maxHeight={"300px"}

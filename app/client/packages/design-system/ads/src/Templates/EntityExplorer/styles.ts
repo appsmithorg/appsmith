@@ -1,7 +1,8 @@
 import styled from "styled-components";
-import { Flex } from "../../Flex";
 
-export const ListItemContainer = styled(Flex)`
+export const ListItemContainer = styled.div`
+  width: 100%;
+
   & .t--entity-item {
     grid-template-columns: 0 auto 1fr auto auto auto auto auto;
     height: 32px;

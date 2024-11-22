@@ -1,5 +1,5 @@
 import React from "react";
-import { ListHeaderContainer, ListItemContainer } from "./styles";
+import { ListHeaderContainer } from "./styles";
 import { Text } from "../../Text";
 import { Flex } from "../../Flex";
 
@@ -7,6 +7,7 @@ interface Props {
   headerText: string;
   headerControls?: React.ReactNode;
   maxHeight?: string;
+  headerClassName?: string;
   children: React.ReactNode | React.ReactNode[];
 }
 
@@ -18,22 +19,20 @@ export const ListWithHeader = (props: Props) => {
       maxHeight={props.maxHeight}
       overflow="hidden"
     >
-      <ListHeaderContainer className="pages">
+      <ListHeaderContainer className={props.headerClassName}>
         <Text kind="heading-xs">{props.headerText}</Text>
         {props.headerControls}
       </ListHeaderContainer>
-      <ListItemContainer>
-        <Flex
-          alignItems="center"
-          flex="1"
-          flexDirection="column"
-          overflow="auto"
-          px="spaces-2"
-          width="100%"
-        >
-          {props.children}
-        </Flex>
-      </ListItemContainer>
+      <Flex
+        alignItems="center"
+        flex="1"
+        flexDirection="column"
+        overflow="auto"
+        px="spaces-2"
+        width="100%"
+      >
+        {props.children}
+      </Flex>
     </Flex>
   );
 };
