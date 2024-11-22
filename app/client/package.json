@@ -266,7 +266,7 @@
     "@types/mixpanel-browser": "^2.50.1",
     "@types/moment-timezone": "^0.5.10",
     "@types/nanoid": "^2.0.0",
-    "@types/node": "^10.12.18",
+    "@types/node": "^22.9.1",
     "@types/node-fetch": "^2.6.11",
     "@types/node-forge": "^0.10.0",
     "@types/object-hash": "^2.2.1",

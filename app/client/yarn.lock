@@ -10840,13 +10840,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^10.12.18":
-  version: 10.17.39
-  resolution: "@types/node@npm:10.17.39"
-  checksum: 75a22932e45e1519170dad5bc44585944cb5f5898ed61c614301ae7bf2e20af533537169e2b12de514d288f4b2d679928f1d462da777aaf59c48bd47a8960154
-  languageName: node
-  linkType: hard
-
 "@types/node@npm:^18.0.0, @types/node@npm:^18.11.18":
   version: 18.19.54
   resolution: "@types/node@npm:18.19.54"
@@ -12820,7 +12813,7 @@ __metadata:
     "@shared/ast": "workspace:^"
     "@types/express": ^4.17.14
     "@types/jest": ^29.2.3
-    "@types/node": ^22.9.1
+    "@types/node": "*"
     "@types/nodemailer": ^6.4.17
     "@types/readline-sync": ^1.4.8
     axios: ^1.7.4
@@ -12913,7 +12906,7 @@ __metadata:
     "@types/mixpanel-browser": ^2.50.1
     "@types/moment-timezone": ^0.5.10
     "@types/nanoid": ^2.0.0
-    "@types/node": ^10.12.18
+    "@types/node": ^22.9.1
     "@types/node-fetch": ^2.6.11
     "@types/node-forge": ^0.10.0
     "@types/object-hash": ^2.2.1
