@@ -32,9 +32,6 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
     size = "medium",
     ...rest
   } = props;
-  const root = document.body.querySelector(
-    "[data-theme-provider]",
-  ) as HTMLButtonElement;
 
   const placeholder: DateValue | null | undefined = placeholderValue;
   const timePlaceholder = (
@@ -57,6 +54,9 @@ export const DatePicker = <T extends DateValue>(props: DatePickerProps<T>) => {
       {...rest}
     >
       {({ state }) => {
+        const root = document.body.querySelector(
+          "[data-theme-provider]",
+        ) as HTMLButtonElement;
         const timeGranularity =
           state.granularity === "hour" ||
           state.granularity === "minute" ||

@@ -60,7 +60,7 @@
   color: var(--color-fg-on-accent);
 }
 
-.calendar tbody [role="button"][data-focus-visible],
-.calendar tbody [role="button"][data-focused] {
-  border-color: var(--color-bd-accent);
+.calendar tbody [role="button"][data-focus-visible] {
+  outline: var(--border-width-2) solid var(--color-bd-accent);
+  outline-offset: var(--border-width-2);
 }
