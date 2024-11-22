@@ -779,8 +779,7 @@ describe(
       dataSources.CreateQueryForDS(dsName);
 
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)", "Raw");
-      agHelper.RenameQuery("DropAuthorNAwards"); //Due to template appearing after renaming
-      agHelper.GetNClick(dataSources._templateMenu);
+      agHelper.RenameQuery("DropAuthorNAwards");
       dataSources.EnterQuery(dropCollection);
       agHelper.FocusElement(locators._codeMirrorTextArea);
       //agHelper.VerifyEvaluatedValue(tableCreateQuery);
@@ -798,7 +797,6 @@ describe(
       const dropCollection = `{ "drop": "AuthorNAwards" }`;
       dataSources.CreateQueryForDS(dsName);
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)", "Raw");
-      agHelper.GetNClick(dataSources._templateMenu);
       agHelper.RenameQuery("DropAuthorNAwards");
       dataSources.EnterQuery(dropCollection);
       agHelper.FocusElement(locators._codeMirrorTextArea);

@@ -5,7 +5,6 @@ import {
   jsEditor,
   apiPage,
   dataSources,
-  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
