@@ -295,6 +295,13 @@ class PageApi extends Api {
   static async fetchAppAndPages(
     params: FetchAppAndPagesRequest,
   ): Promise<AxiosPromise<FetchApplicationResponse>> {
+    if (
+      Object.hasOwn(params, "pageId") &&
+      (params.pageId === undefined || params.pageId === "undefined")
+    ) {
+      throw new Error("Panic mode!");
+    }
+
     return Api.get(PageApi.url, params);
   }
 }
