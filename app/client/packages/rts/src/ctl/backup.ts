@@ -11,16 +11,16 @@ import readlineSync from "readline-sync";
 const command_args = process.argv.slice(3);
 
 class BackupState {
-  readonly initAt: string = getTimeStampInISO()
-  readonly errors: string[] = []
+  readonly initAt: string = getTimeStampInISO();
+  readonly errors: string[] = [];
 
-  backupRootPath: string
-  archivePath: string
+  backupRootPath: string;
+  archivePath: string;
 
-  encryptionPassword: string
+  encryptionPassword: string;
 
   isEncryptionEnabled() {
-    return !!this.encryptionPassword
+    return !!this.encryptionPassword;
   }
 }
 
@@ -47,7 +47,10 @@ export async function run() {
     }
 
     state.backupRootPath = await generateBackupRootPath();
-    const backupContentsPath: string = getBackupContentsPath(state.backupRootPath, state.initAt);
+    const backupContentsPath: string = getBackupContentsPath(
+      state.backupRootPath,
+      state.initAt,
+    );
 
     // BACKUP
     await fsPromises.mkdir(backupContentsPath);
@@ -60,7 +63,10 @@ export async function run() {
 
     await exportDockerEnvFile(backupContentsPath, state.isEncryptionEnabled());
 
-    state.archivePath = await createFinalArchive(state.backupRootPath, state.initAt);
+    state.archivePath = await createFinalArchive(
+      state.backupRootPath,
+      state.initAt,
+    );
 
     // POST-BACKUP
     if (state.isEncryptionEnabled()) {
@@ -75,7 +81,10 @@ export async function run() {
       );
 
       if (state.archivePath != null) {
-        await fsPromises.rm(state.archivePath, { recursive: true, force: true });
+        await fsPromises.rm(state.archivePath, {
+          recursive: true,
+          force: true,
+        });
       }
     } else {
       await logger.backup_info(
@@ -97,7 +106,9 @@ export async function run() {
 
     await fsPromises.rm(state.backupRootPath, { recursive: true, force: true });
 
-    await logger.backup_info("Finished taking a backup at " + state.archivePath);
+    await logger.backup_info(
+      "Finished taking a backup at " + state.archivePath,
+    );
   } catch (err) {
     process.exitCode = 1;
     await logger.backup_error(err.stack);
@@ -117,12 +128,18 @@ export async function run() {
     }
   } finally {
     if (state.backupRootPath != null) {
-      await fsPromises.rm(state.backupRootPath, { recursive: true, force: true });
+      await fsPromises.rm(state.backupRootPath, {
+        recursive: true,
+        force: true,
+      });
     }
 
     if (state.isEncryptionEnabled()) {
       if (state.archivePath != null) {
-        await fsPromises.rm(state.archivePath, { recursive: true, force: true });
+        await fsPromises.rm(state.archivePath, {
+          recursive: true,
+          force: true,
+        });
       }
     }
 
@@ -131,7 +148,10 @@ export async function run() {
   }
 }
 
-export async function encryptBackupArchive(archivePath: string, encryptionPassword: string) {
+export async function encryptBackupArchive(
+  archivePath: string,
+  encryptionPassword: string,
+) {
   const encryptedArchivePath = archivePath + ".enc";
 
   await utils.execCommand([
@@ -218,7 +238,10 @@ async function createManifestFile(path: string) {
   );
 }
 
-async function exportDockerEnvFile(destFolder: string, encryptArchive: boolean) {
+async function exportDockerEnvFile(
+  destFolder: string,
+  encryptArchive: boolean,
+) {
   console.log("Exporting docker environment file");
   const content = await fsPromises.readFile(
     "/appsmith-stacks/configuration/docker.env",
@@ -238,7 +261,10 @@ async function exportDockerEnvFile(destFolder: string, encryptArchive: boolean) 
   console.log("Exporting docker environment file done.");
 }
 
-export async function executeMongoDumpCMD(destFolder: string, appsmithMongoURI: string) {
+export async function executeMongoDumpCMD(
+  destFolder: string,
+  appsmithMongoURI: string,
+) {
   return await utils.execCommand([
     "mongodump",
     `--uri=${appsmithMongoURI}`,
@@ -304,7 +330,10 @@ export async function generateBackupRootPath() {
   return fsPromises.mkdtemp(path.join(os.tmpdir(), "appsmithctl-backup-"));
 }
 
-export function getBackupContentsPath(backupRootPath: string, timestamp: string): string {
+export function getBackupContentsPath(
+  backupRootPath: string,
+  timestamp: string,
+): string {
   return backupRootPath + "/appsmith-backup-" + timestamp;
 }
 
@@ -329,7 +358,10 @@ export function getBackupArchiveLimit(backupArchivesLimit?: number): number {
   return backupArchivesLimit || Constants.APPSMITH_DEFAULT_BACKUP_ARCHIVE_LIMIT;
 }
 
-export async function removeOldBackups(backupFiles: string[], backupArchivesLimit: number) {
+export async function removeOldBackups(
+  backupFiles: string[],
+  backupArchivesLimit: number,
+) {
   while (backupFiles.length > backupArchivesLimit) {
     const fileName = backupFiles.shift();
 
@@ -343,7 +375,9 @@ export function getTimeStampInISO() {
   return new Date().toISOString().replace(/:/g, "-");
 }
 
-export async function getAvailableBackupSpaceInBytes(path: string) : Promise<number> {
+export async function getAvailableBackupSpaceInBytes(
+  path: string,
+): Promise<number> {
   const stat = await fsPromises.statfs(path);
 
   return stat.bsize * stat.bfree;
