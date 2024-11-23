@@ -19,7 +19,7 @@ describe(
       agHelper.GenerateUUID();
       partialImportExport.OpenImportModal();
       homePage.ImportApp(`PartialImportExport/${fixtureName}`, "", true);
-      homePage.RenameApplication("ImportExport");
+      homePage.RenameApplication("ImportExportUpdated");
       entityExplorer.RenameEntityFromExplorer(
         "Page1",
         "Home",
@@ -46,7 +46,7 @@ describe(
         "queries",
         2,
         partialImportExport.locators.export.modelContents.queriesSection,
-        "PartialQueryExport.json",
+        "PartialQueryXport.json",
         fixtureName,
       );
       PageList.AddNewPage("New blank page");
@@ -55,7 +55,7 @@ describe(
       // Import Widgets
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialWidgetExport.json",
+        "PartialWidgetXport.json",
         "Widgets",
         ["Table1", "Button1"],
       );
@@ -63,7 +63,7 @@ describe(
       // Import Queries
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialQueryExport.json",
+        "PartialQueryXport.json",
         "Queries",
         ["Api1"],
       );
@@ -78,7 +78,7 @@ describe(
     it("2. Should be able to import again in the same Page", () => {
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialWidgetExport.json",
+        "PartialWidgetXport.json",
         "Widgets",
         ["Table1", "Button1"],
       );
@@ -106,7 +106,7 @@ describe(
       // Import Widgets
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialWidgetExport.json",
+        "PartialWidgetXport.json",
         "Widgets",
         ["Table1", "Button1"],
       );
@@ -114,7 +114,7 @@ describe(
       // Import Queries
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialQueryExport.json",
+        "PartialQueryXport.json",
         "Queries",
         ["Api1"],
       );
@@ -138,7 +138,7 @@ describe(
       // Import Widgets
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialWidgetExport.json",
+        "PartialWidgetXport.json",
         "Widgets",
         ["Table1", "Button1"],
       );
@@ -146,7 +146,7 @@ describe(
       // Import Queries
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialQueryExport.json",
+        "PartialQueryXport.json",
         "Queries",
         ["Api1"],
       );
@@ -163,7 +163,7 @@ describe(
       // Import Widgets
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialWidgetExport.json",
+        "PartialWidgetXport.json",
         "Widgets",
         ["Table1", "Button1"],
       );
@@ -171,7 +171,7 @@ describe(
       // Import Queries
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialQueryExport.json",
+        "PartialQueryXport.json",
         "Queries",
         ["Api1"],
       );
