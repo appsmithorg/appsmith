@@ -114,11 +114,6 @@ module.exports = {
         enabled: parseConfig("__APPSMITH_SEGMENT_KEY__"),
         apiKey: parseConfig("__APPSMITH_MIXPANEL_KEY__"),
       },
-      algolia: {
-        apiId: parseConfig("__APPSMITH_ALGOLIA_API_ID__"),
-        apiKey: parseConfig("__APPSMITH_ALGOLIA_API_KEY__"),
-        indexName: parseConfig("__APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__"),
-      },
       logLevel:
         CONFIG_LOG_LEVEL_INDEX > -1
           ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX]

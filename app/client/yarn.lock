@@ -12,107 +12,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@algolia/client-abtesting@npm:5.6.1":
-  version: 5.6.1
-  resolution: "@algolia/client-abtesting@npm:5.6.1"
-  dependencies:
-    "@algolia/client-common": 5.6.1
-    "@algolia/requester-browser-xhr": 5.6.1
-    "@algolia/requester-fetch": 5.6.1
-    "@algolia/requester-node-http": 5.6.1
-  checksum: 516f2b91388c98eb309f28b81f9b6467e69e82dc7150be16b88ffdcf1cee9d29e5bef9add3397e8e951626fbd586d38b6e66cd43b298ff47c5cf02fb561176a8
-  languageName: node
-  linkType: hard
-
-"@algolia/client-analytics@npm:5.6.1":
-  version: 5.6.1
-  resolution: "@algolia/client-analytics@npm:5.6.1"
-  dependencies:
-    "@algolia/client-common": 5.6.1
-    "@algolia/requester-browser-xhr": 5.6.1
-    "@algolia/requester-fetch": 5.6.1
-    "@algolia/requester-node-http": 5.6.1
-  checksum: fae1b496065a77e33a99cde28982d9b077ce56b84caf2707323f7d180047f8118ee04fb2297f0c2221d4a23b974407ce981fcd41704f2ccfb6e68f867ce4d17e
-  languageName: node
-  linkType: hard
-
-"@algolia/client-common@npm:5.6.1":
-  version: 5.6.1
-  resolution: "@algolia/client-common@npm:5.6.1"
-  checksum: 9d46de033377c90a9f42edeb65a5d68d27610332e92fdddcf489c9c2aa3f0e0ddbe6570239dbc7b163b6914aa4e5e497b6a3f547b4b41fe26766cc126ab4ef49
-  languageName: node
-  linkType: hard
-
-"@algolia/client-personalization@npm:5.6.1":
-  version: 5.6.1
-  resolution: "@algolia/client-personalization@npm:5.6.1"
-  dependencies:
-    "@algolia/client-common": 5.6.1
-    "@algolia/requester-browser-xhr": 5.6.1
-    "@algolia/requester-fetch": 5.6.1
-    "@algolia/requester-node-http": 5.6.1
-  checksum: 4a6486a43d82875291d572f1fdec3fcd9306a2872f320972ad44a8a5c3ff1bbca6dd99b399302b3c17ab55a1eed96e05e8ef357867ac4a0fdc6d783f9ee3c5b6
-  languageName: node
-  linkType: hard
-
-"@algolia/client-search@npm:5.6.1":
-  version: 5.6.1
-  resolution: "@algolia/client-search@npm:5.6.1"
-  dependencies:
-    "@algolia/client-common": 5.6.1
-    "@algolia/requester-browser-xhr": 5.6.1
-    "@algolia/requester-fetch": 5.6.1
-    "@algolia/requester-node-http": 5.6.1
-  checksum: 540645d05cc05b5e800ba27ad7c4bd3e726de7bd672a7fc79d489dfd0249fae1cdc56218da7c7db9d4ea937d3293edf77964c3d153841df00c2f6d78d8816694
-  languageName: node
-  linkType: hard
-
-"@algolia/events@npm:^4.0.1":
-  version: 4.0.1
-  resolution: "@algolia/events@npm:4.0.1"
-  checksum: 4f63943f4554cfcfed91d8b8c009a49dca192b81056d8c75e532796f64828cd69899852013e81ff3fff07030df8782b9b95c19a3da0845786bdfe22af42442c2
-  languageName: node
-  linkType: hard
-
-"@algolia/recommend@npm:5.6.1":
-  version: 5.6.1
-  resolution: "@algolia/recommend@npm:5.6.1"
-  dependencies:
-    "@algolia/client-common": 5.6.1
-    "@algolia/requester-browser-xhr": 5.6.1
-    "@algolia/requester-fetch": 5.6.1
-    "@algolia/requester-node-http": 5.6.1
-  checksum: 70e362935a17967fc1ad58e8f168d07e47919526e2ed468dd8eb55fee77e2b2f5b499014ef680a5a83cf575f6b5fa691b2648b47642db9419b767bc8a55f68cb
-  languageName: node
-  linkType: hard
-
-"@algolia/requester-browser-xhr@npm:5.6.1":
-  version: 5.6.1
-  resolution: "@algolia/requester-browser-xhr@npm:5.6.1"
-  dependencies:
-    "@algolia/client-common": 5.6.1
-  checksum: 4196a0bb16133b47aaebfa407c375967c7df661f9df19909d02f669b884d7137269010f53191642ce0c525abca4b38cf58695d986a98f3e4a0d541fcad3a54c5
-  languageName: node
-  linkType: hard
-
-"@algolia/requester-fetch@npm:5.6.1":
-  version: 5.6.1
-  resolution: "@algolia/requester-fetch@npm:5.6.1"
-  dependencies:
-    "@algolia/client-common": 5.6.1
-  checksum: 240eb4d3028f98c271014fcbe3ab245cc8dfdb87f91aaff7dc66eff41182f70fcf0f891f03a8050183c2f5ce4f5e2410b2ec47263c9b715eee6ecb880fb5a45a
-  languageName: node
-  linkType: hard
-
-"@algolia/requester-node-http@npm:5.6.1":
-  version: 5.6.1
-  resolution: "@algolia/requester-node-http@npm:5.6.1"
-  dependencies:
-    "@algolia/client-common": 5.6.1
-  checksum: d27a69b14b1a1fabeeb23e41cffced8e2edd2e52d93fbdadd2fbadfd775b21fa484a20bb63ea0373d8c2a339069c7e0681588d94d775b8a168dcc4cad96b684a
-  languageName: node
-  linkType: hard
-
 "@alloc/quick-lru@npm:^5.2.0":
   version: 5.2.0
   resolution: "@alloc/quick-lru@npm:5.2.0"
@@ -10985,17 +10884,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-instantsearch-core@npm:^6.26.10":
-  version: 6.26.10
-  resolution: "@types/react-instantsearch-core@npm:6.26.10"
-  dependencies:
-    "@types/react": "*"
-    algoliasearch: ">=4"
-    algoliasearch-helper: ">=3"
-  checksum: 7f5ce45ffceec268fc6697b59ed137804f8256c7cd94ec00e8a69f7070e6d4b201c1c57bd38a0afe9ecca4161a853823cea5aeeae9532b28169aa48a2501e24e
-  languageName: node
-  linkType: hard
-
 "@types/react-modal@npm:^3.13.1":
   version: 3.13.1
   resolution: "@types/react-modal@npm:3.13.1"
@@ -12627,34 +12515,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"algoliasearch-helper@npm:>=3":
-  version: 3.22.5
-  resolution: "algoliasearch-helper@npm:3.22.5"
-  dependencies:
-    "@algolia/events": ^4.0.1
-  peerDependencies:
-    algoliasearch: ">= 3.1 < 6"
-  checksum: bf1f0573778a5d4398efbc723558eaa7efd81a0c906c8c6339d6ab243e065c8dabea656c5bb914cda8dfa57e7af3c16e5370b0399f265a2a3dc49fed0dceedac
-  languageName: node
-  linkType: hard
-
-"algoliasearch@npm:>=4":
-  version: 5.6.1
-  resolution: "algoliasearch@npm:5.6.1"
-  dependencies:
-    "@algolia/client-abtesting": 5.6.1
-    "@algolia/client-analytics": 5.6.1
-    "@algolia/client-common": 5.6.1
-    "@algolia/client-personalization": 5.6.1
-    "@algolia/client-search": 5.6.1
-    "@algolia/recommend": 5.6.1
-    "@algolia/requester-browser-xhr": 5.6.1
-    "@algolia/requester-fetch": 5.6.1
-    "@algolia/requester-node-http": 5.6.1
-  checksum: 32ed2e9aba9953171546f3a9b3270e18943884d2debad3f7c680883d3fb93380a98ba4e0cec0e9faa71f5978df6e9163338317e44039423808bc1d23777a935b
-  languageName: node
-  linkType: hard
-
 "ally.js@npm:^1.4.1":
   version: 1.4.1
   resolution: "ally.js@npm:1.4.1"
@@ -12923,7 +12783,6 @@ __metadata:
     "@types/react-dom": ^17.0.2
     "@types/react-google-recaptcha": ^2.1.1
     "@types/react-helmet": ^5.0.14
-    "@types/react-instantsearch-core": ^6.26.10
     "@types/react-modal": ^3.13.1
     "@types/react-page-visibility": ^6.4.1
     "@types/react-redux": ^7.0.1
