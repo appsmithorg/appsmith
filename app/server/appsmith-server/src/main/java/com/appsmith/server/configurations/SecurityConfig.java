@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
@@ -8,6 +9,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.filters.CSRFFilter;
 import com.appsmith.server.filters.ConditionalFilter;
 import com.appsmith.server.filters.LoginRateLimitFilter;
@@ -310,7 +312,11 @@ public class SecurityConfig {
         final String versionHeaderValue = headers.getFirst("X-Appsmith-Version");
         if (versionHeaderValue != null && !projectProperties.getVersion().equals(versionHeaderValue)) {
             return writeErrorResponse(
-                    exchange, chain, "Appsmith version mismatch, expected '" + projectProperties.getVersion() + "'");
+                    exchange,
+                    chain,
+                    new ErrorDTO(
+                            AppsmithErrorCode.VERSION_MISMATCH.getCode(),
+                            "Appsmith version mismatch, expected '" + projectProperties.getVersion() + "'"));
         }
 
         return chain.filter(exchange);
@@ -324,6 +330,19 @@ public class SecurityConfig {
             return response.writeWith(Mono.just(response.bufferFactory()
                     .wrap(objectMapper.writeValueAsBytes(
                             new ResponseDTO<>(response.getStatusCode().value(), null, message, false)))));
+        } catch (JsonProcessingException ex) {
+            return chain.filter(exchange);
+        }
+    }
+
+    private Mono<Void> writeErrorResponse(ServerWebExchange exchange, WebFilterChain chain, ErrorDTO error) {
+        final ServerHttpResponse response = exchange.getResponse();
+        final HttpStatus status = HttpStatus.BAD_REQUEST;
+        response.setStatusCode(status);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+        try {
+            return response.writeWith(Mono.just(response.bufferFactory()
+                    .wrap(objectMapper.writeValueAsBytes(new ResponseDTO<>(status.value(), error)))));
         } catch (JsonProcessingException ex) {
             return chain.filter(exchange);
         }
