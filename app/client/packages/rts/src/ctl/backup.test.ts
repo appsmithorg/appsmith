@@ -230,9 +230,8 @@ describe("Backup Tests", () => {
 
       return password;
     });
-    const password_res = backup.getEncryptionPasswordFromUser();
 
-    expect(password_res).toEqual(-1);
+    expect(() => backup.getEncryptionPasswordFromUser()).toThrow();
   });
 
   test("Get encrypted archive path", async () => {
