@@ -375,29 +375,42 @@ export class DataSources {
     });
   }
 
+  public StartInterceptRoutesForMySQL() {
+    //All stubbing - updating app id to current app id for Delete app by api call to be successfull:
+
+    this.ReplaceApplicationIdForInterceptPages(
+      "cypress/fixtures/mySQL_PUT_replaceLayoutWithCRUD.json",
+    );
+
+    cy.intercept("POST", "/api/v1/datasources/test", {
+      fixture: "testAction.json",
+    }).as("testDatasource");
+    cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*", {
+      fixture: "mySQL_GET_selectTableDropdown.json",
+    }).as("getDatasourceStructure");
+    cy.intercept("PUT", "/api/v1/pages/crud-page/*", {
+      fixture: "mySQL_PUT_replaceLayoutWithCRUD.json",
+    }).as("replaceLayoutWithCRUDPage");
+    cy.intercept("GET", "/api/v1/actions*", {
+      fixture: "mySQL_GET_Actions.json",
+    }).as("getActions");
+    cy.intercept("POST", "/api/v1/actions/execute", {
+      fixture: "mySQL_POST_Execute.json",
+    }).as("postExecute");
+    cy.intercept("POST", "/api/v1/pages/crud-page", {
+      fixture: "mySQL_PUT_replaceLayoutWithCRUD.json",
+    }).as("replaceLayoutWithCRUDPage");
+  }
+
   public StartInterceptRoutesForMongo() {
     //All stubbing
     this.ReplaceApplicationIdForInterceptPages(
       "cypress/fixtures/mongo_PUT_replaceLayoutWithCRUD.json",
     );
 
-    cy.intercept("POST", "/api/v1/datasources/test", (req) =>
-      req.reply({
-        headers: {
-          "x-appsmith-version": req.headers["x-appsmith-version"],
-        },
-        body: {
-          responseMeta: {
-            status: 200,
-            success: true,
-          },
-          data: {
-            invalids: [],
-            success: false,
-          },
-        },
-      }),
-    ).as("testDatasource");
+    cy.intercept("POST", "/api/v1/datasources/test", {
+      fixture: "testAction.json",
+    }).as("testDatasource");
     cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*", {
       fixture: "mongo_GET_selectTableDropdown.json",
     }).as("getDatasourceStructure");
@@ -413,6 +426,13 @@ export class DataSources {
     cy.intercept("POST", "/api/v1/pages/crud-page", {
       fixture: "mongo_PUT_replaceLayoutWithCRUD.json",
     }).as("post_replaceLayoutCRUDStub");
+  }
+
+  public StartInterceptRoutesForFirestore() {
+    //All stubbing
+    cy.intercept("POST", "/api/v1/datasources/test", {
+      fixture: "testAction.json",
+    }).as("testDatasource");
   }
 
   public CreatePlugIn(
