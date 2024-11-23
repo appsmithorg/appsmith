@@ -16,21 +16,22 @@ describe(
   () => {
     it("1. Templates Modal should have show only 'allowPageImport:true' templates", () => {
       cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {
-        cy.intercept("GET", "/api/v1/app-templates", (req) =>
-          req.reply({
+        cy.intercept(
+          {
+            method: "GET",
+            url: "/api/v1/app-templates",
+          },
+          {
             statusCode: 200,
-            headers: {
-              "x-appsmith-version": req.headers["x-appsmith-version"],
-            },
             body: data,
-          }),
+          },
         ).as("fetchAllTemplates");
-        agHelper.RefreshPage(); //is important for below intercept to go through!
+        agHelper.RefreshPage(); //is important for below intercept to go thru!
         PageList.AddNewPage("Add page from template");
         agHelper.AssertElementVisibility(templates.locators._templateDialogBox);
-        cy.wait("@fetchAllTemplates").then(({ response }) => {
+        cy.wait("@fetchAllTemplates").then(({ request, response }) => {
           if (response) {
-            // in the fixture data we are sending some templates with `allowPageImport: false`
+            // in the fixture data we are sending some tempaltes with `allowPageImport: false`
 
             const templatesFilteredForAllowPageImport =
               response.body.data.filter((card: any) => !!card.allowPageImport);
