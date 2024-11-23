@@ -21,6 +21,9 @@ describe(
         datasourceName = `Redshift MOCKDS ${UUID}`;
         cy.renameDatasource(datasourceName);
       });
+      cy.intercept("POST", "/api/v1/datasources/test", {
+        fixture: "testAction.json",
+      }).as("testDatasource");
       cy.testSaveDatasource(false);
     });
 
@@ -32,6 +35,9 @@ describe(
         datasourceName = `Redshift MOCKDS ${UUID}`;
         cy.renameDatasource(datasourceName);
       });
+      cy.intercept("POST", "/api/v1/datasources/test", {
+        fixture: "testAction.json",
+      }).as("testDatasource");
       cy.testSaveDatasource(false);
       cy.deleteDatasource(datasourceName);
     });
