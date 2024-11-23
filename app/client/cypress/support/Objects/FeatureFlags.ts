@@ -12,24 +12,18 @@ export const featureFlagIntercept = (
   reload = true,
 ) => {
   getConsolidatedDataApi({ ...flags, ...defaultFlags }, false);
-  cy.intercept("GET", "/api/v1/users/features", (req) =>
-    req.reply({
-      headers: {
-        "x-appsmith-version": req.headers["x-appsmith-version"],
-      },
-      body: {
-        responseMeta: {
-          status: 200,
-          success: true,
-        },
-        data: {
-          ...flags,
-          ...defaultFlags,
-        },
-        errorDisplay: "",
-      },
-    }),
-  );
+  const response = {
+    responseMeta: {
+      status: 200,
+      success: true,
+    },
+    data: {
+      ...flags,
+      ...defaultFlags,
+    },
+    errorDisplay: "",
+  };
+  cy.intercept("GET", "/api/v1/users/features", response);
   if (reload) ObjectsRegistry.AggregateHelper.CypressReload();
 };
 
@@ -50,12 +44,7 @@ export const getConsolidatedDataApi = (
             ...flags,
           };
         });
-        return res.send({
-          headers: {
-            "x-appsmith-version": req.headers["x-appsmith-version"],
-          },
-          body: updatedResponse,
-        });
+        return res.send(updatedResponse);
       }
     });
   }).as("getConsolidatedData");
