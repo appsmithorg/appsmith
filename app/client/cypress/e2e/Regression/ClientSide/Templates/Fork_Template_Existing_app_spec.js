@@ -110,23 +110,24 @@ describe(
 
     it("4. Add page from template to show only apps with 'allowPageImport:true'", () => {
       cy.fixture("Templates/AllowPageImportTemplates.json").then((data) => {
-        cy.intercept("GET", "/api/v1/app-templates", (req) =>
-          req.reply({
+        cy.intercept(
+          {
+            method: "GET",
+            url: "/api/v1/app-templates",
+          },
+          {
             statusCode: 200,
-            headers: {
-              "x-appsmith-version": req.headers["x-appsmith-version"],
-            },
             body: data,
-          }),
+          },
         ).as("fetchAllTemplates");
-        agHelper.RefreshPage(); //is important for intercept to go through!
+        agHelper.RefreshPage(); //is important for intercept to go thru!
 
         PageList.AddNewPage("Add page from template");
 
         agHelper.AssertElementVisibility(template.templateDialogBox);
         cy.wait("@fetchAllTemplates");
-        cy.get("@fetchAllTemplates").then(({ response }) => {
-          // in the fixture data we are sending some templates with `allowPageImport: false`
+        cy.get("@fetchAllTemplates").then(({ request, response }) => {
+          // in the fixture data we are sending some tempaltes with `allowPageImport: false`
           cy.get(template.templateCard).should(
             "not.have.length",
             response.body.data.length,
