@@ -57,7 +57,10 @@ async function getBackupFileName() {
   }
 }
 
-async function decryptArchive(encryptedFilePath: string, backupFilePath: string) {
+async function decryptArchive(
+  encryptedFilePath: string,
+  backupFilePath: string,
+) {
   console.log("Enter the password to decrypt the backup archive:");
 
   for (const attempt of [1, 2, 3]) {
@@ -227,7 +230,10 @@ async function restoreDockerEnvFile(
   console.log("Restoring docker environment file completed");
 }
 
-async function restoreGitStorageArchive(restoreContentsPath: string, backupName: string) {
+async function restoreGitStorageArchive(
+  restoreContentsPath: string,
+  backupName: string,
+) {
   console.log("Restoring git-storage archive");
   const gitRoot = "/appsmith-stacks/git-storage";
 

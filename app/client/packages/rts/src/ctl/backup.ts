@@ -14,10 +14,10 @@ class BackupState {
   readonly initAt: string = getTimeStampInISO();
   readonly errors: string[] = [];
 
-  backupRootPath: string;
-  archivePath: string;
+  backupRootPath: string = "";
+  archivePath: string = "";
 
-  encryptionPassword: string;
+  encryptionPassword: string = "";
 
   isEncryptionEnabled() {
     return !!this.encryptionPassword;
