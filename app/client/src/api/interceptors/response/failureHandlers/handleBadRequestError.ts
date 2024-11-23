@@ -15,7 +15,6 @@ export const handleBadRequestError = async (error: AxiosError<ApiResponse>) => {
       return null;
     }
 
-    // todo: this second argument should be needed anymore. We know here already that there's a mismatch.
     handleVersionUpdate(getAppsmithConfigs().appVersion, serverVersion);
 
     return Promise.reject({
