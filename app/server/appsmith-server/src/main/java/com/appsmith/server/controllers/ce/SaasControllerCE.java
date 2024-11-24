@@ -67,13 +67,13 @@ public class SaasControllerCE {
 
     @GetMapping("authorize")
     public Mono<Void> redirectForAuthorize(ServerWebExchange exchange, @RequestParam String appsmithToken) {
+        final String url = cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/authorize?appsmithToken="
+                + appsmithToken;
+
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
-        response.getHeaders()
-                .set(
-                        "Location",
-                        cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/authorize?appsmithToken="
-                                + appsmithToken);
+        response.getHeaders().set("Location", url);
+
         return response.writeWith(Mono.just(response.bufferFactory().wrap(new byte[] {})));
     }
 }
