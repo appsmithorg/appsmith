@@ -107,7 +107,6 @@ import { getFormData } from "selectors/formSelectors";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { setActionProperty } from "actions/pluginActionActions";
-import { authorizeDatasourceWithAppsmithToken } from "api/CloudServicesApi";
 import {
   createMessage,
   DATASOURCE_CREATE,
@@ -711,9 +710,7 @@ function* redirectAuthorizationCodeSaga(
     pluginType: PluginType;
   }>,
 ) {
-  const { contextId, contextType, datasourceId, pluginType } =
-    actionPayload.payload;
-  const isImport: string = yield select(getWorkspaceIdForImport);
+  const { contextId, datasourceId, pluginType } = actionPayload.payload;
   const branchName: string | undefined = yield select(getCurrentGitBranch);
 
   if (pluginType === PluginType.API) {
@@ -728,31 +725,12 @@ function* redirectAuthorizationCodeSaga(
 
     window.location.href = windowLocation;
   } else {
-    try {
-      // Get an "appsmith token" from the server
-      const response: ApiResponse<string> = yield OAuthApi.getAppsmithToken(
-        datasourceId,
-        contextId,
-        contextType,
-        !!isImport,
-      );
-
-      if (validateResponse(response)) {
-        const appsmithToken = response.data;
-
-        // Save the token for later use once we come back from the auth flow
-        localStorage.setItem(APPSMITH_TOKEN_STORAGE_KEY, appsmithToken);
-        // Redirect to the cloud services to authorise
-        window.location.assign(
-          authorizeDatasourceWithAppsmithToken(appsmithToken),
-        );
-      }
-    } catch (e) {
-      toast.show(OAUTH_AUTHORIZATION_FAILED, {
-        kind: "error",
-      });
-      log.error(e);
-    }
+    toast.show(OAUTH_AUTHORIZATION_FAILED, {
+      kind: "error",
+    });
+    log.error(
+      new Error("Can't redirect for authorization for non-API datasource"),
+    );
   }
 }
 
