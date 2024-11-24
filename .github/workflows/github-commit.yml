@@ -26,15 +26,16 @@ jobs:
           echo "GITHUB_SHA: $GITHUB_SHA"
           echo "GITHUB_EVENT_NAME: $GITHUB_EVENT_NAME"
 
-  rts-build:
+  client-build:
     needs:
       - prelude
 
+    runs-on: ubuntu-latest
+
     defaults:
       run:
-        working-directory: app/client/packages/rts
-
-    runs-on: ubuntu-latest
+        working-directory: app/client
+        shell: bash
 
     steps:
       # Checkout the code
@@ -45,24 +46,23 @@ jobs:
         with:
           node-version-file: app/client/package.json
 
-      # actions/setup-node@v4 doesn’t work properly with Yarn 3
-      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
-      # Restoring the cache manually instead
-      - name: Restore Yarn cache
-        if: steps.run_result.outputs.run_result != 'success'
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
         uses: actions/cache@v4
+        env:
+          cache-name: cache-yarn-dependencies
         with:
-          path: app/.yarn/cache
-          key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}
+          # npm dependencies are stored in `~/.m2` on Linux/macOS
+          path: ~/.npm
+          key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            v1-yarn3-
+            ${{ runner.OS }}-node-
+            ${{ runner.OS }}-
 
-      # Install all the dependencies
       - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --immutable
 
-      - name: Build
+      - name: Create the bundle
         env:
           REACT_APP_ENVIRONMENT: "PRODUCTION"
           REACT_APP_FUSIONCHARTS_LICENSE_KEY: "${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY2 }}"
@@ -70,19 +70,5 @@ jobs:
           REACT_APP_INTERCOM_APP_ID: "${{ secrets.APPSMITH_INTERCOM_ID2 }}"
           REACT_APP_VERSION_EDITION: "Community"
         run: |
-          echo 'export const VERSION = "${{ needs.prelude.outputs.tag }}"' > src/version.js
           yarn build
           ls -l build
-
-      # Tar the bundles to speed up the upload & download process
-      - name: Tar the rts bundles
-        run: |
-          tar -cvf rts-dist.tar dist
-
-      # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
-      - name: Upload rts build bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: rts-dist
-          path: app/client/packages/rts/rts-dist.tar
-          overwrite: true
