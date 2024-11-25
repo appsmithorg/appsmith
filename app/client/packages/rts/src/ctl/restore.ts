@@ -249,8 +249,8 @@ async function restoreGitStorageArchive(
 async function checkRestoreVersionCompatability(restoreContentsPath: string) {
   const currentVersion = await utils.getCurrentAppsmithVersion();
   const manifest_data = await fsPromises.readFile(
-    restoreContentsPath + "/manifest.json",
-    { encoding: "utf8" },
+    path.join(restoreContentsPath, "manifest.json"),
+    "utf8",
   );
   const manifest_json = JSON.parse(manifest_data);
   const restoreVersion = manifest_json["appsmithVersion"];
@@ -270,9 +270,9 @@ async function checkRestoreVersionCompatability(restoreContentsPath: string) {
       "The Appsmith instance to be restored is not compatible with the current version.",
     );
     console.log(
-      'Please update your appsmith image to "index.docker.io/appsmith/appsmith-ce:' +
+      "Please update your appsmith image to 'index.docker.io/appsmith/appsmith-ce:" +
         restoreVersion +
-        '" in the "docker-compose.yml" file\nand run the cmd: "docker-compose restart" ' +
+        "' in the 'docker-compose.yml' file\nand run the cmd: 'docker-compose restart' " +
         "after the restore process is completed, to ensure the restored instance runs successfully.",
     );
     const confirm = readlineSync.question(
@@ -352,7 +352,7 @@ export async function run() {
 
       const backupName = backupFileName.replace(/\.tar\.gz$/, "");
       const restoreRootPath = await fsPromises.mkdtemp(os.tmpdir());
-      const restoreContentsPath = path.join(restoreRootPath, backupName);
+      const restoreContentsPath = await figureOutContentsPath(restoreRootPath);
 
       await extractArchive(backupFilePath, restoreRootPath);
       await checkRestoreVersionCompatability(restoreContentsPath);
@@ -389,4 +389,30 @@ export async function run() {
 
 function isArchiveEncrypted(backupFilePath: string) {
   return backupFilePath.endsWith(".enc");
+}
+
+async function figureOutContentsPath(root: string): Promise<string> {
+  const subfolders = await fsPromises.readdir(root, { withFileTypes: true });
+
+  for (const subfolder of subfolders) {
+    if (subfolder.isDirectory()) {
+      try {
+        // Try to find the `manifest.json` file.
+        await fsPromises.access(
+          path.join(root, subfolder.name, "manifest.json"),
+        );
+
+        return path.join(root, subfolder.name);
+      } catch (error) {
+        // If that fails, look for the MongoDB data archive, since some very old backups won't have `manifest.json`.
+        await fsPromises.access(
+          path.join(root, subfolder.name, "mongodb-data.gz"),
+        );
+
+        return path.join(root, subfolder.name);
+      }
+    }
+  }
+
+  throw new Error("Could not find the contents of the backup archive.");
 }
