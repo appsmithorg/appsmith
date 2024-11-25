@@ -237,12 +237,6 @@ describe.each(linterTypes)(
         // Should have no errors for using '=='
         expect(lintErrors.length).toEqual(0);
       });
-      it("3. Mutating appsmith store values by calling any functions on it", () => {
-        const originalBinding =
-          "myFun1() {\n\t\tappsmith.store.test.push(1);\n\t}";
-        const script =
-          "\n  function $$closedFn () {\n    const $$result = {myFun1() {\n\t\tappsmith.store.test.push(1);\n\t}}\n    return $$result\n  }\n  $$closedFn.call(THIS_CONTEXT)\n";
-        const options = { isJsObject: true };
 
       // Test for `curly: false` (Blocks can be added without {}, eg if (x) return true
       it("2. Should allow blocks without brackets", () => {
