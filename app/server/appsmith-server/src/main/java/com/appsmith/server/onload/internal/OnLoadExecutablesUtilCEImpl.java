@@ -56,8 +56,6 @@ import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_DIRECTLY_REFE
 import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH;
 import static com.appsmith.external.constants.spans.OnLoadSpan.EXECUTABLE_NAME_TO_EXECUTABLE_MAP;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_ALL_EXECUTABLES_BY_CREATOR_ID;
-import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_ENTITY_PARENTS_MAP;
-import static com.appsmith.external.constants.spans.OnLoadSpan.GET_POSSIBLE_REFERENCES_FROM_DYNAMIC_BINDING;
 import static com.appsmith.external.constants.spans.OnLoadSpan.GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT;
 import static com.appsmith.external.constants.spans.OnLoadSpan.UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS;
 import static com.appsmith.external.helpers.MustacheHelper.EXECUTABLE_ENTITY_REFERENCES;

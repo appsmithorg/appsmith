@@ -40,7 +40,7 @@ public class AstServiceCEImpl implements AstServiceCE {
     private final CommonConfig commonConfig;
 
     private final InstanceConfig instanceConfig;
-    
+
     private final RTSCaller rtsCaller;
 
     private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
