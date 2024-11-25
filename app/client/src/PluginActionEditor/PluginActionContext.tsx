@@ -12,8 +12,8 @@ import type { ActionResponse } from "api/ActionAPI";
 interface PluginActionContextType {
   action: Action;
   actionResponse?: ActionResponse;
-  editorConfig: unknown[];
-  settingsConfig: unknown[];
+  editorConfig?: unknown[];
+  settingsConfig?: unknown[];
   plugin: Plugin;
   datasource?: EmbeddedRestDatasource | Datasource;
 }

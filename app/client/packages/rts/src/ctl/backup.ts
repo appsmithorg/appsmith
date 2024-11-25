@@ -1,4 +1,3 @@
-// @ts-ignore
 import fsPromises from "fs/promises";
 import path from "path";
 import os from "os";
@@ -11,25 +10,49 @@ import readlineSync from "readline-sync";
 
 const command_args = process.argv.slice(3);
 
-export async function run() {
-  const timestamp = getTimeStampInISO();
-  let errorCode = 0;
-  let backupRootPath, archivePath, encryptionPassword;
-  let encryptArchive = false;
+class BackupState {
+  readonly initAt: string = getTimeStampInISO();
+  readonly errors: string[] = [];
 
+  backupRootPath: string = "";
+  archivePath: string = "";
+
+  encryptionPassword: string = "";
+
+  isEncryptionEnabled() {
+    return !!this.encryptionPassword;
+  }
+}
+
+export async function run() {
   await utils.ensureSupervisorIsRunning();
 
+  const state: BackupState = new BackupState();
+
   try {
+    // PRE-BACKUP
     console.log("Available free space at /appsmith-stacks");
-    const availSpaceInBytes =
-      getAvailableBackupSpaceInBytes("/appsmith-stacks");
+    const availSpaceInBytes: number =
+      await getAvailableBackupSpaceInBytes("/appsmith-stacks");
+
     console.log("\n");
 
     checkAvailableBackupSpace(availSpaceInBytes);
 
-    backupRootPath = await generateBackupRootPath();
-    const backupContentsPath = getBackupContentsPath(backupRootPath, timestamp);
+    if (
+      !command_args.includes("--non-interactive") &&
+      tty.isatty((process.stdout as any).fd)
+    ) {
+      state.encryptionPassword = getEncryptionPasswordFromUser();
+    }
 
+    state.backupRootPath = await generateBackupRootPath();
+    const backupContentsPath: string = getBackupContentsPath(
+      state.backupRootPath,
+      state.initAt,
+    );
+
+    // BACKUP
     await fsPromises.mkdir(backupContentsPath);
 
     await exportDatabase(backupContentsPath);
@@ -38,37 +61,34 @@ export async function run() {
 
     await createManifestFile(backupContentsPath);
 
-    if (
-      !command_args.includes("--non-interactive") &&
-      tty.isatty((process.stdout as any).fd)
-    ) {
-      encryptionPassword = getEncryptionPasswordFromUser();
-      if (encryptionPassword == -1) {
-        throw new Error(
-          "Backup process aborted because a valid enctyption password could not be obtained from the user",
-        );
-      }
-      encryptArchive = true;
-    }
-    await exportDockerEnvFile(backupContentsPath, encryptArchive);
+    await exportDockerEnvFile(backupContentsPath, state.isEncryptionEnabled());
 
-    archivePath = await createFinalArchive(backupRootPath, timestamp);
-    // shell.exec("openssl enc -aes-256-cbc -pbkdf2 -iter 100000 -in " + archivePath + " -out " + archivePath + ".enc");
-    if (encryptArchive) {
+    state.archivePath = await createFinalArchive(
+      state.backupRootPath,
+      state.initAt,
+    );
+
+    // POST-BACKUP
+    if (state.isEncryptionEnabled()) {
       const encryptedArchivePath = await encryptBackupArchive(
-        archivePath,
-        encryptionPassword,
+        state.archivePath,
+        state.encryptionPassword,
       );
+
       await logger.backup_info(
         "Finished creating an encrypted a backup archive at " +
           encryptedArchivePath,
       );
-      if (archivePath != null) {
-        await fsPromises.rm(archivePath, { recursive: true, force: true });
+
+      if (state.archivePath != null) {
+        await fsPromises.rm(state.archivePath, {
+          recursive: true,
+          force: true,
+        });
       }
     } else {
       await logger.backup_info(
-        "Finished creating a backup archive at " + archivePath,
+        "Finished creating a backup archive at " + state.archivePath,
       );
       console.log(
         "********************************************************* IMPORTANT!!! *************************************************************",
@@ -84,48 +104,63 @@ export async function run() {
       );
     }
 
-    await fsPromises.rm(backupRootPath, { recursive: true, force: true });
+    await fsPromises.rm(state.backupRootPath, { recursive: true, force: true });
 
-    await logger.backup_info("Finished taking a backup at " + archivePath);
+    await logger.backup_info(
+      "Finished taking a backup at " + state.archivePath,
+    );
   } catch (err) {
-    errorCode = 1;
+    process.exitCode = 1;
     await logger.backup_error(err.stack);
 
     if (command_args.includes("--error-mail")) {
       const currentTS = new Date().getTime();
       const lastMailTS = await utils.getLastBackupErrorMailSentInMilliSec();
+
       if (
         lastMailTS +
           Constants.DURATION_BETWEEN_BACKUP_ERROR_MAILS_IN_MILLI_SEC <
         currentTS
       ) {
-        await mailer.sendBackupErrorToAdmins(err, timestamp);
+        await mailer.sendBackupErrorToAdmins(err, state.initAt);
         await utils.updateLastBackupErrorMailSentInMilliSec(currentTS);
       }
     }
   } finally {
-    if (backupRootPath != null) {
-      await fsPromises.rm(backupRootPath, { recursive: true, force: true });
+    if (state.backupRootPath != null) {
+      await fsPromises.rm(state.backupRootPath, {
+        recursive: true,
+        force: true,
+      });
     }
-    if (encryptArchive) {
-      if (archivePath != null) {
-        await fsPromises.rm(archivePath, { recursive: true, force: true });
+
+    if (state.isEncryptionEnabled()) {
+      if (state.archivePath != null) {
+        await fsPromises.rm(state.archivePath, {
+          recursive: true,
+          force: true,
+        });
       }
     }
+
     await postBackupCleanup();
-    process.exit(errorCode);
+    process.exit();
   }
 }
 
-export async function encryptBackupArchive(archivePath, encryptionPassword) {
+export async function encryptBackupArchive(
+  archivePath: string,
+  encryptionPassword: string,
+) {
   const encryptedArchivePath = archivePath + ".enc";
+
   await utils.execCommand([
     "openssl",
     "enc",
     "-aes-256-cbc",
     "-pbkdf2",
     "-iter",
-    100000,
+    "100000",
     "-in",
     archivePath,
     "-out",
@@ -133,23 +168,30 @@ export async function encryptBackupArchive(archivePath, encryptionPassword) {
     "-k",
     encryptionPassword,
   ]);
+
   return encryptedArchivePath;
 }
 
-export function getEncryptionPasswordFromUser() {
-  for (const _ of [1, 2, 3]) {
-    const encryptionPwd1 = readlineSync.question(
+export function getEncryptionPasswordFromUser(): string {
+  for (const attempt of [1, 2, 3]) {
+    if (attempt > 1) {
+      console.log("Retry attempt", attempt);
+    }
+
+    const encryptionPwd1: string = readlineSync.question(
       "Enter a password to encrypt the backup archive: ",
       { hideEchoBack: true },
     );
-    const encryptionPwd2 = readlineSync.question(
+    const encryptionPwd2: string = readlineSync.question(
       "Enter the above password again: ",
       { hideEchoBack: true },
     );
+
     if (encryptionPwd1 === encryptionPwd2) {
       if (encryptionPwd1) {
         return encryptionPwd1;
       }
+
       console.error(
         "Invalid input. Empty password is not allowed, please try again.",
       );
@@ -157,19 +199,23 @@ export function getEncryptionPasswordFromUser() {
       console.error("The passwords do not match, please try again.");
     }
   }
+
   console.error(
     "Aborting backup process, failed to obtain valid encryption password.",
   );
-  return -1;
+
+  throw new Error(
+    "Backup process aborted because a valid encryption password could not be obtained from the user",
+  );
 }
 
-async function exportDatabase(destFolder) {
+async function exportDatabase(destFolder: string) {
   console.log("Exporting database");
   await executeMongoDumpCMD(destFolder, utils.getDburl());
   console.log("Exporting database done.");
 }
 
-async function createGitStorageArchive(destFolder) {
+async function createGitStorageArchive(destFolder: string) {
   console.log("Creating git-storage archive");
 
   const gitRoot = getGitRoot(process.env.APPSMITH_GIT_ROOT);
@@ -179,25 +225,30 @@ async function createGitStorageArchive(destFolder) {
   console.log("Created git-storage archive");
 }
 
-async function createManifestFile(path) {
+async function createManifestFile(path: string) {
   const version = await utils.getCurrentAppsmithVersion();
   const manifest_data = {
     appsmithVersion: version,
     dbName: utils.getDatabaseNameFromMongoURI(utils.getDburl()),
   };
+
   await fsPromises.writeFile(
     path + "/manifest.json",
     JSON.stringify(manifest_data),
   );
 }
 
-async function exportDockerEnvFile(destFolder, encryptArchive) {
+async function exportDockerEnvFile(
+  destFolder: string,
+  encryptArchive: boolean,
+) {
   console.log("Exporting docker environment file");
   const content = await fsPromises.readFile(
     "/appsmith-stacks/configuration/docker.env",
     { encoding: "utf8" },
   );
   let cleaned_content = removeSensitiveEnvData(content);
+
   if (encryptArchive) {
     cleaned_content +=
       "\nAPPSMITH_ENCRYPTION_SALT=" +
@@ -205,11 +256,15 @@ async function exportDockerEnvFile(destFolder, encryptArchive) {
       "\nAPPSMITH_ENCRYPTION_PASSWORD=" +
       process.env.APPSMITH_ENCRYPTION_PASSWORD;
   }
+
   await fsPromises.writeFile(destFolder + "/docker.env", cleaned_content);
   console.log("Exporting docker environment file done.");
 }
 
-export async function executeMongoDumpCMD(destFolder, appsmithMongoURI) {
+export async function executeMongoDumpCMD(
+  destFolder: string,
+  appsmithMongoURI: string,
+) {
   return await utils.execCommand([
     "mongodump",
     `--uri=${appsmithMongoURI}`,
@@ -218,10 +273,11 @@ export async function executeMongoDumpCMD(destFolder, appsmithMongoURI) {
   ]); // generate cmd
 }
 
-async function createFinalArchive(destFolder, timestamp) {
+async function createFinalArchive(destFolder: string, timestamp: string) {
   console.log("Creating final archive");
 
   const archive = `${Constants.BACKUP_PATH}/appsmith-backup-${timestamp}.tar.gz`;
+
   await utils.execCommand([
     "tar",
     "-cah",
@@ -240,43 +296,51 @@ async function createFinalArchive(destFolder, timestamp) {
 async function postBackupCleanup() {
   console.log("Starting the cleanup task after taking a backup.");
   const backupArchivesLimit = getBackupArchiveLimit(
-    process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT,
+    parseInt(process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT, 10),
   );
   const backupFiles = await utils.listLocalBackupFiles();
+
   while (backupFiles.length > backupArchivesLimit) {
     const fileName = backupFiles.shift();
+
     await fsPromises.rm(Constants.BACKUP_PATH + "/" + fileName);
   }
+
   console.log("Cleanup task completed.");
 }
 
-export async function executeCopyCMD(srcFolder, destFolder) {
+export async function executeCopyCMD(srcFolder: string, destFolder: string) {
   return await utils.execCommand([
     "ln",
     "-s",
     srcFolder,
-    destFolder + "/git-storage",
+    path.join(destFolder, "git-storage"),
   ]);
 }
 
-export function getGitRoot(gitRoot?) {
+export function getGitRoot(gitRoot?: string | undefined) {
   if (gitRoot == null || gitRoot === "") {
     gitRoot = "/appsmith-stacks/git-storage";
   }
+
   return gitRoot;
 }
 
-export function generateBackupRootPath() {
+export async function generateBackupRootPath() {
   return fsPromises.mkdtemp(path.join(os.tmpdir(), "appsmithctl-backup-"));
 }
 
-export function getBackupContentsPath(backupRootPath, timestamp) {
+export function getBackupContentsPath(
+  backupRootPath: string,
+  timestamp: string,
+): string {
   return backupRootPath + "/appsmith-backup-" + timestamp;
 }
 
-export function removeSensitiveEnvData(content) {
+export function removeSensitiveEnvData(content: string): string {
   // Remove encryption and Mongodb data from docker.env
   const output_lines = [];
+
   content.split(/\r?\n/).forEach((line) => {
     if (
       !line.startsWith("APPSMITH_ENCRYPTION") &&
@@ -286,20 +350,24 @@ export function removeSensitiveEnvData(content) {
       output_lines.push(line);
     }
   });
+
   return output_lines.join("\n");
 }
 
-export function getBackupArchiveLimit(backupArchivesLimit?) {
-  if (!backupArchivesLimit)
-    backupArchivesLimit = Constants.APPSMITH_DEFAULT_BACKUP_ARCHIVE_LIMIT;
-  return backupArchivesLimit;
+export function getBackupArchiveLimit(backupArchivesLimit?: number): number {
+  return backupArchivesLimit || Constants.APPSMITH_DEFAULT_BACKUP_ARCHIVE_LIMIT;
 }
 
-export async function removeOldBackups(backupFiles, backupArchivesLimit) {
+export async function removeOldBackups(
+  backupFiles: string[],
+  backupArchivesLimit: number,
+) {
   while (backupFiles.length > backupArchivesLimit) {
     const fileName = backupFiles.shift();
+
     await fsPromises.rm(Constants.BACKUP_PATH + "/" + fileName);
   }
+
   return backupFiles;
 }
 
@@ -307,12 +375,15 @@ export function getTimeStampInISO() {
   return new Date().toISOString().replace(/:/g, "-");
 }
 
-export async function getAvailableBackupSpaceInBytes(path) {
+export async function getAvailableBackupSpaceInBytes(
+  path: string,
+): Promise<number> {
   const stat = await fsPromises.statfs(path);
+
   return stat.bsize * stat.bfree;
 }
 
-export function checkAvailableBackupSpace(availSpaceInBytes) {
+export function checkAvailableBackupSpace(availSpaceInBytes: number) {
   if (availSpaceInBytes < Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES) {
     throw new Error(
       "Not enough space available at /appsmith-stacks. Please ensure availability of at least 2GB to backup successfully.",

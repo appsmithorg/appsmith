@@ -1,6 +1,6 @@
 import React from "react";
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
-import { Text, TextInput } from "@appsmith/wds";
+import { Text, TextField } from "@appsmith/wds";
 
 import type { PhoneInputComponentProps } from "./types";
 
@@ -16,7 +16,7 @@ export function PhoneInputComponent(props: PhoneInputComponentProps) {
   );
 
   return (
-    <TextInput
+    <TextField
       autoComplete={props.autoComplete}
       autoFocus={props.autoFocus}
       contextualHelp={props.tooltip}
