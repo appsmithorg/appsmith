@@ -399,6 +399,7 @@ async function figureOutContentsPath(root: string): Promise<string> {
   try {
     // Check if the root itself contains the contents.
     await fsPromises.access(path.join(root, "manifest.json"));
+
     return root;
   } catch (error) {
     // Ignore
