@@ -1,6 +1,6 @@
 import type { AxiosError } from "axios";
 import type { ApiResponse } from "../../../ApiResponses";
-import { handleVersionUpdate } from "../../../../sagas/WebsocketSagas/versionUpdatePrompt";
+import { handleVersionMismatch } from "../../../../sagas/WebsocketSagas/versionUpdatePrompt";
 import { getAppsmithConfigs } from "ee/configs";
 
 export const handleBadRequestError = async (error: AxiosError<ApiResponse>) => {
@@ -15,7 +15,7 @@ export const handleBadRequestError = async (error: AxiosError<ApiResponse>) => {
       return null;
     }
 
-    handleVersionUpdate(getAppsmithConfigs().appVersion, serverVersion);
+    handleVersionMismatch(getAppsmithConfigs().appVersion.id, serverVersion);
 
     return Promise.reject({
       ...error,
