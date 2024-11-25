@@ -3,15 +3,15 @@ import * as Constants from "./constants";
 import * as utils from "./utils";
 import * as logger from "./logger";
 
-const mailEnabled = process.env.APPSMITH_MAIL_ENABLED;
-const mailFrom = process.env.APPSMITH_MAIL_FROM;
-const mailHost = process.env.APPSMITH_MAIL_HOST;
-const mailPort = process.env.APPSMITH_MAIL_PORT;
-const mailUser = process.env.APPSMITH_MAIL_USERNAME;
-const mailPass = process.env.APPSMITH_MAIL_PASSWORD;
-const mailTo = process.env.APPSMITH_ADMIN_EMAILS;
-
 export async function sendBackupErrorToAdmins(err, backupTimestamp) {
+  const mailEnabled = process.env.APPSMITH_MAIL_ENABLED;
+  const mailFrom = process.env.APPSMITH_MAIL_FROM;
+  const mailHost = process.env.APPSMITH_MAIL_HOST;
+  const mailPort = process.env.APPSMITH_MAIL_PORT;
+  const mailUser = process.env.APPSMITH_MAIL_USERNAME;
+  const mailPass = process.env.APPSMITH_MAIL_PASSWORD;
+  const mailTo = process.env.APPSMITH_ADMIN_EMAILS;
+
   console.log("Sending Error mail to admins.");
   try {
     if (
@@ -59,6 +59,7 @@ export async function sendBackupErrorToAdmins(err, backupTimestamp) {
       if (instanceName) {
         text = text + "Appsmith instance name: " + instanceName + "\n";
       }
+
       if (domainName) {
         text =
           text +
@@ -68,6 +69,7 @@ export async function sendBackupErrorToAdmins(err, backupTimestamp) {
           "/settings/general" +
           "\n";
       }
+
       text = text + "\n" + err.stack;
 
       const transporter = nodemailer.createTransport({

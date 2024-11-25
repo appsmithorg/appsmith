@@ -1,5 +1,5 @@
 import { Keys } from "@blueprintjs/core";
-import { TextInput } from "@appsmith/wds";
+import { TextField } from "@appsmith/wds";
 import React, { useCallback, useEffect, useState } from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -46,7 +46,7 @@ function PageNumberInputComponent(props: {
   );
 
   return (
-    <TextInput
+    <TextField
       className="t--table-widget-page-input"
       excludeFromTabOrder={props.excludeFromTabOrder}
       isDisabled={props.disabled}
