@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import reactor.core.publisher.Mono;
 
@@ -23,7 +24,8 @@ public interface LayoutActionServiceCE {
 
     Mono<ActionDTO> createSingleAction(ActionDTO actionDTO, Boolean isJsAction);
 
-    Mono<ActionDTO> createAction(ActionDTO actionDTO, AppsmithEventContext eventContext, Boolean isJsAction);
+    Mono<ActionDTO> createAction(
+            ActionDTO actionDTO, AppsmithEventContext eventContext, Boolean isJsAction, NewPage newPage);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 }

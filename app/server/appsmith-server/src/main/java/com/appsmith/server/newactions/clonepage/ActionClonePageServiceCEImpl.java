@@ -54,7 +54,7 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
                     // Indicates that source of action creation is clone page action
                     cloneActionDTO.setSource(ActionCreationSourceTypeEnum.CLONE_PAGE);
                     copyNestedNonNullProperties(actionDTO, cloneActionDTO);
-                    return layoutActionService.createAction(cloneActionDTO, eventContext, isJsAction);
+                    return layoutActionService.createAction(cloneActionDTO, eventContext, isJsAction, null);
                 })
                 .then();
     }

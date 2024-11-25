@@ -337,25 +337,30 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         if (!StringUtils.hasLength(actionDTO.getPageId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
+
+        AclPermission aclPermission =
+                isJsAction ? pagePermission.getReadPermission() : pagePermission.getActionCreatePermission();
+
         return newPageService
-                .findById(actionDTO.getPageId(), pagePermission.getActionCreatePermission())
+                .findById(actionDTO.getPageId(), aclPermission)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, actionDTO.getPageId())))
                 .flatMap(newPage -> {
                     actionDTO.setBranchName(newPage.getBranchName());
-                    return createAction(actionDTO, isJsAction);
+                    return createAction(actionDTO, isJsAction, newPage);
                 });
     }
 
-    protected Mono<ActionDTO> createAction(ActionDTO actionDTO, Boolean isJsAction) {
+    protected Mono<ActionDTO> createAction(ActionDTO actionDTO, Boolean isJsAction, NewPage newPage) {
         AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
-        return createAction(actionDTO, eventContext, isJsAction);
+        return createAction(actionDTO, eventContext, isJsAction, newPage);
     }
 
     @Override
-    public Mono<ActionDTO> createAction(ActionDTO actionDTO, AppsmithEventContext eventContext, Boolean isJsAction) {
+    public Mono<ActionDTO> createAction(
+            ActionDTO actionDTO, AppsmithEventContext eventContext, Boolean isJsAction, NewPage newPage) {
 
-        return validateAndGenerateActionDomainBasedOnContext(actionDTO, isJsAction)
+        return validateAndGenerateActionDomainBasedOnContext(actionDTO, isJsAction, newPage)
                 .name(VALIDATE_AND_GENERATE_ACTION_DOMAIN_BASED_ON_CONTEXT)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(newAction -> {
@@ -412,7 +417,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 });
     }
 
-    protected Mono<NewAction> validateAndGenerateActionDomainBasedOnContext(ActionDTO action, boolean isJsAction) {
+    protected Mono<NewAction> validateAndGenerateActionDomainBasedOnContext(
+            ActionDTO action, boolean isJsAction, NewPage newPage) {
         if (!StringUtils.hasLength(action.getPageId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
@@ -421,13 +427,15 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         AclPermission aclPermission =
                 isJsAction ? pagePermission.getReadPermission() : pagePermission.getActionCreatePermission();
 
-        Mono<NewPage> pageMono = newPageService
-                .findById(action.getPageId(), aclPermission)
-                .name(GET_PAGE_BY_ID)
-                .tap(Micrometer.observation(observationRegistry))
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
-                .cache();
+        Mono<NewPage> pageMono = newPage != null
+                ? Mono.just(newPage)
+                : newPageService
+                        .findById(action.getPageId(), aclPermission)
+                        .name(GET_PAGE_BY_ID)
+                        .tap(Micrometer.observation(observationRegistry))
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, action.getPageId())))
+                        .cache();
 
         final NewAction newAction = newActionService.generateActionDomain(action);
 

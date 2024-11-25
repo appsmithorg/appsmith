@@ -314,7 +314,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                                             new AppsmithEventContext(
                                                                                     AppsmithEventContextType
                                                                                             .CLONE_PAGE),
-                                                                            Boolean.FALSE);
+                                                                            Boolean.FALSE,
+                                                                            null);
                                                                 })
                                                                 .map(ActionDTO::getId),
                                                         Mono.justOrEmpty(originalActionId));
