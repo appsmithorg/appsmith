@@ -291,19 +291,15 @@ async function createFinalArchive(destFolder: string, timestamp: string) {
 }
 
 async function postBackupCleanup() {
-  console.log("Starting the cleanup task after taking a backup.");
+  console.log("Starting cleanup.");
   const backupArchivesLimit = getBackupArchiveLimit(
     parseInt(process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT, 10),
   );
   const backupFiles = await utils.listLocalBackupFiles();
 
-  while (backupFiles.length > backupArchivesLimit) {
-    const fileName = backupFiles.shift();
+  await removeOldBackups(backupFiles, backupArchivesLimit);
 
-    await fsPromises.rm(Constants.BACKUP_PATH + "/" + fileName);
-  }
-
-  console.log("Cleanup task completed.");
+  console.log("Cleanup completed.");
 }
 
 export async function executeCopyCMD(srcFolder: string, destFolder: string) {
@@ -359,13 +355,14 @@ export async function removeOldBackups(
   backupFiles: string[],
   backupArchivesLimit: number,
 ) {
-  while (backupFiles.length > backupArchivesLimit) {
-    const fileName = backupFiles.shift();
-
-    await fsPromises.rm(Constants.BACKUP_PATH + "/" + fileName);
-  }
-
-  return backupFiles;
+  return Promise.all(
+    backupFiles
+      .sort()
+      .reverse()
+      .slice(backupArchivesLimit)
+      .map((file) => Constants.BACKUP_PATH + "/" + file)
+      .map(async (file) => fsPromises.rm(file)),
+  );
 }
 
 export function getTimeStampInISO() {
