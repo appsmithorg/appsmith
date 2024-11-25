@@ -3,31 +3,21 @@ import { Flex, type FlexProps, SearchInput, Text } from "@appsmith/ads";
 import { find } from "lodash";
 
 import type { DatasourceStructure } from "entities/Datasource";
-import { StatusDisplay } from "./StatusDisplay";
+import { StatusDisplay, SchemaDisplayStatus } from "./StatusDisplay";
 import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
 import {
   COLUMNS_SEARCH_PLACEHOLDER,
   COLUMNS_TITLE,
   createMessage,
 } from "ee/constants/messages";
-import styled from "styled-components";
 import Fuse from "fuse.js";
+import { TableColumn } from "./styles";
 
 interface Props {
   isLoading: boolean;
   datasourceStructure: DatasourceStructure;
   selectedTable: string | undefined;
 }
-
-const FieldContainer = styled(Flex)`
-  & .t--datasource-column {
-    padding: 0;
-
-    & > div {
-      margin: 0;
-    }
-  }
-`;
 
 const Wrapper: React.FC<FlexProps> = (props) => {
   return (
@@ -107,7 +97,7 @@ const TableColumns: React.FC<Props> = ({
   if (isLoading) {
     return (
       <Wrapper>
-        <StatusDisplay state="LOADING" />
+        <StatusDisplay state={SchemaDisplayStatus.LOADING} />
       </Wrapper>
     );
   }
@@ -116,7 +106,7 @@ const TableColumns: React.FC<Props> = ({
   if (columns.length === 0) {
     return (
       <Wrapper>
-        <StatusDisplay state="NOCOLUMNS" />
+        <StatusDisplay state={SchemaDisplayStatus.NOCOLUMNS} />
       </Wrapper>
     );
   }
@@ -137,7 +127,7 @@ const TableColumns: React.FC<Props> = ({
           value={term}
         />
       </Flex>
-      <FieldContainer flexDirection="column" overflowY="scroll">
+      <TableColumn flexDirection="column" overflowY="scroll">
         {filteredColumns.map((field, index) => (
           <DatasourceField
             field={field}
@@ -145,7 +135,7 @@ const TableColumns: React.FC<Props> = ({
             step={0}
           />
         ))}
-      </FieldContainer>
+      </TableColumn>
     </Wrapper>
   );
 };

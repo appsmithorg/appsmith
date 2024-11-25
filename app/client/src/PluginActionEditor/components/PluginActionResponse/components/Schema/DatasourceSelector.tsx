@@ -18,15 +18,16 @@ import {
 import type { Datasource } from "entities/Datasource";
 import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
-import { CurrentDataSource } from "./CurrentDataSource";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { INTEGRATION_TABS } from "constants/routes";
 import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
-import { useDataSourceNavigation } from "ee/PluginActionEditor/hooks/useDataSourceNavigation";
 import MenuField from "components/editorComponents/form/fields/MenuField";
 import type { InjectedFormProps } from "redux-form";
 import { reduxForm } from "redux-form";
 import type { Action } from "entities/Action";
+import { CurrentDataSourceLink } from "./CurrentDataSourceLink";
+import { CurrentDataSource } from "./CurrentDataSource";
+import { useCreateDatasource } from "ee/PluginActionEditor/hooks/useCreateDatasource";
 
 interface CustomProps {
   datasourceId: string;
@@ -73,7 +74,7 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
   const showDatasourceSelector = doesPluginRequireDatasource(plugin);
   const pluginImages = useSelector(getPluginImages);
 
-  const { onCreateDatasourceClick } = useDataSourceNavigation();
+  const { onCreateDatasourceClick } = useCreateDatasource();
 
   const DATASOURCES_OPTIONS: Array<DATASOURCES_OPTIONS_TYPE> =
     dataSources.reduce(
@@ -106,10 +107,9 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
 
   if (!showDatasourceSelector || !isChangePermitted) {
     return (
-      <CurrentDataSource
+      <CurrentDataSourceLink
         datasourceId={datasourceId}
         datasourceName={datasourceName}
-        type="link"
       />
     );
   }
@@ -125,7 +125,6 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
         <CurrentDataSource
           datasourceId={datasourceId}
           datasourceName={datasourceName}
-          type="trigger"
         />
       </MenuField>
     </Flex>

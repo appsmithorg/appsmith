@@ -1,17 +1,10 @@
 import { useCallback } from "react";
-
-import { datasourcesEditorIdURL, integrationEditorURL } from "ee/RouteBuilder";
+import { integrationEditorURL } from "ee/RouteBuilder";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import history from "utils/history";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
+import history from "utils/history";
 
-function useDataSourceNavigation() {
-  const goToDatasource = useCallback((datasourceId: string) => {
-    history.push(
-      datasourcesEditorIdURL({ datasourceId, generateEditorPath: true }),
-    );
-  }, []);
-
+function useCreateDatasource() {
   const onCreateDatasourceClick = useCallback(
     (selectedTab, pageId?: string) => {
       history.push(
@@ -28,7 +21,7 @@ function useDataSourceNavigation() {
     [],
   );
 
-  return { goToDatasource, onCreateDatasourceClick };
+  return { onCreateDatasourceClick };
 }
 
-export { useDataSourceNavigation };
+export { useCreateDatasource };

@@ -8,7 +8,7 @@ import React, { useCallback } from "react";
 import DatasourceSelector from "./DatasourceSelector";
 import { refreshDatasourceStructure } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
-import styled from "styled-components";
+import { SchemaTableContainer } from "./styles";
 
 interface Props {
   datasourceId: string;
@@ -18,17 +18,6 @@ interface Props {
   setSelectedTable: (table: string) => void;
   selectedTable: string | undefined;
 }
-
-const StyledFlex = styled(Flex)`
-  & .t--entity-item {
-    height: 28px;
-    grid-template-columns: 0 auto 1fr auto auto auto auto auto;
-
-    .entity-icon > .ads-v2-icon {
-      display: none;
-    }
-  }
-`;
 
 const SchemaTables = ({
   currentActionId,
@@ -50,7 +39,7 @@ const SchemaTables = ({
   }, [dispatch, datasourceId]);
 
   return (
-    <StyledFlex
+    <SchemaTableContainer
       data-testid="t--datasource-schema-container"
       flexDirection="column"
       gap="spaces-3"
@@ -87,7 +76,7 @@ const SchemaTables = ({
         step={0}
         tableName={selectedTable}
       />
-    </StyledFlex>
+    </SchemaTableContainer>
   );
 };
 

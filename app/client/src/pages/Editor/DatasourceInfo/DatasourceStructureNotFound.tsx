@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { Text, Button } from "@appsmith/ads";
@@ -42,8 +42,7 @@ const DatasourceStructureNotFound = (props: Props) => {
 
   const basePageId = useSelector(getCurrentBasePageId);
 
-  // eslint-disable-next-line react-perf/jsx-no-new-function-as-prop
-  const editDatasource = () => {
+  const editDatasource = useCallback(() => {
     let entryPoint = DatasourceEditEntryPoints.QUERY_EDITOR_DATASOURCE_SCHEMA;
 
     if (props.context === DatasourceStructureContext.DATASOURCE_VIEW_MODE) {
@@ -70,7 +69,7 @@ const DatasourceStructureNotFound = (props: Props) => {
     });
 
     history.push(url);
-  };
+  }, [basePageId, datasourceId, pluginName, props]);
 
   return (
     <NotFoundContainer>

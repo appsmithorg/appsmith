@@ -20,23 +20,24 @@ import {
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
-type IStates =
-  | "SCHEMA_LOADING"
-  | "LOADING"
-  | "NOSCHEMA"
-  | "NODATA"
-  | "FAILED"
-  | "NOCOLUMNS"
-  | "CANTSHOW";
+enum SchemaDisplayStatus {
+  SCHEMA_LOADING = "SCHEMA_LOADING",
+  LOADING = "LOADING",
+  NOSCHEMA = "NOSCHEMA",
+  NODATA = "NODATA",
+  FAILED = "FAILED",
+  NOCOLUMNS = "NOCOLUMNS",
+  CANTSHOW = "CANTSHOW",
+}
 
-interface IProps {
-  state: IStates;
+interface Props {
+  state: SchemaDisplayStatus;
   editDatasource?: () => void;
   errorMessage?: string;
 }
 
 const StateData: Record<
-  IStates,
+  SchemaDisplayStatus,
   { title?: string; message?: string; image: string | ReactNode }
 > = {
   SCHEMA_LOADING: {
@@ -75,7 +76,7 @@ const StateData: Record<
   },
 };
 
-const StatusDisplay = ({ editDatasource, errorMessage, state }: IProps) => {
+const StatusDisplay = ({ editDatasource, errorMessage, state }: Props) => {
   const { image, message, title } = StateData[state];
 
   return (
@@ -122,4 +123,4 @@ const StatusDisplay = ({ editDatasource, errorMessage, state }: IProps) => {
   );
 };
 
-export { StatusDisplay };
+export { StatusDisplay, SchemaDisplayStatus };
