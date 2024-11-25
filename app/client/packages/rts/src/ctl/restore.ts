@@ -352,9 +352,11 @@ export async function run() {
 
       const backupName = backupFileName.replace(/\.tar\.gz$/, "");
       const restoreRootPath = await fsPromises.mkdtemp(os.tmpdir());
-      const restoreContentsPath = await figureOutContentsPath(restoreRootPath);
 
       await extractArchive(backupFilePath, restoreRootPath);
+
+      const restoreContentsPath = await figureOutContentsPath(restoreRootPath);
+
       await checkRestoreVersionCompatability(restoreContentsPath);
 
       console.log(
@@ -394,6 +396,14 @@ function isArchiveEncrypted(backupFilePath: string) {
 async function figureOutContentsPath(root: string): Promise<string> {
   const subfolders = await fsPromises.readdir(root, { withFileTypes: true });
 
+  try {
+    // Check if the root itself contains the contents.
+    await fsPromises.access(path.join(root, "manifest.json"));
+    return root;
+  } catch (error) {
+    // Ignore
+  }
+
   for (const subfolder of subfolders) {
     if (subfolder.isDirectory()) {
       try {
@@ -404,12 +414,18 @@ async function figureOutContentsPath(root: string): Promise<string> {
 
         return path.join(root, subfolder.name);
       } catch (error) {
-        // If that fails, look for the MongoDB data archive, since some very old backups won't have `manifest.json`.
+        // Ignore
+      }
+
+      try {
+        // If that fails, look for the MongoDB data archive, since backups from v1.7.x and older won't have `manifest.json`.
         await fsPromises.access(
           path.join(root, subfolder.name, "mongodb-data.gz"),
         );
 
         return path.join(root, subfolder.name);
+      } catch (error) {
+        // Ignore
       }
     }
   }
