@@ -42,7 +42,6 @@ import { profileFn } from "UITelemetry/generateWebWorkerTraces";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { Linter } from "eslint-linter-browserify";
-import { noFloatingPromisesLintRule } from "../customRules/no-floating-promises";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -323,8 +322,6 @@ export default function getLintingErrors({
         jshint(script, lintingOptions);
       } else if (linterType === LINTER_TYPE.ESLINT) {
         const linter = new Linter();
-
-        linter.defineRule("no-floating-promises", noFloatingPromisesLintRule);
 
         messages = linter.verify(script, lintingOptions);
       }
