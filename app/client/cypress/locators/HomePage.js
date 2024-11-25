@@ -55,7 +55,8 @@ export default {
   shareApp: ".t--application-share-btn",
   enablePublicAccess:
     "//div[contains(@class, 't--share-public-toggle')]//input[@role='switch']",
-  enablePublicAccessSettingsPage: "[data-testid=t--embed-settings-application-public]",
+  enablePublicAccessSettingsPage:
+    "[data-testid=t--embed-settings-application-public]",
   switchLabel: ".ads-v2-switch__label",
   closeBtn: ".ads-v2-modal__content-header-close-button",
   editModeInviteModalCloseBtn: ".ads-v2-modal__content-header-close-button",
@@ -101,9 +102,11 @@ export default {
   importAppProgressWrapper: ".t-import-app-progress-wrapper",
   backtoHome: ".t--app-viewer-back-to-apps-button",
   newButtonCreateApplication: "[data-testid=t--workspace-action-create-app]",
-  helpButton:".t--help-menu-option",
-  noEntityFound:".no-search-results",
-  initialWorkspace:"[data-testid^='Untitled workspace']",
-  initialApplication:"[data-testid^='Untitled application']",
-  _entitySearchBar:"[data-testid='t--application-search-input']"
+  helpButton: ".t--help-menu-option",
+  noEntityFound: ".no-search-results",
+  initialWorkspace: "[data-testid^='Untitled workspace']",
+  initialApplication: "[data-testid^='Untitled application']",
+  _entitySearchBar: "[data-testid='t--application-search-input']",
+  plusIconOnclickProperty: ".t--add-action-onClick",
+  selectAnOptionDrpDwn: "t--open-dropdown-Select-an-action",
 };

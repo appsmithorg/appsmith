@@ -1900,4 +1900,16 @@ export class AggregateHelper {
       valueToValidate,
     );
   }
+
+  public RemoveChars(selector: string, charCount = 0, index = 0) {
+    if (charCount > 0)
+      this.GetElement(selector)
+        .eq(index)
+        .focus()
+        .type("{backspace}".repeat(charCount), { timeout: 2, force: true })
+        .wait(50);
+    else {
+      if (charCount == -1) this.GetElement(selector).eq(index).clear();
+    }
+  }
 }
