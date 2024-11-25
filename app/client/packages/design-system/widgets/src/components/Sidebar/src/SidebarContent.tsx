@@ -33,9 +33,17 @@ const _SidebarContent = (
           className={styles.sidebarHeader}
           isInner
           justifyContent="space-between"
-          padding="spacing-2"
         >
-          {Boolean(title) && <Text lineClamp={1}>{title}</Text>}
+          {Boolean(title) && (
+            <Text
+              className={styles.sidebarTitle}
+              fontWeight={500}
+              lineClamp={1}
+              textAlign="center"
+            >
+              {title}
+            </Text>
+          )}
           {!isMobile && (
             <Button
               color="neutral"
