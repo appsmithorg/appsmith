@@ -30,6 +30,7 @@ export async function run(forceOption) {
     console.log("stop backend & rts application before import database");
     await utils.stop(["backend", "rts"]);
     let shellCmdResult: string;
+
     try {
       shellCmdResult = await utils.execCommandReturningOutput([
         "mongo",
@@ -43,11 +44,14 @@ export async function run(forceOption) {
       throw error;
     }
     const collectionsLen = parseInt(shellCmdResult.trimEnd());
+
     if (collectionsLen > 0) {
       if (forceOption) {
         await importDatabase();
+
         return;
       }
+
       console.log();
       console.log(
         "**************************** WARNING ****************************",
@@ -59,12 +63,15 @@ export async function run(forceOption) {
         "Importing this DB will erase this data. Are you sure you want to proceed?[Yes/No] ",
       );
       const answer = input && input.toLocaleUpperCase();
+
       if (answer === "Y" || answer === "YES") {
         await importDatabase();
+
         return;
       } else if (answer === "N" || answer === "NO") {
         return;
       }
+
       console.log(
         `Your input is invalid. Please try to run import command again.`,
       );

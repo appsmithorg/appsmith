@@ -230,8 +230,6 @@ export const getItemPage = (item: SearchItem): string => {
   }
 };
 
-export const algoliaHighlightTag = "ais-highlight-0000000000";
-
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const attachKind = (source: any[], kind: string) => {
