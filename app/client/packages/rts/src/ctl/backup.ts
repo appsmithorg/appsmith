@@ -44,21 +44,17 @@ export async function run() {
     }
 
     state.backupRootPath = await generateBackupRootPath();
-    const backupContentsPath: string = getBackupContentsPath(
-      state.backupRootPath,
-      state.initAt,
-    );
 
     // BACKUP
-    await fsPromises.mkdir(backupContentsPath);
+    await fsPromises.mkdir(state.backupRootPath);
 
-    await exportDatabase(backupContentsPath);
+    await exportDatabase(state.backupRootPath);
 
-    await createGitStorageArchive(backupContentsPath);
+    await createGitStorageArchive(state.backupRootPath);
 
-    await createManifestFile(backupContentsPath);
+    await createManifestFile(state.backupRootPath);
 
-    await exportDockerEnvFile(backupContentsPath, state.isEncryptionEnabled());
+    await exportDockerEnvFile(state.backupRootPath, state.isEncryptionEnabled());
 
     state.archivePath = await createFinalArchive(
       state.backupRootPath,
