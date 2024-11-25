@@ -2,15 +2,18 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.OAuth2ResponseDTO;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.RequestAppsmithTokenDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,14 +25,12 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @RequestMapping(Url.SAAS_URL)
+@RequiredArgsConstructor
 public class SaasControllerCE {
 
     private final AuthenticationService authenticationService;
 
-    @Autowired
-    public SaasControllerCE(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
-    }
+    private final CloudServicesConfig cloudServicesConfig;
 
     @JsonView(Views.Public.class)
     @PostMapping("/{datasourceId}/oauth")
@@ -62,5 +63,17 @@ public class SaasControllerCE {
         return authenticationService
                 .getAccessTokenFromCloud(datasourceId, environmentId, appsmithToken)
                 .map(datasource -> new ResponseDTO<>(HttpStatus.OK.value(), datasource, null));
+    }
+
+    @GetMapping("authorize")
+    public Mono<Void> redirectForAuthorize(ServerWebExchange exchange, @RequestParam String appsmithToken) {
+        final String url = cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/authorize?appsmithToken="
+                + appsmithToken;
+
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
+        response.getHeaders().set("Location", url);
+
+        return response.writeWith(Mono.just(response.bufferFactory().wrap(new byte[] {})));
     }
 }
