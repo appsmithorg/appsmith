@@ -38,7 +38,9 @@ import java.util.stream.Collectors;
 public class AstServiceCEImpl implements AstServiceCE {
 
     private final CommonConfig commonConfig;
+
     private final InstanceConfig instanceConfig;
+    
     private final RTSCaller rtsCaller;
 
     private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
@@ -114,7 +116,6 @@ public class AstServiceCEImpl implements AstServiceCE {
                         Mono.just(new HashSet<>(MustacheHelper.getPossibleParentsOld(bindingValue))));
             });
         }
-
         return rtsCaller
                 .post("/rts-api/v1/ast/multiple-script-data", new GetIdentifiersRequestBulk(bindingValues, evalVersion))
                 .flatMapMany(spec -> spec.retrieve()
@@ -127,7 +128,6 @@ public class AstServiceCEImpl implements AstServiceCE {
                     Set<String> references = tuple2.getT2().getReferences();
                     return Mono.zip(Mono.just(bindingValues.get((int) currentIndex)), Mono.just(references));
                 });
-
         // TODO: add error handling scenario for when RTS is not accessible in fat container
     }
 

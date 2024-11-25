@@ -493,6 +493,16 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 });
     }
 
+    /**
+     * This method is used to find all possible global entity references in the given set of bindings.
+     * We'll be able to find valid executable references only at this point. For widgets, we just assume that all
+     * references are possible candidates
+     *
+     * @param executableNameToExecutableMapMono : This map is used to filter only valid executable references in bindings
+     * @param bindings                          : The set of bindings to find references from
+     * @param evalVersion                       : Depending on the evaluated version, the way the AST parsing logic picks entities in the dynamic binding will change
+     * @return A set of any possible reference found in the binding that qualifies as a global entity reference
+     */
     private Mono<Set<EntityDependencyNode>> getPossibleEntityReferences(
             Mono<Map<String, Executable>> executableNameToExecutableMapMono, Set<String> bindings, int evalVersion) {
         return getPossibleEntityReferences(executableNameToExecutableMapMono, bindings, evalVersion, null);
@@ -658,14 +668,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      * @return A mono of a map of each of the provided binding values to the possible set of EntityDependencyNodes found in the binding
      */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(
-            List<String> bindings, int types, int evalVersion) {
-        Flux<Tuple2<String, Set<String>>> findingToReferencesFlux = astService
-                .getPossibleReferencesFromDynamicBinding(bindings, evalVersion)
-                .name(GET_POSSIBLE_REFERENCES_FROM_DYNAMIC_BINDING)
-                .tap(Micrometer.observation(observationRegistry));
-        return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types)
-                .name(GET_POSSIBLE_ENTITY_PARENTS_MAP)
-                .tap(Micrometer.observation(observationRegistry));
+            Set<String> bindings, int types, int evalVersion) {
+        Flux<Tuple2<String, Set<String>>> findingToReferencesFlux =
+                astService.getPossibleReferencesFromDynamicBinding(new ArrayList<>(bindings), evalVersion);
+        return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types);
     }
 
     /**
