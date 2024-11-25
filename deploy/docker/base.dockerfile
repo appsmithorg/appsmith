@@ -18,7 +18,7 @@ RUN set -o xtrace \
   && apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
-    supervisor curl nfs-common gnupg wget \
+    supervisor curl nfs-common gnupg \
     gettext \
     ca-certificates \
   # Install MongoDB v5, Redis, PostgreSQL v13
