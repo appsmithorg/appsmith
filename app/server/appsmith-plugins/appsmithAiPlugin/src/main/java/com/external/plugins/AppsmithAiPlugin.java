@@ -172,7 +172,7 @@ public class AppsmithAiPlugin extends BasePlugin {
             Feature feature =
                     Feature.valueOf(RequestUtils.extractDataFromFormData(actionConfiguration.getFormData(), USECASE));
             AiFeatureService aiFeatureService = AiFeatureServiceFactory.getAiFeatureService(feature);
-            Query query = aiFeatureService.createQuery(actionConfiguration, datasourceConfiguration);
+            Query query = aiFeatureService.createQuery(actionConfiguration, datasourceConfiguration, executeActionDTO);
             AiServerRequestDTO aiServerRequestDTO = new AiServerRequestDTO(feature, query);
 
             ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
