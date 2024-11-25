@@ -251,11 +251,6 @@
           enabled: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
           apiKey: parseConfig('{{env "APPSMITH_MIXPANEL_KEY"}}'),
         },
-        algolia: {
-          apiId: parseConfig('{{env "APPSMITH_ALGOLIA_API_ID"}}'),
-          apiKey: parseConfig('{{env "APPSMITH_ALGOLIA_API_KEY"}}'),
-          indexName: parseConfig('{{env "APPSMITH_ALGOLIA_SEARCH_INDEX_NAME"}}'),
-        },
         logLevel:
           CONFIG_LOG_LEVEL_INDEX > -1
             ? LOG_LEVELS[CONFIG_LOG_LEVEL_INDEX]

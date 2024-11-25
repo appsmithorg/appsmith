@@ -62,16 +62,6 @@ const PluginActionEditor = (props: ChildrenProps) => {
     );
   }
 
-  if (!settingsConfig || !editorConfig) {
-    return (
-      <CenteredWrapper>
-        <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
-          Editor config not found!
-        </Text>
-      </CenteredWrapper>
-    );
-  }
-
   const actionResponse = actionResponses[action.id];
 
   return (
