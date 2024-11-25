@@ -666,7 +666,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      * @return A mono of a map of each of the provided binding values to the possible set of EntityDependencyNodes found in the binding
      */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(
-            Set<String> bindings, int types, int evalVersion) {
+            List<String> bindings, int types, int evalVersion) {
         Flux<Tuple2<String, Set<String>>> findingToReferencesFlux =
                 astService.getPossibleReferencesFromDynamicBinding(new ArrayList<>(bindings), evalVersion);
         return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types);
