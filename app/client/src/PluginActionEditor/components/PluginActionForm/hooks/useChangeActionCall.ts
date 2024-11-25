@@ -11,8 +11,6 @@ export const useChangeActionCall = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!plugin?.id || !action) return;
-
     if (prevActionId === action.id) return;
 
     switch (plugin?.type) {
@@ -22,7 +20,7 @@ export const useChangeActionCall = () => {
       default:
         dispatch(
           changeQuery({
-            baseQueryId: action?.id,
+            baseQueryId: action.baseId,
             basePageId: action.pageId,
             applicationId: action.applicationId,
             packageId: action.packageId,

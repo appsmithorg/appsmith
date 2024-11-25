@@ -3,6 +3,9 @@ import { handlers } from "./__mocks__/apiHandlers";
 import "../src/polyfills/requestIdleCallback";
 import { Crypto } from "@peculiar/webcrypto";
 
+// since global crypto is immutable, we need to first delete it and then use the
+// peculiar crypto lisrc/sagas/helper.test.tsb
+delete global['crypto'];
 global.crypto = new Crypto();
 
 export const server = setupServer(...handlers);
@@ -22,6 +25,7 @@ jest.mock("../src/api/Api.ts", () => ({
 }));
 
 // Polyfill for `structuredClone` if not available
+// This is needed for eslint jest tests
 if (typeof global.structuredClone === "undefined") {
   global.structuredClone = (obj) => {
     return JSON.parse(JSON.stringify(obj));

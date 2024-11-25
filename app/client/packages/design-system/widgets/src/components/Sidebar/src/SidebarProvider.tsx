@@ -1,11 +1,15 @@
 import clsx from "clsx";
 import React, { type Ref, useCallback, useState } from "react";
 
+import type {
+  SidebarContextType,
+  SidebarProviderProps,
+  SidebarState,
+} from "./types";
 import styles from "./styles.module.css";
 import { SidebarContext } from "./context";
 import { useIsMobile } from "./use-mobile";
 import { SIDEBAR_CONSTANTS } from "./constants";
-import type { SidebarContextType, SidebarProviderProps } from "./types";
 
 export const _SidebarProvider = (
   props: SidebarProviderProps,
@@ -14,32 +18,32 @@ export const _SidebarProvider = (
   const {
     children,
     className,
-    defaultOpen = true,
-    isOpen: openProp,
-    onOpen: setOpenProp,
+    defaultState = "expanded",
+    onStateChange: setStateProp,
+    state: stateProp,
     style,
     ...rest
   } = props;
   const isMobile = useIsMobile();
 
-  const [_open, _setOpen] = useState(defaultOpen);
-  const open = openProp ?? _open;
-  const setOpen = useCallback(
-    (value: boolean | ((value: boolean) => boolean)) => {
-      const openState = typeof value === "function" ? value(open) : value;
+  const [_state, _setState] = useState<SidebarState>(defaultState);
+  const state = stateProp ?? _state;
+  const setState = useCallback(
+    (value: SidebarState | ((value: SidebarState) => SidebarState)) => {
+      const computedState = typeof value === "function" ? value(state) : value;
 
-      if (setOpenProp) {
-        setOpenProp(openState);
+      if (setStateProp) {
+        setStateProp(computedState);
       } else {
-        _setOpen(openState);
+        _setState(computedState);
       }
     },
-    [setOpenProp, open],
+    [setStateProp, state],
   );
 
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpen((open) => !open) : setOpen((open) => !open);
-  }, [isMobile, setOpen]);
+    return state === "collapsed" ? setState("expanded") : setState("collapsed");
+  }, [setState, state]);
 
   React.useEffect(
     function handleKeyboardShortcuts() {
@@ -60,17 +64,14 @@ export const _SidebarProvider = (
     [toggleSidebar, isMobile],
   );
 
-  const state = open ? "expanded" : "collapsed";
-
   const contextValue = React.useMemo<SidebarContextType>(
     () => ({
       state,
-      open,
-      setOpen,
+      setState,
       isMobile,
       toggleSidebar,
     }),
-    [state, open, setOpen, isMobile, toggleSidebar],
+    [state, setState, isMobile, toggleSidebar],
   );
 
   return (

@@ -66,7 +66,7 @@ export const lintOptions = (
         "no-empty": "off",
         strict: "off",
         "no-unused-vars": [
-          "error",
+          "warn",
           { vars: "all", args: "all", ignoreRestSiblings: false },
         ],
         "no-cond-assign": "off",
@@ -90,6 +90,7 @@ export const IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE = "W117";
 // For these error types, we want to show a warning
 // All messages can be found here => https://github.com/jshint/jshint/blob/2.9.5/src/messages.js
 export const WARNING_LINT_ERRORS = {
+  "no-unused-vars": "'{a}' is assigned a value but never used.",
   W098: "'{a}' is defined but never used.",
   W014: "Misleading line break before '{a}'; readers may interpret this as an expression boundary.",
   ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD:
