@@ -67,14 +67,12 @@ import {
   createMessage,
   ERROR_JS_COLLECTION_RENAME_FAIL,
   JS_EXECUTION_SUCCESS,
-  JS_EXECUTION_FAILURE,
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
 } from "ee/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { updateCanvasWithDSL } from "ee/sagas/PageSagas";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
@@ -539,32 +537,9 @@ export function* handleExecuteJSFunctionSaga(data: {
       );
     }
 
-    if (!!collection.isMainJSCollection)
+    if (!!collection.isMainJSCollection) {
       logMainJsActionExecution(actionId, false, collectionId, false);
-
-    AppsmithConsole.addErrors([
-      {
-        payload: {
-          id: actionId,
-          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-          text: createMessage(JS_EXECUTION_FAILURE),
-          source: {
-            type: ENTITY_TYPE.JSACTION,
-            name: jsActionPathNameToDisplay,
-            id: collectionId,
-          },
-          messages: [
-            {
-              message: {
-                name: (error as Error).name,
-                message: (error as Error).message,
-              },
-              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-            },
-          ],
-        },
-      },
-    ]);
+    }
   }
 }
 

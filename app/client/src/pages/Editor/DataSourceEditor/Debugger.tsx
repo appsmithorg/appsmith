@@ -5,7 +5,6 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
-  INSPECT_ENTITY,
 } from "ee/constants/messages";
 import {
   setDebuggerSelectedTab,
@@ -16,7 +15,6 @@ import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import Errors from "components/editorComponents/Debugger/Errors";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
-import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   getDebuggerSelectedTab,
   getErrorCount,
@@ -99,11 +97,6 @@ export default function Debugger() {
       key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs hasShortCut />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-      title: createMessage(INSPECT_ENTITY),
-      panelComponent: <EntityDeps />,
     },
   ];
 

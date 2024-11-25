@@ -556,7 +556,7 @@ export const LOGS_FILTER_OPTION_CONSOLE = () => "Console logs";
 export const LOGS_FILTER_OPTION_SYSTEM = () => "System logs";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
-export const DEBUGGER_ERRORS = () => "Errors";
+export const DEBUGGER_ERRORS = () => "Linter";
 export const DEBUGGER_RESPONSE = () => "Response";
 export const DEBUGGER_HEADERS = () => "Headers";
 export const DEBUGGER_LOGS = () => "Logs";

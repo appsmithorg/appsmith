@@ -1072,6 +1072,10 @@ const InputCursorMoveIcon = importSvg(
   async () => import("../__assets__/icons/ads/input-cursor-move.svg"),
 );
 
+const DebugIcon = importSvg(
+  async () => import("../__assets__/icons/ads/debug.svg"),
+);
+
 import PlayIconPNG from "../__assets__/icons/control/play-icon.png";
 
 function PlayIconPNGWrapper() {
@@ -1113,6 +1117,7 @@ const ICON_LOOKUP = {
   "show-column": EyeIcon,
   "hide-column": EyeOffIcon,
   "delete-column": DeleteColumnIcon,
+  debug: DebugIcon,
   "bold-font": BoldFontIcon,
   underline: UnderlineIcon,
   "italics-font": ItalicsFontIcon,

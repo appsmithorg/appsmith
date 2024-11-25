@@ -13,12 +13,10 @@ import {
 } from "selectors/debuggerSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import Errors from "./Errors";
-import EntityDeps from "./EntityDependecies";
 import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
-  INSPECT_ENTITY,
 } from "ee/constants/messages";
 import { DEBUGGER_TAB_KEYS } from "./constants";
 import EntityBottomTabs from "../EntityBottomTabs";
@@ -58,11 +56,6 @@ function DebuggerTabs() {
       key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs hasShortCut />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
-      title: createMessage(INSPECT_ENTITY),
-      panelComponent: <EntityDeps />,
     },
   ];
 
