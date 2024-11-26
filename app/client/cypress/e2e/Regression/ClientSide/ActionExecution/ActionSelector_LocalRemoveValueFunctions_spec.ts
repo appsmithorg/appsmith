@@ -1,6 +1,5 @@
 import {
   agHelper,
-  appSettings,
   deployMode,
   draggableWidgets,
   entityExplorer,
@@ -13,7 +12,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
-  "To verify action selector - Local store value function",
+  "To verify action selector - Local remove value function",
   { tags: ["@tag.JS"] },
   () => {
     before(() => {
