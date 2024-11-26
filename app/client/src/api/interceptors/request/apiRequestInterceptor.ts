@@ -9,6 +9,7 @@ import getQueryParamsObject from "utils/getQueryParamsObject";
 import { addRequestedByHeader } from "./addRequestedByHeader";
 import { increaseGitApiTimeout } from "./increaseGitApiTimeout";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import { addVersionHeader as _addVersionHeader } from "./addVersionHeader";
 import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { addGitBranchHeader as _addGitBranchHeader } from "./addGitBranchHeader";
 import { addPerformanceMonitoringHeaders } from "./addPerformanceMonitoringHeaders";
@@ -50,10 +51,10 @@ const addAnonymousUserIdHeader = (config: InternalAxiosRequestConfig) => {
 };
 
 const addVersionHeader = (config: InternalAxiosRequestConfig) => {
-  config.headers = config.headers || {};
-  config.headers["X-Appsmith-Version"] = getAppsmithConfigs().appVersion.id;
+  const appsmithConfig = getAppsmithConfigs();
+  const version = appsmithConfig.appVersion.id;
 
-  return config;
+  return _addVersionHeader(config, { version });
 };
 
 export const apiRequestInterceptor = (config: InternalAxiosRequestConfig) => {
