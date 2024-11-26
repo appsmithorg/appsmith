@@ -44,6 +44,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
         ? `transform: rotate(-90deg);`
         : `transform: rotate(0deg); `};
   }
+
   .debugger-time {
     ${getTypographyByKey("h6")}
     letter-spacing: -0.24px;
@@ -52,6 +53,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     color: var(--ads-v2-color-fg-muted);
     width: max-content;
   }
+
   .debugger-occurences {
     height: 16px;
     width: 16px;
@@ -60,18 +62,24 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     align-items: center;
     justify-content: center;
     color: var(--ads-v2-color-fg-emphasis);
+
     &.${Severity.INFO} {
       background-color: var(--ads-v2-color-bg-information);
     }
+
     margin-right: 4px;
+
     &.${Severity.ERROR} {
       background-color: var(--ads-v2-color-bg-error);
     }
+
     &.${Severity.WARNING} {
       background-color: var(--ads-v2-color-bg-warning);
     }
+
     ${getTypographyByKey("u2")}
   }
+
   .debugger-description {
     display: flex;
     align-items: center;
@@ -89,6 +97,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       overflow: hidden;
       white-space: nowrap;
     }
+
     .debugger-entity {
       color: var(--ads-v2-color-fg-emphasis);
       ${getTypographyByKey("h6")}
@@ -104,6 +113,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       }
     }
   }
+
   .debugger-timetaken {
     color: var(--ads-v2-color-fg-emphasis);
     margin-left: 5px;
@@ -113,11 +123,11 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 
   .debugger-entity-link {
     // TODO: unclear why this file and ErrorLogItem.tsx have different styles when they look so similar
-    margin-left: auto;
     ${getTypographyByKey("btnMedium")};
     color: var(--ads-v2-color-fg-emphasis);
     cursor: pointer;
     width: max-content;
+
     > span {
       font-size: 12px;
     }
@@ -133,16 +143,19 @@ const ContextWrapper = styled.div`
 const JsonWrapper = styled.div`
   padding: ${(props) => props.theme.spaces[1] - 1}px 0
     ${(props) => props.theme.spaces[5]}px;
+
   svg {
     color: var(--ads-v2-color-fg-muted) !important;
     height: 12px !important;
     width: 12px !important;
     vertical-align: baseline !important;
   }
+
   .object-key-val span,
   .icon-container {
     vertical-align: middle;
   }
+
   .brace-row {
     vertical-align: bottom;
   }
@@ -272,19 +285,25 @@ function LogItem(props: LogItemProps) {
         <span className={`debugger-time ${props.severity}`}>
           {moment(parseInt(props.timestamp)).format("HH:mm:ss")}
         </span>
-
-        <Button
-          className={classNames(
-            `${Classes.ICON} debugger-toggle`,
-            collapsible ? "visible" : "invisible",
-          )}
-          isDisabled={!collapsible}
-          isIconButton
-          kind="tertiary"
-          onClick={() => setIsOpen(!isOpen)}
-          size="sm"
-          startIcon={"expand-more"}
-        />
+        {props.source && (
+          <EntityLink
+            id={props.source.id}
+            name={props.source.name}
+            propertyPath={props.source.propertyPath}
+            type={props.source.type}
+            uiComponent={DebuggerLinkUI.ENTITY_NAME}
+          />
+        )}
+        {props.collapsible && (
+          <Button
+            className={classNames(`${Classes.ICON} debugger-toggle`)}
+            isIconButton
+            kind="tertiary"
+            onClick={() => setIsOpen(!isOpen)}
+            size="sm"
+            startIcon={"expand-more"}
+          />
+        )}
         {!(
           collapsible &&
           isOpen &&
@@ -328,15 +347,6 @@ function LogItem(props: LogItemProps) {
                 </ContextWrapper>
               )}
           </div>
-        )}
-        {props.source && (
-          <EntityLink
-            id={props.source.id}
-            name={props.source.name}
-            propertyPath={props.source.propertyPath}
-            type={props.source.type}
-            uiComponent={DebuggerLinkUI.ENTITY_NAME}
-          />
         )}
       </div>
 

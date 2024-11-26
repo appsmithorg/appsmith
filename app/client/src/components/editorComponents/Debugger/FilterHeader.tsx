@@ -23,6 +23,7 @@ const Wrapper = styled.div`
   align-items: center;
   gap: 8px;
   padding: var(--ads-v2-spaces-4);
+
   .debugger-filter {
     width: 220px;
   }
@@ -58,20 +59,6 @@ function FilterHeader(props: FilterHeaderProps) {
 
   return (
     <Wrapper>
-      <Tooltip
-        className="debugger-clear-logs"
-        content={createMessage(CLEAR_LOG_TOOLTIP)}
-        placement="bottom"
-      >
-        <Button
-          className="t--debugger-clear-logs"
-          isIconButton
-          kind="tertiary"
-          onClick={() => dispatch(clearLogs())}
-          size="sm"
-          startIcon="cancel"
-        />
-      </Tooltip>
       <div className="input-container">
         <SearchInput
           className="debugger-search"
@@ -110,6 +97,20 @@ function FilterHeader(props: FilterHeaderProps) {
           </Option>
         ))}
       </Select>
+      <Tooltip
+        className="debugger-clear-logs"
+        content={createMessage(CLEAR_LOG_TOOLTIP)}
+        placement="bottom"
+      >
+        <Button
+          className="t--debugger-clear-logs"
+          isIconButton
+          kind="tertiary"
+          onClick={() => dispatch(clearLogs())}
+          size="sm"
+          startIcon="cancel"
+        />
+      </Tooltip>
     </Wrapper>
   );
 }
