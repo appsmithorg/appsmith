@@ -310,13 +310,11 @@ public class SecurityConfig {
 
         // 3. Check Appsmith version, if present. Not making this a mandatory check for now, but reconsider later.
         final String versionHeaderValue = headers.getFirst("X-Appsmith-Version");
-        if (versionHeaderValue != null && !projectProperties.getVersion().equals(versionHeaderValue)) {
-            return writeErrorResponse(
-                    exchange,
-                    chain,
-                    new ErrorDTO(
-                            AppsmithErrorCode.VERSION_MISMATCH.getCode(),
-                            "Appsmith version mismatch, expected '" + projectProperties.getVersion() + "'"));
+        final String serverVersion = projectProperties.getVersion();
+        if (versionHeaderValue != null && !serverVersion.equals(versionHeaderValue)) {
+            final ErrorDTO error = new ErrorDTO(
+                    AppsmithErrorCode.VERSION_MISMATCH.getCode(), AppsmithErrorCode.VERSION_MISMATCH.getDescription());
+            return writeErrorResponse(exchange, chain, error, new VersionMismatchData(serverVersion));
         }
 
         return chain.filter(exchange);
@@ -335,16 +333,23 @@ public class SecurityConfig {
         }
     }
 
-    private Mono<Void> writeErrorResponse(ServerWebExchange exchange, WebFilterChain chain, ErrorDTO error) {
+    private <T> Mono<Void> writeErrorResponse(
+            ServerWebExchange exchange, WebFilterChain chain, ErrorDTO error, T data) {
         final ServerHttpResponse response = exchange.getResponse();
         final HttpStatus status = HttpStatus.BAD_REQUEST;
         response.setStatusCode(status);
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+        final ResponseDTO<T> responseBody = new ResponseDTO<>(status.value(), error);
+        responseBody.setData(data);
+
         try {
-            return response.writeWith(Mono.just(response.bufferFactory()
-                    .wrap(objectMapper.writeValueAsBytes(new ResponseDTO<>(status.value(), error)))));
+            return response.writeWith(
+                    Mono.just(response.bufferFactory().wrap(objectMapper.writeValueAsBytes(responseBody))));
         } catch (JsonProcessingException ex) {
             return chain.filter(exchange);
         }
     }
+
+    record VersionMismatchData(String serverVersion) {}
 }
