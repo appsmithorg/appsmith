@@ -2,7 +2,9 @@ import {
   all,
   call,
   delay,
+  fork,
   put,
+  race,
   select,
   take,
   takeEvery,
@@ -1677,7 +1679,7 @@ function* softRefreshActionsSaga() {
 function* handleUpdateActionData(
   action: ReduxAction<updateActionDataPayloadType>,
 ) {
-  const { actionDataPayload, parentSpan } = action.payload;
+  const { actionDataPayload, parentSpan } = action;
 
   yield call(
     evalWorker.request,
@@ -1687,6 +1689,45 @@ function* handleUpdateActionData(
 
   if (parentSpan) {
     endSpan(parentSpan);
+  }
+}
+
+// Use a channel to queue all actions
+
+function* captureActionsWithinPeriod() {
+  while (true) {
+    const buffer = []; // Initialize a new buffer for each batch
+    const endTime = Date.now() + 10000;
+    let parentSpan;
+    // eslint-disable-next-line prefer-const
+
+    while (Date.now() < endTime) {
+      try {
+        // Use a non-blocking `take` to capture actions within the period
+
+        const { action } = yield race({
+          action: take(ReduxActionTypes.UPDATE_ACTION_DATA),
+          del: delay(1000),
+        });
+
+        if (!action) continue;
+
+        const { actionDataPayload } = action.payload;
+
+        parentSpan = action.payload.parentSpan;
+        buffer.push(...actionDataPayload);
+      } catch (e) {
+        // Handle errors if needed
+      }
+    }
+
+    // After the time period, dispatch the collected actions
+    if (buffer.length > 0) {
+      yield fork(handleUpdateActionData, {
+        parentSpan,
+        actionDataPayload: buffer,
+      });
+    }
   }
 }
 
@@ -1703,6 +1744,6 @@ export function* watchPluginActionExecutionSagas() {
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
     takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
-    takeEvery(ReduxActionTypes.UPDATE_ACTION_DATA, handleUpdateActionData),
+    takeEvery(ReduxActionTypes.START_EVALUATION, captureActionsWithinPeriod),
   ]);
 }
