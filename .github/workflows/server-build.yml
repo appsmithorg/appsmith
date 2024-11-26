@@ -337,6 +337,7 @@ jobs:
           git config --global user.name "$gituser"
           git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
           git lfs install
+
           if [ "$reponame" = "appsmith" ]; then
               export repodir="CE"
           elif [ "$reponame" = "appsmith-ee" ]; then
@@ -347,11 +348,23 @@ jobs:
               echo "Warning: Unknown repository name: $reponame"
               export repodir="UNKNOWN"  # Optional: Set a default or fallback value
           fi
+
           cd cibuildcache/$repodir/release/server
           git lfs pull ./server.jar
           mv ./server.jar ../../../../../server.jar
           cd ../../../../../
-          tar -xzvf ./server.jar
+
+          # Check if the file is a valid gzip archive or jar file
+          file ./server.jar
+
+          # If it's a jar file, use the jar command to extract
+          if [[ $(file ./server.jar) == *"Zip archive data"* ]]; then
+              echo "Extracting .jar file"
+              mkdir -p ./server
+              jar -xvf ./server.jar -C ./server
+          else
+              echo "server.jar is not a valid zip/jar file, skipping extraction"
+          fi
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
