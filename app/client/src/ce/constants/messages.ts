@@ -2485,8 +2485,7 @@ export const ADD_PAGE_FROM_TEMPLATE_MODAL = {
 
 export const HEADER_TITLES = {
   DATA: () => "Data",
-  PAGES: () => "Pages",
-  EDITOR: () => "Editor",
+  EDITOR: () => "Pages",
   SETTINGS: () => "Settings",
   LIBRARIES: () => "Libraries",
 };

@@ -206,7 +206,7 @@ jobs:
           git config --global user.name "$gituser"
           git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
           git lfs install
-          git lfs migrate import --everything
+          git lfs migrate import --everything --yes
           if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
           if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
           cd cibuildcache/$repodir/release/client
