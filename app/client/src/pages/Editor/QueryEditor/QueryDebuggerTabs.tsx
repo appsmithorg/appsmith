@@ -14,7 +14,7 @@ import {
 } from "ee/constants/messages";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
-import Schema from "PluginActionEditor/components/PluginActionResponse/components/Schema";
+import { Schema } from "PluginActionEditor/components/PluginActionResponse/components/Schema";
 import type { ActionResponse } from "api/ActionAPI";
 import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";

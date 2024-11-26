@@ -65,11 +65,6 @@ const MainConfiguration = styled.div`
 
   .api-info-row {
     padding-top: var(--ads-v2-spaces-5);
-
-    .ads-v2-select > .rc-select-selector {
-      min-width: 110px;
-      width: 110px;
-    }
   }
 
   .form-row-header {
