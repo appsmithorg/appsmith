@@ -399,7 +399,7 @@ function GoogleSheetSchema(props: Props) {
   return (
     <ViewModeSchemaContainer>
       <DataWrapperContainer>
-        <StructureContainer data-testid="datasource-schema-container">
+        <StructureContainer data-testid="t--datasource-schema-container">
           {datasource && (
             <DatasourceStructureHeader
               datasource={datasource}
