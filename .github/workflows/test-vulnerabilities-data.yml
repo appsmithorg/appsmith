@@ -1,8 +1,8 @@
-name: Run Vulnerability Data Script with Parameters and Update PR
+name: Run Vulnerability 
 
 
 run-name: >
-  ${{ github.workflow }} on Branch: ${{ github.ref_name }} with Image: ${{ inputs.image_name || 'appsmith/appsmith-ce:release' }}
+  on Branch: ${{ github.ref_name }} with Image: ${{ inputs.image_name || 'appsmith/appsmith-ce:release' }}
 
 
 on:
