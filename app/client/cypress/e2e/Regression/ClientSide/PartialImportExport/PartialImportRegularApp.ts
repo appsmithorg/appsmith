@@ -74,10 +74,10 @@ describe(
       });
 
       PageLeftPane.switchSegment("Queries");
-      agHelper.GetNClick('[data-testid="t--entity-item-Api1"]');
+      agHelper.GetNClick(locators._entityItem);
       apiPage.RunAPI();
       PageLeftPane.switchSegment("UI");
-      agHelper.AssertElementExist('[data-colindex="0"][data-rowindex="0"]');
+      agHelper.AssertElementExist(locators._rowData);
     });
 
     it("2. Should be able to import again in the same Page", () => {
@@ -131,10 +131,10 @@ describe(
       });
 
       PageLeftPane.switchSegment("Queries");
-      agHelper.GetNClick('[data-testid="t--entity-item-Api1"]');
+      agHelper.GetNClick(locators._entityItem);
       apiPage.RunAPI();
       PageLeftPane.switchSegment("UI");
-      agHelper.AssertElementExist('[data-colindex="0"][data-rowindex="0"]');
+      agHelper.AssertElementExist(locators._rowData);
     });
 
     it("4. Should import the Page into new workspace", () => {
@@ -165,10 +165,10 @@ describe(
       });
 
       PageLeftPane.switchSegment("Queries");
-      agHelper.GetNClick('[data-testid="t--entity-item-Api1"]');
+      agHelper.GetNClick(locators._entityItem);
       apiPage.RunAPI();
       PageLeftPane.switchSegment("UI");
-      agHelper.AssertElementExist('[data-colindex="0"][data-rowindex="0"]');
+      agHelper.AssertElementExist(locators._rowData);
     });
 
     it("5. Import to Git branch", () => {
