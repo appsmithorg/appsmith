@@ -344,7 +344,11 @@ jobs:
           git lfs pull ./server.jar
           mv ./server.jar ../../../../../server.jar
           cd ../../../../../
-          tar -xzvf ./server.jar
+ #         tar -xzvf ./server.jar
+ 
+      - uses: actions/checkout@v2
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
