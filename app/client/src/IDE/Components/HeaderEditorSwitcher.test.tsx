@@ -1,67 +1,67 @@
 import React from "react";
-import { render, fireEvent, screen } from "@testing-library/react";
-import { IDEHeaderSwitcher } from "./IDEHeaderSwitcher";
+import { render, fireEvent } from "@testing-library/react";
+import HeaderEditorSwitcher from "./HeaderEditorSwitcher";
 import "@testing-library/jest-dom";
 
-describe("HeaderSwitcher", () => {
+describe("HeaderEditorSwitcher", () => {
   const mockOnClick = jest.fn();
-  const mockSetActive = jest.fn();
   const defaultProps = {
     prefix: "Prefix",
     title: "Title",
     titleTestId: "titleTestId",
     active: false,
     onClick: mockOnClick,
-    setActive: mockSetActive,
-    children: <span>Test</span>,
   };
 
   it("renders with correct props", () => {
-    render(<IDEHeaderSwitcher {...defaultProps} />);
+    const { getByText } = render(<HeaderEditorSwitcher {...defaultProps} />);
 
-    // eslint-disable-next-line testing-library/no-node-access
     const testIdElement = document.getElementsByClassName(
       defaultProps.titleTestId,
     );
 
-    expect(screen.getByText("Prefix /")).toBeInTheDocument();
-    expect(screen.getByText(defaultProps.title)).toBeInTheDocument();
+    expect(getByText("Prefix /")).toBeInTheDocument();
+    expect(getByText(defaultProps.title)).toBeInTheDocument();
     expect(testIdElement).toBeDefined();
   });
 
   it("renders active state correctly", () => {
-    render(<IDEHeaderSwitcher {...defaultProps} active />);
+    const { getByText } = render(
+      <HeaderEditorSwitcher {...defaultProps} active />,
+    );
 
-    expect(screen.getByText("Prefix /")).toHaveStyle(
+    expect(getByText("Prefix /")).toHaveStyle(
       "background-color: var(--ads-v2-color-bg-subtle)",
     );
   });
 
   it("calls onClick handler when clicked", () => {
-    render(<IDEHeaderSwitcher {...defaultProps} />);
+    const { getByText } = render(<HeaderEditorSwitcher {...defaultProps} />);
 
-    fireEvent.click(screen.getByText("Title"));
+    fireEvent.click(getByText("Title"));
 
     expect(mockOnClick).toHaveBeenCalled();
   });
 
   it("forwards ref correctly", () => {
-    const ref = React.createRef<HTMLDivElement>();
+    const ref = React.createRef();
 
-    render(<IDEHeaderSwitcher {...defaultProps} ref={ref} />);
+    render(<HeaderEditorSwitcher {...defaultProps} ref={ref} />);
     expect(ref.current).toBeTruthy();
   });
 
   it("does not crash when onClick is not provided", () => {
-    render(<IDEHeaderSwitcher {...defaultProps} onClick={undefined} />);
+    const { getByText } = render(
+      <HeaderEditorSwitcher {...defaultProps} onClick={undefined} />,
+    );
 
-    fireEvent.click(screen.getByText("Title")); // Should not throw error
+    fireEvent.click(getByText("Title")); // Should not throw error
   });
 
   it("does not show separator and applies different inactive color to icon", () => {
-    const ref = React.createRef<HTMLDivElement>();
-    const { container } = render(
-      <IDEHeaderSwitcher
+    const ref = React.createRef();
+    const { container, getByTestId } = render(
+      <HeaderEditorSwitcher
         {...defaultProps}
         data-testid="root-div"
         ref={ref}
@@ -69,10 +69,9 @@ describe("HeaderSwitcher", () => {
       />,
     );
 
-    // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
     const icon = container.querySelector(".remixicon-icon"); // Get chevron icon
 
-    expect(screen.getByTestId("root-div")).toHaveTextContent("Prefix");
+    expect(getByTestId("root-div")).toHaveTextContent("Prefix");
     expect(icon).toHaveAttribute(
       "fill",
       "var(--ads-v2-colors-content-label-inactive-fg)",
@@ -84,20 +83,16 @@ describe("HeaderSwitcher", () => {
     const className = "custom-class";
 
     const { container } = render(
-      <IDEHeaderSwitcher
+      <HeaderEditorSwitcher
         active
         className={className}
         data-testid={testId} // Additional prop
         prefix="Prefix"
-        setActive={mockSetActive}
         title="Title"
         titleTestId="titleTestId"
-      >
-        <span>Test</span>
-      </IDEHeaderSwitcher>,
+      />,
     );
 
-    // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
     const firstDiv = container.querySelector("div"); // Get the first div element
     const classNames = firstDiv?.getAttribute("class")?.split(" ") || [];
 
