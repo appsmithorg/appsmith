@@ -59,11 +59,12 @@ import {
   isArrayBuffer,
   isEmpty,
   isNil,
+  isString,
   set,
   unset,
 } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
 import {
   extractClientDefinedErrorMetadata,
   validateResponse,
@@ -575,6 +576,10 @@ export default function* executePluginActionTriggerSaga(
   const plugin: Plugin = yield select(getPlugin, action?.pluginId);
   const currentApp: ApplicationPayload = yield select(getCurrentApplication);
 
+  const currentEnvDetails: { id: string; name: string } = yield select(
+    getCurrentEnvironmentDetails,
+  );
+
   const pluginActionNameToDisplay = getPluginActionNameToDisplay(action);
 
   const actionExecutionAnalytics = getActionExecutionAnalytics(
@@ -613,6 +618,40 @@ export default function* executePluginActionTriggerSaga(
   const { isError, payload } = executePluginActionResponse;
 
   if (isError) {
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: actionId,
+          iconId: action.pluginId,
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          text: `Execution failed with status ${payload.statusCode}`,
+          environmentName: currentEnvDetails.name,
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: pluginActionNameToDisplay,
+            id: actionId,
+            httpMethod: action?.actionConfiguration?.httpMethod,
+            pluginType: action.pluginType,
+          },
+          state: payload.request,
+          messages: [
+            {
+              // Need to stringify cause this gets rendered directly
+              // and rendering objects can crash the app
+              message: {
+                name: "PluginExecutionError",
+                message: !isString(payload.body)
+                  ? JSON.stringify(payload.body)
+                  : payload.body,
+              },
+              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+              subType: payload.errorType,
+            },
+          ],
+          pluginErrorDetails: payload.pluginErrorDetails,
+        },
+      },
+    ]);
     AnalyticsUtil.logEvent("EXECUTE_ACTION_FAILURE", {
       ...actionExecutionAnalytics,
       ...payload.pluginErrorDetails,
@@ -887,10 +926,54 @@ export function* runActionSaga(
     error =
       readableError || payloadBodyError || clientDefinedError || defaultError;
 
+    // In case of debugger, both the current error message
+    // and the readableError needs to be present,
+    // since the readableError may be malformed for certain errors.
+
+    const appsmithConsoleErrorMessageList = [
+      {
+        message: error,
+        type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+        subType: payload.errorType,
+      },
+    ];
+
+    if (error === readableError && !!payloadBodyError) {
+      appsmithConsoleErrorMessageList.push({
+        message: payloadBodyError,
+        type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+        subType: payload.errorType,
+      });
+    }
+
+    AppsmithConsole.addErrors([
+      {
+        payload: {
+          id: actionId,
+          iconId: actionObject.pluginId,
+          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          environmentName: currentEnvDetails.name,
+          text: `Execution failed${
+            payload.statusCode ? ` with status ${payload.statusCode}` : ""
+          }`,
+          source: {
+            type: ENTITY_TYPE.ACTION,
+            name: pluginActionNameToDisplay,
+            id: actionId,
+            httpMethod: actionObject?.actionConfiguration?.httpMethod,
+            pluginType: actionObject.pluginType,
+          },
+          messages: appsmithConsoleErrorMessageList,
+          state: payload?.request,
+          pluginErrorDetails: payload?.pluginErrorDetails,
+        },
+      },
+    ]);
+
     yield put({
       type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
       payload: {
-        error,
+        error: appsmithConsoleErrorMessageList[0].message,
         id: reduxAction.payload.id,
         show: false,
       },
@@ -1132,6 +1215,34 @@ function* executePageLoadAction(
       );
 
     if (isError) {
+      AppsmithConsole.addErrors([
+        {
+          payload: {
+            id: pageAction.id,
+            iconId: action.pluginId,
+            logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+            environmentName: currentEnvDetails.name,
+            text: `Execution failed with status ${payload.statusCode}`,
+            source: {
+              type: ENTITY_TYPE.ACTION,
+              name: actionName,
+              id: pageAction.id,
+              httpMethod: action?.actionConfiguration?.httpMethod,
+              pluginType: action.pluginType,
+            },
+            state: payload.request,
+            messages: [
+              {
+                message: error,
+                type: PLATFORM_ERROR.PLUGIN_EXECUTION,
+                subType: payload.errorType,
+              },
+            ],
+            pluginErrorDetails: payload.pluginErrorDetails,
+          },
+        },
+      ]);
+
       yield put(
         executePluginActionError({
           actionId: pageAction.id,

@@ -284,7 +284,6 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
             allFormatedLogs.push(formattedLog);
           }
 
-          yield put(addErrorLogs(allFormatedLogs));
           yield put(debuggerLog(allFormatedLogs));
         }
         break;
