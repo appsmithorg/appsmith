@@ -12,20 +12,23 @@ import jakarta.persistence.Transient;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-import jakarta.transaction.Transactional;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.transaction.support.TransactionTemplate;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.lang.reflect.Field;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +36,7 @@ import java.util.UUID;
 
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUPS;
 import static com.appsmith.server.constants.ce.FieldNameCE.TX_CONTEXT;
+import static com.appsmith.server.helpers.ReactorUtils.asFlux;
 import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
 @Slf4j
@@ -41,23 +45,135 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     private final R repository;
 
     @Autowired
-    private CacheableRepositoryHelper cacheableRepositoryHelper;
+    @Getter
+    private EntityManager entityManager;
 
     @Autowired
-    private EntityManager entityManager;
+    private TransactionTemplate transactionTemplate;
+
+    @Autowired
+    private CacheableRepositoryHelper cacheableRepositoryHelper;
 
     protected final Class<T> genericDomain;
 
+    // ---------------------------------------------------
+    // Wrappers for methods from BaseRepository
+    // ---------------------------------------------------
+    public Flux<T> findAllById(Collection<String> ids) {
+        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
+                .flatMapMany(em -> asFlux(() -> em.createQuery(
+                                "SELECT e FROM " + genericDomain.getSimpleName() + " e WHERE e.id IN :ids",
+                                genericDomain)
+                        .setParameter("ids", ids)
+                        .getResultList()));
+    }
+
+    public Mono<T> findById(String id) {
+        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
+                .flatMap(em -> asMonoDirect(() -> em.createQuery(
+                                "SELECT e FROM " + genericDomain.getSimpleName() + " e WHERE e.id = :id", genericDomain)
+                        .setParameter("id", id)
+                        .getSingleResult()));
+    }
+
+    public Flux<T> findAll() {
+        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
+                .flatMapMany(em -> asFlux(
+                        () -> em.createQuery("SELECT e FROM " + genericDomain.getSimpleName() + " e", genericDomain)
+                                .getResultList()));
+    }
+
+    @Deprecated(forRemoval = true)
+    public Mono<T> archive(T entity) {
+        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
+                .flatMap(em -> {
+                    if (entity.isDeleted()) {
+                        return Mono.just(entity);
+                    }
+                    // Setting the deletedAt and then saving the entity throwing the exceptions in few cases of trying
+                    // to create
+                    // new entry with same id hence relying on JPA generated method.
+                    return this.archiveById(entity.getId()).then(Mono.just(em.find(genericDomain, entity.getId())));
+                });
+    }
+
+    public Mono<Integer> archiveById(String id) {
+        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
+                .flatMap(em -> asMonoDirect(
+                        () -> transactionTemplate.execute(ts -> em.createQuery("UPDATE " + genericDomain.getSimpleName()
+                                        + " e SET e.deletedAt = :instant WHERE e.deletedAt IS NULL AND e.id = :id")
+                                .setParameter("instant", Instant.now())
+                                .setParameter("id", id)
+                                .executeUpdate())));
+    }
+
+    public Mono<Boolean> archiveAllById(Collection<String> ids) {
+        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
+                .flatMap(em -> asMonoDirect(() -> transactionTemplate.execute(ts -> em.createQuery(
+                                        "UPDATE " + genericDomain.getSimpleName()
+                                                + " e SET e.deletedAt = :instant WHERE e.deletedAt IS NULL AND e.id IN :ids")
+                                .setParameter("instant", Instant.now())
+                                .setParameter("ids", ids)
+                                .executeUpdate()
+                        > 0)));
+    }
+
+    public Mono<Integer> deleteById(String id) {
+        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
+                .flatMap(em -> asMonoDirect(() -> transactionTemplate.execute(ts -> em.createQuery("DELETE FROM "
+                                + genericDomain.getSimpleName() + " e WHERE e.deletedAt IS NULL AND e.id = :id")
+                        .setParameter("id", id)
+                        .executeUpdate())));
+    }
+
+    public Mono<Integer> deleteAll() {
+        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
+                .flatMap(em -> asMonoDirect(() -> {
+                    return transactionTemplate.execute(ts -> em.createQuery(
+                                    "DELETE FROM " + genericDomain.getSimpleName() + " e WHERE e.deletedAt IS NULL")
+                            .executeUpdate());
+                }));
+    }
+
+    public Flux<T> saveAll(Iterable<T> entities) {
+        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
+                .flatMapMany(em -> asFlux(() -> transactionTemplate.execute(ts -> {
+                    for (T entity : entities) {
+                        if (entity.getId() == null) {
+                            entity.setId(generateId());
+                            em.persist(entity);
+                        } else {
+                            em.merge(entity);
+                        }
+                    }
+                    return entities;
+                })));
+    }
+
+    public Mono<Long> count() {
+        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
+                .flatMap(em -> asMonoDirect(
+                        () -> em.createQuery("SELECT COUNT(e) FROM " + genericDomain.getSimpleName() + " e", Long.class)
+                                .getSingleResult()));
+    }
+
+    // ---------------------------------------------------
+    // Wrappers for methods from CRUDRepository
+    // ---------------------------------------------------
     public Mono<T> save(T entity) {
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
                 .flatMap(em -> {
                     final boolean isNew = entity.getId() == null;
-                    if (isNew) {
-                        entity.setId(generateId());
-                    }
                     return Mono.fromSupplier(() -> {
                                 try {
-                                    em.persist(entity);
+                                    transactionTemplate.execute(ts -> {
+                                        if (isNew) {
+                                            em.persist(entity);
+                                            return entity;
+                                        } else {
+                                            return em.merge(entity);
+                                        }
+                                    });
                                     final T savedEntity = em.find(genericDomain, entity.getId());
                                     copyTransientFieldValues(entity, savedEntity, 1);
                                     return savedEntity;
@@ -123,11 +239,6 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
         return UUID.randomUUID().toString();
     }
 
-    public Mono<T> findById(String id) {
-        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-                .flatMap(em -> asMonoDirect(() -> em.find(genericDomain, id)));
-    }
-
     public Mono<T> findById(String id, AclPermission permission) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
@@ -176,8 +287,6 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                 });
     }
 
-    @Transactional
-    @Modifying
     public Mono<T> updateById(String id, T updates, AclPermission permission) {
         updates.setId(null);
 
@@ -187,16 +296,17 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                     final T existingEntity = tuple2.getT1();
                     final EntityManager em = tuple2.getT2();
                     AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(updates, existingEntity);
-                    em.persist(existingEntity);
+                    transactionTemplate.execute(ts -> {
+                        em.merge(existingEntity);
+                        return existingEntity;
+                    });
                     return findById(id, permission);
                 });
     }
 
-    @Modifying
-    @Transactional
     public Mono<Void> delete(T entity) {
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-                .flatMap(em -> asMonoDirect(() -> repository.deleteById(entity.getId(), em)))
+                .flatMap(em -> asMonoDirect(() -> this.deleteById(entity.getId())))
                 .then();
     }
 }

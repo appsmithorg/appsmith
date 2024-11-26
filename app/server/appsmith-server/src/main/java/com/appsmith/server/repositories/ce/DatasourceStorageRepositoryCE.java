@@ -2,14 +2,12 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.repositories.BaseRepository;
-import jakarta.persistence.EntityManager;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface DatasourceStorageRepositoryCE extends BaseRepository<DatasourceStorage, String> {
-    List<DatasourceStorage> findByDatasourceId(String datasourceId, EntityManager entityManager);
+    List<DatasourceStorage> findByDatasourceId(String datasourceId);
 
-    Optional<DatasourceStorage> findByDatasourceIdAndEnvironmentId(
-            String datasourceId, String environmentId, EntityManager entityManager);
+    Optional<DatasourceStorage> findByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
 }

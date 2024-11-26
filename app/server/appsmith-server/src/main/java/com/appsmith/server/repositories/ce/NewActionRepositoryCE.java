@@ -6,7 +6,6 @@ import com.appsmith.server.newactions.projections.IdAndDatasourceIdNewActionView
 import com.appsmith.server.projections.IdPoliciesOnly;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomNewActionRepository;
-import jakarta.persistence.EntityManager;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
@@ -16,16 +15,15 @@ import java.util.Optional;
 public interface NewActionRepositoryCE extends BaseRepository<NewAction, String>, CustomNewActionRepository {
 
     @Query(value = "SELECT a FROM NewAction a WHERE a.applicationId = :applicationId AND a.deletedAt IS NULL")
-    List<NewAction> findByApplicationId(String applicationId, EntityManager entityManager);
+    List<NewAction> findByApplicationId(String applicationId);
 
-    List<NewAction> findAllByIdIn(Collection<String> ids, EntityManager entityManager);
+    List<NewAction> findAllByIdIn(Collection<String> ids);
 
-    Optional<Long> countByDeletedAtNull(EntityManager entityManager);
+    Optional<Long> countByDeletedAtNull();
 
-    List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds, EntityManager entityManager);
+    List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds);
 
-    List<IdAndDatasourceIdNewActionView> findIdAndDatasourceIdByApplicationIdIn(
-            List<String> applicationIds, EntityManager entityManager);
+    List<IdAndDatasourceIdNewActionView> findIdAndDatasourceIdByApplicationIdIn(List<String> applicationIds);
 
     @Query(
             """
@@ -34,5 +32,5 @@ public interface NewActionRepositoryCE extends BaseRepository<NewAction, String>
             WHERE a.applicationId = :applicationId AND a.deletedAt IS NULL
             GROUP BY a.pluginType
         """)
-    List<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId, EntityManager entityManager);
+    List<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 }

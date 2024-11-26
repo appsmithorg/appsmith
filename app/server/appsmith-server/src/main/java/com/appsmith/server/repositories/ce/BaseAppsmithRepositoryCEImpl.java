@@ -140,6 +140,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return map;
     }
 
+    public Optional<T> findById(String id) {
+        return queryBuilder().byId(id).one();
+    }
+
     public Optional<T> findById(String id, AclPermission permission, User currentUser, EntityManager entityManager) {
         return queryBuilder()
                 .byId(id)
@@ -541,6 +545,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .then();
     }
 
+    @Transactional
+    @Modifying
     public int updateExecute(QueryAllParams<T> params, BridgeUpdate update) {
         Set<String> permissionGroupsSet = params.getPermissionGroups();
         ArrayList<String> permissionGroups;

@@ -83,7 +83,9 @@ def repo_interfaces(domain):
 
 
 def repo_classes(domain):
-    domain = domain.replace("CustomJSLib", "JSLib")
+    # In case of CustomJSLib domain remove the prefix Custom and only change if the custom is the prefix
+    regex = r"^Custom"
+    domain = re.sub(regex, "", domain)
     return list(
         filter(
             Path.exists,
@@ -144,10 +146,8 @@ def add_user_arg(domain):
 
 def add_entity_manager_arg(domain):
     for full_path in chain(repo_interfaces(domain)):
-        content = (
-            read_file(full_path)
-            .replace(");", ", EntityManager entityManager);")
-        )
+        content = (read_file(full_path))
+        content = content.replace(");", ", EntityManager entityManager);") if "custom" in str(full_path).lower() else content.replace(", EntityManager entityManager);", ");")
         # Remove duplicate User currentUser arguments
         regex = r"EntityManager\s+entityManager,\s*EntityManager\s+entityManager"
         subst = "EntityManager entityManager"
@@ -171,7 +171,7 @@ def add_entity_manager_arg(domain):
         content = content.replace(".updateFirst", ".entityManager(entityManager).updateFirst")
         content = content.replace(".entityManager(entityManager).entityManager(entityManager)", ".entityManager(entityManager)")
 
-        # Remove duplicate EntityManager entityManager arguments
+        # Remove duplicate entityManager arguments
         regex = r"EntityManager\s+entityManager,\s*EntityManager\s+entityManager"
         subst = "EntityManager entityManager"
         content = re.sub(regex, subst, content)

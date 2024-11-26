@@ -1,7 +1,6 @@
 package com.appsmith.server.applications.base;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.constants.TransactionPropagation;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -1077,7 +1076,7 @@ public class ApplicationServiceCEImpl
     }
 
     @Override
-    @CustomAppsmithTransaction(propagation = TransactionPropagation.REQUIRED)
+    @CustomAppsmithTransaction
     public Mono<Application> findSaveUpdateApp(String id) {
         Mono<Application> applicationMono = repository
                 .findById(id, applicationPermission.getEditPermission())

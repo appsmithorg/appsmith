@@ -149,7 +149,7 @@ public class SeedMongoData {
                     return userRepository
                             .findByEmail(email)
                             .flatMap(userRepository::delete)
-                            .then(userRepository.save(user));
+                            .then(Mono.defer(() -> userRepository.save(user)));
                 })
                 .flatMap(user -> {
                     PermissionGroup permissionGroupUser = new PermissionGroup();
