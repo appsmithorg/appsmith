@@ -337,8 +337,16 @@ jobs:
           git config --global user.name "$gituser"
           git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
           git lfs install
-          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
-          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          if [ "$reponame" = "appsmith" ]; then
+              export repodir="CE"
+          elif [ "$reponame" = "appsmith-ee" ]; then
+              export repodir="EE"
+          elif [ "$reponame" = "appsmith-sagar-version" ]; then
+              export repodir="CE"
+          else
+              echo "Warning: Unknown repository name: $reponame"
+              export repodir="UNKNOWN"  # Optional: Set a default or fallback value
+          fi
           cd cibuildcache/$repodir/release/server
           git lfs pull ./server.jar
           mv ./server.jar ../../../../../server.jar
