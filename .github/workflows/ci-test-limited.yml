@@ -49,7 +49,7 @@ jobs:
           # Opens tcp port 6379 on the host and service container
           - 6379:6379
       postgres:
-        if: contains(github.base_ref, 'pg') || github.ref_name == 'pg'
+        if: github.base_ref == 'pg' || github.ref_name == 'pg'
         image: postgres:14
         ports:
           - 5432:5432
