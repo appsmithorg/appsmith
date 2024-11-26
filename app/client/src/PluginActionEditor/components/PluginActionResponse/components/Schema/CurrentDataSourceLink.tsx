@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { Link } from "@appsmith/ads";
 import { CurrentDataSource } from "./CurrentDataSource";
-import { useGoToDatasource } from "ee/PluginActionEditor/hooks/useGoToDatasource";
+import { useGoToDatasource } from "PluginActionEditor/components/PluginActionResponse/hooks/useGoToDatasource";
 
 const CurrentDataSourceLink = ({
   datasourceId,
