@@ -38,6 +38,11 @@ export const Tab = styled.div`
   &.active > .tab-close {
     visibility: visible;
   }
+
+  &.t--ide-tab-new_query,
+  &.t--ide-tab-new_js {
+    flex-shrink: 0;
+  }
 `;
 
 export const IconContainer = styled.div`

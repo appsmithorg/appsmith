@@ -25,10 +25,12 @@ export const FileTab = ({
   onDoubleClick,
   title,
 }: FileTabProps) => {
+  const identifier = `t--ide-tab-${sanitizeString(title)}`;
+
   return (
     <Styled.Tab
-      className={clsx("editor-tab", isActive && "active")}
-      data-testid={`t--ide-tab-${sanitizeString(title)}`}
+      className={clsx("editor-tab", isActive && "active", identifier)}
+      data-testid={identifier}
       onClick={onClick}
       onDoubleClick={onDoubleClick}
     >
