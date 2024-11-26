@@ -302,7 +302,8 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             // It is context level action and hence the action name should be unique
             if (TRUE.equals(importingMetaDTO.getIsPartialImport())
                     && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
-                updateActionNameBeforeMerge(importedNewActionList, mappedImportableResourcesDTO);
+                updateActionNameBeforeMerge(
+                        importedNewActionList, mappedImportableResourcesDTO, importingMetaDTO.getIsPartialImport());
             }
 
             return Mono.zip(actionsInCurrentArtifactMono, actionsInOtherBranchesMono)
@@ -469,7 +470,9 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     }
 
     private void updateActionNameBeforeMerge(
-            List<NewAction> importedNewActionList, MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+            List<NewAction> importedNewActionList,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            boolean isPartialImport) {
         Set<String> refactoringNames =
                 mappedImportableResourcesDTO.getRefactoringNameReference().keySet();
 
@@ -483,7 +486,9 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             String oldId = newAction.getId().split("_")[1];
             newAction.setId(newNameAction + "_" + oldId);
             newAction.getUnpublishedAction().setName(newNameAction);
-            newAction.getUnpublishedAction().setFullyQualifiedName(newNameAction);
+            if (!isPartialImport) {
+                newAction.getUnpublishedAction().setFullyQualifiedName(newNameAction);
+            }
             if (newAction.getPublishedAction() != null) {
                 newAction.getPublishedAction().setName(newNameAction);
                 newAction.getPublishedAction().setFullyQualifiedName(newNameAction);
