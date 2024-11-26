@@ -34,12 +34,6 @@ export interface INJECTED_CONFIGS {
     apiKey: string;
   };
   cloudHosting: boolean;
-  algolia: {
-    apiId: string;
-    apiKey: string;
-    indexName: string;
-    snippetIndex: string;
-  };
   logLevel: "debug" | "error";
   appVersion: {
     id: string;
@@ -88,12 +82,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
         ? process.env.REACT_APP_SEGMENT_KEY.length > 0
         : false,
       apiKey: process.env.REACT_APP_MIXPANEL_KEY || "",
-    },
-    algolia: {
-      apiId: process.env.REACT_APP_ALGOLIA_API_ID || "",
-      apiKey: process.env.REACT_APP_ALGOLIA_API_KEY || "",
-      indexName: process.env.REACT_APP_ALGOLIA_SEARCH_INDEX_NAME || "",
-      snippetIndex: process.env.REACT_APP_ALGOLIA_SNIPPET_INDEX_NAME || "",
     },
     observability: {
       deploymentName: process.env.APPSMITH_DEPLOYMENT_NAME || "self-hosted",
@@ -225,23 +213,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     APPSMITH_FEATURE_CONFIGS?.smartLook.id,
   );
 
-  const algoliaAPIID = getConfig(
-    ENV_CONFIG.algolia.apiId,
-    APPSMITH_FEATURE_CONFIGS?.algolia.apiId,
-  );
-  const algoliaAPIKey = getConfig(
-    ENV_CONFIG.algolia.apiKey,
-    APPSMITH_FEATURE_CONFIGS?.algolia.apiKey,
-  );
-  const algoliaIndex = getConfig(
-    ENV_CONFIG.algolia.indexName,
-    APPSMITH_FEATURE_CONFIGS?.algolia.indexName,
-  );
-  const algoliaSnippetIndex = getConfig(
-    ENV_CONFIG.algolia.indexName,
-    APPSMITH_FEATURE_CONFIGS?.algolia.snippetIndex,
-  );
-
   const segmentCEKey = getConfig(
     ENV_CONFIG.segment.ceKey,
     APPSMITH_FEATURE_CONFIGS?.segment.ceKey,
@@ -288,13 +259,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     fusioncharts: {
       enabled: fusioncharts.enabled,
       licenseKey: fusioncharts.value,
-    },
-    algolia: {
-      enabled: true,
-      apiId: algoliaAPIID.value || "AZ2Z9CJSJ0",
-      apiKey: algoliaAPIKey.value || "dfde934d9bdc2e0b14830f1dd3cb240f",
-      indexName: algoliaIndex.value || "omnibar_docusaurus_index",
-      snippetIndex: algoliaSnippetIndex.value || "snippet",
     },
     googleRecaptchaSiteKey: {
       enabled: googleRecaptchaSiteKey.enabled,

@@ -66,6 +66,7 @@ export interface DatasourceKeys {
   name: string;
   type: string;
   columnNames: string[];
+  fromColumns: string[];
 }
 
 export interface DatasourceStructure {

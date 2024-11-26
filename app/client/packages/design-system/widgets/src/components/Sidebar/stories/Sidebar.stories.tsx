@@ -1,12 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarTrigger,
-  SidebarProvider,
-  SidebarInset,
-} from "../src/index";
+import { Sidebar, SidebarTrigger, SidebarProvider } from "../src/index";
 import { Flex } from "../../Flex";
 import { Text, Icon } from "@appsmith/wds";
 
@@ -23,24 +17,22 @@ const meta: Meta<typeof Sidebar> = {
     },
   },
   args: {
-    side: "start",
-    variant: "sidebar",
+    title: "Sidebar",
   },
   render: (args) => (
     <SidebarProvider
+      defaultState="collapsed"
       style={{
         height: "50vh",
         border: "1px solid var(--color-bd-elevation-1)",
       }}
     >
-      <Sidebar {...args}>
-        <SidebarContent>
-          <DemoContent />
-        </SidebarContent>
-      </Sidebar>
       <Flex alignItems="start" margin="spacing-4" width="100%">
         <SidebarTrigger />
       </Flex>
+      <Sidebar {...args}>
+        <DemoContent />
+      </Sidebar>
     </SidebarProvider>
   ),
 };
@@ -74,10 +66,27 @@ export const Default: Story = {
   args: {},
 };
 
-export const SideRight: Story = {
-  args: {
-    side: "end",
-  },
+export const SideLeft: Story = {
+  args: {},
+  render: (args) => (
+    <SidebarProvider
+      side="start"
+      style={{
+        height: "50vh",
+        border: "1px solid var(--color-bd-elevation-1)",
+      }}
+    >
+      <Sidebar {...args}>
+        <DemoContent />
+      </Sidebar>
+      <Flex alignItems="start" margin="spacing-4" width="100%">
+        <SidebarTrigger />
+      </Flex>
+    </SidebarProvider>
+  ),
+};
+
+export const WithRenderProps: Story = {
   render: (args) => (
     <SidebarProvider
       style={{
@@ -89,37 +98,31 @@ export const SideRight: Story = {
         <SidebarTrigger />
       </Flex>
       <Sidebar {...args}>
-        <DemoContent />
+        {({ isAnimating, state }) => (
+          <Flex direction="column" gap="spacing-2" padding="spacing-4">
+            <Text color="neutral-subtle" size="caption">
+              Sidebar State
+            </Text>
+            <Flex direction="column" gap="spacing-3" marginTop="spacing-2">
+              <Flex alignItems="center" gap="spacing-2">
+                <Icon
+                  name={
+                    state === "collapsed"
+                      ? "arrows-diagonal-2"
+                      : "arrows-diagonal-minimize"
+                  }
+                />
+                <Flex gap="spacing-1">
+                  <Text size="body">{state}</Text>
+                  <Text color="neutral-subtle" size="caption">
+                    {isAnimating ? "(Animating)" : ""}
+                  </Text>
+                </Flex>
+              </Flex>
+            </Flex>
+          </Flex>
+        )}
       </Sidebar>
-    </SidebarProvider>
-  ),
-};
-
-export const VariantFloating: Story = {
-  args: {
-    variant: "floating",
-  },
-};
-
-export const VariantInset: Story = {
-  args: {
-    variant: "inset",
-  },
-  render: (args) => (
-    <SidebarProvider
-      style={{
-        height: "50vh",
-        border: "1px solid var(--color-bd-elevation-1)",
-      }}
-    >
-      <Sidebar {...args}>
-        <DemoContent />
-      </Sidebar>
-      <SidebarInset>
-        <Flex alignItems="start" margin="spacing-4" width="100%">
-          <SidebarTrigger />
-        </Flex>
-      </SidebarInset>
     </SidebarProvider>
   ),
 };

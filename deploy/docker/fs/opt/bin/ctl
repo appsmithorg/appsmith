@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# Do NOT change working directory with `cd`, so that the command being run has access to the working directory where
+# the command was invoked by the user.
+
+exec node /opt/appsmith/rts/bundle/ctl/index.js "$@"
