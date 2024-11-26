@@ -19,8 +19,83 @@ class BackupState {
 
   encryptionPassword: string = "";
 
+  constructor() {
+    // We seal `this` so that no link in the chain can "add" new properties to the state. This is intentional. If any
+    // link wants to save data in the `BackupState`, which shouldn't even be needed in most cases, it should do so by
+    // explicitly declaring a property in this class. No surprises.
+    Object.seal(this);
+  }
+
   isEncryptionEnabled() {
     return !!this.encryptionPassword;
+  }
+}
+
+interface Link {
+  // Called before the backup folder is created.
+  preBackup?(): Promise<void>;
+
+  // Called after backup folder is created. Expected to copy/create any backup files in the backup folder.
+  doBackup?(): Promise<void>;
+
+  // Called after backup archive is created. The archive location is available now.
+  postBackup?(): Promise<void>;
+}
+
+class DiskSpaceLink implements Link {
+  async preBackup() {
+    const availSpaceInBytes: number =
+      await getAvailableBackupSpaceInBytes("/appsmith-stacks");
+
+    checkAvailableBackupSpace(availSpaceInBytes);
+  }
+}
+
+class EncryptionLink implements Link {
+  constructor(private readonly state: BackupState) {}
+
+  async preBackup() {
+    if (
+      !command_args.includes("--non-interactive") &&
+      tty.isatty((process.stdout as any).fd)
+    ) {
+      this.state.encryptionPassword = getEncryptionPasswordFromUser();
+    }
+  }
+
+  async postBackup() {
+    if (!this.state.isEncryptionEnabled()) {
+      return;
+    }
+
+    const unencryptedArchivePath = this.state.archivePath;
+
+    this.state.archivePath = await encryptBackupArchive(
+      this.state.archivePath,
+      this.state.encryptionPassword,
+    );
+
+    await fsPromises.rm(unencryptedArchivePath, {
+      recursive: true,
+      force: true,
+    });
+  }
+}
+
+class ManifestLink implements Link {
+  constructor(private readonly state: BackupState) {}
+
+  async doBackup() {
+    const version = await utils.getCurrentAppsmithVersion();
+    const manifestData = {
+      appsmithVersion: version,
+      dbName: utils.getDatabaseNameFromMongoURI(utils.getDburl()),
+    };
+
+    await fsPromises.writeFile(
+      path.join(this.state.backupRootPath, "/manifest.json"),
+      JSON.stringify(manifestData, null, 2),
+    );
   }
 }
 
@@ -29,32 +104,34 @@ export async function run() {
 
   const state: BackupState = new BackupState();
 
+  const chain: Link[] = [
+    new DiskSpaceLink(),
+    new ManifestLink(state),
+    new EncryptionLink(state),
+  ];
+
   try {
     // PRE-BACKUP
-    const availSpaceInBytes: number =
-      await getAvailableBackupSpaceInBytes("/appsmith-stacks");
-
-    checkAvailableBackupSpace(availSpaceInBytes);
-
-    if (
-      !command_args.includes("--non-interactive") &&
-      tty.isatty((process.stdout as any).fd)
-    ) {
-      state.encryptionPassword = getEncryptionPasswordFromUser();
+    for (const link of chain) {
+      await link.preBackup?.();
     }
 
-    state.backupRootPath = await generateBackupRootPath();
-
     // BACKUP
+    state.backupRootPath = await generateBackupRootPath();
     await fsPromises.mkdir(state.backupRootPath);
 
     await exportDatabase(state.backupRootPath);
 
     await createGitStorageArchive(state.backupRootPath);
 
-    await createManifestFile(state.backupRootPath);
+    await exportDockerEnvFile(
+      state.backupRootPath,
+      state.isEncryptionEnabled(),
+    );
 
-    await exportDockerEnvFile(state.backupRootPath, state.isEncryptionEnabled());
+    for (const link of chain) {
+      await link.doBackup?.();
+    }
 
     state.archivePath = await createFinalArchive(
       state.backupRootPath,
@@ -62,27 +139,13 @@ export async function run() {
     );
 
     // POST-BACKUP
-    if (state.isEncryptionEnabled()) {
-      const encryptedArchivePath = await encryptBackupArchive(
-        state.archivePath,
-        state.encryptionPassword,
-      );
+    for (const link of chain) {
+      await link.postBackup?.();
+    }
 
-      await logger.backup_info(
-        "Finished creating an encrypted a backup archive at " +
-          encryptedArchivePath,
-      );
+    console.log("Post-backup done. Final archive at", state.archivePath);
 
-      if (state.archivePath != null) {
-        await fsPromises.rm(state.archivePath, {
-          recursive: true,
-          force: true,
-        });
-      }
-    } else {
-      await logger.backup_info(
-        "Finished creating a backup archive at " + state.archivePath,
-      );
+    if (!state.isEncryptionEnabled()) {
       console.log(
         "********************************************************* IMPORTANT!!! *************************************************************",
       );
@@ -216,19 +279,6 @@ async function createGitStorageArchive(destFolder: string) {
   await executeCopyCMD(gitRoot, destFolder);
 
   console.log("Created git-storage archive");
-}
-
-async function createManifestFile(path: string) {
-  const version = await utils.getCurrentAppsmithVersion();
-  const manifest_data = {
-    appsmithVersion: version,
-    dbName: utils.getDatabaseNameFromMongoURI(utils.getDburl()),
-  };
-
-  await fsPromises.writeFile(
-    path + "/manifest.json",
-    JSON.stringify(manifest_data),
-  );
 }
 
 async function exportDockerEnvFile(
