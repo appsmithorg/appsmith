@@ -583,76 +583,76 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 });
     }
 
-    private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityReferencesMap(
+    // Create a method that accept widgetDynamicBindingsMap and return a map of widget path to set of possible entities
+    // This method will be used to find all possible global entity references in the given set of bindings.
+    // We'll be able to find valid executable references only at this point. For widgets, we just assume that all
+    // references are possible candidates
+
+    private Mono<Map<String, Set<EntityDependencyNode>>> getWidgetPathToPossibleEntitiesReferencesMap(
             Mono<Map<String, Executable>> executableNameToExecutableMono,
-            List<String> bindings,
+            Map<String, Set<String>> widgetDynamicBindingsMap,
             int evalVersion,
             Set<EntityDependencyNode> bindingsInDsl) {
-        // We want to be finding both type of references
         final int entityTypes = EXECUTABLE_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
 
+        Map<Number, String> indexToWidgetPathMap = new HashMap<>();
+        int bindingStartIndexInAllBindings = 0;
+        List<String> allBindings = new ArrayList<>();
+        for (Map.Entry<String, Set<String>> entry : widgetDynamicBindingsMap.entrySet()) {
+            String widgetPath = entry.getKey();
+            Set<String> bindings = entry.getValue();
+            allBindings.addAll(bindings);
+            int numberOfBindingsInPath = bindings.size();
+            for (int i = bindingStartIndexInAllBindings;
+                    i < bindingStartIndexInAllBindings + numberOfBindingsInPath;
+                    i++) {
+                indexToWidgetPathMap.put(i, widgetPath);
+            }
+            bindingStartIndexInAllBindings = bindingStartIndexInAllBindings + numberOfBindingsInPath;
+        }
+
         return executableNameToExecutableMono
-                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion))
+                .zipWith(getPossibleEntityParentsMap(allBindings, entityTypes, evalVersion))
                 .map(tuple -> {
                     Map<String, Executable> executableMap = tuple.getT1();
-                    // For each binding, here we receive a set of possible references to global entities
-                    // At this point we're guaranteed that these references are made to possible variables,
-                    // but we do not know if those entities exist in the global namespace yet
                     Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap = tuple.getT2();
+                    Map<String, Set<EntityDependencyNode>> widgetPathToPossibleEntitiesReferences = new HashMap<>();
 
-                    Map<String, Set<EntityDependencyNode>> possibleEntitiesReferencesToBindingMap = new HashMap<>();
-
-                    // From these references, we will try to validate executable references at this point
-                    // Each identified node is already annotated with the expected type of entity we need to search for
+                    final int[] currentIndex = {0};
                     bindingToPossibleParentMap.entrySet().stream().forEach(entry -> {
                         Set<EntityDependencyNode> bindingsWithExecutableReference = new HashSet<>();
-                        String binding = entry.getKey();
                         Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
-                        entry.getValue().stream().forEach(possibleParent -> {
-                            // For each possible reference node, check if the reference was to an executable
-                            Executable executable = executableMap.get(possibleParent.getValidEntityName());
+                        String widgetPath = indexToWidgetPathMap.get(currentIndex[0]);
 
+                        entry.getValue().stream().forEach(possibleParent -> {
+                            Executable executable = executableMap.get(possibleParent.getValidEntityName());
                             if (executable != null) {
-                                // If it was, and had been identified as the same type of executable as what exists in
-                                // this app,
                                 if (possibleParent
                                         .getEntityReferenceType()
                                         .equals(executable.getEntityReferenceType())) {
-                                    // Copy over some data from the identified executable, this ensures that we do not
-                                    // have
-                                    // to query the DB again later
                                     possibleParent.setExecutable(executable);
                                     bindingsWithExecutableReference.add(possibleParent);
-                                    // Only if this is not a direct JS function call,
-                                    // add it to a possible on page load executable call.
-                                    // This discards the following type:
-                                    // {{ JSObject1.func() }}
                                     if (!TRUE.equals(possibleParent.getIsFunctionCall())) {
                                         possibleEntitiesReferences.add(possibleParent);
                                     }
-                                    // We're ignoring any reference that was identified as a widget but actually matched
-                                    // an executable
-                                    // We wouldn't have discarded JS collection names here, but this is just an
-                                    // optimization, so it's fine
                                 }
                             } else {
-                                // If the reference node was identified as a widget, directly add it as a possible
-                                // reference
-                                // Because we are not doing any validations for widget references at this point
                                 if (EntityReferenceType.WIDGET.equals(possibleParent.getEntityReferenceType())) {
                                     possibleEntitiesReferences.add(possibleParent);
                                 }
                             }
-
-                            possibleEntitiesReferencesToBindingMap.put(binding, possibleEntitiesReferences);
                         });
+
+                        widgetPathToPossibleEntitiesReferences.put(widgetPath, possibleEntitiesReferences);
 
                         if (!bindingsWithExecutableReference.isEmpty() && bindingsInDsl != null) {
                             bindingsInDsl.addAll(bindingsWithExecutableReference);
                         }
+
+                        currentIndex[0] = currentIndex[0] + 1;
                     });
 
-                    return possibleEntitiesReferencesToBindingMap;
+                    return widgetPathToPossibleEntitiesReferences;
                 });
     }
 
@@ -699,63 +699,43 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             Mono<Map<String, Executable>> executableNameToExecutableMapMono,
             Set<EntityDependencyNode> executableBindingsInDslRef,
             int evalVersion) {
+        return getWidgetPathToPossibleEntitiesReferencesMap(
+                        executableNameToExecutableMapMono,
+                        widgetDynamicBindingsMap,
+                        evalVersion,
+                        executableBindingsInDslRef)
+                .flatMapMany(widgetPathToPossibleEntitiesReferences ->
+                        Flux.fromIterable(widgetPathToPossibleEntitiesReferences.entrySet()))
+                .flatMap(entry -> {
+                    String widgetPropertyPath = entry.getKey();
+                    EntityDependencyNode widgetDependencyNode = new EntityDependencyNode(
+                            EntityReferenceType.WIDGET, widgetPropertyPath, widgetPropertyPath, null, null);
+                    Set<EntityDependencyNode> possibleEntities = entry.getValue();
 
-        Map<String, Set<EntityDependencyNode>> bindingToWidgetNodesMap = new HashMap<>();
-        List<String> allBindings = new ArrayList<>();
-
-        widgetDynamicBindingsMap.forEach((widgetName, bindingsInWidget) -> {
-            EntityDependencyNode widgetDependencyNode =
-                    new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
-
-            bindingsInWidget.forEach(binding -> {
-                bindingToWidgetNodesMap
-                        .computeIfAbsent(binding, bindingKey -> new HashSet<>())
-                        .add(widgetDependencyNode);
-                allBindings.add(binding);
-            });
-        });
-
-        Mono<Map<String, Set<EntityDependencyNode>>> bindingToPossibleEntityMapMono = getPossibleEntityReferencesMap(
-                executableNameToExecutableMapMono, allBindings, evalVersion, executableBindingsInDslRef);
-
-        return bindingToPossibleEntityMapMono
-                .flatMapMany(bindingToPossibleEntityMap -> Flux.fromIterable(bindingToPossibleEntityMap.entrySet()))
-                .flatMap(bindingEntry -> {
-                    String binding = bindingEntry.getKey();
-                    Set<EntityDependencyNode> possibleEntities = bindingEntry.getValue();
-
-                    // Get all widget nodes associated with the binding
-                    Set<EntityDependencyNode> widgetDependencyNodes =
-                            bindingToWidgetNodesMap.getOrDefault(binding, Set.of());
-
-                    // Process each possibleEntity for the current binding
-                    return Flux.fromIterable(possibleEntities).flatMap(possibleEntity -> Flux.fromIterable(
-                                    widgetDependencyNodes) // Iterate all associated widgets
-                            .flatMap(widgetDependencyNode -> {
-                                if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
-                                    edgesRef.add(new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
-                                    executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
-
-                                    return updateExecutableSelfReferencingPaths(possibleEntity)
-                                            .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
-                                            .tap(Micrometer.observation(observationRegistry))
-                                            .flatMap(executable -> extractAndSetExecutableBindingsInGraphEdges(
-                                                    possibleEntity,
-                                                    edgesRef,
-                                                    bindingsFromExecutablesRef,
-                                                    executableNameToExecutableMapMono,
-                                                    executablesFoundDuringWalkRef,
-                                                    null,
-                                                    evalVersion))
-                                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
-                                            .tap(Micrometer.observation(observationRegistry))
-                                            .thenReturn(possibleEntity);
-                                }
-                                return Mono.just(possibleEntity);
-                            }));
+                    return Flux.fromIterable(possibleEntities).flatMap(possibleEntity -> {
+                        if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
+                            edgesRef.add(new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
+                            executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
+                            return updateExecutableSelfReferencingPaths(possibleEntity)
+                                    .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
+                                    .tap(Micrometer.observation(observationRegistry))
+                                    .flatMap(executable -> extractAndSetExecutableBindingsInGraphEdges(
+                                            possibleEntity,
+                                            edgesRef,
+                                            bindingsFromExecutablesRef,
+                                            executableNameToExecutableMapMono,
+                                            executablesFoundDuringWalkRef,
+                                            null,
+                                            evalVersion))
+                                    .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                                    .tap(Micrometer.observation(observationRegistry))
+                                    .thenReturn(possibleEntity);
+                        }
+                        return Mono.just(possibleEntity);
+                    });
                 })
-                .collectList()
-                .thenReturn(edgesRef);
+                .collectList() // Collect all emitted elements into a list (to complete processing of the Flux)
+                .then(Mono.just(edgesRef)); // Return edgesRef as Mono
     }
 
     protected Mono<Executable> updateExecutableSelfReferencingPaths(EntityDependencyNode possibleEntity) {
