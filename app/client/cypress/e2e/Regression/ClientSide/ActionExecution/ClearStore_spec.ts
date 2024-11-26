@@ -237,7 +237,7 @@ describe(
       agHelper.GetNClick(propPane._deleteWidget);
     });
 
-    it.only("4. To verify that clearStore() only affects the current tab's storage and does not inadvertently impact session storage across tabs.", function () {
+    it("4. To verify that clearStore() only affects the current tab's storage and does not inadvertently impact session storage across tabs.", function () {
       entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
       const JS_OBJECT_BODY = `export default {
         storeValue: async () => {
