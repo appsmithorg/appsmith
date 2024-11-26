@@ -100,12 +100,16 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
-      - name: Get changed files in the server folder
+      # - name: Get changed files in the server folder
+      #   id: changed-files-specific
+      #   uses: tj-actions/changed-files@v44
+      #   with:
+      #     files: "app/server/**"
+      #     write_output_files: true
+
+      - name: Updating the server changed file variable
         id: changed-files-specific
-        uses: tj-actions/changed-files@v44
-        with:
-          files: "app/server/**"
-          write_output_files: true
+        run: echo "any_changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Run step if any file(s) in the server folder change
         if: steps.changed-files-specific.outputs.any_changed == 'true'
