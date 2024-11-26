@@ -6,7 +6,11 @@ import JSFunctionSettingsView, {
 import type { JSAction } from "entities/JSCollection";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { createMessage, JS_EDITOR_SETTINGS } from "ee/constants/messages";
+import {
+  createMessage,
+  JS_EDITOR_SETTINGS,
+  NO_JS_FUNCTIONS,
+} from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 interface Props {
@@ -98,6 +102,9 @@ export const JSFunctionSettings = (props: Props) => {
           onUpdateSettings={props.onUpdateSettings}
         />
       ))}
+      {props.actions.length === 0 && (
+        <Text kind="body-s">{createMessage(NO_JS_FUNCTIONS)}</Text>
+      )}
     </Flex>
   );
 };
