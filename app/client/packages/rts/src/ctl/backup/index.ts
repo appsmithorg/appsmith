@@ -1,108 +1,19 @@
 import fsPromises from "fs/promises";
 import path from "path";
 import os from "os";
-import * as utils from "./utils";
-import * as Constants from "./constants";
-import * as logger from "./logger";
-import * as mailer from "./mailer";
-import tty from "tty";
+import * as utils from "../utils";
+import * as Constants from "../constants";
+import * as logger from "../logger";
+import * as mailer from "../mailer";
 import readlineSync from "readline-sync";
+import { DiskSpaceLink } from "./links/DiskSpaceLink";
+import { EncryptionLink, Link, ManifestLink } from "./links";
+import { BackupState } from "./BackupState";
 
-const command_args = process.argv.slice(3);
-
-class BackupState {
-  readonly initAt: string = getTimeStampInISO();
-  readonly errors: string[] = [];
-
-  backupRootPath: string = "";
-  archivePath: string = "";
-
-  encryptionPassword: string = "";
-
-  constructor() {
-    // We seal `this` so that no link in the chain can "add" new properties to the state. This is intentional. If any
-    // link wants to save data in the `BackupState`, which shouldn't even be needed in most cases, it should do so by
-    // explicitly declaring a property in this class. No surprises.
-    Object.seal(this);
-  }
-
-  isEncryptionEnabled() {
-    return !!this.encryptionPassword;
-  }
-}
-
-interface Link {
-  // Called before the backup folder is created.
-  preBackup?(): Promise<void>;
-
-  // Called after backup folder is created. Expected to copy/create any backup files in the backup folder.
-  doBackup?(): Promise<void>;
-
-  // Called after backup archive is created. The archive location is available now.
-  postBackup?(): Promise<void>;
-}
-
-class DiskSpaceLink implements Link {
-  async preBackup() {
-    const availSpaceInBytes: number =
-      await getAvailableBackupSpaceInBytes("/appsmith-stacks");
-
-    checkAvailableBackupSpace(availSpaceInBytes);
-  }
-}
-
-class EncryptionLink implements Link {
-  constructor(private readonly state: BackupState) {}
-
-  async preBackup() {
-    if (
-      !command_args.includes("--non-interactive") &&
-      tty.isatty((process.stdout as any).fd)
-    ) {
-      this.state.encryptionPassword = getEncryptionPasswordFromUser();
-    }
-  }
-
-  async postBackup() {
-    if (!this.state.isEncryptionEnabled()) {
-      return;
-    }
-
-    const unencryptedArchivePath = this.state.archivePath;
-
-    this.state.archivePath = await encryptBackupArchive(
-      this.state.archivePath,
-      this.state.encryptionPassword,
-    );
-
-    await fsPromises.rm(unencryptedArchivePath, {
-      recursive: true,
-      force: true,
-    });
-  }
-}
-
-class ManifestLink implements Link {
-  constructor(private readonly state: BackupState) {}
-
-  async doBackup() {
-    const version = await utils.getCurrentAppsmithVersion();
-    const manifestData = {
-      appsmithVersion: version,
-      dbName: utils.getDatabaseNameFromMongoURI(utils.getDburl()),
-    };
-
-    await fsPromises.writeFile(
-      path.join(this.state.backupRootPath, "/manifest.json"),
-      JSON.stringify(manifestData, null, 2),
-    );
-  }
-}
-
-export async function run() {
+export async function run(args: string[]) {
   await utils.ensureSupervisorIsRunning();
 
-  const state: BackupState = new BackupState();
+  const state: BackupState = new BackupState(args);
 
   const chain: Link[] = [
     new DiskSpaceLink(),
@@ -169,7 +80,7 @@ export async function run() {
     process.exitCode = 1;
     await logger.backup_error(err.stack);
 
-    if (command_args.includes("--error-mail")) {
+    if (state.args.includes("--error-mail")) {
       const currentTS = new Date().getTime();
       const lastMailTS = await utils.getLastBackupErrorMailSentInMilliSec();
 

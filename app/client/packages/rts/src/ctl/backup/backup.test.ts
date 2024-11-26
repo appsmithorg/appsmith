@@ -1,13 +1,13 @@
-jest.mock("./utils", () => ({
-  ...jest.requireActual("./utils"),
+jest.mock("../utils", () => ({
+  ...jest.requireActual("../utils"),
   execCommand: jest.fn().mockImplementation(async (a) => a.join(" ")),
 }));
 
-import * as backup from "./backup";
-import * as Constants from "./constants";
+import * as backup from ".";
+import * as Constants from "../constants";
 import os from "os";
 import fsPromises from "fs/promises";
-import * as utils from "./utils";
+import * as utils from "../utils";
 import readlineSync from "readline-sync";
 
 describe("Backup Tests", () => {
