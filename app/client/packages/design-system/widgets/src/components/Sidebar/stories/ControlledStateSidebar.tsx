@@ -4,6 +4,7 @@ import {
   SidebarTrigger,
   SidebarProvider,
   type SidebarState,
+  type SidebarProps,
 } from "../src/index";
 import { Flex } from "../../Flex";
 
