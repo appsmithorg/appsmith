@@ -1,5 +1,10 @@
 name: Run Vulnerability Data Script with Parameters and Update PR
 
+
+run-name: >
+  ${{ github.workflow }} on Branch: ${{ github.ref_name }} with Image: ${{ inputs.image_name || 'appsmith/appsmith-ce:release' }}
+
+
 on:
   workflow_dispatch:
     inputs:
