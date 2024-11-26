@@ -13,6 +13,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionMoveDTO;
+import com.appsmith.server.dtos.CreateActionMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -33,6 +34,8 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
+
+import javax.swing.*;
 
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_BY_ID;
 import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_ACTION_BASED_ON_CONTEXT;
@@ -353,14 +356,17 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     protected Mono<ActionDTO> createAction(ActionDTO actionDTO, Boolean isJsAction, NewPage newPage) {
         AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
-        return createAction(actionDTO, eventContext, isJsAction, newPage);
+        CreateActionMetaDTO createActionMetaDTO = new CreateActionMetaDTO();
+        createActionMetaDTO.setIsJsAction(isJsAction);
+        createActionMetaDTO.setNewPage(newPage);
+        createActionMetaDTO.setEventContext(eventContext);
+        return createAction(actionDTO, createActionMetaDTO);
     }
 
     @Override
-    public Mono<ActionDTO> createAction(
-            ActionDTO actionDTO, AppsmithEventContext eventContext, Boolean isJsAction, NewPage newPage) {
-
-        return validateAndGenerateActionDomainBasedOnContext(actionDTO, isJsAction, newPage)
+    public Mono<ActionDTO> createAction(ActionDTO actionDTO, CreateActionMetaDTO actionMetaDTO) {
+        AppsmithEventContext eventContext = actionMetaDTO.getEventContext();
+        return validateAndGenerateActionDomainBasedOnContext(actionDTO, actionMetaDTO)
                 .name(VALIDATE_AND_GENERATE_ACTION_DOMAIN_BASED_ON_CONTEXT)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(newAction -> {
@@ -418,7 +424,9 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     }
 
     protected Mono<NewAction> validateAndGenerateActionDomainBasedOnContext(
-            ActionDTO action, boolean isJsAction, NewPage newPage) {
+            ActionDTO action, CreateActionMetaDTO actionMetaDTO) {
+        Boolean isJsAction = actionMetaDTO.getIsJsAction();
+        NewPage newPage = actionMetaDTO.getNewPage();
         if (!StringUtils.hasLength(action.getPageId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PAGE_ID));
         }
