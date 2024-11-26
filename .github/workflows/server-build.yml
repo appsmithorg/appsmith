@@ -111,12 +111,12 @@ jobs:
         id: changed-files-specific
         run: echo "any_changed=true" >> "$GITHUB_OUTPUT"
 
-      - name: Run step if any file(s) in the server folder change
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
-        run: |
-          echo "One or more files in the server folder has changed."
-          echo "List all the files that have changed:"
-          cat "${{ github.workspace }}/.github/outputs/all_changed_files.txt"
+      # - name: Run step if any file(s) in the server folder change
+      #   if: steps.changed-files-specific.outputs.any_changed == 'true'
+      #   run: |
+      #     echo "One or more files in the server folder has changed."
+      #     echo "List all the files that have changed:"
+      #     cat "${{ github.workspace }}/.github/outputs/all_changed_files.txt"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
