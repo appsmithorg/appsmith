@@ -33,11 +33,8 @@ export const _SidebarProvider = (
     (value: SidebarState | ((value: SidebarState) => SidebarState)) => {
       const computedState = typeof value === "function" ? value(state) : value;
 
-      if (setStateProp) {
-        setStateProp(computedState);
-      } else {
-        _setState(computedState);
-      }
+      _setState(computedState);
+      setStateProp?.(computedState);
     },
     [setStateProp, state],
   );
