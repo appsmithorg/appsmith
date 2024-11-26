@@ -1,12 +1,11 @@
-import { Link } from "./index";
-import { BackupState } from "../BackupState";
+import type { Link } from "./index";
+import type { BackupState } from "../BackupState";
 import * as utils from "../../utils";
 import fsPromises from "fs/promises";
 import path from "path";
 
 export class ManifestLink implements Link {
-  constructor(private readonly state: BackupState) {
-  }
+  constructor(private readonly state: BackupState) {}
 
   async doBackup() {
     const version = await utils.getCurrentAppsmithVersion();

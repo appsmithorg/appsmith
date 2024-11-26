@@ -7,7 +7,8 @@ import * as logger from "../logger";
 import * as mailer from "../mailer";
 import readlineSync from "readline-sync";
 import { DiskSpaceLink } from "./links/DiskSpaceLink";
-import { EncryptionLink, Link, ManifestLink } from "./links";
+import type { Link } from "./links";
+import { EncryptionLink, ManifestLink } from "./links";
 import { BackupState } from "./BackupState";
 
 export async function run(args: string[]) {

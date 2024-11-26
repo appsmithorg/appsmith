@@ -1,12 +1,11 @@
-import { Link } from "./index";
+import type { Link } from "./index";
 import tty from "tty";
 import fsPromises from "fs/promises";
 import { encryptBackupArchive, getEncryptionPasswordFromUser } from "../index";
-import { BackupState } from "../BackupState";
+import type { BackupState } from "../BackupState";
 
 export class EncryptionLink implements Link {
-  constructor(private readonly state: BackupState) {
-  }
+  constructor(private readonly state: BackupState) {}
 
   async preBackup() {
     if (
