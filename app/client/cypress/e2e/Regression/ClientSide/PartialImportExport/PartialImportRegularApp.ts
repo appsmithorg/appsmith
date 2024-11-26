@@ -48,7 +48,6 @@ describe(
         ["Api1"],
       );
 
-      cy.wait(5000);
       PageList.AddNewPage("New blank page");
       partialImportExport.OpenImportModal();
 
