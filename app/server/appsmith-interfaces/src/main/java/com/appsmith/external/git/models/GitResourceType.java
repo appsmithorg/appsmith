@@ -12,12 +12,7 @@ public enum GitResourceType {
     QUERY_CONFIG,
     QUERY_DATA,
     WIDGET_CONFIG,
-
-// ----------------------------------
-
-// ----------------------------------
-
-;
+    ;
 
     @Override
     public String toString() {
