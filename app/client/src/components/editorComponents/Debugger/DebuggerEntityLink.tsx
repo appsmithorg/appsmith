@@ -4,11 +4,31 @@ import type LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Plugin } from "api/PluginApi";
 import { Link } from "@appsmith/ads";
 import type { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
+import styled from "styled-components";
+import { getTypographyByKey } from "@appsmith/ads-old";
 
 export enum DebuggerLinkUI {
   ENTITY_TYPE,
   ENTITY_NAME,
 }
+
+const Wrapper = styled.div`
+  .debugger-entity-link {
+    // TODO: unclear why this file and LogItem.tsx have different styles when they look so similar
+    ${getTypographyByKey("h6")}
+    font-weight: 400;
+    letter-spacing: -0.195px;
+    color: var(--ads-v2-color-fg-emphasis);
+    cursor: pointer;
+    text-decoration-line: underline;
+    flex-shrink: 0;
+    width: max-content;
+
+    > span {
+      font-size: 12px;
+    }
+  }
+`;
 
 export type EntityLinkProps = {
   uiComponent: DebuggerLinkUI;
@@ -48,12 +68,14 @@ export function DebuggerEntityLink(props: {
       );
     case DebuggerLinkUI.ENTITY_NAME:
       return (
-        <Link
-          className="debugger-entity-link t--debugger-log-entity-link"
-          onClick={handleClick}
-        >
-          {props.name}
-        </Link>
+        <Wrapper>
+          <Link
+            className="debugger-entity-link t--debugger-log-entity-link"
+            onClick={handleClick}
+          >
+            {props.name}
+          </Link>
+        </Wrapper>
       );
     default:
       return null;

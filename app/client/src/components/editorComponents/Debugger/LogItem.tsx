@@ -120,18 +120,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     ${getTypographyByKey("p2")}
     line-height: 19px;
   }
-
-  .debugger-entity-link {
-    // TODO: unclear why this file and ErrorLogItem.tsx have different styles when they look so similar
-    ${getTypographyByKey("btnMedium")};
-    color: var(--ads-v2-color-fg-emphasis);
-    cursor: pointer;
-    width: max-content;
-
-    > span {
-      font-size: 12px;
-    }
-  }
 `;
 
 const ContextWrapper = styled.div`
