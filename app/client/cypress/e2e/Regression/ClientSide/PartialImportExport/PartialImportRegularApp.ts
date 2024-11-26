@@ -6,10 +6,12 @@ import {
   entityItems,
   locators,
   gitSync,
+  apiPage,
 } from "../../../../support/Objects/ObjectsCore";
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-const fixtureName = "ImportExportUpdated.json";
+const fixtureName = "ImportExport.json";
 
 describe(
   "Partial import and export functionality",
@@ -19,7 +21,7 @@ describe(
       agHelper.GenerateUUID();
       partialImportExport.OpenImportModal();
       homePage.ImportApp(`PartialImportExport/${fixtureName}`, "", true);
-      homePage.RenameApplication("ImportExportUpdated");
+      homePage.RenameApplication("ImportExport");
       entityExplorer.RenameEntityFromExplorer(
         "Page1",
         "Home",
@@ -27,8 +29,6 @@ describe(
         entityItems.Page,
       );
     });
-
-    beforeEach(() => {});
 
     it("1. Should export all the selected elements and import it to new Page", () => {
       partialImportExport.OpenExportModal();
@@ -42,20 +42,20 @@ describe(
 
       // Export Queries
       partialImportExport.OpenExportModal();
-      partialImportExport.ExportAndCompareDownloadedFile(
-        "queries",
+      partialImportExport.PartiallyExportFile(
         2,
         partialImportExport.locators.export.modelContents.queriesSection,
-        "PartialQueryXport.json",
-        fixtureName,
+        ["Api1"],
       );
+
+      cy.wait(5000);
       PageList.AddNewPage("New blank page");
       partialImportExport.OpenImportModal();
 
       // Import Widgets
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialWidgetXport.json",
+        "PartialWidgetExport.json",
         "Widgets",
         ["Table1", "Button1"],
       );
@@ -63,7 +63,7 @@ describe(
       // Import Queries
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialQueryXport.json",
+        "PartialQueryExport.json",
         "Queries",
         ["Api1"],
       );
@@ -73,12 +73,18 @@ describe(
         propFieldName: "Table data",
         valueToValidate: "{{Api1.data}}",
       });
+
+      PageLeftPane.switchSegment("Queries");
+      agHelper.GetNClick('[data-testid="t--entity-item-Api1"]');
+      apiPage.RunAPI();
+      PageLeftPane.switchSegment("UI");
+      agHelper.AssertElementExist('[data-colindex="0"][data-rowindex="0"]');
     });
 
     it("2. Should be able to import again in the same Page", () => {
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialWidgetXport.json",
+        "PartialWidgetExport.json",
         "Widgets",
         ["Table1", "Button1"],
       );
@@ -106,7 +112,7 @@ describe(
       // Import Widgets
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialWidgetXport.json",
+        "PartialWidgetExport.json",
         "Widgets",
         ["Table1", "Button1"],
       );
@@ -114,7 +120,7 @@ describe(
       // Import Queries
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialQueryXport.json",
+        "PartialQueryExport.json",
         "Queries",
         ["Api1"],
       );
@@ -124,9 +130,49 @@ describe(
         propFieldName: "Table data",
         valueToValidate: "{{Api1.data}}",
       });
+
+      PageLeftPane.switchSegment("Queries");
+      agHelper.GetNClick('[data-testid="t--entity-item-Api1"]');
+      apiPage.RunAPI();
+      PageLeftPane.switchSegment("UI");
+      agHelper.AssertElementExist('[data-colindex="0"][data-rowindex="0"]');
     });
 
-    it("4. Import to Git branch", () => {
+    it("4. Should import the Page into new workspace", () => {
+      homePage.CreateNewWorkspace("", true);
+
+      homePage.CreateNewApplication();
+
+      // Import Widgets
+      partialImportExport.OpenImportModal();
+      partialImportExport.ImportPartiallyExportedFile(
+        "PartialWidgetExport.json",
+        "Widgets",
+        ["Table1", "Button1"],
+      );
+
+      // Import Queries
+      partialImportExport.OpenImportModal();
+      partialImportExport.ImportPartiallyExportedFile(
+        "PartialQueryExport.json",
+        "Queries",
+        ["Api1"],
+      );
+
+      agHelper.selectAndValidateWidgetNameAndProperty({
+        widgetName: "Table1",
+        propFieldName: "Table data",
+        valueToValidate: "{{Api1.data}}",
+      });
+
+      PageLeftPane.switchSegment("Queries");
+      agHelper.GetNClick('[data-testid="t--entity-item-Api1"]');
+      apiPage.RunAPI();
+      PageLeftPane.switchSegment("UI");
+      agHelper.AssertElementExist('[data-colindex="0"][data-rowindex="0"]');
+    });
+
+    it("5. Import to Git branch", () => {
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
       gitSync.CreateNConnectToGit();
@@ -138,7 +184,7 @@ describe(
       // Import Widgets
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialWidgetXport.json",
+        "PartialWidgetExport.json",
         "Widgets",
         ["Table1", "Button1"],
       );
@@ -146,7 +192,7 @@ describe(
       // Import Queries
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialQueryXport.json",
+        "PartialQueryExport.json",
         "Queries",
         ["Api1"],
       );
@@ -163,7 +209,7 @@ describe(
       // Import Widgets
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialWidgetXport.json",
+        "PartialWidgetExport.json",
         "Widgets",
         ["Table1", "Button1"],
       );
@@ -171,7 +217,7 @@ describe(
       // Import Queries
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
-        "PartialQueryXport.json",
+        "PartialQueryExport.json",
         "Queries",
         ["Api1"],
       );
