@@ -186,6 +186,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     moreActionsMenu,
     notification,
     saveActionName,
+    settingsConfig,
   } = useContext(ApiEditorContext);
 
   const {
@@ -199,7 +200,6 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     isRunning,
     onRunClick,
     pluginId,
-    settingsConfig,
   } = props;
 
   const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
