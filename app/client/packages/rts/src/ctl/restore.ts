@@ -57,7 +57,10 @@ async function getBackupFileName() {
   }
 }
 
-async function decryptArchive(encryptedFilePath, backupFilePath) {
+async function decryptArchive(
+  encryptedFilePath: string,
+  backupFilePath: string,
+) {
   console.log("Enter the password to decrypt the backup archive:");
 
   for (const attempt of [1, 2, 3]) {
@@ -75,7 +78,7 @@ async function decryptArchive(encryptedFilePath, backupFilePath) {
         "-aes-256-cbc",
         "-pbkdf2",
         "-iter",
-        100000,
+        "100000",
         "-in",
         encryptedFilePath,
         "-out",
@@ -93,7 +96,7 @@ async function decryptArchive(encryptedFilePath, backupFilePath) {
   return false;
 }
 
-async function extractArchive(backupFilePath, restoreRootPath) {
+async function extractArchive(backupFilePath: string, restoreRootPath: string) {
   console.log("Extracting the Appsmith backup archive at " + backupFilePath);
   await utils.execCommand([
     "tar",
@@ -105,7 +108,7 @@ async function extractArchive(backupFilePath, restoreRootPath) {
   console.log("Extracting the backup archive completed");
 }
 
-async function restoreDatabase(restoreContentsPath, dbUrl) {
+async function restoreDatabase(restoreContentsPath: string, dbUrl: string) {
   console.log("Restoring database...");
   const cmd = [
     "mongorestore",
@@ -136,9 +139,9 @@ async function restoreDatabase(restoreContentsPath, dbUrl) {
 }
 
 async function restoreDockerEnvFile(
-  restoreContentsPath,
-  backupName,
-  overwriteEncryptionKeys,
+  restoreContentsPath: string,
+  backupName: string,
+  overwriteEncryptionKeys: boolean,
 ) {
   console.log("Restoring docker environment file");
   const dockerEnvFile = "/appsmith-stacks/configuration/docker.env";
@@ -227,9 +230,11 @@ async function restoreDockerEnvFile(
   console.log("Restoring docker environment file completed");
 }
 
-async function restoreGitStorageArchive(restoreContentsPath, backupName) {
+async function restoreGitStorageArchive(
+  restoreContentsPath: string,
+  backupName: string,
+) {
   console.log("Restoring git-storage archive");
-  // TODO: Consider APPSMITH_GIT_ROOT env for later iterations
   const gitRoot = "/appsmith-stacks/git-storage";
 
   await utils.execCommand(["mv", gitRoot, gitRoot + "-" + backupName]);
@@ -241,11 +246,11 @@ async function restoreGitStorageArchive(restoreContentsPath, backupName) {
   console.log("Restoring git-storage archive completed");
 }
 
-async function checkRestoreVersionCompatability(restoreContentsPath) {
+async function checkRestoreVersionCompatability(restoreContentsPath: string) {
   const currentVersion = await utils.getCurrentAppsmithVersion();
   const manifest_data = await fsPromises.readFile(
-    restoreContentsPath + "/manifest.json",
-    { encoding: "utf8" },
+    path.join(restoreContentsPath, "manifest.json"),
+    "utf8",
   );
   const manifest_json = JSON.parse(manifest_data);
   const restoreVersion = manifest_json["appsmithVersion"];
@@ -265,9 +270,9 @@ async function checkRestoreVersionCompatability(restoreContentsPath) {
       "The Appsmith instance to be restored is not compatible with the current version.",
     );
     console.log(
-      'Please update your appsmith image to "index.docker.io/appsmith/appsmith-ce:' +
+      "Please update your appsmith image to 'index.docker.io/appsmith/appsmith-ce:" +
         restoreVersion +
-        '" in the "docker-compose.yml" file\nand run the cmd: "docker-compose restart" ' +
+        "' in the 'docker-compose.yml' file\nand run the cmd: 'docker-compose restart' " +
         "after the restore process is completed, to ensure the restored instance runs successfully.",
     );
     const confirm = readlineSync.question(
@@ -280,7 +285,7 @@ async function checkRestoreVersionCompatability(restoreContentsPath) {
   }
 }
 
-async function getBackupDatabaseName(restoreContentsPath) {
+async function getBackupDatabaseName(restoreContentsPath: string) {
   let db_name = "appsmith";
 
   if (command_args.includes("--backup-db-name")) {
@@ -307,10 +312,9 @@ async function getBackupDatabaseName(restoreContentsPath) {
 }
 
 export async function run() {
-  let errorCode = 0;
   let cleanupArchive = false;
   let overwriteEncryptionKeys = true;
-  let backupFilePath;
+  let backupFilePath: string;
 
   await utils.ensureSupervisorIsRunning();
 
@@ -318,7 +322,7 @@ export async function run() {
     let backupFileName = await getBackupFileName();
 
     if (backupFileName == null) {
-      process.exit(errorCode);
+      process.exit();
     } else {
       backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
 
@@ -342,15 +346,17 @@ export async function run() {
             "You have entered the incorrect password multiple times. Aborting the restore process.",
           );
           await fsPromises.rm(backupFilePath, { force: true });
-          process.exit(errorCode);
+          process.exit();
         }
       }
 
       const backupName = backupFileName.replace(/\.tar\.gz$/, "");
       const restoreRootPath = await fsPromises.mkdtemp(os.tmpdir());
-      const restoreContentsPath = path.join(restoreRootPath, backupName);
 
       await extractArchive(backupFilePath, restoreRootPath);
+
+      const restoreContentsPath = await figureOutContentsPath(restoreRootPath);
+
       await checkRestoreVersionCompatability(restoreContentsPath);
 
       console.log(
@@ -372,17 +378,58 @@ export async function run() {
     }
   } catch (err) {
     console.log(err);
-    errorCode = 1;
+    process.exitCode = 1;
   } finally {
     if (cleanupArchive) {
       await fsPromises.rm(backupFilePath, { force: true });
     }
 
     await utils.start(["backend", "rts"]);
-    process.exit(errorCode);
+    process.exit();
   }
 }
 
-function isArchiveEncrypted(backupFilePath) {
+function isArchiveEncrypted(backupFilePath: string) {
   return backupFilePath.endsWith(".enc");
+}
+
+async function figureOutContentsPath(root: string): Promise<string> {
+  const subfolders = await fsPromises.readdir(root, { withFileTypes: true });
+
+  try {
+    // Check if the root itself contains the contents.
+    await fsPromises.access(path.join(root, "manifest.json"));
+
+    return root;
+  } catch (error) {
+    // Ignore
+  }
+
+  for (const subfolder of subfolders) {
+    if (subfolder.isDirectory()) {
+      try {
+        // Try to find the `manifest.json` file.
+        await fsPromises.access(
+          path.join(root, subfolder.name, "manifest.json"),
+        );
+
+        return path.join(root, subfolder.name);
+      } catch (error) {
+        // Ignore
+      }
+
+      try {
+        // If that fails, look for the MongoDB data archive, since backups from v1.7.x and older won't have `manifest.json`.
+        await fsPromises.access(
+          path.join(root, subfolder.name, "mongodb-data.gz"),
+        );
+
+        return path.join(root, subfolder.name);
+      } catch (error) {
+        // Ignore
+      }
+    }
+  }
+
+  throw new Error("Could not find the contents of the backup archive.");
 }

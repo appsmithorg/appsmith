@@ -277,7 +277,6 @@
     "@types/react-dom": "^17.0.2",
     "@types/react-google-recaptcha": "^2.1.1",
     "@types/react-helmet": "^5.0.14",
-    "@types/react-instantsearch-core": "^6.26.10",
     "@types/react-modal": "^3.13.1",
     "@types/react-redux": "^7.0.1",
     "@types/react-router-dom": "^5.1.2",
