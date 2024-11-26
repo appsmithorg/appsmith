@@ -3,6 +3,7 @@ package com.appsmith.server.applications.base;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -15,12 +16,9 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import javax.sql.DataSource;
 
 @Slf4j
 @Service
@@ -42,8 +40,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
             ObservationRegistry observationRegistry,
-            DataSource dataSource,
-            EntityManagerFactory entityManager) {
+            WorkspaceRepositoryCake workspaceRepositoryCake) {
         super(
                 validator,
                 repositoryDirect,
@@ -60,7 +57,6 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 workspaceService,
                 workspacePermission,
                 observationRegistry,
-                dataSource,
-                entityManager);
+                workspaceRepositoryCake);
     }
 }

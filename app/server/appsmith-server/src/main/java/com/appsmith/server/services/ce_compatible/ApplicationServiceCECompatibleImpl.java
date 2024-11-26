@@ -4,6 +4,7 @@ import com.appsmith.server.applications.base.ApplicationServiceCEImpl;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -15,11 +16,8 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.validation.Validator;
 import org.springframework.stereotype.Service;
-
-import javax.sql.DataSource;
 
 @Service
 public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
@@ -40,8 +38,7 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
             ObservationRegistry observationRegistry,
-            DataSource dataSource,
-            EntityManagerFactory entityManagerFactory) {
+            WorkspaceRepositoryCake workspaceRepositoryCake) {
         super(
                 validator,
                 repositoryDirect,
@@ -58,7 +55,6 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
                 workspaceService,
                 workspacePermission,
                 observationRegistry,
-                dataSource,
-                entityManagerFactory);
+                workspaceRepositoryCake);
     }
 }

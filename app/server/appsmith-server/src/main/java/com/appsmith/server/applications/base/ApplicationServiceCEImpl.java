@@ -34,6 +34,7 @@ import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
@@ -46,7 +47,6 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
 import io.micrometer.observation.ObservationRegistry;
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -59,7 +59,6 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.sql.DataSource;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -95,8 +94,7 @@ public class ApplicationServiceCEImpl
     private final WorkspaceService workspaceService;
     private final WorkspacePermission workspacePermission;
     private final ObservationRegistry observationRegistry;
-    private final DataSource dataSource;
-    private final EntityManagerFactory entityManagerFactory;
+    private final WorkspaceRepositoryCake workspaceRepositoryCake;
 
     private static final Integer MAX_RETRIES = 5;
 
@@ -117,8 +115,7 @@ public class ApplicationServiceCEImpl
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
             ObservationRegistry observationRegistry,
-            DataSource dataSource,
-            EntityManagerFactory entityManagerFactory) {
+            WorkspaceRepositoryCake workspaceRepositoryCake) {
 
         super(validator, repositoryDirect, repository, analyticsService);
         this.policySolution = policySolution;
@@ -132,8 +129,7 @@ public class ApplicationServiceCEImpl
         this.workspaceService = workspaceService;
         this.workspacePermission = workspacePermission;
         this.observationRegistry = observationRegistry;
-        this.dataSource = dataSource;
-        this.entityManagerFactory = entityManagerFactory;
+        this.workspaceRepositoryCake = workspaceRepositoryCake;
     }
 
     @Override
@@ -1096,6 +1092,18 @@ public class ApplicationServiceCEImpl
                     update.setName("updated_name");
                     // return Mono.error(new RuntimeException("Error"));
                     return repository.updateById(id, update, null);
+                })
+                .flatMap(obj -> {
+                    Workspace workspace = new Workspace();
+                    workspace.setName("updated_workspace_name");
+
+                    Application update = new Application();
+                    update.setSlug("updated_name_2");
+
+                    return repository
+                            .updateById(id, update, null)
+                            .then(workspaceRepositoryCake.updateById(obj.getWorkspaceId(), workspace, null))
+                            .then(Mono.defer(() -> repository.findById(id, applicationPermission.getEditPermission())));
                 });
 
         return applicationMono
