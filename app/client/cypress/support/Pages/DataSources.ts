@@ -269,7 +269,7 @@ export class DataSources {
     "')]/ancestor::div[@class='form-config-top']/following-sibling::div//div[contains(@class, 'rc-select-multiple')]";
   private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
   private _datasourceStructureHeader = ".datasourceStructure-header";
-  _datasourceSchemaColumn = ".t--datasource-column";
+  _datasourceSchemaColumn = ".t--datasource-column .t--field-name";
   _datasourceStructureSearchInput = ".datasourceStructure-search input";
   _jsModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
   public _queryEditorCollapsibleIcon = ".collapsible-icon";
@@ -300,7 +300,7 @@ export class DataSources {
   _imgFireStoreLogo = "//img[contains(@src, 'firestore.svg')]";
   _dsVirtuosoElement = `div .t--schema-virtuoso-container`;
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
-  private _dsSchemaContainer = `[data-testid="datasource-schema-container"]`;
+  private _dsSchemaContainer = `[data-testid="t--datasource-schema-container"]`;
   private _dsVirtuosoElementTable = (targetTableName: string) =>
     `${this._dsSchemaEntityItem}[data-testid='t--entity-item-${targetTableName}']`;
   private _dsPageTabListItem = (buttonText: string) =>

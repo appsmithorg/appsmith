@@ -79,7 +79,7 @@ describe(
           "public.users",
         );
         dataSources.SelectTableFromPreviewSchemaList("public.users");
-        dataSources.VerifyColumnSchemaOnQueryEditor("id", 1);
+        dataSources.VerifyColumnSchemaOnQueryEditor("id", 0);
       },
     );
 
