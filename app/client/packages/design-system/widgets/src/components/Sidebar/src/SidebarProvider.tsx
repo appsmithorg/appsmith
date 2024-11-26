@@ -20,6 +20,7 @@ export const _SidebarProvider = (
     className,
     defaultState = "expanded",
     onStateChange: setStateProp,
+    side = "end",
     state: stateProp,
     style,
     ...rest
@@ -69,9 +70,10 @@ export const _SidebarProvider = (
       state,
       setState,
       isMobile,
+      side,
       toggleSidebar,
     }),
-    [state, setState, isMobile, toggleSidebar],
+    [state, setState, isMobile, toggleSidebar, side],
   );
 
   return (
@@ -81,7 +83,6 @@ export const _SidebarProvider = (
         ref={ref}
         style={
           {
-            "--sidebar-width": SIDEBAR_CONSTANTS.WIDTH.DESKTOP,
             "--sidebar-width-icon": SIDEBAR_CONSTANTS.WIDTH.ICON,
             ...style,
           } as React.CSSProperties

@@ -39,6 +39,7 @@ function IDESidebar(props: IDESidebarProps) {
       <div>
         {topButtons.map((button) => (
           <SidebarButton
+            condition={button.condition}
             icon={button.icon}
             key={button.state}
             onClick={onClick}
@@ -52,6 +53,7 @@ function IDESidebar(props: IDESidebarProps) {
       <div>
         {bottomButtons.map((button) => (
           <SidebarButton
+            condition={button.condition}
             icon={button.icon}
             key={button.state}
             onClick={onClick}

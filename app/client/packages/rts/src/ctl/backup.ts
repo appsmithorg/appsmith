@@ -31,11 +31,8 @@ export async function run() {
 
   try {
     // PRE-BACKUP
-    console.log("Available free space at /appsmith-stacks");
     const availSpaceInBytes: number =
       await getAvailableBackupSpaceInBytes("/appsmith-stacks");
-
-    console.log("\n");
 
     checkAvailableBackupSpace(availSpaceInBytes);
 

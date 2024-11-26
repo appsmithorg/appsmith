@@ -252,8 +252,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             // creation) or if this was a login (existing user). What we do here to identify this, is an approximation.
             // If and when we find a better way to do identify this, let's please move away from this approximation.
             // If the user object was created within the last 5 seconds, we treat it as a new user.
-            final boolean oauthIsFromSignup =
-                    user.getCreatedAt().isAfter(Instant.now().minusSeconds(5));
+            isFromSignup = user.getCreatedAt().isAfter(Instant.now().minusSeconds(5));
 
             // Check the existing login source with the authentication source and then update the login source,
             // if they are not the same.
@@ -270,19 +269,20 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         .subscribeOn(Schedulers.boundedElastic())
                         .subscribe();
             }
-            if (oauthIsFromSignup) {
+            if (isFromSignup) {
+                final boolean isFromSignupFinal = isFromSignup;
                 redirectionMono = workspaceServiceHelper
                         .isCreateWorkspaceAllowed(TRUE)
                         .flatMap(isCreateWorkspaceAllowed -> {
                             if (isCreateWorkspaceAllowed.equals(Boolean.TRUE)) {
                                 return createDefaultApplication(defaultWorkspaceId, authentication)
                                         .flatMap(application -> handleOAuth2Redirect(
-                                                webFilterExchange, application, oauthIsFromSignup));
+                                                webFilterExchange, application, isFromSignupFinal));
                             }
-                            return handleOAuth2Redirect(webFilterExchange, null, oauthIsFromSignup);
+                            return handleOAuth2Redirect(webFilterExchange, null, isFromSignupFinal);
                         });
             } else {
-                redirectionMono = handleOAuth2Redirect(webFilterExchange, null, oauthIsFromSignup);
+                redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
             }
         } else {
             // form type signup/login handler
@@ -290,6 +290,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     webFilterExchange, defaultWorkspaceId, authentication, isFromSignup, createDefaultApplication);
         }
 
+        final boolean isFromSignupFinal = isFromSignup;
         Mono<Void> finalRedirectionMono = redirectionMono;
         return sessionUserService
                 .getCurrentUser()
@@ -307,7 +308,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                     }
 
-                    if (isFromSignup) {
+                    if (isFromSignupFinal) {
                         final String inviteToken = currentUser.getInviteToken();
                         final boolean isFromInvite = inviteToken != null;
 

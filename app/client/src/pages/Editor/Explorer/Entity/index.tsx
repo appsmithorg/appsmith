@@ -203,20 +203,10 @@ export const EntityItem = styled.div<{
 `;
 
 const IconWrapper = styled.span`
-  line-height: ${(props) => props.theme.lineHeights[0]}px;
-  color: var(--ads-v2-color-fg);
-  display: flex;
-  align-items: center;
-
-  div {
-    cursor: pointer;
-  }
-
   svg {
     width: 16px;
     height: 16px;
   }
-  margin-right: 4px;
 `;
 
 export const AddButtonWrapper = styled.div`

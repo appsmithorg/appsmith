@@ -33,7 +33,7 @@ describe("useChangeActionCall hook", () => {
   });
 
   it("should dispatch changeApi when plugin type is API", () => {
-    const actionMock = { id: "actionId" };
+    const actionMock = { id: "actionId", baseId: "baseActionId" };
     const pluginMock = { id: "pluginId", type: PluginType.API };
 
     // Mock the return values of usePluginActionContext
@@ -53,6 +53,7 @@ describe("useChangeActionCall hook", () => {
   it("should dispatch changeQuery when plugin type is not API", () => {
     const actionMock = {
       id: "actionId",
+      baseId: "baseActionId",
       pageId: "pageId",
       applicationId: "applicationId",
       packageId: "packageId",
@@ -72,7 +73,7 @@ describe("useChangeActionCall hook", () => {
 
     // Expect changeQuery to be called with the correct parameters
     expect(changeQuery).toHaveBeenCalledWith({
-      baseQueryId: actionMock.id,
+      baseQueryId: actionMock.baseId,
       basePageId: actionMock.pageId,
       applicationId: actionMock.applicationId,
       packageId: actionMock.packageId,
@@ -81,7 +82,7 @@ describe("useChangeActionCall hook", () => {
     });
     expect(dispatchMock).toHaveBeenCalledWith(
       changeQuery({
-        baseQueryId: actionMock.id,
+        baseQueryId: actionMock.baseId,
         basePageId: actionMock.pageId,
         applicationId: actionMock.applicationId,
         packageId: actionMock.packageId,
@@ -106,7 +107,7 @@ describe("useChangeActionCall hook", () => {
   });
 
   it("should not dispatch any action if the action Id has not changed", () => {
-    const actionMock = { id: "actionId" };
+    const actionMock = { id: "actionId", baseId: "baseActionId" };
     const pluginMock = { id: "pluginId", type: PluginType.API };
 
     // First we mount, so it should be called as previous action id was undefined

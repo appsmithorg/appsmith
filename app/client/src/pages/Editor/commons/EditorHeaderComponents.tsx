@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "@appsmith/ads-old";
-import { IDE_HEADER_HEIGHT } from "IDE";
+import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 
 export const HeaderWrapper = styled.div`
   width: 100%;
