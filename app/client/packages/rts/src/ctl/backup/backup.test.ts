@@ -142,7 +142,9 @@ describe("Backup Tests", () => {
     await backup.removeOldBackups(backupFiles, 4);
 
     expect(fsPromises.rm).toHaveBeenCalledTimes(1);
-    expect(fsPromises.rm).toHaveBeenCalledWith(Constants.BACKUP_PATH + "/file1");
+    expect(fsPromises.rm).toHaveBeenCalledWith(
+      Constants.BACKUP_PATH + "/file1",
+    );
   });
 
   test("Cleanup Backups when limit is 2 and there are 5 files", async () => {
@@ -152,9 +154,15 @@ describe("Backup Tests", () => {
     await backup.removeOldBackups(backupFiles, 2);
 
     expect(fsPromises.rm).toHaveBeenCalledTimes(3);
-    expect(fsPromises.rm).toHaveBeenCalledWith(Constants.BACKUP_PATH + "/file1");
-    expect(fsPromises.rm).toHaveBeenCalledWith(Constants.BACKUP_PATH + "/file2");
-    expect(fsPromises.rm).toHaveBeenCalledWith(Constants.BACKUP_PATH + "/file3");
+    expect(fsPromises.rm).toHaveBeenCalledWith(
+      Constants.BACKUP_PATH + "/file1",
+    );
+    expect(fsPromises.rm).toHaveBeenCalledWith(
+      Constants.BACKUP_PATH + "/file2",
+    );
+    expect(fsPromises.rm).toHaveBeenCalledWith(
+      Constants.BACKUP_PATH + "/file3",
+    );
   });
 
   test("Cleanup Backups when limit is 4 and there are 4 files", async () => {
