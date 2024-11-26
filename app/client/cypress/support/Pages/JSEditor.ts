@@ -14,6 +14,7 @@ export interface ICreateJSObjectOptions {
   shouldCreateNewJSObj: boolean;
   lineNumber?: number;
   prettify?: boolean;
+  isPackages?: boolean;
 }
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
@@ -133,6 +134,7 @@ export class JSEditor {
   ) {
     const {
       completeReplace,
+      isPackages,
       lineNumber,
       paste,
       prettify,
@@ -176,7 +178,9 @@ export class JSEditor {
       });
       cy.get(this.locator._empty).should("not.exist");
     }
-    this.GetJSObjectName();
+    if (!isPackages) {
+      this.GetJSObjectName();
+    }
   }
 
   //Edit the name of a JSObject's property (variable or function)
