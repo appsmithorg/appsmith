@@ -1,16 +1,19 @@
 package com.appsmith.server.notifications;
 
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.domains.MailSettings;
 import com.appsmith.server.helpers.TemplateUtils;
+import com.appsmith.server.services.TenantService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -18,50 +21,54 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import java.util.Properties;
 
 import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class EmailSender {
-
-    private final JavaMailSender javaMailSender;
 
     private final EmailConfig emailConfig;
 
-    private final InternetAddress REPLY_TO;
+    private final TenantService tenantService;
 
-    public EmailSender(JavaMailSender javaMailSender, EmailConfig emailConfig) {
-        this.javaMailSender = javaMailSender;
-        this.emailConfig = emailConfig;
+    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ?> params) {
+        final String content;
+        try {
+            content = params == null ? text : TemplateUtils.parseTemplate(text, params);
+        } catch (IOException e) {
+            throw Exceptions.propagate(e);
+        }
 
-        REPLY_TO = makeReplyTo();
-    }
+        final Mono<MailSettings> mailSettingsMono;
 
-    public Mono<Boolean> sendMail(String to, String subject, String text, Map<String, ? extends Object> params) {
-        return sendMail(to, subject, text, params, null);
-    }
+        if (emailConfig.isEmailEnabled()) {
+            mailSettingsMono = Mono.just(new MailSettings(
+                    true,
+                    "smtp",
+                    System.getenv("APPSMITH_MAIL_HOST"),
+                    Integer.parseInt(StringUtils.defaultIfEmpty(System.getenv("APPSMITH_MAIL_POST"), "25")),
+                    "true".equals(System.getenv("APPSMITH_MAIL_SMTP_TLS_ENABLED")),
+                    System.getenv("APPSMITH_MAIL_USERNAME"),
+                    System.getenv("APPSMITH_MAIL_PASSWORD"),
+                    emailConfig.getReplyTo()));
 
-    public Mono<Boolean> sendMail(
-            String to, String subject, String text, Map<String, ? extends Object> params, String replyTo) {
+        } else {
+            mailSettingsMono = tenantService.getDefaultTenant().map(t -> t.getTenantConfiguration()
+                    .getMailSettings());
+        }
 
-        /**
+        /*
          * Creating a publisher which sends email in a blocking fashion, subscribing on the bounded elastic
          * scheduler and then subscribing to it so that the publisher starts emitting immediately. We do not
          * wait for the blocking call of `sendMailSync` to finish. BoundedElastic scheduler would ensure that
          * when the number of tasks go beyond the number of available threads, the tasks would be deferred till
          * a thread becomes available without overloading the server.
          */
-        Mono.fromCallable(() -> {
-                    try {
-                        return params == null ? text : TemplateUtils.parseTemplate(text, params);
-                    } catch (IOException e) {
-                        throw Exceptions.propagate(e);
-                    }
-                })
-                .doOnNext(emailBody -> {
-                    sendMailSync(to, subject, emailBody, replyTo);
-                })
+        mailSettingsMono
+                .doOnNext(mailSettings -> sendMailSync(to, subject, content, mailSettings))
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
 
@@ -72,11 +79,12 @@ public class EmailSender {
     /**
      * [Synchronous]This function sends an HTML email to the user from the default email address
      *
-     * @param to      Single valid string email address to send to. Multiple addresses doesn't work.
-     * @param subject Subject string.
-     * @param text    HTML Body of the message. This method assumes UTF-8.
+     * @param to           Single valid string email address to send to. Multiple addresses doesn't work.
+     * @param subject      Subject string.
+     * @param text         HTML Body of the message. This method assumes UTF-8.
+     * @param mailSettings Mail settings to use for sending the email.
      */
-    private void sendMailSync(String to, String subject, String text, String replyTo) {
+    private void sendMailSync(String to, String subject, String text, MailSettings mailSettings) {
         log.debug("Got request to send email to: {} with subject: {}", to, subject);
         // Don't send an email for local, dev or test environments
         if (!emailConfig.isEmailEnabled()) {
@@ -89,8 +97,27 @@ public class EmailSender {
             return;
         }
 
+        final JavaMailSenderImpl sender = new JavaMailSenderImpl();
+        sender.setHost(mailSettings.host());
+        sender.setPort(mailSettings.port());
+
+        final Properties props = sender.getJavaMailProperties();
+        props.setProperty("mail.transport.protocol", mailSettings.protocol());
+
+        props.put("mail.smtp.starttls.enable", mailSettings.isStartTLSEnabled().toString());
+
+        props.put("mail.smtp.timeout", 7000); // 7 seconds
+
+        if (mailSettings.username() != null && mailSettings.password() != null) {
+            props.put("mail.smtp.auth", "true");
+            sender.setUsername(mailSettings.username());
+            sender.setPassword(mailSettings.password());
+        } else {
+            props.put("mail.smtp.auth", "false");
+        }
+
         log.debug("Going to send email to {} with subject {}", to, subject);
-        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        MimeMessage mimeMessage = sender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
         try {
@@ -98,14 +125,15 @@ public class EmailSender {
             if (emailConfig.getMailFrom() != null) {
                 helper.setFrom(emailConfig.getMailFrom());
             }
-            if (StringUtils.hasLength(replyTo)) {
+
+            final InternetAddress replyTo = makeReplyTo();
+            if (replyTo != null) {
                 helper.setReplyTo(replyTo);
-            } else if (REPLY_TO != null) {
-                helper.setReplyTo(REPLY_TO);
             }
+
             helper.setSubject(subject);
             helper.setText(text, true);
-            javaMailSender.send(mimeMessage);
+            sender.send(mimeMessage);
 
             log.debug("Email sent successfully to {} with subject {}", to, subject);
         } catch (MessagingException e) {

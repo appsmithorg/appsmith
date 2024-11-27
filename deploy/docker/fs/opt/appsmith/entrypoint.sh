@@ -60,6 +60,7 @@ init_env_file() {
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
   printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TMP/pre-define.env"
+  set ugo-w "$TMP/pre-define.env"
 
   tlog "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
@@ -462,7 +463,7 @@ safe_init_postgres() {
   fi
 }
 
-# Method to create a appsmith database in the postgres 
+# Method to create a appsmith database in the postgres
 # Args:
 #     POSTGRES_DB_PATH (string): Path to the postgres data directory
 # Returns:

@@ -5,6 +5,7 @@ import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.License;
+import com.appsmith.server.domains.MailSettings;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -55,6 +56,8 @@ public class TenantConfigurationCE implements Serializable {
     Boolean isStrongPasswordPolicyEnabled;
 
     private Boolean isAtomicPushAllowed = false;
+
+    private final MailSettings mailSettings;
 
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
