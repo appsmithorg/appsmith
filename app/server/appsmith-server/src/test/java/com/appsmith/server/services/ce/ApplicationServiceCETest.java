@@ -323,9 +323,6 @@ public class ApplicationServiceCETest {
         Workspace toCreate = new Workspace();
         toCreate.setName("ApplicationServiceTest");
 
-        Set<String> beforeCreatingWorkspace =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
@@ -395,9 +392,6 @@ public class ApplicationServiceCETest {
         datasource1.setDatasourceStorages(storages1);
 
         testDatasource1 = datasourceService.create(datasource1).block();
-        Set<String> afterCreatingWorkspace =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
 
         log.info("Workspace ID: {}", workspaceId);
         log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());

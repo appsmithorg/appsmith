@@ -254,30 +254,32 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return Optional.of(count);
     }
 
-    protected Set<String> getCurrentUserPermissionGroupsIfRequired(AclPermission permission, User user) {
-        return getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission), user, true);
+    protected Set<String> getCurrentUserPermissionGroupsIfRequired(
+            AclPermission permission, User user, EntityManager em) {
+        return getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission), user, true, em);
     }
 
     protected Set<String> getCurrentUserPermissionGroupsIfRequired(
-            Optional<AclPermission> permission, User user, boolean includeAnonymousUserPermissions) {
+            Optional<AclPermission> permission, User user, boolean includeAnonymousUserPermissions, EntityManager em) {
         // Expect a valid AclPermission and a user to fetch valid permission groups
         if (permission.isEmpty()) {
             return Set.of();
         }
-        return getPermissionGroupsForUser(user, includeAnonymousUserPermissions);
+        return getPermissionGroupsForUser(user, includeAnonymousUserPermissions, em);
     }
 
-    public Set<String> getPermissionGroupsForUser(User user) {
-        return getPermissionGroupsForUser(user, true);
+    public Set<String> getPermissionGroupsForUser(User user, EntityManager em) {
+        return getPermissionGroupsForUser(user, true, em);
     }
 
-    protected Set<String> getPermissionGroupsForUser(User user, boolean includeAnonymousUserPermissions) {
+    protected Set<String> getPermissionGroupsForUser(
+            User user, boolean includeAnonymousUserPermissions, EntityManager em) {
         if (!isValidUser(user)) {
             return Set.of();
         }
         final Set<String> permissionGroups = includeAnonymousUserPermissions
-                ? getAllPermissionGroupsForUser(user)
-                : getStrictPermissionGroupsForUser(user);
+                ? getAllPermissionGroupsForUser(user, em)
+                : getStrictPermissionGroupsForUser(user, em);
         return permissionGroups == null ? Collections.emptySet() : permissionGroups;
     }
 
@@ -295,16 +297,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @SneakyThrows
     @SuppressWarnings("unchecked")
     public <P> List<P> queryAllExecute(QueryAllParams<T> params, Class<P> projectionClass) {
+        EntityManager em = getEntityManager(params);
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() ->
-                        Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission(), params.getUser()))))
+                .switchIfEmpty(Mono.defer(() -> Mono.just(
+                        getCurrentUserPermissionGroupsIfRequired(params.getPermission(), params.getUser(), em))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     if (params.getPermission() != null && permissionGroups.isEmpty()) {
                         return Mono.just(Collections.<P>emptyList());
                     }
-
-                    EntityManager em = params.getEntityManager() == null ? entityManager : params.getEntityManager();
                     final CriteriaBuilder cb = em.getCriteriaBuilder();
                     CriteriaQuery<?> cq = cb.createQuery(projectionClass);
 
@@ -383,15 +384,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     @SuppressWarnings("unchecked")
     public <P> Optional<P> queryOneExecute(QueryAllParams<T> params, Class<P> projectionClass) {
+        EntityManager em = getEntityManager(params);
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() ->
-                        Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission(), params.getUser()))))
+                .switchIfEmpty(Mono.defer(() -> Mono.just(
+                        getCurrentUserPermissionGroupsIfRequired(params.getPermission(), params.getUser(), em))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     if (params.getPermission() != null && permissionGroups.isEmpty()) {
                         return Mono.empty();
                     }
-                    EntityManager em = params.getEntityManager() == null ? entityManager : params.getEntityManager();
                     final CriteriaBuilder cb = em.getCriteriaBuilder();
                     CriteriaQuery<?> cq = cb.createQuery(projectionClass);
                     // We are creating the query with generic return type as Object[] and then mapping it to the
@@ -445,15 +446,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public Optional<Long> countExecute(QueryAllParams<T> params) {
+        EntityManager em = getEntityManager(params);
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() ->
-                        Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission(), params.getUser()))))
+                .switchIfEmpty(Mono.defer(() -> Mono.just(
+                        getCurrentUserPermissionGroupsIfRequired(params.getPermission(), params.getUser(), em))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     if (params.getPermission() != null && permissionGroups.isEmpty()) {
                         return Mono.just(0L);
                     }
-                    EntityManager em = params.getEntityManager() == null ? entityManager : params.getEntityManager();
                     final CriteriaBuilder cb = em.getCriteriaBuilder();
                     final CriteriaQuery<Long> cq = cb.createQuery(Long.class);
                     final Root<T> root = cq.from(genericDomain);
@@ -482,6 +483,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .blockOptional();
     }
 
+    @Transactional
+    @Modifying
     public int updateExecute(@NonNull QueryAllParams<T> params, @NonNull T resource) {
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
@@ -535,12 +538,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         if (!CollectionUtils.isEmpty(params.getPermissionGroups())) {
             return Mono.empty();
         }
-
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.fromSupplier(() -> getCurrentUserPermissionGroupsIfRequired(
                         Optional.ofNullable(params.getPermission()),
                         params.getUser(),
-                        params.isIncludeAnonymousUserPermissions())))
+                        params.isIncludeAnonymousUserPermissions(),
+                        getEntityManager(params))))
                 .doOnSuccess(params::permissionGroups)
                 .then();
     }
@@ -550,15 +553,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     public int updateExecute(QueryAllParams<T> params, BridgeUpdate update) {
         Set<String> permissionGroupsSet = params.getPermissionGroups();
         ArrayList<String> permissionGroups;
-
+        EntityManager em = getEntityManager(params);
         if (CollectionUtils.isEmpty(permissionGroupsSet)) {
-            permissionGroups =
-                    new ArrayList<>(getCurrentUserPermissionGroupsIfRequired(params.getPermission(), params.getUser()));
+            permissionGroups = new ArrayList<>(
+                    getCurrentUserPermissionGroupsIfRequired(params.getPermission(), params.getUser(), em));
         } else {
             permissionGroups = new ArrayList<>(permissionGroupsSet);
         }
-
-        final EntityManager em = params.getEntityManager() == null ? getEntityManager() : params.getEntityManager();
 
         final CriteriaBuilder cb = em.getCriteriaBuilder();
         final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
@@ -709,10 +710,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return queryBuilder().entityManager(entityManager).criteria(query).updateFirst(resource);
     }
 
-    public T setUserPermissionsInObject(T obj, User user) {
+    public T setUserPermissionsInObject(T obj, User user, EntityManager em) {
         Set<String> permissionGroups = new HashSet<>();
         if (isValidUser(user)) {
-            permissionGroups = getPermissionGroupsForUser(user);
+            permissionGroups = getPermissionGroupsForUser(user, em);
         }
         return setUserPermissionsInObject(obj, permissionGroups);
     }
@@ -748,7 +749,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      * 2. Get all the permission groups associated with anonymous user
      * 3. Return the set of all the permission groups.
      */
-    protected Set<String> getAllPermissionGroupsForUser(User user) {
+    protected Set<String> getAllPermissionGroupsForUser(User user, EntityManager em) {
         if (!isValidUser(user)) {
             return Collections.emptySet();
         } else if (user.getTenantId() == null) {
@@ -756,7 +757,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         }
 
         Set<String> permissionGroups = new HashSet<>(
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(user).block());
+                cacheableRepositoryHelper.getPermissionGroupsOfUser(user, em).block());
         permissionGroups.addAll(getAnonymousUserPermissionGroups().block());
 
         return permissionGroups;
@@ -767,7 +768,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      * 2. Get all the permission groups associated with anonymous user
      * 3. Return the set of all the permission groups.
      */
-    protected Set<String> getStrictPermissionGroupsForUser(User user) {
+    protected Set<String> getStrictPermissionGroupsForUser(User user, EntityManager em) {
 
         if (!isValidUser(user)) {
             return Collections.emptySet();
@@ -775,7 +776,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             String tenantId = cacheableRepositoryHelper.getDefaultTenantId().block();
             user.setTenantId(tenantId);
         }
-        return cacheableRepositoryHelper.getPermissionGroupsOfUser(user).block();
+        return cacheableRepositoryHelper.getPermissionGroupsOfUser(user, em).block();
     }
 
     protected Mono<Set<String>> getAnonymousUserPermissionGroups() {
@@ -885,5 +886,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return user != null
                 && StringUtils.hasLength(user.getEmail())
                 && (user.isAnonymous() || StringUtils.hasLength(user.getId()));
+    }
+
+    private EntityManager getEntityManager(QueryAllParams<T> params) {
+        return params.getEntityManager() == null ? entityManager : params.getEntityManager();
     }
 }

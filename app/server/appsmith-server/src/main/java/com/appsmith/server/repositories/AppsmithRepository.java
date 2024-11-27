@@ -32,7 +32,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     T setUserPermissionsInObject(T obj, Collection<String> permissionGroups);
 
-    T setUserPermissionsInObject(T obj, User user);
+    T setUserPermissionsInObject(T obj, User user, EntityManager entityManager);
 
     T updateAndReturn(
             String id, BridgeUpdate updateObj, AclPermission permission, User currentUser, EntityManager entityManager);

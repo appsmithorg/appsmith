@@ -39,7 +39,6 @@ import reactor.util.function.Tuple4;
 import reactor.util.function.Tuples;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -123,19 +122,12 @@ public class ThemeServiceTest {
 
     private Application createApplication() {
         User currentUser = sessionUserService.getCurrentUser().block();
-        Set<String> beforeCreatingApplication =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingApplication);
         Application application = new Application();
         application.setName("ThemeTest_" + UUID.randomUUID());
         application.setWorkspaceId(this.workspace.getId());
         Application createdApplication = applicationPageService
                 .createApplication(application, this.workspace.getId())
                 .block();
-
-        Set<String> afterCreatingApplication =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User after creating Application: {}", afterCreatingApplication);
 
         log.info("Workspace ID: {}", this.workspace.getId());
         log.info("Workspace Role Ids: {}", this.workspace.getDefaultPermissionGroups());

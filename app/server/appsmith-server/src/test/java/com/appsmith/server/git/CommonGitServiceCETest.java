@@ -244,9 +244,6 @@ public class CommonGitServiceCETest {
         Workspace toCreate = new Workspace();
         toCreate.setName("Git Service Test");
 
-        Set<String> beforeCreatingWorkspace =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();

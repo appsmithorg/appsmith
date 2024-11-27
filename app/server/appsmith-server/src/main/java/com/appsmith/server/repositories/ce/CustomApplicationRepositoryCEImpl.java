@@ -86,7 +86,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public List<Application> findAllUserApps(AclPermission permission, User currentUser, EntityManager entityManager) {
         return cacheableRepositoryHelper
-                .getPermissionGroupsOfUser(currentUser)
+                .getPermissionGroupsOfUser(currentUser, entityManager)
                 .flatMapMany(permissionGroups -> asFlux(() -> queryBuilder()
                         .permission(permission, currentUser)
                         .permissionGroups(permissionGroups)

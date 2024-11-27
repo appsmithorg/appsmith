@@ -105,12 +105,12 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public Set<String> getPermissionGroupsForUser(User user, EntityManager entityManager) {
-        return super.getPermissionGroupsForUser(user);
+        return super.getPermissionGroupsForUser(user, entityManager);
     }
 
     @Override
     public Set<String> getAllPermissionGroupsIdsForUser(User user, EntityManager entityManager) {
-        return super.getAllPermissionGroupsForUser(user);
+        return super.getAllPermissionGroupsForUser(user, entityManager);
     }
 
     @Override

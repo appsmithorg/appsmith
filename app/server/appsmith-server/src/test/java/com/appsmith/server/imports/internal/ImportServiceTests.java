@@ -249,9 +249,6 @@ public class ImportServiceTests {
             return;
         }
         User currentUser = sessionUserService.getCurrentUser().block();
-        Set<String> beforeCreatingWorkspace =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
         installedPlugin = pluginRepository.findByPackageName("installed-plugin").block();
         Workspace workspace = new Workspace();
         workspace.setName("Import-Export-Test-Workspace");
@@ -260,9 +257,6 @@ public class ImportServiceTests {
         defaultEnvironmentId = workspaceService
                 .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
                 .block();
-        Set<String> afterCreatingWorkspace =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
 
         log.info("Workspace ID: {}", workspaceId);
         log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());

@@ -35,7 +35,7 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
     @Override
     public Optional<Config> findByNameAsUser(
             String name, User user, AclPermission permission, User currentUser, EntityManager entityManager) {
-        final Set<String> permissionGroups = getAllPermissionGroupsForUser(user);
+        final Set<String> permissionGroups = getAllPermissionGroupsForUser(user, entityManager);
         return queryBuilder()
                 .criteria(Bridge.equal(Config.Fields.name, name))
                 .permission(permission, currentUser)

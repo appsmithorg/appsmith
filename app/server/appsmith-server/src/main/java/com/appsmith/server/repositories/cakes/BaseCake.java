@@ -8,14 +8,12 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Transient;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -24,13 +22,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -202,45 +197,6 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                 });
     }
 
-    /**
-     * Copy the values of fields marked with {@link Transient} annotation from {@code source} to {@code target}.
-     * This is also done recursively, for nested object fields as well, unless {@code nest} is 0.
-     */
-    private static <T> void copyTransientFieldValues(T source, T target, int nest) throws IllegalAccessException {
-        final Class<?> cls = source.getClass();
-
-        // Get all non-transient field names
-        final List<Field> nonTransientFields = getAllFields(cls).stream()
-                .filter(field -> field.getAnnotation(Transient.class) == null)
-                .toList();
-
-        final List<String> nonTransientFieldNames =
-                nonTransientFields.stream().map(Field::getName).toList();
-
-        // merge latest database updated source object with the transient fields
-        BeanUtils.copyProperties(source, target, nonTransientFieldNames.toArray(new String[0]));
-
-        if (nest > 0) {
-            --nest;
-            for (final Field nonTransientField : nonTransientFields) {
-                nonTransientField.setAccessible(true);
-                final Object sourceValue = nonTransientField.get(source);
-                if (sourceValue == null) {
-                    continue;
-                }
-                copyTransientFieldValues(sourceValue, nonTransientField.get(target), nest);
-            }
-        }
-    }
-
-    public static List<Field> getAllFields(Class<?> type) {
-        List<Field> fields = new ArrayList<>();
-        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
-            fields.addAll(Arrays.asList(c.getDeclaredFields()));
-        }
-        return fields;
-    }
-
     private String generateId() {
         return UUID.randomUUID().toString();
     }
@@ -248,11 +204,11 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     public Mono<T> findById(String id, AclPermission permission) {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
-                .flatMap(this::getAllPermissionGroupsForUser)
-                .map(ArrayList::new)
                 .zipWith(Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager))))
+                .flatMap(tuple -> this.getAllPermissionGroupsForUser(tuple.getT1(), tuple.getT2())
+                        .zipWith(Mono.just(tuple.getT2())))
                 .map(tuple2 -> {
-                    final ArrayList<String> permissionGroups = tuple2.getT1();
+                    final ArrayList<String> permissionGroups = new ArrayList<>(tuple2.getT1());
                     final EntityManager em = tuple2.getT2();
                     final CriteriaBuilder cb = em.getCriteriaBuilder();
                     final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
@@ -278,13 +234,13 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     }
 
     // FIXME: Duplicate from BaseAppsmithRepositoryCEImpl
-    private Mono<Set<String>> getAllPermissionGroupsForUser(User user) {
+    private Mono<Set<String>> getAllPermissionGroupsForUser(User user, EntityManager em) {
         if (user.getTenantId() == null) {
             user.setTenantId(cacheableRepositoryHelper.getDefaultTenantId().block());
         }
 
         return Mono.zip(
-                        cacheableRepositoryHelper.getPermissionGroupsOfUser(user),
+                        cacheableRepositoryHelper.getPermissionGroupsOfUser(user, em),
                         cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser())
                 .map(tuple -> {
                     final Set<String> permissionGroups = new HashSet<>(tuple.getT1());
