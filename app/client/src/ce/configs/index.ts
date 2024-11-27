@@ -43,7 +43,6 @@ export interface INJECTED_CONFIGS {
   };
   intercomAppID: string;
   mailEnabled: boolean;
-  cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
   disableIframeWidgetSandbox: boolean;
@@ -116,7 +115,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
-    cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
     supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
@@ -287,10 +285,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS?.intercomAppID || "",
     mailEnabled:
       ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS?.mailEnabled || false,
-    cloudServicesBaseUrl:
-      ENV_CONFIG.cloudServicesBaseUrl ||
-      APPSMITH_FEATURE_CONFIGS?.cloudServicesBaseUrl ||
-      "",
     appsmithSupportEmail: ENV_CONFIG.supportEmail,
     disableIframeWidgetSandbox:
       ENV_CONFIG.disableIframeWidgetSandbox ||

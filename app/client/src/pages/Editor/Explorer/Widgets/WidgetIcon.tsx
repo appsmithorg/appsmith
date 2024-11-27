@@ -1,4 +1,3 @@
-import { IconWrapper } from "constants/IconConstants";
 import type { WidgetType } from "constants/WidgetConstants";
 import React from "react";
 import useWidgetConfig from "utils/hooks/useWidgetConfig";
@@ -14,11 +13,7 @@ function WidgetIcon(props: {
   const svg = useWidgetConfig(type, "iconSVG");
 
   if (svg) {
-    return (
-      <IconWrapper height={height} width={width}>
-        <img src={svg} />
-      </IconWrapper>
-    );
+    return <img height={height} src={svg} width={width} />;
   }
 
   return null;
