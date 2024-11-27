@@ -34,7 +34,7 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import NavigationLogo from "ee/pages/AppViewer/NavigationLogo";
 import MenuItemContainer from "./components/MenuItemContainer";
 import BackToAppsButton from "./components/BackToAppsButton";
-import { IDE_HEADER_HEIGHT } from "IDE";
+import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 import { BOTTOM_BAR_HEIGHT } from "components/BottomBar/constants";
 
 interface SidebarProps {
