@@ -197,6 +197,14 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
     pluginId,
   } = props;
 
+  /* @ts-expect-error: Types are not available */
+  if (typeof window.Cypress?.log === "function") {
+    /* @ts-expect-error: Types are not available */
+    window.Cypress.log("CommonEditorForm: context", settingsConfig);
+    /* @ts-expect-error: Types are not available */
+    window.Cypress.log("CommonEditorForm: props", props.actionSettingsConfig);
+  }
+
   const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
 
   // passing lodash's equality function to ensure that this selector does not cause a rerender multiple times.
