@@ -633,7 +633,7 @@ export default function* executePluginActionTriggerSaga(
           id: actionId,
           iconId: action.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
-          text: `Execution failed with status ${payload.statusCode}`,
+          text: `Failed execution in ${payload.duration}(ms)`,
           environmentName: currentEnvDetails.name,
           source: {
             type: ENTITY_TYPE.ACTION,
@@ -642,7 +642,10 @@ export default function* executePluginActionTriggerSaga(
             httpMethod: action?.actionConfiguration?.httpMethod,
             pluginType: action.pluginType,
           },
-          state: payload.request,
+          state: {
+            request: payload.request,
+            error: payload.readableError,
+          },
           messages: [
             {
               // Need to stringify cause this gets rendered directly
@@ -681,8 +684,7 @@ export default function* executePluginActionTriggerSaga(
     AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", actionExecutionAnalytics);
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
-      text: "Executed successfully from widget request",
-      timeTaken: payload.duration,
+      text: `Successfully executed in ${payload.duration}(ms)`,
       source: {
         type: ENTITY_TYPE.ACTION,
         name: pluginActionNameToDisplay,
@@ -940,9 +942,7 @@ export function* runActionSaga(
           iconId: actionObject.pluginId,
           logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
           environmentName: currentEnvDetails.name,
-          text: `Execution failed${
-            payload.statusCode ? ` with status ${payload.statusCode}` : ""
-          }`,
+          text: `Failed execution in ${payload.duration}(ms)`,
           source: {
             type: ENTITY_TYPE.ACTION,
             name: pluginActionNameToDisplay,
@@ -1006,8 +1006,7 @@ export function* runActionSaga(
   if (payload.isExecutionSuccess) {
     AppsmithConsole.info({
       logType: LOG_TYPE.ACTION_EXECUTION_SUCCESS,
-      text: "Executed successfully from user request",
-      timeTaken: payload.duration,
+      text: `Successfully executed in ${payload.duration}(ms)`,
       source: {
         type: ENTITY_TYPE.ACTION,
         name: pluginActionNameToDisplay,
@@ -1209,7 +1208,7 @@ function* executePageLoadAction(
             iconId: action.pluginId,
             logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
             environmentName: currentEnvDetails.name,
-            text: `Execution failed with status ${payload.statusCode}`,
+            text: `Failed execution in ${payload.duration}(ms)`,
             source: {
               type: ENTITY_TYPE.ACTION,
               name: actionName,
@@ -1217,7 +1216,7 @@ function* executePageLoadAction(
               httpMethod: action?.actionConfiguration?.httpMethod,
               pluginType: action.pluginType,
             },
-            state: payload.request,
+            state: { request: payload.request, error: payload.readableError },
             messages: [
               {
                 message: error,
