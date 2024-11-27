@@ -41,6 +41,15 @@ const ActionSettingsWrapper = styled.div`
 `;
 
 function ActionSettings(props: ActionSettingsProps): JSX.Element {
+  /* @ts-expect-error: Types are not available */
+  if (typeof window.Cypress?.log === "function") {
+    /* @ts-expect-error: Types are not available */
+    window.Cypress.log(
+      "props.actionSettingsConfig",
+      props.actionSettingsConfig,
+    );
+  }
+
   return (
     <ActionSettingsWrapper>
       {!props.actionSettingsConfig ? (
