@@ -734,8 +734,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                         return Mono.just(possibleEntity);
                     });
                 })
-                .collectList() // Collect all emitted elements into a list (to complete processing of the Flux)
-                .then(Mono.just(edgesRef)); // Return edgesRef as Mono
+                .collectList()
+                .thenReturn(edgesRef);
     }
 
     protected Mono<Executable> updateExecutableSelfReferencingPaths(EntityDependencyNode possibleEntity) {
