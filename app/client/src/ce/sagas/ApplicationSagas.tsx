@@ -73,10 +73,6 @@ import {
   deleteRecentAppEntities,
   getEnableStartSignposting,
 } from "utils/storage";
-import {
-  reconnectAppLevelWebsocket,
-  reconnectPageLevelWebsocket,
-} from "actions/websocketActions";
 import { getFetchedWorkspaces } from "ee/selectors/workspaceSelectors";
 
 import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
@@ -648,12 +644,6 @@ export function* createApplicationSaga(
             basePageId: defaultPage?.baseId,
           }),
         );
-
-        // subscribe to newly created application
-        // users join rooms on connection, so reconnecting
-        // ensures user receives the updates in the app just created
-        yield put(reconnectAppLevelWebsocket());
-        yield put(reconnectPageLevelWebsocket());
       }
     }
   } catch (error) {

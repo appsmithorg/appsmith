@@ -1,16 +1,6 @@
 import type { ERROR_CODES } from "ee/constants/ApiConstants";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 
-const WebsocketActions = {
-  WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
-  WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL: "WEBSOCKET_PAGE_LEVEL_WRITE_CHANNEL",
-  INIT_APP_LEVEL_SOCKET_CONNECTION: "INIT_APP_LEVEL_SOCKET_CONNECTION",
-  INIT_PAGE_LEVEL_SOCKET_CONNECTION: "INIT_PAGE_LEVEL_SOCKET_CONNECTION",
-  SET_IS_APP_LEVEL_WEBSOCKET_CONNECTED: "SET_IS_APP_LEVEL_WEBSOCKET_CONNECTED",
-  SET_IS_PAGE_LEVEL_WEBSOCKET_CONNECTED:
-    "SET_IS_PAGE_LEVEL_WEBSOCKET_CONNECTED",
-};
-
 const ActionSelectorReduxActionTypes = {
   EVALUATE_ACTION_SELECTOR_FIELD: "EVALUATE_ACTION_SELECTOR_FIELD",
   SET_EVALUATED_ACTION_SELECTOR_FIELD: "SET_EVALUATED_ACTION_SELECTOR_FIELD",
@@ -305,18 +295,6 @@ const EvaluationActionTypes = {
 
 const EvaluationActionErrorTypes = {
   FAILED_CORRECTING_BINDING_PATHS: "FAILED_CORRECTING_BINDING_PATHS",
-};
-
-const AppCollabActionTypes = {
-  APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS:
-    "APP_COLLAB_SET_CONCURRENT_PAGE_EDITORS",
-  APP_COLLAB_LIST_EDITORS: "APP_COLLAB_LIST_EDITORS",
-  APP_COLLAB_RESET_EDITORS: "APP_COLLAB_RESET_EDITORS",
-  APP_COLLAB_SET_EDITORS_POINTER_DATA: "APP_COLLAB_SET_EDITORS_POINTER_DATA",
-  APP_COLLAB_UNSET_EDITORS_POINTER_DATA:
-    "APP_COLLAB_UNSET_EDITORS_POINTER_DATA",
-  APP_COLLAB_RESET_EDITORS_POINTER_DATA:
-    "APP_COLLAB_RESET_EDITORS_POINTER_DATA",
 };
 
 const OmniSearchActionTypes = {
@@ -1280,7 +1258,6 @@ export const ReduxActionTypes = {
   ...AdminSettingsActionTypes,
   ...AnalyticsActionTypes,
   ...AIActionTypes,
-  ...AppCollabActionTypes,
   ...ApplicationActionTypes,
   ...AppThemeActionsTypes,
   ...AppViewActionTypes,
@@ -1316,7 +1293,6 @@ export const ReduxActionTypes = {
   ...ThemeActionTypes,
   ...UserAuthActionTypes,
   ...UserProfileActionTypes,
-  ...WebsocketActions,
   ...WidgetCanvasActionTypes,
   ...WidgetOperationsActionTypes,
   ...WorkspaceActionTypes,
