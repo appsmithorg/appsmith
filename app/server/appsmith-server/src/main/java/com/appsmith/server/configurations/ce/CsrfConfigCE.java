@@ -45,6 +45,9 @@ public class CsrfConfigCE implements Customizer<ServerHttpSecurity.CsrfSpec>, Se
 
     private static final String X_REQUESTED_BY_VALUE = "Appsmith";
 
+    @SuppressWarnings("UastIncorrectHttpHeaderInspection")
+    public static final String VERSION_HEADER = "X-Appsmith-Version";
+
     public void applyTo(ServerHttpSecurity http) {
         http.csrf(this).addFilterAfter(this, SecurityWebFiltersOrder.CSRF);
     }
@@ -82,8 +85,14 @@ public class CsrfConfigCE implements Customizer<ServerHttpSecurity.CsrfSpec>, Se
 
         final HttpHeaders headers = request.getHeaders();
 
+        if (headers.containsKey(VERSION_HEADER)) {
+            // If `X-Appsmith-Version` header is present, CSRF check isn't needed.
+            return ServerWebExchangeMatcher.MatchResult.notMatch();
+        }
+
         if (X_REQUESTED_BY_VALUE.equals(headers.getFirst(X_REQUESTED_BY_NAME))) {
             // If `X-Request-By: Appsmith` header is present, CSRF check isn't needed.
+            // Using this header for requests in new code is discouraged. Consider using `X-Appsmith-Version` instead.
             return ServerWebExchangeMatcher.MatchResult.notMatch();
         }
 

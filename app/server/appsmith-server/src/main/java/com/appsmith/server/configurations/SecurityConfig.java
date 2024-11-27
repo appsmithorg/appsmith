@@ -309,7 +309,7 @@ public class SecurityConfig {
         }
 
         // 3. Check Appsmith version, if present. Not making this a mandatory check for now, but reconsider later.
-        final String versionHeaderValue = headers.getFirst("X-Appsmith-Version");
+        final String versionHeaderValue = headers.getFirst(CsrfConfig.VERSION_HEADER);
         final String serverVersion = projectProperties.getVersion();
         if (versionHeaderValue != null && !serverVersion.equals(versionHeaderValue)) {
             final ErrorDTO error = new ErrorDTO(
