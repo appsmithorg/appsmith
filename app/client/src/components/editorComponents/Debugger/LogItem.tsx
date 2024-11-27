@@ -273,15 +273,6 @@ function LogItem(props: LogItemProps) {
         <span className={`debugger-time ${props.severity}`}>
           {moment(parseInt(props.timestamp)).format("HH:mm:ss")}
         </span>
-        {props.source && (
-          <EntityLink
-            id={props.source.id}
-            name={props.source.name}
-            propertyPath={props.source.propertyPath}
-            type={props.source.type}
-            uiComponent={DebuggerLinkUI.ENTITY_NAME}
-          />
-        )}
         {props.collapsible && (
           <Button
             className={classNames(`${Classes.ICON} debugger-toggle`)}
@@ -290,6 +281,15 @@ function LogItem(props: LogItemProps) {
             onClick={() => setIsOpen(!isOpen)}
             size="sm"
             startIcon={"expand-more"}
+          />
+        )}
+        {props.source && (
+          <EntityLink
+            id={props.source.id}
+            name={props.source.name}
+            propertyPath={props.source.propertyPath}
+            type={props.source.type}
+            uiComponent={DebuggerLinkUI.ENTITY_NAME}
           />
         )}
         {!(
