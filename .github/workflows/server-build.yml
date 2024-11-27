@@ -100,23 +100,23 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
-      # - name: Get changed files in the server folder
-      #   id: changed-files-specific
-      #   uses: tj-actions/changed-files@v44
-      #   with:
-      #     files: "app/server/**"
-      #     write_output_files: true
-
-      - name: Updating the server changed file variable
+      - name: Get changed files in the server folder
         id: changed-files-specific
-        run: echo "any_changed=true" >> "$GITHUB_OUTPUT"
+        uses: tj-actions/changed-files@v44
+        with:
+          files: "app/server/**"
+          write_output_files: true
 
-      # - name: Run step if any file(s) in the server folder change
-      #   if: steps.changed-files-specific.outputs.any_changed == 'true'
-      #   run: |
-      #     echo "One or more files in the server folder has changed."
-      #     echo "List all the files that have changed:"
-      #     cat "${{ github.workspace }}/.github/outputs/all_changed_files.txt"
+      # - name: Updating the server changed file variable
+      #   id: changed-files-specific
+      #   run: echo "any_changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Run step if any file(s) in the server folder change
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: |
+          echo "One or more files in the server folder has changed."
+          echo "List all the files that have changed:"
+          cat "${{ github.workspace }}/.github/outputs/all_changed_files.txt"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -341,11 +341,11 @@ jobs:
           git config --global user.email "$gituseremail"
           git config --global user.name "$gituser"
           git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-          git lfs install
-          git lfs migrate import --everything --yes
           if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
           if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
           cd cibuildcache/$repodir/release/server
+          git lfs install
+          git lfs migrate import --everything --yes
           git lfs pull ./server.jar
           mv ./server.jar ../../../../../server.jar
           cd ../../../../../
