@@ -26,8 +26,8 @@ const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;
   gap: var(--ads-v2-spaces-3);
 
-  &&&&& .function-select-dropdown {
-    width: 230px;
+  .rc-select-selector {
+    min-width: unset;
   }
 `;
 

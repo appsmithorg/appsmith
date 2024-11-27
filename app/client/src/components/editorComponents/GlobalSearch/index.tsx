@@ -25,7 +25,6 @@ import {
 } from "actions/globalSearchActions";
 import type { SearchCategory, SearchItem, SelectEvent } from "./utils";
 import {
-  algoliaHighlightTag,
   filterCategories,
   getEntityId,
   getFilterCategoryList,
@@ -101,8 +100,6 @@ const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
     }
   }
 
-  ${algoliaHighlightTag},
-  & .ais-Highlight-highlighted,
   & .search-highlighted {
     background-color: transparent;
     font-style: normal;

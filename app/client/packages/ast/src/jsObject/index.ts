@@ -86,7 +86,7 @@ export const parseJSObject = (code: string) => {
   let JSObjectProperties: NodeWithLocation<PropertyNode>[] = [];
 
   simple(ast, {
-    ExportDefaultDeclaration(node) {
+    ExportDefaultDeclaration(node: Node) {
       if (
         !isExportDefaultDeclarationNode(node) ||
         !isObjectExpression(node.declaration)

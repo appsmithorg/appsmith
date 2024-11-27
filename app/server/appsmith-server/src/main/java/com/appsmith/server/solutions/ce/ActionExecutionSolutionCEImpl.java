@@ -252,17 +252,24 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         Mono<ExecuteActionDTO> systemInfoPopulatedExecuteActionDTOMono =
                 actionExecutionSolutionHelper.populateExecuteActionDTOWithSystemInfo(executeActionDTO);
 
-        return systemInfoPopulatedExecuteActionDTOMono.flatMap(
-                populatedExecuteActionDTO -> Mono.zip(instanceIdMono, defaultTenantIdMono)
-                        .map(tuple -> {
-                            String instanceId = tuple.getT1();
-                            String tenantId = tuple.getT2();
-                            populatedExecuteActionDTO.setActionId(newAction.getId());
-                            populatedExecuteActionDTO.setWorkspaceId(newAction.getWorkspaceId());
-                            populatedExecuteActionDTO.setInstanceId(instanceId);
-                            populatedExecuteActionDTO.setTenantId(tenantId);
-                            return populatedExecuteActionDTO;
-                        }));
+        return systemInfoPopulatedExecuteActionDTOMono.flatMap(populatedExecuteActionDTO -> Mono.zip(
+                        instanceIdMono, defaultTenantIdMono)
+                .map(tuple -> {
+                    String instanceId = tuple.getT1();
+                    String tenantId = tuple.getT2();
+                    populatedExecuteActionDTO.setActionId(newAction.getId());
+                    populatedExecuteActionDTO.setWorkspaceId(newAction.getWorkspaceId());
+                    if (TRUE.equals(executeActionDTO.getViewMode())) {
+                        populatedExecuteActionDTO.setDatasourceId(
+                                newAction.getPublishedAction().getDatasource().getId());
+                    } else {
+                        populatedExecuteActionDTO.setDatasourceId(
+                                newAction.getUnpublishedAction().getDatasource().getId());
+                    }
+                    populatedExecuteActionDTO.setInstanceId(instanceId);
+                    populatedExecuteActionDTO.setTenantId(tenantId);
+                    return populatedExecuteActionDTO;
+                }));
     }
 
     /**

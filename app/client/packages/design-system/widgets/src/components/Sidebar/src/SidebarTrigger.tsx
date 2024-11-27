@@ -9,15 +9,19 @@ interface SidebarTriggerProps {
 
 export const SidebarTrigger = (props: SidebarTriggerProps) => {
   const { onPress } = props;
-  const { state, toggleSidebar } = useSidebar();
+  const { side, state, toggleSidebar } = useSidebar();
 
   return (
     <Button
       color="neutral"
       icon={
-        state === "expanded"
-          ? "layout-sidebar-right-collapse"
-          : "layout-sidebar-left-collapse"
+        state === "collapsed"
+          ? side === "start"
+            ? "layout-sidebar-left-expand"
+            : "layout-sidebar-right-expand"
+          : side === "start"
+            ? "layout-sidebar-left-collapse"
+            : "layout-sidebar-right-collapse"
       }
       onPress={() => {
         onPress?.();
