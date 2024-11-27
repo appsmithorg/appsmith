@@ -32,7 +32,6 @@ jobs:
             set -e
             mkdir cacherepo
             cd ./cacherepo
-            git lfs install
             git config --global user.email "$gituseremail"
             git config --global user.name "$gituser"
             git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
@@ -55,7 +54,6 @@ jobs:
                 set -e
                 #mkdir cacherepo
                 cd ./cacherepo
-                git lfs install
                 git config --global user.email "$gituseremail"
                 git config --global user.name "$gituser"
                 git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
