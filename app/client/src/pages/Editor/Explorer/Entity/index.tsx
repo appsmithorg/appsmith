@@ -149,6 +149,10 @@ export const EntityItem = styled.div<{
     height: 36px;
   }
 
+  & .t--entity-name {
+    padding-left: var(--ads-v2-spaces-3);
+  }
+
   & .${EntityClassNames.COLLAPSE_TOGGLE} {
     svg {
       path {
