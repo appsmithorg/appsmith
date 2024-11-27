@@ -5,6 +5,7 @@ import log from "loglevel";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import { Text } from "@appsmith/ads";
+import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
 
 interface ActionSettingsProps {
   // TODO: Fix this the next time the file is edited
@@ -43,9 +44,11 @@ function ActionSettings(props: ActionSettingsProps): JSX.Element {
   return (
     <ActionSettingsWrapper>
       {!props.actionSettingsConfig ? (
-        <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
-          Error: No settings config found
-        </Text>
+        <CenteredWrapper>
+          <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
+            Error: No settings config found
+          </Text>
+        </CenteredWrapper>
       ) : (
         /* TODO: Fix this the next time the file is edited */
         /* eslint-disable-next-line @typescript-eslint/no-explicit-any */

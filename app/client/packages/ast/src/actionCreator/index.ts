@@ -236,7 +236,7 @@ export const setCallbackFunctionField = (
     currentValueAstWithComments,
     0,
     undefined,
-    (type, node) => isCallExpressionNode(node),
+    (_type, node) => isCallExpressionNode(node),
   );
 
   if (found) {
@@ -717,7 +717,7 @@ export const replaceActionInQuery = (
   });
 
   simple(astWithComments, {
-    CallExpression(node) {
+    CallExpression(node: Node) {
       if (
         isCallExpressionNode(node) &&
         isMemberExpressionNode(node.callee) &&
@@ -800,16 +800,13 @@ export function canTranslateToUI(
   simple(astWithComments, {
     ConditionalExpression(node) {
       if (
-        // @ts-expect-error: types not matched
         isCallExpressionNode(node.consequent) ||
-        // @ts-expect-error: types not matched
         isCallExpressionNode(node.alternate)
       ) {
         canTranslate = false;
       }
     },
     LogicalExpression(node) {
-      // @ts-expect-error: types not matched
       if (isCallExpressionNode(node.left) || isCallExpressionNode(node.right)) {
         canTranslate = false;
       }
@@ -912,12 +909,10 @@ export function getMainAction(
     ExpressionStatement(node) {
       simple(node, {
         CallExpression(node) {
-          // @ts-expect-error: types not matched
           if (node.callee.type === NodeTypes.Identifier) {
             mainAction = generate(node, { comments: true }).trim();
           } else {
             mainAction =
-              // @ts-expect-error: types not matched
               generate(node.callee, { comments: true }).trim() + "()";
           }
         },
@@ -989,7 +984,7 @@ export function getThenCatchBlocksFromQuery(
       astWithComments,
       0,
       undefined,
-      function (type, node) {
+      function (_type, node) {
         if (isCallExpressionNode(node)) {
           if (isMemberExpressionNode(node.callee)) {
             if (node.callee.object === rootCallExpression) {
@@ -1020,7 +1015,7 @@ export function getThenCatchBlocksFromQuery(
     }
 
     const secondBlockType = firstBlockType === "then" ? "catch" : "then";
-    const secondBlock = findNodeAt(ast, 0, undefined, function (type, node) {
+    const secondBlock = findNodeAt(ast, 0, undefined, function (_type, node) {
       if (isCallExpressionNode(node)) {
         if (isMemberExpressionNode(node.callee)) {
           if (node.callee.object === firstBlock) {
@@ -1073,7 +1068,7 @@ export function setThenBlockInQuery(
       astWithComments,
       0,
       undefined,
-      function (type, node) {
+      function (_type, node) {
         if (isCallExpressionNode(node)) {
           if (isMemberExpressionNode(node.callee)) {
             if (node.callee.object === rootCallExpression) {
@@ -1117,7 +1112,7 @@ export function setThenBlockInQuery(
       astWithComments,
       0,
       undefined,
-      function (type, node) {
+      function (_type, node) {
         if (isCallExpressionNode(node)) {
           if (isMemberExpressionNode(node.callee)) {
             if (node.callee.object === rootCallExpression) {
@@ -1393,7 +1388,7 @@ function findNodeWithCalleeAndProperty(
 ) {
   if (!ast || !callee || !property) return undefined;
 
-  return findNodeAt(ast, 0, undefined, function (type, node) {
+  return findNodeAt(ast, 0, undefined, function (_type, node) {
     if (isCallExpressionNode(node)) {
       if (isMemberExpressionNode(node.callee)) {
         if (node.callee.object === callee) {
@@ -1431,7 +1426,7 @@ export function getFunctionParams(code: string, evaluationVersion: number) {
 
 export function getQueryParam(
   code: string,
-  number: number,
+  _number: number,
   evaluationVersion: number,
 ) {
   try {

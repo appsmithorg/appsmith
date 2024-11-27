@@ -98,7 +98,7 @@ const ListQuery = () => {
         })}
         {localFiles.length === 0 && searchTerm !== "" ? (
           <EmptySearchResult
-            type={createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject)}
+            type={createMessage(EDITOR_PANE_TEXTS.search_objects.queries)}
           />
         ) : null}
       </Flex>

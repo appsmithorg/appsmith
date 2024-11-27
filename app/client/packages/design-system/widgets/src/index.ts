@@ -21,7 +21,7 @@ export * from "./components/ContextualHelp";
 export * from "./components/Link";
 export * from "./components/Popover";
 export * from "./components/FieldError";
-export * from "./components/TextInput";
+export * from "./components/TextField";
 export * from "./components/FieldLabel";
 export * from "./components/Input";
 export * from "./components/Field";
@@ -32,6 +32,9 @@ export * from "./components/MenuItem";
 export * from "./components/Markdown";
 export * from "./components/Sidebar";
 export * from "./components/Sheet";
+export * from "./components/Calendar";
+export * from "./components/Datepicker";
+export * from "./components/TimeField";
 
 export * from "./utils";
 export * from "./hooks";

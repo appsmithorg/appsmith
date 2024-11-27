@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
@@ -8,6 +9,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.filters.ConditionalFilter;
 import com.appsmith.server.filters.LoginRateLimitFilter;
 import com.appsmith.server.helpers.RedirectHelper;
@@ -23,10 +25,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
@@ -41,6 +45,7 @@ import org.springframework.security.web.server.authentication.ServerAuthenticati
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -110,6 +115,9 @@ public class SecurityConfig {
 
     @Autowired
     private CustomOauth2ClientRepositoryManager oauth2ClientManager;
+
+    @Autowired
+    private ProjectProperties projectProperties;
 
     @Autowired
     private CsrfConfig csrfConfig;
@@ -228,8 +236,16 @@ public class SecurityConfig {
                         .authenticationFailureHandler(failureHandler)
                         .loginPage(Url.LOGIN_URL)
                         .authenticationEntryPoint(authenticationEntryPoint)
-                        .requiresAuthenticationMatcher(
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, Url.LOGIN_URL))
+                        .requiresAuthenticationMatcher(exchange -> {
+                            final ServerHttpRequest request = exchange.getRequest();
+                            return HttpMethod.POST.equals(request.getMethod())
+                                            && Url.LOGIN_URL.equals(
+                                                    request.getPath().toString())
+                                            && MediaType.APPLICATION_FORM_URLENCODED.equalsTypeAndSubtype(
+                                                    request.getHeaders().getContentType())
+                                    ? ServerWebExchangeMatcher.MatchResult.match()
+                                    : ServerWebExchangeMatcher.MatchResult.notMatch();
+                        })
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler))
                 // For Github SSO Login, check transformation class: CustomOAuth2UserServiceImpl
@@ -274,10 +290,12 @@ public class SecurityConfig {
     }
 
     private Mono<Void> sanityCheckFilter(ServerWebExchange exchange, WebFilterChain chain) {
+        final HttpHeaders headers = exchange.getRequest().getHeaders();
+
         // 1. Check if the content-type is valid at all. Mostly just checks if it contains a `/`.
         MediaType contentType;
         try {
-            contentType = exchange.getRequest().getHeaders().getContentType();
+            contentType = headers.getContentType();
         } catch (InvalidMediaTypeException e) {
             return writeErrorResponse(exchange, chain, e.getMessage());
         }
@@ -288,6 +306,15 @@ public class SecurityConfig {
                 && !MediaType.APPLICATION_FORM_URLENCODED.equalsTypeAndSubtype(contentType)
                 && !MediaType.MULTIPART_FORM_DATA.equalsTypeAndSubtype(contentType)) {
             return writeErrorResponse(exchange, chain, "Unsupported Content-Type");
+        }
+
+        // 3. Check Appsmith version, if present. Not making this a mandatory check for now, but reconsider later.
+        final String versionHeaderValue = headers.getFirst("X-Appsmith-Version");
+        final String serverVersion = projectProperties.getVersion();
+        if (versionHeaderValue != null && !serverVersion.equals(versionHeaderValue)) {
+            final ErrorDTO error = new ErrorDTO(
+                    AppsmithErrorCode.VERSION_MISMATCH.getCode(), AppsmithErrorCode.VERSION_MISMATCH.getDescription());
+            return writeErrorResponse(exchange, chain, error, new VersionMismatchData(serverVersion));
         }
 
         return chain.filter(exchange);
@@ -305,4 +332,24 @@ public class SecurityConfig {
             return chain.filter(exchange);
         }
     }
+
+    private <T> Mono<Void> writeErrorResponse(
+            ServerWebExchange exchange, WebFilterChain chain, ErrorDTO error, T data) {
+        final ServerHttpResponse response = exchange.getResponse();
+        final HttpStatus status = HttpStatus.BAD_REQUEST;
+        response.setStatusCode(status);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+        final ResponseDTO<T> responseBody = new ResponseDTO<>(status.value(), error);
+        responseBody.setData(data);
+
+        try {
+            return response.writeWith(
+                    Mono.just(response.bufferFactory().wrap(objectMapper.writeValueAsBytes(responseBody))));
+        } catch (JsonProcessingException ex) {
+            return chain.filter(exchange);
+        }
+    }
+
+    record VersionMismatchData(String serverVersion) {}
 }
