@@ -257,7 +257,7 @@
             : LOG_LEVELS[1],
         cloudHosting: CLOUD_HOSTING,
         appVersion: {
-          id: parseConfig('{{env "APPSMITH_VERSION_ID"}}'),
+          id: parseConfig('{{env "APPSMITH_VERSION_ID"}}') || "UNKNOWN",
           sha: parseConfig('{{env "APPSMITH_VERSION_SHA"}}'),
           releaseDate: parseConfig('{{env "APPSMITH_VERSION_RELEASE_DATE"}}'),
         },
