@@ -1609,7 +1609,7 @@ public class ConsolidatedAPIServiceImplTest {
                     assertThat(pages.getResponseMeta().getError().getCode())
                             .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
                     assertThat(pages.getResponseMeta().getError().getMessage())
-                            .isEqualTo("Unable to find page featurePageId, defaultBranch");
+                            .isEqualTo("Unable to find application featureApplicationId");
 
                     assertNull(pageWithMigratedDsl.getData());
                     assertNotNull(pageWithMigratedDsl.getResponseMeta());
@@ -1618,7 +1618,7 @@ public class ConsolidatedAPIServiceImplTest {
                     assertThat(pageWithMigratedDsl.getResponseMeta().getError().getCode())
                             .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
                     assertThat(pageWithMigratedDsl.getResponseMeta().getError().getMessage())
-                            .isEqualTo("Unable to find page featurePageId, defaultBranch");
+                            .isEqualTo("Unable to find application featureApplicationId");
                 })
                 .verifyComplete();
     }

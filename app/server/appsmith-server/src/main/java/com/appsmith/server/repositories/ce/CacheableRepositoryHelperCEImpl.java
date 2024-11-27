@@ -39,6 +39,7 @@ import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
+import static com.appsmith.server.constants.ce.FieldNameCE.TX_CONTEXT;
 import static com.appsmith.server.helpers.ReactorUtils.asMono;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
@@ -191,19 +192,21 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Cache(cacheName = "tenant", key = "{#tenantId}")
     @Override
     public Mono<Tenant> fetchDefaultTenant(String tenantId) {
-        BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
-        BridgeQuery<Tenant> notDeletedCriteria = notDeleted();
-        BridgeQuery<Tenant> andCriteria = Bridge.and(defaultTenantCriteria, notDeletedCriteria);
-
-        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Tenant> cq = cb.createQuery(Tenant.class);
-        final Root<Tenant> root = cq.from(Tenant.class);
-
-        cq.where(andCriteria.toPredicate(root, cq, cb));
-
         log.info("Fetching tenant from database as it couldn't be found in the cache!");
 
-        return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
+        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
+                .flatMap(em -> {
+                    BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
+                    BridgeQuery<Tenant> notDeletedCriteria = notDeleted();
+                    BridgeQuery<Tenant> andCriteria = Bridge.and(defaultTenantCriteria, notDeletedCriteria);
+
+                    final CriteriaBuilder cb = em.getCriteriaBuilder();
+                    final CriteriaQuery<Tenant> cq = cb.createQuery(Tenant.class);
+                    final Root<Tenant> root = cq.from(Tenant.class);
+
+                    cq.where(andCriteria.toPredicate(root, cq, cb));
+                    return asMono(() -> Optional.of(em.createQuery(cq).getSingleResult()));
+                })
                 .map(tenant -> {
                     if (tenant.getTenantConfiguration() == null) {
                         tenant.setTenantConfiguration(new TenantConfiguration());

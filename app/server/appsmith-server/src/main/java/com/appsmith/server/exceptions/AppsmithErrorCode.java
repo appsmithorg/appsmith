@@ -67,6 +67,7 @@ public enum AppsmithErrorCode {
     NAME_CLASH_NOT_ALLOWED_IN_REFACTOR("AE-AST-4009", "Name clash not allowed in refactor"),
     GENERIC_BAD_REQUEST("AE-BAD-4000", "Generic bad request"),
     MALFORMED_REQUEST("AE-BAD-4001", "Malformed request body"),
+    VERSION_MISMATCH("AE-BAD-4002", "Appsmith version mismatch"),
     GOOGLE_RECAPTCHA_FAILED("AE-CAP-4035", "Google recaptcha failed"),
     GOOGLE_RECAPTCHA_INVITE_FLOW_FAILED("AE-CAP-4100", "Google recaptcha failed"),
     INVALID_CRUD_PAGE_REQUEST("AE-CRD-4039", "Invalid crud page request"),
