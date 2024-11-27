@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { ListItemContainer, ListWithHeader } from "@appsmith/ads";
+import { Text } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
@@ -18,6 +18,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
 import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
+import { IDEHeaderDropdown } from "IDE";
 import { PAGE_ENTITY_NAME } from "ee/constants/messages";
 
 const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
@@ -49,50 +50,35 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
     dispatch(
       createNewPageFromEntities(applicationId, name, workspaceId, instanceId),
     );
-  }, [pages, dispatch, applicationId, workspaceId, instanceId]);
+  }, [dispatch, pages, applicationId]);
 
   const onMenuClose = useCallback(() => setIsMenuOpen(false), [setIsMenuOpen]);
 
   const pageElements = useMemo(
     () =>
       pages.map((page) => (
-        <ListItemContainer key={page.pageId}>
-          <PageElement onClick={onItemSelected} page={page} />
-        </ListItemContainer>
+        <PageElement key={page.pageId} onClick={onItemSelected} page={page} />
       )),
-    [pages, location.pathname, onItemSelected],
+    [pages, location.pathname],
   );
 
-  const createPageContextMenu = useMemo(() => {
-    if (!canCreatePages) return null;
-
-    return (
-      <AddPageContextMenu
-        buttonSize="sm"
-        className={`${EntityClassNames.ADD_BUTTON} group pages`}
-        createPageCallback={createPageCallback}
-        onItemSelected={onItemSelected}
-        onMenuClose={onMenuClose}
-        openMenu={isMenuOpen}
-      />
-    );
-  }, [
-    canCreatePages,
-    createPageCallback,
-    isMenuOpen,
-    onItemSelected,
-    onMenuClose,
-  ]);
-
   return (
-    <ListWithHeader
-      headerClassName={"pages"}
-      headerControls={createPageContextMenu}
-      headerText={`All Pages (${pages.length})`}
-      maxHeight={"300px"}
-    >
-      {pageElements}
-    </ListWithHeader>
+    <IDEHeaderDropdown>
+      <IDEHeaderDropdown.Header className="pages">
+        <Text kind="heading-xs">{`All Pages (${pages.length})`}</Text>
+        {canCreatePages ? (
+          <AddPageContextMenu
+            buttonSize="sm"
+            className={`${EntityClassNames.ADD_BUTTON} group pages`}
+            createPageCallback={createPageCallback}
+            onItemSelected={onItemSelected}
+            onMenuClose={onMenuClose}
+            openMenu={isMenuOpen}
+          />
+        ) : null}
+      </IDEHeaderDropdown.Header>
+      <IDEHeaderDropdown.Body>{pageElements}</IDEHeaderDropdown.Body>
+    </IDEHeaderDropdown>
   );
 };
 

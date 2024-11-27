@@ -1,1 +1,0 @@
-export { IDEHeaderSwitcher } from "./IDEHeaderSwitcher";
