@@ -29,8 +29,9 @@ export async function run(args: string[]) {
     }
 
     // BACKUP
-    state.backupRootPath = await generateBackupRootPath();
-    await fsPromises.mkdir(state.backupRootPath);
+    state.backupRootPath = await fsPromises.mkdtemp(
+      path.join(os.tmpdir(), "appsmithctl-backup-"),
+    );
 
     await exportDatabase(state.backupRootPath);
 
@@ -94,21 +95,20 @@ export async function run(args: string[]) {
         await utils.updateLastBackupErrorMailSentInMilliSec(currentTS);
       }
     }
+
+    // Delete the archive, if exists, since its existence may mislead the user.
+    if (state.archivePath != null) {
+      await fsPromises.rm(state.archivePath, {
+        recursive: true,
+        force: true,
+      });
+    }
   } finally {
     if (state.backupRootPath != null) {
       await fsPromises.rm(state.backupRootPath, {
         recursive: true,
         force: true,
       });
-    }
-
-    if (state.isEncryptionEnabled()) {
-      if (state.archivePath != null) {
-        await fsPromises.rm(state.archivePath, {
-          recursive: true,
-          force: true,
-        });
-      }
     }
 
     await postBackupCleanup();
@@ -275,10 +275,6 @@ export function getGitRoot(gitRoot?: string | undefined) {
   }
 
   return gitRoot;
-}
-
-export async function generateBackupRootPath() {
-  return fsPromises.mkdtemp(path.join(os.tmpdir(), "appsmithctl-backup-"));
 }
 
 export function getBackupContentsPath(

@@ -1,14 +1,13 @@
+import fsPromises from "fs/promises";
+import * as backup from ".";
+import * as Constants from "../constants";
+import * as utils from "../utils";
+import readlineSync from "readline-sync";
+
 jest.mock("../utils", () => ({
   ...jest.requireActual("../utils"),
   execCommand: jest.fn().mockImplementation(async (a) => a.join(" ")),
 }));
-
-import * as backup from ".";
-import * as Constants from "../constants";
-import os from "os";
-import fsPromises from "fs/promises";
-import * as utils from "../utils";
-import readlineSync from "readline-sync";
 
 describe("Backup Tests", () => {
   test("Timestamp string in ISO format", () => {
@@ -44,14 +43,6 @@ describe("Backup Tests", () => {
     }).not.toThrow(
       "Not enough space available at /appsmith-stacks. Please ensure availability of at least 5GB to backup successfully.",
     );
-  });
-
-  it("Generates t", async () => {
-    os.tmpdir = jest.fn().mockReturnValue("temp/dir");
-    fsPromises.mkdtemp = jest.fn().mockImplementation((a) => a);
-    const res = await backup.generateBackupRootPath();
-
-    expect(res).toBe("temp/dir/appsmithctl-backup-");
   });
 
   test("Test backup contents path generation", () => {
