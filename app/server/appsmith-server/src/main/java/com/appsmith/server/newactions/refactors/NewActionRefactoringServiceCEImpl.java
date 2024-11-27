@@ -133,6 +133,9 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                     if (StringUtils.hasLength(refactorEntityNameDTO.getCollectionName())) {
                         action.setFullyQualifiedName(refactorEntityNameDTO.getNewFullyQualifiedName());
                     }
+                    if (!PluginType.JS.equals(action.getPluginType())) {
+                        action.setFullyQualifiedName(action.getName());
+                    }
                     return newActionService.updateUnpublishedAction(action.getId(), action);
                 })
                 .then();
