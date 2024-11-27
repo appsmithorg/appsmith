@@ -56,8 +56,6 @@ export interface AppsmithUIConfigs {
   intercomAppID: string;
   mailEnabled: boolean;
 
-  cloudServicesBaseUrl: string;
-
   googleRecaptchaSiteKey: {
     enabled: boolean;
     apiKey: string;

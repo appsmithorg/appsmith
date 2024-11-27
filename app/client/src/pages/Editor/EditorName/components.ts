@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { getTypographyByKey } from "@appsmith/ads-old";
-import { Icon } from "@appsmith/ads";
-import { IDE_HEADER_HEIGHT } from "IDE";
+import { Icon, IDE_HEADER_HEIGHT } from "@appsmith/ads";
 
 export const Container = styled.div`
   display: flex;
