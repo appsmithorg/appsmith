@@ -25,7 +25,7 @@ jobs:
       - name: Fetch server build from cache
         env:
           cachetoken: ${{ secrets.CACHETOKEN }}
-          reponame: ${{ secrets.REPOSITORYNAME }}
+          reponame: ${{ github.event.repository.name }}
           gituser: ${{ secrets.CACHE_GIT_USER }}
           gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
         run: |
