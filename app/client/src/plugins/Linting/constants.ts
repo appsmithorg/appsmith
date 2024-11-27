@@ -2,6 +2,7 @@ import { ECMA_VERSION } from "@shared/ast";
 import type { LintOptions } from "jshint";
 import isEntityFunction from "./utils/isEntityFunction";
 import type { Linter } from "eslint-linter-browserify";
+import { noFloatingPromisesLintRule } from "./customRules/no-floating-promises";
 
 export enum LINTER_TYPE {
   "JSHINT" = "JSHint",
@@ -57,6 +58,7 @@ export const lintOptions = (
         globals: eslintGlobals,
         sourceType: "script",
       },
+      plugins: [noFloatingPromisesLintRule],
       rules: {
         "no-floating-promises": "error",
         eqeqeq: "off",
