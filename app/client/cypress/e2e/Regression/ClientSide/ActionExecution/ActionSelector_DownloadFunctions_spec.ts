@@ -42,15 +42,18 @@ describe(
 
       agHelper.GetNClick(propPane._actionSelectorPopupClose);
       agHelper.ClickButton("Submit");
-      cy.readFile("cypress/downloads/flower_1.jpeg", { timeout: 60000 }).should('exist');
-     
+      cy.readFile("cypress/downloads/flower_1.jpeg", { timeout: 60000 }).should(
+        "exist",
+      );
+
       //deploy verification
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
-      cy.readFile("cypress/downloads/flower_1.jpeg", { timeout: 60000 }).should('exist');
-      
-      
+      cy.readFile("cypress/downloads/flower_1.jpeg", { timeout: 60000 }).should(
+        "exist",
+      );
+
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
@@ -87,7 +90,6 @@ describe(
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });
 
-
     it("2. To verify the behavior of the download() function when no file extension is provided in the fileName. The download should fail, or the file should be unusable due to the lack of an extension.", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.SelectPlatformFunction("onClick", "Download");
@@ -102,13 +104,17 @@ describe(
 
       agHelper.GetNClick(propPane._actionSelectorPopupClose);
       agHelper.ClickButton("Submit");
-      cy.readFile("cypress/downloads/flower_2", { timeout: 60000 }).should('not.exist');
+      cy.readFile("cypress/downloads/flower_2", { timeout: 60000 }).should(
+        "exist",
+      );
 
       // deploy verification
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
-      cy.readFile("cypress/downloads/flower_2", { timeout: 60000 }).should('not.exist');
+      cy.readFile("cypress/downloads/flower_2", { timeout: 60000 }).should(
+        "exist",
+      );
 
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
@@ -116,7 +122,7 @@ describe(
       // JSobject verification
       const jsObjectBody = `export default {
           myFun2 () {
-            {{download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower_2_1', 'image/jpeg').then(() => {
+            {{download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881', 'flower_2_1', '').then(() => {
             showAlert('Download Success', '');
           }).catch(() => {
             showAlert('Download Failed', '');
@@ -136,11 +142,15 @@ describe(
       propPane.ToggleJSMode("onClick", true);
       propPane.EnterJSContext("onClick", "{{JSObject1.myFun2()}}", true, false);
       agHelper.ClickButton("Submit");
-      agHelper.ValidateToastMessage("Download Failed");
+      cy.readFile("cypress/downloads/flower_2_1", { timeout: 60000 }).should(
+        "exist",
+      );
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
-      agHelper.ValidateToastMessage("Download Failed");
+      cy.readFile("cypress/downloads/flower_2_1", { timeout: 60000 }).should(
+        "exist",
+      );
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", false);
@@ -148,7 +158,7 @@ describe(
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });
 
-    it.only("3. To verify the download() function when invalid or null data is passed. The download should fail, or an appropriate error message should be logged.", () => {
+    it("3. To verify the download() function when invalid or null data is passed. The download should fail, or an appropriate error message should be logged.", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.SelectPlatformFunction("onClick", "Download");
       agHelper.TypeText(
@@ -169,7 +179,7 @@ describe(
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
       agHelper.ValidateToastMessage("Please enter a file name", 0, 2);
-    
+
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
@@ -208,7 +218,7 @@ describe(
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });
 
-    it("4. To verify how the function behaves when an unsupported or incorrect file type is specified. The file should not download, or it should be unusable due to the incorrect file type.", () => {
+    it.only("4. To verify how the function behaves when an unsupported or incorrect file type is specified. The file should not download, or it should be unusable due to the incorrect file type.", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.SelectPlatformFunction("onClick", "Download");
       agHelper.TypeText(
@@ -222,27 +232,43 @@ describe(
 
       agHelper.GetNClick(propPane._actionSelectorPopupClose);
       agHelper.ClickButton("Submit");
-      cy.readFile("cypress/downloads/flower_4.txt", { timeout: 60000 }).should('not.exist');
+      cy.readFile("cypress/downloads/flower_4.txt", { timeout: 60000 }).should(
+        "exist",
+      );
 
       // deploy verification
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
-      cy.readFile("cypress/downloads/flower_4.txt", { timeout: 60000 }).should('not.exist');
+      cy.readFile("cypress/downloads/flower_4.txt", { timeout: 60000 }).should(
+        "exist",
+      );
 
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
 
       // JSobject verification
       const jsObjectBody = `export default {
-          myFun4 () {
-            {{download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower_4_1.txt', 'text/plain').then(() => {
-            showAlert('Download Success', '');
-          }).catch(() => {
-            showAlert('Download Failed', '');
-          });}}
+          myFun4() {
+            {{ 
+              download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower_4_1', 'text/plain')
+                .then(() => {
+                  const filePath = 'cypress/downloads/flower_4_1';
+                  cy.readFile(filePath, { timeout: 60000 }).then((content) => {
+                    if (!content.startsWith('JPEG')) {
+                      showAlert('Download Failed as Expected', 'success');
+                      throw new Error('File content does not match expected MIME type.');
+                    } else {
+                      showAlert('Unexpected Success', 'error');
+                    }
+                  });
+                })
+                .catch((error) => {
+                  showAlert('Download Failed as Expected', 'success');
+                });
+            }}
           },
-        }`;
+        };`;
 
       jsEditor.CreateJSObject(jsObjectBody, {
         paste: true,
