@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { retryPromise } from "utils/AppsmithUtils";
 import { useSelector } from "react-redux";
-import { IDE_HEADER_HEIGHT } from "IDE";
+import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 
 const BindingBanner = styled.div`
   position: fixed;
