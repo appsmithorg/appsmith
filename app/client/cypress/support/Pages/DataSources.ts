@@ -729,10 +729,16 @@ export class DataSources {
     environment = this.dataManager.defaultEnviorment,
     enterOrSelectUrl: "enter" | "select" = "enter",
     dsNameToSelect = "",
+    renameCallback?: (queryName: string) => void,
   ) {
     this.agHelper.GetNClick(this._createBlankGraphQL);
     cy.get("@guid").then((uid) => {
-      this.agHelper.RenameQuery("GraphQL_API" + "_" + uid);
+      const queryName = "GraphQL_API" + "_" + uid;
+      if (typeof renameCallback === "function") {
+        renameCallback(queryName);
+      } else {
+        this.agHelper.RenameQuery(queryName);
+      }
 
       if (enterOrSelectUrl == "enter")
         this.apiPage.EnterURL(
@@ -744,7 +750,7 @@ export class DataSources {
       }
 
       this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
-      cy.wrap("GraphQL_API" + "_" + uid).as("dsName");
+      cy.wrap(queryName).as("dsName");
     });
   }
 
