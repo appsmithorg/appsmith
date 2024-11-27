@@ -45,14 +45,6 @@ jobs:
     with:
       pr: ${{ github.event.number }}
 
-  test-appsmithctl:
-    if: success()
-    name: appsmithctl
-    uses: ./.github/workflows/appsmithctl.yml
-    secrets: inherit
-    with:
-      pr: ${{ github.event.number }}
-
   build-docker-image:
     needs: [client-build, server-build, rts-build]
     # Only run if the build step is successful

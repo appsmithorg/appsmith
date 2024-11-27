@@ -102,7 +102,7 @@ public class FileInfoMethod implements ExecutionMethod, TriggerMethod {
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(
                 this.BASE_DRIVE_API_URL,
                 methodConfig.getSpreadsheetId()
-                        + "?fields=id,name,permissions/role,permissions/emailAddress,createdTime,modifiedTime");
+                        + "?supportsAllDrives=true&fields=id,name,permissions/role,permissions/emailAddress,createdTime,modifiedTime");
 
         return webClient
                 .method(HttpMethod.GET)
