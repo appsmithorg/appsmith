@@ -53,7 +53,7 @@ jobs:
             gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
         run: |
                 set -e
-                mkdir cacherepo
+                #mkdir cacherepo
                 cd ./cacherepo
                 git lfs install
                 git config --global user.email "$gituseremail"
