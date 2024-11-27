@@ -20,6 +20,7 @@ export const Tab = styled.div`
   border-left: 1px solid transparent;
   border-right: 1px solid transparent;
   border-top: 2px solid transparent;
+  flex-shrink: 0;
 
   &.active {
     background: var(--ads-v2-colors-control-field-default-bg);
