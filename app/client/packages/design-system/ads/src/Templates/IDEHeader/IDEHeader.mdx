@@ -1,0 +1,28 @@
+import { Canvas, Meta } from "@storybook/blocks";
+import * as IDEHeaderStories from "./IDEHeader.stories";
+
+<Meta of={IDEHeaderStories} />
+
+# IDEHeader
+
+IDEHeader sets the stage for the IDE experience. It is the topmost section of the IDE that contains the Appsmith logo, the app name, and the user profile.
+
+<Canvas of={IDEHeaderStories.Default} />
+
+## Anatomy
+
+### Left Section options
+
+The local title
+
+#### Header Title
+
+A title that is specific to the app state. It is displayed on the left side of the header.
+
+<Canvas of={IDEHeaderStories.WithHeaderTitle} />
+
+#### Header Dropdown
+
+A dropdown that allows the user to switch between different pages.
+
+<Canvas of={IDEHeaderStories.WithHeaderDropdown} />
