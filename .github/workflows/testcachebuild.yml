@@ -44,25 +44,26 @@ jobs:
             cd ../../../../../
             tar -xzvf ./server.jar
 
-      - name: Fetch client build from cache
-        env:
-            cachetoken: ${{ secrets.CACHETOKEN }}
-            reponame: ${{ github.event.repository.name }}
-            gituser: ${{ secrets.CACHE_GIT_USER }}
-            gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
-        run: |
-                set -e
-                #mkdir cacherepo
-                cd ./cacherepo
-                git config --global user.email "$gituseremail"
-                git config --global user.name "$gituser"
-                git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-                echo `pwd`
-                git lfs install
-                cd cibuildcache/CE/release/client
-                git lfs install
-                git lfs migrate import --everything --yes
-                git lfs pull ./build.tar
-                mv ./build.tar ../../../../../build.tar
-                mkdir -p app/client/build
-                tar -xvf app/client/build.tar -C app/client/build        
+      # - name: Fetch client build from cache
+      #   env:
+      #       cachetoken: ${{ secrets.CACHETOKEN }}
+      #       reponame: ${{ github.event.repository.name }}
+      #       gituser: ${{ secrets.CACHE_GIT_USER }}
+      #       gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+      #   run: |
+      #           set -e
+      #           mkdir cacherepo
+      #           cd ./cacherepo
+      #           git lfs install
+      #           git config --global user.email "$gituseremail"
+      #           git config --global user.name "$gituser"
+      #           git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+      #           echo `pwd`
+      #           git lfs install
+      #           cd cibuildcache/CE/release/client
+      #           git lfs install
+      #           git lfs migrate import --everything --yes
+      #           git lfs pull ./build.tar
+      #           mv ./build.tar ../../../../../build.tar
+      #           mkdir -p app/client/build
+      #           tar -xvf app/client/build.tar -C app/client/build        
