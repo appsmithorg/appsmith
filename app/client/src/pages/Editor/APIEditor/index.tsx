@@ -163,6 +163,14 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     return <ConvertEntityNotification icon={icon} name={action?.name || ""} />;
   }, [action?.name, isConverting, icon]);
 
+  /* @ts-expect-error: Types are not available */
+  if (typeof window.Cypress?.log === "function") {
+    /* @ts-expect-error: Types are not available */
+    window.Cypress.log({
+      message: `ApiEditorWrapper, ${JSON.stringify(settingsConfig || {})} ${pluginId}`,
+    });
+  }
+
   return (
     <ApiEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}

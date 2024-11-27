@@ -59,6 +59,14 @@ export function ApiEditorContextProvider({
     ],
   );
 
+  /* @ts-expect-error: Types are not available */
+  if (typeof window.Cypress?.log === "function") {
+    /* @ts-expect-error: Types are not available */
+    window.Cypress.log({
+      message: `ApiEditorContextProvider, ${JSON.stringify(settingsConfig || {})} ${JSON.stringify(value.settingsConfig || {})}`,
+    });
+  }
+
   return (
     <ApiEditorContext.Provider value={value}>
       {children}

@@ -183,6 +183,17 @@ function* fetchPluginFormConfigsSaga(action?: {
             editorConfigs[pluginId] = pluginFormData[index].editor;
           }
 
+          if (
+            /* @ts-expect-error: Types are not available */
+            typeof window.Cypress?.log === "function" &&
+            plugin?.type === PluginType.API
+          ) {
+            /* @ts-expect-error: Types are not available */
+            window.Cypress.log({
+              message: `fetchPluginFormConfigsSaga, ${JSON.stringify(pluginFormData[index].setting || {})} ${JSON.stringify(defaultActionSettings[plugin.type] || {})}`,
+            });
+          }
+
           // Action settings form if not available use default
           if (plugin && !pluginFormData[index].setting) {
             settingConfigs[pluginId] = defaultActionSettings[plugin.type];
