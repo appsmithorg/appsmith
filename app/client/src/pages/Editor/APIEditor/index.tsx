@@ -167,7 +167,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   if (typeof window.Cypress?.log === "function") {
     /* @ts-expect-error: Types are not available */
     window.Cypress.log({
-      message: `ApiEditorWrapper, ${JSON.stringify(settingsConfig || {})} ${pluginId}`,
+      message: `ApiEditorWrapper, ${JSON.stringify(settingsConfig || {})} ${JSON.stringify(plugins)} ${pluginId}`,
     });
   }
 
