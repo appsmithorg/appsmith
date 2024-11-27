@@ -29,33 +29,18 @@ jobs:
           gituser: ${{ secrets.CACHE_GIT_USER }}
           gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
         run: |
-          set -e
-          mkdir cacherepo
-          cd ./cacherepo
-          
-          git lfs install
-          git config --global user.email "$gituseremail"
-          git config --global user.name "$gituser"
-          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-
-          if [ "$reponame" = "appsmith" ]; then
-              export repodir="CE"
-          elif [ "$reponame" = "appsmith-ee" ]; then
-              export repodir="EE"
-          elif [ "$reponame" = "appsmith-sagar-version" ]; then
-              export repodir="CE"
-          else
-              echo "Warning: Unknown repository name: $reponame"
-              export repodir="UNKNOWN"  # Optional: Set a default or fallback value
-          fi
-
-
-          cd cibuildcache/$repodir/release/server
-          if [ ! -f ./server.jar ]; then
-            echo "Error: server.jar not found in the cache. Exiting."
-            exit 1
-          fi
-
-          mv ./server.jar ../../../../../server.jar
-          cd ../../../../../
-          tar -xzvf ./server.jar || { echo "Error extracting server.jar"; exit 1; }
+            set -e
+            mkdir cacherepo
+            cd ./cacherepo
+            git lfs install
+            git config --global user.email "$gituseremail"
+            git config --global user.name "$gituser"
+            git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+            echo `pwd`
+            cd cibuildcache/CE/release/server
+            git lfs install
+            git lfs migrate import --everything --yes
+            git lfs pull ./server.jar
+            mv ./server.jar ../../../../../server.jar
+            cd ../../../../../
+            tar -xzvf ./server.jar
