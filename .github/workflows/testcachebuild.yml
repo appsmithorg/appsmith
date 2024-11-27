@@ -1,0 +1,39 @@
+# This workflow is responsible for building, testing & packaging the Java server codebase
+name: Test build Cache
+
+on:
+  workflow_dispatch:
+
+jobs:
+  server-unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out merged commit from PR and base branch
+        uses: actions/checkout@v4
+        with:
+          fetch-tags: true
+          ref: refs/pull/${{ inputs.pr }}/merge
+
+      - name: Fetch server build from cache
+        env:
+          cachetoken: ${{ secrets.CACHETOKEN }}
+          reponame: ${{ secrets.repositoryname }}
+          gituser: ${{ secrets.CACHE_GIT_USER }}
+          gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        run: |
+          mkdir cacherepo
+          cd ./cacherepo
+          git lfs install
+          git config --global user.email "$gituseremail"
+          git config --global user.name "$gituser"
+          git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs install
+          git lfs migrate import --everything --yes
+          if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
+          if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
+          cd cibuildcache/$repodir/release/server
+          git lfs pull ./server.jar
+          mv ./server.jar ../../../../../server.jar
+          cd ../../../../../
+          tar -xzvf ./server.jar
