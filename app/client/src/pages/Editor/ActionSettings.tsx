@@ -44,10 +44,9 @@ function ActionSettings(props: ActionSettingsProps): JSX.Element {
   /* @ts-expect-error: Types are not available */
   if (typeof window.Cypress?.log === "function") {
     /* @ts-expect-error: Types are not available */
-    window.Cypress.log(
-      "props.actionSettingsConfig",
-      props.actionSettingsConfig,
-    );
+    window.Cypress.log({
+      message: `props.actionSettingsConfig, ${JSON.stringify(props.actionSettingsConfig || {})}`,
+    });
   }
 
   return (

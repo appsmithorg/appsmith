@@ -200,9 +200,13 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   /* @ts-expect-error: Types are not available */
   if (typeof window.Cypress?.log === "function") {
     /* @ts-expect-error: Types are not available */
-    window.Cypress.log("CommonEditorForm: context", settingsConfig);
+    window.Cypress.log({
+      message: `CommonEditorForm: context, ${JSON.stringify(settingsConfig || {})}`,
+    });
     /* @ts-expect-error: Types are not available */
-    window.Cypress.log("CommonEditorForm: props", props.actionSettingsConfig);
+    window.Cypress.log({
+      message: `CommonEditorForm: props, ${JSON.stringify(props.settingsConfig || {})}`,
+    });
   }
 
   const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
