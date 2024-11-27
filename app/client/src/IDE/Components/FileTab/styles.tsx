@@ -20,6 +20,7 @@ export const Tab = styled.div`
   border-left: 1px solid transparent;
   border-right: 1px solid transparent;
   border-top: 2px solid transparent;
+  flex-shrink: 0;
 
   &.active {
     background: var(--ads-v2-colors-control-field-default-bg);
@@ -37,11 +38,6 @@ export const Tab = styled.div`
   &:hover > .tab-close,
   &.active > .tab-close {
     visibility: visible;
-  }
-
-  &.t--ide-tab-new_query,
-  &.t--ide-tab-new_js {
-    flex-shrink: 0;
   }
 `;
 
