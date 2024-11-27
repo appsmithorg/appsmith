@@ -93,7 +93,14 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                     // Setting the deletedAt and then saving the entity throwing the exceptions in few cases of trying
                     // to create
                     // new entry with same id hence relying on JPA generated method.
-                    return this.archiveById(entity.getId()).then(Mono.just(em.find(genericDomain, entity.getId())));
+                    return this.archiveById(entity.getId()).handle((cnt, sink) -> {
+                        if (cnt == 0) {
+                            sink.error(new RuntimeException("Entity not found"));
+                            return;
+                        }
+                        entity.setDeletedAt(Instant.now());
+                        sink.next(entity);
+                    });
                 });
     }
 
@@ -168,15 +175,14 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                                 try {
                                     transactionTemplate.execute(ts -> {
                                         if (isNew) {
+                                            entity.setId(generateId());
                                             em.persist(entity);
                                             return entity;
                                         } else {
                                             return em.merge(entity);
                                         }
                                     });
-                                    final T savedEntity = em.find(genericDomain, entity.getId());
-                                    copyTransientFieldValues(entity, savedEntity, 1);
-                                    return savedEntity;
+                                    return entity;
                                 } catch (DataIntegrityViolationException e) {
                                     // save wasn't successful, reset the id if it was generated
                                     if (isNew) {
