@@ -76,6 +76,22 @@ public class GoogleSheetsPlugin extends BasePlugin {
                 new HashSet<>(Arrays.asList(FieldName.ROW_OBJECT, FieldName.ROW_OBJECTS));
 
         @Override
+        public Mono<ActionExecutionResult> executeParameterized(
+                Void connection,
+                ExecuteActionDTO executeActionDTO,
+                DatasourceConfiguration datasourceConfiguration,
+                ActionConfiguration actionConfiguration) {
+            return executeParameterizedWithFlags(
+                    connection, executeActionDTO, datasourceConfiguration, actionConfiguration, null);
+        }
+
+        @Override
+        public Mono<TriggerResultDTO> trigger(
+                Void connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+            return triggerWithFlags(connection, datasourceConfiguration, request, null);
+        }
+
+        @Override
         public Mono<ActionExecutionResult> executeParameterizedWithFlags(
                 Void connection,
                 ExecuteActionDTO executeActionDTO,
