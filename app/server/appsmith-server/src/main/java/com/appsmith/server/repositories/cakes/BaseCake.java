@@ -311,8 +311,6 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     }
 
     public Mono<Void> delete(T entity) {
-        return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-                .flatMap(em -> asMonoDirect(() -> this.deleteById(entity.getId())))
-                .then();
+        return this.deleteById(entity.getId()).then();
     }
 }
