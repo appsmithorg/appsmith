@@ -45,6 +45,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -122,6 +123,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final TenantService tenantService;
     private final ActionExecutionSolutionHelper actionExecutionSolutionHelper;
     private final CommonConfig commonConfig;
+    private final FeatureFlagService featureFlagService;
 
     static final String PARAM_KEY_REGEX = "^k\\d+$";
     static final String BLOB_KEY_REGEX =
@@ -150,7 +152,8 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             ConfigService configService,
             TenantService tenantService,
             CommonConfig commonConfig,
-            ActionExecutionSolutionHelper actionExecutionSolutionHelper) {
+            ActionExecutionSolutionHelper actionExecutionSolutionHelper,
+            FeatureFlagService featureFlagService) {
         this.newActionService = newActionService;
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
@@ -171,6 +174,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.tenantService = tenantService;
         this.commonConfig = commonConfig;
         this.actionExecutionSolutionHelper = actionExecutionSolutionHelper;
+        this.featureFlagService = featureFlagService;
 
         this.patternList.add(Pattern.compile(PARAM_KEY_REGEX));
         this.patternList.add(Pattern.compile(BLOB_KEY_REGEX));
@@ -726,13 +730,19 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     // Now that we have the context (connection details), execute the action.
 
                     Instant requestedAt = Instant.now();
+                    Map<String, Boolean> features =
+                            featureFlagService.getCachedTenantFeatureFlags().getFeatures();
+
+                    // Flags are needed here for google sheets integration to support shared drive behind a flag
+                    // Once thoroughly tested, this flag can be removed
                     return ((PluginExecutor<Object>) pluginExecutor)
-                            .executeParameterizedWithMetrics(
+                            .executeParameterizedWithMetricsAndFlags(
                                     resourceContext.getConnection(),
                                     executeActionDTO,
                                     datasourceStorage1.getDatasourceConfiguration(),
                                     actionDTO.getActionConfiguration(),
-                                    observationRegistry)
+                                    observationRegistry,
+                                    features)
                             .map(actionExecutionResult -> {
                                 ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
                                 if (actionExecutionRequest == null) {

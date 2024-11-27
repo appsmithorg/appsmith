@@ -17,6 +17,7 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
@@ -53,6 +54,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
     private final EnvironmentPermission environmentPermission;
     private final ConfigService configService;
     private final TenantService tenantService;
+    private final FeatureFlagService featureFlagService;
 
     public Mono<TriggerResultDTO> trigger(
             String datasourceId, String environmentId, TriggerRequestDTO triggerRequestDTO) {
@@ -104,6 +106,11 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                     final Plugin plugin = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
 
+                    // Flags are needed here for google sheets integration to support shared drive behind a flag
+                    // Once thoroughly tested, this flag can be removed
+                    Map<String, Boolean> featureFlagMap =
+                            featureFlagService.getCachedTenantFeatureFlags().getFeatures();
+
                     return datasourceContextService
                             .getDatasourceContext(datasourceStorage, plugin)
                             // Now that we have the context (connection details), execute the action.
@@ -111,10 +118,11 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                             // However the context comes from evaluated datasource.
                             .flatMap(resourceContext -> setTenantAndInstanceId(triggerRequestDTO)
                                     .flatMap(updatedTriggerRequestDTO -> ((PluginExecutor<Object>) pluginExecutor)
-                                            .trigger(
+                                            .triggerWithFlags(
                                                     resourceContext.getConnection(),
                                                     datasourceStorage.getDatasourceConfiguration(),
-                                                    updatedTriggerRequestDTO)));
+                                                    updatedTriggerRequestDTO,
+                                                    featureFlagMap)));
                 });
 
         // If the plugin hasn't implemented the trigger function, go for the default implementation
