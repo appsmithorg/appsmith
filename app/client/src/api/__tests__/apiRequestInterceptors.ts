@@ -2,7 +2,6 @@ import axios from "axios";
 import {
   addGitBranchHeader,
   blockAirgappedRoutes,
-  addRequestedByHeader,
   addEnvironmentHeader,
   increaseGitApiTimeout,
   addAnonymousUserIdHeader,
@@ -53,17 +52,6 @@ describe("Api request interceptors", () => {
     expect(response.config.headers["x-anonymous-user-id"]).toBe(
       "anonymousUserId",
     );
-
-    axios.interceptors.request.eject(identifier);
-  });
-
-  it("checks if the request config has csrfToken in the headers", async () => {
-    const url = "v1/actions/execute";
-    const identifier = axios.interceptors.request.use(addRequestedByHeader);
-    const response = await axios.post(url);
-
-    expect(response.config.headers).toHaveProperty("X-Requested-By");
-    expect(response.config.headers["X-Requested-By"]).toBe("Appsmith");
 
     axios.interceptors.request.eject(identifier);
   });
