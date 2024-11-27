@@ -33,8 +33,14 @@ public class CustomAppsmithTransactionManager {
         if (Mono.class.isAssignableFrom(returnType)) {
             return ((Mono<?>) joinPoint.proceed(joinPoint.getArgs()))
                     .contextWrite(ctx -> ctx.put(TX_CONTEXT, entityManager))
-                    .doOnSuccess(success -> entityManager.getTransaction().commit())
-                    .doOnError(error -> entityManager.getTransaction().rollback());
+                    .doOnSuccess(success -> {
+                        entityManager.getTransaction().commit();
+                        entityManager.close();
+                    })
+                    .doOnError(error -> {
+                        entityManager.getTransaction().rollback();
+                        entityManager.close();
+                    });
         } else if (Flux.class.isAssignableFrom(returnType)) {
             return ((Flux<?>) joinPoint.proceed(joinPoint.getArgs()))
                     .contextWrite(ctx -> ctx.put(TX_CONTEXT, entityManager))
@@ -47,8 +53,6 @@ public class CustomAppsmithTransactionManager {
                         entityManager.close();
                     });
         }
-        Object obj = joinPoint.proceed(joinPoint.getArgs());
-        entityManager.getTransaction().commit();
-        return obj;
+        throw new IllegalStateException("Method annotated with @CustomAppsmithTransaction must return a Mono or Flux");
     }
 }

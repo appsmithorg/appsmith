@@ -3,6 +3,7 @@ package com.appsmith.server.imports.internal;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.annotations.CustomAppsmithTransaction;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ImportExportConstants;
@@ -165,6 +166,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      *                             The Artifact implements the Artifact interface.
      */
     @Override
+    @CustomAppsmithTransaction
     public Mono<? extends Artifact> importNewArtifactInWorkspaceFromJson(
             String workspaceId, ArtifactExchangeJson artifactExchangeJson) {
 
