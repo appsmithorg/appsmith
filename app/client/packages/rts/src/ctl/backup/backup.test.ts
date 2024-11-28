@@ -3,6 +3,17 @@ import * as backup from ".";
 import * as Constants from "../constants";
 import * as utils from "../utils";
 import readlineSync from "readline-sync";
+import {
+  checkAvailableBackupSpace,
+  encryptBackupArchive,
+  executeCopyCMD,
+  executeMongoDumpCMD,
+  getAvailableBackupSpaceInBytes,
+  getEncryptionPasswordFromUser,
+  getGitRoot,
+  removeSensitiveEnvData
+} from "./links";
+import { getTimeStampInISO } from ".";
 
 jest.mock("../utils", () => ({
   ...jest.requireActual("../utils"),
@@ -10,15 +21,8 @@ jest.mock("../utils", () => ({
 }));
 
 describe("Backup Tests", () => {
-  test("Timestamp string in ISO format", () => {
-    console.log(backup.getTimeStampInISO());
-    expect(backup.getTimeStampInISO()).toMatch(
-      /(\d{4})-(\d{2})-(\d{2})T(\d{2})-(\d{2})-(\d{2})\.(\d{3})Z/,
-    );
-  });
-
   test("Available Space in /appsmith-stacks volume in Bytes", async () => {
-    const res = expect(await backup.getAvailableBackupSpaceInBytes("/"));
+    const res = expect(await getAvailableBackupSpaceInBytes("/"));
 
     res.toBeGreaterThan(1024 * 1024);
   });
@@ -32,12 +36,12 @@ describe("Backup Tests", () => {
   it("Should throw Error when the available size is below MIN_REQUIRED_DISK_SPACE_IN_BYTES", () => {
     const size = Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES - 1;
 
-    expect(() => backup.checkAvailableBackupSpace(size)).toThrow();
+    expect(() => checkAvailableBackupSpace(size)).toThrow();
   });
 
   it("Should not should throw Error when the available size is >= MIN_REQUIRED_DISK_SPACE_IN_BYTES", () => {
     expect(() => {
-      backup.checkAvailableBackupSpace(
+      checkAvailableBackupSpace(
         Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES,
       );
     }).not.toThrow(
@@ -59,29 +63,29 @@ describe("Backup Tests", () => {
     const appsmithMongoURI = "mongodb://username:password@host/appsmith";
     const cmd =
       "mongodump --uri=mongodb://username:password@host/appsmith --archive=/dest/mongodb-data.gz --gzip";
-    const res = await backup.executeMongoDumpCMD(dest, appsmithMongoURI);
+    const res = await executeMongoDumpCMD(dest, appsmithMongoURI);
 
     expect(res).toBe(cmd);
     console.log(res);
   });
 
   test("Test get gitRoot path when APPSMITH_GIT_ROOT is '' ", () => {
-    expect(backup.getGitRoot("")).toBe("/appsmith-stacks/git-storage");
+    expect(getGitRoot("")).toBe("/appsmith-stacks/git-storage");
   });
 
   test("Test get gitRoot path when APPSMITH_GIT_ROOT is null ", () => {
-    expect(backup.getGitRoot()).toBe("/appsmith-stacks/git-storage");
+    expect(getGitRoot()).toBe("/appsmith-stacks/git-storage");
   });
 
   test("Test get gitRoot path when APPSMITH_GIT_ROOT is defined ", () => {
-    expect(backup.getGitRoot("/my/git/storage")).toBe("/my/git/storage");
+    expect(getGitRoot("/my/git/storage")).toBe("/my/git/storage");
   });
 
   test("Test ln command generation", async () => {
     const gitRoot = "/appsmith-stacks/git-storage";
     const dest = "/destdir";
     const cmd = "ln -s /appsmith-stacks/git-storage /destdir/git-storage";
-    const res = await backup.executeCopyCMD(gitRoot, dest);
+    const res = await executeCopyCMD(gitRoot, dest);
 
     expect(res).toBe(cmd);
     console.log(res);
@@ -102,7 +106,7 @@ describe("Backup Tests", () => {
 
   test("If MONGODB and Encryption env values are being removed", () => {
     expect(
-      backup.removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_DB_URL=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
+      removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_DB_URL=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
   `),
     ).toMatch(
       `APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`,
@@ -111,7 +115,7 @@ describe("Backup Tests", () => {
 
   test("If MONGODB and Encryption env values are being removed", () => {
     expect(
-      backup.removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_DB_URL=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
+      removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_DB_URL=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
   `),
     ).toMatch(
       `APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`,
@@ -199,7 +203,7 @@ describe("Backup Tests", () => {
     const password = "password#4321";
 
     readlineSync.question = jest.fn().mockImplementation(() => password);
-    const password_res = backup.getEncryptionPasswordFromUser();
+    const password_res = getEncryptionPasswordFromUser();
 
     expect(password_res).toEqual(password);
   });
@@ -215,13 +219,13 @@ describe("Backup Tests", () => {
       return password;
     });
 
-    expect(() => backup.getEncryptionPasswordFromUser()).toThrow();
+    expect(() => getEncryptionPasswordFromUser()).toThrow();
   });
 
   test("Get encrypted archive path", async () => {
     const archivePath = "/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z";
     const encryptionPassword = "password#4321";
-    const encArchivePath = await backup.encryptBackupArchive(
+    const encArchivePath = await encryptBackupArchive(
       archivePath,
       encryptionPassword,
     );
@@ -234,7 +238,7 @@ describe("Backup Tests", () => {
   test("Test backup encryption function", async () => {
     const archivePath = "/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z";
     const encryptionPassword = "password#123";
-    const res = await backup.encryptBackupArchive(
+    const res = await encryptBackupArchive(
       archivePath,
       encryptionPassword,
     );

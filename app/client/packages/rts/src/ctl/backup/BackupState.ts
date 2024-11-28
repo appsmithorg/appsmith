@@ -1,8 +1,6 @@
-import { getTimeStampInISO } from "./index";
-
 export class BackupState {
   readonly args: string[];
-  readonly initAt: string = getTimeStampInISO();
+  readonly initAt: string = new Date().toISOString().replace(/:/g, "-");
   readonly errors: string[] = [];
 
   backupRootPath: string = "";
