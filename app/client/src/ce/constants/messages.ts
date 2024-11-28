@@ -569,6 +569,7 @@ export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
+export const EMPTY_RESPONSE_RUN = () => "Click ‘Run’ to get a response";
 export const EMPTY_JS_RESPONSE_LAST_HALF = () =>
   "to view response of selected function";
 export const INVALID_EMAIL = () => "Please enter a valid email";
@@ -2486,7 +2487,8 @@ export const ADD_PAGE_FROM_TEMPLATE_MODAL = {
 
 export const HEADER_TITLES = {
   DATA: () => "Data",
-  EDITOR: () => "Pages",
+  PAGES: () => "Pages",
+  EDITOR: () => "Editor",
   SETTINGS: () => "Settings",
   LIBRARIES: () => "Libraries",
 };

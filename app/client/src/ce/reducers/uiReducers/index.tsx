@@ -23,12 +23,10 @@ import onBoardingReducer from "reducers/uiReducers/onBoardingReducer";
 import globalSearchReducer from "reducers/uiReducers/globalSearchReducer";
 import actionSelectorReducer from "reducers/uiReducers/actionSelectorReducer";
 import releasesReducer from "reducers/uiReducers/releasesReducer";
-import websocketReducer from "reducers/uiReducers/websocketReducer";
 import debuggerReducer from "reducers/uiReducers/debuggerReducer";
 import tourReducer from "reducers/uiReducers/tourReducer";
 import tableFilterPaneReducer from "reducers/uiReducers/tableFilterPaneReducer";
 import jsPaneReducer from "reducers/uiReducers/jsPaneReducer";
-import appCollabReducer from "reducers/uiReducers/appCollabReducer";
 import canvasSelectionReducer from "reducers/uiReducers/canvasSelectionReducer";
 import gitSyncReducer from "reducers/uiReducers/gitSyncReducer";
 import crudInfoModalReducer from "reducers/uiReducers/crudInfoModalReducer";
@@ -78,14 +76,12 @@ export const uiReducerObject = {
   onBoarding: onBoardingReducer,
   globalSearch: globalSearchReducer,
   releases: releasesReducer,
-  websocket: websocketReducer,
   debugger: debuggerReducer,
   tour: tourReducer,
   jsPane: jsPaneReducer,
   jsObjectName: jsObjectNameReducer,
   canvasSelection: canvasSelectionReducer,
   gitSync: gitSyncReducer,
-  appCollab: appCollabReducer,
   crudInfoModal: crudInfoModalReducer,
   widgetReflow: widgetReflowReducer,
   appTheming: appThemingReducer,

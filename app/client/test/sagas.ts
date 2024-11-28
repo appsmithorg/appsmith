@@ -24,7 +24,6 @@ import queryPaneSagas from "../src/sagas/QueryPaneSagas";
 import saaSPaneSagas from "../src/sagas/SaaSPaneSagas";
 import snipingModeSagas from "../src/sagas/SnipingModeSagas";
 import themeSagas from "../src/sagas/ThemeSaga";
-import websocketSagas from "../src/sagas/WebsocketSagas/WebsocketSagas";
 import actionExecutionChangeListeners from "../src/sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "../src/sagas/WidgetOperationSagas";
 import NavigationSagas from "../src/ee/sagas/NavigationSagas";
@@ -51,7 +50,6 @@ export const sagasToRunForTests = [
   formEvaluationChangeListener,
   saaSPaneSagas,
   globalSearchSagas,
-  websocketSagas,
   debuggerSagas,
   watchJSActionSagas,
   selectionCanvasSagas,
