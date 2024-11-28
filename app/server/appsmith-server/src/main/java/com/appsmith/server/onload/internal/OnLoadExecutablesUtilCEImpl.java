@@ -734,6 +734,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             .flatMap(widgetDependencyNode -> {
                                 if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
                                     edgesRef.add(new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
+                                    // This executable is directly referenced in the DSL. This executable is an ideal
+                                    // candidate for on page load
                                     executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
 
                                     return updateExecutableSelfReferencingPaths(possibleEntity)
