@@ -643,23 +643,11 @@ export default function* executePluginActionTriggerSaga(
             pluginType: action.pluginType,
           },
           state: {
+            error: !isString(payload.body)
+              ? JSON.stringify(payload.body)
+              : payload.body,
             request: payload.request,
-            error: payload.readableError,
           },
-          messages: [
-            {
-              // Need to stringify cause this gets rendered directly
-              // and rendering objects can crash the app
-              message: {
-                name: "PluginExecutionError",
-                message: !isString(payload.body)
-                  ? JSON.stringify(payload.body)
-                  : payload.body,
-              },
-              type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-              subType: payload.errorType,
-            },
-          ],
           pluginErrorDetails: payload.pluginErrorDetails,
         },
       },
@@ -950,8 +938,10 @@ export function* runActionSaga(
             httpMethod: actionObject?.actionConfiguration?.httpMethod,
             pluginType: actionObject.pluginType,
           },
-          messages: appsmithConsoleErrorMessageList,
-          state: payload?.request,
+          state: {
+            error: error.message,
+            request: payload.request,
+          },
           pluginErrorDetails: payload?.pluginErrorDetails,
         },
       },
@@ -1216,14 +1206,12 @@ function* executePageLoadAction(
               httpMethod: action?.actionConfiguration?.httpMethod,
               pluginType: action.pluginType,
             },
-            state: { request: payload.request, error: payload.readableError },
-            messages: [
-              {
-                message: error,
-                type: PLATFORM_ERROR.PLUGIN_EXECUTION,
-                subType: payload.errorType,
-              },
-            ],
+            state: {
+              error:
+                payload.pluginErrorDetails?.downstreamErrorMessage ||
+                error.message,
+              request: payload.request,
+            },
             pluginErrorDetails: payload.pluginErrorDetails,
           },
         },

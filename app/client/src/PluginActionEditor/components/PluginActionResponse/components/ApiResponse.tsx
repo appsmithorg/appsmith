@@ -60,8 +60,6 @@ export const ResponseTabErrorDefaultMessage = styled.div`
   flex-shrink: 0;
 `;
 
-export const apiReactJsonProps = { ...reactJsonProps, collapsed: 0 };
-
 export function ApiResponse(props: {
   action: Action;
   actionResponse?: ActionResponse;
@@ -144,7 +142,7 @@ export function ApiResponse(props: {
           </ResponseTabErrorContent>
           {requestWithTimestamp && (
             <JsonWrapper className="t--debugger-log-state" onClick={noop}>
-              <ReactJson src={requestWithTimestamp} {...apiReactJsonProps} />
+              <ReactJson src={requestWithTimestamp} {...reactJsonProps} />
             </JsonWrapper>
           )}
         </ResponseTabErrorContainer>
