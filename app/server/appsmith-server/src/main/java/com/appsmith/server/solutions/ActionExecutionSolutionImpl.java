@@ -13,6 +13,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceContextService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ce.ActionExecutionSolutionCEImpl;
@@ -42,7 +43,8 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
             ConfigService configService,
             TenantService tenantService,
             CommonConfig commonConfig,
-            ActionExecutionSolutionHelper actionExecutionSolutionHelper) {
+            ActionExecutionSolutionHelper actionExecutionSolutionHelper,
+            FeatureFlagService featureFlagService) {
         super(
                 newActionService,
                 actionPermission,
@@ -63,6 +65,7 @@ public class ActionExecutionSolutionImpl extends ActionExecutionSolutionCEImpl i
                 configService,
                 tenantService,
                 commonConfig,
-                actionExecutionSolutionHelper);
+                actionExecutionSolutionHelper,
+                featureFlagService);
     }
 }
