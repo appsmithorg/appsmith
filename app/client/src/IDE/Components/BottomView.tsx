@@ -70,7 +70,7 @@ interface Props {
 const ViewHideButton = styled(Button)`
   &.view-hide-button {
     position: absolute;
-    top: 3px;
+    top: 2px;
     right: 0;
     padding: 9px 11px;
   }

@@ -380,7 +380,7 @@ function BindDataButton(props: BindDataButtonProps) {
           size="sm"
           startIcon="binding-new"
         >
-          Bind Data
+          Display on UI
         </Button>
       </MenuTrigger>
       <MenuContent
