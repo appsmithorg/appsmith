@@ -18,6 +18,7 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Theme;
@@ -49,6 +50,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitCommandConstantsCE.CHECKOUT_BRANCH;
@@ -208,12 +210,15 @@ public class CommonGitFileUtilsCE {
         Map<GitResourceIdentity, Object> resourceMap = gitResourceMap.getGitResourceMap();
 
         // datasources
-        artifactExchangeJson.getDatasourceList().forEach(datasource -> {
-            removeUnwantedFieldsFromDatasource(datasource);
-            GitResourceIdentity identity =
-                    new GitResourceIdentity(GitResourceType.DATASOURCE_CONFIG, datasource.getGitSyncId());
-            resourceMap.put(identity, datasource);
-        });
+        List<DatasourceStorage> datasourceList = artifactExchangeJson.getDatasourceList();
+        if (datasourceList != null) {
+            datasourceList.forEach(datasource -> {
+                removeUnwantedFieldsFromDatasource(datasource);
+                GitResourceIdentity identity =
+                        new GitResourceIdentity(GitResourceType.DATASOURCE_CONFIG, datasource.getGitSyncId());
+                resourceMap.put(identity, datasource);
+            });
+        }
 
         // themes
         Theme theme = artifactExchangeJson.getUnpublishedTheme();
@@ -228,12 +233,15 @@ public class CommonGitFileUtilsCE {
         }
 
         // custom js libs
-        artifactExchangeJson.getCustomJSLibList().forEach(jsLib -> {
-            removeUnwantedFieldsFromBaseDomain(jsLib);
-            String jsLibFileName = getJsLibFileName(jsLib.getUidString());
-            GitResourceIdentity identity = new GitResourceIdentity(GitResourceType.JSLIB_CONFIG, jsLibFileName);
-            resourceMap.put(identity, jsLib);
-        });
+        List<CustomJSLib> customJSLibList = artifactExchangeJson.getCustomJSLibList();
+        if (customJSLibList != null) {
+            customJSLibList.forEach(jsLib -> {
+                removeUnwantedFieldsFromBaseDomain(jsLib);
+                String jsLibFileName = getJsLibFileName(jsLib.getUidString());
+                GitResourceIdentity identity = new GitResourceIdentity(GitResourceType.JSLIB_CONFIG, jsLibFileName);
+                resourceMap.put(identity, jsLib);
+            });
+        }
 
         // actions
         setNewActionsInResourceMap(artifactExchangeJson, resourceMap);

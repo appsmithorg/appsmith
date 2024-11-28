@@ -45,7 +45,7 @@ public class ExchangeJsonConversionTests {
     public void testConvertArtifactJsonToGitResourceMap_whenArtifactIsFullyPopulated_returnsCorrespondingResourceMap(
             ExchangeJsonContext context) throws IOException {
         Mono<? extends ArtifactExchangeJson> artifactJsonMono =
-                createAppJson(context).cache();
+                createArtifactJson(context).cache();
 
         Mono<? extends Tuple2<GitResourceMap, ? extends ArtifactExchangeJson>> gitResourceMapAndArtifactJsonMono =
                 artifactJsonMono
@@ -77,7 +77,7 @@ public class ExchangeJsonConversionTests {
                 .verifyComplete();
     }
 
-    private Mono<? extends ArtifactExchangeJson> createAppJson(ExchangeJsonContext context) throws IOException {
+    private Mono<? extends ArtifactExchangeJson> createArtifactJson(ExchangeJsonContext context) throws IOException {
 
         String filePath = "test_assets/ImportExportServiceTest/" + context.getFileName();
 
