@@ -54,7 +54,7 @@ jobs:
         ports:
           - 5432:5432
       mongo:
-        if: "!contains(github.base_ref, 'pg') && github.ref_name != 'pg'"
+        if: github.base_ref == 'release' || github.ref_name == 'release'
         image: mongo
         ports:
           - 27017:27017
