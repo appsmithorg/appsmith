@@ -59,6 +59,27 @@ interface QueryDebuggerTabsProps {
   onRunClick: () => void;
   showSchema?: boolean;
 }
+const parseResponseBody = (body: any): any[] => {
+  let parsedOutput: any;
+
+  if (typeof body === "string") {
+    try {
+      parsedOutput = JSON.parse(body);
+    } catch (e) {
+      return [{ response: body }];
+    }
+  } else {
+    parsedOutput = body;
+  }
+
+  if (Array.isArray(parsedOutput)) {
+    return parsedOutput;
+  }
+  if (parsedOutput.records && Array.isArray(parsedOutput.records)) {
+    return parsedOutput.records;
+  } 
+  return [parsedOutput];
+};
 
 function QueryDebuggerTabs({
   actionName,
@@ -177,7 +198,7 @@ function QueryDebuggerTabs({
     if (isString(actionResponse.body)) {
       try {
         // Try to parse response as JSON array to be displayed in the Response tab
-        output = JSON.parse(actionResponse.body);
+        output = parseResponseBody(actionResponse.body);
       } catch (e) {
         // In case the string is not a JSON, wrap it in a response object
         output = [
@@ -186,10 +207,9 @@ function QueryDebuggerTabs({
           },
         ];
       }
-    } else {
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      output = actionResponse.body as any;
+    } else { 
+      output = parseResponseBody(actionResponse.body);
+ 
     }
   }
 
