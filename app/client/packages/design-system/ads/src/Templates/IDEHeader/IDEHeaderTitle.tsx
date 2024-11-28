@@ -1,10 +1,11 @@
 import React from "react";
-import { Flex, Text } from "@appsmith/ads";
+import { Flex } from "../../Flex";
+import { Text } from "../../Text";
 
 /**
  * Handy little styled component that can be used to render the title in the IDEHeader component
  * **/
-const HeaderTitle = ({ title }: { title: string }) => {
+export const IDEHeaderTitle = ({ title }: { title: string }) => {
   return (
     <Flex alignItems="center" height="100%" justifyContent="center">
       <Text isBold kind="body-m">
@@ -13,5 +14,3 @@ const HeaderTitle = ({ title }: { title: string }) => {
     </Flex>
   );
 };
-
-export default HeaderTitle;

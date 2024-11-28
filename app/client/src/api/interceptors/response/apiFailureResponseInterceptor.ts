@@ -15,6 +15,7 @@ export const apiFailureResponseInterceptor = async (
     failureHandlers.handleServerError,
     failureHandlers.handleUnauthorizedError,
     failureHandlers.handleNotFoundError,
+    failureHandlers.handleBadRequestError,
   ];
 
   for (const handler of handlers) {
