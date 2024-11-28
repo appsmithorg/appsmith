@@ -1,0 +1,74 @@
+name: NPM Publish Release Workflow
+
+on:
+  push:
+    paths:
+      - "app/client/packages/design-system/ads/**"
+    branches:
+      - "release"
+    
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      # Get yarn cache directory and set it in a variable
+      - name: Get yarn cache path
+        id: yarn-cache-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      
+      # Checkout branch or head commit
+      - name: Checkout branch
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      # Set up node version
+      - name: Setup Node js version
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      
+      # Load yarn cache
+      - name: Load Yarn cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.yarn-cache-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      
+      # Install the dependencies
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+      
+      # Set git config -> changelog
+      - name: Set git config to github-actions
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+      
+      # Configure npm
+      - name: Configure npm
+        run: |
+          cat << EOF > "$HOME/.npmrc"
+            //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          EOF
+        env:
+          NPM_TOKEN: ${{ secrets.APPSMITH_NPM_PUBLISH_KEY }}
+      
+      # Build packages, add packages build script inside workspace scripts.build
+      - name: Build packages
+        run: yarn build
+
+      # Create PR & publish to NPM
+      - name: Create release Pull Request or publish to NPM
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: yarn release
+          commit: "ci(changesets): version packages"
+          title: "ci(changesets): version packages"
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
