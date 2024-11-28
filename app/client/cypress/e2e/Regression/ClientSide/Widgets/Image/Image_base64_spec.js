@@ -21,9 +21,20 @@ describe(
         200,
       );
       cy.EvaluateCurrentValue(this.dataSet.base64image.withPrefix);
+      cy.testJsontext("alternativetext", this.dataSet.base64image.altText);
+      cy.wait("@updateLayout").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
+      cy.EvaluateCurrentValue(this.dataSet.base64image.altText);
+      
       cy.get(viewWidgetsPage.imageinner)
         .invoke("attr", "src")
         .should("contain", this.dataSet.base64image.withPrefix);
+      cy.get(viewWidgetsPage.imageinner)
+        .invoke("attr", "alt")
+        .should("contain", this.dataSet.base64image.altText);
       cy.closePropertyPane();
     });
   },
