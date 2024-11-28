@@ -8,7 +8,6 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.UpdateSuperUserHelper;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.TenantRepository;
@@ -31,7 +30,6 @@ import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 @Slf4j
 @AllArgsConstructor
 public class UserConfig {
-    private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final PolicySolution policySolution;
     private final PolicyGenerator policyGenerator;
     private final UserRepository userRepository;
@@ -106,7 +104,7 @@ public class UserConfig {
             oldSuperUsers = Set.of();
         }
         Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
-        evictPermissionCacheForUsers(updatedUserIds, userRepository, cacheableRepositoryHelper);
+        evictPermissionCacheForUsers(updatedUserIds, userRepository, permissionGroupRepository);
 
         instanceAdminPG.setAssignedToUserIds(userIds);
         permissionGroupRepository.save(instanceAdminPG);
@@ -114,7 +112,7 @@ public class UserConfig {
     }
 
     public static void evictPermissionCacheForUsers(
-            Set<String> userIds, UserRepository userRepository, CacheableRepositoryHelper cacheableRepositoryHelper) {
+            Set<String> userIds, UserRepository userRepository, PermissionGroupRepository permissionGroupRepository) {
 
         if (userIds == null || userIds.isEmpty()) {
             // Nothing to do here.
@@ -122,9 +120,10 @@ public class UserConfig {
         }
 
         userIds.forEach(userId -> {
-            userRepository.findById(userId).ifPresent(user -> cacheableRepositoryHelper
-                    .evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
-                    .block());
+            userRepository
+                    .findById(userId)
+                    .ifPresent(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(
+                            user.getEmail(), user.getTenantId()));
         });
     }
 }
