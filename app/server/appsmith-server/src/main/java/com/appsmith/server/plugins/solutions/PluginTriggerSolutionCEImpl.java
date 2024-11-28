@@ -78,7 +78,7 @@ public class PluginTriggerSolutionCEImpl implements PluginTriggerSolutionCE {
         Mono<PluginExecutor> pluginExecutorMono =
                 pluginMono.flatMap(plugin -> pluginExecutorHelper.getPluginExecutor(Mono.just(plugin)));
 
-        // Flags are needed here for google sheets integration to support shared drive behind a flag
+        // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
         // Once thoroughly tested, this flag can be removed
         Map<String, Boolean> featureFlagMap =
                 featureFlagService.getCachedTenantFeatureFlags().getFeatures();

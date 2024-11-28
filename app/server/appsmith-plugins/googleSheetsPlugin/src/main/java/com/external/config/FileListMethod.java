@@ -41,10 +41,10 @@ public class FileListMethod implements ExecutionMethod, TriggerMethod {
     @Override
     public WebClient.RequestHeadersSpec<?> getExecutionClientWithFlags(
             WebClient webClient, MethodConfig methodConfig, Map<String, Boolean> featureFlagMap) {
-        // Flags are needed here for google sheets integration to support shared drive behind a flag
+        // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
         // Once thoroughly tested, this flag can be removed
         Boolean isSharedDriveSupportEnabled = featureFlagMap.getOrDefault(
-                FeatureFlagEnum.release_google_sheets_shared_drive_support_enabled.toString(), Boolean.FALSE);
+                FeatureFlagEnum.release_google_sheets_shared_drive_support_enabled.name(), Boolean.FALSE);
         UriComponentsBuilder uriBuilder = getBaseUriBuilder(
                 this.BASE_DRIVE_API_URL,
                 "?orderBy=name&q=mimeType%3D'application%2Fvnd.google-apps.spreadsheet'%20and%20trashed%3Dfalse"

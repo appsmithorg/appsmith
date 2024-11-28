@@ -107,7 +107,7 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
                     final Plugin plugin = tuple.getT2();
                     final PluginExecutor pluginExecutor = tuple.getT3();
 
-                    // Flags are needed here for google sheets integration to support shared drive behind a flag
+                    // TODO: Flags are needed here for google sheets integration to support shared drive behind a flag
                     // Once thoroughly tested, this flag can be removed
                     Map<String, Boolean> featureFlagMap = featureFlagService.getCachedTenantFeatureFlags() != null
                             ? featureFlagService.getCachedTenantFeatureFlags().getFeatures()
