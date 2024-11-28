@@ -327,6 +327,8 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.just(mockResult));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
+                .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.doReturn(Mono.just(false))
                 .when(spyDatasourceService)
@@ -527,6 +529,8 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(pluginException));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
+                .thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.doReturn(Mono.just(false))
                 .when(spyDatasourceService)
@@ -584,6 +588,8 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(pluginException));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
+                .thenReturn(Mono.error(pluginException));
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.doReturn(Mono.just(false))
                 .when(spyDatasourceService)
@@ -633,6 +639,9 @@ public class ActionExecutionSolutionCETest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
+                .thenReturn(Mono.error(new StaleConnectionException()))
+                .thenReturn(Mono.error(new StaleConnectionException()));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
                 .thenReturn(Mono.error(new StaleConnectionException()))
                 .thenReturn(Mono.error(new StaleConnectionException()));
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
@@ -686,6 +695,8 @@ public class ActionExecutionSolutionCETest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
                 .thenAnswer(x -> Mono.delay(Duration.ofMillis(1000)).ofType(ActionExecutionResult.class));
+        Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
+                .thenAnswer(x -> Mono.delay(Duration.ofMillis(1000)).ofType(ActionExecutionResult.class));
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.doReturn(Mono.just(false))
                 .when(spyDatasourceService)
@@ -716,8 +727,9 @@ public class ActionExecutionSolutionCETest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
-                .thenThrow(new StaleConnectionException())
-                .thenReturn(Mono.just(mockResult));
+                .thenThrow(new StaleConnectionException());
+        Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
+                .thenThrow(new StaleConnectionException());
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
