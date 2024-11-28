@@ -28,6 +28,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -108,8 +109,9 @@ public class DatasourceTriggerSolutionCEImpl implements DatasourceTriggerSolutio
 
                     // Flags are needed here for google sheets integration to support shared drive behind a flag
                     // Once thoroughly tested, this flag can be removed
-                    Map<String, Boolean> featureFlagMap =
-                            featureFlagService.getCachedTenantFeatureFlags().getFeatures();
+                    Map<String, Boolean> featureFlagMap = featureFlagService.getCachedTenantFeatureFlags() != null
+                            ? featureFlagService.getCachedTenantFeatureFlags().getFeatures()
+                            : Collections.emptyMap();
 
                     return datasourceContextService
                             .getDatasourceContext(datasourceStorage, plugin)

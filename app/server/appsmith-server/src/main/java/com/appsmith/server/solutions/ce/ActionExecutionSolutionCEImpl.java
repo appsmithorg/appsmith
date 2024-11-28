@@ -74,6 +74,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -730,8 +731,9 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                     // Now that we have the context (connection details), execute the action.
 
                     Instant requestedAt = Instant.now();
-                    Map<String, Boolean> features =
-                            featureFlagService.getCachedTenantFeatureFlags().getFeatures();
+                    Map<String, Boolean> features = featureFlagService.getCachedTenantFeatureFlags() != null
+                            ? featureFlagService.getCachedTenantFeatureFlags().getFeatures()
+                            : Collections.emptyMap();
 
                     // Flags are needed here for google sheets integration to support shared drive behind a flag
                     // Once thoroughly tested, this flag can be removed
