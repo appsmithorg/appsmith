@@ -2,7 +2,6 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactJson from "react-json-view";
 import {
-  apiReactJsonProps,
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
   ResponseTabErrorDefaultMessage,
@@ -12,7 +11,10 @@ import { NoResponse } from "../NoResponse";
 import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { JsonWrapper } from "components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
+import {
+  JsonWrapper,
+  reactJsonProps,
+} from "components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
 import {
   Callout,
   Menu,
@@ -366,7 +368,7 @@ export const QueryResponseTab = (props: Props) => {
                 className="t--debugger-log-state"
                 onClick={handleJsonWrapperClick}
               >
-                <ReactJson src={responseState} {...apiReactJsonProps} />
+                <ReactJson src={responseState} {...reactJsonProps} />
               </JsonWrapper>
             )}
           </ResponseTabErrorContainer>
