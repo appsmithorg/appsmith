@@ -516,7 +516,7 @@ describe(
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });
 
-    it.only("7. To verify the behavior when the fileType does not match the file extension in the fileName. The file should download but may be unusable due to the mismatch between file extension and type.", () => {
+    it("7. To verify the behavior when the fileType does not match the file extension in the fileName. The file should download but may be unusable due to the mismatch between file extension and type.", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.SelectPlatformFunction("onClick", "Download");
       agHelper.TypeText(
