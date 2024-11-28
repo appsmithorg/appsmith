@@ -53,10 +53,6 @@ import {
   getFeatureFlagsFetched,
 } from "selectors/usersSelectors";
 import {
-  initAppLevelSocketConnection,
-  initPageLevelSocketConnection,
-} from "actions/websocketActions";
-import {
   getEnableStartSignposting,
   getFirstTimeUserOnboardingApplicationIds,
   getFirstTimeUserOnboardingIntroModalVisibility,
@@ -180,9 +176,6 @@ export function* runUserSideEffectsSaga() {
       isFreeLicense,
     );
   }
-
-  yield put(initAppLevelSocketConnection());
-  yield put(initPageLevelSocketConnection());
 
   if (currentUser.emptyInstance) {
     history.replace(SETUP);

@@ -247,6 +247,50 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
                 .tap(Micrometer.observation(observationRegistry));
     }
 
+    // TODO: Following methods of executeParameterizedWithFlags, executeParameterizedWithMetricsAndFlags,
+    // triggerWithFlags are
+    // added
+    // to support feature flags in the plugin modules. Current implementation of featureFlagService is only available in
+    // server module
+    // and not available in any of the plugin modules due to dependencies on SessionUserService, TenantService etc.
+    // Hence, these methods are added to support feature flags in the plugin modules.
+    // Ideal solution would be to move featureFlagService and its dependencies to the shared interface module
+    // But this is a bigger change and will be done in future. Current change of passing flags was done to resolve
+    // release blocker
+    // https://github.com/appsmithorg/appsmith/issues/37714
+    // Once thorogh testing of shared drive support is done, we can remove this tech debt of passing feature flags like
+    // this.
+    default Mono<ActionExecutionResult> executeParameterizedWithFlags(
+            C connection,
+            ExecuteActionDTO executeActionDTO,
+            DatasourceConfiguration datasourceConfiguration,
+            ActionConfiguration actionConfiguration,
+            Map<String, Boolean> featureFlagMap) {
+        return this.executeParameterized(connection, executeActionDTO, datasourceConfiguration, actionConfiguration);
+    }
+
+    default Mono<ActionExecutionResult> executeParameterizedWithMetricsAndFlags(
+            C connection,
+            ExecuteActionDTO executeActionDTO,
+            DatasourceConfiguration datasourceConfiguration,
+            ActionConfiguration actionConfiguration,
+            ObservationRegistry observationRegistry,
+            Map<String, Boolean> featureFlagMap) {
+        return this.executeParameterizedWithFlags(
+                        connection, executeActionDTO, datasourceConfiguration, actionConfiguration, featureFlagMap)
+                .tag("plugin", this.getClass().getName())
+                .name(ACTION_EXECUTION_PLUGIN_EXECUTION)
+                .tap(Micrometer.observation(observationRegistry));
+    }
+
+    default Mono<TriggerResultDTO> triggerWithFlags(
+            C connection,
+            DatasourceConfiguration datasourceConfiguration,
+            TriggerRequestDTO request,
+            Map<String, Boolean> featureFlagMap) {
+        return this.trigger(connection, datasourceConfiguration, request);
+    }
+
     /**
      * This function is responsible for preparing the action and datasource configurations to be ready for execution.
      *

@@ -1,14 +1,13 @@
-jest.mock("./utils", () => ({
-  ...jest.requireActual("./utils"),
+import fsPromises from "fs/promises";
+import * as backup from ".";
+import * as Constants from "../constants";
+import * as utils from "../utils";
+import readlineSync from "readline-sync";
+
+jest.mock("../utils", () => ({
+  ...jest.requireActual("../utils"),
   execCommand: jest.fn().mockImplementation(async (a) => a.join(" ")),
 }));
-
-import * as backup from "./backup";
-import * as Constants from "./constants";
-import os from "os";
-import fsPromises from "fs/promises";
-import * as utils from "./utils";
-import readlineSync from "readline-sync";
 
 describe("Backup Tests", () => {
   test("Timestamp string in ISO format", () => {
@@ -44,14 +43,6 @@ describe("Backup Tests", () => {
     }).not.toThrow(
       "Not enough space available at /appsmith-stacks. Please ensure availability of at least 5GB to backup successfully.",
     );
-  });
-
-  it("Generates t", async () => {
-    os.tmpdir = jest.fn().mockReturnValue("temp/dir");
-    fsPromises.mkdtemp = jest.fn().mockImplementation((a) => a);
-    const res = await backup.generateBackupRootPath();
-
-    expect(res).toBe("temp/dir/appsmithctl-backup-");
   });
 
   test("Test backup contents path generation", () => {
@@ -136,67 +127,60 @@ describe("Backup Tests", () => {
   });
 
   test("Cleanup Backups when limit is 4 and there are 5 files", async () => {
-    const backupArchivesLimit = 4;
-
-    fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
+    fsPromises.rm = jest.fn().mockImplementation();
     const backupFiles = ["file1", "file2", "file3", "file4", "file5"];
-    const expectedBackupFiles = ["file2", "file3", "file4", "file5"];
-    const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
 
-    console.log(res);
+    await backup.removeOldBackups(backupFiles, 4);
 
-    expect(res).toEqual(expectedBackupFiles);
+    expect(fsPromises.rm).toHaveBeenCalledTimes(1);
+    expect(fsPromises.rm).toHaveBeenCalledWith(
+      Constants.BACKUP_PATH + "/file1",
+    );
   });
 
   test("Cleanup Backups when limit is 2 and there are 5 files", async () => {
-    const backupArchivesLimit = 2;
+    fsPromises.rm = jest.fn().mockImplementation();
+    const backupFiles = ["file1", "file4", "file3", "file2", "file5"];
 
-    fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
-    const backupFiles = ["file1", "file2", "file3", "file4", "file5"];
-    const expectedBackupFiles = ["file4", "file5"];
-    const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
+    await backup.removeOldBackups(backupFiles, 2);
 
-    console.log(res);
-
-    expect(res).toEqual(expectedBackupFiles);
+    expect(fsPromises.rm).toHaveBeenCalledTimes(3);
+    expect(fsPromises.rm).toHaveBeenCalledWith(
+      Constants.BACKUP_PATH + "/file1",
+    );
+    expect(fsPromises.rm).toHaveBeenCalledWith(
+      Constants.BACKUP_PATH + "/file2",
+    );
+    expect(fsPromises.rm).toHaveBeenCalledWith(
+      Constants.BACKUP_PATH + "/file3",
+    );
   });
 
   test("Cleanup Backups when limit is 4 and there are 4 files", async () => {
-    const backupArchivesLimit = 4;
-
-    fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
+    fsPromises.rm = jest.fn().mockImplementation();
     const backupFiles = ["file1", "file2", "file3", "file4"];
-    const expectedBackupFiles = ["file1", "file2", "file3", "file4"];
-    const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
 
-    console.log(res);
+    await backup.removeOldBackups(backupFiles, 4);
 
-    expect(res).toEqual(expectedBackupFiles);
+    expect(fsPromises.rm).not.toHaveBeenCalled();
   });
 
   test("Cleanup Backups when limit is 4 and there are 2 files", async () => {
-    const backupArchivesLimit = 4;
-
-    fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
+    fsPromises.rm = jest.fn().mockImplementation();
     const backupFiles = ["file1", "file2"];
-    const expectedBackupFiles = ["file1", "file2"];
-    const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
 
-    console.log(res);
+    await backup.removeOldBackups(backupFiles, 4);
 
-    expect(res).toEqual(expectedBackupFiles);
+    expect(fsPromises.rm).not.toHaveBeenCalled();
   });
 
   test("Cleanup Backups when limit is 2 and there is 1 file", async () => {
-    const backupArchivesLimit = 4;
-
-    fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
+    fsPromises.rm = jest.fn().mockImplementation();
     const backupFiles = ["file1"];
-    const expectedBackupFiles = ["file1"];
-    const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
 
-    console.log(res);
-    expect(res).toEqual(expectedBackupFiles);
+    await backup.removeOldBackups(backupFiles, 4);
+
+    expect(fsPromises.rm).not.toHaveBeenCalled();
   });
 
   test("Cleanup Backups when limit is 2 and there is no file", async () => {

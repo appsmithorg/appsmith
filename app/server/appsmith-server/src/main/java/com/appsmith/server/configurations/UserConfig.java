@@ -8,7 +8,6 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.helpers.UpdateSuperUserHelper;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
@@ -33,7 +32,6 @@ import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 @Slf4j
 @AllArgsConstructor
 public class UserConfig {
-    private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final PolicySolution policySolution;
     private final PolicyGenerator policyGenerator;
     private final UserRepositoryCake userRepository;
@@ -110,7 +108,7 @@ public class UserConfig {
                 .flatMap(userId -> {
                     return userRepository
                             .findById(userId)
-                            .flatMap(user -> permissionGroupRepository.evictPermissionGroupsUser(
+                            .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(
                                     user.getEmail(), user.getTenantId()));
                 })
                 .then();
