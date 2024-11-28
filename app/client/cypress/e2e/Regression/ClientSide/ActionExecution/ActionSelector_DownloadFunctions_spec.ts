@@ -1,6 +1,5 @@
 import {
   agHelper,
-  apiPage,
   appSettings,
   deployMode,
   draggableWidgets,
@@ -11,11 +10,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
-import commonlocators from "../../../../locators/commonlocators.json";
-import { ERROR_0 } from "../../../../../src/ce/constants/messages";
-
 describe(
   "To verify action selector - Download function",
   { tags: ["@tag.JS"] },
@@ -35,11 +30,6 @@ describe(
         propPane._actionSelectorFieldByLabel("File name with extension"),
         "flower_1.jpeg",
       );
-
-      // cy.get(commonlocators.downloadFileType).click();
-      // cy.get(commonlocators.singleSelectMenuItem)
-      //   .contains("JPEG")
-      //   .click({ force: true });
 
       agHelper.GetNClick(propPane._actionSelectorPopupClose);
       agHelper.ClickButton("Submit");
@@ -596,6 +586,99 @@ describe(
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
       agHelper.ValidateToastMessage("Download Failed as Expected");
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      agHelper.WaitUntilEleAppear(locators._jsToggle("onClick"));
+      propPane.ToggleJSMode("onClick", false);
+      agHelper.WaitUntilEleAppear(
+        propPane._actionCardByTitle("Execute a JS function"),
+      );
+      agHelper.GetNClick(propPane._actionCardByTitle("Execute a JS function"));
+      agHelper.GetNClick(propPane._actionSelectorDelete);
+    });
+
+    it.only("8. To verify if the download() function downloads query data as a CSV file.", () => {
+      // Create a mock query data
+      const queryData = [
+        { name: "John Doe", age: 30, city: "New York" },
+        { name: "Jane Smith", age: 25, city: "Los Angeles" },
+      ];
+      const csvData = queryData
+        .map((row) => Object.values(row).join(","))
+        .join("\n");
+
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.SelectPlatformFunction("onClick", "Download");
+      agHelper.TypeText(
+        propPane._actionSelectorFieldByLabel("Data to download"),
+        csvData,
+      );
+      agHelper.TypeText(
+        propPane._actionSelectorFieldByLabel("File name with extension"),
+        "data.csv",
+      );
+
+      agHelper.GetNClick(propPane._actionSelectorPopupClose);
+      agHelper.ClickButton("Submit");
+      cy.readFile("cypress/downloads/data.csv", { timeout: 60000 }).should(
+        "exist",
+      );
+
+      // deploy verification
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      cy.readFile("cypress/downloads/data.csv", { timeout: 60000 }).should(
+        "exist",
+      );
+
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+
+      const jsObjectBody = `export default {
+        async myFun1() {
+          try {
+            await download(
+              \`John Doe,30,New York
+              Jane Smith,25,Los Angeles\`,  // Template literal allows multi-line strings
+              'data_1.csv',
+              'text/csv'
+            );
+            showAlert('Download Success', '');
+          } catch (error) {
+            showAlert('Download Failed', '');
+          }
+        },
+      };`;
+
+      jsEditor.CreateJSObject(jsObjectBody, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        prettify: false,
+        shouldCreateNewJSObj: true,
+      });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
+
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.ToggleJSMode("onClick", true);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Download Success");
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Download Success");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       agHelper.WaitUntilEleAppear(locators._jsToggle("onClick"));
