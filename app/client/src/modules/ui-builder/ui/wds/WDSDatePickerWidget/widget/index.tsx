@@ -135,7 +135,6 @@ class WDSDatePickerWidget extends BaseWidget<
         errorMessage={errorMessage}
         granularity={this.props.timePrecision}
         isInvalid={validationStatus === "invalid"}
-        isOpen
         label={label}
         maxValue={this.parseDate(maxDate)}
         minValue={this.parseDate(minDate)}
