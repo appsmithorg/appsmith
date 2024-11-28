@@ -1,6 +1,9 @@
 package com.appsmith.server.applications.git;
 
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.git.models.GitResourceIdentity;
+import com.appsmith.external.git.models.GitResourceMap;
+import com.appsmith.external.git.models.GitResourceType;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
@@ -8,6 +11,7 @@ import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.git.files.FileUtilsImpl;
+import com.appsmith.git.helpers.DSLTransformerHelper;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -122,6 +126,62 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
         setActionCollectionsInApplicationReference(applicationJson, applicationReference);
 
         setCustomJSLibsInApplicationReference(applicationJson, applicationReference);
+    }
+
+    @Override
+    public void setArtifactDependentResources(
+            ArtifactExchangeJson artifactExchangeJson, GitResourceMap gitResourceMap) {
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+        Map<GitResourceIdentity, Object> resourceMap = gitResourceMap.getGitResourceMap();
+
+        // application
+        Application application = applicationJson.getExportedApplication();
+        removeUnwantedFieldsFromApplication(application);
+        GitResourceIdentity applicationIdentity =
+                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, "application.json");
+        resourceMap.put(applicationIdentity, application);
+
+        // metadata
+        Iterable<String> keys = AppsmithBeanUtils.getAllFields(applicationJson.getClass())
+                .map(Field::getName)
+                .filter(name -> !getBlockedMetadataFields().contains(name))
+                .collect(Collectors.toList());
+
+        ApplicationJson applicationMetadata = new ApplicationJson();
+        applicationJson.setModifiedResources(null);
+        copyProperties(applicationJson, applicationMetadata, keys);
+        GitResourceIdentity metadataIdentity = new GitResourceIdentity(GitResourceType.ROOT_CONFIG, "metadata.json");
+        resourceMap.put(metadataIdentity, applicationMetadata);
+
+        // pages and widgets
+        applicationJson.getPageList().stream()
+                // As we are expecting the commit will happen only after the application is published, so we can safely
+                // assume if the unpublished version is deleted entity should not be committed to git
+                .filter(newPage -> newPage.getUnpublishedPage() != null
+                        && newPage.getUnpublishedPage().getDeletedAt() == null)
+                .forEach(newPage -> {
+                    removeUnwantedFieldsFromPage(newPage);
+                    JSONObject dsl =
+                            newPage.getUnpublishedPage().getLayouts().get(0).getDsl();
+                    // Get MainContainer widget data, remove the children and club with Canvas.json file
+                    JSONObject mainContainer = new JSONObject(dsl);
+                    mainContainer.remove("children");
+                    newPage.getUnpublishedPage().getLayouts().get(0).setDsl(mainContainer);
+                    // pageName will be used for naming the json file
+                    GitResourceIdentity pageIdentity =
+                            new GitResourceIdentity(GitResourceType.CONTEXT_CONFIG, newPage.getGitSyncId());
+                    resourceMap.put(pageIdentity, newPage);
+
+                    Map<String, org.json.JSONObject> result =
+                            DSLTransformerHelper.flatten(new org.json.JSONObject(dsl.toString()));
+                    result.forEach((key, jsonObject) -> {
+                        String widgetId = newPage.getGitSyncId() + "-" + jsonObject.getString("widgetId");
+                        GitResourceIdentity widgetIdentity =
+                                new GitResourceIdentity(GitResourceType.WIDGET_CONFIG, widgetId);
+                        resourceMap.put(widgetIdentity, jsonObject);
+                    });
+                });
     }
 
     private void setApplicationInApplicationReference(

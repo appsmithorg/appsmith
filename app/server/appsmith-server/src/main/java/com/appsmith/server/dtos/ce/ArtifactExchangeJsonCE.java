@@ -3,12 +3,14 @@ package com.appsmith.server.dtos.ce;
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Theme;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import java.util.List;
 import java.util.Map;
@@ -62,4 +64,7 @@ public interface ArtifactExchangeJsonCE {
     default Theme getPublishedTheme() {
         return null;
     }
+
+    @JsonView(Views.Internal.class)
+    List getContextList();
 }
