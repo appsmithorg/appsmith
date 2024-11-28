@@ -10,6 +10,7 @@ import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.git.helpers.DSLTransformerHelper;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
@@ -59,14 +60,16 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
-import static com.appsmith.server.constants.ce.FieldNameCE.ACTION_COLLECTION_LIST;
-import static com.appsmith.server.constants.ce.FieldNameCE.ACTION_LIST;
-import static com.appsmith.server.constants.ce.FieldNameCE.CUSTOM_JS_LIB_LIST;
-import static com.appsmith.server.constants.ce.FieldNameCE.DATASOURCE_LIST;
-import static com.appsmith.server.constants.ce.FieldNameCE.DECRYPTED_FIELDS;
-import static com.appsmith.server.constants.ce.FieldNameCE.EDIT_MODE_THEME;
-import static com.appsmith.server.constants.ce.FieldNameCE.EXPORTED_APPLICATION;
-import static com.appsmith.server.constants.ce.FieldNameCE.PAGE_LIST;
+import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;
+import static com.appsmith.server.constants.FieldName.ACTION_LIST;
+import static com.appsmith.server.constants.FieldName.CHILDREN;
+import static com.appsmith.server.constants.FieldName.CUSTOM_JS_LIB_LIST;
+import static com.appsmith.server.constants.FieldName.DATASOURCE_LIST;
+import static com.appsmith.server.constants.FieldName.DECRYPTED_FIELDS;
+import static com.appsmith.server.constants.FieldName.EDIT_MODE_THEME;
+import static com.appsmith.server.constants.FieldName.EXPORTED_APPLICATION;
+import static com.appsmith.server.constants.FieldName.PAGE_LIST;
+import static com.appsmith.server.constants.FieldName.WIDGET_ID;
 import static com.appsmith.server.helpers.ce.CommonGitFileUtilsCE.removeUnwantedFieldsFromBaseDomain;
 
 @Slf4j
@@ -138,8 +141,8 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
         // application
         Application application = applicationJson.getExportedApplication();
         removeUnwantedFieldsFromApplication(application);
-        GitResourceIdentity applicationIdentity =
-                new GitResourceIdentity(GitResourceType.ROOT_CONFIG, "application.json");
+        GitResourceIdentity applicationIdentity = new GitResourceIdentity(
+                GitResourceType.ROOT_CONFIG, CommonConstants.APPLICATION + CommonConstants.JSON_EXTENSION);
         resourceMap.put(applicationIdentity, application);
 
         // metadata
@@ -151,7 +154,8 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
         ApplicationJson applicationMetadata = new ApplicationJson();
         applicationJson.setModifiedResources(null);
         copyProperties(applicationJson, applicationMetadata, keys);
-        GitResourceIdentity metadataIdentity = new GitResourceIdentity(GitResourceType.ROOT_CONFIG, "metadata.json");
+        GitResourceIdentity metadataIdentity = new GitResourceIdentity(
+                GitResourceType.ROOT_CONFIG, CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
         resourceMap.put(metadataIdentity, applicationMetadata);
 
         // pages and widgets
@@ -166,7 +170,7 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                             newPage.getUnpublishedPage().getLayouts().get(0).getDsl();
                     // Get MainContainer widget data, remove the children and club with Canvas.json file
                     JSONObject mainContainer = new JSONObject(dsl);
-                    mainContainer.remove("children");
+                    mainContainer.remove(CHILDREN);
                     newPage.getUnpublishedPage().getLayouts().get(0).setDsl(mainContainer);
                     // pageName will be used for naming the json file
                     GitResourceIdentity pageIdentity =
@@ -176,7 +180,7 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                     Map<String, org.json.JSONObject> result =
                             DSLTransformerHelper.flatten(new org.json.JSONObject(dsl.toString()));
                     result.forEach((key, jsonObject) -> {
-                        String widgetId = newPage.getGitSyncId() + "-" + jsonObject.getString("widgetId");
+                        String widgetId = newPage.getGitSyncId() + "-" + jsonObject.getString(WIDGET_ID);
                         GitResourceIdentity widgetIdentity =
                                 new GitResourceIdentity(GitResourceType.WIDGET_CONFIG, widgetId);
                         resourceMap.put(widgetIdentity, jsonObject);
@@ -552,7 +556,7 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                     // For REMOTE plugin like Twilio the user actions are stored in key value pairs and hence they need
                     // to be
                     // deserialized separately unlike the body which is stored as string in the db.
-                    if (newAction.getPluginType().toString().equals("REMOTE")) {
+                    if (PluginType.REMOTE.equals(newAction.getPluginType())) {
                         Map<String, Object> formData = gson.fromJson(actionBody.get(keyName), Map.class);
                         newAction
                                 .getUnpublishedAction()

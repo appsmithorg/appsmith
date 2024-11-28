@@ -57,7 +57,9 @@ import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitCommandCo
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.RECONSTRUCT_PAGE;
 import static com.appsmith.git.constants.CommonConstants.CLIENT_SCHEMA_VERSION;
 import static com.appsmith.git.constants.CommonConstants.FILE_FORMAT_VERSION;
+import static com.appsmith.git.constants.CommonConstants.JSON_EXTENSION;
 import static com.appsmith.git.constants.CommonConstants.SERVER_SCHEMA_VERSION;
+import static com.appsmith.git.constants.CommonConstants.THEME;
 import static com.appsmith.git.files.FileUtilsCEImpl.getJsLibFileName;
 import static org.springframework.util.StringUtils.hasText;
 
@@ -228,7 +230,7 @@ public class CommonGitFileUtilsCE {
             artifactExchangeJson.setThemes(theme, null);
             // Remove internal fields from the themes
             removeUnwantedFieldsFromBaseDomain(theme);
-            GitResourceIdentity identity = new GitResourceIdentity(GitResourceType.ROOT_CONFIG, "theme.json");
+            GitResourceIdentity identity = new GitResourceIdentity(GitResourceType.ROOT_CONFIG, THEME + JSON_EXTENSION);
             resourceMap.put(identity, theme);
         }
 

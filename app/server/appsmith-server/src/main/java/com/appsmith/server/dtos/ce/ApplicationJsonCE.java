@@ -135,7 +135,7 @@ public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
     }
 
     @Override
-    public List getContextList() {
+    public List<NewPage> getContextList() {
         return this.pageList;
     }
 }

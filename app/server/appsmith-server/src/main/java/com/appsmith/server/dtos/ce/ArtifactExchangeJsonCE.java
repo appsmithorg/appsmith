@@ -7,6 +7,7 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Artifact;
+import com.appsmith.server.domains.Context;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Theme;
@@ -66,5 +67,5 @@ public interface ArtifactExchangeJsonCE {
     }
 
     @JsonView(Views.Internal.class)
-    List getContextList();
+    List<? extends Context> getContextList();
 }
