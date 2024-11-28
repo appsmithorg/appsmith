@@ -218,7 +218,7 @@ describe(
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });
 
-    it.only("4. To verify how the function behaves when an unsupported or incorrect file type is specified. The file should not download, or it should be unusable due to the incorrect file type.", () => {
+    it("4. To verify how the function behaves when an unsupported or incorrect file type is specified. The file should not download, or it should be unusable due to the incorrect file type.", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.SelectPlatformFunction("onClick", "Download");
       agHelper.TypeText(
