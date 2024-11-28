@@ -732,9 +732,11 @@ public class ActionExecutionSolutionCETest {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(pluginExecutor));
         Mockito.when(pluginExecutor.executeParameterizedWithMetrics(any(), any(), any(), any(), any()))
-                .thenThrow(new StaleConnectionException());
+                .thenThrow(new StaleConnectionException())
+                .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.executeParameterizedWithMetricsAndFlags(any(), any(), any(), any(), any(), any()))
-                .thenThrow(new StaleConnectionException());
+                .thenThrow(new StaleConnectionException())
+                .thenReturn(Mono.just(mockResult));
         Mockito.when(pluginExecutor.datasourceCreate(any())).thenReturn(Mono.empty());
         Mockito.when(pluginExecutor.getHintMessages(any(), any()))
                 .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
