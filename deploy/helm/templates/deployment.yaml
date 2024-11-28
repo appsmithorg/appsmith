@@ -1,15 +1,27 @@
+{{- $updateStrategy := .Values.updateStrategy | default dict }}
+{{- $postgresuser := .Values.postgresql.auth.username }}
+{{- $postgrespass := .Values.postgresql.auth.password }}
+{{- $postgrespass := .Values.postgresql.auth.password }}
+{{- $releaseName := include "appsmith.fullname" . -}}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: {{ if not .Values.autoscaling.enabled }}StatefulSet{{- else }}Deployment{{- end }}
 metadata:
   name: {{ include "appsmith.fullname" . }}
   namespace: {{ include "appsmith.namespace" . }}
   labels:
     {{- include "appsmith.labels" . | nindent 4 }}
 spec:
+  {{- if not .Values.autoscaling.enabled }}
   replicas: 1
   serviceName: {{ include "appsmith.fullname" . }}
   updateStrategy:
-    type: {{ .Values.strategyType }}
+  {{- else }}
+  strategy:
+    type: {{ .Values.strategyType | default "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ dig "maxSurge" 1 $updateStrategy }}
+      maxUnavailable: {{ dig "maxUnavailable" "0" $updateStrategy }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "appsmith.selectorLabels" . | nindent 6 }}
@@ -25,6 +37,10 @@ spec:
         {{- toYaml .Values.podLabels | nindent 8 }}
         {{- end }}
     spec:
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- if .Values.schedulerName }}
       schedulerName: {{ .Values.schedulerName | quote }}
       {{- end }}
@@ -62,18 +78,31 @@ spec:
       {{- end }}
         command: ['sh', '-c', "until mongo --host appsmith-mongodb.{{.Release.Namespace}}.svc.cluster.local --eval 'db.runCommand({ping:1})' ; do echo waiting for mongo; sleep 2; done"]
       {{- end }}
+      {{- if .Values.postgresql.enabled }}
+      - name: psql-init-container
+      {{- if ((.Values.initContainer.postgresql).image) }}
+        image: {{ .Values.initContainer.postgresql.image }}
+      {{- else}}
+        image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21
+      {{- end}}
+        command: ['sh', '-c', "until pg_isready -U $postgresuser -d $postgresdb -h {{.Release.Name}}-postgresql.{{.Release.Namespace}}.svc.cluster.local; do echo waiting for postgresql; sleep 2; done"]
+      {{- end }}
       containers:
         - name: {{ .Values.containerName }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- $customImage := .Values._image | default dict }}
+          image: {{ dig "registry" "index.docker.io" $customImage }}/{{ dig "repository" "appsmith/appsmith-ee" $customImage }}:{{ dig "tag" (.Values.image.tag | default "latest") $customImage }}
+          imagePullPolicy: {{ dig "pullPolicy" "IfNotPresent" $customImage }}
           ports:
             - name: http
               containerPort: {{ .Values.HTTPContainerPort | default 80 }}
               protocol: TCP
             - name: https
               containerPort: 443
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.metrics.port }}
               protocol: TCP
           {{- $probes := .Values.probes | default dict }}
           startupProbe:
@@ -100,6 +129,10 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /appsmith-stacks
+          {{- if .Values.customCAcert }}
+            - name: ca-cert
+              mountPath: "/appsmith-stacks/ca-certs"
+          {{- end }}
           env:
           {{- if .Values.HTTPContainerPort }}
             - name: PORT
@@ -107,6 +140,10 @@ spec:
           {{- end }}
             - name: APPSMITH_ENABLE_EMBEDDED_DB
               value: "0"
+            - name: JGROUPS_DISCOVERY_PROTOCOL
+              value: kubernetes.KUBE_PING
+            - name: APPSMITH_HEADLESS_SVC
+              value: {{ include "appsmith.fullname" . }}-headless
           envFrom:
             - configMapRef:
                 name: {{ include "appsmith.fullname" . }}
@@ -114,28 +151,57 @@ spec:
             - secretRef:
                 name: {{ .Values.secretName }}
             {{- end }}
+            {{- if .Values.secrets }}
+            - secretRef:
+                name: {{ include "appsmith.fullname" . }}
+            {{- end }}
+            {{- if .Values.externalSecrets.enabled }}
+            - secretRef:
+                name: "{{ include "appsmith.fullname" . }}-external-secret"
+            {{- end }}
       {{- if .Values.image.pullSecrets}}
       imagePullSecrets:
         - name: {{ .Values.image.pullSecrets }}
       {{- end }}
       volumes:
+      {{- if .Values.customCAcert }}
+      - name: ca-cert
+        configMap: 
+          name: {{ $releaseName }}-trustedca
+          items:
+          {{- range $key, $value := .Values.customCAcert }}
+          - key: {{ $key }}
+            path: {{ $key }}.crt
+          {{- end }}
+      {{- end }}
   {{- if not .Values.persistence.enabled }}
       - name: data
         emptyDir: {}
-  {{- else }}
+  {{- else if and (not .Values.autoscaling.enabled) (.Values.persistence.enabled) }}
   volumeClaimTemplates:
     - metadata:
         name: data
-        {{- if .Values.persistence.annotations }}
-        annotations: {{- include "tplvalues.render" (dict "value" .Values.persistence.annotations "context" $) | nindent 10 }}
+        {{- if .Values.persistence.annotations}}
+        annotations:
+          {{- include "tplvalues.render" (dict "value" .Values.persistence.annotations "context" $) | nindent 10 }}
         {{- end }}
       spec:
         accessModes:
-        {{- range .Values.persistence.accessModes }}
-          - {{ . | quote }}
-        {{- end }}
+        - ReadWriteOnce
         resources:
           requests:
             storage: {{ .Values.persistence.size | quote }}
-        {{ include "storage.class" (dict "persistence" .Values.persistence "global" .Values.global) }}
+        {{- if .Values.persistence.volumeClaimTemplates.selector }}
+        selector:
+          {{- include "tplvalues.render" (dict "value" .Values.persistence.volumeClaimTemplates.selector "context" $) | nindent 10 }}
+        {{- end }}
+        {{ include "storage.class" (dict "persistence" .Values.persistence "global" .Values.global) | nindent 8 }}
+  {{- else }}
+      - name: data
+        persistentVolumeClaim:
+          {{- if .Values.persistence.existingClaim.enabled }}
+          claimName: {{ .Values.persistence.existingClaim.claimName }}
+          {{- else }}
+          claimName: {{ include "appsmith.fullname" . }}
+          {{- end }}
   {{- end }}
