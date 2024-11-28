@@ -287,6 +287,14 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
           yield put(debuggerLog(allFormatedLogs));
         }
         break;
+      case LOG_TYPE.JS_EXECUTION_ERROR: {
+        const filteredLogs = payload.filter(
+          (log) => log.source && log.source.propertyPath && log.text,
+        );
+
+        yield put(debuggerLog(filteredLogs));
+        break;
+      }
       case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
         {
           const allFormatedLogs: Log[] = [];

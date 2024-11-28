@@ -59,16 +59,6 @@ function FilterHeader(props: FilterHeaderProps) {
 
   return (
     <Wrapper>
-      <div className="input-container">
-        <SearchInput
-          className="debugger-search"
-          data-testid="t--debugger-search"
-          onChange={props.onChange}
-          placeholder="Filter"
-          ref={searchRef}
-          value={props.value}
-        />
-      </div>
       <Select
         className="debugger-filter"
         data-testid="t--log-filter"
@@ -97,6 +87,16 @@ function FilterHeader(props: FilterHeaderProps) {
           </Option>
         ))}
       </Select>
+      <div className="input-container">
+        <SearchInput
+          className="debugger-search"
+          data-testid="t--debugger-search"
+          onChange={props.onChange}
+          placeholder="Filter"
+          ref={searchRef}
+          value={props.value}
+        />
+      </div>
       <Tooltip
         className="debugger-clear-logs"
         content={createMessage(CLEAR_LOG_TOOLTIP)}

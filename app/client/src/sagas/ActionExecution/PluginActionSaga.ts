@@ -62,7 +62,7 @@ import {
   isString,
   set,
   unset,
-  zipObjectDeep,
+  zipObject,
 } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "ee/entities/AppsmithConsole/utils";
@@ -424,10 +424,7 @@ function* evaluateActionParams(
 
   const bindingsMap: Record<string, string> = {};
   const bindingBlob = [];
-  const evaluatedParams: Record<string, string> = zipObjectDeep(
-    bindings,
-    values,
-  ) as Record<string, string>;
+  const evaluatedParams = zipObject(bindings, values);
 
   // Maintain a blob data map to resolve blob urls of large files as array buffer
   const blobDataMap: Record<string, Blob> = {};

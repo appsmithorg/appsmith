@@ -7,7 +7,6 @@ import type {
 import { Severity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { klona } from "klona/lite";
-import moment from "moment";
 import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import TriggerEmitter from "../utils/TriggerEmitter";
 import type { EventEmitter } from "events";
@@ -15,12 +14,15 @@ import ExecutionMetaData from "../utils/ExecutionMetaData";
 
 class UserLog {
   private isEnabled = true;
+
   enable() {
     this.isEnabled = true;
   }
+
   disable() {
     this.isEnabled = false;
   }
+
   private emitter?: EventEmitter;
 
   // TODO: Fix this the next time the file is edited
@@ -87,6 +89,7 @@ class UserLog {
       },
     };
   }
+
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private replaceFunctionWithNamesFromObjects(data: any) {
@@ -107,6 +110,7 @@ class UserLog {
       return acc;
     }, acc);
   }
+
   // iterates over the data and if data is object/array, then it will remove any functions from it
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -137,7 +141,7 @@ class UserLog {
   private parseLogs(method: Methods, data: any[]): LogObject {
     // Create an ID
     const id = uuid4();
-    const timestamp = moment().format("HH:mm:ss");
+    const timestamp = Date.now().toString();
     // Parse the methods
     let output = data;
     // For logs UI we only keep 3 levels of severity, info, warn, error

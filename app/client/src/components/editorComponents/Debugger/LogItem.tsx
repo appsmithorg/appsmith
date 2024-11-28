@@ -62,20 +62,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     align-items: center;
     justify-content: center;
     color: var(--ads-v2-color-fg-emphasis);
-
-    &.${Severity.INFO} {
-      background-color: var(--ads-v2-color-bg-information);
-    }
-
-    margin-right: 4px;
-
-    &.${Severity.ERROR} {
-      background-color: var(--ads-v2-color-bg-error);
-    }
-
-    &.${Severity.WARNING} {
-      background-color: var(--ads-v2-color-bg-warning);
-    }
+    background-color: var(--ads-v2-color-bg);
 
     ${getTypographyByKey("u2")}
   }
@@ -273,6 +260,13 @@ function LogItem(props: LogItemProps) {
         <span className={`debugger-time ${props.severity}`}>
           {moment(parseInt(props.timestamp)).format("HH:mm:ss")}
         </span>
+        {props.occurences > 1 && (
+          <span
+            className={`t--debugger-log-message-occurence debugger-occurences ${props.severity}`}
+          >
+            {props.occurences}
+          </span>
+        )}
         {props.collapsible && (
           <Button
             className={classNames(`${Classes.ICON} debugger-toggle`)}
@@ -298,13 +292,6 @@ function LogItem(props: LogItemProps) {
           props.category === LOG_CATEGORY.USER_GENERATED
         ) && (
           <div className="debugger-description">
-            {props.occurences > 1 && (
-              <span
-                className={`t--debugger-log-message-occurence debugger-occurences ${props.severity}`}
-              >
-                {props.occurences}
-              </span>
-            )}
             <span
               className="debugger-label t--debugger-log-message cursor-text"
               onClick={(e) => e.stopPropagation()}
