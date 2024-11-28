@@ -14,6 +14,7 @@ import EditorNavigation, {
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import commonlocators from "../../../../locators/commonlocators.json";
+import { ERROR_0 } from "../../../../../src/ce/constants/messages";
 
 describe(
   "To verify action selector - Download function",
@@ -73,10 +74,21 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", "{{JSObject1.myFun1()}}", true, false);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickButton("Submit");
       agHelper.ValidateToastMessage("Download Success");
       deployMode.DeployApp();
@@ -85,11 +97,16 @@ describe(
       agHelper.ValidateToastMessage("Download Success");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      agHelper.WaitUntilEleAppear(locators._jsToggle("onClick"));
       propPane.ToggleJSMode("onClick", false);
+      agHelper.WaitUntilEleAppear(
+        propPane._actionCardByTitle("Execute a JS function"),
+      );
       agHelper.GetNClick(propPane._actionCardByTitle("Execute a JS function"));
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });
 
+    // Open github bug is there: https://github.com/appsmithorg/appsmith/issues/37720
     it("2. To verify the behavior of the download() function when no file extension is provided in the fileName. The download should fail, or the file should be unusable due to the lack of an extension.", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.SelectPlatformFunction("onClick", "Download");
@@ -121,14 +138,26 @@ describe(
 
       // JSobject verification
       const jsObjectBody = `export default {
-          myFun2 () {
-            {{download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881', 'flower_2_1', '').then(() => {
-            showAlert('Download Success', '');
-          }).catch(() => {
-            showAlert('Download Failed', '');
-          });}}
+          myFun1 () {
+            {{ 
+              download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881', 'flower_2_1', '')
+                .then(() => {
+              const filePath = 'cypress/downloads/flower_2_1';
+              cy.readFile(filePath, { timeout: 60000 }).then((content) => {
+                if (!content.startsWith('JPEG')) {
+                  showAlert('Download Failed as Expected', 'success');
+                  throw new Error('File content does not match expected MIME type.');
+                } else {
+                  showAlert('Unexpected Success', 'error');
+                }
+              });
+                })
+                .catch((error) => {
+                  showAlert('Download Failed as Expected', 'success');
+                });
+            }}
           },
-        }`;
+        };`;
 
       jsEditor.CreateJSObject(jsObjectBody, {
         paste: true,
@@ -137,23 +166,34 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", "{{JSObject1.myFun2()}}", true, false);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickButton("Submit");
-      cy.readFile("cypress/downloads/flower_2_1", { timeout: 60000 }).should(
-        "exist",
-      );
+      agHelper.ValidateToastMessage("Download Failed as Expected");
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
-      cy.readFile("cypress/downloads/flower_2_1", { timeout: 60000 }).should(
-        "exist",
-      );
+      agHelper.ValidateToastMessage("Download Failed as Expected");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      agHelper.WaitUntilEleAppear(locators._jsToggle("onClick"));
       propPane.ToggleJSMode("onClick", false);
+      agHelper.WaitUntilEleAppear(
+        propPane._actionCardByTitle("Execute a JS function"),
+      );
       agHelper.GetNClick(propPane._actionCardByTitle("Execute a JS function"));
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });
@@ -185,7 +225,7 @@ describe(
 
       // JSobject verification
       const jsObjectBody = `export default {
-          myFun3 () {
+          myFun1 () {
             {{download('', '', 'image/jpeg').then(() => {
             showAlert('Download Success', '');
           }).catch(() => {
@@ -201,10 +241,21 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", "{{JSObject1.myFun3()}}", true, false);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickButton("Submit");
       agHelper.ValidateToastMessage("Download Failed", 0, 1);
       deployMode.DeployApp();
@@ -213,7 +264,11 @@ describe(
       agHelper.ValidateToastMessage("Download Failed", 0, 2);
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      agHelper.WaitUntilEleAppear(locators._jsToggle("onClick"));
       propPane.ToggleJSMode("onClick", false);
+      agHelper.WaitUntilEleAppear(
+        propPane._actionCardByTitle("Execute a JS function"),
+      );
       agHelper.GetNClick(propPane._actionCardByTitle("Execute a JS function"));
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });
@@ -249,7 +304,7 @@ describe(
 
       // JSobject verification
       const jsObjectBody = `export default {
-          myFun4() {
+          myFun1() {
             {{ 
               download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower_4_1', 'text/plain')
                 .then(() => {
@@ -277,19 +332,277 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", "{{JSObject1.myFun4()}}", true, false);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickButton("Submit");
-      agHelper.ValidateToastMessage("Download Failed");
+      agHelper.ValidateToastMessage("Download Failed as Expected");
       deployMode.DeployApp();
       agHelper.AssertElementVisibility(appSettings.locators._header);
       agHelper.ClickButton("Submit");
-      agHelper.ValidateToastMessage("Download Failed");
+      agHelper.ValidateToastMessage("Download Failed as Expected");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      agHelper.WaitUntilEleAppear(locators._jsToggle("onClick"));
       propPane.ToggleJSMode("onClick", false);
+      agHelper.WaitUntilEleAppear(
+        propPane._actionCardByTitle("Execute a JS function"),
+      );
+      agHelper.GetNClick(propPane._actionCardByTitle("Execute a JS function"));
+      agHelper.GetNClick(propPane._actionSelectorDelete);
+    });
+
+    it("5. To verify the download() function when no file name is provided. The download should fail, or the file should have a default or incorrect name.", () => {
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.SelectPlatformFunction("onClick", "Download");
+      agHelper.TypeText(
+        propPane._actionSelectorFieldByLabel("Data to download"),
+        "http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg",
+      );
+      agHelper.TypeText(
+        propPane._actionSelectorFieldByLabel("File name with extension"),
+        "",
+      );
+
+      agHelper.GetNClick(propPane._actionSelectorPopupClose);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Please enter a file name", 0, 2);
+
+      // deploy verification
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Please enter a file name", 0, 2);
+
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+
+      // JSobject verification
+      const jsObjectBody = `export default {
+          myFun1 () {
+        {{download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', '', 'image/jpeg').then(() => {
+        showAlert('Download Success', '');
+          }).catch(() => {
+        showAlert('Download Failed', '');
+          });}}
+          },
+        }`;
+
+      jsEditor.CreateJSObject(jsObjectBody, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        prettify: false,
+        shouldCreateNewJSObj: true,
+      });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
+
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.ToggleJSMode("onClick", true);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Download Failed", 0, 1);
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Download Failed", 0, 2);
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      agHelper.WaitUntilEleAppear(locators._jsToggle("onClick"));
+      propPane.ToggleJSMode("onClick", false);
+      agHelper.WaitUntilEleAppear(
+        propPane._actionCardByTitle("Execute a JS function"),
+      );
+      agHelper.GetNClick(propPane._actionCardByTitle("Execute a JS function"));
+      agHelper.GetNClick(propPane._actionSelectorDelete);
+    });
+
+    it("6. To verify if the download() function correctly downloads an image file.", () => {
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.SelectPlatformFunction("onClick", "Download");
+      agHelper.TypeText(
+        propPane._actionSelectorFieldByLabel("Data to download"),
+        "http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg",
+      );
+      agHelper.TypeText(
+        propPane._actionSelectorFieldByLabel("File name with extension"),
+        "flower_6.jpeg",
+      );
+
+      agHelper.GetNClick(propPane._actionSelectorPopupClose);
+      agHelper.ClickButton("Submit");
+      cy.readFile("cypress/downloads/flower_6.jpeg", { timeout: 60000 }).should(
+        "exist",
+      );
+
+      // deploy verification
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      cy.readFile("cypress/downloads/flower_6.jpeg", { timeout: 60000 }).should(
+        "exist",
+      );
+
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+
+      // JSobject verification
+      const jsObjectBody = `export default {
+          myFun1 () {
+            {{download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower_6_1.jpeg', 'image/jpeg').then(() => {
+            showAlert('Download Success', '');
+          });}}
+          },
+        }`;
+
+      jsEditor.CreateJSObject(jsObjectBody, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        prettify: false,
+        shouldCreateNewJSObj: true,
+      });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
+
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.ToggleJSMode("onClick", true);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Download Success");
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Download Success");
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      agHelper.WaitUntilEleAppear(locators._jsToggle("onClick"));
+      propPane.ToggleJSMode("onClick", false);
+      agHelper.WaitUntilEleAppear(
+        propPane._actionCardByTitle("Execute a JS function"),
+      );
+      agHelper.GetNClick(propPane._actionCardByTitle("Execute a JS function"));
+      agHelper.GetNClick(propPane._actionSelectorDelete);
+    });
+
+    it.only("7. To verify the behavior when the fileType does not match the file extension in the fileName. The file should download but may be unusable due to the mismatch between file extension and type.", () => {
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.SelectPlatformFunction("onClick", "Download");
+      agHelper.TypeText(
+        propPane._actionSelectorFieldByLabel("Data to download"),
+        "http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg",
+      );
+      agHelper.TypeText(
+        propPane._actionSelectorFieldByLabel("File name with extension"),
+        "flower_7.png",
+      );
+
+      agHelper.GetNClick(propPane._actionSelectorPopupClose);
+      agHelper.ClickButton("Submit");
+      cy.readFile("cypress/downloads/flower_7.png", { timeout: 60000 }).should(
+        "exist",
+      );
+
+      // deploy verification
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      cy.readFile("cypress/downloads/flower_7.png", { timeout: 60000 }).should(
+        "exist",
+      );
+
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+
+      // JSobject verification
+      const jsObjectBody = `export default {
+          myFun1 () {
+            {{ 
+              download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower_7_1.png', 'image/jpeg')
+                .then(() => {
+                  const filePath = 'cypress/downloads/flower_7_1.png';
+                  cy.readFile(filePath, { timeout: 60000 }).then((content) => {
+                    if (!content.startsWith('JPEG')) {
+                      showAlert('Download Failed as Expected', 'success');
+                      throw new Error('File content does not match expected MIME type.');
+                    } else {
+                      showAlert('Unexpected Success', 'error');
+                    }
+                  });
+                })
+                .catch((error) => {
+                  showAlert('Download Failed as Expected', 'success');
+                });
+            }}
+          },
+        };`;
+
+      jsEditor.CreateJSObject(jsObjectBody, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        prettify: false,
+        shouldCreateNewJSObj: true,
+      });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
+
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.ToggleJSMode("onClick", true);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Download Failed as Expected");
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Download Failed as Expected");
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      agHelper.WaitUntilEleAppear(locators._jsToggle("onClick"));
+      propPane.ToggleJSMode("onClick", false);
+      agHelper.WaitUntilEleAppear(
+        propPane._actionCardByTitle("Execute a JS function"),
+      );
       agHelper.GetNClick(propPane._actionCardByTitle("Execute a JS function"));
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });

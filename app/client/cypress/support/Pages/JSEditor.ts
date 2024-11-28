@@ -43,7 +43,7 @@ export class JSEditor {
   private _onPageLoadSwitchStatus = (functionName: string) =>
     `//div[contains(@class, '${functionName}-on-page-load-setting')]//label/input`;
 
-  private _jsObjName = ".t--js-action-name-edit-field span";
+  public _jsObjName = ".t--js-action-name-edit-field span";
   public _jsObjTxt = ".t--js-action-name-edit-field input";
   public _newJSobj = "span:contains('New JS object')";
   private _bindingsClose = ".t--entity-property-close";
@@ -323,5 +323,7 @@ export class JSEditor {
       ); //Asserting NO is not clicked
   }
 
-  //#endregion
+  public currentJSObjectName(): Cypress.Chainable<string> {
+    return cy.get(this._jsObjName).invoke("text");
+  }
 }
