@@ -6,7 +6,7 @@ import {
   RUN_GUTTER_ID,
 } from "./constants";
 import { thinScrollbar } from "constants/DefaultTheme";
-import { IDE_HEADER_HEIGHT } from "IDE";
+import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
 
 export const CodeEditorWithGutterStyles = css`
   .${RUN_GUTTER_ID} {

@@ -403,7 +403,6 @@ export const DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS = {
   webkitRequestFileSystemSync: "webkitRequestFileSystemSync",
   webkitResolveLocalFileSystemSyncURL: "webkitResolveLocalFileSystemSyncURL",
   webkitResolveLocalFileSystemURL: "webkitResolveLocalFileSystemURL",
-  WebSocket: "WebSocket",
   WebTransport: "WebTransport",
   WebTransportBidirectionalStream: "WebTransportBidirectionalStream",
   WebTransportDatagramDuplexStream: "WebTransportDatagramDuplexStream",

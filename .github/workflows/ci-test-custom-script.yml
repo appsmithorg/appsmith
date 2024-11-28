@@ -166,10 +166,8 @@ jobs:
             -e APPSMITH_JWT_SECRET=appsmith-cloud-services-jwt-secret-dummy-key \
             -e APPSMITH_ENCRYPTION_SALT=encryption-salt \
             -e APPSMITH_ENCRYPTION_PASSWORD=encryption-password \
-            -e APPSMITH_CLOUD_SERVICES_URL=https://cs-dev.appsmith.com \
             -e APPSMITH_CUSTOMER_PORTAL_URL=https://dev.appsmith.com \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=https://cs-dev.appsmith.com \
-            -e APPSMITH_CLOUD_SERVER_BASE_URL=https://release.app.appsmith.com \
             -e AUTH0_ISSUER_URL=https://login.release-customer.appsmith.com/ \
             -e AUTH0_CLIENT_ID=dummy-client-id \
             -e AUTH0_CLIENT_SECRET=dummy-secret-id \
@@ -198,7 +196,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
-      
+
       - name: Check DB URL
         if: steps.run_result.outputs.run_result != 'success'
         run: |
@@ -457,20 +455,20 @@ jobs:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
           overwrite: true
-          
+
       - name: Collect docker log as file
         if: always()
         run: |
           docker logs appsmith >& app/server/docker-logs.log
- 
-      - name: Upload server docker logs bundle on failure 
+
+      - name: Upload server docker logs bundle on failure
         uses: actions/upload-artifact@v4
         if: always()
         with:
             name: docker-logs-${{ matrix.job }}
             path: app/server/docker-logs.log
             overwrite: true
-  
+
       # Set status = success
       - name: Save the status of the run
         run: |
