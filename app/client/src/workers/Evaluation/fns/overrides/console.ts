@@ -136,9 +136,7 @@ class UserLog {
   };
 
   // parses the incoming log and converts it to the log object
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private parseLogs(method: Methods, data: any[]): LogObject {
+  private parseLogs(method: Methods, data: unknown[]): LogObject {
     // Create an ID
     const id = uuid4();
     const timestamp = Date.now().toString();
@@ -150,7 +148,7 @@ class UserLog {
     if (method === "error") {
       severity = Severity.ERROR;
       output = data.map((error) => {
-        return error?.stack || error;
+        return (error as Error).stack || error;
       });
     } else if (method === "warn") {
       severity = Severity.WARNING;

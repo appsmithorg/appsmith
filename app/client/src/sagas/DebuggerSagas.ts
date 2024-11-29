@@ -684,7 +684,7 @@ export function* storeLogs(logs: LogObject[]) {
   AppsmithConsole.addLogs(
     logs.map((log: LogObject) => {
       return {
-        text: createLogTitleString(log.data),
+        text: `console.${log.method}(${createLogTitleString(log.data)})`,
         logData: log.data,
         source: log.source,
         severity: log.severity,

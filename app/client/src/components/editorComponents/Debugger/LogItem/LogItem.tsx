@@ -151,7 +151,7 @@ type StyledCollapseProps = PropsWithChildren<{
 const StyledCollapse = styled(Collapse)<StyledCollapseProps>`
   margin-top: ${(props) =>
     props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
-      ? " -30px"
+      ? " 0px"
       : " 4px"};
   margin-left: 133px;
 
