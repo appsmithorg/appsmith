@@ -65,6 +65,9 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const settingsConfig = useSelector((state) =>
     getPluginSettingConfigs(state, pluginId),
   );
+  const settingsConfigAll = useSelector(
+    (state) => state.entities.plugins.settingConfigs,
+  );
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isConverting = useSelector((state) =>
@@ -167,7 +170,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   if (typeof window.Cypress?.log === "function") {
     /* @ts-expect-error: Types are not available */
     window.Cypress.log({
-      message: `ApiEditorWrapper, ${JSON.stringify(settingsConfig || {})} ${JSON.stringify(plugins)} ${pluginId}`,
+      message: `ApiEditorWrapper, ${JSON.stringify(settingsConfigAll || {})} ${JSON.stringify(plugins)} ${pluginId}`,
     });
   }
 
