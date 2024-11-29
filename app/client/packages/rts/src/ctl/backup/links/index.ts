@@ -9,5 +9,10 @@ export interface Link {
   postBackup?(): Promise<void>;
 }
 
-export { EncryptionLink } from "./EncryptionLink";
-export { ManifestLink } from "./ManifestLink";
+export * from "./BackupFolderLink";
+export * from "./DiskSpaceLink";
+export * from "./EncryptionLink";
+export * from "./EnvFileLink";
+export * from "./GitStorageLink";
+export * from "./ManifestLink";
+export * from "./MongoDumpLink";
