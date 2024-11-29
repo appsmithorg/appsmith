@@ -3,41 +3,12 @@ import type {
   GitArtifactReduxState,
   GitSingleArtifactReduxState,
 } from "../../types";
+import { gitSingleArtifactInitialState } from "./singleArtifactInitialState";
 
 type SingleArtifactStateCb<T> = (
   singleArtifactState: GitSingleArtifactReduxState,
   action: GitArtifactPayloadAction<T>,
 ) => GitSingleArtifactReduxState;
-
-export const gitSingleArtifactInitialState: GitSingleArtifactReduxState = {
-  metadata: {
-    value: null,
-    loading: false,
-    error: null,
-  },
-  connect: {
-    loading: false,
-    error: null,
-  },
-  branches: {
-    value: null,
-    loading: false,
-    error: null,
-  },
-  status: {
-    value: null,
-    loading: false,
-    error: null,
-  },
-  commit: {
-    loading: false,
-    error: null,
-  },
-  pull: {
-    loading: false,
-    error: null,
-  },
-};
 
 export const createSingleArtifactAction = <T>(
   singleArtifactStateCb: SingleArtifactStateCb<T>,

@@ -2,17 +2,26 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.git.models.GitResourceIdentity;
+import com.appsmith.external.git.models.GitResourceMap;
+import com.appsmith.external.git.models.GitResourceType;
 import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.files.FileUtilsImpl;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.GitArtifactMetadata;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.PageDTO;
@@ -20,6 +29,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ArtifactGitFileUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
@@ -40,13 +50,17 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitCommandConstantsCE.CHECKOUT_BRANCH;
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.RECONSTRUCT_PAGE;
 import static com.appsmith.git.constants.CommonConstants.CLIENT_SCHEMA_VERSION;
 import static com.appsmith.git.constants.CommonConstants.FILE_FORMAT_VERSION;
+import static com.appsmith.git.constants.CommonConstants.JSON_EXTENSION;
 import static com.appsmith.git.constants.CommonConstants.SERVER_SCHEMA_VERSION;
+import static com.appsmith.git.constants.CommonConstants.THEME;
+import static com.appsmith.git.files.FileUtilsCEImpl.getJsLibFileName;
 import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
@@ -60,6 +74,9 @@ public class CommonGitFileUtilsCE {
     private final FileOperations fileOperations;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
+
+    private final NewActionService newActionService;
+    private final ActionCollectionService actionCollectionService;
 
     // Number of seconds after lock file is stale
     @Value("${appsmith.index.lock.file.time}")
@@ -175,6 +192,178 @@ public class CommonGitFileUtilsCE {
         setDatasourcesInArtifactReference(artifactExchangeJson, artifactGitReference);
         artifactGitFileUtils.addArtifactReferenceFromExportedJson(artifactExchangeJson, artifactGitReference);
         return artifactGitReference;
+    }
+
+    public GitResourceMap createGitResourceMap(ArtifactExchangeJson artifactExchangeJson) {
+        ArtifactGitFileUtils<?> artifactGitFileUtils =
+                getArtifactBasedFileHelper(artifactExchangeJson.getArtifactJsonType());
+        GitResourceMap gitResourceMap = new GitResourceMap();
+        gitResourceMap.setModifiedResources(artifactExchangeJson.getModifiedResources());
+
+        setArtifactIndependentResources(artifactExchangeJson, gitResourceMap);
+
+        artifactGitFileUtils.setArtifactDependentResources(artifactExchangeJson, gitResourceMap);
+
+        return gitResourceMap;
+    }
+
+    protected void setArtifactIndependentResources(
+            ArtifactExchangeJson artifactExchangeJson, GitResourceMap gitResourceMap) {
+        Map<GitResourceIdentity, Object> resourceMap = gitResourceMap.getGitResourceMap();
+
+        // datasources
+        List<DatasourceStorage> datasourceList = artifactExchangeJson.getDatasourceList();
+        if (datasourceList != null) {
+            datasourceList.forEach(datasource -> {
+                removeUnwantedFieldsFromDatasource(datasource);
+                GitResourceIdentity identity =
+                        new GitResourceIdentity(GitResourceType.DATASOURCE_CONFIG, datasource.getGitSyncId());
+                resourceMap.put(identity, datasource);
+            });
+        }
+
+        // themes
+        Theme theme = artifactExchangeJson.getUnpublishedTheme();
+        // Only proceed if the current artifact supports themes
+        if (theme != null) {
+            // Reset published mode theme since it is not required
+            artifactExchangeJson.setThemes(theme, null);
+            // Remove internal fields from the themes
+            removeUnwantedFieldsFromBaseDomain(theme);
+            GitResourceIdentity identity = new GitResourceIdentity(GitResourceType.ROOT_CONFIG, THEME + JSON_EXTENSION);
+            resourceMap.put(identity, theme);
+        }
+
+        // custom js libs
+        List<CustomJSLib> customJSLibList = artifactExchangeJson.getCustomJSLibList();
+        if (customJSLibList != null) {
+            customJSLibList.forEach(jsLib -> {
+                removeUnwantedFieldsFromBaseDomain(jsLib);
+                String jsLibFileName = getJsLibFileName(jsLib.getUidString());
+                GitResourceIdentity identity = new GitResourceIdentity(GitResourceType.JSLIB_CONFIG, jsLibFileName);
+                resourceMap.put(identity, jsLib);
+            });
+        }
+
+        // actions
+        setNewActionsInResourceMap(artifactExchangeJson, resourceMap);
+
+        // action collections
+        setActionCollectionsInResourceMap(artifactExchangeJson, resourceMap);
+    }
+
+    protected void setNewActionsInResourceMap(
+            ArtifactExchangeJson artifactExchangeJson, Map<GitResourceIdentity, Object> resourceMap) {
+        if (artifactExchangeJson.getActionList() == null) {
+            return;
+        }
+        artifactExchangeJson.getActionList().stream()
+                // As we are expecting the commit will happen only after the application is published, so we can safely
+                // assume if the unpublished version is deleted entity should not be committed to git
+                .filter(newAction -> newAction.getUnpublishedAction() != null
+                        && newAction.getUnpublishedAction().getDeletedAt() == null)
+                .peek(newAction -> newActionService.generateActionByViewMode(newAction, false))
+                .forEach(newAction -> {
+                    removeUnwantedFieldFromAction(newAction);
+                    String body = newAction.getUnpublishedAction().getActionConfiguration() != null
+                                    && newAction
+                                                    .getUnpublishedAction()
+                                                    .getActionConfiguration()
+                                                    .getBody()
+                                            != null
+                            ? newAction
+                                    .getUnpublishedAction()
+                                    .getActionConfiguration()
+                                    .getBody()
+                            : "";
+
+                    // This is a special case where we are handling REMOTE type plugins based actions such as Twilio
+                    // The user configured values are stored in an attribute called formData which is a map unlike the
+                    // body
+                    if (PluginType.REMOTE.equals(newAction.getPluginType())
+                            && newAction.getUnpublishedAction().getActionConfiguration() != null
+                            && newAction
+                                            .getUnpublishedAction()
+                                            .getActionConfiguration()
+                                            .getFormData()
+                                    != null) {
+                        body = new Gson()
+                                .toJson(
+                                        newAction
+                                                .getUnpublishedAction()
+                                                .getActionConfiguration()
+                                                .getFormData(),
+                                        Map.class);
+                        newAction
+                                .getUnpublishedAction()
+                                .getActionConfiguration()
+                                .setFormData(null);
+                    }
+                    // This is a special case where we are handling JS actions as we don't want to commit the body of JS
+                    // actions
+                    if (PluginType.JS.equals(newAction.getPluginType())) {
+                        if (newAction.getUnpublishedAction().getActionConfiguration() != null) {
+                            newAction
+                                    .getUnpublishedAction()
+                                    .getActionConfiguration()
+                                    .setBody(null);
+                            newAction.getUnpublishedAction().setJsonPathKeys(null);
+                        }
+                    } else {
+                        // For the regular actions we save the body field to git repo
+                        GitResourceIdentity actionDataIdentity =
+                                new GitResourceIdentity(GitResourceType.QUERY_DATA, newAction.getGitSyncId());
+                        resourceMap.put(actionDataIdentity, body);
+                    }
+                    GitResourceIdentity actionConfigIdentity =
+                            new GitResourceIdentity(GitResourceType.QUERY_CONFIG, newAction.getGitSyncId());
+                    resourceMap.put(actionConfigIdentity, newAction);
+                });
+    }
+
+    protected void setActionCollectionsInResourceMap(
+            ArtifactExchangeJson artifactExchangeJson, Map<GitResourceIdentity, Object> resourceMap) {
+        if (artifactExchangeJson.getActionCollectionList() == null) {
+            return;
+        }
+        artifactExchangeJson.getActionCollectionList().stream()
+                // As we are expecting the commit will happen only after the application is published, so we can safely
+                // assume if the unpublished version is deleted entity should not be committed to git
+                .filter(collection -> collection.getUnpublishedCollection() != null
+                        && collection.getUnpublishedCollection().getDeletedAt() == null)
+                .peek(actionCollection ->
+                        actionCollectionService.generateActionCollectionByViewMode(actionCollection, false))
+                .forEach(actionCollection -> {
+                    removeUnwantedFieldFromActionCollection(actionCollection);
+                    String body = actionCollection.getUnpublishedCollection().getBody() != null
+                            ? actionCollection.getUnpublishedCollection().getBody()
+                            : "";
+                    actionCollection.getUnpublishedCollection().setBody(null);
+
+                    GitResourceIdentity collectionConfigIdentity =
+                            new GitResourceIdentity(GitResourceType.JSOBJECT_CONFIG, actionCollection.getGitSyncId());
+                    resourceMap.put(collectionConfigIdentity, actionCollection);
+
+                    GitResourceIdentity collectionDataIdentity =
+                            new GitResourceIdentity(GitResourceType.JSOBJECT_DATA, actionCollection.getGitSyncId());
+                    resourceMap.put(collectionDataIdentity, body);
+                });
+    }
+
+    private void removeUnwantedFieldFromAction(NewAction action) {
+        // As we are publishing the app and then committing to git we expect the published and unpublished ActionDTO
+        // will be same, so we only commit unpublished ActionDTO.
+        action.setPublishedAction(null);
+        action.getUnpublishedAction().sanitiseToExportDBObject();
+        removeUnwantedFieldsFromBaseDomain(action);
+    }
+
+    private void removeUnwantedFieldFromActionCollection(ActionCollection actionCollection) {
+        // As we are publishing the app and then committing to git we expect the published and unpublished
+        // ActionCollectionDTO will be same, so we only commit unpublished ActionCollectionDTO.
+        actionCollection.setPublishedCollection(null);
+        actionCollection.getUnpublishedCollection().sanitiseForExport();
+        removeUnwantedFieldsFromBaseDomain(actionCollection);
     }
 
     private void setDatasourcesInArtifactReference(
