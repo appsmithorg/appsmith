@@ -73,7 +73,7 @@ export function DebuggerEntityLink(props: {
             className="debugger-entity-link t--debugger-log-entity-link"
             onClick={handleClick}
           >
-            {props.name}
+            {props.name}:
           </Link>
         </Wrapper>
       );

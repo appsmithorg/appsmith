@@ -5,7 +5,7 @@ import { get, isUndefined } from "lodash";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
 import { BlankState } from "./helpers";
-import LogItem, { getLogItemProps } from "./LogItem";
+import { LogItem, getLogItemProps } from "./LogItem";
 import { usePagination, useFilteredLogs } from "./hooks/debuggerHooks";
 import {
   createMessage,

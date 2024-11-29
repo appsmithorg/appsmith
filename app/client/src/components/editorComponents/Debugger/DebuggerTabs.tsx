@@ -47,15 +47,15 @@ function DebuggerTabs() {
 
   const DEBUGGER_TABS = [
     {
+      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+      title: createMessage(DEBUGGER_LOGS),
+      panelComponent: <DebuggerLogs hasShortCut />,
+    },
+    {
       key: DEBUGGER_TAB_KEYS.ERROR_TAB,
       title: createMessage(DEBUGGER_ERRORS),
       count: errorCount,
       panelComponent: <Errors hasShortCut />,
-    },
-    {
-      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-      title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs hasShortCut />,
     },
   ];
 

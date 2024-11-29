@@ -1,24 +1,26 @@
 import { Collapse } from "@blueprintjs/core";
 import { isString } from "lodash";
-import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
+import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import type { PropsWithChildren } from "react";
-import React, { useState } from "react";
+import React from "react";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
-import EntityLink from "./EntityLink";
-import { getLogIcon } from "./helpers";
+import EntityLink from "../EntityLink";
 import { Classes, getTypographyByKey } from "@appsmith/ads-old";
-import ContextualMenu from "./ContextualMenu";
-import { Button, Icon } from "@appsmith/ads";
+import ContextualMenu from "../ContextualMenu";
+import { Button, Flex, Icon } from "@appsmith/ads";
 import moment from "moment";
 import classNames from "classnames";
-import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
+import { DebuggerLinkUI } from "../DebuggerEntityLink";
+import { reactJsonProps } from "../ErrorLogs/components/LogCollapseData";
+import { useBoolean } from "usehooks-ts";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
   display: flex;
   flex-direction: column;
   padding: 8px 16px 8px 16px;
+  position: relative;
 
   &.${Severity.INFO} {
     border-bottom: 1px solid var(--ads-v2-color-border);
@@ -51,10 +53,11 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     margin-left: 4px;
     margin-right: 4px;
     color: var(--ads-v2-color-fg-muted);
-    width: max-content;
+    width: 45px;
   }
 
-  .debugger-occurences {
+  .debugger-occurrences {
+    position: absolute;
     height: 16px;
     width: 16px;
     border-radius: 36px;
@@ -65,6 +68,11 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     background-color: var(--ads-v2-color-bg);
 
     ${getTypographyByKey("u2")}
+    &.hide-on-hover {
+      &:hover {
+        display: none;
+      }
+    }
   }
 
   .debugger-description {
@@ -164,39 +172,6 @@ const MessageWrapper = styled.div`
   line-height: 14px;
 `;
 
-const showToggleIcon = (e: Log) => {
-  let output = !!e.state || !!e.messages;
-
-  if (!output && e.logData && e.logData.length > 0) {
-    e.logData.forEach((item) => {
-      if (typeof item === "object") {
-        output = true;
-      }
-    });
-  }
-
-  return output;
-};
-
-export const getLogItemProps = (e: Log) => {
-  return {
-    icon: getLogIcon(e) as string,
-    timestamp: e.timestamp,
-    source: e.source,
-    label: e.text,
-    logData: e.logData,
-    category: e.category,
-    timeTaken: e.timeTaken ? `${e.timeTaken}ms` : "",
-    severity: e.severity,
-    text: e.text,
-    state: e.state,
-    id: e.source ? e.source.id : undefined,
-    messages: e.messages,
-    collapsible: showToggleIcon(e),
-    occurences: e.occurrenceCount || 1,
-  };
-};
-
 interface LogItemProps {
   collapsible?: boolean;
   icon: string;
@@ -209,32 +184,16 @@ interface LogItemProps {
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logData?: any[];
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  state?: Record<string, any>;
+  state?: Record<string, unknown>;
   id?: string;
   source?: SourceEntity;
   expand?: boolean;
   messages?: Message[];
-  occurences: number;
+  occurrences: number;
 }
 
-function LogItem(props: LogItemProps) {
-  const [isOpen, setIsOpen] = useState(!!props.expand);
-  const reactJsonProps = {
-    name: null,
-    enableClipboard: false,
-    displayObjectSize: false,
-    displayDataTypes: false,
-    style: {
-      fontFamily: "var(--ads-v2-font-family)",
-      fontSize: "11px",
-      fontWeight: "400",
-      letterSpacing: "-0.195px",
-      lineHeight: "13px",
-    },
-    collapsed: 1,
-  };
+export function LogItem(props: LogItemProps) {
+  const { toggle: toggleOpen, value: isOpen } = useBoolean(!!props.expand);
 
   const messages = props.messages || [];
   const { collapsible } = props;
@@ -243,11 +202,9 @@ function LogItem(props: LogItemProps) {
     <Wrapper
       className={`${props.severity} ${collapsible ? "cursor-pointer" : ""}`}
       collapsed={!isOpen}
-      onClick={() => {
-        if (collapsible) setIsOpen(!isOpen);
-      }}
+      onClick={toggleOpen}
     >
-      <div className="flex items-center gap-1">
+      <Flex className="flex items-center gap-1">
         <Icon
           color={
             props.severity === Severity.ERROR
@@ -260,23 +217,32 @@ function LogItem(props: LogItemProps) {
         <span className={`debugger-time ${props.severity}`}>
           {moment(parseInt(props.timestamp)).format("HH:mm:ss")}
         </span>
-        {props.occurences > 1 && (
-          <span
-            className={`t--debugger-log-message-occurence debugger-occurences ${props.severity}`}
-          >
-            {props.occurences}
-          </span>
-        )}
-        {props.collapsible && (
+        <Flex alignItems={"center"} justifyContent="center" w="30px">
           <Button
-            className={classNames(`${Classes.ICON} debugger-toggle`)}
+            className={classNames(
+              `${Classes.ICON} debugger-toggle`,
+              collapsible ? "visible" : "invisible",
+            )}
             isIconButton
             kind="tertiary"
-            onClick={() => setIsOpen(!isOpen)}
             size="sm"
-            startIcon={"expand-more"}
+            startIcon="expand-more"
           />
-        )}
+          {props.occurrences > 1 && (
+            <span
+              className={classNames(
+                "t--debugger-log-message-occurrence debugger-occurrences",
+                {
+                  [props.severity]: true,
+                  "hide-on-hover": collapsible,
+                },
+              )}
+            >
+              {props.occurrences}
+            </span>
+          )}
+        </Flex>
+
         {props.source && (
           <EntityLink
             id={props.source.id}
@@ -323,7 +289,7 @@ function LogItem(props: LogItemProps) {
               )}
           </div>
         )}
-      </div>
+      </Flex>
 
       {collapsible && isOpen && (
         <StyledCollapse
@@ -379,5 +345,3 @@ function LogItem(props: LogItemProps) {
     </Wrapper>
   );
 }
-
-export default React.memo(LogItem);

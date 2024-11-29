@@ -32,6 +32,10 @@ const Wrapper = styled.div`
     height: 28px;
   }
 
+  .t--debugger-clear-logs {
+    margin-left: auto;
+  }
+
   .input-container {
     max-width: 560px;
     min-width: 220px;
@@ -108,7 +112,7 @@ function FilterHeader(props: FilterHeaderProps) {
           kind="tertiary"
           onClick={() => dispatch(clearLogs())}
           size="sm"
-          startIcon="cancel"
+          startIcon="clear"
         />
       </Tooltip>
     </Wrapper>
