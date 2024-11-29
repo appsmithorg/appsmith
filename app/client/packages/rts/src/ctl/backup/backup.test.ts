@@ -67,11 +67,11 @@ describe("Backup Tests", () => {
     console.log(res);
   });
 
-  test("Test postgresdump CMD generaton", async () => {
+  test("Test postgres dump CMD generation", async () => {
     const dest = "/dest";
     const appsmithMongoURI = "postgresql://username:password@host/appsmith";
     const cmd =
-      "pg_dump postgresql://username:password@host/appsmith -Fc -f /dest/pg-data.archive";
+      "pg_dump postgresql://username:password@host/appsmith ---schema=appsmith --format=custom --file=/dest/pg-data.gz";
     const res = await executePostgresDumpCMD(dest, appsmithMongoURI);
 
     expect(res).toBe(cmd);
