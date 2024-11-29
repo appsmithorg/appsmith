@@ -94,7 +94,14 @@ export function ApiResponse(props: {
   const { messages, pluginErrorDetails, request } = props.actionResponse;
 
   const runHasFailed = hasFailed(props.actionResponse);
-  const requestWithTimestamp = getUpdateTimestamp(request);
+  const requestWithTimestamp = {
+    error:
+      props.actionResponse.readableError ||
+      props.actionResponse.pluginErrorDetails?.downstreamErrorMessage ||
+      props.actionResponse.body ||
+      "An unexpected error occurred",
+    request: getUpdateTimestamp(request),
+  };
 
   return (
     <Flex flexDirection="column" h="100%" w="100%">

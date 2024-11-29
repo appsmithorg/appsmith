@@ -192,8 +192,10 @@ export const QueryResponseTab = (props: Props) => {
   const currentContentType =
     selectedContentType || firstContentTypeOption?.value;
 
-  const responseState =
-    actionResponse && getUpdateTimestamp(actionResponse.request);
+  const responseState = {
+    error: errorMessage,
+    request: actionResponse && getUpdateTimestamp(actionResponse.request),
+  };
 
   const selectedTabIndex =
     responseDataTypes &&
