@@ -86,12 +86,6 @@ if [[ ${backend-} == release ]]; then
   backend=https://release.app.appsmith.com
 fi
 
-# Try to get a version from the "backend". If it's a full container, not just backend, then it'll give us a version.
-APPSMITH_VERSION_ID="$(
-  curl -sS "${backend/host.docker.internal/localhost}/info" | grep -Eo '"version": ".+?"' | cut -d\" -f4
-)"
-export APPSMITH_VERSION_ID
-
 if [[ -z ${run_as-} ]]; then
     if type nginx; then
         run_as=nginx
@@ -163,6 +157,14 @@ if [[ $backend =~ /$ ]]; then
     echo "The backend endpoint ($backend) ends with a '/'. This will change Nginx's behavior in unintended ways." >&2
     echo "Exiting. Please run again, removing the trailing slash(es) for the backend." >&2
     exit 1
+fi
+
+if [[ -n $backend ]]; then
+  # Try to get a version from the "backend". If it's a full container, not just backend, then it'll give us a version.
+  APPSMITH_VERSION_ID="$(
+    curl -vsS "${backend/host.docker.internal/localhost}/info" | grep -Eo '"version": ".+?"' | cut -d\" -f4 || true
+  )"
+  export APPSMITH_VERSION_ID
 fi
 
 if [[ -n ${env_file-} && ! -f $env_file ]]; then
