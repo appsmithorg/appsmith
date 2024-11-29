@@ -28,7 +28,6 @@ import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.solutions.UpdateSuperUserMigrationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.solutions.PolicySolution;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
@@ -451,7 +450,7 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "10000", id = "update-super-users", author = "", runAlways = true)
     public void updateSuperUsers(
             MongoTemplate mongoTemplate,
-            PermissionGroupRepository permissionGroupRepository,
+            CacheableRepositoryHelper cacheableRepositoryHelper,
             PolicySolution policySolution,
             PolicyGenerator policyGenerator) {
         // Read the admin emails from the environment and update the super users accordingly
@@ -497,7 +496,7 @@ public class DatabaseChangelog2 {
 
         Set<String> oldSuperUsers = instanceAdminPG.getAssignedToUserIds();
         Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
-        evictPermissionCacheForUsers(updatedUserIds, mongoTemplate, permissionGroupRepository);
+        evictPermissionCacheForUsers(updatedUserIds, mongoTemplate, cacheableRepositoryHelper);
 
         Update update = new Update().set(PermissionGroup.Fields.assignedToUserIds, userIds);
         mongoTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);

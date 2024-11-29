@@ -45,9 +45,9 @@ describe(
         EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
 
         BottomPane.response.switchToResponseTab();
-
+        BottomPane.response.openResponseTypeMenu();
         agHelper.AssertElementVisibility(
-          BottomPane.response.getResponseTypeSelector("TABLE"),
+          BottomPane.response.locators.responseTypeMenuItem("TABLE"),
         );
       });
     });
