@@ -35,8 +35,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-import javax.swing.*;
-
 import static com.appsmith.external.constants.spans.ActionSpan.GET_ACTION_BY_ID;
 import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_ACTION_BASED_ON_CONTEXT;
 import static com.appsmith.external.constants.spans.ActionSpan.UPDATE_SINGLE_ACTION;
@@ -350,17 +348,13 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, actionDTO.getPageId())))
                 .flatMap(newPage -> {
                     actionDTO.setBranchName(newPage.getBranchName());
-                    return createAction(actionDTO, isJsAction, newPage);
+                    AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
+                    CreateActionMetaDTO createActionMetaDTO = new CreateActionMetaDTO();
+                    createActionMetaDTO.setIsJsAction(isJsAction);
+                    createActionMetaDTO.setNewPage(newPage);
+                    createActionMetaDTO.setEventContext(eventContext);
+                    return createAction(actionDTO, createActionMetaDTO);
                 });
-    }
-
-    protected Mono<ActionDTO> createAction(ActionDTO actionDTO, Boolean isJsAction, NewPage newPage) {
-        AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.DEFAULT);
-        CreateActionMetaDTO createActionMetaDTO = new CreateActionMetaDTO();
-        createActionMetaDTO.setIsJsAction(isJsAction);
-        createActionMetaDTO.setNewPage(newPage);
-        createActionMetaDTO.setEventContext(eventContext);
-        return createAction(actionDTO, createActionMetaDTO);
     }
 
     @Override
