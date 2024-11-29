@@ -46,14 +46,14 @@ export const ResponseTabErrorContainer = styled.div`
   height: fit-content;
   background: var(--ads-v2-color-bg-error);
   border-bottom: 1px solid var(--ads-v2-color-border);
+  font-size: 12px;
+  line-height: 16px;
 `;
 
 export const ResponseTabErrorContent = styled.div`
   display: flex;
   align-items: flex-start;
   gap: 4px;
-  font-size: 12px;
-  line-height: 16px;
 `;
 
 export const ResponseTabErrorDefaultMessage = styled.div`
@@ -91,7 +91,7 @@ export function ApiResponse(props: {
     );
   }
 
-  const { messages, pluginErrorDetails, request } = props.actionResponse;
+  const { body, messages, pluginErrorDetails, request } = props.actionResponse;
 
   const runHasFailed = hasFailed(props.actionResponse);
   const requestWithTimestamp = {
@@ -126,7 +126,7 @@ export function ApiResponse(props: {
           <ResponseTabErrorContent>
             <ResponseTabErrorDefaultMessage>
               Your API failed to execute
-              {pluginErrorDetails && ":"}
+              {(pluginErrorDetails || body) && ":"}
             </ResponseTabErrorDefaultMessage>
             {pluginErrorDetails && (
               <>
@@ -147,6 +147,9 @@ export function ApiResponse(props: {
               source={actionSource}
             />
           </ResponseTabErrorContent>
+          {body && (
+            <div className="t--debugger-log-downstream-message">{body}</div>
+          )}
           {requestWithTimestamp && (
             <JsonWrapper className="t--debugger-log-state" onClick={noop}>
               <ReactJson src={requestWithTimestamp} {...reactJsonProps} />
