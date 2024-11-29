@@ -989,3 +989,48 @@ export const checkForOnClick = (e: React.MouseEvent<HTMLElement>) => {
 
   return false;
 };
+
+/**
+ * Parses the derived properties from the given property functions. Used in getDerivedPropertiesMap
+ *
+ * @example
+ * ```js
+ * {
+ *  isValidDate: (props, moment, _) => {
+ *    return props.value === 1;
+ *  }
+ * ```
+ *
+ * It will return
+ * ```js
+ * {
+ *  isValidDate: "{{ this.value === 1 }}"
+ * }
+ * ```
+ *
+ * Main rule to remember is don't deconstruct the props like `const { value } = props;` in the derived property function.
+ * Directly access props like `props.value`
+ */
+export function parseDerivedProperties(propertyFns: Record<string, unknown>) {
+  const derivedProperties: Record<string, string> = {};
+
+  for (const [key, value] of Object.entries(propertyFns)) {
+    if (typeof value === "function") {
+      const functionString = value.toString();
+      const functionBody = functionString.match(/(?<=\{)(.|\n)*(?=\})/)?.[0];
+
+      if (functionBody) {
+        const paramMatch = functionString.match(/\((.*?),/);
+        const propsParam = paramMatch ? paramMatch[1].trim() : "props";
+
+        const modifiedBody = functionBody
+          .trim()
+          .replace(new RegExp(`${propsParam}\\.`, "g"), "this.");
+
+        derivedProperties[key] = modifiedBody;
+      }
+    }
+  }
+
+  return derivedProperties;
+}
