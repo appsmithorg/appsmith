@@ -109,7 +109,8 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
     }
 
     // TODO : Set to private to prevent direct access unless migration is performed
-    private void setDefaultArtifactId(String defaultArtifactId) {
+    // TODO: reevaluate the above TODO bit
+    public void setDefaultArtifactId(String defaultArtifactId) {
         this.defaultArtifactId = defaultArtifactId;
     }
 
