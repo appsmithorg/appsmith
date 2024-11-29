@@ -21,6 +21,8 @@ import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLo
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import ApiFormatSegmentedResponse from "./ApiFormatSegmentedResponse";
 import { NoResponse } from "./NoResponse";
+import { useSelector } from "react-redux";
+import { getFilteredErrors } from "selectors/debuggerSelectors";
 
 const HelpSection = styled.div`
   padding-bottom: 5px;
@@ -71,7 +73,19 @@ export function ApiResponse(props: {
   onRunClick: () => void;
   responseTabHeight: number;
 }) {
-  const { id, name } = props.action;
+  const {
+    action,
+    actionResponse,
+    isRunDisabled,
+    isRunning,
+    onRunClick,
+    responseTabHeight,
+    theme,
+  } = props;
+  const { id, name } = action;
+
+  const errors = useSelector(getFilteredErrors);
+
   const actionSource: SourceEntity = useMemo(
     () => ({
       type: ENTITY_TYPE.ACTION,
@@ -81,29 +95,26 @@ export function ApiResponse(props: {
     [name, id],
   );
 
-  if (!props.actionResponse) {
+  if (!actionResponse) {
     return (
       <Flex h="100%" w="100%">
         <NoResponse
-          isRunDisabled={props.isRunDisabled}
-          isRunning={props.isRunning}
-          onRunClick={props.onRunClick}
+          isRunDisabled={isRunDisabled}
+          isRunning={isRunning}
+          onRunClick={onRunClick}
         />
       </Flex>
     );
   }
 
-  const { body, messages, pluginErrorDetails, request } = props.actionResponse;
+  const { body, messages, pluginErrorDetails, request } = actionResponse;
 
-  const runHasFailed = hasFailed(props.actionResponse);
+  const runHasFailed = hasFailed(actionResponse);
   const requestWithTimestamp = getUpdateTimestamp(request);
 
   return (
     <Flex flexDirection="column" h="100%" w="100%">
-      <ApiResponseMeta
-        actionName={name}
-        actionResponse={props.actionResponse}
-      />
+      <ApiResponseMeta actionName={name} actionResponse={actionResponse} />
       {Array.isArray(messages) && messages.length > 0 && (
         <HelpSection>
           {messages.map((message, i) => (
@@ -113,28 +124,35 @@ export function ApiResponse(props: {
           ))}
         </HelpSection>
       )}
-      {props.isRunning && (
-        <ActionExecutionInProgressView actionType="API" theme={props.theme} />
+      {isRunning && (
+        <ActionExecutionInProgressView actionType="API" theme={theme} />
       )}
-      {runHasFailed && !props.isRunning ? (
+      {runHasFailed && !isRunning ? (
         <ResponseTabErrorContainer>
           <ResponseTabErrorContent>
             <ResponseTabErrorDefaultMessage>
               Your API failed to execute
-              {(pluginErrorDetails || body) && ":"}
+              {actionResponse && (pluginErrorDetails || body) && ":"}
             </ResponseTabErrorDefaultMessage>
-            {pluginErrorDetails && (
-              <>
-                <div className="t--debugger-log-downstream-message">
-                  {pluginErrorDetails.downstreamErrorMessage}
-                </div>
-                {pluginErrorDetails.downstreamErrorCode && (
-                  <LogAdditionalInfo
-                    text={pluginErrorDetails.downstreamErrorCode}
-                  />
-                )}
-              </>
-            )}
+            {actionResponse &&
+              (pluginErrorDetails ? (
+                <>
+                  <div className="t--debugger-log-downstream-message">
+                    {pluginErrorDetails.downstreamErrorMessage}
+                  </div>
+                  {pluginErrorDetails.downstreamErrorCode && (
+                    <LogAdditionalInfo
+                      text={pluginErrorDetails.downstreamErrorCode}
+                    />
+                  )}
+                </>
+              ) : (
+                errors?.[action.id]?.messages?.[0].message.message && (
+                  <div className="t--api-error">
+                    {errors?.[action.id]?.messages?.[0].message.message}
+                  </div>
+                )
+              ))}
             <LogHelper
               logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
               name="PluginExecutionError"
@@ -142,9 +160,6 @@ export function ApiResponse(props: {
               source={actionSource}
             />
           </ResponseTabErrorContent>
-          {body && (
-            <div className="t--debugger-log-downstream-message">{body}</div>
-          )}
           {requestWithTimestamp && (
             <JsonWrapper className="t--debugger-log-state" onClick={noop}>
               <ReactJson src={requestWithTimestamp} {...apiReactJsonProps} />
@@ -153,17 +168,17 @@ export function ApiResponse(props: {
         </ResponseTabErrorContainer>
       ) : (
         <ResponseDataContainer>
-          {isEmpty(props.actionResponse.statusCode) ? (
+          {isEmpty(actionResponse.statusCode) ? (
             <NoResponse
-              isRunDisabled={props.isRunDisabled}
-              isRunning={props.isRunning}
-              onRunClick={props.onRunClick}
+              isRunDisabled={isRunDisabled}
+              isRunning={isRunning}
+              onRunClick={onRunClick}
             />
           ) : (
             <ApiFormatSegmentedResponse
               actionId={id}
-              actionResponse={props.actionResponse}
-              responseTabHeight={props.responseTabHeight}
+              actionResponse={actionResponse}
+              responseTabHeight={responseTabHeight}
             />
           )}
         </ResponseDataContainer>
