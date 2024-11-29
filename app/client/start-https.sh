@@ -88,7 +88,7 @@ fi
 
 # Try to get a version from the "backend". If it's a full container, not just backend, then it'll give us a version.
 APPSMITH_VERSION_ID="$(
-  curl -sS "$backend/info" | grep -Eo '"version": ".+?"' | cut -d\" -f4
+  curl -sS "${backend/host.docker.internal/localhost}/info" | grep -Eo '"version": ".+?"' | cut -d\" -f4
 )"
 export APPSMITH_VERSION_ID
 
