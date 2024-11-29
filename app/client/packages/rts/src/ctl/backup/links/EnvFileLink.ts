@@ -7,7 +7,7 @@ const SECRETS_WARNING = `
 *** Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file **
 *** These values are not included in the backup export.                                                                           **
 ************************************************************************************************************************************
-`
+`;
 
 export class EnvFileLink implements Link {
   constructor(private readonly state: BackupState) {}
@@ -28,7 +28,10 @@ export class EnvFileLink implements Link {
         process.env.APPSMITH_ENCRYPTION_PASSWORD;
     }
 
-    await fsPromises.writeFile(this.state.backupRootPath + "/docker.env", cleanedContent);
+    await fsPromises.writeFile(
+      this.state.backupRootPath + "/docker.env",
+      cleanedContent,
+    );
     console.log("Exporting docker environment file done.");
   }
 

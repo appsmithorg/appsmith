@@ -44,11 +44,11 @@ export function getEncryptionPasswordFromUser(): string {
 
     const encryptionPwd1: string = readlineSync.question(
       "Enter a password to encrypt the backup archive: ",
-      {hideEchoBack: true},
+      { hideEchoBack: true },
     );
     const encryptionPwd2: string = readlineSync.question(
       "Enter the above password again: ",
-      {hideEchoBack: true},
+      { hideEchoBack: true },
     );
 
     if (encryptionPwd1 === encryptionPwd2) {

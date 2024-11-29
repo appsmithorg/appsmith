@@ -19,6 +19,9 @@ export async function run(args: string[]) {
     new linkClasses.MongoDumpLink(state),
     new linkClasses.GitStorageLink(state),
     new linkClasses.EnvFileLink(state),
+
+    // Encryption link is best placed last so if any of the above links fail, we don't ask the user for a password and
+    // then do nothing with it.
     new linkClasses.EncryptionLink(state),
   ];
 

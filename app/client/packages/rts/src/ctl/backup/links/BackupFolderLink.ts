@@ -14,7 +14,9 @@ export class BackupFolderLink implements Link {
   }
 
   async postBackup() {
-    await fsPromises.rm(this.state.backupRootPath, { recursive: true, force: true });
+    await fsPromises.rm(this.state.backupRootPath, {
+      recursive: true,
+      force: true,
+    });
   }
 }
-

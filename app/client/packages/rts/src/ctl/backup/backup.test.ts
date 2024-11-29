@@ -11,9 +11,8 @@ import {
   getAvailableBackupSpaceInBytes,
   getEncryptionPasswordFromUser,
   getGitRoot,
-  removeSensitiveEnvData
+  removeSensitiveEnvData,
 } from "./links";
-import { getTimeStampInISO } from ".";
 
 jest.mock("../utils", () => ({
   ...jest.requireActual("../utils"),
@@ -41,9 +40,7 @@ describe("Backup Tests", () => {
 
   it("Should not should throw Error when the available size is >= MIN_REQUIRED_DISK_SPACE_IN_BYTES", () => {
     expect(() => {
-      checkAvailableBackupSpace(
-        Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES,
-      );
+      checkAvailableBackupSpace(Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES);
     }).not.toThrow(
       "Not enough space available at /appsmith-stacks. Please ensure availability of at least 5GB to backup successfully.",
     );
@@ -238,10 +235,7 @@ describe("Backup Tests", () => {
   test("Test backup encryption function", async () => {
     const archivePath = "/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z";
     const encryptionPassword = "password#123";
-    const res = await encryptBackupArchive(
-      archivePath,
-      encryptionPassword,
-    );
+    const res = await encryptBackupArchive(archivePath, encryptionPassword);
 
     console.log(res);
     expect(res).toEqual("/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z.enc");
