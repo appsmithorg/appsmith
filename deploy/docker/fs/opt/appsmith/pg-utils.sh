@@ -7,6 +7,7 @@ DB_PORT="5432"
 DB_SCHEMA="appsmith"
 DB_NAME="appsmith"
 POSTGRES_ADMIN_USER="postgres"
+POSTGRES_DB_PATH="/appsmith-stacks/data/postgres/main"
 
 waitForPostgresAvailability() {
   if [ -z "$PG_DB_HOST" ]; then
@@ -17,8 +18,9 @@ waitForPostgresAvailability() {
     MAX_RETRIES=50
     RETRYSECONDS=10
     retry_count=0
+    local unix_socket_directory=$(get_unix_socket_directory "$POSTGRES_DB_PATH")
     while true; do
-      su postgres -c "pg_isready -h '${PG_DB_HOST}' -p '${PG_DB_PORT}'"
+      su postgres -c "pg_isready -h $unix_socket_directory -p '${PG_DB_PORT}'"
       status=$?
 
       case $status in
@@ -106,29 +108,30 @@ init_pg_db() {
     # Check if the DB_HOST is local (localhost or 127.0.0.1)
     if [[ "$PG_DB_HOST" == "localhost" || "$PG_DB_HOST" == "127.0.0.1" ]]; then
 
+      local unix_socket_directory=$(get_unix_socket_directory "$POSTGRES_DB_PATH")
       # Check if the database exists
-      DB_CHECK=$(psql -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -tAc "SELECT 1 FROM pg_database WHERE datname='$PG_DB_NAME'")
+      DB_CHECK=$(psql -h "$unix_socket_directory" -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -tAc "SELECT 1 FROM pg_database WHERE datname='$PG_DB_NAME'")
 
       if [ "$DB_CHECK" != "1" ]; then
         echo "Database $PG_DB_NAME does not exist. Creating database..."
-        psql -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -c "CREATE DATABASE $PG_DB_NAME;"
+        psql -h "$unix_socket_directory" -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -c "CREATE DATABASE $PG_DB_NAME;"
       else
         echo "Database $PG_DB_NAME already exists."
       fi
 
       # Check if the schema exists
-      SCHEMA_CHECK=$(psql -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -d "$PG_DB_NAME" -tAc "SELECT 1 FROM information_schema.schemata WHERE schema_name='appsmith'")
+      SCHEMA_CHECK=$(psql -h "$unix_socket_directory" -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -d "$PG_DB_NAME" -tAc "SELECT 1 FROM information_schema.schemata WHERE schema_name='appsmith'")
 
       # Create schema and user if not exists
       if [ "$SCHEMA_CHECK" != "1" ]; then
         echo "Creating user '$PG_DB_USER' with password "
-        psql -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -d "$PG_DB_NAME" -c "CREATE USER \"$PG_DB_USER\" WITH PASSWORD '$PG_DB_PASSWORD';"
+        psql -h "$unix_socket_directory" -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -d "$PG_DB_NAME" -c "CREATE USER \"$PG_DB_USER\" WITH PASSWORD '$PG_DB_PASSWORD';"
 
         echo "Schema 'appsmith' does not exist. Creating schema..."
-        psql -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -d "$PG_DB_NAME" -c "CREATE SCHEMA appsmith;"
+        psql -h "$unix_socket_directory" -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -d "$PG_DB_NAME" -c "CREATE SCHEMA appsmith;"
       fi
       echo "Creating pg_trgm extension..."
-      psql -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -d "$PG_DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+      psql -h "$unix_socket_directory" -p "$PG_DB_PORT" -U "$POSTGRES_ADMIN_USER" -d "$PG_DB_NAME" -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
 
       # Grant permissions to the user on the schema
       USER=$PG_DB_USER SCHEMA="appsmith" DB=$PG_DB_NAME HOST=$PG_DB_HOST PORT=$PG_DB_PORT grant_permissions_for_local_db_schema
@@ -165,11 +168,23 @@ init_pg_db() {
 #     USER="user" SCHEMA="schema" DB="db" HOST="host" PORT="port" grant_permissions_for_local_db_schema
 grant_permissions_for_local_db_schema() {
   local user=${USER-$DB_USER} schema=${SCHEMA-$DB_SCHEMA} db=${DB-$DB_NAME} host=${HOST-$DB_HOST} port=${PORT-$DB_PORT}
+  local unix_socket_directory=$(get_unix_socket_directory "$POSTGRES_DB_PATH")
   tlog "Granting permissions to user '${user}' on schema '$schema' in database '$db' on host '$host' and port '$port'..."
-  psql -p ${port} -U ${POSTGRES_ADMIN_USER} -d ${db} -c "GRANT ALL PRIVILEGES ON SCHEMA ${schema} TO ${user};"
-  psql -p ${port} -U ${POSTGRES_ADMIN_USER} -d ${db} -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ${schema} TO ${user};"
-  psql -p ${port} -U ${POSTGRES_ADMIN_USER} -d ${db} -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${schema} GRANT ALL PRIVILEGES ON TABLES TO ${user};"
-  psql -p ${port} -U ${POSTGRES_ADMIN_USER} -d ${db} -c "GRANT CONNECT ON DATABASE ${db} TO ${user};"
+  psql -h "$unix_socket_directory" -p "$port" -U "$POSTGRES_ADMIN_USER" -d "$db" -c "GRANT ALL PRIVILEGES ON SCHEMA ${schema} TO ${user};"
+  psql -h "$unix_socket_directory" -p "$port" -U "$POSTGRES_ADMIN_USER" -d "$db" -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ${schema} TO ${user};"
+  psql -h "$unix_socket_directory" -p "$port" -U "$POSTGRES_ADMIN_USER" -d "$db" -c "ALTER DEFAULT PRIVILEGES IN SCHEMA ${schema} GRANT ALL PRIVILEGES ON TABLES TO ${user};"
+  psql -h "$unix_socket_directory" -p "$port" -U "$POSTGRES_ADMIN_USER" -d "$db" -c "GRANT CONNECT ON DATABASE ${db} TO ${user};"
+}
+
+get_unix_socket_directory() {
+  POSTGRES_DB_PATH=$1
+  local unix_socket_directory
+  unix_socket_directory=$(grep -E "^unix_socket_directories" "$POSTGRES_DB_PATH/postgresql.conf" | sed -E "s/.*= (.*).*/\1/" | cut -d',' -f1)
+  # If unix_socket_directory is empty, default to /var/run/postgresql
+  if [ -z "$unix_socket_directory" ]; then
+    unix_socket_directory="/var/run/postgresql"
+  fi
+  echo "$unix_socket_directory"
 }
 
 # Example usage of the functions
@@ -177,3 +192,4 @@ grant_permissions_for_local_db_schema() {
 # extract_postgres_db_params "postgresql://user:password@localhost:5432/dbname"
 # init_pg_db
 # USER="user" SCHEMA="schema" DB="db" HOST="host" PORT="port" grant_permissions_for_local_db_schema
+# get_unix_socket_directory "/var/lib/postgresql/12/main"

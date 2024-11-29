@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Source the helper script
+source pg-utils.sh
+
 set -e
 
 tlog "Running as: $(id)"
@@ -483,7 +486,9 @@ create_appsmith_pg_db() {
   local max_attempts=300
   local attempt=0
 
-  until su postgres -c "env PATH='$PATH' pg_isready -h 127.0.0.1"; do
+  local unix_socket_directory=$(get_unix_socket_directory "$POSTGRES_DB_PATH")
+  echo "Unix socket directory is $unix_socket_directory"
+  until su postgres -c "env PATH='$PATH' pg_isready -h $unix_socket_directory"; do
     if (( attempt >= max_attempts )); then
       echo "Postgres failed to start within 300 seconds."
       return 1
