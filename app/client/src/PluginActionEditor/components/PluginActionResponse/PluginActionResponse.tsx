@@ -12,6 +12,7 @@ import { usePluginActionContext } from "../../PluginActionContext";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import useShowSchema from "./hooks/useShowSchema";
 import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
+import { PluginType } from "entities/Action";
 
 function PluginActionResponse() {
   const dispatch = useDispatch();
@@ -55,7 +56,7 @@ function PluginActionResponse() {
   );
 
   useEffect(
-    function openSchemaTabWhenNoTabIsSelected() {
+    function openDefaultTabWhenNoTabIsSelected() {
       if (showSchema && !selectedTab) {
         dispatch(
           setPluginActionEditorDebuggerState({
@@ -63,9 +64,16 @@ function PluginActionResponse() {
             selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
           }),
         );
+      } else if (plugin.type === PluginType.API && !selectedTab) {
+        dispatch(
+          setPluginActionEditorDebuggerState({
+            open: true,
+            selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+          }),
+        );
       }
     },
-    [showSchema, selectedTab, dispatch],
+    [showSchema, selectedTab, dispatch, plugin.type],
   );
 
   const toggleHide = useCallback(
