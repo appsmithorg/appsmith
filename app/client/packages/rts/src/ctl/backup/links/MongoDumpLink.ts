@@ -1,29 +1,25 @@
-import type { Link } from "./index";
+import type { Link } from ".";
 import type { BackupState } from "../BackupState";
 import * as utils from "../../utils";
 
+/**
+ * Exports the MongoDB database data using mongodump.
+ */
 export class MongoDumpLink implements Link {
   constructor(private readonly state: BackupState) {}
 
   async doBackup() {
-    await exportDatabase(this.state.backupRootPath);
+    console.log("Exporting database");
+    await executeMongoDumpCMD(this.state.backupRootPath, utils.getDburl());
+    console.log("Exporting database done.");
   }
 }
 
-export async function executeMongoDumpCMD(
-  destFolder: string,
-  appsmithMongoURI: string,
-) {
+export async function executeMongoDumpCMD(destFolder: string, dbUrl: string) {
   return await utils.execCommand([
     "mongodump",
-    `--uri=${appsmithMongoURI}`,
+    `--uri=${dbUrl}`,
     `--archive=${destFolder}/mongodb-data.gz`,
     "--gzip",
-  ]); // generate cmd
-}
-
-async function exportDatabase(destFolder: string) {
-  console.log("Exporting database");
-  await executeMongoDumpCMD(destFolder, utils.getDburl());
-  console.log("Exporting database done.");
+  ]);
 }

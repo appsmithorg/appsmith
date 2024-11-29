@@ -1,11 +1,17 @@
-import type { Link } from "./index";
+import type { Link } from ".";
 import tty from "tty";
 import fsPromises from "fs/promises";
 import type { BackupState } from "../BackupState";
 import readlineSync from "readline-sync";
 import * as utils from "../../utils";
 
+/**
+ * Asks the user for a password, and then encrypts the backup archive using openssl, with that password. If a TTY is not
+ * available to ask for a password, then this feature is gracefully disabled, and encryption is not performed.
+ */
 export class EncryptionLink implements Link {
+  #password: string = "";
+
   constructor(private readonly state: BackupState) {}
 
   async preBackup() {
@@ -13,12 +19,14 @@ export class EncryptionLink implements Link {
       !this.state.args.includes("--non-interactive") &&
       tty.isatty((process.stdout as any).fd)
     ) {
-      this.state.encryptionPassword = getEncryptionPasswordFromUser();
+      this.#password = getEncryptionPasswordFromUser();
     }
+
+    this.state.isEncryptionEnabled = !!this.#password;
   }
 
   async postBackup() {
-    if (!this.state.isEncryptionEnabled()) {
+    if (!this.#password) {
       return;
     }
 
@@ -26,7 +34,7 @@ export class EncryptionLink implements Link {
 
     this.state.archivePath = await encryptBackupArchive(
       unencryptedArchivePath,
-      this.state.encryptionPassword,
+      this.#password,
     );
 
     await fsPromises.rm(unencryptedArchivePath, {

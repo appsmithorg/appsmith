@@ -1,14 +1,19 @@
-import type { Link } from "./index";
+import type { Link } from ".";
 import type { BackupState } from "../BackupState";
 import fsPromises from "fs/promises";
 
 const SECRETS_WARNING = `
-********************************************************* IMPORTANT!!! *************************************************************
-*** Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file **
-*** These values are not included in the backup export.                                                                           **
-************************************************************************************************************************************
+***************************** IMPORTANT!!! *****************************
+*** Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and    ***
+*** APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file. ***
+*** These values are not included in the backup export.              ***
+************************************************************************
 `;
 
+/**
+ * Exports the docker environment file to the backup folder. If encryption is not enabled, sensitive information is
+ * not written to the backup folder.
+ */
 export class EnvFileLink implements Link {
   constructor(private readonly state: BackupState) {}
 
@@ -20,7 +25,7 @@ export class EnvFileLink implements Link {
     );
     let cleanedContent = removeSensitiveEnvData(content);
 
-    if (this.state.isEncryptionEnabled()) {
+    if (this.state.isEncryptionEnabled) {
       cleanedContent +=
         "\nAPPSMITH_ENCRYPTION_SALT=" +
         process.env.APPSMITH_ENCRYPTION_SALT +
@@ -36,7 +41,7 @@ export class EnvFileLink implements Link {
   }
 
   async postBackup() {
-    if (!this.state.isEncryptionEnabled()) {
+    if (!this.state.isEncryptionEnabled) {
       console.log(SECRETS_WARNING);
     }
   }

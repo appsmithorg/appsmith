@@ -2,14 +2,9 @@ import type { Link } from ".";
 import * as Constants from "../../constants";
 import fsPromises from "fs/promises";
 
-export function checkAvailableBackupSpace(availSpaceInBytes: number) {
-  if (availSpaceInBytes < Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES) {
-    throw new Error(
-      "Not enough space available at /appsmith-stacks. Please ensure availability of at least 2GB to backup successfully.",
-    );
-  }
-}
-
+/**
+ * Checks if there is enough space available at the backup location.
+ */
 export class DiskSpaceLink implements Link {
   async preBackup() {
     const availSpaceInBytes: number =
@@ -25,4 +20,12 @@ export async function getAvailableBackupSpaceInBytes(
   const stat = await fsPromises.statfs(path);
 
   return stat.bsize * stat.bfree;
+}
+
+export function checkAvailableBackupSpace(availSpaceInBytes: number) {
+  if (availSpaceInBytes < Constants.MIN_REQUIRED_DISK_SPACE_IN_BYTES) {
+    throw new Error(
+      "Not enough space available at /appsmith-stacks. Please ensure availability of at least 2GB to backup successfully.",
+    );
+  }
 }
