@@ -2,16 +2,16 @@ import type { GitArtifactPayloadAction, GitBranches } from "../types";
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
 
 export const fetchBranchesInitAction = createSingleArtifactAction((state) => {
-  state.branches.loading = true;
-  state.branches.error = null;
+  state.apiResponses.branches.loading = true;
+  state.apiResponses.branches.error = null;
 
   return state;
 });
 
 export const fetchBranchesSuccessAction = createSingleArtifactAction(
   (state, action: GitArtifactPayloadAction<{ branches: GitBranches }>) => {
-    state.branches.loading = false;
-    state.branches.value = action.payload.branches;
+    state.apiResponses.branches.loading = false;
+    state.apiResponses.branches.value = action.payload.branches;
 
     return state;
   },
@@ -21,8 +21,8 @@ export const fetchBranchesErrorAction = createSingleArtifactAction(
   (state, action: GitArtifactPayloadAction<{ error: string }>) => {
     const { error } = action.payload;
 
-    state.branches.loading = false;
-    state.branches.error = error;
+    state.apiResponses.branches.loading = false;
+    state.apiResponses.branches.error = error;
 
     return state;
   },

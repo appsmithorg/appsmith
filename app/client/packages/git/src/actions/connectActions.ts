@@ -2,14 +2,14 @@ import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction
 import type { GitArtifactPayloadAction } from "../types";
 
 export const connectInitAction = createSingleArtifactAction((state) => {
-  state.connect.loading = true;
-  state.connect.error = null;
+  state.apiResponses.connect.loading = true;
+  state.apiResponses.connect.error = null;
 
   return state;
 });
 
 export const connectSuccessAction = createSingleArtifactAction((state) => {
-  state.connect.loading = false;
+  state.apiResponses.connect.loading = false;
 
   return state;
 });
@@ -18,8 +18,8 @@ export const connectErrorAction = createSingleArtifactAction(
   (state, action: GitArtifactPayloadAction<{ error: string }>) => {
     const { error } = action.payload;
 
-    state.connect.loading = false;
-    state.connect.error = error;
+    state.apiResponses.connect.loading = false;
+    state.apiResponses.connect.error = error;
 
     return state;
   },
