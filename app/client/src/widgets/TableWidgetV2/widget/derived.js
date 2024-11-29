@@ -281,6 +281,16 @@ export default {
       return [];
     }
 
+    const getTextFromHTML = (html) => {
+      if (!html) return "";
+
+      const div = document.createElement("div");
+
+      div.innerHTML = html;
+
+      return div.textContent || div.innerText || "";
+    };
+
     /* extend processedTableData with values from
      *  - computedValues, in case of normal column
      *  - empty values, in case of derived column
@@ -504,6 +514,15 @@ export default {
                     );
                   }
                 }
+              case "html":
+                return sortByOrder(
+                  getTextFromHTML(
+                    processedA[sortByColumnOriginalId],
+                  ).toLowerCase() >
+                    getTextFromHTML(
+                      processedB[sortByColumnOriginalId],
+                    ).toLowerCase(),
+                );
               default:
                 return sortByOrder(
                   processedA[sortByColumnOriginalId].toString().toLowerCase() >
@@ -699,6 +718,9 @@ export default {
       const columnWithDisplayText = Object.values(props.primaryColumns).filter(
         (column) => column.columnType === "url" && column.displayText,
       );
+      const columnWithHTML = Object.values(props.primaryColumns).filter(
+        (column) => column.columnType === "html",
+      );
 
       /*
        * For select columns with label and values, we need to include the label value
@@ -781,22 +803,31 @@ export default {
         });
       }
 
+      const HTMLValues = columnWithHTML.reduce((acc, column) => {
+        acc[column.alias] = getTextFromHTML(row[column.alias]);
+
+        return acc;
+      }, {});
+
+      const URLValues = columnWithDisplayText.reduce((acc, column) => {
+        let displayText;
+
+        if (_.isArray(column.displayText)) {
+          displayText = column.displayText[row.__originalIndex__];
+        } else {
+          displayText = column.displayText;
+        }
+
+        acc[column.alias] = displayText;
+
+        return acc;
+      }, {});
+
       const displayedRow = {
         ...row,
         ...labelValuesForSelectCell,
-        ...columnWithDisplayText.reduce((acc, column) => {
-          let displayText;
-
-          if (_.isArray(column.displayText)) {
-            displayText = column.displayText[row.__originalIndex__];
-          } else {
-            displayText = column.displayText;
-          }
-
-          acc[column.alias] = displayText;
-
-          return acc;
-        }, {}),
+        ...URLValues,
+        ...HTMLValues,
       };
 
       if (searchKey) {

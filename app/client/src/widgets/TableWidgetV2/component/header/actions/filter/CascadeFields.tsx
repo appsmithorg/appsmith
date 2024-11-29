@@ -16,7 +16,11 @@ import { RenderOptionWrapper } from "../../../TableStyledWrappers";
 //TODO(abhinav): Fix this cross import between widgets
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
-import { ColumnTypes, ReadOnlyColumnTypes } from "../../../../constants";
+import {
+  ColumnTypes,
+  FILTER_OPERATORS,
+  ReadOnlyColumnTypes,
+} from "../../../../constants";
 import { importRemixIcon } from "@appsmith/ads-old";
 
 const CloseIcon = importRemixIcon(
@@ -112,73 +116,65 @@ const AutoToolTipComponentWrapper = styled(AutoToolTipComponent)`
 
 const typeOperatorsMap: Record<ReadOnlyColumnTypes, DropdownOption[]> = {
   [ColumnTypes.TEXT]: [
-    { label: "contains", value: "contains", type: "input" },
-    { label: "does not contain", value: "doesNotContain", type: "input" },
-    { label: "starts with", value: "startsWith", type: "input" },
-    { label: "ends with", value: "endsWith", type: "input" },
-    { label: "is exactly", value: "isExactly", type: "input" },
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
+    FILTER_OPERATORS.CONTAINS,
+    FILTER_OPERATORS.DOES_NOT_CONTAIN,
+    FILTER_OPERATORS.STARTS_WITH,
+    FILTER_OPERATORS.ENDS_WITH,
+    FILTER_OPERATORS.IS_EXACTLY,
+    FILTER_OPERATORS.EMPTY,
+    FILTER_OPERATORS.NOT_EMPTY,
   ],
   [ColumnTypes.URL]: [
-    { label: "contains", value: "contains", type: "input" },
-    { label: "does not contain", value: "doesNotContain", type: "input" },
-    { label: "starts with", value: "startsWith", type: "input" },
-    { label: "ends with", value: "endsWith", type: "input" },
-    { label: "is exactly", value: "isExactly", type: "input" },
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
+    FILTER_OPERATORS.CONTAINS,
+    FILTER_OPERATORS.DOES_NOT_CONTAIN,
+    FILTER_OPERATORS.STARTS_WITH,
+    FILTER_OPERATORS.ENDS_WITH,
+    FILTER_OPERATORS.IS_EXACTLY,
+    FILTER_OPERATORS.EMPTY,
+    FILTER_OPERATORS.NOT_EMPTY,
   ],
   [ColumnTypes.DATE]: [
-    { label: "is", value: "is", type: "date" },
-    { label: "is before", value: "isBefore", type: "date" },
-    { label: "is after", value: "isAfter", type: "date" },
-    { label: "is not", value: "isNot", type: "date" },
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
+    FILTER_OPERATORS.IS,
+    FILTER_OPERATORS.IS_BEFORE,
+    FILTER_OPERATORS.IS_AFTER,
+    FILTER_OPERATORS.IS_NOT,
+    FILTER_OPERATORS.EMPTY,
+    FILTER_OPERATORS.NOT_EMPTY,
   ],
-  [ColumnTypes.IMAGE]: [
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
-  ],
-  [ColumnTypes.VIDEO]: [
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
-  ],
+  [ColumnTypes.IMAGE]: [FILTER_OPERATORS.EMPTY, FILTER_OPERATORS.NOT_EMPTY],
+  [ColumnTypes.VIDEO]: [FILTER_OPERATORS.EMPTY, FILTER_OPERATORS.NOT_EMPTY],
   [ColumnTypes.NUMBER]: [
-    { label: "is equal to", value: "isEqualTo", type: "input" },
-    { label: "not equal to", value: "notEqualTo", type: "input" },
-    { label: "greater than", value: "greaterThan", type: "input" },
-    {
-      label: "greater than or equal to",
-      value: "greaterThanEqualTo",
-      type: "input",
-    },
-    { label: "less than", value: "lessThan", type: "input" },
-    {
-      label: "less than or equal to",
-      value: "lessThanEqualTo",
-      type: "input",
-    },
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
+    FILTER_OPERATORS.IS_EQUAL_TO,
+    FILTER_OPERATORS.NOT_EQUAL_TO,
+    FILTER_OPERATORS.GREATER_THAN,
+    FILTER_OPERATORS.GREATER_THAN_EQUAL_TO,
+    FILTER_OPERATORS.LESS_THAN,
+    FILTER_OPERATORS.LESS_THAN_EQUAL_TO,
+    FILTER_OPERATORS.EMPTY,
+    FILTER_OPERATORS.NOT_EMPTY,
   ],
   [ColumnTypes.CHECKBOX]: [
-    { label: "is checked", value: "isChecked", type: "" },
-    { label: "is unchecked", value: "isUnChecked", type: "" },
+    FILTER_OPERATORS.IS_CHECKED,
+    FILTER_OPERATORS.IS_UNCHECKED,
   ],
   [ColumnTypes.SWITCH]: [
-    { label: "is checked", value: "isChecked", type: "" },
-    { label: "is unchecked", value: "isUnChecked", type: "" },
+    FILTER_OPERATORS.IS_CHECKED,
+    FILTER_OPERATORS.IS_UNCHECKED,
   ],
   [ColumnTypes.SELECT]: [
-    { label: "contains", value: "contains", type: "input" },
-    { label: "does not contain", value: "doesNotContain", type: "input" },
-    { label: "starts with", value: "startsWith", type: "input" },
-    { label: "ends with", value: "endsWith", type: "input" },
-    { label: "is exactly", value: "isExactly", type: "input" },
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
+    FILTER_OPERATORS.CONTAINS,
+    FILTER_OPERATORS.DOES_NOT_CONTAIN,
+    FILTER_OPERATORS.STARTS_WITH,
+    FILTER_OPERATORS.ENDS_WITH,
+    FILTER_OPERATORS.IS_EXACTLY,
+    FILTER_OPERATORS.EMPTY,
+    FILTER_OPERATORS.NOT_EMPTY,
+  ],
+  [ColumnTypes.HTML]: [
+    FILTER_OPERATORS.CONTAINS,
+    FILTER_OPERATORS.DOES_NOT_CONTAIN,
+    FILTER_OPERATORS.EMPTY,
+    FILTER_OPERATORS.NOT_EMPTY,
   ],
 };
 
@@ -197,6 +193,7 @@ const columnTypeNameMap: Record<ReadOnlyColumnTypes, string> = {
   [ReadOnlyColumnTypes.CHECKBOX]: "Check",
   [ReadOnlyColumnTypes.SWITCH]: "Check",
   [ReadOnlyColumnTypes.SELECT]: "Text",
+  [ReadOnlyColumnTypes.HTML]: "HTML",
 };
 
 function RenderOption(props: { type: string; title: string; active: boolean }) {

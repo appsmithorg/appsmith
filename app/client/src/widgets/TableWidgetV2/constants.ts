@@ -159,6 +159,7 @@ export enum ReadOnlyColumnTypes {
   CHECKBOX = "checkbox",
   SWITCH = "switch",
   SELECT = "select",
+  HTML = "html",
 }
 
 export const ActionColumnTypes = [
@@ -176,6 +177,7 @@ export const FilterableColumnTypes = [
   ColumnTypes.SELECT,
   ColumnTypes.CHECKBOX,
   ColumnTypes.SWITCH,
+  ColumnTypes.HTML,
 ];
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";
@@ -243,3 +245,45 @@ export const ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING =
 
 export const CUSTOM_LOADING_STATE_ENABLED =
   FEATURE_FLAG["release_table_custom_loading_state_enabled"];
+
+export const FILTER_OPERATORS = {
+  CONTAINS: { label: "contains", value: "contains", type: "input" },
+  DOES_NOT_CONTAIN: {
+    label: "does not contain",
+    value: "doesNotContain",
+    type: "input",
+  },
+  STARTS_WITH: {
+    label: "starts with",
+    value: "startsWith",
+    type: "input",
+  },
+  ENDS_WITH: { label: "ends with", value: "endsWith", type: "input" },
+  EMPTY: { label: "empty", value: "empty", type: "" },
+  NOT_EMPTY: { label: "not empty", value: "notEmpty", type: "" },
+  IS_EXACTLY: { label: "is exactly", value: "isExactly", type: "input" },
+  IS_CHECKED: { label: "is checked", value: "isChecked", type: "" },
+  IS_UNCHECKED: { label: "is unchecked", value: "isUnChecked", type: "" },
+  IS: { label: "is", value: "is", type: "date" },
+  IS_BEFORE: { label: "is before", value: "isBefore", type: "date" },
+  IS_AFTER: { label: "is after", value: "isAfter", type: "date" },
+  IS_NOT: { label: "is not", value: "isNot", type: "date" },
+  IS_EQUAL_TO: { label: "is equal to", value: "isEqualTo", type: "input" },
+  NOT_EQUAL_TO: { label: "not equal to", value: "notEqualTo", type: "input" },
+  GREATER_THAN: {
+    label: "greater than",
+    value: "greaterThan",
+    type: "input",
+  },
+  GREATER_THAN_EQUAL_TO: {
+    label: "greater than or equal to",
+    value: "greaterThanEqualTo",
+    type: "input",
+  },
+  LESS_THAN: { label: "less than", value: "lessThan", type: "input" },
+  LESS_THAN_EQUAL_TO: {
+    label: "less than or equal to",
+    value: "lessThanEqualTo",
+    type: "input",
+  },
+};
