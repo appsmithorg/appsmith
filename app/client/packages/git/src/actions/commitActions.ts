@@ -1,5 +1,5 @@
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
-import type { GitArtifactPayloadAction } from "../types";
+import type { GitArtifactErrorPayloadAction } from "../types";
 
 export const commitInitAction = createSingleArtifactAction((state) => {
   state.apiResponses.commit.loading = true;
@@ -15,7 +15,7 @@ export const commitSuccessAction = createSingleArtifactAction((state) => {
 });
 
 export const commitErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ error: string }>) => {
+  (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
     state.apiResponses.commit.loading = false;

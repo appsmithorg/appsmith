@@ -1,4 +1,8 @@
-import type { GitArtifactPayloadAction, GitGlobalConfig } from "../types";
+import type {
+  GitArtifactPayloadAction,
+  GitArtifactErrorPayloadAction,
+  GitGlobalConfig,
+} from "../types";
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
 
 export const fetchGlobalConfigInitAction = createSingleArtifactAction(
@@ -23,7 +27,7 @@ export const fetchGlobalConfigSuccessAction = createSingleArtifactAction(
 );
 
 export const fetchGlobalConfigErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ error: string }>) => {
+  (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
     state.apiResponses.globalConfig.loading = false;

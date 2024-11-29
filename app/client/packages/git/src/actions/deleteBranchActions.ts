@@ -1,5 +1,5 @@
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
-import type { GitArtifactPayloadAction } from "../types";
+import type { GitArtifactErrorPayloadAction } from "../types";
 
 export const deleteBranchInitAction = createSingleArtifactAction((state) => {
   state.apiResponses.deleteBranch.loading = true;
@@ -15,7 +15,7 @@ export const deleteBranchSuccessAction = createSingleArtifactAction((state) => {
 });
 
 export const deleteBranchErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ error: string }>) => {
+  (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
     state.apiResponses.deleteBranch.loading = false;

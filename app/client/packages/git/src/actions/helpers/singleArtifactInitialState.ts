@@ -13,22 +13,22 @@ import type {
 const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   connectModal: {
     open: false,
-    step: GitConnectStep.provider,
+    step: GitConnectStep.Provider,
   },
   importModal: {
     open: false,
-    step: GitImportStep.provider,
+    step: GitImportStep.Provider,
   },
   branchList: {
     open: false,
   },
   opsModal: {
     open: false,
-    tab: GitOpsTab.deploy,
+    tab: GitOpsTab.Deploy,
   },
   settingsModal: {
     open: false,
-    tab: GitSettingsTab.general,
+    tab: GitSettingsTab.General,
   },
 };
 

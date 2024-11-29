@@ -1,5 +1,5 @@
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
-import type { GitArtifactPayloadAction } from "../types";
+import type { GitArtifactErrorPayloadAction } from "../types";
 
 export const updateGlobalConfigInitAction = createSingleArtifactAction(
   (state) => {
@@ -19,7 +19,7 @@ export const updateGlobalConfigSuccessAction = createSingleArtifactAction(
 );
 
 export const updateGlobalConfigErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ error: string }>) => {
+  (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
     state.apiResponses.updateGlobalConfig.loading = false;

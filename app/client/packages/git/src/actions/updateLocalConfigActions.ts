@@ -1,5 +1,5 @@
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
-import type { GitArtifactPayloadAction } from "../types";
+import type { GitArtifactErrorPayloadAction } from "../types";
 
 export const updateLocalConfigInitAction = createSingleArtifactAction(
   (state) => {
@@ -19,7 +19,7 @@ export const updateLocalConfigSuccessAction = createSingleArtifactAction(
 );
 
 export const updateLocalConfigErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ error: string }>) => {
+  (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
     state.apiResponses.updateLocalConfig.loading = false;

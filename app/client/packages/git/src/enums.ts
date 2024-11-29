@@ -1,27 +1,27 @@
 export enum GitArtifactType {
-  application = "application",
-  package = "package",
-  workflow = "workflow",
+  Application = "Application",
+  Package = "Package",
+  Workflow = "Workflow",
 }
 
 export enum GitConnectStep {
-  provider = "provider",
-  remote = "remote",
-  ssh = "ssh",
+  Provider = "Provider",
+  Remote = "Remote",
+  SSH = "SSH",
 }
 
 export enum GitImportStep {
-  provider = "provider",
+  Provider = "Provider",
   remote = "remote",
-  ssh = "ssh",
+  SSH = "SSH",
 }
 
 export enum GitOpsTab {
-  deploy = "deploy",
-  merge = "merge",
+  Deploy = "Deploy",
+  Merge = "Merge",
 }
 
 export enum GitSettingsTab {
-  general = "general",
-  branch = "branch",
+  General = "General",
+  Branch = "Branch",
 }

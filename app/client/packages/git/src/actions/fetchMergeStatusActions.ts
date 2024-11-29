@@ -1,4 +1,8 @@
-import type { GitArtifactPayloadAction, GitMergeStatus } from "../types";
+import type {
+  GitArtifactPayloadAction,
+  GitArtifactErrorPayloadAction,
+  GitMergeStatus,
+} from "../types";
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
 
 export const fetchMergeStatusInitAction = createSingleArtifactAction(
@@ -23,7 +27,7 @@ export const fetchMergeStatusSuccessAction = createSingleArtifactAction(
 );
 
 export const fetchMergeStatusErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ error: string }>) => {
+  (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
     state.apiResponses.mergeStatus.loading = false;

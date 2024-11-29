@@ -1,4 +1,8 @@
-import type { GitArtifactPayloadAction, GitProtectedBranches } from "../types";
+import type {
+  GitArtifactPayloadAction,
+  GitArtifactErrorPayloadAction,
+  GitProtectedBranches,
+} from "../types";
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
 
 export const fetchProtectedBranchesInitAction = createSingleArtifactAction(
@@ -26,7 +30,7 @@ export const fetchProtectedBranchesSuccessAction = createSingleArtifactAction(
 );
 
 export const fetchProtectedBranchesErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ error: string }>) => {
+  (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
     state.apiResponses.protectedBranches.loading = false;

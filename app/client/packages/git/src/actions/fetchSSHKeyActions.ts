@@ -1,4 +1,8 @@
-import type { GitArtifactPayloadAction, GitSSHKey } from "../types";
+import type {
+  GitArtifactPayloadAction,
+  GitArtifactErrorPayloadAction,
+  GitSSHKey,
+} from "../types";
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
 
 export const fetchSSHKeyInitAction = createSingleArtifactAction((state) => {
@@ -18,7 +22,7 @@ export const fetchSSHKeySuccessAction = createSingleArtifactAction(
 );
 
 export const fetchSSHKeyErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ error: string }>) => {
+  (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
     state.apiResponses.sshKey.loading = false;

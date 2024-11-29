@@ -1,5 +1,5 @@
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
-import type { GitArtifactPayloadAction } from "../types";
+import type { GitArtifactErrorPayloadAction } from "../types";
 
 export const discardInitAction = createSingleArtifactAction((state) => {
   state.apiResponses.discard.loading = true;
@@ -15,7 +15,7 @@ export const discardSuccessAction = createSingleArtifactAction((state) => {
 });
 
 export const discardErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ error: string }>) => {
+  (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
     state.apiResponses.discard.loading = false;

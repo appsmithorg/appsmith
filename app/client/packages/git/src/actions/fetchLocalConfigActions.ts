@@ -1,4 +1,8 @@
-import type { GitArtifactPayloadAction, GitLocalConfig } from "../types";
+import type {
+  GitArtifactPayloadAction,
+  GitArtifactErrorPayloadAction,
+  GitLocalConfig,
+} from "../types";
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
 
 export const fetchLocalConfigInitAction = createSingleArtifactAction(
@@ -23,7 +27,7 @@ export const fetchLocalConfigSuccessAction = createSingleArtifactAction(
 );
 
 export const fetchLocalConfigErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ error: string }>) => {
+  (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
     state.apiResponses.localConfig.loading = false;

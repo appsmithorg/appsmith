@@ -100,3 +100,7 @@ export interface GitArtifactBasePayload {
 
 export type GitArtifactPayloadAction<T = Record<string, unknown>> =
   PayloadAction<GitArtifactBasePayload & T>;
+
+export type GitArtifactErrorPayloadAction = GitArtifactPayloadAction<{
+  error: string;
+}>;

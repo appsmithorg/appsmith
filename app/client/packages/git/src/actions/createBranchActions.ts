@@ -1,5 +1,5 @@
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
-import type { GitArtifactPayloadAction } from "../types";
+import type { GitArtifactErrorPayloadAction } from "../types";
 
 export const createBranchInitAction = createSingleArtifactAction((state) => {
   state.apiResponses.createBranch.loading = true;
@@ -15,7 +15,7 @@ export const createBranchSuccessAction = createSingleArtifactAction((state) => {
 });
 
 export const createBranchErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ error: string }>) => {
+  (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
     state.apiResponses.createBranch.loading = false;
