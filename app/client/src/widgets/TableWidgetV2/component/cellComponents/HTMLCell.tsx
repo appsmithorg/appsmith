@@ -10,6 +10,7 @@ import {
 import { CellWrapper } from "../TableStyledWrappers";
 import LinkFilter from "widgets/TextWidget/component/filters/LinkFilter";
 import { countOccurrences } from "workers/Evaluation/helpers";
+import { CompactModeTypes } from "widgets/TableWidget/component/Constants";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 
@@ -21,18 +22,21 @@ const ContentWrapper = styled.div<{
   display: flex;
   align-items: center;
 
+  ${(props) => `
+    min-height: calc(${TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT].ROW_HEIGHT}px - ${TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT].VERTICAL_PADDING * 2}px);
+    `}
   ${(props) =>
     props.allowCellWrapping
       ? `
-        white-space: break-spaces;
-        word-break: break-word;
-        height: 100%;
+      white-space: break-spaces;
+      word-break: break-word;
+      height: 100%;
       `
       : `
-      overflow: hidden;
+      overflow: scroll;
       text-overflow: ellipsis;
       white-space: nowrap;
-      height: ${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px};
+      height: calc(${TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT].ROW_HEIGHT}px - ${TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT].VERTICAL_PADDING * 2}px);
       `}
 `;
 
