@@ -1,7 +1,15 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DATE_FORMAT_OPTIONS } from "../../constants";
 
+import { propertyPaneContentConfig as WdsInputWidgetPropertyPaneContentConfig } from "modules/ui-builder/ui/wds/WDSInputWidget/config/propertyPaneConfig/contentConfig";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
+
+const inputTypeSectionConfig = WdsInputWidgetPropertyPaneContentConfig.find(
+  (config) => config.sectionName === "Type",
+);
+
 export const propertyPaneContentConfig = [
+  inputTypeSectionConfig,
   {
     sectionName: "Data",
     children: [
@@ -180,4 +188,4 @@ export const propertyPaneContentConfig = [
       },
     ],
   },
-];
+] as PropertyPaneConfig[];
