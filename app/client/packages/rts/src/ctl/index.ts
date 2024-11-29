@@ -4,6 +4,7 @@ import process from "process";
 import { showHelp } from "./utils";
 import * as export_db from "./export_db";
 import * as import_db from "./import_db";
+import * as export_db_pg from "./export_db_pg";
 import * as backup from "./backup";
 import * as restore from "./restore";
 import * as check_replica_set from "./check_replica_set";
@@ -34,6 +35,10 @@ if (["export-db", "export_db", "ex"].includes(command)) {
   console.log("Exporting database");
   export_db.run();
   console.log("Export database done");
+} else if (["export_db_pg"].includes(command)) {
+  console.log("Exporting data dump for Postgres migration");
+  export_db_pg.run();
+  console.log("Exporting data dump for Postgres migration done");
 } else if (["import-db", "import_db", "im"].includes(command)) {
   console.log("Importing database");
   // Get Force option flag to run import DB immediately

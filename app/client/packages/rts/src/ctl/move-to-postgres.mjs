@@ -10,148 +10,73 @@ import { spawn } from "child_process";
 import { MongoClient } from "mongodb";
 import * as fs from "node:fs";
 
-let isBaselineMode = false;
+/**
+ * Exports MongoDB data to JSONL files.
+ *
+ * @param {string} mongoDbUrl - The URL of the MongoDB.
+ * @returns {Promise<void>} - A promise that resolves when the export is complete.
+ */
+async function exportMongoToJSONL(mongoDbUrl) {
+  const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
+  const MINIMUM_MONGO_CHANGESET = "add_empty_policyMap_for_null_entries";
+  const MONGO_MIGRATION_COLLECTION = "mongockChangeLog";
 
-// Don't use `localhost` here, it'll try to connect on IPv6, irrespective of whether you have it enabled or not.
-let mongoDbUrl;
+  const mongoClient = new MongoClient(mongoDbUrl);
+  mongoClient.on("error", console.error);
+  await mongoClient.connect();
+  const mongoDb = mongoClient.db();
 
-let mongoDumpFile = null;
-const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
+  // Make sure EXPORT_ROOT directory is empty
+  fs.rmSync(EXPORT_ROOT, { recursive: true, force: true });
+  fs.mkdirSync(EXPORT_ROOT, { recursive: true });
 
-// The minimum version of the MongoDB changeset that must be present in the mongockChangeLog collection to run this script.
-// This is to ensure we are migrating the data from the stable version of MongoDB.
-const MINIMUM_MONGO_CHANGESET = "add_empty_policyMap_for_null_entries";
-const MONGO_MIGRATION_COLLECTION = "mongockChangeLog";
+  const collectionNames = await mongoDb
+    .listCollections({}, { nameOnly: true })
+    .toArray();
+  const sortedCollectionNames = collectionNames
+    .map((collection) => collection.name)
+    .sort();
 
-for (let i = 2; i < process.argv.length; ++i) {
-  const arg = process.argv[i];
-  if (arg.startsWith("--mongodb-url=") && !mongoDbUrl) {
-    mongoDbUrl = extractValueFromArg(arg);
-  } else if (arg.startsWith("--mongodb-dump=") && !mongoDumpFile) {
-    mongoDumpFile = extractValueFromArg(arg);
-  } else if (arg === "--baseline") {
-    isBaselineMode = true;
-    console.warn(
-      "Running in baseline mode. If you're not an Appsmith team member, we sure hope you know what you're doing.",
+  // Verify that the MongoDB data has been migrated to a stable version
+  if (!(await isMongoDataMigratedToStableVersion(mongoDb))) {
+    console.error(
+      "MongoDB migration check failed: Try upgrading the Appsmith instance to the latest version before opting for data migration.",
     );
-  } else {
-    console.error("Unknown/unexpected argument: " + arg);
+    console.error(
+      `Could not find the valid migration execution entry for "${MINIMUM_MONGO_CHANGESET}" in the "${MONGO_MIGRATION_COLLECTION}" collection.`,
+    );
+    await mongoClient.close();
     process.exit(1);
   }
-}
 
-if (!mongoDbUrl && !mongoDumpFile) {
-  console.error("No source specified");
-  process.exit(1);
-}
+  for await (const collectionName of sortedCollectionNames) {
+    console.log("Collection:", collectionName);
+    let outFile = null;
+    for await (const doc of mongoDb.collection(collectionName).find()) {
+      if (isArchivedObject(doc)) {
+        continue;
+      }
+      transformFields(doc); // This now handles the _class to type transformation.
+      if (doc.policyMap == null) {
+        doc.policyMap = {};
+      }
 
-let mongoServer;
-if (mongoDumpFile) {
-  fs.mkdirSync("/tmp/db-tmp", { recursive: true });
+      if (outFile == null) {
+        // Don't create the file unless there's data to write.
+        outFile = fs.openSync(EXPORT_ROOT + "/" + collectionName + ".jsonl", "w");
+      }
 
-  mongoServer = spawn(
-    "mongod",
-    ["--bind_ip_all", "--dbpath", "/tmp/db-tmp", "--port", "27500"],
-    {
-      stdio: "inherit",
-    },
-  );
+      fs.writeSync(outFile, toJsonSortedKeys(doc) + "\n");
+    }
 
-  mongoDbUrl = "mongodb://localhost/tmp";
+    if (outFile != null) {
+      fs.closeSync(outFile);
+    }
+  }
 
-  // mongorestore 'mongodb://localhost/' --archive=mongodb-data.gz --gzip --nsFrom='appsmith.*' --nsTo='appsmith.*'
-  spawn("mongorestore", [
-    mongoDbUrl,
-    "--archive=" + mongoDumpFile,
-    "--gzip",
-    "--noIndexRestore",
-  ]);
-}
-
-const mongoClient = new MongoClient(mongoDbUrl);
-mongoClient.on("error", console.error);
-await mongoClient.connect();
-const mongoDb = mongoClient.db();
-
-// Make sure EXPORT_ROOT directory is empty
-fs.rmSync(EXPORT_ROOT, { recursive: true, force: true });
-fs.mkdirSync(EXPORT_ROOT, { recursive: true });
-
-const filters = {};
-
-if (isBaselineMode) {
-  filters.config = {
-    // Remove the "appsmith_registered" value, since this is baseline static data, and we want new instances to do register.
-    name: { $ne: "appsmith_registered" },
-  };
-  filters.plugin = {
-    // Remove saas plugins so they can be fetched from CS again, as usual.
-    packageName: { $ne: "saas-plugin" },
-  };
-}
-
-const collectionNames = await mongoDb
-  .listCollections({}, { nameOnly: true })
-  .toArray();
-const sortedCollectionNames = collectionNames
-  .map((collection) => collection.name)
-  .sort();
-
-// Verify that the MongoDB data has been migrated to a stable version i.e. v1.43 before we start migrating the data to Postgres.
-if (!(await isMongoDataMigratedToStableVersion(mongoDb))) {
-  console.error(
-    "MongoDB migration check failed: Try upgrading the Appsmith instance to latest before opting for data migration.",
-  );
-  console.error(
-    `Could not find the valid migration execution entry for "${MINIMUM_MONGO_CHANGESET}" in the "${MONGO_MIGRATION_COLLECTION}" collection.`,
-  );
   await mongoClient.close();
-  mongoServer?.kill();
-  process.exit(1);
-}
 
-for await (const collectionName of sortedCollectionNames) {
-  console.log("Collection:", collectionName);
-  if (isBaselineMode && collectionName.startsWith("mongock")) {
-    continue;
-  }
-  let outFile = null;
-  for await (const doc of mongoDb
-    .collection(collectionName)
-    .find(filters[collectionName])) {
-    // Skip archived objects as they are not migrated during the Mongock migration which may end up failing for the
-    // constraints in the Postgres DB.
-    if (isArchivedObject(doc)) {
-      continue;
-    }
-    transformFields(doc); // This now handles the _class to type transformation.
-    if (doc.policyMap == null) {
-      doc.policyMap = {};
-    }
-
-    if (outFile == null) {
-      // Don't create the file unless there's data to write.
-      outFile = fs.openSync(EXPORT_ROOT + "/" + collectionName + ".jsonl", "w");
-    }
-
-    fs.writeSync(outFile, toJsonSortedKeys(doc) + "\n");
-  }
-
-  if (outFile != null) {
-    fs.closeSync(outFile);
-  }
-}
-
-await mongoClient.close();
-mongoServer?.kill();
-
-console.log("done");
-
-// TODO(Shri): We shouldn't need this.
-process.exit(0);
-
-function extractValueFromArg(arg) {
-  return arg.replace(/^.*?=/, "");
+  console.log("done");
 }
 
 function isArchivedObject(doc) {
@@ -159,31 +84,20 @@ function isArchivedObject(doc) {
 }
 
 function toJsonSortedKeys(obj) {
-  // We want the keys sorted in the serialized JSON string, so that everytime we run this script, we don't see diffs
-  // that are just keys being reshuffled, which we don't care about, and don't need a diff for.
   return JSON.stringify(obj, replacer);
 }
 
 function replacer(key, value) {
-  // Ref: https://gist.github.com/davidfurlong/463a83a33b70a3b6618e97ec9679e490
   return value instanceof Object && !Array.isArray(value)
     ? Object.keys(value)
-        .sort()
-        .reduce((sorted, key) => {
-          sorted[key] = value[key];
-          return sorted;
-        }, {})
+      .sort()
+      .reduce((sorted, key) => {
+        sorted[key] = value[key];
+        return sorted;
+      }, {})
     : value;
 }
 
-/**
- * Method to transform the data in the object to be compatible with Postgres.
- * Updates:
- * 1. Changes the _id field to id, and removes the _id field.
- * 2. Replaces the _class field with the appropriate type field.
- * @param {Document} obj - The object to transform.
- * @returns {void} - No return value.
- */
 function transformFields(obj) {
   for (const key in obj) {
     if (key === "_id") {
@@ -192,20 +106,15 @@ function transformFields(obj) {
     } else if (key === "_class") {
       const type = mapClassToType(obj._class);
       if (type) {
-        obj.type = type; // Add the type field
+        obj.type = type;
       }
-      delete obj._class; // Remove the _class field
+      delete obj._class;
     } else if (typeof obj[key] === "object" && obj[key] !== null) {
       transformFields(obj[key]);
     }
   }
 }
 
-/**
- * Map the _class field to the appropriate type value. The DatasourceStorage class requires this check
- * @param {string} _class - The _class field value.
- * @returns {string|null} - The corresponding type value, or null if no match is found.
- */
 function mapClassToType(_class) {
   switch (_class) {
     case "com.appsmith.external.models.DatasourceStructure$PrimaryKey":
@@ -217,15 +126,11 @@ function mapClassToType(_class) {
   }
 }
 
-/**
- * Method to check if MongoDB data has migrated to a stable version before we start migrating the data to Postgres.
- * @param {*} mongoDb - The MongoDB client.
- * @returns {Promise<boolean>} - A promise that resolves to true if the data has been migrated to a stable version, false otherwise.
- */
 async function isMongoDataMigratedToStableVersion(mongoDb) {
   const doc = await mongoDb.collection(MONGO_MIGRATION_COLLECTION).findOne({
-    changeId: MINIMUM_MONGO_CHANGESET,
+    changeId: "add_empty_policyMap_for_null_entries",
     state: "EXECUTED",
   });
   return doc !== null;
 }
+
