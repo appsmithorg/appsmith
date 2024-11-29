@@ -253,9 +253,6 @@ const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
   height: calc(100vh - ${(props) => 48 + (props.isBannerVisible ? 48 : 0)}px);
   display: flex;
   flex-direction: column;
-  button {
-    height: 34px !important;
-  }
 `;
 
 // Tags for some reason take all available space.
@@ -318,6 +315,7 @@ export function LeftPaneSection(props: {
             <Button
               data-testid="t--workspace-new-workspace-auto-create"
               isDisabled={props.isFetchingWorkspaces}
+              isIconButton
               kind="tertiary"
               onClick={createNewWorkspace}
               startIcon="add-line"

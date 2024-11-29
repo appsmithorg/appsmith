@@ -1,5 +1,6 @@
 package com.external.plugins.services.features;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -37,7 +38,8 @@ class TextEntityExtractionServiceImplTest {
                         Map.of(DATA, "Some instructions")));
         actionConfiguration.setFormData(formData);
 
-        Query query = textEntityExtractionService.createQuery(actionConfiguration, datasourceConfiguration);
+        Query query = textEntityExtractionService.createQuery(
+                actionConfiguration, datasourceConfiguration, new ExecuteActionDTO());
 
         assertNotNull(query);
         assertEquals("Some text", query.getInput());
@@ -57,7 +59,8 @@ class TextEntityExtractionServiceImplTest {
 
         AppsmithPluginException exception = assertThrows(
                 AppsmithPluginException.class,
-                () -> textEntityExtractionService.createQuery(actionConfiguration, datasourceConfiguration));
+                () -> textEntityExtractionService.createQuery(
+                        actionConfiguration, datasourceConfiguration, new ExecuteActionDTO()));
 
         assertEquals("input is not provided", exception.getMessage());
     }

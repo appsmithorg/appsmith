@@ -27,8 +27,8 @@
       return result;
     }
 
-    const smartLookId = parseConfig("__APPSMITH_SMART_LOOK_ID__");
-    const sentryDSN = parseConfig("__APPSMITH_SENTRY_DSN__");
+    const smartLookId = parseConfig('{{env "APPSMITH_SMART_LOOK_ID"}}');
+    const sentryDSN = parseConfig('{{env "APPSMITH_SENTRY_DSN"}}');
   </script>
   <script type='text/javascript'>
     if(smartLookId) {

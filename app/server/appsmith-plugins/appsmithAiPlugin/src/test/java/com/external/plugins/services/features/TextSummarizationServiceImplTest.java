@@ -1,5 +1,6 @@
 package com.external.plugins.services.features;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -30,7 +31,8 @@ class TextSummarizationServiceImplTest {
                 Map.of(INPUT, Map.of(DATA, "Some text"), INSTRUCTIONS, Map.of(DATA, "Some instructions")));
         actionConfiguration.setFormData(formData);
 
-        Query query = textSummarizationService.createQuery(actionConfiguration, datasourceConfiguration);
+        Query query = textSummarizationService.createQuery(
+                actionConfiguration, datasourceConfiguration, new ExecuteActionDTO());
 
         assertNotNull(query);
         assertEquals("Some text", query.getInput());
@@ -49,7 +51,8 @@ class TextSummarizationServiceImplTest {
 
         AppsmithPluginException exception = assertThrows(
                 AppsmithPluginException.class,
-                () -> textSummarizationService.createQuery(actionConfiguration, datasourceConfiguration));
+                () -> textSummarizationService.createQuery(
+                        actionConfiguration, datasourceConfiguration, new ExecuteActionDTO()));
 
         assertEquals("input is not provided", exception.getMessage());
     }
@@ -66,7 +69,8 @@ class TextSummarizationServiceImplTest {
 
         AppsmithPluginException exception = assertThrows(
                 AppsmithPluginException.class,
-                () -> textSummarizationService.createQuery(actionConfiguration, datasourceConfiguration));
+                () -> textSummarizationService.createQuery(
+                        actionConfiguration, datasourceConfiguration, new ExecuteActionDTO()));
 
         assertEquals("input is not provided", exception.getMessage());
     }

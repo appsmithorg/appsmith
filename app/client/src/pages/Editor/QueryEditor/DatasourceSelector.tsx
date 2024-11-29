@@ -21,6 +21,10 @@ import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors"
 const DropdownSelect = styled.div`
   font-size: 14px;
   width: 230px;
+
+  .rc-select-selector {
+    min-width: unset;
+  }
 `;
 
 const CreateDatasource = styled.div`

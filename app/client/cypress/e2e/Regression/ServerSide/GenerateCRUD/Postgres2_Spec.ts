@@ -61,7 +61,7 @@ describe(
       agHelper.FocusElement(locators._codeMirrorTextArea);
       //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
-      dataSources.RunQueryNVerifyResponseViews();
+      dataSources.runQueryAndVerifyResponseViews();
     });
 
     it("2. Validate Select record from Postgress datasource & verify query response", () => {
@@ -70,7 +70,7 @@ describe(
         "public.vessels",
         "Select",
       );
-      dataSources.RunQueryNVerifyResponseViews(10);
+      dataSources.runQueryAndVerifyResponseViews({ count: 10 });
       dataSources.AssertQueryTableResponse(0, "371681");
       dataSources.AssertQueryTableResponse(6, "Passenger");
       agHelper.ActionContextMenuWithInPane({
@@ -617,7 +617,7 @@ describe(
       dataSources.CreateQueryForDS(dsName, deleteTblQuery, "DropVessels");
       agHelper.FocusElement(locators._codeMirrorTextArea);
 
-      dataSources.RunQueryNVerifyResponseViews();
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertTableInVirtuosoList(dsName, "public.vessels", false);
     });
 

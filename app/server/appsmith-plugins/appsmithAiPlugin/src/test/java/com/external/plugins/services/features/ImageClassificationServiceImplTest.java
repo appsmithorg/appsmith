@@ -1,5 +1,6 @@
 package com.external.plugins.services.features;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -36,7 +37,8 @@ class ImageClassificationServiceImplTest {
                         INSTRUCTIONS, Map.of(DATA, "Some instructions")));
         actionConfiguration.setFormData(formData);
 
-        Query query = imageClassificationService.createQuery(actionConfiguration, datasourceConfiguration);
+        Query query = imageClassificationService.createQuery(
+                actionConfiguration, datasourceConfiguration, new ExecuteActionDTO());
 
         assertNotNull(query);
         assertEquals("Some image data", query.getInput());
@@ -56,7 +58,8 @@ class ImageClassificationServiceImplTest {
 
         AppsmithPluginException exception = assertThrows(
                 AppsmithPluginException.class,
-                () -> imageClassificationService.createQuery(actionConfiguration, datasourceConfiguration));
+                () -> imageClassificationService.createQuery(
+                        actionConfiguration, datasourceConfiguration, new ExecuteActionDTO()));
 
         assertEquals("input is not provided", exception.getMessage());
     }

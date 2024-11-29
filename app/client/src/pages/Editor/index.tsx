@@ -50,7 +50,8 @@ import { PartialExportModal } from "components/editorComponents/PartialImportExp
 import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
 import type { Page } from "entities/Page";
 import { AppCURLImportModal } from "ee/pages/Editor/CurlImport";
-import { IDE_HEADER_HEIGHT } from "IDE";
+import { IDE_HEADER_HEIGHT } from "@appsmith/ads";
+import GeneratePageModal from "./GeneratePage";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -210,6 +211,7 @@ class Editor extends Component<Props> {
             <PartialExportModal />
             <PartialImportModal />
             <AppCURLImportModal />
+            <GeneratePageModal />
           </GlobalHotKeys>
         </div>
         <RequestConfirmationModal />

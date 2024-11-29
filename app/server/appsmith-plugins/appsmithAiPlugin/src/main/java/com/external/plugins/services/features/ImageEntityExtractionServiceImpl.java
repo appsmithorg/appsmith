@@ -1,5 +1,6 @@
 package com.external.plugins.services.features;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -20,7 +21,10 @@ import static com.external.plugins.utils.FieldValidationHelper.validateTextInput
 
 public class ImageEntityExtractionServiceImpl implements AiFeatureService {
     @Override
-    public Query createQuery(ActionConfiguration actionConfiguration, DatasourceConfiguration datasourceConfiguration) {
+    public Query createQuery(
+            ActionConfiguration actionConfiguration,
+            DatasourceConfiguration datasourceConfiguration,
+            ExecuteActionDTO executeActionDTO) {
         Map<String, Object> formData = actionConfiguration.getFormData();
         validateTextInputAndProperties(formData, IMAGE_ENTITY_EXTRACTION, List.of(LABELS));
         String input = PluginUtils.getDataValueSafelyFromFormData(formData, IMAGE_ENTITY_INPUT, STRING_TYPE);
