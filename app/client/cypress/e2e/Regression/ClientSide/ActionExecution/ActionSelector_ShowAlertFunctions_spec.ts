@@ -47,10 +47,21 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", "{{JSObject1.myFun1()}}", true, false);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickButton("Submit");
       agHelper.AssertElementVisibility(locators._toastMsg);
 
@@ -92,10 +103,21 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", "{{JSObject2.myFun1()}}", true, false);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickButton("Submit");
       agHelper.AssertElementVisibility(locators._toastMsg);
 
@@ -148,10 +170,21 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", "{{JSObject3.myFun1()}}", true, false);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickButton("Submit");
       agHelper.ValidateToastMessage("Info Message", 0, 2);
       agHelper
@@ -212,10 +245,21 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", "{{JSObject4.myFun1()}}", true, false);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickButton("Submit");
       agHelper.ValidateToastMessage("Success Message", 0, 2);
       agHelper
@@ -276,10 +320,21 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", "{{JSObject5.myFun1()}}", true, false);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickButton("Submit");
       agHelper.ValidateToastMessage("Warning Message", 0, 2);
       agHelper
@@ -340,10 +395,21 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", "{{JSObject6.myFun1()}}", true, false);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickButton("Submit");
       agHelper.ValidateToastMessage("Error Message", 0, 2);
       agHelper

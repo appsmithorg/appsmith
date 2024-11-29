@@ -40,11 +40,22 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
       apiPage.ToggleOnPageLoadRunJsObject(true);
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", "{{JSObject1.myFun1()}}", true, false);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.RefreshPage();
       agHelper.AssertElementVisibility(locators._modalWrapper);
       agHelper.AssertText(locators._modalButtonText, "text", "Confirm", 2);
@@ -93,10 +104,21 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", "{{JSObject2.myFun1()}}", true, false);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickButton("Submit");
       agHelper.ValidateToastMessage("Modal2 is not defined", 0, 1);
 
@@ -140,13 +162,24 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.EnterJSContext("onClick", `{{showModal(Modal1.name);}}`, true);
       PageLeftPane.expandCollapseItem("Modal1");
       EditorNavigation.SelectEntityByName("IconButton1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext("onClick", `{{JSObject3.myFun1()}}`, true);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.RefreshPage();
       agHelper.ClickButton("Submit");
       agHelper.GetNClick(locators._modalButtonText, 0, true, 0);

@@ -70,12 +70,16 @@ describe(
     //   );
     // });
 
-
     it.only("1. Verify that JSON data can be copied to the clipboard and recognized properly.", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.EnterJSContext("onClick", "{{copyToClipboard({ name: 'John', age: 30 })}}", true, false);
+      propPane.EnterJSContext(
+        "onClick",
+        "{{copyToClipboard({ name: 'John', age: 30 })}}",
+        true,
+        false,
+      );
       propPane.ToggleJSMode("onClick", false);
-    
+
       agHelper.GetNClick(propPane._actionCard, 0);
       propPane.EnterJSContext(
         "onClick",
@@ -93,7 +97,10 @@ describe(
       );
       agHelper.GetNClick(propPane._actionCard, 0);
 
-      agHelper.ValidateCodeEditorContent(propPane._textView, '{"name":"John","age":30}');
+      agHelper.ValidateCodeEditorContent(
+        propPane._textView,
+        '{"name":"John","age":30}',
+      );
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("Text to be copied to clipboard"),
         '{"name":"John","age":30}',
@@ -113,54 +120,47 @@ describe(
       deployMode.NavigateBacktoEditor();
 
       // JSObject verification
-    const jsObjectBody = `export default {
+      const jsObjectBody = `export default {
       myFun1() {
         copyToClipboard({ name: 'John', age: 30 });
       },
     };`;
 
-    jsEditor.CreateJSObject(jsObjectBody, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      prettify: false,
-      shouldCreateNewJSObj: true,
-    });
-    agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
-      cy.wrap(jsObjectName).as("jsObjectName");
+      jsEditor.CreateJSObject(jsObjectBody, {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        prettify: false,
+        shouldCreateNewJSObj: true,
+      });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
+
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.ToggleJSMode("onClick", true);
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.myFun1()}}`,
+          true,
+          false,
+        );
+      });
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Copied to clipboard");
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Copied to clipboard");
+      deployMode.NavigateBacktoEditor();
     });
 
-    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-    propPane.ToggleJSMode("onClick", true);
-    cy.get("@jsObjectName").then((jsObjectName: string) => {
-      propPane.EnterJSContext(
-        "onClick",
-        `{{${jsObjectName}.myFun1()}}`,
-        true,
-        false,
-      );
-    });
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage("Copied to clipboard");
-    deployMode.DeployApp();
-    agHelper.AssertElementVisibility(appSettings.locators._header);
-    agHelper.ClickButton("Submit");
-    agHelper.ValidateToastMessage("Copied to clipboard");
-    deployMode.NavigateBacktoEditor();
-    });
+    it("2. Verify that enabling the debug parameter logs the clipboard operation in the console.", () => {});
 
-    it("2. Verify that enabling the debug parameter logs the clipboard operation in the console.", () => {
-      
-    });
+    it("3. Verify behavior when attempting to copy an empty string to the clipboard. The clipboard should remain empty, and no error should be triggered.", () => {});
 
-    it("3. Verify behavior when attempting to copy an empty string to the clipboard. The clipboard should remain empty, and no error should be triggered.", () => {
-      
-    });
-
-    it("4. Verify that copied data persists in the clipboard after a page reload. The copied data should still be in the clipboard after the page reload.", () => {
-      
-    });
-
+    it("4. Verify that copied data persists in the clipboard after a page reload. The copied data should still be in the clipboard after the page reload.", () => {});
 
     // // Open github bug is there: https://github.com/appsmithorg/appsmith/issues/37720
     // it("2. To verify the behavior of the download() function when no file extension is provided in the fileName. The download should fail, or the file should be unusable due to the lack of an extension.", () => {
@@ -195,7 +195,7 @@ describe(
     //   // JSobject verification
     //   const jsObjectBody = `export default {
     //       myFun1 () {
-    //         {{ 
+    //         {{
     //           download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881', 'flower_2_1', '')
     //             .then(() => {
     //           const filePath = 'cypress/downloads/flower_2_1';
@@ -361,7 +361,7 @@ describe(
     //   // JSobject verification
     //   const jsObjectBody = `export default {
     //       myFun1() {
-    //         {{ 
+    //         {{
     //           download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower_4_1', 'text/plain')
     //             .then(() => {
     //               const filePath = 'cypress/downloads/flower_4_1';
@@ -604,7 +604,7 @@ describe(
     //   // JSobject verification
     //   const jsObjectBody = `export default {
     //       myFun1 () {
-    //         {{ 
+    //         {{
     //           download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower_7_1.png', 'image/jpeg')
     //             .then(() => {
     //               const filePath = 'cypress/downloads/flower_7_1.png';
