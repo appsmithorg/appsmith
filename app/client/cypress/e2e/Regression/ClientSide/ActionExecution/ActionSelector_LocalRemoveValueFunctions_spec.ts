@@ -73,25 +73,34 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext(
-        "onClick",
-        "{{JSObject1.storeValue()}}",
-        true,
-        false,
-      );
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.storeValue()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickOutside();
 
       EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext(
-        "onClick",
-        "{{JSObject1.removeValue()}}",
-        true,
-        false,
-      );
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.removeValue()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickOutside();
       agHelper.RefreshPage();
       agHelper.ClickButton("Submit", 0);
@@ -148,15 +157,21 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext(
-        "onClick",
-        "{{JSObject2.removeNonExistentValue()}}",
-        true,
-        false,
-      );
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.removeNonExistentValue()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickOutside();
       agHelper.RefreshPage();
       agHelper.ClickButton("Submit");
@@ -211,15 +226,21 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext(
-        "onClick",
-        "{{JSObject3.removeInvalidKey()}}",
-        true,
-        false,
-      );
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.removeInvalidKey()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickOutside();
       agHelper.RefreshPage();
       agHelper.ClickButton("Submit");
@@ -326,35 +347,47 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext(
-        "onClick",
-        "{{JSObject4.storeValues()}}",
-        true,
-        false,
-      );
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.storeValues()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickOutside();
 
       EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext(
-        "onClick",
-        "{{JSObject4.removeValue1()}}",
-        true,
-        false,
-      );
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.removeValue1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickOutside();
 
       EditorNavigation.SelectEntityByName("Button3", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext(
-        "onClick",
-        "{{JSObject4.removeValue2()}}",
-        true,
-        false,
-      );
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.removeValue2()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickOutside();
 
       agHelper.RefreshPage();
@@ -476,24 +509,34 @@ describe(
         shouldCreateNewJSObj: true,
       });
 
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
+
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext(
-        "onClick",
-        "{{JSObject5.storeValues()}}",
-        true,
-        false,
-      );
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.storeValues()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickOutside();
 
       EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext(
-        "onClick",
-        "{{JSObject5.removeValue1()}}",
-        true,
-        false,
-      );
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.removeValue1()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickOutside();
 
       agHelper.RefreshPage();
@@ -578,25 +621,34 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
+        cy.wrap(jsObjectName).as("jsObjectName");
+      });
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext(
-        "onClick",
-        "{{JSObject6.storeTempValue()}}",
-        true,
-        false,
-      );
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.storeTempValue()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickOutside();
 
       EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
-      propPane.EnterJSContext(
-        "onClick",
-        "{{JSObject6.removeTempValue()}}",
-        true,
-        false,
-      );
+      cy.get("@jsObjectName").then((jsObjectName: string) => {
+        console.log("Mera variable: ", jsObjectName);
+        propPane.EnterJSContext(
+          "onClick",
+          `{{${jsObjectName}.removeTempValue()}}`,
+          true,
+          false,
+        );
+      });
       agHelper.ClickOutside();
 
       agHelper.RefreshPage();
