@@ -2,65 +2,38 @@ import React, { useMemo } from "react";
 import Interweave from "interweave";
 import { UrlMatcher, EmailMatcher } from "interweave-autolink";
 import styled from "styled-components";
-import type { BaseCellComponentProps } from "../Constants";
+import {
+  TABLE_SIZES,
+  type BaseCellComponentProps,
+  type CompactMode,
+} from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import LinkFilter from "widgets/TextWidget/component/filters/LinkFilter";
 import { countOccurrences } from "workers/Evaluation/helpers";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 
-const HTMLContent = styled.div`
-  height: 100%;
+const ContentWrapper = styled.div<{
+  allowCellWrapping?: boolean;
+  compactMode: CompactMode;
+}>`
   width: 100%;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
 
-  ul {
-    list-style-type: disc;
-    list-style-position: inside;
-  }
-
-  ol {
-    list-style-type: decimal;
-    list-style-position: inside;
-  }
-
-  h1 {
-    font-size: 2em;
-    margin: 0.67em 0;
-  }
-  h2 {
-    font-size: 1.5em;
-    margin: 0.75em 0;
-  }
-  h3 {
-    font-size: 1.17em;
-    margin: 0.83em 0;
-  }
-  h5 {
-    font-size: 0.83em;
-    margin: 1.5em 0;
-  }
-  h6 {
-    font-size: 0.75em;
-    margin: 1.67em 0;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-weight: bold;
-  }
-
-  a {
-    color: #106ba3;
-    text-decoration: none;
-    &:hover {
-      text-decoration: underline;
-    }
-  }
+  ${(props) =>
+    props.allowCellWrapping
+      ? `
+        white-space: break-spaces;
+        word-break: break-word;
+        height: 100%;
+      `
+      : `
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      height: ${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px};
+      `}
 `;
 
 export interface HTMLCellProps extends BaseCellComponentProps {
@@ -119,7 +92,10 @@ export function HTMLCell(props: HTMLCellProps) {
       textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
-      <HTMLContent>
+      <ContentWrapper
+        allowCellWrapping={allowCellWrapping}
+        compactMode={compactMode}
+      >
         <Interweave
           content={inteweaveCompatibleValue}
           filters={[new LinkFilter()]}
@@ -130,7 +106,7 @@ export function HTMLCell(props: HTMLCellProps) {
           }
           newWindow
         />
-      </HTMLContent>
+      </ContentWrapper>
     </CellWrapper>
   );
 }
