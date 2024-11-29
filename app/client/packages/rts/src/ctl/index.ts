@@ -51,7 +51,7 @@ if (["export-db", "export_db", "ex"].includes(command)) {
 ) {
   check_replica_set.exec();
 } else if (["backup"].includes(command)) {
-  backup.run();
+  backup.run(process.argv.slice(3));
 } else if (["restore"].includes(command)) {
   restore.run();
 } else if (

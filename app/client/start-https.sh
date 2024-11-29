@@ -86,6 +86,14 @@ if [[ ${backend-} == release ]]; then
   backend=https://release.app.appsmith.com
 fi
 
+if [[ ${backend-} == *.appsmith.com ]]; then
+  # If running client against release, we get the release's version and set it up, so we don't see version mismatches.
+  APPSMITH_VERSION_ID="$(
+    curl -sS "$backend/info" | grep -Eo '"version": ".+?"' | cut -d\" -f4
+  )"
+  export APPSMITH_VERSION_ID
+fi
+
 if [[ -z ${run_as-} ]]; then
     if type nginx; then
         run_as=nginx

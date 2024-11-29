@@ -1,64 +1,50 @@
 import fsPromises from "fs/promises";
 import path from "path";
 import os from "os";
-import * as utils from "./utils";
-import * as Constants from "./constants";
-import * as logger from "./logger";
-import * as mailer from "./mailer";
-import tty from "tty";
+import * as utils from "../utils";
+import * as Constants from "../constants";
+import * as logger from "../logger";
+import * as mailer from "../mailer";
 import readlineSync from "readline-sync";
+import { DiskSpaceLink } from "./links/DiskSpaceLink";
+import type { Link } from "./links";
+import { EncryptionLink, ManifestLink } from "./links";
+import { BackupState } from "./BackupState";
 
-const command_args = process.argv.slice(3);
-
-class BackupState {
-  readonly initAt: string = getTimeStampInISO();
-  readonly errors: string[] = [];
-
-  backupRootPath: string = "";
-  archivePath: string = "";
-
-  encryptionPassword: string = "";
-
-  isEncryptionEnabled() {
-    return !!this.encryptionPassword;
-  }
-}
-
-export async function run() {
+export async function run(args: string[]) {
   await utils.ensureSupervisorIsRunning();
 
-  const state: BackupState = new BackupState();
+  const state: BackupState = new BackupState(args);
+
+  const chain: Link[] = [
+    new DiskSpaceLink(),
+    new ManifestLink(state),
+    new EncryptionLink(state),
+  ];
 
   try {
     // PRE-BACKUP
-    const availSpaceInBytes: number =
-      await getAvailableBackupSpaceInBytes("/appsmith-stacks");
-
-    checkAvailableBackupSpace(availSpaceInBytes);
-
-    if (
-      !command_args.includes("--non-interactive") &&
-      tty.isatty((process.stdout as any).fd)
-    ) {
-      state.encryptionPassword = getEncryptionPasswordFromUser();
+    for (const link of chain) {
+      await link.preBackup?.();
     }
 
-    state.backupRootPath = await generateBackupRootPath();
-    const backupContentsPath: string = getBackupContentsPath(
-      state.backupRootPath,
-      state.initAt,
+    // BACKUP
+    state.backupRootPath = await fsPromises.mkdtemp(
+      path.join(os.tmpdir(), "appsmithctl-backup-"),
     );
 
-    // BACKUP
-    await fsPromises.mkdir(backupContentsPath);
+    await exportDatabase(state.backupRootPath);
 
-    await exportDatabase(backupContentsPath);
+    await createGitStorageArchive(state.backupRootPath);
 
-    await createGitStorageArchive(backupContentsPath);
+    await exportDockerEnvFile(
+      state.backupRootPath,
+      state.isEncryptionEnabled(),
+    );
 
-    await createManifestFile(backupContentsPath);
-
-    await exportDockerEnvFile(backupContentsPath, state.isEncryptionEnabled());
+    for (const link of chain) {
+      await link.doBackup?.();
+    }
 
     state.archivePath = await createFinalArchive(
       state.backupRootPath,
@@ -66,27 +52,13 @@ export async function run() {
     );
 
     // POST-BACKUP
-    if (state.isEncryptionEnabled()) {
-      const encryptedArchivePath = await encryptBackupArchive(
-        state.archivePath,
-        state.encryptionPassword,
-      );
+    for (const link of chain) {
+      await link.postBackup?.();
+    }
 
-      await logger.backup_info(
-        "Finished creating an encrypted a backup archive at " +
-          encryptedArchivePath,
-      );
+    console.log("Post-backup done. Final archive at", state.archivePath);
 
-      if (state.archivePath != null) {
-        await fsPromises.rm(state.archivePath, {
-          recursive: true,
-          force: true,
-        });
-      }
-    } else {
-      await logger.backup_info(
-        "Finished creating a backup archive at " + state.archivePath,
-      );
+    if (!state.isEncryptionEnabled()) {
       console.log(
         "********************************************************* IMPORTANT!!! *************************************************************",
       );
@@ -110,7 +82,7 @@ export async function run() {
     process.exitCode = 1;
     await logger.backup_error(err.stack);
 
-    if (command_args.includes("--error-mail")) {
+    if (state.args.includes("--error-mail")) {
       const currentTS = new Date().getTime();
       const lastMailTS = await utils.getLastBackupErrorMailSentInMilliSec();
 
@@ -123,21 +95,20 @@ export async function run() {
         await utils.updateLastBackupErrorMailSentInMilliSec(currentTS);
       }
     }
+
+    // Delete the archive, if exists, since its existence may mislead the user.
+    if (state.archivePath != null) {
+      await fsPromises.rm(state.archivePath, {
+        recursive: true,
+        force: true,
+      });
+    }
   } finally {
     if (state.backupRootPath != null) {
       await fsPromises.rm(state.backupRootPath, {
         recursive: true,
         force: true,
       });
-    }
-
-    if (state.isEncryptionEnabled()) {
-      if (state.archivePath != null) {
-        await fsPromises.rm(state.archivePath, {
-          recursive: true,
-          force: true,
-        });
-      }
     }
 
     await postBackupCleanup();
@@ -222,19 +193,6 @@ async function createGitStorageArchive(destFolder: string) {
   console.log("Created git-storage archive");
 }
 
-async function createManifestFile(path: string) {
-  const version = await utils.getCurrentAppsmithVersion();
-  const manifest_data = {
-    appsmithVersion: version,
-    dbName: utils.getDatabaseNameFromMongoURI(utils.getDburl()),
-  };
-
-  await fsPromises.writeFile(
-    path + "/manifest.json",
-    JSON.stringify(manifest_data),
-  );
-}
-
 async function exportDockerEnvFile(
   destFolder: string,
   encryptArchive: boolean,
@@ -291,19 +249,15 @@ async function createFinalArchive(destFolder: string, timestamp: string) {
 }
 
 async function postBackupCleanup() {
-  console.log("Starting the cleanup task after taking a backup.");
+  console.log("Starting cleanup.");
   const backupArchivesLimit = getBackupArchiveLimit(
     parseInt(process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT, 10),
   );
   const backupFiles = await utils.listLocalBackupFiles();
 
-  while (backupFiles.length > backupArchivesLimit) {
-    const fileName = backupFiles.shift();
+  await removeOldBackups(backupFiles, backupArchivesLimit);
 
-    await fsPromises.rm(Constants.BACKUP_PATH + "/" + fileName);
-  }
-
-  console.log("Cleanup task completed.");
+  console.log("Cleanup completed.");
 }
 
 export async function executeCopyCMD(srcFolder: string, destFolder: string) {
@@ -321,10 +275,6 @@ export function getGitRoot(gitRoot?: string | undefined) {
   }
 
   return gitRoot;
-}
-
-export async function generateBackupRootPath() {
-  return fsPromises.mkdtemp(path.join(os.tmpdir(), "appsmithctl-backup-"));
 }
 
 export function getBackupContentsPath(
@@ -359,13 +309,14 @@ export async function removeOldBackups(
   backupFiles: string[],
   backupArchivesLimit: number,
 ) {
-  while (backupFiles.length > backupArchivesLimit) {
-    const fileName = backupFiles.shift();
-
-    await fsPromises.rm(Constants.BACKUP_PATH + "/" + fileName);
-  }
-
-  return backupFiles;
+  return Promise.all(
+    backupFiles
+      .sort()
+      .reverse()
+      .slice(backupArchivesLimit)
+      .map((file) => Constants.BACKUP_PATH + "/" + file)
+      .map(async (file) => fsPromises.rm(file)),
+  );
 }
 
 export function getTimeStampInISO() {
