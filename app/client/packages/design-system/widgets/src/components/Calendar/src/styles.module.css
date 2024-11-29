@@ -61,6 +61,10 @@
 }
 
 .calendar tbody [role="button"][data-focus-visible] {
-  outline: var(--border-width-2) solid var(--color-bd-accent);
-  outline-offset: var(--border-width-2);
+  --box-shadow-offset: 2px;
+
+  box-shadow:
+    0 0 0 var(--box-shadow-offset) var(--color-bg),
+    0 0 0 calc(var(--box-shadow-offset) + var(--border-width-2))
+      var(--color-bd-focus);
 }
