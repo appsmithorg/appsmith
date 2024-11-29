@@ -527,16 +527,16 @@ public class LayoutServiceTest {
                             "some dynamic {{\"anIgnoredAction.data:\" + aGetAction.data}}",
                             "dynamicPost",
                             """
-                                some dynamic {{
-                                (function(ignoredAction1){
-                                \tlet a = ignoredAction1.data
-                                \tlet ignoredAction2 = { data: "nothing" }
-                                \tlet b = ignoredAction2.data
-                                \tlet c = "ignoredAction3.data"
-                                \t// ignoredAction4.data
-                                \treturn aPostAction.data
-                                })(anotherPostAction.data)}}
-                                """,
+                        some dynamic {{
+                        (function(ignoredAction1){
+                        \tlet a = ignoredAction1.data
+                        \tlet ignoredAction2 = { data: "nothing" }
+                        \tlet b = ignoredAction2.data
+                        \tlet c = "ignoredAction3.data"
+                        \t// ignoredAction4.data
+                        \treturn aPostAction.data
+                        })(anotherPostAction.data)}}
+                        """,
                             "dynamicPostWithAutoExec",
                             "some dynamic {{aPostActionWithAutoExec.data}}",
                             "dynamicDelete",
@@ -939,6 +939,69 @@ public class LayoutServiceTest {
             \t// ignoredAction4.data
             \treturn aPostAction.data
             })(anotherPostAction.data)""";
+
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(
+                        List.of(
+                                " anotherDBAction.data.optional ",
+                                "Collection.aSyncCollectionActionWithCall()",
+                                "Collection.anAsyncCollectionActionWithCall()",
+                                "Collection.aSyncCollectionActionWithoutCall.data",
+                                "Collection.anAsyncCollectionActionWithoutCall.data",
+                                "aPostActionWithAutoExec.data",
+                                "aTableAction.data.child",
+                                "\"anIgnoredAction.data:\" + aGetAction.data",
+                                "aDBAction.data[0].irrelevant",
+                                bindingValue),
+                        EVALUATION_VERSION))
+                .thenReturn(Flux.just(
+                        Tuples.of(
+                                " anotherDBAction.data.optional ",
+                                new HashSet<>(Set.of("anotherDBAction.data.optional"))),
+                        Tuples.of(
+                                "Collection.aSyncCollectionActionWithCall()",
+                                new HashSet<>(Set.of("Collection.aSyncCollectionActionWithCall"))),
+                        Tuples.of(
+                                "Collection.anAsyncCollectionActionWithCall()",
+                                new HashSet<>(Set.of("Collection.anAsyncCollectionActionWithCall"))),
+                        Tuples.of(
+                                "Collection.aSyncCollectionActionWithoutCall.data",
+                                new HashSet<>(Set.of("Collection.aSyncCollectionActionWithoutCall.data"))),
+                        Tuples.of(
+                                "Collection.anAsyncCollectionActionWithoutCall.data",
+                                new HashSet<>(Set.of("Collection.anAsyncCollectionActionWithoutCall.data"))),
+                        Tuples.of(
+                                "aPostActionWithAutoExec.data", new HashSet<>(Set.of("aPostActionWithAutoExec.data"))),
+                        Tuples.of("aTableAction.data.child", new HashSet<>(Set.of("aTableAction.data.child"))),
+                        Tuples.of(
+                                "\"anIgnoredAction.data:\" + aGetAction.data",
+                                new HashSet<>(Set.of("aGetAction.data"))),
+                        Tuples.of(
+                                "aDBAction.data[0].irrelevant", new HashSet<>(Set.of("aDBAction.data[0].irrelevant"))),
+                        Tuples.of(bindingValue, new HashSet<>(Set.of("aPostAction.data", "anotherPostAction.data")))));
+
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(
+                        List.of("aPostTertiaryAction.data", "aPostSecondaryAction.data"), EVALUATION_VERSION))
+                .thenReturn(Flux.just(
+                        Tuples.of("aPostTertiaryAction.data", new HashSet<>(Set.of("aPostTertiaryAction.data"))),
+                        Tuples.of("aPostSecondaryAction.data", new HashSet<>(Set.of("aPostSecondaryAction.data")))));
+
+        Mockito.when(astService.getPossibleReferencesFromDynamicBinding(
+                        List.of(
+                                "aPostTertiaryAction.data",
+                                "hiddenAction4.data",
+                                "hiddenAction1.data",
+                                "hiddenAction3.data",
+                                "aPostSecondaryAction.data",
+                                "hiddenAction2.data"),
+                        EVALUATION_VERSION))
+                .thenReturn(Flux.just(
+                        Tuples.of("aPostTertiaryAction.data", new HashSet<>(Set.of("aPostTertiaryAction.data"))),
+                        Tuples.of("hiddenAction4.data", new HashSet<>(Set.of("hiddenAction4.data"))),
+                        Tuples.of("hiddenAction1.data", new HashSet<>(Set.of("hiddenAction1.data"))),
+                        Tuples.of("hiddenAction3.data", new HashSet<>(Set.of("hiddenAction3.data"))),
+                        Tuples.of("aPostSecondaryAction.data", new HashSet<>(Set.of("aPostSecondaryAction.data"))),
+                        Tuples.of("hiddenAction2.data", new HashSet<>(Set.of("hiddenAction2.data")))));
+
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of(bindingValue), EVALUATION_VERSION))
                 .thenReturn(Flux.just(
                         Tuples.of(bindingValue, new HashSet<>(Set.of("aPostAction.data", "anotherPostAction.data")))));
