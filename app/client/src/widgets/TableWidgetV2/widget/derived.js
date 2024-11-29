@@ -284,11 +284,14 @@ export default {
     const getTextFromHTML = (html) => {
       if (!html) return "";
 
-      const div = document.createElement("div");
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
 
-      div.innerHTML = html;
-
-      return div.textContent || div.innerText || "";
+        return doc.body.textContent || "";
+      } catch (e) {
+        return "";
+      }
     };
 
     /* extend processedTableData with values from
