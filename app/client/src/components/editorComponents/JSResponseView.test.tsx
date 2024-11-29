@@ -12,7 +12,7 @@ import { EditorViewMode } from "ee/entities/IDE/constants";
 import type { JSCollectionData } from "ee/reducers/entityReducers/jsActionsReducer";
 import { PluginType } from "entities/Action";
 import "@testing-library/jest-dom/extend-expect";
-import { EMPTY_RESPONSE_LAST_HALF } from "ee/constants/messages";
+import { EMPTY_RESPONSE_RUN } from "ee/constants/messages";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/constants";
 
 jest.mock("ee/utils/actionExecutionUtils");
@@ -116,7 +116,7 @@ describe("JSResponseView", () => {
       </Provider>,
     );
 
-    expect(getByText(EMPTY_RESPONSE_LAST_HALF())).toBeInTheDocument();
+    expect(getByText(EMPTY_RESPONSE_RUN())).toBeInTheDocument();
   });
 
   it("should render correctly when isBrowserExecutionAllowed returns false", () => {
@@ -144,7 +144,7 @@ describe("JSResponseView", () => {
       </Provider>,
     );
     // nothing should be rendered here since the implementation for component is in EE code
-    expect(queryByText(document.body, EMPTY_RESPONSE_LAST_HALF())).toBeNull();
+    expect(queryByText(document.body, EMPTY_RESPONSE_RUN())).toBeNull();
   });
 
   it("the container should have class select-text to enable the selection of text for user", () => {

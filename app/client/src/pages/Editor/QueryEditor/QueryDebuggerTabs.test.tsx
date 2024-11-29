@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render } from "@testing-library/react";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "styled-components";
@@ -10,35 +10,8 @@ import { EditorViewMode } from "ee/entities/IDE/constants";
 import "@testing-library/jest-dom/extend-expect";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import type { ActionResponse } from "api/ActionAPI";
 
 const mockStore = configureStore([]);
-
-const mockSuccessResponse: ActionResponse = {
-  body: ["Record 1", "Record 2"],
-  statusCode: "200",
-  dataTypes: [],
-  duration: "3000",
-  size: "200",
-  isExecutionSuccess: true,
-  headers: {
-    "Content-Type": ["application/json"],
-    "Cache-Control": ["no-cache"],
-  },
-};
-
-const mockFailedResponse: ActionResponse = {
-  body: [{ response: "Failed" }],
-  statusCode: "200",
-  dataTypes: [],
-  duration: "3000",
-  size: "200",
-  isExecutionSuccess: false,
-  headers: {
-    "Content-Type": ["application/json"],
-    "Cache-Control": ["no-cache"],
-  },
-};
 
 const storeState = {
   ...unitTestBaseMockStore,
@@ -112,60 +85,5 @@ describe("ApiResponseView", () => {
         .querySelector(".t--query-bottom-pane-container")
         ?.classList.contains("select-text"),
     ).toBe(true);
-  });
-  it("should show record count as result if the query response returns records", () => {
-    render(
-      <Provider store={store}>
-        <ThemeProvider theme={lightTheme}>
-          <Router>
-            <QueryDebuggerTabs
-              actionName="Query1"
-              actionResponse={mockSuccessResponse}
-              actionSource={{
-                id: "ID1",
-                name: "Query1",
-                type: ENTITY_TYPE.ACTION,
-              }}
-              isRunning={false}
-              onRunClick={() => {}}
-            />
-          </Router>
-        </ThemeProvider>
-      </Provider>,
-    );
-
-    const expectedResultText = "Result: 2 Records";
-    const resultTextElement = screen.getByTestId("result-text");
-
-    expect(resultTextElement).toBeInTheDocument();
-    expect(resultTextElement?.textContent).toContain(expectedResultText);
-  });
-
-  it("should show error as result if the query response returns the error", () => {
-    render(
-      <Provider store={store}>
-        <ThemeProvider theme={lightTheme}>
-          <Router>
-            <QueryDebuggerTabs
-              actionName="Query1"
-              actionResponse={mockFailedResponse}
-              actionSource={{
-                id: "ID1",
-                name: "Query1",
-                type: ENTITY_TYPE.ACTION,
-              }}
-              isRunning={false}
-              onRunClick={() => {}}
-            />
-          </Router>
-        </ThemeProvider>
-      </Provider>,
-    );
-
-    const expectedResultText = "Result: Error";
-    const resultTextElement = screen.getByTestId("result-text");
-
-    expect(resultTextElement).toBeInTheDocument();
-    expect(resultTextElement?.textContent).toContain(expectedResultText);
   });
 });

@@ -1,10 +1,14 @@
 import type { ReactNode } from "react";
 
+export type SidebarState = "collapsed" | "expanded" | "full-width";
+
+export type SidebarSide = "start" | "end";
 export interface SidebarContextType {
   state: SidebarState;
   setState: (state: SidebarState) => void;
   isMobile: boolean;
   toggleSidebar: () => void;
+  side: SidebarSide;
 }
 
 export interface SidebarProviderProps {
@@ -14,12 +18,10 @@ export interface SidebarProviderProps {
   children: ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  side?: SidebarSide;
 }
 
-export type SidebarState = "collapsed" | "expanded" | "full-width";
-
 export interface SidebarProps {
-  side?: "start" | "end";
   variant?: "sidebar" | "floating" | "inset";
   collapsible?: "offcanvas" | "icon" | "none";
   onEnter?: () => void;
