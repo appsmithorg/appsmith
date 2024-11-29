@@ -177,9 +177,9 @@ grant_permissions_for_local_db_schema() {
 }
 
 get_unix_socket_directory() {
-  POSTGRES_DB_PATH=$1
+  local postgres_db_path=${1:-"$POSTGRES_DB_PATH"}
   local unix_socket_directory
-  unix_socket_directory=$(grep -E "^unix_socket_directories" "$POSTGRES_DB_PATH/postgresql.conf" | sed -E "s/.*= (.*).*/\1/" | cut -d',' -f1)
+  unix_socket_directory=$(grep -E "^unix_socket_directories" "$postgres_db_path/postgresql.conf" | sed -E "s/.*= (.*).*/\1/" | cut -d',' -f1)
   # If unix_socket_directory is empty, default to /var/run/postgresql
   if [ -z "$unix_socket_directory" ]; then
     unix_socket_directory="/var/run/postgresql"
