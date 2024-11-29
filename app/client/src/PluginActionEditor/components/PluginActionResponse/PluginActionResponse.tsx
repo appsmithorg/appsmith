@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
 import { ActionExecutionResizerHeight } from "./constants";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
@@ -13,6 +13,7 @@ import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import useShowSchema from "./hooks/useShowSchema";
 import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
 import { PluginType } from "entities/Action";
+import { hasFailed } from "./utils";
 
 function PluginActionResponse() {
   const dispatch = useDispatch();
@@ -30,6 +31,11 @@ function PluginActionResponse() {
 
   const { responseDisplayFormat } =
     actionResponseDisplayDataFormats(actionResponse);
+
+  const executionFailed = useMemo(
+    () => (actionResponse ? hasFailed(actionResponse) : false),
+    [actionResponse],
+  );
 
   // These useEffects are used to open the response tab by default for page load queries
   // as for page load queries, query response is available and can be shown in response tab
@@ -53,6 +59,20 @@ function PluginActionResponse() {
       actionResponse?.isExecutionSuccess,
       dispatch,
     ],
+  );
+
+  useEffect(
+    function openResponseTabOnError() {
+      if (executionFailed) {
+        dispatch(
+          setPluginActionEditorDebuggerState({
+            open: true,
+            selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+          }),
+        );
+      }
+    },
+    [executionFailed, dispatch],
   );
 
   useEffect(
