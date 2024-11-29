@@ -1,4 +1,4 @@
-package com.appsmith.server.annotations;
+package com.appsmith.server.transaction.annotations;
 
 import com.appsmith.external.constants.TransactionPropagation;
 

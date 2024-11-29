@@ -15,6 +15,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.transaction.CustomTransactionalOperator;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
             ObservationRegistry observationRegistry,
-            WorkspaceRepositoryCake workspaceRepositoryCake) {
+            WorkspaceRepositoryCake workspaceRepositoryCake,
+            CustomTransactionalOperator transactionManager) {
         super(
                 validator,
                 repositoryDirect,
@@ -57,6 +59,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 workspaceService,
                 workspacePermission,
                 observationRegistry,
-                workspaceRepositoryCake);
+                workspaceRepositoryCake,
+                transactionManager);
     }
 }

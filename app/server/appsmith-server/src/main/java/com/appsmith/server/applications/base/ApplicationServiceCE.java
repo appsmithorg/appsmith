@@ -104,5 +104,5 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Application> findByBranchedApplicationIdAndApplicationMode(String branchedApplicationId, ApplicationMode mode);
 
-    Mono<Application> findSaveUpdateApp(String id);
+    Mono<Application> findAndUpdateApplicationForTest(String id);
 }

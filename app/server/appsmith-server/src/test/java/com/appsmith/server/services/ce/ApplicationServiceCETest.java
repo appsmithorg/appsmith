@@ -4542,7 +4542,7 @@ public class ApplicationServiceCETest {
         application.setWorkspaceId(workspaceId);
         application = applicationPageService.createApplication(application).block();
         Mono<Application> resultMono = applicationService
-                .findSaveUpdateApp(application.getId())
+                .findAndUpdateApplicationForTest(application.getId())
                 .flatMap(app -> applicationService.findById(app.getId()))
                 .onErrorResume(e -> {
                     log.error("Error occurred while updating application", e);

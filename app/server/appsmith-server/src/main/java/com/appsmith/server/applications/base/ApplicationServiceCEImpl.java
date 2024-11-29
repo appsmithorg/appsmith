@@ -4,7 +4,6 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.annotations.CustomAppsmithTransaction;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
@@ -46,6 +45,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.transaction.CustomTransactionalOperator;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -95,6 +95,7 @@ public class ApplicationServiceCEImpl
     private final WorkspacePermission workspacePermission;
     private final ObservationRegistry observationRegistry;
     private final WorkspaceRepositoryCake workspaceRepositoryCake;
+    private final CustomTransactionalOperator transactionManager;
 
     private static final Integer MAX_RETRIES = 5;
 
@@ -115,7 +116,8 @@ public class ApplicationServiceCEImpl
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
             ObservationRegistry observationRegistry,
-            WorkspaceRepositoryCake workspaceRepositoryCake) {
+            WorkspaceRepositoryCake workspaceRepositoryCake,
+            CustomTransactionalOperator transactionManager) {
 
         super(validator, repositoryDirect, repository, analyticsService);
         this.policySolution = policySolution;
@@ -130,6 +132,7 @@ public class ApplicationServiceCEImpl
         this.workspacePermission = workspacePermission;
         this.observationRegistry = observationRegistry;
         this.workspaceRepositoryCake = workspaceRepositoryCake;
+        this.transactionManager = transactionManager;
     }
 
     @Override
@@ -1072,16 +1075,11 @@ public class ApplicationServiceCEImpl
     }
 
     @Override
-    @CustomAppsmithTransaction
-    public Mono<Application> findSaveUpdateApp(String id) {
+    public Mono<Application> findAndUpdateApplicationForTest(String id) {
         Mono<Application> applicationMono = repository
                 .findById(id, applicationPermission.getEditPermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
-                //                .flatMap(obj -> {
-                //                    obj.setSlug("updated_name_1");
-                //                    return repository.save(obj, em);
-                //                })
                 .flatMap(obj -> {
                     Application update = new Application();
                     update.setSlug("updated_name_1");
@@ -1104,7 +1102,8 @@ public class ApplicationServiceCEImpl
                             .updateById(id, update, null)
                             .then(workspaceRepositoryCake.updateById(obj.getWorkspaceId(), workspace, null))
                             .then(Mono.defer(() -> repository.findById(id, applicationPermission.getEditPermission())));
-                });
+                })
+                .as(transactionManager::transactional);
 
         return applicationMono
                 .doOnSuccess(application -> {
