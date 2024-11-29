@@ -64,6 +64,7 @@ export const SERVER_ERROR_CODES = {
     "AE-APP-4013",
   ],
   UNABLE_TO_FIND_PAGE: ["AE-APP-4027", "AE-USR-4004"],
+  VERSION_MISMATCH: ["AE-BAD-4002"],
 };
 
 export enum ERROR_CODES {

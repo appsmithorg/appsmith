@@ -1,5 +1,6 @@
 package com.external.plugins.services.features;
 
+import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -36,7 +37,8 @@ class ImageEntityExtractionServiceImplTest {
                         INSTRUCTIONS, Map.of(DATA, "Some instructions")));
         actionConfiguration.setFormData(formData);
 
-        Query query = imageEntityExtractionService.createQuery(actionConfiguration, datasourceConfiguration);
+        Query query = imageEntityExtractionService.createQuery(
+                actionConfiguration, datasourceConfiguration, new ExecuteActionDTO());
 
         assertNotNull(query);
         assertEquals("Some image data", query.getInput());
@@ -56,7 +58,8 @@ class ImageEntityExtractionServiceImplTest {
 
         AppsmithPluginException exception = assertThrows(
                 AppsmithPluginException.class,
-                () -> imageEntityExtractionService.createQuery(actionConfiguration, datasourceConfiguration));
+                () -> imageEntityExtractionService.createQuery(
+                        actionConfiguration, datasourceConfiguration, new ExecuteActionDTO()));
 
         assertEquals("input is not provided", exception.getMessage());
     }

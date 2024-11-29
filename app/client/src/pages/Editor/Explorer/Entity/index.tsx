@@ -149,6 +149,10 @@ export const EntityItem = styled.div<{
     height: 36px;
   }
 
+  & .t--entity-name {
+    padding-left: var(--ads-v2-spaces-3);
+  }
+
   & .${EntityClassNames.COLLAPSE_TOGGLE} {
     svg {
       path {
@@ -203,20 +207,10 @@ export const EntityItem = styled.div<{
 `;
 
 const IconWrapper = styled.span`
-  line-height: ${(props) => props.theme.lineHeights[0]}px;
-  color: var(--ads-v2-color-fg);
-  display: flex;
-  align-items: center;
-
-  div {
-    cursor: pointer;
-  }
-
   svg {
     width: 16px;
     height: 16px;
   }
-  margin-right: 4px;
 `;
 
 export const AddButtonWrapper = styled.div`

@@ -365,7 +365,7 @@ export const DATASOURCE_UPDATE = (dsName: string) =>
   `${dsName} datasource updated successfully`;
 export const DATASOURCE_VALID = (dsName: string) =>
   `${dsName} datasource is valid`;
-export const EDIT_DATASOURCE = () => "Edit";
+export const EDIT_DATASOURCE = () => "Edit configuration";
 export const SAVE_DATASOURCE = () => "Save URL";
 export const EDIT_DATASOURCE_TOOLTIP = () => "Edit datasource";
 export const SAVE_DATASOURCE_TOOLTIP = () => "Save URL as a datasource";
@@ -569,6 +569,7 @@ export const ACTION_CONFIGURATION_UPDATED = () => "Configuration updated";
 export const WIDGET_PROPERTIES_UPDATED = () => "Widget properties were updated";
 export const EMPTY_RESPONSE_FIRST_HALF = () => "🙌 Click on";
 export const EMPTY_RESPONSE_LAST_HALF = () => "to get a response";
+export const EMPTY_RESPONSE_RUN = () => "Click ‘Run’ to get a response";
 export const EMPTY_JS_RESPONSE_LAST_HALF = () =>
   "to view response of selected function";
 export const INVALID_EMAIL = () => "Please enter a valid email";
@@ -752,7 +753,10 @@ export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
 export const GENERATE_PAGE_ACTION_TITLE = () => "Generate page with data";
 
-export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
+export const GENERATE_PAGE_FORM_TITLE = () =>
+  "Generate a page based on your data";
+export const GENERATE_PAGE_FORM_SUB_TITLE = () =>
+  "Use your datasource's schema to generate a simple CRUD page.";
 
 export const GEN_CRUD_SUCCESS_MESSAGE = () =>
   "Hurray! Your application is ready for use.";
@@ -801,7 +805,7 @@ export const SCHEMA_NOT_AVAILABLE = () =>
   "We can't show schema for this datasource";
 export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
-  `Tables in ${name}`;
+  `Search tables in ${name}`;
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";
@@ -2267,14 +2271,24 @@ export const COMMUNITY_TEMPLATES = {
 
 // Interim data state info
 export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
+export const EMPTY_SCHEMA_TITLE_TEXT = () => "Empty schema";
 export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
+export const EMPTY_SCHEMA_MESSAGE_TEXT = () =>
+  "There are no schema records to show";
 export const NO_COLUMNS_MESSAGE_TEXT = () => "There are no columns to show";
 export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
+export const LOADING_SCHEMA_TITLE_TEXT = () => "Loading schema";
 export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
 export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";
 export const FAILED_RECORDS_MESSAGE_TEXT = () =>
-  "There was an error connecting to the datasource. Please check the datasource configuration and retry. If the issue persists, review the datasource settings.";
+  "There was an error connecting to the datasource. Please check the datasource configuration and retry.";
+export const DATASOURCE_SWITCHER_MENU_GROUP_NAME = () => "Select a datasource";
+export const CANT_SHOW_SCHEMA = () =>
+  "We can’t show the schema for this datasource";
+export const COLUMNS_TITLE = () => "Columns";
+export const COLUMNS_SEARCH_PLACEHOLDER = (tableName: string) =>
+  `Search columns in ${tableName}`;
 
 export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_DESCRIPTION = () =>
@@ -2472,7 +2486,8 @@ export const ADD_PAGE_FROM_TEMPLATE_MODAL = {
 
 export const HEADER_TITLES = {
   DATA: () => "Data",
-  EDITOR: () => "Pages",
+  PAGES: () => "Pages",
+  EDITOR: () => "Editor",
   SETTINGS: () => "Settings",
   LIBRARIES: () => "Libraries",
 };

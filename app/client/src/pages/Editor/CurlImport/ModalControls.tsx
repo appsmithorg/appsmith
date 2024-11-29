@@ -6,7 +6,10 @@ import {
 } from "selectors/curlImportSelectors";
 import { submit } from "redux-form";
 import { CURL_IMPORT_FORM } from "ee/constants/forms";
-import { closeCurlImportModal, openCurlImportModal } from "./helpers";
+import {
+  closeCurlImportModal,
+  openCurlImportModal,
+} from "./store/curlImportActions";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import { createMessage, IMPORT_BTN_LABEL } from "ee/constants/messages";
 import {

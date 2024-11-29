@@ -11,6 +11,7 @@ import EditorNavigation, {
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
 import { anvilLocators } from "./Anvil/Locators";
+import BottomPane from "./IDE/BottomPane";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -264,7 +265,7 @@ export class DataSources {
     "')]/ancestor::div[@class='form-config-top']/following-sibling::div//div[contains(@class, 'rc-select-multiple')]";
   private _datasourceSchemaRefreshBtn = ".datasourceStructure-refresh";
   private _datasourceStructureHeader = ".datasourceStructure-header";
-  _datasourceSchemaColumn = ".t--datasource-column";
+  _datasourceSchemaColumn = ".t--datasource-column .t--field-name";
   _datasourceStructureSearchInput = ".datasourceStructure-search input";
   _jsModeSortingControl = ".t--actionConfiguration\\.formData\\.sortBy\\.data";
   public _queryEditorCollapsibleIcon = ".collapsible-icon";
@@ -295,7 +296,7 @@ export class DataSources {
   _imgFireStoreLogo = "//img[contains(@src, 'firestore.svg')]";
   _dsVirtuosoElement = `div .t--schema-virtuoso-container`;
   private _dsVirtuosoList = `[data-test-id="virtuoso-item-list"]`;
-  private _dsSchemaContainer = `[data-testid="datasource-schema-container"]`;
+  private _dsSchemaContainer = `[data-testid="t--datasource-schema-container"]`;
   private _dsVirtuosoElementTable = (targetTableName: string) =>
     `${this._dsSchemaEntityItem}[data-testid='t--entity-item-${targetTableName}']`;
   private _dsPageTabListItem = (buttonText: string) =>
@@ -1132,22 +1133,52 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("@saveAction", 200);
   }
 
+  /** @deprecated */
   public RunQueryNVerifyResponseViews(
     expectedRecordsCount = 1,
     tableCheck = true,
   ) {
     this.RunQuery();
-    tableCheck &&
-      this.agHelper.AssertElementVisibility(this._queryResponse("TABLE"));
-    this.agHelper.AssertElementVisibility(this._queryResponse("JSON"));
-    this.agHelper.AssertElementVisibility(this._queryResponse("RAW"));
-    this.CheckResponseRecordsCount(expectedRecordsCount);
+    if (tableCheck) {
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("TABLE"),
+      );
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("JSON"),
+      );
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.getResponseTypeSelector("RAW"),
+      );
+    }
   }
 
-  public CheckResponseRecordsCount(expectedRecordCount: number) {
-    this.agHelper.AssertElementVisibility(
-      this._queryRecordResult(expectedRecordCount),
-    );
+  public runQueryAndVerifyResponseViews({
+    count = 1,
+    operator = "eq",
+    responseTypes = ["TABLE", "JSON", "RAW"],
+  }: {
+    count?: number;
+    operator?: Parameters<
+      typeof BottomPane.response.validateRecordCount
+    >[0]["operator"];
+    responseTypes?: ("TABLE" | "JSON" | "RAW")[];
+  } = {}) {
+    this.RunQuery();
+
+    BottomPane.response.openResponseTypeMenu();
+
+    responseTypes.forEach((responseType) => {
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.locators.responseTypeMenuItem(responseType),
+      );
+    });
+
+    BottomPane.response.closeResponseTypeMenu();
+
+    BottomPane.response.validateRecordCount({
+      count,
+      operator,
+    });
   }
 
   public CreateDataSource(

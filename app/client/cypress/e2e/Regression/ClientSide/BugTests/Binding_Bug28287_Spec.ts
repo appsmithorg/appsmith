@@ -8,6 +8,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import BottomPane from "../../../../support/Pages/IDE/BottomPane";
 
 let dsName: any;
 let queryName: string;
@@ -43,7 +44,11 @@ describe(
 
         EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
 
-        agHelper.AssertElementVisibility(dataSources._queryResponse("TABLE"));
+        BottomPane.response.switchToResponseTab();
+        BottomPane.response.openResponseTypeMenu();
+        agHelper.AssertElementVisibility(
+          BottomPane.response.locators.responseTypeMenuItem("TABLE"),
+        );
       });
     });
   },

@@ -22,7 +22,8 @@ import {
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import FormControl from "pages/Editor/FormControl";
 import type { ControlProps } from "components/formControls/BaseControl";
-import { Spinner } from "@appsmith/ads";
+import { Spinner, Text } from "@appsmith/ads";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import type { QueryAction, SaaSAction } from "entities/Action";
 import { Section, Zone } from "../ActionForm";
 
@@ -265,7 +266,13 @@ const FormRender = (props: Props) => {
     };
 
   if (!editorConfig || editorConfig.length < 0) {
-    return <ErrorComponent errorMessage={createMessage(UNEXPECTED_ERROR)} />;
+    return (
+      <CenteredWrapper>
+        <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
+          {createMessage(UNEXPECTED_ERROR)}
+        </Text>
+      </CenteredWrapper>
+    );
   }
 
   return renderConfig();

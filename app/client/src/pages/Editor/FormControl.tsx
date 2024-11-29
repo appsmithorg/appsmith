@@ -32,6 +32,7 @@ import { SQL_DATASOURCES } from "constants/QueryEditorConstants";
 import type { Datasource, DatasourceStructure } from "entities/Datasource";
 import { getCurrentEditingEnvironmentId } from "ee/selectors/environmentSelectors";
 import { selectFeatureFlags } from "ee/selectors/featureFlagsSelectors";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 
 export interface FormControlProps {
   config: ControlProps;
@@ -94,6 +95,7 @@ function FormControl(props: FormControlProps) {
   const pluginName: string = useSelector((state: AppState) =>
     getPluginNameFromId(state, pluginId),
   );
+  const workspaceId = useSelector(getCurrentWorkspaceId);
 
   // moving creation of template to the formControl layer, this way any formControl created can potentially have a template system.
   const isNewQuery =
@@ -181,6 +183,7 @@ function FormControl(props: FormControlProps) {
       {
         ...config,
         datasourceId: dsId,
+        workspaceId,
       },
       props.formName,
       props?.multipleConfig,

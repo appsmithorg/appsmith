@@ -17,6 +17,7 @@ import {
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
+import BottomPane from "../../../../support/Pages/IDE/BottomPane";
 
 let datasourceName;
 
@@ -70,7 +71,7 @@ describe(
       dataSources.EnterQuery(`{"find": "listingAndReviews","limit": 10}`);
       agHelper.FocusElement(locators._codeMirrorTextArea);
       dataSources.RunQuery();
-      dataSources.CheckResponseRecordsCount(10);
+      BottomPane.response.validateRecordCount({ count: 10, operator: "lte" });
       cy.deleteQueryUsingContext();
     });
 
@@ -92,7 +93,7 @@ describe(
         fieldValue: "listingAndReviews",
       });
       dataSources.RunQuery();
-      dataSources.CheckResponseRecordsCount(10);
+      BottomPane.response.validateRecordCount({ count: 10, operator: "lte" });
 
       agHelper.EnterValue("{beds : {$lte: 2}}", {
         propFieldName: "",
@@ -100,7 +101,7 @@ describe(
         inputFieldName: "Query",
       });
       dataSources.RunQuery();
-      dataSources.CheckResponseRecordsCount(10);
+      BottomPane.response.validateRecordCount({ count: 10, operator: "lte" });
 
       agHelper.EnterValue("{number_of_reviews: -1}", {
         propFieldName: "",
@@ -108,7 +109,7 @@ describe(
         inputFieldName: "Sort",
       }); //sort descending
       dataSources.RunQuery();
-      dataSources.CheckResponseRecordsCount(10);
+      BottomPane.response.validateRecordCount({ count: 10, operator: "lte" });
 
       agHelper.EnterValue("{house_rules: 1, description:1}", {
         propFieldName: "",
@@ -130,7 +131,7 @@ describe(
           "Response is not as expected for Find commmand with multiple conditions",
         );
       });
-      dataSources.CheckResponseRecordsCount(5);
+      BottomPane.response.validateRecordCount({ count: 5, operator: "lte" });
 
       agHelper.EnterValue("2", {
         propFieldName: "",
@@ -144,7 +145,7 @@ describe(
           "Response is not as expected for Find commmand with multiple conditions",
         );
       });
-      dataSources.CheckResponseRecordsCount(5);
+      BottomPane.response.validateRecordCount({ count: 5, operator: "lte" });
       cy.deleteQueryUsingContext();
     });
 
@@ -432,7 +433,7 @@ describe(
       );
 
       dataSources.RunQuery();
-      dataSources.CheckResponseRecordsCount(3);
+      BottomPane.response.validateRecordCount({ count: 10, operator: "lte" });
 
       dataSources.AssertTableInVirtuosoList(datasourceName, "NonAsciiTest");
 

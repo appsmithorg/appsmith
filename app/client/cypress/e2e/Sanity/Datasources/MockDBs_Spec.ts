@@ -42,7 +42,11 @@ describe(
           'SELECT * FROM public."users" LIMIT 10;',
         );
 
-        dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
+        dataSources.runQueryAndVerifyResponseViews({
+          count: 1,
+          operator: "gte",
+        }); //minimum 1 rows are expected
+
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
@@ -57,7 +61,11 @@ describe(
           expect(interception.request.body.source).to.equal("SELF");
         });
 
-        dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
+        dataSources.runQueryAndVerifyResponseViews({
+          count: 1,
+          operator: "gte",
+        }); //minimum 1 rows are expected
+
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
@@ -81,6 +89,12 @@ describe(
 
         assertHelper.AssertNetworkStatus("@trigger");
         dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
+
+        dataSources.runQueryAndVerifyResponseViews({
+          count: 1,
+          operator: "gte",
+          responseTypes: ["JSON", "RAW"],
+        });
       });
     });
   },

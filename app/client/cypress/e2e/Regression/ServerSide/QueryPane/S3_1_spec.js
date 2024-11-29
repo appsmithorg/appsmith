@@ -1,5 +1,7 @@
 /// <reference types="Cypress" />
 
+import BottomPane from "../../../../support/Pages/IDE/BottomPane";
+
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const formControls = require("../../../../locators/FormControl.json");
@@ -75,7 +77,11 @@ describe(
         "List files",
       );
 
-      dataSources.RunQueryNVerifyResponseViews(100);
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 100,
+        operator: "gte",
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -189,8 +195,7 @@ describe(
       cy.typeValueNValidate(fileName, formControls.s3ListPrefix);
       dataSources.RunQuery({ toValidateResponse: false });
 
-      agHelper.GetNClick(dataSources._queryResponse("TABLE"));
-      agHelper.GetNClick(dataSources._queryResponse("JSON"));
+      BottomPane.response.selectResponseResponseTypeFromMenu("JSON");
 
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(true);
