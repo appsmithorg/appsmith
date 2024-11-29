@@ -28,6 +28,6 @@ export async function executePostgresDumpCMD(
     dbUrl,
     "--schema=appsmith",
     "--format=custom",
-    `--file=${destFolder}/pg-data.gz`,
+    `--file=${destFolder}/pg-data`,
   ]);
 }

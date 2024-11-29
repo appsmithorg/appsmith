@@ -159,7 +159,7 @@ async function restorePostgres(restoreContentsPath: string, dbUrl: string) {
     "pg_restore",
     "--verbose",
     "--clean",
-    `${restoreContentsPath}/pg-data.gz`,
+    `${restoreContentsPath}/pg-data`,
   ];
   const url = new URL(dbUrl);
   const isLocalhost = ["localhost", "127.0.0.1"].includes(url.hostname);
