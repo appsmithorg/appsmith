@@ -32,6 +32,7 @@ export enum PluginPackageName {
   SNOWFLAKE = "snowflake-plugin",
   APPSMITH_AI = "appsmithai-plugin",
   WORKFLOW = "workflow-plugin",
+  HITL = "hitl-plugin",
 }
 
 // more can be added subsequently.
