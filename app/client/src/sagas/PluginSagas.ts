@@ -100,6 +100,16 @@ function* fetchPluginFormConfigsSaga(action?: {
     const graphqlPlugin = getGraphQLPlugin(plugins);
     const appsmithAIPlugin = getAppsmithAIPlugin(plugins);
 
+    if (
+      /* @ts-expect-error: Types are not available */
+      typeof window.Cypress?.log === "function"
+    ) {
+      /* @ts-expect-error: Types are not available */
+      window.Cypress.log({
+        message: `fetchPluginFormConfigsSaga, ${apiPlugin ? JSON.stringify(apiPlugin) : " No apiPlugin "} ${apiPlugin && defaultActionSettings[apiPlugin.type] ? JSON.stringify(defaultActionSettings[apiPlugin.type] || {}) : " No apiPlugin settings"}`,
+      });
+    }
+
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
