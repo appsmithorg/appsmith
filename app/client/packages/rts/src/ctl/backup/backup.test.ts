@@ -71,7 +71,7 @@ describe("Backup Tests", () => {
     const dest = "/dest";
     const url = "postgresql://username:password@host/appsmith";
     const cmd =
-      "pg_dump postgresql://username:password@host/appsmith --schema=appsmith --format=custom --file=/dest/pg-data.gz";
+      "pg_dump postgresql://username:password@host/appsmith --schema=appsmith --format=custom --file=/dest/pg-data";
     const res = await executePostgresDumpCMD(dest, url);
 
     expect(res).toBe(cmd);
