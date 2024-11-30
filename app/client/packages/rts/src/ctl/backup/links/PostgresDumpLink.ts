@@ -3,7 +3,7 @@ import type { BackupState } from "../BackupState";
 import * as utils from "../../utils";
 
 /**
- * Exports the Postgres database data using mongodump.
+ * Exports the Postgres database data using pg_dump.
  */
 export class PostgresDumpLink implements Link {
   constructor(private readonly state: BackupState) {}
