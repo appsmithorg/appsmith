@@ -597,7 +597,7 @@ describe(
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });
 
-    it.only("8. To verify if the download() function downloads query data as a CSV file.", () => {
+    it("8. To verify if the download() function downloads query data as a CSV file.", () => {
       // Create a mock query data
       const queryData = [
         { name: "John Doe", age: 30, city: "New York" },
