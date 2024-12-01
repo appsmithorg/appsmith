@@ -102,13 +102,13 @@ describe(
           //Create and run query.
 
           _.dataSources.EnterQuery(
-            "SELECT * FROM users ORDER BY id LIMIT 10;",
+            "SELECT * FROM public.users ORDER BY id LIMIT 10;",
             1000,
           );
           _.dataSources.RunQuery();
           //Verify if bottom bar is open on executing query.
           _.debuggerHelper.AssertOpen(PageType.Query);
-          //Verify if response atb is selected on executing query.
+          //Verify if response tab is selected on executing query.
           _.debuggerHelper.AssertSelectedTab(
             Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
           );
@@ -140,13 +140,13 @@ describe(
       _.debuggerHelper.AssertClosed();
       //Create and run query.
       _.dataSources.EnterQuery(
-        "SELECT * FROM users ORDER BY id LIMIT 10;",
+        "SELECT * FROM public.users ORDER BY id LIMIT 10;",
         1000,
       );
       _.dataSources.RunQuery();
       //Verify if bottom bar is open on executing query.
       _.debuggerHelper.AssertOpen(PageType.Query);
-      //Verify if response atb is selected on executing query.
+      //Verify if response tab is selected on executing query.
       _.debuggerHelper.AssertSelectedTab(
         Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
       );
