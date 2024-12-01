@@ -129,6 +129,10 @@ export class HomePage {
   private _backToEditor = ".t--back-to-editor";
   private _editorSidebar = ".t--sidebar-Editor";
   private _membersTab = "[data-testid=t--tab-members]";
+  public _inputWidgetValueField = (fieldName: string, input = true) =>
+    `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${
+      input ? "input" : "textarea"
+    }`;
 
   public _searchWorkspaceLocator = (workspaceName: string) =>
     `[data-testid="${workspaceName}"]`;
