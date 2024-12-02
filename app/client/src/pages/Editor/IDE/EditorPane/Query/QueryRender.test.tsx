@@ -144,7 +144,7 @@ describe("IDE URL rendering of Queries", () => {
         },
       });
 
-      const { getAllByText, getByRole, getByTestId } = render(
+      const { getAllByText, getByRole, getByTestId, queryAllByRole } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -179,7 +179,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if the params tabs is visible
       getByRole("tab", { name: /params/i });
       // Check if run button is visible
-      getByRole("button", { name: /run/i });
+      expect(queryAllByRole("button", { name: /run/i }).length).toBe(2);
       // Check if the Add new button is shown
       getByTestId("t--add-item");
     });
@@ -201,7 +201,7 @@ describe("IDE URL rendering of Queries", () => {
         ideView: EditorViewMode.SplitScreen,
       });
 
-      const { getAllByText, getByRole, getByTestId } = render(
+      const { getAllByText, getByTestId, queryAllByRole } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -225,7 +225,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if the form is rendered
       getByTestId("t--action-form-API");
       // Check if run button is visible
-      getByRole("button", { name: /run/i });
+      expect(queryAllByRole("button", { name: /run/i }).length).toBe(2);
       // Check if the Add new button is shown
       getByTestId("t--ide-tabs-add-button");
     });
