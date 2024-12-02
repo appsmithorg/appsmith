@@ -132,8 +132,9 @@ export function Response(props: ResponseProps) {
     return null;
   }, [actionResponse]);
 
-  const showPreparedStatementWarning =
-    checkForPreparedStatement(action) && errorMessage;
+  const showPreparedStatementWarning = Boolean(
+    checkForPreparedStatement(action) && errorMessage,
+  );
 
   const actionSource: SourceEntity = useMemo(
     () => ({

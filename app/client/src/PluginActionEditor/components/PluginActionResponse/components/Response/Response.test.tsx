@@ -2,25 +2,19 @@ import React from "react";
 import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
 import configureStore from "redux-mock-store";
-import QueryResponseTab from "./QueryResponseTab";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
-import type { Action } from "entities/Action";
+import { Response } from "./Response";
+import { PluginType, type Action } from "entities/Action";
 import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import { BrowserRouter as Router } from "react-router-dom";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { ActionResponse } from "api/ActionAPI";
 
-// Mock store
 const mockStore = configureStore([]);
 
 const defaultProps = {
-  actionName: "Test Action",
-  actionSource: {
-    name: "test source",
-    id: "test-source-id",
-    type: ENTITY_TYPE.ACTION,
-  },
-  currentActionConfig: {
+  action: {
     id: "test-action-id",
     name: "Test Action",
     actionConfiguration: { pluginSpecifiedTemplates: [{ value: true }] },
@@ -28,12 +22,14 @@ const defaultProps = {
   } as Action,
   isRunning: false,
   onRunClick: jest.fn(),
-  runErrorMessage: "",
+  theme: EditorTheme.LIGHT,
+  isRunDisabled: false,
+  responseTabHeight: 200,
 };
 
 const storeData = getIDETestState({});
 
-describe("QueryResponseTab", () => {
+describe("Response", () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let store: any;
 
@@ -47,7 +43,7 @@ describe("QueryResponseTab", () => {
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
           <Router>
-            <QueryResponseTab {...defaultProps} />
+            <Response {...defaultProps} />
           </Router>
         </ThemeProvider>
       </Provider>,
@@ -64,7 +60,7 @@ describe("QueryResponseTab", () => {
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
           <Router>
-            <QueryResponseTab {...defaultProps} isRunning />
+            <Response {...defaultProps} isRunning />
           </Router>
         </ThemeProvider>
       </Provider>,
@@ -101,7 +97,7 @@ describe("QueryResponseTab", () => {
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
           <Router>
-            <QueryResponseTab {...defaultProps} />
+            <Response {...defaultProps} />
           </Router>
         </ThemeProvider>
       </Provider>,
@@ -134,11 +130,23 @@ describe("QueryResponseTab", () => {
       },
     });
 
+    const props = {
+      ...defaultProps,
+      action: {
+        ...defaultProps.action,
+        pluginType: PluginType.DB,
+      } as Action,
+      actionResponse: {
+        isExecutionSuccess: false,
+        readableError: "ERROR: relation 'userssss' does not exist Position: 15",
+      } as ActionResponse,
+    };
+
     const { container } = render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
           <Router>
-            <QueryResponseTab {...defaultProps} />
+            <Response {...props} />
           </Router>
         </ThemeProvider>
       </Provider>,
@@ -173,17 +181,22 @@ describe("QueryResponseTab", () => {
 
     const props = {
       ...defaultProps,
-      currentActionConfig: {
-        ...defaultProps.currentActionConfig,
+      action: {
+        ...defaultProps.action,
+        pluginType: PluginType.DB,
         actionConfiguration: { pluginSpecifiedTemplates: [{ value: false }] },
       } as Action,
+      actionResponse: {
+        isExecutionSuccess: false,
+        readableError: "ERROR: relation 'userssss' does not exist Position: 15",
+      } as ActionResponse,
     };
 
     const { container } = render(
       <Provider store={store}>
         <ThemeProvider theme={lightTheme}>
           <Router>
-            <QueryResponseTab {...props} />
+            <Response {...props} />
           </Router>
         </ThemeProvider>
       </Provider>,
