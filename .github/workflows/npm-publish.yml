@@ -40,7 +40,7 @@ jobs:
       
       # Install the dependencies
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
       
       # Set git config -> changelog
       - name: Set git config to github-actions
