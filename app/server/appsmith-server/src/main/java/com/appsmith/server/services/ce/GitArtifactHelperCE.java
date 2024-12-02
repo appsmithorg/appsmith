@@ -25,6 +25,8 @@ public interface GitArtifactHelperCE<T extends Artifact> {
 
     AclPermission getArtifactManageDefaultBranchPermission();
 
+    AclPermission getWorkspaceArtifactCreationPermission();
+
     Mono<T> getArtifactById(String artifactId, AclPermission aclPermission);
 
     Mono<T> getArtifactByBaseIdAndBranchName(String baseArtifactId, String branchName, AclPermission aclPermission);
@@ -62,4 +64,6 @@ public interface GitArtifactHelperCE<T extends Artifact> {
     Mono<T> deleteArtifact(String artifactId);
 
     Boolean isContextInArtifactEmpty(ArtifactExchangeJson artifactExchangeJson);
+
+    T getNewArtifact(String workspaceId, String repoName);
 }
