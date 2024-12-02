@@ -8,7 +8,7 @@ async function importDatabase() {
   try {
     await utils.execCommand([
       "mongorestore",
-      "--uri=" + utils.getDburl(),
+      "--uri=" + utils.getDbUrl(),
       "--drop",
       `--archive=${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}`,
       "--gzip",
@@ -33,7 +33,7 @@ export async function run(forceOption: boolean) {
 
     shellCmdResult = await utils.execCommandReturningOutput([
       "mongo",
-      utils.getDburl(),
+      utils.getDbUrl(),
       "--quiet",
       "--eval",
       "db.getCollectionNames().length",

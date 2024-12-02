@@ -3,7 +3,7 @@ import { MongoClient, MongoServerError } from "mongodb";
 import * as utils from "./utils";
 
 export async function exec() {
-  const client = new MongoClient(utils.preprocessMongoDBURI(utils.getDburl()), {
+  const client = new MongoClient(utils.preprocessMongoDBURI(utils.getDbUrl()), {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   } as any);

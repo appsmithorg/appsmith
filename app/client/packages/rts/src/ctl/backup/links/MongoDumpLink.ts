@@ -10,7 +10,7 @@ export class MongoDumpLink implements Link {
 
   async doBackup() {
     console.log("Exporting database");
-    await executeMongoDumpCMD(this.state.backupRootPath, utils.getDburl());
+    await executeMongoDumpCMD(this.state.backupRootPath, utils.getDbUrl());
     console.log("Exporting database done.");
   }
 }

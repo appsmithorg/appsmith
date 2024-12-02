@@ -48,12 +48,12 @@ export async function run(args: string[]) {
 
     console.log("Post-backup done. Final archive at", state.archivePath);
 
-    await logger.backup_info(
+    await logger.backupInfo(
       "Finished taking a backup at " + state.archivePath,
     );
   } catch (err) {
     process.exitCode = 1;
-    await logger.backup_error(err.stack);
+    await logger.backupError(err.stack);
 
     if (state.args.includes("--error-mail")) {
       const currentTS = new Date().getTime();

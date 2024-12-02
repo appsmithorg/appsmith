@@ -22,15 +22,15 @@ export async function sendBackupErrorToAdmins(err, backupTimestamp) {
       !mailUser ||
       !mailPass
     ) {
-      await logger.backup_error(
+      await logger.backupError(
         "Failed to send error mail. Email provider is not configured, please refer to https://docs.appsmith.com/setup/instance-configuration/email to configure it.",
       );
     } else if (!mailTo) {
-      await logger.backup_error(
+      await logger.backupError(
         "Failed to send error mail. Admin email(s) not configured, please refer to https://docs.appsmith.com/setup/instance-configuration/disable-user-signup#administrator-emails to configure it.",
       );
     } else if (!mailEnabled) {
-      await logger.backup_error(
+      await logger.backupError(
         "Mail not sent! APPSMITH_MAIL_ENABLED env val is disabled, please refer to https://docs.appsmith.com/setup/instance-configuration/email to enable it.",
       );
     } else {
@@ -88,6 +88,6 @@ export async function sendBackupErrorToAdmins(err, backupTimestamp) {
       });
     }
   } catch (err) {
-    await logger.backup_error(err.stack);
+    await logger.backupError(err.stack);
   }
 }

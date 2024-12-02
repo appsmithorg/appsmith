@@ -1,7 +1,7 @@
 import fsPromises from "fs/promises";
 import * as Constants from "./constants";
 
-export async function backup_error(err) {
+export async function backupError(err) {
   console.error(err);
   try {
     await fsPromises.access(Constants.APPSMITHCTL_LOG_PATH);
@@ -14,7 +14,7 @@ export async function backup_error(err) {
   );
 }
 
-export async function backup_info(msg) {
+export async function backupInfo(msg) {
   console.log(msg);
   try {
     await fsPromises.access(Constants.APPSMITHCTL_LOG_PATH);

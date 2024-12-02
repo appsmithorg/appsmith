@@ -40,7 +40,7 @@ export async function start(...apps: AppName[]) {
   console.log("Started", apps);
 }
 
-export function getDburl(): string {
+export function getDbUrl(): string {
   const dbEnvUrl =
     process.env.APPSMITH_DB_URL || process.env.APPSMITH_MONGODB_URI;
 

@@ -4,7 +4,7 @@ import * as utils from "./utils";
 
 export async function exportDatabase() {
   console.log("export_database  ....");
-  const dbUrl = utils.getDburl();
+  const dbUrl = utils.getDbUrl();
 
   await fsPromises.mkdir(Constants.BACKUP_PATH, { recursive: true });
   await utils.execCommand([
