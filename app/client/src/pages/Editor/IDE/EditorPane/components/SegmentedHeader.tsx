@@ -8,6 +8,9 @@ import styled from "styled-components";
 const Container = styled(Flex)`
   #editor-pane-segment-control {
     max-width: 247px;
+    &:hover > span {
+      color: var(--ads-v2-color-bg-muted);
+    }
   }
 `;
 

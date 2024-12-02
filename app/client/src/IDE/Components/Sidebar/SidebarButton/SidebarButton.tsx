@@ -36,7 +36,7 @@ const Container = styled(Flex)`
 const IconContainer = styled.div<{ selected: boolean }>`
   padding: 2px;
   background-color: ${(props) =>
-    props.selected ? "var(--ads-v2-color-gray-200)" : "white"};
+    props.selected ? "var(--ads-v2-color-bg-muted)" : "white"};
   border-radius: 3px;
   width: 32px;
   height: 32px;
