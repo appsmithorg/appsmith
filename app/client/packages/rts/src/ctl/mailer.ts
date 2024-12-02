@@ -91,6 +91,8 @@ export async function sendBackupErrorToAdmins(
       });
     }
   } catch (err) {
-    await logger.backupError((err as Error).stack ?? "Error in sending email, but no stack");
+    await logger.backupError(
+      (err as Error).stack ?? "Error in sending email, but no stack",
+    );
   }
 }
