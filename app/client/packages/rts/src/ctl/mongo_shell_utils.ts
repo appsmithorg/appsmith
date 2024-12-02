@@ -6,7 +6,7 @@ export async function exec() {
   let errorCode = 0;
 
   try {
-    await execMongoEval(command_args[0], process.env.APPSMITH_DB_URL);
+    await execMongoEval(command_args[0], utils.getDbUrl());
   } catch (err) {
     errorCode = 1;
     console.error("Error evaluating the mongo query", err);
@@ -15,7 +15,10 @@ export async function exec() {
   }
 }
 
-async function execMongoEval(queryExpression: string, appsmithMongoURI: string) {
+async function execMongoEval(
+  queryExpression: string,
+  appsmithMongoURI: string,
+) {
   queryExpression = queryExpression.trim();
 
   if (command_args.includes("--pretty")) {

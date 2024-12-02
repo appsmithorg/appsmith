@@ -3,7 +3,10 @@ import * as Constants from "./constants";
 import * as utils from "./utils";
 import * as logger from "./logger";
 
-export async function sendBackupErrorToAdmins(err: Error, backupTimestamp: string) {
+export async function sendBackupErrorToAdmins(
+  error: Error,
+  backupTimestamp: string,
+) {
   const mailEnabled = process.env.APPSMITH_MAIL_ENABLED;
   const mailFrom = process.env.APPSMITH_MAIL_FROM;
   const mailHost = process.env.APPSMITH_MAIL_HOST;
@@ -69,7 +72,7 @@ export async function sendBackupErrorToAdmins(err: Error, backupTimestamp: strin
           "\n";
       }
 
-      text = text + "\n" + err.stack;
+      text = text + "\n" + error.stack;
 
       const transporter = nodemailer.createTransport({
         host: mailHost,
@@ -88,6 +91,6 @@ export async function sendBackupErrorToAdmins(err: Error, backupTimestamp: strin
       });
     }
   } catch (err) {
-    await logger.backupError(err.stack);
+    await logger.backupError((err as Error).stack ?? "Error in sending email, but no stack");
   }
 }
