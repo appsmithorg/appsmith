@@ -36,7 +36,7 @@ const Container = styled(Flex)`
 const IconContainer = styled.div<{ selected: boolean }>`
   padding: 2px;
   background-color: ${(props) =>
-    props.selected ? "var(--colors-raw-orange-100, #fbe6dc)" : "white"};
+    props.selected ? "var(--ads-v2-color-gray-200)" : "white"};
   border-radius: 3px;
   width: 32px;
   height: 32px;
@@ -47,10 +47,7 @@ const IconContainer = styled.div<{ selected: boolean }>`
   position: relative;
 
   &:hover {
-    background: ${(props) =>
-      props.selected
-        ? "var(--colors-raw-orange-100, #fbe6dc)"
-        : "var(--ads-v2-color-bg-subtle, #f1f5f9);"};
+    background: var(--ads-v2-color-bg-subtle, #f1f5f9);
   }
 `;
 

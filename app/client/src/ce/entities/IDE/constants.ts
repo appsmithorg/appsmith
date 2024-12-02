@@ -64,15 +64,15 @@ export const TopButtons: IDESidebarButton[] = [
     title: SidebarTopButtonTitles.EDITOR,
     urlSuffix: "",
   },
+];
+
+export const BottomButtons: IDESidebarButton[] = [
   {
     state: EditorState.DATA,
     icon: "datasource-v3",
     title: SidebarTopButtonTitles.DATA,
     urlSuffix: "datasource",
   },
-];
-
-export const BottomButtons: IDESidebarButton[] = [
   {
     state: EditorState.LIBRARIES,
     icon: "packages-v3",
