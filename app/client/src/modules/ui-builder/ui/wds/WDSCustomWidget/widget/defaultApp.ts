@@ -97,11 +97,16 @@ appsmith.onReady(() => {
     html: `<!-- no need to write html, head, body tags, it is handled by the widget -->
 <div id="root"></div>
 `,
-    css: `.app {
+    css: `html, body {
+  background: transparent;
+}
+    
+.app {
 	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
 	border-radius: 0px;
 	border: none;
+  background: transparent;
 }
 
 .tip-container {

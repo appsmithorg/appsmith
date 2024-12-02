@@ -14,38 +14,12 @@ import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
 import css from "!!raw-loader!./reset.css";
 import clsx from "clsx";
 import type { AppThemeProperties } from "entities/AppTheming";
-import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
-import type { BoxShadow } from "components/designSystems/appsmith/WidgetStyleContainer";
-import type { Color } from "constants/Colors";
-import { connect } from "react-redux";
-import type { AppState } from "ee/reducers";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
-import { DynamicHeight } from "utils/WidgetFeatures";
 import { getAppsmithConfigs } from "ee/configs";
-import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
-import { GridDefaults } from "constants/WidgetConstants";
-import { LayoutSystemTypes } from "layoutSystems/types";
-
-const StyledIframe = styled.iframe<{
-  componentWidth: number;
-  componentHeight: number;
-  componentMinHeight: number;
-}>`
-  width: ${(props) => props.componentWidth}px;
-  height: ${(props) => props.componentHeight}px;
-  min-height: ${(props) => props.componentMinHeight}px;
-`;
-
-const OverlayDiv = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-`;
+import { Elevations } from "../../constants";
+import { ContainerComponent } from "../../Container";
+import styles from "./styles.module.css";
 
 const Container = styled.div`
   height: 100%;
@@ -127,12 +101,7 @@ function CustomComponent(props: CustomComponentProps) {
           case EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT:
             const height = message.data.height;
 
-            if (
-              props.renderMode !== "BUILDER" &&
-              height &&
-              (props.dynamicHeight !== DynamicHeight.FIXED ||
-                props.layoutSystemType === LayoutSystemTypes.AUTO)
-            ) {
+            if (props.renderMode !== "BUILDER" && height) {
               iframe.current?.style.setProperty("height", `${height}px`);
               setHeight(height);
             }
@@ -149,13 +118,7 @@ function CustomComponent(props: CustomComponentProps) {
     window.addEventListener("message", handler, false);
 
     return () => window.removeEventListener("message", handler, false);
-  }, [
-    props.model,
-    props.width,
-    props.height,
-    props.layoutSystemType,
-    props.dynamicHeight,
-  ]);
+  }, [props.model]);
 
   useEffect(() => {
     if (iframe.current && iframe.current.contentWindow && isIframeReady) {
@@ -196,21 +159,6 @@ function CustomComponent(props: CustomComponentProps) {
     }
   }, [theme]);
 
-  useEffect(() => {
-    if (
-      props.dynamicHeight === DynamicHeight.FIXED &&
-      props.layoutSystemType === LayoutSystemTypes.FIXED
-    ) {
-      iframe.current?.style.setProperty("height", `${props.height}px`);
-      setHeight(props.height);
-    }
-  }, [
-    props.dynamicHeight,
-    props.height,
-    iframe.current,
-    props.layoutSystemType,
-  ]);
-
   const srcDoc = `
     <html>
       <head>
@@ -243,23 +191,14 @@ function CustomComponent(props: CustomComponentProps) {
         "bp3-skeleton": loading,
       })}
     >
-      {props.needsOverlay && <OverlayDiv data-testid="iframe-overlay" />}
-      <WidgetStyleContainer
-        backgroundColor={props.backgroundColor}
-        borderColor={props.borderColor}
-        borderRadius={props.borderRadius}
-        borderWidth={props.borderWidth}
-        boxShadow={props.boxShadow}
+      <ContainerComponent
+        elevatedBackground={props.elevatedBackground}
+        elevation={Elevations.CARD_ELEVATION}
+        noPadding
         widgetId={props.widgetId}
       >
-        <StyledIframe
-          componentHeight={height}
-          componentMinHeight={
-            props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
-              ? props.minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
-              : 0
-          }
-          componentWidth={props.width}
+        <iframe
+          className={styles.iframe}
           loading="lazy"
           onLoad={() => {
             setLoading(false);
@@ -272,7 +211,7 @@ function CustomComponent(props: CustomComponentProps) {
           }
           srcDoc={srcDoc}
         />
-      </WidgetStyleContainer>
+      </ContainerComponent>
     </Container>
   );
 }
@@ -286,40 +225,13 @@ export interface CustomComponentProps {
     js: string;
     css: string;
   };
-  width: number;
-  height: number;
   onLoadingStateChange?: (state: string) => void;
   needsOverlay?: boolean;
   onConsole?: (type: string, message: string) => void;
   renderMode: "EDITOR" | "DEPLOYED" | "BUILDER";
   theme: AppThemeProperties;
-  borderColor?: Color;
-  backgroundColor?: Color;
-  borderWidth?: number;
-  borderRadius?: number;
-  boxShadow?: BoxShadow;
   widgetId: string;
-  dynamicHeight: DynamicHeight;
-  minDynamicHeight: number;
-  layoutSystemType?: LayoutSystemTypes;
+  elevatedBackground: boolean;
 }
 
-/**
- * TODO: Balaji soundararajan - to refactor code to move out selected widget details to platform
- */
-export const mapStateToProps = (
-  state: AppState,
-  ownProps: CustomComponentProps,
-) => {
-  const isPreviewMode = combinedPreviewModeSelector(state);
-
-  return {
-    needsOverlay:
-      (ownProps.renderMode === "EDITOR" &&
-        !isPreviewMode &&
-        ownProps.widgetId !== getWidgetPropsForPropertyPane(state)?.widgetId) ||
-      getIsAutoHeightWithLimitsChanging(state),
-  };
-};
-
-export default connect(mapStateToProps)(CustomComponent);
+export default CustomComponent;
