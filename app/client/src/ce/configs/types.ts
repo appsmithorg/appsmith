@@ -43,13 +43,6 @@ export interface AppsmithUIConfigs {
     enabled: boolean;
     licenseKey: string;
   };
-  algolia: {
-    enabled: boolean;
-    apiId: string;
-    apiKey: string;
-    indexName: string;
-    snippetIndex: string;
-  };
 
   mixpanel: {
     enabled: boolean;
@@ -62,8 +55,6 @@ export interface AppsmithUIConfigs {
   appVersion: AppVersionData;
   intercomAppID: string;
   mailEnabled: boolean;
-
-  cloudServicesBaseUrl: string;
 
   googleRecaptchaSiteKey: {
     enabled: boolean;

@@ -38,6 +38,7 @@ const ViewWrapper = styled.div`
   & {
     .ads-v2-tabs__list {
       padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
+      padding-left: var(--ads-v2-spaces-3);
     }
   }
 
@@ -69,7 +70,7 @@ interface Props {
 const ViewHideButton = styled(Button)`
   &.view-hide-button {
     position: absolute;
-    top: 3px;
+    top: 2px;
     right: 0;
     padding: 9px 11px;
   }

@@ -34,12 +34,6 @@ export interface INJECTED_CONFIGS {
     apiKey: string;
   };
   cloudHosting: boolean;
-  algolia: {
-    apiId: string;
-    apiKey: string;
-    indexName: string;
-    snippetIndex: string;
-  };
   logLevel: "debug" | "error";
   appVersion: {
     id: string;
@@ -49,7 +43,6 @@ export interface INJECTED_CONFIGS {
   };
   intercomAppID: string;
   mailEnabled: boolean;
-  cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
   disableIframeWidgetSandbox: boolean;
@@ -89,12 +82,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
         : false,
       apiKey: process.env.REACT_APP_MIXPANEL_KEY || "",
     },
-    algolia: {
-      apiId: process.env.REACT_APP_ALGOLIA_API_ID || "",
-      apiKey: process.env.REACT_APP_ALGOLIA_API_KEY || "",
-      indexName: process.env.REACT_APP_ALGOLIA_SEARCH_INDEX_NAME || "",
-      snippetIndex: process.env.REACT_APP_ALGOLIA_SNIPPET_INDEX_NAME || "",
-    },
     observability: {
       deploymentName: process.env.APPSMITH_DEPLOYMENT_NAME || "self-hosted",
       serviceInstanceId: process.env.HOSTNAME || "appsmith-0",
@@ -128,7 +115,6 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
       ? process.env.REACT_APP_MAIL_ENABLED.length > 0
       : false,
-    cloudServicesBaseUrl: process.env.REACT_APP_CLOUD_SERVICES_BASE_URL || "",
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
     supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
@@ -225,23 +211,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
     APPSMITH_FEATURE_CONFIGS?.smartLook.id,
   );
 
-  const algoliaAPIID = getConfig(
-    ENV_CONFIG.algolia.apiId,
-    APPSMITH_FEATURE_CONFIGS?.algolia.apiId,
-  );
-  const algoliaAPIKey = getConfig(
-    ENV_CONFIG.algolia.apiKey,
-    APPSMITH_FEATURE_CONFIGS?.algolia.apiKey,
-  );
-  const algoliaIndex = getConfig(
-    ENV_CONFIG.algolia.indexName,
-    APPSMITH_FEATURE_CONFIGS?.algolia.indexName,
-  );
-  const algoliaSnippetIndex = getConfig(
-    ENV_CONFIG.algolia.indexName,
-    APPSMITH_FEATURE_CONFIGS?.algolia.snippetIndex,
-  );
-
   const segmentCEKey = getConfig(
     ENV_CONFIG.segment.ceKey,
     APPSMITH_FEATURE_CONFIGS?.segment.ceKey,
@@ -289,13 +258,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       enabled: fusioncharts.enabled,
       licenseKey: fusioncharts.value,
     },
-    algolia: {
-      enabled: true,
-      apiId: algoliaAPIID.value || "AZ2Z9CJSJ0",
-      apiKey: algoliaAPIKey.value || "dfde934d9bdc2e0b14830f1dd3cb240f",
-      indexName: algoliaIndex.value || "omnibar_docusaurus_index",
-      snippetIndex: algoliaSnippetIndex.value || "snippet",
-    },
     googleRecaptchaSiteKey: {
       enabled: googleRecaptchaSiteKey.enabled,
       apiKey: googleRecaptchaSiteKey.value,
@@ -323,10 +285,6 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.intercomAppID || APPSMITH_FEATURE_CONFIGS?.intercomAppID || "",
     mailEnabled:
       ENV_CONFIG.mailEnabled || APPSMITH_FEATURE_CONFIGS?.mailEnabled || false,
-    cloudServicesBaseUrl:
-      ENV_CONFIG.cloudServicesBaseUrl ||
-      APPSMITH_FEATURE_CONFIGS?.cloudServicesBaseUrl ||
-      "",
     appsmithSupportEmail: ENV_CONFIG.supportEmail,
     disableIframeWidgetSandbox:
       ENV_CONFIG.disableIframeWidgetSandbox ||

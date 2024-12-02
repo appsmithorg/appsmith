@@ -48,7 +48,13 @@ jobs:
         ports:
           # Opens tcp port 6379 on the host and service container
           - 6379:6379
+      postgres:
+        if: github.base_ref == 'pg' || github.ref_name == 'pg'
+        image: postgres:14
+        ports:
+          - 5432:5432
       mongo:
+        if: github.base_ref == 'release' || github.ref_name == 'release'
         image: mongo
         ports:
           - 27017:27017
@@ -166,10 +172,8 @@ jobs:
             -e APPSMITH_JWT_SECRET=appsmith-cloud-services-jwt-secret-dummy-key \
             -e APPSMITH_ENCRYPTION_SALT=encryption-salt \
             -e APPSMITH_ENCRYPTION_PASSWORD=encryption-password \
-            -e APPSMITH_CLOUD_SERVICES_URL=https://cs-dev.appsmith.com \
             -e APPSMITH_CUSTOMER_PORTAL_URL=https://dev.appsmith.com \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=https://cs-dev.appsmith.com \
-            -e APPSMITH_CLOUD_SERVER_BASE_URL=https://release.app.appsmith.com \
             -e AUTH0_ISSUER_URL=https://login.release-customer.appsmith.com/ \
             -e AUTH0_CLIENT_ID=dummy-client-id \
             -e AUTH0_CLIENT_SECRET=dummy-secret-id \

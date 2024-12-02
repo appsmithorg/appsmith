@@ -120,7 +120,7 @@ describe(
 
       //Cocktail DB
       cy.xpath("//img/parent::div")
-        .eq(2)
+        .eq(1)
         .find("img")
         .invoke("attr", "src")
         .then(($src) => {

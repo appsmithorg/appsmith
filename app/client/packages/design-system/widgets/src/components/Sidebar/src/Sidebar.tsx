@@ -3,7 +3,6 @@ import * as React from "react";
 import { type Ref, useRef, useState } from "react";
 import { CSSTransition } from "react-transition-group";
 
-import { Sheet } from "../../Sheet";
 import styles from "./styles.module.css";
 import { useSidebar } from "./use-sidebar";
 import type { SidebarProps } from "./types";
@@ -19,13 +18,12 @@ const _Sidebar = (props: SidebarProps, ref: Ref<HTMLDivElement>) => {
     onEntered: onEnteredProp,
     onExit: onExitProp,
     onExited: onExitedProp,
-    side = "start",
     title,
     variant = "sidebar",
     ...rest
   } = props;
   const [isAnimating, setIsAnimating] = useState(false);
-  const { isMobile, setState, state } = useSidebar();
+  const { side, state } = useSidebar();
   const sidebarRef = useRef<HTMLDivElement>();
 
   const onEnter = () => {
@@ -61,22 +59,6 @@ const _Sidebar = (props: SidebarProps, ref: Ref<HTMLDivElement>) => {
       <div className={clsx(className)} ref={ref} {...props}>
         {content}
       </div>
-    );
-  }
-
-  if (Boolean(isMobile)) {
-    return (
-      <Sheet
-        isOpen={state === "expanded"}
-        onEnter={onEnter}
-        onEntered={onEntered}
-        onExit={onExit}
-        onExited={onExited}
-        onOpenChange={(isOpen) => setState(isOpen ? "expanded" : "collapsed")}
-        position={side}
-      >
-        {content}
-      </Sheet>
     );
   }
 
