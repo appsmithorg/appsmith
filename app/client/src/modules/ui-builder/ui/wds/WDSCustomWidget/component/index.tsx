@@ -35,6 +35,7 @@ function CustomComponent(props: CustomComponentProps) {
 
   const [isIframeReady, setIsIframeReady] = useState(false);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [height, setHeight] = useState(0);
 
   const theme = useMemo(() => {
@@ -71,6 +72,12 @@ function CustomComponent(props: CustomComponentProps) {
               {
                 type: EVENTS.CUSTOM_WIDGET_READY_ACK,
                 model: props.model,
+                ui: {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  width: (props as any).width,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  height: (props as any).height,
+                },
                 mode: props.renderMode,
                 theme,
               },
@@ -134,13 +141,17 @@ function CustomComponent(props: CustomComponentProps) {
         {
           type: EVENTS.CUSTOM_WIDGET_UI_CHANGE,
           ui: {
-            height: height,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            width: (props as any).width,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            height: (props as any).height,
           },
         },
         "*",
       );
     }
-  }, [height]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  }, [(props as any).width, (props as any).height]);
 
   useEffect(() => {
     if (iframe.current && iframe.current.contentWindow && isIframeReady) {
