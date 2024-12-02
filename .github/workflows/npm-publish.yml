@@ -11,6 +11,9 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
     steps:
       # Get yarn cache directory and set it in a variable
       - name: Get yarn cache path
@@ -19,15 +22,15 @@ jobs:
       
       # Checkout branch or head commit
       - name: Checkout branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
       # Set up node version
       - name: Setup Node js version
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 16.x
+          node-version-file: app/client/package.json
       
       # Load yarn cache
       - name: Load Yarn cache
@@ -55,11 +58,11 @@ jobs:
             //registry.npmjs.org/:_authToken=$NPM_TOKEN
           EOF
         env:
-          NPM_TOKEN: ${{ secrets.APPSMITH_NPM_PUBLISH_KEY }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       
       # Build packages, add packages build script inside workspace scripts.build
       - name: Build packages
-        run: yarn build
+        run: yarn workspace @design-system/ads build
 
       # Create PR & publish to NPM
       - name: Create release Pull Request or publish to NPM
