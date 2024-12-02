@@ -171,8 +171,8 @@ describe("Backup Tests", () => {
     const backupArchivesLimit = 4;
 
     fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
-    const backupFiles = [];
-    const expectedBackupFiles = [];
+    const backupFiles: string[] = [];
+    const expectedBackupFiles: string[] = [];
     const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
 
     console.log(res);

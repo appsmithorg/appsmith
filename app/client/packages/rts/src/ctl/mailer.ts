@@ -3,7 +3,7 @@ import * as Constants from "./constants";
 import * as utils from "./utils";
 import * as logger from "./logger";
 
-export async function sendBackupErrorToAdmins(err, backupTimestamp) {
+export async function sendBackupErrorToAdmins(err: Error, backupTimestamp: string) {
   const mailEnabled = process.env.APPSMITH_MAIL_ENABLED;
   const mailFrom = process.env.APPSMITH_MAIL_FROM;
   const mailHost = process.env.APPSMITH_MAIL_HOST;

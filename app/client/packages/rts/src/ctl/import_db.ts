@@ -29,9 +29,8 @@ export async function run(forceOption: boolean) {
   try {
     console.log("stop backend & rts application before import database");
     await utils.stop("backend", "rts");
-    let shellCmdResult: string;
 
-    shellCmdResult = await utils.execCommandReturningOutput([
+    const shellCmdResult = await utils.execCommandReturningOutput([
       "mongo",
       utils.getDbUrl(),
       "--quiet",
