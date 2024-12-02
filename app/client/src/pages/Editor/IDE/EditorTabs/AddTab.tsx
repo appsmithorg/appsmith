@@ -6,6 +6,7 @@ import {
   EditorEntityTab,
   EditorEntityTabState,
 } from "ee/entities/IDE/constants";
+import { Text } from "@appsmith/ads";
 
 const AddTab = ({
   isListActive,
@@ -34,7 +35,7 @@ const AddTab = ({
       onClose={(e) => onCloseClick(e)}
       title={content}
     >
-      {content}
+      <Text kind="body-s">{content}</Text>
     </FileTab>
   );
 };

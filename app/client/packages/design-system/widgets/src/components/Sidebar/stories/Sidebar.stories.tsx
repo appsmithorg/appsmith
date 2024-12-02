@@ -1,8 +1,9 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { Sidebar, SidebarTrigger, SidebarProvider } from "../src/index";
-import { Flex } from "../../Flex";
-import { Text, Icon } from "@appsmith/wds";
+import { Text, Icon, Flex } from "@appsmith/wds";
+
+import { ControlledStateSidebar } from "./ControlledStateSidebar";
 
 const meta: Meta<typeof Sidebar> = {
   component: Sidebar,
@@ -125,4 +126,14 @@ export const WithRenderProps: Story = {
       </Sidebar>
     </SidebarProvider>
   ),
+};
+
+export const WithControlledState: Story = {
+  render: (args) => {
+    return (
+      <ControlledStateSidebar {...args}>
+        <DemoContent />
+      </ControlledStateSidebar>
+    );
+  },
 };

@@ -24,7 +24,7 @@ import {
 } from "PluginActionEditor/store";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import useShowSchema from "PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
-import Schema from "PluginActionEditor/components/PluginActionResponse/components/Schema";
+import { Schema } from "PluginActionEditor/components/PluginActionResponse/components/Schema";
 import {
   useBlockExecution,
   useHandleRunClick,
