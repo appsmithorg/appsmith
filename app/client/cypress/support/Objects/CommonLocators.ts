@@ -342,4 +342,6 @@ export class CommonLocators {
   _propertyCollapseBody = ".bp3-collapse-body";
   _propertyCollapse = ".bp3-collapse";
   _widgetBorder = ".t--draggable-tabswidget div div div";
+  _entityItem = "[data-testid='t--entity-item-Api1']";
+  _rowData = "[data-colindex='0'][data-rowindex='0']";
 }

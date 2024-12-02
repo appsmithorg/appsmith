@@ -1142,6 +1142,7 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("@saveAction", 200);
   }
 
+  /** @deprecated */
   public RunQueryNVerifyResponseViews(
     expectedRecordsCount = 1,
     tableCheck = true,
@@ -1158,7 +1159,35 @@ export class DataSources {
         BottomPane.response.getResponseTypeSelector("RAW"),
       );
     }
-    BottomPane.response.validateRecordCount(expectedRecordsCount);
+  }
+
+  public runQueryAndVerifyResponseViews({
+    count = 1,
+    operator = "eq",
+    responseTypes = ["TABLE", "JSON", "RAW"],
+  }: {
+    count?: number;
+    operator?: Parameters<
+      typeof BottomPane.response.validateRecordCount
+    >[0]["operator"];
+    responseTypes?: ("TABLE" | "JSON" | "RAW")[];
+  } = {}) {
+    this.RunQuery();
+
+    BottomPane.response.openResponseTypeMenu();
+
+    responseTypes.forEach((responseType) => {
+      this.agHelper.AssertElementVisibility(
+        BottomPane.response.locators.responseTypeMenuItem(responseType),
+      );
+    });
+
+    BottomPane.response.closeResponseTypeMenu();
+
+    BottomPane.response.validateRecordCount({
+      count,
+      operator,
+    });
   }
 
   public CreateDataSource(
