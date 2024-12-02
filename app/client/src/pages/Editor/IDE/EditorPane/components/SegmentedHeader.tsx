@@ -11,6 +11,10 @@ const Container = styled(Flex)`
   }
 `;
 
+const StyledLabel = styled.span<{ isSelected: boolean }>`
+  font-weight: ${(props) => (props.isSelected ? "500" : "normal")};
+`;
+
 const SegmentedHeader = () => {
   const { segment } = useCurrentEditorState();
   const { onSegmentChange } = useSegmentNavigation();
@@ -29,15 +33,30 @@ const SegmentedHeader = () => {
         onChange={onSegmentChange}
         options={[
           {
-            label: createMessage(EDITOR_PANE_TEXTS.queries_tab),
+            label: (
+              <StyledLabel isSelected={segment === EditorEntityTab.QUERIES}>
+                {createMessage(EDITOR_PANE_TEXTS.queries_tab)}
+              </StyledLabel>
+            ),
+            startIcon: "queries-line",
             value: EditorEntityTab.QUERIES,
           },
           {
-            label: createMessage(EDITOR_PANE_TEXTS.js_tab),
+            label: (
+              <StyledLabel isSelected={segment === EditorEntityTab.JS}>
+                {createMessage(EDITOR_PANE_TEXTS.js_tab)}
+              </StyledLabel>
+            ),
+            startIcon: "content-type-json",
             value: EditorEntityTab.JS,
           },
           {
-            label: createMessage(EDITOR_PANE_TEXTS.ui_tab),
+            label: (
+              <StyledLabel isSelected={segment === EditorEntityTab.UI}>
+                {createMessage(EDITOR_PANE_TEXTS.ui_tab)}
+              </StyledLabel>
+            ),
+            startIcon: "dashboard-line",
             value: EditorEntityTab.UI,
           },
         ]}
