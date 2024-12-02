@@ -35,7 +35,7 @@ function CustomComponent(props: CustomComponentProps) {
 
   const [isIframeReady, setIsIframeReady] = useState(false);
 
-  const [height, setHeight] = useState(props.height);
+  const [height, setHeight] = useState(0);
 
   const theme = useMemo(() => {
     return {
@@ -71,10 +71,6 @@ function CustomComponent(props: CustomComponentProps) {
               {
                 type: EVENTS.CUSTOM_WIDGET_READY_ACK,
                 model: props.model,
-                ui: {
-                  width: props.width,
-                  height: props.height,
-                },
                 mode: props.renderMode,
                 theme,
               },
@@ -138,14 +134,13 @@ function CustomComponent(props: CustomComponentProps) {
         {
           type: EVENTS.CUSTOM_WIDGET_UI_CHANGE,
           ui: {
-            width: props.width,
             height: height,
           },
         },
         "*",
       );
     }
-  }, [props.width, height]);
+  }, [height]);
 
   useEffect(() => {
     if (iframe.current && iframe.current.contentWindow && isIframeReady) {
