@@ -71,6 +71,7 @@ export const BottomButtons: IDESidebarButton[] = [
     state: EditorState.DATA,
     icon: "datasource-v3",
     title: SidebarTopButtonTitles.DATA,
+    tooltip: "Datasources",
     urlSuffix: "datasource",
   },
   {
