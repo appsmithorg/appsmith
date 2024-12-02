@@ -8,7 +8,6 @@ public class OnLoadSpanCE {
             APPSMITH_SPAN_PREFIX + "getAllExecutablesByCreatorIdFlux";
     public static final String EXECUTABLE_NAME_TO_EXECUTABLE_MAP =
             APPSMITH_SPAN_PREFIX + "executableNameToExecutableMap";
-    public static final String EXECUTABLE_IN_CREATOR_CONTEXT = APPSMITH_SPAN_PREFIX + "executablesInCreatorContext";
     public static final String ADD_DIRECTLY_REFERENCED_EXECUTABLES_TO_GRAPH =
             APPSMITH_SPAN_PREFIX + "addDirectlyReferencedExecutablesToGraph";
     public static final String UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS =

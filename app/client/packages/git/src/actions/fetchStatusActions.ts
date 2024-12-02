@@ -1,28 +1,32 @@
-import type { GitArtifactPayloadAction, GitStatus } from "../types";
+import type {
+  GitArtifactPayloadAction,
+  GitArtifactErrorPayloadAction,
+  GitStatus,
+} from "../types";
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
 
 export const fetchStatusInitAction = createSingleArtifactAction((state) => {
-  state.status.loading = true;
-  state.status.error = null;
+  state.apiResponses.status.loading = true;
+  state.apiResponses.status.error = null;
 
   return state;
 });
 
 export const fetchStatusSuccessAction = createSingleArtifactAction(
   (state, action: GitArtifactPayloadAction<{ status: GitStatus }>) => {
-    state.status.loading = false;
-    state.status.value = action.payload.status;
+    state.apiResponses.status.loading = false;
+    state.apiResponses.status.value = action.payload.status;
 
     return state;
   },
 );
 
 export const fetchStatusErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactPayloadAction<{ error: string }>) => {
+  (state, action: GitArtifactErrorPayloadAction) => {
     const { error } = action.payload;
 
-    state.status.loading = false;
-    state.status.error = error;
+    state.apiResponses.status.loading = false;
+    state.apiResponses.status.error = error;
 
     return state;
   },

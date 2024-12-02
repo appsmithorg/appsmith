@@ -453,7 +453,7 @@ jobs:
         if: failure()
         with:
           name: server-logs-${{ matrix.job }}
-          path: app/server/server-logs.log
+          path: ${{ github.workspace }}/app/server/server-logs.log
           overwrite: true
 
       - name: Collect docker log as file
