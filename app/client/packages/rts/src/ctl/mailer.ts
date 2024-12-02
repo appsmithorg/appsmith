@@ -22,23 +22,22 @@ export async function sendBackupErrorToAdmins(err, backupTimestamp) {
       !mailUser ||
       !mailPass
     ) {
-      throw new Error(
+      await logger.backup_error(
         "Failed to send error mail. Email provider is not configured, please refer to https://docs.appsmith.com/setup/instance-configuration/email to configure it.",
       );
     } else if (!mailTo) {
-      throw new Error(
+      await logger.backup_error(
         "Failed to send error mail. Admin email(s) not configured, please refer to https://docs.appsmith.com/setup/instance-configuration/disable-user-signup#administrator-emails to configure it.",
       );
     } else if (!mailEnabled) {
-      throw new Error(
+      await logger.backup_error(
         "Mail not sent! APPSMITH_MAIL_ENABLED env val is disabled, please refer to https://docs.appsmith.com/setup/instance-configuration/email to enable it.",
       );
     } else {
       const backupFiles = await utils.listLocalBackupFiles();
       const lastBackupfile = backupFiles.pop();
-      const lastBackupTimestamp = lastBackupfile.match(
-        /appsmith-backup-(.*)\.tar.gz/,
-      )[1];
+      const lastBackupTimestamp =
+        lastBackupfile?.match(/appsmith-backup-(.*)\.tar.gz/)?.[1] ?? "Unknown";
       const lastBackupPath = Constants.BACKUP_PATH + "/" + lastBackupfile;
 
       const domainName = process.env.APPSMITH_CUSTOM_DOMAIN;

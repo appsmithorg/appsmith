@@ -313,7 +313,7 @@ async function getBackupDatabaseName(restoreContentsPath: string) {
 export async function run() {
   let cleanupArchive = false;
   let overwriteEncryptionKeys = true;
-  let backupFilePath: string;
+  let backupFilePath: string | null = null;
 
   await utils.ensureSupervisorIsRunning();
 
@@ -364,7 +364,7 @@ export async function run() {
       console.log(
         "Restoring Appsmith instance from the backup at " + backupFilePath,
       );
-      await utils.stop(["backend", "rts"]);
+      await utils.stop("backend", "rts");
       await restoreDatabase(restoreContentsPath, utils.getDburl());
       await restoreDockerEnvFile(
         restoreContentsPath,
@@ -379,11 +379,11 @@ export async function run() {
     console.log(err);
     process.exitCode = 1;
   } finally {
-    if (cleanupArchive) {
+    if (cleanupArchive && backupFilePath) {
       await fsPromises.rm(backupFilePath, { force: true });
     }
 
-    await utils.start(["backend", "rts"]);
+    await utils.start("backend", "rts");
     process.exit();
   }
 }

@@ -26,57 +26,48 @@ export async function ensureSupervisorIsRunning() {
   }
 }
 
-export async function stop(apps) {
+type AppName = "backend" | "editor" | "rts";
+
+export async function stop(...apps: AppName[]) {
   console.log("Stopping", apps);
   await execCommand(["/usr/bin/supervisorctl", "stop", ...apps]);
   console.log("Stopped", apps);
 }
 
-export async function start(apps) {
+export async function start(...apps: AppName[]) {
   console.log("Starting", apps);
   await execCommand(["/usr/bin/supervisorctl", "start", ...apps]);
   console.log("Started", apps);
 }
 
-export function getDburl() {
-  let dbUrl = "";
-
-  try {
-    const env_array = fs
-      .readFileSync(Constants.ENV_PATH, "utf8")
-      .toString()
-      .split("\n");
-
-    for (const i in env_array) {
-      if (
-        env_array[i].startsWith("APPSMITH_MONGODB_URI") ||
-        env_array[i].startsWith("APPSMITH_DB_URL")
-      ) {
-        dbUrl = env_array[i].toString().split("=")[1].trim();
-        break; // Break early when the desired line is found
-      }
-    }
-  } catch (err) {
-    console.error("Error reading the environment file:", err);
-  }
+export function getDburl(): string {
   const dbEnvUrl =
-    process.env.APPSMITH_DB_URL || process.env.APPSMITH_MONGO_DB_URI;
+    process.env.APPSMITH_DB_URL || process.env.APPSMITH_MONGODB_URI;
 
-  // Make sure dbEnvUrl takes precedence over dbUrl
   if (dbEnvUrl && dbEnvUrl !== "undefined") {
-    dbUrl = dbEnvUrl.trim();
+    return dbEnvUrl.trim();
   }
 
-  return dbUrl;
+  const lines = fs.readFileSync(Constants.ENV_PATH, "utf8").split("\n");
+
+  for (const line of lines) {
+    if (
+      line.startsWith("APPSMITH_MONGODB_URI") ||
+      line.startsWith("APPSMITH_DB_URL")
+    ) {
+      return line.split("=")[1].trim();
+    }
+  }
+
+  throw new Error("Unable to identify database URL");
 }
 
-export async function execCommand(cmd: string[], options?) {
+export async function execCommand(cmd: string[]) {
   return new Promise<void>((resolve, reject) => {
     let isPromiseDone = false;
 
     const p = childProcess.spawn(cmd[0], cmd.slice(1), {
       stdio: "inherit",
-      ...options,
     });
 
     p.on("exit", (code) => {
@@ -105,14 +96,14 @@ export async function execCommand(cmd: string[], options?) {
   });
 }
 
-export async function execCommandReturningOutput(cmd, options?) {
+export async function execCommandReturningOutput(cmd: string[]) {
   return new Promise<string>((resolve, reject) => {
-    const p = childProcess.spawn(cmd[0], cmd.slice(1), options);
+    const p = childProcess.spawn(cmd[0], cmd.slice(1));
 
     p.stdin.end();
 
-    const outChunks = [],
-      errChunks = [];
+    const outChunks: string[] = [],
+      errChunks: string[] = [];
 
     p.stdout.setEncoding("utf8");
     p.stdout.on("data", (data) => {
@@ -142,7 +133,7 @@ export async function execCommandReturningOutput(cmd, options?) {
 
 export async function listLocalBackupFiles() {
   // Ascending order
-  const backupFiles = [];
+  const backupFiles: string[] = [];
 
   await fsPromises
     .readdir(Constants.BACKUP_PATH)
@@ -160,7 +151,7 @@ export async function listLocalBackupFiles() {
   return backupFiles;
 }
 
-export async function updateLastBackupErrorMailSentInMilliSec(ts) {
+export async function updateLastBackupErrorMailSentInMilliSec(ts: number) {
   await fsPromises.mkdir(Constants.BACKUP_PATH, { recursive: true });
   await fsPromises.writeFile(Constants.LAST_ERROR_MAIL_TS, ts.toString());
 }
@@ -182,7 +173,7 @@ export async function getCurrentAppsmithVersion() {
   );
 }
 
-export function preprocessMongoDBURI(uri /* string */) {
+export function preprocessMongoDBURI(uri: string) {
   // Partially taken from <https://github.com/mongodb-js/mongosh/blob/8fde100d6d5ec711eb9565b85cb2e28e2da47c80/packages/arg-parser/src/uri-generator.ts#L248>
   // If we don't add the `directConnection` parameter for non-SRV URIs, we'll see the problem at <https://github.com/appsmithorg/appsmith/issues/16104>.
   const cs = new ConnectionString(uri);
@@ -215,12 +206,11 @@ export function preprocessMongoDBURI(uri /* string */) {
   return cs.toString();
 }
 
-export async function execCommandSilent(cmd, options?) {
+export async function execCommandSilent(cmd: string[]) {
   return new Promise<void>((resolve, reject) => {
     let isPromiseDone = false;
 
     const p = childProcess.spawn(cmd[0], cmd.slice(1), {
-      ...options,
       stdio: "ignore",
     });
 
@@ -249,7 +239,7 @@ export async function execCommandSilent(cmd, options?) {
   });
 }
 
-export function getDatabaseNameFromMongoURI(uri) {
+export function getDatabaseNameFromMongoURI(uri: string): string {
   const uriParts = uri.split("/");
 
   return uriParts[uriParts.length - 1].split("?")[0];

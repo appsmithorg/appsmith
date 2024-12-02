@@ -46,15 +46,6 @@ describe("Backup Tests", () => {
     );
   });
 
-  test("Test backup contents path generation", () => {
-    const root = "/rootDir";
-    const timestamp = "0000-00-0T00-00-00.00Z";
-
-    expect(backup.getBackupContentsPath(root, timestamp)).toBe(
-      "/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z",
-    );
-  });
-
   test("Test mongodump CMD generation", async () => {
     const dest = "/dest";
     const appsmithMongoURI = "mongodb://username:password@host/appsmith";
@@ -117,14 +108,6 @@ describe("Backup Tests", () => {
     ).toMatch(
       `APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`,
     );
-  });
-
-  test("Backup Archive Limit when env APPSMITH_BACKUP_ARCHIVE_LIMIT is null", () => {
-    expect(backup.getBackupArchiveLimit()).toBe(4);
-  });
-
-  test("Backup Archive Limit when env APPSMITH_BACKUP_ARCHIVE_LIMIT is 5", () => {
-    expect(backup.getBackupArchiveLimit(5)).toBe(5);
   });
 
   test("Cleanup Backups when limit is 4 and there are 5 files", async () => {

@@ -49,7 +49,7 @@ export class EnvFileLink implements Link {
 
 export function removeSensitiveEnvData(content: string): string {
   // Remove encryption and Mongodb data from docker.env
-  const output_lines = [];
+  const outLines: string[] = [];
 
   content.split(/\r?\n/).forEach((line) => {
     if (
@@ -57,9 +57,9 @@ export function removeSensitiveEnvData(content: string): string {
       !line.startsWith("APPSMITH_MONGODB") &&
       !line.startsWith("APPSMITH_DB_URL=")
     ) {
-      output_lines.push(line);
+      outLines.push(line);
     }
   });
 
-  return output_lines.join("\n");
+  return outLines.join("\n");
 }
