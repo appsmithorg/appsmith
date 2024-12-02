@@ -35,7 +35,7 @@ if (["export-db", "export_db", "ex"].includes(command)) {
   console.log("Exporting database");
   export_db.run();
   console.log("Export database done");
-} else if (["export_db_pg"].includes(command)) {
+} else if (["export-mongo-to-pg"].includes(command)) {
   console.log("Exporting data dump for Postgres migration");
   export_db_pg.run();
   console.log("Exporting data dump for Postgres migration done");
