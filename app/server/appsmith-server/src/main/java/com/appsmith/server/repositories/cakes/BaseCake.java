@@ -60,7 +60,8 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                                 "SELECT e FROM " + genericDomain.getSimpleName() + " e WHERE e.id IN :ids",
                                 genericDomain)
                         .setParameter("ids", ids)
-                        .getResultList()));
+                        .getResultList()))
+                .publishOn(Schedulers.single());
     }
 
     public Mono<T> findById(String id) {
@@ -75,7 +76,8 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
                 .flatMapMany(em -> asFlux(
                         () -> em.createQuery("SELECT e FROM " + genericDomain.getSimpleName() + " e", genericDomain)
-                                .getResultList()));
+                                .getResultList()))
+                .publishOn(Schedulers.single());
     }
 
     @Deprecated(forRemoval = true)
@@ -149,7 +151,8 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                         }
                     }
                     return entities;
-                })));
+                })))
+                .publishOn(Schedulers.single());
     }
 
     public Mono<Long> count() {

@@ -58,6 +58,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -67,6 +68,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.appsmith.external.constants.spans.ce.ApplicationSpanCE.APPLICATION_FETCH_FROM_DB;
@@ -1075,8 +1077,8 @@ public class ApplicationServiceCEImpl
     }
 
     @Override
-    public Mono<Application> findAndUpdateApplicationForTest(String id) {
-        Mono<Application> applicationMono = repository
+    public Flux<Application> findAndUpdateApplicationForTest(String id) {
+        Flux<Application> applicationFlux = repository
                 .findById(id, applicationPermission.getEditPermission())
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
@@ -1091,26 +1093,22 @@ public class ApplicationServiceCEImpl
                     // return Mono.error(new RuntimeException("Error"));
                     return repository.updateById(id, update, null);
                 })
-                .flatMap(obj -> {
-                    Workspace workspace = new Workspace();
-                    workspace.setName("updated_workspace_name");
-
+                .flatMapMany(obj -> findByWorkspaceId(obj.getWorkspaceId(), MANAGE_APPLICATIONS))
+                .publishOn(Schedulers.single())
+                .flatMap(application -> {
                     Application update = new Application();
-                    update.setSlug("updated_name_2");
-
-                    return repository
-                            .updateById(id, update, null)
-                            .then(workspaceRepositoryCake.updateById(obj.getWorkspaceId(), workspace, null))
-                            .then(Mono.defer(() -> repository.findById(id, applicationPermission.getEditPermission())));
+                    update.setName("updated_name" + UUID.randomUUID());
+                    return repository.updateById(application.getId(), update, null);
                 })
                 .as(transactionManager::transactional);
 
-        return applicationMono
-                .doOnSuccess(application -> {
+        return applicationFlux
+                .doFinally(application -> {
                     log.info("Application updated successfully");
                 })
-                .doOnError(throwable -> {
+                .onErrorResume(throwable -> {
                     log.error("Error updating application", throwable);
+                    return Flux.empty();
                 });
     }
 }

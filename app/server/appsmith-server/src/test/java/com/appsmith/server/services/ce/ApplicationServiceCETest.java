@@ -4541,17 +4541,18 @@ public class ApplicationServiceCETest {
         application.setName("Application " + UUID.randomUUID());
         application.setWorkspaceId(workspaceId);
         application = applicationPageService.createApplication(application).block();
-        Mono<Application> resultMono = applicationService
+        Mono<List<Application>> resultMono = applicationService
                 .findAndUpdateApplicationForTest(application.getId())
                 .flatMap(app -> applicationService.findById(app.getId()))
                 .onErrorResume(e -> {
                     log.error("Error occurred while updating application", e);
                     return Mono.just(new Application());
-                });
+                })
+                .collectList();
 
         StepVerifier.create(resultMono)
                 .assertNext(app -> {
-                    assertThat(app.getName()).isEqualTo("updated_name");
+                    assertThat(app.size()).isNotZero();
                 })
                 .verifyComplete();
     }

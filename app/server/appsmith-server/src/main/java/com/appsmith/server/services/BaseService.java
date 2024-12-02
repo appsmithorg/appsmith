@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -158,7 +159,8 @@ public abstract class BaseService<
                         .sort(sort)
                         .includeAnonymousUserPermissions(false)
                         .entityManager(tuple2.getT2())
-                        .all()));
+                        .all()))
+                .publishOn(Schedulers.single());
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
