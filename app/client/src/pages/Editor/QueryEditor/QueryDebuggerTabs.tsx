@@ -16,7 +16,7 @@ import Schema from "PluginActionEditor/components/PluginActionResponse/component
 import type { ActionResponse } from "api/ActionAPI";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
-import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
+import { Response } from "PluginActionEditor/components/PluginActionResponse/components/Response";
 import {
   getDatasource,
   getDatasourceStructureById,
@@ -33,6 +33,7 @@ import { actionResponseDisplayDataFormats } from "../utils";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 interface QueryDebuggerTabsProps {
   actionSource: SourceEntity;
@@ -49,12 +50,10 @@ interface QueryDebuggerTabsProps {
 function QueryDebuggerTabs({
   actionName,
   actionResponse,
-  actionSource,
   currentActionConfig,
   isRunDisabled = false,
   isRunning,
   onRunClick,
-  runErrorMessage,
   showSchema,
 }: QueryDebuggerTabsProps) {
   const dispatch = useDispatch();
@@ -202,14 +201,14 @@ function QueryDebuggerTabs({
       key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
-        <QueryResponseTab
-          actionName={actionName}
-          actionSource={actionSource}
-          currentActionConfig={currentActionConfig}
+        <Response
+          action={currentActionConfig}
+          actionResponse={actionResponse}
           isRunDisabled={isRunDisabled}
           isRunning={isRunning}
           onRunClick={onRunClick}
-          runErrorMessage={runErrorMessage}
+          responseTabHeight={responseTabHeight}
+          theme={EditorTheme.LIGHT}
         />
       ),
     });
