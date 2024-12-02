@@ -1,5 +1,9 @@
 /**
- * Moves data from MongoDB to Postgres.
+ * Moves data from MongoDB to JSONL files, with optional baseline mode filtering.
+ *
+ * This script connects to a MongoDB instance, optionally restores from a dump file,
+ * and exports data from all collections to JSONL files. In baseline mode, specific
+ * filters are applied to exclude certain data.
  *
  * @param {string} mongoDbUrl - The URL of the MongoDB.
  * @param {string} mongoDumpFile - The path to the MongoDB dump file.
@@ -9,26 +13,81 @@
 import { spawn } from "child_process";
 import { MongoClient } from "mongodb";
 import * as fs from "node:fs";
-
 /**
- * Exports MongoDB data to JSONL files.
- *
- * @param {string} mongoDbUrl - The URL of the MongoDB.
- * @returns {Promise<void>} - A promise that resolves when the export is complete.
+ * Copies MongoDB data to JSONL files
+ * @param {string} dbUrl - MongoDB connection URL
+ * @returns {Promise<void>}
  */
-async function exportMongoToJSONL(mongoDbUrl) {
+async function copyToJSONL(dbUrl) {
+  let isBaselineMode = false;
+  let mongoDbUrl = dbUrl;
+  let mongoDumpFile = null;
   const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
   const MINIMUM_MONGO_CHANGESET = "add_empty_policyMap_for_null_entries";
   const MONGO_MIGRATION_COLLECTION = "mongockChangeLog";
+
+  for (let i = 2; i < process.argv.length; ++i) {
+    const arg = process.argv[i];
+    if (arg.startsWith("--mongodb-url=") && !mongoDbUrl) {
+      mongoDbUrl = extractValueFromArg(arg);
+    } else if (arg.startsWith("--mongodb-dump=") && !mongoDumpFile) {
+      mongoDumpFile = extractValueFromArg(arg);
+    } else if (arg === "--baseline") {
+      isBaselineMode = true;
+      console.warn(
+        "Running in baseline mode. If you're not an Appsmith team member, we sure hope you know what you're doing.",
+      );
+    } else {
+      console.error("Unknown/unexpected argument: " + arg);
+      process.exit(1);
+    }
+  }
+
+  if (!mongoDbUrl && !mongoDumpFile) {
+    console.error("No source specified");
+    process.exit(1);
+  }
+
+  let mongoServer;
+  if (mongoDumpFile) {
+    fs.mkdirSync("/tmp/db-tmp", { recursive: true });
+
+    mongoServer = spawn(
+      "mongod",
+      ["--bind_ip_all", "--dbpath", "/tmp/db-tmp", "--port", "27500"],
+      {
+        stdio: "inherit",
+      },
+    );
+
+    mongoDbUrl = "mongodb://localhost/tmp";
+
+    spawn("mongorestore", [
+      mongoDbUrl,
+      "--archive=" + mongoDumpFile,
+      "--gzip",
+      "--noIndexRestore",
+    ]);
+  }
 
   const mongoClient = new MongoClient(mongoDbUrl);
   mongoClient.on("error", console.error);
   await mongoClient.connect();
   const mongoDb = mongoClient.db();
 
-  // Make sure EXPORT_ROOT directory is empty
   fs.rmSync(EXPORT_ROOT, { recursive: true, force: true });
   fs.mkdirSync(EXPORT_ROOT, { recursive: true });
+
+  const filters = {};
+
+  if (isBaselineMode) {
+    filters.config = {
+      name: { $ne: "appsmith_registered" },
+    };
+    filters.plugin = {
+      packageName: { $ne: "saas-plugin" },
+    };
+  }
 
   const collectionNames = await mongoDb
     .listCollections({}, { nameOnly: true })
@@ -37,32 +96,36 @@ async function exportMongoToJSONL(mongoDbUrl) {
     .map((collection) => collection.name)
     .sort();
 
-  // Verify that the MongoDB data has been migrated to a stable version
   if (!(await isMongoDataMigratedToStableVersion(mongoDb))) {
     console.error(
-      "MongoDB migration check failed: Try upgrading the Appsmith instance to the latest version before opting for data migration.",
+      "MongoDB migration check failed: Try upgrading the Appsmith instance to latest before opting for data migration.",
     );
     console.error(
       `Could not find the valid migration execution entry for "${MINIMUM_MONGO_CHANGESET}" in the "${MONGO_MIGRATION_COLLECTION}" collection.`,
     );
     await mongoClient.close();
+    mongoServer?.kill();
     process.exit(1);
   }
 
   for await (const collectionName of sortedCollectionNames) {
     console.log("Collection:", collectionName);
+    if (isBaselineMode && collectionName.startsWith("mongock")) {
+      continue;
+    }
     let outFile = null;
-    for await (const doc of mongoDb.collection(collectionName).find()) {
+    for await (const doc of mongoDb
+      .collection(collectionName)
+      .find(filters[collectionName])) {
       if (isArchivedObject(doc)) {
         continue;
       }
-      transformFields(doc); // This now handles the _class to type transformation.
+      transformFields(doc);
       if (doc.policyMap == null) {
         doc.policyMap = {};
       }
 
       if (outFile == null) {
-        // Don't create the file unless there's data to write.
         outFile = fs.openSync(EXPORT_ROOT + "/" + collectionName + ".jsonl", "w");
       }
 
@@ -75,62 +138,9 @@ async function exportMongoToJSONL(mongoDbUrl) {
   }
 
   await mongoClient.close();
+  mongoServer?.kill();
 
   console.log("done");
-}
 
-function isArchivedObject(doc) {
-  return doc.deleted === true || doc.deletedAt != null;
+  process.exit(0);
 }
-
-function toJsonSortedKeys(obj) {
-  return JSON.stringify(obj, replacer);
-}
-
-function replacer(key, value) {
-  return value instanceof Object && !Array.isArray(value)
-    ? Object.keys(value)
-      .sort()
-      .reduce((sorted, key) => {
-        sorted[key] = value[key];
-        return sorted;
-      }, {})
-    : value;
-}
-
-function transformFields(obj) {
-  for (const key in obj) {
-    if (key === "_id") {
-      obj.id = obj._id.toString();
-      delete obj._id;
-    } else if (key === "_class") {
-      const type = mapClassToType(obj._class);
-      if (type) {
-        obj.type = type;
-      }
-      delete obj._class;
-    } else if (typeof obj[key] === "object" && obj[key] !== null) {
-      transformFields(obj[key]);
-    }
-  }
-}
-
-function mapClassToType(_class) {
-  switch (_class) {
-    case "com.appsmith.external.models.DatasourceStructure$PrimaryKey":
-      return "primary key";
-    case "com.appsmith.external.models.DatasourceStructure$ForeignKey":
-      return "foreign key";
-    default:
-      return null;
-  }
-}
-
-async function isMongoDataMigratedToStableVersion(mongoDb) {
-  const doc = await mongoDb.collection(MONGO_MIGRATION_COLLECTION).findOne({
-    changeId: "add_empty_policyMap_for_null_entries",
-    state: "EXECUTED",
-  });
-  return doc !== null;
-}
-
