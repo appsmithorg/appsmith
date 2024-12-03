@@ -8,6 +8,7 @@ import {
   homePage,
   jsEditor,
   locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -92,57 +93,22 @@ describe(
       agHelper.RefreshPage();
     });
 
-    it.skip("3. Verify behavior when an invalid callback function is passed to setInterval(). An error should be thrown, and no interval should be set.", () => {
+    it("3. Verify behavior when an invalid callback function is passed to setInterval(). An error should be thrown, and no interval should be set.", () => {
       //JS Object verification
       EditorNavigation.SelectEntityByName("Submit3_2", EntityType.Widget);
-      
-      // Setup console spies and stub window.setInterval
-      cy.window().then((win) => {
-        cy.stub(win.console, 'error').as('consoleError');
-        cy.stub(win, 'setInterval').callsFake((callback) => {
-          try {
-            callback();
-          } catch (e) {
-            win.console.error(e);
-          }
-          return 123; // Fake interval ID
-        });
-      });
-      
+      propPane.EnterJSContext(
+        "onClick",
+        `{{setInterval(() => {
+              testInvalid123();
+            }, 2000, "testingFun");}}`,
+      );
       agHelper.ClickButton("Submit3_2");
-      
-      // Verify the error was logged
-      cy.get('@consoleError').should('be.called')
-        .then((spy) => {
-          expect(spy.args[0][0].toString()).to.include('testInvalid');
-        });
-
-      // Deploy mode verification
-      deployMode.DeployApp();
-      agHelper.AssertElementVisibility(appSettings.locators._header);
-      
-      // Setup console spies again for deploy mode
-      cy.window().then((win) => {
-        cy.stub(win.console, 'error').as('consoleErrorDeploy');
-        cy.stub(win, 'setInterval').callsFake((callback) => {
-          try {
-            callback();
-          } catch (e) {
-            win.console.error(e);
-          }
-          return 123; // Fake interval ID
-        });
-      });
-      
-      agHelper.ClickButton("Submit3_2");
-      
-      // Verify the error in deploy mode
-      cy.get('@consoleErrorDeploy').should('be.called')
-        .then((spy) => {
-          expect(spy.args[0][0].toString()).to.include('testInvalid');
-        });
-      
-      deployMode.NavigateBacktoEditor();
+      debuggerHelper.AssertDebugError(
+        "'testInvalid123' is not defined.",
+        "",
+        true,
+        false,
+      );
       agHelper.RefreshPage();
     });
 
