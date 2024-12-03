@@ -8,17 +8,14 @@ interface ValidationParams {
 class Response {
   public locators = {
     responseTab: "[data-testid='t--tab-RESPONSE_TAB']",
-    responseDataContainer: "[data-testid='t--query-response-data-container']",
-    responseTypeMenuTrigger: "[data-testid='t--query-response-type-trigger']",
-    responseRecordCount: "[data-testid='t--query-response-record-count']",
-
-    /** @deprecated */
-    responseType(type: string): string {
-      return `//div[@data-testid='t--response-tab-segmented-control']//span[text()='${type}']`;
-    },
+    responseDataContainer: "[data-testid='t--response-data-container']",
+    responseTypeMenuTrigger: "[data-testid='t--response-type-trigger']",
+    responseRecordCount: "[data-testid='t--response-record-count']",
+    responseStatusInfo: "[data-testid='t--response-status-info']",
+    responseStatusInfoTooltip: "#t--response-tooltip",
 
     responseTypeMenuItem(type: string) {
-      return `[data-testid="t--query-response-type-menu-item"][data-value="${type}"]`;
+      return `[data-testid="t--response-type-menu-item"][data-value="${type}"]`;
     },
   };
 
@@ -39,6 +36,14 @@ class Response {
 
   public closeResponseTypeMenu() {
     cy.get(this.locators.responseTypeMenuTrigger).realClick();
+  }
+
+  public validateResponseStatus(status: string): void {
+    cy.get(this.locators.responseStatusInfo).realHover();
+    cy.get(this.locators.responseStatusInfoTooltip).should(
+      "include.text",
+      status,
+    );
   }
 
   public validateRecordCount({

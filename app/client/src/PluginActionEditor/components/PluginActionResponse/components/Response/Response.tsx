@@ -120,6 +120,10 @@ export function Response(props: ResponseProps) {
         ]);
       }
 
+      if (actionResponse.statusCode) {
+        messages.push(["statusCode", "Status", actionResponse.statusCode]);
+      }
+
       return (
         <>
           {messages.map(([key, title, message]) => (
@@ -228,7 +232,7 @@ export function Response(props: ResponseProps) {
               </Styled.ErrorDefaultMessage>
               {actionResponse && actionResponse.pluginErrorDetails && (
                 <>
-                  <div data-testid="t--query-error">
+                  <div data-testid="t--error">
                     {actionResponse.pluginErrorDetails.downstreamErrorMessage ||
                       actionResponse.pluginErrorDetails.appsmithErrorMessage}
                   </div>
@@ -285,23 +289,24 @@ export function Response(props: ResponseProps) {
       {response && (
         <Styled.DataContainer
           $height={responseTabHeight}
-          data-testid="t--query-response-data-container"
+          data-testid="t--response-data-container"
           onMouseEnter={setIsHovered}
           onMouseLeave={setIsNotHovered}
         >
           <Styled.StatusBar>
             <Tooltip
               content={queryTooltipContent}
+              id="t--response-tooltip"
               isDisabled={!queryTooltipContent}
               placement="bottom"
             >
-              <Styled.StatusBarInfo>
+              <Styled.StatusBarInfo data-testid="t--response-status-info">
                 <Styled.StatusBarText $hasTooltip $isBold kind="code">
                   {`${action.name}.run():`}
                 </Styled.StatusBarText>
                 <Styled.StatusBarText
                   $hasTooltip
-                  data-testid="t--query-response-record-count"
+                  data-testid="t--response-record-count"
                   kind="code"
                 >{`${recordCount} record${recordCount > 1 ? "s" : ""}`}</Styled.StatusBarText>
               </Styled.StatusBarInfo>
