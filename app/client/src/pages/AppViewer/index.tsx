@@ -208,6 +208,7 @@ function AppViewer(props: Props) {
 
   const renderChildren = () => {
     return (
+    <div style={{ direction: "rtl" }}>
       <EditorContextProvider renderMode="PAGE">
         {!isAnvilLayout && (
           <WidgetGlobaStyles
@@ -233,21 +234,9 @@ function AppViewer(props: Props) {
           >
             {isInitialized && <AppViewerPageContainer />}
           </AppViewerBody>
-          <div className={"fixed hidden right-8 z-3 md:flex bottom-4"}>
-            {!hideWatermark && (
-              <a
-                className="hover:no-underline"
-                href="https://appsmith.com"
-                rel="noreferrer"
-                target="_blank"
-              >
-                <BrandingBadge />
-              </a>
-            )}
-            <KBViewerFloatingButton />
-          </div>
         </AppViewerBodyContainer>
       </EditorContextProvider>
+    </div>
     );
   };
 

@@ -188,6 +188,7 @@
     "react-json-view": "^1.21.3",
     "react-media-recorder": "^1.6.1",
     "react-modal": "^3.15.1",
+    "react-multi-date-picker": "^4.4.1",
     "react-page-visibility": "^7.0.0",
     "react-player": "^2.3.1",
     "react-qr-barcode-scanner": "^1.0.6",

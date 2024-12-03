@@ -12760,7 +12760,7 @@ export const defaultAppState = {
           release_anvil_enabled: false,
           release_app_sidebar_enabled: false,
           license_git_branch_protection_enabled: false,
-          license_widget_rtl_support_enabled: false,
+          license_widget_rtl_support_enabled: true,
           release_show_new_sidebar_announcement_enabled: false,
           rollout_app_sidebar_enabled: false,
           ab_one_click_learning_popover_enabled: false,
@@ -16269,6 +16269,8 @@ export const defaultAppState = {
                 "Roboto",
                 "Rubik",
                 "Ubuntu",
+                "VazirMatn",
+                "YekanBakh"
               ],
             },
           },
@@ -16703,6 +16705,8 @@ export const defaultAppState = {
                 "Roboto",
                 "Rubik",
                 "Ubuntu",
+                "VazirMatn",
+                "YekanBakh"
               ],
             },
           },
@@ -17136,6 +17140,8 @@ export const defaultAppState = {
                 "Roboto",
                 "Rubik",
                 "Ubuntu",
+                "VazirMatn",
+                "YekanBakh"
               ],
             },
           },
@@ -17152,7 +17158,7 @@ export const defaultAppState = {
                 "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
             },
             fontFamily: {
-              appFont: "Rubik",
+              appFont: "YekanBakh",
             },
           },
           stylesheet: {
@@ -17570,6 +17576,8 @@ export const defaultAppState = {
                 "Roboto",
                 "Rubik",
                 "Ubuntu",
+                "VazirMatn",
+                "YekanBakh"
               ],
             },
           },
@@ -17586,7 +17594,7 @@ export const defaultAppState = {
                 "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
             },
             fontFamily: {
-              appFont: "Rubik",
+              appFont: "YekanBakh",
             },
           },
           stylesheet: {
@@ -18004,6 +18012,8 @@ export const defaultAppState = {
                 "Roboto",
                 "Rubik",
                 "Ubuntu",
+                "VazirMatn",
+                "YekanBakh"
               ],
             },
           },
@@ -18438,6 +18448,8 @@ export const defaultAppState = {
                 "Roboto",
                 "Rubik",
                 "Ubuntu",
+                "VazirMatn",
+                "YekanBakh"
               ],
             },
           },
@@ -18872,6 +18884,8 @@ export const defaultAppState = {
                 "Roboto",
                 "Rubik",
                 "Ubuntu",
+                "VazirMatn",
+                "YekanBakh"
               ],
             },
           },
@@ -19306,6 +19320,8 @@ export const defaultAppState = {
                 "Roboto",
                 "Rubik",
                 "Ubuntu",
+                "VazirMatn",
+                "YekanBakh"
               ],
             },
           },
@@ -19740,6 +19756,8 @@ export const defaultAppState = {
                 "Roboto",
                 "Rubik",
                 "Ubuntu",
+                "VazirMatn",
+                "YekanBakh"
               ],
             },
           },
@@ -20180,6 +20198,8 @@ export const defaultAppState = {
               "Roboto",
               "Rubik",
               "Ubuntu",
+              "YekanBakh",
+              "VazirMatn"
             ],
           },
         },
