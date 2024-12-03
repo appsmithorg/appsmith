@@ -140,7 +140,7 @@ describe(
     it("2. Run a Select query & Add Suggested widget - Table", () => {
       query = `Select * from Simpsons;`;
       dataSources.CreateQueryFromOverlay(dsName, query, "selectSimpsons"); //Creating query from EE overlay
-      dataSources.RunQueryNVerifyResponseViews(10); //Could be 99 in CI, to check aft init load script is working
+      dataSources.runQueryAndVerifyResponseViews({ count: 10 }); //Could be 99 in CI, to check aft init load script is working
 
       dataSources.AddSuggestedWidget(Widgets.Table);
       agHelper.GetNClick(propPane._deleteWidget);

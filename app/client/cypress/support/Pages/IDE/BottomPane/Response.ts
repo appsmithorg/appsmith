@@ -22,15 +22,6 @@ class Response {
     },
   };
 
-  /** @deprecated: method will be deleted when segmented control in response pane is replaced */
-  public getResponseTypeSelector = this.locators.responseType;
-
-  /** @deprecated: method will be deleted when segmented control in response pane is replaced */
-  public switchResponseType(type: string): void {
-    this.switchToResponseTab();
-    cy.xpath(this.locators.responseType(type)).click({ force: true });
-  }
-
   public switchToResponseTab(): void {
     cy.get(this.locators.responseTab).click({ force: true });
   }

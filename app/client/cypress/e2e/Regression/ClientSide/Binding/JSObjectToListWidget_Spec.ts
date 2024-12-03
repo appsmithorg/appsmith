@@ -19,7 +19,7 @@ describe(
         _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
       );
       _.apiPage.RunAPI();
-      BottomPane.response.switchResponseType("JSON");
+      BottomPane.response.selectResponseResponseTypeFromMenu("JSON");
       _.apiPage.ReadApiResponsebyKey("name");
       cy.get("@apiResp").then((value) => {
         valueToTest = value;

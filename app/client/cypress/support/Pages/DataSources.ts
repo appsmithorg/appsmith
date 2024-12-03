@@ -1133,25 +1133,6 @@ export class DataSources {
     this.assertHelper.AssertNetworkStatus("@saveAction", 200);
   }
 
-  /** @deprecated */
-  public RunQueryNVerifyResponseViews(
-    expectedRecordsCount = 1,
-    tableCheck = true,
-  ) {
-    this.RunQuery();
-    if (tableCheck) {
-      this.agHelper.AssertElementVisibility(
-        BottomPane.response.getResponseTypeSelector("TABLE"),
-      );
-      this.agHelper.AssertElementVisibility(
-        BottomPane.response.getResponseTypeSelector("JSON"),
-      );
-      this.agHelper.AssertElementVisibility(
-        BottomPane.response.getResponseTypeSelector("RAW"),
-      );
-    }
-  }
-
   public runQueryAndVerifyResponseViews({
     count = 1,
     operator = "eq",
