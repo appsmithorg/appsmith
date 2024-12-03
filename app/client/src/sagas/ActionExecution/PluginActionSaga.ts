@@ -3,6 +3,7 @@ import {
   call,
   delay,
   put,
+  race,
   select,
   take,
   takeEvery,
@@ -1690,6 +1691,39 @@ function* handleUpdateActionData(
   }
 }
 
+function* captureActionsWithinPeriodTriggers() {
+  while (true) {
+    const buffer = []; // Initialize a new buffer for each batch
+    const endTime = Date.now() + 10000;
+    // eslint-disable-next-line prefer-const
+
+    while (Date.now() < endTime) {
+      try {
+        // Use a non-blocking `take` to capture actions within the period
+
+        const { action } = yield race({
+          action: take(ReduxActionTypes.BATCH_UPDATES_SUCCESS),
+          del: delay(1000),
+        });
+
+        if (!action) continue;
+
+        buffer.push(...action.payload);
+      } catch (e) {
+        // Handle errors if needed
+      }
+    }
+
+    // After the time period, dispatch the collected actions
+    if (buffer.length > 0) {
+      yield put({
+        type: ReduxActionTypes.BATCH_UPDATES_SUCCESS_CONSOLIDATED,
+        payload: buffer,
+      });
+    }
+  }
+}
+
 export function* watchPluginActionExecutionSagas() {
   yield all([
     takeLatest(ReduxActionTypes.RUN_ACTION_REQUEST, runActionSaga),
@@ -1704,5 +1738,9 @@ export function* watchPluginActionExecutionSagas() {
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
     takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
     takeEvery(ReduxActionTypes.UPDATE_ACTION_DATA, handleUpdateActionData),
+    takeEvery(
+      ReduxActionTypes.START_EVALUATION,
+      captureActionsWithinPeriodTriggers,
+    ),
   ]);
 }
