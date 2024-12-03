@@ -251,6 +251,10 @@
   --ads-v2-opacity-disabled: 0.6;
 }
 
+:focus {
+  outline: none !important;
+}
+
 /* react-aria useFocusRing helper class*/
 .ads-v2-focus-ring,
 :focus-visible {
