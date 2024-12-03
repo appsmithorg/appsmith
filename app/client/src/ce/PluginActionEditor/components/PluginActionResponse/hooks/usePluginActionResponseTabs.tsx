@@ -145,7 +145,7 @@ function usePluginActionResponseTabs() {
       {
         key: DEBUGGER_TAB_KEYS.LOGS_TAB,
         title: createMessage(DEBUGGER_LOGS),
-        panelComponent: <DebuggerLogs searchQuery={action.name} />,
+        panelComponent: <DebuggerLogs />,
       },
       {
         key: DEBUGGER_TAB_KEYS.ERROR_TAB,

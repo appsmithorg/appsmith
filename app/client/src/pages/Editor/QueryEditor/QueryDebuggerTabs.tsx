@@ -186,7 +186,7 @@ function QueryDebuggerTabs({
       {
         key: DEBUGGER_TAB_KEYS.LOGS_TAB,
         title: createMessage(DEBUGGER_LOGS),
-        panelComponent: <DebuggerLogs searchQuery={actionName} />,
+        panelComponent: <DebuggerLogs />,
       },
       {
         key: DEBUGGER_TAB_KEYS.ERROR_TAB,

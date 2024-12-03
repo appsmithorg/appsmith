@@ -141,7 +141,7 @@ function ApiResponseView(props: Props) {
       {
         key: DEBUGGER_TAB_KEYS.LOGS_TAB,
         title: createMessage(DEBUGGER_LOGS),
-        panelComponent: <DebuggerLogs searchQuery={currentActionConfig.name} />,
+        panelComponent: <DebuggerLogs />,
       },
       {
         key: DEBUGGER_TAB_KEYS.ERROR_TAB,
