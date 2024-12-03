@@ -794,9 +794,6 @@ export default class DataTreeEvaluator {
     return { evaluationOrder };
   }
 
-  klona3(data: any) {
-    return klona(data);
-  }
   setupTree(
     updatedUnEvalTree: UnEvalTree,
     updatedValuePaths: string[][],
