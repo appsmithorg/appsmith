@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.Set;
 
@@ -50,5 +51,6 @@ public interface GitHandlingServiceCE {
     Mono<Boolean> prepareChangesToBeCommitted(
             ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson);
 
-    Mono<String> commitArtifact(CommitDTO commitDTO, ArtifactJsonTransformationDTO jsonTransformationDTO);
+    Mono<Tuple2<? extends Artifact, String>> commitArtifact(
+            Artifact branchedArtifact, CommitDTO commitDTO, ArtifactJsonTransformationDTO jsonTransformationDTO);
 }

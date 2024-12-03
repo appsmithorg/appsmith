@@ -21,6 +21,4 @@ public interface CentralGitServiceCE {
 
     Mono<String> commitArtifact(
             CommitDTO commitDTO, String branchedArtifactId, ArtifactType artifactType, GitType gitType);
-
-    Mono<String> pushArtifact(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
 }

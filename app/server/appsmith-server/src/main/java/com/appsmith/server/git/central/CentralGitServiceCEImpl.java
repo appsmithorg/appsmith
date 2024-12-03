@@ -668,7 +668,6 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             boolean isFileLock) {
 
         String commitMessage = commitDTO.getMessage();
-        StringBuilder result = new StringBuilder();
 
         if (commitMessage == null || commitMessage.isEmpty()) {
             commitDTO.setMessage(DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason());
@@ -807,9 +806,8 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     jsonTransformationDTO.setArtifactType(branchedArtifact.getArtifactType());
                     jsonTransformationDTO.setRefName(gitArtifactMetadata.getBranchName());
 
-                    result.append("Commit Result : ");
-                    Mono<String> gitCommitMono = gitHandlingService
-                            .commitArtifact(commitDTO, jsonTransformationDTO)
+                    return gitHandlingService
+                            .commitArtifact(updatedBranchedArtifact, commitDTO, jsonTransformationDTO)
                             .onErrorResume(error -> {
                                 return gitAnalyticsUtils
                                         .addAnalyticsForGitOperation(
@@ -821,26 +819,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                         .then(Mono.error(new AppsmithException(
                                                 AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage())));
                             });
-
-                    return Mono.zip(
-                            gitCommitMono, gitArtifactHelper.getArtifactById(updatedBranchedArtifact.getId(), null));
-                })
-                .flatMap(tuple -> {
-                    String commitStatus = tuple.getT1();
-                    Artifact branchedArtifactFromDb = tuple.getT2();
-                    result.append(commitStatus);
-                    result.append(".\nPush Result : ");
-
-                    pushArtifact(branchedArtifactFromDb, false, gitType)
-                            .map(pushResult -> result.append(pushResult).toString())
-                            .zipWith(Mono.just(branchedArtifactFromDb));
-
-                    return Mono.zip(Mono.just(result.toString()), Mono.just(branchedArtifactFromDb));
                 })
                 .flatMap(tuple2 -> {
-                    String status = tuple2.getT1();
-                    Artifact artifactFromBranch = tuple2.getT2();
-                    return Mono.zip(Mono.just(status), publishArtifact(artifactFromBranch));
+                    return Mono.zip(
+                            Mono.just(tuple2.getT2()), gitArtifactHelper.publishArtifactPostCommit(tuple2.getT1()));
                 })
                 .flatMap(tuple -> {
                     String status = tuple.getT1();
@@ -867,32 +849,6 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
         return Mono.create(sink -> {
             commitMono.subscribe(sink::success, sink::error, null, sink.currentContext());
         });
-    }
-
-    // TODO: to be implemented in subsequent prs
-    protected Mono<? extends Artifact> publishArtifact(Artifact artifact) {
-        return null;
-    }
-
-    @Override
-    public Mono<String> pushArtifact(String branchedArtifactId, ArtifactType artifactType, GitType gitType) {
-        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
-        AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
-
-        return gitArtifactHelper
-                .getArtifactById(branchedArtifactId, artifactEditPermission)
-                .flatMap(branchedArtifact -> pushArtifact(branchedArtifact, true, gitType));
-    }
-
-    /**
-     * Push flow for dehydrated apps
-     *
-     * @param branchedArtifact application which needs to be pushed to remote repo
-     * @return Success message
-     */
-    // TODO: to be implemented in subsequent prs
-    protected Mono<String> pushArtifact(Artifact branchedArtifact, boolean isFileLock, GitType gitType) {
-        return null;
     }
 
     /**
