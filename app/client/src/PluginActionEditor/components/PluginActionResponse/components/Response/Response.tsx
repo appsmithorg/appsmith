@@ -8,7 +8,7 @@ import { Callout, Tooltip, type CalloutLinkProps } from "@appsmith/ads";
 import type { ActionResponse } from "api/ActionAPI";
 import ActionExecutionInProgressView from "components/editorComponents/ActionExecutionInProgressView";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { type Action } from "entities/Action";
+import { PluginType, type Action } from "entities/Action";
 
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { actionResponseDisplayDataFormats } from "pages/Editor/utils";
@@ -151,7 +151,9 @@ export function Response(props: ResponseProps) {
 
   const updateTimestamp = getUpdateTimestamp(actionResponse?.request);
   const reactJsonParams =
-    action.pluginType === "API" ? API_REACT_JSON_PROPS : REACT_JSON_PROPS;
+    action.pluginType === PluginType.API
+      ? API_REACT_JSON_PROPS
+      : REACT_JSON_PROPS;
 
   const preparedStatementCalloutLinks: CalloutLinkProps[] = useMemo(() => {
     const navigateToSettings = () => {
@@ -230,21 +232,30 @@ export function Response(props: ResponseProps) {
                   (actionResponse.pluginErrorDetails || actionResponse.body) &&
                   ":"}
               </Styled.ErrorDefaultMessage>
-              {actionResponse && actionResponse.pluginErrorDetails && (
-                <>
-                  <div data-testid="t--error">
-                    {actionResponse.pluginErrorDetails.downstreamErrorMessage ||
-                      actionResponse.pluginErrorDetails.appsmithErrorMessage}
-                  </div>
-                  {actionResponse.pluginErrorDetails.downstreamErrorCode && (
-                    <LogAdditionalInfo
-                      text={
-                        actionResponse.pluginErrorDetails.downstreamErrorCode
-                      }
-                    />
-                  )}
-                </>
-              )}
+              {actionResponse &&
+                (actionResponse.pluginErrorDetails ? (
+                  <>
+                    <div data-testid="t--response-error">
+                      {actionResponse.pluginErrorDetails
+                        .downstreamErrorMessage ||
+                        actionResponse.pluginErrorDetails.appsmithErrorMessage}
+                    </div>
+                    {actionResponse.pluginErrorDetails.downstreamErrorCode && (
+                      <LogAdditionalInfo
+                        text={
+                          actionResponse.pluginErrorDetails.downstreamErrorCode
+                        }
+                      />
+                    )}
+                  </>
+                ) : (
+                  actionResponse.body &&
+                  action.pluginType === PluginType.DB && (
+                    <div data-testid="t--response-error">
+                      {actionResponse.body}
+                    </div>
+                  )
+                ))}
               <LogHelper
                 logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
                 name="PluginExecutionError"
