@@ -18,9 +18,13 @@ const PluginActionSettings = () => {
   const { plugin } = usePluginActionContext();
 
   return API_FORM_COMPONENTS.includes(plugin.uiComponent) ? (
-    <ApiSettings formName={API_EDITOR_FORM_NAME} />
+    <ApiSettings
+      dataTestId="t--action-settings-trigger"
+      formName={API_EDITOR_FORM_NAME}
+    />
   ) : (
     <QuerySettings
+      dataTestId="t--action-settings-trigger"
       docsLink={DocsLink.QUERY_SETTINGS}
       formName={QUERY_EDITOR_FORM_NAME}
     />

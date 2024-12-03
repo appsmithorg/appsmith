@@ -59,6 +59,7 @@ export const JSFunctionRun = (props: Props) => {
       <Menu>
         <MenuTrigger>
           <Button
+            data-testid="t--js-function-run"
             endIcon="arrow-down-s-line"
             isDisabled={props.disabled}
             kind="tertiary"
@@ -68,7 +69,7 @@ export const JSFunctionRun = (props: Props) => {
             {props.selected.label}
           </Button>
         </MenuTrigger>
-        <MenuContent align="end">
+        <MenuContent align="end" data-testid="t--js-functions-menu">
           {props.options.map((option) => (
             <JSFunctionItem
               key={option.label}
@@ -86,6 +87,7 @@ export const JSFunctionRun = (props: Props) => {
       >
         <Button
           className={testLocators.runJSAction}
+          data-testid={testLocators.runJSActionTestID}
           isDisabled={props.disabled}
           isLoading={props.isLoading}
           onClick={props.onButtonClick}

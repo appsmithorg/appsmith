@@ -1,4 +1,7 @@
-import { WDSBaseInputWidget } from "modules/ui-builder/ui/wds/WDSBaseInputWidget";
+import {
+  INPUT_TYPES,
+  WDSBaseInputWidget,
+} from "modules/ui-builder/ui/wds/WDSBaseInputWidget";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
@@ -14,4 +17,5 @@ export const defaultsConfig = {
   showStepArrows: false,
   label: "Current Price",
   responsiveBehavior: ResponsiveBehavior.Fill,
+  inputType: INPUT_TYPES.CURRENCY,
 } as WidgetDefaultProps;

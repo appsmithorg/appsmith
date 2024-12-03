@@ -88,6 +88,11 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     }
 
     @Override
+    public AclPermission getWorkspaceArtifactCreationPermission() {
+        return AclPermission.WORKSPACE_CREATE_APPLICATION;
+    }
+
+    @Override
     public Mono<Application> getArtifactById(String applicationId, AclPermission aclPermission) {
         return applicationService
                 .findById(applicationId, aclPermission)
@@ -290,10 +295,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
 
     @Override
     public Mono<Application> createArtifactForImport(String workspaceId, String repoName) {
-        Application newApplication = new Application();
-        newApplication.setName(repoName);
-        newApplication.setWorkspaceId(workspaceId);
-        newApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        Application newApplication = getNewArtifact(workspaceId, repoName);
         return applicationPageService.createOrUpdateSuffixedApplication(newApplication, newApplication.getName(), 0);
     }
 
@@ -305,5 +307,14 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     @Override
     public Boolean isContextInArtifactEmpty(ArtifactExchangeJson artifactExchangeJson) {
         return CollectionUtils.isNullOrEmpty(((ApplicationJson) artifactExchangeJson).getPageList());
+    }
+
+    @Override
+    public Application getNewArtifact(String workspaceId, String repoName) {
+        Application newApplication = new Application();
+        newApplication.setName(repoName);
+        newApplication.setWorkspaceId(workspaceId);
+        newApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        return newApplication;
     }
 }
