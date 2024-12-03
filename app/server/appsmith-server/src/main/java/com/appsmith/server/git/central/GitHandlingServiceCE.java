@@ -19,6 +19,8 @@ public interface GitHandlingServiceCE {
 
     Mono<Boolean> isRepoPrivate(GitConnectDTO gitConnectDTO);
 
+    Mono<Boolean> isRepoPrivate(GitArtifactMetadata gitArtifactMetadata);
+
     // TODO: modify git auth class for native implementation
     Mono<GitAuth> getGitAuthForUser();
 
@@ -44,4 +46,9 @@ public interface GitHandlingServiceCE {
             String originHeader);
 
     Mono<String> createFirstCommit(ArtifactJsonTransformationDTO jsonTransformationDTO, CommitDTO commitDTO);
+
+    Mono<Boolean> prepareChangesToBeCommitted(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson);
+
+    Mono<String> commitArtifact(CommitDTO commitDTO, ArtifactJsonTransformationDTO jsonTransformationDTO);
 }

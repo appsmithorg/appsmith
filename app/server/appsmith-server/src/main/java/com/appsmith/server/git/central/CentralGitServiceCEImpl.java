@@ -1,6 +1,7 @@
 package com.appsmith.server.git.central;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.git.dto.CommitDTO;
@@ -24,6 +25,7 @@ import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.git.resolver.GitHandlingServiceResolver;
@@ -36,6 +38,7 @@ import com.appsmith.server.services.GitArtifactHelper;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
@@ -43,6 +46,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
@@ -54,10 +58,15 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.DEFAULT_COMMIT_MESSAGE;
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.GIT_CONFIG_ERROR;
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GIT_PROFILE_ERROR;
+import static com.appsmith.external.git.constants.ce.GitSpanCE.OPS_COMMIT;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
 import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
 @Service
@@ -81,6 +90,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
     private final ImportService importService;
     private final ExportService exportService;
+
+    private final GitRedisUtils gitRedisUtils;
+    private final ObservationRegistry observationRegistry;
 
     protected Mono<Boolean> isRepositoryLimitReachedForWorkspace(String workspaceId, Boolean isRepositoryPrivate) {
         if (!isRepositoryPrivate) {
@@ -195,7 +207,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                     ArtifactJsonTransformationDTO jsonMorphDTO = new ArtifactJsonTransformationDTO();
                     jsonMorphDTO.setWorkspaceId(workspaceId);
-                    jsonMorphDTO.setArtifactId(artifact.getId());
+                    jsonMorphDTO.setBaseArtifactId(artifact.getId());
                     jsonMorphDTO.setArtifactType(artifactType);
                     jsonMorphDTO.setRepoName(gitArtifactMetadata.getRepoName());
                     jsonMorphDTO.setRefType(RefType.BRANCH);
@@ -274,7 +286,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         return gitHandlingService
                 .removeRepository(artifactJsonTransformationDTO)
-                .zipWith(gitArtifactHelper.deleteArtifact(artifactJsonTransformationDTO.getArtifactId()))
+                .zipWith(gitArtifactHelper.deleteArtifact(artifactJsonTransformationDTO.getBaseArtifactId()))
                 .map(Tuple2::getT2);
     }
 
@@ -443,7 +455,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                     ArtifactJsonTransformationDTO jsonTransformationDTO =
                                             new ArtifactJsonTransformationDTO();
                                     jsonTransformationDTO.setWorkspaceId(artifact.getWorkspaceId());
-                                    jsonTransformationDTO.setArtifactId(artifact.getId());
+                                    jsonTransformationDTO.setBaseArtifactId(artifact.getId());
                                     jsonTransformationDTO.setRepoName(repoName);
                                     jsonTransformationDTO.setArtifactType(artifactType);
 
@@ -468,7 +480,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
                     ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
                     jsonTransformationDTO.setWorkspaceId(artifact.getWorkspaceId());
-                    jsonTransformationDTO.setArtifactId(artifact.getId());
+                    jsonTransformationDTO.setBaseArtifactId(artifact.getId());
                     jsonTransformationDTO.setRepoName(repoName);
                     jsonTransformationDTO.setArtifactType(artifactType);
 
@@ -524,7 +536,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 .flatMap(artifact -> {
                     ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
                     jsonTransformationDTO.setWorkspaceId(artifact.getWorkspaceId());
-                    jsonTransformationDTO.setArtifactId(artifact.getId());
+                    jsonTransformationDTO.setBaseArtifactId(artifact.getId());
                     jsonTransformationDTO.setArtifactType(artifactType);
                     jsonTransformationDTO.setRepoName(repoName);
 
@@ -556,7 +568,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 commitDTO.setIsAmendCommit(FALSE);
                                 commitDTO.setMessage(commitMessage);
 
-                                return this.commitArtifact(baseArtifactId, commitDTO, artifactType, gitType)
+                                return this.commitArtifact(commitDTO, artifact.getId(), artifactType, gitType)
                                         .onErrorResume(error ->
                                                 // If the push fails remove all the cloned files from local repo
                                                 this.detachRemote(baseArtifactId, artifactType)
@@ -592,12 +604,294 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 sink -> connectedArtifactMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
+    @Override
+    public Mono<String> commitArtifact(
+            CommitDTO commitDTO, String branchedArtifactId, ArtifactType artifactType, GitType gitType) {
+        return commitArtifact(commitDTO, branchedArtifactId, artifactType, gitType, TRUE);
+    }
+
+    public Mono<String> commitArtifact(
+            CommitDTO commitDTO,
+            String branchedArtifactId,
+            ArtifactType artifactType,
+            GitType gitType,
+            Boolean isFileLock) {
+        /*
+        1. Check if application exists and user have sufficient permissions
+        2. Check if branch name exists in git metadata
+        3. Save application to the existing local repo
+        4. Commit application : git add, git commit (Also check if git init required)
+         */
+
+        String commitMessage = commitDTO.getMessage();
+
+        if (commitMessage == null || commitMessage.isEmpty()) {
+            commitDTO.setMessage(DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason());
+        }
+
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
+        Mono<Tuple2<? extends Artifact, ? extends Artifact>> baseAndBranchedArtifactMono = getBaseAndBranchedArtifacts(
+                        branchedArtifactId, artifactType, artifactEditPermission)
+                .cache();
+
+        return baseAndBranchedArtifactMono.flatMap(artifactTuples -> {
+            Artifact baseArtifact = artifactTuples.getT1();
+            Artifact branchedArtifact = artifactTuples.getT2();
+
+            GitUser author = commitDTO.getAuthor();
+            Mono<GitUser> gitUserMono = Mono.justOrEmpty(author)
+                    .flatMap(gitUser -> {
+                        if (author == null
+                                || !StringUtils.hasText(author.getEmail())
+                                || !StringUtils.hasText(author.getName())) {
+                            return getGitUserForArtifactId(baseArtifact.getId());
+                        }
+
+                        return Mono.just(gitUser);
+                    })
+                    .switchIfEmpty(getGitUserForArtifactId(baseArtifact.getId()));
+
+            return gitUserMono.flatMap(gitUser -> {
+                commitDTO.setAuthor(gitUser);
+                commitDTO.setCommitter(gitUser);
+                return commitArtifact(commitDTO, baseArtifact, branchedArtifact, gitType, isFileLock);
+            });
+        });
+    }
+
+    private Mono<String> commitArtifact(
+            CommitDTO commitDTO,
+            Artifact baseArtifact,
+            Artifact branchedArtifact,
+            GitType gitType,
+            boolean isFileLock) {
+
+        String commitMessage = commitDTO.getMessage();
+        StringBuilder result = new StringBuilder();
+
+        if (commitMessage == null || commitMessage.isEmpty()) {
+            commitDTO.setMessage(DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason());
+        }
+
+        GitUser author = commitDTO.getAuthor();
+        if (author == null || !StringUtils.hasText(author.getEmail()) || !StringUtils.hasText(author.getName())) {
+
+            String errorMessage = "Unable to find git author configuration for logged-in user. You can set "
+                    + "up a git profile from the user profile section.";
+
+            return gitAnalyticsUtils
+                    .addAnalyticsForGitOperation(
+                            AnalyticsEvents.GIT_COMMIT,
+                            branchedArtifact,
+                            AppsmithError.INVALID_GIT_CONFIGURATION.getErrorType(),
+                            AppsmithError.INVALID_GIT_CONFIGURATION.getMessage(errorMessage),
+                            branchedArtifact.getGitArtifactMetadata().getIsRepoPrivate())
+                    .then(Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, errorMessage)));
+        }
+
+        boolean isSystemGenerated = commitDTO.getMessage().contains(DEFAULT_COMMIT_MESSAGE);
+
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(baseArtifact.getArtifactType());
+        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+        GitArtifactMetadata baseGitMetadata = baseArtifact.getGitArtifactMetadata();
+        GitArtifactMetadata branchedGitMetadata = branchedArtifact.getGitArtifactMetadata();
+
+        if (isBaseGitMetadataInvalid(baseGitMetadata, gitType)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+        }
+
+        if (branchedGitMetadata == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+        }
+
+        final String branchName = branchedGitMetadata.getBranchName();
+        if (!hasText(branchName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        }
+
+        Mono<Boolean> isBranchProtectedMono = gitPrivateRepoHelper.isBranchProtected(baseGitMetadata, branchName);
+        Mono<String> commitMono = isBranchProtectedMono
+                .flatMap(isBranchProtected -> {
+                    if (!TRUE.equals(isBranchProtected)) {
+                        return gitRedisUtils.acquireGitLock(
+                                baseGitMetadata.getDefaultArtifactId(),
+                                GitConstants.GitCommandConstants.COMMIT,
+                                isFileLock);
+                    }
+
+                    return Mono.error(new AppsmithException(
+                            AppsmithError.GIT_ACTION_FAILED,
+                            "commit",
+                            "Cannot commit to protected branch " + branchName));
+                })
+                .flatMap(fileLocked -> {
+                    // Check if the repo is public for current artifact and if the user have changed the access after
+                    // the connection
+
+                    return gitHandlingService.isRepoPrivate(baseGitMetadata).flatMap(isPrivate -> {
+                        // Check the repo limit if the visibility status is updated, or it is private
+                        // TODO: split both of these conditions @Manish
+                        if (isPrivate.equals(baseGitMetadata.getIsRepoPrivate() && !Boolean.TRUE.equals(isPrivate))) {
+                            return Mono.just(baseArtifact);
+                        }
+
+                        baseGitMetadata.setIsRepoPrivate(isPrivate);
+                        baseArtifact.setGitArtifactMetadata(baseGitMetadata);
+
+                        /**
+                         * A separate GitAuth object has been created in which the private key for
+                         * authentication is held. It's done to avoid getting the encrypted value back
+                         * for private key after mongo save.
+                         *
+                         * When an object having an encrypted attribute is saved, the response is still encrypted.
+                         * The value in db would be corrupted if it's saved again,
+                         * as it would encrypt and already encrypted field
+                         * Private key is using encrypted annotation, which means that it's encrypted before
+                         * being persisted in the db. When it's fetched from db, the listener decrypts it.
+                         */
+                        GitAuth copiedGitAuth = new GitAuth();
+                        copyNestedNonNullProperties(baseGitMetadata.getGitAuth(), copiedGitAuth);
+
+                        return gitArtifactHelper
+                                .saveArtifact(baseArtifact)
+                                .map(artifact -> {
+                                    baseArtifact.getGitArtifactMetadata().setGitAuth(copiedGitAuth);
+                                    return artifact;
+                                })
+                                .then(Mono.defer(
+                                        () -> gitArtifactHelper.isPrivateRepoLimitReached(baseArtifact, false)));
+                    });
+                })
+                .flatMap(artifact -> {
+                    String errorEntity = "";
+                    if (!StringUtils.hasText(branchedGitMetadata.getBranchName())) {
+                        errorEntity = "branch name";
+                    } else if (!StringUtils.hasText(branchedGitMetadata.getDefaultArtifactId())) {
+                        errorEntity = "default artifact";
+                    } else if (!StringUtils.hasText(branchedGitMetadata.getRepoName())) {
+                        errorEntity = "repository name";
+                    }
+
+                    if (!errorEntity.isEmpty()) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_GIT_CONFIGURATION, "Unable to find " + errorEntity));
+                    }
+
+                    return exportService.exportByArtifactId(
+                            branchedArtifact.getId(), VERSION_CONTROL, branchedArtifact.getArtifactType());
+                })
+                .flatMap(artifactExchangeJson -> {
+                    ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
+                    jsonTransformationDTO.setRefType(RefType.BRANCH);
+                    jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
+                    jsonTransformationDTO.setBaseArtifactId(baseArtifact.getId());
+                    jsonTransformationDTO.setRepoName(
+                            branchedArtifact.getGitArtifactMetadata().getRepoName());
+                    jsonTransformationDTO.setArtifactType(artifactExchangeJson.getArtifactJsonType());
+                    jsonTransformationDTO.setRefName(
+                            branchedArtifact.getGitArtifactMetadata().getBranchName());
+
+                    return gitHandlingService
+                            .prepareChangesToBeCommitted(jsonTransformationDTO, artifactExchangeJson)
+                            .then(updateArtifactWithGitMetadataGivenPermission(branchedArtifact, branchedGitMetadata));
+                })
+                .flatMap(updatedBranchedArtifact -> {
+                    GitArtifactMetadata gitArtifactMetadata = updatedBranchedArtifact.getGitArtifactMetadata();
+                    ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
+                    jsonTransformationDTO.setRefType(RefType.BRANCH);
+                    jsonTransformationDTO.setWorkspaceId(updatedBranchedArtifact.getWorkspaceId());
+                    jsonTransformationDTO.setBaseArtifactId(gitArtifactMetadata.getDefaultArtifactId());
+                    jsonTransformationDTO.setRepoName(gitArtifactMetadata.getRepoName());
+                    jsonTransformationDTO.setArtifactType(branchedArtifact.getArtifactType());
+                    jsonTransformationDTO.setRefName(gitArtifactMetadata.getBranchName());
+
+                    result.append("Commit Result : ");
+                    Mono<String> gitCommitMono = gitHandlingService
+                            .commitArtifact(commitDTO, jsonTransformationDTO)
+                            .onErrorResume(error -> {
+                                return gitAnalyticsUtils
+                                        .addAnalyticsForGitOperation(
+                                                AnalyticsEvents.GIT_COMMIT,
+                                                updatedBranchedArtifact,
+                                                error.getClass().getName(),
+                                                error.getMessage(),
+                                                gitArtifactMetadata.getIsRepoPrivate())
+                                        .then(Mono.error(new AppsmithException(
+                                                AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage())));
+                            });
+
+                    return Mono.zip(
+                            gitCommitMono, gitArtifactHelper.getArtifactById(updatedBranchedArtifact.getId(), null));
+                })
+                .flatMap(tuple -> {
+                    String commitStatus = tuple.getT1();
+                    Artifact branchedArtifactFromDb = tuple.getT2();
+                    result.append(commitStatus);
+                    result.append(".\nPush Result : ");
+
+                    pushArtifact(branchedArtifactFromDb, false, gitType)
+                            .map(pushResult -> result.append(pushResult).toString())
+                            .zipWith(Mono.just(branchedArtifactFromDb));
+
+                    return Mono.zip(Mono.just(result.toString()), Mono.just(branchedArtifactFromDb));
+                })
+                .flatMap(tuple2 -> {
+                    String status = tuple2.getT1();
+                    Artifact artifactFromBranch = tuple2.getT2();
+                    return Mono.zip(Mono.just(status), publishArtifact(artifactFromBranch));
+                })
+                .flatMap(tuple -> {
+                    String status = tuple.getT1();
+                    Artifact artifactFromBranch = tuple.getT2();
+                    Mono<Boolean> releaseFileLockMono = gitRedisUtils.releaseFileLock(
+                            artifactFromBranch.getGitArtifactMetadata().getDefaultArtifactId(), isFileLock);
+
+                    Mono<? extends Artifact> updatedArtifactMono =
+                            gitArtifactHelper.updateArtifactWithSchemaVersions(artifactFromBranch);
+
+                    return Mono.zip(updatedArtifactMono, releaseFileLockMono)
+                            .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_COMMIT,
+                                    artifactFromBranch,
+                                    "",
+                                    "",
+                                    artifactFromBranch.getGitArtifactMetadata().getIsRepoPrivate(),
+                                    isSystemGenerated))
+                            .thenReturn(status)
+                            .name(OPS_COMMIT)
+                            .tap(Micrometer.observation(observationRegistry));
+                });
+
+        return Mono.create(sink -> {
+            commitMono.subscribe(sink::success, sink::error, null, sink.currentContext());
+        });
+    }
+
+    // TODO: to be implemented in subsequent prs
+    protected Mono<? extends Artifact> publishArtifact(Artifact artifact) {
+        return null;
+    }
+
+    @Override
+    public Mono<String> pushArtifact(String branchedArtifactId, ArtifactType artifactType, GitType gitType) {
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
+
+        return gitArtifactHelper
+                .getArtifactById(branchedArtifactId, artifactEditPermission)
+                .flatMap(branchedArtifact -> pushArtifact(branchedArtifact, true, gitType));
+    }
+
     /**
-     * TODO: commit artifact
-     * @return
+     * Push flow for dehydrated apps
+     *
+     * @param branchedArtifact application which needs to be pushed to remote repo
+     * @return Success message
      */
-    public Mono<? extends Artifact> commitArtifact(
-            String baseArtifactId, CommitDTO commitDTO, ArtifactType artifactType, GitType gitType) {
+    // TODO: to be implemented in subsequent prs
+    protected Mono<String> pushArtifact(Artifact branchedArtifact, boolean isFileLock, GitType gitType) {
         return null;
     }
 
@@ -617,5 +911,87 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 || gitHandlingServiceResolver
                         .getGitHandlingService(gitType)
                         .isGitAuthInvalid(gitArtifactMetadata.getGitAuth());
+    }
+
+    /**
+     * Returns baseArtifact and branchedArtifact
+     * This operation is quite frequently used, hence providing the right set
+     *
+     * @param branchedArtifactId : id of the branchedArtifactId
+     * @param artifactPermission : permission required for getting artifact.
+     * @return : A tuple of Artifacts
+     */
+    protected Mono<Tuple2<? extends Artifact, ? extends Artifact>> getBaseAndBranchedArtifacts(
+            String branchedArtifactId, ArtifactType artifactType, AclPermission artifactPermission) {
+        if (!hasText(branchedArtifactId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        GitArtifactHelper<?> artifactGitHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Mono<? extends Artifact> branchedArtifactMono = artifactGitHelper
+                .getArtifactById(branchedArtifactId, artifactPermission)
+                .cache();
+
+        return branchedArtifactMono.flatMap(branchedArtifact -> {
+            GitArtifactMetadata branchedMetadata = branchedArtifact.getGitArtifactMetadata();
+            if (branchedMetadata == null || !hasText(branchedMetadata.getDefaultArtifactId())) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
+            }
+
+            String baseArtifactId = branchedMetadata.getDefaultArtifactId();
+            Mono<? extends Artifact> baseArtifactMono = Mono.just(branchedArtifact);
+
+            if (!baseArtifactId.equals(branchedArtifactId)) {
+                baseArtifactMono = artifactGitHelper.getArtifactById(baseArtifactId, artifactPermission);
+            }
+
+            return baseArtifactMono.zipWith(branchedArtifactMono);
+        });
+    }
+
+    protected Mono<Tuple2<? extends Artifact, ? extends Artifact>> getBaseAndBranchedArtifacts(
+            String branchedArtifactId, ArtifactType artifactType) {
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        AclPermission artifactPermission = gitArtifactHelper.getArtifactEditPermission();
+        return getBaseAndBranchedArtifacts(branchedArtifactId, artifactType, artifactPermission);
+    }
+
+    private Mono<GitUser> getGitUserForArtifactId(String baseArtifactId) {
+        Mono<UserData> currentUserMono = userDataService
+                .getForCurrentUser()
+                .filter(userData -> !CollectionUtils.isEmpty(userData.getGitProfiles()))
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_PROFILE_ERROR)));
+
+        return currentUserMono.map(userData -> {
+            GitProfile profile = userData.getGitProfileByKey(baseArtifactId);
+            if (profile == null
+                    || Boolean.TRUE.equals(profile.getUseGlobalProfile())
+                    || !StringUtils.hasText(profile.getAuthorName())) {
+                profile = userData.getGitProfileByKey(DEFAULT);
+            }
+
+            GitUser gitUser = new GitUser();
+            gitUser.setName(profile.getAuthorName());
+            gitUser.setEmail(profile.getAuthorEmail());
+            return gitUser;
+        });
+    }
+
+    private Mono<? extends Artifact> updateArtifactWithGitMetadataGivenPermission(
+            Artifact artifact, GitArtifactMetadata gitMetadata) {
+
+        if (gitMetadata == null) {
+            return Mono.error(
+                    new AppsmithException(AppsmithError.INVALID_PARAMETER, "Git metadata values cannot be null"));
+        }
+
+        artifact.setGitArtifactMetadata(gitMetadata);
+        // For default application we expect a GitAuth to be a part of gitMetadata. We are using save method to leverage
+        // @Encrypted annotation used for private SSH keys
+        // applicationService.save sets the transient fields so no need to set it again from this method
+        return gitArtifactHelperResolver
+                .getArtifactHelper(artifact.getArtifactType())
+                .saveArtifact(artifact);
     }
 }

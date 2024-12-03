@@ -54,4 +54,20 @@ public class GitRedisUtils {
                 .name(GitSpan.RELEASE_FILE_LOCK)
                 .tap(Micrometer.observation(observationRegistry));
     }
+
+    public Mono<Boolean> acquireGitLock(String baseArtifactId, String commandName, boolean isLockRequired) {
+        if (!Boolean.TRUE.equals(isLockRequired)) {
+            return Mono.just(Boolean.TRUE);
+        }
+
+        return addFileLock(baseArtifactId, commandName);
+    }
+
+    public Mono<Boolean> releaseFileLock(String baseArtifactId, boolean isLockRequired) {
+        if (!Boolean.TRUE.equals(isLockRequired)) {
+            return Mono.just(Boolean.TRUE);
+        }
+
+        return releaseFileLock(baseArtifactId);
+    }
 }

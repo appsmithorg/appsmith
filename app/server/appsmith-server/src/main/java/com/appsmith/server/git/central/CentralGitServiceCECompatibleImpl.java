@@ -2,6 +2,7 @@ package com.appsmith.server.git.central;
 
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.git.resolver.GitArtifactHelperResolver;
 import com.appsmith.server.git.resolver.GitHandlingServiceResolver;
 import com.appsmith.server.git.utils.GitAnalyticsUtils;
@@ -12,6 +13,7 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +34,9 @@ public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
             WorkspaceService workspaceService,
             PluginService pluginService,
             ImportService importService,
-            ExportService exportService) {
+            ExportService exportService,
+            GitRedisUtils gitRedisUtils,
+            ObservationRegistry observationRegistry) {
         super(
                 gitProfileUtils,
                 gitAnalyticsUtils,
@@ -45,6 +49,8 @@ public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
                 workspaceService,
                 pluginService,
                 importService,
-                exportService);
+                exportService,
+                gitRedisUtils,
+                observationRegistry);
     }
 }

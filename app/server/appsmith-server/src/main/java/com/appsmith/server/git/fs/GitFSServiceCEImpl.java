@@ -1,10 +1,12 @@
 package com.appsmith.server.git.fs;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -38,8 +40,10 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.errors.EmptyCommitException;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
@@ -51,6 +55,8 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
+
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.EMPTY_COMMIT_ERROR_MESSAGE;
 
 @Slf4j
 @Service
@@ -69,6 +75,8 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     protected final AnalyticsService analyticsService;
     private final ObservationRegistry observationRegistry;
+
+    protected final GitExecutor gitExecutor;
 
     private final WorkspaceService workspaceService;
     private final DatasourceService datasourceService;
@@ -140,7 +148,16 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     @Override
     public Mono<Boolean> isRepoPrivate(GitConnectDTO gitConnectDTO) {
-        return GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl()));
+        return isRepoPrivate(gitConnectDTO.getRemoteUrl());
+    }
+
+    @Override
+    public Mono<Boolean> isRepoPrivate(GitArtifactMetadata gitArtifactMetadata) {
+        return isRepoPrivate(gitArtifactMetadata.getRemoteUrl());
+    }
+
+    private Mono<Boolean> isRepoPrivate(String remoteUrl) {
+        return GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(remoteUrl));
     }
 
     @Override
@@ -213,7 +230,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
             ArtifactJsonTransformationDTO artifactJsonTransformationDTO) {
         return commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepoWithAnalytics(
                 artifactJsonTransformationDTO.getWorkspaceId(),
-                artifactJsonTransformationDTO.getArtifactId(),
+                artifactJsonTransformationDTO.getBaseArtifactId(),
                 artifactJsonTransformationDTO.getRepoName(),
                 artifactJsonTransformationDTO.getRefName(),
                 artifactJsonTransformationDTO.getArtifactType());
@@ -225,7 +242,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 gitArtifactHelperResolver.getArtifactHelper(artifactJsonTransformationDTO.getArtifactType());
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
                 artifactJsonTransformationDTO.getWorkspaceId(),
-                artifactJsonTransformationDTO.getArtifactId(),
+                artifactJsonTransformationDTO.getBaseArtifactId(),
                 artifactJsonTransformationDTO.getRepoName());
         return commonGitFileUtils.deleteLocalRepo(repoSuffix);
     }
@@ -236,7 +253,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 gitArtifactHelperResolver.getArtifactHelper(artifactJsonTransformationDTO.getArtifactType());
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
                 artifactJsonTransformationDTO.getWorkspaceId(),
-                artifactJsonTransformationDTO.getArtifactId(),
+                artifactJsonTransformationDTO.getBaseArtifactId(),
                 artifactJsonTransformationDTO.getRepoName());
 
         try {
@@ -257,7 +274,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
         Path readmePath = gitArtifactHelper.getRepoSuffixPath(
                 jsonTransformationDTO.getWorkspaceId(),
-                jsonTransformationDTO.getArtifactId(),
+                jsonTransformationDTO.getBaseArtifactId(),
                 jsonTransformationDTO.getRepoName());
         try {
             return gitArtifactHelper
@@ -275,7 +292,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 gitArtifactHelperResolver.getArtifactHelper(jsonTransformationDTO.getArtifactType());
         Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
                 jsonTransformationDTO.getWorkspaceId(),
-                jsonTransformationDTO.getArtifactId(),
+                jsonTransformationDTO.getBaseArtifactId(),
                 jsonTransformationDTO.getRepoName());
 
         return fsGitHandler.commitArtifact(
@@ -285,5 +302,58 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 commitDTO.getAuthor().getEmail(),
                 true,
                 commitDTO.getIsAmendCommit());
+    }
+
+    @Override
+    public Mono<Boolean> prepareChangesToBeCommitted(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson) {
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String repoName = jsonTransformationDTO.getRepoName();
+        String branchName = jsonTransformationDTO.getRefName();
+
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
+        return commonGitFileUtils
+                .saveArtifactToLocalRepoWithAnalytics(repoSuffix, artifactExchangeJson, branchName)
+                .map(ignore -> Boolean.TRUE)
+                .onErrorResume(e -> {
+                    log.error("Error in commit flow: ", e);
+                    if (e instanceof RepositoryNotFoundException) {
+                        return Mono.error(new AppsmithException(AppsmithError.REPOSITORY_NOT_FOUND, baseArtifactId));
+                    } else if (e instanceof AppsmithException) {
+                        return Mono.error(e);
+                    }
+                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
+                });
+    }
+
+    @Override
+    public Mono<String> commitArtifact(CommitDTO commitDTO, ArtifactJsonTransformationDTO jsonTransformationDTO) {
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String repoName = jsonTransformationDTO.getRepoName();
+
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
+        return gitExecutor
+                .commitArtifact(
+                        repoSuffix,
+                        commitDTO.getMessage(),
+                        commitDTO.getAuthor().getName(),
+                        commitDTO.getAuthor().getEmail(),
+                        true,
+                        false)
+                .onErrorResume(error -> {
+                    if (error instanceof EmptyCommitException) {
+                        return Mono.just(EMPTY_COMMIT_ERROR_MESSAGE);
+                    }
+
+                    return Mono.error(error);
+                });
     }
 }

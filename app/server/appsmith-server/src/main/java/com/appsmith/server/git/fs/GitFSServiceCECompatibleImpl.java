@@ -1,5 +1,6 @@
 package com.appsmith.server.git.fs;
 
+import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.handler.FSGitHandler;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -42,6 +43,7 @@ public class GitFSServiceCECompatibleImpl extends GitFSServiceCEImpl implements 
             TransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ObservationRegistry observationRegistry,
+            GitExecutor gitExecutor,
             WorkspaceService workspaceService,
             DatasourceService datasourceService,
             DatasourcePermission datasourcePermission,
@@ -65,6 +67,7 @@ public class GitFSServiceCECompatibleImpl extends GitFSServiceCEImpl implements 
                 transactionalOperator,
                 analyticsService,
                 observationRegistry,
+                gitExecutor,
                 workspaceService,
                 datasourceService,
                 datasourcePermission,
