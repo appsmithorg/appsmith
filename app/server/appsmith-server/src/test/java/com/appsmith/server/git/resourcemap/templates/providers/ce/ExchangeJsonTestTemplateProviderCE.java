@@ -27,8 +27,10 @@ public class ExchangeJsonTestTemplateProviderCE implements TestTemplateInvocatio
     @Override
     public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(
             ExtensionContext extensionContext) {
-        ExchangeJsonContext context = new ExchangeJsonContext("valid-application.json", ApplicationJson.class, 23);
-        return Stream.of(context);
+        ExchangeJsonContext c1 = new ExchangeJsonContext("valid-application.json", ApplicationJson.class, 23);
+        ExchangeJsonContext c2 = new ExchangeJsonContext(
+                "valid-application-with-un-configured-datasource.json", ApplicationJson.class, 12);
+        return Stream.of(c1, c2);
     }
 
     public long assertResourceComparisons(
