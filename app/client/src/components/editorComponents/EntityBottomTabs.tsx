@@ -24,8 +24,10 @@ const TabPanelWrapper = styled(TabPanel)`
 `;
 
 const TabsListWrapper = styled(TabsList)`
-  padding: calc(var(--ads-v2-spaces-1) + 2px) var(--ads-v2-spaces-7)
-    var(--ads-v2-spaces-1);
+  && {
+    padding: var(--ads-v2-spaces-2);
+    padding-bottom: var(--ads-v2-spaces-1);
+  }
 `;
 
 export interface BottomTab {

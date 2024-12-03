@@ -344,4 +344,6 @@ export class CommonLocators {
   _widgetBorder = ".t--draggable-tabswidget div div div";
   _modalButtonText = "[data-testid='modal-wrapper'] .bp3-button";
   _showBoundary = ".show-boundary";
+  _entityItem = "[data-testid='t--entity-item-Api1']";
+  _rowData = "[data-colindex='0'][data-rowindex='0']";
 }
