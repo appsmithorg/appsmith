@@ -7,6 +7,7 @@ export const RUN_BUTTON_DEFAULTS = {
 };
 export const testLocators = {
   runJSAction: "run-js-action",
+  runJSActionTestID: "t--run-js-action",
 };
 export const NO_FUNCTION_DROPDOWN_OPTION = {
   label: "No function available",

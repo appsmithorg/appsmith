@@ -28,6 +28,7 @@ function GraphQLEditorForm() {
     <CommonEditorForm
       action={action}
       bodyUIComponent={<PostBodyData actionName={action.name} />}
+      dataTestId="t--graphql-editor-form"
       formName={API_EDITOR_FORM_NAME}
       httpMethodOptions={GRAPHQL_HTTP_METHOD_OPTIONS}
       isChangePermitted={isChangePermitted}

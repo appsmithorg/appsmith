@@ -20,9 +20,6 @@ import styled from "styled-components";
 const ListContainer = styled(Flex)`
   & .t--entity-item {
     height: 32px;
-    & .t--entity-name {
-      padding-left: var(--ads-v2-spaces-3);
-    }
   }
 `;
 

@@ -26,8 +26,8 @@ const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;
   gap: var(--ads-v2-spaces-3);
 
-  &&&&& .function-select-dropdown {
-    width: 230px;
+  .rc-select-selector {
+    min-width: unset;
   }
 `;
 
@@ -103,6 +103,7 @@ export function JSFunctionRun({
         <span>
           <Button
             className={testLocators.runJSAction}
+            data-testid={testLocators.runJSActionTestID}
             isDisabled={disabled}
             isLoading={isLoading}
             onClick={onButtonClick}

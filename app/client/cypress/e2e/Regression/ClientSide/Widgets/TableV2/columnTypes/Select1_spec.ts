@@ -408,7 +408,7 @@ describe(
       );
       _.dataSources.ToggleUsePreparedStatement(false);
       cy.wait("@saveAction");
-      cy.get(".t--run-query").click();
+      cy.get(_.dataSources._runQueryBtn).click();
       cy.wait("@postExecute");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.openPropertyPane("tablewidgetv2");

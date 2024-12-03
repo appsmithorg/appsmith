@@ -1,4 +1,7 @@
-import { WDSBaseInputWidget } from "modules/ui-builder/ui/wds/WDSBaseInputWidget";
+import {
+  INPUT_TYPES,
+  WDSBaseInputWidget,
+} from "modules/ui-builder/ui/wds/WDSBaseInputWidget";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
@@ -13,4 +16,5 @@ export const defaultsConfig = {
   allowFormatting: true,
   responsiveBehavior: ResponsiveBehavior.Fill,
   label: "Phone number",
+  inputType: INPUT_TYPES.PHONE_NUMBER,
 } as WidgetDefaultProps;
