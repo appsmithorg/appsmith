@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
   DataTreeEvaluationProps,
   EvalError as TEvalError,
@@ -241,6 +242,15 @@ export default class DataTreeEvaluator {
    * Method to create all data required for linting and
    * evaluation of the first tree
    */
+  klona1(data: any) {
+    return klona(data);
+  }
+  klona2(data: any) {
+    return klona(data);
+  }
+  klona3(data: any) {
+    return klona(data);
+  }
   async setupFirstTree(
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -254,7 +264,7 @@ export default class DataTreeEvaluator {
     const totalFirstTreeSetupStartTime = performance.now();
     // cloneDeep will make sure not to omit key which has value as undefined.
     const firstCloneStartTime = performance.now();
-    let localUnEvalTree = klona(unEvalTree);
+    let localUnEvalTree = this.klona1(unEvalTree);
     const firstCloneEndTime = performance.now();
 
     let jsUpdates: Record<string, JSUpdate> = {};
@@ -326,7 +336,7 @@ export default class DataTreeEvaluator {
 
     const secondCloneStartTime = performance.now();
 
-    this.oldUnEvalTree = klona(localUnEvalTree);
+    this.oldUnEvalTree = this.klona2(localUnEvalTree);
     this.oldConfigTree = configTree;
     const secondCloneEndTime = performance.now();
 
@@ -784,6 +794,9 @@ export default class DataTreeEvaluator {
     return { evaluationOrder };
   }
 
+  klona3(data: any) {
+    return klona(data);
+  }
   setupTree(
     updatedUnEvalTree: UnEvalTree,
     updatedValuePaths: string[][],
@@ -834,7 +847,7 @@ export default class DataTreeEvaluator {
 
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = klona(updatedUnEvalTree);
+    this.oldUnEvalTree = this.klona3(updatedUnEvalTree);
     this.oldConfigTree = Object.assign({}, this.getConfigTree());
     const cloneEndTime = performance.now();
 
@@ -1040,6 +1053,27 @@ export default class DataTreeEvaluator {
     return privateWidgets;
   }
 
+  klona4(data: any) {
+    return klona(data);
+  }
+  klona5(data: any) {
+    return klona(data);
+  }
+  klona6(data: any) {
+    return klona(data);
+  }
+  klona7(data: any) {
+    return klona(data);
+  }
+  klona8(data: any) {
+    return klona(data);
+  }
+  klona9(data: any) {
+    return klona(data);
+  }
+  klona15(data: any) {
+    return klonaJSON(data);
+  }
   evaluateTree(
     unEvalTree: DataTree,
     evaluationOrder: Array<string>,
@@ -1059,9 +1093,9 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
     contextTree: DataTree;
   } {
-    const safeTree = klona(unEvalTree);
+    const safeTree = this.klona4(unEvalTree);
     const dataStore = DataStore.getDataStore();
-    const dataStoreClone = klonaJSON(dataStore);
+    const dataStoreClone = this.klona15(dataStore);
 
     updateTreeWithData(safeTree, dataStoreClone);
     updateTreeWithData(unEvalTree, dataStore);
@@ -1207,7 +1241,7 @@ export default class DataTreeEvaluator {
             );
 
             set(contextTree, fullPropertyPath, parsedValue);
-            set(safeTree, fullPropertyPath, klona(parsedValue));
+            set(safeTree, fullPropertyPath, this.klona5(parsedValue));
 
             staleMetaIds = staleMetaIds.concat(
               getStaleMetaStateIds({
@@ -1253,7 +1287,7 @@ export default class DataTreeEvaluator {
             if (!requiresEval) continue;
 
             set(contextTree, fullPropertyPath, evalPropertyValue);
-            set(safeTree, fullPropertyPath, klona(evalPropertyValue));
+            set(safeTree, fullPropertyPath, this.klona6(evalPropertyValue));
             break;
           }
           case ENTITY_TYPE.JSACTION: {
@@ -1290,7 +1324,7 @@ export default class DataTreeEvaluator {
              * Their evaluated values need to be reset only when the variable is modified by the user.
              * When uneval value of a js variable hasn't changed, it means that the previously evaluated values are in both trees already  */
             if (!skipVariableValueAssignment) {
-              const valueForSafeTree = klona(evalValue);
+              const valueForSafeTree = this.klona7(evalValue);
 
               set(contextTree, fullPropertyPath, evalValue);
               set(safeTree, fullPropertyPath, valueForSafeTree);
@@ -1305,7 +1339,7 @@ export default class DataTreeEvaluator {
           }
           default:
             set(contextTree, fullPropertyPath, evalPropertyValue);
-            set(safeTree, fullPropertyPath, klona(evalPropertyValue));
+            set(safeTree, fullPropertyPath, this.klona8(evalPropertyValue));
         }
       }
     } catch (error) {
@@ -1793,7 +1827,7 @@ export default class DataTreeEvaluator {
     bindings: string[],
     executionParams?: Record<string, unknown> | string,
   ) {
-    const dataTree = klona(this.evalTree);
+    const dataTree = this.klona9(this.evalTree);
     // We might get execution params as an object or as a string.
     // If the user has added a proper object (valid case) it will be an object
     // If they have not added any execution params or not an object

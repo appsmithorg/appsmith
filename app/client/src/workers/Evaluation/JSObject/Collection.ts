@@ -94,7 +94,13 @@ export default class JSObjectCollection {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): VariableState | Record<string, any> {
-    if (!JSObjectName || !this.variableState) return klona(this.variableState);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const klona14 = (data: any) => {
+      return klona(data);
+    };
+
+    if (!JSObjectName || !this.variableState)
+      return klona14(this.variableState);
 
     return this.variableState[JSObjectName];
   }
