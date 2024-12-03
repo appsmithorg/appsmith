@@ -1,26 +1,9 @@
-/**
- * Moves data from MongoDB to JSONL files, with optional baseline mode filtering.
- *
- * This script connects to a MongoDB instance, optionally restores from a dump file,
- * and exports data from all collections to JSONL files. In baseline mode, specific
- * filters are applied to exclude certain data.
- *
- * @param {string} mongoDbUrl - The URL of the MongoDB.
- * @param {string} mongoDumpFile - The path to the MongoDB dump file.
- * @param {boolean} isBaselineMode - Flag indicating whether the script is running in baseline mode.
- * @returns {Promise<void>} - A promise that resolves when the data migration is complete.
- */
 import { spawn } from "child_process";
 import { MongoClient } from "mongodb";
 import * as fs from "node:fs";
-/**
- * Copies MongoDB data to JSONL files
- * @param {string} dbUrl - MongoDB connection URL
- * @returns {Promise<void>}
- */
-async function copyToJSONL(dbUrl) {
+
+export async function writeDataFromMongoToJsonlFiles(mongoDbUrl) {
   let isBaselineMode = false;
-  let mongoDbUrl = dbUrl;
   let mongoDumpFile = null;
   const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
   const MINIMUM_MONGO_CHANGESET = "add_empty_policyMap_for_null_entries";
@@ -144,3 +127,79 @@ async function copyToJSONL(dbUrl) {
 
   process.exit(0);
 }
+
+function extractValueFromArg(arg) {
+  return arg.replace(/^.*?=/, "");
+}
+
+function isArchivedObject(doc) {
+  return doc.deleted === true || doc.deletedAt != null;
+}
+
+function toJsonSortedKeys(obj) {
+  return JSON.stringify(obj, replacer);
+}
+
+function replacer(key, value) {
+  return value instanceof Object && !Array.isArray(value)
+    ? Object.keys(value)
+        .sort()
+        .reduce((sorted, key) => {
+          sorted[key] = value[key];
+          return sorted;
+        }, {})
+    : value;
+}
+
+function transformFields(obj) {
+  for (const key in obj) {
+    if (key === "_id") {
+      obj.id = obj._id.toString();
+      delete obj._id;
+    } else if (key === "_class") {
+      const type = mapClassToType(obj._class);
+      if (type) {
+        obj.type = type;
+      }
+      delete obj._class;
+    } else if (typeof obj[key] === "object" && obj[key] !== null) {
+      transformFields(obj[key]);
+    }
+  }
+}
+
+function mapClassToType(_class) {
+  switch (_class) {
+    case "com.appsmith.external.models.DatasourceStructure$PrimaryKey":
+      return "primary key";
+    case "com.appsmith.external.models.DatasourceStructure$ForeignKey":
+      return "foreign key";
+    default:
+      return null;
+  }
+}
+
+async function isMongoDataMigratedToStableVersion(mongoDb) {
+  const doc = await mongoDb.collection(MONGO_MIGRATION_COLLECTION).findOne({
+    changeId: MINIMUM_MONGO_CHANGESET,
+    state: "EXECUTED",
+  });
+  return doc !== null;
+}
+
+// Parse command line arguments
+const args = process.argv.slice(2);
+let mongoUrl;
+
+for (const arg of args) {
+  if (arg.startsWith('--mongodb-url=')) {
+    mongoUrl = arg.split('=')[1];
+  }
+}
+
+if (!mongoUrl) {
+  console.error('Usage: node move-to-postgres.mjs --mongodb-url=<url>');
+  process.exit(1);
+}
+
+writeDataFromMongoToJsonlFiles(mongoUrl).catch(console.error);

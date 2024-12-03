@@ -1,13 +1,13 @@
 import fsPromises from "fs/promises";
 import * as Constants from "./constants";
 import * as utils from "./utils";
-import { exportMongoToJSONL } from './move-to-postgres.js';
+import { writeDataFromMongoToJsonlFiles } from './move-to-postgres.mjs';
 
 
 export async function exportDatabase() {
   const dbUrl = utils.getDburl();
   try {
-    await exportMongoToJSONL({
+    await writeDataFromMongoToJsonlFiles({
       mongoDbUrl: dbUrl
     });
     console.log('MongoDB data exported successfully.');
