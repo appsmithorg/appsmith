@@ -25,10 +25,6 @@ export interface DropdownWithCTAWrapperProps {
 const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;
   gap: var(--ads-v2-spaces-3);
-
-  .rc-select-selector {
-    min-width: unset;
-  }
 `;
 
 const OptionWrapper = styled.div`
