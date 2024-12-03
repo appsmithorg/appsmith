@@ -50,7 +50,7 @@ describe(
         inputData.tableName,
         "Insert",
       );
-      agHelper.RenameWithInPane("insertRecord");
+      agHelper.RenameQuery("insertRecord");
       dataSources.EnterQuery(query);
 
       query = inputData.query.dropTable;
@@ -59,7 +59,7 @@ describe(
         inputData.tableName,
         "Delete",
       );
-      agHelper.RenameWithInPane("dropTable");
+      agHelper.RenameQuery("dropTable");
       dataSources.EnterQuery(query);
 
       //Creating SELECT query
@@ -68,7 +68,7 @@ describe(
         inputData.tableName,
         "Select",
       );
-      agHelper.RenameWithInPane("selectRecords");
+      agHelper.RenameQuery("selectRecords");
       dataSources.RunQuery();
       agHelper
         .GetText(dataSources._noRecordFound)
