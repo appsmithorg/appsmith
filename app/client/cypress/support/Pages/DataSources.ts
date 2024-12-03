@@ -13,7 +13,7 @@ import PageList from "./PageList";
 import { anvilLocators } from "./Anvil/Locators";
 import { PluginActionForm } from "./PluginActionForm";
 import ApiEditor from "../../locators/ApiEditor";
-import BottomPane from "./IDE/BottomPane";
+import BottomTabs from "./IDE/BottomTabs";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -1150,13 +1150,13 @@ export class DataSources {
     this.RunQuery();
     if (tableCheck) {
       this.agHelper.AssertElementVisibility(
-        BottomPane.response.getResponseTypeSelector("TABLE"),
+        BottomTabs.response.getResponseTypeSelector("TABLE"),
       );
       this.agHelper.AssertElementVisibility(
-        BottomPane.response.getResponseTypeSelector("JSON"),
+        BottomTabs.response.getResponseTypeSelector("JSON"),
       );
       this.agHelper.AssertElementVisibility(
-        BottomPane.response.getResponseTypeSelector("RAW"),
+        BottomTabs.response.getResponseTypeSelector("RAW"),
       );
     }
   }
@@ -1168,23 +1168,23 @@ export class DataSources {
   }: {
     count?: number;
     operator?: Parameters<
-      typeof BottomPane.response.validateRecordCount
+      typeof BottomTabs.response.validateRecordCount
     >[0]["operator"];
     responseTypes?: ("TABLE" | "JSON" | "RAW")[];
   } = {}) {
     this.RunQuery();
 
-    BottomPane.response.openResponseTypeMenu();
+    BottomTabs.response.openResponseTypeMenu();
 
     responseTypes.forEach((responseType) => {
       this.agHelper.AssertElementVisibility(
-        BottomPane.response.locators.responseTypeMenuItem(responseType),
+        BottomTabs.response.locators.responseTypeMenuItem(responseType),
       );
     });
 
-    BottomPane.response.closeResponseTypeMenu();
+    BottomTabs.response.closeResponseTypeMenu();
 
-    BottomPane.response.validateRecordCount({
+    BottomTabs.response.validateRecordCount({
       count,
       operator,
     });
