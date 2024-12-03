@@ -38,6 +38,13 @@ class Response {
     cy.get(this.locators.responseTypeMenuTrigger).realClick();
   }
 
+  public validateTypeInMenu(type: string, assertion: string): void {
+    this.switchToResponseTab();
+    this.openResponseTypeMenu();
+    cy.get(this.locators.responseTypeMenuItem(type)).should(assertion);
+    this.closeResponseTypeMenu();
+  }
+
   public validateResponseStatus(status: string): void {
     cy.get(this.locators.responseStatusInfo).realHover();
     cy.get(this.locators.responseStatusInfoTooltip).should(
