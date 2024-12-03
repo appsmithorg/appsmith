@@ -40,7 +40,7 @@ describe(
         dataSources.CreatePlugIn("PostgreSQL");
 
         dsName = "Postgres" + uid;
-        agHelper.RenameWithInPane(dsName, false);
+        agHelper.RenameDatasource(dsName);
 
         dataSources.FillPostgresDSForm();
         dataSources.SaveDSFromDialog(true);

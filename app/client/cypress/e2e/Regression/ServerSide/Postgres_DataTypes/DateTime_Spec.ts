@@ -59,7 +59,7 @@ describe(
           expect($noRecMsg).to.eq("No data records to show"),
         );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("selectRecords");
+      agHelper.RenameQuery("selectRecords");
     });
 
     it("3. Creating all queries - datetimetypes", () => {
@@ -71,7 +71,7 @@ describe(
         "Insert",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("insertRecord");
+      agHelper.RenameQuery("insertRecord");
       dataSources.ToggleUsePreparedStatement(false);
 
       query = `UPDATE public."datetimetypes" SET
@@ -83,7 +83,7 @@ describe(
         "Update",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("updateRecord");
+      agHelper.RenameQuery("updateRecord");
       dataSources.ToggleUsePreparedStatement(false);
 
       query = `DELETE FROM public."datetimetypes"`;
@@ -93,7 +93,7 @@ describe(
         "Delete",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("deleteAllRecords");
+      agHelper.RenameQuery("deleteAllRecords");
 
       query = `drop table public."datetimetypes"`;
       dataSources.createQueryWithDatasourceSchemaTemplate(
@@ -102,7 +102,7 @@ describe(
         "Delete",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("dropTable");
+      agHelper.RenameQuery("dropTable");
 
       query = `DELETE FROM public."datetimetypes"
     WHERE serialId = {{Table1.selectedRow.serialid}};`;
@@ -112,7 +112,7 @@ describe(
         "Delete",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("deleteRecord");
+      agHelper.RenameQuery("deleteRecord");
     });
 
     it("4. Validating interval methods", () => {
@@ -127,7 +127,7 @@ describe(
         "Select",
       );
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("intervalRecords");
+      agHelper.RenameQuery("intervalRecords");
       dataSources.RunQuery();
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq(

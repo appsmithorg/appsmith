@@ -252,7 +252,7 @@ describe(
       cy.get("@guid").then((uid) => {
         dataSources.CreatePlugIn("Microsoft SQL Server");
         dataSourceName = "MsSQL" + " " + uid;
-        agHelper.RenameWithInPane(dataSourceName, false);
+        agHelper.RenameDatasource(dataSourceName);
 
         dataSources.TestDatasource(false);
         agHelper.ValidateToastMessage("Missing endpoint.");

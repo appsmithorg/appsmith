@@ -66,7 +66,7 @@ describe.skip(
     it("1. Add query from active ds tab and verify", () => {
       dataSources.CreateQueryForDS(dataSourceName);
       // entityExplorer.CreateNewDsQuery(dataSourceName);
-      agHelper.RenameWithInPane("Fetch_Details");
+      agHelper.RenameQuery("Fetch_Details");
       dataSources.ValidateNSelectDropdown(
         "Operation",
         "Fetch Many",

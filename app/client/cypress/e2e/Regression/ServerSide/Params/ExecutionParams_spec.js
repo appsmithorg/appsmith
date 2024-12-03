@@ -3,7 +3,6 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 
 const publishPage = require("../../../../locators/publishWidgetspage.json");
-const queryLocators = require("../../../../locators/QueryEditor.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 import {
   agHelper,
@@ -16,6 +15,7 @@ describe(
   { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let datasourceName;
+
     before(() => {
       agHelper.AddDsl("executionParamsDsl");
     });
@@ -36,9 +36,7 @@ describe(
       dataSources.CreateQueryAfterDSSaved(
         "select * from {{ this.params.tableName || 'users' }} limit 10",
       );
-      cy.get(queryLocators.settings).click({ force: true });
       dataSources.ToggleUsePreparedStatement(false);
-      cy.xpath(queryLocators.query).click({ force: true });
       cy.runQuery();
     });
 

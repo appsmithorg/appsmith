@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-import BottomPane from "../../../../support/Pages/IDE/BottomPane";
+import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
 
 let valueToTest: any, jsName: any;
 
