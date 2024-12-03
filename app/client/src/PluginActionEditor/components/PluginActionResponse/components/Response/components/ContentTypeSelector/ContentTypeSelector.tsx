@@ -37,7 +37,7 @@ export const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
         <Styled.Fab
           $isVisible={isVisible}
           aria-label={`Change response format. Current format: ${currentContentType}`}
-          data-testid="t--query-response-type-trigger"
+          data-testid="t--response-type-trigger"
           endIcon={isOpen ? "arrow-up-s-line" : "arrow-down-s-line"}
           kind="secondary"
           startIcon={`content-type-${currentContentType.toLocaleLowerCase()}`}
@@ -52,7 +52,7 @@ export const ContentTypeSelector = (props: ContentTypeSelectorProps) => {
         <MenuGroup>
           {contentTypeOptions.map(({ label, value }) => (
             <MenuItem
-              data-testid="t--query-response-type-menu-item"
+              data-testid="t--response-type-menu-item"
               data-value={value}
               key={value}
               onSelect={handleContentTypeChange}
