@@ -12,10 +12,11 @@ interface AutocommitStatusbarProps {
 }
 
 const PROGRESSBAR_WIDTH = 150;
-const PROGRESS_INTERVAL = 4 * 1000; // in ms
+const TOTAL_DURATION_MS = 4000; // in ms
 const MAX_PROGRESS_PERCENTAGE = 90;
 const PROGRESS_INCREMENT = 10;
 const STEPS = 9;
+const INTERVAL_MS = TOTAL_DURATION_MS / STEPS;
 
 const StatusbarWrapper = styled.div`
   > div {
@@ -61,7 +62,7 @@ export default function AutocommitStatusbar({
               return prevPercentage;
             }
           });
-        }, PROGRESS_INTERVAL / STEPS);
+        }, INTERVAL_MS);
       }
 
       // Cleanup function to clear the interval

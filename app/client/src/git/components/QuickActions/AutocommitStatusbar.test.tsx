@@ -13,6 +13,10 @@ jest.mock("@appsmith/ads-old", () => ({
   ),
 }));
 
+const TOTAL_DURATION_MS = 4000;
+const STEPS = 9;
+const INTERVAL_MS = TOTAL_DURATION_MS / STEPS;
+
 describe("AutocommitStatusbar Component", () => {
   afterEach(() => {
     jest.clearAllTimers();
@@ -35,13 +39,13 @@ describe("AutocommitStatusbar Component", () => {
 
     // Advance timer by one interval
     act(() => {
-      jest.advanceTimersByTime((4 * 1000) / 9);
+      jest.advanceTimersByTime(INTERVAL_MS);
     });
     expect(statusbar).toHaveTextContent("10%");
 
     // Advance timer by another interval
     act(() => {
-      jest.advanceTimersByTime((4 * 1000) / 9);
+      jest.advanceTimersByTime(INTERVAL_MS);
     });
     expect(statusbar).toHaveTextContent("20%");
 
@@ -92,14 +96,17 @@ describe("AutocommitStatusbar Component", () => {
   it("should clean up intervals and timeouts on unmount", () => {
     const onHide = jest.fn();
 
-    render(<AutocommitStatusbar completed={false} onHide={onHide} />);
+    const { unmount } = render(
+      <AutocommitStatusbar completed={false} onHide={onHide} />,
+    );
 
     // Start the interval
     act(() => {
-      jest.advanceTimersByTime((4 * 1000) / 9);
+      jest.advanceTimersByTime(INTERVAL_MS);
     });
 
     // Unmount the component
+    unmount();
 
     // Advance time to see if any timers are still running
     act(() => {
@@ -117,7 +124,7 @@ describe("AutocommitStatusbar Component", () => {
 
     // Advance timer to increase percentage
     act(() => {
-      jest.advanceTimersByTime((4 * 1000) / 9);
+      jest.advanceTimersByTime(INTERVAL_MS);
     });
     expect(statusbar).toHaveTextContent("10%");
 
@@ -144,7 +151,7 @@ describe("AutocommitStatusbar Component", () => {
 
     // Advance timer to check if percentage increments beyond 100%
     act(() => {
-      jest.advanceTimersByTime((4 * 1000) / 9);
+      jest.advanceTimersByTime(INTERVAL_MS);
     });
     expect(statusbar).toHaveTextContent("100%");
   });
