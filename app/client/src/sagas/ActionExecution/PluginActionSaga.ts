@@ -1738,7 +1738,7 @@ export function* watchPluginActionExecutionSagas() {
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
     takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
     takeEvery(ReduxActionTypes.UPDATE_ACTION_DATA, handleUpdateActionData),
-    takeEvery(
+    takeLatest(
       ReduxActionTypes.START_EVALUATION,
       captureActionsWithinPeriodTriggers,
     ),
