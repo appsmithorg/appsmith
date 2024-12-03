@@ -33,27 +33,32 @@ public class ReactorUtils {
         Mono<Scheduler> schedulerMono =
                 Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TRANSACTION_THREAD_NAME, elasticScheduler)));
         return schedulerMono
-                .flatMap(scheduler ->
-                        Mono.defer(() -> Mono.justOrEmpty(supplier.get())).subscribeOn(scheduler))
-                .publishOn(elasticScheduler);
+                .flatMap(scheduler -> switchToElasticScheduler(scheduler)
+                        .then(Mono.defer(() -> Mono.justOrEmpty(supplier.get())).subscribeOn(scheduler)))
+                .publishOn(Schedulers.boundedElastic());
     }
 
     public static <T> Mono<T> asMonoDirect(Supplier<T> supplier) {
         Mono<Scheduler> schedulerMono =
                 Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TRANSACTION_THREAD_NAME, elasticScheduler)));
         return schedulerMono
-                .flatMap(scheduler ->
-                        Mono.defer(() -> Mono.justOrEmpty(supplier.get())).subscribeOn(scheduler))
-                .publishOn(elasticScheduler);
+                .flatMap(scheduler -> switchToElasticScheduler(scheduler)
+                        .then(Mono.defer(() -> Mono.justOrEmpty(supplier.get())).subscribeOn(scheduler)))
+                .publishOn(Schedulers.boundedElastic());
     }
 
     public static <T> Flux<T> asFlux(Supplier<? extends Iterable<T>> supplier) {
         Mono<Scheduler> schedulerMono =
                 Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TRANSACTION_THREAD_NAME, elasticScheduler)));
         return schedulerMono
-                .flatMapMany(scheduler -> Mono.fromCallable(supplier::get)
+                .flatMapMany(scheduler -> switchToElasticScheduler(scheduler)
+                        .then(Mono.fromCallable(supplier::get))
                         .flatMapMany(Flux::fromIterable)
                         .subscribeOn(scheduler))
-                .publishOn(elasticScheduler);
+                .publishOn(Schedulers.boundedElastic());
+    }
+
+    private static Mono<Void> switchToElasticScheduler(Scheduler scheduler) {
+        return Mono.defer(() -> Mono.empty().publishOn(scheduler)).then();
     }
 }
