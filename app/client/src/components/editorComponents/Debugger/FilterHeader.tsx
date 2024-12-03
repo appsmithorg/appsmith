@@ -23,6 +23,7 @@ const Wrapper = styled.div`
   align-items: center;
   gap: 8px;
   padding: var(--ads-v2-spaces-4);
+  border-bottom: 1px solid var(--ads-v2-color-border);
 
   .debugger-filter {
     width: 220px;
