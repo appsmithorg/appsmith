@@ -154,7 +154,7 @@ export class DataSources {
     "']";
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
-  _queryError = "[data-testid='t--query-error']";
+  _queryError = "[data-testid='t--response-error']";
   _queryEditorTabs = (responseType: string) =>
     "//button[@role='tab' or @role='tablist']//span[text()='" +
     responseType +
