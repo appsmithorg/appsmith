@@ -56,7 +56,7 @@ export function JSEditorContextMenu({
     >
       <MenuTrigger>
         <Button
-          data-testid="more-action-trigger"
+          data-testid="t--more-action-trigger"
           isIconButton
           kind="tertiary"
           size={isActionRedesignEnabled ? "sm" : "md"}
