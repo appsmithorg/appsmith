@@ -210,6 +210,7 @@ public class FieldNameCE {
 
     public static final String TRANSACTION_CONTEXT = "transactionContext";
     public static final String TX_CONTEXT = "txContext";
+    public static final String TRANSACTION_THREAD_NAME = "tx_thread";
 
     public static final String FIND = "find";
     public static final String ARCHIVE = "archive";

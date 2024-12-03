@@ -58,7 +58,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -1085,19 +1084,27 @@ public class ApplicationServiceCEImpl
                 .flatMap(obj -> {
                     Application update = new Application();
                     update.setSlug("updated_name_1");
+                    log.debug(
+                            "After findById, Thread name: {}",
+                            Thread.currentThread().getName());
                     return repository.updateById(id, update, null);
                 })
                 .flatMap(obj -> {
                     Application update = new Application();
                     update.setName("updated_name");
                     // return Mono.error(new RuntimeException("Error"));
+                    log.debug(
+                            "After updateById1, Thread name: {}",
+                            Thread.currentThread().getName());
                     return repository.updateById(id, update, null);
                 })
                 .flatMapMany(obj -> findByWorkspaceId(obj.getWorkspaceId(), MANAGE_APPLICATIONS))
-                .publishOn(Schedulers.single())
                 .flatMap(application -> {
                     Application update = new Application();
                     update.setName("updated_name" + UUID.randomUUID());
+                    log.debug(
+                            "After findByWorkspaceId, Thread name: {}",
+                            Thread.currentThread().getName());
                     return repository.updateById(application.getId(), update, null);
                 })
                 .as(transactionManager::transactional);

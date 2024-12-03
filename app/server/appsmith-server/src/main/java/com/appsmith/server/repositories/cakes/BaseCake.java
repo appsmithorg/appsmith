@@ -151,8 +151,7 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                         }
                     }
                     return entities;
-                })))
-                .publishOn(Schedulers.single());
+                })));
     }
 
     public Mono<Long> count() {
@@ -210,7 +209,7 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                 .zipWith(Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager))))
                 .flatMap(tuple -> this.getAllPermissionGroupsForUser(tuple.getT1(), tuple.getT2())
                         .zipWith(Mono.just(tuple.getT2())))
-                .map(tuple2 -> {
+                .flatMap(tuple2 -> {
                     final ArrayList<String> permissionGroups = new ArrayList<>(tuple2.getT1());
                     final EntityManager em = tuple2.getT2();
                     final CriteriaBuilder cb = em.getCriteriaBuilder();
@@ -231,9 +230,8 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                                                 cb.literal(PERMISSION_GROUPS)),
                                         cb.literal(permissionGroups.toArray(new String[0])))));
                     }
-                    return em.createQuery(cq).getSingleResult();
-                })
-                .subscribeOn(Schedulers.boundedElastic());
+                    return asMonoDirect(() -> em.createQuery(cq).getSingleResult());
+                });
     }
 
     // FIXME: Duplicate from BaseAppsmithRepositoryCEImpl

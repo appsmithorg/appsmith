@@ -4552,7 +4552,7 @@ public class ApplicationServiceCETest {
 
         StepVerifier.create(resultMono)
                 .assertNext(app -> {
-                    assertThat(app.size()).isNotZero();
+                    assertThat(app.size()).isEqualTo(2);
                 })
                 .verifyComplete();
     }
