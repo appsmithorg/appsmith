@@ -73,12 +73,8 @@ export function* showExecutionErrors(errors: EvaluationError[]) {
       appMode === APP_MODE.EDIT,
     );
 
-    // Add it to the logs tab when in edit mode
-    if (appMode === APP_MODE.EDIT) {
-      AppsmithConsole.error({
-        text: errorMessage,
-      });
-    }
+    // We are not logging this in the debugger because these errors do not have a source
+    // attached to it.
   }
 }
 
