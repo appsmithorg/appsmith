@@ -61,14 +61,15 @@ async function decryptArchive(
   encryptedFilePath: string,
   backupFilePath: string,
 ) {
-  console.log("Enter the password to decrypt the backup archive:");
-
   for (const attempt of [1, 2, 3]) {
     if (attempt > 1) {
       console.log("Retry attempt", attempt);
     }
 
-    const decryptionPwd = readlineSync.question("", { hideEchoBack: true });
+    const decryptionPwd = readlineSync.question(
+      "Enter the password to decrypt the backup archive: ",
+      { hideEchoBack: true },
+    );
 
     try {
       await utils.execCommandSilent([
@@ -150,15 +151,15 @@ async function restoreDockerEnvFile(
   let encryptionSalt = process.env.APPSMITH_ENCRYPTION_SALT;
 
   await utils.execCommand([
-    "mv",
+    "cp",
     dockerEnvFile,
     dockerEnvFile + "." + backupName,
   ]);
-  await utils.execCommand([
-    "cp",
+
+  let dockerEnvContent = await fsPromises.readFile(
     restoreContentsPath + "/docker.env",
-    dockerEnvFile,
-  ]);
+    "utf8",
+  );
 
   if (overwriteEncryptionKeys) {
     if (encryptionPwd && encryptionSalt) {
@@ -202,30 +203,28 @@ async function restoreDockerEnvFile(
       );
     }
 
-    await fsPromises.appendFile(
-      dockerEnvFile,
+    dockerEnvContent +=
       "\nAPPSMITH_ENCRYPTION_PASSWORD=" +
-        encryptionPwd +
-        "\nAPPSMITH_ENCRYPTION_SALT=" +
-        encryptionSalt +
-        "\nAPPSMITH_DB_URL=" +
-        utils.getDburl() +
-        "\nAPPSMITH_MONGODB_USER=" +
-        process.env.APPSMITH_MONGODB_USER +
-        "\nAPPSMITH_MONGODB_PASSWORD=" +
-        process.env.APPSMITH_MONGODB_PASSWORD,
-    );
-  } else {
-    await fsPromises.appendFile(
-      dockerEnvFile,
+      encryptionPwd +
+      "\nAPPSMITH_ENCRYPTION_SALT=" +
+      encryptionSalt +
       "\nAPPSMITH_DB_URL=" +
-        updatedbUrl +
-        "\nAPPSMITH_MONGODB_USER=" +
-        process.env.APPSMITH_MONGODB_USER +
-        "\nAPPSMITH_MONGODB_PASSWORD=" +
-        process.env.APPSMITH_MONGODB_PASSWORD,
-    );
+      utils.getDburl() +
+      "\nAPPSMITH_MONGODB_USER=" +
+      process.env.APPSMITH_MONGODB_USER +
+      "\nAPPSMITH_MONGODB_PASSWORD=" +
+      process.env.APPSMITH_MONGODB_PASSWORD;
+  } else {
+    dockerEnvContent +=
+      "\nAPPSMITH_DB_URL=" +
+      updatedbUrl +
+      "\nAPPSMITH_MONGODB_USER=" +
+      process.env.APPSMITH_MONGODB_USER +
+      "\nAPPSMITH_MONGODB_PASSWORD=" +
+      process.env.APPSMITH_MONGODB_PASSWORD;
   }
+
+  await fsPromises.writeFile(dockerEnvFile, dockerEnvContent, "utf8");
 
   console.log("Restoring docker environment file completed");
 }

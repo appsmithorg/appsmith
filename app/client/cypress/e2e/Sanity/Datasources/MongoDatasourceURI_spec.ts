@@ -22,7 +22,7 @@ describe(
         // because I do not need to fill the datasource form and use the same default data
         dataSources.CreatePlugIn("MongoDB");
         dsName = "Mongo" + uid;
-        agHelper.RenameWithInPane(dsName, false);
+        agHelper.RenameDatasource(dsName);
 
         dataSources.FillMongoDatasourceFormWithURI();
         dataSources.TestSaveDatasource(true);
@@ -38,7 +38,7 @@ describe(
         // because I do not need to fill the datasource form and use the same default data
         dataSources.CreatePlugIn("MongoDB");
         dsName = "Mongo" + uid;
-        agHelper.RenameWithInPane(dsName, false);
+        agHelper.RenameDatasource(dsName);
 
         dataSources.FillMongoDSForm(dataManager.defaultEnviorment, true);
         dataSources.TestSaveDatasource();

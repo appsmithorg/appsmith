@@ -30,7 +30,7 @@ describe(
       cy.get("@guid").then((uid) => {
         dataSources.CreatePlugIn("MongoDB");
         dsName = "Mongo" + uid;
-        agHelper.RenameWithInPane(dsName, false);
+        agHelper.RenameDatasource(dsName);
         dataSources.FillMongoDatasourceFormWithURI();
         dataSources.TestSaveDatasource();
         AppSidebar.navigate(AppSidebarButton.Editor);

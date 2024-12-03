@@ -88,6 +88,7 @@ import { WDSNumberInputWidget } from "modules/ui-builder/ui/wds/WDSNumberInputWi
 import { WDSMultilineInputWidget } from "modules/ui-builder/ui/wds/WDSMultilineInputWidget";
 import { WDSSelectWidget } from "modules/ui-builder/ui/wds/WDSSelectWidget";
 import { EEWDSWidgets } from "ee/modules/ui-builder/ui/wds";
+import { WDSDatePickerWidget } from "modules/ui-builder/ui/wds/WDSDatePickerWidget";
 import MyDatePickerWidget from './MyDatePickerWidget';
 
 const LegacyWidgets = [
@@ -187,6 +188,7 @@ const WDSWidgets = [
   WDSNumberInputWidget,
   WDSMultilineInputWidget,
   WDSSelectWidget,
+  WDSDatePickerWidget,
 ];
 
 const Widgets = [
