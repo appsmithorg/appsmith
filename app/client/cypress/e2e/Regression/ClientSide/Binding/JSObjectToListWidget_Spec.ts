@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-import BottomPane from "../../../../support/Pages/IDE/BottomTabs";
+import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
 
 let valueToTest: any, jsName: any;
 
@@ -19,7 +19,7 @@ describe(
         _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
       );
       _.apiPage.RunAPI();
-      BottomPane.response.switchResponseType("JSON");
+      BottomTabs.response.switchResponseType("JSON");
       _.apiPage.ReadApiResponsebyKey("name");
       cy.get("@apiResp").then((value) => {
         valueToTest = value;

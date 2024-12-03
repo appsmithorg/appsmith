@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-import BottomPane from "../../../../support/Pages/IDE/BottomTabs";
+import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
 
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
@@ -195,7 +195,7 @@ describe(
       cy.typeValueNValidate(fileName, formControls.s3ListPrefix);
       dataSources.RunQuery({ toValidateResponse: false });
 
-      BottomPane.response.selectResponseResponseTypeFromMenu("JSON");
+      BottomTabs.response.selectResponseResponseTypeFromMenu("JSON");
 
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(true);
