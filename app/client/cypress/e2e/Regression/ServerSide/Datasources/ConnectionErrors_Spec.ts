@@ -22,7 +22,7 @@ describe(
       cy.get("@guid").then((uid) => {
         dataSources.CreatePlugIn("PostgreSQL");
         dataSourceName = "PostgreSQL" + " " + uid;
-        agHelper.RenameWithInPane(dataSourceName, false);
+        agHelper.RenameDatasource(dataSourceName);
 
         dataSources.TestDatasource(false);
         agHelper.ValidateToastMessage("Missing username for authentication.");
@@ -81,7 +81,7 @@ describe(
       cy.get("@guid").then((uid) => {
         dataSources.CreatePlugIn("MySQL");
         dataSourceName = "MySQL" + " " + uid;
-        agHelper.RenameWithInPane(dataSourceName, false);
+        agHelper.RenameDatasource(dataSourceName);
 
         dataSources.TestDatasource(false);
         agHelper.ValidateToastMessage("Host value cannot be empty");
@@ -133,7 +133,7 @@ describe(
       cy.get("@guid").then((uid) => {
         dataSources.CreatePlugIn("MongoDB");
         dataSourceName = "MongoDB" + " " + uid;
-        agHelper.RenameWithInPane(dataSourceName, false);
+        agHelper.RenameDatasource(dataSourceName);
 
         dataSources.TestDatasource(false);
         agHelper.ValidateToastMessage(
@@ -234,7 +234,7 @@ describe(
       cy.get("@guid").then((uid) => {
         dataSources.CreatePlugIn("Redis");
         dataSourceName = "Redis" + " " + uid;
-        agHelper.RenameWithInPane(dataSourceName, false);
+        agHelper.RenameDatasource(dataSourceName);
 
         dataSources.TestDatasource(false);
         agHelper.ValidateToastMessage(
@@ -255,7 +255,7 @@ describe(
       cy.get("@guid").then((uid) => {
         dataSources.CreatePlugIn("S3");
         dataSourceName = "S3" + " " + uid;
-        agHelper.RenameWithInPane(dataSourceName, false);
+        agHelper.RenameDatasource(dataSourceName);
 
         dataSources.TestDatasource(false);
         agHelper.ValidateToastMessage(

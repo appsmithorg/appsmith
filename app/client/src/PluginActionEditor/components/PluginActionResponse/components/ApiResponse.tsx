@@ -93,6 +93,14 @@ export function ApiResponse(props: {
     [name, id],
   );
 
+  if (props.isRunning) {
+    return (
+      <Flex h="100%" w="100%">
+        <ActionExecutionInProgressView actionType="API" theme={props.theme} />
+      </Flex>
+    );
+  }
+
   if (!actionResponse) {
     return (
       <Flex h="100%" w="100%">
@@ -128,9 +136,6 @@ export function ApiResponse(props: {
             </Callout>
           ))}
         </HelpSection>
-      )}
-      {isRunning && (
-        <ActionExecutionInProgressView actionType="API" theme={theme} />
       )}
       {runHasFailed && !isRunning ? (
         <ResponseTabErrorContainer>

@@ -94,7 +94,7 @@ public class ActionCollectionServiceTest {
     @Autowired
     ApplicationPageService applicationPageService;
 
-    @Autowired
+    @SpyBean
     LayoutActionService layoutActionService;
 
     @Autowired
@@ -964,6 +964,55 @@ public class ActionCollectionServiceTest {
                     List<Set<String>> expectedNames =
                             List.of(Set.of("testCollection1.myFunction", "testCollection1.myFunction2"));
                     assertEquals(expectedNames, actualNames, "layoutOnLoadActions should contain the expected names");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateUnpublishedActionCollection_createSingleAction_fetchesPageFromDBOnlyOnce() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testCollection1");
+        actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setWorkspaceId(workspaceId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("export default {\n\t\n}");
+        actionCollectionDTO.setPluginType(PluginType.JS);
+
+        // Create Js object
+        ActionCollectionDTO createdActionCollectionDTO =
+                layoutCollectionService.createCollection(actionCollectionDTO).block();
+        assert createdActionCollectionDTO != null;
+        assert createdActionCollectionDTO.getId() != null;
+        String createdActionCollectionId = createdActionCollectionDTO.getId();
+
+        // Update JS object to create an action with same name as previously created action
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        action1.getActionConfiguration().setIsValid(false);
+
+        actionCollectionDTO.setActions(List.of(action1));
+
+        final Mono<ActionCollectionDTO> updatedActionCollectionDTO =
+                layoutCollectionService.updateUnpublishedActionCollection(
+                        createdActionCollectionId, actionCollectionDTO);
+
+        StepVerifier.create(updatedActionCollectionDTO)
+                .assertNext(actionCollectionDTO1 -> {
+                    assertEquals(createdActionCollectionId, actionCollectionDTO1.getId());
+                    Mockito.verify(layoutActionService, Mockito.times(1))
+                            .createAction(
+                                    Mockito.any(),
+                                    Mockito.argThat(createActionMetaDTO ->
+                                            createActionMetaDTO != null && createActionMetaDTO.getNewPage() != null));
                 })
                 .verifyComplete();
     }

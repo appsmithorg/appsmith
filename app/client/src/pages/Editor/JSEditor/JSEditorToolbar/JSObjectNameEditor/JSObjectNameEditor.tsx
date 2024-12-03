@@ -129,7 +129,10 @@ export const JSObjectNameEditor = ({
   }
 
   return (
-    <NameWrapper onDoubleClick={handleDoubleClick}>
+    <NameWrapper
+      data-testid="t--js-object-name-editor"
+      onDoubleClick={handleDoubleClick}
+    >
       <EditableName
         exitEditing={exitEditMode}
         icon={icon}

@@ -58,7 +58,7 @@ describe("JSEditorToolbar", () => {
     expect(screen.getByRole("button", { name: "Run" })).toBeInTheDocument();
 
     // Assert the settings button is present
-    expect(screen.getByTestId("t--js-editor-SETTINGS")).toHaveAttribute(
+    expect(screen.getByTestId("t--js-settings-trigger")).toHaveAttribute(
       "aria-haspopup",
       "dialog",
     );
@@ -72,7 +72,7 @@ describe("JSEditorToolbar", () => {
     // Props can control the settings button visibility
     render(<JSEditorToolbar {...defaultProps} showSettings={false} />);
     expect(
-      screen.queryByTestId("t--js-editor-SETTINGS"),
+      screen.queryByTestId("t--js-settings-trigger"),
     ).not.toBeInTheDocument();
   });
 

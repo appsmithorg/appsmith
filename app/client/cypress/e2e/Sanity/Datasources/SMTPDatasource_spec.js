@@ -36,7 +36,7 @@ describe(
         dataSources.CreateQueryAfterDSSaved();
       });
       // create new query and bind fields with widgets
-      cy.get(queryLocators.queryNameField).type("smtpquery");
+      agHelper.RenameQuery("smtpquery");
       cy.get(queryLocators.queryFromEmail)
         .first()
         .type("{{From.text}}", { parseSpecialCharSequences: false });
