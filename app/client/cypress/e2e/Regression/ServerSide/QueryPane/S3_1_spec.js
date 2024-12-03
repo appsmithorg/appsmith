@@ -1,6 +1,6 @@
 /// <reference types="Cypress" />
 
-import BottomPane from "../../../../support/Pages/IDE/BottomPane";
+import BottomPane from "../../../../support/Pages/IDE/BottomTabs";
 
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");

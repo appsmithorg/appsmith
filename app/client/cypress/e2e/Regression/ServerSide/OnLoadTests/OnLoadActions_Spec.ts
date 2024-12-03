@@ -13,7 +13,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-import BottomPane from "../../../../support/Pages/IDE/BottomPane";
+import BottomPane from "../../../../support/Pages/IDE/BottomTabs";
 
 describe(
   "Layout OnLoad Actions tests",

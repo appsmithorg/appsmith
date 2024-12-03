@@ -8,7 +8,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-import BottomPane from "../../../../support/Pages/IDE/BottomPane";
+import BottomPane from "../../../../support/Pages/IDE/BottomTabs";
 
 let dsName: any;
 let queryName: string;

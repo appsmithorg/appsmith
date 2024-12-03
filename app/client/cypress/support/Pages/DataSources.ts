@@ -13,7 +13,7 @@ import PageList from "./PageList";
 import { anvilLocators } from "./Anvil/Locators";
 import { PluginActionForm } from "./PluginActionForm";
 import ApiEditor from "../../locators/ApiEditor";
-import BottomPane from "./IDE/BottomPane";
+import BottomPane from "./IDE/BottomTabs";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",

@@ -16,7 +16,7 @@ import {
   apiPage,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
-import BottomPane from "../../../../support/Pages/IDE/BottomPane";
+import BottomPane from "../../../../support/Pages/IDE/BottomTabs";
 
 let datasourceName;
 
