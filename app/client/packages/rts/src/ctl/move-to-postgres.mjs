@@ -2,13 +2,25 @@ import { spawn } from "child_process";
 import { MongoClient } from "mongodb";
 import * as fs from "node:fs";
 
+const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
+const MINIMUM_MONGO_CHANGESET = "add_empty_policyMap_for_null_entries";
+const MONGO_MIGRATION_COLLECTION = "mongockChangeLog";
+
+/**
+ * Moves data from MongoDB to JSONL files, with optional baseline mode filtering.
+ *
+ * This script connects to a MongoDB instance, optionally restores from a dump file,
+ * and exports data from all collections to JSONL files. In baseline mode, specific
+ * filters are applied to exclude certain data.
+ *
+ * @param {string} mongoDbUrl - The URL of the MongoDB.
+ * @returns {Promise<void>} - A promise that resolves when the data migration is complete.
+ */
 export async function writeDataFromMongoToJsonlFiles(mongoDbUrl) {
   let isBaselineMode = false;
   let mongoDumpFile = null;
-  const EXPORT_ROOT = "/appsmith-stacks/mongo-data";
-  const MINIMUM_MONGO_CHANGESET = "add_empty_policyMap_for_null_entries";
-  const MONGO_MIGRATION_COLLECTION = "mongockChangeLog";
 
+  // Process command line arguments
   for (let i = 2; i < process.argv.length; ++i) {
     const arg = process.argv[i];
     if (arg.startsWith("--mongodb-url=") && !mongoDbUrl) {
@@ -128,19 +140,43 @@ export async function writeDataFromMongoToJsonlFiles(mongoDbUrl) {
   process.exit(0);
 }
 
+/**
+ * Extracts value from command line argument
+ * @param {string} arg - Command line argument in format "--key=value"
+ * @returns {string} The extracted value
+ */
 function extractValueFromArg(arg) {
   return arg.replace(/^.*?=/, "");
 }
 
+/**
+ * Checks if a document is marked as archived/deleted
+ * @param {Object} doc - MongoDB document
+ * @returns {boolean} True if document is archived/deleted
+ */
 function isArchivedObject(doc) {
   return doc.deleted === true || doc.deletedAt != null;
 }
 
+/**
+ * Converts object to JSON string with sorted keys
+ * @param {Object} obj - Object to stringify
+ * @returns {string} JSON string with sorted keys
+ */
 function toJsonSortedKeys(obj) {
+  // We want the keys sorted in the serialized JSON string, so that everytime we run this script, we don't see diffs
+  // that are just keys being reshuffled, which we don't care about, and don't need a diff for.
   return JSON.stringify(obj, replacer);
 }
 
+/**
+ * Replacer function for JSON.stringify that sorts object keys
+ * @param {string} key - The current key
+ * @param {any} value - The current value
+ * @returns {any} The processed value
+ */
 function replacer(key, value) {
+  // Ref: https://gist.github.com/davidfurlong/463a83a33b70a3b6618e97ec9679e490
   return value instanceof Object && !Array.isArray(value)
     ? Object.keys(value)
         .sort()
@@ -151,6 +187,14 @@ function replacer(key, value) {
     : value;
 }
 
+/**
+ * Method to transform the data in the object to be compatible with Postgres.
+ * Updates:
+ * 1. Changes the _id field to id, and removes the _id field.
+ * 2. Replaces the _class field with the appropriate type field.
+ * @param {Document} obj - The object to transform.
+ * @returns {void} - No return value.
+ */
 function transformFields(obj) {
   for (const key in obj) {
     if (key === "_id") {
@@ -168,6 +212,11 @@ function transformFields(obj) {
   }
 }
 
+/**
+ * Map the _class field to the appropriate type value. The DatasourceStorage class requires this check
+ * @param {string} _class - The _class field value.
+ * @returns {string|null} - The corresponding type value, or null if no match is found.
+ */
 function mapClassToType(_class) {
   switch (_class) {
     case "com.appsmith.external.models.DatasourceStructure$PrimaryKey":
@@ -179,6 +228,11 @@ function mapClassToType(_class) {
   }
 }
 
+/**
+ * Method to check if MongoDB data has migrated to a stable version before we start migrating the data to Postgres.
+ * @param {*} mongoDb - The MongoDB client.
+ * @returns {Promise<boolean>} - A promise that resolves to true if the data has been migrated to a stable version, false otherwise.
+ */
 async function isMongoDataMigratedToStableVersion(mongoDb) {
   const doc = await mongoDb.collection(MONGO_MIGRATION_COLLECTION).findOne({
     changeId: MINIMUM_MONGO_CHANGESET,

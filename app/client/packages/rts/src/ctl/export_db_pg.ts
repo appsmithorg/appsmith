@@ -7,9 +7,7 @@ import { writeDataFromMongoToJsonlFiles } from './move-to-postgres.mjs';
 export async function exportDatabase() {
   const dbUrl = utils.getDburl();
   try {
-    await writeDataFromMongoToJsonlFiles({
-      mongoDbUrl: dbUrl
-    });
+    await writeDataFromMongoToJsonlFiles(dbUrl);
     console.log('MongoDB data exported successfully.');
   } catch (error) {
     console.error('Error exporting MongoDB data:', error);
