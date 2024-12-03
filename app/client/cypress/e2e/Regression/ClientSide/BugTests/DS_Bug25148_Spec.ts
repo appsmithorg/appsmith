@@ -13,7 +13,7 @@ describe(
       cy.get("@guid").then((uid) => {
         dsName = "AuthAPI " + uid;
         dataSources.CreatePlugIn("Authenticated API");
-        agHelper.RenameWithInPane(dsName, false);
+        agHelper.RenameDatasource(dsName);
         dataSources.FillAuthAPIUrl();
         dataSources.SaveDatasource();
         apiPage.CreateApi("API" + uid, "GET", true);

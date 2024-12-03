@@ -29,7 +29,7 @@ describe(
         dataSourceName = "Postgres " + guid;
         dataSources.NavigateToDSCreateNew();
         dataSources.CreatePlugIn("PostgreSQL");
-        agHelper.RenameWithInPane(dataSourceName, false);
+        agHelper.RenameDatasource(dataSourceName);
         dataSources.FillPostgresDSForm(
           "Production",
           false,
