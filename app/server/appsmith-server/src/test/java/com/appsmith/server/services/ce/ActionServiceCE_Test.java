@@ -29,6 +29,7 @@ import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.CreateActionMetaDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -1183,7 +1184,10 @@ public class ActionServiceCE_Test {
         action.setDatasource(datasource);
 
         AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
-        Mono<ActionDTO> actionMono = layoutActionService.createAction(action, eventContext, Boolean.FALSE);
+        CreateActionMetaDTO createActionMetaDTO = new CreateActionMetaDTO();
+        createActionMetaDTO.setEventContext(eventContext);
+        createActionMetaDTO.setIsJsAction(Boolean.FALSE);
+        Mono<ActionDTO> actionMono = layoutActionService.createAction(action, createActionMetaDTO);
         StepVerifier.create(actionMono)
                 .assertNext(createdAction -> {
                     // executeOnLoad is expected to be set to false in case of default context
