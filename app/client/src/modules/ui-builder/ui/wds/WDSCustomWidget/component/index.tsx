@@ -109,6 +109,9 @@ function CustomComponent(props: CustomComponentProps) {
             ) {
               iframe.current?.style.setProperty("height", `${height}px`);
               setHeight(height);
+            } else {
+              iframe.current?.style.setProperty("height", "auto");
+              setHeight(0);
             }
 
             break;
