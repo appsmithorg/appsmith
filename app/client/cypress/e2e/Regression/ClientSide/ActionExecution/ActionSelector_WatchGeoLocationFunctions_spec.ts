@@ -1,14 +1,8 @@
 import {
   agHelper,
-  apiPage,
-  appSettings,
-  assertHelper,
-  dataManager,
   deployMode,
   draggableWidgets,
   entityExplorer,
-  homePage,
-  jsEditor,
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
