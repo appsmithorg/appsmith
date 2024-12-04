@@ -1,5 +1,6 @@
 package com.appsmith.server.newpages.exportable;
 
+import com.appsmith.external.git.models.GitResourceType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
@@ -66,7 +67,8 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
                     // Extract mongoEscapedWidgets from pages and save it to applicationJson object as this
                     // field is JsonIgnored. Also remove any ids those are present in the page objects
 
-                    Set<String> updatedPageSet = new HashSet<String>();
+                    Set<String> updatedPageSet = new HashSet<>();
+                    Set<String> updatedIdentities = new HashSet<>();
 
                     // check the application object for the page reference in the page list
                     // Exclude the deleted pages that are present in view mode because the app is not
@@ -79,6 +81,9 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
                                     .put(
                                             newPage.getId() + EDIT,
                                             newPage.getUnpublishedPage().getName());
+                            mappedExportableResourcesDTO
+                                    .getContextNameToGitSyncIdMap()
+                                    .put(newPage.getUnpublishedPage().getName(), newPage.getGitSyncId());
                             PageDTO unpublishedPageDTO = newPage.getUnpublishedPage();
                             if (!CollectionUtils.isEmpty(unpublishedPageDTO.getLayouts())) {
                                 unpublishedPageDTO.getLayouts().forEach(layout -> {
@@ -114,11 +119,17 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
                                         : null;
                         if (isNewPageUpdated && newPageName != null) {
                             updatedPageSet.add(newPageName);
+                            updatedIdentities.add(newPage.getGitSyncId());
                         }
                         newPage.sanitiseToExportDBObject();
                     });
                     applicationJson.setPageList(newPageList);
                     applicationJson.getModifiedResources().putResource(FieldName.PAGE_LIST, updatedPageSet);
+                    applicationJson
+                            .getModifiedResources()
+                            .getModifiedResourceIdentifiers()
+                            .get(GitResourceType.CONTEXT_CONFIG)
+                            .addAll(updatedIdentities);
 
                     return newPageList;
                 })

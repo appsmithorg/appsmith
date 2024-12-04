@@ -13,6 +13,8 @@ public interface ArtifactGitFileUtilsCE<T extends ArtifactGitReference> {
 
     T createArtifactReferenceObject();
 
+    ArtifactExchangeJson createArtifactExchangeJsonObject();
+
     void setArtifactDependentResources(ArtifactExchangeJson artifactExchangeJson, GitResourceMap gitResourceMap);
 
     Mono<ArtifactExchangeJson> reconstructArtifactExchangeJsonFromFilesInRepository(
@@ -24,4 +26,6 @@ public interface ArtifactGitFileUtilsCE<T extends ArtifactGitReference> {
     Map<String, String> getConstantsMap();
 
     Path getRepoSuffixPath(String workspaceId, String artifactId, String repoName, @NonNull String... args);
+
+    void setArtifactDependentPropertiesInJson(GitResourceMap gitResourceMap, ArtifactExchangeJson artifactExchangeJson);
 }
