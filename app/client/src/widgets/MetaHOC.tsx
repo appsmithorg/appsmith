@@ -12,6 +12,7 @@ import type { AppState } from "ee/reducers";
 import { error } from "loglevel";
 import WidgetFactory from "WidgetProvider/factory";
 import type BaseWidget from "./BaseWidget";
+
 export type pushAction = (
   propertyName: string | batchUpdateWidgetMetaPropertyType,
   propertyValue?: unknown,
@@ -43,6 +44,7 @@ export interface WithMeta {
 interface WidgetMetaProps {
   metaState: Record<string, unknown>;
 }
+
 type metaHOCProps = WidgetProps & WidgetMetaProps;
 
 function withMeta(WrappedWidget: typeof BaseWidget) {
@@ -54,6 +56,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
     actionsToExecute: Record<string, DebouncedExecuteActionPayload>;
     batchMetaUpdates: batchUpdateWidgetMetaPropertyType;
     updatedProperties: Record<string, boolean>;
+
     constructor(props: metaHOCProps) {
       super(props);
       const metaProperties = WidgetFactory.getWidgetMetaPropertiesMap(
@@ -99,6 +102,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
             source: {
               id: this.props.widgetId,
               name: this.props.widgetName,
+              entityType: ENTITY_TYPE.WIDGET,
             },
           });
 
@@ -153,8 +157,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       );
     };
     /**
-    This function pushes meta updates that can be commited later.
-    If there are multiple updates, use this function to batch those updates together.
+     This function pushes meta updates that can be commited later.
+     If there are multiple updates, use this function to batch those updates together.
      */
     pushBatchMetaUpdates: pushAction = (firstArgument, ...restArgs) => {
       //if first argument is an array its a batch lets push it
@@ -182,7 +186,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       error("unknown args ", allArgs);
     };
     /**
-    This function commits all batched updates in one go.
+     This function commits all batched updates in one go.
      */
     commitBatchMetaUpdates = () => {
       //ignore commit if batch array is empty

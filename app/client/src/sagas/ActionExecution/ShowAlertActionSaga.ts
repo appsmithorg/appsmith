@@ -6,8 +6,12 @@ import type { TShowAlertDescription } from "workers/Evaluation/fns/showAlert";
 import { call } from "redux-saga/effects";
 import showToast from "sagas/ToastSagas";
 import { uniqueId } from "lodash";
+import type { SourceEntity } from "entities/AppsmithConsole";
 
-export default function* showAlertSaga(action: TShowAlertDescription) {
+export default function* showAlertSaga(
+  action: TShowAlertDescription,
+  source?: SourceEntity,
+) {
   const { payload } = action;
 
   if (typeof payload.message !== "string") {
@@ -30,8 +34,11 @@ export default function* showAlertSaga(action: TShowAlertDescription) {
     { forceDisplay: true },
   );
   AppsmithConsole.info({
-    text: payload.style
-      ? `showAlert('${payload.message}', '${payload.style}') was triggered`
-      : `showAlert('${payload.message}') was triggered`,
+    source: source,
+    text: "showAlert triggered",
+    state: {
+      message: payload.message,
+      style: payload.style,
+    },
   });
 }
