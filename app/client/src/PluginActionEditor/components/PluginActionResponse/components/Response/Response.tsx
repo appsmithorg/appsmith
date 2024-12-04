@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import ReactJson from "react-json-view";
+
 import { useDispatch } from "react-redux";
 import { useBoolean, useEventCallback } from "usehooks-ts";
 
@@ -21,9 +21,6 @@ import {
 } from "PluginActionEditor/store";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
-import { JsonWrapper } from "components/editorComponents/CodeEditor/PeekOverlayPopup/JsonWrapper";
-import LogAdditionalInfo from "components/editorComponents/Debugger/ErrorLogs/components/LogAdditionalInfo";
-import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
 import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import {
@@ -32,12 +29,11 @@ import {
 } from "ee/constants/messages";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import type { SourceEntity } from "entities/AppsmithConsole";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
 
 import BindDataButton from "../BindDataButton";
 import { NoResponse } from "../NoResponse";
 import { ResponseFormatTabs } from "../ResponseFormatTabs";
-import { ContentTypeSelector } from "./components";
+import { ContentTypeSelector, ErrorView } from "./components";
 import {
   API_REACT_JSON_PROPS,
   REACT_JSON_PROPS,
@@ -102,7 +98,7 @@ export function Response(props: ResponseProps) {
     return { currentContentType, contentTypeOptions };
   }, [responseDisplayFormat, responseDataTypes]);
 
-  const queryTooltipContent = useMemo(() => {
+  const tooltipContent = useMemo(() => {
     if (actionResponse) {
       const messages = [
         [
@@ -213,83 +209,15 @@ export function Response(props: ResponseProps) {
   return (
     <Styled.Root>
       {errorMessage && (
-        <div>
-          <Styled.StatusBar>
-            <Tooltip
-              content={queryTooltipContent}
-              id="t--response-tooltip"
-              isDisabled={!queryTooltipContent}
-              placement="bottom"
-            >
-              <Styled.StatusBarInfo data-testid="t--response-status-info">
-                <Styled.StatusBarText
-                  $hasTooltip={!!queryTooltipContent}
-                  $isBold
-                  kind="code"
-                >
-                  {`${action.name}.run():`}
-                </Styled.StatusBarText>
-                <Styled.StatusBarText
-                  $hasTooltip={!!queryTooltipContent}
-                  $isError
-                  kind="code"
-                >
-                  Error
-                </Styled.StatusBarText>
-              </Styled.StatusBarInfo>
-            </Tooltip>
-          </Styled.StatusBar>
-          <Styled.ErrorContainer>
-            <Styled.ErrorContent>
-              <Styled.ErrorDefaultMessage>
-                Request has failed to execute
-                {actionResponse &&
-                  (actionResponse.pluginErrorDetails || actionResponse.body) &&
-                  ":"}
-              </Styled.ErrorDefaultMessage>
-              {actionResponse &&
-                (actionResponse.pluginErrorDetails ? (
-                  <>
-                    <div data-testid="t--response-error">
-                      {actionResponse.pluginErrorDetails
-                        .downstreamErrorMessage ||
-                        actionResponse.pluginErrorDetails.appsmithErrorMessage}
-                    </div>
-                    {actionResponse.pluginErrorDetails.downstreamErrorCode && (
-                      <LogAdditionalInfo
-                        text={
-                          actionResponse.pluginErrorDetails.downstreamErrorCode
-                        }
-                      />
-                    )}
-                  </>
-                ) : (
-                  actionResponse.body &&
-                  action.pluginType === PluginType.DB && (
-                    <div data-testid="t--response-error">
-                      {actionResponse.body}
-                    </div>
-                  )
-                ))}
-              <LogHelper
-                logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
-                name="PluginExecutionError"
-                pluginErrorDetails={
-                  actionResponse && actionResponse.pluginErrorDetails
-                }
-                source={actionSource}
-              />
-            </Styled.ErrorContent>
-            {actionResponse && actionResponse.request && (
-              <JsonWrapper
-                className="t--debugger-log-state"
-                onClick={handleJsonWrapperClick}
-              >
-                <ReactJson src={updateTimestamp} {...reactJsonParams} />
-              </JsonWrapper>
-            )}
-          </Styled.ErrorContainer>
-        </div>
+        <ErrorView
+          action={action}
+          actionResponse={actionResponse}
+          actionSource={actionSource}
+          handleJsonWrapperClick={handleJsonWrapperClick}
+          reactJsonParams={reactJsonParams}
+          tooltipContent={tooltipContent}
+          updateTimestamp={updateTimestamp}
+        />
       )}
 
       {showPreparedStatementWarning && (
@@ -321,21 +249,21 @@ export function Response(props: ResponseProps) {
         >
           <Styled.StatusBar>
             <Tooltip
-              content={queryTooltipContent}
+              content={tooltipContent}
               id="t--response-tooltip"
-              isDisabled={!queryTooltipContent}
+              isDisabled={!tooltipContent}
               placement="bottom"
             >
               <Styled.StatusBarInfo data-testid="t--response-status-info">
                 <Styled.StatusBarText
-                  $hasTooltip={!!queryTooltipContent}
+                  $hasTooltip={!!tooltipContent}
                   $isBold
                   kind="code"
                 >
                   {`${action.name}.run():`}
                 </Styled.StatusBarText>
                 <Styled.StatusBarText
-                  $hasTooltip={!!queryTooltipContent}
+                  $hasTooltip={!!tooltipContent}
                   data-testid="t--response-record-count"
                   kind="code"
                 >{`${recordCount} record${recordCount > 1 ? "s" : ""}`}</Styled.StatusBarText>
