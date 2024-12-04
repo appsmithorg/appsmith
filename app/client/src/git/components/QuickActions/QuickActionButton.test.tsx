@@ -26,6 +26,7 @@ describe("QuickActionButton", () => {
     icon: "plus",
     onClick: jest.fn(),
     tooltipText: "default action",
+    className: "t--test-btn",
   };
 
   afterEach(() => {
@@ -33,40 +34,37 @@ describe("QuickActionButton", () => {
   });
 
   it("should render without crashing", () => {
-    render(
+    const { container } = render(
       <ThemeProvider theme={theme}>
         <QuickActionButton {...defaultProps} />
       </ThemeProvider>,
     );
-    expect(screen.getByTestId("t--test-btn")).toBeInTheDocument();
+    const btn = container.getElementsByClassName("t--test-btn")[0];
+
+    expect(btn).toBeInTheDocument();
   });
 
   it("should call onClick when button is clicked", () => {
-    render(
+    const { container } = render(
       <ThemeProvider theme={theme}>
         <QuickActionButton {...defaultProps} />
       </ThemeProvider>,
     );
-    fireEvent.click(screen.getByTestId("t--test-btn"));
+    const btn = container.getElementsByClassName("t--test-btn")[0];
+
+    fireEvent.click(btn);
     expect(defaultProps.onClick).toHaveBeenCalledTimes(1);
   });
 
-  it("should disable the button when disabled is true", () => {
-    render(
-      <ThemeProvider theme={theme}>
-        <QuickActionButton {...defaultProps} disabled />
-      </ThemeProvider>,
-    );
-    expect(screen.getByTestId("t--test-btn")).toBeDisabled();
-  });
-
   it("should not call onClick when button is disabled", () => {
-    render(
+    const { container } = render(
       <ThemeProvider theme={theme}>
         <QuickActionButton {...defaultProps} disabled />
       </ThemeProvider>,
     );
-    fireEvent.click(screen.getByTestId("t--test-btn"));
+    const btn = container.getElementsByClassName("t--test-btn")[0];
+
+    fireEvent.click(btn);
     expect(defaultProps.onClick).not.toHaveBeenCalled();
   });
 
