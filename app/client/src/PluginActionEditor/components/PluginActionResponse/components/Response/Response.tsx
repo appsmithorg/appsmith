@@ -215,14 +215,29 @@ export function Response(props: ResponseProps) {
       {errorMessage && (
         <div>
           <Styled.StatusBar>
-            <Styled.StatusBarInfo>
-              <Styled.StatusBarText $isBold kind="code">
-                {`${action.name}.run():`}
-              </Styled.StatusBarText>
-              <Styled.StatusBarText $isError kind="code">
-                Error
-              </Styled.StatusBarText>
-            </Styled.StatusBarInfo>
+            <Tooltip
+              content={queryTooltipContent}
+              id="t--response-tooltip"
+              isDisabled={!queryTooltipContent}
+              placement="bottom"
+            >
+              <Styled.StatusBarInfo data-testid="t--response-status-info">
+                <Styled.StatusBarText
+                  $hasTooltip={!!queryTooltipContent}
+                  $isBold
+                  kind="code"
+                >
+                  {`${action.name}.run():`}
+                </Styled.StatusBarText>
+                <Styled.StatusBarText
+                  $hasTooltip={!!queryTooltipContent}
+                  $isError
+                  kind="code"
+                >
+                  Error
+                </Styled.StatusBarText>
+              </Styled.StatusBarInfo>
+            </Tooltip>
           </Styled.StatusBar>
           <Styled.ErrorContainer>
             <Styled.ErrorContent>
@@ -312,11 +327,15 @@ export function Response(props: ResponseProps) {
               placement="bottom"
             >
               <Styled.StatusBarInfo data-testid="t--response-status-info">
-                <Styled.StatusBarText $hasTooltip $isBold kind="code">
+                <Styled.StatusBarText
+                  $hasTooltip={!!queryTooltipContent}
+                  $isBold
+                  kind="code"
+                >
                   {`${action.name}.run():`}
                 </Styled.StatusBarText>
                 <Styled.StatusBarText
-                  $hasTooltip
+                  $hasTooltip={!!queryTooltipContent}
                   data-testid="t--response-record-count"
                   kind="code"
                 >{`${recordCount} record${recordCount > 1 ? "s" : ""}`}</Styled.StatusBarText>
