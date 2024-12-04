@@ -196,10 +196,47 @@ function* intializeSmartLook(currentUser: User) {
   }
 }
 
-export function* runUserSideEffectsSaga() {
+function* restartUserTracking() {
   const currentUser: User = yield select(getCurrentUser);
   const { enableTelemetry } = currentUser;
   const isAirgappedInstance = isAirgapped();
+
+  const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
+
+  if (!isFFFetched) {
+    yield call(fetchFeatureFlagsInit);
+    yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
+  }
+
+  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+
+  const isGACEnabled = featureFlags?.license_gac_enabled;
+
+  const isFreeLicense = !isGACEnabled;
+
+  if (!isAirgappedInstance) {
+    // We need to stop and start tracking activity to ensure that the tracking from previous session is not carried forward
+    yield call(UsagePulse.stopTrackingActivity);
+
+    if (currentUser?.isAnonymous) {
+      yield take([
+        ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
+        ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+      ]);
+    }
+
+    yield call(
+      UsagePulse.startTrackingActivity,
+      enableTelemetry && getAppsmithConfigs().segment.enabled,
+      currentUser?.isAnonymous ?? false,
+      isFreeLicense,
+    );
+  }
+}
+
+export function* runUserSideEffectsSaga() {
+  const currentUser: User = yield select(getCurrentUser);
+  const { enableTelemetry } = currentUser;
 
   if (enableTelemetry) {
     // parallelize sentry and smart look initialization
@@ -218,28 +255,7 @@ export function* runUserSideEffectsSaga() {
     }
   }
 
-  const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
-
-  if (!isFFFetched) {
-    yield call(fetchFeatureFlagsInit);
-    yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
-  }
-
-  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-
-  const isGACEnabled = featureFlags?.license_gac_enabled;
-
-  const isFreeLicense = !isGACEnabled;
-
-  if (!isAirgappedInstance) {
-    // We need to stop and start tracking activity to ensure that the tracking from previous session is not carried forward
-    UsagePulse.stopTrackingActivity();
-    UsagePulse.startTrackingActivity(
-      enableTelemetry && getAppsmithConfigs().segment.enabled,
-      currentUser?.isAnonymous ?? false,
-      isFreeLicense,
-    );
-  }
+  yield fork(restartUserTracking);
 
   yield put(initAppLevelSocketConnection());
   yield put(initPageLevelSocketConnection());
