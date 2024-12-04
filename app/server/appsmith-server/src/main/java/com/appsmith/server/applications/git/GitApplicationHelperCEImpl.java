@@ -317,4 +317,9 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         newApplication.setGitApplicationMetadata(new GitArtifactMetadata());
         return newApplication;
     }
+
+    @Override
+    public Mono<Application> publishArtifactPostCommit(Artifact committedArtifact) {
+        return publishArtifact(committedArtifact, true);
+    }
 }
