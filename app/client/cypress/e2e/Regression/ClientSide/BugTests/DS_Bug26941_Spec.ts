@@ -14,7 +14,7 @@ describe(
         dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl
       }123`;
       apiPage.CreateAndFillApi(randomApi);
-      apiPage.RunAPI(false, 50, {
+      apiPage.RunAPI(false, 100, {
         expectedPath: "response.body.data.body.data.isExecutionSuccess",
         expectedRes: false,
       });
@@ -24,7 +24,7 @@ describe(
       );
 
       apiPage.EnterHeader(">", "");
-      apiPage.RunAPI(false, 50, {
+      apiPage.RunAPI(false, 100, {
         expectedPath: "response.body.data.body.data.isExecutionSuccess",
         expectedRes: false,
       });
@@ -37,7 +37,7 @@ describe(
       });
 
       apiPage.EnterHeader("", "");
-      apiPage.RunAPI(false, 50, {
+      apiPage.RunAPI(false, 100, {
         expectedPath: "response.body.data.body.data.isExecutionSuccess",
         expectedRes: false,
       });
