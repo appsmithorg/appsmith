@@ -8,8 +8,15 @@ import styled from "styled-components";
 const Container = styled(Flex)`
   #editor-pane-segment-control {
     max-width: 247px;
+
     .ads-v2-segmented-control__segments-container[data-selected="false"]:hover {
       background-color: var(--ads-v2-color-bg-muted);
+    }
+
+    .ads-v2-segmented-control__segments-container:hover {
+      &::after {
+        background-color: transparent;
+      }
     }
   }
 `;

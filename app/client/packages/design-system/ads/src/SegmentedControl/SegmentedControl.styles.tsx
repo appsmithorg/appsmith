@@ -77,6 +77,7 @@ export const StyledControlContainer = styled.div`
 
   /* Select all segments which is not a selected and last child */
   /* seperator */
+
   &:not(:last-child):not([data-selected="true"]):not(
       :has(+ [data-selected="true"])
     ):after {
@@ -90,12 +91,13 @@ export const StyledControlContainer = styled.div`
 
   /* This before is to mask the separator in left side of selected control */
   /* Mask the seperator with track background color */
+
   &[data-selected="true"]:not(:first-child):after {
     content: "";
     position: absolute;
     left: -7px;
     width: 2px;
     height: 16px;
-    background-color: var(--ads-v2-colors-control-track-default-bg);
+    background-color: transparent;
   }
 `;
