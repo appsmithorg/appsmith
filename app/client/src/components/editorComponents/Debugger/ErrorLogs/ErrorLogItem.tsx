@@ -61,6 +61,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 
   .debugger-error-type {
     ${getTypographyByKey("h6")}
+    font-weight: var(--ads-v2-font-weight-normal);
     letter-spacing: -0.24px;
     color: var(--ads-v2-color-fg);
     flex-shrink: 0;

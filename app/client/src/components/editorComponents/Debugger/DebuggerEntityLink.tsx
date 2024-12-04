@@ -14,9 +14,7 @@ export enum DebuggerLinkUI {
 
 const Wrapper = styled.div`
   .debugger-entity-link {
-    // TODO: unclear why this file and LogItem.tsx have different styles when they look so similar
     ${getTypographyByKey("h6")}
-    font-weight: 400;
     letter-spacing: -0.195px;
     color: var(--ads-v2-color-fg-emphasis);
     cursor: pointer;
@@ -25,7 +23,7 @@ const Wrapper = styled.div`
     width: max-content;
 
     > span {
-      font-size: 12px;
+      ${getTypographyByKey("h6")}
     }
   }
 `;

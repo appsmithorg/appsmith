@@ -53,7 +53,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     margin-left: 4px;
     margin-right: 4px;
     color: var(--ads-v2-color-fg-muted);
-    width: 45px;
+    width: 48px;
   }
 
   .debugger-occurrences {
