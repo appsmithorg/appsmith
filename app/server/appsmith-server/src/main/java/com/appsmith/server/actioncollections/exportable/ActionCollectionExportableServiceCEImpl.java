@@ -1,5 +1,6 @@
 package com.appsmith.server.actioncollections.exportable;
 
+import com.appsmith.external.git.models.GitResourceType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -11,7 +12,6 @@ import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
 import com.appsmith.server.exports.exportable.ExportableServiceCE;
 import com.appsmith.server.exports.exportable.artifactbased.ArtifactBasedExportableService;
-import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
@@ -67,6 +67,7 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                     // Because the actions will have a reference to the collection
 
                     Set<String> updatedActionCollectionSet = new HashSet<>();
+                    Set<String> updatedIdentifiers = new HashSet<>();
                     actionCollections.forEach(actionCollection -> {
                         ActionCollectionDTO publishedActionCollectionDTO = actionCollection.getPublishedCollection();
                         ActionCollectionDTO unpublishedActionCollectionDTO =
@@ -78,9 +79,12 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                         //  we've replaced page id with page name in previous step
                         String contextNameAtIdReference =
                                 artifactBasedExportableService.getContextNameAtIdReference(actionCollectionDTO);
-                        String contextListPath = artifactBasedExportableService.getContextListPath();
-                        boolean isContextUpdated = ImportExportUtils.isContextNameInUpdatedList(
-                                artifactExchangeJson, contextNameAtIdReference, contextListPath);
+                        String contextGitSyncId = mappedExportableResourcesDTO
+                                .getContextNameToGitSyncIdMap()
+                                .get(contextNameAtIdReference);
+                        boolean isContextUpdated = artifactExchangeJson
+                                .getModifiedResources()
+                                .isResourceUpdatedNew(GitResourceType.CONTEXT_CONFIG, contextGitSyncId);
                         String actionCollectionName =
                                 actionCollectionDTO.getUserExecutableName() + NAME_SEPARATOR + contextNameAtIdReference;
                         Instant actionCollectionUpdatedAt = actionCollection.getUpdatedAt();
@@ -92,6 +96,7 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                                 || exportingMetaDTO.getArtifactLastCommittedAt().isBefore(actionCollectionUpdatedAt);
                         if (isActionCollectionUpdated) {
                             updatedActionCollectionSet.add(actionCollectionName);
+                            updatedIdentifiers.add(actionCollection.getGitSyncId());
                         }
                         actionCollection.sanitiseToExportDBObject();
                     });
@@ -100,6 +105,11 @@ public class ActionCollectionExportableServiceCEImpl implements ExportableServic
                     artifactExchangeJson
                             .getModifiedResources()
                             .putResource(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
+                    artifactExchangeJson
+                            .getModifiedResources()
+                            .getModifiedResourceIdentifiers()
+                            .get(GitResourceType.JSOBJECT_CONFIG)
+                            .addAll(updatedIdentifiers);
 
                     return actionCollections;
                 })
