@@ -1,6 +1,4 @@
-import { Colors } from "constants/Colors";
-
-import { Button } from "@appsmith/ads";
+// import { Button } from "@appsmith/ads";
 import React from "react";
 import styled from "styled-components";
 
@@ -31,25 +29,24 @@ const Container = styled.div`
 `;
 
 const Header = styled.div`
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 24px;
-  color: ${Colors.GREY_900};
-  margin-bottom: 12px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 19.6px;
+  color: var(--ads-v2-color-gray-500);
 `;
 
-const ConnecData = styled(Button)`
-  margin-bottom: 16px;
-`;
+// const ConnecData = styled(Button)`
+//   margin-bottom: 16px;
+// `;
 
 export function ConnectDataOverlay(props: {
   onConnectData: () => void;
   message: string;
   btnText: string;
 }) {
-  const onClick = () => {
-    props.onConnectData();
-  };
+  // const onClick = () => {
+  //   props.onConnectData();
+  // };
 
   return (
     <Wrapper>
@@ -57,14 +54,6 @@ export function ConnectDataOverlay(props: {
         <Header className="t--cypress-table-overlay-header">
           {props.message}
         </Header>
-        <ConnecData
-          className="t--cypress-table-overlay-connectdata"
-          id={"table-overlay-connectdata"}
-          onClick={onClick}
-          size="md"
-        >
-          {props.btnText}
-        </ConnecData>
       </Container>
     </Wrapper>
   );
