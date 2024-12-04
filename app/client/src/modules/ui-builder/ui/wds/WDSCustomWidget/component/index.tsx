@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -13,13 +13,15 @@ import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
 //@ts-ignore
 import css from "!!raw-loader!./reset.css";
 import clsx from "clsx";
-import type { AppThemeProperties } from "entities/AppTheming";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
 import { getAppsmithConfigs } from "ee/configs";
 import { Elevations } from "../../constants";
 import { ContainerComponent } from "../../Container";
 import styles from "./styles.module.css";
+import { cssRule, ThemeContext } from "@appsmith/wds-theming";
+import { useCustomWidgetHeight } from "./useCustomWidgetHeight";
+import type { COMPONENT_SIZE } from "../constants";
 
 const Container = styled.div`
   height: 100%;
@@ -29,22 +31,25 @@ const Container = styled.div`
 const { disableIframeWidgetSandbox } = getAppsmithConfigs();
 
 function CustomComponent(props: CustomComponentProps) {
+  const { size } = props;
   const iframe = useRef<HTMLIFrameElement>(null);
-
+  const theme = useContext(ThemeContext);
+  const { search } = window.location;
+  const queryParams = new URLSearchParams(search);
+  const isEmbed = queryParams.get("embed") === "true";
+  const componentHeight = useCustomWidgetHeight(size, isEmbed);
   const [loading, setLoading] = React.useState(true);
-
   const [isIframeReady, setIsIframeReady] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [height, setHeight] = useState(0);
 
-  const theme = useMemo(() => {
-    return {
-      ...props.theme?.colors,
-      borderRadius: props.theme?.borderRadius?.appBorderRadius,
-      boxShadow: props.theme?.boxShadow?.appBoxShadow,
-    };
-  }, [props.theme]);
+  const cssTokens = useMemo(() => {
+    const tokens = cssRule(theme);
+    const prefixedTokens = tokens.replace(/--/g, "--appsmith-theme-");
+
+    return `:root {${prefixedTokens}}`;
+  }, [theme]);
 
   useEffect(() => {
     const handler = (event: MessageEvent) => {
@@ -72,12 +77,7 @@ function CustomComponent(props: CustomComponentProps) {
               {
                 type: EVENTS.CUSTOM_WIDGET_READY_ACK,
                 model: props.model,
-                ui: {
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  width: (props as any).width,
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  height: (props as any).height,
-                },
+                ui: {},
                 mode: props.renderMode,
                 theme,
               },
@@ -139,36 +139,19 @@ function CustomComponent(props: CustomComponentProps) {
     if (iframe.current && iframe.current.contentWindow && isIframeReady) {
       iframe.current.contentWindow.postMessage(
         {
-          type: EVENTS.CUSTOM_WIDGET_UI_CHANGE,
-          ui: {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            width: (props as any).width,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            height: (props as any).height,
-          },
-        },
-        "*",
-      );
-    }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }, [(props as any).width, (props as any).height]);
-
-  useEffect(() => {
-    if (iframe.current && iframe.current.contentWindow && isIframeReady) {
-      iframe.current.contentWindow.postMessage(
-        {
           type: EVENTS.CUSTOM_WIDGET_THEME_UPDATE,
           theme,
         },
         "*",
       );
     }
-  }, [theme]);
+  }, [theme, isIframeReady, cssTokens]);
 
   const srcDoc = `
     <html>
       <head>
         <style>${css}</style>
+        <style data-appsmith-theme>${cssTokens}</style>
       </head>
       <body>
         <script type="text/javascript">${
@@ -193,9 +176,10 @@ function CustomComponent(props: CustomComponentProps) {
 
   return (
     <Container
-      className={clsx({
+      className={clsx(styles.container, {
         "bp3-skeleton": loading,
       })}
+      style={{ "--component-height": componentHeight } as React.CSSProperties}
     >
       <ContainerComponent
         elevatedBackground={props.elevatedBackground}
@@ -235,9 +219,9 @@ export interface CustomComponentProps {
   needsOverlay?: boolean;
   onConsole?: (type: string, message: string) => void;
   renderMode: "EDITOR" | "DEPLOYED" | "BUILDER";
-  theme: AppThemeProperties;
   widgetId: string;
   elevatedBackground: boolean;
+  size?: keyof typeof COMPONENT_SIZE;
 }
 
 export default CustomComponent;

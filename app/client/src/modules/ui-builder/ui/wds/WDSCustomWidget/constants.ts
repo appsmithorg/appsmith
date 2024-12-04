@@ -7,3 +7,9 @@ export const DEFAULT_MODEL = `{
     "Access data in CSS as var(--appsmith-model-{property-name})"
   ]
 }`;
+
+export const COMPONENT_SIZE = {
+  MEDIUM: "MEDIUM",
+  LARGE: "LARGE",
+  FIT_PAGE: "FIT_PAGE",
+} as const;

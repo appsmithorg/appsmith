@@ -111,8 +111,8 @@ export class WDSCustomWidget extends BaseWidget<
         execute={this.execute}
         model={this.props.model || {}}
         renderMode={this.getRenderMode()}
+        size={this.props.size}
         srcDoc={this.props.srcDoc}
-        theme={this.props.theme}
         update={this.update}
         widgetId={this.props.widgetId}
       />

@@ -193,6 +193,21 @@ export function main() {
         fn(event.theme, prevTheme);
       });
     }
+
+    if (event.cssTokens) {
+      const el = document.querySelector("[data-appsmith-theme]");
+
+      if (el) {
+        el.innerHTML = event.cssTokens;
+      } else {
+        // Use appendChild instead of innerHTML to add the style element
+        const styleElement = document.createElement("style");
+
+        styleElement.setAttribute("data-appsmith-theme", "");
+        styleElement.innerHTML = event.cssTokens;
+        document.head.appendChild(styleElement);
+      }
+    }
   });
 
   if (!window.appsmith) {

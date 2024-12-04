@@ -6,10 +6,13 @@ export default {
 <div id="root"></div>
 `,
     css: `.app {
-  width: calc(1px * var(--appsmith-ui-width));
   justify-content: center;
   border-radius: 0px;
   border: none;
+
+  .ant-card-body {
+    padding: var(--appsmith-theme-outer-spacing-4) !important;
+  }
   
   .tip-container {
     margin-bottom: 20px;
@@ -36,15 +39,15 @@ export default {
 
       button {
         margin: 0 10px;
-        border-radius: var(--appsmith-theme-borderRadius) !important;
+        border-radius: var(--appsmith-theme-border-radius-elevation-3) !important;
 
         &.primary {
-          background: var(--appsmith-theme-primaryColor) !important;
+          background: var(--appsmith-theme-color-bg-accent) !important;
         }
 
         &.reset:not([disabled]) {
-          color: var(--appsmith-theme-primaryColor) !important;
-          border-color: var(--appsmith-theme-primaryColor) !important;
+          color: var(--appsmith-theme-color-bg-accent) !important;
+          border-color: var(--appsmith-theme-color-bg-accent) !important;
         }
       }
     }
@@ -102,11 +105,14 @@ appsmith.onReady(() => {
 }
     
 .app {
-	width: calc(var(--appsmith-ui-width) * 1px);
 	justify-content: center;
 	border-radius: 0px;
 	border: none;
   background: transparent;
+}
+
+.ant-card-body {
+  padding: var(--appsmith-theme-outer-spacing-4) !important;
 }
 
 .tip-container {
@@ -135,16 +141,16 @@ appsmith.onReady(() => {
 
 .button-container button {
   margin: 0 10px;
-	border-radius: var(--appsmith-theme-borderRadius) !important;
+	border-radius: var(--appsmith-theme-border-radius-elevation-3) !important;
 }
 
 .button-container button.primary {
-	background: var(--appsmith-theme-primaryColor) !important;
+	background: var(--appsmith-theme-color-bg-accent) !important;
 }
 
 .button-container button.reset:not([disabled]) {
-	color: var(--appsmith-theme-primaryColor) !important;
-	border-color: var(--appsmith-theme-primaryColor) !important;
+	color: var(--appsmith-theme-color-bg-accent) !important;
+	border-color: var(--appsmith-theme-color-bg-accent) !important;
 }`,
     js: `import React from 'https://cdn.jsdelivr.net/npm/react@18.2.0/+esm';
 import reactDom from 'https://cdn.jsdelivr.net/npm/react-dom@18.2.0/+esm';
