@@ -238,7 +238,7 @@ describe(
       );
       dataSources.RunQuery();
       dataSources.EnterQuery(selectQuery);
-      dataSources.RunQueryNVerifyResponseViews();
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.ToggleUsePreparedStatement(true);
       query = `ALTER TABLE ${guid} ADD (raw_data RAW(16), maintenance_interval INTERVAL YEAR(3) TO MONTH);`;
       dataSources.EnterQuery(query);
@@ -272,7 +272,7 @@ describe(
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
       dataSources.EnterQuery(selectQuery);
-      dataSources.RunQueryNVerifyResponseViews(2);
+      dataSources.runQueryAndVerifyResponseViews({ count: 2 });
       query = `INSERT ALL
       INTO ${guid} (
           aircraft_id,
@@ -334,10 +334,10 @@ describe(
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
       dataSources.EnterQuery(selectQuery);
-      dataSources.RunQueryNVerifyResponseViews(4);
+      dataSources.runQueryAndVerifyResponseViews({ count: 4 });
       selectQuery = selectQuery + ` and  aircraft_id IN (1, 6)`;
       dataSources.EnterQuery(selectQuery);
-      dataSources.RunQueryNVerifyResponseViews(2);
+      dataSources.runQueryAndVerifyResponseViews({ count: 2 });
       dataSources.AddSuggestedWidget(Widgets.Table);
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       table.WaitUntilTableLoad(0, 0, "v2");
@@ -375,7 +375,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
       dataSources.RunQuery();
       selectQuery = selectQuery + ` or  aircraft_type = 'Passenger Plane'`;
       dataSources.EnterQuery(selectQuery);
-      dataSources.RunQueryNVerifyResponseViews(3);
+      dataSources.runQueryAndVerifyResponseViews({ count: 3 });
       dataSources.AddSuggestedWidget(
         Widgets.Table,
         dataSources._addSuggestedExisting,
@@ -404,7 +404,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
       dataSources.RunQuery();
       selectQuery = `SELECT * FROM ${guid}`;
       dataSources.EnterQuery(selectQuery);
-      dataSources.RunQueryNVerifyResponseViews(2);
+      dataSources.runQueryAndVerifyResponseViews({ count: 2 });
       dataSources.AddSuggestedWidget(
         Widgets.Table,
         dataSources._addSuggestedExisting,
@@ -439,7 +439,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
         toastToValidate: "copied to page",
       });
       agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
-      dataSources.RunQueryNVerifyResponseViews(2);
+      dataSources.runQueryAndVerifyResponseViews({ count: 2 });
       PageList.AddNewPage();
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper.ActionContextMenuWithInPane({
@@ -449,7 +449,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
       });
       agHelper.WaitUntilAllToastsDisappear();
       agHelper.GetNAssertContains(locators._queryName, "Query1Copy");
-      dataSources.RunQueryNVerifyResponseViews(2);
+      dataSources.runQueryAndVerifyResponseViews({ count: 2 });
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
