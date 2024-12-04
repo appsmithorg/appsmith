@@ -33,6 +33,7 @@ export const StatusBar = styled.div`
   padding: 8px 8px 8px 12px;
   border-bottom: 1px solid var(--ads-v2-color-border);
   z-index: var(--ads-v2-z-index-1);
+  background: var(--ads-v2-color-bg);
 `;
 
 export const StatusBarInfo = styled.div`
