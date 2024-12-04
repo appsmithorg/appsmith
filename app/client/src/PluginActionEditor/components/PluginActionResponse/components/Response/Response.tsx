@@ -240,7 +240,7 @@ export function Response(props: ResponseProps) {
         </Styled.HelpSection>
       )}
 
-      {response && (
+      {response && !!currentContentType && (
         <Styled.DataContainer
           $height={responseTabHeight}
           data-testid="t--response-data-container"
@@ -260,13 +260,15 @@ export function Response(props: ResponseProps) {
                   $isBold
                   kind="code"
                 >
-                  {`${action.name}.run():`}
+                  {`${action.name}.run()${action.pluginType === PluginType.DB ? ":" : ""}`}
                 </Styled.StatusBarText>
-                <Styled.StatusBarText
-                  $hasTooltip={!!tooltipContent}
-                  data-testid="t--response-record-count"
-                  kind="code"
-                >{`${recordCount} record${recordCount > 1 ? "s" : ""}`}</Styled.StatusBarText>
+                {action.pluginType === PluginType.DB && (
+                  <Styled.StatusBarText
+                    $hasTooltip={!!tooltipContent}
+                    data-testid="t--response-record-count"
+                    kind="code"
+                  >{`${recordCount} record${recordCount > 1 ? "s" : ""}`}</Styled.StatusBarText>
+                )}
               </Styled.StatusBarInfo>
             </Tooltip>
             <BindDataButton
