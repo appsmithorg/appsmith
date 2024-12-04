@@ -15,7 +15,7 @@ public class ArtifactJsonTransformationDTO {
 
     String workspaceId;
 
-    String artifactId;
+    String baseArtifactId;
 
     String repoName;
 
