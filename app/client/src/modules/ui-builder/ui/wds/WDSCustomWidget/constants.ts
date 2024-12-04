@@ -9,7 +9,6 @@ export const DEFAULT_MODEL = `{
 }`;
 
 export const COMPONENT_SIZE = {
-  MEDIUM: "MEDIUM",
-  LARGE: "LARGE",
+  AUTO: "AUTO",
   FIT_PAGE: "FIT_PAGE",
 } as const;

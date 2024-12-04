@@ -14,7 +14,13 @@ import { getAppThemeSettings } from "ee/selectors/applicationSelectors";
 
 import styles from "./styles.module.css";
 
-export default function Preview({ width }: { width: number }) {
+export default function Preview({
+  className,
+  width,
+}: {
+  className?: string;
+  width: number;
+}) {
   const {
     key,
     model,
@@ -121,7 +127,6 @@ export default function Preview({ width }: { width: number }) {
       return (
         <ThemeProvider className={styles.themeProvider} theme={anvilTheme}>
           <AnvilLayoutCustomComponent
-            elevatedBackground={false}
             execute={execute}
             model={model || {}}
             renderMode="BUILDER"
@@ -158,7 +163,7 @@ export default function Preview({ width }: { width: number }) {
   };
 
   return (
-    <div ref={containerRef} style={{ height: "100%" }}>
+    <div className={className} ref={containerRef} style={{ height: "100%" }}>
       {customComponent()}
       <Debugger />
     </div>

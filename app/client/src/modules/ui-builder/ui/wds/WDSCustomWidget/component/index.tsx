@@ -16,12 +16,10 @@ import clsx from "clsx";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
 import { getAppsmithConfigs } from "ee/configs";
-import { Elevations } from "../../constants";
-import { ContainerComponent } from "../../Container";
 import styles from "./styles.module.css";
 import { cssRule, ThemeContext } from "@appsmith/wds-theming";
 import { useCustomWidgetHeight } from "./useCustomWidgetHeight";
-import type { COMPONENT_SIZE } from "../constants";
+import { COMPONENT_SIZE } from "../constants";
 
 const Container = styled.div`
   height: 100%;
@@ -104,7 +102,11 @@ function CustomComponent(props: CustomComponentProps) {
           case EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT:
             const height = message.data.height;
 
-            if (props.renderMode !== "BUILDER" && height) {
+            if (
+              props.renderMode !== "BUILDER" &&
+              height &&
+              size === COMPONENT_SIZE.AUTO
+            ) {
               iframe.current?.style.setProperty("height", `${height}px`);
               setHeight(height);
             }
@@ -181,27 +183,20 @@ function CustomComponent(props: CustomComponentProps) {
       })}
       style={{ "--component-height": componentHeight } as React.CSSProperties}
     >
-      <ContainerComponent
-        elevatedBackground={props.elevatedBackground}
-        elevation={Elevations.CARD_ELEVATION}
-        noPadding
-        widgetId={props.widgetId}
-      >
-        <iframe
-          className={styles.iframe}
-          loading="lazy"
-          onLoad={() => {
-            setLoading(false);
-          }}
-          ref={iframe}
-          sandbox={
-            disableIframeWidgetSandbox
-              ? undefined
-              : "allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-scripts"
-          }
-          srcDoc={srcDoc}
-        />
-      </ContainerComponent>
+      <iframe
+        className={styles.iframe}
+        loading="lazy"
+        onLoad={() => {
+          setLoading(false);
+        }}
+        ref={iframe}
+        sandbox={
+          disableIframeWidgetSandbox
+            ? undefined
+            : "allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-scripts"
+        }
+        srcDoc={srcDoc}
+      />
     </Container>
   );
 }
@@ -220,7 +215,6 @@ export interface CustomComponentProps {
   onConsole?: (type: string, message: string) => void;
   renderMode: "EDITOR" | "DEPLOYED" | "BUILDER";
   widgetId: string;
-  elevatedBackground: boolean;
   size?: keyof typeof COMPONENT_SIZE;
 }
 

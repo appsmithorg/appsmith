@@ -11,6 +11,8 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import * as config from "../config";
 import CustomComponent from "../component";
 import type { CustomWidgetProps } from "../types";
+import { Elevations } from "../../constants";
+import { ContainerComponent } from "../../Container";
 
 export class WDSCustomWidget extends BaseWidget<
   CustomWidgetProps,
@@ -106,16 +108,22 @@ export class WDSCustomWidget extends BaseWidget<
 
   getWidgetView() {
     return (
-      <CustomComponent
-        elevatedBackground={this.props.elevatedBackground}
-        execute={this.execute}
-        model={this.props.model || {}}
-        renderMode={this.getRenderMode()}
-        size={this.props.size}
-        srcDoc={this.props.srcDoc}
-        update={this.update}
+      <ContainerComponent
+        elevatedBackground
+        elevation={Elevations.CARD_ELEVATION}
+        noPadding
         widgetId={this.props.widgetId}
-      />
+      >
+        <CustomComponent
+          execute={this.execute}
+          model={this.props.model || {}}
+          renderMode={this.getRenderMode()}
+          size={this.props.size}
+          srcDoc={this.props.srcDoc}
+          update={this.update}
+          widgetId={this.props.widgetId}
+        />
+      </ContainerComponent>
     );
   }
 }
