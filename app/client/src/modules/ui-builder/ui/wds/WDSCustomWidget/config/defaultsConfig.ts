@@ -11,7 +11,7 @@ export const defaultsConfig = {
   onResetClick: "{{showAlert('Successfully reset!!', '');}}",
   events: ["onResetClick"],
   elevatedBackground: false,
-  size: COMPONENT_SIZE.MEDIUM,
+  size: COMPONENT_SIZE.FIT_PAGE,
   isVisible: true,
   defaultModel: DEFAULT_MODEL,
   srcDoc: defaultApp.srcDoc,
