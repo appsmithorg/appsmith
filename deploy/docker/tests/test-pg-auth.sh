@@ -108,16 +108,16 @@ check_user_datasource_access_with_local_port_wo_auth() {
   return $?
 }
 
-# Test to check if the postgres auth is enabled after upgrading from 1.47 to local image
+# Test to check if the postgres auth is enabled after upgrading from 1.50 to local image
 # Expectation:
-# 1. Appsmith instance should be able to upgrade from v1.47 to local image
+# 1. Appsmith instance should be able to upgrade from v1.50 to local image
 # 2. Postgres user should have read access to databases with local unix socket
 # 3. Postgres user should not have read access to databases with tcp socket
 # 4. Appsmith user should not have read access to databases with local unix socket
 # 5. Appsmith user should have read access to databases with tcp socket
-test_postgres_auth_enabled_upgrade_from_147tolocal() {
+test_postgres_auth_enabled_upgrade_from_150tolocal() {
     # Steps:
-    # 1. Start the Appsmith 1.47 instance
+    # 1. Start the Appsmith 1.50 instance
     # 2. Check if the Appsmith instance is up
     # 3. Check if the postgres user has read access to databases
     # 4. Update the APPSMITH_DB_URL in docker.env to point to postgres
@@ -129,9 +129,9 @@ test_postgres_auth_enabled_upgrade_from_147tolocal() {
     echo "Starting ${FUNCNAME[0]}"
 
     cleanup
-    # appsmith v1.47 does not have postgres auth enabled
-    echo "Starting Appsmith 147"
-    compose_appsmith_version v1.47
+    # appsmith v1.50 does not have postgres auth enabled
+    echo "Starting Appsmith 150"
+    compose_appsmith_version v1.50
     # Wait until postgres to come up
     wait_for_postgres
 
@@ -190,10 +190,12 @@ test_postgres_auth_enabled_upgrade_from_147tolocal() {
             echo "Test ${FUNCNAME[0]} Passed ✅"
         else 
             echo "Test ${FUNCNAME[0]} Failed ❌"
+            exit 1
         fi
     else
         echo "Appsmith instance failed to start."
         echo "Test ${FUNCNAME[0]} Failed ❌"
+        exit 1
     fi
 }
 
@@ -219,7 +221,6 @@ test_postgres_auth_enabled_restart_localtolocal() {
     echo "Starting ${FUNCNAME[0]}"
 
     cleanup
-    # appsmith v1.47 does not have postgres auth enabled
     echo "Starting Appsmith local with mongodb default uri"
     compose_appsmith_local
     # Wait until postgres to come up
@@ -263,14 +264,16 @@ test_postgres_auth_enabled_restart_localtolocal() {
             echo "Test ${FUNCNAME[0]} Passed ✅"
         else 
             echo "Test ${FUNCNAME[0]} Failed ❌"
+            exit 1
         fi
     else
         echo "Appsmith instance failed to start."
         echo "Test ${FUNCNAME[0]} Failed ❌"
+        exit 1
     fi
 }
 
 container_name="appsmith-docker-test"
 
-test_postgres_auth_enabled_upgrade_from_147tolocal
+test_postgres_auth_enabled_upgrade_from_150tolocal
 test_postgres_auth_enabled_restart_localtolocal
