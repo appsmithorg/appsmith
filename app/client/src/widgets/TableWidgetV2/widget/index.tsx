@@ -139,6 +139,7 @@ import {
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { klonaRegularWithTelemetry } from "utils/helpers";
+import HTMLCell from "../component/cellComponents/HTMLCell";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -2514,6 +2515,24 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
             widgetId={this.props.widgetId}
+          />
+        );
+
+      case ColumnTypes.HTML:
+        return (
+          <HTMLCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            cellBackground={cellProperties.cellBackground}
+            compactMode={compactMode}
+            fontStyle={cellProperties.fontStyle}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellDisabled={cellProperties.isCellDisabled}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
           />
         );
 
