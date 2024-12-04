@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.Set;
 
@@ -18,6 +19,8 @@ public interface GitHandlingServiceCE {
     String getRepoName(GitConnectDTO gitConnectDTO);
 
     Mono<Boolean> isRepoPrivate(GitConnectDTO gitConnectDTO);
+
+    Mono<Boolean> isRepoPrivate(GitArtifactMetadata gitArtifactMetadata);
 
     // TODO: modify git auth class for native implementation
     Mono<GitAuth> getGitAuthForUser();
@@ -44,4 +47,10 @@ public interface GitHandlingServiceCE {
             String originHeader);
 
     Mono<String> createFirstCommit(ArtifactJsonTransformationDTO jsonTransformationDTO, CommitDTO commitDTO);
+
+    Mono<Boolean> prepareChangesToBeCommitted(
+            ArtifactJsonTransformationDTO jsonTransformationDTO, ArtifactExchangeJson artifactExchangeJson);
+
+    Mono<Tuple2<? extends Artifact, String>> commitArtifact(
+            Artifact branchedArtifact, CommitDTO commitDTO, ArtifactJsonTransformationDTO jsonTransformationDTO);
 }
