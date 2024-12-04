@@ -1,7 +1,6 @@
 package com.appsmith.server.git.fs;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.handler.FSGitHandler;
@@ -79,8 +78,6 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
 
     protected final AnalyticsService analyticsService;
     private final ObservationRegistry observationRegistry;
-
-    protected final GitExecutor gitExecutor;
 
     private final WorkspaceService workspaceService;
     private final DatasourceService datasourceService;
@@ -348,7 +345,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         StringBuilder result = new StringBuilder();
         result.append("Commit Result : ");
 
-        Mono<String> gitCommitMono = gitExecutor
+        Mono<String> gitCommitMono = fsGitHandler
                 .commitArtifact(
                         repoSuffix,
                         commitDTO.getMessage(),
@@ -377,6 +374,12 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 });
     }
 
+    /**
+     * Used for pushing commits present in the given branched artifact.
+     * @param branchedArtifactId : id of the branched artifact.
+     * @param artifactType : type of the artifact
+     * @return : returns a string which has details of operations
+     */
     public Mono<String> pushArtifact(String branchedArtifactId, ArtifactType artifactType) {
         GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
         AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
@@ -437,11 +440,11 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                             artifact.getWorkspaceId(), gitData.getDefaultArtifactId(), gitData.getRepoName());
                     GitAuth gitAuth = gitData.getGitAuth();
 
-                    return gitExecutor
+                    return fsGitHandler
                             .checkoutToBranch(
                                     baseRepoSuffix,
                                     artifact.getGitArtifactMetadata().getBranchName())
-                            .then(Mono.defer(() -> gitExecutor
+                            .then(Mono.defer(() -> fsGitHandler
                                     .pushApplication(
                                             baseRepoSuffix,
                                             gitData.getRemoteUrl(),
@@ -526,7 +529,7 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
             Path path = gitArtifactHelper.getRepoSuffixPath(
                     artifact.getWorkspaceId(), gitMetadata.getDefaultArtifactId(), gitMetadata.getRepoName());
 
-            return gitExecutor
+            return fsGitHandler
                     .resetHard(path, gitMetadata.getBranchName())
                     .then(Mono.error(new AppsmithException(
                             AppsmithError.GIT_ACTION_FAILED,
