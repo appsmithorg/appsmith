@@ -141,7 +141,7 @@ function QueryDebuggerTabs({
       dispatch(
         setPluginActionEditorDebuggerState({
           open: true,
-          selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
+          selectedTab: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
         }),
       );
     }
@@ -217,8 +217,8 @@ function QueryDebuggerTabs({
 
   if (showSchema && currentActionConfig && currentActionConfig.datasource) {
     responseTabs.unshift({
-      key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
-      title: "Schema",
+      key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
+      title: "Datasource",
       panelComponent: (
         <Schema
           currentActionId={currentActionConfig.id}

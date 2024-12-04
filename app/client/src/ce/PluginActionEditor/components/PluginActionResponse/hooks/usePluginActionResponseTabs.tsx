@@ -111,8 +111,8 @@ function usePluginActionResponseTabs() {
 
     if (showSchema) {
       tabs.push({
-        key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
-        title: "Schema",
+        key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
+        title: "Datasource",
         panelComponent: (
           <Schema
             currentActionId={action.id}
