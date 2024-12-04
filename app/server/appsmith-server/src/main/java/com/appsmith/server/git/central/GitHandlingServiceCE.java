@@ -10,6 +10,7 @@ import com.appsmith.server.git.dtos.ArtifactJsonTransformationDTO;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.List;
 import java.util.Set;
 
 public interface GitHandlingServiceCE {
@@ -37,6 +38,8 @@ public interface GitHandlingServiceCE {
             GitConnectDTO gitConnectDTO, GitArtifactMetadata gitArtifactMetadata);
 
     Mono<Boolean> removeRepository(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
+
+    Mono<List<String>> listBranches(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
 
     Mono<Boolean> validateEmptyRepository(ArtifactJsonTransformationDTO artifactJsonTransformationDTO);
 

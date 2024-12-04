@@ -2,6 +2,7 @@ package com.appsmith.server.git.central;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.git.constants.GitConstants;
+import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.git.dto.CommitDTO;
@@ -47,8 +48,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -571,7 +574,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 return this.commitArtifact(commitDTO, artifact.getId(), artifactType, gitType)
                                         .onErrorResume(error ->
                                                 // If the push fails remove all the cloned files from local repo
-                                                this.detachRemote(baseArtifactId, artifactType)
+                                                this.detachRemote(baseArtifactId, artifactType, gitType)
                                                         .flatMap(isDeleted -> {
                                                             if (error instanceof TransportException) {
                                                                 return gitAnalyticsUtils
@@ -852,13 +855,81 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     }
 
     /**
-     * TODO: implementation quite similar to the disconnectGitRepo
-     * @param baseArtifactId
-     * @param artifactType
-     * @return
+     * Method to remove all the git metadata for the artifact and connected resources. This will remove:
+     * - local repo
+     * - all the branched applications present in DB except for default application
+     *
+     * @param branchedArtifactId : id of any branched artifact for the given repo
+     * @param artifactType : type of artifact
+     * @return : the base artifact after removal of git flow.
      */
-    protected Mono<? extends Artifact> detachRemote(String baseArtifactId, ArtifactType artifactType) {
-        return null;
+    public Mono<? extends Artifact> detachRemote(
+            String branchedArtifactId, ArtifactType artifactType, GitType gitType) {
+        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        AclPermission gitConnectPermission = gitArtifactHelper.getArtifactGitConnectPermission();
+
+        Mono<Tuple2<? extends Artifact, ? extends Artifact>> baseAndBranchedArtifactMono =
+                getBaseAndBranchedArtifacts(branchedArtifactId, artifactType, gitConnectPermission);
+
+        Mono<? extends Artifact> disconnectMono = baseAndBranchedArtifactMono
+                .flatMap(artifactTuples -> {
+                    Artifact baseArtifact = artifactTuples.getT1();
+
+                    if (isBaseGitMetadataInvalid(baseArtifact.getGitArtifactMetadata(), gitType)) {
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_GIT_CONFIGURATION,
+                                "Please reconfigure the artifact to connect to git repo"));
+                    }
+
+                    GitArtifactMetadata gitArtifactMetadata = baseArtifact.getGitArtifactMetadata();
+                    ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
+                    jsonTransformationDTO.setRefType(RefType.BRANCH);
+                    jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
+                    jsonTransformationDTO.setBaseArtifactId(gitArtifactMetadata.getDefaultArtifactId());
+                    jsonTransformationDTO.setRepoName(gitArtifactMetadata.getRepoName());
+                    jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
+                    jsonTransformationDTO.setRefName(gitArtifactMetadata.getBranchName());
+
+                    // Remove the git contents from file system
+                    return Mono.zip(gitHandlingService.listBranches(jsonTransformationDTO), Mono.just(baseArtifact));
+                })
+                .flatMap(tuple -> {
+                    List<String> localBranches = tuple.getT1();
+                    Artifact baseArtifact = tuple.getT2();
+
+                    baseArtifact.setGitArtifactMetadata(null);
+                    gitArtifactHelper.resetAttributeInBaseArtifact(baseArtifact);
+
+                    GitArtifactMetadata gitArtifactMetadata = baseArtifact.getGitArtifactMetadata();
+                    ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
+                    jsonTransformationDTO.setRefType(RefType.BRANCH);
+                    jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
+                    jsonTransformationDTO.setBaseArtifactId(gitArtifactMetadata.getDefaultArtifactId());
+                    jsonTransformationDTO.setRepoName(gitArtifactMetadata.getRepoName());
+                    jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
+                    jsonTransformationDTO.setRefName(gitArtifactMetadata.getBranchName());
+
+                    // Remove the parent application branch name from the list
+                    Mono<Boolean> removeRepoMono = gitHandlingService.removeRepository(jsonTransformationDTO);
+                    Mono<? extends Artifact> updatedArtifactMono = gitArtifactHelper.saveArtifact(baseArtifact);
+
+                    Flux<? extends Artifact> deleteAllBranchesFlux =
+                            gitArtifactHelper.deleteAllBranches(branchedArtifactId, localBranches);
+
+                    return Mono.zip(updatedArtifactMono, removeRepoMono, deleteAllBranchesFlux.collectList())
+                            .map(Tuple3::getT1);
+                })
+                .flatMap(updatedBaseArtifact -> {
+                    return gitArtifactHelper
+                            .disconnectEntitiesOfBaseArtifact(updatedBaseArtifact)
+                            .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
+                                    AnalyticsEvents.GIT_DISCONNECT, updatedBaseArtifact, false));
+                })
+                .name(GitSpan.OPS_DETACH_REMOTE)
+                .tap(Micrometer.observation(observationRegistry));
+
+        return Mono.create(sink -> disconnectMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
 
     private boolean isBaseGitMetadataInvalid(GitArtifactMetadata gitArtifactMetadata, GitType gitType) {
