@@ -8,7 +8,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-import BottomPane from "../../../../support/Pages/IDE/BottomPane";
+import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
 
 let dsName: any;
 let queryName: string;
@@ -44,10 +44,10 @@ describe(
 
         EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
 
-        BottomPane.response.switchToResponseTab();
-        BottomPane.response.openResponseTypeMenu();
+        BottomTabs.response.switchToResponseTab();
+        BottomTabs.response.openResponseTypeMenu();
         agHelper.AssertElementVisibility(
-          BottomPane.response.locators.responseTypeMenuItem("TABLE"),
+          BottomTabs.response.locators.responseTypeMenuItem("TABLE"),
         );
       });
     });

@@ -1,3 +1,10 @@
 package com.appsmith.server.dtos;
 
-public abstract class ArtifactImportDTO {}
+import com.appsmith.server.domains.Artifact;
+
+public abstract class ArtifactImportDTO {
+
+    public abstract Artifact getArtifact();
+
+    public abstract void setArtifact(Artifact artifact);
+}

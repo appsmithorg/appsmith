@@ -19,7 +19,12 @@ const UQIEditorForm = () => {
   const { data, evaluationState } = useFormData();
 
   return (
-    <Flex flexDirection="column" overflowY="scroll" w="100%">
+    <Flex
+      data-testid="t--uqi-editor-form"
+      flexDirection="column"
+      overflowY="scroll"
+      w="100%"
+    >
       <FormRender
         editorConfig={editorConfig}
         formData={data}
