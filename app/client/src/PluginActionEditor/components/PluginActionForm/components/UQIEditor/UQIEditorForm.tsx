@@ -6,15 +6,12 @@ import { reduxForm } from "redux-form";
 import { Flex } from "@appsmith/ads";
 import { useGoogleSheetsSetDefaultProperty } from "./hooks/useGoogleSheetsSetDefaultProperty";
 import { useFormData } from "./hooks/useFormData";
-import { useInitFormEvaluation } from "./hooks/useInitFormEvaluation";
 
 const UQIEditorForm = () => {
   const {
     editorConfig,
     plugin: { uiComponent },
   } = usePluginActionContext();
-
-  useInitFormEvaluation();
 
   // Set default values for Google Sheets
   useGoogleSheetsSetDefaultProperty();
@@ -24,8 +21,8 @@ const UQIEditorForm = () => {
   return (
     <Flex
       alignItems="center"
+      data-testid="t--uqi-editor-form"
       flexDirection="column"
-      id="uqi-editor-form-content"
       overflowY="scroll"
       w="100%"
     >

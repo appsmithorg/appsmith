@@ -7,10 +7,13 @@ import ApiEditor from "../locators/ApiEditor";
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 import { ObjectsRegistry } from "./Objects/Registry";
+import { PluginActionForm } from "./Pages/PluginActionForm";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
 let dataSources = ObjectsRegistry.DataSources;
 let apiPage = ObjectsRegistry.ApiPage;
+let locator = ObjectsRegistry.CommonLocators;
+let pluginActionForm = new PluginActionForm();
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -111,18 +114,12 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.get(apiwidget.ApiName).click({ force: true });
-  cy.get(apiwidget.apiTxt)
-    .clear()
-    .focus()
-    .type(apiname, { force: true, delay: 500 })
-    .should("have.value", apiname);
-  cy.get(".t--action-name-edit-error").should(($x) => {
+  agHelper.RenameQuery(apiname);
+  cy.get(".ads-v2-tooltip .ads-v2-text").should(($x) => {
     expect($x).contain(
       apiname.concat(" is already being used or is a restricted keyword."),
     );
   });
-  cy.get(apiwidget.apiTxt).blur();
 });
 
 Cypress.Commands.add("RenameEntity", (value, selectFirst) => {
@@ -141,12 +138,8 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
   agHelper.GetNClick(apiwidget.createapi);
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  cy.get(apiwidget.ApiName).click({ force: true });
-  cy.get(apiwidget.apiTxt)
-    .clear()
-    .type(apiname, { force: true })
-    .should("have.value", apiname);
-  cy.get(".t--action-name-edit-error").should(($x) => {
+  agHelper.RenameQuery(apiname);
+  cy.get(".ads-v2-tooltip .ads-v2-text").should(($x) => {
     expect($x).contain(
       apiname.concat(" is already being used or is a restricted keyword."),
     );
@@ -191,10 +184,9 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   dataSources.NavigateToDSCreateNew();
   cy.testCreateApiButton();
   cy.get("@createNewApi").then((response) => {
-    cy.get(ApiEditor.ApiNameField).should("be.visible");
+    cy.get(locator._queryName).should("be.visible");
     expect(response.response.body.responseMeta.success).to.eq(true);
-    cy.get(ApiEditor.ApiNameField)
-      .click()
+    cy.get(locator._queryName)
       .invoke("text")
       .then((text) => {
         const someText = text;
@@ -203,17 +195,9 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
   });
 
   cy.EnableAllCodeEditors();
-  cy.get(apiwidget.editResourceUrl)
-    .first()
-    .click({ force: true })
-    .type(
-      url + parameters,
-      { parseSpecialCharSequences: false },
-      { force: true },
-    );
+  cy.updateCodeInput(ApiEditor.dataSourceField, url + parameters);
   cy.WaitAutoSave();
-  cy.get(ApiEditor.formActionButtons).should("be.visible");
-  cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
+  cy.get(pluginActionForm.locators.actionRunButton).should("not.be.disabled");
 });
 
 // Cypress.Commands.add("callApi", (apiname) => {

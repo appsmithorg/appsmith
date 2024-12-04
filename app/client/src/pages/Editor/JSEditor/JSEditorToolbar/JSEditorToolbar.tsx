@@ -84,7 +84,7 @@ export const JSEditorToolbar = (props: Props) => {
         </div>
         {props.showSettings ? (
           <ToolbarSettingsPopover
-            dataTestId={"t--js-editor-SETTINGS"}
+            dataTestId={"t--js-settings-trigger"}
             handleOpenChange={setIsOpen}
             isOpen={isOpen}
             title={createMessage(JS_EDITOR_SETTINGS.TITLE)}

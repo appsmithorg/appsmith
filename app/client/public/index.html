@@ -257,15 +257,12 @@
             : LOG_LEVELS[1],
         cloudHosting: CLOUD_HOSTING,
         appVersion: {
-          id: parseConfig('{{env "APPSMITH_VERSION_ID"}}'),
+          id: parseConfig('{{env "APPSMITH_VERSION_ID"}}') || "UNKNOWN",
           sha: parseConfig('{{env "APPSMITH_VERSION_SHA"}}'),
           releaseDate: parseConfig('{{env "APPSMITH_VERSION_RELEASE_DATE"}}'),
         },
         intercomAppID: INTERCOM_APP_ID,
         mailEnabled: parseConfig('{{env "APPSMITH_MAIL_ENABLED"}}'),
-        cloudServicesBaseUrl:
-          parseConfig('{{env "APPSMITH_CLOUD_SERVICES_BASE_URL"}}') ||
-          "https://cs.appsmith.com",
         googleRecaptchaSiteKey: parseConfig('{{env "APPSMITH_RECAPTCHA_SITE_KEY"}}'),
         hideWatermark: parseConfig('{{env "APPSMITH_HIDE_WATERMARK"}}'),
         disableIframeWidgetSandbox: parseConfig(

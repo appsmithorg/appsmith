@@ -9,8 +9,8 @@ export class CommonLocators {
   _animationSpnner = ".bp3-spinner-animation";
   _btnSpinner = ".ads-v2-spinner";
   _sidebar = ".t--sidebar";
-  _queryName = ".t--action-name-edit-field span";
-  _queryNameTxt = ".t--action-name-edit-field input";
+  _queryName = ".editor-tab.active > .ads-v2-text";
+  _queryNameTxt = ".editor-tab.active > .ads-v2-text input";
   _editIcon = ".t--action-name-edit-icon";
   _emptyCanvasCta = "[data-testid='canvas-ctas']";
   _dsName = ".t--edit-datasource-name span";
@@ -70,7 +70,7 @@ export class CommonLocators {
     this._toastMsg + ":contains('" + toastText + "')";
   //_specificToast = (toastText: string | RegExp) => this._toastMsg + ":contains("+ (typeof toastText == 'string' ? "'"+ toastText+"'" : toastText)+ ")"//not working!
   _empty = "span[name='no-response']";
-  _contextMenuInPane = "[data-testid='more-action-trigger']";
+  _contextMenuInPane = "[data-testid='t--more-action-trigger']";
   _contextMenuItem = (item: string) =>
     "//span[text()='" +
     item +
@@ -342,4 +342,6 @@ export class CommonLocators {
   _propertyCollapseBody = ".bp3-collapse-body";
   _propertyCollapse = ".bp3-collapse";
   _widgetBorder = ".t--draggable-tabswidget div div div";
+  _entityItem = "[data-testid='t--entity-item-Api1']";
+  _rowData = "[data-colindex='0'][data-rowindex='0']";
 }

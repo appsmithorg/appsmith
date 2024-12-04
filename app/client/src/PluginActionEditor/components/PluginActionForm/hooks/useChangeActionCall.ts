@@ -15,7 +15,7 @@ export const useChangeActionCall = () => {
 
     switch (plugin?.type) {
       case PluginType.API:
-        dispatch(changeApi(action?.id, false));
+        dispatch(changeApi(action.id, false));
         break;
       default:
         dispatch(

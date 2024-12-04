@@ -62,34 +62,34 @@ describe(
         .then(($noRecMsg) =>
           expect($noRecMsg).to.eq("No data records to show"),
         );
-      agHelper.RenameWithInPane("selectRecords");
+      agHelper.RenameQuery("selectRecords");
     });
 
     it("4. Creating all queries - uuidtype", () => {
       query = `INSERT INTO public."uuidtype" ("v1", "v4", "nil") VALUES ('{{version1.data}}', '{{version4.data}}', '{{nill.data}}');`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("insertRecord");
+      agHelper.RenameQuery("insertRecord");
 
       query = `UPDATE public."uuidtype" SET "v1" ='{{version1.data ? version1.data : Table1.selectedRow.v1}}', "v4" ='{{version4.data ? version4.data : Table1.selectedRow.v4}}', "nil" ='{{nill.data ? nill.data : Table1.selectedRow.nil}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("updateRecord");
+      agHelper.RenameQuery("updateRecord");
 
       query = `DELETE FROM public."uuidtype"`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("deleteAllRecords");
+      agHelper.RenameQuery("deleteAllRecords");
 
       query = `drop table public."uuidtype"`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("dropTable");
+      agHelper.RenameQuery("dropTable");
 
       query = `DELETE FROM public."uuidtype" WHERE serialId = {{Table1.selectedRow.serialid}}`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("deleteRecord");
+      agHelper.RenameQuery("deleteRecord");
     });
 
     it("5. Inserting record - uuidtype", () => {
@@ -259,7 +259,7 @@ describe(
       //Validating use of extention
       query = `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; CREATE EXTENSION IF NOT EXISTS "pgcrypto"`;
       dataSources.CreateQueryForDS(dsName, query, "verifyUUIDFunctions");
-      dataSources.RunQueryNVerifyResponseViews(1);
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertQueryResponseHeaders(["affectedRows"]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("0");
@@ -297,7 +297,7 @@ describe(
       //Validating Addition of new column taking default value form package method
       query = `ALTER TABLE uuidtype ADD COLUMN newUUID uuid DEFAULT uuid_generate_v4();`;
       dataSources.EnterQuery(query);
-      dataSources.RunQueryNVerifyResponseViews(1);
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertQueryResponseHeaders(["affectedRows"]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("0");
@@ -314,7 +314,7 @@ describe(
       //Validating altering the new column default value to generate id from pgcrypto package
       query = `ALTER TABLE uuidtype ALTER COLUMN newUUID SET DEFAULT gen_random_uuid();`;
       dataSources.EnterQuery(query);
-      dataSources.RunQueryNVerifyResponseViews(1);
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertQueryResponseHeaders(["affectedRows"]);
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("0");

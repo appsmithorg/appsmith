@@ -36,7 +36,7 @@ export class GsheetHelper {
       directInput: false,
       inputFieldName: "Spreadsheet Name",
     });
-    this.agHelper.RenameWithInPane("insert_spreadsheet");
+    this.agHelper.RenameQuery("insert_spreadsheet");
     this.agHelper.EnterValue(rowData, {
       propFieldName: "",
       directInput: false,
@@ -58,7 +58,7 @@ export class GsheetHelper {
       "Spreadsheet",
     );
     this.dataSources.ValidateNSelectDropdown("Spreadsheet", "", spreadsheet);
-    this.agHelper.RenameWithInPane("delete_spreadsheet");
+    this.agHelper.RenameQuery("delete_spreadsheet");
     this.dataSources.RunQuery();
   }
 
@@ -125,7 +125,7 @@ export class GsheetHelper {
       });
     }
     if (renameQuery) {
-      this.agHelper.RenameWithInPane(
+      this.agHelper.RenameQuery(
         operation.toLowerCase().replace(" ", "_") + "_query",
       );
     }

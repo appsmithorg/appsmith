@@ -3,6 +3,7 @@ package com.external.config;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -21,7 +22,17 @@ public interface TriggerMethod {
     /**
      * Returns with the specification required to hit that particular trigger request
      */
-    WebClient.RequestHeadersSpec<?> getTriggerClient(WebClient webClient, MethodConfig methodConfig);
+    default WebClient.RequestHeadersSpec<?> getTriggerClient(WebClient webClient, MethodConfig methodConfig) {
+        return null;
+    }
+
+    /**
+     * Returns with the specification required to hit that particular trigger request
+     */
+    default WebClient.RequestHeadersSpec<?> getTriggerClientWithFlags(
+            WebClient webClient, MethodConfig methodConfig, Map<String, Boolean> featureFlagMap) {
+        return getTriggerClient(webClient, methodConfig);
+    }
 
     /**
      * Transforms the response from the end point into an Appsmith friendly structure

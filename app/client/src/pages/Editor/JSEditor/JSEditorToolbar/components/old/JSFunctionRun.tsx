@@ -25,10 +25,6 @@ export interface DropdownWithCTAWrapperProps {
 const DropdownWithCTAWrapper = styled.div<DropdownWithCTAWrapperProps>`
   display: flex;
   gap: var(--ads-v2-spaces-3);
-
-  &&&&& .function-select-dropdown {
-    width: 230px;
-  }
 `;
 
 const OptionWrapper = styled.div`
@@ -103,6 +99,7 @@ export function JSFunctionRun({
         <span>
           <Button
             className={testLocators.runJSAction}
+            data-testid={testLocators.runJSActionTestID}
             isDisabled={disabled}
             isLoading={isLoading}
             onClick={onButtonClick}
