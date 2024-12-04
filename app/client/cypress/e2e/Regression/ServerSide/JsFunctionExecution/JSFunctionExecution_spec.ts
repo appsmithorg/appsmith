@@ -399,8 +399,6 @@ describe(
       cy.get("@jsObjName").then((jsObjName: any) => {
         jsObj = jsObjName;
       });
-      // Switch to settings tab
-      agHelper.GetNClick(jsEditor._settingsTab);
       // Add settings for each function (according to data)
       Object.values(FUNCTIONS_SETTINGS_DEFAULT_DATA).forEach(
         (functionSetting) => {
@@ -410,15 +408,16 @@ describe(
           );
         },
       );
-      // Switch to settings tab
-      agHelper.GetNClick(jsEditor._settingsTab);
+
+      // open settings popup
+      jsEditor.toolbar.toggleSettings();
       //After JSObj is created - check methods are in alphabetical order
       assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
       agHelper.RefreshPage();
       agHelper.Sleep(2000); //for confirmatiom modal to appear before clicking on "Yes" button for CI runs
-      // Switch to settings tab and assert order
-      agHelper.GetNClick(jsEditor._settingsTab);
+      // open settings popup
+      jsEditor.toolbar.toggleSettings();
       assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
     });
 
@@ -463,14 +462,15 @@ describe(
       agHelper.Sleep();
 
       EditorNavigation.SelectEntityByName(jsObj, EntityType.JSObject);
-      agHelper.GetNClick(jsEditor._settingsTab);
+
+      jsEditor.toolbar.toggleSettings();
       assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
       // rename functions and assert order
-      agHelper.GetNClick(jsEditor._codeTab);
+      jsEditor.toolbar.toggleSettings();
       jsEditor.EditJSObj(getJSObject(FUNCTIONS_SETTINGS_RENAMED_DATA), false);
       agHelper.Sleep(3000);
-      agHelper.GetNClick(jsEditor._settingsTab);
+      jsEditor.toolbar.toggleSettings();
       assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
@@ -499,8 +499,6 @@ return "yes";`;
         prettify: false,
       });
 
-      // Switch to settings tab
-      agHelper.GetNClick(jsEditor._settingsTab);
       // Enable all settings
       jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true);
 
