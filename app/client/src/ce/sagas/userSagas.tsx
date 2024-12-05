@@ -145,14 +145,10 @@ function* initTrackers(currentUser: User) {
   }
 }
 
-export function* runUserSideEffectsSaga() {
+function* restartUserTracking() {
   const currentUser: User = yield select(getCurrentUser);
   const { enableTelemetry } = currentUser;
   const isAirgappedInstance = isAirgapped();
-
-  if (enableTelemetry) {
-    yield fork(initTrackers, currentUser);
-  }
 
   const isFFFetched: boolean = yield select(getFeatureFlagsFetched);
 
@@ -169,13 +165,33 @@ export function* runUserSideEffectsSaga() {
 
   if (!isAirgappedInstance) {
     // We need to stop and start tracking activity to ensure that the tracking from previous session is not carried forward
-    UsagePulse.stopTrackingActivity();
-    UsagePulse.startTrackingActivity(
+    yield call(UsagePulse.stopTrackingActivity);
+
+    if (currentUser?.isAnonymous) {
+      yield take([
+        ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
+        ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+      ]);
+    }
+
+    yield call(
+      UsagePulse.startTrackingActivity,
       enableTelemetry && getAppsmithConfigs().segment.enabled,
       currentUser?.isAnonymous ?? false,
       isFreeLicense,
     );
   }
+}
+
+export function* runUserSideEffectsSaga() {
+  const currentUser: User = yield select(getCurrentUser);
+  const { enableTelemetry } = currentUser;
+
+  if (enableTelemetry) {
+    yield fork(initTrackers, currentUser);
+  }
+
+  yield fork(restartUserTracking);
 
   if (currentUser.emptyInstance) {
     history.replace(SETUP);
