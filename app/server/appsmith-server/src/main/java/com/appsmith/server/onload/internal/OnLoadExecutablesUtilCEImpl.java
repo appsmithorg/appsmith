@@ -525,7 +525,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         // We want to be finding both type of references
         final int entityTypes = EXECUTABLE_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
         return executableNameToExecutableMono
-                .zipWith(getPossibleEntityParentsMap(new ArrayList<>(bindings), entityTypes, evalVersion))
+                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion))
                 .map(tuple -> {
                     Map<String, Executable> executableMap = tuple.getT1();
                     // For each binding, here we receive a set of possible references to global entities
@@ -585,7 +585,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityReferencesMap(
             Mono<Map<String, Executable>> executableNameToExecutableMono,
-            List<String> bindings,
+            Set<String> bindings,
             int evalVersion,
             Set<EntityDependencyNode> bindingsInDsl) {
         // We want to be finding both type of references
@@ -666,9 +666,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      * @return A mono of a map of each of the provided binding values to the possible set of EntityDependencyNodes found in the binding
      */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(
-            List<String> bindings, int types, int evalVersion) {
+            Set<String> bindings, int types, int evalVersion) {
         Flux<Tuple2<String, Set<String>>> findingToReferencesFlux =
-                astService.getPossibleReferencesFromDynamicBinding(bindings, evalVersion);
+                astService.getPossibleReferencesFromDynamicBinding(new ArrayList<>(bindings), evalVersion);
         return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types);
     }
 
@@ -701,7 +701,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             int evalVersion) {
 
         Map<String, Set<EntityDependencyNode>> bindingToWidgetNodesMap = new HashMap<>();
-        List<String> allBindings = new ArrayList<>();
+        Set<String> allBindings = new HashSet<>();
 
         widgetDynamicBindingsMap.forEach((widgetName, bindingsInWidget) -> {
             EntityDependencyNode widgetDependencyNode =
@@ -1220,7 +1220,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         // This part will ensure that we are discovering widget to widget relationships.
         return Flux.fromIterable(widgetBindingMap.entrySet())
                 .flatMap(widgetBindingEntries -> getPossibleEntityParentsMap(
-                                new ArrayList<>(widgetBindingEntries.getValue()), entityTypes, evalVersion)
+                                widgetBindingEntries.getValue(), entityTypes, evalVersion)
                         .map(possibleParentsMap -> {
                             possibleParentsMap.entrySet().stream().forEach(entry -> {
                                 if (entry.getValue() == null || entry.getValue().isEmpty()) {
