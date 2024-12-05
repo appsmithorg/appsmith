@@ -7,6 +7,7 @@ import {
 } from "./EditorNavigation";
 import * as _ from "../Objects/ObjectsCore";
 import ApiEditor from "../../locators/ApiEditor";
+import { PluginActionForm } from "./PluginActionForm";
 
 type RightPaneTabs = "datasources" | "connections";
 
@@ -14,11 +15,11 @@ export class ApiPage {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
   private assertHelper = ObjectsRegistry.AssertHelper;
+  private pluginActionForm = new PluginActionForm();
 
   // private datasources = ObjectsRegistry.DataSources;
 
   _createapi = ".t--createBlankApiCard";
-  _resourceUrl = ".t--dataSourceField";
   private _headerKey = (index: number) =>
     ".t--actionConfiguration\\.headers\\[" +
     index +
@@ -53,7 +54,7 @@ export class ApiPage {
     `.t--actionConfiguration\\.bodyFormData\\[${index}\\]\\.value\\.${index}`;
   _bodyTypeDropdown =
     "//span[text()='Type'][@class='rc-select-selection-placeholder']/ancestor::div";
-  _apiRunBtn = ".t--apiFormRunBtn";
+  _apiRunBtn = '[data-testid="t--run-action"]';
   private _queryTimeout =
     "//input[@name='actionConfiguration.timeoutInMillisecond']";
   _responseBody = ".CodeMirror-code  span.cm-string.cm-property";
@@ -127,10 +128,10 @@ export class ApiPage {
     // }); // to check if Api1 = Api1 when Create Api invoked
 
     if (apiName) {
-      this.agHelper.RenameWithInPane(apiName);
+      this.agHelper.RenameQuery(apiName);
       this.agHelper.GetNAssertContains(this._entityName, apiName);
     }
-    this.agHelper.AssertElementVisibility(this._resourceUrl);
+    this.agHelper.AssertElementVisibility(ApiEditor.dataSourceField);
     if (apiVerb != "GET") this.SelectAPIVerb(apiVerb);
   }
 
@@ -157,7 +158,7 @@ export class ApiPage {
     this.agHelper.EnterValue(
       url,
       {
-        propFieldName: this._resourceUrl,
+        propFieldName: ApiEditor.dataSourceField,
         directInput: true,
         inputFieldName: "",
         apiOrQuery: "api",
@@ -257,20 +258,20 @@ export class ApiPage {
   }
 
   SetAPITimeout(timeout: number, toVerifySave = true) {
-    this.SelectPaneTab("Settings");
+    this.pluginActionForm.toolbar.toggleSettings();
     cy.xpath(this._queryTimeout).clear().type(timeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     toVerifySave && this.agHelper.AssertAutoSave();
     this.SelectPaneTab("Headers");
   }
 
   ToggleOnPageLoadRun(enable = true || false) {
-    this.SelectPaneTab("Settings");
+    this.pluginActionForm.toolbar.toggleSettings();
     if (enable) this.agHelper.CheckUncheck(this._onPageLoad, true);
     else this.agHelper.CheckUncheck(this._onPageLoad, false);
   }
 
   ToggleConfirmBeforeRunning(enable = true || false) {
-    this.SelectPaneTab("Settings");
+    this.pluginActionForm.toolbar.toggleSettings();
     if (enable) this.agHelper.CheckUncheck(this._confirmBeforeRunning, true);
     else this.agHelper.CheckUncheck(this._confirmBeforeRunning, false);
   }
@@ -282,7 +283,6 @@ export class ApiPage {
       | "Body"
       | "Pagination"
       | "Authentication"
-      | "Settings"
       | "Response"
       | "Errors"
       | "Logs"
@@ -460,8 +460,8 @@ export class ApiPage {
     this.agHelper.GetNClickByContains(".ads-v2-listitem", "GraphQL API");
     this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
-    if (apiName) this.agHelper.RenameWithInPane(apiName);
-    cy.get(this._resourceUrl).should("be.visible");
+    if (apiName) this.agHelper.RenameQuery(apiName);
+    cy.get(ApiEditor.dataSourceField).should("be.visible");
   }
 
   AssertEmptyHeaderKeyValuePairsPresent(index: number) {

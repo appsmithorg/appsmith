@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 public class GitResourceIdentity {
-    // TODO  @Nidhi should we persist the info from parsing this filePath ?
-    String filePath;
 
     // TODO  @Nidhi should we persist this sha against the Appsmith domain to integrate with the isModified logic?
     String sha;
@@ -25,4 +23,6 @@ public class GitResourceIdentity {
     // root dir files -> fileName
     @NonNull @EqualsAndHashCode.Include
     String resourceIdentifier;
+
+    @NonNull String filePath;
 }

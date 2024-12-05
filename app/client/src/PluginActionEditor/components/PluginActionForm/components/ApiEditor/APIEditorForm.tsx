@@ -41,6 +41,7 @@ const APIEditorForm = () => {
           theme={EditorTheme.LIGHT}
         />
       }
+      dataTestId="t--api-editor-form"
       formName={API_EDITOR_FORM_NAME}
       httpMethodOptions={HTTP_METHOD_OPTIONS}
       isChangePermitted={isChangePermitted}

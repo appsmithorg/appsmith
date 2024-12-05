@@ -28,12 +28,7 @@ export class DebuggerHelper {
     _contextMenuIcon: ".t--debugger-contextual-error-menu ",
     _contextMenuItem: ".t--debugger-contextual-menuitem",
     _debuggerLabel: "span.debugger-label",
-    _bottomPaneContainer: {
-      [PageType.API]: ".t--api-bottom-pane-container",
-      [PageType.Query]: ".t--query-bottom-pane-container",
-      [PageType.JsEditor]: ".t--js-editor-bottom-pane-container",
-      [PageType.DataSources]: ".t--datasource-bottom-pane-container",
-    },
+    _bottomPaneContainer: ".t--ide-bottom-view",
     _ideBottomViewContainer: ".t--ide-bottom-view",
     _debuggerList: ".debugger-list",
     _debuggerFilter: "input[data-testid=t--debugger-search]",
@@ -103,7 +98,7 @@ export class DebuggerHelper {
       case PageType.Query:
       case PageType.DataSources:
         this.agHelper.AssertElementVisibility(
-          this.locators._bottomPaneContainer[pageType],
+          this.locators._bottomPaneContainer,
         );
         break;
       default:
