@@ -127,10 +127,10 @@ describe(
         debuggerHelper.OpenDebugger();
         debuggerHelper.ClickLogsTab();
         debuggerHelper.DebuggerLogsFilter("JSObject1.runAstros");
-        debuggerHelper.DoesConsoleLogExist(
+        agHelper.AssertContains(
           "Function executed",
-          true,
-          "JSObject1.runAstros",
+          "exist",
+          debuggerHelper.locators._logMessage,
         );
         debuggerHelper.CloseBottomBar();
 

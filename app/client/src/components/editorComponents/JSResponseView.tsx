@@ -101,7 +101,6 @@ function JSResponseView(props: Props) {
   // parse error found while trying to execute function
   const hasExecutionParseErrors = responseStatus === JSResponseState.IsDirty;
   // error found while trying to parse JS Object
-  const hasJSObjectParseError = errors.length > 0;
   const isSaving = useSelector(getIsSavingEntity);
 
   useEffect(() => {
@@ -131,16 +130,15 @@ function JSResponseView(props: Props) {
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <>
-          {localExecutionAllowed &&
-            (hasExecutionParseErrors || hasJSObjectParseError) && (
-              <ResponseTabErrorContainer>
-                <ResponseTabErrorContent>
-                  <div className="t--js-response-parse-error-call-out">
-                    Function failed to execute. Check logs for more information.
-                  </div>
-                </ResponseTabErrorContent>
-              </ResponseTabErrorContainer>
-            )}
+          {localExecutionAllowed && hasExecutionParseErrors && (
+            <ResponseTabErrorContainer>
+              <ResponseTabErrorContent>
+                <div className="t--js-response-parse-error-call-out">
+                  Function failed to execute. Check logs for more information.
+                </div>
+              </ResponseTabErrorContent>
+            </ResponseTabErrorContainer>
+          )}
           <ResponseTabWrapper
             className={errors.length && localExecutionAllowed ? "disable" : ""}
           >
