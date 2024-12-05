@@ -23,7 +23,7 @@ public class ASTServiceCETest {
     AstService astService;
 
     @Test
-    void refactorNameInDynamicBindingsNullOrEmptyBindingsReturnsEmptyMono() {
+    void refactorNameInDynamicBindings_nullOrEmptyBindings_returnsEmptyMono() {
         Mono<Map<MustacheBindingToken, String>> result =
                 astService.refactorNameInDynamicBindings(null, "abc", "xyz", 2, false);
 
@@ -35,7 +35,7 @@ public class ASTServiceCETest {
     }
 
     @Test
-    void refactorNameInDynamicBindingsBindingWithoutOldNameReturnsUnchangedMap() {
+    void refactorNameInDynamicBindings_bindingWithoutOldName_returnsUnchangedMap() {
         MustacheBindingToken token1 = new MustacheBindingToken();
         token1.setValue("foo.bar");
         MustacheBindingToken token2 = new MustacheBindingToken();
@@ -55,7 +55,7 @@ public class ASTServiceCETest {
     }
 
     @Test
-    void refactorNameInDynamicBindingsValidBindingsReturnsUpdatedBindings() {
+    void refactorNameInDynamicBindings_validBindings_returnsUpdatedBindings() {
         MustacheBindingToken token1 = new MustacheBindingToken();
         token1.setValue("abc['foo']");
         MustacheBindingToken token2 = new MustacheBindingToken();
@@ -86,7 +86,7 @@ public class ASTServiceCETest {
     }
 
     @Test
-    void refactorNameInDynamicBindingsWhenValidJSObjectRequestThenReturnUpdatedScript() {
+    void refactorNameInDynamicBindings_whenValidJSObjectRequest_thenReturnUpdatedScript() {
         MustacheBindingToken token = new MustacheBindingToken();
         token.setValue("export default { myFun1() { Api1.run(); return Api1.data;}}");
         Set<MustacheBindingToken> bindingValues = Set.of(token);
@@ -119,7 +119,7 @@ public class ASTServiceCETest {
     }
 
     @Test
-    void refactorNameInDynamicBindingsWhenNoMatchingOldNameInJSObjectThenReturnOriginalScript() {
+    void refactorNameInDynamicBindings_whenNoMatchingOldNameInJSObject_thenReturnOriginalScript() {
         MustacheBindingToken token = new MustacheBindingToken();
         token.setValue("export default { myFun1() { GetUsers.run(); return GetUsers.data;}}");
         Set<MustacheBindingToken> bindingValues = Set.of(token);
