@@ -8,8 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class HealthCheckServiceImpl extends HealthCheckServiceCEImpl implements HealthCheckService {
     public HealthCheckServiceImpl(
-            ReactiveRedisConnectionFactory reactiveRedisConnectionFactory,
-            ObservationRegistry observationRegistry) {
+            ReactiveRedisConnectionFactory reactiveRedisConnectionFactory, ObservationRegistry observationRegistry) {
         super(reactiveRedisConnectionFactory, observationRegistry);
     }
 }

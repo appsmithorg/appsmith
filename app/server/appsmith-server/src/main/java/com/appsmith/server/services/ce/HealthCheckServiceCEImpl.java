@@ -14,7 +14,6 @@ import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
-import static com.appsmith.external.constants.spans.ce.HealthSpanCE.MONGO_HEALTH;
 import static com.appsmith.external.constants.spans.ce.HealthSpanCE.REDIS_HEALTH;
 
 @Slf4j
@@ -24,8 +23,7 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
     private final ObservationRegistry observationRegistry;
 
     public HealthCheckServiceCEImpl(
-            ReactiveRedisConnectionFactory reactiveRedisConnectionFactory,
-            ObservationRegistry observationRegistry) {
+            ReactiveRedisConnectionFactory reactiveRedisConnectionFactory, ObservationRegistry observationRegistry) {
         this.reactiveRedisConnectionFactory = reactiveRedisConnectionFactory;
         this.observationRegistry = observationRegistry;
     }
