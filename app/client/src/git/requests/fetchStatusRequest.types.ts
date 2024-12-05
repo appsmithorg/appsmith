@@ -19,7 +19,7 @@ export interface FetchStatusResponse {
   jsObjectsModified: string[];
   jsObjectsRemoved: string[];
   migrationMessage: string;
-  modified: [];
+  modified: string[];
   modifiedDatasources: number;
   modifiedJSLibs: number;
   modifiedJSObjects: number;
