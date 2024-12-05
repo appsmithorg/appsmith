@@ -40,9 +40,6 @@ function CustomComponent(props: CustomComponentProps) {
   const [loading, setLoading] = React.useState(true);
   const [isIframeReady, setIsIframeReady] = useState(false);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [height, setHeight] = useState(0);
-
   const cssTokens = useMemo(() => {
     const tokens = cssRule(theme);
     const prefixedTokens = tokens.replace(/--/g, "--appsmith-theme-");
@@ -105,7 +102,6 @@ function CustomComponent(props: CustomComponentProps) {
 
             if (props.renderMode !== "BUILDER" && height) {
               iframe.current?.style.setProperty("height", `${height}px`);
-              setHeight(height);
             }
 
             break;

@@ -8,16 +8,6 @@ export const getAppsmithScriptSchema = (model: Record<string, unknown>) => ({
   appsmith: {
     mode: "",
     model: model,
-    ui: {
-      width: 1,
-      height: 2,
-    },
-    theme: {
-      primaryColor: "",
-      backgroundColor: "",
-      borderRadius: "",
-      boxShadow: "",
-    },
     onUiChange: Function,
     onModelChange: Function,
     onThemeChange: Function,

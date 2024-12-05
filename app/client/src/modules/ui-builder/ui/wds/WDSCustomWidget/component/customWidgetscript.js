@@ -139,15 +139,11 @@ export function main() {
   // Callback for when the READY_ACK message is received
   channel.onMessage(EVENTS.CUSTOM_WIDGET_READY_ACK, (event) => {
     window.appsmith.model = event.model;
-    window.appsmith.ui = event.ui;
-    window.appsmith.theme = event.theme;
     window.appsmith.mode = event.mode;
     heightObserver.observe(window.document.body);
 
     // Subscribe to model and UI changes
     window.appsmith.onModelChange(generateAppsmithCssVariables("model"));
-    window.appsmith.onUiChange(generateAppsmithCssVariables("ui"));
-    window.appsmith.onThemeChange(generateAppsmithCssVariables("theme"));
 
     // Set the widget as ready
     isReady = true;
