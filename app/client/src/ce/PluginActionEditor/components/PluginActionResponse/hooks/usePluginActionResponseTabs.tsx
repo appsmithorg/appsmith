@@ -143,15 +143,15 @@ function usePluginActionResponseTabs() {
   if (IDEViewMode === EditorViewMode.FullScreen) {
     tabs.push(
       {
+        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+        title: createMessage(DEBUGGER_LOGS),
+        panelComponent: <DebuggerLogs />,
+      },
+      {
         key: DEBUGGER_TAB_KEYS.ERROR_TAB,
         title: createMessage(DEBUGGER_ERRORS),
         count: errorCount,
         panelComponent: <ErrorLogs />,
-      },
-      {
-        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-        title: createMessage(DEBUGGER_LOGS),
-        panelComponent: <DebuggerLogs searchQuery={action.name} />,
       },
     );
   }

@@ -80,13 +80,11 @@ type Props = ReduxStateProps &
     isLoading: boolean;
     onButtonClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
     jsCollectionData: JSCollectionData | undefined;
-    debuggerLogsDefaultName?: string;
   };
 
 function JSResponseView(props: Props) {
   const {
     currentFunction,
-    debuggerLogsDefaultName,
     disabled,
     errorCount,
     errors,
@@ -97,7 +95,6 @@ function JSResponseView(props: Props) {
   const [responseStatus, setResponseStatus] = useState<JSResponseState>(
     JSResponseState.NoResponse,
   );
-  const jsObject = jsCollectionData?.config;
   const responses = (jsCollectionData && jsCollectionData.data) || {};
   const isDirty = (jsCollectionData && jsCollectionData.isDirty) || {};
   const isExecuting = (jsCollectionData && jsCollectionData.isExecuting) || {};
@@ -206,6 +203,7 @@ function JSResponseView(props: Props) {
 
                   <LogHelper
                     logType={LOG_TYPE.EVAL_ERROR}
+                    message={errorMessage}
                     name={errorType}
                     source={actionSource}
                   />
@@ -271,9 +269,7 @@ function JSResponseView(props: Props) {
     {
       key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
-      panelComponent: (
-        <DebuggerLogs searchQuery={debuggerLogsDefaultName || jsObject?.name} />
-      ),
+      panelComponent: <DebuggerLogs />,
     },
   ];
 

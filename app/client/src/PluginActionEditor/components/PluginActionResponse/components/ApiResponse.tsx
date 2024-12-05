@@ -142,6 +142,7 @@ export function ApiResponse(props: {
             )}
             <LogHelper
               logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
+              message={pluginErrorDetails?.downstreamErrorMessage}
               name="PluginExecutionError"
               pluginErrorDetails={pluginErrorDetails}
               source={actionSource}
