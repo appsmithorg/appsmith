@@ -15,6 +15,7 @@ import {
   draggableWidgets,
   propPane,
   table,
+  debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -158,14 +159,12 @@ describe(
       );
       apiPage.RunAPI(false);
       cy.wait("@postExecuteError");
-      cy.get(commonlocators.errorTab)
-        .should("be.visible")
-        .click({ force: true });
-      cy.get(commonlocators.debuggerLabel)
-        .invoke("text")
-        .then(($text) => {
-          expect($text).to.eq("An unexpected error occurred");
-        });
+      debuggerHelper.ClickLogsTab();
+      debuggerHelper.DoesConsoleLogExist(
+        "Failed execution",
+        true,
+        "InternalServerErrorApi",
+      );
     });
 
     it("3. Bug 4775: No Cyclical dependency when Api returns an error", function () {

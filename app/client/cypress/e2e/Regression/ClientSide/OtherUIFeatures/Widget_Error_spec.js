@@ -33,18 +33,13 @@ describe(
     });
 
     it("2. Switch to error tab when clicked on the debug button", function () {
-      cy.get("[data-testid=t--tab-LOGS_TAB]").click();
       cy.get(".t--property-control-onclick").find(".t--js-toggle").click();
       cy.EnableAllCodeEditors();
       cy.testJsontext("onclick", "{{testApi.run()}}");
       cy.get(widgetLocators.buttonWidget).click();
 
       cy.get(".t--toast-debug-button").click();
-      cy.get("[data-testid='t--tab-ERROR_TAB']").should(
-        "have.attr",
-        "aria-selected",
-        "true",
-      );
+      _.debuggerHelper.AssertSelectedTab("LOGS_TAB");
 
       // All errors should be expanded by default
       //Updated count to 2 as the decision to show the widget trigger lint errors to show in the debugger
@@ -78,13 +73,7 @@ describe(
       _.table.AddColumn("customColumn1");
       _.propPane.OpenTableColumnSettings("customColumn1");
       _.propPane.UpdatePropertyFieldValue("Computed value", "{{test}}");
-
-      _.debuggerHelper.AssertDebugError(
-        "test is not defined",
-        "",
-        false,
-        false,
-      );
+      _.debuggerHelper.AssertDebugError("test is not defined", "", true, false);
 
       _.table.DeleteColumn("customColumn1");
 

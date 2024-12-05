@@ -3,7 +3,6 @@ import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
 import styled from "styled-components";
-import { every, includes } from "lodash";
 import type { AppState } from "ee/reducers";
 import type { JSEditorRouteParams } from "constants/routes";
 import {
@@ -28,16 +27,11 @@ import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState, JSResponseState } from "./utils";
-import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { NoResponse } from "PluginActionEditor/components/PluginActionResponse/components/NoResponse";
 import {
   ResponseTabErrorContainer,
   ResponseTabErrorContent,
 } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
-import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { Log, SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { setJsPaneDebuggerState } from "actions/jsPaneActions";
 import { getIDEViewMode } from "selectors/ideSelectors";
@@ -80,6 +74,7 @@ type Props = ReduxStateProps &
     isLoading: boolean;
     onButtonClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
     jsCollectionData: JSCollectionData | undefined;
+    debuggerLogsDefaultName?: string;
   };
 
 function JSResponseView(props: Props) {
@@ -121,68 +116,12 @@ function JSResponseView(props: Props) {
     );
   }, [responses, isExecuting, currentFunction, isSaving, isDirty]);
 
-  const filteredErrors = useSelector(getFilteredErrors);
-  let errorMessage: string | undefined;
-  let errorType = "ValidationError";
-
   const localExecutionAllowed = useMemo(() => {
     return isBrowserExecutionAllowed(
       jsCollectionData?.config,
       currentFunction || undefined,
     );
   }, [jsCollectionData?.config, currentFunction]);
-
-  // action source for analytics.
-  let actionSource: SourceEntity = {
-    type: ENTITY_TYPE.JSACTION,
-    name: "",
-    id: "",
-  };
-
-  try {
-    let errorObject: Log | undefined;
-
-    //get JS execution error from redux store.
-    if (
-      jsCollectionData &&
-      jsCollectionData.config &&
-      jsCollectionData.activeJSActionId
-    ) {
-      every(filteredErrors, (error) => {
-        if (
-          includes(
-            error.id,
-            jsCollectionData?.config.id +
-              "-" +
-              jsCollectionData?.activeJSActionId,
-          )
-        ) {
-          errorObject = error;
-
-          return false;
-        }
-
-        return true;
-      });
-    }
-
-    // update error message.
-    if (errorObject) {
-      if (errorObject.source) {
-        // update action source.
-        actionSource = errorObject.source;
-      }
-
-      if (errorObject.messages) {
-        // update error message.
-        errorMessage =
-          errorObject.messages[0].message.name +
-          ": " +
-          errorObject.messages[0].message.message;
-        errorType = errorObject.messages[0].message.name;
-      }
-    }
-  } catch (e) {}
 
   const ideViewMode = useSelector(getIDEViewMode);
 
@@ -193,20 +132,12 @@ function JSResponseView(props: Props) {
       panelComponent: (
         <>
           {localExecutionAllowed &&
-            (hasExecutionParseErrors ||
-              (hasJSObjectParseError && errorMessage)) && (
+            (hasExecutionParseErrors || hasJSObjectParseError) && (
               <ResponseTabErrorContainer>
                 <ResponseTabErrorContent>
                   <div className="t--js-response-parse-error-call-out">
-                    {errorMessage}
+                    Function failed to execute. Check logs for more information.
                   </div>
-
-                  <LogHelper
-                    logType={LOG_TYPE.EVAL_ERROR}
-                    message={errorMessage}
-                    name={errorType}
-                    source={actionSource}
-                  />
                 </ResponseTabErrorContent>
               </ResponseTabErrorContainer>
             )}

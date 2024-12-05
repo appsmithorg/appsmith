@@ -127,7 +127,11 @@ describe(
         debuggerHelper.OpenDebugger();
         debuggerHelper.ClickLogsTab();
         debuggerHelper.DebuggerLogsFilter("JSObject1.runAstros");
-        debuggerHelper.DoesConsoleLogExist("JS Function executed successfully");
+        debuggerHelper.DoesConsoleLogExist(
+          "Function executed",
+          true,
+          "JSObject1.runAstros",
+        );
         debuggerHelper.CloseBottomBar();
 
         PageLeftPane.switchSegment(PagePaneSegment.JS);

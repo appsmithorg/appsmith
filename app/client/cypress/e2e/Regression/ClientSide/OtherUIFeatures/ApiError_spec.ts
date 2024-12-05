@@ -22,13 +22,13 @@ describe(
       _.debuggerHelper.AssertSelectedTab(
         Cypress.env("MESSAGES").DEBUGGER_ERRORS(),
       );
-      _.debuggerHelper.AssertErrorCount(1);
+      _.debuggerHelper.AssertErrorCount(0);
       EditorNavigation.SwitchScreenMode(EditorViewMode.SplitScreen);
       _.apiPage.DebugError();
       _.debuggerHelper.AssertSelectedTab(
         Cypress.env("MESSAGES").DEBUGGER_ERRORS(),
       );
-      _.debuggerHelper.AssertErrorCount(1);
+      _.debuggerHelper.AssertErrorCount(0);
     });
   },
 );

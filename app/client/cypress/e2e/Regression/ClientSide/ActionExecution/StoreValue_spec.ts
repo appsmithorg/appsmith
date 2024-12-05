@@ -248,9 +248,9 @@ describe(
       debuggerHelper.OpenDebugger();
       debuggerHelper.ClickLogsTab();
       debuggerHelper.changeLogsGroup("System logs");
-      debuggerHelper.DoesConsoleLogExist("storeValue('xyz', '123', true)");
-      debuggerHelper.DoesConsoleLogExist("removeValue('xyz')");
-      debuggerHelper.DoesConsoleLogExist("clearStore()");
+      debuggerHelper.DoesConsoleLogExist("storeValue triggered");
+      debuggerHelper.DoesConsoleLogExist("removeValue triggered");
+      debuggerHelper.DoesConsoleLogExist("clearStore triggered");
     });
   },
 );

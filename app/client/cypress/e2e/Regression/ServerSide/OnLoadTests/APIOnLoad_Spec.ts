@@ -59,11 +59,10 @@ describe(
         `{{PageLoadApi2.data.data}}`,
       );
       agHelper.RefreshPage();
-      debuggerHelper.AssertDebugError(
+      debuggerHelper.ClickLogsTab();
+      debuggerHelper.DoesConsoleLogExist(
         'The action "PageLoadApi2" has failed.',
-        "",
         true,
-        false,
       );
     });
 
