@@ -812,7 +812,9 @@ export default {
         return acc;
       }, {});
 
-      // * We don't want html tags and inline styles to match in search
+      /*
+       * We don't want html tags and inline styles to match in search
+       */
       const htmlValues = columnsWithHTML.reduce((acc, column) => {
         acc[column.alias] = getTextFromHTML(row[column.alias]);
 
@@ -865,7 +867,9 @@ export default {
             ConditionFunctions[props.filters[i].condition];
 
           if (conditionFunction) {
-            // * We don't want html tags and inline styles to match in filter conditions
+            /*
+             * We don't want html tags and inline styles to match in filter conditions
+             */
             const isHTMLColumn = htmlColumns.includes(props.filters[i].column);
             const originalColValue = isHTMLColumn
               ? getTextFromHTML(originalRow[props.filters[i].column])
