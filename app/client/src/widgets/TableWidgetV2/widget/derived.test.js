@@ -1723,7 +1723,7 @@ describe("Validates getFilteredTableData Properties", () => {
           originalId: "status",
           horizontalAlignment: "LEFT",
           verticalAlignment: "CENTER",
-          columnType: "text",
+          columnType: "html",
           textColor: "#231F20",
           textSize: "PARAGRAPH",
           fontStyle: "REGULAR",
