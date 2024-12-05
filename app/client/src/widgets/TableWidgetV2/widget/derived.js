@@ -864,19 +864,17 @@ export default {
             ConditionFunctions[props.filters[i].condition];
 
           if (conditionFunction) {
-            const originalRowAfterRemovingHTMLCols = htmlColumns
-              ? _.omit(originalRow, htmlColumns)
-              : originalRow;
+            const isHTMLColumn = htmlColumns.includes(props.filters[i].column);
+            const originalColValue = isHTMLColumn
+              ? getTextFromHTML(originalRow[props.filters[i].column])
+              : originalRow[props.filters[i].column];
+            const displayedColValue = isHTMLColumn
+              ? getTextFromHTML(displayedRow[props.filters[i].column])
+              : displayedRow[props.filters[i].column];
 
             filterResult =
-              conditionFunction(
-                originalRow[props.filters[i].column],
-                props.filters[i].value,
-              ) ||
-              conditionFunction(
-                displayedRow[props.filters[i].column],
-                props.filters[i].value,
-              );
+              conditionFunction(originalColValue, props.filters[i].value) ||
+              conditionFunction(displayedColValue, props.filters[i].value);
           }
         } catch (e) {
           filterResult = false;
