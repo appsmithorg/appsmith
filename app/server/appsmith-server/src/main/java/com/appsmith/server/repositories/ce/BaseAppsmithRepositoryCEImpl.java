@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 import static com.appsmith.external.helpers.ReflectionHelpers.getAllFields;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUPS;
@@ -852,7 +853,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             seenIds.add(id);
         }
 
-        entities.forEach(em::persist);
+        entities.forEach(em::merge);
         return Optional.empty();
     }
 
@@ -878,7 +879,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(updatesById.get(e.getId()), e);
         }
 
-        entitiesToSave.forEach(em::persist);
+        entitiesToSave.forEach(em::merge);
         return Optional.empty();
     }
 
@@ -890,5 +891,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     private EntityManager getEntityManager(QueryAllParams<T> params) {
         return params.getEntityManager() == null ? entityManager : params.getEntityManager();
+    }
+
+    private String generateId() {
+        return UUID.randomUUID().toString();
     }
 }

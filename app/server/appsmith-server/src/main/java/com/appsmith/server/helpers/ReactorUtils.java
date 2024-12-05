@@ -33,8 +33,8 @@ public class ReactorUtils {
         Mono<Scheduler> schedulerMono =
                 Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TRANSACTION_THREAD_NAME, elasticScheduler)));
         return schedulerMono
-                .flatMap(scheduler -> switchToElasticScheduler(scheduler)
-                        .then(Mono.defer(() -> Mono.justOrEmpty(supplier.get())).subscribeOn(scheduler)))
+                .flatMap(scheduler ->
+                        switchToElasticScheduler(scheduler).then(Mono.defer(() -> Mono.justOrEmpty(supplier.get()))))
                 .publishOn(Schedulers.boundedElastic());
     }
 
@@ -42,8 +42,8 @@ public class ReactorUtils {
         Mono<Scheduler> schedulerMono =
                 Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TRANSACTION_THREAD_NAME, elasticScheduler)));
         return schedulerMono
-                .flatMap(scheduler -> switchToElasticScheduler(scheduler)
-                        .then(Mono.defer(() -> Mono.justOrEmpty(supplier.get())).subscribeOn(scheduler)))
+                .flatMap(scheduler ->
+                        switchToElasticScheduler(scheduler).then(Mono.defer(() -> Mono.justOrEmpty(supplier.get()))))
                 .publishOn(Schedulers.boundedElastic());
     }
 
@@ -53,8 +53,7 @@ public class ReactorUtils {
         return schedulerMono
                 .flatMapMany(scheduler -> switchToElasticScheduler(scheduler)
                         .then(Mono.fromCallable(supplier::get))
-                        .flatMapMany(Flux::fromIterable)
-                        .subscribeOn(scheduler))
+                        .flatMapMany(Flux::fromIterable))
                 .publishOn(Schedulers.boundedElastic());
     }
 

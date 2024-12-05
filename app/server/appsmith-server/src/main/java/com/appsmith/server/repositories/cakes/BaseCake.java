@@ -90,13 +90,16 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                     // Setting the deletedAt and then saving the entity throwing the exceptions in few cases of trying
                     // to create
                     // new entry with same id hence relying on JPA generated method.
-                    return this.archiveById(entity.getId()).handle((cnt, sink) -> {
-                        if (cnt == 0) {
-                            sink.error(new RuntimeException("Entity not found"));
-                            return;
+                    return this.archiveById(entity.getId()).map(cnt -> {
+                        if (cnt == 0 && entity.getDeletedAt() == null) {
+                            log.error(
+                                    "Entity with id {} and type {} not found to archive",
+                                    entity.getId(),
+                                    entity.getClass().getSimpleName());
+                        } else if (entity.getDeletedAt() == null) {
+                            entity.setDeletedAt(Instant.now());
                         }
-                        entity.setDeletedAt(Instant.now());
-                        sink.next(entity);
+                        return entity;
                     });
                 });
     }

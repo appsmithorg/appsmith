@@ -17,12 +17,12 @@ FILE_CONTENTS_CACHE = {}
 # PERMISSION_ARG = "userAclPermission"
 
 SUBSCRIBE_WRAPPER = (
-    "%s.subscribeOn(Schedulers.boundedElastic())"
+    "%s"
 )
 MONO_WRAPPER = "asMono(() -> %s)"
 MONO_WRAPPER_WITH_ENTITY_MANAGER = "Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager))).flatMap(entityManager -> asMono(() -> %s))"
 MONO_WRAPPER_NON_OPTIONAL = (
-    SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s)"
+    SUBSCRIBE_WRAPPER % "asMonoDirect(() -> %s)"
 )
 FLUX_WRAPPER = "asFlux(() -> %s)"
 FLUX_WRAPPER_WITH_ENTITY_MANAGER = "Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager))).flatMapMany(entityManager -> asFlux(() -> %s))"
@@ -340,6 +340,7 @@ def generate_cake_class(domain):
     import static com.appsmith.server.constants.FieldName.TX_CONTEXT;
     import static com.appsmith.server.helpers.ReactorUtils.asFlux;
     import static com.appsmith.server.helpers.ReactorUtils.asMono;
+    import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
     @Component
     public class {domain}RepositoryCake extends BaseCake<{domain}, {domain}Repository> {{
