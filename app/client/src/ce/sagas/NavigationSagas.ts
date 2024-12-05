@@ -1,10 +1,13 @@
-import { fork, put, select, call } from "redux-saga/effects";
+import { fork, put, select, call, take } from "redux-saga/effects";
 import type { RouteChangeActionPayload } from "actions/focusHistoryActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
-import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  type ReduxAction,
+} from "ee/constants/ReduxActionConstants";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import type { BackgroundTheme } from "sagas/ThemeSaga";
 import { changeAppBackground } from "sagas/ThemeSaga";
@@ -86,6 +89,10 @@ function* clearErrors() {
 }
 
 function* watchForTrackableUrl(payload: RouteChangeActionPayload) {
+  yield take([
+    ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
+    ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
+  ]);
   const oldPathname = payload.prevLocation.pathname;
   const newPathname = payload.location.pathname;
   const isOldPathTrackable: boolean = yield call(
