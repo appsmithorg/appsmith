@@ -5,7 +5,7 @@ import type {
   GitImportStep,
   GitOpsTab,
   GitSettingsTab,
-} from "./enums";
+} from "./constants/enums";
 
 // These will be updated when contracts are finalized
 export type GitMetadata = Record<string, unknown>;
