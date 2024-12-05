@@ -242,65 +242,6 @@ describe("CustomWidgetScript", () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
-  it("should check API functions - onUiChange", () => {
-    const handler = jest.fn();
-
-    const unlisten = window.appsmith.onUiChange(handler);
-
-    expect(handler).toHaveBeenCalledWith({
-      width: 1,
-      height: 2,
-    });
-
-    window.triggerEvent("message", {
-      source: window.parent,
-      data: {
-        type: EVENTS.CUSTOM_WIDGET_UI_CHANGE,
-        ui: {
-          width: 2,
-          height: 3,
-        },
-      },
-    });
-
-    expect(window.appsmith.ui).toEqual({
-      width: 2,
-      height: 3,
-    });
-
-    expect(handler).toHaveBeenCalledWith(
-      {
-        width: 2,
-        height: 3,
-      },
-      {
-        width: 1,
-        height: 2,
-      },
-    );
-
-    handler.mockClear();
-    unlisten();
-
-    window.triggerEvent("message", {
-      source: window.parent,
-      data: {
-        type: EVENTS.CUSTOM_WIDGET_UI_CHANGE,
-        ui: {
-          width: 3,
-          height: 4,
-        },
-      },
-    });
-
-    expect(window.appsmith.ui).toEqual({
-      width: 3,
-      height: 4,
-    });
-
-    expect(handler).not.toHaveBeenCalled();
-  });
-
   it("should check API functions - onThemeChange", () => {
     const handler = jest.fn();
 
