@@ -19,7 +19,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 200);
     });
 
-    it("1. Verify watchPosition automatically updates appsmith.geolocation.currentPosition", () => {
+    it("1. Verify that getCurrentPosition successfully retrieves the current position and automatically updates appsmith.geolocation.currentPosition.coords", () => {
       // Mock geolocation permissions
       cy.window().then((win) => {
         cy.stub(win.navigator.permissions, "query").resolves({
@@ -118,7 +118,7 @@ describe(
       ); // No error message
     });
 
-    it("3. Verify that the error callback is executed when getCurrentPosition encounters an error", () => {
+    it("3. Verify that the error callback is executed when getCurrentPosition encounters an error (e.g., location services disabled or permission denied).", () => {
       // Mock geolocation with error
       cy.window().then((win) => {
         cy.stub(win.navigator.permissions, "query").resolves({

@@ -105,90 +105,7 @@ describe(
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });
 
-    it.skip("2. Verify that enabling the debug parameter logs the clipboard operation in the console.", () => {
-      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.SelectPlatformFunction("onClick", "Copy to clipboard");
-      agHelper.TypeText(
-        propPane._actionSelectorFieldByLabel("Text to be copied to clipboard"),
-        `{ name: "John", age: 30 }`,
-      );
-      agHelper.GetNClick(propPane._actionSelectorPopupClose);
-
-      cy.window().then((win) => {
-        cy.stub(win.console, "log").as("consoleLog");
-      });
-      agHelper.ClickButton("Submit");
-      cy.get("@consoleLog").should(
-        "be.calledWith",
-        `{ name: "John", age: 30 }`,
-      );
-
-      // Deploy verification
-      deployMode.DeployApp();
-      agHelper.AssertElementVisibility(appSettings.locators._header);
-      cy.window().then((win) => {
-        cy.stub(win.console, "log").as("consoleLog");
-      });
-      agHelper.ClickButton("Submit");
-      cy.get("@consoleLog").should(
-        "be.calledWith",
-        `{ name: "John", age: 30 }`,
-      );
-      deployMode.NavigateBacktoEditor();
-
-      // JSObject verification
-      const jsObjectBody = `export default {
-        myFun1() {
-          const data = '{ name: "John", age: 30 }';
-          copyToClipboard(data);
-          console.log(data);
-          return data;
-        },
-      };`;
-
-      jsEditor.CreateJSObject(jsObjectBody, {
-        paste: true,
-        completeReplace: true,
-        toRun: false,
-        prettify: false,
-        shouldCreateNewJSObj: true,
-      });
-      agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
-        cy.wrap(jsObjectName).as("jsObjectName");
-      });
-
-      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.ToggleJSMode("onClick", true);
-      cy.get("@jsObjectName").then((jsObjectName: string) => {
-        propPane.EnterJSContext(
-          "onClick",
-          `{{${jsObjectName}.myFun1()}}`,
-          true,
-          false,
-        );
-      });
-
-      cy.window().then((win) => {
-        cy.stub(win.console, "log").as("consoleLog");
-      });
-      agHelper.ClickButton("Submit");
-      cy.get("@consoleLog").should(
-        "be.calledWith",
-        `{ name: "John", age: 30 }`,
-      );
-      deployMode.DeployApp();
-      cy.window().then((win) => {
-        cy.stub(win.console, "log").as("consoleLog");
-      });
-      agHelper.ClickButton("Submit");
-      cy.get("@consoleLog").should(
-        "be.calledWith",
-        `{ name: "John", age: 30 }`,
-      );
-      deployMode.NavigateBacktoEditor();
-    });
-
-    it("3. Verify behavior when attempting to copy an empty string to the clipboard. The clipboard should remain empty, and no error should be triggered.", () => {
+    it("2. Verify behavior when attempting to copy an empty string to the clipboard. The clipboard should remain empty, and no error should be triggered.", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.SelectPlatformFunction("onClick", "Copy to clipboard");
       agHelper.TypeText(
@@ -273,7 +190,7 @@ describe(
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });
 
-    it("4. Verify that copied data persists in the clipboard after a page reload. The copied data should still be in the clipboard after the page reload.", () => {
+    it("3. Verify that copied data persists in the clipboard after a page reload. The copied data should still be in the clipboard after the page reload.", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.SelectPlatformFunction("onClick", "Copy to clipboard");
       agHelper.TypeText(
