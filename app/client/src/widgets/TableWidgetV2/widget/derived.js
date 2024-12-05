@@ -281,6 +281,14 @@ export default {
       return [];
     }
 
+    const getTextFromHTML = (html) => {
+      const tempDiv = document.createElement("div");
+
+      tempDiv.innerHTML = html;
+
+      return tempDiv.textContent || tempDiv.innerText || "";
+    };
+
     /* extend processedTableData with values from
      *  - computedValues, in case of normal column
      *  - empty values, in case of derived column
@@ -504,6 +512,11 @@ export default {
                     );
                   }
                 }
+              case "html":
+                return sortByOrder(
+                  getTextFromHTML(processedA[sortByColumnOriginalId]) >
+                    getTextFromHTML(processedB[sortByColumnOriginalId]),
+                );
               default:
                 return sortByOrder(
                   processedA[sortByColumnOriginalId].toString().toLowerCase() >
@@ -700,6 +713,10 @@ export default {
         (column) => column.columnType === "url" && column.displayText,
       );
 
+      const columnsWithHTML = Object.values(props.primaryColumns).filter(
+        (column) => column.columnType === "html",
+      );
+
       /*
        * For select columns with label and values, we need to include the label value
        * in the search and filter data
@@ -781,32 +798,45 @@ export default {
         });
       }
 
+      const displayTextValues = columnWithDisplayText.reduce((acc, column) => {
+        let displayText;
+
+        if (_.isArray(column.displayText)) {
+          displayText = column.displayText[row.__originalIndex__];
+        } else {
+          displayText = column.displayText;
+        }
+
+        acc[column.alias] = displayText;
+
+        return acc;
+      }, {});
+
+      const htmlValues = columnsWithHTML.reduce((acc, column) => {
+        acc[column.alias] = getTextFromHTML(row[column.alias]);
+
+        return acc;
+      }, {});
+
       const displayedRow = {
         ...row,
         ...labelValuesForSelectCell,
-        ...columnWithDisplayText.reduce((acc, column) => {
-          let displayText;
-
-          if (_.isArray(column.displayText)) {
-            displayText = column.displayText[row.__originalIndex__];
-          } else {
-            displayText = column.displayText;
-          }
-
-          acc[column.alias] = displayText;
-
-          return acc;
-        }, {}),
+        ...displayTextValues,
+        ...htmlValues,
       };
+      const htmlColumns = columnsWithHTML.map((column) => column.alias);
 
       if (searchKey) {
-        isSearchKeyFound = [
+        const arr = [
           ...Object.values(_.omit(displayedRow, hiddenColumns)),
-          ...Object.values(_.omit(originalRow, hiddenColumns)),
+          ...Object.values(
+            _.omit(originalRow, [...hiddenColumns, ...htmlColumns]),
+          ),
         ]
           .join(", ")
-          .toLowerCase()
-          .includes(searchKey);
+          .toLowerCase();
+
+        isSearchKeyFound = arr.includes(searchKey);
       }
 
       if (!isSearchKeyFound) {
@@ -834,6 +864,10 @@ export default {
             ConditionFunctions[props.filters[i].condition];
 
           if (conditionFunction) {
+            const originalRowAfterRemovingHTMLCols = htmlColumns
+              ? _.omit(originalRow, htmlColumns)
+              : originalRow;
+
             filterResult =
               conditionFunction(
                 originalRow[props.filters[i].column],

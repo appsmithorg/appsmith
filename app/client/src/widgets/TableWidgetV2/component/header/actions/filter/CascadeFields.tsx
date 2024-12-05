@@ -18,6 +18,7 @@ import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { ColumnTypes, ReadOnlyColumnTypes } from "../../../../constants";
 import { importRemixIcon } from "@appsmith/ads-old";
+import { TABLE_WIDGET_FILTER_OPERATORS } from "./Constants";
 
 const CloseIcon = importRemixIcon(
   async () => import("remixicon-react/CloseCircleFillIcon"),
@@ -112,73 +113,71 @@ const AutoToolTipComponentWrapper = styled(AutoToolTipComponent)`
 
 const typeOperatorsMap: Record<ReadOnlyColumnTypes, DropdownOption[]> = {
   [ColumnTypes.TEXT]: [
-    { label: "contains", value: "contains", type: "input" },
-    { label: "does not contain", value: "doesNotContain", type: "input" },
-    { label: "starts with", value: "startsWith", type: "input" },
-    { label: "ends with", value: "endsWith", type: "input" },
-    { label: "is exactly", value: "isExactly", type: "input" },
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.CONTAINS,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.DOES_NOT_CONTAIN,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.STARTS_WITH,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.ENDS_WITH,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.IS_EXACTLY,
+    TABLE_WIDGET_FILTER_OPERATORS.EMPTY,
+    TABLE_WIDGET_FILTER_OPERATORS.NOT_EMPTY,
   ],
   [ColumnTypes.URL]: [
-    { label: "contains", value: "contains", type: "input" },
-    { label: "does not contain", value: "doesNotContain", type: "input" },
-    { label: "starts with", value: "startsWith", type: "input" },
-    { label: "ends with", value: "endsWith", type: "input" },
-    { label: "is exactly", value: "isExactly", type: "input" },
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.CONTAINS,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.DOES_NOT_CONTAIN,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.STARTS_WITH,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.ENDS_WITH,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.IS_EXACTLY,
+    TABLE_WIDGET_FILTER_OPERATORS.EMPTY,
+    TABLE_WIDGET_FILTER_OPERATORS.NOT_EMPTY,
   ],
   [ColumnTypes.DATE]: [
-    { label: "is", value: "is", type: "date" },
-    { label: "is before", value: "isBefore", type: "date" },
-    { label: "is after", value: "isAfter", type: "date" },
-    { label: "is not", value: "isNot", type: "date" },
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
+    TABLE_WIDGET_FILTER_OPERATORS.DATE.IS,
+    TABLE_WIDGET_FILTER_OPERATORS.DATE.IS_BEFORE,
+    TABLE_WIDGET_FILTER_OPERATORS.DATE.IS_AFTER,
+    TABLE_WIDGET_FILTER_OPERATORS.DATE.IS_NOT,
+    TABLE_WIDGET_FILTER_OPERATORS.EMPTY,
+    TABLE_WIDGET_FILTER_OPERATORS.NOT_EMPTY,
   ],
   [ColumnTypes.IMAGE]: [
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
+    TABLE_WIDGET_FILTER_OPERATORS.EMPTY,
+    TABLE_WIDGET_FILTER_OPERATORS.NOT_EMPTY,
   ],
   [ColumnTypes.VIDEO]: [
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
+    TABLE_WIDGET_FILTER_OPERATORS.EMPTY,
+    TABLE_WIDGET_FILTER_OPERATORS.NOT_EMPTY,
   ],
   [ColumnTypes.NUMBER]: [
-    { label: "is equal to", value: "isEqualTo", type: "input" },
-    { label: "not equal to", value: "notEqualTo", type: "input" },
-    { label: "greater than", value: "greaterThan", type: "input" },
-    {
-      label: "greater than or equal to",
-      value: "greaterThanEqualTo",
-      type: "input",
-    },
-    { label: "less than", value: "lessThan", type: "input" },
-    {
-      label: "less than or equal to",
-      value: "lessThanEqualTo",
-      type: "input",
-    },
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
+    TABLE_WIDGET_FILTER_OPERATORS.NUMBER.IS_EQUAL_TO,
+    TABLE_WIDGET_FILTER_OPERATORS.NUMBER.NOT_EQUAL_TO,
+    TABLE_WIDGET_FILTER_OPERATORS.NUMBER.GREATER_THAN,
+    TABLE_WIDGET_FILTER_OPERATORS.NUMBER.GREATER_THAN_OR_EQUAL_TO,
+    TABLE_WIDGET_FILTER_OPERATORS.NUMBER.LESS_THAN,
+    TABLE_WIDGET_FILTER_OPERATORS.NUMBER.LESS_THAN_OR_EQUAL_TO,
+    TABLE_WIDGET_FILTER_OPERATORS.EMPTY,
+    TABLE_WIDGET_FILTER_OPERATORS.NOT_EMPTY,
   ],
   [ColumnTypes.CHECKBOX]: [
-    { label: "is checked", value: "isChecked", type: "" },
-    { label: "is unchecked", value: "isUnChecked", type: "" },
+    TABLE_WIDGET_FILTER_OPERATORS.BOOLEAN.IS_CHECKED,
+    TABLE_WIDGET_FILTER_OPERATORS.BOOLEAN.IS_UNCHECKED,
   ],
   [ColumnTypes.SWITCH]: [
-    { label: "is checked", value: "isChecked", type: "" },
-    { label: "is unchecked", value: "isUnChecked", type: "" },
+    TABLE_WIDGET_FILTER_OPERATORS.BOOLEAN.IS_CHECKED,
+    TABLE_WIDGET_FILTER_OPERATORS.BOOLEAN.IS_UNCHECKED,
   ],
   [ColumnTypes.SELECT]: [
-    { label: "contains", value: "contains", type: "input" },
-    { label: "does not contain", value: "doesNotContain", type: "input" },
-    { label: "starts with", value: "startsWith", type: "input" },
-    { label: "ends with", value: "endsWith", type: "input" },
-    { label: "is exactly", value: "isExactly", type: "input" },
-    { label: "empty", value: "empty", type: "" },
-    { label: "not empty", value: "notEmpty", type: "" },
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.CONTAINS,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.DOES_NOT_CONTAIN,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.STARTS_WITH,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.ENDS_WITH,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.IS_EXACTLY,
+    TABLE_WIDGET_FILTER_OPERATORS.EMPTY,
+    TABLE_WIDGET_FILTER_OPERATORS.NOT_EMPTY,
+  ],
+  [ColumnTypes.HTML]: [
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.CONTAINS,
+    TABLE_WIDGET_FILTER_OPERATORS.PRIMITIVE.DOES_NOT_CONTAIN,
+    TABLE_WIDGET_FILTER_OPERATORS.EMPTY,
+    TABLE_WIDGET_FILTER_OPERATORS.NOT_EMPTY,
   ],
 };
 
@@ -197,6 +196,7 @@ const columnTypeNameMap: Record<ReadOnlyColumnTypes, string> = {
   [ReadOnlyColumnTypes.CHECKBOX]: "Check",
   [ReadOnlyColumnTypes.SWITCH]: "Check",
   [ReadOnlyColumnTypes.SELECT]: "Text",
+  [ReadOnlyColumnTypes.HTML]: "HTML",
 };
 
 function RenderOption(props: { type: string; title: string; active: boolean }) {
