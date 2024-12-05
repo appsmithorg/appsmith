@@ -159,6 +159,7 @@ export enum ReadOnlyColumnTypes {
   CHECKBOX = "checkbox",
   SWITCH = "switch",
   SELECT = "select",
+  HTML = "html",
 }
 
 export const ActionColumnTypes = [
@@ -177,6 +178,7 @@ export const FilterableColumnTypes = [
   ColumnTypes.SELECT,
   ColumnTypes.CHECKBOX,
   ColumnTypes.SWITCH,
+  ColumnTypes.HTML,
 ];
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";

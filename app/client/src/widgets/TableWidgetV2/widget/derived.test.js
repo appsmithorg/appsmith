@@ -1646,6 +1646,259 @@ describe("Validates getFilteredTableData Properties", () => {
 
     expect(result).toStrictEqual(expected);
   });
+
+  describe("HTML columns", () => {
+    const input = {
+      tableData: [
+        { id: 1, name: "Jim Doe", status: "<span>Active</span>" },
+        { id: 2, name: "Usain Bolt", status: "<span>Pending</span>" },
+        { id: 3, name: "Elon Musk", status: "<span>Active</span>" },
+      ],
+      processedTableData: [
+        {
+          id: 1,
+          name: "Jim Doe",
+          status: "<span>Active</span>",
+          __originalIndex__: 0,
+        },
+        {
+          id: 2,
+          name: "Usain Bolt",
+          status: "<span>Pending</span>",
+          __originalIndex__: 1,
+        },
+        {
+          id: 3,
+          name: "Elon Musk",
+          status: "<span>Active</span>",
+          __originalIndex__: 2,
+        },
+      ],
+      sortOrder: { column: "id", order: "asc" },
+      columnOrder: ["id", "name", "status"],
+      primaryColumns: {
+        id: {
+          index: 1,
+          width: 150,
+          id: "id",
+          alias: "id",
+          originalId: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+        },
+        name: {
+          index: 0,
+          width: 150,
+          id: "name",
+          alias: "name",
+          originalId: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+        },
+        status: {
+          index: 0,
+          width: 150,
+          id: "status",
+          alias: "status",
+          originalId: "status",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "Status",
+          isAscOrder: undefined,
+        },
+      },
+      tableColumns: [
+        {
+          index: 0,
+          width: 150,
+          id: "name",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "awesome",
+          isAscOrder: undefined,
+        },
+        {
+          index: 1,
+          width: 150,
+          id: "id",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "number",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "id",
+          isAscOrder: false,
+        },
+        {
+          index: 0,
+          width: 150,
+          id: "status",
+          alias: "status",
+          originalId: "status",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textColor: "#231F20",
+          textSize: "PARAGRAPH",
+          fontStyle: "REGULAR",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDerived: false,
+          label: "Status",
+          isAscOrder: undefined,
+        },
+      ],
+    };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
+    const { getFilteredTableData } = derivedProperty;
+
+    it("validate search on table for HTML columns", () => {
+      input.searchText = "Pending";
+      const expected = [
+        {
+          id: 2,
+          name: "Usain Bolt",
+          status: "<span>Pending</span>",
+          __originalIndex__: 1,
+        },
+      ];
+
+      let result = getFilteredTableData(input, moment, _);
+
+      expect(result).toStrictEqual(expected);
+      delete input.searchText;
+    });
+
+    it("validates filters on table for HTML columns", () => {
+      input.filters = [
+        {
+          condition: "contains",
+          column: "status",
+          value: "Active",
+        },
+      ];
+      const expected = [
+        {
+          id: 1,
+          name: "Jim Doe",
+          status: "<span>Active</span>",
+          __originalIndex__: 0,
+        },
+        {
+          id: 3,
+          name: "Elon Musk",
+          status: "<span>Active</span>",
+          __originalIndex__: 2,
+        },
+      ];
+
+      let result = getFilteredTableData(input, moment, _);
+
+      expect(result).toStrictEqual(expected);
+      delete input.filters;
+    });
+
+    it("validates sort on table for HTML columns", () => {
+      input.sortOrder = { column: "status", order: "desc" };
+      let expected = [
+        {
+          id: 2,
+          name: "Usain Bolt",
+          status: "<span>Pending</span>",
+          __originalIndex__: 1,
+        },
+        {
+          id: 1,
+          name: "Jim Doe",
+          status: "<span>Active</span>",
+          __originalIndex__: 0,
+        },
+        {
+          id: 3,
+          name: "Elon Musk",
+          status: "<span>Active</span>",
+          __originalIndex__: 2,
+        },
+      ];
+
+      let result = getFilteredTableData(input, moment, _);
+
+      expect(result).toStrictEqual(expected);
+
+      input.sortOrder = { column: "status", order: "asc" };
+      expected = [
+        {
+          id: 3,
+          name: "Elon Musk",
+          status: "<span>Active</span>",
+          __originalIndex__: 2,
+        },
+        {
+          id: 1,
+          name: "Jim Doe",
+          status: "<span>Active</span>",
+          __originalIndex__: 0,
+        },
+
+        {
+          id: 2,
+          name: "Usain Bolt",
+          status: "<span>Pending</span>",
+          __originalIndex__: 1,
+        },
+      ];
+
+      result = getFilteredTableData(input, moment, _);
+      expect(result).toStrictEqual(expected);
+    });
+  });
 });
 
 describe("Validate getSelectedRow function", () => {
