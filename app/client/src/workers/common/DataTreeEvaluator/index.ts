@@ -1059,7 +1059,9 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
     contextTree: DataTree;
   } {
-    const safeTree = klona(unEvalTree);
+    const { isFirstTree, metaWidgets, unevalUpdates } = options;
+
+    const safeTree = isFirstTree ? unEvalTree : klona(unEvalTree);
     const dataStore = DataStore.getDataStore();
     const dataStoreClone = klonaJSON(dataStore);
 
@@ -1081,7 +1083,6 @@ export default class DataTreeEvaluator {
     );
 
     const evalMetaUpdates: EvalMetaUpdates = [];
-    const { isFirstTree, metaWidgets, unevalUpdates } = options;
     let staleMetaIds: string[] = [];
 
     try {
