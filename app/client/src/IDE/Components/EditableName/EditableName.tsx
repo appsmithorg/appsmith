@@ -72,10 +72,17 @@ export const EditableName = ({
     const nameError = validate(editableName);
 
     if (editableName === name) {
+      // No change detected
       exitWithoutSaving();
     } else if (nameError === null) {
+      // Save the new name
       exitEditing();
       onNameSave(editableName);
+    } else {
+      // Exit edit mode and revert name
+      setEditableName(name);
+      setValidationError(null);
+      exitEditing();
     }
   }, [
     editableName,
