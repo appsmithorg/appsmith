@@ -12,7 +12,7 @@ describe(
       cy.get("@guid").then((uid) => {
         dsName = "AuthAPI " + uid;
         _.dataSources.CreatePlugIn("Authenticated API");
-        _.agHelper.RenameWithInPane(dsName, false);
+        _.agHelper.RenameDatasource(dsName);
         _.dataSources.FillAuthAPIUrl();
         _.dataSources.AssertCursorPositionForTextInput(
           _.dataSources._urlInputControl,

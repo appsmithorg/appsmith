@@ -164,6 +164,7 @@ public class AutoCommitEventHandlerImplTest {
         pageDTO.setName("Page 1");
         pageDTO.setLayouts(List.of(layout));
         NewPage newPage = new NewPage();
+        newPage.setGitSyncId("p1");
         newPage.setUnpublishedPage(pageDTO);
         ApplicationJson applicationJson = new ApplicationJson();
         applicationJson.setPageList(List.of(newPage));

@@ -79,7 +79,10 @@ const PluginActionNameEditor = ({
   );
 
   return (
-    <NameWrapper onDoubleClick={handleDoubleClick}>
+    <NameWrapper
+      data-testid="t--plugin-action-name-editor"
+      onDoubleClick={handleDoubleClick}
+    >
       <EditableName
         exitEditing={exitEditMode}
         icon={<IconContainer>{icon}</IconContainer>}

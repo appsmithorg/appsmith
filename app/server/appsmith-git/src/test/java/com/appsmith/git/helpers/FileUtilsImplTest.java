@@ -7,6 +7,7 @@ import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.git.files.operations.FileOperationsImpl;
 import com.appsmith.git.service.GitExecutorImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterEach;
@@ -42,7 +43,8 @@ public class FileUtilsImplTest {
         GitServiceConfig gitServiceConfig = new GitServiceConfig();
         gitServiceConfig.setGitRootPath(localTestDirectoryPath.toString());
         FileOperations fileOperations = new FileOperationsImpl(null, ObservationHelper.NOOP);
-        fileUtils = new FileUtilsImpl(gitServiceConfig, gitExecutor, fileOperations, ObservationHelper.NOOP);
+        fileUtils = new FileUtilsImpl(
+                gitServiceConfig, gitExecutor, fileOperations, ObservationHelper.NOOP, new ObjectMapper());
     }
 
     @AfterEach

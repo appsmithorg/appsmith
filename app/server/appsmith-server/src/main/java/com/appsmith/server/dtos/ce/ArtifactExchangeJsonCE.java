@@ -30,6 +30,8 @@ public interface ArtifactExchangeJsonCE {
 
     Artifact getArtifact();
 
+    <T extends Artifact> void setArtifact(T artifact);
+
     default void setThemes(Theme unpublishedTheme, Theme publishedTheme) {}
 
     default List<CustomJSLib> getCustomJSLibList() {
@@ -68,4 +70,6 @@ public interface ArtifactExchangeJsonCE {
 
     @JsonView(Views.Internal.class)
     List<? extends Context> getContextList();
+
+    <T extends Context> void setContextList(List<T> contextList);
 }
