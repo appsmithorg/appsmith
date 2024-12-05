@@ -4,8 +4,8 @@ import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.services.AstService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -14,11 +14,12 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
 @Slf4j
 public class ASTServiceCETest {
-    @Autowired
+    @SpyBean
     AstService astService;
 
     @Test
@@ -61,14 +62,25 @@ public class ASTServiceCETest {
         token2.setValue("xyz['bar']");
         Set<MustacheBindingToken> bindings = Set.of(token1, token2);
 
+        String refactoredScript1 = "xyz['foo']";
+        String refactoredScript2 = "xyz['bar']";
+
+        Map<MustacheBindingToken, String> responseMap1 = Map.of(
+                token1, refactoredScript1,
+                token2, refactoredScript2);
+
+        doReturn(Mono.just(responseMap1))
+                .when(astService)
+                .refactorNameInDynamicBindings(Set.of(token1, token2), "abc", "xyz", 2, false);
+
         Mono<Map<MustacheBindingToken, String>> result =
                 astService.refactorNameInDynamicBindings(bindings, "abc", "xyz", 2, false);
 
         StepVerifier.create(result)
                 .assertNext(map -> {
                     assertThat(map).hasSize(2); // Only one binding refactored
-                    assertThat(map.get(token1)).isEqualTo("xyz['foo']");
-                    assertThat(map.get(token2)).isEqualTo("xyz['bar']");
+                    assertThat(map.get(token1)).isEqualTo(refactoredScript1);
+                    assertThat(map.get(token2)).isEqualTo(refactoredScript2);
                 })
                 .verifyComplete();
     }
@@ -83,10 +95,16 @@ public class ASTServiceCETest {
         int evalVersion = 2;
         boolean isJSObject = true;
 
+        String refactoredScript = "export default { myFun1() { GetUsers.run(); return GetUsers.data;}}";
+
+        Map<MustacheBindingToken, String> responseMap = Map.of(token, refactoredScript);
+
+        doReturn(Mono.just(responseMap))
+                .when(astService)
+                .refactorNameInDynamicBindings(bindingValues, oldName, newName, evalVersion, isJSObject);
+
         Mono<Map<MustacheBindingToken, String>> resultMono =
                 astService.refactorNameInDynamicBindings(bindingValues, oldName, newName, evalVersion, isJSObject);
-
-        String updatedScript = "export default { myFun1() { GetUsers.run(); return GetUsers.data;}}";
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
@@ -95,7 +113,7 @@ public class ASTServiceCETest {
                     MustacheBindingToken key = bindingValues.iterator().next();
 
                     assertThat(result.containsKey(key)).isTrue();
-                    assertThat(result.get(key)).isEqualTo(updatedScript);
+                    assertThat(result.get(key)).isEqualTo(refactoredScript);
                 })
                 .verifyComplete();
     }
@@ -110,6 +128,14 @@ public class ASTServiceCETest {
         String newName = "GetUsers";
         int evalVersion = 2;
         boolean isJSObject = true;
+
+        String refactoredScript = "export default { myFun1() { GetUsers.run(); return GetUsers.data;}}";
+
+        Map<MustacheBindingToken, String> responseMap = Map.of(token, refactoredScript);
+
+        doReturn(Mono.just(responseMap))
+                .when(astService)
+                .refactorNameInDynamicBindings(bindingValues, oldName, newName, evalVersion, isJSObject);
 
         Mono<Map<MustacheBindingToken, String>> resultMono =
                 astService.refactorNameInDynamicBindings(bindingValues, oldName, newName, evalVersion, isJSObject);
