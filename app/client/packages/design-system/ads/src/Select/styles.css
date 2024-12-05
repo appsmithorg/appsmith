@@ -50,8 +50,7 @@
 /* Focused */
 .ads-v2-select.rc-select-focused {
   outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
-  outline-offset: var(--ads-v2-offset-outline);
-  --select-color-border: var(--ads-v2-colors-control-field-active-border);
+  outline-offset: -2px;
 }
 
 /* Error */
@@ -111,6 +110,10 @@
   border-radius: var(--ads-v2-border-radius);
   box-sizing: border-box;
   overflow: hidden;
+}
+
+.ads-v2-select.rc-select-focused > .rc-select-selector {
+  border-color: transparent;
 }
 
 /* Placeholder */
