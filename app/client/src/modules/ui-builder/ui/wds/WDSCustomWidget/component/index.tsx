@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
+import kebabCase from "lodash/kebabCase";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
@@ -19,7 +20,7 @@ import { getAppsmithConfigs } from "ee/configs";
 import styles from "./styles.module.css";
 import { cssRule, ThemeContext } from "@appsmith/wds-theming";
 import { useCustomWidgetHeight } from "./useCustomWidgetHeight";
-import { COMPONENT_SIZE } from "../constants";
+import type { COMPONENT_SIZE } from "../constants";
 
 const Container = styled.div`
   height: 100%;
@@ -102,16 +103,9 @@ function CustomComponent(props: CustomComponentProps) {
           case EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT:
             const height = message.data.height;
 
-            if (
-              props.renderMode !== "BUILDER" &&
-              height &&
-              size === COMPONENT_SIZE.AUTO
-            ) {
+            if (props.renderMode !== "BUILDER" && height) {
               iframe.current?.style.setProperty("height", `${height}px`);
               setHeight(height);
-            } else {
-              iframe.current?.style.setProperty("height", "auto");
-              setHeight(0);
             }
 
             break;
@@ -150,7 +144,7 @@ function CustomComponent(props: CustomComponentProps) {
         "*",
       );
     }
-  }, [theme, isIframeReady, cssTokens]);
+  }, [theme, isIframeReady]);
 
   const srcDoc = `
     <html>
@@ -188,6 +182,7 @@ function CustomComponent(props: CustomComponentProps) {
     >
       <iframe
         className={styles.iframe}
+        data-size={kebabCase(size)}
         loading="lazy"
         onLoad={() => {
           setLoading(false);

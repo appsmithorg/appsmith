@@ -15,7 +15,7 @@ export const useCustomWidgetHeight = (
     if (canvasElem) {
       switch (size) {
         case COMPONENT_SIZE.AUTO:
-          return setComponentHeight("auto");
+          return setComponentHeight("100%");
         case COMPONENT_SIZE.FIT_PAGE:
           return setComponentHeight(
             getFitPageChatHeight(canvasElem.clientHeight, isEmbed),
