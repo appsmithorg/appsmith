@@ -166,39 +166,56 @@ public class AppsmithAiPlugin extends BasePlugin {
                 ExecuteActionDTO executeActionDTO) {
 
             log.debug(Thread.currentThread().getName() + ": executeCommon() called for AppsmithAI plugin.");
-            // Initializing object for error condition
-            ActionExecutionResult errorResult = new ActionExecutionResult();
-            initUtils.initializeResponseWithError(errorResult);
             Feature feature =
                     Feature.valueOf(RequestUtils.extractDataFromFormData(actionConfiguration.getFormData(), USECASE));
             AiFeatureService aiFeatureService = AiFeatureServiceFactory.getAiFeatureService(feature);
             Query query = aiFeatureService.createQuery(actionConfiguration, datasourceConfiguration, executeActionDTO);
             AiServerRequestDTO aiServerRequestDTO = new AiServerRequestDTO(feature, query);
 
-            ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
             ActionExecutionRequest actionExecutionRequest = RequestCaptureFilter.populateRequestFields(
                     actionConfiguration, RequestUtils.getQueryUri(), insertedParams, objectMapper);
 
+            SourceDetails sourceDetails = SourceDetails.createSourceDetails(executeActionDTO);
+
+            return handleExecution(aiFeatureService, aiServerRequestDTO, sourceDetails, actionExecutionRequest);
+        }
+
+        private Mono<ActionExecutionResult> handleExecution(
+            AiFeatureService aiFeatureService,
+            AiServerRequestDTO aiServerRequestDTO,
+            SourceDetails sourceDetails,
+            ActionExecutionRequest actionExecutionRequest) {
+            Mono<ActionExecutionResult> actionExecutionResultMono;
+            actionExecutionResultMono =
+                    handleExecuteForAiServerService(aiServerRequestDTO, sourceDetails, actionExecutionRequest);
+            return actionExecutionResultMono.onErrorResume(this::handleError);
+        }
+
+        private Mono<ActionExecutionResult> handleExecuteForAiServerService(
+            AiServerRequestDTO aiServerRequestDTO,
+            SourceDetails sourceDetails,
+            ActionExecutionRequest actionExecutionRequest) {
             return aiServerService
-                    .executeQuery(aiServerRequestDTO, SourceDetails.createSourceDetails(executeActionDTO))
-                    .map(response -> {
-                        actionExecutionResult.setIsExecutionSuccess(true);
-                        actionExecutionResult.setBody(response);
-                        actionExecutionResult.setRequest(actionExecutionRequest);
-                        return actionExecutionResult;
-                    })
-                    .onErrorResume(error -> {
-                        errorResult.setIsExecutionSuccess(false);
-                        log.error(
-                                "An error has occurred while trying to run the AI server API query. Error: {}",
-                                error.getMessage());
-                        if (!(error instanceof AppsmithPluginException)) {
-                            error = new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_ERROR, error.getMessage(), error);
-                        }
-                        errorResult.setErrorInfo(error);
-                        return Mono.just(errorResult);
-                    });
+                .executeQuery(aiServerRequestDTO, sourceDetails)
+                .map(response -> {
+                    ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
+                    actionExecutionResult.setIsExecutionSuccess(true);
+                    actionExecutionResult.setBody(response);
+                    actionExecutionResult.setRequest(actionExecutionRequest);
+                    return actionExecutionResult;
+                });
+        }
+
+        private Mono<ActionExecutionResult> handleError(Throwable error) {
+            ActionExecutionResult errorResult = new ActionExecutionResult();
+            initUtils.initializeResponseWithError(errorResult);
+            log.error(
+                "An error has occurred while trying to run the AI server API query. Error: {}", error.getMessage());
+            if (!(error instanceof AppsmithPluginException)) {
+                error = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, error.getMessage(), error);
+            }
+            errorResult.setErrorInfo(error);
+            return Mono.just(errorResult);
         }
 
         @Override
