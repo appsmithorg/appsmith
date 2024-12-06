@@ -1,4 +1,4 @@
-import { Flex } from "@appsmith/ads";
+import { Button, Flex, Tooltip } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
 import { DatasourceStructureContext } from "entities/Datasource";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,9 +21,11 @@ import { DatasourceEditEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { isEmpty, omit } from "lodash";
 import { getQueryParams } from "utils/URLUtils";
-import { getCurrentPageId } from "selectors/editorSelectors";
 import { TableColumns } from "./TableColumns";
 import { BOTTOMBAR_HEIGHT } from "./constants";
+import { createMessage, EDIT_DS_CONFIG } from "ee/constants/messages";
+import { useEditorType } from "ee/hooks";
+import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 
 interface Props {
   datasourceId: string;
@@ -44,7 +46,8 @@ const Schema = (props: Props) => {
     getPluginIdFromDatasourceId(state, props.datasourceId),
   );
 
-  const currentPageId = useSelector(getCurrentPageId);
+  const editorType = useEditorType(location.pathname);
+  const { parentEntityId } = useParentEntityInfo(editorType);
 
   const [selectedTable, setSelectedTable] = useState<string>();
 
@@ -107,7 +110,7 @@ const Schema = (props: Props) => {
     });
 
     const url = datasourcesEditorIdURL({
-      basePageId: currentPageId,
+      baseParentEntityId: parentEntityId,
       datasourceId: props.datasourceId,
       params: { ...omit(getQueryParams(), "viewMode"), viewMode: false },
       generateEditorPath: true,
@@ -143,6 +146,15 @@ const Schema = (props: Props) => {
             datasourceId={props.datasourceId}
             datasourceName={props.datasourceName}
           />
+          <Tooltip content={createMessage(EDIT_DS_CONFIG)} placement="top">
+            <Button
+              isIconButton
+              kind="tertiary"
+              onClick={editDatasource}
+              size="sm"
+              startIcon="datasource-config"
+            />
+          </Tooltip>
         </Flex>
         <StatusDisplay
           editDatasource={editDatasource}

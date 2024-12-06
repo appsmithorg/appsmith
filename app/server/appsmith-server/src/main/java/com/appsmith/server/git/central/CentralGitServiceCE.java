@@ -21,4 +21,6 @@ public interface CentralGitServiceCE {
 
     Mono<String> commitArtifact(
             CommitDTO commitDTO, String branchedArtifactId, ArtifactType artifactType, GitType gitType);
+
+    Mono<? extends Artifact> detachRemote(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
 }

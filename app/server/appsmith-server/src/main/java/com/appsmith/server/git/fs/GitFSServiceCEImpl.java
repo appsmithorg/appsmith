@@ -1,6 +1,7 @@
 package com.appsmith.server.git.fs;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.git.handler.FSGitHandler;
@@ -49,12 +50,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -246,6 +249,32 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
                 artifactJsonTransformationDTO.getBaseArtifactId(),
                 artifactJsonTransformationDTO.getRepoName());
         return commonGitFileUtils.deleteLocalRepo(repoSuffix);
+    }
+
+    /**
+     * List all the local branches present in the file system
+     * @param artifactJsonTransformationDTO
+     * @return
+     */
+    @Override
+    public Mono<List<String>> listBranches(ArtifactJsonTransformationDTO artifactJsonTransformationDTO) {
+        GitArtifactHelper<?> gitArtifactHelper =
+                gitArtifactHelperResolver.getArtifactHelper(artifactJsonTransformationDTO.getArtifactType());
+
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(
+                artifactJsonTransformationDTO.getWorkspaceId(),
+                artifactJsonTransformationDTO.getBaseArtifactId(),
+                artifactJsonTransformationDTO.getRepoName());
+
+        return fsGitHandler
+                .listBranches(repoSuffix)
+                .flatMapMany(Flux::fromIterable)
+                .filter(gitBranchDTO -> {
+                    return StringUtils.hasText(gitBranchDTO.getBranchName())
+                            && !gitBranchDTO.getBranchName().startsWith("origin");
+                })
+                .map(GitBranchDTO::getBranchName)
+                .collectList();
     }
 
     @Override
