@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 
 import { useDispatch } from "react-redux";
 import { useBoolean, useEventCallback } from "usehooks-ts";
+import pluralize from "pluralize";
 
 import { Callout, Tooltip, type CalloutLinkProps } from "@appsmith/ads";
 
@@ -97,6 +98,10 @@ export function Response(props: ResponseProps) {
 
     return { currentContentType, contentTypeOptions };
   }, [responseDisplayFormat, responseDataTypes]);
+
+  const showRecordCount =
+    action.pluginType === PluginType.DB ||
+    actionResponse?.dataTypes?.some(({ dataType }) => dataType === "TABLE");
 
   const tooltipContent = useMemo(() => {
     if (actionResponse) {
@@ -260,14 +265,14 @@ export function Response(props: ResponseProps) {
                   $isBold
                   kind="code"
                 >
-                  {`${action.name}.run()${action.pluginType === PluginType.DB ? ":" : ""}`}
+                  {`${action.name}.run()${showRecordCount ? ":" : ""}`}
                 </Styled.StatusBarText>
-                {action.pluginType === PluginType.DB && (
+                {showRecordCount && (
                   <Styled.StatusBarText
                     $hasTooltip={!!tooltipContent}
                     data-testid="t--response-record-count"
                     kind="code"
-                  >{`${recordCount} record${recordCount > 1 ? "s" : ""}`}</Styled.StatusBarText>
+                  >{`${recordCount} ${pluralize("record", recordCount)}`}</Styled.StatusBarText>
                 )}
               </Styled.StatusBarInfo>
             </Tooltip>
