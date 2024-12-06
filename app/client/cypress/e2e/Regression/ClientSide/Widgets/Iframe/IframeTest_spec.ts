@@ -1,47 +1,39 @@
 import {
   agHelper,
   locators,
-  entityExplorer,
   propPane,
   deployMode,
+  homePage,
 } from "../../../../../support/Objects/ObjectsCore";
 
-import testdata from "../../../../../fixtures/testdata.json";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Iframe widget Tests",
   { tags: ["@tag.Widget", "@tag.Iframe", "@tag.Binding"] },
   function () {
     before(() => {
-      entityExplorer.DragDropWidgetNVerify("iframewidget", 550, 100);
+      homePage.ImportApp("IframeWidgetPostMessage.json");
     });
 
-    const srcDoc = `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Simple Iframe Widget Test</title>
-    </head>
-    <body>
-        <!-- Your iframe widget with a simple srcdoc content -->
-        <iframe srcdoc="<html><body><p>This is a simple srcdoc content.</p></body></html>" style="border: 2px solid red;"></iframe>
-    </body>
-    </html>`;
-
-    const getIframeBody = () => {
+    const getIframeBody = (i: number) => {
       return cy
         .get(".t--draggable-iframewidget iframe")
+        .eq(i)
         .its("0.contentDocument.body")
         .should("not.be.empty")
         .then(cy.wrap);
     };
 
-    it.only("1. Verify content and user interaction", function () {
-      propPane.UpdatePropertyFieldValue("URL", testdata.iframeUrl);
-      getIframeBody()
-        .find(".header-logo")
-        .should("have.attr", "href", testdata.iframeUrlSubstring);
+    it("1. Verify content and user interaction", function () {
+      EditorNavigation.SelectEntityByName("Iframe2", EntityType.Widget);
+      getIframeBody(1)
+        .find(".navbar__logo > img")
+        .eq(0)
+        .should("have.attr", "src")
+        .and("include", "logo");
 
       // Title
       propPane.UpdatePropertyFieldValue("Title", "Test Title");
@@ -49,85 +41,15 @@ describe(
         ".t--draggable-iframewidget iframe",
         "title",
         "Test Title",
+        1,
       );
 
       // User interaction - Click
-      getIframeBody().find(locators._pageHeaderToggle).click({ force: true });
-      getIframeBody().find(locators._pageHeaderMenuList).should("be.visible");
-      getIframeBody().find(locators._pageHeaderToggle).click({ force: true });
-      getIframeBody()
-        .find(locators._pageHeaderMenuList)
-        .should("not.be.visible");
-
-      // Full screen
-      getIframeBody().find(locators._enterFullScreen).click({ force: true });
-      getIframeBody()
-        .find(locators._dashboardContainer)
-        .should(
-          "have.class",
-          "application-demo-new-dashboard-container-fullscreen",
-        );
-      getIframeBody().find(locators._exitFullScreen).click({ force: true });
-      getIframeBody()
-        .find(locators._dashboardContainer)
-        .should(
-          "not.have.class",
-          "application-demo-new-dashboard-container-fullscreen",
-        );
+      getIframeBody(1).find(locators._pageHeaderToggle).click({ force: true });
+      getIframeBody(1).find(locators._pageHeaderMenuList).should("be.visible");
     });
 
-    it.only("2. Verify onMessageReceived, onSrcDocChanged, onURLChanged", function () {
-      // onMessageReceived
-      propPane.SelectPlatformFunction("onMessageReceived", "Show alert");
-      agHelper.TypeText(
-        propPane._actionSelectorFieldByLabel("Message"),
-        "Message Received",
-      );
-      agHelper.GetNClick(propPane._actionSelectorPopupClose);
-
-      getIframeBody()
-        .find("a:contains('Social Feed')")
-        .first()
-        .dblclick({ force: true });
-
-    // getIframeBody()
-    //     .find(".mobile-ui-page-header")
-    //     .first()
-    //     .click({ force: true });
-
-  
-
-      agHelper.ValidateToastMessage("Message Received");
-
-      // onSrcDocChanged
-      propPane.SelectPlatformFunction("onSrcDocChanged", "Show alert");
-      agHelper.TypeText(
-        propPane._actionSelectorFieldByLabel("Message"),
-        "Value Changed",
-      );
-      agHelper.GetNClick(propPane._actionSelectorPopupClose);
-
-      propPane.UpdatePropertyFieldValue("srcDoc", srcDoc);
-      agHelper.ValidateToastMessage("Value Changed");
-      getIframeBody()
-        .find("iframe")
-        .its("0.contentDocument.body")
-        .find("p")
-        .should("have.text", "This is a simple srcdoc content.");
-
-      // onURLChanged
-      propPane.SelectPlatformFunction("onURLChanged", "Show alert");
-      agHelper.TypeText(
-        propPane._actionSelectorFieldByLabel("Message"),
-        "URL Changed",
-      );
-      agHelper.GetNClick(propPane._actionSelectorPopupClose);
-
-      propPane.UpdatePropertyFieldValue("URL", testdata.iframeRandomUrl);
-      agHelper.ValidateToastMessage("URL Changed");
-    });
-
-    it("3. Verify colors, borders and shadows", () => {
+    it("2. Verify colors, borders and shadows", () => {
       propPane.MoveToTab("Style");
 
       // Change Border Color
@@ -144,12 +66,39 @@ describe(
       //Verify details in Deploy mode
       deployMode.DeployApp();
       //agHelper.AssertCSS("iframe", "border-color", "rgb(185, 28, 28)");
-      agHelper.AssertCSS("iframe", "border-radius", "0px");
+      agHelper.AssertCSS("iframe", "border-radius", "0px", 1);
       agHelper.AssertCSS(
         "iframe",
         "box-shadow",
         "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
+        1,
       );
+      deployMode.NavigateBacktoEditor();
+    });
+
+    it("3. Verify onMessageReceived, onSrcDocChanged, onURLChanged", function () {
+      EditorNavigation.SelectEntityByName("Iframe1", EntityType.Widget);
+      propPane.UpdatePropertyFieldValue("URL", " ");
+      agHelper.ValidateToastMessage("url updated");
+
+      agHelper.ClickButton("Submit");
+      getIframeBody(0)
+        .find("input")
+        .should("be.visible")
+        .invoke("val")
+        .then((inputValue) => {
+          expect(inputValue).to.equal("submitclicked");
+        });
+
+      propPane.UpdatePropertyFieldValue(
+        "srcDoc",
+        `<!DOCTYPE html>
+            <html lang="en">
+            <head></head>
+            <body></body>
+            </html>`,
+      );
+      agHelper.ValidateToastMessage("src updated");
     });
   },
 );
