@@ -14,6 +14,7 @@ interface Props {
   isChangePermitted: boolean;
   bodyUIComponent: React.ReactNode;
   paginationUiComponent: React.ReactNode;
+  dataTestId?: string;
 }
 
 const CommonEditorForm = (props: Props) => {
@@ -30,6 +31,7 @@ const CommonEditorForm = (props: Props) => {
 
   return (
     <Flex
+      data-testid={props.dataTestId}
       flex="1"
       flexDirection="column"
       gap="spaces-3"

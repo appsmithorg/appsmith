@@ -800,8 +800,7 @@ describe(
       dataSources.CreateQueryForDS(dsName);
 
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)", "Raw");
-      agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
-      agHelper.GetNClick(dataSources._templateMenu);
+      agHelper.RenameQuery("DropAuthorNAwards");
       dataSources.EnterQuery(dropCollection);
       agHelper.FocusElement(locators._codeMirrorTextArea);
       //agHelper.VerifyEvaluatedValue(tableCreateQuery);
@@ -819,8 +818,7 @@ describe(
       const dropCollection = `{ "drop": "AuthorNAwards" }`;
       dataSources.CreateQueryForDS(dsName);
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)", "Raw");
-      agHelper.GetNClick(dataSources._templateMenu);
-      agHelper.RenameWithInPane("DropAuthorNAwards");
+      agHelper.RenameQuery("DropAuthorNAwards");
       dataSources.EnterQuery(dropCollection);
       agHelper.FocusElement(locators._codeMirrorTextArea);
       //agHelper.VerifyEvaluatedValue(tableCreateQuery);
@@ -886,7 +884,7 @@ describe(
         "Insert document(s)",
       );
 
-      agHelper.RenameWithInPane("InsertBirthNDeath");
+      agHelper.RenameQuery("InsertBirthNDeath");
       dataSources.EnterJSContext({
         fieldLabel: "Collection",
         fieldValue: "BirthNDeath",
@@ -936,7 +934,7 @@ describe(
       dataSources.CreateQueryForDS(dsName);
       dataSources.ValidateNSelectDropdown("Command", "Find document(s)", "Raw");
       agHelper.GetNClick(dataSources._templateMenu);
-      agHelper.RenameWithInPane("DropBirthNDeath");
+      agHelper.RenameQuery("DropBirthNDeath");
       dataSources.EnterQuery(dropCollection);
       agHelper.FocusElement(locators._codeMirrorTextArea);
       dataSources.RunQuery();

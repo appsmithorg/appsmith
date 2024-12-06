@@ -4,7 +4,6 @@
   "searchApi": ".t--sidebar input[type=text]",
   "createapi": ".t--createBlankApiCard",
   "createAuthApiDatasource": ".t--createAuthApiDatasource",
-  "apiTxt": ".t--action-name-edit-field input",
   "popover": "//button[contains(@class, 'entity-context-menu')]",
   "moveTo": ".single-select >div:contains('Move to')",
   "copyTo": ".single-select >div:contains('Copy to page')",
@@ -12,7 +11,6 @@
   "delete": ".t--entity-context-menu > div.ads-v2-menu__menu-item.error-menuitem",
   "deleteConfirm": ".single-select >div:contains('Are you sure?')",
   "path": ".t--path >div textarea",
-  "editResourceUrl": ".t--dataSourceField",
   "autoSuggest": "//div[contains(@id,'react-select')]",
   "headerKey": ".t--actionConfiguration\\.headers\\[0\\]\\.key\\.0",
   "headerValue": ".t--actionConfiguration\\.headers\\[0\\]\\.value\\.0",
@@ -38,7 +36,6 @@
   "TestNextUrl": ".t--apiFormPaginationNextTest",
   "TestPreUrl": ".t--apiFormPaginationPrevTest",
   "EditApiName": "img[alt='Edit pen']",
-  "ApiName": ".t--action-name-edit-field span",
   "Request": "//li//span[text()='Request']",
   "RequestURL": "(//span[@class='bp3-tree-node-label']/span)[1]",
   "RequestMethod": "(//span[@class='bp3-tree-node-label']/span)[2]",
@@ -60,5 +57,5 @@
   "paramValue": ".t--actionConfiguration\\.queryParameters\\[0\\]\\.value\\.0",
   "multipartTypeDropdown": "button:contains('Type')",
   "confirmBeforeExecute": "[name=confirmBeforeExecute]",
-  "runQueryButton": ".t--apiFormRunBtn"
+  "runQueryButton": "[data-testid=\"t--run-action\"]"
 }

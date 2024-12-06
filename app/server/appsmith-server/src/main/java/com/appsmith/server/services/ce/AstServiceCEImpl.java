@@ -144,6 +144,15 @@ public class AstServiceCEImpl implements AstServiceCE {
 
         return Flux.fromIterable(bindingValues)
                 .flatMap(bindingValue -> {
+                    if (!bindingValue.getValue().contains(oldName)) {
+                        // This case is not handled in RTS either, so skipping the RTS call here will not affect the
+                        // behavior.
+                        // Example:
+                        // - Old name: foo.bar
+                        // - New name: foo.baz
+                        // - Binding: "foo['bar']"
+                        return Mono.just(Tuples.of(bindingValue, bindingValue.getValue()));
+                    }
                     EntityRefactorRequest entityRefactorRequest = new EntityRefactorRequest(
                             bindingValue.getValue(), oldName, newName, evalVersion, isJSObject);
                     return rtsCaller

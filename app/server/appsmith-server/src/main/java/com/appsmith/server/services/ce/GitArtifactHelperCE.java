@@ -66,4 +66,6 @@ public interface GitArtifactHelperCE<T extends Artifact> {
     Boolean isContextInArtifactEmpty(ArtifactExchangeJson artifactExchangeJson);
 
     T getNewArtifact(String workspaceId, String repoName);
+
+    Mono<T> publishArtifactPostCommit(Artifact committedArtifact);
 }
