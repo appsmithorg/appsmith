@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import FixedLayoutCustomComponent from "widgets/CustomWidget/component";
-import AnvilLayoutCustomComponent from "modules/ui-builder/ui/wds/WDSCustomWidget/component";
+import { CustomComponent as AnvilLayoutCustomComponent } from "modules/ui-builder/ui/wds/WDSCustomWidget/component";
 import { CustomWidgetBuilderContext } from "../index";
 import { toast } from "@appsmith/ads";
 import Debugger from "./Debugger";

@@ -9,7 +9,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import * as config from "../config";
-import CustomComponent from "../component";
+import { CustomComponent } from "../component";
 import type { CustomWidgetProps } from "../types";
 import { Elevations } from "../../constants";
 import { ContainerComponent } from "../../Container";
@@ -54,9 +54,7 @@ export class WDSCustomWidget extends BaseWidget<
     };
   }
 
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getMetaPropertiesMap(): Record<string, any> {
+  static getMetaPropertiesMap() {
     return {
       model: undefined,
     };

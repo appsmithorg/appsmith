@@ -2,16 +2,13 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import kebabCase from "lodash/kebabCase";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+// @ts-expect-error Cannot find module due to raw-loader
 import script from "!!raw-loader!./customWidgetscript.js";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+// @ts-expect-error Cannot find module due to raw-loader
 import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+// @ts-expect-error Cannot find module due to raw-loader
 import css from "!!raw-loader!./reset.css";
 import clsx from "clsx";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
@@ -29,7 +26,7 @@ const Container = styled.div`
 
 const { disableIframeWidgetSandbox } = getAppsmithConfigs();
 
-function CustomComponent(props: CustomComponentProps) {
+export function CustomComponent(props: CustomComponentProps) {
   const { size } = props;
   const iframe = useRef<HTMLIFrameElement>(null);
   const theme = useContext(ThemeContext);
@@ -211,5 +208,3 @@ export interface CustomComponentProps {
   widgetId: string;
   size?: keyof typeof COMPONENT_SIZE;
 }
-
-export default CustomComponent;
