@@ -30,14 +30,16 @@ const renderComponent = (
   ) : (
     <Input
       {...componentProps.input}
-      {...componentProps}
+      {...(componentProps.type === "textarea"
+        ? omit(componentProps, "type")
+        : componentProps)}
       errorMessage={
         !componentProps.hideErrorMessage &&
         showError &&
         componentProps.meta.error
       }
       isDisabled={componentProps.disabled}
-      renderAs={"input"}
+      renderAs={componentProps.type === "textarea" ? "textarea" : "input"}
       size="md"
       value={value}
     />
@@ -48,7 +50,7 @@ export interface FormTextFieldProps {
   name: string;
   placeholder: string;
   description?: string;
-  type?: "text" | "password" | "number" | "email" | "tel";
+  type?: "text" | "password" | "number" | "email" | "tel" | "textarea";
   label?: React.ReactNode;
   intent?: Intent;
   disabled?: boolean;

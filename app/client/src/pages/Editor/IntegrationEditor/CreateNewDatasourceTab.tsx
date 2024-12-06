@@ -40,6 +40,7 @@ import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
 import { isPluginActionCreating } from "PluginActionEditor/store";
+import RequestNewIntegration from "./RequestNewIntegration";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -351,6 +352,7 @@ class CreateNewDatasourceTab extends React.Component<
             </>
           )}
         </NewIntegrationsContainer>
+        <RequestNewIntegration />
         {showDebugger && <Debugger />}
       </>
     );
