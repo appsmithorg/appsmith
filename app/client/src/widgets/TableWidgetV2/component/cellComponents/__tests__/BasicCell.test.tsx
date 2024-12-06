@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { BasicCell, type PropType } from "./BasicCell";
+import { BasicCell, type PropType } from "../BasicCell";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { CompactModeTypes } from "widgets/TableWidget/component/Constants";
 
