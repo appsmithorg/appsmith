@@ -569,6 +569,12 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         return Mono.just(pushResult);
     }
 
+    /**
+     * File system implementation of fetching remote changes. equivalent to git fetch <ref-name>
+     * @param jsonTransformationDTO : DTO to create path and other ref related details
+     * @param gitAuth : authentication holder
+     * @return : returns string for remote fetch
+     */
     @Override
     public Mono<String> fetchRemoteChanges(ArtifactJsonTransformationDTO jsonTransformationDTO, GitAuth gitAuth) {
 
