@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   dataSources,
   deployMode,
@@ -23,14 +24,22 @@ describe(
   function () {
     let pluginName = "Google Sheets";
 
+    before(() => {
+      // intercept features call gsheet all sheets disabled
+      featureFlagIntercept({
+        release_gs_all_sheets_options_enabled: false,
+      });
+    });
+
     it("1. Verify GSheets dropdown options", function () {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Google Sheets");
       VerifyFunctionDropdown([
         "Read / Write / Delete | Selected google sheets",
-        "Read / Write / Delete | All google sheets",
-        "Read / Write | All google sheets",
-        "Read | All google sheets",
+        // Hiding below methods as they are not authorized at this state
+        // "Read / Write / Delete | All google sheets",
+        // "Read / Write | All google sheets",
+        // "Read | All google sheets",
       ]);
       dataSources.SaveDSFromDialog(false);
     });

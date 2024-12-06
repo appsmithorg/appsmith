@@ -1,5 +1,6 @@
 /// <reference types="Cypress" />
 import { GSHEET_DATA } from "../../fixtures/test-data-gsheet";
+import { featureFlagIntercept } from "../../support/Objects/FeatureFlags";
 import {
   homePage,
   gsheetHelper,
@@ -26,6 +27,10 @@ describe(
     let spreadSheetName = "test-sheet";
 
     before("Setup app and spreadsheet", function () {
+      // intercept features call gsheet all sheets enabled
+      featureFlagIntercept({
+        release_gs_all_sheets_options_enabled: true,
+      });
       //Add a new app and an add new spreadsheet query
       //Setting up the spreadsheet name
       const uuid = Cypress._.random(0, 10000);
