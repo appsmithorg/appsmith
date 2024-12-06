@@ -16,12 +16,14 @@ interface DeleteParams {
   entityType?: EntityItemsType;
   toastToValidate?: string;
 }
+
 interface SubActionParams {
   subAction: string;
   index?: number;
   force?: boolean;
   toastToValidate?: string;
 }
+
 interface SelectAndValidateParams {
   clickOptions?: Partial<ClickOptions>;
   widgetName: string;
@@ -33,6 +35,7 @@ interface SelectAndValidateParams {
 }
 
 let LOCAL_STORAGE_MEMORY: any = {};
+
 export interface IEnterValue {
   propFieldName: string;
   directInput: boolean;
@@ -53,12 +56,15 @@ export class AggregateHelper {
   public get isMac() {
     return Cypress.platform === "darwin";
   }
+
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
   }`;
+
   public get removeLine() {
     return "{backspace}";
   }
+
   public _modifierKey = `${this.isMac ? "meta" : "ctrl"}`;
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
   private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
@@ -226,6 +232,7 @@ export class AggregateHelper {
     textInputLocator: string;
     renameVal: string;
     dblClick?: boolean;
+    willFailError?: string;
   }) {
     const { dblClick = false, nameLocator, renameVal, textInputLocator } = args;
 
@@ -240,11 +247,15 @@ export class AggregateHelper {
     cy.get(textInputLocator)
       .clear({ force: true })
       .type(renameVal, { force: true, delay: 0 })
-      .should("have.value", renameVal)
-      .blur();
+      .should("have.value", renameVal);
 
-    this.PressEnter();
-
+    debugger;
+    if (args.willFailError) {
+      this.AssertContains(args.willFailError, "exist", ".ads-v2-tooltip");
+      cy.get(textInputLocator).blur();
+    } else {
+      this.PressEnter();
+    }
     this.Sleep();
   }
 
@@ -257,12 +268,13 @@ export class AggregateHelper {
     this.AssertElementVisibility(this.locator._editIcon);
   }
 
-  public RenameQuery(renameVal: string) {
+  public RenameQuery(renameVal: string, willFailError?: string) {
     this.rename({
       nameLocator: this.locator._queryName,
       textInputLocator: this.locator._queryNameTxt,
       renameVal,
       dblClick: true,
+      willFailError,
     });
   }
 
@@ -937,6 +949,7 @@ export class AggregateHelper {
       this.TypeText(selector, totype, index);
     }
   }
+
   public ClickNClear(selector: string, force = false, index = 0) {
     this.GetNClick(selector, index, force);
     this.ClearTextField(selector, force, index);

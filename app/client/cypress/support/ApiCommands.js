@@ -4,6 +4,7 @@
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import ApiEditor from "../locators/ApiEditor";
+
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 import { ObjectsRegistry } from "./Objects/Registry";
@@ -114,12 +115,10 @@ Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  agHelper.RenameQuery(apiname);
-  cy.get(".ads-v2-tooltip .ads-v2-text").should(($x) => {
-    expect($x).contain(
-      apiname.concat(" is already being used or is a restricted keyword."),
-    );
-  });
+  agHelper.RenameQuery(
+    apiname,
+    apiname.concat(" is already being used or is a restricted keyword."),
+  );
 });
 
 Cypress.Commands.add("RenameEntity", (value, selectFirst) => {
@@ -138,12 +137,7 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
   agHelper.GetNClick(apiwidget.createapi);
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  agHelper.RenameQuery(apiname);
-  cy.get(".ads-v2-tooltip .ads-v2-text").should(($x) => {
-    expect($x).contain(
-      apiname.concat(" is already being used or is a restricted keyword."),
-    );
-  });
+  agHelper.RenameQuery(apiname, apiname.concat(" is already being used or is a restricted keyword."));
 });
 
 Cypress.Commands.add("validateMessage", (value) => {
