@@ -32,6 +32,9 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
       ? "5px"
       : "0px"};
   line-height: 16px;
+  max-width: 270px;
+  overflow: hidden;
+  break-word: break-all;
 `;
 
 const FormSubtitleText = styled.span<{ config?: ControlProps }>`
@@ -177,7 +180,9 @@ function FormLabel(props: FormLabelProps) {
 //Wrapper on styled <span/>
 function FormInfoText(props: FormLabelProps) {
   return (
-    <StyledFormInfo config={props.config}>{props.children}</StyledFormInfo>
+    <StyledFormInfo className="ar-form-info-text" config={props.config}>
+      {props.children}
+    </StyledFormInfo>
   );
 }
 

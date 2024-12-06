@@ -10,6 +10,7 @@ import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Artifact;
+import com.appsmith.server.domains.Context;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -124,6 +125,11 @@ public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
     }
 
     @Override
+    public <T extends Artifact> void setArtifact(T application) {
+        this.exportedApplication = (Application) application;
+    }
+
+    @Override
     public void setThemes(Theme unpublishedTheme, Theme publishedTheme) {
         this.setEditModeTheme(unpublishedTheme);
         this.setPublishedTheme(publishedTheme);
@@ -137,5 +143,10 @@ public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
     @Override
     public List<NewPage> getContextList() {
         return this.pageList;
+    }
+
+    @Override
+    public <T extends Context> void setContextList(List<T> contextList) {
+        this.pageList = (List<NewPage>) contextList;
     }
 }
