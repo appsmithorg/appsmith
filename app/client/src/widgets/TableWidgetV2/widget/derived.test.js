@@ -2169,6 +2169,58 @@ describe("Validates getFilteredTableData Properties", () => {
       expect(result).toStrictEqual(expected);
       delete specialCharHTMLInput.filters;
     });
+
+    it("validates filtering with null and undefined values in HTML columns", () => {
+      const nullUndefinedInput = _.cloneDeep(input);
+
+      nullUndefinedInput.processedTableData = [
+        {
+          id: 1,
+          name: "Jim Doe",
+          status: null,
+          __originalIndex__: 0,
+        },
+        {
+          id: 2,
+          name: "Usain Bolt",
+          status: undefined,
+          __originalIndex__: 1,
+        },
+        {
+          id: 3,
+          name: "Elon Musk",
+          status: "<span>Active</span>",
+          __originalIndex__: 2,
+        },
+      ];
+
+      // Test filtering for null values
+      nullUndefinedInput.filters = [
+        {
+          condition: "contains",
+          column: "status",
+          value: "null",
+        },
+      ];
+
+      let result = getFilteredTableData(nullUndefinedInput, moment, _);
+
+      expect(result).toStrictEqual([]);
+
+      // Test filtering for undefined values
+      nullUndefinedInput.filters = [
+        {
+          condition: "contains",
+          column: "status",
+          value: "undefined",
+        },
+      ];
+
+      result = getFilteredTableData(nullUndefinedInput, moment, _);
+      expect(result).toStrictEqual([]);
+
+      delete nullUndefinedInput.filters;
+    });
   });
 });
 

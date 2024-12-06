@@ -282,6 +282,8 @@ export default {
     }
 
     const getTextFromHTML = (html) => {
+      if (!html) return "";
+
       const tempDiv = document.createElement("div");
 
       tempDiv.innerHTML = html;
@@ -816,7 +818,10 @@ export default {
        * We don't want html tags and inline styles to match in search
        */
       const htmlValues = columnsWithHTML.reduce((acc, column) => {
-        acc[column.alias] = getTextFromHTML(row[column.alias]);
+        const value = row[column.alias];
+
+        acc[column.alias] =
+          value === null || value === undefined ? "" : getTextFromHTML(value);
 
         return acc;
       }, {});
