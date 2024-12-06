@@ -1,10 +1,5 @@
-import { CommonLocators } from "../../../../support/Objects/CommonLocators";
 import {
   agHelper,
-  apiPage,
-  appSettings,
-  assertHelper,
-  dataManager,
   debuggerHelper,
   deployMode,
   draggableWidgets,
@@ -65,7 +60,6 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.IFRAME, 200, 300);
       EditorNavigation.SelectEntityByName("Iframe2", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("URL", " ");
-      // cy.get(locators._codeEditorTargetTextArea).eq(0).type('{del}', { force: true });
       agHelper.SelectNRemoveLineText(locators._existingFieldTextByName("URL"));
       agHelper.AssertContains("Valid source URL is required");
     });
