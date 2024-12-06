@@ -11,8 +11,6 @@ import React, { useState, type ReactNode } from "react";
 import styled from "styled-components";
 import Form from "./form";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 const RequestNewIntegrationWrapper = styled(Flex)`
   padding: var(--ads-spaces-7);
@@ -40,21 +38,16 @@ function RequestModal({ children }: { children: ReactNode }) {
 }
 
 export default function RequestNewIntegration() {
-  const isRequestNewIntegrationEnabled = useFeatureFlag(
-    FEATURE_FLAG.ab_request_new_integration_enabled,
-  );
-
-  const onRequestButtonClick = () => {
-    AnalyticsUtil.logEvent("REQUEST_INTEGRATION_CTA");
-  };
-
-  if (!isRequestNewIntegrationEnabled) return null;
-
   return (
     <RequestNewIntegrationWrapper gap="spaces-5">
       <p>{createMessage(REQUEST_NEW_INTEGRATIONS.UNABLE_TO_FIND)}</p>
       <RequestModal>
-        <Button kind="secondary" onClick={onRequestButtonClick}>
+        <Button
+          kind="secondary"
+          onClick={() => {
+            AnalyticsUtil.logEvent("REQUEST_INTEGRATION_CTA");
+          }}
+        >
           {createMessage(REQUEST_NEW_INTEGRATIONS.REQUEST_BUTTON)}
         </Button>
       </RequestModal>
