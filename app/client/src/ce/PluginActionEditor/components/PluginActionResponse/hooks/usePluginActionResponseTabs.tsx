@@ -62,6 +62,20 @@ function usePluginActionResponseTabs() {
   };
 
   if (plugin.type === PluginType.API) {
+    if (datasource && "id" in datasource) {
+      tabs.push({
+        key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
+        title: "Datasource",
+        panelComponent: (
+          <Schema
+            currentActionId={action.id}
+            datasourceId={datasource?.id || ""}
+            datasourceName={datasource?.name || ""}
+          />
+        ),
+      });
+    }
+
     tabs.push(
       {
         key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,

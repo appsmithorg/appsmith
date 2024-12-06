@@ -20,16 +20,18 @@ import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { INTEGRATION_TABS } from "constants/routes";
-import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
+import {
+  API_EDITOR_FORM_NAME,
+  QUERY_EDITOR_FORM_NAME,
+} from "ee/constants/forms";
 import MenuField from "components/editorComponents/form/fields/MenuField";
 import type { InjectedFormProps } from "redux-form";
-import { reduxForm } from "redux-form";
-import type { Action } from "entities/Action";
-import { CurrentDataSourceLink } from "./CurrentDataSourceLink";
-import { CurrentDataSource } from "./CurrentDataSource";
+import { PluginType, type Action } from "entities/Action";
+import { CurrentDataSourceLink } from "../CurrentDataSourceLink";
+import { CurrentDataSource } from "../CurrentDataSource";
 import { useCreateDatasource } from "ee/PluginActionEditor/hooks/useCreateDatasource";
 
-interface CustomProps {
+export interface CustomProps {
   datasourceId: string;
   datasourceName: string;
 }
@@ -44,7 +46,10 @@ interface DATASOURCES_OPTIONS_TYPE {
   onSelect?: (value: string) => void;
 }
 
-const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
+export const PluginDatasourceSelector = ({
+  datasourceId,
+  datasourceName,
+}: Props) => {
   const activeActionBaseId = useActiveActionBaseId();
   const currentActionConfig = useSelector((state) =>
     activeActionBaseId
@@ -118,7 +123,11 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
     <Flex>
       <MenuField
         className={"t--switch-datasource"}
-        formName={QUERY_EDITOR_FORM_NAME}
+        formName={
+          plugin?.type === PluginType.API
+            ? API_EDITOR_FORM_NAME
+            : QUERY_EDITOR_FORM_NAME
+        }
         name="datasource.id"
         options={DATASOURCES_OPTIONS}
       >
@@ -130,9 +139,3 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
     </Flex>
   );
 };
-
-export default reduxForm<Action, CustomProps>({
-  form: QUERY_EDITOR_FORM_NAME,
-  destroyOnUnmount: false,
-  enableReinitialize: true,
-})(DatasourceSelector);
