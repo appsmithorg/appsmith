@@ -58,3 +58,8 @@
   position: relative;
   min-width: 300px;
 }
+
+/** when resizing, we don't want the preview to be interactive, otherwise it messes up the resizing interaction */
+.content:has([data-resizing]) .preview {
+  pointer-events: none;
+}
