@@ -3,6 +3,7 @@
   max-height: var(--max-height, unset);
   border-radius: inherit;
   overflow: hidden;
+  width: 100%;
 }
 
 .iframe {
@@ -25,11 +26,8 @@
 
   Note that the gutter padding for section and zone is same, so it does not matter if the visual separation is on zone or section.
 */
-:is(
-    [elevation="1"][data-elevation="true"],
-    [elevation="2"][data-elevation="true"]
-  )
-  .container {
+:is([elevation="1"][data-elevation="true"],
+  [elevation="2"][data-elevation="true"]) .container {
   --max-height: calc(var(--component-height) - ((var(--outer-spacing-3) * 2)));
 }
 
@@ -41,8 +39,6 @@
 
   Since the gutter padding for section and zone is same, we use 4x the gutter padding ( 2x top + 2x bottom )
 */
-[elevation="1"][data-elevation="true"]
-  [elevation="2"][data-elevation="true"]
-  .container {
+[elevation="1"][data-elevation="true"] [elevation="2"][data-elevation="true"] .container {
   --max-height: calc(var(--component-height) - ((var(--outer-spacing-3) * 4)));
 }

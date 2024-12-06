@@ -1,44 +1,29 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
-import styled from "styled-components";
-import kebabCase from "lodash/kebabCase";
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-import script from "!!raw-loader!./customWidgetscript.js";
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
-import css from "!!raw-loader!./reset.css";
 import clsx from "clsx";
+import kebabCase from "lodash/kebabCase";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { cssRule, ThemeContext } from "@appsmith/wds-theming";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+
+import styles from "./styles.module.css";
 import { EVENTS } from "./customWidgetscript";
 import { getAppsmithConfigs } from "ee/configs";
-import styles from "./styles.module.css";
-import { cssRule, ThemeContext } from "@appsmith/wds-theming";
+import { getSandboxPermissions } from "../helpers";
+import type { CustomComponentProps } from "../types";
+import { createHtmlTemplate } from "./createHtmlTemplate";
+import { IframeMessenger } from "../services/IframeMessenger";
 import { useCustomWidgetHeight } from "./useCustomWidgetHeight";
-import type { COMPONENT_SIZE } from "../constants";
-
-const Container = styled.div`
-  height: 100%;
-  width: 100%;
-`;
 
 const { disableIframeWidgetSandbox } = getAppsmithConfigs();
 
 function CustomComponent(props: CustomComponentProps) {
-  const { size } = props;
+  const { model, onConsole, onTriggerEvent, onUpdateModel, renderMode, size } =
+    props;
   const iframe = useRef<HTMLIFrameElement>(null);
   const theme = useContext(ThemeContext);
-  const { search } = window.location;
-  const queryParams = new URLSearchParams(search);
-  const isEmbed = queryParams.get("embed") === "true";
-  const componentHeight = useCustomWidgetHeight(size, isEmbed);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = useState(true);
   const [isIframeReady, setIsIframeReady] = useState(false);
+  const messenger = useRef<IframeMessenger | null>(null);
+  const componentHeight = useCustomWidgetHeight(size);
 
   const cssTokens = useMemo(() => {
     const tokens = cssRule(theme);
@@ -47,169 +32,126 @@ function CustomComponent(props: CustomComponentProps) {
     return `:root {${prefixedTokens}}`;
   }, [theme]);
 
-  useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      const iframeWindow =
-        iframe.current?.contentWindow ||
-        iframe.current?.contentDocument?.defaultView;
+  useEffect(
+    // The iframe sends messages to the parent window (main Appsmith application)
+    // to communicate with it. We need to set up a listener for these messages
+    // and handle them appropriately.
+    function setupIframeMessageHandler() {
+      if (!iframe.current) return;
 
-      if (event.source === iframeWindow) {
-        // Sending acknowledgement for all messages since we're queueing all the postmessage from iframe
-        iframe.current?.contentWindow?.postMessage(
-          {
-            type: EVENTS.CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK,
-            key: event.data.key,
-            success: true,
-          },
-          "*",
-        );
+      messenger.current = new IframeMessenger(iframe.current);
 
-        const message = event.data;
+      const messageHandlers = {
+        [EVENTS.CUSTOM_WIDGET_READY]: handleWidgetReady,
+        [EVENTS.CUSTOM_WIDGET_UPDATE_MODEL]: handleModelUpdate,
+        [EVENTS.CUSTOM_WIDGET_TRIGGER_EVENT]: handleTriggerEvent,
+        [EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT]: handleHeightUpdate,
+        [EVENTS.CUSTOM_WIDGET_CONSOLE_EVENT]: handleConsoleEvent,
+      };
 
-        switch (message.type) {
-          case EVENTS.CUSTOM_WIDGET_READY:
-            setIsIframeReady(true);
-            iframe.current?.contentWindow?.postMessage(
-              {
-                type: EVENTS.CUSTOM_WIDGET_READY_ACK,
-                model: props.model,
-                ui: {},
-                mode: props.renderMode,
-                theme,
-              },
-              "*",
-            );
+      const handler = (event: MessageEvent) => {
+        messenger.current?.handleMessage(event, messageHandlers);
+      };
 
-            if (
-              props.renderMode === "DEPLOYED" ||
-              props.renderMode === "EDITOR"
-            ) {
-              AnalyticsUtil.logEvent("CUSTOM_WIDGET_LOAD_INIT", {
-                widgetId: props.widgetId,
-                renderMode: props.renderMode,
-              });
-            }
+      window.addEventListener("message", handler, false);
 
-            break;
-          case EVENTS.CUSTOM_WIDGET_UPDATE_MODEL:
-            props.update(message.data);
-            break;
-          case EVENTS.CUSTOM_WIDGET_TRIGGER_EVENT:
-            props.execute(message.data.eventName, message.data.contextObj);
-            break;
-          case EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT:
-            const height = message.data.height;
+      return () => window.removeEventListener("message", handler, false);
+    },
+    [model],
+  );
 
-            if (props.renderMode !== "BUILDER" && height) {
-              iframe.current?.style.setProperty("height", `${height}px`);
-            }
+  const handleWidgetReady = () => {
+    setIsIframeReady(true);
 
-            break;
-          case "CUSTOM_WIDGET_CONSOLE_EVENT":
-            props.onConsole &&
-              props.onConsole(message.data.type, message.data.args);
-            break;
-        }
-      }
-    };
+    messenger.current?.postMessage({
+      type: EVENTS.CUSTOM_WIDGET_READY_ACK,
+      model: props.model,
+      mode: props.renderMode,
+    });
 
-    window.addEventListener("message", handler, false);
+    logInitializationEvent();
+  };
 
-    return () => window.removeEventListener("message", handler, false);
-  }, [props.model]);
+  const handleModelUpdate = (message: Record<string, unknown>) => {
+    onUpdateModel(message.model as Record<string, unknown>);
+  };
 
-  useEffect(() => {
-    if (iframe.current && iframe.current.contentWindow && isIframeReady) {
-      iframe.current.contentWindow.postMessage(
-        {
-          type: EVENTS.CUSTOM_WIDGET_MODEL_CHANGE,
-          model: props.model,
-        },
-        "*",
-      );
+  const handleTriggerEvent = (message: Record<string, unknown>) => {
+    onTriggerEvent(
+      message.eventName as string,
+      message.contextObj as Record<string, unknown>,
+    );
+  };
+
+  const handleHeightUpdate = (message: Record<string, unknown>) => {
+    const height = message.height;
+
+    if (props.renderMode !== "BUILDER" && height) {
+      iframe.current?.style.setProperty("height", `${height}px`);
     }
-  }, [props.model]);
+  };
 
-  useEffect(() => {
-    if (iframe.current && iframe.current.contentWindow && isIframeReady) {
-      iframe.current.contentWindow.postMessage(
-        {
+  const handleConsoleEvent = (eventData: Record<string, unknown>) => {
+    if (!onConsole) return;
+
+    onConsole(eventData.type as string, eventData.args as string);
+  };
+
+  const logInitializationEvent = () => {
+    if (renderMode === "DEPLOYED" || renderMode === "EDITOR") {
+      AnalyticsUtil.logEvent("CUSTOM_WIDGET_LOAD_INIT", {
+        widgetId: props.widgetId,
+        renderMode: props.renderMode,
+      });
+    }
+  };
+
+  useEffect(
+    function handleModelChange() {
+      if (iframe.current && iframe.current.contentWindow && isIframeReady) {
+        messenger.current?.postMessage({
+          type: EVENTS.CUSTOM_WIDGET_MODEL_CHANGE,
+          model: model,
+        });
+      }
+    },
+    [model],
+  );
+
+  useEffect(
+    function handleThemeUpdate() {
+      if (iframe.current && iframe.current.contentWindow && isIframeReady) {
+        messenger.current?.postMessage({
           type: EVENTS.CUSTOM_WIDGET_THEME_UPDATE,
           theme,
-        },
-        "*",
-      );
-    }
-  }, [theme, isIframeReady]);
+        });
+      }
+    },
+    [theme, isIframeReady],
+  );
 
-  const srcDoc = `
-    <html>
-      <head>
-        <style>${css}</style>
-        <style data-appsmith-theme>${cssTokens}</style>
-      </head>
-      <body>
-        <script type="text/javascript">${
-          props.onConsole ? appsmithConsole : ""
-        }</script>
-        <script type="module">
-          ${script}
-          main();
-        </script>
-        ${props.srcDoc.html}
-        <script type="module">
-          ${props.srcDoc.js}
-        </script>
-        <style>${props.srcDoc.css}</style>
-      </body>
-    </html>
-  `;
-
-  useEffect(() => {
-    setLoading(true);
-  }, [srcDoc]);
+  const srcDoc = createHtmlTemplate({
+    cssTokens,
+    onConsole: !!props.onConsole,
+    srcDoc: props.srcDoc,
+  });
 
   return (
-    <Container
-      className={clsx(styles.container, {
-        "bp3-skeleton": loading,
-      })}
+    <div
+      className={clsx(styles.container, { "bp3-skeleton": loading })}
       style={{ "--component-height": componentHeight } as React.CSSProperties}
     >
       <iframe
         className={styles.iframe}
-        data-size={kebabCase(size)}
+        data-size={kebabCase(props.size)}
         loading="lazy"
-        onLoad={() => {
-          setLoading(false);
-        }}
+        onLoad={() => setLoading(false)}
         ref={iframe}
-        sandbox={
-          disableIframeWidgetSandbox
-            ? undefined
-            : "allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-scripts"
-        }
+        sandbox={getSandboxPermissions(disableIframeWidgetSandbox)}
         srcDoc={srcDoc}
       />
     </Container>
   );
-}
-
-export interface CustomComponentProps {
-  execute: (eventName: string, contextObj: Record<string, unknown>) => void;
-  update: (data: Record<string, unknown>) => void;
-  model: Record<string, unknown>;
-  srcDoc: {
-    html: string;
-    js: string;
-    css: string;
-  };
-  onLoadingStateChange?: (state: string) => void;
-  needsOverlay?: boolean;
-  onConsole?: (type: string, message: string) => void;
-  renderMode: "EDITOR" | "DEPLOYED" | "BUILDER";
-  widgetId: string;
-  size?: keyof typeof COMPONENT_SIZE;
 }
 
 export default CustomComponent;

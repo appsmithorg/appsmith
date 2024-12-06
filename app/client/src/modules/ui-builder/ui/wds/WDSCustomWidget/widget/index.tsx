@@ -3,15 +3,13 @@ import React from "react";
 import BaseWidget from "widgets/BaseWidget";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { WidgetState } from "widgets/BaseWidget";
-import type { SetterConfig } from "entities/AppTheming";
 import type { AnvilConfig } from "WidgetProvider/constants";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import * as config from "../config";
 import CustomComponent from "../component";
-import type { CustomWidgetProps } from "../types";
 import { Elevations } from "../../constants";
+import type { CustomWidgetProps } from "../types";
 import { ContainerComponent } from "../../Container";
 
 export class WDSCustomWidget extends BaseWidget<
@@ -32,7 +30,7 @@ export class WDSCustomWidget extends BaseWidget<
     return config.autocompleteConfig;
   }
 
-  static getSetterConfig(): SetterConfig {
+  static getSetterConfig() {
     return config.setterConfig;
   }
 
@@ -44,25 +42,23 @@ export class WDSCustomWidget extends BaseWidget<
     return config.propertyPaneStyleConfig;
   }
 
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+  static getDerivedPropertiesMap() {
     return {};
   }
 
-  static getDefaultPropertiesMap(): Record<string, string> {
+  static getDefaultPropertiesMap() {
     return {
       model: "defaultModel",
     };
   }
 
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static getMetaPropertiesMap(): Record<string, any> {
+  static getMetaPropertiesMap() {
     return {
       model: undefined,
     };
   }
 
-  execute = (eventName: string, contextObj: Record<string, unknown>) => {
+  onExecuteAction = (eventName: string, context: Record<string, unknown>) => {
     if (this.props.hasOwnProperty(eventName)) {
       const eventString = this.props[eventName];
 
@@ -72,7 +68,7 @@ export class WDSCustomWidget extends BaseWidget<
         event: {
           type: EventType.CUSTOM_WIDGET_EVENT,
         },
-        globalContext: contextObj,
+        globalContext: context,
       });
 
       AnalyticsUtil.logEvent("CUSTOM_WIDGET_API_TRIGGER_EVENT", {
@@ -82,7 +78,7 @@ export class WDSCustomWidget extends BaseWidget<
     }
   };
 
-  update = (data: Record<string, unknown>) => {
+  onUpdateModel = (data: Record<string, unknown>) => {
     this.props.updateWidgetMetaProperty("model", {
       ...this.props.model,
       ...data,
@@ -115,12 +111,12 @@ export class WDSCustomWidget extends BaseWidget<
         widgetId={this.props.widgetId}
       >
         <CustomComponent
-          execute={this.execute}
+          execute={this.onExecuteAction}
           model={this.props.model || {}}
           renderMode={this.getRenderMode()}
           size={this.props.size}
           srcDoc={this.props.srcDoc}
-          update={this.update}
+          update={this.onUpdateModel}
           widgetId={this.props.widgetId}
         />
       </ContainerComponent>
