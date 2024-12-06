@@ -89,9 +89,12 @@ const HTMLCell = (props: HTMLCellProps) => {
     verticalAlignment,
   } = props;
 
-  const interweaveCompatibleValue = useMemo(convertToInterweaveString(value), [
-    value,
-  ]);
+  const interweaveCompatibleValue = useMemo(() => {
+    if (value === null || value === undefined) return "";
+
+    // this conversion is specifically required for Number type values
+    return String(value);
+  }, [value]);
 
   return (
     <CellWrapper
@@ -119,12 +122,3 @@ const HTMLCell = (props: HTMLCellProps) => {
 };
 
 export default HTMLCell;
-
-function convertToInterweaveString(value: string): () => string {
-  return () => {
-    if (value === null || value === undefined) return "";
-
-    // this conversion is specifically required for Number type values
-    return String(value);
-  };
-}
