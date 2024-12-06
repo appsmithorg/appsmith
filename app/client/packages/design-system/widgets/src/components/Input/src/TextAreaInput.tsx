@@ -12,6 +12,7 @@ function _TextAreaInput(
   ref: React.Ref<HTMLTextAreaElement>,
 ) {
   const {
+    className,
     defaultValue,
     isLoading,
     isReadOnly,
@@ -34,7 +35,11 @@ function _TextAreaInput(
     <Group className={styles.inputGroup}>
       <HeadlessTextArea
         {...rest}
-        className={clsx(styles.input, getTypographyClassName("body"))}
+        className={clsx(
+          styles.input,
+          getTypographyClassName("body"),
+          className,
+        )}
         data-readonly={Boolean(isReadOnly) ? true : undefined}
         data-size={Boolean(size) ? size : undefined}
         defaultValue={defaultValue}

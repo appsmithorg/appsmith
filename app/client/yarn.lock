@@ -159,6 +159,7 @@ __metadata:
     react-syntax-highlighter: ^15.5.0
     react-transition-group: ^4.4.5
     remark-gfm: ^4.0.0
+    usehooks-ts: "*"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
@@ -33469,7 +33470,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"usehooks-ts@npm:^3.1.0":
+"usehooks-ts@npm:*, usehooks-ts@npm:^3.1.0":
   version: 3.1.0
   resolution: "usehooks-ts@npm:3.1.0"
   dependencies:
