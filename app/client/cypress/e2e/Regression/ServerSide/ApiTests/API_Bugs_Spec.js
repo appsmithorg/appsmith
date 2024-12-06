@@ -191,12 +191,7 @@ describe(
       );
       cy.ResponseStatusCheck("404 NOT_FOUND");
       agHelper.GetNClick(commonlocators.logsTab);
-      agHelper.GetNClick(commonlocators.debuggerToggle);
-      cy.get(commonlocators.debuggerLabel)
-        .invoke("text")
-        .then(($text) => {
-          expect($text.toLowerCase()).contains("Not Found".toLowerCase());
-        });
+      debuggerHelper.DoesConsoleLogExist("Failed execution", true, "MockApi");
     });
 
     it("4. Bug 13515: API Response gets garbled if encoded with gzip", function () {
