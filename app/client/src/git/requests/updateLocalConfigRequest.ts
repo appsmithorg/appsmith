@@ -6,7 +6,7 @@ import type {
 import Api from "api/Api";
 import { GIT_BASE_URL } from "./constants";
 
-export async function updateLocalConfigRequest(
+export default async function updateLocalConfigRequest(
   baseApplicationId: string,
   params: UpdateLocalConfigRequestParams,
 ): Promise<AxiosResponse<UpdateLocalConfigResponse>> {

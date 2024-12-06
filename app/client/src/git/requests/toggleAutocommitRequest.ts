@@ -3,7 +3,7 @@ import { GIT_BASE_URL } from "./constants";
 import type { AxiosResponse } from "axios";
 import type { ToggleAutocommitResponse } from "./toggleAutocommitRequest.types";
 
-export async function toggleAutocommitRequest(
+export default async function toggleAutocommitRequest(
   baseApplicationId: string,
 ): Promise<AxiosResponse<ToggleAutocommitResponse>> {
   return Api.patch(

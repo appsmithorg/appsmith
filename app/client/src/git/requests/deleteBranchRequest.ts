@@ -6,7 +6,7 @@ import type {
 import { GIT_BASE_URL } from "./constants";
 import Api from "api/Api";
 
-export async function deleteBranchRequest(
+export default async function deleteBranchRequest(
   baseApplicationId: string,
   params: DeleteBranchRequestParams,
 ): Promise<AxiosResponse<DeleteBranchResponse>> {

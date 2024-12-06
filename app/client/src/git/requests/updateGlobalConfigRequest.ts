@@ -6,7 +6,7 @@ import type {
 import Api from "api/Api";
 import { GIT_BASE_URL } from "./constants";
 
-export async function updateGlobalConfigRequest(
+export default async function updateGlobalConfigRequest(
   params: UpdateGlobalConfigRequestParams,
 ): Promise<AxiosResponse<UpdateGlobalConfigResponse>> {
   return Api.post(`${GIT_BASE_URL}/profile/default`, params);

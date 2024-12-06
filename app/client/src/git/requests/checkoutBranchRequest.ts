@@ -6,7 +6,7 @@ import type {
 import { GIT_BASE_URL } from "./constants";
 import Api from "api/Api";
 
-export async function checkoutBranchRequest(
+export default async function checkoutBranchRequest(
   branchedApplicationId: string,
   params: CheckoutBranchRequestParams,
 ): Promise<AxiosResponse<CheckoutBranchResponse>> {

@@ -6,7 +6,7 @@ import type {
 import Api from "api/Api";
 import { GIT_BASE_URL } from "./constants";
 
-export async function fetchMergeStatusRequest(
+export default async function fetchMergeStatusRequest(
   branchedApplicationId: string,
   params: FetchMergeStatusRequestParams,
 ): Promise<AxiosResponse<FetchMergeStatusResponse>> {

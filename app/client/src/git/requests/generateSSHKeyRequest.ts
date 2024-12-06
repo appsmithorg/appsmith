@@ -6,7 +6,7 @@ import type {
 import { APPLICATION_BASE_URL, GIT_BASE_URL } from "./constants";
 import Api from "api/Api";
 
-export async function generateSSHKeyRequest(
+export default async function generateSSHKeyRequest(
   baseApplicationId: string,
   params: GenerateSSHKeyRequestParams,
 ): Promise<AxiosResponse<GenerateSSHKeyResponse>> {

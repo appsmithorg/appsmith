@@ -6,7 +6,7 @@ import type {
 } from "./importGitRequest.types";
 import type { AxiosResponse } from "axios";
 
-export async function importGitRequest(
+export default async function importGitRequest(
   workspaceId: string,
   params: ImportGitRequestParams,
 ): Promise<AxiosResponse<ImportGitResponse>> {

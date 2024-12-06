@@ -6,7 +6,7 @@ import type {
 } from "./updateProtectedBranchesRequest.types";
 import type { AxiosResponse } from "axios";
 
-export async function updateProtectedBranchesRequest(
+export default async function updateProtectedBranchesRequest(
   baseApplicationId: string,
   params: UpdateProtectedBranchesRequestParams,
 ): Promise<AxiosResponse<UpdateProtectedBranchesResponse>> {

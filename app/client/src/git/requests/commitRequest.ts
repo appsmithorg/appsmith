@@ -6,7 +6,7 @@ import type {
 import { GIT_BASE_URL } from "./constants";
 import type { AxiosResponse } from "axios";
 
-export async function commitRequest(
+export default async function commitRequest(
   branchedApplicationId: string,
   params: CommitRequestParams,
 ): Promise<AxiosResponse<CommitResponse>> {

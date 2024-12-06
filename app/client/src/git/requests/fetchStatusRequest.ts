@@ -6,7 +6,7 @@ import type {
 import { GIT_BASE_URL } from "./constants";
 import type { AxiosResponse } from "axios";
 
-export async function fetchStatusRequest(
+export default async function fetchStatusRequest(
   branchedApplicationId: string,
   params: FetchStatusRequestParams,
 ): Promise<AxiosResponse<FetchStatusResponse>> {

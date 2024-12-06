@@ -3,7 +3,7 @@ import type { MergeRequestParams, MergeResponse } from "./mergeRequest.types";
 import { GIT_BASE_URL } from "./constants";
 import type { AxiosResponse } from "axios";
 
-export async function mergeRequest(
+export default async function mergeRequest(
   branchedApplicationId: string,
   params: MergeRequestParams,
 ): Promise<AxiosResponse<MergeResponse>> {

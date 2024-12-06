@@ -6,7 +6,7 @@ import type {
 } from "./connectRequest.types";
 import type { AxiosResponse } from "axios";
 
-export async function connectRequest(
+export default async function connectRequest(
   baseApplicationId: string,
   params: ConnectRequestParams,
 ): Promise<AxiosResponse<ConnectResponse>> {

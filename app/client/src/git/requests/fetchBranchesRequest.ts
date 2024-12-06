@@ -6,7 +6,7 @@ import type {
 } from "./fetchBranchesRequest.types";
 import type { AxiosResponse } from "axios";
 
-export async function fetchBranchesRequest(
+export default async function fetchBranchesRequest(
   branchedApplicationId: string,
   params?: FetchBranchesRequestParams,
 ): Promise<AxiosResponse<FetchBranchesResponse>> {
