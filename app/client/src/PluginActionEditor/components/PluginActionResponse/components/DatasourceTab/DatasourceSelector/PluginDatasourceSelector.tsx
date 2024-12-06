@@ -20,13 +20,9 @@ import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { INTEGRATION_TABS } from "constants/routes";
-import {
-  API_EDITOR_FORM_NAME,
-  QUERY_EDITOR_FORM_NAME,
-} from "ee/constants/forms";
 import MenuField from "components/editorComponents/form/fields/MenuField";
 import type { InjectedFormProps } from "redux-form";
-import { PluginType, type Action } from "entities/Action";
+import { type Action } from "entities/Action";
 import { CurrentDataSourceLink } from "../CurrentDataSourceLink";
 import { CurrentDataSource } from "../CurrentDataSource";
 import { useCreateDatasource } from "ee/PluginActionEditor/hooks/useCreateDatasource";
@@ -34,6 +30,7 @@ import { useCreateDatasource } from "ee/PluginActionEditor/hooks/useCreateDataso
 export interface CustomProps {
   datasourceId: string;
   datasourceName: string;
+  formName: string;
 }
 
 type Props = InjectedFormProps<Action, CustomProps> & CustomProps;
@@ -49,6 +46,7 @@ interface DATASOURCES_OPTIONS_TYPE {
 export const PluginDatasourceSelector = ({
   datasourceId,
   datasourceName,
+  formName,
 }: Props) => {
   const activeActionBaseId = useActiveActionBaseId();
   const currentActionConfig = useSelector((state) =>
@@ -123,11 +121,7 @@ export const PluginDatasourceSelector = ({
     <Flex>
       <MenuField
         className={"t--switch-datasource"}
-        formName={
-          plugin?.type === PluginType.API
-            ? API_EDITOR_FORM_NAME
-            : QUERY_EDITOR_FORM_NAME
-        }
+        formName={formName}
         name="datasource.id"
         options={DATASOURCES_OPTIONS}
       >

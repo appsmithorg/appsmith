@@ -1,4 +1,4 @@
-import { Button, Flex, Tooltip } from "@appsmith/ads";
+import { Flex } from "@appsmith/ads";
 import React, { useEffect, useState } from "react";
 import { DatasourceStructureContext } from "entities/Datasource";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,17 +15,16 @@ import { datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { DatasourceComponentTypes } from "api/PluginApi";
 import { getPluginActionDebuggerState } from "PluginActionEditor/store";
 import { SchemaDisplayStatus, StatusDisplay } from "./StatusDisplay";
-import DatasourceSelector from "./DatasourceSelector";
-import { SchemaTables } from "./SchemaTables";
+import { DatasourceTables } from "./DatasourceTables";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { isEmpty, omit } from "lodash";
 import { getQueryParams } from "utils/URLUtils";
 import { TableColumns } from "./TableColumns";
 import { BOTTOMBAR_HEIGHT } from "./constants";
-import { createMessage, EDIT_DS_CONFIG } from "ee/constants/messages";
 import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
+import DatasourceInfo from "./DatasourceInfo";
 
 interface Props {
   datasourceId: string;
@@ -33,7 +32,7 @@ interface Props {
   currentActionId: string;
 }
 
-const Schema = (props: Props) => {
+const Datasource = (props: Props) => {
   const dispatch = useDispatch();
 
   const datasourceStructure = useSelector((state) =>
@@ -140,24 +139,12 @@ const Schema = (props: Props) => {
     }
 
     return (
-      <>
-        <Flex padding="spaces-3">
-          <DatasourceSelector
-            datasourceId={props.datasourceId}
-            datasourceName={props.datasourceName}
-          />
-          {!isLoading && (
-            <Tooltip content={createMessage(EDIT_DS_CONFIG)} placement="top">
-              <Button
-                isIconButton
-                kind="tertiary"
-                onClick={editDatasource}
-                size="sm"
-                startIcon="datasource-config"
-              />
-            </Tooltip>
-          )}
-        </Flex>
+      <Flex flexDirection="column" padding="spaces-3">
+        <DatasourceInfo
+          datasourceId={props.datasourceId}
+          datasourceName={props.datasourceName}
+          showEditButton={!isLoading}
+        />
         <StatusDisplay
           editDatasource={editDatasource}
           errorMessage={
@@ -167,7 +154,7 @@ const Schema = (props: Props) => {
           }
           state={statusState}
         />
-      </>
+      </Flex>
     );
   };
 
@@ -178,7 +165,7 @@ const Schema = (props: Props) => {
 
     return (
       <Flex h="100%">
-        <SchemaTables
+        <DatasourceTables
           currentActionId={props.currentActionId}
           datasourceId={props.datasourceId}
           datasourceName={props.datasourceName}
@@ -208,4 +195,4 @@ const Schema = (props: Props) => {
   );
 };
 
-export { Schema };
+export { Datasource };

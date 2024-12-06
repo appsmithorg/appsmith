@@ -25,7 +25,7 @@ import {
 } from "PluginActionEditor/store";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import useShowSchema from "PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
-import { Schema } from "PluginActionEditor/components/PluginActionResponse/components/Schema";
+import { Datasource } from "PluginActionEditor/components/PluginActionResponse/components/DatasourceTab";
 import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
@@ -67,7 +67,7 @@ function usePluginActionResponseTabs() {
         key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
         title: "Datasource",
         panelComponent: (
-          <Schema
+          <Datasource
             currentActionId={action.id}
             datasourceId={datasource?.id || ""}
             datasourceName={datasource?.name || ""}
@@ -128,7 +128,7 @@ function usePluginActionResponseTabs() {
         key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
         title: "Datasource",
         panelComponent: (
-          <Schema
+          <Datasource
             currentActionId={action.id}
             datasourceId={datasource?.id || ""}
             datasourceName={datasource?.name || ""}

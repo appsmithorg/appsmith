@@ -12,7 +12,7 @@ import {
 } from "ee/constants/messages";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
-import { Schema } from "PluginActionEditor/components/PluginActionResponse/components/Schema";
+import { Datasource } from "PluginActionEditor/components/PluginActionResponse/components/DatasourceTab";
 import type { ActionResponse } from "api/ActionAPI";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
@@ -220,7 +220,7 @@ function QueryDebuggerTabs({
       key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
       title: "Datasource",
       panelComponent: (
-        <Schema
+        <Datasource
           currentActionId={currentActionConfig.id}
           datasourceId={currentActionConfig.datasource.id || ""}
           datasourceName={datasource?.name || ""}
