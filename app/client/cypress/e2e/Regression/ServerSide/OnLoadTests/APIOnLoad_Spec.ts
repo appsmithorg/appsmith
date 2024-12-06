@@ -62,8 +62,9 @@ describe(
       debuggerHelper.OpenDebugger();
       debuggerHelper.ClickLogsTab();
       debuggerHelper.DoesConsoleLogExist(
-        'The action "PageLoadApi2" has failed.',
+        "Failed execution",
         true,
+        "PageLoadApi2",
       );
     });
 

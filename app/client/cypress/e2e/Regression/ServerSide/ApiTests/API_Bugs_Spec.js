@@ -190,7 +190,7 @@ describe(
         locators._specificToast("Cyclic dependency found while evaluating"),
       );
       cy.ResponseStatusCheck("404 NOT_FOUND");
-      agHelper.GetNClick(commonlocators.errorTab);
+      agHelper.GetNClick(commonlocators.logsTab);
       agHelper.GetNClick(commonlocators.debuggerToggle);
       cy.get(commonlocators.debuggerLabel)
         .invoke("text")

@@ -40,7 +40,7 @@ describe(
 
       cy.get(".t--toast-debug-button").click();
       _.debuggerHelper.AssertSelectedTab("Logs");
-
+      _.debuggerHelper.OpenDebugger();
       // All errors should be expanded by default
       //Updated count to 2 as the decision to show the widget trigger lint errors to show in the debugger
       _.debuggerHelper.AssertVisibleErrorMessagesCount(2);

@@ -563,8 +563,9 @@ return "yes";`;
       jsEditor.RunJSObj();
       //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
       agHelper.AssertElementAbsence(locators._btnSpinner, 10000);
+      // Lint error should still be seen
       agHelper.GetNClick(locators._errorTab);
-      agHelper.AssertContains(`"unknown" doesn't exist in Table1`, "not.exist");
+      agHelper.AssertContains(`"unknown" doesn't exist in Table1`, "exist");
 
       // Switch back to response tab
       agHelper.GetNClick(locators._responseTab);
