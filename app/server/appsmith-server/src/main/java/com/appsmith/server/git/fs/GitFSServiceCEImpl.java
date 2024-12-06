@@ -568,4 +568,25 @@ public class GitFSServiceCEImpl implements GitHandlingServiceCE {
         }
         return Mono.just(pushResult);
     }
+
+    @Override
+    public Mono<String> fetchRemoteChanges(ArtifactJsonTransformationDTO jsonTransformationDTO, GitAuth gitAuth) {
+
+        String workspaceId = jsonTransformationDTO.getWorkspaceId();
+        String baseArtifactId = jsonTransformationDTO.getBaseArtifactId();
+        String repoName = jsonTransformationDTO.getRepoName();
+        String refName = jsonTransformationDTO.getRefName();
+
+        ArtifactType artifactType = jsonTransformationDTO.getArtifactType();
+        GitArtifactHelper<?> gitArtifactHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        Path repoSuffix = gitArtifactHelper.getRepoSuffixPath(workspaceId, baseArtifactId, repoName);
+
+        Path repoPath = fsGitHandler.createRepoPath(repoSuffix);
+        Mono<Boolean> checkoutBranchMono = fsGitHandler.checkoutToBranch(repoSuffix, refName);
+
+        Mono<String> fetchRemoteMono = fsGitHandler.fetchRemote(
+                repoPath, gitAuth.getPublicKey(), gitAuth.getPrivateKey(), true, refName, false);
+
+        return checkoutBranchMono.then(Mono.defer(() -> fetchRemoteMono));
+    }
 }
