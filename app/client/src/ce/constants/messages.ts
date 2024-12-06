@@ -2290,6 +2290,10 @@ export const CANT_SHOW_SCHEMA = () =>
 export const COLUMNS_TITLE = () => "Columns";
 export const COLUMNS_SEARCH_PLACEHOLDER = (tableName: string) =>
   `Search columns in ${tableName}`;
+export const NO_ACCESS_TITLE_TEXT = () =>
+  "You do not have access to this datasource";
+export const NO_ACCESS_MESSAGE_TEXT = () =>
+  "Please contact your workspace administrator to gain access";
 
 export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_DESCRIPTION = () =>
