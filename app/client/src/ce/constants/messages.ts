@@ -2278,12 +2278,12 @@ export const EMPTY_TABLE_MESSAGE_TEXT = () =>
 export const EMPTY_SCHEMA_MESSAGE_TEXT = () =>
   "There are no schema records to show";
 export const NO_COLUMNS_MESSAGE_TEXT = () => "There are no columns to show";
-export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
+export const LOADING_RECORDS_TITLE_TEXT = () => "Loading columns";
 export const LOADING_SCHEMA_TITLE_TEXT = () => "Loading schema";
 export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
-export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";
+export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load datasource";
 export const FAILED_RECORDS_MESSAGE_TEXT = () =>
-  "There was an error connecting to the datasource. Please check the datasource configuration and retry.";
+  "Please check the datasource configuration and retry.";
 export const DATASOURCE_SWITCHER_MENU_GROUP_NAME = () => "Select a datasource";
 export const CANT_SHOW_SCHEMA = () =>
   "We can’t show the schema for this datasource";
