@@ -249,11 +249,11 @@ export class AggregateHelper {
       .type(renameVal, { force: true, delay: 0 })
       .should("have.value", renameVal);
 
-    debugger;
     if (args.willFailError) {
       this.AssertContains(args.willFailError, "exist", ".ads-v2-tooltip");
       cy.get(textInputLocator).blur();
     } else {
+      cy.get(textInputLocator).blur();
       this.PressEnter();
     }
     this.Sleep();
