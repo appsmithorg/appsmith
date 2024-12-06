@@ -146,15 +146,17 @@ const Schema = (props: Props) => {
             datasourceId={props.datasourceId}
             datasourceName={props.datasourceName}
           />
-          <Tooltip content={createMessage(EDIT_DS_CONFIG)} placement="top">
-            <Button
-              isIconButton
-              kind="tertiary"
-              onClick={editDatasource}
-              size="sm"
-              startIcon="datasource-config"
-            />
-          </Tooltip>
+          {!isLoading && (
+            <Tooltip content={createMessage(EDIT_DS_CONFIG)} placement="top">
+              <Button
+                isIconButton
+                kind="tertiary"
+                onClick={editDatasource}
+                size="sm"
+                startIcon="datasource-config"
+              />
+            </Tooltip>
+          )}
         </Flex>
         <StatusDisplay
           editDatasource={editDatasource}
