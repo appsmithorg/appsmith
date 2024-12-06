@@ -836,8 +836,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .orElse(null);
     }
 
-    @Transactional
-    @Modifying
     public Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities, EntityManager em) {
         if (CollectionUtils.isEmpty(entities)) {
             return Optional.empty();
@@ -857,8 +855,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return Optional.empty();
     }
 
-    @Transactional
-    @Modifying
     public Optional<Void> bulkUpdate(
             BaseRepository<T, String> baseRepository, List<T> domainObjects, EntityManager em) {
         if (CollectionUtils.isEmpty(domainObjects)) {
@@ -879,7 +875,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(updatesById.get(e.getId()), e);
         }
 
-        entitiesToSave.forEach(em::persist);
+        entitiesToSave.forEach(em::merge);
         return Optional.empty();
     }
 

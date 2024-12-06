@@ -60,6 +60,7 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.transaction.CustomTransactionalOperator;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -125,7 +126,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     private final UserDataService userDataService;
     protected final UserService userService;
     private final EmailConfig emailConfig;
-    // private final TransactionalOperator transactionalOperator;
+    private final CustomTransactionalOperator transactionalOperator;
 
     protected final AnalyticsService analyticsService;
     private final ObservationRegistry observationRegistry;
@@ -1320,10 +1321,12 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         Mono<Tuple2<? extends Artifact, ? extends Artifact>> baseAndBranchedArtifactMono =
                 getBaseAndBranchedArtifacts(branchedArtifactId, artifactType);
 
-        return baseAndBranchedArtifactMono.flatMap(artifactTuples -> {
-            Artifact sourceArtifact = artifactTuples.getT1();
-            return checkoutBranch(sourceArtifact, branchToBeCheckedOut, addFileLock);
-        });
+        return baseAndBranchedArtifactMono
+                .flatMap(artifactTuples -> {
+                    Artifact sourceArtifact = artifactTuples.getT1();
+                    return checkoutBranch(sourceArtifact, branchToBeCheckedOut, addFileLock);
+                })
+                .as(transactionalOperator::transactional);
     }
 
     protected Mono<? extends Artifact> checkoutBranch(
@@ -3062,25 +3065,27 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         Mono<? extends Artifact> baseArtifactMono =
                 gitArtifactHelper.getArtifactById(baseArtifactId, artifactManageProtectedBranchPermission);
 
-        return baseArtifactMono.flatMap(baseArtifact -> {
-            GitArtifactMetadata baseGitData = baseArtifact.getGitArtifactMetadata();
-            final String defaultBranchName = baseGitData.getDefaultBranchName();
-            final List<String> incomingProtectedBranches =
-                    CollectionUtils.isNullOrEmpty(branchNames) ? new ArrayList<>() : branchNames;
+        return baseArtifactMono
+                .flatMap(baseArtifact -> {
+                    GitArtifactMetadata baseGitData = baseArtifact.getGitArtifactMetadata();
+                    final String defaultBranchName = baseGitData.getDefaultBranchName();
+                    final List<String> incomingProtectedBranches =
+                            CollectionUtils.isNullOrEmpty(branchNames) ? new ArrayList<>() : branchNames;
 
-            // user cannot protect multiple branches
-            if (incomingProtectedBranches.size() > 1) {
-                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-            }
+                    // user cannot protect multiple branches
+                    if (incomingProtectedBranches.size() > 1) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
 
-            // user cannot protect a branch which is not default
-            if (incomingProtectedBranches.size() == 1 && !defaultBranchName.equals(incomingProtectedBranches.get(0))) {
-                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-            }
+                    // user cannot protect a branch which is not default
+                    if (incomingProtectedBranches.size() == 1
+                            && !defaultBranchName.equals(incomingProtectedBranches.get(0))) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
 
-            return updateProtectedBranchesInArtifactAfterVerification(baseArtifact, incomingProtectedBranches);
-        });
-        /*.as(transactionalOperator::transactional);*/
+                    return updateProtectedBranchesInArtifactAfterVerification(baseArtifact, incomingProtectedBranches);
+                })
+                .as(transactionalOperator::transactional);
     }
 
     protected Mono<List<String>> updateProtectedBranchesInArtifactAfterVerification(

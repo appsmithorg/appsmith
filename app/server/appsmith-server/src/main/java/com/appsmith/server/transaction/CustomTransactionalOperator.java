@@ -2,6 +2,7 @@ package com.appsmith.server.transaction;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.RollbackException;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -31,20 +32,21 @@ public class CustomTransactionalOperator {
             boolean isNewTransaction = txCtx.isNewTransaction;
             return mono.contextWrite(Context.of(
                             TX_CONTEXT, txCtx.getEntityManager(), TRANSACTION_THREAD_NAME, txCtx.getElasticScheduler()))
-                    .doOnSuccess(result -> {
+                    .doOnSuccess(r -> {
                         if (isNewTransaction) {
                             entityManager.getTransaction().commit();
                         }
                     })
-                    .doOnError(error -> {
+                    .onErrorResume(error -> {
                         if (isNewTransaction) {
                             entityManager.getTransaction().rollback();
                         }
+                        return Mono.error(transformError(error));
                     })
                     .doFinally(signal -> {
                         if (isNewTransaction) {
                             entityManager.close();
-                            scheduler.disposeGracefully();
+                            scheduler.dispose();
                         }
                     });
         });
@@ -62,15 +64,16 @@ public class CustomTransactionalOperator {
                             entityManager.getTransaction().commit();
                         }
                     })
-                    .doOnError(error -> {
+                    .onErrorResume(error -> {
                         if (isNewTransaction) {
                             entityManager.getTransaction().rollback();
                         }
+                        return Flux.error(transformError(error));
                     })
                     .doFinally(signal -> {
                         if (isNewTransaction) {
                             entityManager.close();
-                            scheduler.disposeGracefully();
+                            scheduler.dispose();
                         }
                     });
         });
@@ -89,6 +92,13 @@ public class CustomTransactionalOperator {
         }
 
         return new TransactionalContext(entityManager, elasticScheduler, isNewTransaction);
+    }
+
+    private Throwable transformError(Throwable e) {
+        if (e instanceof RollbackException) {
+            return e.getCause();
+        }
+        return e;
     }
 
     @Getter

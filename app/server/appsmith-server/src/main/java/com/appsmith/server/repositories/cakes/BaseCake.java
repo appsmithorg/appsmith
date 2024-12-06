@@ -7,6 +7,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.transaction.CustomTransactionalOperator;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -17,10 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.transaction.support.TransactionTemplate;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -44,10 +43,10 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     private EntityManager entityManager;
 
     @Autowired
-    private TransactionTemplate transactionTemplate;
+    private CacheableRepositoryHelper cacheableRepositoryHelper;
 
     @Autowired
-    private CacheableRepositoryHelper cacheableRepositoryHelper;
+    CustomTransactionalOperator transactionalOperator;
 
     protected final Class<T> genericDomain;
 
@@ -60,8 +59,7 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                                 "SELECT e FROM " + genericDomain.getSimpleName() + " e WHERE e.id IN :ids",
                                 genericDomain)
                         .setParameter("ids", ids)
-                        .getResultList()))
-                .publishOn(Schedulers.single());
+                        .getResultList()));
     }
 
     public Mono<T> findById(String id) {
@@ -76,8 +74,7 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
                 .flatMapMany(em -> asFlux(
                         () -> em.createQuery("SELECT e FROM " + genericDomain.getSimpleName() + " e", genericDomain)
-                                .getResultList()))
-                .publishOn(Schedulers.single());
+                                .getResultList()));
     }
 
     @Deprecated(forRemoval = true)
@@ -106,45 +103,45 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
 
     public Mono<Integer> archiveById(String id) {
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-                .flatMap(em -> asMonoDirect(
-                        () -> transactionTemplate.execute(ts -> em.createQuery("UPDATE " + genericDomain.getSimpleName()
-                                        + " e SET e.deletedAt = :instant WHERE e.deletedAt IS NULL AND e.id = :id")
-                                .setParameter("instant", Instant.now())
-                                .setParameter("id", id)
-                                .executeUpdate())));
+                .flatMap(em -> asMonoDirect(() -> em.createQuery("UPDATE " + genericDomain.getSimpleName()
+                                + " e SET e.deletedAt = :instant WHERE e.deletedAt IS NULL AND e.id = :id")
+                        .setParameter("instant", Instant.now())
+                        .setParameter("id", id)
+                        .executeUpdate()))
+                .as(transactionalOperator::transactional);
     }
 
     public Mono<Boolean> archiveAllById(Collection<String> ids) {
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-                .flatMap(em -> asMonoDirect(() -> transactionTemplate.execute(ts -> em.createQuery(
-                                        "UPDATE " + genericDomain.getSimpleName()
-                                                + " e SET e.deletedAt = :instant WHERE e.deletedAt IS NULL AND e.id IN :ids")
+                .flatMap(em -> asMonoDirect(() -> em.createQuery("UPDATE " + genericDomain.getSimpleName()
+                                        + " e SET e.deletedAt = :instant WHERE e.deletedAt IS NULL AND e.id IN :ids")
                                 .setParameter("instant", Instant.now())
                                 .setParameter("ids", ids)
                                 .executeUpdate()
-                        > 0)));
+                        > 0))
+                .as(transactionalOperator::transactional);
     }
 
     public Mono<Integer> deleteById(String id) {
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-                .flatMap(em -> asMonoDirect(() -> transactionTemplate.execute(ts -> em.createQuery("DELETE FROM "
-                                + genericDomain.getSimpleName() + " e WHERE e.deletedAt IS NULL AND e.id = :id")
+                .flatMap(em -> asMonoDirect(() -> em.createQuery("DELETE FROM " + genericDomain.getSimpleName()
+                                + " e WHERE e.deletedAt IS NULL AND e.id = :id")
                         .setParameter("id", id)
-                        .executeUpdate())));
+                        .executeUpdate()))
+                .as(transactionalOperator::transactional);
     }
 
     public Mono<Integer> deleteAll() {
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-                .flatMap(em -> asMonoDirect(() -> {
-                    return transactionTemplate.execute(ts -> em.createQuery(
-                                    "DELETE FROM " + genericDomain.getSimpleName() + " e WHERE e.deletedAt IS NULL")
-                            .executeUpdate());
-                }));
+                .flatMap(em -> asMonoDirect(() -> em.createQuery(
+                                "DELETE FROM " + genericDomain.getSimpleName() + " e WHERE e.deletedAt IS NULL")
+                        .executeUpdate()))
+                .as(transactionalOperator::transactional);
     }
 
     public Flux<T> saveAll(Iterable<T> entities) {
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-                .flatMapMany(em -> asFlux(() -> transactionTemplate.execute(ts -> {
+                .flatMapMany(em -> asFlux(() -> {
                     for (T entity : entities) {
                         if (entity.getId() == null) {
                             entity.setId(generateId());
@@ -154,7 +151,10 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                         }
                     }
                     return entities;
-                })));
+                }))
+                .collectList()
+                .as(transactionalOperator::transactional)
+                .flatMapMany(Flux::fromIterable);
     }
 
     public Mono<Long> count() {
@@ -171,35 +171,32 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
                 .flatMap(em -> {
                     final boolean isNew = entity.getId() == null;
-                    return Mono.fromSupplier(() -> {
-                                try {
-                                    transactionTemplate.execute(ts -> {
-                                        if (isNew) {
-                                            entity.setId(generateId());
-                                            em.persist(entity);
-                                            return entity;
-                                        } else {
-                                            return em.merge(entity);
-                                        }
-                                    });
-                                    return entity;
-                                } catch (DataIntegrityViolationException e) {
-                                    // save wasn't successful, reset the id if it was generated
-                                    if (isNew) {
-                                        entity.setId(null);
-                                    }
-                                    throw e;
-                                } catch (Exception e) {
-                                    // This should NEVER happen in live/production environments.
-                                    if (isNew) {
-                                        entity.setId(null);
-                                    }
-                                    log.error("Couldn't save entity", e);
-                                    throw new RuntimeException(e);
-                                }
-                            })
-                            .subscribeOn(Schedulers.boundedElastic());
-                });
+                    return asMonoDirect(() -> {
+                        try {
+                            if (isNew) {
+                                entity.setId(generateId());
+                                em.persist(entity);
+                                return entity;
+                            } else {
+                                return em.merge(entity);
+                            }
+                        } catch (DataIntegrityViolationException e) {
+                            // save wasn't successful, reset the id if it was generated
+                            if (isNew) {
+                                entity.setId(null);
+                            }
+                            throw e;
+                        } catch (Exception e) {
+                            // This should NEVER happen in live/production environments.
+                            if (isNew) {
+                                entity.setId(null);
+                            }
+                            log.error("Couldn't save entity", e);
+                            throw new RuntimeException(e);
+                        }
+                    });
+                })
+                .as(transactionalOperator::transactional);
     }
 
     private String generateId() {
@@ -262,12 +259,10 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                     final T existingEntity = tuple2.getT1();
                     final EntityManager em = tuple2.getT2();
                     AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(updates, existingEntity);
-                    transactionTemplate.execute(ts -> {
-                        em.merge(existingEntity);
-                        return existingEntity;
-                    });
-                    return findById(id, permission);
-                });
+                    em.merge(existingEntity);
+                    return Mono.just(existingEntity);
+                })
+                .as(transactionalOperator::transactional);
     }
 
     public Mono<Void> delete(T entity) {
