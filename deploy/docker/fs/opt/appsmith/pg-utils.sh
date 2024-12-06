@@ -18,9 +18,14 @@ waitForPostgresAvailability() {
     MAX_RETRIES=50
     RETRYSECONDS=10
     retry_count=0
-    local unix_socket_directory=$(get_unix_socket_directory "$POSTGRES_DB_PATH")
+    local host_proxy
+    if [[ "$PG_DB_HOST" == "localhost" || "$PG_DB_HOST" == "127.0.0.1" ]]; then
+      host_proxy=$(get_unix_socket_directory)
+    else
+      host_proxy=$PG_DB_HOST
+    fi
     while true; do
-      su postgres -c "pg_isready -h $unix_socket_directory -p '${PG_DB_PORT}'"
+      su postgres -c "pg_isready -h $host_proxy -p '${PG_DB_PORT}'"
       status=$?
 
       case $status in
