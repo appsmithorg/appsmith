@@ -181,10 +181,10 @@ public class AppsmithAiPlugin extends BasePlugin {
         }
 
         private Mono<ActionExecutionResult> handleExecution(
-            AiFeatureService aiFeatureService,
-            AiServerRequestDTO aiServerRequestDTO,
-            SourceDetails sourceDetails,
-            ActionExecutionRequest actionExecutionRequest) {
+                AiFeatureService aiFeatureService,
+                AiServerRequestDTO aiServerRequestDTO,
+                SourceDetails sourceDetails,
+                ActionExecutionRequest actionExecutionRequest) {
             Mono<ActionExecutionResult> actionExecutionResultMono;
             actionExecutionResultMono =
                     handleExecuteForAiServerService(aiServerRequestDTO, sourceDetails, actionExecutionRequest);
@@ -192,25 +192,25 @@ public class AppsmithAiPlugin extends BasePlugin {
         }
 
         private Mono<ActionExecutionResult> handleExecuteForAiServerService(
-            AiServerRequestDTO aiServerRequestDTO,
-            SourceDetails sourceDetails,
-            ActionExecutionRequest actionExecutionRequest) {
+                AiServerRequestDTO aiServerRequestDTO,
+                SourceDetails sourceDetails,
+                ActionExecutionRequest actionExecutionRequest) {
             return aiServerService
-                .executeQuery(aiServerRequestDTO, sourceDetails)
-                .map(response -> {
-                    ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
-                    actionExecutionResult.setIsExecutionSuccess(true);
-                    actionExecutionResult.setBody(response);
-                    actionExecutionResult.setRequest(actionExecutionRequest);
-                    return actionExecutionResult;
-                });
+                    .executeQuery(aiServerRequestDTO, sourceDetails)
+                    .map(response -> {
+                        ActionExecutionResult actionExecutionResult = new ActionExecutionResult();
+                        actionExecutionResult.setIsExecutionSuccess(true);
+                        actionExecutionResult.setBody(response);
+                        actionExecutionResult.setRequest(actionExecutionRequest);
+                        return actionExecutionResult;
+                    });
         }
 
         private Mono<ActionExecutionResult> handleError(Throwable error) {
             ActionExecutionResult errorResult = new ActionExecutionResult();
             initUtils.initializeResponseWithError(errorResult);
             log.error(
-                "An error has occurred while trying to run the AI server API query. Error: {}", error.getMessage());
+                    "An error has occurred while trying to run the AI server API query. Error: {}", error.getMessage());
             if (!(error instanceof AppsmithPluginException)) {
                 error = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, error.getMessage(), error);
             }
