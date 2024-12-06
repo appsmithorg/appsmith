@@ -9,6 +9,8 @@ import {
   locators,
   apiPage,
   table,
+  partialImportExport,
+  homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   AppSidebar,
@@ -51,10 +53,10 @@ describe(
       agHelper.WaitUntilAllToastsDisappear();
 
       // Deploy
-      //   deployMode.DeployApp();
-      //   agHelper.GetNClick(locators._widgetInDeployed("buttonwidget"));
-      //   agHelper.WaitUntilAllToastsDisappear();
-      //   deployMode.NavigateBacktoEditor();
+      deployMode.DeployApp();
+      agHelper.GetNClick(locators._widgetInDeployed("buttonwidget"));
+      agHelper.WaitUntilAllToastsDisappear();
+      deployMode.NavigateBacktoEditor();
     });
 
     it("2. Verify install/uninstall of Library ", () => {
@@ -102,10 +104,10 @@ describe(
       table.ValidateDownloadNVerify("users_list.pdf");
 
       // Deploy
-      //   deployMode.DeployApp();
-      //   agHelper.GetNClick(locators._widgetInDeployed("buttonwidget"));
-      //   table.ValidateDownloadNVerify("users_list.pdf");
-      //   deployMode.NavigateBacktoEditor();
+      deployMode.DeployApp();
+      agHelper.GetNClick(locators._widgetInDeployed("buttonwidget"));
+      table.ValidateDownloadNVerify("users_list.pdf");
+      deployMode.NavigateBacktoEditor();
     });
 
     it("4. Verify deleting jspdf library deletes all its references as well", () => {
@@ -115,8 +117,15 @@ describe(
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       agHelper.GetNClick(locators._widgetInDeployed("buttonwidget"));
-      agHelper.ValidateToastMessage("jspdf is not defined");
+      agHelper.ValidateToastMessage(
+        '"jspdf" is undefined . Please fix JSObject2.genPDF.',
+      );
 
+      // Deploy
+      deployMode.DeployApp();
+      agHelper.GetNClick(locators._widgetInDeployed("buttonwidget"));
+      agHelper.ValidateToastMessage("jspdf is not defined");
+      deployMode.NavigateBacktoEditor();
       // Install jspdf and verify references are working
       AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.OpenInstaller();
@@ -124,6 +133,58 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       agHelper.GetNClick(locators._widgetInDeployed("buttonwidget"));
       table.ValidateDownloadNVerify("users_list.pdf");
+
+      // Deploy
+      deployMode.DeployApp();
+      agHelper.GetNClick(locators._widgetInDeployed("buttonwidget"));
+      table.ValidateDownloadNVerify("users_list.pdf");
+      deployMode.NavigateBacktoEditor();
+    });
+
+    it("5. Verify using incompatible URL shows an error", () => {
+      AppSidebar.navigate(AppSidebarButton.Libraries);
+      installer.OpenInstaller();
+      installer.InstallLibraryViaURL(
+        "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
+        "",
+        false,
+      );
+      agHelper.AssertText(
+        '[kind="error"] .header',
+        "text",
+        "Library is unsupported",
+      );
+    });
+
+    it.skip("6. Verify export and import of app with custom library", () => {
+      AppSidebar.navigate(AppSidebarButton.Libraries);
+      installer.OpenInstaller();
+      installer.InstallLibraryViaURL(
+        "https://cdn.jsdelivr.net/npm/swiper@11.1.14/+esm",
+        "swiper",
+      );
+      agHelper.WaitUntilAllToastsDisappear();
+
+      AppSidebar.navigate(AppSidebarButton.Editor);
+      partialImportExport.OpenExportModal();
+
+      // Export Custom Library
+      partialImportExport.PartiallyExportFile(
+        3,
+        partialImportExport.locators.export.modelContents.customJSLibsSection,
+        ["swiper"],
+      );
+
+      // Import to new app
+      homePage.NavigateToHome();
+      homePage.CreateNewApplication();
+      partialImportExport.OpenImportModal();
+      partialImportExport.ImportPartiallyExportedFile(
+        "Library_Test.json",
+        "Libraries",
+        ["swiper"],
+        "downloads",
+      );
     });
   },
 );
