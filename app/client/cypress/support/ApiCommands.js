@@ -137,7 +137,10 @@ Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
   agHelper.GetNClick(apiwidget.createapi);
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
-  agHelper.RenameQuery(apiname, apiname.concat(" is already being used or is a restricted keyword."));
+  agHelper.RenameQuery(
+    apiname,
+    apiname.concat(" is already being used or is a restricted keyword."),
+  );
 });
 
 Cypress.Commands.add("validateMessage", (value) => {
