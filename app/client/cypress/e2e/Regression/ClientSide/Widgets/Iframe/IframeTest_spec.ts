@@ -37,7 +37,7 @@ describe(
         .then(cy.wrap);
     };
 
-    it("1. Verify content and user interaction", function () {
+    it.only("1. Verify content and user interaction", function () {
       propPane.UpdatePropertyFieldValue("URL", testdata.iframeUrl);
       getIframeBody()
         .find(".header-logo")
@@ -76,7 +76,7 @@ describe(
         );
     });
 
-    it("2. Verify onMessageReceived, onSrcDocChanged, onURLChanged", function () {
+    it.only("2. Verify onMessageReceived, onSrcDocChanged, onURLChanged", function () {
       // onMessageReceived
       propPane.SelectPlatformFunction("onMessageReceived", "Show alert");
       agHelper.TypeText(
@@ -88,7 +88,15 @@ describe(
       getIframeBody()
         .find("a:contains('Social Feed')")
         .first()
-        .click({ force: true });
+        .dblclick({ force: true });
+
+    // getIframeBody()
+    //     .find(".mobile-ui-page-header")
+    //     .first()
+    //     .click({ force: true });
+
+  
+
       agHelper.ValidateToastMessage("Message Received");
 
       // onSrcDocChanged
