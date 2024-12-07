@@ -246,3 +246,6 @@ export const ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING =
 
 export const CUSTOM_LOADING_STATE_ENABLED =
   FEATURE_FLAG["release_table_custom_loading_state_enabled"];
+
+export const HTML_COLUMN_TYPE_ENABLED =
+  FEATURE_FLAG["release_table_html_column_type_enabled"];
