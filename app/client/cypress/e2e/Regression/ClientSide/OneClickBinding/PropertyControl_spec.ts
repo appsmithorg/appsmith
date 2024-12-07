@@ -97,7 +97,7 @@ describe(
       propPane.ToggleJSMode("Table data", false);
 
       oneClickBinding.ChooseAndAssertForm("Users", "Users", "public.users", {
-        searchableColumn: "gender",
+        searchableColumn: "email",
       });
 
       propPane.MoveToTab("Style");
@@ -105,7 +105,7 @@ describe(
       propPane.MoveToTab("Content");
 
       oneClickBinding.ChooseAndAssertForm("sample Movies", "movies", "movies", {
-        searchableColumn: "status",
+        searchableColumn: "email",
       });
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Mongo");
