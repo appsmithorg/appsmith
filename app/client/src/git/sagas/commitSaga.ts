@@ -1,7 +1,10 @@
 import type { CommitInitPayload } from "../actions/commitActions";
 import { GitArtifactType, GitErrorCodes } from "../constants/enums";
 import commitRequest from "../requests/commitRequest";
-import type { CommitResponse } from "../requests/commitRequest.types";
+import type {
+  CommitRequestParams,
+  CommitResponse,
+} from "../requests/commitRequest.types";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "../types";
 import { call, put } from "redux-saga/effects";
@@ -17,7 +20,7 @@ export default function* commitSaga(
   let response: CommitResponse | undefined;
 
   try {
-    const params = {
+    const params: CommitRequestParams = {
       commitMessage: action.payload.commitMessage,
       doPush: action.payload.doPush,
     };

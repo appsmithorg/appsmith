@@ -89,12 +89,12 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       loading: false,
       error: null,
     },
-    localConfig: {
+    localProfile: {
       value: null,
       loading: false,
       error: null,
     },
-    updateLocalConfig: {
+    updateLocalProfile: {
       loading: false,
       error: null,
     },

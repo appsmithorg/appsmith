@@ -2,7 +2,10 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { call, put } from "redux-saga/effects";
 import type { UpdateGlobalProfileInitPayload } from "../actions/updateGlobalProfileActions";
 import updateGlobalProfileRequest from "../requests/updateGlobalProfileRequest";
-import type { UpdateGlobalProfileResponse } from "../requests/updateGlobalProfileRequest.types";
+import type {
+  UpdateGlobalProfileRequestParams,
+  UpdateGlobalProfileResponse,
+} from "../requests/updateGlobalProfileRequest.types";
 import { gitConfigActions } from "../store/gitConfigSlice";
 
 // internal dependencies
@@ -14,7 +17,7 @@ export default function* updateGlobalGitConfig(
   let response: UpdateGlobalProfileResponse | undefined;
 
   try {
-    const params = {
+    const params: UpdateGlobalProfileRequestParams = {
       authorName: action.payload.authorName,
       authorEmail: action.payload.authorEmail,
     };

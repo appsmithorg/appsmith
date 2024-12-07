@@ -1,6 +1,9 @@
 import type { FetchBranchesInitPayload } from "git/actions/fetchBranchesActions";
 import fetchBranchesRequest from "git/requests/fetchBranchesRequest";
-import type { FetchBranchesResponse } from "git/requests/fetchBranchesRequest.types";
+import type {
+  FetchBranchesRequestParams,
+  FetchBranchesResponse,
+} from "git/requests/fetchBranchesRequest.types";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/types";
 import { call, put } from "redux-saga/effects";
@@ -14,7 +17,7 @@ export default function* fetchBranchesSaga(
   let response: FetchBranchesResponse | undefined;
 
   try {
-    const params = {
+    const params: FetchBranchesRequestParams = {
       pruneBranches: action.payload.pruneBranches,
     };
 

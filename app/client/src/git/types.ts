@@ -8,6 +8,7 @@ import type {
 } from "./constants/enums";
 import type { FetchGlobalProfileResponseData } from "./requests/fetchGlobalProfileRequest.types";
 import type { FetchBranchesResponseData } from "./requests/fetchBranchesRequest.types";
+import type { FetchLocalProfileResponseData } from "./requests/fetchLocalProfileRequest.types";
 
 // These will be updated when contracts are finalized
 export type GitMetadata = Record<string, unknown>;
@@ -16,7 +17,7 @@ export type GitStatus = Record<string, unknown>;
 
 export type GitMergeStatus = Record<string, unknown>;
 
-export type GitLocalConfig = Record<string, unknown>;
+export type GitLocalProfile = Record<string, unknown>;
 
 export type GitProtectedBranches = Record<string, unknown>;
 
@@ -47,8 +48,8 @@ export interface GitSingleArtifactAPIResponsesReduxState {
   checkoutBranch: AsyncStateWithoutValue;
   createBranch: AsyncStateWithoutValue;
   deleteBranch: AsyncStateWithoutValue;
-  localConfig: AsyncState<GitLocalConfig>;
-  updateLocalConfig: AsyncStateWithoutValue;
+  localProfile: AsyncState<FetchLocalProfileResponseData>;
+  updateLocalProfile: AsyncStateWithoutValue;
   disconnect: AsyncStateWithoutValue;
   protectedBranches: AsyncState<GitProtectedBranches>;
   updateProtectedBranches: AsyncStateWithoutValue;

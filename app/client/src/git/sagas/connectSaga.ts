@@ -1,6 +1,9 @@
 import { gitArtifactActions } from "../store/gitArtifactSlice";
 import connectRequest from "../requests/connectRequest";
-import type { ConnectResponse } from "../requests/connectRequest.types";
+import type {
+  ConnectRequestParams,
+  ConnectResponse,
+} from "../requests/connectRequest.types";
 import { GitArtifactType, GitErrorCodes } from "../constants/enums";
 import { GIT_BRANCH_QUERY_KEY } from "../constants/misc";
 import type { GitArtifactPayloadAction } from "../types";
@@ -22,7 +25,7 @@ export default function* connectSaga(
   let response: ConnectResponse | undefined;
 
   try {
-    const params = {
+    const params: ConnectRequestParams = {
       remoteUrl: action.payload.remoteUrl,
       gitProfile: action.payload.gitProfile,
     };
