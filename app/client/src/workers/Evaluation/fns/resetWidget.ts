@@ -61,6 +61,11 @@ async function resetWidget(
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const klona11 = (data: any) => {
+  return klona(data);
+};
+
 function resetWidgetMetaProperty(
   widgetName: string,
   resetChildren = true,
@@ -123,9 +128,9 @@ function resetWidgetMetaProperty(
             configTree,
           );
 
-          finalValue = klona(result);
+          finalValue = klona11(result);
         } else {
-          finalValue = klona(expressionToEvaluate);
+          finalValue = klona11(expressionToEvaluate);
         }
 
         // Switch back to async evaluation once done with sync tasks.

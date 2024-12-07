@@ -157,14 +157,17 @@ class UserLog {
     return {
       method,
       id,
-      data: this.sanitizeData(klona(output)),
+      data: this.sanitizeData(klona12(output)),
       timestamp,
       severity,
       source: this.getSource(triggerMeta),
     };
   }
 }
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const klona12 = (data: any) => {
+  return klona(data);
+};
 const userLogs = new UserLog();
 
 export default userLogs;

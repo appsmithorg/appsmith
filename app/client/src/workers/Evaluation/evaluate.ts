@@ -224,6 +224,10 @@ export interface createEvaluationContextArgs {
  * the particular entities only. This avoid unnecessary cloning of every entity and further multiple times.
  *
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const klona10 = (data: any) => {
+  return klona(data);
+};
 const overrideEvalContext = (
   EVAL_CONTEXT: EvalContext,
   overrideContext?: Record<string, unknown>,
@@ -236,7 +240,7 @@ const overrideEvalContext = (
 
       if (entityName in EVAL_CONTEXT && !entitiesClonedSoFar.has(entityName)) {
         entitiesClonedSoFar.add(entityName);
-        EVAL_CONTEXT[entityName] = klona(EVAL_CONTEXT[entityName]);
+        EVAL_CONTEXT[entityName] = klona10(EVAL_CONTEXT[entityName]);
       }
     });
 
