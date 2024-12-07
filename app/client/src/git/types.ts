@@ -6,6 +6,7 @@ import type {
   GitOpsTab,
   GitSettingsTab,
 } from "./constants/enums";
+import type { FetchGlobalProfileResponseData } from "./requests/fetchGlobalProfileRequest.types";
 
 // These will be updated when contracts are finalized
 export type GitMetadata = Record<string, unknown>;
@@ -15,8 +16,6 @@ export type GitBranches = Record<string, unknown>;
 export type GitStatus = Record<string, unknown>;
 
 export type GitMergeStatus = Record<string, unknown>;
-
-export type GitGlobalConfig = Record<string, unknown>;
 
 export type GitLocalConfig = Record<string, unknown>;
 
@@ -49,9 +48,7 @@ export interface GitSingleArtifactAPIResponsesReduxState {
   checkoutBranch: AsyncStateWithoutValue;
   createBranch: AsyncStateWithoutValue;
   deleteBranch: AsyncStateWithoutValue;
-  globalConfig: AsyncState<GitGlobalConfig>;
   localConfig: AsyncState<GitLocalConfig>;
-  updateGlobalConfig: AsyncStateWithoutValue;
   updateLocalConfig: AsyncStateWithoutValue;
   disconnect: AsyncStateWithoutValue;
   protectedBranches: AsyncState<GitProtectedBranches>;
@@ -96,22 +93,30 @@ export interface GitArtifactReduxState {
   [key: string]: Record<string, GitSingleArtifactReduxState>;
 }
 
+export interface GitConfigReduxState {
+  globalProfile: AsyncState<FetchGlobalProfileResponseData>;
+  updateGlobalProfile: AsyncStateWithoutValue;
+}
+
 export interface GitArtifactBasePayload {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
 }
 
-export interface GitArtifactErrorPayload {
+export interface GitAsyncErrorPayload {
   error: string;
 }
 
-export type GitArtifactPayloadAction<T = Record<string, unknown>> =
-  PayloadAction<GitArtifactBasePayload & T>;
+export interface GitAsyncSuccessPayload<T> {
+  responseData: T;
+}
 
-export type GitArtifactSuccessPayloadAction<T = unknown> =
-  GitArtifactPayloadAction<{
-    responseData: T;
-  }>;
+export type GitArtifactPayload<T = Record<string, never>> =
+  GitArtifactBasePayload & T;
+
+export type GitArtifactPayloadAction<T = Record<string, never>> = PayloadAction<
+  GitArtifactPayload<T>
+>;
 
 export type GitArtifactErrorPayloadAction =
-  GitArtifactPayloadAction<GitArtifactErrorPayload>;
+  GitArtifactPayloadAction<GitAsyncErrorPayload>;

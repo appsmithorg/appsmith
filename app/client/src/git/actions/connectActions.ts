@@ -1,5 +1,5 @@
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
-import type { GitArtifactErrorPayload } from "../types";
+import type { GitAsyncErrorPayload } from "../types";
 import type { ConnectRequestParams } from "git/requests/connectRequest.types";
 
 export interface ConnectInitPayload extends ConnectRequestParams {
@@ -22,7 +22,7 @@ export const connectSuccessAction = createSingleArtifactAction((state) => {
 });
 
 export const connectErrorAction =
-  createSingleArtifactAction<GitArtifactErrorPayload>((state, action) => {
+  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.connect.loading = false;

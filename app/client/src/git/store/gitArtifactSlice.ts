@@ -37,7 +37,7 @@ import { toggleRepoLimitErrorModalAction } from "../actions/repoLimitErrorModalA
 const initialState: GitArtifactReduxState = {};
 
 export const gitArtifactSlice = createSlice({
-  name: "git",
+  name: "git/artifact",
   initialState,
   reducers: {
     mount: mountAction,

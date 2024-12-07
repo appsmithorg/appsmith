@@ -1,5 +1,5 @@
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
-import type { GitArtifactErrorPayloadAction } from "../types";
+import type { GitAsyncErrorPayload } from "../types";
 import type { CommitRequestParams } from "git/requests/commitRequest.types";
 
 export interface CommitInitPayload extends CommitRequestParams {}
@@ -19,13 +19,12 @@ export const commitSuccessAction = createSingleArtifactAction((state) => {
   return state;
 });
 
-export const commitErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactErrorPayloadAction) => {
+export const commitErrorAction =
+  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.commit.loading = false;
     state.apiResponses.commit.error = error;
 
     return state;
-  },
-);
+  });

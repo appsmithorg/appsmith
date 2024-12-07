@@ -1,9 +1,9 @@
-export interface UpdateGlobalConfigRequestParams {
+export interface UpdateGlobalProfileRequestParams {
   authorName: string;
   authorEmail: string;
 }
 
-export interface UpdateGlobalConfigResponse {
+export interface UpdateGlobalProfileResponse {
   default: {
     authorName: string;
     authorEmail: string;

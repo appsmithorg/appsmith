@@ -89,17 +89,8 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       loading: false,
       error: null,
     },
-    globalConfig: {
-      value: null,
-      loading: false,
-      error: null,
-    },
     localConfig: {
       value: null,
-      loading: false,
-      error: null,
-    },
-    updateGlobalConfig: {
       loading: false,
       error: null,
     },
