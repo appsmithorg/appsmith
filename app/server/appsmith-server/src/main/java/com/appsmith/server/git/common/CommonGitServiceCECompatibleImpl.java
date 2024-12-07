@@ -1,7 +1,6 @@
 package com.appsmith.server.git.common;
 
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.exports.internal.ExportService;
@@ -36,7 +35,6 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
             SessionUserService sessionUserService,
             UserDataService userDataService,
             UserService userService,
-            EmailConfig emailConfig,
             TransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ObservationRegistry observationRegistry,
@@ -57,7 +55,6 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
                 sessionUserService,
                 userDataService,
                 userService,
-                emailConfig,
                 transactionalOperator,
                 analyticsService,
                 observationRegistry,

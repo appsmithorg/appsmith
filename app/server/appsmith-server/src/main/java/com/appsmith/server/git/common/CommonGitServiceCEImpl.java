@@ -13,7 +13,6 @@ import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
@@ -125,7 +124,6 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     protected final SessionUserService sessionUserService;
     private final UserDataService userDataService;
     protected final UserService userService;
-    private final EmailConfig emailConfig;
     private final TransactionalOperator transactionalOperator;
 
     protected final AnalyticsService analyticsService;
