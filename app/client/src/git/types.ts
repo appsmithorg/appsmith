@@ -7,11 +7,10 @@ import type {
   GitSettingsTab,
 } from "./constants/enums";
 import type { FetchGlobalProfileResponseData } from "./requests/fetchGlobalProfileRequest.types";
+import type { FetchBranchesResponseData } from "./requests/fetchBranchesRequest.types";
 
 // These will be updated when contracts are finalized
 export type GitMetadata = Record<string, unknown>;
-
-export type GitBranches = Record<string, unknown>;
 
 export type GitStatus = Record<string, unknown>;
 
@@ -44,7 +43,7 @@ export interface GitSingleArtifactAPIResponsesReduxState {
   discard: AsyncStateWithoutValue;
   mergeStatus: AsyncState<GitMergeStatus>;
   merge: AsyncStateWithoutValue;
-  branches: AsyncState<GitBranches>;
+  branches: AsyncState<FetchBranchesResponseData>;
   checkoutBranch: AsyncStateWithoutValue;
   createBranch: AsyncStateWithoutValue;
   deleteBranch: AsyncStateWithoutValue;
