@@ -5,10 +5,10 @@ import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.server.domains.ScreenType;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 import net.minidev.json.JSONObject;
-import org.springframework.data.annotation.Transient;
 
 import java.util.List;
 import java.util.Set;

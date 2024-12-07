@@ -31,13 +31,14 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ConsolidatedAPIService;
 import com.appsmith.server.services.MockDataService;
@@ -48,11 +49,13 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -78,7 +81,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@ExtendWith(AfterAllCleanUpExtension.class)
+@TestPropertySource(properties = "spring.aop.auto=false")
 public class ConsolidatedAPIServiceImplTest {
 
     @Autowired
@@ -130,10 +135,10 @@ public class ConsolidatedAPIServiceImplTest {
     MockDataService mockMockDataService;
 
     @SpyBean
-    ApplicationRepository spyApplicationRepository;
+    ApplicationRepositoryCake spyApplicationRepository;
 
     @SpyBean
-    NewPageRepository mockNewPageRepository;
+    NewPageRepositoryCake mockNewPageRepository;
 
     @Autowired
     CacheableRepositoryHelper cacheableRepositoryHelper;
@@ -1604,7 +1609,7 @@ public class ConsolidatedAPIServiceImplTest {
                     assertThat(pages.getResponseMeta().getError().getCode())
                             .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
                     assertThat(pages.getResponseMeta().getError().getMessage())
-                            .isEqualTo("Unable to find page featurePageId, defaultBranch");
+                            .isEqualTo("Unable to find application featureApplicationId");
 
                     assertNull(pageWithMigratedDsl.getData());
                     assertNotNull(pageWithMigratedDsl.getResponseMeta());
@@ -1613,7 +1618,7 @@ public class ConsolidatedAPIServiceImplTest {
                     assertThat(pageWithMigratedDsl.getResponseMeta().getError().getCode())
                             .isEqualTo(AppsmithError.NO_RESOURCE_FOUND.getAppErrorCode());
                     assertThat(pageWithMigratedDsl.getResponseMeta().getError().getMessage())
-                            .isEqualTo("Unable to find page featurePageId, defaultBranch");
+                            .isEqualTo("Unable to find application featureApplicationId");
                 })
                 .verifyComplete();
     }

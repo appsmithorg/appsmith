@@ -1,7 +1,8 @@
 package com.appsmith.server.widgets.refactors;
 
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,10 +10,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -21,6 +24,8 @@ import java.io.InputStream;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Slf4j
 @SpringBootTest
 class WidgetRefactoringServiceCEImplTest {
@@ -40,7 +45,7 @@ class WidgetRefactoringServiceCEImplTest {
     ObjectMapper mapper = new ObjectMapper();
 
     @MockBean
-    ActionCollectionRepository actionCollectionRepository;
+    ActionCollectionRepositoryCake actionCollectionRepository;
 
     @Autowired
     WidgetRefactorUtil widgetRefactorUtil;

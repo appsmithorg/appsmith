@@ -74,7 +74,7 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
     @JsonView(Views.Public.class)
     String docUrl;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone = "UTC")
     @JsonView(Views.Public.class)
     Instant lastCommittedAt;
 
