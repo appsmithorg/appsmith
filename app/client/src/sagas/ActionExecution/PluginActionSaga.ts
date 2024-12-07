@@ -2,14 +2,15 @@ import {
   all,
   call,
   delay,
+  fork,
   put,
+  race,
   select,
   take,
   takeEvery,
   takeLatest,
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
-import type { updateActionDataPayloadType } from "actions/pluginActionActions";
 import {
   clearActionResponse,
   executePageLoadActions,
@@ -1674,10 +1675,9 @@ function* softRefreshActionsSaga() {
   yield put({ type: ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS });
 }
 
-function* handleUpdateActionData(
-  action: ReduxAction<updateActionDataPayloadType>,
-) {
-  const { actionDataPayload, parentSpan } = action.payload;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function* handleUpdateActionData(action: any) {
+  const { actionDataPayload, parentSpan } = action;
 
   yield call(
     evalWorker.request,
@@ -1687,6 +1687,77 @@ function* handleUpdateActionData(
 
   if (parentSpan) {
     endSpan(parentSpan);
+  }
+}
+
+function* captureActionsWithinPeriodTriggers() {
+  while (true) {
+    const buffer = []; // Initialize a new buffer for each batch
+    const endTime = Date.now() + 10000;
+    // eslint-disable-next-line prefer-const
+
+    while (Date.now() < endTime) {
+      try {
+        // Use a non-blocking `take` to capture actions within the period
+
+        const { action } = yield race({
+          action: take(ReduxActionTypes.TRIGGER_EVAL),
+          del: delay(1000),
+        });
+
+        if (!action) continue;
+
+        buffer.push(action);
+      } catch (e) {
+        // Handle errors if needed
+      }
+    }
+
+    // After the time period, dispatch the collected actions
+    if (buffer.length > 0) {
+      yield put({
+        type: ReduxActionTypes.TRIGGER_EVAL_BATCH,
+      });
+    }
+  }
+}
+
+// Use a channel to queue all actions
+
+function* captureActionsWithinPeriod() {
+  while (true) {
+    const buffer = []; // Initialize a new buffer for each batch
+    const endTime = Date.now() + 10000;
+    let parentSpan;
+    // eslint-disable-next-line prefer-const
+
+    while (Date.now() < endTime) {
+      try {
+        // Use a non-blocking `take` to capture actions within the period
+
+        const { action } = yield race({
+          action: take(ReduxActionTypes.UPDATE_ACTION_DATA),
+          del: delay(1000),
+        });
+
+        if (!action) continue;
+
+        const { actionDataPayload } = action.payload;
+
+        parentSpan = action.payload.parentSpan;
+        buffer.push(...actionDataPayload);
+      } catch (e) {
+        // Handle errors if needed
+      }
+    }
+
+    // After the time period, dispatch the collected actions
+    if (buffer.length > 0) {
+      yield fork(handleUpdateActionData, {
+        parentSpan,
+        actionDataPayload: buffer,
+      });
+    }
   }
 }
 
@@ -1703,6 +1774,10 @@ export function* watchPluginActionExecutionSagas() {
     ),
     takeLatest(ReduxActionTypes.PLUGIN_SOFT_REFRESH, softRefreshActionsSaga),
     takeEvery(ReduxActionTypes.EXECUTE_JS_UPDATES, makeUpdateJSCollection),
-    takeEvery(ReduxActionTypes.UPDATE_ACTION_DATA, handleUpdateActionData),
+    takeEvery(ReduxActionTypes.START_EVALUATION, captureActionsWithinPeriod),
+    takeEvery(
+      ReduxActionTypes.START_EVALUATION,
+      captureActionsWithinPeriodTriggers,
+    ),
   ]);
 }

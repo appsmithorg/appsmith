@@ -82,12 +82,12 @@ const logsHandler = deferredBatchedActionHandler((batchedData) =>
 
 TriggerEmitter.on(BatchKey.process_logs, logsHandler);
 
-const storeUpdatesHandler = priorityBatchedActionHandler((batchedData) =>
-  WorkerMessenger.ping({
+const storeUpdatesHandler = priorityBatchedActionHandler((batchedData) => {
+  return WorkerMessenger.ping({
     method: MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES,
     data: batchedData,
-  }),
-);
+  });
+});
 
 TriggerEmitter.on(BatchKey.process_store_updates, storeUpdatesHandler);
 
