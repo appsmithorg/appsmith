@@ -13,7 +13,7 @@ import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import { isString } from "utils/helpers";
-import { JSToString, stringToJS } from "./utils";
+import { JSToString, normalizedMultilineValue, stringToJS } from "./utils";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
@@ -182,7 +182,14 @@ class ComputeTablePropertyControlV2 extends BaseControl<ComputeTablePropertyCont
       return value;
     }
 
-    const stringToEvaluate = stringToJS(value);
+    // Handle multiline strings by replacing newlines with spaces
+    let stringToEvaluate = "";
+
+    if (this.props.additionalControlData?.isExpectingHTML) {
+      stringToEvaluate = stringToJS(normalizedMultilineValue(value));
+    } else {
+      stringToEvaluate = stringToJS(value);
+    }
 
     if (stringToEvaluate === "") {
       return stringToEvaluate;

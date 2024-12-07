@@ -37,3 +37,7 @@ export const getValidationErrorForProperty = (
 ) => {
   return get(widget, `${EVAL_ERROR_PATH}.${propertyPath}`, []);
 };
+
+export const normalizedMultilineValue = (value: string) => {
+  return value.replace(/'/g, '"').replace(/\n/g, "\\n");
+};
