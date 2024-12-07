@@ -36,7 +36,7 @@ export const LINT_REDUX_ACTIONS = {
   [ReduxActionTypes.INSTALL_LIBRARY_SUCCESS]: true,
   [ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS]: true,
   [ReduxActionTypes.BUFFERED_ACTION]: true,
-  [ReduxActionTypes.BATCH_UPDATES_SUCCESS]: true,
+  [ReduxActionTypes.BATCH_UPDATES_SUCCESS_CONSOLIDATED]: true,
 };
 
 export const LOG_REDUX_ACTIONS = {
@@ -96,7 +96,8 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.RESET_WIDGET_META,
   ReduxActionTypes.RESET_WIDGET_META_UPDATES,
   // Batches
-  ReduxActionTypes.BATCH_UPDATES_SUCCESS,
+  // ReduxActionTypes.BATCH_UPDATES_SUCCESS,
+  ReduxActionTypes.BATCH_UPDATES_SUCCESS_CONSOLIDATED,
   // App Theme
   ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
   ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,
