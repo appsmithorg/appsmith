@@ -5,7 +5,6 @@ import type {
   ConnectResponse,
 } from "../requests/connectRequest.types";
 import { GitArtifactType, GitErrorCodes } from "../constants/enums";
-import { GIT_BRANCH_QUERY_KEY } from "../constants/misc";
 import type { GitArtifactPayloadAction } from "../types";
 import type { ConnectInitPayload } from "../actions/connectActions";
 
@@ -15,6 +14,7 @@ import { call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import { fetchPageAction } from "actions/pageActions";
 import history from "utils/history";
+import { addBranchParam } from "constants/routes";
 
 export default function* connectSaga(
   action: GitArtifactPayloadAction<ConnectInitPayload>,
@@ -46,11 +46,9 @@ export default function* connectSaga(
         }
 
         const branch = response.data.gitApplicationMetadata.branchName;
-        const url = new URL(window.location.href);
+        const newUrl = addBranchParam(branch);
 
-        url.searchParams.set(GIT_BRANCH_QUERY_KEY, encodeURIComponent(branch));
-        url.toString().slice(url.origin.length);
-        history.replace(url);
+        history.replace(newUrl);
         // ! case for updating lastDeployedAt in application manually?
       }
     }
