@@ -102,7 +102,7 @@ describe(
           //Create and run query.
 
           _.dataSources.EnterQuery(
-            "SELECT * FROM users ORDER BY id LIMIT 10;",
+            "SELECT * FROM users ORDER BY username LIMIT 10;",
             1000,
           );
           _.dataSources.RunQuery();
