@@ -32,11 +32,12 @@ import {
   pullInitAction,
   pullSuccessAction,
 } from "../actions/pullActions";
+import { toggleRepoLimitErrorModalAction } from "../actions/repoLimitErrorModalActions";
 
 const initialState: GitArtifactReduxState = {};
 
 export const gitArtifactSlice = createSlice({
-  name: "gitArtifact",
+  name: "git",
   initialState,
   reducers: {
     mount: mountAction,
@@ -59,9 +60,10 @@ export const gitArtifactSlice = createSlice({
     pullInit: pullInitAction,
     pullSuccess: pullSuccessAction,
     pullError: pullErrorAction,
+    toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
   },
 });
 
 export const gitArtifactActions = gitArtifactSlice.actions;
 
-export default gitArtifactSlice.reducer;
+export const gitArtifactReducer = gitArtifactSlice.reducer;

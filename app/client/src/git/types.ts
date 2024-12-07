@@ -83,6 +83,9 @@ export interface GitSingleArtifactUIReduxState {
     open: boolean;
     tab: keyof typeof GitSettingsTab;
   };
+  repoLimitErrorModal: {
+    open: boolean;
+  };
 }
 export interface GitSingleArtifactReduxState {
   ui: GitSingleArtifactUIReduxState;
@@ -98,9 +101,17 @@ export interface GitArtifactBasePayload {
   baseArtifactId: string;
 }
 
+export interface GitArtifactErrorPayload {
+  error: string;
+}
+
 export type GitArtifactPayloadAction<T = Record<string, unknown>> =
   PayloadAction<GitArtifactBasePayload & T>;
 
-export type GitArtifactErrorPayloadAction = GitArtifactPayloadAction<{
-  error: string;
-}>;
+export type GitArtifactSuccessPayloadAction<T = unknown> =
+  GitArtifactPayloadAction<{
+    responseData: T;
+  }>;
+
+export type GitArtifactErrorPayloadAction =
+  GitArtifactPayloadAction<GitArtifactErrorPayload>;

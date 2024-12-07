@@ -30,6 +30,9 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
     open: false,
     tab: GitSettingsTab.General,
   },
+  repoLimitErrorModal: {
+    open: false,
+  },
 };
 
 const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxState =
