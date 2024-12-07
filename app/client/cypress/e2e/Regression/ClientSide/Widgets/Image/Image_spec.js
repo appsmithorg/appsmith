@@ -38,6 +38,13 @@ describe(
       cy.get(viewWidgetsPage.imageinner)
         .invoke("attr", "src")
         .should("contain", this.dataSet.validateImage);
+      /**
+       * @param{TEXT} Alternative text
+       */
+      cy.testCodeMirrorLast(this.dataSet.NewImageAltText);
+      cy.get(viewWidgetsPage.imageinner)
+        .invoke("attr", "alt")
+        .should("contain", this.dataSet.validateImageAltText);
       cy.closePropertyPane();
     });
 
