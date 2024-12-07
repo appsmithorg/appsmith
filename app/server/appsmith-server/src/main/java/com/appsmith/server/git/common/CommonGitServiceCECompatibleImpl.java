@@ -19,6 +19,7 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
+import com.appsmith.server.transaction.CustomTransactionalOperator;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
             UserDataService userDataService,
             UserService userService,
             EmailConfig emailConfig,
+            CustomTransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ObservationRegistry observationRegistry,
             WorkspaceService workspaceService,
@@ -56,6 +58,7 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
                 userDataService,
                 userService,
                 emailConfig,
+                transactionalOperator,
                 analyticsService,
                 observationRegistry,
                 workspaceService,

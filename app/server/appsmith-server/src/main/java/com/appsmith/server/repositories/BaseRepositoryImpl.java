@@ -1,12 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -17,8 +12,6 @@ import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
-
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 /**
  * This repository implementation is the base class that will be used by Spring Data running all the default JPA queries.
@@ -67,14 +60,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
 
     @Override
     public @NonNull Optional<T> findById(@NonNull ID id) {
-        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<T> cq = cb.createQuery(entityInformation.getJavaType());
-        final Root<T> root = cq.from(entityInformation.getJavaType());
-
-        cq.where(Bridge.<T>and(notDeleted(), Bridge.equal(FieldName.ID, (String) id))
-                .toPredicate(root, cq, cb));
-
-        return Optional.ofNullable(entityManager.createQuery(cq).getSingleResult());
+        throw new UnsupportedOperationException("Use the implementation from BaseRepository!");
     }
 
     /**

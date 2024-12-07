@@ -323,9 +323,6 @@ public class ApplicationServiceCETest {
         Workspace toCreate = new Workspace();
         toCreate.setName("ApplicationServiceTest");
 
-        Set<String> beforeCreatingWorkspace =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
@@ -395,9 +392,6 @@ public class ApplicationServiceCETest {
         datasource1.setDatasourceStorages(storages1);
 
         testDatasource1 = datasourceService.create(datasource1).block();
-        Set<String> afterCreatingWorkspace =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
 
         log.info("Workspace ID: {}", workspaceId);
         log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
@@ -407,6 +401,7 @@ public class ApplicationServiceCETest {
 
     @AfterEach
     public void cleanup() {
+        /*
         User currentUser = sessionUserService.getCurrentUser().block();
         if (currentUser == null || !currentUser.getEmail().equals("api_user")) {
             // Since no setup was done, hence no cleanup needs to happen
@@ -417,7 +412,9 @@ public class ApplicationServiceCETest {
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
-        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
+        // Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
+
+         */
     }
 
     private <T extends BaseDomain> Mono<T> getArchivedResource(String id, Class<T> domainClass) {
@@ -4535,5 +4532,28 @@ public class ApplicationServiceCETest {
                 .fetchBaseApplicationId(basePageId2Ref.get(), null)
                 .block();
         assertThat(cachedBaseAppId2).isNull();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void test() {
+        Application application = new Application();
+        application.setName("Application " + UUID.randomUUID());
+        application.setWorkspaceId(workspaceId);
+        application = applicationPageService.createApplication(application).block();
+        Mono<List<Application>> resultMono = applicationService
+                .findAndUpdateApplicationForTest(application.getId())
+                .flatMap(app -> applicationService.findById(app.getId()))
+                .onErrorResume(e -> {
+                    log.error("Error occurred while updating application", e);
+                    return Mono.just(new Application());
+                })
+                .collectList();
+
+        StepVerifier.create(resultMono)
+                .assertNext(app -> {
+                    assertThat(app.size()).isEqualTo(2);
+                })
+                .verifyComplete();
     }
 }

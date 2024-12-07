@@ -112,7 +112,7 @@ public class PermissionGroupServiceCEImpl
     public Mono<Void> delete(String id) {
 
         return repository.findById(id).flatMap(permissionGroup -> {
-            Mono<Void> returnMono = null;
+            Mono<Integer> returnMono = null;
 
             Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
 
@@ -123,14 +123,14 @@ public class PermissionGroupServiceCEImpl
                         .then(repository.deleteById(id));
             }
 
-            return returnMono;
+            return returnMono.then();
         });
     }
 
     @Override
     public Mono<Void> deleteWithoutPermission(String id) {
         return repository.findById(id).flatMap(permissionGroup -> {
-            Mono<Void> returnMono = null;
+            Mono<Integer> returnMono = null;
 
             Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
 
@@ -141,7 +141,7 @@ public class PermissionGroupServiceCEImpl
                         .then(repository.deleteById(id));
             }
 
-            return returnMono;
+            return returnMono.then();
         });
     }
 

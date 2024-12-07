@@ -85,7 +85,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
@@ -202,16 +201,9 @@ public class ActionExecutionSolutionCETest {
 
         Workspace toCreate = new Workspace();
         toCreate.setName("ActionServiceCE_Test");
-        Set<String> beforeCreatingWorkspace =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
-
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         workspaceId = workspace.getId();
-        Set<String> afterCreatingWorkspace =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
 
         log.info("Workspace ID: {}", workspaceId);
         log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
