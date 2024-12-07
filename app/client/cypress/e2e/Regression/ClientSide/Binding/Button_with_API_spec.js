@@ -6,6 +6,7 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const testdata = require("../../../../fixtures/testdata.json");
 import apiLocators from "../../../../locators/ApiEditor";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
 
 describe(
   "Bind a button and Api usecase",
@@ -28,7 +29,7 @@ describe(
         .click({ force: true })
         .type("{{Button1.text", { parseSpecialCharSequences: true });
       cy.RunAPI();
-      cy.get(apiLocators.jsonResponseTab).click();
+      BottomTabs.response.selectResponseResponseTypeFromMenu("JSON");
       cy.get(apiLocators.responseBody)
         .contains("name")
         .siblings("span")

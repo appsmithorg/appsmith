@@ -90,7 +90,7 @@ describe.skip(
       dataSources.ValidateNSelectDropdown("Entity", "Sheet Row(s)");
       dataSources.ValidateNSelectDropdown("Spreadsheet", "", spreadSheetName);
       dataSources.ValidateNSelectDropdown("Sheet name", "", "Sheet1");
-      dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
+      dataSources.runQueryAndVerifyResponseViews({ count: GSHEET_DATA.length });
       dataSources.AssertQueryResponseHeaders(columnHeaders);
       dataSources.AssertQueryTableResponse(0, GSHEET_DATA[0].uniq_id);
       dataSources.AssertQueryTableResponse(1, "ホーンビィ 2014 カタログ"); // Asserting other language
@@ -104,7 +104,7 @@ describe.skip(
       dataSources.ValidateNSelectDropdown("Entity", "Sheet Row(s)");
       dataSources.ValidateNSelectDropdown("Spreadsheet", "", spreadSheetName);
       dataSources.ValidateNSelectDropdown("Sheet name", "", "Sheet1");
-      dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
+      dataSources.runQueryAndVerifyResponseViews({ count: GSHEET_DATA.length });
       dataSources.AssertQueryResponseHeaders(columnHeaders);
       dataSources.AssertQueryTableResponse(0, GSHEET_DATA[0].uniq_id);
       dataSources.AssertQueryTableResponse(1, "ホーンビィ 2014 カタログ"); // Asserting other language

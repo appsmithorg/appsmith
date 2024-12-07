@@ -9,6 +9,7 @@ import {
   agHelper,
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
+import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
 
 describe(
   "Test Create Api and Bind to Table widget V2",
@@ -21,7 +22,7 @@ describe(
     it("1. Test_Add users api and execute api", function () {
       cy.createAndFillApi(this.dataSet.userApi, "/mock-api?records=100");
       cy.RunAPI();
-      cy.get(apiPage.jsonResponseTab).click();
+      BottomTabs.response.selectResponseResponseTypeFromMenu("JSON");
       cy.get(apiPage.responseBody)
         .contains("name")
         .siblings("span")
