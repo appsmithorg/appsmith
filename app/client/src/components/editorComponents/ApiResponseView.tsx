@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { ActionResponse } from "api/ActionAPI";
 import {
@@ -17,7 +17,7 @@ import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/constants";
 import { getErrorCount } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "PluginActionEditor/components/PluginActionResponse/constants";
-import type { Action } from "entities/Action";
+import { PluginType, type Action } from "entities/Action";
 import { EMPTY_RESPONSE } from "./emptyResponse";
 import {
   getPluginActionDebuggerState,
@@ -57,6 +57,20 @@ function ApiResponseView(props: Props) {
   const ideViewMode = useSelector(getIDEViewMode);
 
   const onDebugClick = useDebuggerTriggerClick();
+
+  useEffect(
+    function openDefaultTabWhenNoTabIsSelected() {
+      if (currentActionConfig.pluginType === PluginType.API && !selectedTab) {
+        dispatch(
+          setPluginActionEditorDebuggerState({
+            open: true,
+            selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+          }),
+        );
+      }
+    },
+    [selectedTab, dispatch, currentActionConfig.pluginType],
+  );
 
   const onRunClick = () => {
     props.onRunClick();
