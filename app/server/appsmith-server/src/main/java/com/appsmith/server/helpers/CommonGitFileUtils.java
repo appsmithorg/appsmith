@@ -10,6 +10,7 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,8 @@ public class CommonGitFileUtils extends CommonGitFileUtilsCE {
             SessionUserService sessionUserService,
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
-            JsonSchemaVersions jsonSchemaVersions) {
+            JsonSchemaVersions jsonSchemaVersions,
+            ObjectMapper objectMapper) {
         super(
                 applicationGitFileUtils,
                 fileUtils,
@@ -36,6 +38,7 @@ public class CommonGitFileUtils extends CommonGitFileUtilsCE {
                 sessionUserService,
                 newActionService,
                 actionCollectionService,
-                jsonSchemaVersions);
+                jsonSchemaVersions,
+                objectMapper);
     }
 }

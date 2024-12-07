@@ -164,7 +164,7 @@
   "UPGRADEUSERNAME": "arslan+upgrade160@appsmith.com",
   "UPGRADEPASSWORD": "Test@123",
   "APPURL": "http://localhost:8081/app/app1/page1-63d38854252ca15b7ec9fabb",
-  "iframeUrl": "https://elfsight.com/social-feed-widget/iframe/",
-  "iframeUrlSubstring": "https://elfsight.com/",
+  "iframeUrl": "https://docs.appsmith.com/build-apps/overview/",
+  "iframeUrlSubstring": "https://docs.appsmith.com/",
   "iframeRandomUrl": "https://www.appsmith.com/"
 }
