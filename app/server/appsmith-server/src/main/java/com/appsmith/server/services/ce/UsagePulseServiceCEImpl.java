@@ -7,6 +7,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.UsagePulseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.UsagePulseRepository;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
@@ -83,19 +85,21 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
                 return save(usagePulse);
             }
             usagePulse.setIsAnonymousUser(false);
-            User updateUser = new User();
+            BridgeUpdate updateUserObj = Bridge.update();
+
             String hashedEmail = user.getHashedEmail();
             if (StringUtils.isEmpty(hashedEmail)) {
                 hashedEmail = DigestUtils.sha256Hex(user.getEmail());
                 // Hashed user email is stored to user for future mapping of user and pulses
-                updateUser.setHashedEmail(hashedEmail);
+                updateUserObj.set(User.Fields.hashedEmail, hashedEmail);
             }
             usagePulse.setUser(hashedEmail);
-            updateUser.setLastActiveAt(Instant.now());
-            // Avoid updating policies
-            updateUser.setPolicies(null);
 
-            return userService.updateWithoutPermission(user.getId(), updateUser).then(save(usagePulse));
+            updateUserObj.set(User.Fields.lastActiveAt, Instant.now());
+
+            return userService
+                    .updateWithoutPermission(user.getId(), updateUserObj)
+                    .then(save(usagePulse));
         });
     }
 
