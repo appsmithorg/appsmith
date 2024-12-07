@@ -12,7 +12,6 @@ import { call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 import { fetchPageAction } from "actions/pageActions";
 import history from "utils/history";
-import { captureException } from "@sentry/react";
 
 export default function* connectSaga(
   action: GitArtifactPayloadAction<ConnectInitPayload>,
@@ -64,15 +63,11 @@ export default function* connectSaga(
       );
     }
 
-    if (response?.responseMeta?.error?.message) {
-      yield put(
-        gitArtifactActions.connectError({
-          ...basePayload,
-          error: response.responseMeta.error.message,
-        }),
-      );
-    } else {
-      captureException(error);
-    }
+    yield put(
+      gitArtifactActions.connectError({
+        ...basePayload,
+        error: error as string,
+      }),
+    );
   }
 }

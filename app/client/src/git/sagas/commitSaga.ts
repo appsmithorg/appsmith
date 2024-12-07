@@ -1,4 +1,3 @@
-import { captureException } from "@sentry/react";
 import type { CommitInitPayload } from "../actions/commitActions";
 import { GitArtifactType, GitErrorCodes } from "../constants/enums";
 import commitRequest from "../requests/commitRequest";
@@ -52,15 +51,11 @@ export default function* commitSaga(
       );
     }
 
-    if (response?.responseMeta?.error?.message) {
-      yield put(
-        gitArtifactActions.connectError({
-          ...basePayload,
-          error: response.responseMeta.error.message,
-        }),
-      );
-    } else {
-      captureException(error);
-    }
+    yield put(
+      gitArtifactActions.connectError({
+        ...basePayload,
+        error: error as string,
+      }),
+    );
   }
 }

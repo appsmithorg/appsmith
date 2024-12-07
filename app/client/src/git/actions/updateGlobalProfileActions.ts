@@ -1,5 +1,9 @@
+import type { UpdateGlobalProfileRequestParams } from "git/requests/updateGlobalProfileRequest.types";
 import type { GitAsyncErrorPayload, GitConfigReduxState } from "../types";
 import type { PayloadAction } from "@reduxjs/toolkit";
+
+export interface UpdateGlobalProfileInitPayload
+  extends UpdateGlobalProfileRequestParams {}
 
 export const updateGlobalProfileInitAction = (state: GitConfigReduxState) => {
   state.updateGlobalProfile.loading = true;

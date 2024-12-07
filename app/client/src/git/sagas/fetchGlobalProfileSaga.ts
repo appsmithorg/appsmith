@@ -1,4 +1,3 @@
-import { captureException } from "@sentry/react";
 import { call, put } from "redux-saga/effects";
 import fetchGlobalProfileRequest from "../requests/fetchGlobalProfileRequest";
 import type { FetchGlobalProfileResponse } from "../requests/fetchGlobalProfileRequest.types";
@@ -23,14 +22,10 @@ export default function* fetchGlobalProfileSaga() {
       );
     }
   } catch (error) {
-    if (response?.responseMeta?.error?.message) {
-      yield put(
-        gitConfigActions.fetchGlobalProfileError({
-          error: response?.responseMeta?.error?.message,
-        }),
-      );
-    } else {
-      captureException(error);
-    }
+    yield put(
+      gitConfigActions.fetchGlobalProfileError({
+        error: error as string,
+      }),
+    );
   }
 }
