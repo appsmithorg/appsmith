@@ -14,6 +14,7 @@ import {
   agHelper,
   entityItems,
   assertHelper,
+  debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
@@ -311,15 +312,8 @@ describe(
       cy.runQuery();
       cy.typeValueNValidate("select * from public.users_crud limit 10");
       cy.onlyQueryRun();
-      cy.get(commonlocators.errorTab)
-        .should("be.visible")
-        .click({ force: true });
-      cy.get(commonlocators.debuggerLabel)
-        .first()
-        .invoke("text")
-        .then(($text) => {
-          expect($text).to.eq("Query execution error");
-        });
+      debuggerHelper.ClickLogsTab();
+      debuggerHelper.DoesConsoleLogExist("Failed execution", true, "Query1");
       cy.deleteQueryUsingContext();
     });
 

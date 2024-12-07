@@ -354,6 +354,9 @@ export const QueryResponseTab = (props: Props) => {
                 ))}
               <LogHelper
                 logType={LOG_TYPE.ACTION_EXECUTION_ERROR}
+                message={
+                  actionResponse?.pluginErrorDetails?.downstreamErrorMessage
+                }
                 name="PluginExecutionError"
                 pluginErrorDetails={
                   actionResponse && actionResponse.pluginErrorDetails

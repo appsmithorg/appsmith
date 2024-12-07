@@ -64,7 +64,7 @@ export function* showToastOnExecutionError(
       source: "TOAST",
     });
     store.dispatch(showDebugger(true));
-    store.dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
+    store.dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.LOGS_TAB));
   }
 
   const action = showCTA

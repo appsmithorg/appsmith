@@ -18,6 +18,7 @@ export default function LogHelper(props: {
   name?: string;
   pluginErrorDetails?: PluginErrorDetails;
   source?: SourceEntity;
+  message?: string;
 }) {
   // log telemetry on click of help icon.
   const addHelpTelemetry = () => {
@@ -38,7 +39,12 @@ export default function LogHelper(props: {
     >
       <ContextualMenu
         entity={props.source}
-        error={{ message: { name: "", message: "" } }}
+        error={{
+          message: {
+            name: props.name || "",
+            message: props.message || "",
+          },
+        }}
       >
         <Button isIconButton kind="tertiary" size="sm" startIcon="question" />
       </ContextualMenu>

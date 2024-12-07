@@ -15,7 +15,7 @@ import type {
   LogActionPayload,
   LogObject,
 } from "entities/AppsmithConsole";
-import { LOG_CATEGORY } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import {
   all,
@@ -284,10 +284,17 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
             allFormatedLogs.push(formattedLog);
           }
 
-          yield put(addErrorLogs(allFormatedLogs));
           yield put(debuggerLog(allFormatedLogs));
         }
         break;
+      case LOG_TYPE.JS_EXECUTION_ERROR: {
+        const filteredLogs = payload.filter(
+          (log) => log.source && log.source.propertyPath && log.text,
+        );
+
+        yield put(debuggerLog(filteredLogs));
+        break;
+      }
       case LOG_TYPE.ACTION_EXECUTION_SUCCESS:
         {
           const allFormatedLogs: Log[] = [];
@@ -675,17 +682,25 @@ function* deleteDebuggerErrorLogsSaga(
 // takes a log object array and stores it in the redux store
 export function* storeLogs(logs: LogObject[]) {
   AppsmithConsole.addLogs(
-    logs.map((log: LogObject) => {
-      return {
-        text: createLogTitleString(log.data),
-        logData: log.data,
-        source: log.source,
-        severity: log.severity,
-        timestamp: log.timestamp,
-        category: LOG_CATEGORY.USER_GENERATED,
-        isExpanded: false,
-      };
-    }),
+    logs
+      .filter((log) => {
+        if (log.severity === Severity.ERROR) {
+          return log.source;
+        }
+
+        return true;
+      })
+      .map((log: LogObject) => {
+        return {
+          text: `console.${log.method}(${createLogTitleString(log.data)})`,
+          logData: log.data,
+          source: log.source,
+          severity: log.severity,
+          timestamp: log.timestamp,
+          category: LOG_CATEGORY.USER_GENERATED,
+          isExpanded: false,
+        };
+      }),
   );
 }
 
