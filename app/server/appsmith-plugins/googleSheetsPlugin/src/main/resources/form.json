@@ -38,11 +38,48 @@
             {
               "label": "Read / Write / Delete | Selected google sheets",
               "value": "https://www.googleapis.com/auth/drive.file"
+            },
+            {
+              "label": "Read / Write / Delete | All google sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive"
+            },
+            {
+              "label": "Read / Write | All google sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
+            },
+            {
+              "label": "Read | All google sheets",
+              "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
             }
           ],
           "initialValue": "https://www.googleapis.com/auth/drive.file",
           "customStyles": {
             "width": "340px"
+          },
+          "hidden": {
+            "flagValue": "release_gs_all_sheets_options_enabled",
+            "comparison": "FEATURE_FLAG",
+            "value": false
+          }
+        },
+        {
+          "label": "Permissions | Scope",
+          "configProperty": "datasourceConfiguration.authentication.scopeString",
+          "controlType": "RADIO_BUTTON",
+          "options": [
+            {
+              "label": "Read / Write / Delete | Selected google sheets",
+              "value": "https://www.googleapis.com/auth/drive.file"
+            }
+          ],
+          "initialValue": "https://www.googleapis.com/auth/drive.file",
+          "customStyles": {
+            "width": "340px"
+          },
+          "hidden": {
+            "flagValue": "release_gs_all_sheets_options_enabled",
+            "comparison": "FEATURE_FLAG",
+            "value": true
           }
         }
       ]

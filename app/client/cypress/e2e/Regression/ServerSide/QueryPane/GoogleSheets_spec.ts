@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   dataSources,
   deployMode,
@@ -22,6 +23,13 @@ describe(
   },
   function () {
     let pluginName = "Google Sheets";
+
+    before(() => {
+      // intercept features call gsheet all sheets disabled
+      featureFlagIntercept({
+        release_gs_all_sheets_options_enabled: false,
+      });
+    });
 
     it("1. Verify GSheets dropdown options", function () {
       dataSources.NavigateToDSCreateNew();
