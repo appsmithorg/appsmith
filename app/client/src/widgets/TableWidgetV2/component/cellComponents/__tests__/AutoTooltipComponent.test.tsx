@@ -1,9 +1,9 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
-import AutoToolTipComponent from "./AutoToolTipComponent";
+import AutoToolTipComponent from "../AutoToolTipComponent";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import "@testing-library/jest-dom";
-import { isButtonTextTruncated } from "./AutoToolTipComponent";
+import { isButtonTextTruncated } from "../AutoToolTipComponent";
 
 jest.mock("react", () => {
   const actualReact = jest.requireActual("react");
