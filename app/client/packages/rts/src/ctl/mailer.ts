@@ -3,7 +3,10 @@ import * as Constants from "./constants";
 import * as utils from "./utils";
 import * as logger from "./logger";
 
-export async function sendBackupErrorToAdmins(err, backupTimestamp) {
+export async function sendBackupErrorToAdmins(
+  error: Error,
+  backupTimestamp: string,
+) {
   const mailEnabled = process.env.APPSMITH_MAIL_ENABLED;
   const mailFrom = process.env.APPSMITH_MAIL_FROM;
   const mailHost = process.env.APPSMITH_MAIL_HOST;
@@ -22,23 +25,22 @@ export async function sendBackupErrorToAdmins(err, backupTimestamp) {
       !mailUser ||
       !mailPass
     ) {
-      throw new Error(
+      await logger.backupError(
         "Failed to send error mail. Email provider is not configured, please refer to https://docs.appsmith.com/setup/instance-configuration/email to configure it.",
       );
     } else if (!mailTo) {
-      throw new Error(
+      await logger.backupError(
         "Failed to send error mail. Admin email(s) not configured, please refer to https://docs.appsmith.com/setup/instance-configuration/disable-user-signup#administrator-emails to configure it.",
       );
     } else if (!mailEnabled) {
-      throw new Error(
+      await logger.backupError(
         "Mail not sent! APPSMITH_MAIL_ENABLED env val is disabled, please refer to https://docs.appsmith.com/setup/instance-configuration/email to enable it.",
       );
     } else {
       const backupFiles = await utils.listLocalBackupFiles();
       const lastBackupfile = backupFiles.pop();
-      const lastBackupTimestamp = lastBackupfile.match(
-        /appsmith-backup-(.*)\.tar.gz/,
-      )[1];
+      const lastBackupTimestamp =
+        lastBackupfile?.match(/appsmith-backup-(.*)\.tar.gz/)?.[1] ?? "Unknown";
       const lastBackupPath = Constants.BACKUP_PATH + "/" + lastBackupfile;
 
       const domainName = process.env.APPSMITH_CUSTOM_DOMAIN;
@@ -70,7 +72,7 @@ export async function sendBackupErrorToAdmins(err, backupTimestamp) {
           "\n";
       }
 
-      text = text + "\n" + err.stack;
+      text = text + "\n" + error.stack;
 
       const transporter = nodemailer.createTransport({
         host: mailHost,
@@ -89,6 +91,8 @@ export async function sendBackupErrorToAdmins(err, backupTimestamp) {
       });
     }
   } catch (err) {
-    await logger.backup_error(err.stack);
+    await logger.backupError(
+      (err as Error).stack ?? "Error in sending email, but no stack",
+    );
   }
 }

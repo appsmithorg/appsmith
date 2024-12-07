@@ -48,12 +48,10 @@ export async function run(args: string[]) {
 
     console.log("Post-backup done. Final archive at", state.archivePath);
 
-    await logger.backup_info(
-      "Finished taking a backup at " + state.archivePath,
-    );
+    await logger.backupInfo("Finished taking a backup at " + state.archivePath);
   } catch (err) {
     process.exitCode = 1;
-    await logger.backup_error(err.stack);
+    await logger.backupError(err.stack);
 
     if (state.args.includes("--error-mail")) {
       const currentTS = new Date().getTime();
@@ -111,25 +109,15 @@ async function createFinalArchive(destFolder: string, timestamp: string) {
 
 async function postBackupCleanup() {
   console.log("Starting cleanup.");
-  const backupArchivesLimit = getBackupArchiveLimit(
-    parseInt(process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT, 10),
+  const backupArchivesLimit = parseInt(
+    process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT || "4",
+    10,
   );
   const backupFiles = await utils.listLocalBackupFiles();
 
   await removeOldBackups(backupFiles, backupArchivesLimit);
 
   console.log("Cleanup completed.");
-}
-
-export function getBackupContentsPath(
-  backupRootPath: string,
-  timestamp: string,
-): string {
-  return backupRootPath + "/appsmith-backup-" + timestamp;
-}
-
-export function getBackupArchiveLimit(backupArchivesLimit?: number): number {
-  return backupArchivesLimit || Constants.APPSMITH_DEFAULT_BACKUP_ARCHIVE_LIMIT;
 }
 
 export async function removeOldBackups(
