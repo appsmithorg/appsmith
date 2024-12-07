@@ -471,6 +471,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         isAddRowInProgress: "bool",
         previousPageVisited: generateTypeDef(widget.previousPageVisited),
         nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
+        filteredTableData: generateTypeDef(widget.filteredTableData),
       };
 
       if (this.getFeatureFlag(ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING)) {
