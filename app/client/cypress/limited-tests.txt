@@ -1,5 +1,6 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+cypress/e2e/Regression/ClientSide/JSLibrary/Custom_lib_spec.ts
+cypress/e2e/Regression/ClientSide/JSLibrary/Library_Test_Git_spec.ts
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
 
