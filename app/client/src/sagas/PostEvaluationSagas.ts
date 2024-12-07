@@ -39,7 +39,7 @@ import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
-import { getCollectionNameToDisplay } from "ee/utils/actionExecutionUtils";
+import { getJSActionPathNameToDisplay } from "ee/utils/actionExecutionUtils";
 import { showToastOnExecutionError } from "./ActionExecution/errorUtils";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
@@ -73,12 +73,8 @@ export function* showExecutionErrors(errors: EvaluationError[]) {
       appMode === APP_MODE.EDIT,
     );
 
-    // Add it to the logs tab when in edit mode
-    if (appMode === APP_MODE.EDIT) {
-      AppsmithConsole.error({
-        text: errorMessage,
-      });
-    }
+    // We are not logging this in the debugger because these errors do not have a source
+    // attached to it.
   }
 }
 
@@ -261,11 +257,11 @@ export function* handleJSFunctionExecutionErrorLog(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any[],
 ) {
-  const { id: collectionId, name: collectionName } = collection;
+  const { id: collectionId } = collection;
 
-  const collectionNameToDisplay = getCollectionNameToDisplay(
+  const collectionNameToDisplay = getJSActionPathNameToDisplay(
     action,
-    collectionName,
+    collection,
   );
 
   errors.length
@@ -273,10 +269,8 @@ export function* handleJSFunctionExecutionErrorLog(
         {
           payload: {
             id: `${collectionId}-${action.id}`,
-            logType: LOG_TYPE.EVAL_ERROR,
-            text: `${createMessage(
-              JS_EXECUTION_FAILURE,
-            )}: ${collectionNameToDisplay}.${action.name}`,
+            logType: LOG_TYPE.JS_EXECUTION_ERROR,
+            text: createMessage(JS_EXECUTION_FAILURE),
             messages: errors.map((error) => {
               // TODO: Remove this check once we address uncaught promise errors
               let errorMessage = error.errorMessage;

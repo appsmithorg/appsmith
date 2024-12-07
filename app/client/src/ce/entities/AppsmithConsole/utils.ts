@@ -1,5 +1,7 @@
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { DataTreeEntityConfig } from "../DataTree/types";
+import type { TriggerMeta } from "../../sagas/ActionExecution/ActionExecutionSagas";
+import type { SourceEntity } from "../../../entities/AppsmithConsole";
 
 export enum ENTITY_TYPE {
   ACTION = "ACTION",
@@ -24,4 +26,17 @@ export const getModuleInstanceInvalidErrors = (
   propertyPath: string,
 ) => {
   return [];
+};
+
+export const getSourceFromTriggerMeta = (
+  triggerMeta?: TriggerMeta,
+): SourceEntity => {
+  const type =
+    (triggerMeta?.source?.entityType as ENTITY_TYPE) || ENTITY_TYPE.JSACTION;
+  const name =
+    triggerMeta?.source?.name || triggerMeta?.triggerPropertyName || "";
+  const propertyPath = triggerMeta?.triggerPropertyName || "";
+  const id = triggerMeta?.source?.id || "";
+
+  return { type, name, id, propertyPath };
 };

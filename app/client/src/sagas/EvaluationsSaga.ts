@@ -495,7 +495,7 @@ export function* executeJSFunction(
   // After every function execution, log execution errors if present
   yield call(handleJSFunctionExecutionErrorLog, action, collection, errors);
 
-  return { result, isDirty };
+  return { result, isDirty, errors };
 }
 
 export // TODO: Fix this the next time the file is edited
@@ -547,6 +547,7 @@ export const defaultAffectedJSObjects: AffectedJSObjects = {
   isAllAffected: false,
   ids: [],
 };
+
 export function evalQueueBuffer() {
   let canTake = false;
   // TODO: Fix this the next time the file is edited

@@ -12,12 +12,12 @@ describe(
       // Create api that causes an error
       _.apiPage.CreateAndFillApi("https://fakeapi/user");
     });
-    it("it shows error message", () => {
+    it("it shows error message in response tab", () => {
       _.apiPage.RunAPI(false);
       _.debuggerHelper.AssertOpen(PageType.API);
       _.apiPage.ResponseStatusCheck("PE-RST-5000");
     });
-    it("it shows debug button and navigates", () => {
+    it("it shows error messages in error tab", () => {
       _.apiPage.DebugError();
       _.debuggerHelper.AssertSelectedTab(
         Cypress.env("MESSAGES").DEBUGGER_ERRORS(),
