@@ -31,6 +31,7 @@ export const StyledSwitchLabel = styled(Text)<{
   justify-content: space-between;
   min-width: 9rem;
   cursor: pointer;
+  word-break: break-all;
 
   ${({ isDisabled }) =>
     isDisabled &&

@@ -16,6 +16,8 @@ import {
   EDIT_DATASOURCE,
   LOADING_RECORDS_TITLE_TEXT,
   CANT_SHOW_SCHEMA,
+  NO_ACCESS_TITLE_TEXT,
+  NO_ACCESS_MESSAGE_TEXT,
 } from "ee/constants/messages";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
@@ -28,6 +30,7 @@ enum SchemaDisplayStatus {
   FAILED = "FAILED",
   NOCOLUMNS = "NOCOLUMNS",
   CANTSHOW = "CANTSHOW",
+  NOACCESS = "NOACCESS",
 }
 
 interface Props {
@@ -73,6 +76,11 @@ const StateData: Record<
   CANTSHOW: {
     message: createMessage(CANT_SHOW_SCHEMA),
     image: getAssetUrl(`${ASSETS_CDN_URL}/empty-state.svg`),
+  },
+  NOACCESS: {
+    title: createMessage(NO_ACCESS_TITLE_TEXT),
+    message: createMessage(NO_ACCESS_MESSAGE_TEXT),
+    image: getAssetUrl(`${ASSETS_CDN_URL}/locked-state.svg`),
   },
 };
 

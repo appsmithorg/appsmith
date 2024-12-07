@@ -70,7 +70,7 @@ function DebuggerTabs() {
   const shouldRender = !(
     selectedTab === DEBUGGER_TAB_KEYS.RESPONSE_TAB ||
     selectedTab === DEBUGGER_TAB_KEYS.HEADER_TAB ||
-    selectedTab === DEBUGGER_TAB_KEYS.SCHEMA_TAB
+    selectedTab === DEBUGGER_TAB_KEYS.DATASOURCE_TAB
   );
 
   return (

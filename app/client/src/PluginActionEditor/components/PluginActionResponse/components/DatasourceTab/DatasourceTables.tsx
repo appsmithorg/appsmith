@@ -5,10 +5,10 @@ import {
 } from "entities/Datasource";
 import { DatasourceStructureContainer as DatasourceStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import React, { useCallback } from "react";
-import DatasourceSelector from "./DatasourceSelector";
 import { refreshDatasourceStructure } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
 import { SchemaTableContainer } from "./styles";
+import DatasourceInfo from "./DatasourceInfo";
 
 interface Props {
   datasourceId: string;
@@ -19,7 +19,7 @@ interface Props {
   selectedTable: string | undefined;
 }
 
-const SchemaTables = ({
+const DatasourceTables = ({
   currentActionId,
   datasourceId,
   datasourceName,
@@ -53,9 +53,10 @@ const SchemaTables = ({
         gap="spaces-2"
         justifyContent={"space-between"}
       >
-        <DatasourceSelector
+        <DatasourceInfo
           datasourceId={datasourceId}
           datasourceName={datasourceName}
+          showEditButton
         />
         <Button
           className="datasourceStructure-refresh"
@@ -80,4 +81,4 @@ const SchemaTables = ({
   );
 };
 
-export { SchemaTables };
+export { DatasourceTables };

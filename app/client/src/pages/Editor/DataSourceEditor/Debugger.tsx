@@ -125,7 +125,7 @@ export default function Debugger() {
   const shouldRender = !(
     selectedResponseTab === DEBUGGER_TAB_KEYS.RESPONSE_TAB ||
     selectedResponseTab === DEBUGGER_TAB_KEYS.HEADER_TAB ||
-    selectedResponseTab === DEBUGGER_TAB_KEYS.SCHEMA_TAB
+    selectedResponseTab === DEBUGGER_TAB_KEYS.DATASOURCE_TAB
   );
 
   return (
