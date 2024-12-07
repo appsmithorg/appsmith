@@ -1,0 +1,13 @@
+{{- if .Values.customCAcert }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "appsmith.fullname" . }}-trustedca
+  namespace: {{ include "appsmith.namespace" . }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+data:
+{{- range $key, $value := .Values.customCAcert }}
+   {{ $key }}: {{ $value | quote }}
+{{- end }}
+{{- end }}
