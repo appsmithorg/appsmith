@@ -3,6 +3,7 @@ import log from "loglevel";
 import memoizeOne from "memoize-one";
 
 import _, {
+  cloneDeep,
   filter,
   isArray,
   isEmpty,
@@ -58,6 +59,7 @@ import {
   DEFAULT_MENU_VARIANT,
   defaultEditableCell,
   EditableCellActions,
+  HTML_COLUMN_TYPE_ENABLED,
   InlineEditingSaveOptions,
   ORIGINAL_INDEX_KEY,
   PaginationDirection,
@@ -911,6 +913,38 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (canFreezeColumn && renderMode === RenderModes.PAGE) {
       //dont neet to batch this since single action
       this.hydrateStickyColumns();
+    }
+
+    /**
+     * Why we are doing this?
+     * This is a safety net! Consider this scenario:
+     * 1. HTML column type is enabled.
+     * 2. User creates a table with HTML columns.
+     * 3. HTML column type is disabled. (For any reason)
+     *
+     * In this scenario, we don't want incomplete experience for the user.
+     * Without this safety net, the property pane will not show the HTML as type and the `ColumnType` will be lost(and empty), which is confusing for the user.
+     * With this safety net, we will update the column type to TEXT.
+     */
+    if (!TableWidgetV2.getFeatureFlag(HTML_COLUMN_TYPE_ENABLED)) {
+      // Create a copy of primary columns
+      const updatedPrimaryColumns = cloneDeep(this.props.primaryColumns);
+      let hasHTMLColumns = false;
+
+      // Update HTML columns to TEXT
+      Object.values(updatedPrimaryColumns).forEach(
+        (column: ColumnProperties) => {
+          if (column.columnType === ColumnTypes.HTML) {
+            column.columnType = ColumnTypes.TEXT;
+            hasHTMLColumns = true;
+          }
+        },
+      );
+
+      // Only update if there were HTML columns
+      if (hasHTMLColumns) {
+        this.updateWidgetProperty("primaryColumns", updatedPrimaryColumns);
+      }
     }
   }
 
