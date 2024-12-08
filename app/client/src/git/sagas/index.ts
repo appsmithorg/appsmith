@@ -5,12 +5,30 @@ import commitSaga from "./commitSaga";
 import { gitConfigActions } from "git/store/gitConfigSlice";
 import fetchGlobalProfileSaga from "./fetchGlobalProfileSaga";
 import fetchBranchesSaga from "./fetchBranchesSaga";
+import fetchLocalProfileSaga from "./fetchLocalProfileSaga";
+import updateLocalProfileSaga from "./updateLocalProfileSaga";
+import updateGlobalProfileSaga from "./updateGlobalProfileSaga";
 
 export function* gitSagas() {
   yield all([
-    takeLatest(gitArtifactActions.connectInit, connectSaga),
-    takeLatest(gitArtifactActions.commitInit, commitSaga),
-    takeLatest(gitArtifactActions.fetchBranchesInit, fetchBranchesSaga),
-    takeLatest(gitConfigActions.fetchGlobalProfileInit, fetchGlobalProfileSaga),
+    takeLatest(gitArtifactActions.connectInit.type, connectSaga),
+    takeLatest(gitArtifactActions.commitInit.type, commitSaga),
+    takeLatest(gitArtifactActions.fetchBranchesInit.type, fetchBranchesSaga),
+    takeLatest(
+      gitArtifactActions.fetchLocalProfileInit.type,
+      fetchLocalProfileSaga,
+    ),
+    takeLatest(
+      gitArtifactActions.updateLocalProfileInit.type,
+      updateLocalProfileSaga,
+    ),
+    takeLatest(
+      gitConfigActions.fetchGlobalProfileInit.type,
+      fetchGlobalProfileSaga,
+    ),
+    takeLatest(
+      gitConfigActions.updateGlobalProfileInit.type,
+      updateGlobalProfileSaga,
+    ),
   ]);
 }

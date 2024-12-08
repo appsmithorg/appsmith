@@ -11,7 +11,7 @@ import { gitConfigActions } from "../store/gitConfigSlice";
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
 
-export default function* updateGlobalGitConfig(
+export default function* updateGlobalProfileSaga(
   action: PayloadAction<UpdateGlobalProfileInitPayload>,
 ) {
   let response: UpdateGlobalProfileResponse | undefined;

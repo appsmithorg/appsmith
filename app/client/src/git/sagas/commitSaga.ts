@@ -55,7 +55,7 @@ export default function* commitSaga(
     }
 
     yield put(
-      gitArtifactActions.connectError({
+      gitArtifactActions.commitError({
         ...basePayload,
         error: error as string,
       }),
