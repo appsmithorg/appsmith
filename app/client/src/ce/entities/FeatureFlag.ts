@@ -42,6 +42,7 @@ export const FEATURE_FLAG = {
   release_table_custom_loading_state_enabled:
     "release_table_custom_loading_state_enabled",
   release_custom_widget_ai_builder: "release_custom_widget_ai_builder",
+  ab_request_new_integration_enabled: "ab_request_new_integration_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -79,6 +80,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_ide_datasource_selector_enabled: false,
   release_table_custom_loading_state_enabled: false,
   release_custom_widget_ai_builder: false,
+  ab_request_new_integration_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

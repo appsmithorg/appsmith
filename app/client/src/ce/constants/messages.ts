@@ -2544,3 +2544,31 @@ export const CUSTOM_WIDGET_BUILDER_TAB_TITLE = {
   STYLE: () => "Style",
   JS: () => "Javascript",
 };
+
+export const REQUEST_NEW_INTEGRATIONS = {
+  UNABLE_TO_FIND: () => "Can’t find what you are looking for?",
+  REQUEST_NEW_BUTTON: () => "Request a new integration",
+  REQUEST_BUTTON: () => "Request integration",
+  CANCEL_BUTTON: () => "Cancel",
+  REQUEST_MODAL_HEADING: () => "Request a new integration",
+  REQUEST_MODAL_INTEGRATION: {
+    LABEL: () => "Integration",
+    PLACEHOLDER: () => "E.g. Zendesk, JIRA, Slack, others",
+    NAME: "integration",
+    ERROR: () => "Please enter integration name",
+  },
+  REQUEST_MODAL_USECASE: {
+    LABEL: () => "Tell us more about your case",
+    PLACEHOLDER: () =>
+      "E.g. I want to create an app to manage my customers’ account.",
+    NAME: "useCase",
+  },
+  REQUEST_MODAL_EMAIL: {
+    LABEL: () => "Email",
+    DESCRIPTION: () =>
+      "Appsmith might use this email exclusively to follow up on your integration request.",
+    NAME: "email",
+    ERROR: () => "Please enter email",
+  },
+  SUCCESS_TOAST_MESSAGE: () => "Thank you! We are looking into your request.",
+};
