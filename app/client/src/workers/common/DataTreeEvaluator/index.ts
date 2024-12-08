@@ -915,6 +915,7 @@ export default class DataTreeEvaluator {
     );
     const evaluationEndTime = performance.now();
 
+    // check here
     this.setEvalTree(newEvalTree);
 
     const timeTakenForEvalAndValidateSubTree = {
