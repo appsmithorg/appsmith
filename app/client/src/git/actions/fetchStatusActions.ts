@@ -1,3 +1,4 @@
+import type { FetchStatusRequestParams } from "git/requests/fetchStatusRequest.types";
 import type {
   GitArtifactPayloadAction,
   GitArtifactErrorPayloadAction,
@@ -5,12 +6,15 @@ import type {
 } from "../types";
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
 
-export const fetchStatusInitAction = createSingleArtifactAction((state) => {
-  state.apiResponses.status.loading = true;
-  state.apiResponses.status.error = null;
+export interface FetchStatusInitPayload extends FetchStatusRequestParams {}
 
-  return state;
-});
+export const fetchStatusInitAction =
+  createSingleArtifactAction<FetchStatusInitPayload>((state) => {
+    state.apiResponses.status.loading = true;
+    state.apiResponses.status.error = null;
+
+    return state;
+  });
 
 export const fetchStatusSuccessAction = createSingleArtifactAction(
   (state, action: GitArtifactPayloadAction<{ status: GitStatus }>) => {

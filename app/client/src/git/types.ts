@@ -6,19 +6,18 @@ import type {
   GitOpsTab,
   GitSettingsTab,
 } from "./constants/enums";
+import type { FetchGlobalProfileResponseData } from "./requests/fetchGlobalProfileRequest.types";
+import type { FetchBranchesResponseData } from "./requests/fetchBranchesRequest.types";
+import type { FetchLocalProfileResponseData } from "./requests/fetchLocalProfileRequest.types";
 
 // These will be updated when contracts are finalized
 export type GitMetadata = Record<string, unknown>;
-
-export type GitBranches = Record<string, unknown>;
 
 export type GitStatus = Record<string, unknown>;
 
 export type GitMergeStatus = Record<string, unknown>;
 
-export type GitGlobalConfig = Record<string, unknown>;
-
-export type GitLocalConfig = Record<string, unknown>;
+export type GitLocalProfile = Record<string, unknown>;
 
 export type GitProtectedBranches = Record<string, unknown>;
 
@@ -45,14 +44,12 @@ export interface GitSingleArtifactAPIResponsesReduxState {
   discard: AsyncStateWithoutValue;
   mergeStatus: AsyncState<GitMergeStatus>;
   merge: AsyncStateWithoutValue;
-  branches: AsyncState<GitBranches>;
+  branches: AsyncState<FetchBranchesResponseData>;
   checkoutBranch: AsyncStateWithoutValue;
   createBranch: AsyncStateWithoutValue;
   deleteBranch: AsyncStateWithoutValue;
-  globalConfig: AsyncState<GitGlobalConfig>;
-  localConfig: AsyncState<GitLocalConfig>;
-  updateGlobalConfig: AsyncStateWithoutValue;
-  updateLocalConfig: AsyncStateWithoutValue;
+  localProfile: AsyncState<FetchLocalProfileResponseData>;
+  updateLocalProfile: AsyncStateWithoutValue;
   disconnect: AsyncStateWithoutValue;
   protectedBranches: AsyncState<GitProtectedBranches>;
   updateProtectedBranches: AsyncStateWithoutValue;
@@ -83,6 +80,9 @@ export interface GitSingleArtifactUIReduxState {
     open: boolean;
     tab: keyof typeof GitSettingsTab;
   };
+  repoLimitErrorModal: {
+    open: boolean;
+  };
 }
 export interface GitSingleArtifactReduxState {
   ui: GitSingleArtifactUIReduxState;
@@ -93,14 +93,30 @@ export interface GitArtifactReduxState {
   [key: string]: Record<string, GitSingleArtifactReduxState>;
 }
 
+export interface GitConfigReduxState {
+  globalProfile: AsyncState<FetchGlobalProfileResponseData>;
+  updateGlobalProfile: AsyncStateWithoutValue;
+}
+
 export interface GitArtifactBasePayload {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
 }
 
-export type GitArtifactPayloadAction<T = Record<string, unknown>> =
-  PayloadAction<GitArtifactBasePayload & T>;
-
-export type GitArtifactErrorPayloadAction = GitArtifactPayloadAction<{
+export interface GitAsyncErrorPayload {
   error: string;
-}>;
+}
+
+export interface GitAsyncSuccessPayload<T> {
+  responseData: T;
+}
+
+export type GitArtifactPayload<T = Record<string, never>> =
+  GitArtifactBasePayload & T;
+
+export type GitArtifactPayloadAction<T = Record<string, never>> = PayloadAction<
+  GitArtifactPayload<T>
+>;
+
+export type GitArtifactErrorPayloadAction =
+  GitArtifactPayloadAction<GitAsyncErrorPayload>;
