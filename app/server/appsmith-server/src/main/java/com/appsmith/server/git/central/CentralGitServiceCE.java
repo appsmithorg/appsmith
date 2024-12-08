@@ -31,7 +31,4 @@ public interface CentralGitServiceCE {
             ArtifactType artifactType,
             GitType gitType,
             RefType refType);
-
-    Mono<String> fetchRemoteChanges(
-            Artifact baseArtifact, Artifact refArtifact, boolean isFileLock, GitType gitType, RefType refType);
 }

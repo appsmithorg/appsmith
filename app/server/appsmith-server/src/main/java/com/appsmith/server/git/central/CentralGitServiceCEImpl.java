@@ -945,7 +945,6 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                         .isGitAuthInvalid(gitArtifactMetadata.getGitAuth());
     }
 
-    @Override
     public Mono<String> fetchRemoteChanges(
             Artifact baseArtifact, Artifact refArtifact, boolean isFileLock, GitType gitType, RefType refType) {
 
@@ -960,6 +959,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
 
         String baseArtifactId = baseArtifactGitData.getDefaultArtifactId();
 
+        // TODO add gitType in all error messages.
         if (refArtifactGitData == null || !hasText(refArtifactGitData.getRefName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, BRANCH_NAME));
         }
@@ -969,7 +969,6 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 gitRedisUtils.acquireGitLock(baseArtifactId, GitConstants.GitCommandConstants.FETCH_REMOTE, isFileLock);
 
         ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
-        jsonTransformationDTO.setRefType(RefType.BRANCH);
         jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
         jsonTransformationDTO.setBaseArtifactId(baseArtifactGitData.getDefaultArtifactId());
         jsonTransformationDTO.setRepoName(baseArtifactGitData.getRepoName());
@@ -992,9 +991,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                      hence we don't need to do that manually
                     */
                     log.error(
-                            "Error to fetch from remote for application: {}, branch: {}",
+                            "Error to fetch from remote for application: {}, branch: {}, git type {}",
                             baseArtifactId,
                             refArtifactGitData.getRefName(),
+                            gitType,
                             throwable);
                     return Mono.error(
                             new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "fetch", throwable.getMessage()));
