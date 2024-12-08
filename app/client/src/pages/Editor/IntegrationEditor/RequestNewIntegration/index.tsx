@@ -51,7 +51,7 @@ export default function RequestNewIntegration() {
             AnalyticsUtil.logEvent("REQUEST_INTEGRATION_CTA");
           }}
         >
-          {createMessage(REQUEST_NEW_INTEGRATIONS.REQUEST_BUTTON)}
+          {createMessage(REQUEST_NEW_INTEGRATIONS.REQUEST_NEW_BUTTON)}
         </Button>
       </RequestModal>
     </RequestNewIntegrationWrapper>

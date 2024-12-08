@@ -2570,4 +2570,5 @@ export const REQUEST_NEW_INTEGRATIONS = {
     NAME: "email",
     ERROR: () => "Please enter email",
   },
+  SUCCESS_TOAST_MESSAGE: () => "Thank you! We are looking into your request.",
 };

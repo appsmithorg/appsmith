@@ -1,4 +1,4 @@
-import { Button, Flex } from "@appsmith/ads";
+import { Button, Flex, toast } from "@appsmith/ads";
 import { Close } from "@radix-ui/react-dialog";
 import { createMessage, REQUEST_NEW_INTEGRATIONS } from "ee/constants/messages";
 import type { AppState } from "ee/reducers";
@@ -30,6 +30,9 @@ const RequestIntegrationForm = (props: RequestIntegrationFormProps) => {
       integration_name: values.integration,
       use_case_description: values.useCase || "",
       email: values.email,
+    });
+    toast.show(createMessage(REQUEST_NEW_INTEGRATIONS.SUCCESS_TOAST_MESSAGE), {
+      kind: "success",
     });
     props.closeModal();
   };
