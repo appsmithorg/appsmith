@@ -15,6 +15,9 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 const RequestNewIntegrationWrapper = styled(Flex)`
   padding: var(--ads-spaces-7);
   border-top: 1px solid var(--ads-v2-colors-content-surface-default-border);
+  position: sticky;
+  bottom: 0;
+  background: var(--ads-v2-color-bg);
 `;
 
 const ModalContentWrapper = styled(ModalContent)`
