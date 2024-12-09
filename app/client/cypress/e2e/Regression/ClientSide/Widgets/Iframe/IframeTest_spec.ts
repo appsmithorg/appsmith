@@ -81,7 +81,7 @@ describe(
       propPane.UpdatePropertyFieldValue("URL", " ");
       agHelper.ValidateToastMessage("url updated");
 
-      agHelper.ClickButton("Submit");
+      agHelper.ClickButton("Submit", { force: true });
       getIframeBody(0)
         .find("input")
         .should("be.visible")
@@ -90,6 +90,7 @@ describe(
           expect(inputValue).to.equal("submitclicked");
         });
 
+      EditorNavigation.SelectEntityByName("Iframe1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "srcDoc",
         `<!DOCTYPE html>
