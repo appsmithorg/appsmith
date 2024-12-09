@@ -56,6 +56,11 @@ import {
   transformAddErrorLogsSaga,
   transformDeleteErrorLogsSaga,
 } from "ee/sagas/helpers";
+import { identifyEntityFromPath } from "../navigation/FocusEntity";
+import { getIDEViewMode } from "../selectors/ideSelectors";
+import type { EditorViewMode } from "ee/entities/IDE/constants";
+import { getDebuggerPaneConfig } from "../components/editorComponents/Debugger/hooks/useDebuggerTriggerClick";
+import { DEBUGGER_TAB_KEYS } from "../components/editorComponents/Debugger/constants";
 
 let blockedSource: string | null = null;
 
@@ -875,6 +880,17 @@ function* activeFieldDebuggerErrorHandler(
   }
 }
 
+function* showDebuggerOnExecutionError() {
+  const currentEntity = identifyEntityFromPath(location.pathname);
+  const ideState: EditorViewMode = yield select(getIDEViewMode);
+
+  const config = getDebuggerPaneConfig(currentEntity, ideState);
+
+  yield put(
+    config.set({ open: true, selectedTab: DEBUGGER_TAB_KEYS.LOGS_TAB }),
+  );
+}
+
 export default function* debuggerSagasListeners() {
   yield all([
     takeEvery(ReduxActionTypes.DEBUGGER_LOG_INIT, debuggerLogSaga),
@@ -885,6 +901,10 @@ export default function* debuggerSagasListeners() {
     takeEvery(
       ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG_INIT,
       deleteDebuggerErrorLogsSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.SHOW_DEBUGGER_LOGS,
+      showDebuggerOnExecutionError,
     ),
   ]);
 }
