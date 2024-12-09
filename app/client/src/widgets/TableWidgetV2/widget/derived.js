@@ -835,7 +835,7 @@ export default {
       const htmlColumns = columnsWithHTML.map((column) => column.alias);
 
       if (searchKey) {
-        const arr = [
+        const combinedRowContent = [
           ...Object.values(_.omit(displayedRow, hiddenColumns)),
           ...Object.values(
             _.omit(originalRow, [...hiddenColumns, ...htmlColumns]),
@@ -844,7 +844,7 @@ export default {
           .join(", ")
           .toLowerCase();
 
-        isSearchKeyFound = arr.includes(searchKey);
+        isSearchKeyFound = combinedRowContent.includes(searchKey);
       }
 
       if (!isSearchKeyFound) {
