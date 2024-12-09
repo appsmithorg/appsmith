@@ -2563,6 +2563,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isCellDisabled={cellProperties.isCellDisabled}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isHidden={isHidden}
+            renderMode={this.props.renderMode}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             value={props.cell.value}

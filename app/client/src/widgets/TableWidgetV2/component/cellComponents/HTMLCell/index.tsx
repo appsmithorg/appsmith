@@ -1,9 +1,12 @@
+import type { RenderMode } from "constants/WidgetConstants";
 import Interweave from "interweave";
-import React, { useMemo } from "react";
+import { isEqual } from "lodash";
+import React, { useEffect, useMemo, useRef } from "react";
 import styled from "styled-components";
 import LinkFilter from "widgets/TextWidget/component/filters/LinkFilter";
-import type { BaseCellComponentProps } from "../Constants";
-import { CellWrapper } from "../TableStyledWrappers";
+import type { BaseCellComponentProps } from "../../Constants";
+import { CellWrapper } from "../../TableStyledWrappers";
+import { extractHTMLTags, getRenderMode, sendHTMLCellAnalytics } from "./utils";
 
 const HTMLContainer = styled.div`
   & {
@@ -71,6 +74,7 @@ const HTMLContainer = styled.div`
 export interface HTMLCellProps extends BaseCellComponentProps {
   value: string;
   fontSize?: string;
+  renderMode: RenderMode;
 }
 
 const HTMLCell = (props: HTMLCellProps) => {
@@ -83,18 +87,41 @@ const HTMLCell = (props: HTMLCellProps) => {
     isCellDisabled,
     isCellVisible,
     isHidden,
+    renderMode,
     textColor,
     textSize,
     value,
     verticalAlignment,
   } = props;
 
+  const previousTagsRef = useRef<string[]>([]);
+
   const interweaveCompatibleValue = useMemo(() => {
     if (value === null || value === undefined) return "";
 
-    // this conversion is specifically required for Number type values
     return String(value);
   }, [value]);
+
+  const extractedTags = useMemo(() => {
+    if (!interweaveCompatibleValue) return [];
+
+    return extractHTMLTags(interweaveCompatibleValue);
+  }, [interweaveCompatibleValue]);
+
+  useEffect(() => {
+    const areTagsChanged = !isEqual(
+      extractedTags.sort(),
+      previousTagsRef.current.sort(),
+    );
+    const isRenderModeValid = ["DEPLOYED", "EDITOR"].includes(
+      getRenderMode(renderMode),
+    );
+
+    if (isRenderModeValid && extractedTags.length > 0 && areTagsChanged) {
+      sendHTMLCellAnalytics(extractedTags);
+      previousTagsRef.current = extractedTags;
+    }
+  }, [extractedTags, renderMode]);
 
   return (
     <CellWrapper
