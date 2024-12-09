@@ -1,7 +1,6 @@
 import {
   BlueprintOperationTypes,
   type FlattenedWidgetProps,
-  type WidgetDefaultProps,
 } from "WidgetProvider/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { UpdatePropertyArgs } from "sagas/WidgetBlueprintSagas";
@@ -13,6 +12,8 @@ import { COMPONENT_SIZE, DEFAULT_MODEL } from "../constants";
 
 export const defaultsConfig = {
   widgetName: "Custom",
+  rows: 30,
+  columns: 23,
   version: 1,
   onResetClick: "{{showAlert('Successfully reset!!', '');}}",
   events: ["onResetClick"],
@@ -60,4 +61,4 @@ export const defaultsConfig = {
       },
     ],
   },
-} as unknown as WidgetDefaultProps;
+};
