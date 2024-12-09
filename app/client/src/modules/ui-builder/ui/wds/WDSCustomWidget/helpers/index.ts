@@ -1,3 +1,10 @@
+/**
+ * Our canvas has some padding around it, so we need to subtract that padding from the canvas height to get the actual height of the widget.
+ * If the widget is in embed mode, we don't need to subtract the padding since the canvas is not padded.
+ *
+ * @param canvasHeight - number - The height of the canvas. We calculate it in the widget's useLayoutEffect hook.
+ * @param isEmbed - boolean - Whether the widget is in embed mode. This is derived from the query params.
+ */
 export const getFitPageChatHeight = (
   canvasHeight: number,
   isEmbed: boolean,

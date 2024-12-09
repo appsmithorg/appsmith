@@ -173,7 +173,7 @@ export function CustomWidgetComponent(props: CustomWidgetComponentProps) {
     >
       <iframe
         className={styles.iframe}
-        data-size={kebabCase(props.size)}
+        data-size={kebabCase(size)}
         loading="lazy"
         onLoad={() => {
           setLoading(false);
