@@ -17,6 +17,7 @@ import EditorNavigation, {
   AppSidebarButton,
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
 describe(
   "Tests JS Libraries for Git connected app",
@@ -120,14 +121,25 @@ describe(
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       agHelper.GetNClick(locators._widgetInDeployed("buttonwidget"));
-      agHelper.ValidateToastMessage(
-        '"jspdf" is undefined . Please fix JSObject2.genPDF.',
-      );
+
+      if (CURRENT_REPO === REPO.EE) {
+        agHelper.ValidateToastMessage(
+          '"jspdf" is undefined . Please fix JSObject2.genPDF.',
+        );
+      } else {
+        agHelper.ValidateToastMessage("jspdf is not defined");
+      }
 
       // Deploy
       deployMode.DeployApp();
       agHelper.GetNClick(locators._widgetInDeployed("buttonwidget"));
-      agHelper.ValidateToastMessage("jspdf is not defined");
+      if (CURRENT_REPO === REPO.EE) {
+        agHelper.ValidateToastMessage(
+          '"jspdf" is undefined . Please fix JSObject2.genPDF.',
+        );
+      } else {
+        agHelper.WaitUntilToastDisappear("");
+      }
       deployMode.NavigateBacktoEditor();
       // Install jspdf and verify references are working
       AppSidebar.navigate(AppSidebarButton.Libraries);
