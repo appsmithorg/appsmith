@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.AppsmithRepository;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import reactor.core.publisher.Mono;
 
 public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
@@ -12,4 +13,6 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
     Mono<User> findByEmailAndTenantId(String email, String tenantId);
 
     Mono<Boolean> isUsersEmpty();
+
+    Mono<Integer> updateById(String id, UpdateDefinition updateObj);
 }
