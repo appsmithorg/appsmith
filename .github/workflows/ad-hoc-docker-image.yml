@@ -92,7 +92,7 @@ jobs:
       - name: Generate info.json
         run: |
           if [[ -f scripts/generate_info_json.sh ]]; then
-            scripts/generate_info_json.sh
+            scripts/generate_info_json.sh ${{ inputs.tag }}
           fi
 
       - name: Place server artifacts-es
