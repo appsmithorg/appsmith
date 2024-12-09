@@ -46,7 +46,7 @@ class Response {
   }
 
   public validateResponseStatus(status: string): void {
-    cy.get(this.locators.responseStatusInfo).realHover();
+    cy.get(this.locators.responseStatusInfo).trigger("mouseover");
     cy.get(this.locators.responseStatusInfoTooltip).should(
       "include.text",
       status,
