@@ -5,10 +5,11 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { Spinner, Text, Tooltip } from "@appsmith/ads";
+import { Spinner, Text as ADSText, Tooltip } from "@appsmith/ads";
 import { useEventCallback, useEventListener } from "usehooks-ts";
 import { usePrevious } from "@mantine/hooks";
 import { useNameEditor } from "./useNameEditor";
+import styled from "styled-components";
 
 interface EditableTextProps {
   name: string;
@@ -28,6 +29,10 @@ interface EditableTextProps {
   icon: React.ReactNode;
   inputTestId?: string;
 }
+
+export const Text = styled(ADSText)`
+  min-width: 3ch;
+`;
 
 export const EditableName = ({
   exitEditing,
@@ -72,10 +77,15 @@ export const EditableName = ({
     const nameError = validate(editableName);
 
     if (editableName === name) {
+      // No change detected
       exitWithoutSaving();
     } else if (nameError === null) {
+      // Save the new name
       exitEditing();
       onNameSave(editableName);
+    } else {
+      // Exit edit mode and revert name
+      exitWithoutSaving();
     }
   }, [
     editableName,
@@ -119,7 +129,9 @@ export const EditableName = ({
   useEventListener(
     "focusout",
     function handleFocusOut() {
-      if (isEditing) {
+      const input = inputRef.current;
+
+      if (input) {
         attemptSave();
       }
     },

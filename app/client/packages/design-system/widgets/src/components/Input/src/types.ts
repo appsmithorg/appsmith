@@ -21,4 +21,5 @@ export interface TextAreaInputProps
   extends Omit<HeadlessTextAreaProps, "prefix" | "size">,
     CommonInputProps {
   rows?: number;
+  className?: string;
 }
