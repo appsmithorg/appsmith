@@ -199,13 +199,19 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @Override
     @JsonView({Views.Internal.class})
     public String getValidName() {
-        if (!PluginType.JS.equals(this.pluginType)) {
-            return this.name;
-        } else if (this.fullyQualifiedName == null) {
-            return this.name;
-        } else {
-            return this.fullyQualifiedName;
+        if (PluginType.JS.equals(this.pluginType)) {
+            if (this.fullyQualifiedName == null) {
+                return this.name;
+            } else {
+                return this.fullyQualifiedName;
+            }
         }
+        if (this.fullyQualifiedName != null) {
+            if (this.fullyQualifiedName.contains(this.name)) {
+                return this.fullyQualifiedName;
+            }
+        }
+        return this.name;
     }
 
     @Override
