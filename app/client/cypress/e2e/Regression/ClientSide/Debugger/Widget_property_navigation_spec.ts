@@ -160,14 +160,11 @@ describe(
       );
       _.agHelper.GetNClick(OneClickBindingLocator.searchableColumn);
       _.agHelper.GetNClick(
-        OneClickBindingLocator.columnDropdownOption(
-          "searchableColumn",
-          "imdb_id",
-        ),
+        OneClickBindingLocator.columnDropdownOption("searchableColumn", "id"),
       );
       _.agHelper.GetNClick(OneClickBindingLocator.connectData);
       _.table.WaitUntilTableLoad(0, 0, "v2");
-      _.propPane.OpenTableColumnSettings("imdb_id");
+      _.propPane.OpenTableColumnSettings("id");
       _.propPane.TypeTextIntoField("Regex", "{{test}}");
       _.debuggerHelper.AssertErrorCount(1);
       _.propPane.ToggleSection("validation");
@@ -175,7 +172,7 @@ describe(
 
       _.debuggerHelper.OpenDebugger();
       _.debuggerHelper.ClicklogEntityLink();
-      _.agHelper.GetNAssertContains(_.propPane._paneTitle, "imdb_id");
+      _.agHelper.GetNAssertContains(_.propPane._paneTitle, "id");
       _.debuggerHelper.CloseBottomBar();
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       _.entityExplorer.DeleteWidgetFromEntityExplorer("Table1");
