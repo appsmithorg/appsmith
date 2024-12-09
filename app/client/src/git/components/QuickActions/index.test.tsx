@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import QuickActions from ".";
-import { GitSettingsTab } from "git/enums";
+import { GitSettingsTab } from "../../constants/enums";
 import { GitSyncModalTab } from "entities/GitSync";
 import { theme } from "constants/DefaultTheme";
 import { ThemeProvider } from "styled-components";
