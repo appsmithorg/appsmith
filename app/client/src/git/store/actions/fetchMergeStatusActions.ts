@@ -3,7 +3,7 @@ import type {
   GitArtifactErrorPayloadAction,
   GitMergeStatus,
 } from "../types";
-import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 
 export const fetchMergeStatusInitAction = createSingleArtifactAction(
   (state) => {

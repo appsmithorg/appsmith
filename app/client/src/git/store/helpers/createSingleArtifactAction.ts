@@ -3,8 +3,8 @@ import type {
   GitArtifactPayloadAction,
   GitArtifactReduxState,
   GitSingleArtifactReduxState,
-} from "../../types";
-import { gitSingleArtifactInitialState } from "./singleArtifactInitialState";
+} from "../types";
+import { gitSingleArtifactInitialState } from "./gitSingleArtifactInitialState";
 
 type SingleArtifactStateCb<T> = (
   singleArtifactState: GitSingleArtifactReduxState,

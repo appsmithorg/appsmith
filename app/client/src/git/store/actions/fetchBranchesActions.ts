@@ -3,7 +3,7 @@ import type {
   FetchBranchesResponseData,
 } from "../../requests/fetchBranchesRequest.types";
 import type { GitAsyncErrorPayload, GitAsyncSuccessPayload } from "../types";
-import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 
 export interface FetchBranchesInitPayload extends FetchBranchesRequestParams {}
 

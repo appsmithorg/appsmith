@@ -1,4 +1,4 @@
-import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 import type { GitAsyncErrorPayload } from "../types";
 import type { ConnectRequestParams } from "git/requests/connectRequest.types";
 

@@ -25,7 +25,7 @@ export type GitAutocommitProgress = Record<string, unknown>;
 
 export type GitSSHKey = Record<string, unknown>;
 
-interface AsyncState<T = unknown> {
+export interface AsyncState<T = unknown> {
   value: T | null;
   loading: boolean;
   error: string | null;
@@ -96,6 +96,13 @@ export interface GitArtifactReduxState {
 export interface GitConfigReduxState {
   globalProfile: AsyncState<FetchGlobalProfileResponseData>;
   updateGlobalProfile: AsyncStateWithoutValue;
+}
+
+export interface GitRootState {
+  git: {
+    artifacts: GitArtifactReduxState;
+    config: GitConfigReduxState;
+  };
 }
 
 export interface GitArtifactBasePayload {

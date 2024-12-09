@@ -3,12 +3,12 @@ import {
   GitImportStep,
   GitOpsTab,
   GitSettingsTab,
-} from "../../../constants/enums";
+} from "../../constants/enums";
 import type {
   GitSingleArtifactAPIResponsesReduxState,
   GitSingleArtifactUIReduxState,
   GitSingleArtifactReduxState,
-} from "../../types";
+} from "../types";
 
 const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   connectModal: {

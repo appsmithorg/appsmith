@@ -3,7 +3,7 @@ import type {
   GitArtifactErrorPayloadAction,
   GitMetadata,
 } from "../types";
-import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 
 export const fetchMetadataInitAction = createSingleArtifactAction((state) => {
   state.apiResponses.metadata.loading = true;

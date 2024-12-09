@@ -4,7 +4,7 @@ import type {
   GitArtifactErrorPayloadAction,
   GitStatus,
 } from "../types";
-import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 
 export interface FetchStatusInitPayload extends FetchStatusRequestParams {}
 

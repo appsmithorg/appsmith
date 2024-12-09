@@ -22,25 +22,23 @@ jest.mock("./AutocommitStatusbar", () => () => (
 
 describe("QuickActions Component", () => {
   const defaultProps = {
-    isGitConnected: false,
-    gitStatus: {
-      behindCount: 0,
-      isClean: true,
-    },
-    pullFailed: false,
-    isProtectedMode: false,
-    isDiscardInProgress: false,
-    isPollingAutocommit: false,
-    isPullInProgress: false,
-    isFetchingGitStatus: false,
-    changesToCommit: 0,
-    gitMetadata: {},
+    discard: jest.fn(),
     isAutocommitEnabled: false,
+    isAutocommitPolling: false,
     isConnectPermitted: true,
-    openGitSyncModal: jest.fn(),
-    openGitSettingsModal: jest.fn(),
-    discardChanges: jest.fn(),
+    isDiscardLoading: false,
+    isFetchStatusLoading: false,
+    isGitConnected: false,
+    isProtectedMode: false,
+    isPullFailing: false,
+    isPullLoading: false,
+    isStatusClean: true,
     pull: jest.fn(),
+    statusBehindCount: 0,
+    statusChangesCount: 0,
+    toggleGitConnectModal: jest.fn(),
+    toggleGitOpsModal: jest.fn(),
+    toggleGitSettingsModal: jest.fn(),
   };
 
   afterEach(() => {
@@ -122,7 +120,8 @@ describe("QuickActions Component", () => {
     )[0];
 
     fireEvent.click(commitButton);
-    expect(props.openGitSyncModal).toHaveBeenCalledWith({
+    expect(props.toggleGitOpsModal).toHaveBeenCalledWith({
+      open: true,
       tab: GitSyncModalTab.DEPLOY,
     });
     expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith(
@@ -184,9 +183,9 @@ describe("QuickActions Component", () => {
         source: "BOTTOM_BAR_GIT_MERGE_BUTTON",
       },
     );
-    expect(props.openGitSyncModal).toHaveBeenCalledWith({
+    expect(props.toggleGitOpsModal).toHaveBeenCalledWith({
+      open: true,
       tab: GitSyncModalTab.MERGE,
-      isDeploying: true,
     });
   });
 
@@ -209,7 +208,8 @@ describe("QuickActions Component", () => {
     expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith("GS_SETTING_CLICK", {
       source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
     });
-    expect(props.openGitSettingsModal).toHaveBeenCalledWith({
+    expect(props.toggleGitSettingsModal).toHaveBeenCalledWith({
+      open: true,
       tab: GitSettingsTab.General,
     });
   });

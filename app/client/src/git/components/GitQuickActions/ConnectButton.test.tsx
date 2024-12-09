@@ -36,10 +36,7 @@ describe("ConnectButton Component", () => {
   it("should render correctly when isConnectPermitted is true", () => {
     render(
       <ThemeProvider theme={theme}>
-        <ConnectButton
-          isConnectPermitted
-          openGitSyncModal={openGitSyncModalMock}
-        />
+        <ConnectButton isConnectPermitted onClick={openGitSyncModalMock} />
       </ThemeProvider>,
     );
 
@@ -64,10 +61,7 @@ describe("ConnectButton Component", () => {
   it("should handle click when isConnectPermitted is true", () => {
     render(
       <ThemeProvider theme={theme}>
-        <ConnectButton
-          isConnectPermitted
-          openGitSyncModal={openGitSyncModalMock}
-        />
+        <ConnectButton isConnectPermitted onClick={openGitSyncModalMock} />
       </ThemeProvider>,
     );
 
@@ -92,7 +86,7 @@ describe("ConnectButton Component", () => {
       <ThemeProvider theme={theme}>
         <ConnectButton
           isConnectPermitted={false}
-          openGitSyncModal={openGitSyncModalMock}
+          onClick={openGitSyncModalMock}
         />
       </ThemeProvider>,
     );
@@ -123,7 +117,7 @@ describe("ConnectButton Component", () => {
       <ThemeProvider theme={theme}>
         <ConnectButton
           isConnectPermitted={false}
-          openGitSyncModal={openGitSyncModalMock}
+          onClick={openGitSyncModalMock}
         />
       </ThemeProvider>,
     );
@@ -139,10 +133,7 @@ describe("ConnectButton Component", () => {
   it("should display correct tooltip content when isConnectPermitted is true", () => {
     render(
       <ThemeProvider theme={theme}>
-        <ConnectButton
-          isConnectPermitted
-          openGitSyncModal={openGitSyncModalMock}
-        />
+        <ConnectButton isConnectPermitted onClick={openGitSyncModalMock} />
       </ThemeProvider>,
     );
 

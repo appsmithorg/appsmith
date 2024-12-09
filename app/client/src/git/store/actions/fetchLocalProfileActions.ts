@@ -3,7 +3,7 @@ import type {
   GitArtifactErrorPayloadAction,
   GitAsyncSuccessPayload,
 } from "../types";
-import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 
 export const fetchLocalProfileInitAction = createSingleArtifactAction(
   (state) => {

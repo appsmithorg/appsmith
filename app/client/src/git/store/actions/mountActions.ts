@@ -1,6 +1,6 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { GitArtifactBasePayload, GitArtifactReduxState } from "../types";
-import { gitSingleArtifactInitialState } from "./helpers/singleArtifactInitialState";
+import { gitSingleArtifactInitialState } from "../helpers/gitSingleArtifactInitialState";
 
 // ! This might be removed later
 

@@ -66,6 +66,7 @@ const initialState: GitArtifactReduxState = {};
 
 export const gitArtifactSlice = createSlice({
   name: "git/artifact",
+  reducerPath: "git.artifact",
   initialState,
   reducers: {
     mount: mountAction,
@@ -111,12 +112,6 @@ export const gitArtifactSlice = createSlice({
     // ui actions
     toggleBranchListPopup: toggleBranchListPopupAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
-  },
-  selectors: {
-    branches: (state, artifactType, baseArtifactId) =>
-      state[artifactType][baseArtifactId].apiResponses.branches,
-    createBranch: (state, artifactType, baseArtifactId) =>
-      state[artifactType][baseArtifactId].apiResponses.createBranch,
   },
 });
 

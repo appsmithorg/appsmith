@@ -3,7 +3,7 @@ import type {
   GitArtifactErrorPayloadAction,
   GitAutocommitProgress,
 } from "../types";
-import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 
 export const fetchAutocommitProgressInitAction = createSingleArtifactAction(
   (state) => {

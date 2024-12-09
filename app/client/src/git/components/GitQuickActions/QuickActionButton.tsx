@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { capitalizeFirstLetter } from "./helpers";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { Button, Tooltip, Text } from "@appsmith/ads";
 import { getTypographyByKey } from "@appsmith/ads-old";
+import { capitalizeFirstLetter } from "utils/helpers";
 
 interface QuickActionButtonProps {
   className?: string;

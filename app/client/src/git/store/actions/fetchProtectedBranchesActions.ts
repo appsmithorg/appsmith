@@ -3,7 +3,7 @@ import type {
   GitArtifactErrorPayloadAction,
   GitProtectedBranches,
 } from "../types";
-import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 
 export const fetchProtectedBranchesInitAction = createSingleArtifactAction(
   (state) => {

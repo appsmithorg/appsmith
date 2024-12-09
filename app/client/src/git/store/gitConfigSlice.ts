@@ -9,23 +9,11 @@ import {
   updateGlobalProfileInitAction,
   updateGlobalProfileSuccessAction,
 } from "./actions/updateGlobalProfileActions";
-import type { GitConfigReduxState } from "./types";
-
-const initialState: GitConfigReduxState = {
-  globalProfile: {
-    value: null,
-    loading: false,
-    error: null,
-  },
-  updateGlobalProfile: {
-    loading: false,
-    error: null,
-  },
-};
+import { gitConfigInitialState } from "./helpers/gitConfigInitialState";
 
 export const gitConfigSlice = createSlice({
   name: "git/config",
-  initialState,
+  initialState: gitConfigInitialState,
   reducers: {
     fetchGlobalProfileInit: fetchGlobalProfileInitAction,
     fetchGlobalProfileSuccess: fetchGlobalProfileSuccessAction,

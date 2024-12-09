@@ -3,7 +3,7 @@ import type {
   GitArtifactErrorPayloadAction,
   GitSSHKey,
 } from "../types";
-import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 
 export const fetchSSHKeyInitAction = createSingleArtifactAction((state) => {
   state.apiResponses.sshKey.loading = true;

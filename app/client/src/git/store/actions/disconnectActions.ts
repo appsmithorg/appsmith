@@ -1,4 +1,4 @@
-import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 import type { GitArtifactErrorPayloadAction } from "../types";
 
 export const disconnectInitAction = createSingleArtifactAction((state) => {

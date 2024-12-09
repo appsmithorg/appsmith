@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { softRefreshActions } from "actions/pluginActionActions";
 import { START_SWITCH_ENVIRONMENT } from "ee/constants/messages";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import GitTest from "git/components/connect/GitTest";
 
 export default function BottomBar() {
   const appId = useSelector(getCurrentApplicationId) || "";
@@ -41,6 +42,7 @@ export default function BottomBar() {
           />
         )}
         {!isPreviewMode && !isAnvilEnabled && <QuickGitActions />}
+        <GitTest />
       </Wrapper>
       {!isPreviewMode && (
         <Wrapper>
