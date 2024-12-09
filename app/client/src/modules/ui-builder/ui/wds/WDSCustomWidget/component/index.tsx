@@ -25,7 +25,7 @@ export function CustomWidgetComponent(props: CustomWidgetComponentProps) {
   const messenger = useRef<IframeMessenger | null>(null);
   const componentHeight = useCustomWidgetHeight(size);
 
-  // We want to anvil theme css variables in the iframe so that it looks like a anvil theme. To do, we are
+  // We want to pass anvil theme css variables the iframe so that it looks like a anvil theme. To do, we are
   // generating the css variables from the anvil theme and then sending it to the iframe. See the
   // createHtmlTemplate.tsx file where we are using the cssTokens.
   const cssTokens = useMemo(() => {
