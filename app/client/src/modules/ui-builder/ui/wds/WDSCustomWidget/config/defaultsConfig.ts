@@ -12,8 +12,6 @@ import { COMPONENT_SIZE, DEFAULT_MODEL } from "../constants";
 
 export const defaultsConfig = {
   widgetName: "Custom",
-  rows: 30,
-  columns: 23,
   version: 1,
   onResetClick: "{{showAlert('Successfully reset!!', '');}}",
   events: ["onResetClick"],
