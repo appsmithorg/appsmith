@@ -165,6 +165,7 @@ describe(
         true,
         "InternalServerErrorApi",
       );
+      debuggerHelper.ClearLogs();
     });
 
     it("3. Bug 4775: No Cyclical dependency when Api returns an error", function () {
