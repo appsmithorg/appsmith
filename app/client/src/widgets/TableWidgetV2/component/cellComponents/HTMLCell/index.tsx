@@ -127,6 +127,7 @@ const HTMLCell = (props: HTMLCellProps) => {
     <CellWrapper
       allowCellWrapping={allowCellWrapping}
       cellBackground={cellBackground}
+      className="cell-wrapper"
       compactMode={compactMode}
       fontStyle={fontStyle}
       horizontalAlignment={horizontalAlignment}
