@@ -21,6 +21,8 @@
   background-color: var(--color-bg-neutral-subtle);
   box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-subtle);
   isolation: isolate;
+  /* Delete overflow: hidden; when the max height is added */
+  overflow: hidden;
 }
 
 .input:has(> [data-select-text]) {
@@ -33,10 +35,6 @@
   align-items: flex-start;
   resize: none;
   font-family: inherit;
-}
-
-.input:is(textarea)[rows="1"] {
-  min-block-size: initial;
 }
 
 .input:autofill,
@@ -91,29 +89,6 @@
 .inputGroup:has(> [data-input-suffix]) [data-input-suffix] {
   right: var(--inner-spacing-1);
   position: absolute;
-}
-
-/* Note: the following calculations are done so that icon button in chat input is centered vertically */
-.inputGroup:has(.input[rows="1"]) [data-input-suffix] {
-  --icon-size: calc(
-    var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end) +
-      var(--inner-spacing-3) * 2
-  );
-  --icon-offset: calc((var(--input-height) - var(--icon-size)) / 2);
-
-  bottom: round(up, var(--icon-offset), 0.5px);
-  right: var(--icon-offset);
-}
-
-.inputGroup:has(.input[rows="1"]) [data-input-prefix] {
-  --icon-size: calc(
-    var(--body-line-height) + var(--body-margin-start) + var(--body-margin-end) +
-      var(--inner-spacing-3) * 2
-  );
-  --icon-offset: calc((var(--input-height) - var(--icon-size)) / 2);
-
-  bottom: var(--icon-offset);
-  left: var(--icon-offset);
 }
 
 .inputGroup :is([data-input-suffix], [data-input-prefix]) {
