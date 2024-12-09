@@ -12,7 +12,7 @@ import { GitSyncModalTab } from "entities/GitSync";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { GitMetadata, GitStatus } from "../../types";
 import { getPullBtnStatus } from "./helpers";
-import { GitSettingsTab } from "../../enums";
+import { GitSettingsTab } from "../../constants/enums";
 import ConnectButton from "./ConnectButton";
 import QuickActionButton from "./QuickActionButton";
 import AutocommitStatusbar from "./AutocommitStatusbar";
