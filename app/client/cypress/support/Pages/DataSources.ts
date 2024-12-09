@@ -206,7 +206,7 @@ export class DataSources {
     ".t--datasource-name:contains('" + dsName + "')";
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
-  _dsTabSchema = "[data-testid='t--tab-SCHEMA_TAB']";
+  _dsTabSchema = "[data-testid='t--tab-DATASOURCE_TAB']";
   private _pageSelectionMenu = "[data-testid='t--page-selection']";
 
   private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
@@ -1891,7 +1891,9 @@ export class DataSources {
     cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
       `getDatasourceStructureUpdated_${ds_entity_name}`,
     );
-    cy.get("[data-testid=t--tab-SCHEMA_TAB]").first().click({ force: true });
+    cy.get("[data-testid=t--tab-DATASOURCE_TAB]")
+      .first()
+      .click({ force: true });
     this.RefreshDatasourceSchema();
     this.assertHelper
       .WaitForNetworkCall(`@getDatasourceStructureUpdated_${ds_entity_name}`)

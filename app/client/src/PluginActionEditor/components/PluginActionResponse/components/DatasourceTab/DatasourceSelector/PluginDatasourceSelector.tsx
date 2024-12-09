@@ -20,18 +20,17 @@ import type { AppState } from "ee/reducers";
 import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import { INTEGRATION_TABS } from "constants/routes";
-import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import MenuField from "components/editorComponents/form/fields/MenuField";
 import type { InjectedFormProps } from "redux-form";
-import { reduxForm } from "redux-form";
-import type { Action } from "entities/Action";
-import { CurrentDataSourceLink } from "./CurrentDataSourceLink";
-import { CurrentDataSource } from "./CurrentDataSource";
+import { type Action } from "entities/Action";
+import { CurrentDataSourceLink } from "../CurrentDataSourceLink";
+import { CurrentDataSource } from "../CurrentDataSource";
 import { useCreateDatasource } from "ee/PluginActionEditor/hooks/useCreateDatasource";
 
-interface CustomProps {
+export interface CustomProps {
   datasourceId: string;
   datasourceName: string;
+  formName: string;
 }
 
 type Props = InjectedFormProps<Action, CustomProps> & CustomProps;
@@ -44,7 +43,11 @@ interface DATASOURCES_OPTIONS_TYPE {
   onSelect?: (value: string) => void;
 }
 
-const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
+export const PluginDatasourceSelector = ({
+  datasourceId,
+  datasourceName,
+  formName,
+}: Props) => {
   const activeActionBaseId = useActiveActionBaseId();
   const currentActionConfig = useSelector((state) =>
     activeActionBaseId
@@ -118,7 +121,7 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
     <Flex>
       <MenuField
         className={"t--switch-datasource"}
-        formName={QUERY_EDITOR_FORM_NAME}
+        formName={formName}
         name="datasource.id"
         options={DATASOURCES_OPTIONS}
       >
@@ -130,9 +133,3 @@ const DatasourceSelector = ({ datasourceId, datasourceName }: Props) => {
     </Flex>
   );
 };
-
-export default reduxForm<Action, CustomProps>({
-  form: QUERY_EDITOR_FORM_NAME,
-  destroyOnUnmount: false,
-  enableReinitialize: true,
-})(DatasourceSelector);
