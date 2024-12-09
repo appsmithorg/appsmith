@@ -12,8 +12,12 @@ import updateGlobalProfileSaga from "./updateGlobalProfileSaga";
 export function* gitSagas() {
   yield all([
     takeLatest(gitArtifactActions.connectInit.type, connectSaga),
-    takeLatest(gitArtifactActions.commitInit.type, commitSaga),
+
+    // branches
     takeLatest(gitArtifactActions.fetchBranchesInit.type, fetchBranchesSaga),
+    takeLatest(gitArtifactActions.fetchBranchesInit.type, fetchBranchesSaga),
+
+    takeLatest(gitArtifactActions.commitInit.type, commitSaga),
     takeLatest(
       gitArtifactActions.fetchLocalProfileInit.type,
       fetchLocalProfileSaga,

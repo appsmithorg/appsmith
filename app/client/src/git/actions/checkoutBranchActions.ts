@@ -1,12 +1,17 @@
 import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
-import type { GitArtifactErrorPayloadAction } from "../types";
+import type { GitAsyncErrorPayload } from "../types";
+import type { CheckoutBranchRequestParams } from "git/requests/checkoutBranchRequest.types";
 
-export const checkoutBranchInitAction = createSingleArtifactAction((state) => {
-  state.apiResponses.checkoutBranch.loading = true;
-  state.apiResponses.checkoutBranch.error = null;
+export interface CheckoutBranchInitPayload
+  extends CheckoutBranchRequestParams {}
 
-  return state;
-});
+export const checkoutBranchInitAction =
+  createSingleArtifactAction<CheckoutBranchInitPayload>((state) => {
+    state.apiResponses.checkoutBranch.loading = true;
+    state.apiResponses.checkoutBranch.error = null;
+
+    return state;
+  });
 
 export const checkoutBranchSuccessAction = createSingleArtifactAction(
   (state) => {
@@ -16,13 +21,12 @@ export const checkoutBranchSuccessAction = createSingleArtifactAction(
   },
 );
 
-export const checkoutBranchErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactErrorPayloadAction) => {
+export const checkoutBranchErrorAction =
+  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.checkoutBranch.loading = false;
     state.apiResponses.checkoutBranch.error = error;
 
     return state;
-  },
-);
+  });

@@ -19,7 +19,7 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
     open: false,
     step: GitImportStep.Provider,
   },
-  branchList: {
+  branchListPopup: {
     open: false,
   },
   opsModal: {

@@ -32,7 +32,6 @@ import {
   pullInitAction,
   pullSuccessAction,
 } from "../actions/pullActions";
-import { toggleRepoLimitErrorModalAction } from "../actions/repoLimitErrorModalActions";
 import {
   fetchLocalProfileErrorAction,
   fetchLocalProfileInitAction,
@@ -43,6 +42,25 @@ import {
   updateLocalProfileInitAction,
   updateLocalProfileSuccessAction,
 } from "git/actions/updateLocalProfileActions";
+import {
+  createBranchErrorAction,
+  createBranchInitAction,
+  createBranchSuccessAction,
+} from "git/actions/createBranchActions";
+import {
+  deleteBranchErrorAction,
+  deleteBranchInitAction,
+  deleteBranchSuccessAction,
+} from "git/actions/deleteBranchActions";
+import {
+  toggleBranchListPopupAction,
+  toggleRepoLimitErrorModalAction,
+} from "git/actions/uiActions";
+import {
+  checkoutBranchErrorAction,
+  checkoutBranchInitAction,
+  checkoutBranchSuccessAction,
+} from "git/actions/checkoutBranchActions";
 
 const initialState: GitArtifactReduxState = {};
 
@@ -55,12 +73,25 @@ export const gitArtifactSlice = createSlice({
     connectInit: connectInitAction,
     connectSuccess: connectSuccessAction,
     connectError: connectErrorAction,
-    fetchMetadataInit: fetchMetadataInitAction,
-    fetchMetadataSuccess: fetchMetadataSuccessAction,
-    fetchMetadataError: fetchMetadataErrorAction,
+
+    // branches
     fetchBranchesInit: fetchBranchesInitAction,
     fetchBranchesSuccess: fetchBranchesSuccessAction,
     fetchBranchesError: fetchBranchesErrorAction,
+    createBranchInit: createBranchInitAction,
+    createBranchSuccess: createBranchSuccessAction,
+    createBranchError: createBranchErrorAction,
+    deleteBranchInit: deleteBranchInitAction,
+    deleteBranchSuccess: deleteBranchSuccessAction,
+    deleteBranchError: deleteBranchErrorAction,
+    checkoutBranchInit: checkoutBranchInitAction,
+    checkoutBranchSuccess: checkoutBranchSuccessAction,
+    checkoutBranchError: checkoutBranchErrorAction,
+
+    // metadata
+    fetchMetadataInit: fetchMetadataInitAction,
+    fetchMetadataSuccess: fetchMetadataSuccessAction,
+    fetchMetadataError: fetchMetadataErrorAction,
     fetchStatusInit: fetchStatusInitAction,
     fetchStatusSuccess: fetchStatusSuccessAction,
     fetchStatusError: fetchStatusErrorAction,
@@ -76,6 +107,9 @@ export const gitArtifactSlice = createSlice({
     updateLocalProfileInit: updateLocalProfileInitAction,
     updateLocalProfileSuccess: updateLocalProfileSuccessAction,
     updateLocalProfileError: updateLocalProfileErrorAction,
+
+    // ui actions
+    toggleBranchListPopup: toggleBranchListPopupAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
   },
 });

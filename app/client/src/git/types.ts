@@ -69,7 +69,7 @@ export interface GitSingleArtifactUIReduxState {
     open: boolean;
     step: keyof typeof GitImportStep;
   };
-  branchList: {
+  branchListPopup: {
     open: boolean;
   };
   opsModal: {
