@@ -18,6 +18,7 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.Plugin;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -36,6 +37,7 @@ import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.GitArtifactHelper;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -44,6 +46,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.InvalidRemoteException;
 import org.eclipse.jgit.api.errors.TransportException;
+import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -65,6 +68,7 @@ import static com.appsmith.external.git.constants.ce.GitConstantsCE.GIT_CONFIG_E
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GIT_PROFILE_ERROR;
 import static com.appsmith.external.git.constants.ce.GitSpanCE.OPS_COMMIT;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.constants.FieldName.BRANCH_NAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
 import static java.lang.Boolean.FALSE;
@@ -79,6 +83,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     private final GitProfileUtils gitProfileUtils;
     private final GitAnalyticsUtils gitAnalyticsUtils;
     private final UserDataService userDataService;
+    private final SessionUserService sessionUserService;
 
     protected final GitArtifactHelperResolver gitArtifactHelperResolver;
     protected final GitHandlingServiceResolver gitHandlingServiceResolver;
@@ -938,6 +943,108 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                 || gitHandlingServiceResolver
                         .getGitHandlingService(gitType)
                         .isGitAuthInvalid(gitArtifactMetadata.getGitAuth());
+    }
+
+    public Mono<String> fetchRemoteChanges(
+            Artifact baseArtifact, Artifact refArtifact, boolean isFileLock, GitType gitType, RefType refType) {
+
+        if (refArtifact == null
+                || baseArtifact == null
+                || isBaseGitMetadataInvalid(baseArtifact.getGitArtifactMetadata(), gitType)) {
+            return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR));
+        }
+
+        GitArtifactMetadata baseArtifactGitData = baseArtifact.getGitArtifactMetadata();
+        GitArtifactMetadata refArtifactGitData = refArtifact.getGitArtifactMetadata();
+
+        String baseArtifactId = baseArtifactGitData.getDefaultArtifactId();
+
+        // TODO add gitType in all error messages.
+        if (refArtifactGitData == null || !hasText(refArtifactGitData.getRefName())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, BRANCH_NAME));
+        }
+
+        Mono<User> currUserMono = sessionUserService.getCurrentUser().cache(); // will be used to send analytics event
+        Mono<Boolean> acquireGitLockMono =
+                gitRedisUtils.acquireGitLock(baseArtifactId, GitConstants.GitCommandConstants.FETCH_REMOTE, isFileLock);
+
+        ArtifactJsonTransformationDTO jsonTransformationDTO = new ArtifactJsonTransformationDTO();
+        jsonTransformationDTO.setWorkspaceId(baseArtifact.getWorkspaceId());
+        jsonTransformationDTO.setBaseArtifactId(baseArtifactGitData.getDefaultArtifactId());
+        jsonTransformationDTO.setRepoName(baseArtifactGitData.getRepoName());
+        jsonTransformationDTO.setArtifactType(baseArtifact.getArtifactType());
+        jsonTransformationDTO.setRefName(refArtifactGitData.getRefName());
+        jsonTransformationDTO.setRefType(refType);
+
+        GitHandlingService gitHandlingService = gitHandlingServiceResolver.getGitHandlingService(gitType);
+
+        // current user mono has been zipped just to run in parallel.
+        Mono<String> fetchRemoteMono = acquireGitLockMono
+                .then(Mono.defer(() ->
+                        gitHandlingService.fetchRemoteChanges(jsonTransformationDTO, baseArtifactGitData.getGitAuth())))
+                .flatMap(fetchedRemoteStatusString -> {
+                    return gitRedisUtils.releaseFileLock(baseArtifactId).thenReturn(fetchedRemoteStatusString);
+                })
+                .onErrorResume(throwable -> {
+                    /*
+                     in case of any error, the global exception handler will release the lock
+                     hence we don't need to do that manually
+                    */
+                    log.error(
+                            "Error to fetch from remote for application: {}, branch: {}, git type {}",
+                            baseArtifactId,
+                            refArtifactGitData.getRefName(),
+                            gitType,
+                            throwable);
+                    return Mono.error(
+                            new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "fetch", throwable.getMessage()));
+                })
+                .elapsed()
+                .zipWith(currUserMono)
+                .flatMap(objects -> {
+                    Long elapsedTime = objects.getT1().getT1();
+                    String fetchRemote = objects.getT1().getT2();
+                    User currentUser = objects.getT2();
+                    return gitAnalyticsUtils
+                            .sendUnitExecutionTimeAnalyticsEvent(
+                                    AnalyticsEvents.GIT_FETCH.getEventName(), elapsedTime, currentUser, refArtifact)
+                            .thenReturn(fetchRemote);
+                })
+                .name(GitSpan.OPS_FETCH_REMOTE)
+                .tap(Micrometer.observation(observationRegistry));
+
+        return Mono.create(sink -> {
+            fetchRemoteMono.subscribe(sink::success, sink::error, null, sink.currentContext());
+        });
+    }
+
+    /**
+     * This method is responsible to compare the current branch with the remote branch.
+     * Comparing means finding two numbers - how many commits ahead and behind the local branch is.
+     * It'll do the following things -
+     * 1. Checkout (if required) to the branch to make sure we are comparing the right branch
+     * 2. Run a git fetch command to fetch the latest changes from the remote
+     *
+     * @param refArtifactId      id of the reference
+     * @param isFileLock         whether to add file lock or not
+     * @param artifactType
+     * @return Mono of {@link BranchTrackingStatus}
+     */
+    @Override
+    public Mono<String> fetchRemoteChanges(
+            String refArtifactId, boolean isFileLock, ArtifactType artifactType, GitType gitType, RefType refType) {
+        GitArtifactHelper<?> artifactGitHelper = gitArtifactHelperResolver.getArtifactHelper(artifactType);
+        AclPermission artifactEditPermission = artifactGitHelper.getArtifactEditPermission();
+
+        Mono<Tuple2<? extends Artifact, ? extends Artifact>> baseAndBranchedArtifactMono =
+                getBaseAndBranchedArtifacts(refArtifactId, artifactType, artifactEditPermission);
+
+        return baseAndBranchedArtifactMono.flatMap(artifactTuples -> {
+            Artifact baseArtifact = artifactTuples.getT1();
+            Artifact refArtifact = artifactTuples.getT2();
+
+            return fetchRemoteChanges(baseArtifact, refArtifact, isFileLock, gitType, refType);
+        });
     }
 
     /**
