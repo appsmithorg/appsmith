@@ -1,5 +1,6 @@
 package com.appsmith.server.git.central;
 
+import com.appsmith.git.dto.CommitDTO;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.dtos.ArtifactImportDTO;
@@ -17,4 +18,9 @@ public interface CentralGitServiceCE {
             String originHeader,
             ArtifactType artifactType,
             GitType gitType);
+
+    Mono<String> commitArtifact(
+            CommitDTO commitDTO, String branchedArtifactId, ArtifactType artifactType, GitType gitType);
+
+    Mono<? extends Artifact> detachRemote(String branchedArtifactId, ArtifactType artifactType, GitType gitType);
 }

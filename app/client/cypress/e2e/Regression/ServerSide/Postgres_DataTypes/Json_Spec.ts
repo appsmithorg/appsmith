@@ -55,7 +55,7 @@ describe(
         "public.jsonbooks",
         "Select",
       );
-      agHelper.RenameWithInPane("selectRecords");
+      agHelper.RenameQuery("selectRecords");
       dataSources.RunQuery();
       agHelper
         .GetText(dataSources._noRecordFound)
@@ -68,29 +68,29 @@ describe(
       query = `INSERT INTO jsonbooks(details) VALUES('{"customer": "{{InsertJSONForm.formData.customer}}", "title": "{{InsertJSONForm.formData.title}}", "type": {{InsertJSONForm.formData.type}}, "info": {"published": {{InsertJSONForm.formData.info.published}}, "price": {{InsertJSONForm.formData.info.price}}}}');`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("insertRecord");
+      agHelper.RenameQuery("insertRecord");
       dataSources.ToggleUsePreparedStatement(false);
 
       query = `UPDATE public."jsonbooks" SET "details" = '{"customer": "{{UpdateJSONForm.formData.customer}}", "title": "{{UpdateJSONForm.formData.title}}", "type": {{UpdateJSONForm.formData.type}}, "info": {"published": {{UpdateJSONForm.formData.info.published}}, "price": {{UpdateJSONForm.formData.info.price}}}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("updateRecord");
+      agHelper.RenameQuery("updateRecord");
       dataSources.ToggleUsePreparedStatement(false);
 
       query = `DELETE FROM public."jsonbooks" WHERE serialId ={{Table1.selectedRow.serialid}}`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("deleteRecord");
+      agHelper.RenameQuery("deleteRecord");
 
       query = `DELETE FROM public."jsonbooks"`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("deleteAllRecords");
+      agHelper.RenameQuery("deleteAllRecords");
 
       query = `drop table public."jsonbooks"`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("dropTable");
+      agHelper.RenameQuery("dropTable");
     });
 
     it("4. Inserting record - jsonbooks", () => {
@@ -356,7 +356,7 @@ describe(
       query = `CREATE TABLE "jsonBbooks" (serialId SERIAL PRIMARY KEY, details JSONB)`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("createTable");
+      agHelper.RenameQuery("createTable");
       dataSources.RunQuery();
     });
 
@@ -366,7 +366,7 @@ describe(
         "public.jsonBbooks",
         "Select",
       );
-      agHelper.RenameWithInPane("selectRecords");
+      agHelper.RenameQuery("selectRecords");
       dataSources.RunQuery();
       agHelper
         .GetText(dataSources._noRecordFound)
@@ -379,39 +379,39 @@ describe(
       query = `INSERT INTO "jsonBbooks"(details) VALUES('{"title": "{{InsertJSONForm.formData.title}}", "genres": {{InsertJSONForm.formData.genres}}, "info": {"published": {{InsertJSONForm.formData.info.published}}, "publishedDate": "{{InsertJSONForm.formData.info.publishedDate}}"}}');`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("insertRecord");
+      agHelper.RenameQuery("insertRecord");
       dataSources.ToggleUsePreparedStatement(false);
 
       query = `UPDATE public."jsonBbooks" SET "details" = '{"title": "{{UpdateJSONForm.formData.title}}", "genres": {{UpdateJSONForm.formData.genres}}, "info": {"published": {{UpdateJSONForm.formData.info.published}}, "publishedDate": "{{UpdateJSONForm.formData.info.publishedDate}}"}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("updateRecord");
+      agHelper.RenameQuery("updateRecord");
       dataSources.ToggleUsePreparedStatement(false);
 
       query = `SELECT * from enum_range(NULL::genres)`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("getEnum");
+      agHelper.RenameQuery("getEnum");
 
       query = `DELETE FROM public."jsonBbooks" WHERE serialId ={{Table1.selectedRow.serialid}}`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("deleteRecord");
+      agHelper.RenameQuery("deleteRecord");
 
       query = `DELETE FROM public."jsonBbooks"`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("deleteAllRecords");
+      agHelper.RenameQuery("deleteAllRecords");
 
       query = `drop table public."jsonBbooks"`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("dropTable");
+      agHelper.RenameQuery("dropTable");
 
       query = `drop type genres`;
       entityExplorer.CreateNewDsQuery(dsName);
       dataSources.EnterQuery(query);
-      agHelper.RenameWithInPane("dropEnum");
+      agHelper.RenameQuery("dropEnum");
     });
 
     it("18. Inserting record - jsonbooks", () => {
