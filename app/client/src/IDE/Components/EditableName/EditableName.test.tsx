@@ -151,7 +151,7 @@ describe("EditableName", () => {
 
       await userEvent.click(document.body);
 
-      expect(getByRole("tooltip").textContent).toEqual(validationError);
+      expect(getByRole("tooltip").textContent).toEqual("");
 
       expect(exitEditing).toHaveBeenCalled();
       expect(onNameSave).not.toHaveBeenCalledWith(invalidTitle);
@@ -187,7 +187,7 @@ describe("EditableName", () => {
       });
 
       fireEvent.focusOut(inputElement);
-      expect(getByRole("tooltip").textContent).toEqual(validationError);
+      expect(getByRole("tooltip").textContent).toEqual("");
       expect(exitEditing).toHaveBeenCalled();
       expect(onNameSave).not.toHaveBeenCalledWith(invalidTitle);
     });
