@@ -160,7 +160,10 @@ describe(
       );
       _.agHelper.GetNClick(OneClickBindingLocator.searchableColumn);
       _.agHelper.GetNClick(
-        OneClickBindingLocator.columnDropdownOption("searchableColumn", "imdb_id"),
+        OneClickBindingLocator.columnDropdownOption(
+          "searchableColumn",
+          "imdb_id",
+        ),
       );
       _.agHelper.GetNClick(OneClickBindingLocator.connectData);
       _.table.WaitUntilTableLoad(0, 0, "v2");
