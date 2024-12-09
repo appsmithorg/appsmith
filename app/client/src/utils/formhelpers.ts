@@ -29,3 +29,27 @@ export const isEmail = (value: string) => {
 
   return re.test(value);
 };
+
+export function isRelevantEmail(email: string) {
+  const generalDomains = [
+    "gmail.com",
+    "yahoo.com",
+    "outlook.com",
+    "hotmail.com",
+    "aol.com",
+    "icloud.com",
+    "protonmail.com",
+    "zoho.com",
+    "yandex.com",
+  ];
+
+  // Extract the domain from the email
+  const domain = email.split("@")[1]?.toLowerCase();
+
+  if (!domain) {
+    return false;
+  }
+
+  // Check if the domain exists in the list of general domains
+  return !generalDomains.includes(domain);
+}

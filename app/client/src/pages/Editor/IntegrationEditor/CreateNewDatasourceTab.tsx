@@ -40,6 +40,7 @@ import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
 import { isPluginActionCreating } from "PluginActionEditor/store";
+import { PremiumDatasources } from "./PremiumDatasources";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -169,7 +170,9 @@ function CreateNewDatasource({
         parentEntityType={parentEntityType}
         showMostPopularPlugins={showMostPopularPlugins}
         showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-      />
+      >
+        {showMostPopularPlugins && <PremiumDatasources />}
+      </NewQueryScreen>
     </div>
   );
 }
