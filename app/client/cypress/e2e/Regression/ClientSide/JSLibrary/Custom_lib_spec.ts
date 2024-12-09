@@ -134,7 +134,7 @@ describe(
           '"jspdf" is undefined . Please fix JSObject2.genPDF.',
         );
       } else {
-        agHelper.WaitUntilToastDisappear("");
+        agHelper.WaitUntilToastDisappear("jspdf is not defined");
       }
       deployMode.NavigateBacktoEditor();
       // Install jspdf and verify references are working
