@@ -16,7 +16,6 @@ describe("Table Filter for HTML Cell", function () {
     });
     entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
     propPane.EnterJSContext("Table data", JSON.stringify(htmlTableData));
-    table.ChangeColumnType("status", "HTML", "v2");
   });
 
   it("1. Ensures HTML column type is available", function () {
@@ -36,7 +35,7 @@ describe("Table Filter for HTML Cell", function () {
     table.RemoveSearchTextNVerify("1", "v2");
   });
 
-  it("2. Verify Table Filter for HTML columns", function () {
+  it("3. Verify Table Filter for HTML columns", function () {
     propPane.ExpandIfCollapsedSection("search\\&filters");
     agHelper.AssertExistingToggleState("Allow filtering", "false");
     propPane.TogglePropertyState("Allow filtering", "On");
@@ -64,6 +63,17 @@ describe("Table Filter for HTML Cell", function () {
       expect($cellData).to.include("2");
     });
     table.RemoveFilterNVerify("1", true, true, 0, "v2");
+  });
+
+  it("4. Verify Table sorting for HTML columns", function () {
+    table.SortColumn("status", "asc");
+    table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
+      expect($cellData).to.include("Active");
+    });
+    table.SortColumn("status", "desc");
+    table.ReadTableRowColumnData(0, 3, "v2").then(($cellData) => {
+      expect($cellData).to.include("Suspended");
+    });
   });
 });
 
