@@ -9,6 +9,7 @@ export default {
 `,
     css: `.app {
 	justify-content: center;
+	border: none;
 	border-radius: var(--appsmith-theme-border-radius-elevation-3);
 }
 
