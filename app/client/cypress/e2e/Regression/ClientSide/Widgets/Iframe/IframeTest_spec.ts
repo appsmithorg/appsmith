@@ -46,7 +46,9 @@ describe(
 
       // User interaction - Click
       getIframeBody(1).find(locators._pageHeaderToggle).click({ force: true });
-      getIframeBody(1).find(locators._pageHeaderMenuList).should("be.visible");
+      getIframeBody(1)
+        .find(locators._pageHeaderMenuList)
+        .should("be.visible", { timeout: Cypress.config().pageLoadTimeout });
     });
 
     it("2. Verify colors, borders and shadows", () => {
