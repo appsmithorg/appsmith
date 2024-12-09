@@ -49,7 +49,6 @@ const RequestIntegrationForm = (props: RequestIntegrationFormProps) => {
           REQUEST_NEW_INTEGRATIONS.REQUEST_MODAL_INTEGRATION.PLACEHOLDER,
         )}
         size="md"
-        value={props.integration}
       />
       <Field
         component={ReduxFormTextField}
@@ -62,7 +61,6 @@ const RequestIntegrationForm = (props: RequestIntegrationFormProps) => {
         )}
         size="md"
         type="textarea"
-        value={props.useCase}
       />
       <Field
         component={ReduxFormTextField}
@@ -75,7 +73,6 @@ const RequestIntegrationForm = (props: RequestIntegrationFormProps) => {
         name={REQUEST_NEW_INTEGRATIONS.REQUEST_MODAL_EMAIL.NAME}
         size="md"
         type="email"
-        value={props.email}
       />
       <Flex gap="spaces-7" justifyContent="flex-end" marginTop="spaces-3">
         <Close>
