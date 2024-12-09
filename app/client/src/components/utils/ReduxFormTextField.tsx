@@ -30,6 +30,7 @@ const renderComponent = (
   ) : (
     <Input
       {...componentProps.input}
+      // type prop is omitted as textarea component doesn't support that
       {...(componentProps.type === "textarea"
         ? omit(componentProps, "type")
         : componentProps)}
