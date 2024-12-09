@@ -3,8 +3,11 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -44,5 +47,13 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
         Set<String> systemGeneratedEmails = new HashSet<>();
         systemGeneratedEmails.add(FieldName.ANONYMOUS_USER);
         return systemGeneratedEmails;
+    }
+
+    @Override
+    public Optional<Integer> updateById(String id, BridgeUpdate updateObj) {
+        if (id == null) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
+        }
+        return Optional.of(queryBuilder().byId(id).updateFirst(updateObj));
     }
 }

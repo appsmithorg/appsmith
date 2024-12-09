@@ -24,6 +24,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.cakes.EmailVerificationTokenRepositoryCake;
@@ -569,6 +570,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
 
         return userFromRepository.flatMap(existingUser -> this.update(existingUser, update));
+    }
+
+    @Override
+    public Mono<Integer> updateWithoutPermission(String id, BridgeUpdate updateObj) {
+        Mono<User> userFromRepository = repository
+                .findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
+
+        return userFromRepository.flatMap(existingUser -> repository.updateById(id, updateObj));
     }
 
     private Mono<User> update(User existingUser, User userUpdate) {
