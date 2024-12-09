@@ -3,11 +3,14 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
@@ -49,5 +52,13 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
         Set<String> systemGeneratedEmails = new HashSet<>();
         systemGeneratedEmails.add(FieldName.ANONYMOUS_USER);
         return systemGeneratedEmails;
+    }
+
+    @Override
+    public Mono<Integer> updateById(String id, UpdateDefinition updateObj) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+        return queryBuilder().byId(id).updateFirst(updateObj);
     }
 }

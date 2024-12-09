@@ -393,6 +393,7 @@ export const CREATE_NEW_DATASOURCE_DATABASE_HEADER = () => "Databases";
 export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
 export const SAMPLE_DATASOURCES = () => "Sample datasources";
+export const EDIT_DS_CONFIG = () => "Edit datasource configuration";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -2277,18 +2278,22 @@ export const EMPTY_TABLE_MESSAGE_TEXT = () =>
 export const EMPTY_SCHEMA_MESSAGE_TEXT = () =>
   "There are no schema records to show";
 export const NO_COLUMNS_MESSAGE_TEXT = () => "There are no columns to show";
-export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
+export const LOADING_RECORDS_TITLE_TEXT = () => "Loading columns";
 export const LOADING_SCHEMA_TITLE_TEXT = () => "Loading schema";
 export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
-export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";
+export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load datasource";
 export const FAILED_RECORDS_MESSAGE_TEXT = () =>
-  "There was an error connecting to the datasource. Please check the datasource configuration and retry.";
+  "Please check the datasource configuration and retry.";
 export const DATASOURCE_SWITCHER_MENU_GROUP_NAME = () => "Select a datasource";
 export const CANT_SHOW_SCHEMA = () =>
   "We can’t show the schema for this datasource";
 export const COLUMNS_TITLE = () => "Columns";
 export const COLUMNS_SEARCH_PLACEHOLDER = (tableName: string) =>
   `Search columns in ${tableName}`;
+export const NO_ACCESS_TITLE_TEXT = () =>
+  "You do not have access to this datasource";
+export const NO_ACCESS_MESSAGE_TEXT = () =>
+  "Please contact your workspace administrator to gain access";
 
 export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_DESCRIPTION = () =>
@@ -2543,4 +2548,32 @@ export const CUSTOM_WIDGET_BUILDER_TAB_TITLE = {
   HTML: () => "HTML",
   STYLE: () => "Style",
   JS: () => "Javascript",
+};
+
+export const REQUEST_NEW_INTEGRATIONS = {
+  UNABLE_TO_FIND: () => "Can’t find what you are looking for?",
+  REQUEST_NEW_BUTTON: () => "Request a new integration",
+  REQUEST_BUTTON: () => "Request integration",
+  CANCEL_BUTTON: () => "Cancel",
+  REQUEST_MODAL_HEADING: () => "Request a new integration",
+  REQUEST_MODAL_INTEGRATION: {
+    LABEL: () => "Integration",
+    PLACEHOLDER: () => "E.g. Zendesk, JIRA, Slack, others",
+    NAME: "integration",
+    ERROR: () => "Please enter integration name",
+  },
+  REQUEST_MODAL_USECASE: {
+    LABEL: () => "Tell us more about your case",
+    PLACEHOLDER: () =>
+      "E.g. I want to create an app to manage my customers’ account.",
+    NAME: "useCase",
+  },
+  REQUEST_MODAL_EMAIL: {
+    LABEL: () => "Email",
+    DESCRIPTION: () =>
+      "Appsmith might use this email exclusively to follow up on your integration request.",
+    NAME: "email",
+    ERROR: () => "Please enter email",
+  },
+  SUCCESS_TOAST_MESSAGE: () => "Thank you! We are looking into your request.",
 };

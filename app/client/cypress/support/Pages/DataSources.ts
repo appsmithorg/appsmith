@@ -11,7 +11,9 @@ import EditorNavigation, {
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
 import { anvilLocators } from "./Anvil/Locators";
-import BottomPane from "./IDE/BottomPane";
+import { PluginActionForm } from "./PluginActionForm";
+import ApiEditor from "../../locators/ApiEditor";
+import BottomTabs from "./IDE/BottomTabs";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -55,6 +57,7 @@ export class DataSources {
   private apiPage = ObjectsRegistry.ApiPage;
   private dataManager = ObjectsRegistry.DataManager;
   private assertHelper = ObjectsRegistry.AssertHelper;
+  private pluginActionForm = new PluginActionForm();
 
   public ContainerKVP = (containerName: string) => {
     return {
@@ -119,7 +122,7 @@ export class DataSources {
     "']";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
-  _runQueryBtn = ".t--run-query";
+  _runQueryBtn = "[data-testid='t--run-action']";
   _newDatabases = "#new-datasources";
   _newDatasourceContainer = "#new-integrations-wrapper";
   _selectDatasourceDropdown = "[data-testid=t--datasource-dropdown]";
@@ -160,6 +163,7 @@ export class DataSources {
     "//div[@data-testid='t--response-tab-segmented-control']//span[text()='" +
     responseType +
     "']";
+  // TODO: remove this when response UI is ready
   _queryRecordResult = (recordCount: number) =>
     `//div/span[text()='Result:']/span[number(substring-before(normalize-space(text()), ' Record')) >= ${recordCount}]`;
   _noRecordFound = "span[data-testid='no-data-table-message']";
@@ -202,7 +206,7 @@ export class DataSources {
     ".t--datasource-name:contains('" + dsName + "')";
   _mandatoryMark = "//span[text()='*']";
   _deleteDSHostPort = ".t--delete-field";
-  _dsTabSchema = "[data-testid='t--tab-SCHEMA_TAB']";
+  _dsTabSchema = "[data-testid='t--tab-DATASOURCE_TAB']";
   private _pageSelectionMenu = "[data-testid='t--page-selection']";
 
   private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
@@ -725,22 +729,28 @@ export class DataSources {
     environment = this.dataManager.defaultEnviorment,
     enterOrSelectUrl: "enter" | "select" = "enter",
     dsNameToSelect = "",
+    renameCallback?: (queryName: string) => void,
   ) {
     this.agHelper.GetNClick(this._createBlankGraphQL);
     cy.get("@guid").then((uid) => {
-      this.agHelper.RenameWithInPane("GraphQL_API" + "_" + uid, true);
+      const queryName = "GraphQL_API" + "_" + uid;
+      if (typeof renameCallback === "function") {
+        renameCallback(queryName);
+      } else {
+        this.agHelper.RenameQuery(queryName);
+      }
 
       if (enterOrSelectUrl == "enter")
         this.apiPage.EnterURL(
           this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
         );
       else if (enterOrSelectUrl == "select") {
-        this.agHelper.GetNClick(this.apiPage._resourceUrl);
+        this.agHelper.GetNClick(ApiEditor.dataSourceField);
         this.agHelper.GetNClick(this._graphQlDsHintOption(dsNameToSelect));
       }
 
       this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
-      cy.wrap("GraphQL_API" + "_" + uid).as("dsName");
+      cy.wrap(queryName).as("dsName");
     });
   }
 
@@ -765,7 +775,7 @@ export class DataSources {
     this.agHelper.ClearNType(this._graphQLHeaderValue, hValue);
     cy.get("@guid").then((uid: any) => {
       dataSourceName = dataSourceName + " " + uid;
-      this.agHelper.RenameWithInPane(dataSourceName, false);
+      this.agHelper.RenameDatasource(dataSourceName);
       this.SaveDatasource();
       cy.wrap(dataSourceName).as("dsName");
     });
@@ -907,7 +917,7 @@ export class DataSources {
     });
     //this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
     this.AssertRunButtonVisibility();
-    if (queryName) this.agHelper.RenameWithInPane(queryName);
+    if (queryName) this.agHelper.RenameQuery(queryName);
     if (query) {
       this.EnterQuery(query);
       this.AssertRunButtonDisability(false);
@@ -1116,10 +1126,9 @@ export class DataSources {
   }
 
   ToggleUsePreparedStatement(enable = true || false) {
-    this.apiPage.SelectPaneTab("Settings");
+    this.pluginActionForm.toolbar.toggleSettings();
     if (enable) this.agHelper.CheckUncheck(this._usePreparedStatement, true);
     else this.agHelper.CheckUncheck(this._usePreparedStatement, false);
-    this.apiPage.SelectPaneTab("Query");
   }
 
   public EnterQuery(query: string, sleep = 500, toVerifySave = true) {
@@ -1141,13 +1150,13 @@ export class DataSources {
     this.RunQuery();
     if (tableCheck) {
       this.agHelper.AssertElementVisibility(
-        BottomPane.response.getResponseTypeSelector("TABLE"),
+        BottomTabs.response.getResponseTypeSelector("TABLE"),
       );
       this.agHelper.AssertElementVisibility(
-        BottomPane.response.getResponseTypeSelector("JSON"),
+        BottomTabs.response.getResponseTypeSelector("JSON"),
       );
       this.agHelper.AssertElementVisibility(
-        BottomPane.response.getResponseTypeSelector("RAW"),
+        BottomTabs.response.getResponseTypeSelector("RAW"),
       );
     }
   }
@@ -1159,23 +1168,23 @@ export class DataSources {
   }: {
     count?: number;
     operator?: Parameters<
-      typeof BottomPane.response.validateRecordCount
+      typeof BottomTabs.response.validateRecordCount
     >[0]["operator"];
     responseTypes?: ("TABLE" | "JSON" | "RAW")[];
   } = {}) {
     this.RunQuery();
 
-    BottomPane.response.openResponseTypeMenu();
+    BottomTabs.response.openResponseTypeMenu();
 
     responseTypes.forEach((responseType) => {
       this.agHelper.AssertElementVisibility(
-        BottomPane.response.locators.responseTypeMenuItem(responseType),
+        BottomTabs.response.locators.responseTypeMenuItem(responseType),
       );
     });
 
-    BottomPane.response.closeResponseTypeMenu();
+    BottomTabs.response.closeResponseTypeMenu();
 
-    BottomPane.response.validateRecordCount({
+    BottomTabs.response.validateRecordCount({
       count,
       operator,
     });
@@ -1214,7 +1223,7 @@ export class DataSources {
         this.CreatePlugIn(DataSourceKVP[dsType]);
         guid = uid;
         dataSourceName = dsType + " " + guid;
-        this.agHelper.RenameWithInPane(dataSourceName, false);
+        this.agHelper.RenameDatasource(dataSourceName);
         // Execute the preDSConfigAction if it is defined
         if (!!preDSConfigAction) {
           preDSConfigAction.bind(this)(environment);
@@ -1272,7 +1281,7 @@ export class DataSources {
     if (query) {
       this.EnterQuery(query, sleep);
     }
-    if (queryName) this.agHelper.RenameWithInPane(queryName);
+    if (queryName) this.agHelper.RenameQuery(queryName);
   }
 
   public UpdateGraphqlQueryAndVariable(options?: {
@@ -1343,15 +1352,14 @@ export class DataSources {
     queryTimeout = 20000,
     action: "QUERY" | "API" = "QUERY",
   ) {
-    this.agHelper.GetNClick(this._queryEditorTabs("Settings"));
+    // open the settings
+    this.pluginActionForm.toolbar.toggleSettings();
     cy.xpath(this._queryTimeout)
       .clear()
       .type(queryTimeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
-
-    if (action === "QUERY") {
-      this.agHelper.GetNClick(this._queryEditorTabs("Query"));
-    }
+    // close the settings
+    this.pluginActionForm.toolbar.toggleSettings();
   }
 
   //Update with new password in the datasource conf page
@@ -1604,7 +1612,7 @@ export class DataSources {
     clientSecret: string,
     environment = this.dataManager.defaultEnviorment,
   ) {
-    if (dsName) this.agHelper.RenameWithInPane(dsName, false);
+    if (dsName) this.agHelper.RenameDatasource(dsName);
     // Fill Auth Form
     this.agHelper.TypeText(
       this.locator._inputFieldByName("URL") + "//" + this.locator._inputField,
@@ -1883,7 +1891,9 @@ export class DataSources {
     cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
       `getDatasourceStructureUpdated_${ds_entity_name}`,
     );
-    cy.get("[data-testid=t--tab-SCHEMA_TAB]").first().click({ force: true });
+    cy.get("[data-testid=t--tab-DATASOURCE_TAB]")
+      .first()
+      .click({ force: true });
     this.RefreshDatasourceSchema();
     this.assertHelper
       .WaitForNetworkCall(`@getDatasourceStructureUpdated_${ds_entity_name}`)
