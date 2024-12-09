@@ -8,8 +8,8 @@ import styles from "./styles.module.css";
 import { EVENTS } from "./customWidgetscript";
 import { getAppsmithConfigs } from "ee/configs";
 import { getSandboxPermissions } from "../helpers";
-import type { CustomWidgetComponentProps } from "../types";
 import { createHtmlTemplate } from "./createHtmlTemplate";
+import type { CustomWidgetComponentProps } from "../types";
 import { IframeMessenger } from "../services/IframeMessenger";
 import { useCustomWidgetHeight } from "./useCustomWidgetHeight";
 
@@ -45,7 +45,7 @@ export function CustomWidgetComponent(props: CustomWidgetComponentProps) {
       messenger.current = new IframeMessenger(iframe.current);
 
       const messageHandlers = {
-        [EVENTS.CUSTOM_WIDGET_READY]: handleWidgetReady,
+        [EVENTS.CUSTOM_WIDGET_READY]: handleIframeOnLoad,
         [EVENTS.CUSTOM_WIDGET_UPDATE_MODEL]: handleModelUpdate,
         [EVENTS.CUSTOM_WIDGET_TRIGGER_EVENT]: handleTriggerEvent,
         [EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT]: handleHeightUpdate,
@@ -65,7 +65,7 @@ export function CustomWidgetComponent(props: CustomWidgetComponentProps) {
 
   // the iframe sends CUSTOM_WIDGET_READY message when "onload" event is triggered
   // on the iframe's window object
-  const handleWidgetReady = () => {
+  const handleIframeOnLoad = () => {
     setIsIframeReady(true);
 
     messenger.current?.postMessage({
@@ -158,6 +158,14 @@ export function CustomWidgetComponent(props: CustomWidgetComponentProps) {
     srcDoc: props.srcDoc,
   });
 
+  useEffect(
+    // Everytime srcDoc changes, we want to set loading to true, so that all iframe events are reset
+    function handleIframeLoad() {
+      setLoading(true);
+    },
+    [srcDoc],
+  );
+
   return (
     <div
       className={clsx(styles.container, { "bp3-skeleton": loading })}
@@ -167,7 +175,9 @@ export function CustomWidgetComponent(props: CustomWidgetComponentProps) {
         className={styles.iframe}
         data-size={kebabCase(props.size)}
         loading="lazy"
-        onLoad={() => setLoading(false)}
+        onLoad={() => {
+          setLoading(false);
+        }}
         ref={iframe}
         sandbox={getSandboxPermissions(disableIframeWidgetSandbox)}
         srcDoc={srcDoc}

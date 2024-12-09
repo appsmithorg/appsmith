@@ -28,7 +28,7 @@ export class IframeMessenger {
     const handler = handlers[event.data.type];
 
     if (handler) {
-      handler(event.data);
+      handler(event.data.data);
     }
   };
 

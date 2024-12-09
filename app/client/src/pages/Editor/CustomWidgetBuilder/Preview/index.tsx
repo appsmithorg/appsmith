@@ -128,6 +128,12 @@ export default function Preview({
         <ThemeProvider className={styles.themeProvider} theme={anvilTheme}>
           <AnvilLayoutCustomComponent
             model={model || {}}
+            onConsole={(type, args) => {
+              updateDebuggerLogs?.({
+                type,
+                args,
+              });
+            }}
             onTriggerEvent={execute}
             onUpdateModel={update}
             renderMode="BUILDER"
