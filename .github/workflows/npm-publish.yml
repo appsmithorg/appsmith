@@ -51,15 +51,6 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
       
-      # Configure npm
-      - name: Configure npm
-        run: |
-          cat << EOF > "$HOME/.npmrc"
-            //registry.npmjs.org/:_authToken=$NPM_TOKEN
-          EOF
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
       # Build packages, add packages build script inside workspace scripts.build
       - name: Build packages
         run: yarn workspace @design-system/ads build
