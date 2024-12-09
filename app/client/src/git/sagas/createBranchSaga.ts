@@ -1,12 +1,12 @@
 import { call, put } from "redux-saga/effects";
-import type { CreateBranchInitPayload } from "../actions/createBranchActions";
+import type { CreateBranchInitPayload } from "../store/actions/createBranchActions";
 import createBranchRequest from "../requests/createBranchRequest";
 import type {
   CreateBranchRequestParams,
   CreateBranchResponse,
 } from "../requests/createBranchRequest.types";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
-import type { GitArtifactPayloadAction } from "../types";
+import type { GitArtifactPayloadAction } from "../store/types";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";

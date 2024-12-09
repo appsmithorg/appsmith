@@ -1,11 +1,11 @@
-import type { DeleteBranchInitPayload } from "../actions/deleteBranchActions";
+import type { DeleteBranchInitPayload } from "../store/actions/deleteBranchActions";
 import deleteBranchRequest from "../requests/deleteBranchRequest";
 import type {
   DeleteBranchRequestParams,
   DeleteBranchResponse,
 } from "../requests/deleteBranchRequest.types";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
-import type { GitArtifactPayloadAction } from "../types";
+import type { GitArtifactPayloadAction } from "../store/types";
 import { call, put } from "redux-saga/effects";
 
 // internal dependencies

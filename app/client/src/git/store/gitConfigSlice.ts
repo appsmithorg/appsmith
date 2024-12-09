@@ -3,13 +3,13 @@ import {
   fetchGlobalProfileErrorAction,
   fetchGlobalProfileInitAction,
   fetchGlobalProfileSuccessAction,
-} from "git/actions/fetchGlobalProfileActions";
+} from "./actions/fetchGlobalProfileActions";
 import {
   updateGlobalProfileErrorAction,
   updateGlobalProfileInitAction,
   updateGlobalProfileSuccessAction,
-} from "git/actions/updateGlobalProfileActions";
-import type { GitConfigReduxState } from "git/types";
+} from "./actions/updateGlobalProfileActions";
+import type { GitConfigReduxState } from "./types";
 
 const initialState: GitConfigReduxState = {
   globalProfile: {

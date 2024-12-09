@@ -3,7 +3,7 @@ import {
   GitImportStep,
   GitOpsTab,
   GitSettingsTab,
-} from "../../constants/enums";
+} from "../../../constants/enums";
 import type {
   GitSingleArtifactAPIResponsesReduxState,
   GitSingleArtifactUIReduxState,

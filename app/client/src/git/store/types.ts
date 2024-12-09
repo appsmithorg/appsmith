@@ -5,10 +5,10 @@ import type {
   GitImportStep,
   GitOpsTab,
   GitSettingsTab,
-} from "./constants/enums";
-import type { FetchGlobalProfileResponseData } from "./requests/fetchGlobalProfileRequest.types";
-import type { FetchBranchesResponseData } from "./requests/fetchBranchesRequest.types";
-import type { FetchLocalProfileResponseData } from "./requests/fetchLocalProfileRequest.types";
+} from "../constants/enums";
+import type { FetchGlobalProfileResponseData } from "../requests/fetchGlobalProfileRequest.types";
+import type { FetchBranchesResponseData } from "../requests/fetchBranchesRequest.types";
+import type { FetchLocalProfileResponseData } from "../requests/fetchLocalProfileRequest.types";
 
 // These will be updated when contracts are finalized
 export type GitMetadata = Record<string, unknown>;

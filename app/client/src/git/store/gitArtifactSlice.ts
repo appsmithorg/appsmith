@@ -1,66 +1,66 @@
 /* eslint-disable padding-line-between-statements */
 import { createSlice } from "@reduxjs/toolkit";
-import type { GitArtifactReduxState } from "../types";
-import { mountAction, unmountAction } from "../actions/mountActions";
+import type { GitArtifactReduxState } from "./types";
+import { mountAction, unmountAction } from "./actions/mountActions";
 import {
   connectErrorAction,
   connectInitAction,
   connectSuccessAction,
-} from "../actions/connectActions";
+} from "./actions/connectActions";
 import {
   fetchMetadataErrorAction,
   fetchMetadataInitAction,
   fetchMetadataSuccessAction,
-} from "../actions/fetchMetadataActions";
+} from "./actions/fetchMetadataActions";
 import {
   fetchBranchesErrorAction,
   fetchBranchesInitAction,
   fetchBranchesSuccessAction,
-} from "../actions/fetchBranchesActions";
+} from "./actions/fetchBranchesActions";
 import {
   fetchStatusErrorAction,
   fetchStatusInitAction,
   fetchStatusSuccessAction,
-} from "../actions/fetchStatusActions";
+} from "./actions/fetchStatusActions";
 import {
   commitErrorAction,
   commitInitAction,
   commitSuccessAction,
-} from "../actions/commitActions";
+} from "./actions/commitActions";
 import {
   pullErrorAction,
   pullInitAction,
   pullSuccessAction,
-} from "../actions/pullActions";
+} from "./actions/pullActions";
 import {
   fetchLocalProfileErrorAction,
   fetchLocalProfileInitAction,
   fetchLocalProfileSuccessAction,
-} from "git/actions/fetchLocalProfileActions";
+} from "./actions/fetchLocalProfileActions";
 import {
   updateLocalProfileErrorAction,
   updateLocalProfileInitAction,
   updateLocalProfileSuccessAction,
-} from "git/actions/updateLocalProfileActions";
+} from "./actions/updateLocalProfileActions";
 import {
   createBranchErrorAction,
   createBranchInitAction,
   createBranchSuccessAction,
-} from "git/actions/createBranchActions";
+} from "./actions/createBranchActions";
 import {
   deleteBranchErrorAction,
   deleteBranchInitAction,
   deleteBranchSuccessAction,
-} from "git/actions/deleteBranchActions";
+} from "./actions/deleteBranchActions";
 import {
   toggleBranchListPopupAction,
   toggleRepoLimitErrorModalAction,
-} from "git/actions/uiActions";
+} from "./actions/uiActions";
 import {
   checkoutBranchErrorAction,
   checkoutBranchInitAction,
   checkoutBranchSuccessAction,
-} from "git/actions/checkoutBranchActions";
+} from "./actions/checkoutBranchActions";
 
 const initialState: GitArtifactReduxState = {};
 
@@ -111,6 +111,12 @@ export const gitArtifactSlice = createSlice({
     // ui actions
     toggleBranchListPopup: toggleBranchListPopupAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
+  },
+  selectors: {
+    branches: (state, artifactType, baseArtifactId) =>
+      state[artifactType][baseArtifactId].apiResponses.branches,
+    createBranch: (state, artifactType, baseArtifactId) =>
+      state[artifactType][baseArtifactId].apiResponses.createBranch,
   },
 });
 

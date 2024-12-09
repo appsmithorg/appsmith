@@ -5,8 +5,8 @@ import type {
   ConnectResponse,
 } from "../requests/connectRequest.types";
 import { GitArtifactType, GitErrorCodes } from "../constants/enums";
-import type { GitArtifactPayloadAction } from "../types";
-import type { ConnectInitPayload } from "../actions/connectActions";
+import type { GitArtifactPayloadAction } from "../store/types";
+import type { ConnectInitPayload } from "../store/actions/connectActions";
 
 import { call, put } from "redux-saga/effects";
 

@@ -1,5 +1,5 @@
 import { call, put, select, take } from "redux-saga/effects";
-import type { CheckoutBranchInitPayload } from "../actions/checkoutBranchActions";
+import type { CheckoutBranchInitPayload } from "../store/actions/checkoutBranchActions";
 import { GitArtifactType } from "../constants/enums";
 import checkoutBranchRequest from "../requests/checkoutBranchRequest";
 import type {
@@ -7,7 +7,7 @@ import type {
   CheckoutBranchResponse,
 } from "../requests/checkoutBranchRequest.types";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
-import type { GitArtifactPayloadAction } from "../types";
+import type { GitArtifactPayloadAction } from "../store/types";
 
 // internal dependencies
 import { builderURL } from "ee/RouteBuilder";
