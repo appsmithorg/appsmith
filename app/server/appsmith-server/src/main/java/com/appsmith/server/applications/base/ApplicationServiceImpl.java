@@ -3,6 +3,7 @@ package com.appsmith.server.applications.base;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -14,6 +15,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.transaction.CustomTransactionalOperator;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +40,9 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             UserDataService userDataService,
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            WorkspaceRepositoryCake workspaceRepositoryCake,
+            CustomTransactionalOperator transactionManager) {
         super(
                 validator,
                 repositoryDirect,
@@ -54,6 +58,8 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 userDataService,
                 workspaceService,
                 workspacePermission,
-                observationRegistry);
+                observationRegistry,
+                workspaceRepositoryCake,
+                transactionManager);
     }
 }

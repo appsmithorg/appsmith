@@ -566,7 +566,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                             .findById(prevAssetId)
                             .switchIfEmpty(Mono.error(new AppsmithException(
                                     AppsmithError.NO_RESOURCE_FOUND, FieldName.ASSET, prevAssetId)))
-                            .flatMap(asset -> assetRepository.delete(asset).thenReturn(asset))
+                            .flatMap(asset ->
+                                    assetRepository.deleteById(asset.getId()).thenReturn(asset))
                             .flatMap(analyticsService::sendDeleteEvent)
                             .then(repository.save(workspace));
                 });

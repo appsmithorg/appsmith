@@ -28,12 +28,12 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitUtils;
-import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
@@ -45,6 +45,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.transaction.CustomTransactionalOperator;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -66,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.appsmith.external.constants.spans.ce.ApplicationSpanCE.APPLICATION_FETCH_FROM_DB;
@@ -93,6 +95,8 @@ public class ApplicationServiceCEImpl
     private final WorkspaceService workspaceService;
     private final WorkspacePermission workspacePermission;
     private final ObservationRegistry observationRegistry;
+    private final WorkspaceRepositoryCake workspaceRepositoryCake;
+    private final CustomTransactionalOperator transactionManager;
 
     private static final Integer MAX_RETRIES = 5;
 
@@ -112,7 +116,9 @@ public class ApplicationServiceCEImpl
             UserDataService userDataService,
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            WorkspaceRepositoryCake workspaceRepositoryCake,
+            CustomTransactionalOperator transactionManager) {
 
         super(validator, repositoryDirect, repository, analyticsService);
         this.policySolution = policySolution;
@@ -126,6 +132,8 @@ public class ApplicationServiceCEImpl
         this.workspaceService = workspaceService;
         this.workspacePermission = workspacePermission;
         this.observationRegistry = observationRegistry;
+        this.workspaceRepositoryCake = workspaceRepositoryCake;
+        this.transactionManager = transactionManager;
     }
 
     @Override
@@ -134,9 +142,8 @@ public class ApplicationServiceCEImpl
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return ReactiveContextUtils.getCurrentUser()
-                .flatMap(user ->
-                        asMono(() -> repositoryDirect.findById(id, applicationPermission.getReadPermission(), user)))
+        return repository
+                .findById(id, applicationPermission.getReadPermission())
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
@@ -1066,5 +1073,49 @@ public class ApplicationServiceCEImpl
                 .tap(Micrometer.observation(observationRegistry))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)));
+    }
+
+    @Override
+    public Flux<Application> findAndUpdateApplicationForTest(String id) {
+        Flux<Application> applicationFlux = repository
+                .findById(id, applicationPermission.getEditPermission())
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
+                .flatMap(obj -> {
+                    Application update = new Application();
+                    update.setSlug("updated_name_1");
+                    log.debug(
+                            "After findById, Thread name: {}",
+                            Thread.currentThread().getName());
+                    return repository.updateById(id, update, null);
+                })
+                .flatMap(obj -> {
+                    Application update = new Application();
+                    update.setName("updated_name");
+                    // return Mono.error(new RuntimeException("Error"));
+                    log.debug(
+                            "After updateById1, Thread name: {}",
+                            Thread.currentThread().getName());
+                    return repository.updateById(id, update, null);
+                })
+                .flatMapMany(obj -> findByWorkspaceId(obj.getWorkspaceId(), MANAGE_APPLICATIONS))
+                .flatMap(application -> {
+                    Application update = new Application();
+                    update.setName("updated_name" + UUID.randomUUID());
+                    log.debug(
+                            "After findByWorkspaceId, Thread name: {}",
+                            Thread.currentThread().getName());
+                    return repository.updateById(application.getId(), update, null);
+                })
+                .as(transactionManager::transactional);
+
+        return applicationFlux
+                .doFinally(application -> {
+                    log.info("Application updated successfully");
+                })
+                .onErrorResume(throwable -> {
+                    log.error("Error updating application", throwable);
+                    return Flux.empty();
+                });
     }
 }
