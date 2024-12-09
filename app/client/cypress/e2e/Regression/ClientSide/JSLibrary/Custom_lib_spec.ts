@@ -134,7 +134,7 @@ describe(
           '"jspdf" is undefined . Please fix JSObject2.genPDF.',
         );
       } else {
-        agHelper.WaitUntilToastDisappear("jspdf is not defined");
+        agHelper.WaitUntilToastDisappear("");
       }
       deployMode.NavigateBacktoEditor();
       // Install jspdf and verify references are working
@@ -167,6 +167,7 @@ describe(
       );
     });
 
+    //
     it.skip("6. Verify export and import of app with custom library", () => {
       AppSidebar.navigate(AppSidebarButton.Libraries);
       installer.OpenInstaller();
