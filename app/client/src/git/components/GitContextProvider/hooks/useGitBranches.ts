@@ -8,7 +8,7 @@ import {
   selectDeleteBranch,
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import type { GitRootState } from "git/store/types";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 interface UseGitBranchesParams {
@@ -16,7 +16,7 @@ interface UseGitBranchesParams {
   baseArtifactId: string;
 }
 
-export interface UseGitBranchesReturns {
+export interface UseGitBranchesReturnValue {
   branches: FetchBranchesResponseData | null;
   fetchBranchesLoading: boolean;
   fetchBranchesError: string | null;
@@ -30,14 +30,19 @@ export interface UseGitBranchesReturns {
   checkoutBranchLoading: boolean;
   checkoutBranchError: string | null;
   checkoutBranch: (branchName: string) => void;
+  toggleGitBranchListPopup: (open: boolean) => void;
 }
 
 export default function useGitBranches({
   artifactType,
   baseArtifactId,
-}: UseGitBranchesParams): UseGitBranchesReturns {
-  const basePayload = { artifactType, baseArtifactId };
+}: UseGitBranchesParams): UseGitBranchesReturnValue {
+  const basePayload = useMemo(
+    () => ({ artifactType, baseArtifactId }),
+    [artifactType, baseArtifactId],
+  );
   const dispatch = useDispatch();
+
   // fetch branches
   const branchesState = useSelector((state: GitRootState) =>
     selectBranches(state, basePayload),
@@ -45,12 +50,12 @@ export default function useGitBranches({
   const fetchBranches = useCallback(() => {
     dispatch(
       gitArtifactActions.fetchBranchesInit({
-        artifactType,
-        baseArtifactId,
+        ...basePayload,
         pruneBranches: true,
       }),
     );
-  }, [artifactType, baseArtifactId, dispatch]);
+  }, [basePayload, dispatch]);
+
   // create branch
   const createBranchState = useSelector((state: GitRootState) =>
     selectCreateBranch(state, basePayload),
@@ -59,13 +64,12 @@ export default function useGitBranches({
     (branchName: string) => {
       dispatch(
         gitArtifactActions.createBranchInit({
-          artifactType,
-          baseArtifactId,
+          ...basePayload,
           branchName,
         }),
       );
     },
-    [artifactType, baseArtifactId, dispatch],
+    [basePayload, dispatch],
   );
   // delete branch
   const deleteBranchState = useSelector((state: GitRootState) =>
@@ -75,13 +79,12 @@ export default function useGitBranches({
     (branchName: string) => {
       dispatch(
         gitArtifactActions.deleteBranchInit({
-          artifactType,
-          baseArtifactId,
+          ...basePayload,
           branchName,
         }),
       );
     },
-    [artifactType, baseArtifactId, dispatch],
+    [basePayload, dispatch],
   );
   // checkout branch
   const checkoutBranchState = useSelector((state: GitRootState) =>
@@ -91,14 +94,23 @@ export default function useGitBranches({
     (branchName: string) => {
       dispatch(
         gitArtifactActions.checkoutBranchInit({
-          artifactType,
-          baseArtifactId,
+          ...basePayload,
           branchName,
         }),
       );
     },
-    [artifactType, baseArtifactId, dispatch],
+    [basePayload, dispatch],
   );
+
+  // git branch list popup
+  const toggleGitBranchListPopup = (open: boolean) => {
+    dispatch(
+      gitArtifactActions.toggleGitBranchListPopup({
+        ...basePayload,
+        open,
+      }),
+    );
+  };
 
   return {
     branches: branchesState?.value ?? null,
@@ -114,5 +126,6 @@ export default function useGitBranches({
     checkoutBranchLoading: checkoutBranchState?.loading ?? false,
     checkoutBranchError: checkoutBranchState?.error ?? null,
     checkoutBranch,
+    toggleGitBranchListPopup,
   };
 }

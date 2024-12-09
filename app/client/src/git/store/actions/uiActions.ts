@@ -18,7 +18,7 @@ interface BranchListPopupPayload {
   open: boolean;
 }
 
-export const toggleBranchListPopupAction =
+export const toggleGitBranchListPopupAction =
   createSingleArtifactAction<BranchListPopupPayload>((state, action) => {
     const { open } = action.payload;
 

@@ -35,7 +35,7 @@ describe("QuickActions Component", () => {
     isStatusClean: true,
     pull: jest.fn(),
     statusBehindCount: 0,
-    statusChangesCount: 0,
+    statusChangeCount: 0,
     toggleGitConnectModal: jest.fn(),
     toggleGitOpsModal: jest.fn(),
     toggleGitSettingsModal: jest.fn(),

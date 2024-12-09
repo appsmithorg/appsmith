@@ -9,15 +9,11 @@ import type {
 import type { FetchGlobalProfileResponseData } from "../requests/fetchGlobalProfileRequest.types";
 import type { FetchBranchesResponseData } from "../requests/fetchBranchesRequest.types";
 import type { FetchLocalProfileResponseData } from "../requests/fetchLocalProfileRequest.types";
+import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
+import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatusRequest.types";
 
 // These will be updated when contracts are finalized
 export type GitMetadata = Record<string, unknown>;
-
-export type GitStatus = Record<string, unknown>;
-
-export type GitMergeStatus = Record<string, unknown>;
-
-export type GitLocalProfile = Record<string, unknown>;
 
 export type GitProtectedBranches = Record<string, unknown>;
 
@@ -38,11 +34,11 @@ interface AsyncStateWithoutValue {
 export interface GitSingleArtifactAPIResponsesReduxState {
   metadata: AsyncState<GitMetadata>;
   connect: AsyncStateWithoutValue;
-  status: AsyncState<GitStatus>;
+  status: AsyncState<FetchStatusResponseData>;
   commit: AsyncStateWithoutValue;
   pull: AsyncStateWithoutValue;
   discard: AsyncStateWithoutValue;
-  mergeStatus: AsyncState<GitMergeStatus>;
+  mergeStatus: AsyncState<FetchMergeStatusResponseData>;
   merge: AsyncStateWithoutValue;
   branches: AsyncState<FetchBranchesResponseData>;
   checkoutBranch: AsyncStateWithoutValue;

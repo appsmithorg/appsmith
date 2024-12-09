@@ -15,7 +15,6 @@ export function* gitSagas() {
 
     // branches
     takeLatest(gitArtifactActions.fetchBranchesInit.type, fetchBranchesSaga),
-    takeLatest(gitArtifactActions.fetchBranchesInit.type, fetchBranchesSaga),
 
     takeLatest(gitArtifactActions.commitInit.type, commitSaga),
     takeLatest(

@@ -16,11 +16,6 @@ import QuickActionButton from "./QuickActionButton";
 import AutocommitStatusbar from "./AutocommitStatusbar";
 import getPullBtnStatus from "./helpers/getPullButtonStatus";
 import noop from "lodash/noop";
-import type {
-  ToggleGitConnectModalPayload,
-  ToggleGitOpsModalPayload,
-  ToggleGitSettingsModalPayload,
-} from "git/store/actions/uiActions";
 
 const Container = styled.div`
   height: 100%;
@@ -42,10 +37,13 @@ interface GitQuickActionsProps {
   isStatusClean: boolean;
   pull: () => void;
   statusBehindCount: number;
-  statusChangesCount: number;
-  toggleGitConnectModal: (params: ToggleGitConnectModalPayload) => void;
-  toggleGitOpsModal: (params: ToggleGitOpsModalPayload) => void;
-  toggleGitSettingsModal: (params: ToggleGitSettingsModalPayload) => void;
+  statusChangeCount: number;
+  toggleGitConnectModal: (open: boolean) => void;
+  toggleGitOpsModal: (open: boolean, tab: keyof typeof GitOpsTab) => void;
+  toggleGitSettingsModal: (
+    open: boolean,
+    tab: keyof typeof GitSettingsTab,
+  ) => void;
 }
 
 function GitQuickActions({
@@ -62,7 +60,7 @@ function GitQuickActions({
   isStatusClean = false,
   pull = noop,
   statusBehindCount = 0,
-  statusChangesCount = 0,
+  statusChangeCount = 0,
   toggleGitConnectModal = noop,
   toggleGitOpsModal = noop,
   toggleGitSettingsModal = noop,
@@ -80,10 +78,7 @@ function GitQuickActions({
 
   const onCommitBtnClick = useCallback(() => {
     if (!isFetchStatusLoading && !isProtectedMode) {
-      toggleGitOpsModal({
-        open: true,
-        tab: GitOpsTab.Deploy,
-      });
+      toggleGitOpsModal(true, GitOpsTab.Deploy);
 
       AnalyticsUtil.logEvent("GS_DEPLOY_GIT_MODAL_TRIGGERED", {
         source: "BOTTOM_BAR_GIT_COMMIT_BUTTON",
@@ -110,17 +105,11 @@ function GitQuickActions({
     AnalyticsUtil.logEvent("GS_MERGE_GIT_MODAL_TRIGGERED", {
       source: "BOTTOM_BAR_GIT_MERGE_BUTTON",
     });
-    toggleGitOpsModal({
-      open: true,
-      tab: GitOpsTab.Merge,
-    });
+    toggleGitOpsModal(true, GitOpsTab.Merge);
   }, [toggleGitOpsModal]);
 
   const onSettingsClick = useCallback(() => {
-    toggleGitSettingsModal({
-      open: true,
-      tab: GitSettingsTab.General,
-    });
+    toggleGitSettingsModal(true, GitSettingsTab.General);
     AnalyticsUtil.logEvent("GS_SETTING_CLICK", {
       source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
     });
@@ -131,9 +120,7 @@ function GitQuickActions({
       source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
     });
 
-    toggleGitConnectModal({
-      open: true,
-    });
+    toggleGitConnectModal(true);
   }, [toggleGitConnectModal]);
 
   return isGitConnected ? (
@@ -145,7 +132,7 @@ function GitQuickActions({
         <>
           <QuickActionButton
             className="t--bottom-bar-commit"
-            count={isProtectedMode ? undefined : statusChangesCount}
+            count={isProtectedMode ? undefined : statusChangeCount}
             disabled={!isFetchStatusLoading && isProtectedMode}
             icon="plus"
             key="commit-action-btn"

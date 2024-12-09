@@ -1,13 +1,27 @@
-import React, { createContext, useEffect } from "react";
-import useGitBranches from "./hooks/useGitBranches";
-import type { UseGitBranchesReturns } from "./hooks/useGitBranches";
+import React, { createContext, useContext, useEffect, useMemo } from "react";
 import type { GitArtifactType } from "git/constants/enums";
+import type { UseGitOpsReturnValue } from "./hooks/useGitOps";
+import type { UseGitSettingsReturnValue } from "./hooks/useGitSettings";
+import type { UseGitBranchesReturnValue } from "./hooks/useGitBranches";
+import type { UseGitConnectReturnValue } from "./hooks/useGitConnect";
+import useGitOps from "./hooks/useGitOps";
+import useGitConnect from "./hooks/useGitConnect";
+import useGitSettings from "./hooks/useGitSettings";
+import useGitBranches from "./hooks/useGitBranches";
 
-interface GitContextValue extends UseGitBranchesReturns {}
+interface GitContextValue
+  extends UseGitConnectReturnValue,
+    UseGitOpsReturnValue,
+    UseGitSettingsReturnValue,
+    UseGitBranchesReturnValue {}
 
 const gitContextInitialValue = {} as GitContextValue;
 
 export const GitContext = createContext(gitContextInitialValue);
+
+export const useGitContext = () => {
+  return useContext(GitContext);
+};
 
 interface GitContextProviderProps {
   artifactType: keyof typeof GitArtifactType;
@@ -20,18 +34,30 @@ export default function GitContextProvider({
   baseArtifactId,
   children,
 }: GitContextProviderProps) {
-  const useGitBranchesReturns = useGitBranches({
-    artifactType,
-    baseArtifactId,
-  });
+  const basePayload = useMemo(
+    () => ({ artifactType, baseArtifactId }),
+    [artifactType, baseArtifactId],
+  );
+  const useGitConnectReturnValue = useGitConnect(basePayload);
+  const useGitOpsReturnValue = useGitOps(basePayload);
+  const useGitBranchesReturnValue = useGitBranches(basePayload);
+  const useGitSettingsReturnValue = useGitSettings(basePayload);
 
-  useEffect(function gitInitEffect() {
-    useGitBranchesReturns.fetchBranches();
-  }, []);
+  const { fetchBranches } = useGitBranchesReturnValue;
+
+  useEffect(
+    function gitInitEffect() {
+      fetchBranches();
+    },
+    [fetchBranches],
+  );
 
   // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
   const contextValue = {
-    ...useGitBranchesReturns,
+    ...useGitOpsReturnValue,
+    ...useGitBranchesReturnValue,
+    ...useGitConnectReturnValue,
+    ...useGitSettingsReturnValue,
   } as GitContextValue;
 
   return (

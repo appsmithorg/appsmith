@@ -15,6 +15,34 @@ export const selectSingleArtifact = (
   ];
 };
 
+// git ops
+export const selectCommit = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectSingleArtifact(state, artifactDef)?.apiResponses?.commit;
+
+export const selectDiscard = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectSingleArtifact(state, artifactDef)?.apiResponses?.discard;
+
+export const selectStatus = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectSingleArtifact(state, artifactDef)?.apiResponses?.status;
+
+export const selectMerge = (state: GitRootState, artifactDef: GitArtifactDef) =>
+  selectSingleArtifact(state, artifactDef)?.apiResponses?.merge;
+
+export const selectMergeStatus = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectSingleArtifact(state, artifactDef)?.apiResponses?.mergeStatus;
+
+export const selectPull = (state: GitRootState, artifactDef: GitArtifactDef) =>
+  selectSingleArtifact(state, artifactDef)?.apiResponses?.pull;
+
+// git branches
 export const selectBranches = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
