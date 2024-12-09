@@ -36,10 +36,9 @@ describe(
       dataSources.CreatePlugIn("Google Sheets");
       VerifyFunctionDropdown([
         "Read / Write / Delete | Selected google sheets",
-        // Hiding below methods as they are not authorized at this state
-        // "Read / Write / Delete | All google sheets",
-        // "Read / Write | All google sheets",
-        // "Read | All google sheets",
+        "Read / Write / Delete | All google sheets",
+        "Read / Write | All google sheets",
+        "Read | All google sheets",
       ]);
       dataSources.SaveDSFromDialog(false);
     });
