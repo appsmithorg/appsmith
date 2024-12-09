@@ -1,10 +1,5 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/ActionExecution/ActionSelector_NavigateToFunctions_spec.ts
-cypress/e2e/Regression/ClientSide/ActionExecution/ActionSelector_ShowAlertFunctions_spec.ts
-cypress/e2e/Regression/ClientSide/ActionExecution/ActionSelector_LocalRemoveValueFunctions_spec.ts
-cypress/e2e/Regression/ClientSide/ActionExecution/ActionSelector_LocalStoreValueFunctions_spec.ts
-cypress/e2e/Regression/ClientSide/ActionExecution/ActionSelector_ShowCloseModalFunctions_spec.ts
-cypress/e2e/Regression/ClientSide/ActionExecution/ClearStore_spec.ts
+cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
 

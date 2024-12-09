@@ -49,21 +49,50 @@ describe(
 
       // add a success callback
       agHelper.GetNClick(propPane._actionAddCallback("success"));
-      agHelper.GetNClick(locators._dropDownValue("Store value"));
+      agHelper.GetNClick(locators._dropDownValue("Show alert"));
+      agHelper.TypeText(
+        propPane._actionSelectorFieldByLabel("Message"),
+        "Success Callback",
+      );
+      agHelper.GetNClick(propPane._actionSelectorPopupClose);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Success Callback", 0, 1);
+
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Success Callback", 0, 1);
+      deployMode.NavigateBacktoEditor();
     });
 
     it.only("3. Verify that callbacks can be configured with a failure event", () => {
-      // add an error callback
-      agHelper.GetNClick(propPane._actionAddCallback("failure"));
-      agHelper.GetNClick(locators._dropDownValue("Navigate to"));
-
+      // // add an error callback
+      // agHelper.GetNClick(propPane._actionAddCallback("failure"));
+      // agHelper.GetNClick(locators._dropDownValue("Navigate to"));
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      propPane.ToggleJSMode("onClick", true);
       propPane.ValidateJSFieldValue(
         "onClick",
         `{{showAlert('Hello!', '').then(() => {  storeValue("", "");}).catch(() => {  navigateTo("", {}, 'SAME_WINDOW');});}}`,
       );
+      propPane.ToggleJSMode("onClick", false);
 
-      cy.pause();
-     
+      // add a success callback
+      agHelper.GetNClick(propPane._actionAddCallback("failure"));
+      agHelper.GetNClick(locators._dropDownValue("Show alert"));
+      agHelper.TypeText(
+        propPane._actionSelectorFieldByLabel("Message"),
+        "Success Callback",
+      );
+      agHelper.GetNClick(propPane._actionSelectorPopupClose);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Failure Callback", 0, 1);
+
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Failure Callback", 0, 1);
+      deployMode.NavigateBacktoEditor();
     });
 
     it("4. Verify that callbacks can be chained", () => {
