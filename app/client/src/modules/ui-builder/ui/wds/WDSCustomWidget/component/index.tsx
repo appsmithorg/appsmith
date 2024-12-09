@@ -8,9 +8,9 @@ import styles from "./styles.module.css";
 import { EVENTS } from "./customWidgetscript";
 import { getAppsmithConfigs } from "ee/configs";
 import { getSandboxPermissions } from "../helpers";
+import { IframeMessenger } from "./IframeMessenger";
 import { createHtmlTemplate } from "./createHtmlTemplate";
 import type { CustomWidgetComponentProps } from "../types";
-import { IframeMessenger } from "../services/IframeMessenger";
 import { useCustomWidgetHeight } from "./useCustomWidgetHeight";
 
 const { disableIframeWidgetSandbox } = getAppsmithConfigs();

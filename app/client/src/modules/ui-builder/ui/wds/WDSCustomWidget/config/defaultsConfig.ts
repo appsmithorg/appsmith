@@ -1,6 +1,7 @@
 import {
   BlueprintOperationTypes,
   type FlattenedWidgetProps,
+  type WidgetDefaultProps,
 } from "WidgetProvider/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { UpdatePropertyArgs } from "sagas/WidgetBlueprintSagas";
@@ -59,4 +60,4 @@ export const defaultsConfig = {
       },
     ],
   },
-};
+} as unknown as WidgetDefaultProps;

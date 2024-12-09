@@ -1,13 +1,10 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+// @ts-expect-error - Type error due to raw loader
 import css from "!!raw-loader!./reset.css";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+// @ts-expect-error - Type error due to raw loader
 import script from "!!raw-loader!./customWidgetscript.js";
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+// @ts-expect-error - Type error due to raw loader
 import appsmithConsole from "!!raw-loader!./appsmithConsole.js";
 
 interface CreateHtmlTemplateProps {

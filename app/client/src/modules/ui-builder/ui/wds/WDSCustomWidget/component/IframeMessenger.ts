@@ -1,5 +1,5 @@
 import type { IframeMessage } from "../types";
-import { EVENTS } from "../component/customWidgetscript";
+import { EVENTS } from "./customWidgetscript";
 
 export class IframeMessenger {
   private iframe: HTMLIFrameElement;
