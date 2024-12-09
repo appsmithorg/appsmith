@@ -105,7 +105,7 @@ describe(
       propPane.MoveToTab("Content");
 
       oneClickBinding.ChooseAndAssertForm("sample Movies", "movies", "movies", {
-        searchableColumn: "email",
+        searchableColumn: "imdb_id",
       });
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("Mongo");
