@@ -68,9 +68,9 @@ import static com.appsmith.external.git.constants.ce.GitConstantsCE.GIT_CONFIG_E
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GIT_PROFILE_ERROR;
 import static com.appsmith.external.git.constants.ce.GitSpanCE.OPS_COMMIT;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.server.constants.FieldName.BRANCH_NAME;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
-import static com.appsmith.server.constants.ce.FieldNameCE.BRANCH_NAME;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.util.StringUtils.hasText;
