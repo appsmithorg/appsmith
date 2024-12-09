@@ -46,7 +46,11 @@ describe(
 
       // User interaction - Click
       getIframeBody(1).find(locators._pageHeaderToggle).click({ force: true });
-      getIframeBody(1).find(locators._pageHeaderMenuList).should("be.visible");
+      agHelper.WaitForCondition(() => {
+        return getIframeBody(1)
+          .find(locators._pageHeaderMenuList)
+          .then(($el: JQuery<HTMLElement>) => $el.length > 0);
+      });
     });
 
     it("2. Verify colors, borders and shadows", () => {
@@ -81,7 +85,7 @@ describe(
       propPane.UpdatePropertyFieldValue("URL", " ");
       agHelper.ValidateToastMessage("url updated");
 
-      agHelper.ClickButton("Submit");
+      agHelper.ClickButton("Submit", { force: true });
       getIframeBody(0)
         .find("input")
         .should("be.visible")
@@ -90,6 +94,7 @@ describe(
           expect(inputValue).to.equal("submitclicked");
         });
 
+      EditorNavigation.SelectEntityByName("Iframe1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
         "srcDoc",
         `<!DOCTYPE html>

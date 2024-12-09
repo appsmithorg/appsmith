@@ -24,7 +24,7 @@ import {
 } from "PluginActionEditor/store";
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import useShowSchema from "PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
-import { Schema } from "PluginActionEditor/components/PluginActionResponse/components/Schema";
+import { Datasource } from "PluginActionEditor/components/PluginActionResponse/components/DatasourceTab";
 import {
   useBlockExecution,
   useHandleRunClick,
@@ -59,6 +59,20 @@ function usePluginActionResponseTabs() {
   };
 
   if (plugin.type === PluginType.API) {
+    if (datasource && "id" in datasource) {
+      tabs.push({
+        key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
+        title: "Datasource",
+        panelComponent: (
+          <Datasource
+            currentActionId={action.id}
+            datasourceId={datasource?.id || ""}
+            datasourceName={datasource?.name || ""}
+          />
+        ),
+      });
+    }
+
     tabs.push(
       {
         key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
@@ -102,10 +116,10 @@ function usePluginActionResponseTabs() {
   ) {
     if (showSchema) {
       tabs.push({
-        key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
-        title: "Schema",
+        key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
+        title: "Datasource",
         panelComponent: (
-          <Schema
+          <Datasource
             currentActionId={action.id}
             datasourceId={datasource?.id || ""}
             datasourceName={datasource?.name || ""}
