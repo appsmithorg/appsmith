@@ -36,6 +36,7 @@ export const transformTableDataIntoCsv = (props: {
             ? value.replace("\n", " ")
             : value;
 
+        // HTML columns output multi line strings. We need to quote them to avoid CSV parsing issues.
         const shouldQuote =
           (isString(value) && value.includes(",")) ||
           column.metaProperties.type === ColumnTypes.HTML;

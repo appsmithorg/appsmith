@@ -6,7 +6,7 @@ import styled from "styled-components";
 import LinkFilter from "widgets/TextWidget/component/filters/LinkFilter";
 import type { BaseCellComponentProps } from "../../Constants";
 import { CellWrapper } from "../../TableStyledWrappers";
-import { extractHTMLTags, getRenderMode, sendHTMLCellAnalytics } from "./utils";
+import { extractHTMLTags, sendHTMLCellAnalytics } from "./utils";
 
 const HTMLContainer = styled.div`
   & {
@@ -102,6 +102,10 @@ const HTMLCell = (props: HTMLCellProps) => {
     return String(value);
   }, [value]);
 
+  /**
+   * For analytics, we want to know what tags are being used by users in HTMLCell?
+   * This will help us in knowing usage patterns and identifying if something is not working out.
+   */
   const extractedTags = useMemo(() => {
     if (!interweaveCompatibleValue) return [];
 
@@ -110,14 +114,11 @@ const HTMLCell = (props: HTMLCellProps) => {
 
   useEffect(() => {
     const areTagsChanged = !isEqual(
-      extractedTags.sort(),
-      previousTagsRef.current.sort(),
-    );
-    const isRenderModeValid = ["DEPLOYED", "EDITOR"].includes(
-      getRenderMode(renderMode),
+      [...extractedTags].sort(),
+      [...previousTagsRef.current].sort(),
     );
 
-    if (isRenderModeValid && extractedTags.length > 0 && areTagsChanged) {
+    if (extractedTags.length > 0 && areTagsChanged) {
       sendHTMLCellAnalytics(extractedTags);
       previousTagsRef.current = extractedTags;
     }

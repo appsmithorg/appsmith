@@ -68,6 +68,8 @@ const ColumnTypeOptions = [
   },
 ];
 
+// TODO: @rahulbarwal Remove this once we have a feature flag for this
+// This is a temporary solution to position the HTML column type alphabetically
 const columnTypeWithHtml = [
   ...ColumnTypeOptions.slice(0, 4),
   { label: "HTML", value: ColumnTypes.HTML },
