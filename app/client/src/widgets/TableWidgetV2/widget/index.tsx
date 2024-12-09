@@ -925,13 +925,12 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      * In this scenario, we don't want incomplete experience for the user.
      * Without this safety net, the property pane will not show the HTML as type and the `ColumnType` will be lost(and empty), which is confusing for the user.
      * With this safety net, we will update the column type to TEXT.
+     * @rahulbarwal Remove this once we remove the feature flag
      */
     if (!TableWidgetV2.getFeatureFlag(HTML_COLUMN_TYPE_ENABLED)) {
-      // Create a copy of primary columns
       const updatedPrimaryColumns = cloneDeep(this.props.primaryColumns);
       let hasHTMLColumns = false;
 
-      // Update HTML columns to TEXT
       Object.values(updatedPrimaryColumns).forEach(
         (column: ColumnProperties) => {
           if (column.columnType === ColumnTypes.HTML) {
@@ -941,7 +940,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         },
       );
 
-      // Only update if there were HTML columns
       if (hasHTMLColumns) {
         this.updateWidgetProperty("primaryColumns", updatedPrimaryColumns);
       }
