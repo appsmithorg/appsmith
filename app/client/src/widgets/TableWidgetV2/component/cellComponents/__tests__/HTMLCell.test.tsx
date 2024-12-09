@@ -24,6 +24,7 @@ const defaultProps: HTMLCellProps = {
   textSize: "0.875rem",
   verticalAlignment: "CENTER",
   allowCellWrapping: false,
+  renderMode: "CANVAS",
 };
 
 const renderComponent = (
