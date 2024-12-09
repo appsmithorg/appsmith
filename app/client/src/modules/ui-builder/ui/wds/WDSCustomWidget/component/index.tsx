@@ -8,14 +8,14 @@ import styles from "./styles.module.css";
 import { EVENTS } from "./customWidgetscript";
 import { getAppsmithConfigs } from "ee/configs";
 import { getSandboxPermissions } from "../helpers";
-import type { CustomComponentProps } from "../types";
+import type { CustomWidgetComponentProps } from "../types";
 import { createHtmlTemplate } from "./createHtmlTemplate";
 import { IframeMessenger } from "../services/IframeMessenger";
 import { useCustomWidgetHeight } from "./useCustomWidgetHeight";
 
 const { disableIframeWidgetSandbox } = getAppsmithConfigs();
 
-function CustomComponent(props: CustomComponentProps) {
+export function CustomWidgetComponent(props: CustomWidgetComponentProps) {
   const { model, onConsole, onTriggerEvent, onUpdateModel, renderMode, size } =
     props;
   const iframe = useRef<HTMLIFrameElement>(null);
@@ -25,6 +25,9 @@ function CustomComponent(props: CustomComponentProps) {
   const messenger = useRef<IframeMessenger | null>(null);
   const componentHeight = useCustomWidgetHeight(size);
 
+  // We want to anvil theme css variables in the iframe so that it looks like a anvil theme. To do, we are
+  // generating the css variables from the anvil theme and then sending it to the iframe. See the
+  // createHtmlTemplate.tsx file where we are using the cssTokens.
   const cssTokens = useMemo(() => {
     const tokens = cssRule(theme);
     const prefixedTokens = tokens.replace(/--/g, "--appsmith-theme-");
@@ -34,7 +37,7 @@ function CustomComponent(props: CustomComponentProps) {
 
   useEffect(
     // The iframe sends messages to the parent window (main Appsmith application)
-    // to communicate with it. We need to set up a listener for these messages
+    // to communicate with it. Here we set up a listener for these messages
     // and handle them appropriately.
     function setupIframeMessageHandler() {
       if (!iframe.current) return;
@@ -60,6 +63,8 @@ function CustomComponent(props: CustomComponentProps) {
     [model],
   );
 
+  // the iframe sends CUSTOM_WIDGET_READY message when "onload" event is triggered
+  // on the iframe's window object
   const handleWidgetReady = () => {
     setIsIframeReady(true);
 
@@ -72,10 +77,15 @@ function CustomComponent(props: CustomComponentProps) {
     logInitializationEvent();
   };
 
+  // the iframe can make changes to the model, when it needs to
+  // this is done by sending a CUSTOM_WIDGET_UPDATE_MODEL message to the parent window
   const handleModelUpdate = (message: Record<string, unknown>) => {
     onUpdateModel(message.model as Record<string, unknown>);
   };
 
+  // the iframe elements can trigger events. Triggered events here would mean
+  // executing an appsmith action. When the iframe elements want to execute an action,
+  // it sends a CUSTOM_WIDGET_TRIGGER_EVENT message to the parent window.
   const handleTriggerEvent = (message: Record<string, unknown>) => {
     onTriggerEvent(
       message.eventName as string,
@@ -83,6 +93,9 @@ function CustomComponent(props: CustomComponentProps) {
     );
   };
 
+  // iframe content can change its height based on its content. When this happens,
+  // we want to update the height of the iframe so that it is same as the iframe content's height.
+  // To do this, we listen to CUSTOM_WIDGET_UPDATE_HEIGHT messages from the iframe and update the height of the iframe
   const handleHeightUpdate = (message: Record<string, unknown>) => {
     const height = message.height;
 
@@ -91,6 +104,8 @@ function CustomComponent(props: CustomComponentProps) {
     }
   };
 
+  // we intercept console function calls in the iframe and send them to the parent window
+  // so that they can be logged in the console of the main Appsmith application
   const handleConsoleEvent = (eventData: Record<string, unknown>) => {
     if (!onConsole) return;
 
@@ -107,6 +122,11 @@ function CustomComponent(props: CustomComponentProps) {
   };
 
   useEffect(
+    // iframe can listen to changes to model with `appsmith.onModelChange` function.
+    // To do this, we send a CUSTOM_WIDGET_MODEL_CHANGE message to the iframe
+    // when the model changes. Iframe would be listening to these messages and
+    // when it receives one, it calls all the callbacks that were registered
+    // with `appsmith.onModelChange` function
     function handleModelChange() {
       if (iframe.current && iframe.current.contentWindow && isIframeReady) {
         messenger.current?.postMessage({
@@ -119,6 +139,8 @@ function CustomComponent(props: CustomComponentProps) {
   );
 
   useEffect(
+    // similar to model change, iframe can listen to changes to theme with
+    // `appsmith.onThemeChange` function.
     function handleThemeUpdate() {
       if (iframe.current && iframe.current.contentWindow && isIframeReady) {
         messenger.current?.postMessage({
@@ -150,8 +172,6 @@ function CustomComponent(props: CustomComponentProps) {
         sandbox={getSandboxPermissions(disableIframeWidgetSandbox)}
         srcDoc={srcDoc}
       />
-    </Container>
+    </div>
   );
 }
-
-export default CustomComponent;
