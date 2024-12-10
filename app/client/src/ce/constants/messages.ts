@@ -283,6 +283,7 @@ export const NEW_APP_FROM_TEMPLATE = () => "Templates";
 export const NO_WORKSPACE_HEADING = () => "Oops! No workspace found";
 export const NO_WORKSPACE_DESCRIPTION = () =>
   "You can find workspace list on the left sidebar, try selecting one of them to access a workspace.";
+export const APPGHALAM_STORE = () => "Appghalam store";
 
 // Lightning menu
 export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;

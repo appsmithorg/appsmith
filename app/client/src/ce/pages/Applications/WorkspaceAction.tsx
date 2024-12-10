@@ -14,6 +14,7 @@ import {
   NEW_APP,
   NEW_APP_FROM_TEMPLATE,
   WORKSPACE_ACTION_BUTTON,
+  APPGHALAM_STORE,
   createMessage,
 } from "ee/constants/messages";
 import type { Workspace } from "ee/constants/workspaceConstants";
@@ -70,6 +71,15 @@ function WorkspaceAction({
       open={isActionMenuOpen}
     >
       <MenuTrigger>
+      <Button
+          className="t--new-button createnew"
+          isLoading={isCreatingApplication}
+          onClick={() => window.location.href = "https://appghalam.ir"}
+          size="md"
+        >
+          {createMessage(APPGHALAM_STORE)}
+        </Button>
+
         <Button
           className="t--new-button createnew"
           endIcon="arrow-down-s-line"
