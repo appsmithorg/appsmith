@@ -31,9 +31,9 @@ import { getJSResponseViewState, JSResponseState } from "./utils";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { NoResponse } from "PluginActionEditor/components/PluginActionResponse/components/NoResponse";
 import {
-  ResponseTabErrorContainer,
-  ResponseTabErrorContent,
-} from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
+  ResponseErrorContainer,
+  ResponseErrorContent,
+} from "PluginActionEditor/components/PluginActionResponse/components/Response";
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Log, SourceEntity } from "entities/AppsmithConsole";
@@ -198,8 +198,8 @@ function JSResponseView(props: Props) {
           {localExecutionAllowed &&
             (hasExecutionParseErrors ||
               (hasJSObjectParseError && errorMessage)) && (
-              <ResponseTabErrorContainer>
-                <ResponseTabErrorContent>
+              <ResponseErrorContainer>
+                <ResponseErrorContent>
                   <div className="t--js-response-parse-error-call-out">
                     {errorMessage}
                   </div>
@@ -209,8 +209,8 @@ function JSResponseView(props: Props) {
                     name={errorType}
                     source={actionSource}
                   />
-                </ResponseTabErrorContent>
-              </ResponseTabErrorContainer>
+                </ResponseErrorContent>
+              </ResponseErrorContainer>
             )}
           <ResponseTabWrapper
             className={errors.length && localExecutionAllowed ? "disable" : ""}
