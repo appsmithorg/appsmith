@@ -27,7 +27,7 @@ import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import useDebuggerTriggerClick from "./Debugger/hooks/useDebuggerTriggerClick";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
-import { ApiResponse } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
+import { Response } from "PluginActionEditor/components/PluginActionResponse/components/Response";
 import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponseHeaders";
 
 interface Props {
@@ -96,7 +96,7 @@ function ApiResponseView(props: Props) {
       key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
-        <ApiResponse
+        <Response
           action={currentActionConfig}
           actionResponse={actionResponse}
           isRunDisabled={isRunDisabled}

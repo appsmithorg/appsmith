@@ -8,28 +8,16 @@ interface ValidationParams {
 class Response {
   public locators = {
     responseTab: "[data-testid='t--tab-RESPONSE_TAB']",
-    responseDataContainer: "[data-testid='t--query-response-data-container']",
-    responseTypeMenuTrigger: "[data-testid='t--query-response-type-trigger']",
-    responseRecordCount: "[data-testid='t--query-response-record-count']",
-
-    /** @deprecated */
-    responseType(type: string): string {
-      return `//div[@data-testid='t--response-tab-segmented-control']//span[text()='${type}']`;
-    },
+    responseDataContainer: "[data-testid='t--response-data-container']",
+    responseTypeMenuTrigger: "[data-testid='t--response-type-trigger']",
+    responseRecordCount: "[data-testid='t--response-record-count']",
+    responseStatusInfo: "[data-testid='t--response-status-info']",
+    responseStatusInfoTooltip: "#t--response-tooltip",
 
     responseTypeMenuItem(type: string) {
-      return `[data-testid="t--query-response-type-menu-item"][data-value="${type}"]`;
+      return `[data-testid="t--response-type-menu-item"][data-value="${type}"]`;
     },
   };
-
-  /** @deprecated: method will be deleted when segmented control in response pane is replaced */
-  public getResponseTypeSelector = this.locators.responseType;
-
-  /** @deprecated: method will be deleted when segmented control in response pane is replaced */
-  public switchResponseType(type: string): void {
-    this.switchToResponseTab();
-    cy.xpath(this.locators.responseType(type)).click({ force: true });
-  }
 
   public switchToResponseTab(): void {
     cy.get(this.locators.responseTab).click({ force: true });
@@ -48,6 +36,21 @@ class Response {
 
   public closeResponseTypeMenu() {
     cy.get(this.locators.responseTypeMenuTrigger).realClick();
+  }
+
+  public validateTypeInMenu(type: string, assertion: string): void {
+    this.switchToResponseTab();
+    this.openResponseTypeMenu();
+    cy.get(this.locators.responseTypeMenuItem(type)).should(assertion);
+    this.closeResponseTypeMenu();
+  }
+
+  public validateResponseStatus(status: string): void {
+    cy.get(this.locators.responseStatusInfo).trigger("mouseover");
+    cy.get(this.locators.responseStatusInfoTooltip).should(
+      "include.text",
+      status,
+    );
   }
 
   public validateRecordCount({

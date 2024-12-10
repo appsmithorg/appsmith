@@ -22,7 +22,7 @@ describe(
       dataSources.CreateQueryAfterDSSaved("select * from users limit 10");
       dataSources.RunQuery({ toValidateResponse: false });
       cy.wait(500);
-      cy.get("[data-testid=t--query-error]").contains(
+      cy.get(dataSources._queryError).contains(
         "[Missing username for authentication., Missing hostname., Missing password for authentication.]",
       );
       agHelper.ActionContextMenuWithInPane({

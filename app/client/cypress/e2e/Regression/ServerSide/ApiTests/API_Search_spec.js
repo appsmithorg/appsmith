@@ -11,6 +11,8 @@ import {
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
+import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
+
 const testUrl1 =
   "http://host.docker.internal:5001/v1/dynamicrecords/generaterecords?records=10";
 const testUrl2 =
@@ -52,11 +54,11 @@ describe(
       cy.RunAPI();
       apiPage.CreateAndFillApi(testUrl2);
       cy.RunAPI();
-      cy.get(ApiEditor.jsonResponseTab).click();
+      BottomTabs.response.selectResponseResponseTypeFromMenu("JSON");
       dataSources.AssertBindDataVisible();
-      cy.get(ApiEditor.rawResponseTab).click();
+      BottomTabs.response.selectResponseResponseTypeFromMenu("RAW");
       dataSources.AssertBindDataVisible();
-      cy.get(ApiEditor.tableResponseTab).click();
+      BottomTabs.response.selectResponseResponseTypeFromMenu("TABLE");
       dataSources.AssertBindDataVisible();
     });
 
