@@ -22,7 +22,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
     });
 
-    it.only("1. Verify that actions can be configured ", () => {
+    it("1. Verify that actions can be configured ", () => {
       propPane.EnterJSContext(
         "onClick",
         `{{showAlert("Action Selector Test Message", '')}}`,
@@ -39,7 +39,7 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it.only("2. Verify that callbacks can be configured with a success event", () => {
+    it("2. Verify that callbacks can be configured with a success event", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.EnterJSContext(
         "onClick",
@@ -67,7 +67,7 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it.only("3. Verify that callbacks can be configured with a failure event", () => {
+    it("3. Verify that callbacks can be configured with a failure event", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.ToggleJSMode("onClick", true);
       propPane.EnterJSContext("onClick", `{{showModal()}}`, true);
@@ -91,7 +91,7 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it.only("4. Verify that callbacks can be chained", () => {
+    it("4. Verify that callbacks can be chained", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       agHelper.GetHoverNClick(propPane._actionCallbacks);
 
@@ -112,7 +112,7 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it.only("5. Verify that the Callbacks section reflects the number of active callbacks accurately", () => {
+    it("5. Verify that the Callbacks section reflects the number of active callbacks accurately", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       agHelper.GetHoverNClick(propPane._actionCallbacks);
       agHelper
@@ -124,7 +124,7 @@ describe(
     });
 
 
-    it.only("6. Verify that callbacks can be deleted", () => {
+    it("6. Verify that callbacks can be deleted", () => {
       agHelper
       .GetText(propPane._getActionCardSelector("modal"))
       .then(($count) => {
