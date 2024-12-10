@@ -1246,16 +1246,21 @@ export default class DataTreeEvaluator {
 
             set(contextTree, fullPropertyPath, parsedValue);
             set(safeTree, fullPropertyPath, klona(parsedValue));
-            set(
-              triggerBasedDataTreeContext,
-              fullPropertyPath,
-              klona(parsedValue),
-            );
-            set(
-              nonTriggerBasedDataTreeContext,
-              fullPropertyPath,
-              klona(parsedValue),
-            );
+
+            if (
+              WorkerEnv.isFFEnabled(FEATURE_FLAG.release_evaluation_scope_cache)
+            ) {
+              set(
+                triggerBasedDataTreeContext,
+                fullPropertyPath,
+                klona(parsedValue),
+              );
+              set(
+                nonTriggerBasedDataTreeContext,
+                fullPropertyPath,
+                klona(parsedValue),
+              );
+            }
 
             staleMetaIds = staleMetaIds.concat(
               getStaleMetaStateIds({
@@ -1302,16 +1307,22 @@ export default class DataTreeEvaluator {
 
             set(contextTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, klona(evalPropertyValue));
-            set(
-              triggerBasedDataTreeContext,
-              fullPropertyPath,
-              klona(evalPropertyValue),
-            );
-            set(
-              nonTriggerBasedDataTreeContext,
-              fullPropertyPath,
-              klona(evalPropertyValue),
-            );
+
+            if (
+              WorkerEnv.isFFEnabled(FEATURE_FLAG.release_evaluation_scope_cache)
+            ) {
+              set(
+                triggerBasedDataTreeContext,
+                fullPropertyPath,
+                klona(evalPropertyValue),
+              );
+              set(
+                nonTriggerBasedDataTreeContext,
+                fullPropertyPath,
+                klona(evalPropertyValue),
+              );
+            }
+
             break;
           }
           case ENTITY_TYPE.JSACTION: {
@@ -1352,16 +1363,24 @@ export default class DataTreeEvaluator {
 
               set(contextTree, fullPropertyPath, evalValue);
               set(safeTree, fullPropertyPath, valueForSafeTree);
-              set(
-                triggerBasedDataTreeContext,
-                fullPropertyPath,
-                klona(evalPropertyValue),
-              );
-              set(
-                nonTriggerBasedDataTreeContext,
-                fullPropertyPath,
-                klona(evalPropertyValue),
-              );
+
+              if (
+                WorkerEnv.isFFEnabled(
+                  FEATURE_FLAG.release_evaluation_scope_cache,
+                )
+              ) {
+                set(
+                  triggerBasedDataTreeContext,
+                  fullPropertyPath,
+                  klona(evalPropertyValue),
+                );
+                set(
+                  nonTriggerBasedDataTreeContext,
+                  fullPropertyPath,
+                  klona(evalPropertyValue),
+                );
+              }
+
               JSObjectCollection.setVariableValue(evalValue, fullPropertyPath);
               JSObjectCollection.setPrevUnEvalState({
                 fullPath: fullPropertyPath,
@@ -1374,16 +1393,21 @@ export default class DataTreeEvaluator {
           default:
             set(contextTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, klona(evalPropertyValue));
-            set(
-              triggerBasedDataTreeContext,
-              fullPropertyPath,
-              klona(evalPropertyValue),
-            );
-            set(
-              nonTriggerBasedDataTreeContext,
-              fullPropertyPath,
-              klona(evalPropertyValue),
-            );
+
+            if (
+              WorkerEnv.isFFEnabled(FEATURE_FLAG.release_evaluation_scope_cache)
+            ) {
+              set(
+                triggerBasedDataTreeContext,
+                fullPropertyPath,
+                klona(evalPropertyValue),
+              );
+              set(
+                nonTriggerBasedDataTreeContext,
+                fullPropertyPath,
+                klona(evalPropertyValue),
+              );
+            }
         }
       }
     } catch (error) {
