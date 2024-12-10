@@ -88,7 +88,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.28</version>
+            <version>8.1.1</version>
             <scope>test</scope>
         </dependency>
 
