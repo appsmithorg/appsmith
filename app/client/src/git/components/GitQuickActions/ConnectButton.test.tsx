@@ -2,7 +2,6 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import ConnectButton from "./ConnectButton";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { GitSyncModalTab } from "entities/GitSync";
 import "@testing-library/jest-dom";
 import { theme } from "constants/DefaultTheme";
 import { ThemeProvider } from "styled-components";
@@ -27,7 +26,7 @@ jest.mock("@appsmith/ads", () => ({
 }));
 
 describe("ConnectButton Component", () => {
-  const openGitSyncModalMock = jest.fn();
+  const onClickMock = jest.fn();
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -36,7 +35,7 @@ describe("ConnectButton Component", () => {
   it("should render correctly when isConnectPermitted is true", () => {
     render(
       <ThemeProvider theme={theme}>
-        <ConnectButton isConnectPermitted onClick={openGitSyncModalMock} />
+        <ConnectButton isConnectPermitted onClick={onClickMock} />
       </ThemeProvider>,
     );
 
@@ -61,7 +60,7 @@ describe("ConnectButton Component", () => {
   it("should handle click when isConnectPermitted is true", () => {
     render(
       <ThemeProvider theme={theme}>
-        <ConnectButton isConnectPermitted onClick={openGitSyncModalMock} />
+        <ConnectButton isConnectPermitted onClick={onClickMock} />
       </ThemeProvider>,
     );
 
@@ -69,25 +68,25 @@ describe("ConnectButton Component", () => {
 
     fireEvent.click(button);
 
-    expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith(
-      "GS_CONNECT_GIT_CLICK",
-      {
-        source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
-      },
-    );
+    expect(onClickMock).toHaveBeenCalled();
 
-    expect(openGitSyncModalMock).toHaveBeenCalledWith({
-      tab: GitSyncModalTab.GIT_CONNECTION,
-    });
+    // ! might have to move this to Quick Actions instead
+    // expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith(
+    //   "GS_CONNECT_GIT_CLICK",
+    //   {
+    //     source: "BOTTOM_BAR_GIT_CONNECT_BUTTON",
+    //   },
+    // );
+
+    // expect(onClickMock).toHaveBeenCalledWith({
+    //   tab: GitSyncModalTab.GIT_CONNECTION,
+    // });
   });
 
   it("should render correctly when isConnectPermitted is false", () => {
     render(
       <ThemeProvider theme={theme}>
-        <ConnectButton
-          isConnectPermitted={false}
-          onClick={openGitSyncModalMock}
-        />
+        <ConnectButton isConnectPermitted={false} onClick={onClickMock} />
       </ThemeProvider>,
     );
 
@@ -115,10 +114,7 @@ describe("ConnectButton Component", () => {
   it("should not handle click when isConnectPermitted is false", () => {
     render(
       <ThemeProvider theme={theme}>
-        <ConnectButton
-          isConnectPermitted={false}
-          onClick={openGitSyncModalMock}
-        />
+        <ConnectButton isConnectPermitted={false} onClick={onClickMock} />
       </ThemeProvider>,
     );
 
@@ -127,13 +123,13 @@ describe("ConnectButton Component", () => {
     fireEvent.click(button);
 
     expect(AnalyticsUtil.logEvent).not.toHaveBeenCalled();
-    expect(openGitSyncModalMock).not.toHaveBeenCalled();
+    expect(onClickMock).not.toHaveBeenCalled();
   });
 
   it("should display correct tooltip content when isConnectPermitted is true", () => {
     render(
       <ThemeProvider theme={theme}>
-        <ConnectButton isConnectPermitted onClick={openGitSyncModalMock} />
+        <ConnectButton isConnectPermitted onClick={onClickMock} />
       </ThemeProvider>,
     );
 

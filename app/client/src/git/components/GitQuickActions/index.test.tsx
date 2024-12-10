@@ -2,11 +2,10 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import QuickActions from ".";
-import { GitSettingsTab } from "../../constants/enums";
-import { GitSyncModalTab } from "entities/GitSync";
 import { theme } from "constants/DefaultTheme";
 import { ThemeProvider } from "styled-components";
 import "@testing-library/jest-dom/extend-expect";
+import { GitOpsTab, GitSettingsTab } from "git/constants/enums";
 
 jest.mock("ee/utils/AnalyticsUtil", () => ({
   logEvent: jest.fn(),
@@ -84,12 +83,8 @@ describe("QuickActions Component", () => {
     const props = {
       ...defaultProps,
       isGitConnected: true,
-      gitMetadata: {
-        autoCommitConfig: {
-          enabled: true,
-        },
-      },
-      isPollingAutocommit: true,
+      isAutocommitEnabled: true,
+      isAutocommitPolling: true,
     };
 
     const { container } = render(
@@ -120,10 +115,10 @@ describe("QuickActions Component", () => {
     )[0];
 
     fireEvent.click(commitButton);
-    expect(props.toggleGitOpsModal).toHaveBeenCalledWith({
-      open: true,
-      tab: GitSyncModalTab.DEPLOY,
-    });
+    expect(props.toggleGitOpsModal).toHaveBeenCalledWith(
+      true,
+      GitOpsTab.Deploy,
+    );
     expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith(
       "GS_DEPLOY_GIT_MODAL_TRIGGERED",
       {
@@ -136,14 +131,12 @@ describe("QuickActions Component", () => {
     const props = {
       ...defaultProps,
       isGitConnected: true,
-      isDiscardInProgress: false,
-      isPullInProgress: false,
-      isFetchingGitStatus: false,
-      pullDisabled: false,
-      gitStatus: {
-        behindCount: 1,
-        isClean: false,
-      },
+      isDiscardLoading: false,
+      isPullLoading: false,
+      isFetchStatusLoading: false,
+      isPullDisabled: false,
+      statusBehindCount: 1,
+      statusIsClean: false,
       isProtectedMode: true,
     };
 
@@ -183,10 +176,7 @@ describe("QuickActions Component", () => {
         source: "BOTTOM_BAR_GIT_MERGE_BUTTON",
       },
     );
-    expect(props.toggleGitOpsModal).toHaveBeenCalledWith({
-      open: true,
-      tab: GitSyncModalTab.MERGE,
-    });
+    expect(props.toggleGitOpsModal).toHaveBeenCalledWith(true, GitOpsTab.Merge);
   });
 
   it("should call onSettingsClick when settings button is clicked", () => {
@@ -208,10 +198,10 @@ describe("QuickActions Component", () => {
     expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith("GS_SETTING_CLICK", {
       source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
     });
-    expect(props.toggleGitSettingsModal).toHaveBeenCalledWith({
-      open: true,
-      tab: GitSettingsTab.General,
-    });
+    expect(props.toggleGitSettingsModal).toHaveBeenCalledWith(
+      true,
+      GitSettingsTab.General,
+    );
   });
 
   it("should disable commit button when isProtectedMode is true", () => {
@@ -237,7 +227,7 @@ describe("QuickActions Component", () => {
     const props = {
       ...defaultProps,
       isGitConnected: true,
-      isPullInProgress: true,
+      isPullLoading: true,
     };
 
     const { container } = render(
@@ -259,7 +249,7 @@ describe("QuickActions Component", () => {
     const props = {
       ...defaultProps,
       isGitConnected: true,
-      changesToCommit: 5,
+      statusChangeCount: 5,
     };
 
     render(
@@ -277,7 +267,7 @@ describe("QuickActions Component", () => {
       ...defaultProps,
       isGitConnected: true,
       isProtectedMode: true,
-      changesToCommit: 5,
+      statusChangeCount: 5,
     };
 
     render(
@@ -289,10 +279,12 @@ describe("QuickActions Component", () => {
   });
 
   it("should disable pull button when pullDisabled is true", () => {
-    const mockGetPullBtnStatus = jest.requireMock("./helpers").getPullBtnStatus;
+    const mockGetPullBtnStatus = jest.requireMock(
+      "./helpers/getPullButtonStatus",
+    ).default;
 
     mockGetPullBtnStatus.mockReturnValue({
-      disabled: true,
+      isDisabled: true,
       message: "Pull Disabled",
     });
 
@@ -316,10 +308,8 @@ describe("QuickActions Component", () => {
     const props = {
       ...defaultProps,
       isGitConnected: true,
-      gitStatus: {
-        behindCount: 3,
-        isClean: true,
-      },
+      statusBehindCount: 3,
+      statusIsClean: true,
     };
 
     render(
