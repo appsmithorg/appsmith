@@ -281,6 +281,16 @@ export default {
       return [];
     }
 
+    const getTextFromHTML = (html) => {
+      if (!html) return "";
+
+      const tempDiv = document.createElement("div");
+
+      tempDiv.innerHTML = html;
+
+      return tempDiv.textContent || tempDiv.innerText || "";
+    };
+
     /* extend processedTableData with values from
      *  - computedValues, in case of normal column
      *  - empty values, in case of derived column
@@ -504,6 +514,11 @@ export default {
                     );
                   }
                 }
+              case "html":
+                return sortByOrder(
+                  getTextFromHTML(processedA[sortByColumnOriginalId]) >
+                    getTextFromHTML(processedB[sortByColumnOriginalId]),
+                );
               default:
                 return sortByOrder(
                   processedA[sortByColumnOriginalId].toString().toLowerCase() >
@@ -700,6 +715,10 @@ export default {
         (column) => column.columnType === "url" && column.displayText,
       );
 
+      const columnsWithHTML = Object.values(props.primaryColumns).filter(
+        (column) => column.columnType === "html",
+      );
+
       /*
        * For select columns with label and values, we need to include the label value
        * in the search and filter data
@@ -781,32 +800,51 @@ export default {
         });
       }
 
+      const displayTextValues = columnWithDisplayText.reduce((acc, column) => {
+        let displayText;
+
+        if (_.isArray(column.displayText)) {
+          displayText = column.displayText[row.__originalIndex__];
+        } else {
+          displayText = column.displayText;
+        }
+
+        acc[column.alias] = displayText;
+
+        return acc;
+      }, {});
+
+      /*
+       * We don't want html tags and inline styles to match in search
+       */
+      const htmlValues = columnsWithHTML.reduce((acc, column) => {
+        const value = row[column.alias];
+
+        acc[column.alias] =
+          value === null || value === undefined ? "" : getTextFromHTML(value);
+
+        return acc;
+      }, {});
+
       const displayedRow = {
         ...row,
         ...labelValuesForSelectCell,
-        ...columnWithDisplayText.reduce((acc, column) => {
-          let displayText;
-
-          if (_.isArray(column.displayText)) {
-            displayText = column.displayText[row.__originalIndex__];
-          } else {
-            displayText = column.displayText;
-          }
-
-          acc[column.alias] = displayText;
-
-          return acc;
-        }, {}),
+        ...displayTextValues,
+        ...htmlValues,
       };
+      const htmlColumns = columnsWithHTML.map((column) => column.alias);
 
       if (searchKey) {
-        isSearchKeyFound = [
+        const combinedRowContent = [
           ...Object.values(_.omit(displayedRow, hiddenColumns)),
-          ...Object.values(_.omit(originalRow, hiddenColumns)),
+          ...Object.values(
+            _.omit(originalRow, [...hiddenColumns, ...htmlColumns]),
+          ),
         ]
           .join(", ")
-          .toLowerCase()
-          .includes(searchKey);
+          .toLowerCase();
+
+        isSearchKeyFound = combinedRowContent.includes(searchKey);
       }
 
       if (!isSearchKeyFound) {
@@ -834,15 +872,20 @@ export default {
             ConditionFunctions[props.filters[i].condition];
 
           if (conditionFunction) {
+            /*
+             * We don't want html tags and inline styles to match in filter conditions
+             */
+            const isHTMLColumn = htmlColumns.includes(props.filters[i].column);
+            const originalColValue = isHTMLColumn
+              ? getTextFromHTML(originalRow[props.filters[i].column])
+              : originalRow[props.filters[i].column];
+            const displayedColValue = isHTMLColumn
+              ? getTextFromHTML(displayedRow[props.filters[i].column])
+              : displayedRow[props.filters[i].column];
+
             filterResult =
-              conditionFunction(
-                originalRow[props.filters[i].column],
-                props.filters[i].value,
-              ) ||
-              conditionFunction(
-                displayedRow[props.filters[i].column],
-                props.filters[i].value,
-              );
+              conditionFunction(originalColValue, props.filters[i].value) ||
+              conditionFunction(displayedColValue, props.filters[i].value);
           }
         } catch (e) {
           filterResult = false;

@@ -30,7 +30,11 @@ import {
 } from "./Constants";
 import { Colors } from "constants/Colors";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { EditableCell, TableVariant } from "../constants";
+import {
+  ColumnTypes,
+  type EditableCell,
+  type TableVariant,
+} from "../constants";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
@@ -323,10 +327,19 @@ export function Table(props: TableProps) {
     props.width,
   ]);
 
+  /**
+   * What this really translates is to fixed height rows:
+   * shouldUseVirtual: false -> fixed height row, irrespective of content small or big
+   * shouldUseVirtual: true -> height adjusts acc to content
+   * Right now all HTML content is dynamic height in nature hence
+   * for server paginated tables it needs this extra handling.
+   */
   const shouldUseVirtual =
     props.serverSidePaginationEnabled &&
     !props.columns.some(
-      (column) => !!column.columnProperties.allowCellWrapping,
+      (column) =>
+        !!column.columnProperties.allowCellWrapping ||
+        column.metaProperties?.type === ColumnTypes.HTML,
     );
 
   useEffect(() => {
