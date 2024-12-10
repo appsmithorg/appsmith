@@ -2,9 +2,7 @@ import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import styled from "styled-components";
 import { getErrorCount } from "selectors/debuggerSelectors";
-import { Text, TextType } from "@appsmith/ads-old";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/constants";
 import {
   DEBUGGER_ERRORS,
@@ -14,12 +12,11 @@ import {
 } from "ee/constants/messages";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
-import { Schema } from "PluginActionEditor/components/PluginActionResponse/components/Schema";
+import { Datasource } from "PluginActionEditor/components/PluginActionResponse/components/DatasourceTab";
 import type { ActionResponse } from "api/ActionAPI";
-import { isString } from "lodash";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Action } from "entities/Action";
-import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
+import { Response } from "PluginActionEditor/components/PluginActionResponse/components/Response";
 import {
   getDatasource,
   getDatasourceStructureById,
@@ -36,17 +33,7 @@ import { actionResponseDisplayDataFormats } from "../utils";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
 import { IDEBottomView, ViewHideBehaviour } from "IDE";
-
-const ResultsCount = styled.div`
-  position: absolute;
-  right: ${(props) => props.theme.spaces[17] + 1}px;
-  top: 9px;
-  color: var(--ads-v2-color-fg);
-`;
-
-const ErrorText = styled(Text)`
-  color: var(--ads-v2-colors-action-error-label-default-fg);
-`;
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 interface QueryDebuggerTabsProps {
   actionSource: SourceEntity;
@@ -63,17 +50,12 @@ interface QueryDebuggerTabsProps {
 function QueryDebuggerTabs({
   actionName,
   actionResponse,
-  actionSource,
   currentActionConfig,
   isRunDisabled = false,
   isRunning,
   onRunClick,
-  runErrorMessage,
   showSchema,
 }: QueryDebuggerTabsProps) {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let output: Record<string, any>[] | null = null;
   const dispatch = useDispatch();
 
   const { open, responseTabHeight, selectedTab } = useSelector(
@@ -158,7 +140,7 @@ function QueryDebuggerTabs({
       dispatch(
         setPluginActionEditorDebuggerState({
           open: true,
-          selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
+          selectedTab: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
         }),
       );
     }
@@ -171,27 +153,6 @@ function QueryDebuggerTabs({
       setShowResponseOnFirstLoad(false);
     }
   }, [currentActionConfig?.id]);
-
-  // Query is executed even once during the session, show the response data.
-  if (actionResponse) {
-    if (isString(actionResponse.body)) {
-      try {
-        // Try to parse response as JSON array to be displayed in the Response tab
-        output = JSON.parse(actionResponse.body);
-      } catch (e) {
-        // In case the string is not a JSON, wrap it in a response object
-        output = [
-          {
-            response: actionResponse.body,
-          },
-        ];
-      }
-    } else {
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      output = actionResponse.body as any;
-    }
-  }
 
   const setQueryResponsePaneHeight = useCallback(
     (height: number) => {
@@ -240,14 +201,14 @@ function QueryDebuggerTabs({
       key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
-        <QueryResponseTab
-          actionName={actionName}
-          actionSource={actionSource}
-          currentActionConfig={currentActionConfig}
+        <Response
+          action={currentActionConfig}
+          actionResponse={actionResponse}
           isRunDisabled={isRunDisabled}
           isRunning={isRunning}
           onRunClick={onRunClick}
-          runErrorMessage={runErrorMessage}
+          responseTabHeight={responseTabHeight}
+          theme={EditorTheme.LIGHT}
         />
       ),
     });
@@ -255,10 +216,10 @@ function QueryDebuggerTabs({
 
   if (showSchema && currentActionConfig && currentActionConfig.datasource) {
     responseTabs.unshift({
-      key: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
-      title: "Schema",
+      key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
+      title: "Datasource",
       panelComponent: (
-        <Schema
+        <Datasource
           currentActionId={currentActionConfig.id}
           datasourceId={currentActionConfig.datasource.id || ""}
           datasourceName={datasource?.name || ""}
@@ -276,21 +237,6 @@ function QueryDebuggerTabs({
       onHideClick={onToggle}
       setHeight={setQueryResponsePaneHeight}
     >
-      {output && !!output.length && (
-        <ResultsCount>
-          <Text data-testid="result-text" type={TextType.P3}>
-            Result:
-            {actionResponse?.isExecutionSuccess ? (
-              <Text type={TextType.H5}>{` ${output.length} Record${
-                output.length > 1 ? "s" : ""
-              }`}</Text>
-            ) : (
-              <ErrorText type={TextType.H5}>{" Error"}</ErrorText>
-            )}
-          </Text>
-        </ResultsCount>
-      )}
-
       <EntityBottomTabs
         isCollapsed={!open}
         onSelect={setSelectedResponseTab}

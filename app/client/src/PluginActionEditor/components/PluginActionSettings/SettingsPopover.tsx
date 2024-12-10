@@ -20,6 +20,7 @@ import { ToolbarSettingsPopover } from "IDE";
 export interface SettingsProps {
   formName: string;
   docsLink?: DocsLink;
+  dataTestId?: string;
 }
 
 /* TODO: Remove this after removing custom width from server side (Ankita) */
@@ -75,6 +76,7 @@ const PluginActionSettingsPopover = (props: SettingsProps) => {
 
   return (
     <ToolbarSettingsPopover
+      dataTestId={props.dataTestId || "t--toolbar-settings-popover-trigger"}
       handleOpenChange={handleOpenChange}
       isOpen={isOpen}
       title={createMessage(API_EDITOR_TAB_TITLES.SETTINGS)}

@@ -16,6 +16,10 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import static com.appsmith.git.constants.CommonConstants.CANVAS_WIDGET;
+import static com.appsmith.git.constants.CommonConstants.DELIMITER_PATH;
+import static com.appsmith.git.constants.CommonConstants.DELIMITER_POINT;
+import static com.appsmith.git.constants.CommonConstants.EMPTY_STRING;
+import static com.appsmith.git.constants.CommonConstants.MAIN_CONTAINER;
 
 @Component
 @RequiredArgsConstructor
@@ -24,7 +28,7 @@ public class DSLTransformerHelper {
 
     public static Map<String, JSONObject> flatten(JSONObject jsonObject) {
         Map<String, JSONObject> flattenedMap = new HashMap<>();
-        flattenObject(jsonObject, CommonConstants.EMPTY_STRING, flattenedMap);
+        flattenObject(jsonObject, EMPTY_STRING, flattenedMap);
         return new TreeMap<>(flattenedMap);
     }
 
@@ -44,8 +48,7 @@ public class DSLTransformerHelper {
 
             for (int i = 0; i < children.length(); i++) {
                 JSONObject childObject = children.getJSONObject(i);
-                String childPrefix =
-                        isCanvasWidget(childObject) ? prefix + widgetName + CommonConstants.DELIMITER_POINT : prefix;
+                String childPrefix = isCanvasWidget(childObject) ? prefix + widgetName + DELIMITER_POINT : prefix;
                 String widgetType = getWidgetType(jsonObject);
                 flattenObject(childObject, childPrefix, flattenedMap);
             }
@@ -103,13 +106,17 @@ public class DSLTransformerHelper {
         Map<String, List<String>> parentDirectories = new HashMap<>();
 
         paths = paths.stream()
-                .map(currentPath -> currentPath.replace(CommonConstants.JSON_EXTENSION, CommonConstants.EMPTY_STRING))
+                .map(currentPath -> currentPath.replace(CommonConstants.JSON_EXTENSION, EMPTY_STRING))
                 .collect(Collectors.toList());
         for (String path : paths) {
-            String[] directories = path.split(CommonConstants.DELIMITER_PATH);
+            String[] directories = path.split(DELIMITER_PATH);
             int lastDirectoryIndex = directories.length - 1;
 
-            if (lastDirectoryIndex > 0 && directories[lastDirectoryIndex].equals(directories[lastDirectoryIndex - 1])) {
+            if (lastDirectoryIndex <= 0) {
+                // This is not a valid path anymore, ignore
+                continue;
+            }
+            if (directories[lastDirectoryIndex].equals(directories[lastDirectoryIndex - 1])) {
                 if (lastDirectoryIndex - 2 >= 0) {
                     String parentDirectory = directories[lastDirectoryIndex - 2];
                     List<String> pathsList = parentDirectories.getOrDefault(parentDirectory, new ArrayList<>());
@@ -143,10 +150,10 @@ public class DSLTransformerHelper {
             Map<String, JSONObject> jsonMap, Map<String, List<String>> pathMapping, JSONObject mainContainer) {
         // start from the root
         // Empty page with no widgets
-        if (!pathMapping.containsKey(CommonConstants.MAIN_CONTAINER)) {
+        if (!pathMapping.containsKey(MAIN_CONTAINER)) {
             return mainContainer;
         }
-        for (String path : pathMapping.get(CommonConstants.MAIN_CONTAINER)) {
+        for (String path : pathMapping.get(MAIN_CONTAINER)) {
             JSONObject child = getChildren(path, jsonMap, pathMapping);
             JSONArray children = mainContainer.optJSONArray(CommonConstants.CHILDREN);
             if (children == null) {
@@ -179,7 +186,7 @@ public class DSLTransformerHelper {
     }
 
     public static String getWidgetName(String path) {
-        String[] directories = path.split(CommonConstants.DELIMITER_PATH);
+        String[] directories = path.split(DELIMITER_PATH);
         return directories[directories.length - 1];
     }
 
@@ -229,15 +236,16 @@ public class DSLTransformerHelper {
 
     public static String getPathToWidgetFile(String key, JSONObject jsonObject, String widgetName) {
         // get path with splitting the name via key
-        String childPath = key.replace(CommonConstants.MAIN_CONTAINER, CommonConstants.EMPTY_STRING)
-                .replace(CommonConstants.DELIMITER_POINT, CommonConstants.DELIMITER_PATH);
+        String childPath = key.replace(MAIN_CONTAINER, EMPTY_STRING).replace(DELIMITER_POINT, DELIMITER_PATH);
         // Replace the canvas Widget as a child and add it to the same level as parent
-        childPath = childPath.replaceAll(CANVAS_WIDGET, CommonConstants.EMPTY_STRING);
+        childPath = childPath.replaceAll(CANVAS_WIDGET, EMPTY_STRING);
         if (!DSLTransformerHelper.hasChildren(jsonObject) && !DSLTransformerHelper.isTabsWidget(jsonObject)) {
             // Save the widget as a directory or Save the widget as a file
             // Only consider widgetName at the end of the childPath to reset
             // For example, "foobar/bar" should convert into "foobar/"
-            childPath = childPath.replaceAll(widgetName + "$", CommonConstants.EMPTY_STRING);
+            childPath = childPath.replaceAll(widgetName + "$", EMPTY_STRING);
+        } else {
+            childPath += DELIMITER_PATH;
         }
 
         return childPath;

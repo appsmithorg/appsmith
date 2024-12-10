@@ -4,11 +4,13 @@ import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.files.FileUtilsImpl;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.helpers.ce.CommonGitFileUtilsCE;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -24,14 +26,19 @@ public class CommonGitFileUtils extends CommonGitFileUtilsCE {
             FileOperations fileOperations,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            Gson gson,
-            JsonSchemaVersions jsonSchemaVersions) {
+            NewActionService newActionService,
+            ActionCollectionService actionCollectionService,
+            JsonSchemaVersions jsonSchemaVersions,
+            ObjectMapper objectMapper) {
         super(
                 applicationGitFileUtils,
                 fileUtils,
                 fileOperations,
                 analyticsService,
                 sessionUserService,
-                jsonSchemaVersions);
+                newActionService,
+                actionCollectionService,
+                jsonSchemaVersions,
+                objectMapper);
     }
 }

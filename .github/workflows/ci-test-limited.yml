@@ -41,13 +41,14 @@ jobs:
 
     # Service containers to run with this job. Required for running tests
     services:
-      # Label used to access the service container
       redis:
-        # Docker Hub image for Redis
         image: redis
         ports:
-          # Opens tcp port 6379 on the host and service container
           - 6379:6379
+      postgres:
+        image: postgres:14
+        ports:
+          - 5432:5432
       mongo:
         image: mongo
         ports:

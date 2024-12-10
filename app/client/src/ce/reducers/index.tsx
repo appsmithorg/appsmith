@@ -36,7 +36,6 @@ import type { GlobalSearchReduxState } from "reducers/uiReducers/globalSearchRed
 import type { ActionSelectorReduxState } from "reducers/uiReducers/actionSelectorReducer";
 import type { ReleasesState } from "reducers/uiReducers/releasesReducer";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
-import type { WebsocketReducerState } from "reducers/uiReducers/websocketReducer";
 import type { DebuggerReduxState } from "reducers/uiReducers/debuggerReducer";
 import type { TourReducerState } from "reducers/uiReducers/tourReducer";
 import type { TableFilterPaneReduxState } from "reducers/uiReducers/tableFilterPaneReducer";
@@ -45,7 +44,6 @@ import type { JSCollectionDataState } from "ee/reducers/entityReducers/jsActions
 import type { CanvasSelectionState } from "reducers/uiReducers/canvasSelectionReducer";
 import type { JSObjectNameReduxState } from "reducers/uiReducers/jsObjectNameReducer";
 import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
-import type { AppCollabReducerState } from "reducers/uiReducers/appCollabReducer";
 import type { CrudInfoModalReduxState } from "reducers/uiReducers/crudInfoModalReducer";
 import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import type { widgetReflow } from "reducers/uiReducers/reflowReducer";
@@ -121,14 +119,12 @@ export interface AppState {
     onBoarding: OnboardingState;
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
-    websocket: WebsocketReducerState;
     debugger: DebuggerReduxState;
     tour: TourReducerState;
     jsPane: JsPaneReduxState;
     canvasSelection: CanvasSelectionState;
     jsObjectName: JSObjectNameReduxState;
     gitSync: GitSyncReducerState;
-    appCollab: AppCollabReducerState;
     crudInfoModal: CrudInfoModalReduxState;
     widgetReflow: widgetReflow;
     appTheming: AppThemingState;
