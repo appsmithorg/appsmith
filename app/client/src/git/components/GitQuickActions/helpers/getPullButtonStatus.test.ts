@@ -99,7 +99,7 @@ describe("getPullBtnStatus", () => {
     const result = getPullBtnStatus(params);
 
     expect(result).toEqual({
-      disabled: true,
+      isDisabled: true,
       message:
         "No commits to pull. This branch is in sync with the remote repository",
     });
