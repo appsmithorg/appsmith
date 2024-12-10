@@ -104,7 +104,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             return datasourceMapMono
                     .doOnNext(datasourceMap -> mappedImportableResourcesDTO.setDatasourceNameToIdMap(datasourceMap))
                     .then();
-        });
+        }); // */
     }
 
     private Mono<List<Datasource>> getExistingDatasourceMono(String artifactId, Flux<Datasource> datasourceFlux) {
@@ -213,7 +213,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                     // Don't update the datasource configuration for already available datasources
                                     existingDatasource.setDatasourceConfiguration(null);
                                     return datasourceService
-                                            .save(existingDatasource, true)
+                                            .save(existingDatasource, false)
                                             .map(createdDatasource -> {
                                                 // Add dry run queries for the datasource
                                                 addDryOpsForEntity(
@@ -266,7 +266,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                 .map(tuple -> {
                     log.debug("Time taken to import datasources: {} ms", tuple.getT1());
                     return tuple.getT2();
-                });
+                }); // */
     }
 
     /**
@@ -341,7 +341,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                 .onErrorResume(throwable -> {
                     log.error("failed to import datasource", throwable);
                     return Mono.error(throwable);
-                });
+                }); // */
     }
 
     /**

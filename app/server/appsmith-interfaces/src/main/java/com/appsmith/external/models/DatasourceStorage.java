@@ -1,16 +1,20 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -25,7 +29,8 @@ import static com.appsmith.external.constants.PluginConstants.DEFAULT_REST_DATAS
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Document
+@Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class DatasourceStorage extends GitSyncedDomain {
 
@@ -35,6 +40,8 @@ public class DatasourceStorage extends GitSyncedDomain {
     @JsonView(Views.Public.class)
     String environmentId;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     DatasourceConfiguration datasourceConfiguration;
 
@@ -45,6 +52,8 @@ public class DatasourceStorage extends GitSyncedDomain {
     @JsonView(Views.Public.class)
     Boolean isConfigured;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     Set<String> invalids = new HashSet<>();

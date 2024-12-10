@@ -3,6 +3,7 @@ package com.appsmith.server.imports.internal;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.aspect.TransactionAspect;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ImportExportConstants;
@@ -26,10 +27,11 @@ import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.repositories.DryOperationRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.TransactionHandler;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +41,6 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -48,6 +49,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.appsmith.server.constants.ce.FieldNameCE.TRANSACTION_CONTEXT;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -60,8 +64,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             applicationImportService;
     private final SessionUserService sessionUserService;
     private final WorkspaceService workspaceService;
-    private final PermissionGroupRepository permissionGroupRepository;
-    private final TransactionalOperator transactionalOperator;
+    private final PermissionGroupRepositoryCake permissionGroupRepository;
     private final AnalyticsService analyticsService;
     private final ImportableService<Plugin> pluginImportableService;
     private final ImportableService<Datasource> datasourceImportableService;
@@ -69,6 +72,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private final ArtifactExchangeJsonAdapter artifactExchangeJsonAdapter;
     private final JsonSchemaMigration jsonSchemaMigration;
     private final DryOperationRepository dryOperationRepository;
+    private final TransactionHandler transactionHandler;
 
     /**
      * This method provides the importService specific to the artifact based on the ArtifactType.
@@ -179,8 +183,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
         ArtifactBasedImportService<?, ?, ?> contextBasedImportService =
                 getArtifactBasedImportService(artifactExchangeJson);
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                 .zipWhen(userPermissionGroup -> {
                     return Mono.just(contextBasedImportService.getImportArtifactPermissionProviderForImportingArtifact(
                             userPermissionGroup));
@@ -223,8 +228,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
             } else {
                 contextBasedImportService.setJsonArtifactNameToNullBeforeUpdate(artifactId, artifactExchangeJson);
-                return permissionGroupRepository
-                        .getCurrentUserPermissionGroups()
+                return sessionUserService
+                        .getCurrentUser()
+                        .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                         .zipWhen(userPermissionGroup -> {
                             return Mono.just(
                                     contextBasedImportService.getImportArtifactPermissionProviderForUpdatingArtifact(
@@ -270,8 +276,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
         ArtifactBasedImportService<?, ?, ?> artifactBasedImportService =
                 getArtifactBasedImportService(artifactExchangeJson);
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                 .zipWhen(userPermissionGroups -> {
                     return Mono.just(artifactBasedImportService.getImportArtifactPermissionProviderForConnectingToGit(
                             userPermissionGroups));
@@ -299,8 +306,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
          */
         ArtifactBasedImportService<?, ?, ?> contextBasedImportService =
                 getArtifactBasedImportService(artifactExchangeJson);
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                 .zipWhen(userPermissionGroups -> {
                     return Mono.just(contextBasedImportService.getImportArtifactPermissionProviderForRestoringSnapshot(
                             userPermissionGroups));
@@ -343,8 +351,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 getArtifactBasedImportService(artifactExchangeJson);
         contextBasedImportService.updateArtifactExchangeJsonWithEntitiesToBeConsumed(
                 artifactExchangeJson, entitiesToImport);
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                 .zipWhen(userPermissionGroups -> {
                     return Mono.just(
                             contextBasedImportService.getImportArtifactPermissionProviderForMergingJsonWithArtifact(
@@ -410,6 +419,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         Map<String, String> artifactSpecificConstantsMap = artifactBasedImportService.getArtifactSpecificConstantsMap();
 
         String artifactContextString = artifactSpecificConstantsMap.get(FieldName.ARTIFACT_CONTEXT);
+
+        ConcurrentHashMap<String, TransactionAspect.DBOps> entityMap = new ConcurrentHashMap<>();
 
         // step 1: Schema Migration
         Mono<? extends ArtifactExchangeJson> migratedArtifactJsonMono = artifactBasedImportService
@@ -510,17 +521,16 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                             importingMetaDTO))
                     .flatMap(importableArtifact ->
                             updateImportableArtifact(artifactBasedImportService, importableArtifact))
+                    .contextWrite(context -> context.put(TRANSACTION_CONTEXT, entityMap))
                     .onErrorResume(throwable -> {
+                        // clean up stale entities and modified entities back to the original state from the db
                         String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                         log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
-                        return Mono.error(new AppsmithException(
-                                AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
-                    })
-                    // execute dry run for datasource
-                    .flatMap(importableArtifact -> dryOperationRepository
-                            .executeAllDbOps(mappedImportableResourcesDTO)
-                            .thenReturn(importableArtifact))
-                    .as(transactionalOperator::transactional);
+                        return transactionHandler
+                                .cleanUpDatabase(entityMap)
+                                .then(Mono.error(new AppsmithException(
+                                        AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage)));
+                    });
 
             return importMono
                     .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(
