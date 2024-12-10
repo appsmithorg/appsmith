@@ -30,9 +30,10 @@ export const StatusBar = styled.div`
   display: flex;
   justify-content: space-between;
   height: ${TAB_BAR_HEIGHT}px;
-  padding: 8px;
+  padding: 8px 8px 8px 12px;
   border-bottom: 1px solid var(--ads-v2-color-border);
   z-index: var(--ads-v2-z-index-1);
+  background: var(--ads-v2-color-bg);
 `;
 
 export const StatusBarInfo = styled.div`
@@ -70,4 +71,26 @@ export const StatusBarText = styled(Text)<StatusBarTextProps>`
     `text-decoration: underline var(--ads-v2-color-border) dashed;`}
   ${({ $isBold }) => $isBold && `font-weight: 700;`}
   ${({ $isError }) => $isError && `color: var(--ads-v2-color-fg-on-error);`}
+`;
+
+export const ErrorContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 8px 16px;
+  gap: 8px;
+  height: fit-content;
+  background: var(--ads-v2-color-bg-error);
+  border-bottom: 1px solid var(--ads-v2-color-border);
+`;
+
+export const ErrorContent = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 16px;
+`;
+
+export const ErrorDefaultMessage = styled.div`
+  flex-shrink: 0;
 `;
