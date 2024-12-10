@@ -1,7 +1,7 @@
 import type { ApiResponse } from "api/ApiResponses";
 
 export interface FetchBranchesRequestParams {
-  pruneBranches: boolean;
+  pruneBranches?: boolean;
 }
 
 interface SingleBranch {

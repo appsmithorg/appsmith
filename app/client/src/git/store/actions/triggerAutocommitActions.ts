@@ -1,5 +1,5 @@
 import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
-import type { GitArtifactErrorPayloadAction } from "../types";
+import type { GitAsyncErrorPayload } from "../types";
 
 export const triggerAutocommitInitAction = createSingleArtifactAction(
   (state) => {
@@ -18,13 +18,12 @@ export const triggerAutocommitSuccessAction = createSingleArtifactAction(
   },
 );
 
-export const triggerAutocommitErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactErrorPayloadAction) => {
+export const triggerAutocommitErrorAction =
+  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.triggerAutocommit.loading = false;
     state.apiResponses.triggerAutocommit.error = error;
 
     return state;
-  },
-);
+  });

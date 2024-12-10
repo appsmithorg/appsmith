@@ -8,9 +8,11 @@ import fetchBranchesSaga from "./fetchBranchesSaga";
 import fetchLocalProfileSaga from "./fetchLocalProfileSaga";
 import updateLocalProfileSaga from "./updateLocalProfileSaga";
 import updateGlobalProfileSaga from "./updateGlobalProfileSaga";
+import initGitForEditorSaga from "./initGitSaga";
 
 export function* gitSagas() {
   yield all([
+    takeLatest(gitArtifactActions.initGitForEditor.type, initGitForEditorSaga),
     takeLatest(gitArtifactActions.connectInit.type, connectSaga),
 
     // branches

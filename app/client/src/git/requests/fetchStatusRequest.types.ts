@@ -1,7 +1,7 @@
 import type { ApiResponse } from "api/types";
 
 export interface FetchStatusRequestParams {
-  compareRemote: boolean;
+  compareRemote?: boolean;
 }
 export interface FetchStatusResponseData {
   added: string[];

@@ -8,10 +8,10 @@ import {
   connectSuccessAction,
 } from "./actions/connectActions";
 import {
-  fetchMetadataErrorAction,
-  fetchMetadataInitAction,
-  fetchMetadataSuccessAction,
-} from "./actions/fetchMetadataActions";
+  fetchGitMetadataErrorAction,
+  fetchGitMetadataInitAction,
+  fetchGitMetadataSuccessAction,
+} from "./actions/fetchGitMetadataActions";
 import {
   fetchBranchesErrorAction,
   fetchBranchesInitAction,
@@ -79,6 +79,26 @@ import {
   mergeInitAction,
   mergeSuccessAction,
 } from "./actions/mergeActions";
+import {
+  triggerAutocommitErrorAction,
+  triggerAutocommitInitAction,
+  triggerAutocommitSuccessAction,
+} from "./actions/triggerAutocommitActions";
+import {
+  toggleAutocommitErrorAction,
+  toggleAutocommitInitAction,
+  toggleAutocommitSuccessAction,
+} from "./actions/toggleAutocommitActions";
+import {
+  fetchProtectedBranchesErrorAction,
+  fetchProtectedBranchesInitAction,
+  fetchProtectedBranchesSuccessAction,
+} from "./actions/fetchProtectedBranchesActions";
+import {
+  updateProtectedBranchesErrorAction,
+  updateProtectedBranchesInitAction,
+} from "./actions/updateProtectedBranchesActions";
+import { initGitForEditorAction } from "./actions/initGitActions";
 
 const initialState: GitArtifactReduxState = {};
 
@@ -87,8 +107,13 @@ export const gitArtifactSlice = createSlice({
   reducerPath: "git.artifact",
   initialState,
   reducers: {
+    // init
+    initGitForEditor: initGitForEditorAction,
     mount: mountAction,
     unmount: unmountAction,
+    fetchGitMetadataInit: fetchGitMetadataInitAction,
+    fetchGitMetadataSuccess: fetchGitMetadataSuccessAction,
+    fetchGitMetadataError: fetchGitMetadataErrorAction,
 
     // connect
     connectInit: connectInitAction,
@@ -135,17 +160,25 @@ export const gitArtifactSlice = createSlice({
 
     // settings
     toggleGitSettingsModal: toggleGitSettingsModalAction,
-
-    // metadata
-    fetchMetadataInit: fetchMetadataInitAction,
-    fetchMetadataSuccess: fetchMetadataSuccessAction,
-    fetchMetadataError: fetchMetadataErrorAction,
     fetchLocalProfileInit: fetchLocalProfileInitAction,
     fetchLocalProfileSuccess: fetchLocalProfileSuccessAction,
     fetchLocalProfileError: fetchLocalProfileErrorAction,
     updateLocalProfileInit: updateLocalProfileInitAction,
     updateLocalProfileSuccess: updateLocalProfileSuccessAction,
     updateLocalProfileError: updateLocalProfileErrorAction,
+    fetchProtectedBranchesInit: fetchProtectedBranchesInitAction,
+    fetchProtectedBranchesSuccess: fetchProtectedBranchesSuccessAction,
+    fetchProtectedBranchesError: fetchProtectedBranchesErrorAction,
+    updateProtectedBranchesInit: updateProtectedBranchesInitAction,
+    updateProtectedBranchesError: updateProtectedBranchesErrorAction,
+
+    // autocommit
+    toggleAutocommitInit: toggleAutocommitInitAction,
+    toggleAutocommitSuccess: toggleAutocommitSuccessAction,
+    toggleAutocommitError: toggleAutocommitErrorAction,
+    triggerAutocommitInit: triggerAutocommitInitAction,
+    triggerAutocommitSuccess: triggerAutocommitSuccessAction,
+    triggerAutocommitError: triggerAutocommitErrorAction,
   },
 });
 

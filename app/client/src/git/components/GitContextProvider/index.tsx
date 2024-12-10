@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import type { GitArtifactType } from "git/constants/enums";
 import type { UseGitOpsReturnValue } from "./hooks/useGitOps";
 import type { UseGitSettingsReturnValue } from "./hooks/useGitSettings";
@@ -42,15 +42,6 @@ export default function GitContextProvider({
   const useGitOpsReturnValue = useGitOps(basePayload);
   const useGitBranchesReturnValue = useGitBranches(basePayload);
   const useGitSettingsReturnValue = useGitSettings(basePayload);
-
-  const { fetchBranches } = useGitBranchesReturnValue;
-
-  useEffect(
-    function gitInitEffect() {
-      fetchBranches();
-    },
-    [fetchBranches],
-  );
 
   // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
   const contextValue = {

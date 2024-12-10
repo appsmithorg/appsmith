@@ -8,7 +8,7 @@ import type { AxiosResponse } from "axios";
 
 export default async function fetchStatusRequest(
   branchedApplicationId: string,
-  params: FetchStatusRequestParams,
+  params: FetchStatusRequestParams = { compareRemote: true },
 ): Promise<AxiosResponse<FetchStatusResponse>> {
   return Api.get(`${GIT_BASE_URL}/status/app/${branchedApplicationId}`, params);
 }
