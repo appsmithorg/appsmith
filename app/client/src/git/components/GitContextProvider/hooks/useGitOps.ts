@@ -40,7 +40,7 @@ export interface UseGitOpsReturnValue {
   pullLoading: boolean;
   pullError: string | null;
   pull: () => void;
-  toggleGitOpsModal: (open: boolean, tab: keyof typeof GitOpsTab) => void;
+  toggleGitOpsModal: (open: boolean, tab?: keyof typeof GitOpsTab) => void;
 }
 
 export default function useGitOps({

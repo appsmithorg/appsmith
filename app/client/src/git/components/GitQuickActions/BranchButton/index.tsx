@@ -14,7 +14,7 @@ interface BranchButtonProps {
   isOpen?: boolean;
   setIsOpen?: (isOpen: boolean) => void;
   isDisabled?: boolean;
-  isProtectedMode?: false;
+  isProtectedMode?: boolean;
   isStatusClean?: boolean;
 }
 
@@ -40,6 +40,10 @@ const BranchButtonLabel = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
 `;
+
+const popoverModifiers: { offset: Record<string, unknown> } = {
+  offset: { enabled: true, options: { offset: [7, 10] } },
+};
 
 export default function BranchButton({
   currentBranch = "",
@@ -76,8 +80,7 @@ export default function BranchButton({
       hasBackdrop
       isOpen={isOpen}
       minimal
-      // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
-      modifiers={{ offset: { enabled: true, options: { offset: [7, 10] } } }}
+      modifiers={popoverModifiers}
       onInteraction={onPopoverInteraction}
       placement="top-start"
     >
