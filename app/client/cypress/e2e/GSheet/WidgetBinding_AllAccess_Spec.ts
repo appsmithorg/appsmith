@@ -62,7 +62,7 @@ describe(
         dataSourceName,
         spreadSheetName,
       );
-      dataSources.RunQueryNVerifyResponseViews(10);
+      dataSources.runQueryAndVerifyResponseViews({ count: 10 });
 
       // Adding suggested widgets and verify
       dataSources.AddSuggestedWidget(Widgets.Table);

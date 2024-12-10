@@ -133,7 +133,7 @@ describe(
         dataSourceName.readNWrite,
         spreadSheetName,
       );
-      dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
+      dataSources.runQueryAndVerifyResponseViews({ count: GSHEET_DATA.length });
       dataSources.AssertQueryTableResponse(0, GSHEET_DATA[0].uniq_id);
       dataSources.AssertQueryTableResponse(1, "ホーンビィ 2014 カタログ"); // Asserting other language
       dataSources.AssertQueryTableResponse(2, "₹, $, €, ¥, £"); // Asserting different symbols
@@ -141,7 +141,7 @@ describe(
       // Update query to fetch only 1 column and verify
       gsheetHelper.SelectMultiDropDownValue("Columns", "product_name");
       dataSources.RunQuery();
-      dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
+      dataSources.runQueryAndVerifyResponseViews({ count: GSHEET_DATA.length });
       dataSources.AssertQueryTableResponse(0, GSHEET_DATA[0].product_name);
       //Remove column filter and add Sort By Ascending and verify
       gsheetHelper.SelectMultiDropDownValue("Columns", "product_name"); //unselect the Columns dd value
@@ -150,7 +150,7 @@ describe(
         directInput: false,
         inputFieldName: "Sort By",
       });
-      dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
+      dataSources.runQueryAndVerifyResponseViews({ count: GSHEET_DATA.length });
       dataSources.AssertQueryTableResponse(
         0,
         "5afbaf65680c9f378af5b3a3ae22427e",
@@ -165,7 +165,7 @@ describe(
       dataSources.ClearSortByOption(); //clearing previous sort option
       dataSources.EnterSortByValues("price", "Descending");
       dataSources.RunQuery();
-      dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
+      dataSources.runQueryAndVerifyResponseViews({ count: GSHEET_DATA.length });
       dataSources.AssertQueryTableResponse(
         1,
         "ホーンビー ゲージ ウェスタン エクスプレス デジタル トレイン セット (eLink および TTS ロコ トレイン セット付き)",
@@ -184,7 +184,7 @@ describe(
         dataSources._nestedWhereClauseValue(0),
       );
       dataSources.RunQuery();
-      dataSources.RunQueryNVerifyResponseViews(8);
+      dataSources.runQueryAndVerifyResponseViews({ count: 8 });
       dataSources.AssertQueryTableResponse(
         0,
         "87bbb472ef9d90dcef140a551665c929",
@@ -201,7 +201,7 @@ describe(
         inputFieldName: "Cell range",
       });
       dataSources.RunQuery();
-      dataSources.RunQueryNVerifyResponseViews(4);
+      dataSources.runQueryAndVerifyResponseViews({ count: 4 });
       dataSources.AssertQueryTableResponse(
         0,
         "eac7efa5dbd3d667f26eb3d3ab504464",
@@ -247,7 +247,7 @@ describe(
         0,
         true,
       );
-      dataSources.RunQueryNVerifyResponseViews(10);
+      dataSources.runQueryAndVerifyResponseViews({ count: 10 });
       dataSources.AssertQueryTableResponse(
         0,
         "eac7efa5dbd3d667f26eb3d3ab504464",
@@ -280,7 +280,7 @@ describe(
         true,
       ); // Converting the field to dropdown
       dataSources.ValidateNSelectDropdown("Sheet name", "", "Sheet1");
-      dataSources.RunQueryNVerifyResponseViews(10);
+      dataSources.runQueryAndVerifyResponseViews({ count: 10 });
       dataSources.AssertQueryTableResponse(
         0,
         "eac7efa5dbd3d667f26eb3d3ab504464",

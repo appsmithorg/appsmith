@@ -19,7 +19,6 @@
   "queryKey": ".t--actionConfiguration\\.queryParameters\\[0\\]\\.key\\.0",
   "queryValue": ".t--actionConfiguration\\.queryParameters\\[0\\]\\.value\\.0",
   "formEncoded": ".t--actionConfiguration\\.bodyFormData\\[0\\]\\.key\\.0",
-  "responseStatus": "//div[@id='root']",
   "responseText": ".CodeMirror-line > [role='presentation']",
   "createApiOnSideBar": "button:contains('Create new API')",
   "saveButton": "button:contains('Save')",
