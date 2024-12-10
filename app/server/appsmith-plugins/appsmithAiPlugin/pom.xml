@@ -62,6 +62,18 @@
             <artifactId>jjwt-jackson</artifactId>
             <!-- or jjwt-gson if Gson is preferred -->
             <version>${jjwt.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jtuysackson-bom.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!--
