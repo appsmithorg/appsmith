@@ -111,6 +111,21 @@ async function extractArchive(backupFilePath: string, restoreRootPath: string) {
 
 async function restoreDatabase(restoreContentsPath: string, dbUrl: string) {
   console.log("Restoring database...");
+
+  if (dbUrl.startsWith("mongodb")) {
+    await restoreMongoDB(restoreContentsPath, dbUrl);
+  } else if (dbUrl.includes("postgresql")) {
+    await restorePostgres(restoreContentsPath, dbUrl);
+  } else {
+    throw new Error(
+      "Unsupported database type, only MongoDB and Postgres are supported",
+    );
+  }
+
+  console.log("Restoring database completed");
+}
+
+async function restoreMongoDB(restoreContentsPath: string, dbUrl: string) {
   const cmd = [
     "mongorestore",
     `--uri=${dbUrl}`,
@@ -121,7 +136,7 @@ async function restoreDatabase(restoreContentsPath: string, dbUrl: string) {
 
   try {
     const fromDbName = await getBackupDatabaseName(restoreContentsPath);
-    const toDbName = utils.getDatabaseNameFromMongoURI(dbUrl);
+    const toDbName = utils.getDatabaseNameFromUrl(dbUrl);
 
     console.log("Restoring database from " + fromDbName + " to " + toDbName);
     cmd.push(
@@ -137,6 +152,42 @@ async function restoreDatabase(restoreContentsPath: string, dbUrl: string) {
   }
   await utils.execCommand(cmd);
   console.log("Restoring database completed");
+}
+
+async function restorePostgres(restoreContentsPath: string, dbUrl: string) {
+  const cmd = [
+    "pg_restore",
+    "--verbose",
+    "--clean",
+    `${restoreContentsPath}/pg-data`,
+  ];
+  const url = new URL(dbUrl);
+  const isLocalhost = ["localhost", "127.0.0.1"].includes(url.hostname);
+
+  if (isLocalhost) {
+    let dbName: string;
+
+    try {
+      dbName = utils.getDatabaseNameFromUrl(dbUrl);
+      console.log("Restoring database to", dbName);
+    } catch (error) {
+      console.warn(
+        "Error reading manifest file. Assuming same database name as appsmith.",
+        error,
+      );
+      dbName = "appsmith";
+    }
+    cmd.push(
+      "-d",
+      "postgresql://localhost:5432/" + dbName,
+      // Use default user for local postgres
+      "--username=postgres",
+    );
+  } else {
+    cmd.push("-d", dbUrl);
+  }
+
+  await utils.execCommand(cmd);
 }
 
 async function restoreDockerEnvFile(
