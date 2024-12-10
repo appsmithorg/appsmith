@@ -77,6 +77,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   const toggleEditWidgetName = useToggleEditWidgetName();
   const [name, setName] = useState(props.title);
   const valueRef = useRef("");
+  const [forceUpdate, setForceUpdate] = useState(false);
 
   // Update Property Title State
   const { title, updatePropertyTitle } = props;
@@ -96,6 +97,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
 
   const updateTitle = useCallback(
     (value?: string) => {
+      const pattern = /^\d/i;
       if (
         value &&
         value.trim().length > 0 &&
@@ -112,9 +114,19 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         dispatch(updateWidgetName(props.widgetId, value.trim()));
         toggleEditWidgetName(props.widgetId, false);
       }
+      if (value && pattern.test(value.trim())) {
+        setForceUpdate(true);
+        setName(props.title);
+      }
     },
     [dispatch, widgets, setName, props.widgetId, props.title],
   );
+
+  useEffect(() => {
+    if (forceUpdate === true) {
+      setForceUpdate(false);
+    }
+  }, [forceUpdate]);
 
   useEffect(() => {
     if (props.isPanelTitle) return;
@@ -192,6 +204,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           defaultValue={name}
           editInteractionKind={EditInteractionKind.SINGLE}
           fill
+          forceDefault={forceUpdate}
           hideEditIcon
           isEditingDefault={isEditingDefault}
           onBlur={!props.isPanelTitle ? updateTitle : undefined}
