@@ -25,7 +25,7 @@ import {
 import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import WidgetFactory from "WidgetProvider/factory";
-import { GracefulWorkerService } from "utils/WorkerUtil";
+import { evalWorker } from "utils/workerInstances";
 import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
@@ -117,20 +117,9 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
+import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
-
-export const evalWorker = new GracefulWorkerService(
-  new Worker(
-    new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
-    {
-      type: "module",
-      // Note: the `Worker` part of the name is slightly important – LinkRelPreload_spec.js
-      // relies on it to find workers in the list of all requests.
-      name: "evalWorker",
-    },
-  ),
-);
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -304,6 +293,8 @@ export function* evaluateTreeSaga(
     EVAL_WORKER_ACTIONS.EVAL_TREE,
     evalTreeRequestData,
   );
+
+  yield call(waitForFetchEnvironments);
 
   yield call(
     updateDataTreeHandler,
@@ -901,5 +892,3 @@ export default function* evaluationSagaListeners() {
     }
   }
 }
-
-export { evalWorker as EvalWorker };

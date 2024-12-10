@@ -89,6 +89,7 @@ export const generateDataTreeJSAction = (
       dynamicBindingPathList: dynamicBindingPathList,
       variables: listVariables,
       dependencyMap: dependencyMap,
+      actionNames: actions.map((action) => action.name),
     },
   };
 };

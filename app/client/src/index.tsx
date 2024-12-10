@@ -1,5 +1,7 @@
 // This file must be executed as early as possible to ensure the preloads are triggered ASAP
 import "./preload-route-chunks";
+// Initialise eval worker instance
+import "utils/workerInstances";
 
 import React from "react";
 import "./wdyr";
