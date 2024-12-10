@@ -88,11 +88,10 @@ import {
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import {
+  evaluateSync,
   resetWorkerGlobalScope,
   type EvalResult,
   type EvaluateContext,
-} from "workers/Evaluation/evaluate";
-import evaluateSync, {
   evaluateAsync,
   setEvalContext,
 } from "workers/Evaluation/evaluate";

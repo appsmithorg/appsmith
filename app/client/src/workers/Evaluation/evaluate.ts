@@ -366,7 +366,7 @@ export function setEvalContext({
   Object.assign(self, evalContext);
 }
 
-export default function evaluateSync(
+export function evaluateSync(
   userScript: string,
   dataTree: DataTree,
   isJSCollection: boolean,
