@@ -1,4 +1,4 @@
-name: abozar-rtl
+name: CD-Liara
 on:
   push:
     branches:
@@ -17,4 +17,4 @@ jobs:
           LIARA_TOKEN: ${{ secrets.LIARA_API_TOKEN }}
         run: |
           npm i -g @liara/cli@7
-          liara deploy --app="APP_NAME" --api-token="$LIARA_TOKEN" --no-app-logs --port=3000
+          liara deploy --app="abozar-rtl" --api-token="$LIARA_TOKEN" --no-app-logs --port=3000
