@@ -154,7 +154,7 @@ export class DataSources {
     "']";
   _refreshIcon = "button .bp3-icon-refresh";
   _addIcon = "button .bp3-icon-add";
-  _queryError = "[data-testid='t--query-error']";
+  _queryError = "[data-testid='t--response-error']";
   _queryEditorTabs = (responseType: string) =>
     "//button[@role='tab' or @role='tablist']//span[text()='" +
     responseType +
@@ -1140,25 +1140,6 @@ export class DataSources {
     toVerifySave && this.agHelper.AssertAutoSave();
     this.agHelper.Sleep(sleep); //waiting a bit before proceeding!
     this.assertHelper.AssertNetworkStatus("@saveAction", 200);
-  }
-
-  /** @deprecated */
-  public RunQueryNVerifyResponseViews(
-    expectedRecordsCount = 1,
-    tableCheck = true,
-  ) {
-    this.RunQuery();
-    if (tableCheck) {
-      this.agHelper.AssertElementVisibility(
-        BottomTabs.response.getResponseTypeSelector("TABLE"),
-      );
-      this.agHelper.AssertElementVisibility(
-        BottomTabs.response.getResponseTypeSelector("JSON"),
-      );
-      this.agHelper.AssertElementVisibility(
-        BottomTabs.response.getResponseTypeSelector("RAW"),
-      );
-    }
   }
 
   public runQueryAndVerifyResponseViews({
