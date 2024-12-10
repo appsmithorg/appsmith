@@ -30,7 +30,6 @@ describe(
         .then(cy.wrap);
     };
 
-
     it("1. Verify that postWindowMessage() can successfully send a message to the parent application’s window.", () => {
       agHelper.ClickButton("Submit", { force: true });
       getIframeBody(0)
@@ -43,7 +42,7 @@ describe(
     });
 
     it("2. Verify that postWindowMessage() can successfully send a message to a specified iframe embedded within Appsmith.", () => {
-      getIframeBody(0).find('#test > input').clear().type("Sample Text");
+      getIframeBody(0).find("#test > input").clear().type("Sample Text");
       agHelper.ClickButton("Submit", { force: true });
       agHelper.ValidateToastMessage("Hey Iframe Called.");
     });

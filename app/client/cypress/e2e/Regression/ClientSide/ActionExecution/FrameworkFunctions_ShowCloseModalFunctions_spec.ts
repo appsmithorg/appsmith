@@ -40,7 +40,7 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
-      
+
       agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
         cy.wrap(jsObjectName).as("jsObjectName");
       });
