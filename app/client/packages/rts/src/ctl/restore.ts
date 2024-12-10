@@ -146,7 +146,7 @@ async function restoreDockerEnvFile(
 ) {
   console.log("Restoring docker environment file");
   const dockerEnvFile = "/appsmith-stacks/configuration/docker.env";
-  const updatedbUrl = utils.getDburl();
+  const updatedbUrl = utils.getDbUrl();
   let encryptionPwd = process.env.APPSMITH_ENCRYPTION_PASSWORD;
   let encryptionSalt = process.env.APPSMITH_ENCRYPTION_SALT;
 
@@ -209,7 +209,7 @@ async function restoreDockerEnvFile(
       "\nAPPSMITH_ENCRYPTION_SALT=" +
       encryptionSalt +
       "\nAPPSMITH_DB_URL=" +
-      utils.getDburl() +
+      utils.getDbUrl() +
       "\nAPPSMITH_MONGODB_USER=" +
       process.env.APPSMITH_MONGODB_USER +
       "\nAPPSMITH_MONGODB_PASSWORD=" +
@@ -313,7 +313,7 @@ async function getBackupDatabaseName(restoreContentsPath: string) {
 export async function run() {
   let cleanupArchive = false;
   let overwriteEncryptionKeys = true;
-  let backupFilePath: string;
+  let backupFilePath: string | null = null;
 
   await utils.ensureSupervisorIsRunning();
 
@@ -364,8 +364,8 @@ export async function run() {
       console.log(
         "Restoring Appsmith instance from the backup at " + backupFilePath,
       );
-      await utils.stop(["backend", "rts"]);
-      await restoreDatabase(restoreContentsPath, utils.getDburl());
+      await utils.stop("backend", "rts");
+      await restoreDatabase(restoreContentsPath, utils.getDbUrl());
       await restoreDockerEnvFile(
         restoreContentsPath,
         backupName,
@@ -379,11 +379,11 @@ export async function run() {
     console.log(err);
     process.exitCode = 1;
   } finally {
-    if (cleanupArchive) {
+    if (cleanupArchive && backupFilePath) {
       await fsPromises.rm(backupFilePath, { force: true });
     }
 
-    await utils.start(["backend", "rts"]);
+    await utils.start("backend", "rts");
     process.exit();
   }
 }

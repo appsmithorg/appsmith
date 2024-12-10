@@ -4,7 +4,7 @@ import * as utils from "./utils";
 
 export async function exportDatabase() {
   console.log("export_database  ....");
-  const dbUrl = utils.getDburl();
+  const dbUrl = utils.getDbUrl();
 
   await fsPromises.mkdir(Constants.BACKUP_PATH, { recursive: true });
   await utils.execCommand([
@@ -23,7 +23,7 @@ export async function run() {
 
   try {
     console.log("stop backend & rts application before export database");
-    await utils.stop(["backend", "rts"]);
+    await utils.stop("backend", "rts");
     await exportDatabase();
     console.log("start backend & rts application after export database");
     console.log();
@@ -39,7 +39,7 @@ export async function run() {
     console.log(err);
     errorCode = 1;
   } finally {
-    await utils.start(["backend", "rts"]);
+    await utils.start("backend", "rts");
     process.exit(errorCode);
   }
 }

@@ -47,19 +47,21 @@ export class EnvFileLink implements Link {
   }
 }
 
+/**
+ * Remove encryption and database credentials data from docker.env
+ */
 export function removeSensitiveEnvData(content: string): string {
-  // Remove encryption and Mongodb data from docker.env
-  const output_lines = [];
+  const outLines: string[] = [];
 
-  content.split(/\r?\n/).forEach((line) => {
+  for (const line of content.split(/\r?\n/)) {
     if (
       !line.startsWith("APPSMITH_ENCRYPTION") &&
       !line.startsWith("APPSMITH_MONGODB") &&
       !line.startsWith("APPSMITH_DB_URL=")
     ) {
-      output_lines.push(line);
+      outLines.push(line);
     }
-  });
+  }
 
-  return output_lines.join("\n");
+  return outLines.join("\n");
 }
