@@ -336,5 +336,7 @@ export class JSEditor {
       ); //Asserting NO is not clicked
   }
 
-  //#endregion
+  public currentJSObjectName(): Cypress.Chainable<string> {
+    return cy.get(this._jsObjName).invoke("text");
+  }
 }
