@@ -108,6 +108,26 @@ check_user_datasource_access_with_local_port_wo_auth() {
   return $?
 }
 
+# Function to check if the user exists in the database
+check_user_exists() {
+  local user
+  user=$1
+  local user_exists
+  local max_retries=200
+  local retry_count=0
+  while [ $retry_count -lt $max_retries ]; do
+    if docker exec "${container_name}" bash -c "psql -p 5432 -U postgres -c \"\du\" | grep -q -w \"$user\""; then
+      echo "$user user exists."
+      return 0
+    fi
+    echo "Waiting for $user user to be created... (Attempt: $((retry_count + 1)))"
+    retry_count=$((retry_count + 1))
+    sleep 2
+  done
+  echo "$user user does not exist."
+  return 1
+}
+
 # Test to check if the postgres auth is enabled after upgrading from 1.50 to local image
 # Expectation:
 # 1. Appsmith instance should be able to upgrade from v1.50 to local image
@@ -184,18 +204,19 @@ test_postgres_auth_enabled_upgrade_from_150tolocal() {
     
     # Check if the Appsmith instance is up
     if is_appsmith_instance_ready; then
-
-        # Check if the Appsmith user has read access to databases
-        if check_user_datasource_access_with_auth; then
-            echo "Test ${FUNCNAME[0]} Passed ✅"
-        else 
-            echo "Test ${FUNCNAME[0]} Failed ❌"
-            exit 1
-        fi
+      # Check for appsmith user in postgres db
+      check_user_exists appsmith
+      # Check if the Appsmith user has read access to databases
+      if check_user_datasource_access_with_auth; then
+          echo "Test ${FUNCNAME[0]} Passed ✅"
+      else 
+          echo "Test ${FUNCNAME[0]} Failed ❌"
+          exit 1
+      fi
     else
-        echo "Appsmith instance failed to start."
-        echo "Test ${FUNCNAME[0]} Failed ❌"
-        exit 1
+      echo "Appsmith instance failed to start."
+      echo "Test ${FUNCNAME[0]} Failed ❌"
+      exit 1
     fi
 }
 
@@ -258,18 +279,19 @@ test_postgres_auth_enabled_restart_localtolocal() {
 
     # Check if the Appsmith instance is up
     if is_appsmith_instance_ready; then
-
-        # Check if the Appsmith user has read access to databases
-        if check_user_datasource_access_with_auth; then
-            echo "Test ${FUNCNAME[0]} Passed ✅"
-        else 
-            echo "Test ${FUNCNAME[0]} Failed ❌"
-            exit 1
-        fi
+      # Check for appsmith user in postgres db
+      check_user_exists appsmith
+      # Check if the Appsmith user has read access to databases
+      if check_user_datasource_access_with_auth; then
+          echo "Test ${FUNCNAME[0]} Passed ✅"
+      else 
+          echo "Test ${FUNCNAME[0]} Failed ❌"
+          exit 1
+      fi
     else
-        echo "Appsmith instance failed to start."
-        echo "Test ${FUNCNAME[0]} Failed ❌"
-        exit 1
+      echo "Appsmith instance failed to start."
+      echo "Test ${FUNCNAME[0]} Failed ❌"
+      exit 1
     fi
 }
 
