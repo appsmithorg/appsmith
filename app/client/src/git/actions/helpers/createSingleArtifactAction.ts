@@ -1,4 +1,5 @@
 import type {
+  GitArtifactBasePayload,
   GitArtifactPayloadAction,
   GitArtifactReduxState,
   GitSingleArtifactReduxState,
@@ -10,7 +11,7 @@ type SingleArtifactStateCb<T> = (
   action: GitArtifactPayloadAction<T>,
 ) => GitSingleArtifactReduxState;
 
-export const createSingleArtifactAction = <T>(
+export const createSingleArtifactAction = <T = GitArtifactBasePayload>(
   singleArtifactStateCb: SingleArtifactStateCb<T>,
 ) => {
   return (
