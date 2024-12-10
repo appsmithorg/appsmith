@@ -8,7 +8,6 @@ function isIdentifier(
   return node?.type === "Identifier";
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const noFloatingPromisesLintRule: Rule.RuleModule = {
   meta: {
     type: "problem",
@@ -73,6 +72,7 @@ export const noFloatingPromisesLintRule: Rule.RuleModule = {
         objectKeys(node).filter((key) => typeof node[key] === "object");
 
       for (const key of keys) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const child = (node as any)[key];
 
         if (Array.isArray(child)) {

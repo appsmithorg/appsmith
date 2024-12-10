@@ -1,7 +1,7 @@
 import { ECMA_VERSION } from "@shared/ast";
 import type { LintOptions } from "jshint";
 import isEntityFunction from "./utils/isEntityFunction";
-import type { Linter } from "eslint-linter-browserify";
+//import type { Linter } from "eslint-linter-browserify";
 import { noFloatingPromisesLintRule } from "./customRules/no-floating-promises";
 
 export enum LINTER_TYPE {
@@ -58,9 +58,15 @@ export const lintOptions = (
         globals: eslintGlobals,
         sourceType: "script",
       },
-      plugins: [noFloatingPromisesLintRule],
+      plugins: {
+        customRules: {
+          rules: {
+            "no-floating-promises": noFloatingPromisesLintRule,
+          },
+        },
+      },
       rules: {
-        "no-floating-promises": "error",
+        "customRules/no-floating-promises": "error",
         eqeqeq: "off",
         curly: "off",
         "no-extend-native": "error",
@@ -79,7 +85,7 @@ export const lintOptions = (
         "no-unused-expressions": "off",
         "no-loop-func": "off",
       },
-    } as Linter.Config;
+    } as const;
   }
 };
 
