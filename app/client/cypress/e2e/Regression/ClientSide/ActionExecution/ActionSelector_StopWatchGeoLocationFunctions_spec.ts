@@ -19,7 +19,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 200);
     });
 
-    it.only("1. Verify that calling geolocation.clearWatch() when no geolocation watch is active throws an error.", () => {
+    it("1. Verify that calling geolocation.clearWatch() when no geolocation watch is active throws an error.", () => {
       // Mock geolocation permissions
       cy.window().then((win) => {
         cy.stub(win.navigator.permissions, "query").resolves({

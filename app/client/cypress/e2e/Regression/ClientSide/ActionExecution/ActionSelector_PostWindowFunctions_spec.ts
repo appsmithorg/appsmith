@@ -18,26 +18,34 @@ describe(
   { tags: ["@tag.JS"] },
   () => {
     before(() => {
-      homePage.NavigateToHome();
-      homePage.ImportApp("IframeWidgetQA.json");
-      EditorNavigation.SelectEntityByName("PostMessage", EntityType.Page);
+      homePage.ImportApp("IframeWidgetPostMessage.json");
     });
 
-    it.skip("1. Verify that postWindowMessage() can successfully send a message to the parent application’s window.", () => {
-      EditorNavigation.SelectEntityByName("Button2", EntityType.Widget);
-      agHelper.ClickButton("Button2");
-      debuggerHelper.OpenDebugger();
-      agHelper.GetNClick(jsEditor._logsTab);
-      debuggerHelper.DoesConsoleLogExist("Hello from  to parent window!");
+    const getIframeBody = (i: number) => {
+      return cy
+        .get(".t--draggable-iframewidget iframe")
+        .eq(i)
+        .its("0.contentDocument.body")
+        .should("not.be.empty")
+        .then(cy.wrap);
+    };
+
+
+    it("1. Verify that postWindowMessage() can successfully send a message to the parent application’s window.", () => {
+      agHelper.ClickButton("Submit", { force: true });
+      getIframeBody(0)
+        .find("input")
+        .should("be.visible")
+        .invoke("val")
+        .then((inputValue) => {
+          expect(inputValue).to.equal("submitclicked");
+        });
     });
 
-    it.skip("2. Verify that postWindowMessage() can successfully send a message to a specified iframe embedded within Appsmith.", () => {
-      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      agHelper.ClickButton("Button2");
-      agHelper.GetNClick(jsEditor._logsTab);
-      debuggerHelper.DoesConsoleLogExist(
-        "Hello from Appsmith parent to embedded iframe!",
-      );
+    it("2. Verify that postWindowMessage() can successfully send a message to a specified iframe embedded within Appsmith.", () => {
+      getIframeBody(0).find('#test > input').clear().type("Sample Text");
+      agHelper.ClickButton("Submit", { force: true });
+      agHelper.ValidateToastMessage("Hey Iframe Called.");
     });
 
     it("3. Verify the behavior of postWindowMessage() when sending an empty message.", () => {
@@ -47,11 +55,11 @@ describe(
       agHelper.GetNClick(propPane._windowTargetDropdown);
       agHelper.GetNClick(locators._dropDownValue("Iframe1"), 0, true);
       agHelper.GetNClick(propPane._actionSelectorPopupClose);
-      agHelper.ClickButton("Button3");
+      agHelper.ClickButton("Submit");
       agHelper.AssertElementAbsence(locators._toastMsg);
 
       deployMode.DeployApp();
-      agHelper.ClickButton("Button3");
+      agHelper.ClickButton("Submit");
       agHelper.AssertElementAbsence(locators._toastMsg);
       deployMode.NavigateBacktoEditor();
     });
