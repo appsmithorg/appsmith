@@ -72,7 +72,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>${jtuysackson-bom.version}</version>
+            <version>${jackson-bom.version}</version>
             <scope>provided</scope>
         </dependency>
 
