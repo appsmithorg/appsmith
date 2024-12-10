@@ -345,3 +345,4 @@ export class CommonLocators {
   _entityItem = "[data-testid='t--entity-item-Api1']";
   _rowData = "[data-colindex='0'][data-rowindex='0']";
 }
+
