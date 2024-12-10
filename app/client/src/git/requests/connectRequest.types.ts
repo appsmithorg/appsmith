@@ -1,3 +1,5 @@
+import type { ApiResponse } from "api/types";
+
 export interface ConnectRequestParams {
   remoteUrl: string;
   gitProfile?: {
@@ -7,7 +9,7 @@ export interface ConnectRequestParams {
   };
 }
 
-export interface ConnectResponse {
+export interface ConnectResponseData {
   id: string;
   baseId: string;
   gitApplicationMetadata: {
@@ -22,3 +24,5 @@ export interface ConnectResponse {
     repoName: string;
   };
 }
+
+export type ConnectResponse = ApiResponse<ConnectResponseData>;

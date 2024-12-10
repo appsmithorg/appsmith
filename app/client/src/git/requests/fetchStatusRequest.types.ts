@@ -1,8 +1,9 @@
+import type { ApiResponse } from "api/types";
+
 export interface FetchStatusRequestParams {
   compareRemote: boolean;
 }
-
-export interface FetchStatusResponse {
+export interface FetchStatusResponseData {
   added: string[];
   aheadCount: number;
   behindCount: number;
@@ -36,3 +37,5 @@ export interface FetchStatusResponse {
   remoteBranch: string;
   removed: string[];
 }
+
+export type FetchStatusResponse = ApiResponse<FetchStatusResponseData>;
