@@ -29,9 +29,9 @@ import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState, JSResponseState } from "./utils";
 import { NoResponse } from "PluginActionEditor/components/PluginActionResponse/components/NoResponse";
 import {
-  ResponseTabErrorContainer,
-  ResponseTabErrorContent,
-} from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
+  ResponseErrorContainer,
+  ResponseErrorContent,
+} from "PluginActionEditor/components/PluginActionResponse/components/Response";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { setJsPaneDebuggerState } from "actions/jsPaneActions";
 import { getIDEViewMode } from "selectors/ideSelectors";
@@ -131,13 +131,13 @@ function JSResponseView(props: Props) {
       panelComponent: (
         <>
           {localExecutionAllowed && hasExecutionParseErrors && (
-            <ResponseTabErrorContainer>
-              <ResponseTabErrorContent>
+            <ResponseErrorContainer>
+              <ResponseErrorContent>
                 <div className="t--js-response-parse-error-call-out">
                   Function failed to execute. Check logs for more information.
                 </div>
-              </ResponseTabErrorContent>
-            </ResponseTabErrorContainer>
+              </ResponseErrorContent>
+            </ResponseErrorContainer>
           )}
           <ResponseTabWrapper
             className={errors.length && localExecutionAllowed ? "disable" : ""}
