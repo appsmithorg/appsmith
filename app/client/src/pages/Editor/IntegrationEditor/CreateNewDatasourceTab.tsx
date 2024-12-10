@@ -40,6 +40,7 @@ import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
 import { isPluginActionCreating } from "PluginActionEditor/store";
+import RequestNewIntegration from "./RequestNewIntegration";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -250,6 +251,7 @@ interface CreateNewDatasourceScreenProps {
   showDebugger: boolean;
   pageId: string;
   isOnboardingScreen?: boolean;
+  isRequestNewIntegrationEnabled: boolean;
 }
 
 interface CreateNewDatasourceScreenState {
@@ -281,6 +283,7 @@ class CreateNewDatasourceTab extends React.Component<
       dataSources,
       isCreating,
       isOnboardingScreen,
+      isRequestNewIntegrationEnabled,
       pageId,
       showDebugger,
     } = this.props;
@@ -351,6 +354,7 @@ class CreateNewDatasourceTab extends React.Component<
             </>
           )}
         </NewIntegrationsContainer>
+        {isRequestNewIntegrationEnabled && <RequestNewIntegration />}
         {showDebugger && <Debugger />}
       </>
     );
@@ -379,6 +383,9 @@ const mapStateToProps = (state: AppState) => {
     userWorkspacePermissions,
   );
 
+  const isRequestNewIntegrationEnabled =
+    !!featureFlags?.ab_request_new_integration_enabled;
+
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
@@ -387,6 +394,7 @@ const mapStateToProps = (state: AppState) => {
     canCreateDatasource,
     showDebugger,
     pageId,
+    isRequestNewIntegrationEnabled,
   };
 };
 

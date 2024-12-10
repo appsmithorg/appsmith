@@ -14,6 +14,9 @@ import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PageFactory } from "test/factories/PageFactory";
 import { screen, waitFor } from "@testing-library/react";
 import { GoogleSheetFactory } from "test/factories/Actions/GoogleSheetFactory";
+import { PluginActionContextProvider } from "PluginActionEditor";
+import { PluginPackageName, PluginType } from "entities/Action";
+import { DatasourceComponentTypes, UIComponentTypes } from "api/PluginApi";
 
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,
@@ -326,6 +329,17 @@ describe("IDE URL rendering of Queries", () => {
   });
 
   describe("Postgres Routes", () => {
+    const mockPlugin = {
+      id: "plugin_id",
+      name: "Postgres",
+      packageName: PluginPackageName.POSTGRES,
+      type: PluginType.DB,
+      uiComponent: UIComponentTypes.UQIDbEditorForm,
+      datasourceComponent: DatasourceComponentTypes.AutoForm,
+      templates: {},
+      requiresDatasource: true,
+    };
+
     it("Renders Postgres routes in Full Screen", async () => {
       const page = PageFactory.build();
       const anQuery = PostgresFactory.build({
@@ -344,7 +358,9 @@ describe("IDE URL rendering of Queries", () => {
 
       const { getAllByText, getByRole, getByTestId } = render(
         <Route path={BUILDER_PATH}>
-          <IDE />
+          <PluginActionContextProvider action={anQuery} plugin={mockPlugin}>
+            <IDE />
+          </PluginActionContextProvider>
         </Route>,
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries/${anQuery.baseId}`,
@@ -402,7 +418,9 @@ describe("IDE URL rendering of Queries", () => {
 
       const { getAllByText, getByRole, getByTestId } = render(
         <Route path={BUILDER_PATH}>
-          <IDE />
+          <PluginActionContextProvider action={anQuery} plugin={mockPlugin}>
+            <IDE />
+          </PluginActionContextProvider>
         </Route>,
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/queries/${anQuery.baseId}`,
@@ -533,6 +551,17 @@ describe("IDE URL rendering of Queries", () => {
   });
 
   describe("Google Sheets Routes", () => {
+    const mockPlugin = {
+      id: "plugin_id",
+      name: "Google Sheets",
+      packageName: PluginPackageName.GOOGLE_SHEETS,
+      type: PluginType.DB,
+      uiComponent: UIComponentTypes.GraphQLEditorForm,
+      datasourceComponent: DatasourceComponentTypes.RestAPIDatasourceForm,
+      templates: {},
+      requiresDatasource: false,
+    };
+
     it("Renders Google Sheets routes in Full Screen", async () => {
       const page = PageFactory.build();
       const anQuery = GoogleSheetFactory.build({
@@ -552,7 +581,9 @@ describe("IDE URL rendering of Queries", () => {
 
       const { getAllByText, getByRole, getByTestId } = render(
         <Route path={BUILDER_PATH}>
-          <IDE />
+          <PluginActionContextProvider action={anQuery} plugin={mockPlugin}>
+            <IDE />
+          </PluginActionContextProvider>
         </Route>,
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/saas/google-sheets-plugin/api/${anQuery.baseId}`,
@@ -603,7 +634,9 @@ describe("IDE URL rendering of Queries", () => {
 
       const { container, getAllByText, getByRole, getByTestId } = render(
         <Route path={BUILDER_PATH}>
-          <IDE />
+          <PluginActionContextProvider action={anQuery} plugin={mockPlugin}>
+            <IDE />
+          </PluginActionContextProvider>
         </Route>,
         {
           url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/saas/google-sheets-plugin/api/${anQuery.baseId}`,
