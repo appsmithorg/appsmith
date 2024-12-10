@@ -3,6 +3,7 @@
   max-height: var(--max-height, unset);
   border-radius: inherit;
   overflow: hidden;
+  width: 100%;
 }
 
 .iframe {

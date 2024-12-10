@@ -5,7 +5,6 @@ export const EVENTS = {
   CUSTOM_WIDGET_UPDATE_MODEL: "CUSTOM_WIDGET_UPDATE_MODEL",
   CUSTOM_WIDGET_TRIGGER_EVENT: "CUSTOM_WIDGET_TRIGGER_EVENT",
   CUSTOM_WIDGET_MODEL_CHANGE: "CUSTOM_WIDGET_MODEL_CHANGE",
-  CUSTOM_WIDGET_UI_CHANGE: "CUSTOM_WIDGET_UI_CHANGE",
   CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK: "CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK",
   CUSTOM_WIDGET_CONSOLE_EVENT: "CUSTOM_WIDGET_CONSOLE_EVENT",
   CUSTOM_WIDGET_THEME_UPDATE: "CUSTOM_WIDGET_THEME_UPDATE",
@@ -119,7 +118,6 @@ export function main() {
    * Variables to hold the subscriber functions
    */
   const modelSubscribers = [];
-  const uiSubscribers = [];
   const themeSubscribers = [];
   /*
    * Variables to hold ready function and state
@@ -139,15 +137,12 @@ export function main() {
   // Callback for when the READY_ACK message is received
   channel.onMessage(EVENTS.CUSTOM_WIDGET_READY_ACK, (event) => {
     window.appsmith.model = event.model;
-    window.appsmith.ui = event.ui;
     window.appsmith.theme = event.theme;
     window.appsmith.mode = event.mode;
     heightObserver.observe(window.document.body);
 
     // Subscribe to model and UI changes
     window.appsmith.onModelChange(generateAppsmithCssVariables("model"));
-    window.appsmith.onUiChange(generateAppsmithCssVariables("ui"));
-    window.appsmith.onThemeChange(generateAppsmithCssVariables("theme"));
 
     // Set the widget as ready
     isReady = true;
@@ -167,18 +162,6 @@ export function main() {
       // Notify model subscribers
       modelSubscribers.forEach((fn) => {
         fn(event.model, prevModel);
-      });
-    }
-  });
-  // Callback for when UI_CHANGE message is received
-  channel.onMessage(EVENTS.CUSTOM_WIDGET_UI_CHANGE, (event) => {
-    if (event.ui) {
-      const prevUi = window.appsmith.ui;
-
-      window.appsmith.ui = event.ui;
-      // Notify UI subscribers
-      uiSubscribers.forEach((fn) => {
-        fn(event.ui, prevUi);
       });
     }
   });
@@ -235,23 +218,6 @@ export function main() {
             }
           };
         },
-        onUiChange: (fn) => {
-          if (typeof fn !== "function") {
-            throw new Error("onUiChange expects a function as parameter");
-          }
-
-          uiSubscribers.push(fn);
-          fn(window.appsmith.ui);
-
-          return () => {
-            // Unsubscribe from UI changes
-            const index = uiSubscribers.indexOf(fn);
-
-            if (index > -1) {
-              uiSubscribers.splice(index, 1);
-            }
-          };
-        },
         onModelChange: (fn) => {
           if (typeof fn !== "function") {
             throw new Error("onModelChange expects a function as parameter");
@@ -296,7 +262,6 @@ export function main() {
           });
         },
         model: {},
-        ui: {},
         onReady: (fn) => {
           if (typeof fn !== "function") {
             throw new Error("onReady expects a function as parameter");

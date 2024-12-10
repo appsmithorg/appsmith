@@ -108,7 +108,7 @@ export default {
 	reset.addEventListener("click", () => {
 		currentIndex = 0;
 		updateDom();
-		appsmith.triggerEvent("onReset");
+		appsmith.triggerEvent("onResetClick");
 	});
 
 	updateDom();

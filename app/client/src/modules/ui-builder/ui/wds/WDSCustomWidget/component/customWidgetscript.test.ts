@@ -165,10 +165,6 @@ describe("CustomWidgetScript", () => {
         model: {
           test: 1,
         },
-        ui: {
-          width: 1,
-          height: 2,
-        },
         mode: "test",
         theme: {
           color: "#fff",
@@ -180,11 +176,6 @@ describe("CustomWidgetScript", () => {
 
     expect(window.appsmith.model).toEqual({
       test: 1,
-    });
-
-    expect(window.appsmith.ui).toEqual({
-      width: 1,
-      height: 2,
     });
 
     expect(handler).toHaveBeenCalled();

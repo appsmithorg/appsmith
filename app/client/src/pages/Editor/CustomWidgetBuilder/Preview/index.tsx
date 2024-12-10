@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import FixedLayoutCustomComponent from "widgets/CustomWidget/component";
-import { CustomComponent as AnvilLayoutCustomComponent } from "modules/ui-builder/ui/wds/WDSCustomWidget/component";
+import { CustomWidgetComponent as AnvilLayoutCustomComponent } from "modules/ui-builder/ui/wds/WDSCustomWidget/component";
 import { CustomWidgetBuilderContext } from "../index";
 import { toast } from "@appsmith/ads";
 import Debugger from "./Debugger";
@@ -127,11 +127,17 @@ export default function Preview({
       return (
         <ThemeProvider className={styles.themeProvider} theme={anvilTheme}>
           <AnvilLayoutCustomComponent
-            execute={execute}
             model={model || {}}
+            onConsole={(type, args) => {
+              updateDebuggerLogs?.({
+                type,
+                args,
+              });
+            }}
+            onTriggerEvent={execute}
+            onUpdateModel={update}
             renderMode="BUILDER"
             srcDoc={srcDoc || { html: "", js: "", css: "" }}
-            update={update}
             widgetId={widgetId || ""}
           />
         </ThemeProvider>

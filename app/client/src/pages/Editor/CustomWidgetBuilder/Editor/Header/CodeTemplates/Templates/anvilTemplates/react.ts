@@ -9,6 +9,7 @@ export default {
 `,
     css: `.app {
 	justify-content: center;
+	border: none;
 	border-radius: var(--appsmith-theme-border-radius-elevation-3);
 }
 
@@ -63,7 +64,7 @@ function App() {
 
 	const handleReset = () => {
 		setCurrentIndex(0);
-		appsmith.triggerEvent("onReset");
+		appsmith.triggerEvent("onResetClick");
 	};
 
 	return (
