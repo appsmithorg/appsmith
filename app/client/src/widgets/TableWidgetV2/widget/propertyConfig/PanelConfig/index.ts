@@ -4,6 +4,7 @@ import Basic from "./Basic";
 import BorderAndShadow from "./BorderAndShadow";
 import Color from "./Color";
 import Data from "./Data";
+import DateProperties from "./DateProperties";
 import DiscardButtonproperties, {
   discardButtonStyleConfig,
 } from "./DiscardButtonproperties";
@@ -16,7 +17,6 @@ import SaveButtonProperties, {
 import Select from "./Select";
 import TextFormatting from "./TextFormatting";
 import Validations from "./Validation";
-import DateProperties from "./DateProperties";
 
 export default {
   editableTitle: true,

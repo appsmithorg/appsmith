@@ -27,7 +27,8 @@ type columnTypeValues =
   | "Button"
   | "Menu button"
   | "Icon button"
-  | "Select";
+  | "Select"
+  | "HTML";
 
 export class Table {
   private agHelper = ObjectsRegistry.AggregateHelper;

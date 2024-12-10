@@ -1,99 +1,21 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { get } from "lodash";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { ColumnTypes, DateInputFormat } from "widgets/TableWidgetV2/constants";
-import { get } from "lodash";
 import {
   getBasePropertyPath,
   hideByColumnType,
-  showByColumnType,
   uniqueColumnAliasValidation,
-  updateCurrencyDefaultValues,
-  updateMenuItemsSource,
-  updateNumberColumnTypeTextAlignment,
-  updateThemeStylesheetsInColumns,
-} from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { composePropertyUpdateHook } from "widgets/WidgetUtils";
-import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
+} from "../../../propertyUtils";
+import { columnTypeConfig, columnTypeWithHtmlConfig } from "./ColumnType";
 
 export default {
   sectionName: "Data",
   children: [
-    {
-      propertyName: "columnType",
-      label: "Column type",
-      helpText:
-        "Type of column to be shown corresponding to the data of the column",
-      controlType: "DROP_DOWN",
-      options: [
-        {
-          label: "Button",
-          value: ColumnTypes.BUTTON,
-        },
-        {
-          label: "Checkbox",
-          value: ColumnTypes.CHECKBOX,
-        },
-        {
-          label: "Currency",
-          value: ColumnTypes.CURRENCY,
-        },
-        {
-          label: "Date",
-          value: ColumnTypes.DATE,
-        },
-        {
-          label: "Icon button",
-          value: ColumnTypes.ICON_BUTTON,
-        },
-        {
-          label: "Image",
-          value: ColumnTypes.IMAGE,
-        },
-        {
-          label: "Menu button",
-          value: ColumnTypes.MENU_BUTTON,
-        },
-        {
-          label: "Number",
-          value: ColumnTypes.NUMBER,
-        },
-        {
-          label: "Plain text",
-          value: ColumnTypes.TEXT,
-        },
-        {
-          label: "Select",
-          value: ColumnTypes.SELECT,
-        },
-        {
-          label: "Switch",
-          value: ColumnTypes.SWITCH,
-        },
-        {
-          label: "URL",
-          value: ColumnTypes.URL,
-        },
-        {
-          label: "Video",
-          value: ColumnTypes.VIDEO,
-        },
-      ],
-      updateHook: composePropertyUpdateHook([
-        updateNumberColumnTypeTextAlignment,
-        updateThemeStylesheetsInColumns,
-        updateMenuItemsSource,
-        updateCurrencyDefaultValues,
-      ]),
-      dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
-      isBindProperty: false,
-      isTriggerProperty: false,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return showByColumnType(props, propertyPath, [
-          ColumnTypes.EDIT_ACTIONS,
-        ]);
-      },
-    },
+    columnTypeConfig,
+    columnTypeWithHtmlConfig,
     {
       helpText: "The alias that you use in selectedrow",
       propertyName: "alias",
@@ -173,6 +95,7 @@ export default {
           ColumnTypes.SWITCH,
           ColumnTypes.SELECT,
           ColumnTypes.CURRENCY,
+          ColumnTypes.HTML,
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
