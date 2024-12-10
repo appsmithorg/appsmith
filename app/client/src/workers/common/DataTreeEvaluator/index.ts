@@ -154,6 +154,8 @@ import {
   type ICacheProps,
 } from "../AppComputationCache/types";
 import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
+import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -1159,10 +1161,17 @@ export default class DataTreeEvaluator {
             unEvalPropertyValue = replaceThisDotParams(unEvalPropertyValue);
           }
 
-          const scopeCache =
-            !!entity && isAnyJSAction(entity)
-              ? triggerBasedDataTreeContext
-              : nonTriggerBasedDataTreeContext;
+          let scopeCache;
+
+          if (
+            WorkerEnv.isFFEnabled(FEATURE_FLAG.release_evaluation_scope_cache)
+          ) {
+            if (!!entity && isAnyJSAction(entity)) {
+              scopeCache = triggerBasedDataTreeContext;
+            } else {
+              scopeCache = nonTriggerBasedDataTreeContext;
+            }
+          }
 
           try {
             evalPropertyValue = this.getDynamicValue(
