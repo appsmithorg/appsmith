@@ -1,10 +1,10 @@
 import Api from "api/Api";
 import { GIT_BASE_URL } from "./constants";
-import type { AxiosResponse } from "axios";
-import type { FetchProtectedBranches } from "./fetchProtectedBranchesRequest.types";
+import type { AxiosPromise } from "axios";
+import type { FetchProtectedBranchesResponse } from "./fetchProtectedBranchesRequest.types";
 
 export default async function fetchProtectedBranchesRequest(
   baseApplicationId: string,
-): Promise<AxiosResponse<FetchProtectedBranches>> {
+): AxiosPromise<FetchProtectedBranchesResponse> {
   return Api.get(`${GIT_BASE_URL}/branch/app/${baseApplicationId}/protected`);
 }

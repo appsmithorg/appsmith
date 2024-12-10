@@ -4,18 +4,19 @@ import type {
   FetchBranchesRequestParams,
   FetchBranchesResponse,
 } from "./fetchBranchesRequest.types";
-import type { AxiosResponse } from "axios";
+import type { AxiosPromise } from "axios";
 
 export default async function fetchBranchesRequest(
   branchedApplicationId: string,
-  params?: FetchBranchesRequestParams,
-): Promise<AxiosResponse<FetchBranchesResponse>> {
+  params: FetchBranchesRequestParams = { pruneBranches: true },
+): AxiosPromise<FetchBranchesResponse> {
   const queryParams = {} as FetchBranchesRequestParams;
 
-  if (params?.pruneBranches) queryParams.pruneBranches = true;
+  if (params.pruneBranches) queryParams.pruneBranches = true;
 
   return Api.get(
     `${GIT_BASE_URL}/branch/app/${branchedApplicationId}`,
-    queryParams,
+    undefined,
+    { params: queryParams },
   );
 }
