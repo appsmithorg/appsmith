@@ -113,18 +113,18 @@ export default function useGitBranches({
   };
 
   return {
-    branches: branchesState?.value ?? null,
+    branches: branchesState?.value,
     fetchBranchesLoading: branchesState?.loading ?? false,
-    fetchBranchesError: branchesState?.error ?? null,
+    fetchBranchesError: branchesState?.error,
     fetchBranches,
     createBranchLoading: createBranchState?.loading ?? false,
-    createBranchError: createBranchState?.error ?? null,
+    createBranchError: createBranchState?.error,
     createBranch,
     deleteBranchLoading: deleteBranchState?.loading ?? false,
-    deleteBranchError: deleteBranchState?.error ?? null,
+    deleteBranchError: deleteBranchState?.error,
     deleteBranch,
     checkoutBranchLoading: checkoutBranchState?.loading ?? false,
-    checkoutBranchError: checkoutBranchState?.error ?? null,
+    checkoutBranchError: checkoutBranchState?.error,
     checkoutBranch,
     toggleGitBranchListPopup,
   };

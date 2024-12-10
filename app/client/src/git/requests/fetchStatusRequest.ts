@@ -4,11 +4,11 @@ import type {
   FetchStatusResponse,
 } from "./fetchStatusRequest.types";
 import { GIT_BASE_URL } from "./constants";
-import type { AxiosResponse } from "axios";
+import type { AxiosPromise } from "axios";
 
 export default async function fetchStatusRequest(
   branchedApplicationId: string,
   params: FetchStatusRequestParams = { compareRemote: true },
-): Promise<AxiosResponse<FetchStatusResponse>> {
+): AxiosPromise<FetchStatusResponse> {
   return Api.get(`${GIT_BASE_URL}/status/app/${branchedApplicationId}`, params);
 }

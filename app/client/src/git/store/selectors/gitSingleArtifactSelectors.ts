@@ -15,11 +15,16 @@ export const selectSingleArtifact = (
   ];
 };
 
-// init
+// metadata
 export const selectGitMetadata = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectSingleArtifact(state, artifactDef)?.apiResponses.metadata;
+
+export const selectGitConnected = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => !!selectGitMetadata(state, artifactDef).value;
 
 // git ops
 export const selectCommit = (
@@ -49,6 +54,16 @@ export const selectPull = (state: GitRootState, artifactDef: GitArtifactDef) =>
   selectSingleArtifact(state, artifactDef)?.apiResponses?.pull;
 
 // git branches
+
+export const selectCurrentBranch = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => {
+  const gitMetadataState = selectGitMetadata(state, artifactDef).value;
+
+  return gitMetadataState?.branchName;
+};
+
 export const selectBranches = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
@@ -73,6 +88,29 @@ export const selectCheckoutBranch = (
 export const selectAutocommitEnabled = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
-) =>
-  selectSingleArtifact(state, artifactDef)?.apiResponses?.metadata?.value
-    ?.autoCommitConfig?.enabled;
+) => {
+  const gitMetadata = selectGitMetadata(state, artifactDef).value;
+
+  return gitMetadata?.autoCommitConfig?.enabled;
+};
+
+export const selectAutocommitPolling = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectSingleArtifact(state, artifactDef)?.ui.autocommitPolling;
+
+// protected branches
+export const selectProtectedBranches = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectSingleArtifact(state, artifactDef)?.apiResponses.protectedBranches;
+
+export const selectProtectedMode = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => {
+  const currentBranch = selectCurrentBranch(state, artifactDef);
+  const protectedBranches = selectProtectedBranches(state, artifactDef).value;
+
+  return protectedBranches?.includes(currentBranch ?? "");
+};

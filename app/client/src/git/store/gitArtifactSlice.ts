@@ -99,6 +99,7 @@ import {
 import {
   updateProtectedBranchesErrorAction,
   updateProtectedBranchesInitAction,
+  updateProtectedBranchesSuccessAction,
 } from "./actions/updateProtectedBranchesActions";
 import { initGitForEditorAction } from "./actions/initGitActions";
 import {
@@ -177,6 +178,7 @@ export const gitArtifactSlice = createSlice({
     fetchProtectedBranchesSuccess: fetchProtectedBranchesSuccessAction,
     fetchProtectedBranchesError: fetchProtectedBranchesErrorAction,
     updateProtectedBranchesInit: updateProtectedBranchesInitAction,
+    updateProtectedBranchesSuccess: updateProtectedBranchesSuccessAction,
     updateProtectedBranchesError: updateProtectedBranchesErrorAction,
 
     // autocommit

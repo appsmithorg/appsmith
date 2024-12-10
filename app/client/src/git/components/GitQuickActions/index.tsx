@@ -95,6 +95,7 @@ function GitQuickActions({
       if (isProtectedMode) {
         discard();
       } else {
+        // ! case: why is triggeredFromBottomBar this needed?
         // pull({ triggeredFromBottomBar: true });
         pull();
       }

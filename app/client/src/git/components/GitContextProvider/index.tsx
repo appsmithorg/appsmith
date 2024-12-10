@@ -8,12 +8,17 @@ import useGitOps from "./hooks/useGitOps";
 import useGitConnect from "./hooks/useGitConnect";
 import useGitSettings from "./hooks/useGitSettings";
 import useGitBranches from "./hooks/useGitBranches";
+import type { UseGitMetadataReturnValue } from "./hooks/useGitMetadata";
+import useGitMetadata from "./hooks/useGitMetadata";
 
 interface GitContextValue
   extends UseGitConnectReturnValue,
+    UseGitMetadataReturnValue,
     UseGitOpsReturnValue,
     UseGitSettingsReturnValue,
-    UseGitBranchesReturnValue {}
+    UseGitBranchesReturnValue {
+  connectPermitted: boolean;
+}
 
 const gitContextInitialValue = {} as GitContextValue;
 
@@ -27,17 +32,21 @@ interface GitContextProviderProps {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
   children: React.ReactNode;
+  // extra
+  connectPermitted?: boolean;
 }
 
 export default function GitContextProvider({
   artifactType,
   baseArtifactId,
   children,
+  connectPermitted = true,
 }: GitContextProviderProps) {
   const basePayload = useMemo(
     () => ({ artifactType, baseArtifactId }),
     [artifactType, baseArtifactId],
   );
+  const useGitMetadataReturnValue = useGitMetadata(basePayload);
   const useGitConnectReturnValue = useGitConnect(basePayload);
   const useGitOpsReturnValue = useGitOps(basePayload);
   const useGitBranchesReturnValue = useGitBranches(basePayload);
@@ -45,10 +54,12 @@ export default function GitContextProvider({
 
   // eslint-disable-next-line react-perf/jsx-no-new-object-as-prop
   const contextValue = {
+    ...useGitMetadataReturnValue,
     ...useGitOpsReturnValue,
     ...useGitBranchesReturnValue,
     ...useGitConnectReturnValue,
     ...useGitSettingsReturnValue,
+    connectPermitted,
   } as GitContextValue;
 
   return (

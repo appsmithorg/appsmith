@@ -1,4 +1,3 @@
-import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
   actionChannel,
   call,
@@ -6,9 +5,13 @@ import {
   take,
   takeLatest,
 } from "redux-saga/effects";
+import type { TakeableChannel } from "redux-saga";
+import type { PayloadAction } from "@reduxjs/toolkit";
+import { objectKeys } from "@appsmith/utils";
+import { gitConfigActions } from "../store/gitConfigSlice";
+import { gitArtifactActions } from "../store/gitArtifactSlice";
 import connectSaga from "./connectSaga";
 import commitSaga from "./commitSaga";
-import { gitConfigActions } from "git/store/gitConfigSlice";
 import fetchGlobalProfileSaga from "./fetchGlobalProfileSaga";
 import fetchBranchesSaga from "./fetchBranchesSaga";
 import fetchLocalProfileSaga from "./fetchLocalProfileSaga";
@@ -17,9 +20,8 @@ import updateGlobalProfileSaga from "./updateGlobalProfileSaga";
 import initGitForEditorSaga from "./initGitSaga";
 import fetchGitMetadataSaga from "./fetchGitMetadataSaga";
 import triggerAutocommitSaga from "./triggerAutcommitSaga";
-import type { TakeableChannel } from "redux-saga";
-import { objectKeys } from "@appsmith/utils";
-import type { PayloadAction } from "@reduxjs/toolkit";
+import fetchStatusSaga from "./fetchStatusSaga";
+import fetchProtectedBranchesSaga from "./fetchProtectedBranchesSaga";
 
 const gitRequestBlockingActions: Record<
   string,
@@ -34,6 +36,7 @@ const gitRequestBlockingActions: Record<
 
   // ops
   [gitArtifactActions.commitInit.type]: commitSaga,
+  [gitArtifactActions.fetchStatusInit.type]: fetchStatusSaga,
 
   // branches
   [gitArtifactActions.fetchBranchesInit.type]: fetchBranchesSaga,
@@ -55,6 +58,10 @@ const gitRequestNonBlockingActions: Record<
 > = {
   // init
   [gitArtifactActions.initGitForEditor.type]: initGitForEditorSaga,
+
+  // settings
+  [gitArtifactActions.fetchProtectedBranchesInit.type]:
+    fetchProtectedBranchesSaga,
 };
 
 /**
@@ -90,43 +97,3 @@ export default function* gitSagas() {
   yield fork(watchGitNonBlockingRequests);
   yield fork(watchGitBlockingRequests);
 }
-
-// export function* gitSagas() {
-//   yield all([
-//     // init
-//     takeLatest(gitArtifactActions.initGitForEditor.type, initGitForEditorSaga),
-//     takeLatest(
-//       gitArtifactActions.fetchGitMetadataInit.type,
-//       fetchGitMetadataSaga,
-//     ),
-
-//     takeLatest(gitArtifactActions.connectInit.type, connectSaga),
-
-//     // branches
-//     takeLatest(gitArtifactActions.fetchBranchesInit.type, fetchBranchesSaga),
-
-//     takeLatest(gitArtifactActions.commitInit.type, commitSaga),
-//     takeLatest(
-//       gitArtifactActions.fetchLocalProfileInit.type,
-//       fetchLocalProfileSaga,
-//     ),
-//     takeLatest(
-//       gitArtifactActions.updateLocalProfileInit.type,
-//       updateLocalProfileSaga,
-//     ),
-//     takeLatest(
-//       gitConfigActions.fetchGlobalProfileInit.type,
-//       fetchGlobalProfileSaga,
-//     ),
-//     takeLatest(
-//       gitConfigActions.updateGlobalProfileInit.type,
-//       updateGlobalProfileSaga,
-//     ),
-
-//     // autocommit
-//     takeLatest(
-//       gitArtifactActions.triggerAutocommitInit.type,
-//       triggerAutocommitSaga,
-//     ),
-//   ]);
-// }

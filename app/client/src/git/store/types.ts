@@ -12,10 +12,7 @@ import type { FetchLocalProfileResponseData } from "../requests/fetchLocalProfil
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatusRequest.types";
 import type { FetchGitMetadataResponseData } from "git/requests/fetchGitMetadataRequest.types";
-
-export type GitProtectedBranches = Record<string, unknown>;
-
-export type GitAutocommitProgress = Record<string, unknown>;
+import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 
 export type GitSSHKey = Record<string, unknown>;
 
@@ -45,7 +42,7 @@ export interface GitSingleArtifactAPIResponsesReduxState {
   localProfile: AsyncState<FetchLocalProfileResponseData>;
   updateLocalProfile: AsyncStateWithoutValue;
   disconnect: AsyncStateWithoutValue;
-  protectedBranches: AsyncState<GitProtectedBranches>;
+  protectedBranches: AsyncState<FetchProtectedBranchesResponseData>;
   updateProtectedBranches: AsyncStateWithoutValue;
   autocommitProgress: AsyncStateWithoutValue;
   toggleAutocommit: AsyncStateWithoutValue;
