@@ -182,6 +182,7 @@ Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
     url: "api/v1/login",
     headers: {
       origin: baseURL,
+      "X-Requested-By": "Appsmith",
     },
     followRedirect: true,
     body: {
@@ -939,6 +940,9 @@ Cypress.Commands.add("SignupFromAPI", (uname, pword) => {
   cy.request({
     method: "POST",
     url: "api/v1/users",
+    headers: {
+      "X-Requested-By": "Appsmith",
+    },
     followRedirect: false,
     form: true,
     body: {
