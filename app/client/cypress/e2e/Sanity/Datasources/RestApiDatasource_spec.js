@@ -5,7 +5,8 @@ import {
   apiPage,
 } from "../../../support/Objects/ObjectsCore";
 
-describe(
+//Skip test case due to : https://github.com/appsmithorg/appsmith/issues/37353
+describe.skip(
   "Create a rest datasource",
   {
     tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],

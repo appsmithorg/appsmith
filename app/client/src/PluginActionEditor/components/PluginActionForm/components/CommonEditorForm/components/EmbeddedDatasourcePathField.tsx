@@ -593,7 +593,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
               </Text>
             </StyledTooltip>
           )}
-        {displayValue && (
+        {displayValue && shouldSave && (
           <StoreAsDatasource
             datasourceId={
               datasourceObject && "id" in datasourceObject

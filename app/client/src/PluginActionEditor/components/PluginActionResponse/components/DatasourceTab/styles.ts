@@ -19,5 +19,9 @@ export const SchemaTableContainer = styled(Flex)`
     .entity-icon > .ads-v2-icon {
       display: none;
     }
+
+    .t--entity-name {
+      padding-left: 0;
+    }
   }
 `;
