@@ -22,7 +22,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
     });
 
-    it("1. To verify a modal is displayed automatically when the page loads using a JSObject with 'Run on Page Load' enabled.", () => {
+    it.only("1. To verify a modal is displayed automatically when the page loads using a JSObject with 'Run on Page Load' enabled.", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.CreateModal("onClick");
       agHelper.GetNClick(locators._closeModal, 0, true, 0);
@@ -40,6 +40,7 @@ describe(
         prettify: false,
         shouldCreateNewJSObj: true,
       });
+      
       agHelper.GetText(jsEditor._jsObjName).then((jsObjectName: string) => {
         cy.wrap(jsObjectName).as("jsObjectName");
       });

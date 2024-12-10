@@ -24,7 +24,7 @@ describe(
       propPane.SelectPlatformFunction("onClick", "Download");
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("Data to download"),
-        "http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg",
+        "https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg",
       );
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("File name with extension"),
@@ -51,7 +51,7 @@ describe(
       // JSobject verification
       const jsObjectBody = `export default {
           myFun1 () {
-            {{download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower_2.jpeg', 'image/jpeg').then(() => {
+            {{download('https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg', 'flower_2.jpeg', 'image/jpeg').then(() => {
             showAlert('Download Success', '');
           });}}
           },
@@ -102,7 +102,7 @@ describe(
       propPane.SelectPlatformFunction("onClick", "Download");
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("Data to download"),
-        "http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg",
+        "https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg",
       );
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("File name with extension"),
@@ -130,7 +130,7 @@ describe(
       const jsObjectBody = `export default {
           myFun1 () {
             {{ 
-              download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881', 'flower_2_1', '')
+              download('https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg', 'flower_2_1', '')
                 .then(() => {
               const filePath = 'cypress/downloads/flower_2_1';
               cy.readFile(filePath, { timeout: 60000 }).then((content) => {
@@ -268,7 +268,7 @@ describe(
       propPane.SelectPlatformFunction("onClick", "Download");
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("Data to download"),
-        "http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg",
+        "https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg",
       );
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("File name with extension"),
@@ -296,7 +296,7 @@ describe(
       const jsObjectBody = `export default {
           myFun1() {
             {{ 
-              download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower_4_1', 'text/plain')
+              download('https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg', 'flower_4_1', 'text/plain')
                 .then(() => {
                   const filePath = 'cypress/downloads/flower_4_1';
                   cy.readFile(filePath, { timeout: 60000 }).then((content) => {
@@ -359,7 +359,7 @@ describe(
       propPane.SelectPlatformFunction("onClick", "Download");
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("Data to download"),
-        "http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg",
+        "https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg",
       );
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("File name with extension"),
@@ -382,7 +382,7 @@ describe(
       // JSobject verification
       const jsObjectBody = `export default {
           myFun1 () {
-        {{download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', '', 'image/jpeg').then(() => {
+        {{download('https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg', '', 'image/jpeg').then(() => {
         showAlert('Download Success', '');
           }).catch(() => {
         showAlert('Download Failed', '');
@@ -434,7 +434,7 @@ describe(
       propPane.SelectPlatformFunction("onClick", "Download");
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("Data to download"),
-        "http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg",
+        "https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg",
       );
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("File name with extension"),
@@ -461,7 +461,7 @@ describe(
       // JSobject verification
       const jsObjectBody = `export default {
           myFun1 () {
-            {{download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower_6_1.jpeg', 'image/jpeg').then(() => {
+            {{download('https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg', 'flower_6_1.jpeg', 'image/jpeg').then(() => {
             showAlert('Download Success', '');
           });}}
           },
@@ -511,7 +511,7 @@ describe(
       propPane.SelectPlatformFunction("onClick", "Download");
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("Data to download"),
-        "http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg",
+        "https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg",
       );
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("File name with extension"),
@@ -539,7 +539,7 @@ describe(
       const jsObjectBody = `export default {
           myFun1 () {
             {{ 
-              download('http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg', 'flower_7_1.png', 'image/jpeg')
+              download('https://docs.appsmith.com/img/cube-logo_S50__hLNq.jpeg', 'flower_7_1.png', 'image/jpeg')
                 .then(() => {
                   const filePath = 'cypress/downloads/flower_7_1.png';
                   cy.readFile(filePath, { timeout: 60000 }).then((content) => {
