@@ -45,12 +45,14 @@ function renderComponent(props: renderComponentProps) {
 
   const options = props.options || [];
   const defaultValue = props.initialValue as string;
+  const currentValue = props.input?.value;
 
   return (
     <StyledRadioGroup
       data-testid={props.input?.name}
       defaultValue={defaultValue}
       onChange={onChangeHandler}
+      value={currentValue}
     >
       {options.map((option) => {
         return (
