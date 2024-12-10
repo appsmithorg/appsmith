@@ -5,6 +5,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -121,5 +122,28 @@ public class GitAnalyticsUtils {
         return sessionUserService.getCurrentUser().flatMap(user -> analyticsService
                 .sendEvent(event.getEventName(), user.getUsername(), analyticsProps)
                 .thenReturn(artifact));
+    }
+
+    public Mono<Void> sendUnitExecutionTimeAnalyticsEvent(
+            String flowName, Long elapsedTime, User currentUser, Artifact artifact) {
+        GitArtifactMetadata gitArtifactMetadata = artifact.getGitArtifactMetadata();
+
+        final Map<String, Object> data = Map.of(
+                FieldName.FLOW_NAME,
+                flowName,
+                FieldName.APPLICATION_ID,
+                gitArtifactMetadata.getDefaultArtifactId(),
+                "appId",
+                gitArtifactMetadata.getDefaultArtifactId(),
+                FieldName.BRANCH_NAME,
+                gitArtifactMetadata.getBranchName(),
+                "organizationId",
+                artifact.getWorkspaceId(),
+                "repoUrl",
+                gitArtifactMetadata.getRemoteUrl(),
+                "executionTime",
+                elapsedTime);
+        return analyticsService.sendEvent(
+                AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), currentUser.getUsername(), data);
     }
 }
