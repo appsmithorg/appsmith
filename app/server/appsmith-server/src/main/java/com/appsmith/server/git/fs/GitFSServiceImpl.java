@@ -24,7 +24,6 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @Service
@@ -39,7 +38,6 @@ public class GitFSServiceImpl extends GitFSServiceCECompatibleImpl implements Gi
             UserDataService userDataService,
             UserService userService,
             EmailConfig emailConfig,
-            TransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ObservationRegistry observationRegistry,
             WorkspaceService workspaceService,
@@ -62,7 +60,6 @@ public class GitFSServiceImpl extends GitFSServiceCECompatibleImpl implements Gi
                 userDataService,
                 userService,
                 emailConfig,
-                transactionalOperator,
                 analyticsService,
                 observationRegistry,
                 workspaceService,
