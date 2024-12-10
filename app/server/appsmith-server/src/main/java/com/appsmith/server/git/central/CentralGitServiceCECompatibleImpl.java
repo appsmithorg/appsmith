@@ -10,6 +10,7 @@ import com.appsmith.server.git.utils.GitProfileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.plugins.base.PluginService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -26,6 +27,7 @@ public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
             GitProfileUtils gitProfileUtils,
             GitAnalyticsUtils gitAnalyticsUtils,
             UserDataService userDataService,
+            SessionUserService sessionUserService,
             GitArtifactHelperResolver gitArtifactHelperResolver,
             GitHandlingServiceResolver gitHandlingServiceResolver,
             GitPrivateRepoHelper gitPrivateRepoHelper,
@@ -41,6 +43,7 @@ public class CentralGitServiceCECompatibleImpl extends CentralGitServiceCEImpl
                 gitProfileUtils,
                 gitAnalyticsUtils,
                 userDataService,
+                sessionUserService,
                 gitArtifactHelperResolver,
                 gitHandlingServiceResolver,
                 gitPrivateRepoHelper,
