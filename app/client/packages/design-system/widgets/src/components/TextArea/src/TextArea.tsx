@@ -5,17 +5,25 @@ import {
   inputFieldStyles,
   TextAreaInput,
 } from "@appsmith/wds";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useEffect, useState } from "react";
 import { useControlledState } from "@react-stately/utils";
 import { chain, useLayoutEffect } from "@react-aria/utils";
 import { TextField as HeadlessTextField } from "react-aria-components";
+import { useDebounceCallback, useResizeObserver } from "usehooks-ts";
 
 import type { TextAreaProps } from "./types";
+
+// usehooks-ts does not export Size type, so declare it ourselves
+interface Size {
+  width?: number;
+}
 
 export function TextArea(props: TextAreaProps) {
   const {
     contextualHelp,
     errorMessage,
+    fieldClassName,
+    inputClassName,
     isDisabled,
     isInvalid,
     isLoading,
@@ -23,6 +31,8 @@ export function TextArea(props: TextAreaProps) {
     isRequired,
     label,
     onChange,
+    rows = 3,
+    size,
     suffix,
     value,
     ...rest
@@ -31,9 +41,11 @@ export function TextArea(props: TextAreaProps) {
   const [inputValue, setInputValue] = useControlledState(
     props.value,
     props.defaultValue ?? "",
-    () => {
-      //
-    },
+    () => {},
+  );
+
+  const [textFieldHeight, setTextFieldHeightHeight] = useState<number | null>(
+    null,
   );
 
   const onHeightChange = useCallback(() => {
@@ -56,8 +68,11 @@ export function TextArea(props: TextAreaProps) {
       input.style.height = "auto";
 
       const computedStyle = getComputedStyle(input);
+      const height = parseFloat(computedStyle.height) || 0;
       const paddingTop = parseFloat(computedStyle.paddingTop);
       const paddingBottom = parseFloat(computedStyle.paddingBottom);
+
+      setTextFieldHeightHeight(height + paddingTop + paddingBottom);
 
       input.style.height = `${
         // subtract comptued padding and border to get the actual content height
@@ -70,7 +85,7 @@ export function TextArea(props: TextAreaProps) {
       input.style.overflow = prevOverflow;
       input.style.alignSelf = prevAlignment;
     }
-  }, [inputRef, props.height]);
+  }, [inputRef.current, props.height]);
 
   useLayoutEffect(() => {
     if (inputRef.current) {
@@ -78,15 +93,42 @@ export function TextArea(props: TextAreaProps) {
     }
   }, [onHeightChange, inputValue]);
 
+  const [{ width }, setSize] = useState<Size>({
+    width: undefined,
+  });
+
+  const onResize = useDebounceCallback(setSize, 200);
+
+  useResizeObserver({
+    ref: inputRef,
+    onResize,
+  });
+
+  useEffect(
+    function updateHeight() {
+      onHeightChange();
+    },
+    [width],
+  );
+
+  const styles = {
+    // The --input-height it may be useful to align the prefix or suffix.
+    // Why can't we do this with CSS? Reason is that the height of the input is calculated based on the content.
+    "--input-height": Boolean(textFieldHeight)
+      ? `${textFieldHeight}px`
+      : "auto",
+  } as React.CSSProperties;
+
   return (
     <HeadlessTextField
       {...rest}
-      className={clsx(inputFieldStyles.field)}
+      className={clsx(inputFieldStyles.field, fieldClassName)}
       isDisabled={isDisabled}
       isInvalid={isInvalid}
       isReadOnly={isReadOnly}
       isRequired={isRequired}
       onChange={chain(onChange, setInputValue)}
+      style={styles}
       value={value}
     >
       <FieldLabel
@@ -97,9 +139,12 @@ export function TextArea(props: TextAreaProps) {
         {label}
       </FieldLabel>
       <TextAreaInput
+        className={inputClassName}
         isLoading={isLoading}
         isReadOnly={isReadOnly}
         ref={inputRef}
+        rows={rows}
+        size={size}
         suffix={suffix}
         value={value}
       />

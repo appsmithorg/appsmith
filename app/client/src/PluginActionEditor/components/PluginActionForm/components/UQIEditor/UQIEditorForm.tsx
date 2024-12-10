@@ -20,6 +20,7 @@ const UQIEditorForm = () => {
 
   return (
     <Flex
+      alignItems="center"
       data-testid="t--uqi-editor-form"
       flexDirection="column"
       overflowY="scroll"
