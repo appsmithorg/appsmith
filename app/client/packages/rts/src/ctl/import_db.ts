@@ -8,7 +8,7 @@ async function importDatabase() {
   try {
     await utils.execCommand([
       "mongorestore",
-      "--uri=" + utils.getDburl(),
+      "--uri=" + utils.getDbUrl(),
       "--drop",
       `--archive=${Constants.RESTORE_PATH}/${Constants.DUMP_FILE_NAME}`,
       "--gzip",
@@ -21,28 +21,23 @@ async function importDatabase() {
 }
 
 // Main application workflow
-export async function run(forceOption) {
+export async function run(forceOption: boolean) {
   let errorCode = 0;
 
   await utils.ensureSupervisorIsRunning();
 
   try {
     console.log("stop backend & rts application before import database");
-    await utils.stop(["backend", "rts"]);
-    let shellCmdResult: string;
+    await utils.stop("backend", "rts");
 
-    try {
-      shellCmdResult = await utils.execCommandReturningOutput([
-        "mongo",
-        process.env.APPSMITH_DB_URL,
-        "--quiet",
-        "--eval",
-        "db.getCollectionNames().length",
-      ]);
-    } catch (error) {
-      console.error("Failed to execute mongo command:", error);
-      throw error;
-    }
+    const shellCmdResult = await utils.execCommandReturningOutput([
+      "mongo",
+      utils.getDbUrl(),
+      "--quiet",
+      "--eval",
+      "db.getCollectionNames().length",
+    ]);
+
     const collectionsLen = parseInt(shellCmdResult.trimEnd());
 
     if (collectionsLen > 0) {
@@ -83,7 +78,7 @@ export async function run(forceOption) {
     errorCode = 1;
   } finally {
     console.log("start backend & rts application after import database");
-    await utils.start(["backend", "rts"]);
+    await utils.start("backend", "rts");
     process.exit(errorCode);
   }
 }

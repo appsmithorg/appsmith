@@ -46,15 +46,6 @@ describe("Backup Tests", () => {
     );
   });
 
-  test("Test backup contents path generation", () => {
-    const root = "/rootDir";
-    const timestamp = "0000-00-0T00-00-00.00Z";
-
-    expect(backup.getBackupContentsPath(root, timestamp)).toBe(
-      "/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z",
-    );
-  });
-
   test("Test mongodump CMD generation", async () => {
     const dest = "/dest";
     const appsmithMongoURI = "mongodb://username:password@host/appsmith";
@@ -119,14 +110,6 @@ describe("Backup Tests", () => {
     );
   });
 
-  test("Backup Archive Limit when env APPSMITH_BACKUP_ARCHIVE_LIMIT is null", () => {
-    expect(backup.getBackupArchiveLimit()).toBe(4);
-  });
-
-  test("Backup Archive Limit when env APPSMITH_BACKUP_ARCHIVE_LIMIT is 5", () => {
-    expect(backup.getBackupArchiveLimit(5)).toBe(5);
-  });
-
   test("Cleanup Backups when limit is 4 and there are 5 files", async () => {
     fsPromises.rm = jest.fn().mockImplementation();
     const backupFiles = ["file1", "file2", "file3", "file4", "file5"];
@@ -188,8 +171,8 @@ describe("Backup Tests", () => {
     const backupArchivesLimit = 4;
 
     fsPromises.rm = jest.fn().mockImplementation(async (a) => console.log(a));
-    const backupFiles = [];
-    const expectedBackupFiles = [];
+    const backupFiles: string[] = [];
+    const expectedBackupFiles: string[] = [];
     const res = await backup.removeOldBackups(backupFiles, backupArchivesLimit);
 
     console.log(res);
