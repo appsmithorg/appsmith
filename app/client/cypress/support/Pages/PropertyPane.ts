@@ -179,7 +179,8 @@ export class PropertyPane {
   _dropdownControlError = "[data-testid='t---dropdown-control-error']";
   _borderColorCursor = ".t--property-control-bordercolor .bp3-input-group div";
   _buttonWidget = "[data-widgetname-cy='Button1']";
-  _getActionCardSelector = (type: string) => `[data-testid='action-card-${type}']`;
+  _getActionCardSelector = (type: string) =>
+    `[data-testid='action-card-${type}']`;
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));

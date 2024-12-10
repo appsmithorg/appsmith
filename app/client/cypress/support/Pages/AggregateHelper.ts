@@ -1958,30 +1958,30 @@ export class AggregateHelper {
 
   public captureConsoleLogs(): void {
     cy.window()
-      .its('console')
+      .its("console")
       .then((console) => {
-        cy.spy(console, 'log').as('log');
-        cy.spy(console, 'error').as('error');
-        cy.spy(console, 'warn').as('warn');
+        cy.spy(console, "log").as("log");
+        cy.spy(console, "error").as("error");
+        cy.spy(console, "warn").as("warn");
       });
   }
-  
+
   public verifyConsoleLogNotContainingError(): void {
-    cy.get('@error')
-      .invoke('getCalls')
+    cy.get("@error")
+      .invoke("getCalls")
       .then((calls) => {
         console.table(calls);
         cy.wrap(calls).each((call) => {
           (call as any).args.forEach((arg: any) => {
-            expect(arg).to.not.contain('error');
+            expect(arg).to.not.contain("error");
           });
         });
       });
   }
-  
+
   public verifyConsoleLogContainsExpectedMessage(message: string): void {
-    cy.get('@log')
-      .invoke('getCalls')
+    cy.get("@log")
+      .invoke("getCalls")
       .then((calls) => {
         console.table(calls);
         cy.wrap(calls).each((call) => {
@@ -1994,9 +1994,9 @@ export class AggregateHelper {
 
   public clearConsoleLogs(): void {
     cy.window().then((win) => {
-      cy.spy(win.console, 'log').as('log');
-      cy.spy(win.console, 'error').as('error');
-      cy.spy(win.console, 'warn').as('warn');
+      cy.spy(win.console, "log").as("log");
+      cy.spy(win.console, "error").as("error");
+      cy.spy(win.console, "warn").as("warn");
     });
   }
 }
