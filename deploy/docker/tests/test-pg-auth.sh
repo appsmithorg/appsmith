@@ -112,7 +112,6 @@ check_user_datasource_access_with_local_port_wo_auth() {
 check_user_exists() {
   local user
   user=$1
-  local user_exists
   local max_retries=200
   local retry_count=0
   while [ $retry_count -lt $max_retries ]; do
@@ -122,7 +121,7 @@ check_user_exists() {
     fi
     echo "Waiting for $user user to be created... (Attempt: $((retry_count + 1)))"
     retry_count=$((retry_count + 1))
-    sleep 2
+    sleep 1
   done
   echo "$user user does not exist."
   return 1
