@@ -80,6 +80,8 @@ import {
   mergeSuccessAction,
 } from "./actions/mergeActions";
 import {
+  pollAutcommitProgressStopAction,
+  pollAutocommitProgressStartAction,
   triggerAutocommitErrorAction,
   triggerAutocommitInitAction,
   triggerAutocommitSuccessAction,
@@ -99,6 +101,11 @@ import {
   updateProtectedBranchesInitAction,
 } from "./actions/updateProtectedBranchesActions";
 import { initGitForEditorAction } from "./actions/initGitActions";
+import {
+  fetchAutocommitProgressErrorAction,
+  fetchAutocommitProgressInitAction,
+  fetchAutocommitProgressSuccessAction,
+} from "./actions/fetchAutocommitProgressActions";
 
 const initialState: GitArtifactReduxState = {};
 
@@ -179,6 +186,11 @@ export const gitArtifactSlice = createSlice({
     triggerAutocommitInit: triggerAutocommitInitAction,
     triggerAutocommitSuccess: triggerAutocommitSuccessAction,
     triggerAutocommitError: triggerAutocommitErrorAction,
+    fetchAutocommitProgressInit: fetchAutocommitProgressInitAction,
+    fetchAutocommitProgressSuccess: fetchAutocommitProgressSuccessAction,
+    fetchAutocommitProgressError: fetchAutocommitProgressErrorAction,
+    pollAutocommitProgressStart: pollAutocommitProgressStartAction,
+    pollAutcommitProgressStop: pollAutcommitProgressStopAction,
   },
 });
 

@@ -15,6 +15,12 @@ export const selectSingleArtifact = (
   ];
 };
 
+// init
+export const selectGitMetadata = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectSingleArtifact(state, artifactDef)?.apiResponses.metadata;
+
 // git ops
 export const selectCommit = (
   state: GitRootState,
@@ -62,3 +68,11 @@ export const selectCheckoutBranch = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectSingleArtifact(state, artifactDef)?.apiResponses.checkoutBranch;
+
+// autocommit
+export const selectAutocommitEnabled = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) =>
+  selectSingleArtifact(state, artifactDef)?.apiResponses?.metadata?.value
+    ?.autoCommitConfig?.enabled;

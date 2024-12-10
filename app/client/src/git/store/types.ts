@@ -47,7 +47,7 @@ export interface GitSingleArtifactAPIResponsesReduxState {
   disconnect: AsyncStateWithoutValue;
   protectedBranches: AsyncState<GitProtectedBranches>;
   updateProtectedBranches: AsyncStateWithoutValue;
-  autocommitProgress: AsyncState<GitAutocommitProgress>;
+  autocommitProgress: AsyncStateWithoutValue;
   toggleAutocommit: AsyncStateWithoutValue;
   triggerAutocommit: AsyncStateWithoutValue;
   sshKey: AsyncState<GitSSHKey>;
@@ -77,6 +77,8 @@ export interface GitSingleArtifactUIReduxState {
   repoLimitErrorModal: {
     open: boolean;
   };
+  autocommitPolling: boolean;
+  autocommitModalOpen: boolean;
 }
 export interface GitSingleArtifactReduxState {
   ui: GitSingleArtifactUIReduxState;

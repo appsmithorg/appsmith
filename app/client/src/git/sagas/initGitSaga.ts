@@ -2,7 +2,7 @@ import { GitArtifactType } from "git/constants/enums";
 import type { InitGitForEditorPayload } from "git/store/actions/initGitActions";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
-import { put } from "redux-saga/effects";
+import { put, take } from "redux-saga/effects";
 
 export default function* initGitForEditorSaga(
   action: GitArtifactPayloadAction<InitGitForEditorPayload>,
@@ -15,8 +15,13 @@ export default function* initGitForEditorSaga(
   if (artifactType === GitArtifactType.Application) {
     if (!!artifact.gitApplicationMetadata) {
       yield put(gitArtifactActions.fetchGitMetadataInit(basePayload));
-      // yield take(gitArtifactActions.fetchGitMetadataSuccess.type);
-      yield put(gitArtifactActions.triggerAutocommitInit(basePayload));
+      yield take(gitArtifactActions.fetchGitMetadataSuccess.type);
+      yield put(
+        gitArtifactActions.triggerAutocommitInit({
+          ...basePayload,
+          artifactId: artifact.id,
+        }),
+      );
       yield put(gitArtifactActions.fetchBranchesInit(basePayload));
       yield put(gitArtifactActions.fetchProtectedBranchesInit(basePayload));
       yield put(gitArtifactActions.fetchStatusInit(basePayload));
