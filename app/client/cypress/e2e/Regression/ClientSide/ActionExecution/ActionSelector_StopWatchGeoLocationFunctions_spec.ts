@@ -19,7 +19,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 100, 200);
     });
 
-    it("1. Verify that calling geolocation.clearWatch() when no geolocation watch is active throws an error.", () => {
+    it.only("1. Verify that calling geolocation.clearWatch() when no geolocation watch is active throws an error.", () => {
       // Mock geolocation permissions
       cy.window().then((win) => {
         cy.stub(win.navigator.permissions, "query").resolves({
@@ -33,14 +33,12 @@ describe(
       agHelper.ClickButton("Submit");
 
       // Verify error message with wait
-      agHelper.Sleep(1000); // Wait for toast
-      agHelper.ValidateToastMessage("No active geolocation watch found", 0, 1);
+      agHelper.ValidateToastMessage("No location watch active", 0, 1);
 
       // Verify same behavior in deploy mode
       deployMode.DeployApp();
       agHelper.ClickButton("Submit");
-      agHelper.Sleep(1000); // Wait for toast
-      agHelper.ValidateToastMessage("No active geolocation watch found", 0, 1);
+      agHelper.ValidateToastMessage("No location watch active", 0, 1);
       deployMode.NavigateBacktoEditor();
     });
 

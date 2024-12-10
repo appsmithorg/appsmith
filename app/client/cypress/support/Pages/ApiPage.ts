@@ -99,6 +99,7 @@ export class ApiPage {
     "//label[text()='Paste CURL Code Here']/parent::form/div";
   private runOnPageLoadJSObject =
     "input[name^='execute-on-page-load'][type='checkbox']";
+  public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
 
   CreateApi(
     apiName = "",
@@ -499,6 +500,12 @@ export class ApiPage {
 
   ToggleOnPageLoadRunJsObject(enable = true || false) {
     this.SelectPaneTab("Settings");
+    if (enable) this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, true);
+    else this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, false);
+  }
+
+  public clickSettingIcon(enable: boolean) {
+    this.agHelper.GetNClick(this.settingsTriggerLocator);
     if (enable) this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, true);
     else this.agHelper.CheckUncheck(this.runOnPageLoadJSObject, false);
   }
