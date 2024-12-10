@@ -1,18 +1,19 @@
 import React, { useMemo } from "react";
 import ReactJson from "react-json-view";
 
+import { JsonWrapper } from "components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
 import LogHelper from "components/editorComponents/Debugger/ErrorLogs/components/LogHelper";
 import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
 
 import { Tooltip } from "@appsmith/ads";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import { PluginType, type Action } from "entities/Action";
+import { type Action } from "entities/Action";
 import type { ActionResponse } from "api/ActionAPI";
 import type { SourceEntity } from "entities/AppsmithConsole";
 
-import { REACT_JSON_PROPS, DEFAULT_ERROR_MESSAGE } from "../../constants";
+import { getErrorMessageFromActionResponse } from "../../utils";
+import { REACT_JSON_PROPS } from "../../constants";
 import * as Styled from "../../styles";
-import { JsonWrapper } from "../../../../../../../components/editorComponents/Debugger/ErrorLogs/components/LogCollapseData";
 
 interface ErrorViewProps {
   action: Action;
@@ -24,31 +25,6 @@ interface ErrorViewProps {
   ) => void;
 }
 
-/**
- * Retrieves the error message from the action response.
- */
-const getErrorMessage = (
-  actionResponse?: ActionResponse,
-  pluginType?: PluginType,
-) => {
-  // Return default error message if action response is not provided
-  if (!actionResponse) return DEFAULT_ERROR_MESSAGE;
-
-  const { body, pluginErrorDetails } = actionResponse;
-
-  if (pluginErrorDetails) {
-    // Return downstream error message if available
-    // Otherwise, return Appsmith error message
-    return (
-      pluginErrorDetails.downstreamErrorMessage ||
-      pluginErrorDetails.appsmithErrorMessage
-    );
-  }
-
-  // Return body if plugin type is DB, otherwise return default error message
-  return pluginType === PluginType.DB ? body : DEFAULT_ERROR_MESSAGE;
-};
-
 export const ErrorView: React.FC<ErrorViewProps> = ({
   action,
   actionResponse,
@@ -56,7 +32,10 @@ export const ErrorView: React.FC<ErrorViewProps> = ({
   handleJsonWrapperClick,
   tooltipContent,
 }) => {
-  const errorMessage = getErrorMessage(actionResponse, action.pluginType);
+  const errorMessage = getErrorMessageFromActionResponse(
+    actionResponse,
+    action.pluginType,
+  );
 
   const requestWithTimestamp = getUpdateTimestamp(actionResponse?.request);
 
