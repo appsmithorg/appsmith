@@ -40,8 +40,7 @@ export enum ExecutionType {
 /**
  * This method returns new dataTree with entity function and platform function
  */
-export const addDataTreeToContext = (args: {
-  EVAL_CONTEXT: EvalContext;
+export const getDataTreeContext = (args: {
   dataTree: Readonly<DataTree>;
   removeEntityFunctions?: boolean;
   isTriggerBased: boolean;
@@ -50,10 +49,11 @@ export const addDataTreeToContext = (args: {
   const {
     configTree,
     dataTree,
-    EVAL_CONTEXT,
     isTriggerBased,
     removeEntityFunctions = false,
   } = args;
+  const EVAL_CONTEXT: EvalContext = {};
+
   const dataTreeEntries = Object.entries(dataTree);
   const entityFunctionCollection: Record<string, Record<string, Function>> = {};
 
@@ -96,15 +96,19 @@ export const addDataTreeToContext = (args: {
   }
 
   if (removeEntityFunctions)
-    return removeEntityFunctionsFromEvalContext(
+    removeEntityFunctionsFromEvalContext(
       entityFunctionCollection,
       EVAL_CONTEXT,
     );
 
-  if (!isTriggerBased) return;
+  if (!isTriggerBased) {
+    return EVAL_CONTEXT;
+  }
 
   // if eval is not trigger based i.e., sync eval then we skip adding entity function to evalContext
   addEntityFunctionsToEvalContext(EVAL_CONTEXT, entityFunctionCollection);
+
+  return EVAL_CONTEXT;
 };
 
 export const addEntityFunctionsToEvalContext = (

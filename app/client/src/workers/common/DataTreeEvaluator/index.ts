@@ -38,6 +38,7 @@ import type { DataTreeDiff } from "ee/workers/Evaluation/evaluationUtils";
 import {
   convertMicroDiffToDeepDiff,
   getAllPathsBasedOnDiffPaths,
+  isPropertyAnEntityAction,
 } from "ee/workers/Evaluation/evaluationUtils";
 
 import {
@@ -86,7 +87,11 @@ import {
   EXECUTION_PARAM_REFERENCE_REGEX,
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { EvalResult, EvaluateContext } from "workers/Evaluation/evaluate";
+import {
+  resetWorkerGlobalScope,
+  type EvalResult,
+  type EvaluateContext,
+} from "workers/Evaluation/evaluate";
 import evaluateSync, {
   evaluateAsync,
   setEvalContext,
@@ -148,6 +153,7 @@ import {
   EComputationCacheName,
   type ICacheProps,
 } from "../AppComputationCache/types";
+import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -1059,6 +1065,8 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
     contextTree: DataTree;
   } {
+    resetWorkerGlobalScope();
+
     const safeTree = klonaJSON(unEvalTree);
     const dataStore = DataStore.getDataStore();
     const dataStoreClone = klonaJSON(dataStore);
@@ -1084,6 +1092,18 @@ export default class DataTreeEvaluator {
     const { isFirstTree, metaWidgets, unevalUpdates } = options;
     let staleMetaIds: string[] = [];
 
+    const triggerBasedDataTreeContext = getDataTreeContext({
+      dataTree: contextTree,
+      configTree: oldConfigTree,
+      isTriggerBased: true,
+    });
+
+    const nonTriggerBasedDataTreeContext = getDataTreeContext({
+      dataTree: contextTree,
+      configTree: oldConfigTree,
+      isTriggerBased: false,
+    });
+
     try {
       for (const fullPropertyPath of evaluationOrder) {
         const { entityName, propertyPath } =
@@ -1092,6 +1112,10 @@ export default class DataTreeEvaluator {
         const entityConfig = oldConfigTree[entityName];
 
         if (!isWidgetActionOrJsObject(entity)) continue;
+
+        if (isPropertyAnEntityAction(entity, propertyPath, entityConfig)) {
+          continue;
+        }
 
         // TODO: Fix this the next time the file is edited
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1135,6 +1159,11 @@ export default class DataTreeEvaluator {
             unEvalPropertyValue = replaceThisDotParams(unEvalPropertyValue);
           }
 
+          const scopeCache =
+            !!entity && isAnyJSAction(entity)
+              ? triggerBasedDataTreeContext
+              : nonTriggerBasedDataTreeContext;
+
           try {
             evalPropertyValue = this.getDynamicValue(
               unEvalPropertyValue,
@@ -1144,6 +1173,7 @@ export default class DataTreeEvaluator {
               contextData,
               undefined,
               fullPropertyPath,
+              scopeCache,
             );
           } catch (error) {
             this.errors.push({
@@ -1208,6 +1238,16 @@ export default class DataTreeEvaluator {
 
             set(contextTree, fullPropertyPath, parsedValue);
             set(safeTree, fullPropertyPath, klona(parsedValue));
+            set(
+              triggerBasedDataTreeContext,
+              fullPropertyPath,
+              klona(parsedValue),
+            );
+            set(
+              nonTriggerBasedDataTreeContext,
+              fullPropertyPath,
+              klona(parsedValue),
+            );
 
             staleMetaIds = staleMetaIds.concat(
               getStaleMetaStateIds({
@@ -1254,6 +1294,16 @@ export default class DataTreeEvaluator {
 
             set(contextTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, klona(evalPropertyValue));
+            set(
+              triggerBasedDataTreeContext,
+              fullPropertyPath,
+              klona(evalPropertyValue),
+            );
+            set(
+              nonTriggerBasedDataTreeContext,
+              fullPropertyPath,
+              klona(evalPropertyValue),
+            );
             break;
           }
           case ENTITY_TYPE.JSACTION: {
@@ -1294,6 +1344,16 @@ export default class DataTreeEvaluator {
 
               set(contextTree, fullPropertyPath, evalValue);
               set(safeTree, fullPropertyPath, valueForSafeTree);
+              set(
+                triggerBasedDataTreeContext,
+                fullPropertyPath,
+                klona(evalPropertyValue),
+              );
+              set(
+                nonTriggerBasedDataTreeContext,
+                fullPropertyPath,
+                klona(evalPropertyValue),
+              );
               JSObjectCollection.setVariableValue(evalValue, fullPropertyPath);
               JSObjectCollection.setPrevUnEvalState({
                 fullPath: fullPropertyPath,
@@ -1306,6 +1366,16 @@ export default class DataTreeEvaluator {
           default:
             set(contextTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, klona(evalPropertyValue));
+            set(
+              triggerBasedDataTreeContext,
+              fullPropertyPath,
+              klona(evalPropertyValue),
+            );
+            set(
+              nonTriggerBasedDataTreeContext,
+              fullPropertyPath,
+              klona(evalPropertyValue),
+            );
         }
       }
     } catch (error) {
@@ -1417,6 +1487,7 @@ export default class DataTreeEvaluator {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callBackData?: Array<any>,
     fullPropertyPath?: string,
+    scopeCache?: EvaluateContext,
   ) {
     // Get the {{binding}} bound values
     let entity: DataTreeEntity | undefined = undefined;
@@ -1467,6 +1538,7 @@ export default class DataTreeEvaluator {
           !!entity && isAnyJSAction(entity),
           contextData,
           callBackData,
+          scopeCache,
         );
 
         if (fullPropertyPath && evalErrors.length) {
@@ -1560,6 +1632,7 @@ export default class DataTreeEvaluator {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callbackData?: Array<any>,
+    scopeCache?: EvaluateContext,
   ): EvalResult {
     let evalResponse: EvalResult;
 
@@ -1574,6 +1647,8 @@ export default class DataTreeEvaluator {
         isJSObject,
         contextData,
         callbackData,
+        {},
+        scopeCache,
       );
     } catch (error) {
       evalResponse = {

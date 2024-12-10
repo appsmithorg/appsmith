@@ -768,6 +768,7 @@ describe("isDataField", () => {
       dependencyMap: {
         body: ["myFun2", "myFun1"],
       },
+      actionNames: ["myFun1", "myFun2"],
     },
     JSObject2: {
       actionId: "644242aeadc0936a9b0e71cc",
@@ -821,6 +822,7 @@ describe("isDataField", () => {
       dependencyMap: {
         body: ["myFun2", "myFun1"],
       },
+      actionNames: ["myFun1", "myFun2"],
     },
     MainContainer: {
       defaultProps: {},

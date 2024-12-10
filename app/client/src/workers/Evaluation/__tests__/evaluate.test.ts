@@ -143,8 +143,8 @@ describe("evaluateSync", () => {
       errors: [
         {
           errorMessage: {
-            name: "ReferenceError",
-            message: "setImmediate is not defined",
+            name: "TypeError",
+            message: "setImmediate is not a function",
           },
           errorType: "PARSE",
           kind: {
