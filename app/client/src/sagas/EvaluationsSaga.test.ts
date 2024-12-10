@@ -2,8 +2,8 @@ import {
   defaultAffectedJSObjects,
   evalQueueBuffer,
   evaluateTreeSaga,
-  evalWorker,
 } from "./EvaluationsSaga";
+import { evalWorker } from "utils/workerInstances";
 import { expectSaga } from "redux-saga-test-plan";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { select } from "redux-saga/effects";

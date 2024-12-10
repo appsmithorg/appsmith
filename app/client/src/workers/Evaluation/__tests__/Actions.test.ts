@@ -6,7 +6,7 @@ import type { EvalContext } from "workers/Evaluation/evaluate";
 import { createEvaluationContext } from "workers/Evaluation/evaluate";
 import { MessageType } from "utils/MessageUtil";
 import {
-  addDataTreeToContext,
+  getDataTreeContext,
   addPlatformFunctionsToEvalContext,
 } from "ee/workers/Evaluation/Actions";
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
@@ -548,12 +548,13 @@ describe("Test addDataTreeToContext method", () => {
   const evalContext: EvalContext = {};
 
   beforeAll(() => {
-    addDataTreeToContext({
-      EVAL_CONTEXT: evalContext,
+    const EVAL_CONTEXT = getDataTreeContext({
       dataTree: dataTree as unknown as DataTree,
       configTree,
       isTriggerBased: true,
     });
+
+    Object.assign(evalContext, EVAL_CONTEXT);
     addPlatformFunctionsToEvalContext(evalContext);
   });
 

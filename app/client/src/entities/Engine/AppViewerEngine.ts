@@ -25,7 +25,6 @@ import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
 } from "ee/sagas/userSagas";
-import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import {
   fetchAppThemesAction,
@@ -153,14 +152,6 @@ export default class AppViewerEngine extends AppEngine {
 
     yield call(waitForSegmentInit, true);
     endSpan(waitForSegmentSpan);
-
-    const waitForEnvironmentsSpan = startNestedSpan(
-      "AppViewerEngine.waitForFetchEnvironments",
-      rootSpan,
-    );
-
-    yield call(waitForFetchEnvironments);
-    endSpan(waitForEnvironmentsSpan);
 
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 
