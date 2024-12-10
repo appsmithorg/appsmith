@@ -69,11 +69,17 @@ strategyType: RollingUpdate
 ##
 ## Init containers for redis & mongodb
 ##
-initContainer: {}
-  # redis:
-  #   image: docker.io/bitnami/redis-cluster:7.0.13-debian-11-r10
-  # mongodb:
-  #   image:  docker.io/bitnami/mongodb:5.0.21-debian-11-r5
+initContainer:
+  redis:
+    registry: docker.io
+    repository: bitnami/redis-cluster
+    tag: 7.0.13-debian-11-r10
+    pullPolicy: IfNotPresent
+  mongodb:
+    registry: docker.io
+    repository: bitnami/mongodb
+    tag: 5.0.21-debian-11-r5
+    pullPolicy: IfNotPresent
 ## Image
 ##
 image:
