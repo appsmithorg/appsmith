@@ -1,7 +1,7 @@
 package com.appsmith.server.solutions.ce_compatible;
 
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.EmailService;
@@ -20,7 +20,7 @@ public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAcces
             SessionUserService sessionUserService,
             PermissionGroupService permissionGroupService,
             WorkspaceService workspaceService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             AnalyticsService analyticsService,
             UserService userService,
             PermissionGroupPermission permissionGroupPermission,

@@ -4,21 +4,21 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.Permission;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.TenantRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
+import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.solutions.PolicySolution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DataIntegrityViolationException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -37,11 +37,12 @@ public class SeedMongoData {
 
     @Bean
     ApplicationRunner init(
-            UserRepository userRepository,
-            WorkspaceRepository workspaceRepository,
-            PluginRepository pluginRepository,
-            TenantRepository tenantRepository,
-            PermissionGroupRepository permissionGroupRepository,
+            UserRepositoryCake userRepository,
+            UserRepositoryCake userRepositoryDirect,
+            WorkspaceRepositoryCake workspaceRepository,
+            PluginRepositoryCake pluginRepository,
+            TenantRepositoryCake tenantRepository,
+            PermissionGroupRepositoryCake permissionGroupRepository,
             PolicySolution policySolution) {
 
         log.info("Seeding the data");
@@ -103,24 +104,28 @@ public class SeedMongoData {
         };
 
         // Seed the plugin data into the DB
-        Flux<Plugin> pluginFlux = Flux.just(pluginData)
-                .map(array -> {
-                    log.debug("Creating the plugins");
-                    Plugin plugin = new Plugin();
+        Flux<Plugin> pluginFlux = Flux.just(pluginData).flatMap(array -> {
+            log.debug("Creating the plugins");
+            Plugin plugin = new Plugin();
 
-                    plugin.setName((String) array[0]);
-                    plugin.setType((PluginType) array[1]);
-                    plugin.setPackageName((String) array[2]);
-                    plugin.setDefaultInstall((Boolean) array[3]);
-                    log.debug("Create plugin: {}", plugin);
-                    return plugin;
-                })
-                .flatMap(pluginRepository::save);
+            plugin.setName((String) array[0]);
+            plugin.setType((PluginType) array[1]);
+            plugin.setPackageName((String) array[2]);
+            plugin.setDefaultInstall((Boolean) array[3]);
+            log.debug("Create plugin: {}", plugin);
+            return pluginRepository.save(plugin).onErrorResume(e -> {
+                // Ignore the duplicate exception
+                if (e instanceof DataIntegrityViolationException
+                        && e.getMessage().contains("constraint")) {
+                    return Mono.empty();
+                }
+                return Mono.error(e);
+            });
+        });
 
         Tenant defaultTenant = new Tenant();
         defaultTenant.setDisplayName("Default");
         defaultTenant.setSlug("default");
-        defaultTenant.setPricingPlan(PricingPlan.FREE);
 
         Mono<String> defaultTenantId = tenantRepository
                 .findBySlug("default")
@@ -136,11 +141,15 @@ public class SeedMongoData {
                     log.debug("Going to create bare users");
                     User user = new User();
                     user.setName((String) array[0]);
-                    user.setEmail((String) array[1]);
+                    final String email = (String) array[1];
+                    user.setEmail(email);
                     user.setState((UserState) array[2]);
                     user.setPolicies((Set<Policy>) array[3]);
                     user.setTenantId(tenantId);
-                    return userRepository.save(user);
+                    return userRepository
+                            .findByEmail(email)
+                            .flatMap(userRepository::delete)
+                            .then(userRepository.save(user));
                 })
                 .flatMap(user -> {
                     PermissionGroup permissionGroupUser = new PermissionGroup();

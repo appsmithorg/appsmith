@@ -8,6 +8,7 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.service.GitExecutorImpl;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.Git;
@@ -17,10 +18,12 @@ import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -34,6 +37,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @Import({GitExecutorImpl.class})
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest
 public class GitExecutorTest {
 

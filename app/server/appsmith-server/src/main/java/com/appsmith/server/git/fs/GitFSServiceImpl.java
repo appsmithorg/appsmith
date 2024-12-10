@@ -14,7 +14,7 @@ import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.GitDeployKeysRepository;
+import com.appsmith.server.repositories.cakes.GitDeployKeysRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -31,7 +31,7 @@ import org.springframework.transaction.reactive.TransactionalOperator;
 public class GitFSServiceImpl extends GitFSServiceCECompatibleImpl implements GitHandlingService {
 
     public GitFSServiceImpl(
-            GitDeployKeysRepository gitDeployKeysRepository,
+            GitDeployKeysRepositoryCake gitDeployKeysRepository,
             GitPrivateRepoHelper gitPrivateRepoHelper,
             CommonGitFileUtils commonGitFileUtils,
             GitRedisUtils gitRedisUtils,

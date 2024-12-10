@@ -6,12 +6,12 @@ import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.helpers.NetworkUtils;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.util.WebClientUtils;
@@ -50,12 +50,12 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final SegmentConfig segmentConfig;
     private final CommonConfig commonConfig;
 
-    private final WorkspaceRepository workspaceRepository;
-    private final ApplicationRepository applicationRepository;
-    private final NewPageRepository newPageRepository;
-    private final NewActionRepository newActionRepository;
-    private final DatasourceRepository datasourceRepository;
-    private final UserRepository userRepository;
+    private final WorkspaceRepositoryCake workspaceRepository;
+    private final ApplicationRepositoryCake applicationRepository;
+    private final NewPageRepositoryCake newPageRepository;
+    private final NewActionRepositoryCake newActionRepository;
+    private final DatasourceRepositoryCake datasourceRepository;
+    private final UserRepositoryCake userRepository;
     private final ProjectProperties projectProperties;
     private final DeploymentProperties deploymentProperties;
     private final NetworkUtils networkUtils;
@@ -157,8 +157,8 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                         configService.getInstanceId().defaultIfEmpty("null"),
                         networkUtils.getExternalAddress(),
                         nonDeletedObjectsCountMono,
-                        applicationRepository.getAllApplicationsCountAccessibleToARoleWithPermission(
-                                AclPermission.READ_APPLICATIONS, publicPermissionGroupId)))
+                        Mono.justOrEmpty(applicationRepository.getAllApplicationsCountAccessibleToARoleWithPermission(
+                                AclPermission.READ_APPLICATIONS, publicPermissionGroupId))))
                 .flatMap(statsData -> {
                     Map<String, Object> propertiesMap = new java.util.HashMap<>(Map.ofEntries(
                             entry("instanceId", statsData.getT1()),

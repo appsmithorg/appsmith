@@ -7,8 +7,8 @@ import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.services.CrudService;
-import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -31,7 +31,7 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> userCreate(User user, boolean isAdminUser);
 
-    Mono<Integer> updateWithoutPermission(String id, UpdateDefinition updateObj);
+    Mono<Integer> updateWithoutPermission(String id, BridgeUpdate updateObj);
 
     Mono<User> updateCurrentUser(UserUpdateDTO updates, ServerWebExchange exchange);
 

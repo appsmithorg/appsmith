@@ -1,23 +1,28 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
 import java.util.Map;
 
 @Getter
 @Setter
-@Document
+@Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class Theme extends BaseDomain {
     public static final String LEGACY_THEME_NAME = "classic";
@@ -39,12 +44,18 @@ public class Theme extends BaseDomain {
     String workspaceId;
 
     @JsonView({Views.Public.class, Git.class})
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     private Object config;
 
     @JsonView({Views.Public.class, Git.class})
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     private Object properties;
 
     @JsonView({Views.Public.class, Git.class})
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     private Map<String, Object> stylesheet;
 
     @JsonProperty("isSystemTheme") // manually setting property name to make sure it's compatible with Gson

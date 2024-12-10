@@ -20,15 +20,16 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
 import com.appsmith.server.exports.internal.partial.PartialExportService;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
+import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -38,6 +39,7 @@ import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,6 +47,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -58,9 +61,10 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest
 public class PartialExportServiceTest {
-
     private static final Map<String, Datasource> datasourceMap = new HashMap<>();
     private static Plugin installedPlugin;
     private static String workspaceId;
@@ -92,10 +96,10 @@ public class PartialExportServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     DatasourceService datasourceService;
@@ -107,10 +111,10 @@ public class PartialExportServiceTest {
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
-    ThemeRepository themeRepository;
+    ThemeRepositoryCake themeRepository;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     PermissionGroupService permissionGroupService;

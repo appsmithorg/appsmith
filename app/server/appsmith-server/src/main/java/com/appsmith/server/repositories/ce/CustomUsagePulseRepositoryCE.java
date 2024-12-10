@@ -1,3 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
-public interface CustomUsagePulseRepositoryCE {}
+import com.appsmith.server.domains.UsagePulse;
+import com.appsmith.server.repositories.AppsmithRepository;
+
+public interface CustomUsagePulseRepositoryCE extends AppsmithRepository<UsagePulse> {}
