@@ -81,7 +81,7 @@ function PluginActionResponse() {
         dispatch(
           setPluginActionEditorDebuggerState({
             open: true,
-            selectedTab: DEBUGGER_TAB_KEYS.SCHEMA_TAB,
+            selectedTab: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
           }),
         );
       } else if (plugin.type === PluginType.API && !selectedTab) {

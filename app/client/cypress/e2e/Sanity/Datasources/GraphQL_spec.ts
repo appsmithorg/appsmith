@@ -305,6 +305,7 @@ describe(
         variable: GRAPHQL_VARIABLES,
       });
       apiPage.RunAPI();
+      apiPage.SelectPaneTab("Authentication");
       agHelper.GetNClick(locators._saveDatasource);
       dataSources.AssertDataSourceInfo([
         dataManager.dsValues[

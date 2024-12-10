@@ -1033,6 +1033,10 @@ const DashboardLineIcon = importSvg(
   async () => import("../__assets__/icons/ads/dashboard-line.svg"),
 );
 
+const DatasourceConfigIcon = importSvg(
+  async () => import("../__assets__/icons/ads/datasource-config.svg"),
+);
+
 // v3 icons
 const JsSquareV3Icon = importSvg(
   async () => import("../__assets__/icons/ads/js-square-v3-icon.svg"),
@@ -1182,6 +1186,7 @@ const ICON_LOOKUP = {
   "cut-control": CutIcon,
   "dashboard-line": DashboardLineIcon,
   "database-2-line": Database2Line,
+  "datasource-config": DatasourceConfigIcon,
   "datasource-v3": DatasourceV3Icon,
   "datasources-2": Datasources2,
   "decrease-control": DecreaseIcon,
