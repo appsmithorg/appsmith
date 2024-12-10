@@ -12,7 +12,7 @@ describe(
     it("1. Checking whether the appropriate error is displayed even after the removal of invalid chars in header key.", function () {
       const randomApi = `${
         dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl
-      }123`;
+      }`;
       apiPage.CreateAndFillApi(randomApi);
       apiPage.RunAPI(false, 2000, {
         expectedPath: "response.body.data.body.data.isExecutionSuccess",
