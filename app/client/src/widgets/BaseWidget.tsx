@@ -217,7 +217,7 @@ abstract class BaseWidget<
 
     actionPayload.triggerPropertyName &&
       AppsmithConsole.info({
-        text: `${actionPayload.triggerPropertyName} triggered`,
+        text: `Event ${actionPayload.triggerPropertyName} fired`,
         source: {
           type: ENTITY_TYPE.WIDGET,
           id: this.props.widgetId,
@@ -535,10 +535,12 @@ export const WIDGET_DISPLAY_PROPS = {
   isDisabled: true,
   backgroundColor: true,
 };
+
 export interface WidgetError extends Error {
   type: "property" | "configuration" | "other";
   path?: string;
 }
+
 export interface WidgetErrorProps {
   errors?: WidgetError[];
 }

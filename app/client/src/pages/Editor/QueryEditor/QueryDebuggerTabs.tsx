@@ -184,15 +184,15 @@ function QueryDebuggerTabs({
   if (ideViewMode === EditorViewMode.FullScreen) {
     responseTabs.push(
       {
+        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+        title: createMessage(DEBUGGER_LOGS),
+        panelComponent: <DebuggerLogs searchQuery={actionName} />,
+      },
+      {
         key: DEBUGGER_TAB_KEYS.ERROR_TAB,
         title: createMessage(DEBUGGER_ERRORS),
         count: errorCount,
         panelComponent: <ErrorLogs />,
-      },
-      {
-        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-        title: createMessage(DEBUGGER_LOGS),
-        panelComponent: <DebuggerLogs searchQuery={actionName} />,
       },
     );
   }

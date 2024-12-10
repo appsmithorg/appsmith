@@ -55,17 +55,6 @@ export function ApiResponseHeaders(props: {
     return headersTransformer(props.actionResponse?.headers);
   }, [props.actionResponse?.headers]);
 
-  const errorCalloutLinks = useMemo(() => {
-    return [
-      {
-        children: "Debug",
-        endIcon: "bug",
-        onClick: props.onDebugClick,
-        to: "",
-      },
-    ];
-  }, [props.onDebugClick]);
-
   const headersInput = useMemo(() => {
     return {
       value: !isEmpty(responseHeaders)
@@ -91,21 +80,21 @@ export function ApiResponseHeaders(props: {
   return (
     <Flex className="t--headers-tab" flexDirection="column" h="100%" w="100%">
       {runHasFailed && !props.isRunning && (
-        <Callout kind="error" links={errorCalloutLinks}>
-          {createMessage(CHECK_REQUEST_BODY)}
-        </Callout>
+        <Callout kind="error">{createMessage(CHECK_REQUEST_BODY)}</Callout>
       )}
-      <ResponseDataContainer>
-        {isEmpty(props.actionResponse.statusCode) ? (
-          <NoResponse
-            isRunDisabled={props.isRunDisabled}
-            isRunning={props.isRunning}
-            onRunClick={props.onRunClick}
-          />
-        ) : (
-          <ReadOnlyEditor folding height={"100%"} input={headersInput} />
-        )}
-      </ResponseDataContainer>
+      {!runHasFailed && (
+        <ResponseDataContainer>
+          {isEmpty(props.actionResponse.statusCode) ? (
+            <NoResponse
+              isRunDisabled={props.isRunDisabled}
+              isRunning={props.isRunning}
+              onRunClick={props.onRunClick}
+            />
+          ) : (
+            <ReadOnlyEditor folding height={"100%"} input={headersInput} />
+          )}
+        </ResponseDataContainer>
+      )}
     </Flex>
   );
 }

@@ -35,7 +35,14 @@ const pluginActionEditorDebuggerConfig: Config = {
   get: getPluginActionDebuggerState,
 };
 
-const getConfig = (focusInfo: FocusEntityInfo): Config => {
+export const getDebuggerPaneConfig = (
+  focusInfo: FocusEntityInfo,
+  ideViewMode: EditorViewMode,
+): Config => {
+  if (ideViewMode === EditorViewMode.SplitScreen) {
+    return canvasDebuggerConfig;
+  }
+
   switch (focusInfo.entity) {
     case FocusEntity.QUERY:
       return pluginActionEditorDebuggerConfig;
@@ -55,10 +62,7 @@ const useDebuggerTriggerClick = () => {
   const ideState = useSelector(getIDEViewMode);
   const dispatch = useDispatch();
 
-  const config =
-    ideState === EditorViewMode.FullScreen
-      ? getConfig(currentFocus)
-      : canvasDebuggerConfig;
+  const config = getDebuggerPaneConfig(currentFocus, ideState);
 
   const state = useSelector(config.get);
 

@@ -23,7 +23,7 @@ export class DebuggerHelper {
     _logState: ".t--debugger-log-state",
     _errorCount: ".t--debugger-count",
     _clearLogs: ".t--debugger-clear-logs",
-    _logMessageOccurence: ".t--debugger-log-message-occurence",
+    _logMessageOccurence: ".t--debugger-log-message-occurrence",
     _debuggerMessage: "[data-testid=t--debugger-log-message]",
     _contextMenuIcon: ".t--debugger-contextual-error-menu ",
     _contextMenuItem: ".t--debugger-contextual-menuitem",
@@ -141,7 +141,8 @@ export class DebuggerHelper {
   }
 
   AssertErrorCount(count: number) {
-    this.agHelper.GetNAssertContains(this.locators._errorCount, count);
+    const assertion = count > 0 ? `Debug (${count})` : "Debug";
+    this.agHelper.GetNAssertContains(this.locators._errorCount, assertion);
   }
 
   changeLogsGroup(option: string) {

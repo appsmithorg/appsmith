@@ -15,6 +15,7 @@ import {
   draggableWidgets,
   propPane,
   table,
+  debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -158,14 +159,13 @@ describe(
       );
       apiPage.RunAPI(false);
       cy.wait("@postExecuteError");
-      cy.get(commonlocators.errorTab)
-        .should("be.visible")
-        .click({ force: true });
-      cy.get(commonlocators.debuggerLabel)
-        .invoke("text")
-        .then(($text) => {
-          expect($text).to.eq("An unexpected error occurred");
-        });
+      debuggerHelper.ClickLogsTab();
+      debuggerHelper.DoesConsoleLogExist(
+        "Failed execution",
+        true,
+        "InternalServerErrorApi",
+      );
+      debuggerHelper.ClearLogs();
     });
 
     it("3. Bug 4775: No Cyclical dependency when Api returns an error", function () {
@@ -191,13 +191,8 @@ describe(
         locators._specificToast("Cyclic dependency found while evaluating"),
       );
       cy.ResponseStatusCheck("404 NOT_FOUND");
-      agHelper.GetNClick(commonlocators.errorTab);
-      agHelper.GetNClick(commonlocators.debuggerToggle);
-      cy.get(commonlocators.debuggerLabel)
-        .invoke("text")
-        .then(($text) => {
-          expect($text.toLowerCase()).contains("Not Found".toLowerCase());
-        });
+      agHelper.GetNClick(commonlocators.logsTab);
+      debuggerHelper.DoesConsoleLogExist("Failed execution", true, "MockApi");
     });
 
     it("4. Bug 13515: API Response gets garbled if encoded with gzip", function () {

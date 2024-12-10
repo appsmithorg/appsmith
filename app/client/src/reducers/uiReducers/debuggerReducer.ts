@@ -37,8 +37,8 @@ const removeRepeatedLogsAndMerge = (
 
       if (
         equal(
-          omit(lastLog, ["occurrenceCount"]),
-          omit(incomingLog, ["occurrenceCount"]),
+          omit(lastLog, ["occurrenceCount", "timestamp"]),
+          omit(incomingLog, ["occurrenceCount", "timestamp"]),
         )
       ) {
         lastLog.hasOwnProperty("occurrenceCount") && !!lastLog.occurrenceCount

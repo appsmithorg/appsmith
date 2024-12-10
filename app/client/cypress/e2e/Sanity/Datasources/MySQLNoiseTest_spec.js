@@ -9,6 +9,7 @@ import {
   dataSources,
   debuggerHelper,
 } from "../../../support/Objects/ObjectsCore";
+
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe(
@@ -70,7 +71,7 @@ describe(
       debuggerHelper.OpenDebugger();
       debuggerHelper.ClickLogsTab();
       debuggerHelper.DoesConsoleLogExist(
-        "Execution failed with status PE-STC-5000",
+        "Failed execution",
         true,
         "NoiseTestQuery",
       );

@@ -141,3 +141,9 @@ export const setCanvasDebuggerState = (
     payload,
   };
 };
+
+export const showDebuggerLogs = () => {
+  return {
+    type: ReduxActionTypes.SHOW_DEBUGGER_LOGS,
+  };
+};

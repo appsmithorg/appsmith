@@ -32,6 +32,5 @@ export default {
   apiSearchHint: ".datasource-hint",
   slashCommandButton: ".commands-button",
   apiResponseObject: ".object-key",
-  apiDebuggerLink: ".debugger-entity-link",
-  apiResponseTabsList : ".ads-v2-tabs__list"
+  apiResponseTabsList: ".ads-v2-tabs__list",
 };

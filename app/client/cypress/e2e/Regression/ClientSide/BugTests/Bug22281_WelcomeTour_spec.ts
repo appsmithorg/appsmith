@@ -11,6 +11,6 @@ describe("Welcome tour spec", { tags: ["@tag.excludeForAirgap"] }, function () {
     //Exit preview mode
     _.agHelper.GetNClick(_.locators._exitPreviewMode);
     //verify debugger is present
-    _.agHelper.GetNAssertContains(_.locators._errorTab, "Errors");
+    _.agHelper.GetNAssertContains(_.locators._errorTab, "Linter");
   });
 });
