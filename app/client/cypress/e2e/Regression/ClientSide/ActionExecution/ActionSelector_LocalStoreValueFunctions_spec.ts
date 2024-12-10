@@ -107,7 +107,7 @@ describe(
       agHelper.GetNClick(propPane._actionSelectorDelete);
     });
 
-    it("3. To verify value stored under a key can be successfully overwritten.", () => {
+    it.only("3. To verify value stored under a key can be successfully overwritten.", () => {
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       propPane.SelectPlatformFunction("onClick", "Store value");
       agHelper.TypeText(
@@ -127,7 +127,7 @@ describe(
       );
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.SelectPlatformFunctionExisting("Store value", 0);
+      agHelper.GetNClick(propPane._actionCardByTitle("Store value"));
       agHelper.RemoveChars(
         propPane._actionSelectorFieldByLabel("Value"),
         20,

@@ -4,22 +4,30 @@ import {
   deployMode,
   draggableWidgets,
   entityExplorer,
+  homePage,
   locators,
+  partialImportExport,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "To verify action selector - action selector general functions",
   { tags: ["@tag.JS"] },
   () => {
-
-    let modalTextValue: string;
+    let modalTextValue: string,
+      currentAppName: string = "ActionSelectorAppNew",
+      currentWorkspace: string,
+      forkWorkspaceName: string;
 
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
+      cy.get("@workspaceName").then((workspaceName: any) => {
+        currentWorkspace = workspaceName;
+      });
     });
 
     it("1. Verify that actions can be configured ", () => {
@@ -116,32 +124,93 @@ describe(
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       agHelper.GetHoverNClick(propPane._actionCallbacks);
       agHelper
-      .GetText(propPane._getActionCardSelector("modal"))
-      .then(($count) => {
-        modalTextValue = $count as string;
-        expect(modalTextValue).to.contain("+2");
-      });
+        .GetText(propPane._getActionCardSelector("modal"))
+        .then(($count) => {
+          modalTextValue = $count as string;
+          expect(modalTextValue).to.contain("+2");
+        });
     });
-
 
     it("6. Verify that callbacks can be deleted", () => {
+      agHelper.GetNClick(propPane._getActionCardSelector("alert"), 1);
+      agHelper.GetNClick(propPane._actionSelectorDelete, 0);
       agHelper
-      .GetText(propPane._getActionCardSelector("modal"))
-      .then(($count) => {
-        modalTextValue = $count as string;
-        expect(modalTextValue).to.contain("+1");
-      });
+        .GetText(propPane._getActionCardSelector("modal"))
+        .then(($count) => {
+          modalTextValue = $count as string;
+          expect(modalTextValue).to.contain("+1");
+        });
     });
 
-    
-    it("7. Verify that configured actions on existing apps are intact", () => {});
+    it("7. Verify that configured actions stay intact on partial import of a page", () => {
+      PageList.AddNewPage("New blank page");
+      partialImportExport.OpenImportModalWithPage("Page2");
 
-    it("8. Verify that configured actions stay intact on import of an app", () => {});
+      // Import Widgets
+      partialImportExport.ImportPartiallyExportedFile(
+        "frameworkFunPartialPage.json",
+        "Widgets",
+        ["Button1"],
+      );
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("success alert", 0, 1);
 
-    it("9. Verify that configured actions stay intact on partial import of a page", () => {});
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("success alert", 0, 1);
+      deployMode.NavigateBacktoEditor();
+    });
 
-    it("10. Verify that configured actions stay intact on forking an app", () => {});
+    it("8. Verify that configured actions stay intact on navigating between pages", () => {
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Failure Callback", 0, 1);
 
-    it("11. Verify that configured actions stay intact on navigating between pages", () => {});
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Failure Callback", 0, 1);
+      deployMode.NavigateBacktoEditor();
+    });
+
+    it("9. Verify that configured actions stay intact on forking an app", () => {
+      homePage.RenameApplication("ActionSelectorAppNew");
+      forkWorkspaceName = "ForkAppWorkspace";
+      homePage.CreateNewWorkspace(forkWorkspaceName, true);
+      homePage.SelectWorkspace(currentWorkspace);
+      homePage.ForkApplication(currentAppName, forkWorkspaceName);
+
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Failure Callback", 0, 1);
+
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Failure Callback", 0, 1);
+      deployMode.NavigateBacktoEditor();
+    });
+
+    it("10. Verify that configured actions stay intact on import of an app", () => {
+      homePage.NavigateToHome();
+      homePage.ImportApp(
+        "ActionSelectorAppNewExported.json",
+        "ForkAppWorkspace",
+      );
+      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+      agHelper
+        .GetText(propPane._getActionCardSelector("modal"))
+        .then(($count) => {
+          modalTextValue = $count as string;
+          expect(modalTextValue).to.contain("+1");
+        });
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Failure Callback", 0, 1);
+
+      deployMode.DeployApp();
+      agHelper.AssertElementVisibility(appSettings.locators._header);
+      agHelper.ClickButton("Submit");
+      agHelper.ValidateToastMessage("Failure Callback", 0, 1);
+    });
   },
 );
