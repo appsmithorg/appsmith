@@ -77,6 +77,7 @@ import IconSelectControlV2 from "./IconSelectControlV2";
 import PrimaryColumnsControlWDS from "./PrimaryColumnsControlWDS";
 import ToolbarButtonListControl from "./ToolbarButtonListControl";
 import ArrayControl from "./ArrayControl";
+import HTMLComputeTablePropertyControl from "./HTMLTableComputeValue";
 
 export const PropertyControls = {
   InputTextControl,
@@ -101,6 +102,7 @@ export const PropertyControls = {
   ButtonTabControl,
   ComputeTablePropertyControl,
   ComputeTablePropertyControlV2,
+  HTMLComputeTablePropertyControl,
   MenuItemsControl,
   MenuButtonDynamicItemsControl,
   OpenConfigPanelControl,

@@ -43,6 +43,10 @@ export default {
           value: ColumnTypes.DATE,
         },
         {
+          label: "HTML",
+          value: ColumnTypes.HTML,
+        },
+        {
           label: "Icon button",
           value: ColumnTypes.ICON_BUTTON,
         },
@@ -150,6 +154,22 @@ export default {
       },
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: false,
+      isTriggerProperty: false,
+    },
+    {
+      helpText:
+        "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
+      propertyName: "computedValue",
+      label: "Computed value",
+      controlType: "HTML_TABLE_COMPUTE_VALUE",
+      additionalControlData: {
+        isArrayValue: true,
+      },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.HTML]);
+      },
+      dependencies: ["primaryColumns", "columnOrder"],
+      isBindProperty: true,
       isTriggerProperty: false,
     },
     {
