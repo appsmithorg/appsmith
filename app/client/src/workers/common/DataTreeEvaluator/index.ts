@@ -154,7 +154,6 @@ import {
 } from "../AppComputationCache/types";
 import { getDataTreeContext } from "ee/workers/Evaluation/Actions";
 import { WorkerEnv } from "workers/Evaluation/handlers/workerEnv";
-import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -1162,9 +1161,7 @@ export default class DataTreeEvaluator {
 
           let scopeCache;
 
-          if (
-            WorkerEnv.isFFEnabled(FEATURE_FLAG.release_evaluation_scope_cache)
-          ) {
+          if (WorkerEnv.flags.release_evaluation_scope_cache) {
             if (!!entity && isAnyJSAction(entity)) {
               scopeCache = triggerBasedDataTreeContext;
             } else {
@@ -1247,9 +1244,7 @@ export default class DataTreeEvaluator {
             set(contextTree, fullPropertyPath, parsedValue);
             set(safeTree, fullPropertyPath, klona(parsedValue));
 
-            if (
-              WorkerEnv.isFFEnabled(FEATURE_FLAG.release_evaluation_scope_cache)
-            ) {
+            if (WorkerEnv.flags.release_evaluation_scope_cache) {
               set(
                 triggerBasedDataTreeContext,
                 fullPropertyPath,
@@ -1308,9 +1303,7 @@ export default class DataTreeEvaluator {
             set(contextTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, klona(evalPropertyValue));
 
-            if (
-              WorkerEnv.isFFEnabled(FEATURE_FLAG.release_evaluation_scope_cache)
-            ) {
+            if (WorkerEnv.flags.release_evaluation_scope_cache) {
               set(
                 triggerBasedDataTreeContext,
                 fullPropertyPath,
@@ -1364,11 +1357,7 @@ export default class DataTreeEvaluator {
               set(contextTree, fullPropertyPath, evalValue);
               set(safeTree, fullPropertyPath, valueForSafeTree);
 
-              if (
-                WorkerEnv.isFFEnabled(
-                  FEATURE_FLAG.release_evaluation_scope_cache,
-                )
-              ) {
+              if (WorkerEnv.flags.release_evaluation_scope_cache) {
                 set(
                   triggerBasedDataTreeContext,
                   fullPropertyPath,
@@ -1394,9 +1383,7 @@ export default class DataTreeEvaluator {
             set(contextTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, klona(evalPropertyValue));
 
-            if (
-              WorkerEnv.isFFEnabled(FEATURE_FLAG.release_evaluation_scope_cache)
-            ) {
+            if (WorkerEnv.flags.release_evaluation_scope_cache) {
               set(
                 triggerBasedDataTreeContext,
                 fullPropertyPath,

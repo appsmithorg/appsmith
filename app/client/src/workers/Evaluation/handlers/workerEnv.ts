@@ -1,7 +1,7 @@
-import type { FeatureFlags, FeatureFlag } from "ee/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 
 export class WorkerEnv {
-  static flags: FeatureFlags;
+  static flags: FeatureFlags = {} as FeatureFlags;
   static cloudHosting: boolean;
 
   static setFeatureFlags(featureFlags: FeatureFlags) {
@@ -18,9 +18,5 @@ export class WorkerEnv {
 
   static getCloudHosting() {
     return WorkerEnv.cloudHosting;
-  }
-
-  static isFFEnabled(flag: FeatureFlag) {
-    return WorkerEnv.flags[flag] === true;
   }
 }
