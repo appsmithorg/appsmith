@@ -191,6 +191,7 @@ describe("generateDataTreeJSAction", () => {
         myVar1: "SMART_SUBSTITUTE",
         myVar2: "SMART_SUBSTITUTE",
       },
+      actionNames: ["myFun2", "myFun1"],
     };
     const resultData = generateDataTreeJSAction(jsCollection);
 
@@ -389,6 +390,7 @@ describe("generateDataTreeJSAction", () => {
         myVar1: "SMART_SUBSTITUTE",
         myVar2: "SMART_SUBSTITUTE",
       },
+      actionNames: ["myFun2", "myFun1"],
     };
 
     const result = generateDataTreeJSAction(jsCollection);

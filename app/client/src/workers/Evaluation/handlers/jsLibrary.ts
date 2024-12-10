@@ -1,4 +1,3 @@
-import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
 import difference from "lodash/difference";
 import type { Def } from "tern";
 import { invalidEntityIdentifiers } from "workers/common/DependencyMap/utils";
@@ -34,7 +33,7 @@ enum LibraryInstallError {
 class ImportError extends Error {
   code = LibraryInstallError.ImportError;
   constructor(url: string) {
-    super(createMessage(customJSLibraryMessages.IMPORT_URL_ERROR, url));
+    super(`The script at ${url} cannot be installed.`);
     this.name = "ImportError";
   }
 }
@@ -42,7 +41,7 @@ class ImportError extends Error {
 class TernDefinitionError extends Error {
   code = LibraryInstallError.TernDefinitionError;
   constructor(name: string) {
-    super(createMessage(customJSLibraryMessages.DEFS_FAILED_ERROR, name));
+    super(`Failed to generate autocomplete definitions for ${name}.`);
     this.name = "TernDefinitionError";
   }
 }

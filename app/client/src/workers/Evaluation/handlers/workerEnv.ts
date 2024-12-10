@@ -1,9 +1,7 @@
 import type { FeatureFlags } from "ee/entities/FeatureFlag";
 
 export class WorkerEnv {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static flags: any;
+  static flags: FeatureFlags = {} as FeatureFlags;
   static cloudHosting: boolean;
 
   static setFeatureFlags(featureFlags: FeatureFlags) {

@@ -21,7 +21,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { EVAL_WORKER_ACTIONS } from "ee/workers/Evaluation/evalWorkerActions";
 import { validateResponse } from "./ErrorSagas";
-import { EvalWorker } from "./EvaluationsSaga";
+import { evalWorker as EvalWorker } from "utils/workerInstances";
 import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "ee/selectors/applicationSelectors";

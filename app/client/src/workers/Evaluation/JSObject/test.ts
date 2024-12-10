@@ -195,9 +195,6 @@ describe("saveResolvedFunctionsAndJSUpdates", function () {
           {
             key: "myFun2",
           },
-          {
-            key: "myFun2",
-          },
         ],
         bindingPaths: {
           body: "SMART_SUBSTITUTE",
@@ -216,6 +213,7 @@ describe("saveResolvedFunctionsAndJSUpdates", function () {
         pluginType: "JS",
         name: "JSObject1",
         actionId: "64013546b956c26882acc587",
+        actionNames: ["myFun1", "myFun2"],
       } as JSActionEntityConfig,
     };
     const entityName = "JSObject1";
