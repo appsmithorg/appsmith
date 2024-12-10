@@ -95,11 +95,14 @@ export const getDataTreeContext = (args: {
     );
   }
 
-  if (removeEntityFunctions)
+  if (removeEntityFunctions) {
     removeEntityFunctionsFromEvalContext(
       entityFunctionCollection,
       EVAL_CONTEXT,
     );
+
+    return EVAL_CONTEXT;
+  }
 
   if (!isTriggerBased) {
     return EVAL_CONTEXT;
