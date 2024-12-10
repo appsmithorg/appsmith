@@ -1,5 +1,4 @@
-import type { MutableRefObject } from "react";
-import React, { useRef } from "react";
+import React, { useRef, type MutableRefObject } from "react";
 import type { DropdownOption } from "@appsmith/ads-old";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
@@ -15,6 +14,7 @@ import {
   Tooltip,
   Text,
 } from "@appsmith/ads";
+import { useEventCallback } from "usehooks-ts";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -61,6 +61,10 @@ interface FilterHeaderProps {
 function FilterHeader(props: FilterHeaderProps) {
   const dispatch = useDispatch();
   const searchRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
+
+  const onClearClick = useEventCallback(() => {
+    dispatch(clearLogs());
+  });
 
   return (
     <Wrapper>
@@ -111,7 +115,7 @@ function FilterHeader(props: FilterHeaderProps) {
           className="t--debugger-clear-logs"
           isIconButton
           kind="tertiary"
-          onClick={() => dispatch(clearLogs())}
+          onClick={onClearClick}
           size="sm"
           startIcon="clear"
         />
