@@ -70,6 +70,7 @@ import {
   JS_EXECUTION_FAILURE,
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
+  JS_EXECUTION_TRIGGERED,
 } from "ee/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -462,17 +463,27 @@ export function* handleExecuteJSFunctionSaga(data: {
     collection,
   );
 
+  AppsmithConsole.info({
+    text: createMessage(JS_EXECUTION_TRIGGERED),
+    source: {
+      type: ENTITY_TYPE.JSACTION,
+      name: jsActionPathNameToDisplay,
+      id: collectionId,
+    },
+  });
+
   try {
     const localExecutionAllowed = isBrowserExecutionAllowed(collection, action);
     let isDirty = false;
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let result: any = null;
+    let errors = [];
 
     if (localExecutionAllowed) {
       // TODO: Fix this the next time the file is edited
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const response: { isDirty: false; result: any } = yield call(
+      const response: { isDirty: false; result: any; errors: any } = yield call(
         executeJSFunction,
         action,
         collection,
@@ -481,6 +492,7 @@ export function* handleExecuteJSFunctionSaga(data: {
 
       result = response.result;
       isDirty = response.isDirty;
+      errors = response.errors;
     }
     // open response tab in debugger on runnning or page load js action.
 
@@ -511,15 +523,17 @@ export function* handleExecuteJSFunctionSaga(data: {
     });
 
     if (localExecutionAllowed) {
-      AppsmithConsole.info({
-        text: createMessage(JS_EXECUTION_SUCCESS),
-        source: {
-          type: ENTITY_TYPE.JSACTION,
-          name: jsActionPathNameToDisplay,
-          id: collectionId,
-        },
-        state: { response: result },
-      });
+      if (!errors.length) {
+        AppsmithConsole.info({
+          text: createMessage(JS_EXECUTION_SUCCESS),
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: jsActionPathNameToDisplay,
+            id: collectionId,
+          },
+          state: { response: result },
+        });
+      }
     } else {
       yield put({
         type: ReduxActionTypes.JS_ACTION_REMOTE_EXECUTION_INIT,
@@ -546,7 +560,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       {
         payload: {
           id: actionId,
-          logType: LOG_TYPE.ACTION_EXECUTION_ERROR,
+          logType: LOG_TYPE.JS_EXECUTION_ERROR,
           text: createMessage(JS_EXECUTION_FAILURE),
           source: {
             type: ENTITY_TYPE.JSACTION,

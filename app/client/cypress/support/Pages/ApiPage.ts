@@ -83,6 +83,8 @@ export class ApiPage {
     "input[name='confirmBeforeExecute'][type='checkbox']";
   private _paginationTypeLabels = ".t--apiFormPaginationType label";
   _saveAsDS = ".t--store-as-datasource";
+  _responseStatus = ".t--response-status-code";
+  public _debugger = ".t--debugger-count";
 
   public _responseTabHeader = "[data-testid=t--tab-HEADERS_TAB]";
   public _headersTabContent = ".t--headers-tab";
@@ -471,8 +473,7 @@ export class ApiPage {
   }
 
   DebugError() {
-    this.agHelper.GetNClick(this._responseTabHeader);
-    cy.get(this._headersTabContent).contains("Debug").click();
+    this.agHelper.GetNClick(this._debugger);
   }
 
   public FillCurlNImport(value: string) {
