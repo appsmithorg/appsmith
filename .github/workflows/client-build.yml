@@ -249,7 +249,7 @@ jobs:
           cp ../../../../../build.tar ./
           git lfs track "build.tar"
           git add  build.tar
-          git commit -m "Update Latest build.tar"
+          git commit --allow-empty -m "Update Latest build.tar"
           git push
 
       # Set status = success

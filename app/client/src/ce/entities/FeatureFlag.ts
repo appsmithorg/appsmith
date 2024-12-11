@@ -43,6 +43,8 @@ export const FEATURE_FLAG = {
     "release_table_custom_loading_state_enabled",
   release_custom_widget_ai_builder: "release_custom_widget_ai_builder",
   ab_request_new_integration_enabled: "ab_request_new_integration_enabled",
+  release_table_html_column_type_enabled:
+    "release_table_html_column_type_enabled",
   release_gs_all_sheets_options_enabled:
     "release_gs_all_sheets_options_enabled",
 } as const;
@@ -83,6 +85,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_table_custom_loading_state_enabled: false,
   release_custom_widget_ai_builder: false,
   ab_request_new_integration_enabled: false,
+  release_table_html_column_type_enabled: false,
   release_gs_all_sheets_options_enabled: false,
 };
 
