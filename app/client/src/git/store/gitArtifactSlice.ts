@@ -32,11 +32,22 @@ import {
   pullInitAction,
   pullSuccessAction,
 } from "../actions/pullActions";
+import { toggleRepoLimitErrorModalAction } from "../actions/repoLimitErrorModalActions";
+import {
+  fetchLocalProfileErrorAction,
+  fetchLocalProfileInitAction,
+  fetchLocalProfileSuccessAction,
+} from "git/actions/fetchLocalProfileActions";
+import {
+  updateLocalProfileErrorAction,
+  updateLocalProfileInitAction,
+  updateLocalProfileSuccessAction,
+} from "git/actions/updateLocalProfileActions";
 
 const initialState: GitArtifactReduxState = {};
 
 export const gitArtifactSlice = createSlice({
-  name: "gitArtifact",
+  name: "git/artifact",
   initialState,
   reducers: {
     mount: mountAction,
@@ -59,9 +70,16 @@ export const gitArtifactSlice = createSlice({
     pullInit: pullInitAction,
     pullSuccess: pullSuccessAction,
     pullError: pullErrorAction,
+    fetchLocalProfileInit: fetchLocalProfileInitAction,
+    fetchLocalProfileSuccess: fetchLocalProfileSuccessAction,
+    fetchLocalProfileError: fetchLocalProfileErrorAction,
+    updateLocalProfileInit: updateLocalProfileInitAction,
+    updateLocalProfileSuccess: updateLocalProfileSuccessAction,
+    updateLocalProfileError: updateLocalProfileErrorAction,
+    toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
   },
 });
 
 export const gitArtifactActions = gitArtifactSlice.actions;
 
-export default gitArtifactSlice.reducer;
+export const gitArtifactReducer = gitArtifactSlice.reducer;

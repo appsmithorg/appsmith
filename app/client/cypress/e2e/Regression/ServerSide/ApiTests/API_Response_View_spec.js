@@ -5,7 +5,7 @@ import {
 
 const testdata = require("../../../../fixtures/testdata.json");
 import { agHelper, apiPage } from "../../../../support/Objects/ObjectsCore";
-import apiEditor from "../../../../locators/ApiEditor";
+import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
 const testUrl1 =
   "http://host.docker.internal:5001/v1/dynamicrecords/getstudents";
 
@@ -18,7 +18,7 @@ describe(
       apiPage.CreateAndFillApi(testUrl1, "TableTestAPI");
       agHelper.AssertAutoSave();
       apiPage.RunAPI();
-      cy.get(apiEditor.tableResponseTab).should("exist");
+      BottomTabs.response.validateTypeInMenu("TABLE", "exist");
       cy.DeleteAPI();
     });
 
@@ -30,7 +30,7 @@ describe(
       );
       agHelper.AssertAutoSave();
       apiPage.RunAPI();
-      cy.get(apiEditor.tableResponseTab).should("not.exist");
+      BottomTabs.response.validateTypeInMenu("TABLE", "not.exist");
       cy.DeleteAPI();
     });
   },

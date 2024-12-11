@@ -5,8 +5,10 @@ import { getFitPageChatHeight } from "../helpers";
 
 export const useCustomWidgetHeight = (
   size: keyof typeof COMPONENT_SIZE = COMPONENT_SIZE.FIT_PAGE,
-  isEmbed: boolean,
 ) => {
+  const { search } = window.location;
+  const queryParams = new URLSearchParams(search);
+  const isEmbed = queryParams.get("embed") === "true";
   const [componentHeight, setComponentHeight] = useState("");
 
   useLayoutEffect(() => {

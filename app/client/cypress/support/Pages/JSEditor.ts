@@ -16,6 +16,7 @@ export interface ICreateJSObjectOptions {
   prettify?: boolean;
   isPackages?: boolean;
 }
+
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
   completeReplace: false,
@@ -295,14 +296,18 @@ export class JSEditor {
   }
 
   /**
-  There are two types of parse errors in the JS Editor
-  1. Parse errors that render the JS Object invalid and all functions unrunnable
-  2. Parse errors within functions that throw errors when executing those functions
- */
+   There are two types of parse errors in the JS Editor
+   1. Parse errors that render the JS Object invalid and all functions unrunnable
+   2. Parse errors within functions that throw errors when executing those functions
+   */
   public AssertParseError(exists: boolean) {
     const { _jsObjectParseErrorCallout } = this;
     // Assert presence/absence of parse error
     cy.get(_jsObjectParseErrorCallout).should(exists ? "exist" : "not.exist");
+
+    if (exists) {
+      cy.get(_jsObjectParseErrorCallout).contains("Function failed to execute");
+    }
   }
 
   public SelectFunctionDropdown(funName: string) {
