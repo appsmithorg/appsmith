@@ -19,7 +19,7 @@ import updateLocalProfileSaga from "./updateLocalProfileSaga";
 import updateGlobalProfileSaga from "./updateGlobalProfileSaga";
 import initGitForEditorSaga from "./initGitSaga";
 import fetchGitMetadataSaga from "./fetchGitMetadataSaga";
-import triggerAutocommitSaga from "./triggerAutcommitSaga";
+import triggerAutocommitSaga from "./triggerAutocommitSaga";
 import fetchStatusSaga from "./fetchStatusSaga";
 import fetchProtectedBranchesSaga from "./fetchProtectedBranchesSaga";
 

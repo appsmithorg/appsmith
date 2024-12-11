@@ -80,7 +80,7 @@ import {
   mergeSuccessAction,
 } from "./actions/mergeActions";
 import {
-  pollAutcommitProgressStopAction,
+  pollAutocommitProgressStopAction,
   pollAutocommitProgressStartAction,
   triggerAutocommitErrorAction,
   triggerAutocommitInitAction,
@@ -192,7 +192,7 @@ export const gitArtifactSlice = createSlice({
     fetchAutocommitProgressSuccess: fetchAutocommitProgressSuccessAction,
     fetchAutocommitProgressError: fetchAutocommitProgressErrorAction,
     pollAutocommitProgressStart: pollAutocommitProgressStartAction,
-    pollAutcommitProgressStop: pollAutcommitProgressStopAction,
+    pollAutocommitProgressStop: pollAutocommitProgressStopAction,
   },
 });
 

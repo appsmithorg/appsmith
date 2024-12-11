@@ -39,7 +39,7 @@ export const pollAutocommitProgressStartAction = createSingleArtifactAction(
   },
 );
 
-export const pollAutcommitProgressStopAction = createSingleArtifactAction(
+export const pollAutocommitProgressStopAction = createSingleArtifactAction(
   (state) => {
     state.ui.autocommitPolling = false;
 

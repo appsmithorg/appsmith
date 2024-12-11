@@ -25,7 +25,7 @@ import {
 } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 
-interface PollAutcommitProgressParams {
+interface PollAutocommitProgressParams {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
   artifactId: string;
@@ -45,7 +45,7 @@ function isAutocommitHappening(
   );
 }
 
-function* pollAutocommitProgressSaga(params: PollAutcommitProgressParams) {
+function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
   const { artifactId, artifactType, baseArtifactId } = params;
   const basePayload = { artifactType, baseArtifactId };
   let triggerResponse: TriggerAutocommitResponse | undefined;
@@ -80,20 +80,20 @@ function* pollAutocommitProgressSaga(params: PollAutcommitProgressParams) {
           yield validateResponse(progressResponse);
 
         if (isValidResponse && !isAutocommitHappening(progressResponse?.data)) {
-          yield put(gitArtifactActions.pollAutcommitProgressStop(basePayload));
+          yield put(gitArtifactActions.pollAutocommitProgressStop(basePayload));
         }
 
         if (!isValidResponse) {
-          yield put(gitArtifactActions.pollAutcommitProgressStop(basePayload));
+          yield put(gitArtifactActions.pollAutocommitProgressStop(basePayload));
         }
 
         yield delay(1000);
       }
     } else {
-      yield put(gitArtifactActions.pollAutcommitProgressStop(basePayload));
+      yield put(gitArtifactActions.pollAutocommitProgressStop(basePayload));
     }
   } catch (error) {
-    yield put(gitArtifactActions.pollAutcommitProgressStop(basePayload));
+    yield put(gitArtifactActions.pollAutocommitProgressStop(basePayload));
     yield put(
       gitArtifactActions.fetchAutocommitProgressError({
         ...basePayload,
@@ -118,7 +118,7 @@ export default function* triggerAutocommitSaga(
     /* @ts-expect-error: not sure how to do typings of this */
     const pollTask = yield fork(pollAutocommitProgressSaga, params);
 
-    yield take(gitArtifactActions.pollAutcommitProgressStop.type);
+    yield take(gitArtifactActions.pollAutocommitProgressStop.type);
     yield cancel(pollTask);
   } else {
     yield put(triggerAutocommitSuccessAction());

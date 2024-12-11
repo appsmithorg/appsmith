@@ -7,7 +7,6 @@ function CtxAwareGitQuickActions() {
   const {
     autocommitEnabled,
     autocommitPolling,
-    connectPermitted,
     discard,
     discardLoading,
     fetchStatusLoading,
@@ -22,6 +21,7 @@ function CtxAwareGitQuickActions() {
     toggleGitSettingsModal,
   } = useGitContext();
 
+  const connectPermitted = true;
   const isPullFailing = !!pullError;
   const isStatusClean = status?.isClean ?? false;
   const statusBehindCount = status?.behindCount ?? 0;
