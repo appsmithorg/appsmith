@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import styled from "styled-components";
 
 import {
+  AUTOCOMMIT_IN_PROGRESS_MESSAGE,
   COMMIT_CHANGES,
   createMessage,
   GIT_SETTINGS,
@@ -15,7 +16,7 @@ import { getPullBtnStatus } from "./helpers";
 import { GitSettingsTab } from "../../enums";
 import ConnectButton from "./ConnectButton";
 import QuickActionButton from "./QuickActionButton";
-import AutocommitStatusbar from "./AutocommitStatusbar";
+import Statusbar from "../Statusbar";
 
 interface QuickActionsProps {
   isGitConnected: boolean;
@@ -127,7 +128,10 @@ function QuickActions({
     <Container>
       {/* <BranchButton /> */}
       {isAutocommitEnabled && isPollingAutocommit ? (
-        <AutocommitStatusbar completed={!isPollingAutocommit} />
+        <Statusbar
+          completed={!isPollingAutocommit}
+          message={createMessage(AUTOCOMMIT_IN_PROGRESS_MESSAGE)}
+        />
       ) : (
         <>
           <QuickActionButton
