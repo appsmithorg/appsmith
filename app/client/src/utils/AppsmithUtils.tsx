@@ -93,9 +93,7 @@ export const initializeAnalyticsAndTrackers = async (currentUser: User) => {
       AnalyticsUtil.initializeSmartLook(id);
     }
 
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
+    if (appsmithConfigs.segment.enabled) {
       if (appsmithConfigs.segment.apiKey) {
         // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
         await AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);

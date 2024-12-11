@@ -1,5 +1,4 @@
 import {
-  AnalyticsBrowser,
   type Analytics,
   type EventProperties,
   type MiddlewareFunction,
@@ -10,8 +9,6 @@ import log from "loglevel";
 class SegmentSingleton {
   private static instance: SegmentSingleton;
   private analytics: Analytics | null = null;
-
-  private constructor() {}
 
   public static getInstance(): SegmentSingleton {
     if (!SegmentSingleton.instance) {
@@ -31,6 +28,8 @@ class SegmentSingleton {
     }
 
     try {
+      const { AnalyticsBrowser } = await import("@segment/analytics-next");
+
       const [analytics] = await AnalyticsBrowser.load(
         { writeKey },
         {

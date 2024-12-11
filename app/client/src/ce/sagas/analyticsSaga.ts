@@ -10,7 +10,6 @@ import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAppMode } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
 import { getWidget } from "sagas/selectors";
-import { getUserSource } from "ee/utils/AnalyticsUtil";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 export interface UserAndAppDetails {
@@ -43,7 +42,7 @@ export function* getUserAndAppDetails() {
     isExampleApp: currentApp?.appIsExample || false,
     userId: user?.username || "",
     email: user?.email || "",
-    source: getUserSource(),
+    source: AnalyticsUtil.getUserSource(),
     instanceId: instanceId,
   };
 

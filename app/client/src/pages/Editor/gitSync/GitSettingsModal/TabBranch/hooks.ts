@@ -2,11 +2,11 @@ import { getInstanceId } from "ee/selectors/tenantSelectors";
 import { useSelector } from "react-redux";
 import { ENTERPRISE_PRICING_PAGE } from "constants/ThirdPartyConstants";
 import { useMemo } from "react";
-import { getUserSource } from "ee/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 export const useAppsmithEnterpriseLink = (feature: string) => {
   const instanceId = useSelector(getInstanceId);
-  const source = getUserSource();
+  const source = AnalyticsUtil.getUserSource();
   const constructedUrl = useMemo(() => {
     const url = new URL(ENTERPRISE_PRICING_PAGE);
 

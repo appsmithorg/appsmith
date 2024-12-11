@@ -7,15 +7,9 @@ import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 import type { EventName } from "ee/utils/analyticsUtilTypes";
-import SegmentSingleton from "./Analytics/segment";
+import SegmentSingleton from "utils/Analytics/segment";
+import MixpanelSingleton from "utils/Analytics/mixpanel";
 import type { EventProperties } from "@segment/analytics-next";
-
-export function getUserSource() {
-  const { cloudHosting, segment } = getAppsmithConfigs();
-  const source = cloudHosting || segment.apiKey ? "cloud" : "ce";
-
-  return source;
-}
 
 declare global {
   interface Window {
@@ -73,7 +67,7 @@ class AnalyticsUtil {
   static blockTrackEvent: boolean | undefined;
   static instanceId?: string = "";
   static blockErrorLogs = false;
-  private static segmentAnalytics: SegmentSingleton;
+  protected static segmentAnalytics: SegmentSingleton;
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
@@ -82,7 +76,17 @@ class AnalyticsUtil {
   static async initializeSegment(key: string) {
     this.segmentAnalytics = SegmentSingleton.getInstance();
 
-    return await this.segmentAnalytics.init(key);
+    // First we initialize segment
+    await this.segmentAnalytics.init(key);
+
+    // Then we initialize mixpanel as it needs to add middleware to segment
+    return MixpanelSingleton.getInstance().init();
+  }
+
+  public static getUserSource(): string {
+    const { cloudHosting, segment } = getAppsmithConfigs();
+
+    return cloudHosting || segment.apiKey ? "cloud" : "ce";
   }
 
   private static getEventUserProperties() {
@@ -91,7 +95,7 @@ class AnalyticsUtil {
     const appId = getApplicationId(window.location);
 
     if (userData) {
-      const source = getUserSource();
+      const source = this.getUserSource();
       let user: Record<string, unknown> = {};
 
       if (segment.apiKey) {
@@ -169,7 +173,7 @@ class AnalyticsUtil {
     const userId = userData.username;
 
     if (this.segmentAnalytics) {
-      const source = getUserSource();
+      const source = this.getUserSource();
 
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
       if (segment.apiKey) {
