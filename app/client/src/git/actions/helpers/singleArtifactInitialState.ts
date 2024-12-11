@@ -30,6 +30,9 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
     open: false,
     tab: GitSettingsTab.General,
   },
+  repoLimitErrorModal: {
+    open: false,
+  },
 };
 
 const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxState =
@@ -86,21 +89,12 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       loading: false,
       error: null,
     },
-    globalConfig: {
+    localProfile: {
       value: null,
       loading: false,
       error: null,
     },
-    localConfig: {
-      value: null,
-      loading: false,
-      error: null,
-    },
-    updateGlobalConfig: {
-      loading: false,
-      error: null,
-    },
-    updateLocalConfig: {
+    updateLocalProfile: {
       loading: false,
       error: null,
     },

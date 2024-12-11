@@ -90,4 +90,28 @@ describe("TransformTableDataIntoArrayOfArray", () => {
       JSON.stringify(expectedCsvData),
     );
   });
+
+  it("work as expected with html", () => {
+    const data = [
+      {
+        id: "<p>abc</p>",
+      },
+      {
+        id: "<table><tr><td>abc</td></tr></table>",
+      },
+    ];
+    const csvData = transformTableDataIntoCsv({
+      columns,
+      data,
+    });
+    const expectedCsvData = [
+      ["Id"],
+      ["<p>abc</p>"],
+      ["<table><tr><td>abc</td></tr></table>"],
+    ];
+
+    expect(JSON.stringify(csvData)).toStrictEqual(
+      JSON.stringify(expectedCsvData),
+    );
+  });
 });
