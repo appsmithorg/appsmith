@@ -1,4 +1,4 @@
-import type { CommitInitPayload } from "../actions/commitActions";
+import type { CommitInitPayload } from "../store/actions/commitActions";
 import { GitArtifactType, GitErrorCodes } from "../constants/enums";
 import commitRequest from "../requests/commitRequest";
 import type {
@@ -6,7 +6,7 @@ import type {
   CommitResponse,
 } from "../requests/commitRequest.types";
 import { gitArtifactActions } from "../store/gitArtifactSlice";
-import type { GitArtifactPayloadAction } from "../types";
+import type { GitArtifactPayloadAction } from "../store/types";
 import { call, put } from "redux-saga/effects";
 
 // internal dependencies

@@ -3,29 +3,17 @@ import {
   fetchGlobalProfileErrorAction,
   fetchGlobalProfileInitAction,
   fetchGlobalProfileSuccessAction,
-} from "git/actions/fetchGlobalProfileActions";
+} from "./actions/fetchGlobalProfileActions";
 import {
   updateGlobalProfileErrorAction,
   updateGlobalProfileInitAction,
   updateGlobalProfileSuccessAction,
-} from "git/actions/updateGlobalProfileActions";
-import type { GitConfigReduxState } from "git/types";
-
-const initialState: GitConfigReduxState = {
-  globalProfile: {
-    value: null,
-    loading: false,
-    error: null,
-  },
-  updateGlobalProfile: {
-    loading: false,
-    error: null,
-  },
-};
+} from "./actions/updateGlobalProfileActions";
+import { gitConfigInitialState } from "./helpers/gitConfigInitialState";
 
 export const gitConfigSlice = createSlice({
   name: "git/config",
-  initialState,
+  initialState: gitConfigInitialState,
   reducers: {
     fetchGlobalProfileInit: fetchGlobalProfileInitAction,
     fetchGlobalProfileSuccess: fetchGlobalProfileSuccessAction,

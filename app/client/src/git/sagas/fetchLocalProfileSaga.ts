@@ -1,7 +1,7 @@
 import fetchLocalProfileRequest from "git/requests/fetchLocalProfileRequest";
 import type { FetchLocalProfileResponse } from "git/requests/fetchLocalProfileRequest.types";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
-import type { GitArtifactPayloadAction } from "git/types";
+import type { GitArtifactPayloadAction } from "../store/types";
 import { call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 
