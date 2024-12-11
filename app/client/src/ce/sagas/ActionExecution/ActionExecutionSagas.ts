@@ -6,7 +6,7 @@ import type {
   TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
-import * as log from "loglevel";
+import log from "loglevel";
 import {
   all,
   call,
@@ -44,6 +44,7 @@ import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
 import type { ActionDescription } from "ee/workers/Evaluation/fns";
 import type { AppState } from "ee/reducers";
 import { getAction } from "ee/selectors/entitiesSelector";
+import { getSourceFromTriggerMeta } from "ee/entities/AppsmithConsole/utils";
 
 export interface TriggerMeta {
   source?: TriggerSource;
@@ -67,6 +68,7 @@ export function* executeActionTriggers(
 ): any {
   // when called via a promise, a trigger can return some value to be used in .then
   let response: unknown[] = [];
+  const source = getSourceFromTriggerMeta(triggerMeta);
 
   switch (trigger.type) {
     case "RUN_PLUGIN_ACTION":
@@ -92,25 +94,25 @@ export function* executeActionTriggers(
 
       break;
     case "NAVIGATE_TO":
-      yield call(navigateActionSaga, trigger);
+      yield call(navigateActionSaga, trigger, source);
       break;
     case "SHOW_ALERT":
-      yield call(showAlertSaga, trigger);
+      yield call(showAlertSaga, trigger, source);
       break;
     case "SHOW_MODAL_BY_NAME":
-      yield call(openModalSaga, trigger);
+      yield call(openModalSaga, trigger, source);
       break;
     case "CLOSE_MODAL":
-      yield call(closeModalSaga, trigger);
+      yield call(closeModalSaga, trigger, source);
       break;
     case "DOWNLOAD":
-      yield call(downloadSaga, trigger);
+      yield call(downloadSaga, trigger, source);
       break;
     case "COPY_TO_CLIPBOARD":
-      yield call(copySaga, trigger);
+      yield call(copySaga, trigger, source);
       break;
     case "RESET_WIDGET_META_RECURSIVE_BY_NAME":
-      yield call(resetWidgetActionSaga, trigger);
+      yield call(resetWidgetActionSaga, trigger, source);
       break;
     case "GET_CURRENT_LOCATION":
       response = yield call(getCurrentLocationSaga, trigger);
@@ -130,7 +132,7 @@ export function* executeActionTriggers(
       yield call(postMessageSaga, trigger);
       break;
     default:
-      log.error("Trigger type unknown", trigger);
+      log.error("Trigger type unknown", trigger, source);
       throw Error("Trigger type unknown");
   }
 

@@ -61,16 +61,6 @@ describe("JSObjects", { tags: ["@tag.JS"] }, () => {
     jsEditor.SelectFunctionDropdown("myFun1");
     jsEditor.RunJSObj();
     debuggerHelper.ClickLogsTab();
-    agHelper.AssertText(
-      debuggerHelper.locators._debuggerFilter,
-      "val",
-      "JSObject1",
-    );
-    agHelper.TypeText(
-      debuggerHelper.locators._debuggerFilter,
-      "{backspace}{backspace}{backspace}{backspace}{backspace}{backspace}{backspace}{backspace}{backspace}",
-      { delay: 50, parseSpecialCharSeq: true },
-    );
     agHelper.AssertText(debuggerHelper.locators._debuggerFilter, "val", "");
     debuggerHelper.DebuggerLogsFilter("JSObject1");
     debuggerHelper.DebuggerLogsFilter("{backspace}");
