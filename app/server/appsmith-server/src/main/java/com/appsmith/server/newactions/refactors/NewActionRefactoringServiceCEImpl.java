@@ -130,15 +130,14 @@ public class NewActionRefactoringServiceCEImpl implements EntityRefactoringServi
                 .map(branchedAction -> newActionService.generateActionByViewMode(branchedAction, false))
                 .flatMap(action -> {
                     action.setName(refactorEntityNameDTO.getNewName());
-                    if (StringUtils.hasLength(refactorEntityNameDTO.getCollectionName())) {
+                    if (!PluginType.JS.equals(action.getPluginType())) {
+                        return newActionService.updateUnpublishedAction(action.getId(), action);
+                    }
+
+                    if (StringUtils.hasText(refactorEntityNameDTO.getCollectionName())) {
                         action.setFullyQualifiedName(refactorEntityNameDTO.getNewFullyQualifiedName());
                     }
-                    if (!PluginType.JS.equals(action.getPluginType())) {
-                        action.setFullyQualifiedName(
-                                StringUtils.hasLength(refactorEntityNameDTO.getNewFullyQualifiedName())
-                                        ? refactorEntityNameDTO.getNewFullyQualifiedName()
-                                        : action.getName());
-                    }
+
                     return newActionService.updateUnpublishedAction(action.getId(), action);
                 })
                 .then();
