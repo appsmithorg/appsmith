@@ -6,15 +6,18 @@ import { useDispatch } from "react-redux";
 interface UseGitConnectParams {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
+  connectPermitted: boolean;
 }
 
 export interface UseGitConnectReturnValue {
   toggleConnectModal: (open: boolean) => void;
+  connectPermitted: boolean;
 }
 
 export default function useGitConnect({
   artifactType,
   baseArtifactId,
+  connectPermitted,
 }: UseGitConnectParams): UseGitConnectReturnValue {
   const dispatch = useDispatch();
   const basePayload = useMemo(
@@ -33,5 +36,6 @@ export default function useGitConnect({
 
   return {
     toggleConnectModal,
+    connectPermitted,
   };
 }

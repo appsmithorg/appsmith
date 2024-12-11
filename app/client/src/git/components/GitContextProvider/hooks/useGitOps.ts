@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from "react-redux";
 interface UseGitOpsParams {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
+  artifactId: string | null;
 }
 
 export interface UseGitOpsReturnValue {
@@ -51,6 +52,7 @@ export interface UseGitOpsReturnValue {
 }
 
 export default function useGitOps({
+  artifactId,
   artifactType,
   baseArtifactId,
 }: UseGitOpsParams): UseGitOpsReturnValue {
@@ -125,8 +127,13 @@ export default function useGitOps({
   );
 
   const pull = useCallback(() => {
-    dispatch(gitArtifactActions.pullInit(basePayload));
-  }, [basePayload, dispatch]);
+    dispatch(
+      gitArtifactActions.pullInit({
+        ...basePayload,
+        artifactId: artifactId ?? "",
+      }),
+    );
+  }, [basePayload, artifactId, dispatch]);
 
   // ops modal
   const opsModalOpen = useSelector((state: GitRootState) =>
