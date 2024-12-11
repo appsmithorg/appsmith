@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "appsmith.fullname" . }}-headless
+  namespace: {{ include "appsmith.namespace" . }}
+  labels:
+    {{- include "appsmith.labels" . | nindent 4 }}
+  {{- if or .Values.service.annotations .Values.commonAnnotations }}
+  annotations:
+    {{- if .Values.service.annotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.service.annotations "context" $) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.commonAnnotations }}
+    {{- include "tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  clusterIPs:
+  - None
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  selector:
+    {{- include "appsmith.selectorLabels" . | nindent 4 }}

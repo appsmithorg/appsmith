@@ -1,24 +1,14 @@
+{{- if .Values.metrics.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "appsmith.fullname" . }}
+  name: {{ include "appsmith.fullname" . }}-metrics
   namespace: {{ include "appsmith.namespace" . }}
   labels:
     {{- include "appsmith.labels" . | nindent 4 }}
-  {{- if or .Values.service.annotations .Values.commonAnnotations .Values.metrics.enabled }}
   annotations:
-    {{- if .Values.service.annotations }}
-    {{- include "tplvalues.render" ( dict "value" .Values.service.annotations "context" $) | nindent 4 }}
-    {{- end }}
-    {{- if .Values.commonAnnotations }}
-    {{- include "tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
-    {{- end }}
-    {{- if .Values.metrics.enabled }}
-    prometheus.io/scrape: "true"
-    prometheus.io/port: "8080"
-    prometheus.io/path: "/actuator/prometheus"
-    {{- end }}
-  {{- end }}
+     prometheus.io/port: {{ quote .Values.metrics.port }}
+     prometheus.io/scrape: "true"
 spec:
   type: {{ .Values.service.type }}
   {{- if and (eq .Values.service.type "ClusterIP") .Values.service.clusterIP }}
@@ -29,8 +19,8 @@ spec:
   {{- end }}
   ports:
     - name: {{ .Values.service.portName }}
-      port: {{ .Values.service.port }}
-      targetPort: http
+      port: {{ .Values.metrics.port }}
+      targetPort: metrics
       {{- if and (or (eq .Values.service.type "LoadBalancer") (eq .Values.service.type "NodePort")) .Values.service.nodePort }}
       nodePort: {{ .Values.service.nodePort }}
       {{- else if eq .Values.service.type "ClusterIP" }}
@@ -38,3 +28,4 @@ spec:
       {{- end }}
   selector:
     {{- include "appsmith.selectorLabels" . | nindent 4 }}
+{{- end }}
