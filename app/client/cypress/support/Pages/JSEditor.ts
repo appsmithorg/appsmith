@@ -89,6 +89,9 @@ export class JSEditor {
     "//div[@data-testid='t--query-run-confirmation-modal']//span[text()='" +
     text +
     "']";
+  _addJSObj = '[data-testid="t--ide-tabs-add-button"]';
+  _jsPageActions = ".entity-context-menu";
+  _moreActions = '[data-testid="more-action-trigger"]';
   //#endregion
 
   //#region constants
