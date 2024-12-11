@@ -6,12 +6,14 @@ import com.appsmith.server.services.TenantService;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Slf4j
 @Component
+@Profile("!test")
 public class ScheduledTaskCEImpl implements ScheduledTaskCE {
 
     private final FeatureFlagService featureFlagService;

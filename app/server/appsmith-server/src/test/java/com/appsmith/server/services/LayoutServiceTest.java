@@ -28,6 +28,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.transaction.CustomTransactionalOperator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -109,6 +110,9 @@ public class LayoutServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
+    @Autowired
+    CustomTransactionalOperator transactionalOperator;
 
     String workspaceId;
 
@@ -505,6 +509,7 @@ public class LayoutServiceTest {
 
                     return Mono.zip(monos, objects -> page1);
                 })
+                .as(transactionalOperator::transactional)
                 .flatMap(page1 -> {
                     final Layout layout = page1.getLayouts().get(0);
 

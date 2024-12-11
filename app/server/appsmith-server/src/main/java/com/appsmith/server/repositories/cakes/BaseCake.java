@@ -9,6 +9,7 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.transaction.CustomTransactionalOperator;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
@@ -67,7 +68,8 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                 .flatMap(em -> asMonoDirect(() -> em.createQuery(
                                 "SELECT e FROM " + genericDomain.getSimpleName() + " e WHERE e.id = :id", genericDomain)
                         .setParameter("id", id)
-                        .getSingleResult()));
+                        .getSingleResult()))
+                .onErrorResume(NoResultException.class, e -> Mono.empty());
     }
 
     public Flux<T> findAll() {
@@ -175,10 +177,10 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                             if (isNew) {
                                 entity.setId(generateId());
                                 em.persist(entity);
-                                return entity;
                             } else {
-                                return em.merge(entity);
+                                em.merge(entity);
                             }
+                            return entity;
                         } catch (DataIntegrityViolationException e) {
                             // save wasn't successful, reset the id if it was generated
                             if (isNew) {

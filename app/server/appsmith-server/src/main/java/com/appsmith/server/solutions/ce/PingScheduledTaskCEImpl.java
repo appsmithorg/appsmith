@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -44,6 +45,7 @@ import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 @Slf4j
 @RequiredArgsConstructor
 @ConditionalOnExpression("!${is.cloud-hosting:false}")
+@Profile("!test")
 public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
 
     private final ConfigService configService;
