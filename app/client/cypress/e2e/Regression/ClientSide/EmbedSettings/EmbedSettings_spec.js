@@ -39,7 +39,7 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
       .click()
       .wait(1000);
     cy.get("[data-testid='copy-application-url']").last().click();
-    _.agHelper.GiveChromeCopyPermission();
+    //_.agHelper.GiveChromeCopyPermission();
 
     cy.window()
       .its("navigator.clipboard")
