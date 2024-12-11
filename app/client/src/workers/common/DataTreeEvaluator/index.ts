@@ -1092,17 +1092,15 @@ export default class DataTreeEvaluator {
     const { isFirstTree, metaWidgets, unevalUpdates } = options;
     let staleMetaIds: string[] = [];
 
-    const triggerBasedDataTreeContext = getDataTreeContext({
-      dataTree: contextTree,
-      configTree: oldConfigTree,
-      isTriggerBased: true,
-    });
+    let evalContextCache;
 
-    const nonTriggerBasedDataTreeContext = getDataTreeContext({
-      dataTree: contextTree,
-      configTree: oldConfigTree,
-      isTriggerBased: false,
-    });
+    if (WorkerEnv.flags.release_evaluation_scope_cache) {
+      evalContextCache = getDataTreeContext({
+        dataTree: contextTree,
+        configTree: oldConfigTree,
+        isTriggerBased: false,
+      });
+    }
 
     try {
       for (const fullPropertyPath of evaluationOrder) {
@@ -1113,6 +1111,7 @@ export default class DataTreeEvaluator {
 
         if (!isWidgetActionOrJsObject(entity)) continue;
 
+        // Skip evaluations for actions in JSObjects
         if (isPropertyAnEntityAction(entity, propertyPath, entityConfig)) {
           continue;
         }
@@ -1157,16 +1156,6 @@ export default class DataTreeEvaluator {
             };
 
             unEvalPropertyValue = replaceThisDotParams(unEvalPropertyValue);
-          }
-
-          let evalContextCache;
-
-          if (WorkerEnv.flags.release_evaluation_scope_cache) {
-            if (!!entity && isAnyJSAction(entity)) {
-              evalContextCache = triggerBasedDataTreeContext;
-            } else {
-              evalContextCache = nonTriggerBasedDataTreeContext;
-            }
           }
 
           try {
@@ -1244,17 +1233,11 @@ export default class DataTreeEvaluator {
             set(contextTree, fullPropertyPath, parsedValue);
             set(safeTree, fullPropertyPath, klona(parsedValue));
 
-            if (WorkerEnv.flags.release_evaluation_scope_cache) {
-              set(
-                triggerBasedDataTreeContext,
-                fullPropertyPath,
-                klona(parsedValue),
-              );
-              set(
-                nonTriggerBasedDataTreeContext,
-                fullPropertyPath,
-                klona(parsedValue),
-              );
+            if (
+              WorkerEnv.flags.release_evaluation_scope_cache &&
+              evalContextCache
+            ) {
+              set(evalContextCache, fullPropertyPath, klona(parsedValue));
             }
 
             staleMetaIds = staleMetaIds.concat(
@@ -1303,17 +1286,11 @@ export default class DataTreeEvaluator {
             set(contextTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, klona(evalPropertyValue));
 
-            if (WorkerEnv.flags.release_evaluation_scope_cache) {
-              set(
-                triggerBasedDataTreeContext,
-                fullPropertyPath,
-                klona(evalPropertyValue),
-              );
-              set(
-                nonTriggerBasedDataTreeContext,
-                fullPropertyPath,
-                klona(evalPropertyValue),
-              );
+            if (
+              WorkerEnv.flags.release_evaluation_scope_cache &&
+              evalContextCache
+            ) {
+              set(evalContextCache, fullPropertyPath, klona(evalPropertyValue));
             }
 
             break;
@@ -1357,14 +1334,12 @@ export default class DataTreeEvaluator {
               set(contextTree, fullPropertyPath, evalValue);
               set(safeTree, fullPropertyPath, valueForSafeTree);
 
-              if (WorkerEnv.flags.release_evaluation_scope_cache) {
+              if (
+                WorkerEnv.flags.release_evaluation_scope_cache &&
+                evalContextCache
+              ) {
                 set(
-                  triggerBasedDataTreeContext,
-                  fullPropertyPath,
-                  klona(evalPropertyValue),
-                );
-                set(
-                  nonTriggerBasedDataTreeContext,
+                  evalContextCache,
                   fullPropertyPath,
                   klona(evalPropertyValue),
                 );
@@ -1383,17 +1358,11 @@ export default class DataTreeEvaluator {
             set(contextTree, fullPropertyPath, evalPropertyValue);
             set(safeTree, fullPropertyPath, klona(evalPropertyValue));
 
-            if (WorkerEnv.flags.release_evaluation_scope_cache) {
-              set(
-                triggerBasedDataTreeContext,
-                fullPropertyPath,
-                klona(evalPropertyValue),
-              );
-              set(
-                nonTriggerBasedDataTreeContext,
-                fullPropertyPath,
-                klona(evalPropertyValue),
-              );
+            if (
+              WorkerEnv.flags.release_evaluation_scope_cache &&
+              evalContextCache
+            ) {
+              set(evalContextCache, fullPropertyPath, klona(evalPropertyValue));
             }
         }
       }
