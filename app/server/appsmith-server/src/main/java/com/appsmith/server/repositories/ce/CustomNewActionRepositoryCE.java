@@ -8,6 +8,7 @@ import com.appsmith.server.repositories.AppsmithRepository;
 import jakarta.persistence.EntityManager;
 import org.springframework.data.domain.Sort;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -145,4 +146,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     List<NewAction> findAllByApplicationIds(
             List<String> branchedArtifactIds, List<String> includedFields, EntityManager entityManager);
+
+    List<NewAction> findByApplicationId(String applicationId, EntityManager entityManager);
+
+    List<NewAction> findAllByIdIn(Collection<String> ids, EntityManager entityManager);
 }

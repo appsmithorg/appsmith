@@ -417,4 +417,31 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             return List.of(application.getId());
         }
     }
+
+    @Override
+    public List<Application> findByWorkspaceId(String workspaceId, EntityManager entityManager) {
+        return queryBuilder()
+                .criteria(Bridge.equal(Application.Fields.workspaceId, workspaceId))
+                .entityManager(entityManager)
+                .all();
+    }
+
+    @Override
+    public List<IdOnly> findIdsByWorkspaceId(String workspaceId, EntityManager entityManager) {
+        return queryBuilder()
+                .criteria(Bridge.equal(Application.Fields.workspaceId, workspaceId))
+                .entityManager(entityManager)
+                .all(IdOnly.class);
+    }
+
+    @Override
+    public Optional<Application> findByIdAndExportWithConfiguration(
+            String id, boolean exportWithConfiguration, EntityManager entityManager) {
+        return queryBuilder()
+                .byId(id)
+                .criteria(Bridge.equal(
+                        Application.Fields.exportWithConfiguration, String.valueOf(exportWithConfiguration)))
+                .entityManager(entityManager)
+                .one();
+    }
 }

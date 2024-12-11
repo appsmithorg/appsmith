@@ -1321,12 +1321,10 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         Mono<Tuple2<? extends Artifact, ? extends Artifact>> baseAndBranchedArtifactMono =
                 getBaseAndBranchedArtifacts(branchedArtifactId, artifactType);
 
-        return baseAndBranchedArtifactMono
-                .flatMap(artifactTuples -> {
-                    Artifact sourceArtifact = artifactTuples.getT1();
-                    return checkoutBranch(sourceArtifact, branchToBeCheckedOut, addFileLock);
-                })
-                .as(transactionalOperator::transactional);
+        return baseAndBranchedArtifactMono.flatMap(artifactTuples -> {
+            Artifact sourceArtifact = artifactTuples.getT1();
+            return checkoutBranch(sourceArtifact, branchToBeCheckedOut, addFileLock);
+        });
     }
 
     protected Mono<? extends Artifact> checkoutBranch(
