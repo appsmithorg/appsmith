@@ -130,7 +130,8 @@ describe(
           (success, error) => {
             error({
               code: 1,
-              message: "A watchLocation is already active. Clear it before before starting a new one",
+              message:
+                "A watchLocation is already active. Clear it before before starting a new one",
             });
             return 0;
           },
@@ -151,7 +152,9 @@ describe(
 
       // Trigger watch and verify error
       agHelper.ClickButton("Submit");
-      agHelper.ValidateToastMessage("A watchLocation is already active. Clear it before before starting a new one");
+      agHelper.ValidateToastMessage(
+        "A watchLocation is already active. Clear it before before starting a new one",
+      );
     });
 
     it.skip("4. Verify that getCurrentPosition correctly handles the options parameter for maximumAge, timeout, and enableHighAccuracy.", () => {
