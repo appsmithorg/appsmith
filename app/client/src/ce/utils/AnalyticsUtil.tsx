@@ -7,6 +7,7 @@ import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 import type { EventName } from "ee/utils/analyticsUtilTypes";
+import SegmentSingleton from "./Analytics/segment";
 
 export function getUserSource() {
   const { cloudHosting, segment } = getAppsmithConfigs();
@@ -71,109 +72,16 @@ class AnalyticsUtil {
   static blockTrackEvent: boolean | undefined;
   static instanceId?: string = "";
   static blockErrorLogs = false;
+  private static segmentAnalytics: SegmentSingleton;
 
   static initializeSmartLook(id: string) {
     smartlookClient.init(id);
   }
 
   static async initializeSegment(key: string) {
-    const initPromise = new Promise<boolean>((resolve) => {
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (function init(window: any) {
-        const analytics = (window.analytics = window.analytics || []);
+    this.segmentAnalytics = SegmentSingleton.getInstance();
 
-        if (!analytics.initialize) {
-          if (analytics.invoked) {
-            log.error("Segment snippet included twice.");
-          } else {
-            analytics.invoked = !0;
-            analytics.methods = [
-              "trackSubmit",
-              "trackClick",
-              "trackLink",
-              "trackForm",
-              "pageview",
-              "identify",
-              "reset",
-              "group",
-              "track",
-              "ready",
-              "alias",
-              "debug",
-              "page",
-              "once",
-              "off",
-              "on",
-            ];
-            // TODO: Fix this the next time the file is edited
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            analytics.factory = function (t: any) {
-              return function () {
-                const e = Array.prototype.slice.call(arguments); //eslint-disable-line prefer-rest-params
-
-                e.unshift(t);
-                analytics.push(e);
-
-                return analytics;
-              };
-            };
-          }
-
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          for (let t: any = 0; t < analytics.methods.length; t++) {
-            const e = analytics.methods[t];
-
-            analytics[e] = analytics.factory(e);
-          }
-
-          // TODO: Fix this the next time the file is edited
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          analytics.load = function (t: any, e: any) {
-            const n = document.createElement("script");
-
-            n.type = "text/javascript";
-            n.async = !0;
-            // Ref: https://www.notion.so/appsmith/530051a2083040b5bcec15a46121aea3
-            n.src = "https://a.appsmith.com/reroute/" + t + "/main.js";
-            // TODO: Fix this the next time the file is edited
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const a: any = document.getElementsByTagName("script")[0];
-
-            a.parentNode.insertBefore(n, a);
-            analytics._loadOptions = e;
-          };
-          analytics.ready(() => {
-            resolve(true);
-          });
-          setTimeout(() => {
-            resolve(false);
-          }, 2000);
-          analytics.SNIPPET_VERSION = "4.1.0";
-          // Ref: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/#batching
-          analytics.load(key, {
-            integrations: {
-              "Segment.io": {
-                deliveryStrategy: {
-                  strategy: "batching", // The delivery strategy used for sending events to Segment
-                  config: {
-                    size: 100, // The batch size is the threshold that forces all batched events to be sent once it’s reached.
-                    timeout: 1000, // The number of milliseconds that forces all events queued for batching to be sent, regardless of the batch size, once it’s reached
-                  },
-                },
-              },
-            },
-          });
-
-          if (!AnalyticsUtil.blockTrackEvent) {
-            analytics.page();
-          }
-        }
-      })(window);
-    });
-
-    return initPromise;
+    return await this.segmentAnalytics.init(key);
   }
 
   static logEvent(
@@ -243,22 +151,14 @@ class AnalyticsUtil {
       ...(parentContext ? { parentContext } : {}),
     };
 
-    if (windowDoc.analytics) {
-      log.debug("Event fired", eventName, finalEventData);
-      windowDoc.analytics.track(eventName, finalEventData);
-    } else {
-      log.debug("Event fired locally", eventName, finalEventData);
-    }
+    this.segmentAnalytics.track(eventName, finalEventData);
   }
 
   static identifyUser(userData: User, sendAdditionalData?: boolean) {
     const { appVersion, segment, sentry, smartLook } = getAppsmithConfigs();
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const windowDoc: any = window;
     const userId = userData.username;
 
-    if (windowDoc.analytics) {
+    if (this.segmentAnalytics) {
       const source = getUserSource();
 
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
@@ -273,7 +173,7 @@ class AnalyticsUtil {
 
         AnalyticsUtil.user = userData;
         log.debug("Identify User " + userId);
-        windowDoc.analytics.identify(userId, userProperties);
+        this.segmentAnalytics.identify(userId, userProperties);
       } else if (segment.ceKey) {
         // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
         if (userId !== AnalyticsUtil.cachedUserId) {
@@ -297,7 +197,7 @@ class AnalyticsUtil {
         log.debug(
           "Identify Anonymous User " + AnalyticsUtil.cachedAnonymoustId,
         );
-        windowDoc.analytics.identify(
+        this.segmentAnalytics.identify(
           AnalyticsUtil.cachedAnonymoustId,
           userProperties,
         );
@@ -334,13 +234,10 @@ class AnalyticsUtil {
   }
 
   static getAnonymousId() {
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const windowDoc: any = window;
     const { segment } = getAppsmithConfigs();
 
-    if (windowDoc.analytics && windowDoc.analytics.user) {
-      return windowDoc.analytics.user().anonymousId();
+    if (this.segmentAnalytics && this.segmentAnalytics.user) {
+      return this.segmentAnalytics.user().anonymousId();
     } else if (segment.enabled) {
       return localStorage.getItem("ajs_anonymous_id")?.replaceAll('"', "");
     }
@@ -355,16 +252,8 @@ class AnalyticsUtil {
       windowDoc.Intercom("shutdown");
     }
 
-    windowDoc.analytics && windowDoc.analytics.reset();
-    windowDoc.mixpanel && windowDoc.mixpanel.reset();
+    this.segmentAnalytics && this.segmentAnalytics.reset();
     window.zipy && window.zipy.anonymize();
-  }
-
-  static removeAnalytics() {
-    AnalyticsUtil.blockTrackEvent = false;
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).analytics = undefined;
   }
 
   static setBlockErrorLogs(value: boolean) {
