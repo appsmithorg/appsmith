@@ -96,7 +96,7 @@ class AnalyticsUtil {
 
     if (userData) {
       const source = this.getUserSource();
-      let user: Record<string, unknown> = {};
+      let user: Record<string, unknown>;
 
       if (segment.apiKey) {
         user = {
@@ -141,7 +141,7 @@ class AnalyticsUtil {
 
   static logEvent(
     eventName: EventName,
-    eventData: EventProperties,
+    eventData?: EventProperties,
     eventType?: AnalyticsEventType,
   ) {
     if (AnalyticsUtil.blockTrackEvent) {
