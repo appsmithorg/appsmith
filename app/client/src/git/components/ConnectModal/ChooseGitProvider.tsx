@@ -33,6 +33,7 @@ import {
   NEED_EMPTY_REPO_MESSAGE,
   createMessage,
 } from "ee/constants/messages";
+import log from "loglevel";
 
 const WellInnerContainer = styled.div`
   padding-left: 16px;
@@ -78,10 +79,14 @@ function ChooseGitProvider({
 
   const onGitProviderChange = useCallback(
     (value: string) => {
-      const gitProvider = value as GitProvider;
+      const gitProvider = GIT_PROVIDERS.includes(value as GitProvider)
+        ? (value as GitProvider)
+        : undefined;
 
-      if (GIT_PROVIDERS.includes(gitProvider)) {
+      if (gitProvider) {
         onChange({ gitProvider });
+      } else {
+        log.error(`Invalid git provider: ${value}`);
       }
     },
     [onChange],

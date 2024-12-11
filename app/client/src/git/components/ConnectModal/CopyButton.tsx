@@ -58,13 +58,12 @@ function CopyButton({
         if (success) {
           setShowCopied(true);
           stopShowingCopiedAfterDelay();
+          onCopy();
         }
       } catch (error) {
         log.error("Failed to copy to clipboard:", error);
       }
     }
-
-    onCopy();
   }, [onCopy, stopShowingCopiedAfterDelay, value]);
 
   return (
