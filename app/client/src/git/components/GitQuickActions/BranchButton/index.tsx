@@ -1,5 +1,5 @@
 import { Button, Icon, Tooltip } from "@appsmith/ads";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
 import noop from "lodash/noop";
 import BranchList from "./BranchList";
@@ -53,6 +53,7 @@ export default function BranchButton({
   isStatusClean = false,
   setIsOpen = noop,
 }: BranchButtonProps) {
+  const [isEllipsis, setIsEllipsis] = useState<boolean>(false);
   const labelTarget = React.useRef<HTMLSpanElement>(null);
 
   const onPopoverInteraction = useCallback(
@@ -67,6 +68,10 @@ export default function BranchButton({
     },
     [setIsOpen],
   );
+
+  useEffect(function ellipsisCheck() {
+    setIsEllipsis(isEllipsisActive(labelTarget.current) ?? false);
+  }, []);
 
   const renderContent = useCallback(() => {
     return <BranchList />;
@@ -86,8 +91,7 @@ export default function BranchButton({
     >
       <Tooltip
         content={currentBranch}
-        // eslint-disable-next-line react-compiler/react-compiler
-        isDisabled={!isEllipsisActive(labelTarget.current)}
+        isDisabled={!isEllipsis}
         placement="topLeft"
       >
         <ButtonContainer
