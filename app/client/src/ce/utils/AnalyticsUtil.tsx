@@ -8,6 +8,7 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 import type { EventName } from "ee/utils/analyticsUtilTypes";
 import SegmentSingleton from "./Analytics/segment";
+import type { EventProperties } from "@segment/analytics-next";
 
 export function getUserSource() {
   const { cloudHosting, segment } = getAppsmithConfigs();
@@ -84,39 +85,14 @@ class AnalyticsUtil {
     return await this.segmentAnalytics.init(key);
   }
 
-  static logEvent(
-    eventName: EventName,
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    eventData: any = {},
-    eventType?: AnalyticsEventType,
-  ) {
-    if (AnalyticsUtil.blockTrackEvent) {
-      return;
-    }
-
-    if (
-      AnalyticsUtil.blockErrorLogs &&
-      eventType === AnalyticsEventType.error
-    ) {
-      return;
-    }
-
-    // TODO: Fix this the next time the file is edited
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const windowDoc: any = window;
-    let finalEventData = eventData;
+  private static getEventUserProperties() {
+    const { segment } = getAppsmithConfigs();
     const userData = AnalyticsUtil.user;
-    const parentContext = getParentContextFromURL(windowDoc.location);
-    const instanceId = AnalyticsUtil.instanceId;
-    const appId = getApplicationId(windowDoc.location);
-    const { appVersion, segment } = getAppsmithConfigs();
+    const appId = getApplicationId(window.location);
 
     if (userData) {
       const source = getUserSource();
-      // TODO: Fix this the next time the file is edited
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let user: any = {};
+      let user: Record<string, unknown> = {};
 
       if (segment.apiKey) {
         user = {
@@ -137,21 +113,55 @@ class AnalyticsUtil {
         };
       }
 
-      finalEventData = {
-        ...eventData,
-        userData:
-          user.userId === ANONYMOUS_USERNAME ? undefined : { ...user, source },
-      };
+      return user.userId === ANONYMOUS_USERNAME
+        ? undefined
+        : { ...user, source };
     }
 
-    finalEventData = {
-      ...finalEventData,
+    return undefined;
+  }
+
+  protected static getEventExtraProperties() {
+    const { appVersion } = getAppsmithConfigs();
+    const instanceId = AnalyticsUtil.instanceId;
+    const parentContext = getParentContextFromURL(window.location);
+    const userData = this.getEventUserProperties();
+
+    return {
       instanceId,
       version: appVersion.id,
+      userData,
       ...(parentContext ? { parentContext } : {}),
     };
+  }
 
-    this.segmentAnalytics.track(eventName, finalEventData);
+  static logEvent(
+    eventName: EventName,
+    eventData: EventProperties,
+    eventType?: AnalyticsEventType,
+  ) {
+    if (AnalyticsUtil.blockTrackEvent) {
+      return;
+    }
+
+    if (
+      AnalyticsUtil.blockErrorLogs &&
+      eventType === AnalyticsEventType.error
+    ) {
+      return;
+    }
+
+    const finalEventData = {
+      ...eventData,
+      ...this.getEventExtraProperties(),
+    };
+
+    if (this.segmentAnalytics) {
+      log.debug("Event fired", eventName, finalEventData);
+      this.segmentAnalytics.track(eventName, finalEventData);
+    } else {
+      log.debug("Event fired locally", eventName, finalEventData);
+    }
   }
 
   static identifyUser(userData: User, sendAdditionalData?: boolean) {

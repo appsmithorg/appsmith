@@ -61,9 +61,8 @@ class SegmentSingleton {
   public track(eventName: string, eventData: EventProperties) {
     if (this.analytics) {
       this.analytics.track(eventName, eventData);
-      log.debug("Event fired", eventName, eventData);
     } else {
-      log.debug("Event fired locally", eventName, eventData);
+      log.warn("Segment is not initialized.");
     }
   }
 
