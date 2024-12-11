@@ -73,6 +73,7 @@ import {
   discardSuccessAction,
 } from "./actions/discardActions";
 import {
+  clearMergeStatusAction,
   fetchMergeStatusErrorAction,
   fetchMergeStatusInitAction,
   fetchMergeStatusSuccessAction,
@@ -148,6 +149,7 @@ export const gitArtifactSlice = createSlice({
     fetchMergeStatusInit: fetchMergeStatusInitAction,
     fetchMergeStatusSuccess: fetchMergeStatusSuccessAction,
     fetchMergeStatusError: fetchMergeStatusErrorAction,
+    clearMergeStatus: clearMergeStatusAction,
     mergeInit: mergeInitAction,
     mergeSuccess: mergeSuccessAction,
     mergeError: mergeErrorAction,

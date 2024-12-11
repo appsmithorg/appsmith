@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import TabDeploy from "./TabDeploy";
 import TabMerge from "./TabMerge";
 import { createMessage, DEPLOY, MERGE } from "ee/constants/messages";
@@ -27,6 +27,7 @@ const StyledModalContent = styled(ModalContent)`
 `;
 
 interface DumbGitOpsModalProps {
+  fetchStatus: () => void;
   isOpsModalOpen: boolean;
   isProtectedMode: boolean;
   opsModalTab: keyof typeof GitOpsTab;
@@ -35,12 +36,22 @@ interface DumbGitOpsModalProps {
 }
 
 function DumbGitOpsModal({
+  fetchStatus = noop,
   isOpsModalOpen = false,
   isProtectedMode = false,
   opsModalTab = GitOpsTab.Deploy,
   repoName = null,
   toggleOpsModal = noop,
 }: DumbGitOpsModalProps) {
+  useEffect(
+    function fetchStatusOnMountEffect() {
+      if (isOpsModalOpen) {
+        fetchStatus();
+      }
+    },
+    [isOpsModalOpen, fetchStatus],
+  );
+
   const handleTabKeyChange = useCallback(
     (tabKey: string) => {
       if (tabKey === GitOpsTab.Deploy) {

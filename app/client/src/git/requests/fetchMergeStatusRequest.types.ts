@@ -9,6 +9,7 @@ export interface FetchMergeStatusResponseData {
   isMergeAble: boolean;
   status: string; // merge status
   message: string;
+  conflictingFiles?: string[];
 }
 
 export type FetchMergeStatusResponse =

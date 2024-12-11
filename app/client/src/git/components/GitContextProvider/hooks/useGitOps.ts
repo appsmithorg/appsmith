@@ -42,7 +42,8 @@ export interface UseGitOpsReturnValue {
   mergeStatus: FetchMergeStatusResponseData | null;
   fetchMergeStatusLoading: boolean;
   fetchMergeStatusError: string | null;
-  fetchMergeStatus: () => void;
+  fetchMergeStatus: (sourceBranch: string, destinationBranch: string) => void;
+  clearMergeStatus: () => void;
   pullLoading: boolean;
   pullError: string | null;
   pull: () => void;
@@ -127,8 +128,22 @@ export default function useGitOps({
     selectMergeStatus(state, basePayload),
   );
 
-  const fetchMergeStatus = useCallback(() => {
-    dispatch(gitArtifactActions.fetchMergeStatusInit(basePayload));
+  const fetchMergeStatus = useCallback(
+    (sourceBranch: string, destinationBranch: string) => {
+      dispatch(
+        gitArtifactActions.fetchMergeStatusInit({
+          ...basePayload,
+          artifactId: artifactId ?? "",
+          sourceBranch,
+          destinationBranch,
+        }),
+      );
+    },
+    [artifactId, basePayload, dispatch],
+  );
+
+  const clearMergeStatus = useCallback(() => {
+    dispatch(gitArtifactActions.clearMergeStatus(basePayload));
   }, [basePayload, dispatch]);
 
   // pull
@@ -197,6 +212,7 @@ export default function useGitOps({
     fetchMergeStatusLoading: mergeStatusState?.loading ?? false,
     fetchMergeStatusError: mergeStatusState?.error,
     fetchMergeStatus,
+    clearMergeStatus,
     pullLoading: pullState?.loading ?? false,
     pullError: pullState?.error,
     pull,

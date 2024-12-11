@@ -4,6 +4,7 @@ import { useGitContext } from "../GitContextProvider";
 
 export default function GitOpsModal() {
   const {
+    fetchStatus,
     gitMetadata,
     opsModalOpen,
     opsModalTab,
@@ -15,6 +16,7 @@ export default function GitOpsModal() {
 
   return (
     <DumbGitOpsModal
+      fetchStatus={fetchStatus}
       isOpsModalOpen={opsModalOpen}
       isProtectedMode={protectedMode}
       opsModalTab={opsModalTab}

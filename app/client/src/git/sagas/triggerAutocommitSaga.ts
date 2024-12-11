@@ -1,5 +1,8 @@
 import { triggerAutocommitSuccessAction } from "actions/gitSyncActions";
-import { AutocommitStatus, type GitArtifactType } from "git/constants/enums";
+import {
+  AutocommitStatusState,
+  type GitArtifactType,
+} from "git/constants/enums";
 import fetchAutocommitProgressRequest from "git/requests/fetchAutocommitProgressRequest";
 import type {
   FetchAutocommitProgressResponse,
@@ -40,9 +43,9 @@ function isAutocommitHappening(
 ): boolean {
   return (
     !!responseData &&
-    (responseData.autoCommitResponse === AutocommitStatus.PUBLISHED ||
-      responseData.autoCommitResponse === AutocommitStatus.IN_PROGRESS ||
-      responseData.autoCommitResponse === AutocommitStatus.LOCKED)
+    (responseData.autoCommitResponse === AutocommitStatusState.PUBLISHED ||
+      responseData.autoCommitResponse === AutocommitStatusState.IN_PROGRESS ||
+      responseData.autoCommitResponse === AutocommitStatusState.LOCKED)
   );
 }
 
