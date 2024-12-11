@@ -1,4 +1,4 @@
-import { createSingleArtifactAction } from "./helpers/createSingleArtifactAction";
+import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 
 interface ToggleRepoLimitModalActionPayload {
   open: boolean;
