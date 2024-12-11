@@ -34,3 +34,8 @@ export enum AutocommitStatus {
   NOT_REQUIRED = "NOT_REQUIRED",
   NON_GIT_APP = "NON_GIT_APP",
 }
+
+export enum GitErrorCodes {
+  REPO_LIMIT_REACHED = "AE-GIT-4043",
+  PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD = "AE-GIT-4048",
+}

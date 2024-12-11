@@ -27,4 +27,6 @@ export const PropsToBeCssPrefixPrepended = [
   "px",
   "py",
   "gap",
+  "rowGap",
+  "columnGap",
 ];

@@ -24,14 +24,10 @@ export default {
   bodyTypeSelected: "[data-testid=\"t--api-body-tab-switch\"] .rc-select-selection-item",
   bodyTab: "Body",
   headersTab: "Header",
-  jsonResponseTab: "[data-value='JSON']",
-  tableResponseTab: "[data-value='TABLE']",
-  rawResponseTab: "[data-value='RAW']",
   httpDropDownOptions: ".rc-select-item",
   codeEditorWrapper: ".t--code-editor-wrapper",
   apiSearchHint: ".datasource-hint",
   slashCommandButton: ".commands-button",
   apiResponseObject: ".object-key",
-  apiDebuggerLink: ".debugger-entity-link",
-  apiResponseTabsList : ".ads-v2-tabs__list"
+  apiResponseTabsList: ".ads-v2-tabs__list",
 };
