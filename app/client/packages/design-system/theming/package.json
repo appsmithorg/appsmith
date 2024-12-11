@@ -2,6 +2,7 @@
   "name": "@appsmith/wds-theming",
   "version": "1.0.0",
   "main": "src/index.ts",
+  "private": true,
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
   "scripts": {

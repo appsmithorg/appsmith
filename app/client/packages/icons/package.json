@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
+  "private": true,
   "main": "src/index.ts",
   "scripts": {
     "build": "yarn cleanup && figmagic && yarn optimize-icons && yarn generate-components && yarn generate-index && yarn generate-stories  && yarn prettier . --write --log-level=silent",

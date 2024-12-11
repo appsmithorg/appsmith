@@ -22,7 +22,7 @@ export type MenuContentProps = _MenuContentProps &
 export type MenuSubContentProps = _MenuContentProps &
   RadixMenu.DropdownMenuSubContentProps;
 
-interface _MenuItemProps {
+export interface _MenuItemProps {
   /** (try not to) pass addition classes here */
   className?: string;
   /** startIcon */

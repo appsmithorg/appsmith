@@ -4,6 +4,7 @@
   "description": "This is the package for the Appsmith design system components",
   "main": "src/index.ts",
   "sideEffects": false,
+  "private": true,
   "scripts": {
     "lint": "yarn g:lint",
     "prettier": "yarn g:prettier"

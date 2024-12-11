@@ -62,6 +62,7 @@
     "@blueprintjs/icons": "3.22.0",
     "@blueprintjs/popover2": "^0.5.0",
     "@blueprintjs/select": "^3.10.0",
+    "@changesets/cli": "^2.27.10",
     "@design-system/widgets-old": "workspace:^",
     "@floating-ui/dom": "^1.6.4",
     "@floating-ui/react": "^0.26.24",

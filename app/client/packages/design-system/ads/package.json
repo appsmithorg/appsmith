@@ -1,6 +1,6 @@
 {
   "name": "@appsmith/ads",
-  "version": "2.1.43",
+  "version": "2.1.44-alpha.4",
   "description": "This is the package for the design system that powers the Appsmith platform",
   "main": "src/index.ts",
   "sideEffects": false,
@@ -8,13 +8,28 @@
     "generate:component": "plop component",
     "lint": "yarn g:lint",
     "prettier": "yarn g:prettier",
-    "test:unit": "yarn g:jest"
+    "test:unit": "yarn g:jest",
+    "build": "rm -rf build && rollup -c --bundleConfigAsCjs"
   },
+  "files": [
+    "build"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@react-aria/focus": "^3.10.1",
-    "@types/react-datepicker": "^4.10.0"
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-image": "^3.0.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.1.1",
+    "@rollup/plugin-url": "^8.0.2",
+    "@svgr/rollup": "^8.1.0",
+    "@types/react-datepicker": "^4.10.0",
+    "browserslist": "latest",
+    "rollup": "^4.28.1",
+    "rollup-plugin-copy": "^3.5.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.2"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.0.2",

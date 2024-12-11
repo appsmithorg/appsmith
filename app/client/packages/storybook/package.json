@@ -4,6 +4,7 @@
   "main": "src/index.ts",
   "author": "Valera Melnikov <valera@appsmith.com>, Pawan Kumar <pawan@appsmith.com>",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "lint": "yarn g:lint",
     "storybook": "storybook dev -p 6006",
