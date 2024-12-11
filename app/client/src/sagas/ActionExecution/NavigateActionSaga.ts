@@ -15,6 +15,7 @@ import { TriggerFailureError } from "./errorUtils";
 import { isValidURL, matchesURLPattern } from "utils/URLUtils";
 import type { TNavigateToDescription } from "workers/Evaluation/fns/navigateTo";
 import { NavigationTargetType } from "workers/Evaluation/fns/navigateTo";
+import type { SourceEntity } from "entities/AppsmithConsole";
 
 export enum NavigationTargetType_Dep {
   SAME_WINDOW = "SAME_WINDOW",
@@ -28,7 +29,10 @@ const isValidPageName = (
   return _.find(pageList, (page: Page) => page.pageName === pageNameOrUrl);
 };
 
-export default function* navigateActionSaga(action: TNavigateToDescription) {
+export default function* navigateActionSaga(
+  action: TNavigateToDescription,
+  source?: SourceEntity,
+) {
   const { payload } = action;
   const pageList: Page[] = yield select(getPageList);
   const { pageNameOrUrl, params, target } = payload;
@@ -69,8 +73,10 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
     }
 
     AppsmithConsole.info({
-      text: `navigateTo('${page.pageName}') was triggered`,
+      source,
+      text: `navigateTo triggered`,
       state: {
+        page,
         params,
       },
     });

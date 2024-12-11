@@ -159,6 +159,7 @@ __metadata:
     react-syntax-highlighter: ^15.5.0
     react-transition-group: ^4.4.5
     remark-gfm: ^4.0.0
+    usehooks-ts: "*"
   peerDependencies:
     react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
   languageName: unknown
@@ -10770,6 +10771,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/pluralize@npm:^0.0.33":
+  version: 0.0.33
+  resolution: "@types/pluralize@npm:0.0.33"
+  checksum: 282d42dc0187e5e0912f9f36ee0f5615bfd273a08d40afe5bf5881cb28daf1977abe10564543032aa0f42352ebba739ff3d86bf5562ac4691c6d1761fcc7cf39
+  languageName: node
+  linkType: hard
+
 "@types/prettier@npm:^2.1.5":
   version: 2.7.0
   resolution: "@types/prettier@npm:2.7.0"
@@ -12753,6 +12761,7 @@ __metadata:
     "@types/node-fetch": ^2.6.11
     "@types/node-forge": ^0.10.0
     "@types/object-hash": ^2.2.1
+    "@types/pluralize": ^0.0.33
     "@types/prismjs": ^1.16.1
     "@types/react": ^17.0.2
     "@types/react-custom-scrollbars": ^4.0.7
@@ -12892,6 +12901,7 @@ __metadata:
     path-to-regexp: ^6.3.0
     pg: ^8.11.3
     plop: ^3.1.1
+    pluralize: ^8.0.0
     popper.js: ^1.15.0
     postcss: 8.4.31
     postcss-at-rules-variables: ^0.3.0
@@ -26663,6 +26673,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pluralize@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "pluralize@npm:8.0.0"
+  checksum: 08931d4a6a4a5561a7f94f67a31c17e6632cb21e459ab3ff4f6f629d9a822984cf8afef2311d2005fbea5d7ef26016ebb090db008e2d8bce39d0a9a9d218736e
+  languageName: node
+  linkType: hard
+
 "pngjs@npm:^3.4.0":
   version: 3.4.0
   resolution: "pngjs@npm:3.4.0"
@@ -33469,7 +33486,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"usehooks-ts@npm:^3.1.0":
+"usehooks-ts@npm:*, usehooks-ts@npm:^3.1.0":
   version: 3.1.0
   resolution: "usehooks-ts@npm:3.1.0"
   dependencies:
