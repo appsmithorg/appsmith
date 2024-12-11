@@ -16,6 +16,7 @@ import styled from "styled-components";
 import { isEmail, isRelevantEmail } from "utils/formhelpers";
 import ReduxFormTextField from "components/utils/ReduxFormTextField";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import { ENTERPRISE_PRICING_PAGE } from "constants/ThirdPartyConstants";
 
 const FormWrapper = styled.form`
   display: flex;
@@ -42,21 +43,23 @@ const PremiumDatasourceContactForm = (
         ? "PREMIUM_MODAL_RELEVANT_LEARN_MORE"
         : "PREMIUM_MODAL_NOT_RELEVANT_LEARN_MORE",
       {
-        integrationName: props.integrationName,
+        integration_name: props.integrationName,
         email: props.email,
       },
     );
+    window.open(ENTERPRISE_PRICING_PAGE, "_blank");
   }, [props.email, props.integrationName]);
 
   const submitEvent = useCallback(() => {
     AnalyticsUtil.logEvent(
-      validRelevantEmail
-        ? "PREMIUM_MODAL_RELEVANT_SCHEDULE_CALL"
-        : "PREMIUM_MODAL_NOT_RELEVANT_SUBMIT",
+      props.isEnterprise
+        ? "SOON_NOTIFY_REQUEST"
+        : validRelevantEmail
+          ? "PREMIUM_MODAL_RELEVANT_SCHEDULE_CALL"
+          : "PREMIUM_MODAL_NOT_RELEVANT_SUBMIT",
       {
-        integrationName: props.integrationName,
+        integration_name: props.integrationName,
         email: props.email,
-        isEnterprise: props.isEnterprise,
       },
     );
   }, [props.email, props.integrationName, props.isEnterprise]);

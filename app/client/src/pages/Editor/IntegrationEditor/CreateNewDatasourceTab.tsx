@@ -40,7 +40,7 @@ import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
 import { isPluginActionCreating } from "PluginActionEditor/store";
-import { PremiumDatasources } from "./PremiumDatasources";
+import PremiumDatasources from "ee/pages/IntegrationEditor/PremiumDatasources";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};

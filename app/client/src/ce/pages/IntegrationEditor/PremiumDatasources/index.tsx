@@ -1,5 +1,8 @@
 import React, { useState } from "react";
-import { ApiCard, CardContentWrapper } from "../NewApi";
+import {
+  ApiCard,
+  CardContentWrapper,
+} from "../../../../pages/Editor/IntegrationEditor/NewApi";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { Modal, ModalContent, Tag } from "@appsmith/ads";
@@ -10,11 +13,11 @@ import { createMessage, PREMIUM_DATASOURCES } from "ee/constants/messages";
 const PREMIUM_INTEGRATIONS = [
   {
     name: "Zendesk",
-    icon: "",
+    icon: "https://assets.appsmith.com/zendesk-icon.png",
   },
   {
     name: "Salesforce",
-    icon: "",
+    icon: "https://assets.appsmith.com/salesforce-icon.png",
   },
 ];
 
@@ -22,12 +25,19 @@ const ModalContentWrapper = styled(ModalContent)`
   max-width: 518px;
 `;
 
-export function PremiumDatasources() {
+export default function PremiumDatasources({
+  isEnterprise,
+}: {
+  isEnterprise?: boolean;
+}) {
   const [selectedIntegration, setSelectedIntegration] = useState<string>("");
   const handleOnClick = (name: string) => {
-    AnalyticsUtil.logEvent("PREMIUM_INTEGRATION_CTA", {
-      integrationName: name,
-    });
+    AnalyticsUtil.logEvent(
+      isEnterprise ? "SOON_INTEGRATION_CTA" : "PREMIUM_INTEGRATION_CTA",
+      {
+        integration_name: name,
+      },
+    );
     setSelectedIntegration(name);
   };
 
@@ -36,8 +46,6 @@ export function PremiumDatasources() {
       setSelectedIntegration("");
     }
   };
-
-  const isEnterprise = false;
 
   return (
     <>
@@ -69,7 +77,7 @@ export function PremiumDatasources() {
           <ContactForm
             closeModal={() => setSelectedIntegration("")}
             integrationName={selectedIntegration}
-            isEnterprise={isEnterprise}
+            isEnterprise={!!isEnterprise}
           />
         </ModalContentWrapper>
       </Modal>
