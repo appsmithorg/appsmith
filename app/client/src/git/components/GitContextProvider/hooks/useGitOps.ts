@@ -7,6 +7,8 @@ import {
   selectDiscard,
   selectMerge,
   selectMergeStatus,
+  selectOpsModalOpen,
+  selectOpsModalTab,
   selectPull,
   selectStatus,
 } from "git/store/selectors/gitSingleArtifactSelectors";
@@ -40,7 +42,9 @@ export interface UseGitOpsReturnValue {
   pullLoading: boolean;
   pullError: string | null;
   pull: () => void;
-  toggleGitOpsModal: (open: boolean, tab?: keyof typeof GitOpsTab) => void;
+  opsModalTab: keyof typeof GitOpsTab;
+  opsModalOpen: boolean;
+  toggleOpsModal: (open: boolean, tab?: keyof typeof GitOpsTab) => void;
 }
 
 export default function useGitOps({
@@ -121,11 +125,19 @@ export default function useGitOps({
     dispatch(gitArtifactActions.pullInit(basePayload));
   }, [basePayload, dispatch]);
 
-  // git ops modal
-  const toggleGitOpsModal = useCallback(
+  // ops modal
+  const opsModalOpen = useSelector((state: GitRootState) =>
+    selectOpsModalOpen(state, basePayload),
+  );
+
+  const opsModalTab = useSelector((state: GitRootState) =>
+    selectOpsModalTab(state, basePayload),
+  );
+
+  const toggleOpsModal = useCallback(
     (open: boolean, tab: keyof typeof GitOpsTab = GitOpsTab.Deploy) => {
       dispatch(
-        gitArtifactActions.toggleGitOpsModal({ ...basePayload, open, tab }),
+        gitArtifactActions.toggleOpsModal({ ...basePayload, open, tab }),
       );
     },
     [basePayload, dispatch],
@@ -152,6 +164,8 @@ export default function useGitOps({
     pullLoading: pullState?.loading ?? false,
     pullError: pullState?.error,
     pull,
-    toggleGitOpsModal,
+    opsModalTab,
+    opsModalOpen,
+    toggleOpsModal,
   };
 }

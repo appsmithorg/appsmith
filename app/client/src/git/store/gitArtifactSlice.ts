@@ -53,10 +53,10 @@ import {
   deleteBranchSuccessAction,
 } from "./actions/deleteBranchActions";
 import {
-  toggleGitBranchListPopupAction,
-  toggleGitConnectModalAction,
-  toggleGitOpsModalAction,
-  toggleGitSettingsModalAction,
+  toggleBranchListPopupAction,
+  toggleConnectModalAction,
+  toggleOpsModalAction,
+  toggleSettingsModalAction,
   toggleRepoLimitErrorModalAction,
 } from "./actions/uiActions";
 import {
@@ -127,7 +127,7 @@ export const gitArtifactSlice = createSlice({
     connectInit: connectInitAction,
     connectSuccess: connectSuccessAction,
     connectError: connectErrorAction,
-    toggleGitConnectModal: toggleGitConnectModalAction,
+    toggleConnectModal: toggleConnectModalAction,
     toggleRepoLimitErrorModal: toggleRepoLimitErrorModalAction,
 
     // git ops
@@ -149,7 +149,7 @@ export const gitArtifactSlice = createSlice({
     pullInit: pullInitAction,
     pullSuccess: pullSuccessAction,
     pullError: pullErrorAction,
-    toggleGitOpsModal: toggleGitOpsModalAction,
+    toggleOpsModal: toggleOpsModalAction,
 
     // branches
     fetchBranchesInit: fetchBranchesInitAction,
@@ -164,10 +164,10 @@ export const gitArtifactSlice = createSlice({
     checkoutBranchInit: checkoutBranchInitAction,
     checkoutBranchSuccess: checkoutBranchSuccessAction,
     checkoutBranchError: checkoutBranchErrorAction,
-    toggleGitBranchListPopup: toggleGitBranchListPopupAction,
+    toggleBranchListPopup: toggleBranchListPopupAction,
 
     // settings
-    toggleGitSettingsModal: toggleGitSettingsModalAction,
+    toggleSettingsModal: toggleSettingsModalAction,
     fetchLocalProfileInit: fetchLocalProfileInitAction,
     fetchLocalProfileSuccess: fetchLocalProfileSuccessAction,
     fetchLocalProfileError: fetchLocalProfileErrorAction,

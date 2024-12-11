@@ -30,7 +30,7 @@ export interface UseGitBranchesReturnValue {
   checkoutBranchLoading: boolean;
   checkoutBranchError: string | null;
   checkoutBranch: (branchName: string) => void;
-  toggleGitBranchListPopup: (open: boolean) => void;
+  toggleBranchListPopup: (open: boolean) => void;
 }
 
 export default function useGitBranches({
@@ -103,9 +103,9 @@ export default function useGitBranches({
   );
 
   // git branch list popup
-  const toggleGitBranchListPopup = (open: boolean) => {
+  const toggleBranchListPopup = (open: boolean) => {
     dispatch(
-      gitArtifactActions.toggleGitBranchListPopup({
+      gitArtifactActions.toggleBranchListPopup({
         ...basePayload,
         open,
       }),
@@ -126,6 +126,6 @@ export default function useGitBranches({
     checkoutBranchLoading: checkoutBranchState?.loading ?? false,
     checkoutBranchError: checkoutBranchState?.error,
     checkoutBranch,
-    toggleGitBranchListPopup,
+    toggleBranchListPopup,
   };
 }

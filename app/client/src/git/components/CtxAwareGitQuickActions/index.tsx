@@ -16,9 +16,9 @@ function CtxAwareGitQuickActions() {
     pullError,
     pullLoading,
     status,
-    toggleGitConnectModal,
-    toggleGitOpsModal,
-    toggleGitSettingsModal,
+    toggleConnectModal,
+    toggleOpsModal,
+    toggleSettingsModal,
   } = useGitContext();
 
   const connectPermitted = true;
@@ -43,9 +43,9 @@ function CtxAwareGitQuickActions() {
       pull={pull}
       statusBehindCount={statusBehindCount}
       statusChangeCount={statusChangeCount}
-      toggleGitConnectModal={toggleGitConnectModal}
-      toggleGitOpsModal={toggleGitOpsModal}
-      toggleGitSettingsModal={toggleGitSettingsModal}
+      toggleConnectModal={toggleConnectModal}
+      toggleOpsModal={toggleOpsModal}
+      toggleSettingsModal={toggleSettingsModal}
     />
   );
 }

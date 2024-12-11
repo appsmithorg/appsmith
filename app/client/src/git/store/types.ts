@@ -63,10 +63,8 @@ export interface GitSingleArtifactUIReduxState {
   branchListPopup: {
     open: boolean;
   };
-  opsModal: {
-    open: boolean;
-    tab: keyof typeof GitOpsTab;
-  };
+  opsModalOpen: boolean;
+  opsModalTab: keyof typeof GitOpsTab;
   settingsModal: {
     open: boolean;
     tab: keyof typeof GitSettingsTab;

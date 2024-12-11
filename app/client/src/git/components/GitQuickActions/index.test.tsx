@@ -35,9 +35,9 @@ describe("QuickActions Component", () => {
     pull: jest.fn(),
     statusBehindCount: 0,
     statusChangeCount: 0,
-    toggleGitConnectModal: jest.fn(),
-    toggleGitOpsModal: jest.fn(),
-    toggleGitSettingsModal: jest.fn(),
+    toggleConnectModal: jest.fn(),
+    toggleOpsModal: jest.fn(),
+    toggleSettingsModal: jest.fn(),
   };
 
   afterEach(() => {
@@ -115,10 +115,7 @@ describe("QuickActions Component", () => {
     )[0];
 
     fireEvent.click(commitButton);
-    expect(props.toggleGitOpsModal).toHaveBeenCalledWith(
-      true,
-      GitOpsTab.Deploy,
-    );
+    expect(props.toggleOpsModal).toHaveBeenCalledWith(true, GitOpsTab.Deploy);
     expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith(
       "GS_DEPLOY_GIT_MODAL_TRIGGERED",
       {
@@ -177,7 +174,7 @@ describe("QuickActions Component", () => {
         source: "BOTTOM_BAR_GIT_MERGE_BUTTON",
       },
     );
-    expect(props.toggleGitOpsModal).toHaveBeenCalledWith(true, GitOpsTab.Merge);
+    expect(props.toggleOpsModal).toHaveBeenCalledWith(true, GitOpsTab.Merge);
   });
 
   it("should call onSettingsClick when settings button is clicked", () => {
@@ -199,7 +196,7 @@ describe("QuickActions Component", () => {
     expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith("GS_SETTING_CLICK", {
       source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
     });
-    expect(props.toggleGitSettingsModal).toHaveBeenCalledWith(
+    expect(props.toggleSettingsModal).toHaveBeenCalledWith(
       true,
       GitSettingsTab.General,
     );
