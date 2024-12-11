@@ -233,7 +233,7 @@ class AnalyticsUtil {
     AnalyticsUtil.instanceId = instanceId;
   }
 
-  static getAnonymousId() {
+  static getAnonymousId(): string | undefined | null {
     const { segment } = getAppsmithConfigs();
 
     if (this.segmentAnalytics && this.segmentAnalytics.user) {
