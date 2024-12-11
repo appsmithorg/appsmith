@@ -240,7 +240,6 @@ jobs:
           git config --global user.email "$gituseremail"
           git config --global user.name "$gituser"
           git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
-          git lfs update --force
           git lfs install
           cd cibuildcache/
           if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
@@ -249,7 +248,7 @@ jobs:
           cp ../../../../../build.tar ./
           git lfs track "build.tar"
           git add  build.tar
-          git commit -m "Update Latest build.tar"
+          git commit --allow-empty -m "Update Latest build.tar"
           git push
 
       # Set status = success
