@@ -180,6 +180,12 @@ const typeOperatorsMap: Record<ReadOnlyColumnTypes, DropdownOption[]> = {
     { label: "empty", value: "empty", type: "" },
     { label: "not empty", value: "notEmpty", type: "" },
   ],
+  [ColumnTypes.HTML]: [
+    { label: "contains", value: "contains", type: "input" },
+    { label: "does not contain", value: "doesNotContain", type: "input" },
+    { label: "empty", value: "empty", type: "" },
+    { label: "not empty", value: "notEmpty", type: "" },
+  ],
 };
 
 const operatorOptions: DropdownOption[] = [
@@ -197,6 +203,7 @@ const columnTypeNameMap: Record<ReadOnlyColumnTypes, string> = {
   [ReadOnlyColumnTypes.CHECKBOX]: "Check",
   [ReadOnlyColumnTypes.SWITCH]: "Check",
   [ReadOnlyColumnTypes.SELECT]: "Text",
+  [ReadOnlyColumnTypes.HTML]: "HTML",
 };
 
 function RenderOption(props: { type: string; title: string; active: boolean }) {
