@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import QuickActions from ".";
+import DumbGitQuickActions from "./DumbGitQuickActions";
 import { theme } from "constants/DefaultTheme";
 import { ThemeProvider } from "styled-components";
 import "@testing-library/jest-dom/extend-expect";
@@ -19,7 +19,7 @@ jest.mock("./AutocommitStatusbar", () => () => (
   <div data-testid="autocommit-statusbar">AutocommitStatusbar</div>
 ));
 
-describe("QuickActions Component", () => {
+describe("DumbGitQuickActions Component", () => {
   const defaultProps = {
     discard: jest.fn(),
     isAutocommitEnabled: false,
@@ -47,7 +47,7 @@ describe("QuickActions Component", () => {
   it("should render ConnectButton when isGitConnected is false", () => {
     render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...defaultProps} />
+        <DumbGitQuickActions {...defaultProps} />
       </ThemeProvider>,
     );
     expect(screen.getByTestId("connect-button")).toBeInTheDocument();
@@ -61,7 +61,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
 
@@ -89,7 +89,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
 
@@ -107,7 +107,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const commitButton = container.querySelectorAll(
@@ -139,7 +139,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const pullButton = container.querySelectorAll(
@@ -160,7 +160,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const mergeButton = container.querySelectorAll(
@@ -185,7 +185,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const settingsButton = container.querySelectorAll(
@@ -211,7 +211,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const commitButton = container.querySelectorAll(
@@ -230,7 +230,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
 
@@ -252,7 +252,7 @@ describe("QuickActions Component", () => {
 
     render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const countElement = screen.getByTestId("t--bottom-bar-count");
@@ -270,7 +270,7 @@ describe("QuickActions Component", () => {
 
     render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     expect(screen.queryByTestId("t--bottom-bar-count")).not.toBeInTheDocument();
@@ -293,7 +293,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const pullButton = container.querySelectorAll(
@@ -313,7 +313,7 @@ describe("QuickActions Component", () => {
 
     render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const countElement = screen.getByTestId("t--bottom-bar-count");

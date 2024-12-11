@@ -1,6 +1,6 @@
 import React from "react";
-import CtxAwareGitOpsModal from "./CtxAwareGitOpsModal";
+import GitOpsModal from "./GitOpsModal";
 
-export default function GitModal() {
-  return <CtxAwareGitOpsModal />;
+export default function GitModals() {
+  return <GitOpsModal />;
 }
