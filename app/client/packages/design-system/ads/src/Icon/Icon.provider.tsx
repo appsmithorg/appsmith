@@ -1080,6 +1080,14 @@ const InputCursorMoveIcon = importSvg(
   async () => import("../__assets__/icons/ads/input-cursor-move.svg"),
 );
 
+const DebugIcon = importSvg(
+  async () => import("../__assets__/icons/ads/debug.svg"),
+);
+
+const ClearIcon = importSvg(
+  async () => import("../__assets__/icons/ads/clear.svg"),
+);
+
 const ContentTypeTable = importSvg(
   async () => import("../__assets__/icons/ads/content-type-table.svg"),
 );
@@ -1157,6 +1165,7 @@ const ICON_LOOKUP = {
   "check-line": CheckLineIcon,
   "chevron-left": ChevronLeft,
   "chevron-right": ChevronRight,
+  clear: ClearIcon,
   "close-circle": CloseCircleIcon,
   "close-circle-control": CloseCircleIcon,
   "close-circle-line": CloseCircleLineIcon,
@@ -1185,6 +1194,7 @@ const ICON_LOOKUP = {
   "datasource-v3": DatasourceV3Icon,
   "datasources-2": Datasources2,
   "decrease-control": DecreaseIcon,
+  debug: DebugIcon,
   "delete-bin-line": DeleteBinLineIcon,
   "delete-blank": DeleteBin7,
   "delete-column": DeleteColumnIcon,
