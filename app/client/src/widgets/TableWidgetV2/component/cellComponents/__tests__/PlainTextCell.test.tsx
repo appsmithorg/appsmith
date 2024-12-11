@@ -1,4 +1,4 @@
-import { getCellText } from "./PlainTextCell";
+import { getCellText } from "../PlainTextCell";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 
 describe("DefaultRendere - ", () => {
