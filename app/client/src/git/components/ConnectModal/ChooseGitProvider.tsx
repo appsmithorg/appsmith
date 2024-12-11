@@ -183,7 +183,7 @@ function ChooseGitProvider({
                 </CollapsibleHeader>
                 <CollapsibleContent>
                   <DemoImage
-                    alt={`Create an empty repo in ${value?.gitProvider}}`}
+                    alt={`Create an empty repo in ${value?.gitProvider}`}
                     src={
                       GIT_DEMO_GIF.create_repo[value?.gitProvider || "github"]
                     }

@@ -1,9 +1,10 @@
 import type { CSSProperties } from "react";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Icon, Tooltip } from "@appsmith/ads";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
 import noop from "lodash/noop";
+import log from "loglevel";
 
 export const TooltipWrapper = styled.div`
   display: flex;
@@ -35,6 +36,14 @@ function CopyButton({
   const timerRef = useRef<number>();
   const [showCopied, setShowCopied] = useState(false);
 
+  useEffect(function clearShowCopiedTimeout() {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+
   const stopShowingCopiedAfterDelay = useCallback(() => {
     timerRef.current = setTimeout(() => {
       setShowCopied(false);
@@ -43,9 +52,16 @@ function CopyButton({
 
   const copyToClipboard = useCallback(() => {
     if (value) {
-      copy(value);
-      setShowCopied(true);
-      stopShowingCopiedAfterDelay();
+      try {
+        const success = copy(value);
+
+        if (success) {
+          setShowCopied(true);
+          stopShowingCopiedAfterDelay();
+        }
+      } catch (error) {
+        log.error("Failed to copy to clipboard:", error);
+      }
     }
 
     onCopy();
@@ -65,6 +81,7 @@ function CopyButton({
         <TooltipWrapper style={style}>
           <Tooltip content={tooltipMessage}>
             <Button
+              aria-label={`Copy ${tooltipMessage || "text"}`}
               data-testid={`t--copy-${testIdSuffix}`}
               isDisabled={isDisabled}
               isIconButton

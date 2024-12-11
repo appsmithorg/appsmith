@@ -126,7 +126,7 @@ describe("ChooseGitProvider Component", () => {
     ).toBeInTheDocument();
 
     // Check if DemoImage is rendered
-    const img = screen.getByAltText("Create an empty repo in github}");
+    const img = screen.getByAltText("Create an empty repo in github");
 
     expect(img).toBeInTheDocument();
     expect(img).toHaveAttribute("src", GIT_DEMO_GIF.create_repo.github);
