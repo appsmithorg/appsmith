@@ -11,10 +11,13 @@ import { useMemo } from "react";
 import type { UseGitMetadataReturnValue } from "./useGitMetadata";
 import useGitMetadata from "./useGitMetadata";
 
+// internal dependencies
+import type { ApplicationPayload } from "entities/Application";
+
 export interface UseGitContextValueParams {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
-  artifact: { id: string; baseId: string } | null;
+  artifact: ApplicationPayload | null;
   connectPermitted: boolean;
 }
 
@@ -23,7 +26,9 @@ export interface GitContextValue
     UseGitConnectReturnValue,
     UseGitOpsReturnValue,
     UseGitSettingsReturnValue,
-    UseGitBranchesReturnValue {}
+    UseGitBranchesReturnValue {
+  artifact: ApplicationPayload | null;
+}
 
 export default function useGitContextValue({
   artifact,
@@ -48,6 +53,7 @@ export default function useGitContextValue({
   const useGitSettingsReturnValue = useGitSettings(basePayload);
 
   return {
+    artifact,
     ...useGitMetadataReturnValue,
     ...useGitOpsReturnValue,
     ...useGitBranchesReturnValue,

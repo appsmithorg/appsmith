@@ -23,6 +23,7 @@ import {
   fetchStatusSuccessAction,
 } from "./actions/fetchStatusActions";
 import {
+  clearCommitErrorAction,
   commitErrorAction,
   commitInitAction,
   commitSuccessAction,
@@ -66,6 +67,7 @@ import {
   checkoutBranchSuccessAction,
 } from "./actions/checkoutBranchActions";
 import {
+  clearDiscardErrorAction,
   discardErrorAction,
   discardInitAction,
   discardSuccessAction,
@@ -135,9 +137,11 @@ export const gitArtifactSlice = createSlice({
     commitInit: commitInitAction,
     commitSuccess: commitSuccessAction,
     commitError: commitErrorAction,
+    clearCommitError: clearCommitErrorAction,
     discardInit: discardInitAction,
     discardSuccess: discardSuccessAction,
     discardError: discardErrorAction,
+    clearDiscardError: clearDiscardErrorAction,
     fetchStatusInit: fetchStatusInitAction,
     fetchStatusSuccess: fetchStatusSuccessAction,
     fetchStatusError: fetchStatusErrorAction,

@@ -27,9 +27,11 @@ export interface UseGitOpsReturnValue {
   commitLoading: boolean;
   commitError: string | null;
   commit: (commitMessage: string) => void;
+  clearCommitError: () => void;
   discardLoading: boolean;
   discardError: string | null;
   discard: () => void;
+  clearDiscardError: () => void;
   status: FetchStatusResponseData | null;
   fetchStatusLoading: boolean;
   fetchStatusError: string | null;
@@ -80,6 +82,10 @@ export default function useGitOps({
     [basePayload, dispatch],
   );
 
+  const clearCommitError = useCallback(() => {
+    dispatch(gitArtifactActions.clearCommitError(basePayload));
+  }, [basePayload, dispatch]);
+
   // discard
   const discardState = useSelector((state: GitRootState) =>
     selectDiscard(state, basePayload),
@@ -87,6 +93,10 @@ export default function useGitOps({
 
   const discard = useCallback(() => {
     dispatch(gitArtifactActions.discardInit(basePayload));
+  }, [basePayload, dispatch]);
+
+  const clearDiscardError = useCallback(() => {
+    dispatch(gitArtifactActions.clearDiscardError(basePayload));
   }, [basePayload, dispatch]);
 
   // status
@@ -171,9 +181,11 @@ export default function useGitOps({
     commitLoading: commitState?.loading ?? false,
     commitError: commitState?.error,
     commit,
+    clearCommitError,
     discardLoading: discardState?.loading ?? false,
     discardError: discardState?.error,
     discard,
+    clearDiscardError,
     status: statusState?.value,
     fetchStatusLoading: statusState?.loading ?? false,
     fetchStatusError: statusState?.error,
