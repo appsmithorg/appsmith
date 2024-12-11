@@ -11,16 +11,6 @@ import SegmentSingleton from "utils/Analytics/segment";
 import MixpanelSingleton from "utils/Analytics/mixpanel";
 import type { EventProperties } from "@segment/analytics-next";
 
-declare global {
-  interface Window {
-    // Zipy is added via script tags in index.html
-    zipy: {
-      identify: (uid: string, userInfo: Record<string, string>) => void;
-      anonymize: () => void;
-    };
-  }
-}
-
 export const parentContextTypeTokens = ["pkg", "workflow"];
 
 /**
@@ -232,14 +222,6 @@ class AnalyticsUtil {
       smartlookClient.identify(userId, { email: userData.email });
     }
 
-    // If zipy was included, identify this user on the platform
-    if (window.zipy && userId) {
-      window.zipy.identify(userId, {
-        email: userData.email,
-        username: userData.username,
-      });
-    }
-
     AnalyticsUtil.blockTrackEvent = false;
   }
 
@@ -267,7 +249,6 @@ class AnalyticsUtil {
     }
 
     this.segmentAnalytics && this.segmentAnalytics.reset();
-    window.zipy && window.zipy.anonymize();
   }
 
   static setBlockErrorLogs(value: boolean) {
