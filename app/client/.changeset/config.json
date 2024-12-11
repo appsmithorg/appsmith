@@ -1,0 +1,24 @@
+{
+  "$schema": "https://unpkg.com/@changesets/config@3.0.4/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "fixed": [],
+  "linked": [],
+  "access": "restricted",
+  "baseBranch": "main",
+  "updateInternalDependencies": "patch",
+  "ignore": [
+    "@shared/ast",
+    "@appsmith/ads-old",
+    "@appsmith/wds-headless",
+    "@appsmith/wds-theming",
+    "@appsmith/wds",
+    "@design-system/widgets-old",
+    "@shared/dsl",
+    "@appsmith/eslint-plugin",
+    "appsmith-icons",
+    "appsmith-rts",
+    "@design-system/storybook",
+    "@appsmith/utils"
+  ]
+}
