@@ -635,7 +635,8 @@ public class ActionCollectionServiceCEImpl
         return Flux.fromIterable(actionCollectionList)
                 .flatMap(this::validateActionCollection)
                 .collectList()
-                .flatMap(items -> repository.bulkInsert(repository, items));
+                .flatMapMany(items -> repository.saveAll(items))
+                .then();
     }
 
     @Override
@@ -643,7 +644,8 @@ public class ActionCollectionServiceCEImpl
         return Flux.fromIterable(actionCollectionList)
                 .flatMap(this::validateActionCollection)
                 .collectList()
-                .flatMap(items -> repository.bulkUpdate(repository, items));
+                .flatMapMany(items -> repository.saveAll(items))
+                .then();
     }
 
     @Override

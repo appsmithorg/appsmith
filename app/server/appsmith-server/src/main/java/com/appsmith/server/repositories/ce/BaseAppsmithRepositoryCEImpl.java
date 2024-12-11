@@ -1,6 +1,5 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.helpers.JsonForDatabase;
 import com.appsmith.external.models.BaseDomain;
@@ -9,13 +8,10 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.FieldInfo;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.AppsmithRepository;
-import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -834,49 +830,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .entityManager(em)
                 .one()
                 .orElse(null);
-    }
-
-    public Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities, EntityManager em) {
-        if (CollectionUtils.isEmpty(entities)) {
-            return Optional.empty();
-        }
-
-        // Ensure there's no duplicated ID. Only doing this because MongoDB version of this method had this protection.
-        HashSet<String> seenIds = new HashSet<>();
-        for (T entity : entities) {
-            final String id = entity.getId();
-            if (seenIds.contains(id)) {
-                throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "id");
-            }
-            seenIds.add(id);
-        }
-
-        entities.forEach(em::persist);
-        return Optional.empty();
-    }
-
-    public Optional<Void> bulkUpdate(
-            BaseRepository<T, String> baseRepository, List<T> domainObjects, EntityManager em) {
-        if (CollectionUtils.isEmpty(domainObjects)) {
-            return Optional.empty();
-        }
-        Class<?> domainClass = domainObjects.get(0).getClass();
-
-        final Map<String, T> updatesById = new HashMap<>();
-        domainObjects.forEach(e -> updatesById.put(e.getId(), e));
-
-        BridgeQuery<?> query =
-                Bridge.in(BaseDomain.Fields.id, updatesById.keySet()).isNull(BaseDomain.Fields.deletedAt);
-
-        final List<T> entitiesToSave =
-                queryBuilder().criteria(query).entityManager(entityManager).all();
-
-        for (final T e : entitiesToSave) {
-            AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(updatesById.get(e.getId()), e);
-        }
-
-        entitiesToSave.forEach(em::merge);
-        return Optional.empty();
     }
 
     private static boolean isValidUser(User user) {

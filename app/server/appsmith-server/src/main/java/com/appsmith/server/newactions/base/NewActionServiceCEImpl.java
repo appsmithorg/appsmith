@@ -430,7 +430,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return Flux.fromIterable(newActionList)
                 .flatMap(newAction -> validateAction(newAction, true))
                 .collectList()
-                .flatMap(entities -> repository.bulkInsert(repository, entities));
+                .flatMapMany(entities -> repository.saveAll(entities))
+                .then();
     }
 
     @Override
@@ -438,7 +439,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return Flux.fromIterable(newActionList)
                 .flatMap(newAction -> validateAction(newAction, true))
                 .collectList()
-                .flatMap(entities -> repository.bulkUpdate(repository, entities));
+                .flatMapMany(entities -> repository.saveAll(entities))
+                .then();
     }
 
     protected boolean isValidActionName(ActionDTO action) {
@@ -1646,7 +1648,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return newAction;
                 })
                 .collectList()
-                .flatMap(actions -> repository.bulkUpdate(repository, actions))
+                .flatMapMany(actions -> repository.saveAll(actions))
+                .then()
                 .thenReturn(mapsDTO);
     }
 

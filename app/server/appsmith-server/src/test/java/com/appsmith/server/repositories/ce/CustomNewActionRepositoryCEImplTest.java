@@ -51,11 +51,11 @@ public class CustomNewActionRepositoryCEImplTest {
         Flux<NewAction> newActionFlux = newActionRepository
                 .saveAll(newActionList)
                 .collectList()
-                .flatMap(newActions -> {
+                .flatMapMany(newActions -> {
                     newActions.forEach(newAction -> {
                         newAction.setWorkspaceId("workspace-" + newAction.getId());
                     });
-                    return newActionRepository.bulkUpdate(newActionRepository, newActions);
+                    return newActionRepository.saveAll(newActions);
                 })
                 .thenMany(newActionRepository.findByApplicationId(applicationId));
 
@@ -82,8 +82,7 @@ public class CustomNewActionRepositoryCEImplTest {
             actionList.add(action);
         }
 
-        StepVerifier.create(newActionRepository.bulkInsert(newActionRepository, actionList))
-                .verifyError();
+        StepVerifier.create(newActionRepository.saveAll(actionList)).verifyError();
     }
 
     @Test
@@ -102,7 +101,7 @@ public class CustomNewActionRepositoryCEImplTest {
         }
 
         Mono<List<NewAction>> newActionsMono = newActionRepository
-                .bulkInsert(newActionRepository, actionList)
+                .saveAll(actionList)
                 .thenMany(newActionRepository.findByApplicationId(applicationId))
                 .collectList();
 
