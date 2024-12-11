@@ -2,6 +2,7 @@ package com.appsmith.server.newactions.importable;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
@@ -482,11 +483,17 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             }
             String oldId = newAction.getId().split("_")[1];
             newAction.setId(newNameAction + "_" + oldId);
+
+            if(PluginType.JS.equals(newAction.getPluginType())) {
+                newAction.getUnpublishedAction().setFullyQualifiedName(newNameAction);
+            }
+
             newAction.getUnpublishedAction().setName(newNameAction);
-            newAction.getUnpublishedAction().setFullyQualifiedName(newNameAction);
             if (newAction.getPublishedAction() != null) {
                 newAction.getPublishedAction().setName(newNameAction);
-                newAction.getPublishedAction().setFullyQualifiedName(newNameAction);
+                if(PluginType.JS.equals(newAction.getPluginType())) {
+                    newAction.getPublishedAction().setFullyQualifiedName(newNameAction);
+                }
             }
             mappedImportableResourcesDTO.getRefactoringNameReference().put(oldNameAction, newNameAction);
         }
