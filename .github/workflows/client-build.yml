@@ -242,11 +242,13 @@ jobs:
           git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
           git lfs update --force
           git lfs install
+          git lfs migrate import --everything --yes
           cd cibuildcache/
           if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
           if [ "$reponame" = "appsmith-ee" ]; then export repodir="EE"; fi
           cd $repodir/release/client
-          cp ../../../../../build.tar ./
+          git lfs pull ./build.tar
+          cp -rf ../../../../../build.tar ./
           git lfs track "build.tar"
           git add  build.tar
           git commit -m "Update Latest build.tar"
