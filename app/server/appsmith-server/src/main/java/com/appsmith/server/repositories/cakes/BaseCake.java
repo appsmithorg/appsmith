@@ -16,8 +16,8 @@ import jakarta.persistence.criteria.Root;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -169,9 +169,9 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     // Wrappers for methods from CRUDRepository
     // ---------------------------------------------------
     public Mono<T> save(T entity) {
+        final boolean isNew = entity.getId() == null;
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
                 .flatMap(em -> {
-                    final boolean isNew = entity.getId() == null;
                     return asMonoDirect(() -> {
                         try {
                             if (isNew) {
@@ -181,12 +181,6 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                                 em.merge(entity);
                             }
                             return entity;
-                        } catch (DataIntegrityViolationException e) {
-                            // save wasn't successful, reset the id if it was generated
-                            if (isNew) {
-                                entity.setId(null);
-                            }
-                            throw e;
                         } catch (Exception e) {
                             // This should NEVER happen in live/production environments.
                             if (isNew) {
@@ -197,7 +191,14 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                         }
                     });
                 })
-                .as(transactionalOperator::transactional);
+                .as(transactionalOperator::transactional)
+                .onErrorMap(ConstraintViolationException.class, e -> {
+                    log.error("Constraint violation while saving entity", e);
+                    if (isNew) {
+                        entity.setId(null);
+                    }
+                    return e;
+                });
     }
 
     private String generateId() {

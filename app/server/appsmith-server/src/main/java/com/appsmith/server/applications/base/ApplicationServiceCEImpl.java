@@ -50,8 +50,8 @@ import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -264,7 +264,7 @@ public class ApplicationServiceCEImpl
         if (!StringUtils.hasLength(application.getColor())) {
             application.setColor(getRandomAppCardColor());
         }
-        return super.create(application).onErrorResume(DataIntegrityViolationException.class, error -> {
+        return super.create(application).onErrorResume(ConstraintViolationException.class, error -> {
             if (error.getMessage() != null
                     // Catch only if error message contains workspace_app_deleted_git_application_metadata mongo error
                     && (error.getMessage().contains("application_workspace_name_key")
@@ -329,7 +329,7 @@ public class ApplicationServiceCEImpl
                     .updateById(appId, application, applicationPermission.getEditPermission())
                     .onErrorResume(error -> {
                         log.error("failed to update application {}", appId, error);
-                        if (error instanceof DataIntegrityViolationException) {
+                        if (error instanceof ConstraintViolationException) {
                             // Error message : E11000 duplicate key error collection: appsmith.application index:
                             // workspace_app_deleted_git_application_metadata dup key:
                             // { organizationId: "******", name: "AppName", deletedAt: null }

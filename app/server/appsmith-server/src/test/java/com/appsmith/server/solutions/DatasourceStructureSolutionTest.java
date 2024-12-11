@@ -27,6 +27,7 @@ import com.appsmith.server.services.DatasourceStructureService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
@@ -438,7 +438,7 @@ public class DatasourceStructureSolutionTest {
                 datasourceStructureService.save(datasourceStorageStructure);
 
         StepVerifier.create(datasourceStorageStructureMono).verifyErrorSatisfies(error -> {
-            assertThat(error).isInstanceOf(DataIntegrityViolationException.class);
+            assertThat(error).isInstanceOf(ConstraintViolationException.class);
         });
     }
 
