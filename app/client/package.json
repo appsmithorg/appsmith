@@ -162,7 +162,7 @@
     "mixpanel-browser": "^2.55.1",
     "moment": "2.29.4",
     "moment-timezone": "^0.5.35",
-    "nanoid": "^2.0.4",
+    "nanoid": "^3.3.8",
     "node-forge": "^1.3.0",
     "object-hash": "^3.0.0",
     "openai": "^4.64.0",
