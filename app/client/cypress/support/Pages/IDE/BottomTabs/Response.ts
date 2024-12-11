@@ -8,7 +8,9 @@ interface ValidationParams {
 class Response {
   public locators = {
     responseTab: "[data-testid='t--tab-RESPONSE_TAB']",
-    responseDataContainer: "[data-testid='t--response-data-container']",
+    // responseDataContainer: "[data-testid='t--response-data-container']",
+    responseDataContainer: "[data-testid='t--query-response-data-container']",
+
     responseTypeMenuTrigger: "[data-testid='t--response-type-trigger']",
     responseRecordCount: "[data-testid='t--response-record-count']",
     responseStatusInfo: "[data-testid='t--response-status-info']",
