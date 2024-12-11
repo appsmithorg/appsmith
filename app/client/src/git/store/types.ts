@@ -65,6 +65,7 @@ export interface GitSingleArtifactUIReduxState {
   };
   opsModalOpen: boolean;
   opsModalTab: keyof typeof GitOpsTab;
+  conflictErrorModalOpen: boolean;
   settingsModal: {
     open: boolean;
     tab: keyof typeof GitSettingsTab;

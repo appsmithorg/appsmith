@@ -24,6 +24,7 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   },
   opsModalOpen: false,
   opsModalTab: GitOpsTab.Deploy,
+  conflictErrorModalOpen: false,
   settingsModal: {
     open: false,
     tab: GitSettingsTab.General,

@@ -1,9 +1,6 @@
 import React, { useCallback } from "react";
 import TabDeploy from "./TabDeploy";
 import TabMerge from "./TabMerge";
-
-// import GitErrorPopup from "../components/GitErrorPopup";
-
 import { createMessage, DEPLOY, MERGE } from "ee/constants/messages";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import {

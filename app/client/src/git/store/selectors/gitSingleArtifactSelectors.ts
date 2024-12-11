@@ -27,16 +27,6 @@ export const selectGitConnected = (
 ) => !!selectGitMetadata(state, artifactDef).value;
 
 // git ops
-export const selectOpsModalOpen = (
-  state: GitRootState,
-  artifactDef: GitArtifactDef,
-) => selectSingleArtifact(state, artifactDef)?.ui.opsModalOpen;
-
-export const selectOpsModalTab = (
-  state: GitRootState,
-  artifactDef: GitArtifactDef,
-) => selectSingleArtifact(state, artifactDef)?.ui.opsModalTab;
-
 export const selectCommit = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
@@ -62,6 +52,21 @@ export const selectMergeStatus = (
 
 export const selectPull = (state: GitRootState, artifactDef: GitArtifactDef) =>
   selectSingleArtifact(state, artifactDef)?.apiResponses?.pull;
+
+export const selectOpsModalOpen = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectSingleArtifact(state, artifactDef)?.ui.opsModalOpen;
+
+export const selectOpsModalTab = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectSingleArtifact(state, artifactDef)?.ui.opsModalTab;
+
+export const selectConflictErrorModalOpen = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectSingleArtifact(state, artifactDef)?.ui.conflictErrorModalOpen;
 
 // git branches
 

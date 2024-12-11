@@ -58,6 +58,7 @@ import {
   toggleOpsModalAction,
   toggleSettingsModalAction,
   toggleRepoLimitErrorModalAction,
+  toggleConflictErrorModalAction,
 } from "./actions/uiActions";
 import {
   checkoutBranchErrorAction,
@@ -150,6 +151,7 @@ export const gitArtifactSlice = createSlice({
     pullSuccess: pullSuccessAction,
     pullError: pullErrorAction,
     toggleOpsModal: toggleOpsModalAction,
+    toggleConflictErrorModal: toggleConflictErrorModalAction,
 
     // branches
     fetchBranchesInit: fetchBranchesInitAction,

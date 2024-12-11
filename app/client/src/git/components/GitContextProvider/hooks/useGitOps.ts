@@ -4,6 +4,7 @@ import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.ty
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
   selectCommit,
+  selectConflictErrorModalOpen,
   selectDiscard,
   selectMerge,
   selectMergeStatus,
@@ -45,6 +46,8 @@ export interface UseGitOpsReturnValue {
   opsModalTab: keyof typeof GitOpsTab;
   opsModalOpen: boolean;
   toggleOpsModal: (open: boolean, tab?: keyof typeof GitOpsTab) => void;
+  conflictErrorModalOpen: boolean;
+  toggleConflictErrorModal: (open: boolean) => void;
 }
 
 export default function useGitOps({
@@ -143,6 +146,20 @@ export default function useGitOps({
     [basePayload, dispatch],
   );
 
+  // conflict error modal
+  const conflictErrorModalOpen = useSelector((state: GitRootState) =>
+    selectConflictErrorModalOpen(state, basePayload),
+  );
+
+  const toggleConflictErrorModal = useCallback(
+    (open: boolean) => {
+      dispatch(
+        gitArtifactActions.toggleConflictErrorModal({ ...basePayload, open }),
+      );
+    },
+    [basePayload, dispatch],
+  );
+
   return {
     commitLoading: commitState?.loading ?? false,
     commitError: commitState?.error,
@@ -167,5 +184,7 @@ export default function useGitOps({
     opsModalTab,
     opsModalOpen,
     toggleOpsModal,
+    conflictErrorModalOpen,
+    toggleConflictErrorModal,
   };
 }

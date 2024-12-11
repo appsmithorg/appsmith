@@ -14,6 +14,21 @@ export const toggleRepoLimitErrorModalAction =
     return state;
   });
 
+interface ToggleConflictErrorModalPayload {
+  open: boolean;
+}
+
+export const toggleConflictErrorModalAction =
+  createSingleArtifactAction<ToggleConflictErrorModalPayload>(
+    (state, action) => {
+      const { open } = action.payload;
+
+      state.ui.conflictErrorModalOpen = open;
+
+      return state;
+    },
+  );
+
 interface BranchListPopupPayload {
   open: boolean;
 }
