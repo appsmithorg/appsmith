@@ -11,7 +11,9 @@ import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.Modifying;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -54,6 +56,8 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
+    @Modifying
+    @Transactional
     public Optional<Integer> updateById(String id, BridgeUpdate updateObj, EntityManager entityManager) {
         if (id == null) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
