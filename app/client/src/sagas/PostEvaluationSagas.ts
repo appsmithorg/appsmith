@@ -41,6 +41,7 @@ import type { EvalTreeResponseData } from "workers/Evaluation/types";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { getCollectionNameToDisplay } from "ee/utils/actionExecutionUtils";
 import { showToastOnExecutionError } from "./ActionExecution/errorUtils";
+import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -190,6 +191,9 @@ export function* logSuccessfulBindings(
 }
 
 export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
+  // Wait for environments api fetch before dispatching actions
+  yield call(waitForFetchEnvironments);
+
   for (const action of actions) {
     yield put(action);
   }

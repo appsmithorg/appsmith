@@ -1159,13 +1159,13 @@ export default class DataTreeEvaluator {
             unEvalPropertyValue = replaceThisDotParams(unEvalPropertyValue);
           }
 
-          let scopeCache;
+          let evalContextCache;
 
           if (WorkerEnv.flags.release_evaluation_scope_cache) {
             if (!!entity && isAnyJSAction(entity)) {
-              scopeCache = triggerBasedDataTreeContext;
+              evalContextCache = triggerBasedDataTreeContext;
             } else {
-              scopeCache = nonTriggerBasedDataTreeContext;
+              evalContextCache = nonTriggerBasedDataTreeContext;
             }
           }
 
@@ -1178,7 +1178,7 @@ export default class DataTreeEvaluator {
               contextData,
               undefined,
               fullPropertyPath,
-              scopeCache,
+              evalContextCache,
             );
           } catch (error) {
             this.errors.push({
@@ -1506,7 +1506,7 @@ export default class DataTreeEvaluator {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callBackData?: Array<any>,
     fullPropertyPath?: string,
-    scopeCache?: EvaluateContext,
+    evalContextCache?: EvaluateContext,
   ) {
     // Get the {{binding}} bound values
     let entity: DataTreeEntity | undefined = undefined;
@@ -1557,7 +1557,7 @@ export default class DataTreeEvaluator {
           !!entity && isAnyJSAction(entity),
           contextData,
           callBackData,
-          scopeCache,
+          evalContextCache,
         );
 
         if (fullPropertyPath && evalErrors.length) {
@@ -1651,7 +1651,7 @@ export default class DataTreeEvaluator {
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callbackData?: Array<any>,
-    scopeCache?: EvaluateContext,
+    evalContextCache?: EvaluateContext,
   ): EvalResult {
     let evalResponse: EvalResult;
 
@@ -1667,7 +1667,7 @@ export default class DataTreeEvaluator {
         contextData,
         callbackData,
         {},
-        scopeCache,
+        evalContextCache,
       );
     } catch (error) {
       evalResponse = {

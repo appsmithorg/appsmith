@@ -117,7 +117,6 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getInstanceId } from "ee/selectors/tenantSelectors";
-import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 
@@ -293,8 +292,6 @@ export function* evaluateTreeSaga(
     EVAL_WORKER_ACTIONS.EVAL_TREE,
     evalTreeRequestData,
   );
-
-  yield call(waitForFetchEnvironments);
 
   yield call(
     updateDataTreeHandler,

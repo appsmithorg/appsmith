@@ -375,7 +375,7 @@ export function evaluateSync(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evalArguments?: Array<any>,
   configTree: ConfigTree = {},
-  scopeCache?: EvalContext,
+  evalContextCache?: EvalContext,
 ): EvalResult {
   return (function () {
     const errors: EvaluationError[] = [];
@@ -408,8 +408,8 @@ export function evaluateSync(
       Object.assign(EVAL_CONTEXT, context.globalContext);
     }
 
-    if (scopeCache) {
-      Object.assign(EVAL_CONTEXT, scopeCache);
+    if (evalContextCache) {
+      Object.assign(EVAL_CONTEXT, evalContextCache);
     } else {
       const dataTreeContext = getDataTreeContext({
         dataTree,
