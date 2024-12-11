@@ -92,9 +92,11 @@
   "multiSelectName": "MultiSelect1",
   "defaultimage": "https://i0.wp.com/www.heyuguys.com/images/2016/04/The-Joker.png?fit=1920%2C960",
   "NewImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
+  "NewImageAltText": "Thor's hammer planted into the ground",
   "base64image": {
     "withoutPrefix": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==",
-    "withPrefix": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg=="
+    "withPrefix": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAACklEQVR4nGNiAAAABgADNjd8qAAAAABJRU5ErkJggg==",
+    "altText": "A single pixel"
   },
   "textfun": "{{Table1.selectedRow.userName}}",
   "textfunID": "{{Table1.selectedRow.id}}",
@@ -118,6 +120,7 @@
   "RichTexteditorBody": "Here is the text area to edit html",
   "userApi": "http://host.docker.internal:5001/v1",
   "validateImage": "https://cdn.dribbble.com/users/1787323/screenshots/4563995/dribbbe_hammer-01.png",
+  "validateImageAltText": "Thor's hammer planted into the ground",
   "defaultdata": "TestData",
   "label": "one",
   "rgbValue": "rgb(255, 0, 0)",
