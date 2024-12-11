@@ -29,10 +29,6 @@ describe(
   },
   function () {
     before("Setup app and spreadsheet", function () {
-      // intercept features call gsheet all sheets enabled
-      featureFlagIntercept({
-        release_gs_all_sheets_options_enabled: true,
-      });
       //Setting up the app name
       const uuid = Cypress._.random(0, 10000);
       spreadSheetName = spreadSheetName + "_" + uuid;

@@ -24,7 +24,7 @@ class Response {
   }
 
   public openResponseTypeMenu() {
-    cy.get(this.locators.responseDataContainer).realHover();
+    cy.get(this.locators.responseDataContainer).trigger("mouseover");
     cy.get(this.locators.responseTypeMenuTrigger).click({ force: true });
   }
 
