@@ -437,11 +437,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Optional<Application> findByIdAndExportWithConfiguration(
             String id, boolean exportWithConfiguration, EntityManager entityManager) {
-        return queryBuilder()
-                .byId(id)
-                .criteria(Bridge.equal(
-                        Application.Fields.exportWithConfiguration, String.valueOf(exportWithConfiguration)))
-                .entityManager(entityManager)
-                .one();
+        BridgeQuery<Application> q = Bridge.equal(Application.Fields.id, id);
+        if (exportWithConfiguration) {
+            q.isTrue(Application.Fields.exportWithConfiguration);
+        } else {
+            q.isFalse(Application.Fields.exportWithConfiguration);
+        }
+        return queryBuilder().criteria(q).entityManager(entityManager).one();
     }
 }

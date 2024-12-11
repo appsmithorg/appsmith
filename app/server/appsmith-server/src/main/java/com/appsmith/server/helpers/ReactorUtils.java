@@ -14,6 +14,7 @@ public class ReactorUtils {
     private ReactorUtils() {}
 
     private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-db-elastic-pool";
+    private static final String PUBLISHER_THREAD_POOL_NAME = "appsmith-db-publisher-elastic-pool";
 
     private static final int maxThreadCount = System.getenv("APPSMITH_DB_ELASTIC_THREAD_MAX_VALUE") != null
             ? Integer.parseInt(System.getenv("APPSMITH_DB_ELASTIC_THREAD_MAX_VALUE"))
@@ -29,13 +30,16 @@ public class ReactorUtils {
     public static final Scheduler elasticScheduler = Schedulers.newBoundedElastic(
             maxThreadCount, Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, ELASTIC_THREAD_POOL_NAME);
 
+    public static final Scheduler publisherScheduler =
+            Schedulers.newBoundedElastic(50, Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE, PUBLISHER_THREAD_POOL_NAME);
+
     public static <T> Mono<T> asMono(Supplier<Optional<T>> supplier) {
         Mono<Scheduler> schedulerMono =
                 Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TRANSACTION_THREAD_NAME, elasticScheduler)));
         return schedulerMono
                 .flatMap(scheduler ->
                         switchToElasticScheduler(scheduler).then(Mono.defer(() -> Mono.justOrEmpty(supplier.get()))))
-                .publishOn(Schedulers.boundedElastic());
+                .publishOn(publisherScheduler);
     }
 
     public static <T> Mono<T> asMonoDirect(Supplier<T> supplier) {
@@ -44,7 +48,7 @@ public class ReactorUtils {
         return schedulerMono
                 .flatMap(scheduler ->
                         switchToElasticScheduler(scheduler).then(Mono.defer(() -> Mono.justOrEmpty(supplier.get()))))
-                .publishOn(Schedulers.boundedElastic());
+                .publishOn(publisherScheduler);
     }
 
     public static <T> Flux<T> asFlux(Supplier<? extends Iterable<T>> supplier) {
@@ -54,7 +58,7 @@ public class ReactorUtils {
                 .flatMapMany(scheduler -> switchToElasticScheduler(scheduler)
                         .then(Mono.fromCallable(supplier::get))
                         .flatMapMany(Flux::fromIterable))
-                .publishOn(Schedulers.boundedElastic());
+                .publishOn(publisherScheduler);
     }
 
     private static Mono<Void> switchToElasticScheduler(Scheduler scheduler) {
