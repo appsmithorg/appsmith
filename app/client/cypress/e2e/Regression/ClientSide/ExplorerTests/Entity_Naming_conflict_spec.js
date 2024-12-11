@@ -22,8 +22,7 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       PageLeftPane.assertPresence("Table1");
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
-      cy.RenameEntity(apiName);
-      cy.validateMessage(apiName);
+      cy.CreationOfUniqueAPIcheck(apiName);
     });
   },
 );

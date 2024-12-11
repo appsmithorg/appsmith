@@ -3,7 +3,7 @@ import {
   GitImportStep,
   GitOpsTab,
   GitSettingsTab,
-} from "../../enums";
+} from "../../constants/enums";
 import type {
   GitSingleArtifactAPIResponsesReduxState,
   GitSingleArtifactUIReduxState,
@@ -29,6 +29,9 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   settingsModal: {
     open: false,
     tab: GitSettingsTab.General,
+  },
+  repoLimitErrorModal: {
+    open: false,
   },
 };
 
@@ -86,21 +89,12 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       loading: false,
       error: null,
     },
-    globalConfig: {
+    localProfile: {
       value: null,
       loading: false,
       error: null,
     },
-    localConfig: {
-      value: null,
-      loading: false,
-      error: null,
-    },
-    updateGlobalConfig: {
-      loading: false,
-      error: null,
-    },
-    updateLocalConfig: {
+    updateLocalProfile: {
       loading: false,
       error: null,
     },

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Source the helper script
+source pg-utils.sh
+
 set -e
 
 tlog "Running as: $(id)"
@@ -441,6 +444,12 @@ init_postgres() {
       tlog "Initializing local Postgres data folder"
       su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
+    cp /opt/appsmith/postgres/appsmith_hba.conf "$POSTGRES_DB_PATH/pg_hba.conf"
+    # PostgreSQL requires strict file permissions for the pg_hba.conf file. Add file permission settings after copying the configuration file.
+    # 600 is the recommended permission for pg_hba.conf file for read and write access to the owner only.
+    chown postgres:postgres "$POSTGRES_DB_PATH/pg_hba.conf"
+    chmod 600 "$POSTGRES_DB_PATH/pg_hba.conf"
+
     create_appsmith_pg_db "$POSTGRES_DB_PATH"
   else
     runEmbeddedPostgres=0
@@ -478,7 +487,9 @@ create_appsmith_pg_db() {
   local max_attempts=300
   local attempt=0
 
-  until su postgres -c "env PATH='$PATH' pg_isready -h 127.0.0.1"; do
+  local unix_socket_directory=$(get_unix_socket_directory "$POSTGRES_DB_PATH")
+  echo "Unix socket directory is $unix_socket_directory"
+  until su postgres -c "env PATH='$PATH' pg_isready -h $unix_socket_directory"; do
     if (( attempt >= max_attempts )); then
       echo "Postgres failed to start within 300 seconds."
       return 1

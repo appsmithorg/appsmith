@@ -23,7 +23,7 @@ test_extract_postgres_db_params_valid_db_string() {
     exit 1
   fi
 
-  echo "Test passed: test_extract_postgres_db_params_valid_db_string"
+  echo "Test passed: ${FUNCNAME[0]}"
 }
 
 test_extract_postgres_db_params_empty_dbname() {
@@ -36,7 +36,7 @@ test_extract_postgres_db_params_empty_dbname() {
     exit 1
   fi
 
-  echo "Test passed: test_extract_postgres_db_params_empty_dbname"
+  echo "Test passed: ${FUNCNAME[0]}"
 }
 
 test_extract_postgres_db_params_with_spaces() {
@@ -49,7 +49,13 @@ test_extract_postgres_db_params_with_spaces() {
     exit 1
   fi
 
-  echo "Test passed: test_extract_postgres_db_params_with_spaces"
+  echo "Test passed: ${FUNCNAME[0]}"
+}
+
+test_get_unix_socket_directory() {
+  local unix_socket_directory=$(get_unix_socket_directory)
+  assert_equals $unix_socket_directory "/var/run/postgresql"
+  echo "Test passed: ${FUNCNAME[0]}"
 }
 
 echo_params() {
@@ -64,5 +70,6 @@ echo_params() {
 test_extract_postgres_db_params_valid_db_string
 test_extract_postgres_db_params_empty_dbname
 test_extract_postgres_db_params_with_spaces
+test_get_unix_socket_directory
 
 echo "All Tests Pass!"

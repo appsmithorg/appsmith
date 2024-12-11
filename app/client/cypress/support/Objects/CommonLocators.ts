@@ -326,8 +326,8 @@ export class CommonLocators {
   _treeSelectedContent = ".rc-tree-select-selection-item-content";
   _switcherIcon = ".switcher-icon";
   _root = "#root";
-  _pageHeaderToggle = ".mobile-ui-page-header-toggle-icon";
-  _pageHeaderMenuList = ".mobile-ui-page-header-menu-list";
+  _pageHeaderToggle = ".navbar__items > button";
+  _pageHeaderMenuList = ".navbar-sidebar__backdrop";
   _enterFullScreen = ".application-demo-new-dashboard-control-enter-fullscreen";
   _dashboardContainer = ".application-demo-new-dashboard-container";
   _exitFullScreen = ".application-demo-new-dashboard-control-exit-fullscreen";
