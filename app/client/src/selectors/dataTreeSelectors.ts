@@ -41,6 +41,9 @@ import {
   getCurrentWorkflowActions,
   getCurrentWorkflowJSActions,
 } from "ee/selectors/workflowSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
+import { getCurrentPageName } from "./editorSelectors";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
@@ -137,7 +140,20 @@ export const getUnevaluatedDataTree = createSelector(
   getMetaWidgetsFromUnevaluatedDataTree,
   getAppData,
   getSelectedAppThemeProperties,
-  (actions, jsActions, widgets, metaWidgets, appData, theme) => {
+  getCurrentAppWorkspace,
+  getCurrentApplication,
+  getCurrentPageName,
+  (
+    actions,
+    jsActions,
+    widgets,
+    metaWidgets,
+    appData,
+    theme,
+    currentWorkspace,
+    currentApplication,
+    getCurrentPageName,
+  ) => {
     let dataTree: UnEvalTree = {
       ...actions.dataTree,
       ...jsActions.dataTree,
@@ -149,12 +165,17 @@ export const getUnevaluatedDataTree = createSelector(
       ...widgets.configTree,
     };
 
+    // const { currentPageName, workspaceName, appName } = someObj;
+
     dataTree.appsmith = {
       ...appData,
       // combine both persistent and transient state with the transient state
       // taking precedence in case the key is the same
       store: appData.store,
       theme,
+      currentPageName: getCurrentPageName,
+      workspaceName: currentWorkspace.name,
+      appName: currentApplication?.name,
     } as AppsmithEntity;
     (dataTree.appsmith as AppsmithEntity).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
     dataTree = { ...dataTree, ...metaWidgets.dataTree };

@@ -189,6 +189,9 @@ export interface AppsmithEntity extends Omit<AppDataState, "store"> {
   ENTITY_TYPE: typeof ENTITY_TYPE.APPSMITH;
   store: Record<string, unknown>;
   theme: AppTheme["properties"];
+  currentPageName: string;
+  workspaceName: string;
+  appName: string;
 }
 
 export interface DataTreeSeed {
