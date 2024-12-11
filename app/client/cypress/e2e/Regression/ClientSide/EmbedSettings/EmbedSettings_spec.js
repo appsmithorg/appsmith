@@ -73,6 +73,7 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
       });
     cy.enablePublicAccess();
     cy.wait(8000); //adding wait time for iframe to load fully!
+    _.agHelper.RefreshPage();
     getIframeBody().contains("Submit").should("exist");
     _.deployMode.NavigateToHomeDirectly();
   });
