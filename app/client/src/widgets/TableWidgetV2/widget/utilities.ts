@@ -770,12 +770,23 @@ export const getColumnType = (
       return ColumnTypes.NUMBER;
     case "boolean":
       return ColumnTypes.CHECKBOX;
-    case "string":
-      return dateFormatOptions.some(({ value: format }) =>
+    case "string": {
+      const isHTML = /<[^>]*>/.test(columnValue as string);
+
+      if (isHTML) {
+        return ColumnTypes.HTML;
+      }
+
+      const isAnyValidDate = dateFormatOptions.some(({ value: format }) =>
         moment(columnValue as string, format, true).isValid(),
-      )
-        ? ColumnTypes.DATE
-        : ColumnTypes.TEXT;
+      );
+
+      if (isAnyValidDate) {
+        return ColumnTypes.DATE;
+      }
+
+      return ColumnTypes.TEXT;
+    }
     default:
       return ColumnTypes.TEXT;
   }
