@@ -54,10 +54,10 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     @Override
-    public Optional<Integer> updateById(String id, BridgeUpdate updateObj) {
+    public Optional<Integer> updateById(String id, BridgeUpdate updateObj, EntityManager entityManager) {
         if (id == null) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
         }
-        return Optional.of(queryBuilder().byId(id).updateFirst(updateObj));
+        return Optional.of(queryBuilder().byId(id).entityManager(entityManager).updateFirst(updateObj));
     }
 }

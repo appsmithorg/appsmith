@@ -53,7 +53,7 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     // ---------------------------------------------------
     // Wrappers for methods from BaseRepository
     // ---------------------------------------------------
-    public Flux<T> findAllById(Collection<String> ids) {
+    public Flux<T> findAllById(Iterable<String> ids) {
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
                 .flatMapMany(em -> asFlux(() -> em.createQuery(
                                 "SELECT e FROM " + genericDomain.getSimpleName() + " e WHERE e.id IN :ids",
@@ -141,7 +141,7 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
 
     public Flux<T> saveAll(Iterable<T> entities) {
         return Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))
-                .flatMapMany(em -> asFlux(() -> {
+                .flatMap(em -> asMonoDirect(() -> {
                     for (T entity : entities) {
                         if (entity.getId() == null) {
                             entity.setId(generateId());
@@ -152,7 +152,6 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                     }
                     return entities;
                 }))
-                .collectList()
                 .as(transactionalOperator::transactional)
                 .flatMapMany(Flux::fromIterable);
     }
