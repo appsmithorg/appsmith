@@ -1,6 +1,5 @@
 import React from "react";
-import { UIComponentTypes } from "api/PluginApi";
-import { usePluginActionContext } from "PluginActionEditor/PluginActionContext";
+import { UIComponentTypes, type Plugin } from "api/PluginApi";
 import ApiDatasourceSelector from "./ApiDatasourceSelector";
 import QueryDatasourceSelector from "./QueryDatasourceSelector";
 import {
@@ -16,16 +15,17 @@ const API_FORM_COMPONENTS = [
 export interface DatasourceProps {
   datasourceId: string;
   datasourceName: string;
+  plugin?: Plugin;
 }
 
 const DatasourceSelector = (props: DatasourceProps) => {
-  const { plugin } = usePluginActionContext();
-
-  return API_FORM_COMPONENTS.includes(plugin.uiComponent) ? (
-    <ApiDatasourceSelector {...props} formName={API_EDITOR_FORM_NAME} />
-  ) : (
-    <QueryDatasourceSelector {...props} formName={QUERY_EDITOR_FORM_NAME} />
-  );
+  return props.plugin ? (
+    API_FORM_COMPONENTS.includes(props.plugin.uiComponent) ? (
+      <ApiDatasourceSelector {...props} formName={API_EDITOR_FORM_NAME} />
+    ) : (
+      <QueryDatasourceSelector {...props} formName={QUERY_EDITOR_FORM_NAME} />
+    )
+  ) : null;
 };
 
 export default DatasourceSelector;
