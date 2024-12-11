@@ -1,5 +1,4 @@
-import type { MutableRefObject } from "react";
-import React, { useRef } from "react";
+import React, { useRef, type MutableRefObject } from "react";
 import type { DropdownOption } from "@appsmith/ads-old";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
@@ -15,6 +14,7 @@ import {
   Tooltip,
   Text,
 } from "@appsmith/ads";
+import { useEventCallback } from "usehooks-ts";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -23,12 +23,18 @@ const Wrapper = styled.div`
   align-items: center;
   gap: 8px;
   padding: var(--ads-v2-spaces-4);
+  border-bottom: 1px solid var(--ads-v2-color-border);
+
   .debugger-filter {
     width: 220px;
   }
 
   .debugger-filter .rc-select-selector {
     height: 28px;
+  }
+
+  .t--debugger-clear-logs {
+    margin-left: auto;
   }
 
   .input-container {
@@ -56,32 +62,12 @@ function FilterHeader(props: FilterHeaderProps) {
   const dispatch = useDispatch();
   const searchRef: MutableRefObject<HTMLInputElement | null> = useRef(null);
 
+  const onClearClick = useEventCallback(() => {
+    dispatch(clearLogs());
+  });
+
   return (
     <Wrapper>
-      <Tooltip
-        className="debugger-clear-logs"
-        content={createMessage(CLEAR_LOG_TOOLTIP)}
-        placement="bottom"
-      >
-        <Button
-          className="t--debugger-clear-logs"
-          isIconButton
-          kind="tertiary"
-          onClick={() => dispatch(clearLogs())}
-          size="sm"
-          startIcon="cancel"
-        />
-      </Tooltip>
-      <div className="input-container">
-        <SearchInput
-          className="debugger-search"
-          data-testid="t--debugger-search"
-          onChange={props.onChange}
-          placeholder="Filter"
-          ref={searchRef}
-          value={props.value}
-        />
-      </div>
       <Select
         className="debugger-filter"
         data-testid="t--log-filter"
@@ -110,6 +96,30 @@ function FilterHeader(props: FilterHeaderProps) {
           </Option>
         ))}
       </Select>
+      <div className="input-container">
+        <SearchInput
+          className="debugger-search"
+          data-testid="t--debugger-search"
+          onChange={props.onChange}
+          placeholder="Filter"
+          ref={searchRef}
+          value={props.value}
+        />
+      </div>
+      <Tooltip
+        className="debugger-clear-logs"
+        content={createMessage(CLEAR_LOG_TOOLTIP)}
+        placement="bottom"
+      >
+        <Button
+          className="t--debugger-clear-logs"
+          isIconButton
+          kind="tertiary"
+          onClick={onClearClick}
+          size="sm"
+          startIcon="clear"
+        />
+      </Tooltip>
     </Wrapper>
   );
 }
