@@ -240,6 +240,7 @@ jobs:
           git config --global user.email "$gituseremail"
           git config --global user.name "$gituser"
           git clone https://$cachetoken@github.com/appsmithorg/cibuildcache.git
+          git lfs update --force
           git lfs install
           cd cibuildcache/
           if [ "$reponame" = "appsmith" ]; then export repodir="CE"; fi
