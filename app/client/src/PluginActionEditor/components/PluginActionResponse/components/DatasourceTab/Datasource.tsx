@@ -25,6 +25,7 @@ import { BOTTOMBAR_HEIGHT } from "./constants";
 import { useEditorType } from "ee/hooks";
 import { useParentEntityInfo } from "ee/hooks/datasourceEditorHooks";
 import DatasourceInfo from "./DatasourceInfo";
+import { getPlugin } from "ee/selectors/entitiesSelector";
 
 interface Props {
   datasourceId: string;
@@ -44,6 +45,8 @@ const Datasource = (props: Props) => {
   const pluginId = useSelector((state) =>
     getPluginIdFromDatasourceId(state, props.datasourceId),
   );
+
+  const plugin = useSelector((state) => getPlugin(state, pluginId || ""));
 
   const editorType = useEditorType(location.pathname);
   const { parentEntityId } = useParentEntityInfo(editorType);
@@ -143,6 +146,7 @@ const Datasource = (props: Props) => {
         <DatasourceInfo
           datasourceId={props.datasourceId}
           datasourceName={props.datasourceName}
+          plugin={plugin}
           showEditButton={!isLoading}
         />
         <StatusDisplay
@@ -170,6 +174,7 @@ const Datasource = (props: Props) => {
           datasourceId={props.datasourceId}
           datasourceName={props.datasourceName}
           datasourceStructure={datasourceStructure}
+          plugin={plugin}
           selectedTable={selectedTable}
           setSelectedTable={setSelectedTable}
         />

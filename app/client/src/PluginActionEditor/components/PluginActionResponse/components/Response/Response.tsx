@@ -22,7 +22,6 @@ import {
 } from "PluginActionEditor/store";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
-import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import {
   createMessage,
@@ -35,11 +34,7 @@ import BindDataButton from "../BindDataButton";
 import { NoResponse } from "../NoResponse";
 import { ResponseFormatTabs } from "../ResponseFormatTabs";
 import { ContentTypeSelector, ErrorView } from "./components";
-import {
-  API_REACT_JSON_PROPS,
-  REACT_JSON_PROPS,
-  RESPONSE_TABLE_HEIGHT_OFFSET,
-} from "./constants";
+import { RESPONSE_TABLE_HEIGHT_OFFSET } from "./constants";
 
 import * as Styled from "./styles";
 import { checkForPreparedStatement, parseActionResponse } from "./utils";
@@ -150,12 +145,6 @@ export function Response(props: ResponseProps) {
     [action.name, action.id],
   );
 
-  const updateTimestamp = getUpdateTimestamp(actionResponse?.request);
-  const reactJsonParams =
-    action.pluginType === PluginType.API
-      ? API_REACT_JSON_PROPS
-      : REACT_JSON_PROPS;
-
   const preparedStatementCalloutLinks: CalloutLinkProps[] = useMemo(() => {
     const navigateToSettings = () => {
       if (isActionRedesignEnabled) {
@@ -219,9 +208,7 @@ export function Response(props: ResponseProps) {
           actionResponse={actionResponse}
           actionSource={actionSource}
           handleJsonWrapperClick={handleJsonWrapperClick}
-          reactJsonParams={reactJsonParams}
           tooltipContent={tooltipContent}
-          updateTimestamp={updateTimestamp}
         />
       )}
 

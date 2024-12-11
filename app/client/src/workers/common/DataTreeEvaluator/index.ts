@@ -1207,7 +1207,7 @@ export default class DataTreeEvaluator {
             );
 
             set(contextTree, fullPropertyPath, parsedValue);
-            set(safeTree, fullPropertyPath, klona(parsedValue));
+            set(safeTree, fullPropertyPath, klonaJSON(parsedValue));
 
             staleMetaIds = staleMetaIds.concat(
               getStaleMetaStateIds({
@@ -1253,7 +1253,7 @@ export default class DataTreeEvaluator {
             if (!requiresEval) continue;
 
             set(contextTree, fullPropertyPath, evalPropertyValue);
-            set(safeTree, fullPropertyPath, klona(evalPropertyValue));
+            set(safeTree, fullPropertyPath, klonaJSON(evalPropertyValue));
             break;
           }
           case ENTITY_TYPE.JSACTION: {
@@ -1290,7 +1290,7 @@ export default class DataTreeEvaluator {
              * Their evaluated values need to be reset only when the variable is modified by the user.
              * When uneval value of a js variable hasn't changed, it means that the previously evaluated values are in both trees already  */
             if (!skipVariableValueAssignment) {
-              const valueForSafeTree = klona(evalValue);
+              const valueForSafeTree = klonaJSON(evalValue);
 
               set(contextTree, fullPropertyPath, evalValue);
               set(safeTree, fullPropertyPath, valueForSafeTree);
@@ -1305,7 +1305,7 @@ export default class DataTreeEvaluator {
           }
           default:
             set(contextTree, fullPropertyPath, evalPropertyValue);
-            set(safeTree, fullPropertyPath, klona(evalPropertyValue));
+            set(safeTree, fullPropertyPath, klonaJSON(evalPropertyValue));
         }
       }
     } catch (error) {
@@ -1793,7 +1793,7 @@ export default class DataTreeEvaluator {
     bindings: string[],
     executionParams?: Record<string, unknown> | string,
   ) {
-    const dataTree = klona(this.evalTree);
+    const dataTree = klonaJSON(this.evalTree);
     // We might get execution params as an object or as a string.
     // If the user has added a proper object (valid case) it will be an object
     // If they have not added any execution params or not an object
