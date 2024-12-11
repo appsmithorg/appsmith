@@ -9,12 +9,14 @@ import { refreshDatasourceStructure } from "actions/datasourceActions";
 import { useDispatch } from "react-redux";
 import { SchemaTableContainer } from "./styles";
 import DatasourceInfo from "./DatasourceInfo";
+import type { Plugin } from "api/PluginApi";
 
 interface Props {
   datasourceId: string;
   datasourceName: string;
   currentActionId: string;
   datasourceStructure: DatasourceStructure;
+  plugin?: Plugin;
   setSelectedTable: (table: string) => void;
   selectedTable: string | undefined;
 }
@@ -24,6 +26,7 @@ const DatasourceTables = ({
   datasourceId,
   datasourceName,
   datasourceStructure,
+  plugin,
   selectedTable,
   setSelectedTable,
 }: Props) => {
@@ -56,6 +59,7 @@ const DatasourceTables = ({
         <DatasourceInfo
           datasourceId={datasourceId}
           datasourceName={datasourceName}
+          plugin={plugin}
           showEditButton
         />
         <Button
