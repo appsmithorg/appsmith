@@ -23,6 +23,7 @@ import {
   select,
   take,
 } from "redux-saga/effects";
+import type { Task } from "redux-saga";
 import { validateResponse } from "sagas/ErrorSagas";
 
 interface PollAutocommitProgressParams {
@@ -115,8 +116,7 @@ export default function* triggerAutocommitSaga(
 
   if (isAutocommitEnabled) {
     const params = { artifactType, baseArtifactId, artifactId };
-    /* @ts-expect-error: not sure how to do typings of this */
-    const pollTask = yield fork(pollAutocommitProgressSaga, params);
+    const pollTask: Task = yield fork(pollAutocommitProgressSaga, params);
 
     yield take(gitArtifactActions.pollAutocommitProgressStop.type);
     yield cancel(pollTask);
