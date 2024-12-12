@@ -12,10 +12,11 @@ import java.util.List;
 public class DBCleanup {
     public static void deleteAllTables(JdbcTemplate jdbcTemplate) {
         List<String> tableNames = jdbcTemplate.queryForList(
-                "SELECT tablename FROM pg_tables WHERE schemaname = 'appsmith'", String.class);
+                "SELECT tablename FROM pg_tables WHERE schemaname = 'appsmith' AND tablename NOT IN ('user', 'tenant')",
+                String.class);
 
         for (String tableName : tableNames) {
-            jdbcTemplate.execute("DROP TABLE IF EXISTS \"" + tableName + "\" CASCADE");
+            jdbcTemplate.execute("TRUNCATE TABLE \"" + tableName + "\" CASCADE");
         }
     }
 
