@@ -46,6 +46,7 @@ const _SidebarContent = (
           )}
           {!isMobile && (
             <Button
+              className={styles.sidebarHeaderExpandButton}
               color="neutral"
               icon={
                 state === "full-width"
