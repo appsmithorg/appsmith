@@ -29,6 +29,13 @@ import {
 import type { Task } from "redux-saga";
 import { validateResponse } from "sagas/ErrorSagas";
 
+const AUTOCOMMIT_POLL_DELAY = 1000;
+const AUTOCOMMIT_WHITELISTED_STATES = [
+  AutocommitStatusState.PUBLISHED,
+  AutocommitStatusState.IN_PROGRESS,
+  AutocommitStatusState.LOCKED,
+];
+
 interface PollAutocommitProgressParams {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
@@ -43,9 +50,7 @@ function isAutocommitHappening(
 ): boolean {
   return (
     !!responseData &&
-    (responseData.autoCommitResponse === AutocommitStatusState.PUBLISHED ||
-      responseData.autoCommitResponse === AutocommitStatusState.IN_PROGRESS ||
-      responseData.autoCommitResponse === AutocommitStatusState.LOCKED)
+    AUTOCOMMIT_WHITELISTED_STATES.includes(responseData.autoCommitResponse)
   );
 }
 
@@ -91,7 +96,7 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
           yield put(gitArtifactActions.pollAutocommitProgressStop(basePayload));
         }
 
-        yield delay(1000);
+        yield delay(AUTOCOMMIT_POLL_DELAY);
       }
     } else {
       yield put(gitArtifactActions.pollAutocommitProgressStop(basePayload));
