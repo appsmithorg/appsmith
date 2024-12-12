@@ -21,9 +21,6 @@ export default function TabMerge() {
   } = useGitContext();
 
   const isStatusClean = status?.isClean ?? false;
-  const isMergeStatusMergeable = mergeStatus?.isMergeAble ?? false;
-  const mergeStatusConflictingFiles = mergeStatus?.conflictingFiles ?? null;
-  const mergeStatusMessage = mergeStatus?.message ?? null;
 
   return (
     <DumbTabMerge
@@ -36,12 +33,10 @@ export default function TabMerge() {
       isFetchMergeStatusLoading={fetchMergeStatusLoading}
       isFetchStatusLoading={fetchStatusLoading}
       isMergeLoading={mergeLoading}
-      isMergeStatusMergeable={isMergeStatusMergeable}
       isStatusClean={isStatusClean}
       merge={merge}
       mergeError={mergeError}
-      mergeStatusConflictingFiles={mergeStatusConflictingFiles}
-      mergeStatusMessage={mergeStatusMessage}
+      mergeStatus={mergeStatus}
       protectedBranches={protectedBranches}
     />
   );

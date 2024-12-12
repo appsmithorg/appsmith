@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import styled from "styled-components";
 
 import {
   BRANCH_PROTECTION_PROTECTED,
@@ -11,7 +12,6 @@ import {
   SELECT_BRANCH_TO_MERGE,
 } from "ee/constants/messages";
 
-import styled from "styled-components";
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
@@ -26,7 +26,6 @@ import {
   ModalBody,
 } from "@appsmith/ads";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import { MergeStatusState } from "git/constants/enums";
 import MergeStatus from "./MergeStatus";
 import GitConflictError from "git/components/GitConflictError";
@@ -34,11 +33,17 @@ import MergeSuccessIndicator from "./MergeSuccessIndicator";
 import { noop } from "lodash";
 import type { FetchBranchesResponseData } from "git/requests/fetchBranchesRequest.types";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
+import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatusRequest.types";
 
 const Container = styled.div`
   min-height: 360px;
   overflow: unset;
   padding-bottom: 4px;
+`;
+
+const MergeSelectLabel = styled(Text)`
+  margin-bottom: 12px;
+  color: var(--ads-v2-color-fg-emphasis);
 `;
 
 const SelectContainer = styled.div`
@@ -67,14 +72,12 @@ interface DumbTabMergeProps {
   isFetchMergeStatusLoading: boolean;
   isFetchStatusLoading: boolean;
   isMergeLoading: boolean;
-  isMergeStatusMergeable: boolean;
   isStatusClean: boolean;
   merge: (sourceBranch: string, destinationBranch: string) => void;
   // ! case: should add proper type
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mergeError: any;
-  mergeStatusConflictingFiles: string[] | null;
-  mergeStatusMessage: string | null;
+  mergeStatus: FetchMergeStatusResponseData | null;
   protectedBranches: FetchProtectedBranchesResponseData | null;
 }
 
@@ -88,12 +91,10 @@ export default function DumbTabMerge({
   isFetchMergeStatusLoading = false,
   isFetchStatusLoading = false,
   isMergeLoading = false,
-  isMergeStatusMergeable = false,
   isStatusClean = false,
   merge = noop,
   mergeError = null,
-  mergeStatusConflictingFiles = null,
-  mergeStatusMessage = null,
+  mergeStatus = null,
   protectedBranches = null,
 }: DumbTabMergeProps) {
   const [showMergeSuccessIndicator, setShowMergeSuccessIndicator] =
@@ -101,10 +102,10 @@ export default function DumbTabMerge({
   const [selectedBranchOption, setSelectedBranchOption] =
     useState<BranchOption>();
 
-  const isMergeable = isMergeStatusMergeable && isStatusClean;
+  const isMergeable = mergeStatus?.isMergeAble && isStatusClean;
   let message = !isStatusClean
     ? createMessage(CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES)
-    : mergeStatusMessage;
+    : mergeStatus?.message ?? null;
 
   const mergeBtnDisabled = isFetchMergeStatusLoading || !isMergeable;
 
@@ -118,9 +119,9 @@ export default function DumbTabMerge({
   } else if (isFetchMergeStatusLoading) {
     status = MergeStatusState.FETCHING;
     message = createMessage(FETCH_MERGE_STATUS);
-  } else if (isMergeStatusMergeable) {
+  } else if (mergeStatus && mergeStatus?.isMergeAble) {
     status = MergeStatusState.MERGEABLE;
-  } else if (!isMergeStatusMergeable) {
+  } else if (mergeStatus && !mergeStatus?.isMergeAble) {
     status = MergeStatusState.NOT_MERGEABLE;
   } else if (mergeError) {
     status = MergeStatusState.ERROR;
@@ -128,7 +129,7 @@ export default function DumbTabMerge({
   }
 
   // should check after added error code for conflicting
-  const isConflicting = (mergeStatusConflictingFiles?.length || 0) > 0;
+  const isConflicting = (mergeStatus?.conflictingFiles?.length || 0) > 0;
   const showMergeButton =
     !isConflicting && !mergeError && !isFetchStatusLoading && !isMergeLoading;
 
@@ -239,10 +240,9 @@ export default function DumbTabMerge({
     <>
       <ModalBody>
         <Container>
-          <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
+          <MergeSelectLabel kind="heading-s" renderAs="p">
             {createMessage(SELECT_BRANCH_TO_MERGE)}
-          </Text>
-          <Space size={2} />
+          </MergeSelectLabel>
           <SelectContainer>
             <Select
               data-testid="t--merge-branch-dropdown-destination"
@@ -275,14 +275,12 @@ export default function DumbTabMerge({
                 );
               })}
             </Select>
-
-            <Space horizontal size={3} />
             <Icon
+              className="ml-4 mr-4"
               color={"var(--ads-v2-color-fg-subtle)"}
               name="arrow-left-s-line"
               size="lg"
             />
-            <Space horizontal size={3} />
             <Select
               className="textInput"
               isDisabled
@@ -293,10 +291,10 @@ export default function DumbTabMerge({
               <Option>{currentBranchDropdownOptions[0].label}</Option>
             </Select>
           </SelectContainer>
-          <MergeStatus message={message} status={status} />
-          <Space size={10} />
+          <div className="mb-4">
+            <MergeStatus message={message} status={status} />
+          </div>
           {isConflicting ? <GitConflictError /> : null}
-
           {showMergeSuccessIndicator ? <MergeSuccessIndicator /> : null}
           {isMergeLoading ? (
             <StatusbarWrapper>
