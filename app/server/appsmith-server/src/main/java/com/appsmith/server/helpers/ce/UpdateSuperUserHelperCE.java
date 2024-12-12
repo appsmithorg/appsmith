@@ -7,10 +7,11 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.solutions.PolicySolution;
 import org.jetbrains.annotations.NotNull;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -44,12 +45,12 @@ public class UpdateSuperUserHelperCE {
         return new HashSet<>(Set.of(readUserPolicy, manageUserPolicy, resetPwdPolicy));
     }
 
-    public User createNewUser(
+    public Mono<User> createNewUser(
             String email,
             Tenant tenant,
             PermissionGroup instanceAdminRole,
-            UserRepository userRepository,
-            PermissionGroupRepository permissionGroupRepository,
+            UserRepositoryCake userRepository,
+            PermissionGroupRepositoryCake permissionGroupRepository,
             PolicySolution policySolution,
             PolicyGenerator policyGenerator) {
         User user = new User();
@@ -57,21 +58,20 @@ public class UpdateSuperUserHelperCE {
         user.setIsEnabled(false);
         user.setTenantId(tenant.getId());
         user.setCreatedAt(Instant.now());
-        user = userRepository.save(user);
 
-        PermissionGroup userManagementPermissionGroup =
-                createUserManagementPermissionGroup(permissionGroupRepository, user);
-
-        Set<Policy> userPolicies = this.generateUserPolicy(
-                user, userManagementPermissionGroup, instanceAdminRole, tenant, policySolution, policyGenerator);
-
-        user.setPolicies(userPolicies);
-
-        return userRepository.save(user);
+        return userRepository
+                .save(user)
+                .flatMap(user1 -> createUserManagementPermissionGroup(permissionGroupRepository, user1))
+                .flatMap(permissionGroup -> {
+                    Set<Policy> userPolicies = this.generateUserPolicy(
+                            user, permissionGroup, instanceAdminRole, tenant, policySolution, policyGenerator);
+                    user.setPolicies(userPolicies);
+                    return userRepository.save(user);
+                });
     }
 
-    @NotNull public static PermissionGroup createUserManagementPermissionGroup(
-            PermissionGroupRepository permissionGroupRepository, User user) {
+    @NotNull public static Mono<PermissionGroup> createUserManagementPermissionGroup(
+            PermissionGroupRepositoryCake permissionGroupRepository, User user) {
         PermissionGroup userManagementPermissionGroup = new PermissionGroup();
         userManagementPermissionGroup.setName(user.getUsername() + FieldName.SUFFIX_USER_MANAGEMENT_ROLE);
         // Add CRUD permissions for user to the group
@@ -80,7 +80,6 @@ public class UpdateSuperUserHelperCE {
         // Assign the permission group to the user
         userManagementPermissionGroup.setAssignedToUserIds(Set.of(user.getId()));
 
-        PermissionGroup savedPermissionGroup = permissionGroupRepository.save(userManagementPermissionGroup);
-        return savedPermissionGroup;
+        return permissionGroupRepository.save(userManagementPermissionGroup);
     }
 }

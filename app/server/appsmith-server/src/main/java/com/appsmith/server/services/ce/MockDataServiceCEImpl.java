@@ -24,7 +24,6 @@ import com.appsmith.util.WebClientUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
@@ -237,7 +236,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                     ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication()).getPassword();
         }
         final String finalPassword = password;
-        return datasourceService.create(datasource).onErrorResume(DataIntegrityViolationException.class, error -> {
+        return datasourceService.create(datasource).onErrorResume(error -> {
             if (error.getMessage() != null
                     && error.getMessage().contains("datasource_workspace_name_key")
                     && datasourceStorageDTO.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
@@ -245,7 +244,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                         .setPassword(finalPassword);
                 return createSuffixedDatasource(datasource, name, environmentId, 1 + suffix);
             }
-            throw error;
+            return Mono.error(error);
         });
     }
 

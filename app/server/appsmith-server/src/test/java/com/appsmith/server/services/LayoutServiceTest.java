@@ -28,6 +28,7 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.appsmith.server.transaction.CustomTransactionalOperator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -110,6 +111,9 @@ public class LayoutServiceTest {
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
+    @Autowired
+    CustomTransactionalOperator transactionalOperator;
+
     String workspaceId;
 
     Datasource datasource;
@@ -125,17 +129,11 @@ public class LayoutServiceTest {
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutServiceTest");
-        Set<String> beforeCreatingWorkspace =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User before creating workspace: {}", beforeCreatingWorkspace);
 
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
         assertThat(workspace).isNotNull();
         workspaceId = workspace.getId();
-        Set<String> afterCreatingWorkspace =
-                cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
-        log.info("Permission Groups for User after creating workspace: {}", afterCreatingWorkspace);
 
         log.info("Workspace ID: {}", workspaceId);
         log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
@@ -511,6 +509,7 @@ public class LayoutServiceTest {
 
                     return Mono.zip(monos, objects -> page1);
                 })
+                .as(transactionalOperator::transactional)
                 .flatMap(page1 -> {
                     final Layout layout = page1.getLayouts().get(0);
 

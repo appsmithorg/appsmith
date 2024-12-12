@@ -11,14 +11,15 @@ import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.cakes.BaseCake;
+import jakarta.persistence.EntityManager;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.repository.CrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -27,13 +28,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.server.constants.ce.FieldNameCE.TX_CONTEXT;
 import static com.appsmith.server.helpers.ReactorUtils.asFlux;
 
 @Slf4j
 @RequiredArgsConstructor
 public abstract class BaseService<
                 R extends BaseRepository<T, ID> & AppsmithRepository<T>,
-                C extends BaseCake<T, ? extends CrudRepository<T, String>>,
+                C extends BaseCake<T, ? extends BaseRepository<T, String>>,
                 T extends BaseDomain,
                 ID extends Serializable>
         implements CrudService<T, ID> {
@@ -147,15 +149,18 @@ public abstract class BaseService<
             criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
         }
 
-        Flux<T> result = ReactiveContextUtils.getCurrentUser().flatMapMany(user -> {
-            return asFlux(() -> repositoryDirect
-                    .queryBuilder()
-                    .criteria(Bridge.or(criteria))
-                    .permission(permission, user)
-                    .sort(sort)
-                    .includeAnonymousUserPermissions(false)
-                    .all());
-        });
+        Flux<T> result = ReactiveContextUtils.getCurrentUser()
+                .zipWith(Mono.deferContextual(
+                        ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, (EntityManager) repository.getEntityManager()))))
+                .flatMapMany(tuple2 -> asFlux(() -> repositoryDirect
+                        .queryBuilder()
+                        .criteria(Bridge.or(criteria))
+                        .permission(permission, tuple2.getT1())
+                        .sort(sort)
+                        .includeAnonymousUserPermissions(false)
+                        .entityManager(tuple2.getT2())
+                        .all()))
+                .publishOn(Schedulers.single());
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }

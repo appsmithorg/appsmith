@@ -1,7 +1,9 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.annotations.Cache;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
+import jakarta.persistence.EntityManager;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -9,7 +11,10 @@ import java.util.Set;
 
 public interface CacheableRepositoryHelperCE {
 
+    @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     Mono<Set<String>> getPermissionGroupsOfUser(User user);
+
+    Mono<Set<String>> getPermissionGroupsOfUser(User user, EntityManager entityManager);
 
     Mono<Set<String>> preFillAnonymousUserPermissionGroupIdsCache();
 

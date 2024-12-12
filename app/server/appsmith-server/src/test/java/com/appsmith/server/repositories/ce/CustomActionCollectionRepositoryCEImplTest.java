@@ -40,11 +40,11 @@ public class CustomActionCollectionRepositoryCEImplTest {
         Flux<ActionCollection> actionCollectionFlux = actionCollectionRepository
                 .saveAll(actionCollections)
                 .collectList()
-                .flatMap(actionCollections1 -> {
+                .flatMapMany(actionCollections1 -> {
                     actionCollections1.forEach(newAction -> {
                         newAction.setWorkspaceId("workspace-" + newAction.getId());
                     });
-                    return actionCollectionRepository.bulkUpdate(actionCollectionRepository, actionCollections1);
+                    return actionCollectionRepository.saveAll(actionCollections1);
                 })
                 .thenMany(actionCollectionRepository.findByApplicationId(applicationId));
 
@@ -60,18 +60,30 @@ public class CustomActionCollectionRepositoryCEImplTest {
     }
 
     @Test
-    public void bulkInsert_WhenDuplicateId_ExceptionThrown() {
+    public void bulkInsert_WhenDuplicateId_SingleObjectIsInserted() {
         String duplicateId = UUID.randomUUID().toString();
+        String appId = UUID.randomUUID().toString();
         List<ActionCollection> actionCollections = new ArrayList<>();
 
         for (int i = 0; i < 2; i++) {
             ActionCollection actionCollection = new ActionCollection();
             actionCollection.setId(duplicateId);
             actionCollections.add(actionCollection);
+            actionCollection.setApplicationId(appId);
         }
 
-        StepVerifier.create(actionCollectionRepository.bulkInsert(actionCollectionRepository, actionCollections))
-                .verifyError();
+        Mono<List<ActionCollection>> actionCollectionsMono = actionCollectionRepository
+                .saveAll(actionCollections)
+                .thenMany(actionCollectionRepository.findByApplicationId(appId))
+                .collectList();
+
+        StepVerifier.create(actionCollectionsMono)
+                .assertNext(actionCollectionList -> {
+                    // Only one action collection should be inserted as the id is the same for both
+                    assertThat(actionCollectionList).hasSize(1);
+                    assertThat(actionCollectionList.get(0).getId()).isEqualTo(duplicateId);
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -90,7 +102,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
         }
 
         Mono<List<ActionCollection>> actionCollectionsMono = actionCollectionRepository
-                .bulkInsert(actionCollectionRepository, actionCollectionList)
+                .saveAll(actionCollectionList)
                 .thenMany(actionCollectionRepository.findByApplicationId(applicationId))
                 .collectList();
 

@@ -17,15 +17,17 @@ FILE_CONTENTS_CACHE = {}
 # PERMISSION_ARG = "userAclPermission"
 
 SUBSCRIBE_WRAPPER = (
-    "%s.subscribeOn(Schedulers.boundedElastic())"
+    "%s"
 )
 MONO_WRAPPER = "asMono(() -> %s)"
+MONO_WRAPPER_WITH_ENTITY_MANAGER = "Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager))).flatMap(entityManager -> asMono(() -> %s))"
 MONO_WRAPPER_NON_OPTIONAL = (
-    SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s)"
+    SUBSCRIBE_WRAPPER % "asMonoDirect(() -> %s)"
 )
 FLUX_WRAPPER = "asFlux(() -> %s)"
-FLUX_WRAPPER_WITH_USER_CONTEXT = "ReactiveContextUtils.getCurrentUser().flatMapMany(currentUser -> %s)"
-MONO_WRAPPER_WITH_USER_CONTEXT = "ReactiveContextUtils.getCurrentUser().flatMap(currentUser -> %s)"
+FLUX_WRAPPER_WITH_ENTITY_MANAGER = "Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager))).flatMapMany(entityManager -> asFlux(() -> %s))"
+FLUX_WRAPPER_WITH_USER_CONTEXT = "ReactiveContextUtils.getCurrentUser().zipWith(Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))).flatMapMany(tuple2 -> %s)"
+MONO_WRAPPER_WITH_USER_CONTEXT = "ReactiveContextUtils.getCurrentUser().zipWith(Mono.deferContextual(ctx -> Mono.just(ctx.getOrDefault(TX_CONTEXT, entityManager)))).flatMap(tuple2 -> %s)"
 
 
 def apply(p, tx):
@@ -58,6 +60,9 @@ def del_postgres_dep(content: str):
 
 
 def repo_interfaces(domain):
+    # In case of CustomJSLib domain remove the prefix Custom and only change if the custom is the prefix
+    regex = r"^Custom"
+    domain = re.sub(regex, "", domain)
     return list(
         filter(
             Path.exists,
@@ -78,6 +83,9 @@ def repo_interfaces(domain):
 
 
 def repo_classes(domain):
+    # In case of CustomJSLib domain remove the prefix Custom and only change if the custom is the prefix
+    regex = r"^Custom"
+    domain = re.sub(regex, "", domain)
     return list(
         filter(
             Path.exists,
@@ -136,6 +144,41 @@ def add_user_arg(domain):
         content = re.sub(regex, subst, content)
         update_file(full_path, content)
 
+def add_entity_manager_arg(domain):
+    for full_path in chain(repo_interfaces(domain)):
+        content = (read_file(full_path))
+        content = content.replace(");", ", EntityManager entityManager);") if "custom" in str(full_path).lower() else content.replace(", EntityManager entityManager);", ");")
+        # Remove duplicate User currentUser arguments
+        regex = r"EntityManager\s+entityManager,\s*EntityManager\s+entityManager"
+        subst = "EntityManager entityManager"
+        content = re.sub(regex, subst, content)
+        update_file(full_path, content)
+    for full_path in chain(repo_classes(domain)):
+        content = (
+            read_file(full_path)
+        )
+        # Append EntityManager entityManager to method arguments
+        content = re.sub(
+            r"(public\s+\S+\s+\w+\s*\([^)]*?)\)",
+            r"\1, EntityManager entityManager)",
+            content
+        )
+        content = content.replace(".one", ".entityManager(entityManager).one")
+        content = content.replace(".all", ".entityManager(entityManager).all")
+        content = content.replace(".first", ".entityManager(entityManager).first")
+        content = content.replace(".count", ".entityManager(entityManager).count")
+        content = content.replace(".updateAll", ".entityManager(entityManager).updateAll")
+        content = content.replace(".updateFirst", ".entityManager(entityManager).updateFirst")
+        content = content.replace(".entityManager(entityManager).entityManager(entityManager)", ".entityManager(entityManager)")
+
+        # Remove duplicate entityManager arguments
+        regex = r"EntityManager\s+entityManager,\s*EntityManager\s+entityManager"
+        subst = "EntityManager entityManager"
+        content = re.sub(regex, subst, content)
+        regex = r".entityManager\(entityManager\)\s*.entityManager\(entityManager\)"
+        subst = ".entityManager(entityManager)"
+        content = re.sub(regex, subst, content)
+        update_file(full_path, content)
 
 def replace_exact_word(text, old_word, new_word):
     # Create a regex pattern to match the exact word
@@ -209,10 +252,10 @@ def generate_cake_class(domain):
 
         if ret_type.startswith("Optional"):
             ret_type = ret_type.replace("Optional", "Mono")
-            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % MONO_WRAPPER if "AclPermission" in signature else MONO_WRAPPER
+            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % MONO_WRAPPER if "AclPermission" in signature else MONO_WRAPPER_WITH_ENTITY_MANAGER
         elif ret_type.startswith(("List", "Iterable")):
             ret_type = ret_type.replace("List", "Flux").replace("Iterable", "Flux")
-            wrapper = FLUX_WRAPPER_WITH_USER_CONTEXT % FLUX_WRAPPER if "AclPermission" in signature else FLUX_WRAPPER
+            wrapper = FLUX_WRAPPER_WITH_USER_CONTEXT % FLUX_WRAPPER if "AclPermission" in signature else FLUX_WRAPPER_WITH_ENTITY_MANAGER
         elif ret_type.startswith("Mono<"):
             wrapper = SUBSCRIBE_WRAPPER
         elif not ret_type.islower():
@@ -232,16 +275,23 @@ def generate_cake_class(domain):
             call = re.sub(r"<[^<>]+?>", "", call)
 
         signature_wo_user_context = replace_exact_word(signature, ", User currentUser", "")
+        signature_wo_user_and_entity_mgr = replace_exact_word(signature_wo_user_context, "EntityManager entityManager", "")
+        signature_wo_user_and_entity_mgr = signature_wo_user_and_entity_mgr.replace(", )", ")")
         call = re.sub(
             # Replace type declarations, and leave the argument names.
             r"[A-Za-z.]+?\s(\w+)([,)])", r"\1\2", call
         ).replace("baseRepository", "repository")
+
+        # Replace currentUser and entityManager with tuple2.getT1() and tuple2.getT2() respectively in the call.
+        if "tuple2" in wrapper:
+            call = call.replace("currentUser", "tuple2.getT1()").replace("entityManager", "tuple2.getT2()")
+
         reactor_methods.append(
-            f"/** @see {method.ref} */\n"
-            + "public "
+            # f"/** @see {method.ref} */\n"
+            f"public "
             + ret_type
             + " "
-            + signature_wo_user_context
+            + signature_wo_user_and_entity_mgr
             + " {\n    return "
             + (wrapper % ("repository." + call))
             + ";\n}\n"
@@ -273,6 +323,7 @@ def generate_cake_class(domain):
     import com.appsmith.server.repositories.*;
     import com.appsmith.server.helpers.ReactiveContextUtils;
     import com.appsmith.server.repositories.ce.params.QueryAllParams;
+    import jakarta.persistence.EntityManager;
     import org.springframework.stereotype.Component;
     import org.springframework.data.domain.Sort;
     import reactor.core.publisher.Flux;
@@ -286,26 +337,24 @@ def generate_cake_class(domain):
     import java.util.Optional;
     import java.util.Set;
 
+    import static com.appsmith.server.constants.FieldName.TX_CONTEXT;
     import static com.appsmith.server.helpers.ReactorUtils.asFlux;
     import static com.appsmith.server.helpers.ReactorUtils.asMono;
+    import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
     @Component
     public class {domain}RepositoryCake extends BaseCake<{domain}, {domain}Repository> {{
         private final {domain}Repository repository;
+        private final EntityManager entityManager;
 
-        public {domain}RepositoryCake({domain}Repository repository) {{
-            super(repository);
+        public {domain}RepositoryCake({domain}Repository repository, EntityManager entityManager) {{
+            super(repository, {domain}.class);
             this.repository = repository;
+            this.entityManager = entityManager;
         }}
 
         {f"public QueryAllParams<{domain}> queryBuilder() {{ return repository.queryBuilder(); }}"
         if "AppsmithRepository" in extra_repo_interfaces else ""}
-
-        // From CrudRepository
-        public Flux<{domain}> saveAll(Iterable<{domain}> entities) {{
-            return {FLUX_WRAPPER % "repository.saveAll(entities)"};
-        }}
-        // End from CrudRepository
     """
     )
 
@@ -402,6 +451,7 @@ def convert(domain):
     to_entity(domain)
     # switch_repo_types(domain)
     add_user_arg(domain)
+    add_entity_manager_arg(domain)
     generate_cake_class(domain)
     # use_cake(domain)  # Commenting this out since we want both cake and repo to co-exist now.
 
