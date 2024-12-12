@@ -120,20 +120,8 @@ test_postgres_auth_enabled_upgrade_from_150tolocal() {
     RETRYSECONDS=5
     retry_count=0
 
-    while true; do
-        retry_count=$((retry_count + 1))
-        if docker exec "${container_name}" pg_isready &&
-          [ "$(docker exec "${container_name}" bash -c 'cat /appsmith-stacks/data/postgres/main/PG_VERSION')" = "14" ]; then
-            break
-        fi
-        if [ $retry_count -le $MAX_RETRIES ]; then
-            echo "Waiting for postgres to be up..."
-            sleep $RETRYSECONDS
-        else
-            echo "Test ${FUNCNAME[0]} Failed"
-            exit 1
-        fi
-    done
+    # Wait until postgres to come up
+    wait_for_postgres
     
     # Check if the Appsmith instance is up
     if is_appsmith_instance_ready; then
@@ -206,7 +194,6 @@ test_postgres_auth_enabled_restart_localtolocal() {
 
     echo "Starting Appsmith local to check the auth"
     compose_appsmith_local
-
     wait_for_postgres
 
     # Check if the Appsmith instance is up
