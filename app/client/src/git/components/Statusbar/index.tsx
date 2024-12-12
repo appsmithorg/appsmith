@@ -1,14 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Statusbar } from "@appsmith/ads-old";
+import { Statusbar as ADSStatusBar } from "@appsmith/ads-old";
 import styled from "styled-components";
-import {
-  AUTOCOMMIT_IN_PROGRESS_MESSAGE,
-  createMessage,
-} from "ee/constants/messages";
 
-interface AutocommitStatusbarProps {
+interface StatusbarProps {
+  message?: string;
   completed: boolean;
   onHide?: () => void;
+  className?: string;
+  testId?: string;
 }
 
 const PROGRESSBAR_WIDTH = 150;
@@ -36,10 +35,11 @@ const StatusbarWrapper = styled.div`
   }
 `;
 
-export default function AutocommitStatusbar({
+export default function Statusbar({
   completed,
+  message,
   onHide,
-}: AutocommitStatusbarProps) {
+}: StatusbarProps) {
   const intervalRef = useRef<number | null>(null);
   const timeoutRef = useRef<number | null>(null);
   const [percentage, setPercentage] = useState(0);
@@ -74,7 +74,7 @@ export default function AutocommitStatusbar({
       };
     },
     [completed],
-  ); // Removed 'percentage' from dependencies
+  );
 
   // Effect for setting percentage to 100% when completed
   useEffect(
@@ -106,10 +106,10 @@ export default function AutocommitStatusbar({
   );
 
   return (
-    <StatusbarWrapper data-testid="t--autocommit-statusbar">
-      <Statusbar
+    <StatusbarWrapper data-testid="t--git-statusbar">
+      <ADSStatusBar
         active={false}
-        message={createMessage(AUTOCOMMIT_IN_PROGRESS_MESSAGE)}
+        message={message}
         percentage={percentage}
         showOnlyMessage
       />

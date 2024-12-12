@@ -13,7 +13,7 @@ import { GitOpsTab } from "../../constants/enums";
 import { GitSettingsTab } from "../../constants/enums";
 import ConnectButton from "./ConnectButton";
 import QuickActionButton from "./QuickActionButton";
-import AutocommitStatusbar from "./AutocommitStatusbar";
+import Statusbar from "../Statusbar";
 import getPullBtnStatus from "./helpers/getPullButtonStatus";
 import noop from "lodash/noop";
 
@@ -127,7 +127,7 @@ function GitQuickActions({
     <Container>
       {/* <BranchButton /> */}
       {isAutocommitEnabled && isAutocommitPolling ? (
-        <AutocommitStatusbar completed={!isAutocommitPolling} />
+        <Statusbar completed={!isAutocommitPolling} />
       ) : (
         <>
           <QuickActionButton
