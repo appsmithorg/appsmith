@@ -706,4 +706,25 @@ export class PropertyPane {
           });
       });
   }
+
+  public ToggleJSModeByIndex(
+    endp: string,
+    toToggleOnJS: true | false = true,
+    index: number = 0,
+  ) {
+    const toggleLocator = this.locator._jsToggle(
+      endp.replace(/ +/g, "").toLowerCase(),
+    );
+
+    cy.get(toggleLocator)
+      .eq(index) // Use the index to interact with a specific toggle
+      .invoke("attr", "class")
+      .then((classes: string) => {
+        if (toToggleOnJS && !classes.includes("is-active")) {
+          this.agHelper.GetNClick(toggleLocator, index, true);
+        } else if (!toToggleOnJS && classes.includes("is-active")) {
+          this.agHelper.GetNClick(toggleLocator, index, true);
+        }
+      });
+  }
 }
