@@ -57,7 +57,6 @@ import {
   getFirstTimeUserOnboardingApplicationIds,
   getFirstTimeUserOnboardingIntroModalVisibility,
 } from "utils/storage";
-import { initializeAnalyticsAndTrackers } from "utils/AppsmithUtils";
 import { getAppsmithConfigs } from "ee/configs";
 import { getSegmentState } from "selectors/analyticsSelectors";
 import {
@@ -134,13 +133,11 @@ export function* getCurrentUserSaga(action?: {
 }
 
 function* initTrackers(currentUser: User) {
-  const initializeSentry = initializeAnalyticsAndTrackers(currentUser);
-
-  const sentryInitialized: boolean = yield initializeSentry;
-
-  if (sentryInitialized) {
+  try {
+    yield call(AnalyticsUtil.initialize, currentUser);
     yield put(segmentInitSuccess());
-  } else {
+  } catch (e) {
+    log.error(e);
     yield put(segmentInitUncertain());
   }
 }

@@ -4,6 +4,7 @@ import {
   type MiddlewareFunction,
   type UserTraits,
 } from "@segment/analytics-next";
+import { getAppsmithConfigs } from "ee/configs";
 import log from "loglevel";
 
 class SegmentSingleton {
@@ -20,16 +21,37 @@ class SegmentSingleton {
 
   public user = this.analytics?.user;
 
-  public async init(writeKey: string): Promise<boolean> {
+  private getWriteKey(): string | undefined {
+    const { segment } = getAppsmithConfigs();
+
+    // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
+    if (segment.apiKey) {
+      return segment.apiKey;
+    }
+
+    // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
+    if (segment.ceKey) {
+      return segment.ceKey;
+    }
+  }
+
+  public async init(): Promise<boolean> {
     if (this.analytics) {
       log.warn("Segment is already initialized.");
 
       return true;
     }
 
+    const writeKey = this.getWriteKey();
+
+    if (!writeKey) {
+      log.error("Segment key was not found.");
+
+      return true;
+    }
+
     try {
       const { AnalyticsBrowser } = await import("@segment/analytics-next");
-
       const [analytics] = await AnalyticsBrowser.load(
         { writeKey },
         {
@@ -65,17 +87,17 @@ class SegmentSingleton {
     }
   }
 
-  public identify(userId: string, traits: UserTraits) {
+  public async identify(userId: string, traits: UserTraits) {
     if (this.analytics) {
-      this.analytics.identify(userId, traits);
+      await this.analytics.identify(userId, traits);
     } else {
       log.warn("Segment is not initialized.");
     }
   }
 
-  public addMiddleware(middleware: MiddlewareFunction) {
+  public async addMiddleware(middleware: MiddlewareFunction) {
     if (this.analytics) {
-      this.analytics.addSourceMiddleware(middleware);
+      await this.analytics.addSourceMiddleware(middleware);
     } else {
       log.warn("Segment is not initialized.");
     }

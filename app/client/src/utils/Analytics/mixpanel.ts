@@ -35,7 +35,7 @@ class MixpanelSingleton {
           record_mask_text_selector: ".private",
         });
 
-        this.addSegmentMiddleware();
+        await this.addSegmentMiddleware();
       }
 
       return true;
@@ -81,9 +81,9 @@ class MixpanelSingleton {
   // Middleware to add Mixpanel's session recording properties to Segment events
   // https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/middleware/
   // https://docs.mixpanel.com/docs/session-replay/session-replay-web#segment-analyticsjs
-  private addSegmentMiddleware() {
+  private async addSegmentMiddleware() {
     if (this.mixpanel) {
-      SegmentSingleton.getInstance().addMiddleware((middleware) => {
+      await SegmentSingleton.getInstance().addMiddleware((middleware) => {
         if (
           middleware.payload.obj.type === "track" ||
           middleware.payload.obj.type === "page"

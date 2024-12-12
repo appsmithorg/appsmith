@@ -1,15 +1,16 @@
-// Events
-import * as log from "loglevel";
+import log from "loglevel";
 import smartlookClient from "smartlook-client";
 import { getAppsmithConfigs } from "ee/configs";
-import * as Sentry from "@sentry/react";
 import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
-import { sha256 } from "js-sha256";
 import type { EventName } from "ee/utils/analyticsUtilTypes";
+import type { EventProperties } from "@segment/analytics-next";
+
 import SegmentSingleton from "utils/Analytics/segment";
 import MixpanelSingleton from "utils/Analytics/mixpanel";
-import type { EventProperties } from "@segment/analytics-next";
+import SentryUtil from "utils/Analytics/sentry";
+import SmartlookUtil from "utils/Analytics/smartlook";
+import TrackedUser from "ee/utils/Analytics/trackedUser";
 
 export const parentContextTypeTokens = ["pkg", "workflow"];
 
@@ -36,41 +37,31 @@ export function getParentContextFromURL(location: Location) {
   }
 }
 
-export function getApplicationId(location: Location) {
-  const pathSplit = location.pathname.split("/");
-  const applicationsIndex = pathSplit.findIndex(
-    (path) => path === "applications",
-  );
-  const appId = pathSplit[applicationsIndex + 1];
-
-  return appId;
-}
-
 export enum AnalyticsEventType {
   error = "error",
 }
 
 class AnalyticsUtil {
-  static cachedAnonymoustId: string;
-  static cachedUserId: string;
-  static user?: User = undefined;
-  static blockTrackEvent: boolean | undefined;
   static instanceId?: string = "";
   static blockErrorLogs = false;
   protected static segmentAnalytics: SegmentSingleton;
 
-  static initializeSmartLook(id: string) {
-    smartlookClient.init(id);
-  }
+  static async initialize(user: User) {
+    SentryUtil.init();
+    SmartlookUtil.init();
 
-  static async initializeSegment(key: string) {
     this.segmentAnalytics = SegmentSingleton.getInstance();
 
-    // First we initialize segment
-    await this.segmentAnalytics.init(key);
+    await this.segmentAnalytics.init();
 
-    // Then we initialize mixpanel as it needs to add middleware to segment
-    return MixpanelSingleton.getInstance().init();
+    // Mixpanel needs to be initialized after Segment
+    await MixpanelSingleton.getInstance().init();
+
+    // Initialize the TrackedUser singleton
+    TrackedUser.init(user);
+
+    // Identify the user after all services are initialized
+    await this.identifyUser(user);
   }
 
   public static getUserSource(): string {
@@ -79,47 +70,17 @@ class AnalyticsUtil {
     return cloudHosting || segment.apiKey ? "cloud" : "ce";
   }
 
-  private static getEventUserProperties() {
-    const { segment } = getAppsmithConfigs();
-    const userData = AnalyticsUtil.user;
-    const appId = getApplicationId(window.location);
-
-    if (userData) {
-      const source = this.getUserSource();
-      let user: Record<string, unknown>;
-
-      if (segment.apiKey) {
-        user = {
-          userId: userData.username,
-          email: userData.email,
-          appId,
-        };
-      } else {
-        const userId = userData.username;
-
-        if (userId !== AnalyticsUtil.cachedUserId) {
-          AnalyticsUtil.cachedAnonymoustId = sha256(userId);
-          AnalyticsUtil.cachedUserId = userId;
-        }
-
-        user = {
-          userId: AnalyticsUtil.cachedAnonymoustId,
-        };
-      }
-
-      return user.userId === ANONYMOUS_USERNAME
-        ? undefined
-        : { ...user, source };
-    }
-
-    return undefined;
-  }
-
   protected static getEventExtraProperties() {
     const { appVersion } = getAppsmithConfigs();
     const instanceId = AnalyticsUtil.instanceId;
     const parentContext = getParentContextFromURL(window.location);
-    const userData = this.getEventUserProperties();
+    let userData;
+
+    try {
+      userData = TrackedUser.getInstance().getUser();
+    } catch (e) {
+      log.warn("TrackedUser is not initialized. Call init() first.");
+    }
 
     return {
       instanceId,
@@ -134,10 +95,6 @@ class AnalyticsUtil {
     eventData?: EventProperties,
     eventType?: AnalyticsEventType,
   ) {
-    if (AnalyticsUtil.blockTrackEvent) {
-      return;
-    }
-
     if (
       AnalyticsUtil.blockErrorLogs &&
       eventType === AnalyticsEventType.error
@@ -150,6 +107,8 @@ class AnalyticsUtil {
       ...this.getEventExtraProperties(),
     };
 
+    // In scenarios where segment was never initialised, we are logging the event locally
+    // This is done so that we can debug event logging locally
     if (this.segmentAnalytics) {
       log.debug("Event fired", eventName, finalEventData);
       this.segmentAnalytics.track(eventName, finalEventData);
@@ -158,71 +117,39 @@ class AnalyticsUtil {
     }
   }
 
-  static identifyUser(userData: User, sendAdditionalData?: boolean) {
-    const { appVersion, segment, sentry, smartLook } = getAppsmithConfigs();
-    const userId = userData.username;
+  static async identifyUser(userData: User, sendAdditionalData?: boolean) {
+    const { appVersion, smartLook } = getAppsmithConfigs();
+
+    // we don't want to identify anonymous users (anonymous users are not logged-in users)
+    if (userData.isAnonymous || userData.username === ANONYMOUS_USERNAME) {
+      return;
+    }
+
+    const trackedUser = TrackedUser.getInstance().getUser();
 
     if (this.segmentAnalytics) {
-      const source = this.getUserSource();
+      const userProperties = {
+        ...trackedUser,
+        ...(sendAdditionalData
+          ? {
+              id: trackedUser.userId,
+              version: `Appsmith ${appVersion.edition} ${appVersion.id}`,
+              instanceId: AnalyticsUtil.instanceId,
+            }
+          : {}),
+      };
 
-      // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
-      if (segment.apiKey) {
-        const userProperties = {
-          userId: userId,
-          source,
-          email: userData.email,
-          name: userData.name,
-          emailVerified: userData.emailVerified,
-        };
-
-        AnalyticsUtil.user = userData;
-        log.debug("Identify User " + userId);
-        this.segmentAnalytics.identify(userId, userProperties);
-      } else if (segment.ceKey) {
-        // This is a self-hosted instance. Only send data if the analytics are NOT disabled by the user
-        if (userId !== AnalyticsUtil.cachedUserId) {
-          AnalyticsUtil.cachedAnonymoustId = sha256(userId);
-          AnalyticsUtil.cachedUserId = userId;
-        }
-
-        const userProperties = {
-          userId: AnalyticsUtil.cachedAnonymoustId,
-          source,
-          ...(sendAdditionalData
-            ? {
-                id: AnalyticsUtil.cachedAnonymoustId,
-                email: userData.email,
-                version: `Appsmith ${appVersion.edition} ${appVersion.id}`,
-                instanceId: AnalyticsUtil.instanceId,
-              }
-            : {}),
-        };
-
-        log.debug(
-          "Identify Anonymous User " + AnalyticsUtil.cachedAnonymoustId,
-        );
-        this.segmentAnalytics.identify(
-          AnalyticsUtil.cachedAnonymoustId,
-          userProperties,
-        );
-      }
+      log.debug("Identify User " + trackedUser.userId);
+      await this.segmentAnalytics.identify(trackedUser.userId, userProperties);
     }
 
-    if (sentry.enabled) {
-      Sentry.configureScope(function (scope) {
-        scope.setUser({
-          id: userId,
-          username: userData.username,
-          email: userData.email,
-        });
+    SentryUtil.identifyUser(trackedUser.userId, userData);
+
+    if (smartLook.enabled && trackedUser.email) {
+      smartlookClient.identify(trackedUser.userId, {
+        email: trackedUser.email,
       });
     }
-
-    if (smartLook.enabled) {
-      smartlookClient.identify(userId, { email: userData.email });
-    }
-
-    AnalyticsUtil.blockTrackEvent = false;
   }
 
   static initInstanceId(instanceId: string) {
