@@ -1,0 +1,1 @@
+export { filterEntityGroupsBySearchTerm } from "./filterEntityGroupsBySearchTerm";
