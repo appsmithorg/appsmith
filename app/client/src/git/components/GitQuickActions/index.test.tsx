@@ -15,8 +15,8 @@ jest.mock("./ConnectButton", () => () => (
   <div data-testid="connect-button">ConnectButton</div>
 ));
 
-jest.mock("./AutocommitStatusbar", () => () => (
-  <div data-testid="autocommit-statusbar">AutocommitStatusbar</div>
+jest.mock("./../Statusbar", () => () => (
+  <div data-testid="autocommit-statusbar">Statusbar</div>
 ));
 
 describe("QuickActions Component", () => {
@@ -79,7 +79,7 @@ describe("QuickActions Component", () => {
     ).toBe(1);
   });
 
-  it("should render AutocommitStatusbar when isAutocommitEnabled and isPollingAutocommit are true", () => {
+  it("should render Statusbar when isAutocommitEnabled and isPollingAutocommit are true", () => {
     const props = {
       ...defaultProps,
       isGitConnected: true,
