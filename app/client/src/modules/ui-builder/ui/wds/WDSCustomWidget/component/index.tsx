@@ -80,7 +80,7 @@ export function CustomWidgetComponent(props: CustomWidgetComponentProps) {
   // the iframe can make changes to the model, when it needs to
   // this is done by sending a CUSTOM_WIDGET_UPDATE_MODEL message to the parent window
   const handleModelUpdate = (message: Record<string, unknown>) => {
-    onUpdateModel(message.model as Record<string, unknown>);
+    onUpdateModel(message as Record<string, unknown>);
   };
 
   // the iframe elements can trigger events. Triggered events here would mean
