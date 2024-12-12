@@ -13,7 +13,7 @@ import { GitOpsTab } from "../../constants/enums";
 import { GitSettingsTab } from "../../constants/enums";
 import ConnectButton from "./ConnectButton";
 import QuickActionButton from "./QuickActionButton";
-import AutocommitStatusbar from "./AutocommitStatusbar";
+import AutocommitStatusbar from "../Statusbar";
 import getPullBtnStatus from "./helpers/getPullButtonStatus";
 import noop from "lodash/noop";
 
