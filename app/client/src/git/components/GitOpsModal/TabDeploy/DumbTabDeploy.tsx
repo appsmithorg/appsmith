@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import {
   ARE_YOU_SURE,
-  CHANGES_SINCE_LAST_DEPLOYMENT,
   COMMIT_AND_PUSH,
   COMMIT_TO,
   COMMITTING_AND_PUSHING_CHANGES,
@@ -300,15 +299,6 @@ function DumbTabDeploy({
           style={{ minHeight: 360 }}
         >
           <Section>
-            {hasChangesToCommit && (
-              <Text
-                color={"var(--ads-v2-color-fg-emphasis)"}
-                data-testid={"t--git-deploy-change-reason-text"}
-                kind="heading-s"
-              >
-                {createMessage(CHANGES_SINCE_LAST_DEPLOYMENT)}
-              </Text>
-            )}
             <GitStatus />
             <SubmitWrapper onSubmit={handleCommitViaKeyPress}>
               <Input

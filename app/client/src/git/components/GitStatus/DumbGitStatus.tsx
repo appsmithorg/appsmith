@@ -2,6 +2,9 @@ import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.ty
 import React, { useMemo } from "react";
 import type { StatusTreeStruct } from "./StatusTree";
 import StatusTree from "./StatusTree";
+import { Text } from "@appsmith/ads";
+import { createMessage } from "@appsmith/ads-old";
+import { CHANGES_SINCE_LAST_DEPLOYMENT } from "ee/constants/messages";
 
 const noopStatusTransformer = () => null;
 
@@ -9,7 +12,7 @@ interface DumbGitStatusProps {
   status: FetchStatusResponseData | null;
   statusTransformer: (
     status: FetchStatusResponseData,
-  ) => StatusTreeStruct | null;
+  ) => StatusTreeStruct[] | null;
   isFetchStatusLoading: boolean;
 }
 
@@ -21,16 +24,27 @@ export default function DumbGitStatus({
   const statusTree = useMemo(() => {
     if (!status || isFetchStatusLoading) return null;
 
-    statusTransformer(status);
+    return statusTransformer(status);
   }, [isFetchStatusLoading, status, statusTransformer]);
 
   if (isFetchStatusLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!status || !statusTree) {
+  if (!status || status.isClean || !statusTree) {
     return null;
   }
 
-  return <StatusTree tree={statusTree} />;
+  return (
+    <div>
+      <Text
+        color={"var(--ads-v2-color-fg-emphasis)"}
+        data-testid={"t--git-deploy-change-reason-text"}
+        kind="heading-s"
+      >
+        {createMessage(CHANGES_SINCE_LAST_DEPLOYMENT)}
+      </Text>
+      <StatusTree tree={statusTree} />
+    </div>
+  );
 }
