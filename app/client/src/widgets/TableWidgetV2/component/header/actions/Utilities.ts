@@ -1,3 +1,4 @@
+import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import type { TableColumnProps } from "../../Constants";
 import { isString } from "lodash";
 
@@ -35,7 +36,12 @@ export const transformTableDataIntoCsv = (props: {
             ? value.replace("\n", " ")
             : value;
 
-        if (isString(value) && value.includes(",")) {
+        // HTML columns output multi line strings. We need to quote them to avoid CSV parsing issues.
+        const shouldQuote =
+          (isString(value) && value.includes(",")) ||
+          column.metaProperties.type === ColumnTypes.HTML;
+
+        if (shouldQuote) {
           csvDataRow.push(`"${value}"`);
         } else {
           csvDataRow.push(value);

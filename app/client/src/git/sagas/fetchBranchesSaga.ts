@@ -1,11 +1,11 @@
-import type { FetchBranchesInitPayload } from "git/actions/fetchBranchesActions";
+import type { FetchBranchesInitPayload } from "../store/actions/fetchBranchesActions";
 import fetchBranchesRequest from "git/requests/fetchBranchesRequest";
 import type {
   FetchBranchesRequestParams,
   FetchBranchesResponse,
 } from "git/requests/fetchBranchesRequest.types";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
-import type { GitArtifactPayloadAction } from "git/types";
+import type { GitArtifactPayloadAction } from "../store/types";
 import { call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 

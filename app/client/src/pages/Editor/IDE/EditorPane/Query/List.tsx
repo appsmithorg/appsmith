@@ -11,7 +11,6 @@ import {
 } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import type { EditorSegmentList } from "ee/selectors/appIDESelectors";
 import { selectQuerySegmentEditorList } from "ee/selectors/appIDESelectors";
 import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
@@ -20,21 +19,21 @@ import { QueryListItem } from "ee/pages/Editor/IDE/EditorPane/Query/ListItem";
 import { getShowWorkflowFeature } from "ee/selectors/workflowSelectors";
 import { BlankState } from "./BlankState";
 import { AddAndSearchbar } from "../components/AddAndSearchbar";
-import { fuzzySearchInObjectItems } from "../utils";
 import { EmptySearchResult } from "../components/EmptySearchResult";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 
 const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const pageId = useSelector(getCurrentPageId) as string;
-  const files = useSelector(selectQuerySegmentEditorList);
+  const itemGroups = useSelector(selectQuerySegmentEditorList);
   const activeActionBaseId = useActiveActionBaseId();
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const localFiles = fuzzySearchInObjectItems<EditorSegmentList>(
+  const filteredItemGroups = filterEntityGroupsBySearchTerm(
     searchTerm,
-    files,
+    itemGroups,
   );
 
   const canCreateActions = getHasCreateActionPermission(
@@ -55,7 +54,7 @@ const ListQuery = () => {
       px="spaces-3"
       py="spaces-3"
     >
-      {files.length > 0 ? (
+      {itemGroups.length > 0 ? (
         <AddAndSearchbar
           hasAddPermission={canCreateActions}
           onAddClick={openAddQuery}
@@ -63,7 +62,7 @@ const ListQuery = () => {
         />
       ) : null}
       <Flex flexDirection={"column"} gap="spaces-4" overflowY="auto">
-        {localFiles.map(({ group, items }) => {
+        {filteredItemGroups.map(({ group, items }) => {
           return (
             <Flex flexDirection={"column"} key={group}>
               <Flex py="spaces-1">
@@ -96,14 +95,14 @@ const ListQuery = () => {
             </Flex>
           );
         })}
-        {localFiles.length === 0 && searchTerm !== "" ? (
+        {filteredItemGroups.length === 0 && searchTerm !== "" ? (
           <EmptySearchResult
             type={createMessage(EDITOR_PANE_TEXTS.search_objects.queries)}
           />
         ) : null}
       </Flex>
 
-      {Object.keys(files).length === 0 && <BlankState />}
+      {Object.keys(itemGroups).length === 0 && <BlankState />}
     </Flex>
   );
 };
