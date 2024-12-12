@@ -1,6 +1,6 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { call, put } from "redux-saga/effects";
-import type { UpdateGlobalProfileInitPayload } from "../actions/updateGlobalProfileActions";
+import type { UpdateGlobalProfileInitPayload } from "../store/actions/updateGlobalProfileActions";
 import updateGlobalProfileRequest from "../requests/updateGlobalProfileRequest";
 import type {
   UpdateGlobalProfileRequestParams,

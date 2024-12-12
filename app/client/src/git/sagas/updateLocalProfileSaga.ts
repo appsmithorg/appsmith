@@ -1,11 +1,11 @@
-import type { UpdateLocalProfileInitPayload } from "git/actions/updateLocalProfileActions";
+import type { UpdateLocalProfileInitPayload } from "../store/actions/updateLocalProfileActions";
 import updateLocalProfileRequest from "git/requests/updateLocalProfileRequest";
 import type {
   UpdateLocalProfileRequestParams,
   UpdateLocalProfileResponse,
 } from "git/requests/updateLocalProfileRequest.types";
-import { gitArtifactActions } from "git/store/gitArtifactSlice";
-import type { GitArtifactPayloadAction } from "git/types";
+import { gitArtifactActions } from "../store/gitArtifactSlice";
+import type { GitArtifactPayloadAction } from "../store/types";
 import { call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 
