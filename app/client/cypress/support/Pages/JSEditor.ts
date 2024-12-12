@@ -33,7 +33,7 @@ export class JSEditor {
   public propPane = ObjectsRegistry.PropertyPane;
   private assertHelper = ObjectsRegistry.AssertHelper;
   public runButtonLocator = ".run-js-action";
-  public settingsTriggerLocator = "[data-testid='t--js-settings-trigger'";
+  public settingsTriggerLocator = "[data-testid='t--js-settings-trigger']";
   public contextMenuTriggerLocator = "[data-testid='t--more-action-trigger']";
   public runFunctionSelectLocator = "[data-testid='t--js-function-run']";
 
