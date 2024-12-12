@@ -11,6 +11,7 @@ import { getAppMode } from "ee/selectors/entitiesSelector";
 import type { AppState } from "ee/reducers";
 import { getWidget } from "sagas/selectors";
 import { getCurrentApplication } from "ee/selectors/applicationSelectors";
+import TrackedUser from "ee/utils/Analytics/trackedUser";
 
 export interface UserAndAppDetails {
   pageId: string;
@@ -34,6 +35,9 @@ export function* getUserAndAppDetails() {
     yield select(getInstanceId);
   const pageId: ReturnType<typeof getCurrentPageId> =
     yield select(getCurrentPageId);
+
+  const { source } = TrackedUser.getInstance().getUser();
+
   const userAndAppDetails: UserAndAppDetails = {
     pageId,
     appId: currentApp?.id || "",
@@ -42,7 +46,7 @@ export function* getUserAndAppDetails() {
     isExampleApp: currentApp?.appIsExample || false,
     userId: user?.username || "",
     email: user?.email || "",
-    source: AnalyticsUtil.getUserSource(),
+    source,
     instanceId: instanceId,
   };
 

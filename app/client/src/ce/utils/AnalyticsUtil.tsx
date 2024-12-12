@@ -64,12 +64,6 @@ class AnalyticsUtil {
     await this.identifyUser(user);
   }
 
-  public static getUserSource(): string {
-    const { cloudHosting, segment } = getAppsmithConfigs();
-
-    return cloudHosting || segment.apiKey ? "cloud" : "ce";
-  }
-
   protected static getEventExtraProperties() {
     const { appVersion } = getAppsmithConfigs();
     const instanceId = AnalyticsUtil.instanceId;

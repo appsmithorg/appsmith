@@ -2,12 +2,13 @@ import { getInstanceId } from "ee/selectors/tenantSelectors";
 import { useSelector } from "react-redux";
 import { ENTERPRISE_PRICING_PAGE } from "constants/ThirdPartyConstants";
 import { useMemo } from "react";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
+import TrackedUser from "ee/utils/Analytics/trackedUser";
 
 export const useAppsmithEnterpriseLink = (feature: string) => {
   const instanceId = useSelector(getInstanceId);
-  const source = AnalyticsUtil.getUserSource();
-  const constructedUrl = useMemo(() => {
+  const { source } = TrackedUser.getInstance().getUser();
+
+  return useMemo(() => {
     const url = new URL(ENTERPRISE_PRICING_PAGE);
 
     if (source) url.searchParams.append("source", source);
@@ -18,6 +19,4 @@ export const useAppsmithEnterpriseLink = (feature: string) => {
 
     return url.href;
   }, [source, instanceId, feature]);
-
-  return constructedUrl;
 };
