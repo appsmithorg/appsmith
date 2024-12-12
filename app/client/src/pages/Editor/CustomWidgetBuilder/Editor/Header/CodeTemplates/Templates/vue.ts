@@ -107,7 +107,7 @@ export default {
 			},
 			reset() {
 				this.currentIndex = 0;
-				appsmith.triggerEvent("onReset");
+				appsmith.triggerEvent("onResetClick");
 			},
 		},
 	});

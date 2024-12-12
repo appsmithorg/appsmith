@@ -12,6 +12,8 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
+import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
+
 describe(
   "Test Create Api and Bind to List widget",
   { tags: ["@tag.Binding"] },
@@ -24,7 +26,7 @@ describe(
     it("1. Test_Add users api and execute api", function () {
       apiPage.CreateAndFillApi(this.dataSet.userApi + "/mock-api?records=10");
       cy.RunAPI();
-      cy.get(apiLocators.jsonResponseTab).click();
+      BottomTabs.response.selectResponseResponseTypeFromMenu("JSON");
       cy.get(apiLocators.responseBody)
         .contains("name")
         .siblings("span")

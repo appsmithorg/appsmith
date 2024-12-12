@@ -15,7 +15,6 @@ import {
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import { PluginType } from "entities/Action";
-import { ApiResponse } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponse";
 import { ApiResponseHeaders } from "PluginActionEditor/components/PluginActionResponse/components/ApiResponseHeaders";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getErrorCount } from "selectors/debuggerSelectors";
@@ -26,15 +25,13 @@ import {
 import { doesPluginRequireDatasource } from "ee/entities/Engine/actionHelpers";
 import useShowSchema from "PluginActionEditor/components/PluginActionResponse/hooks/useShowSchema";
 import { Datasource } from "PluginActionEditor/components/PluginActionResponse/components/DatasourceTab";
-import QueryResponseTab from "PluginActionEditor/components/PluginActionResponse/components/QueryResponseTab";
-import type { SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import {
   useBlockExecution,
   useHandleRunClick,
   useAnalyticsOnRunClick,
 } from "PluginActionEditor/hooks";
 import useDebuggerTriggerClick from "components/editorComponents/Debugger/hooks/useDebuggerTriggerClick";
+import { Response } from "PluginActionEditor/components/PluginActionResponse/components/Response";
 
 function usePluginActionResponseTabs() {
   const { action, actionResponse, datasource, plugin } =
@@ -81,7 +78,7 @@ function usePluginActionResponseTabs() {
         key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
         title: createMessage(DEBUGGER_RESPONSE),
         panelComponent: (
-          <ApiResponse
+          <Response
             action={action}
             actionResponse={actionResponse}
             isRunDisabled={blockExecution}
@@ -117,12 +114,6 @@ function usePluginActionResponseTabs() {
       PluginType.INTERNAL,
     ].includes(plugin.type)
   ) {
-    const actionSource: SourceEntity = {
-      type: SOURCE_ENTITY_TYPE.ACTION,
-      name: action.name,
-      id: action.id,
-    };
-
     if (showSchema) {
       tabs.push({
         key: DEBUGGER_TAB_KEYS.DATASOURCE_TAB,
@@ -141,14 +132,14 @@ function usePluginActionResponseTabs() {
       key: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
-        <QueryResponseTab
-          actionName={action.name}
-          actionSource={actionSource}
-          currentActionConfig={action}
+        <Response
+          action={action}
+          actionResponse={actionResponse}
           isRunDisabled={blockExecution}
           isRunning={isRunning}
           onRunClick={onRunClick}
-          runErrorMessage={""} // TODO
+          responseTabHeight={responseTabHeight}
+          theme={EditorTheme.LIGHT}
         />
       ),
     });
@@ -157,15 +148,15 @@ function usePluginActionResponseTabs() {
   if (IDEViewMode === EditorViewMode.FullScreen) {
     tabs.push(
       {
+        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
+        title: createMessage(DEBUGGER_LOGS),
+        panelComponent: <DebuggerLogs />,
+      },
+      {
         key: DEBUGGER_TAB_KEYS.ERROR_TAB,
         title: createMessage(DEBUGGER_ERRORS),
         count: errorCount,
         panelComponent: <ErrorLogs />,
-      },
-      {
-        key: DEBUGGER_TAB_KEYS.LOGS_TAB,
-        title: createMessage(DEBUGGER_LOGS),
-        panelComponent: <DebuggerLogs searchQuery={action.name} />,
       },
     );
   }
