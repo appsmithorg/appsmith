@@ -10,6 +10,7 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.projections.IdOnly;
+import com.appsmith.server.projections.IdPoliciesOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -262,5 +263,12 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         BridgeUpdate update = Bridge.update();
         update.set(NewPage.Fields.unpublishedPage_dependencyMap, dependencyMap);
         return Optional.of(queryBuilder().criteria(q).updateFirst(update));
+    }
+
+    @Override
+    public List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds) {
+        return queryBuilder()
+                .criteria(Bridge.in(NewPage.Fields.applicationId, applicationIds))
+                .all(IdPoliciesOnly.class);
     }
 }

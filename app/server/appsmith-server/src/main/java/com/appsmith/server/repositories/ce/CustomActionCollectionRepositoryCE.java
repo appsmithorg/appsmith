@@ -4,6 +4,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.projections.IdPoliciesOnly;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
 
@@ -43,4 +44,6 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
 
     List<ActionCollection> findAllNonComposedByPageIdAndViewMode(
             String pageId, boolean viewMode, AclPermission permission, User currentUser);
+
+    List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds);
 }

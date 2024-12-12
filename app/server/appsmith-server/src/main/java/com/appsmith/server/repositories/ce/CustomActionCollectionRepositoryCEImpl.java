@@ -4,9 +4,11 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.projections.IdPoliciesOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import org.springframework.data.domain.Sort;
 
@@ -180,5 +182,12 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public List<ActionCollection> findAllNonComposedByPageIdAndViewMode(
             String pageId, boolean viewMode, AclPermission permission, User currentUser) {
         return this.findByPageIdAndViewMode(pageId, viewMode, permission, currentUser);
+    }
+
+    @Override
+    public List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds) {
+        return queryBuilder()
+                .criteria(Bridge.in(NewAction.Fields.applicationId, applicationIds))
+                .all(IdPoliciesOnly.class);
     }
 }
