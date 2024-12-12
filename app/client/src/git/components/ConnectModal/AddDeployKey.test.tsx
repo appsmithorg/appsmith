@@ -9,6 +9,11 @@ jest.mock("ee/utils/AnalyticsUtil", () => ({
   logEvent: jest.fn(),
 }));
 
+jest.mock("copy-to-clipboard", () => ({
+  __esModule: true,
+  default: () => true,
+}));
+
 const DEFAULT_DOCS_URL =
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository";
 
