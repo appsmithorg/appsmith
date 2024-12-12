@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import { Flex, Text } from "@appsmith/ads";
 import styled from "styled-components";
 
-import type { EditorSegmentList } from "ee/selectors/appIDESelectors";
 import { selectJSSegmentEditorList } from "ee/selectors/appIDESelectors";
 import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import {
@@ -20,9 +19,9 @@ import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
 import { JSListItem } from "ee/pages/Editor/IDE/EditorPane/JS/ListItem";
 import { BlankState } from "./BlankState";
 import { AddAndSearchbar } from "../components/AddAndSearchbar";
-import { fuzzySearchInObjectItems } from "../utils";
 import { EmptySearchResult } from "../components/EmptySearchResult";
 import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
+import { filterEntityGroupsBySearchTerm } from "IDE/utils";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
@@ -34,7 +33,7 @@ const JSContainer = styled(Flex)`
 const ListJSObjects = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const pageId = useSelector(getCurrentPageId);
-  const files = useSelector(selectJSSegmentEditorList);
+  const itemGroups = useSelector(selectJSSegmentEditorList);
   const activeActionBaseId = useActiveActionBaseId();
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -42,9 +41,9 @@ const ListJSObjects = () => {
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const localFiles = fuzzySearchInObjectItems<EditorSegmentList>(
+  const filteredItemGroups = filterEntityGroupsBySearchTerm(
     searchTerm,
-    files,
+    itemGroups,
   );
 
   const canCreateActions = getHasCreateActionPermission(
@@ -64,7 +63,7 @@ const ListJSObjects = () => {
       px="spaces-3"
       py="spaces-3"
     >
-      {files && files.length > 0 ? (
+      {itemGroups && itemGroups.length > 0 ? (
         <AddAndSearchbar
           hasAddPermission={canCreateActions}
           onAddClick={openAddJS}
@@ -83,7 +82,7 @@ const ListJSObjects = () => {
           gap="spaces-4"
           overflowY="auto"
         >
-          {localFiles.map(({ group, items }) => {
+          {filteredItemGroups.map(({ group, items }) => {
             return (
               <Flex flexDirection={"column"} key={group}>
                 {group !== "NA" ? (
@@ -112,7 +111,7 @@ const ListJSObjects = () => {
               </Flex>
             );
           })}
-          {localFiles.length === 0 && searchTerm !== "" ? (
+          {filteredItemGroups.length === 0 && searchTerm !== "" ? (
             <EmptySearchResult
               type={createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject)}
             />
@@ -120,7 +119,7 @@ const ListJSObjects = () => {
         </Flex>
       </FilesContextProvider>
 
-      {(!files || files.length === 0) && <BlankState />}
+      {(!itemGroups || itemGroups.length === 0) && <BlankState />}
     </JSContainer>
   );
 };
