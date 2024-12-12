@@ -13,11 +13,10 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
-describe("Validate JSObj Regression tests", {}, () => {
+describe("Validate JSObj", {}, () => {
   before(() => {});
 
   it("1. Verify adding JSObject and more actions options", () => {
-    PageLeftPane.switchSegment(PagePaneSegment.JS);
     jsEditor.CreateJSObject(
       `setInterval(() => {
         showAlert("Hi", "error")
