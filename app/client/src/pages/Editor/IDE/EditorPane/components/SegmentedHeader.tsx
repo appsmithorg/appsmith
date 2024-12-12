@@ -2,7 +2,7 @@ import React from "react";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { EditorEntityTab } from "ee/entities/IDE/constants";
 import { useCurrentEditorState, useSegmentNavigation } from "../../hooks";
-import { NavigationHeader } from "@appsmith/ads/src/Templates/EntityExplorer/NavigationHeader";
+import { NavigationHeader } from "@appsmith/ads";
 
 const SegmentedHeader = () => {
   const { segment } = useCurrentEditorState();
