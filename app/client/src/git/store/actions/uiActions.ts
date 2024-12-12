@@ -66,8 +66,8 @@ export const toggleSettingsModalAction =
   createSingleArtifactAction<ToggleSettingsModalPayload>((state, action) => {
     const { open, tab } = action.payload;
 
-    state.ui.settingsModal.open = open;
-    state.ui.settingsModal.tab = tab;
+    state.ui.settingsModalOpen = open;
+    state.ui.settingsModalTab = tab;
 
     return state;
   });

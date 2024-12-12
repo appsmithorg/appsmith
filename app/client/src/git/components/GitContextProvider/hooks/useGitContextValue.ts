@@ -15,12 +15,14 @@ import useGitMetadata from "./useGitMetadata";
 import type { ApplicationPayload } from "entities/Application";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import type { StatusTreeStruct } from "git/components/GitStatus/StatusTree";
+import useGitPermissions, {
+  type UseGitPermissionsReturnValue,
+} from "./useGitPermissions";
 
 export interface UseGitContextValueParams {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
   artifact: ApplicationPayload | null;
-  connectPermitted: boolean;
   statusTransformer: (
     status: FetchStatusResponseData,
   ) => StatusTreeStruct[] | null;
@@ -31,9 +33,9 @@ export interface GitContextValue
     UseGitConnectReturnValue,
     UseGitOpsReturnValue,
     UseGitSettingsReturnValue,
-    UseGitBranchesReturnValue {
+    UseGitBranchesReturnValue,
+    UseGitPermissionsReturnValue {
   artifact: ApplicationPayload | null;
-  connectPermitted: boolean;
   statusTransformer: (
     status: FetchStatusResponseData,
   ) => StatusTreeStruct[] | null;
@@ -43,7 +45,6 @@ export default function useGitContextValue({
   artifact,
   artifactType,
   baseArtifactId = "",
-  connectPermitted,
   statusTransformer,
 }: UseGitContextValueParams): GitContextValue {
   const basePayload = useMemo(
@@ -58,15 +59,19 @@ export default function useGitContextValue({
   });
   const useGitBranchesReturnValue = useGitBranches(basePayload);
   const useGitSettingsReturnValue = useGitSettings(basePayload);
+  const useGitPermissionsReturnValue = useGitPermissions({
+    ...basePayload,
+    artifact,
+  });
 
   return {
     statusTransformer,
     artifact,
-    connectPermitted,
     ...useGitMetadataReturnValue,
     ...useGitOpsReturnValue,
     ...useGitBranchesReturnValue,
     ...useGitConnectReturnValue,
     ...useGitSettingsReturnValue,
+    ...useGitPermissionsReturnValue,
   };
 }

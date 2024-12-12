@@ -24,6 +24,7 @@ export enum GitOpsTab {
 export enum GitSettingsTab {
   General = "General",
   Branch = "Branch",
+  ContinuousDelivery = "ContinuousDelivery",
 }
 
 export enum AutocommitStatusState {

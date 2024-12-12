@@ -99,7 +99,7 @@ export const selectCheckoutBranch = (
   artifactDef: GitArtifactDef,
 ) => selectSingleArtifact(state, artifactDef)?.apiResponses.checkoutBranch;
 
-// autocommit
+// settings
 export const selectAutocommitEnabled = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
@@ -114,7 +114,6 @@ export const selectAutocommitPolling = (
   artifactDef: GitArtifactDef,
 ) => selectSingleArtifact(state, artifactDef)?.ui.autocommitPolling;
 
-// protected branches
 export const selectProtectedBranches = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
@@ -129,3 +128,13 @@ export const selectProtectedMode = (
 
   return protectedBranches?.includes(currentBranch ?? "");
 };
+
+export const selectSettingsModalOpen = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectSingleArtifact(state, artifactDef)?.ui.settingsModalOpen;
+
+export const selectSettingsModalTab = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectSingleArtifact(state, artifactDef)?.ui.settingsModalTab;

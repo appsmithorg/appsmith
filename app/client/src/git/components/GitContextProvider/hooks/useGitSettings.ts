@@ -1,4 +1,4 @@
-import type { GitArtifactType, GitSettingsTab } from "git/constants/enums";
+import { GitSettingsTab, type GitArtifactType } from "git/constants/enums";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
@@ -6,6 +6,8 @@ import {
   selectAutocommitPolling,
   selectProtectedBranches,
   selectProtectedMode,
+  selectSettingsModalOpen,
+  selectSettingsModalTab,
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import type { GitRootState } from "git/store/types";
 import { useMemo } from "react";
@@ -24,9 +26,11 @@ export interface UseGitSettingsReturnValue {
   fetchProtectedBranchesError: string | null;
   fetchProtectedBranches: () => void;
   protectedMode: boolean;
+  settingsModalOpen: boolean;
+  settingsModalTab: keyof typeof GitSettingsTab;
   toggleSettingsModal: (
     open: boolean,
-    tab: keyof typeof GitSettingsTab,
+    tab?: keyof typeof GitSettingsTab,
   ) => void;
 }
 
@@ -67,9 +71,17 @@ export default function useGitSettings({
   );
 
   // ui
+  const settingsModalOpen = useSelector((state: GitRootState) =>
+    selectSettingsModalOpen(state, basePayload),
+  );
+
+  const settingsModalTab = useSelector((state: GitRootState) =>
+    selectSettingsModalTab(state, basePayload),
+  );
+
   const toggleSettingsModal = (
     open: boolean,
-    tab: keyof typeof GitSettingsTab,
+    tab: keyof typeof GitSettingsTab = GitSettingsTab.General,
   ) => {
     dispatch(
       gitArtifactActions.toggleSettingsModal({
@@ -88,6 +100,8 @@ export default function useGitSettings({
     fetchProtectedBranchesError: protectedBranchesState.error,
     fetchProtectedBranches,
     protectedMode: protectedMode ?? false,
+    settingsModalOpen: settingsModalOpen ?? false,
+    settingsModalTab: settingsModalTab ?? GitSettingsTab.General,
     toggleSettingsModal,
   };
 }
