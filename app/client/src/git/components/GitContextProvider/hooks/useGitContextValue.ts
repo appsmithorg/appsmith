@@ -28,6 +28,7 @@ export interface GitContextValue
     UseGitSettingsReturnValue,
     UseGitBranchesReturnValue {
   artifact: ApplicationPayload | null;
+  connectPermitted: boolean;
 }
 
 export default function useGitContextValue({
@@ -40,11 +41,9 @@ export default function useGitContextValue({
     () => ({ artifactType, baseArtifactId }),
     [artifactType, baseArtifactId],
   );
+
   const useGitMetadataReturnValue = useGitMetadata(basePayload);
-  const useGitConnectReturnValue = useGitConnect({
-    ...basePayload,
-    connectPermitted,
-  });
+  const useGitConnectReturnValue = useGitConnect(basePayload);
   const useGitOpsReturnValue = useGitOps({
     ...basePayload,
     artifactId: artifact?.id ?? null,
@@ -54,6 +53,7 @@ export default function useGitContextValue({
 
   return {
     artifact,
+    connectPermitted,
     ...useGitMetadataReturnValue,
     ...useGitOpsReturnValue,
     ...useGitBranchesReturnValue,
