@@ -484,14 +484,14 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             String oldId = newAction.getId().split("_")[1];
             newAction.setId(newNameAction + "_" + oldId);
 
-            if(PluginType.JS.equals(newAction.getPluginType())) {
+            if (PluginType.JS.equals(newAction.getPluginType())) {
                 newAction.getUnpublishedAction().setFullyQualifiedName(newNameAction);
             }
 
             newAction.getUnpublishedAction().setName(newNameAction);
             if (newAction.getPublishedAction() != null) {
                 newAction.getPublishedAction().setName(newNameAction);
-                if(PluginType.JS.equals(newAction.getPluginType())) {
+                if (PluginType.JS.equals(newAction.getPluginType())) {
                     newAction.getPublishedAction().setFullyQualifiedName(newNameAction);
                 }
             }
