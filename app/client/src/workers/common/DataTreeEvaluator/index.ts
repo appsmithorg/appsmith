@@ -1237,7 +1237,7 @@ export default class DataTreeEvaluator {
               WorkerEnv.flags.release_evaluation_scope_cache &&
               evalContextCache
             ) {
-              set(evalContextCache, fullPropertyPath, klona(parsedValue));
+              set(evalContextCache, fullPropertyPath, klonaJSON(parsedValue));
             }
 
             staleMetaIds = staleMetaIds.concat(
