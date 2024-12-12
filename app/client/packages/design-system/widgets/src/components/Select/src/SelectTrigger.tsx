@@ -1,8 +1,10 @@
+import clsx from "clsx";
 import React from "react";
 import { Icon, Spinner, textInputStyles } from "@appsmith/wds";
 import { getTypographyClassName } from "@appsmith/wds-theming";
 import { Button, Group, SelectValue } from "react-aria-components";
 
+import styles from "./styles.module.css";
 import type { SelectProps } from "./types";
 
 interface SelectTriggerProps {
@@ -19,7 +21,7 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = (props) => {
   return (
     <Group className={textInputStyles.inputGroup}>
       <Button
-        className={textInputStyles.input}
+        className={clsx(textInputStyles.input, styles.selectTriggerButton)}
         data-invalid={Boolean(isInvalid) ? "" : undefined}
         data-size={size}
         isDisabled={isDisabled}
@@ -32,10 +34,10 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = (props) => {
             isPlaceholder ? placeholder : defaultChildren
           }
         </SelectValue>
+        <span data-input-suffix>
+          {Boolean(isLoading) ? <Spinner /> : <Icon name="chevron-down" />}
+        </span>
       </Button>
-      <span data-input-suffix>
-        {Boolean(isLoading) ? <Spinner /> : <Icon name="chevron-down" />}
-      </span>
     </Group>
   );
 };

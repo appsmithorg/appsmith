@@ -1,0 +1,14 @@
+.selectTriggerButton {
+  display: flex;
+  align-items: center;
+}
+
+.selectTriggerButton [data-select-text] {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.selectTriggerButton [data-select-text] [data-icon] {
+  margin-inline-end: var(--inner-spacing-1);
+}

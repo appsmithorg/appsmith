@@ -44,6 +44,7 @@ export const WithPrefixAndSuffix: Story = {
         prefix={<Icon name="user" size="medium" />}
         suffix={<Icon name="user" size="medium" />}
       />
+      <TextField prefix={<>+121212</>} />
     </Flex>
   ),
 };

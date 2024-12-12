@@ -52,8 +52,10 @@ export const Select = (props: SelectProps) => {
             size={size}
           />
           <FieldError>{errorMessage}</FieldError>
-          <Popover UNSTABLE_portalContainer={root}>
-            <ListBox shouldFocusWrap>{children}</ListBox>
+          <Popover UNSTABLE_portalContainer={root} data-select-popover>
+            <ListBox data-select-listbox shouldFocusWrap>
+              {children}
+            </ListBox>
           </Popover>
         </>
       )}

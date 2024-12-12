@@ -46,6 +46,7 @@ function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
 
   return (
     <Group className={styles.inputGroup}>
+      {Boolean(prefix) && <span data-input-prefix>{prefix}</span>}
       <HeadlessInput
         {...rest}
         className={clsx(styles.input, getTypographyClassName("body"))}
@@ -56,7 +57,6 @@ function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
         type={showPassword ? "text" : type}
         value={isEmpty && Boolean(isReadOnly) ? "—" : value}
       />
-      {Boolean(prefix) && <span data-input-prefix>{prefix}</span>}
       {Boolean(suffix) && <span data-input-suffix>{suffix}</span>}
     </Group>
   );

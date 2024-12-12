@@ -4,3 +4,7 @@
   z-index: var(--z-index-99);
   box-shadow: var(--box-shadow-1);
 }
+
+.popover:is([data-select-popover], [data-combobox-popover]) {
+  transform: translateX(calc(-1 * var(--inner-spacing-2, 0)));
+}
