@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import QuickActions from ".";
+import DumbGitQuickActions from "./DumbGitQuickActions";
 import { theme } from "constants/DefaultTheme";
 import { ThemeProvider } from "styled-components";
 import "@testing-library/jest-dom/extend-expect";
@@ -19,7 +19,7 @@ jest.mock("./../Statusbar", () => () => (
   <div data-testid="autocommit-statusbar">Statusbar</div>
 ));
 
-describe("QuickActions Component", () => {
+describe("DumbGitQuickActions Component", () => {
   const defaultProps = {
     discard: jest.fn(),
     isAutocommitEnabled: false,
@@ -35,9 +35,9 @@ describe("QuickActions Component", () => {
     pull: jest.fn(),
     statusBehindCount: 0,
     statusChangeCount: 0,
-    toggleGitConnectModal: jest.fn(),
-    toggleGitOpsModal: jest.fn(),
-    toggleGitSettingsModal: jest.fn(),
+    toggleConnectModal: jest.fn(),
+    toggleOpsModal: jest.fn(),
+    toggleSettingsModal: jest.fn(),
   };
 
   afterEach(() => {
@@ -47,7 +47,7 @@ describe("QuickActions Component", () => {
   it("should render ConnectButton when isGitConnected is false", () => {
     render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...defaultProps} />
+        <DumbGitQuickActions {...defaultProps} />
       </ThemeProvider>,
     );
     expect(screen.getByTestId("connect-button")).toBeInTheDocument();
@@ -61,7 +61,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
 
@@ -89,7 +89,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
 
@@ -107,7 +107,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const commitButton = container.querySelectorAll(
@@ -115,10 +115,7 @@ describe("QuickActions Component", () => {
     )[0];
 
     fireEvent.click(commitButton);
-    expect(props.toggleGitOpsModal).toHaveBeenCalledWith(
-      true,
-      GitOpsTab.Deploy,
-    );
+    expect(props.toggleOpsModal).toHaveBeenCalledWith(true, GitOpsTab.Deploy);
     expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith(
       "GS_DEPLOY_GIT_MODAL_TRIGGERED",
       {
@@ -142,7 +139,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const pullButton = container.querySelectorAll(
@@ -163,7 +160,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const mergeButton = container.querySelectorAll(
@@ -177,7 +174,7 @@ describe("QuickActions Component", () => {
         source: "BOTTOM_BAR_GIT_MERGE_BUTTON",
       },
     );
-    expect(props.toggleGitOpsModal).toHaveBeenCalledWith(true, GitOpsTab.Merge);
+    expect(props.toggleOpsModal).toHaveBeenCalledWith(true, GitOpsTab.Merge);
   });
 
   it("should call onSettingsClick when settings button is clicked", () => {
@@ -188,7 +185,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const settingsButton = container.querySelectorAll(
@@ -199,7 +196,7 @@ describe("QuickActions Component", () => {
     expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith("GS_SETTING_CLICK", {
       source: "BOTTOM_BAR_GIT_SETTING_BUTTON",
     });
-    expect(props.toggleGitSettingsModal).toHaveBeenCalledWith(
+    expect(props.toggleSettingsModal).toHaveBeenCalledWith(
       true,
       GitSettingsTab.General,
     );
@@ -214,7 +211,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const commitButton = container.querySelectorAll(
@@ -233,7 +230,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
 
@@ -255,7 +252,7 @@ describe("QuickActions Component", () => {
 
     render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const countElement = screen.getByTestId("t--bottom-bar-count");
@@ -273,7 +270,7 @@ describe("QuickActions Component", () => {
 
     render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     expect(screen.queryByTestId("t--bottom-bar-count")).not.toBeInTheDocument();
@@ -296,7 +293,7 @@ describe("QuickActions Component", () => {
 
     const { container } = render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const pullButton = container.querySelectorAll(
@@ -316,7 +313,7 @@ describe("QuickActions Component", () => {
 
     render(
       <ThemeProvider theme={theme}>
-        <QuickActions {...props} />
+        <DumbGitQuickActions {...props} />
       </ThemeProvider>,
     );
     const countElement = screen.getByTestId("t--bottom-bar-count");

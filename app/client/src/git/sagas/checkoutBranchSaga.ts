@@ -46,7 +46,7 @@ export default function* checkoutBranchSaga(
         );
 
         yield put(
-          gitArtifactActions.toggleGitBranchListPopup({
+          gitArtifactActions.toggleBranchListPopup({
             ...basePayload,
             open: false,
           }),

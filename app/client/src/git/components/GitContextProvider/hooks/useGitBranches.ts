@@ -5,6 +5,7 @@ import {
   selectBranches,
   selectCheckoutBranch,
   selectCreateBranch,
+  selectCurrentBranch,
   selectDeleteBranch,
 } from "git/store/selectors/gitSingleArtifactSelectors";
 import type { GitRootState } from "git/store/types";
@@ -30,7 +31,8 @@ export interface UseGitBranchesReturnValue {
   checkoutBranchLoading: boolean;
   checkoutBranchError: string | null;
   checkoutBranch: (branchName: string) => void;
-  toggleGitBranchListPopup: (open: boolean) => void;
+  currentBranch: string | null;
+  toggleBranchListPopup: (open: boolean) => void;
 }
 
 export default function useGitBranches({
@@ -102,10 +104,15 @@ export default function useGitBranches({
     [basePayload, dispatch],
   );
 
+  // derived
+  const currentBranch = useSelector((state: GitRootState) =>
+    selectCurrentBranch(state, basePayload),
+  );
+
   // git branch list popup
-  const toggleGitBranchListPopup = (open: boolean) => {
+  const toggleBranchListPopup = (open: boolean) => {
     dispatch(
-      gitArtifactActions.toggleGitBranchListPopup({
+      gitArtifactActions.toggleBranchListPopup({
         ...basePayload,
         open,
       }),
@@ -126,6 +133,7 @@ export default function useGitBranches({
     checkoutBranchLoading: checkoutBranchState?.loading ?? false,
     checkoutBranchError: checkoutBranchState?.error,
     checkoutBranch,
-    toggleGitBranchListPopup,
+    currentBranch: currentBranch ?? null,
+    toggleBranchListPopup,
   };
 }

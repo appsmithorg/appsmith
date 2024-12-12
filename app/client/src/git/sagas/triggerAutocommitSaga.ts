@@ -1,5 +1,8 @@
 import { triggerAutocommitSuccessAction } from "actions/gitSyncActions";
-import { AutocommitStatus, type GitArtifactType } from "git/constants/enums";
+import {
+  AutocommitStatusState,
+  type GitArtifactType,
+} from "git/constants/enums";
 import fetchAutocommitProgressRequest from "git/requests/fetchAutocommitProgressRequest";
 import type {
   FetchAutocommitProgressResponse,
@@ -28,9 +31,9 @@ import { validateResponse } from "sagas/ErrorSagas";
 
 const AUTOCOMMIT_POLL_DELAY = 1000;
 const AUTOCOMMIT_WHITELISTED_STATES = [
-  AutocommitStatus.PUBLISHED,
-  AutocommitStatus.IN_PROGRESS,
-  AutocommitStatus.LOCKED,
+  AutocommitStatusState.PUBLISHED,
+  AutocommitStatusState.IN_PROGRESS,
+  AutocommitStatusState.LOCKED,
 ];
 
 interface PollAutocommitProgressParams {
