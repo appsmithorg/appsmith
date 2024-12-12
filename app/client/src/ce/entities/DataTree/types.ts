@@ -96,7 +96,7 @@ export interface JSActionEntityConfig extends EntityConfig {
   moduleId?: string;
   moduleInstanceId?: string;
   isPublic?: boolean;
-  actionNames: string[];
+  actionNames: Set<string>;
 }
 
 export interface JSActionEntity {

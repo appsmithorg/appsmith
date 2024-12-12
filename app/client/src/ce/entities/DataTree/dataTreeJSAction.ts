@@ -46,7 +46,7 @@ export const generateDataTreeJSAction = (
   const dependencyMap: DependencyMap = {};
 
   dependencyMap["body"] = [];
-  const actions = js.config.actions;
+  const actions = js.config.actions || [];
   // TODO: Fix this the next time the file is edited
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actionsData: Record<string, any> = {};
@@ -89,7 +89,7 @@ export const generateDataTreeJSAction = (
       dynamicBindingPathList: dynamicBindingPathList,
       variables: listVariables,
       dependencyMap: dependencyMap,
-      actionNames: actions.map((action) => action.name),
+      actionNames: new Set(actions.map((action) => action.name)),
     },
   };
 };

@@ -1114,7 +1114,7 @@ export const isPropertyAnEntityAction = (
 
   const { actionNames } = entityConfig as JSActionEntityConfig;
 
-  return actionNames.includes(propertyPath);
+  return actionNames.has(propertyPath);
 };
 
 export const convertMicroDiffToDeepDiff = (
