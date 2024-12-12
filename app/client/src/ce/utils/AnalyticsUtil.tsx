@@ -57,9 +57,6 @@ class AnalyticsUtil {
     // Mixpanel needs to be initialized after Segment
     await MixpanelSingleton.getInstance().init();
 
-    // Initialize the TrackedUser singleton
-    TrackedUser.init(user);
-
     // Identify the user after all services are initialized
     await this.identifyUser(user);
   }
@@ -118,6 +115,9 @@ class AnalyticsUtil {
     if (userData.isAnonymous || userData.username === ANONYMOUS_USERNAME) {
       return;
     }
+
+    // Initialize the TrackedUser singleton
+    TrackedUser.init(userData);
 
     const trackedUser = TrackedUser.getInstance().getUser();
 
