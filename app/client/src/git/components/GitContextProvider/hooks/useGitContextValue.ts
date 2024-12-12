@@ -50,7 +50,6 @@ export default function useGitContextValue({
     () => ({ artifactType, baseArtifactId }),
     [artifactType, baseArtifactId],
   );
-
   const useGitMetadataReturnValue = useGitMetadata(basePayload);
   const useGitConnectReturnValue = useGitConnect(basePayload);
   const useGitOpsReturnValue = useGitOps({

@@ -15,6 +15,8 @@ export const useGitContext = () => {
 
 interface GitContextProviderProps extends UseGitContextValueParams {
   children: React.ReactNode;
+  // extra
+  // connectPermitted?: boolean;
 }
 
 export default function GitContextProvider({

@@ -152,7 +152,6 @@
 .sidebarContentInner {
   flex-grow: 1;
   overflow-y: auto;
-  overflow-x: hidden;
   width: 100%;
 }
 
@@ -163,8 +162,13 @@
  */
 .sidebarHeader {
   height: var(--sizing-13);
+  min-height: var(--sizing-13);
   padding: 0 var(--inner-spacing-2);
   border-bottom: var(--border-width-1) solid var(--color-bd-elevation-1);
+}
+
+.sidebarHeader:empty {
+  display: none;
 }
 
 .sidebarTitle {
@@ -172,4 +176,8 @@
   left: 0;
   right: 0;
   margin: 0 var(--sizing-14);
+}
+
+.sidebarHeaderExpandButton {
+  margin-inline-start: auto;
 }

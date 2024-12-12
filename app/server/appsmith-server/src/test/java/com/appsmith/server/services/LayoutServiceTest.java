@@ -921,7 +921,6 @@ public class LayoutServiceTest {
         Mono<PageDTO> pageMono = createPage(app, testPage).cache();
 
         Mono<LayoutDTO> testMono = createComplexAppForExecuteOnLoad(pageMono);
-
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding(
                         List.of("\"anIgnoredAction.data:\" + aGetAction.data"), EVALUATION_VERSION))
                 .thenReturn(Flux.just(Tuples.of(
