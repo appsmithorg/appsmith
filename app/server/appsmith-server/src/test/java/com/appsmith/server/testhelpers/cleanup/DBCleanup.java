@@ -12,7 +12,7 @@ import java.util.List;
 public class DBCleanup {
     public static void deleteAllTables(JdbcTemplate jdbcTemplate) {
         List<String> tableNames = jdbcTemplate.queryForList(
-                "SELECT tablename FROM pg_tables WHERE schemaname = 'appsmith' AND tablename NOT IN ('user', 'tenant', 'flyway_schema_history')",
+                "SELECT tablename FROM pg_tables WHERE schemaname = 'appsmith' AND tablename NOT IN ('user', 'tenant', 'flyway_schema_history', 'theme')",
                 String.class);
 
         for (String tableName : tableNames) {
