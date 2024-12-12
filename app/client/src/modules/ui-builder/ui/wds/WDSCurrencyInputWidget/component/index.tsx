@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TextInput } from "@appsmith/wds";
+import { Text, TextField } from "@appsmith/wds";
 import type { CurrencyInputComponentProps } from "./types";
 import { CurrencyTypeOptions } from "constants/Currency";
 import { useDebouncedValue } from "@mantine/hooks";
@@ -24,13 +24,14 @@ export function CurrencyInputComponent(props: CurrencyInputComponentProps) {
   const [errorMessage] = useDebouncedValue(props.errorMessage, DEBOUNCE_TIME);
 
   return (
-    <TextInput
+    <TextField
       autoComplete={props.autoComplete}
       autoFocus={props.autoFocus}
       contextualHelp={props.tooltip}
       errorMessage={props.validationStatus === "invalid" ? errorMessage : ""}
       excludeFromTabOrder={props.excludeFromTabOrder}
       isDisabled={props.isDisabled}
+      isInvalid={validationStatus === "invalid"}
       isReadOnly={props.isReadOnly}
       isRequired={props.isRequired}
       label={props.label}
@@ -39,7 +40,6 @@ export function CurrencyInputComponent(props: CurrencyInputComponentProps) {
       onKeyDown={props.onKeyDown}
       placeholder={props.placeholder}
       prefix={prefix}
-      validationState={validationStatus}
       value={props.value}
     />
   );

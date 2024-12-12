@@ -13,7 +13,7 @@ import {
   DATASOURCE_GENERATE_PAGE_BUTTON,
   createMessage,
 } from "ee/constants/messages";
-import Table from "pages/Editor/QueryEditor/Table";
+import Table from "PluginActionEditor/components/PluginActionResponse/components/Table";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
 import {
   getCurrentApplicationId,
@@ -246,7 +246,7 @@ const DatasourceViewModeSchema = (props: Props) => {
 
   return (
     <ViewModeSchemaContainer>
-      <DataWrapperContainer data-testId="datasource-schema-container">
+      <DataWrapperContainer data-testid="t--datasource-schema-container">
         <StructureContainer>
           {props.datasource && (
             <DatasourceStructureHeader

@@ -315,6 +315,14 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         final Set<String> baseActionIds = new HashSet<>();
         baseActionIds.addAll(validBaseActionIds);
 
+        // create duplicate name map
+        final Map<String, Long> actionNameCountMap = actionCollectionDTO.getActions().stream()
+                .collect(Collectors.groupingBy(ActionDTO::getName, Collectors.counting()));
+        List<String> duplicateNames = actionNameCountMap.entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
         final Mono<Map<String, String>> newValidActionIdsMono = branchedActionCollectionMono.flatMap(
                 branchedActionCollection -> Flux.fromIterable(actionCollectionDTO.getActions())
                         .flatMap(actionDTO -> {
@@ -335,11 +343,19 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 actionDTO.setPluginType(actionCollectionDTO.getPluginType());
                                 actionDTO.setPluginId(actionCollectionDTO.getPluginId());
                                 actionDTO.setBranchName(branchedActionCollection.getBranchName());
+
                                 // actionCollectionService is a new action, we need to create one
-                                return layoutActionService
-                                        .createSingleAction(actionDTO, Boolean.TRUE)
-                                        .name(CREATE_ACTION)
-                                        .tap(Micrometer.observation(observationRegistry));
+                                if (duplicateNames.contains(actionDTO.getName())) {
+                                    return Mono.error(new AppsmithException(
+                                            AppsmithError.DUPLICATE_KEY_USER_ERROR,
+                                            actionDTO.getName(),
+                                            FieldName.NAME));
+                                } else {
+                                    return layoutActionService
+                                            .createSingleAction(actionDTO, Boolean.TRUE)
+                                            .name(CREATE_ACTION)
+                                            .tap(Micrometer.observation(observationRegistry));
+                                }
                             } else {
                                 actionDTO.setCollectionId(null);
                                 // Client only knows about the default action ID, fetch branched action id to update the
@@ -375,6 +391,17 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                 .name(DELETE_ACTION)
                 .tap(Micrometer.observation(observationRegistry));
 
+        String body = actionCollectionDTO.getBody();
+        Number lineCount = 0;
+        if (body != null && !body.isEmpty()) {
+            lineCount = body.split("\n").length;
+        }
+        Number actionCount = 0;
+        if (actionCollectionDTO.getActions() != null
+                && !actionCollectionDTO.getActions().isEmpty()) {
+            actionCount = actionCollectionDTO.getActions().size();
+        }
+
         return deleteNonExistingActionMono
                 .then(newValidActionIdsMono)
                 .flatMap(tuple -> {
@@ -392,6 +419,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     });
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
+                .tag("lineCount", lineCount.toString())
+                .tag("actionCount", actionCount.toString())
                 .name(ACTION_COLLECTION_UPDATE)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject)

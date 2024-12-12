@@ -3,7 +3,7 @@ import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Linting warning validation with button widget",
-  { tags: ["@tag.Widget", "@tag.Button"] },
+  { tags: ["@tag.Widget", "@tag.Button", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("buttonLintErrorDsl");

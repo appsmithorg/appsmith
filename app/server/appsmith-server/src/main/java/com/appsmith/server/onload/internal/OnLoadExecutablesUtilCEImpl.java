@@ -14,16 +14,20 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ObservationHelperImpl;
 import com.appsmith.server.onload.executables.ExecutableOnLoadService;
 import com.appsmith.server.services.AstService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.tracing.Span;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -43,6 +47,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.LayoutSpan.ADD_WIDGET_RELATIONSHIP_TO_GRAPH;
+import static com.appsmith.external.constants.spans.LayoutSpan.COMPUTE_ON_PAGE_LOAD_EXECUTABLES_SCHEDULING_ORDER;
+import static com.appsmith.external.constants.spans.LayoutSpan.EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES;
+import static com.appsmith.external.constants.spans.LayoutSpan.FILTER_AND_TRANSFORM_SCHEDULING_ORDER_TO_DTO;
+import static com.appsmith.external.constants.spans.LayoutSpan.RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS;
+import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_DIRECTLY_REFERENCED_EXECUTABLES_TO_GRAPH;
+import static com.appsmith.external.constants.spans.OnLoadSpan.ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH;
+import static com.appsmith.external.constants.spans.OnLoadSpan.EXECUTABLE_NAME_TO_EXECUTABLE_MAP;
+import static com.appsmith.external.constants.spans.OnLoadSpan.GET_ALL_EXECUTABLES_BY_CREATOR_ID;
+import static com.appsmith.external.constants.spans.OnLoadSpan.GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT;
+import static com.appsmith.external.constants.spans.OnLoadSpan.UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS;
 import static com.appsmith.external.helpers.MustacheHelper.EXECUTABLE_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.WIDGET_ENTITY_REFERENCES;
 import static com.appsmith.external.helpers.MustacheHelper.getPossibleParents;
@@ -71,6 +86,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     // TODO : This should contain all the static global variables present on the page like `appsmith`, etc.
     // TODO : Add all the global variables exposed on the client side.
     private final Set<String> APPSMITH_GLOBAL_VARIABLES = Set.of();
+    private final ObservationRegistry observationRegistry;
+    private final ObservationHelperImpl observationHelper;
 
     /**
      * This function computes the sequenced on page load executables.
@@ -129,6 +146,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                             .toList();
                 })
                 .collectMap(Tuple2::getT1, Tuple2::getT2)
+                .name(EXECUTABLE_NAME_TO_EXECUTABLE_MAP)
+                .tap(Micrometer.observation(observationRegistry))
                 .cache();
 
         Mono<Set<String>> executablesInCreatorContextMono = allExecutablesByCreatorIdFlux
@@ -140,14 +159,16 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         Mono<Set<ExecutableDependencyEdge>> directlyReferencedExecutablesToGraphMono =
                 addDirectlyReferencedExecutablesToGraph(
-                        edgesRef,
-                        executablesUsedInDSLRef,
-                        bindingsFromExecutablesRef,
-                        executablesFoundDuringWalkRef,
-                        widgetDynamicBindingsMap,
-                        executableNameToExecutableMapMono,
-                        executableBindingsInDslRef,
-                        evaluatedVersion);
+                                edgesRef,
+                                executablesUsedInDSLRef,
+                                bindingsFromExecutablesRef,
+                                executablesFoundDuringWalkRef,
+                                widgetDynamicBindingsMap,
+                                executableNameToExecutableMapMono,
+                                executableBindingsInDslRef,
+                                evaluatedVersion)
+                        .name(ADD_DIRECTLY_REFERENCED_EXECUTABLES_TO_GRAPH)
+                        .tap(Micrometer.observation(observationRegistry));
 
         // This following `createAllEdgesForPageMono` publisher traverses the executables and widgets to add all
         // possible edges between all possible entity paths
@@ -157,15 +178,17 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         Mono<Set<ExecutableDependencyEdge>> createAllEdgesForPageMono = directlyReferencedExecutablesToGraphMono
                 // Add dependencies of all on page load executables set by the user in the graph
                 .flatMap(updatedEdges -> addExplicitUserSetOnLoadExecutablesToGraph(
-                        creatorId,
-                        updatedEdges,
-                        explicitUserSetOnLoadExecutablesRef,
-                        executablesFoundDuringWalkRef,
-                        bindingsFromExecutablesRef,
-                        executableNameToExecutableMapMono,
-                        executableBindingsInDslRef,
-                        evaluatedVersion,
-                        creatorType))
+                                creatorId,
+                                updatedEdges,
+                                explicitUserSetOnLoadExecutablesRef,
+                                executablesFoundDuringWalkRef,
+                                bindingsFromExecutablesRef,
+                                executableNameToExecutableMapMono,
+                                executableBindingsInDslRef,
+                                evaluatedVersion,
+                                creatorType)
+                        .name(ADD_EXPLICIT_USER_SET_ON_LOAD_EXECUTABLES_TO_GRAPH)
+                        .tap(Micrometer.observation(observationRegistry)))
                 // For all the executables found so far, recursively walk the dynamic bindings of the executables to
                 // find more relationships with other executables (& widgets)
                 .flatMap(updatedEdges -> recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
@@ -174,11 +197,15 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                         bindingsFromExecutablesRef,
                         executableNameToExecutableMapMono,
                         evaluatedVersion))
+                .name(RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS)
+                .tap(Micrometer.observation(observationRegistry))
                 // At last, add all the widget relationships to the graph as well.
                 .zipWith(executablesInCreatorContextMono)
                 .flatMap(tuple -> {
                     Set<ExecutableDependencyEdge> updatedEdges = tuple.getT1();
-                    return addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap, evaluatedVersion);
+                    return addWidgetRelationshipToGraph(updatedEdges, widgetDynamicBindingsMap, evaluatedVersion)
+                            .name(ADD_WIDGET_RELATIONSHIP_TO_GRAPH)
+                            .tap(Micrometer.observation(observationRegistry));
                 });
 
         // Create a graph given edges
@@ -198,11 +225,20 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                     Map<String, Executable> executableNameToExecutableMap = tuple.getT1();
                     DirectedAcyclicGraph<String, DefaultEdge> graph = tuple.getT2();
 
-                    return computeOnPageLoadExecutablesSchedulingOrder(
+                    Span computeOnPageLoadExecutablesSchedulingOrderSpan =
+                            observationHelper.createSpan(COMPUTE_ON_PAGE_LOAD_EXECUTABLES_SCHEDULING_ORDER);
+
+                    observationHelper.startSpan(computeOnPageLoadExecutablesSchedulingOrderSpan, true);
+
+                    List<Set<String>> executablesList = computeOnPageLoadExecutablesSchedulingOrder(
                             graph,
                             onLoadExecutableSetRef,
                             executableNameToExecutableMap,
                             explicitUserSetOnLoadExecutablesRef);
+
+                    observationHelper.endSpan(computeOnPageLoadExecutablesSchedulingOrderSpan, true);
+
+                    return executablesList;
                 })
                 .map(onPageLoadExecutablesSchedulingOrder -> {
                     // Find all explicitly turned on executables which haven't found their way into the scheduling order
@@ -237,6 +273,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                 onLoadExecutableSetRef,
                                 executableNameToExecutableMapMono,
                                 computeOnPageLoadScheduleNamesMono)
+                        .name(FILTER_AND_TRANSFORM_SCHEDULING_ORDER_TO_DTO)
+                        .tap(Micrometer.observation(observationRegistry))
                         .cache();
 
         // With the final on page load scheduling order, also set the on page load executables which would be updated
@@ -398,7 +436,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
     }
 
     protected Flux<Executable> getAllExecutablesByCreatorIdFlux(String creatorId, CreatorContextType creatorType) {
-        return pageExecutableOnLoadService.getAllExecutablesByCreatorIdFlux(creatorId);
+        return pageExecutableOnLoadService
+                .getAllExecutablesByCreatorIdFlux(creatorId)
+                .name(GET_ALL_EXECUTABLES_BY_CREATOR_ID)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     /**
@@ -483,9 +524,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             Set<EntityDependencyNode> bindingsInDsl) {
         // We want to be finding both type of references
         final int entityTypes = EXECUTABLE_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
-
         return executableNameToExecutableMono
-                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion))
+                .zipWith(getPossibleEntityParentsMap(new ArrayList<>(bindings), entityTypes, evalVersion))
                 .map(tuple -> {
                     Map<String, Executable> executableMap = tuple.getT1();
                     // For each binding, here we receive a set of possible references to global entities
@@ -543,6 +583,79 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 });
     }
 
+    private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityReferencesMap(
+            Mono<Map<String, Executable>> executableNameToExecutableMono,
+            List<String> bindings,
+            int evalVersion,
+            Set<EntityDependencyNode> bindingsInDsl) {
+        // We want to be finding both type of references
+        final int entityTypes = EXECUTABLE_ENTITY_REFERENCES | WIDGET_ENTITY_REFERENCES;
+
+        return executableNameToExecutableMono
+                .zipWith(getPossibleEntityParentsMap(bindings, entityTypes, evalVersion))
+                .map(tuple -> {
+                    Map<String, Executable> executableMap = tuple.getT1();
+                    // For each binding, here we receive a set of possible references to global entities
+                    // At this point we're guaranteed that these references are made to possible variables,
+                    // but we do not know if those entities exist in the global namespace yet
+                    Map<String, Set<EntityDependencyNode>> bindingToPossibleParentMap = tuple.getT2();
+
+                    Map<String, Set<EntityDependencyNode>> possibleEntitiesReferencesToBindingMap = new HashMap<>();
+
+                    // From these references, we will try to validate executable references at this point
+                    // Each identified node is already annotated with the expected type of entity we need to search for
+                    bindingToPossibleParentMap.entrySet().stream().forEach(entry -> {
+                        Set<EntityDependencyNode> bindingsWithExecutableReference = new HashSet<>();
+                        String binding = entry.getKey();
+                        Set<EntityDependencyNode> possibleEntitiesReferences = new HashSet<>();
+                        entry.getValue().stream().forEach(possibleParent -> {
+                            // For each possible reference node, check if the reference was to an executable
+                            Executable executable = executableMap.get(possibleParent.getValidEntityName());
+
+                            if (executable != null) {
+                                // If it was, and had been identified as the same type of executable as what exists in
+                                // this app,
+                                if (possibleParent
+                                        .getEntityReferenceType()
+                                        .equals(executable.getEntityReferenceType())) {
+                                    // Copy over some data from the identified executable, this ensures that we do not
+                                    // have
+                                    // to query the DB again later
+                                    possibleParent.setExecutable(executable);
+                                    bindingsWithExecutableReference.add(possibleParent);
+                                    // Only if this is not a direct JS function call,
+                                    // add it to a possible on page load executable call.
+                                    // This discards the following type:
+                                    // {{ JSObject1.func() }}
+                                    if (!TRUE.equals(possibleParent.getIsFunctionCall())) {
+                                        possibleEntitiesReferences.add(possibleParent);
+                                    }
+                                    // We're ignoring any reference that was identified as a widget but actually matched
+                                    // an executable
+                                    // We wouldn't have discarded JS collection names here, but this is just an
+                                    // optimization, so it's fine
+                                }
+                            } else {
+                                // If the reference node was identified as a widget, directly add it as a possible
+                                // reference
+                                // Because we are not doing any validations for widget references at this point
+                                if (EntityReferenceType.WIDGET.equals(possibleParent.getEntityReferenceType())) {
+                                    possibleEntitiesReferences.add(possibleParent);
+                                }
+                            }
+
+                            possibleEntitiesReferencesToBindingMap.put(binding, possibleEntitiesReferences);
+                        });
+
+                        if (!bindingsWithExecutableReference.isEmpty() && bindingsInDsl != null) {
+                            bindingsInDsl.addAll(bindingsWithExecutableReference);
+                        }
+                    });
+
+                    return possibleEntitiesReferencesToBindingMap;
+                });
+    }
+
     /**
      * This method is an abstraction that queries the ast service for possible global references as string values,
      * and then uses the mustache helper utility to classify these global references into possible types of EntityDependencyNodes
@@ -553,9 +666,9 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
      * @return A mono of a map of each of the provided binding values to the possible set of EntityDependencyNodes found in the binding
      */
     private Mono<Map<String, Set<EntityDependencyNode>>> getPossibleEntityParentsMap(
-            Set<String> bindings, int types, int evalVersion) {
+            List<String> bindings, int types, int evalVersion) {
         Flux<Tuple2<String, Set<String>>> findingToReferencesFlux =
-                astService.getPossibleReferencesFromDynamicBinding(new ArrayList<>(bindings), evalVersion);
+                astService.getPossibleReferencesFromDynamicBinding(bindings, evalVersion);
         return MustacheHelper.getPossibleEntityParentsMap(findingToReferencesFlux, types);
     }
 
@@ -586,32 +699,48 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             Mono<Map<String, Executable>> executableNameToExecutableMapMono,
             Set<EntityDependencyNode> executableBindingsInDslRef,
             int evalVersion) {
-        return Flux.fromIterable(widgetDynamicBindingsMap.entrySet())
-                .flatMap(entry -> {
-                    String widgetName = entry.getKey();
-                    // For each widget in the DSL that has a dynamic binding,
-                    // we define an entity dependency node beforehand
-                    // This will be a leaf node in the DAG that is constructed for on page load dependencies
-                    EntityDependencyNode widgetDependencyNode =
-                            new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
-                    Set<String> bindingsInWidget = entry.getValue();
-                    return getPossibleEntityReferences(
-                                    executableNameToExecutableMapMono,
-                                    bindingsInWidget,
-                                    evalVersion,
-                                    executableBindingsInDslRef)
-                            .flatMapMany(Flux::fromIterable)
-                            // Add dependencies of the executables found in the DSL in the graph
-                            // We are ignoring the widget references at this point
-                            // TODO: Possible optimization in the future
-                            .flatMap(possibleEntity -> {
+
+        Map<String, Set<EntityDependencyNode>> bindingToWidgetNodesMap = new HashMap<>();
+        List<String> allBindings = new ArrayList<>();
+
+        widgetDynamicBindingsMap.forEach((widgetName, bindingsInWidget) -> {
+            EntityDependencyNode widgetDependencyNode =
+                    new EntityDependencyNode(EntityReferenceType.WIDGET, widgetName, widgetName, null, null);
+
+            bindingsInWidget.forEach(binding -> {
+                bindingToWidgetNodesMap
+                        .computeIfAbsent(binding, bindingKey -> new HashSet<>())
+                        .add(widgetDependencyNode);
+                allBindings.add(binding);
+            });
+        });
+
+        Mono<Map<String, Set<EntityDependencyNode>>> bindingToPossibleEntityMapMono = getPossibleEntityReferencesMap(
+                executableNameToExecutableMapMono, allBindings, evalVersion, executableBindingsInDslRef);
+
+        return bindingToPossibleEntityMapMono
+                .flatMapMany(bindingToPossibleEntityMap -> Flux.fromIterable(bindingToPossibleEntityMap.entrySet()))
+                .flatMap(bindingEntry -> {
+                    String binding = bindingEntry.getKey();
+                    Set<EntityDependencyNode> possibleEntities = bindingEntry.getValue();
+
+                    // Get all widget nodes associated with the binding
+                    Set<EntityDependencyNode> widgetDependencyNodes =
+                            bindingToWidgetNodesMap.getOrDefault(binding, Set.of());
+
+                    // Process each possibleEntity for the current binding
+                    return Flux.fromIterable(possibleEntities).flatMap(possibleEntity -> Flux.fromIterable(
+                                    widgetDependencyNodes) // Iterate all associated widgets
+                            .flatMap(widgetDependencyNode -> {
                                 if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
                                     edgesRef.add(new ExecutableDependencyEdge(possibleEntity, widgetDependencyNode));
                                     // This executable is directly referenced in the DSL. This executable is an ideal
-                                    // candidate
-                                    // for on page load
+                                    // candidate for on page load
                                     executablesUsedInDSLRef.add(possibleEntity.getValidEntityName());
+
                                     return updateExecutableSelfReferencingPaths(possibleEntity)
+                                            .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
+                                            .tap(Micrometer.observation(observationRegistry))
                                             .flatMap(executable -> extractAndSetExecutableBindingsInGraphEdges(
                                                     possibleEntity,
                                                     edgesRef,
@@ -620,10 +749,12 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                                     executablesFoundDuringWalkRef,
                                                     null,
                                                     evalVersion))
+                                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                                            .tap(Micrometer.observation(observationRegistry))
                                             .thenReturn(possibleEntity);
                                 }
                                 return Mono.just(possibleEntity);
-                            });
+                            }));
                 })
                 .collectList()
                 .thenReturn(edgesRef);
@@ -891,6 +1022,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                 .flatMap(possibleEntity -> {
                     if (getExecutableTypes().contains(possibleEntity.getEntityReferenceType())) {
                         return updateExecutableSelfReferencingPaths(possibleEntity)
+                                .name(UPDATE_EXECUTABLE_SELF_REFERENCING_PATHS)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .then(extractAndSetExecutableBindingsInGraphEdges(
                                         possibleEntity,
                                         edges,
@@ -899,6 +1032,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                         executablesFoundDuringWalk,
                                         null,
                                         evalVersion))
+                                .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                                .tap(Micrometer.observation(observationRegistry))
                                 .thenReturn(possibleEntity);
                     } else {
                         return Mono.empty();
@@ -910,7 +1045,13 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
             // Now that the next set of bindings have been found, find recursively all executables by these names
             // and their bindings
             return recursivelyAddExecutablesAndTheirDependentsToGraphFromBindings(
-                    edges, executablesFoundDuringWalk, newBindings, executableNameToExecutableMapMono, evalVersion);
+                            edges,
+                            executablesFoundDuringWalk,
+                            newBindings,
+                            executableNameToExecutableMapMono,
+                            evalVersion)
+                    .name(RECURSIVELY_ADD_EXECUTABLES_AND_THEIR_DEPENDENTS_TO_GRAPH_FROM_BINDINGS)
+                    .tap(Micrometer.observation(observationRegistry));
         });
     }
 
@@ -945,6 +1086,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         // First fetch all the executables which have been tagged as on load by the user explicitly.
         return getUnpublishedOnLoadExecutablesExplicitSetByUserInCreatorContextFlux(creatorId, creatorType)
+                .name(GET_UNPUBLISHED_ON_LOAD_EXECUTABLES_EXPLICIT_SET_BY_USER_IN_CREATOR_CONTEXT)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMap(this::fillSelfReferencingPaths)
                 // Add the vertices and edges to the graph for these executables
                 .flatMap(executable -> {
@@ -963,6 +1106,8 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     executablesFoundDuringWalkRef,
                                     executableBindingsInDsl,
                                     evalVersion)
+                            .name(EXTRACT_AND_SET_EXECUTABLE_BINDINGS_IN_GRAPH_EDGES)
+                            .tap(Micrometer.observation(observationRegistry))
                             .thenReturn(executable);
                 })
                 .collectList()
@@ -1075,7 +1220,7 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
         // This part will ensure that we are discovering widget to widget relationships.
         return Flux.fromIterable(widgetBindingMap.entrySet())
                 .flatMap(widgetBindingEntries -> getPossibleEntityParentsMap(
-                                widgetBindingEntries.getValue(), entityTypes, evalVersion)
+                                new ArrayList<>(widgetBindingEntries.getValue()), entityTypes, evalVersion)
                         .map(possibleParentsMap -> {
                             possibleParentsMap.entrySet().stream().forEach(entry -> {
                                 if (entry.getValue() == null || entry.getValue().isEmpty()) {

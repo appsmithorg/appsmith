@@ -17,7 +17,7 @@ import EditorNavigation, {
 
 describe(
   "Boolean & Enum Datatype tests",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let dsName: any, query: string;
 
@@ -67,7 +67,7 @@ describe(
         "public.boolenumtypes",
         "Select",
       );
-      agHelper.RenameWithInPane("selectRecords");
+      agHelper.RenameQuery("selectRecords");
       dataSources.RunQuery();
       agHelper
         .GetText(dataSources._noRecordFound)
@@ -169,7 +169,7 @@ describe(
       table.WaitUntilTableLoad();
       query = `SELECT * FROM boolenumtypes WHERE workingday > 'Tuesday';`;
       entityExplorer.CreateNewDsQuery(dsName);
-      agHelper.RenameWithInPane("verifyEnumOrdering");
+      agHelper.RenameQuery("verifyEnumOrdering");
       dataSources.EnterQuery(query);
       dataSources.RunQuery();
       dataSources.ReadQueryTableResponse(1).then(($cellData) => {

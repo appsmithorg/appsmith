@@ -8,10 +8,21 @@ import {
   jsEditor,
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
+import { PluginActionForm } from "../../../../support/Pages/PluginActionForm";
+
+let pluginActionForm = new PluginActionForm();
 
 describe(
   "Undo/Redo functionality",
-  { tags: ["@tag.JS", "@tag.Datasource"] },
+  {
+    tags: [
+      "@tag.JS",
+      "@tag.Datasource",
+      "@tag.Git",
+      "@tag.AccessControl",
+      "@tag.Binding",
+    ],
+  },
   function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     let postgresDatasourceName;
@@ -59,7 +70,7 @@ describe(
       );
       cy.get(`${apiwidget.headerKey}`).type("Authorization");
       cy.get("body").click(0, 0);
-      cy.get(apiwidget.settings).click({ force: true });
+      pluginActionForm.toolbar.toggleSettings();
       //cy.get(apiwidget.onPageLoad).click({ force: true });
       cy.get("body").click(0, 0);
       cy.get("body").type(`{${modifierKey}}z`);

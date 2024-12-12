@@ -140,16 +140,17 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
     return (
       <Modal
-        dataAttributes={{
+        isOpen={this.state.isVisible as boolean}
+        onClose={this.onModalClose}
+        overlayProps={{
           [AnvilDataAttributes.MODAL_SIZE]: this.props.size,
           [AnvilDataAttributes.WIDGET_NAME]: this.props.widgetName,
           [AnvilDataAttributes.IS_SELECTED_WIDGET]: this.props.isWidgetSelected
             ? "true"
             : "false",
         }}
-        isOpen={this.state.isVisible as boolean}
-        onClose={this.onModalClose}
         setOpen={(val) => this.setState({ isVisible: val })}
+        size={this.props.size}
       >
         {this.state.isVisible && (
           <ModalContent className={modalClassNames.trim()}>

@@ -11,7 +11,7 @@ let jsName: any;
 
 describe(
   "JSObjects OnLoad Actions tests",
-  { tags: ["@tag.PropertyPane", "@tag.JS"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Binding"] },
   function () {
     it("1. Tc 51, 52 Verify that JS editor function has a settings button available for functions", () => {
       jsEditor.CreateJSObject(
@@ -66,7 +66,7 @@ describe(
     });
 
     function VerifyFunctionDropdown(functions: string[]) {
-      cy.get(jsEditor._funcDropdown).click();
+      cy.get(jsEditor.runFunctionSelectLocator).click({ force: true });
       cy.get(jsEditor._funcDropdownOptions).then(function ($ele) {
         expect($ele.eq(0).text()).to.be.oneOf(functions);
         expect($ele.eq(1).text()).to.be.oneOf(functions);
@@ -76,7 +76,7 @@ describe(
         expect($ele.eq(5).text()).to.be.oneOf(functions);
         expect($ele.eq(6).text()).to.be.oneOf(functions);
       });
-      cy.get(jsEditor._funcDropdown).click();
+      cy.get(jsEditor.runFunctionSelectLocator).click({ force: true });
     }
   },
 );

@@ -12,7 +12,7 @@ import EditorNavigation, {
 
 describe(
   "List v2 - Data Identifier property",
-  { tags: ["@tag.Widget", "@tag.List"] },
+  { tags: ["@tag.Widget", "@tag.List", "@tag.Binding"] },
   () => {
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();

@@ -5,9 +5,12 @@ import {
   apiPage,
 } from "../../../support/Objects/ObjectsCore";
 
-describe(
+//Skip test case due to : https://github.com/appsmithorg/appsmith/issues/37353
+describe.skip(
   "Create a rest datasource",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     it("1. Create a rest datasource + Bug 14566", function () {
       apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods);

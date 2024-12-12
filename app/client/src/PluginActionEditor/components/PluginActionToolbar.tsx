@@ -3,9 +3,15 @@ import { IDEToolbar } from "IDE";
 import { Button, Menu, MenuContent, MenuTrigger, Tooltip } from "@appsmith/ads";
 import { modText } from "utils/helpers";
 import { usePluginActionContext } from "../PluginActionContext";
-import { useDispatch } from "react-redux";
-import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import { runAction } from "actions/pluginActionActions";
+import {
+  useBlockExecution,
+  useHandleRunClick,
+  useAnalyticsOnRunClick,
+} from "../hooks";
+import { useToggle } from "@mantine/hooks";
+import { useSelector } from "react-redux";
+import { isActionRunning } from "../store";
+import PluginActionSettings from "./PluginActionSettings";
 
 interface PluginActionToolbarProps {
   runOptions?: React.ReactNode;
@@ -14,25 +20,17 @@ interface PluginActionToolbarProps {
 }
 
 const PluginActionToolbar = (props: PluginActionToolbarProps) => {
-  const { action, datasource, plugin } = usePluginActionContext();
-  const dispatch = useDispatch();
-  const handleRunClick = useCallback(() => {
-    AnalyticsUtil.logEvent("RUN_QUERY_CLICK", {
-      actionName: action.name,
-      actionId: action.id,
-      pluginName: plugin.name,
-      datasourceId: datasource?.id,
-      isMock: datasource?.isMock,
-    });
-    dispatch(runAction(action.id));
-  }, [
-    action.id,
-    action.name,
-    datasource?.id,
-    datasource?.isMock,
-    dispatch,
-    plugin.name,
-  ]);
+  const { action } = usePluginActionContext();
+  const { handleRunClick } = useHandleRunClick();
+  const { callRunActionAnalytics } = useAnalyticsOnRunClick();
+  const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
+  const blockExecution = useBlockExecution();
+  const isRunning = useSelector(isActionRunning(action.id));
+
+  const onRunClick = useCallback(() => {
+    callRunActionAnalytics();
+    handleRunClick();
+  }, [callRunActionAnalytics, handleRunClick]);
 
   return (
     <IDEToolbar>
@@ -44,19 +42,22 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
           placement="topRight"
           showArrow={false}
         >
-          <Button kind="primary" onClick={handleRunClick} size="sm">
+          <Button
+            data-testid="t--run-action"
+            isDisabled={blockExecution}
+            isLoading={isRunning}
+            kind="primary"
+            onClick={onRunClick}
+            size="sm"
+          >
             Run
           </Button>
         </Tooltip>
-        <Button
-          isIconButton
-          kind="secondary"
-          size="sm"
-          startIcon="settings-2-line"
-        />
-        <Menu key={action.id}>
+        <PluginActionSettings />
+        <Menu onOpenChange={toggleMenuOpen} open={isMenuOpen}>
           <MenuTrigger>
             <Button
+              data-testid="t--more-action-trigger"
               isIconButton
               kind="tertiary"
               size="sm"

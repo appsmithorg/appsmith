@@ -1,7 +1,8 @@
 import type { AppState } from "ee/reducers";
 import { createSelector } from "reselect";
 
-import { POST_BODY_FORM_DATA_KEY } from "../constants";
+import { POST_BODY_FORM_DATA_KEY } from "./constants";
+import { POST_BODY_FORMAT_OPTIONS } from "../constants/CommonApiConstants";
 
 export const getActionEditorSavingMap = (state: AppState) =>
   state.ui.pluginActionEditor.isSaving;
@@ -37,19 +38,25 @@ export const isActionDeleting = (id: string) =>
     (deletingMap) => id in deletingMap && deletingMap[id],
   );
 
-type GetFormData = (
-  state: AppState,
-  id: string,
-) => { label: string; value: string } | undefined;
+export const getFormData = (state: AppState) =>
+  state.ui.pluginActionEditor.formData;
 
-export const getPostBodyFormat: GetFormData = (state, id) => {
-  const formData = state.ui.pluginActionEditor.formData;
+type GetFormPostBodyFormat = (state: AppState) => {
+  label: string;
+  value: string;
+};
 
-  if (id in formData) {
-    return formData[id][POST_BODY_FORM_DATA_KEY];
+export const getPostBodyFormat: GetFormPostBodyFormat = (state) => {
+  const formData = getFormData(state);
+
+  if (POST_BODY_FORM_DATA_KEY in formData) {
+    return formData[POST_BODY_FORM_DATA_KEY];
   }
 
-  return undefined;
+  return {
+    label: POST_BODY_FORMAT_OPTIONS.NONE,
+    value: POST_BODY_FORMAT_OPTIONS.NONE,
+  };
 };
 export const getPluginActionConfigSelectedTab = (state: AppState) =>
   state.ui.pluginActionEditor.selectedConfigTab;
@@ -59,3 +66,6 @@ export const getPluginActionDebuggerState = (state: AppState) =>
 
 export const isPluginActionCreating = (state: AppState) =>
   state.ui.pluginActionEditor.isCreating;
+
+export const isPluginActionSettingsOpen = (state: AppState) =>
+  state.ui.pluginActionEditor.settingsOpen;

@@ -113,8 +113,7 @@ class WDSCheckboxGroupWidget extends BaseWidget<
   };
 
   getWidgetView() {
-    const { labelTooltip, options, selectedValues, widgetId, ...rest } =
-      this.props;
+    const { labelTooltip, options, selectedValues, ...rest } = this.props;
 
     const validation = validateInput(this.props);
 
@@ -124,19 +123,18 @@ class WDSCheckboxGroupWidget extends BaseWidget<
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
         isInvalid={validation.validationStatus === "invalid"}
-        items={options}
         onChange={this.onChange}
         value={selectedValues}
       >
-        {({ index, label, value }) => (
+        {options.map((option) => (
           <Checkbox
             excludeFromTabOrder={this.props.disableWidgetInteraction}
-            key={`${widgetId}-option-${index}`}
-            value={value}
+            key={option.value}
+            value={option.value}
           >
-            {label}
+            {option.label}
           </Checkbox>
-        )}
+        ))}
       </ToggleGroup>
     );
   }

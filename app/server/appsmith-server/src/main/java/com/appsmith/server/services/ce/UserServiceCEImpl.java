@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.WWWFormCodec;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -568,6 +569,15 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return userFromRepository.flatMap(existingUser -> this.update(existingUser, update));
     }
 
+    @Override
+    public Mono<Integer> updateWithoutPermission(String id, UpdateDefinition updateObj) {
+        Mono<User> userFromRepository = repository
+                .findById(id)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, id)));
+
+        return userFromRepository.flatMap(existingUser -> repository.updateById(id, updateObj));
+    }
+
     private Mono<User> update(User existingUser, User userUpdate) {
 
         // The password is being updated. Hash it first and then store it
@@ -618,9 +628,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         if (allUpdates.hasUserDataUpdates()) {
             final UserData updates = new UserData();
-            if (StringUtils.hasLength(allUpdates.getRole())) {
-                updates.setRole(allUpdates.getRole());
-            }
             if (StringUtils.hasLength(allUpdates.getProficiency())) {
                 updates.setProficiency(allUpdates.getProficiency());
             }

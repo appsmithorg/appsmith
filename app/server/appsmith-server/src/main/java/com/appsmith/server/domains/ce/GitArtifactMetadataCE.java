@@ -2,6 +2,7 @@ package com.appsmith.server.domains.ce;
 
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.constants.ce.RefType;
 import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
@@ -23,6 +24,16 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
     // Git branch corresponding to this application, we have one to one mapping for application in DB with git-branch
     @JsonView(Views.Public.class)
     String branchName;
+
+    // TODO: make this public view and remove transient annotation once implmentation completes
+    @Transient
+    @JsonView(Views.Internal.class)
+    String refName;
+
+    // TODO: make this public view and remove transient annotation once implementation completes
+    @Transient
+    @JsonView(Views.Internal.class)
+    RefType refType;
 
     // Git default branch corresponding to the remote git repo to which the application is connected to
     @JsonView(Views.Public.class)
@@ -109,7 +120,8 @@ public class GitArtifactMetadataCE implements AppsmithDomain {
     }
 
     // TODO : Set to private to prevent direct access unless migration is performed
-    private void setDefaultArtifactId(String defaultArtifactId) {
+    // TODO: reevaluate the above TODO bit
+    public void setDefaultArtifactId(String defaultArtifactId) {
         this.defaultArtifactId = defaultArtifactId;
     }
 

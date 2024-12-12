@@ -48,6 +48,10 @@ export const propertyPaneContentConfig = [
             label: "Currency",
             value: "CURRENCY",
           },
+          {
+            label: "Date",
+            value: "DATE",
+          },
         ],
         isBindProperty: false,
         isTriggerProperty: false,

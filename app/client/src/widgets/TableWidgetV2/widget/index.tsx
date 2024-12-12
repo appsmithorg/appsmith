@@ -3,6 +3,7 @@ import log from "loglevel";
 import memoizeOne from "memoize-one";
 
 import _, {
+  cloneDeep,
   filter,
   isArray,
   isEmpty,
@@ -58,6 +59,7 @@ import {
   DEFAULT_MENU_VARIANT,
   defaultEditableCell,
   EditableCellActions,
+  HTML_COLUMN_TYPE_ENABLED,
   InlineEditingSaveOptions,
   ORIGINAL_INDEX_KEY,
   PaginationDirection,
@@ -139,6 +141,7 @@ import {
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { klonaRegularWithTelemetry } from "utils/helpers";
+import HTMLCell from "../component/cellComponents/HTMLCell";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -226,6 +229,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       )
         ? false
         : undefined,
+      customIsLoading: false,
+      customIsLoadingValue: "",
     };
   }
 
@@ -909,6 +914,36 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       //dont neet to batch this since single action
       this.hydrateStickyColumns();
     }
+
+    /**
+     * Why we are doing this?
+     * This is a safety net! Consider this scenario:
+     * 1. HTML column type is enabled.
+     * 2. User creates a table with HTML columns.
+     * 3. HTML column type is disabled. (For any reason)
+     *
+     * In this scenario, we don't want incomplete experience for the user.
+     * Without this safety net, the property pane will not show the HTML as type and the `ColumnType` will be lost(and empty), which is confusing for the user.
+     * With this safety net, we will update the column type to TEXT.
+     * @rahulbarwal Remove this once we remove the feature flag
+     */
+    if (!TableWidgetV2.getFeatureFlag(HTML_COLUMN_TYPE_ENABLED)) {
+      const updatedPrimaryColumns = cloneDeep(this.props.primaryColumns);
+      let hasHTMLColumns = false;
+
+      Object.values(updatedPrimaryColumns).forEach(
+        (column: ColumnProperties) => {
+          if (column.columnType === ColumnTypes.HTML) {
+            column.columnType = ColumnTypes.TEXT;
+            hasHTMLColumns = true;
+          }
+        },
+      );
+
+      if (hasHTMLColumns) {
+        this.updateWidgetProperty("primaryColumns", updatedPrimaryColumns);
+      }
+    }
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
@@ -1211,6 +1246,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
   getWidgetView() {
     const {
+      customIsLoading,
+      customIsLoadingValue,
       delimiter,
       filteredTableData = [],
       isVisibleDownload,
@@ -1266,7 +1303,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           height={componentHeight}
           isAddRowInProgress={this.props.isAddRowInProgress}
           isEditableCellsValid={this.props.isEditableCellsValid}
-          isLoading={this.props.isLoading}
+          isLoading={
+            customIsLoading
+              ? customIsLoadingValue || this.props.isLoading
+              : this.props.isLoading
+          }
           isSortable={this.props.isSortable ?? true}
           isVisibleDownload={isVisibleDownload}
           isVisibleFilters={isVisibleFilters}
@@ -2506,6 +2547,25 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
             widgetId={this.props.widgetId}
+          />
+        );
+
+      case ColumnTypes.HTML:
+        return (
+          <HTMLCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            cellBackground={cellProperties.cellBackground}
+            compactMode={compactMode}
+            fontStyle={cellProperties.fontStyle}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellDisabled={cellProperties.isCellDisabled}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+            renderMode={this.props.renderMode}
+            textColor={cellProperties.textColor}
+            textSize={cellProperties.textSize}
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
           />
         );
 

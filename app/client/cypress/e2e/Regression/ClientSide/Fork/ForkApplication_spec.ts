@@ -25,7 +25,9 @@ let forkableAppUrl: any;
 
 describe(
   "Fork application across workspaces",
-  { tags: ["@tag.Fork"] },
+  {
+    tags: ["@tag.Fork", "@tag.Datasource", "@tag.Git", "@tag.Table", "@tag.JS"],
+  },
   function () {
     it("1. Mark application as forkable", () => {
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));

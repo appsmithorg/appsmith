@@ -9,7 +9,7 @@ const testString = "test";
 
 describe(
   "datasource unsaved changes popup shows even without changes",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     // In case of postgres and other plugins, host address and port key values are initialized by default making form dirty
     it("1. Bug 18664: Create postgres datasource, save it and edit it and go back, now unsaved changes popup should not be shown", () => {
@@ -20,7 +20,7 @@ describe(
         // because I do not need to fill the datasource form and use the same default data
         _.dataSources.CreatePlugIn("PostgreSQL");
         dsName = "Postgres" + uid;
-        _.agHelper.RenameWithInPane(dsName, false);
+        _.agHelper.RenameDatasource(dsName);
         _.dataSources.SaveDatasource();
         _.agHelper.Sleep();
         _.dataSources.EditDatasource();
@@ -39,7 +39,7 @@ describe(
         // because I do not need to fill the datasource form and use the same default data
         _.dataSources.CreatePlugIn("Authenticated API");
         dsName = "AuthDS" + uid;
-        _.agHelper.RenameWithInPane(dsName, false);
+        _.agHelper.RenameDatasource(dsName);
         _.dataSources.FillAuthAPIUrl();
         _.dataSources.SaveDatasource();
         _.agHelper.Sleep();
@@ -62,7 +62,7 @@ describe(
         // because I do not need to fill the datasource form and use the same default data
         _.dataSources.CreatePlugIn("MongoDB");
         dsName = "Mongo" + uid;
-        _.agHelper.RenameWithInPane(dsName, false);
+        _.agHelper.RenameDatasource(dsName);
         _.dataSources.FillMongoDSForm();
         _.dataSources.SaveDatasource();
         _.agHelper.Sleep();
@@ -86,7 +86,7 @@ describe(
         // because I do not need to fill the datasource form and use the same default data
         _.dataSources.CreatePlugIn("MongoDB");
         dsName = "Mongo" + uid;
-        _.agHelper.RenameWithInPane(dsName, false);
+        _.agHelper.RenameDatasource(dsName);
         _.dataSources.FillMongoDSForm();
         _.dataSources.SaveDatasource();
         _.agHelper.Sleep();
@@ -110,7 +110,7 @@ describe(
         // because I do not need to fill the datasource form and use the same default data
         _.dataSources.CreatePlugIn("MongoDB");
         dsName = "Mongo" + uid;
-        _.agHelper.RenameWithInPane(dsName, false);
+        _.agHelper.RenameDatasource(dsName);
         _.dataSources.FillMongoDSForm();
         _.dataSources.SaveDatasource();
         _.agHelper.Sleep();
@@ -133,7 +133,7 @@ describe(
         // because I do not need to fill the datasource form and use the same default data
         _.dataSources.CreatePlugIn("MongoDB");
         dsName = "Mongo" + uid;
-        _.agHelper.RenameWithInPane(dsName, false);
+        _.agHelper.RenameDatasource(dsName);
         _.dataSources.FillMongoDSForm();
         _.dataSources.SaveDatasource();
         _.agHelper.Sleep();

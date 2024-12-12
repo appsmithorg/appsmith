@@ -27,12 +27,12 @@ app/client/src/widgets/wds/* @appsmithorg/wds-team @appsmithorg/anvil-team
 app/client/src/layoutSystems/anvil/* @appsmithorg/anvil-team
 
 # App viewers pod
-app/client/src/widgets/* @appsmithorg/app-viewers
-app/client/src/components/propertyControls/* @appsmithorg/app-viewers
-app/client/src/sagas/OneClickBindingSaga.ts @appsmithorg/app-viewers
-app/client/src/WidgetQueryGenerators/* @appsmithorg/app-viewers
-app/client/src/components/editorComponents/WidgetQueryGeneratorForm/* @appsmithorg/app-viewers
-app/client/src/pages/AppViewer/* @appsmithorg/app-viewers
+app/client/src/widgets/* @appsmithorg/widgets-blocks
+app/client/src/components/propertyControls/* @appsmithorg/widgets-blocks
+app/client/src/sagas/OneClickBindingSaga.ts @appsmithorg/widgets-blocks
+app/client/src/WidgetQueryGenerators/* @appsmithorg/widgets-blocks
+app/client/src/components/editorComponents/WidgetQueryGeneratorForm/* @appsmithorg/widgets-blocks
+app/client/src/pages/AppViewer/* @appsmithorg/widgets-blocks
 
 # New Developers Pod
 app/server/appsmith-server/src/main/java/com/appsmith/server/featureflags/* @nilanshbansal
@@ -190,11 +190,12 @@ app/client/src/ce/JSFunctionExecutionSaga.ts @ApekshaBhosale
 app/client/src/ee/JSFunctionExecutionSaga.ts @ApekshaBhosale
 
 # Enterprise Success
-app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/**/* @sharat87 @abhvsn
+app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/**/* @sharat87 @abhvsn @AnaghHegde
 
 # DevOps & Shri
 deploy/**/* @sharat87 @pratapaprasanna
 .github/workflows/*.yml @sharat87
+app/client/packages/ctl/**/* @sharat87 @pratapaprasanna
 app/server/**/pom.xml @sharat87
 app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/BaseAppsmithRepositoryCEImpl.java @sharat87
 app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/params/QueryAllParams.java @sharat87

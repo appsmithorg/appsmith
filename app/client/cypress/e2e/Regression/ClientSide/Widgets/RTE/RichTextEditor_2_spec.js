@@ -36,7 +36,7 @@ const testCursorPoistion = (textValueLen, tinyMceId) => {
 
 describe(
   "RichTextEditor Widget Functionality",
-  { tags: ["@tag.Widget", "@tag.TextEditor"] },
+  { tags: ["@tag.Widget", "@tag.TextEditor", "@tag.Binding"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formdsl1");
@@ -137,18 +137,18 @@ describe(
       cy.get('[aria-label="Underline"]').should("exist");
 
       //Check if button for Background Color is rendered only once within the Toolbar of RTE widget
-      cy.get('[data-mce-name="backcolor"]').should("have.length", 1);
+      cy.get('[aria-label="Background color Black"]').should("have.length", 1);
 
       //Check if button for Text Color is rendered only once within the Toolbar of RTE widget
-      cy.get('[data-mce-name="forecolor"]').should("have.length", 1);
+      cy.get('[aria-label="Text color Black"]').should("have.length", 1);
     });
 
     it("6. Check if able to add an emoji through toolbar", () => {
-      cy.get('[data-mce-name="overflow-button"]').click({ force: true });
-      cy.wait(500);
-      cy.get('[data-mce-name="emoticons"]').click({ force: true });
-      cy.wait(500);
-      cy.get('[data-mce-tooltip="grinning"]').click({ force: true });
+      cy.get('[aria-label="Reveal or hide additional toolbar items"]').click({
+        force: true,
+      });
+      cy.get('[aria-label="Emojis"]').click({ force: true });
+      cy.get('[aria-label="grinning"]').click({ force: true });
       const getEditorContent = (win) => {
         const tinyMceId = "rte-component-vw4zehojqt";
         const editor = win.tinymce.EditorManager.get(tinyMceId);

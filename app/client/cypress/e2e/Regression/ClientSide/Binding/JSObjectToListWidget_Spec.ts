@@ -2,6 +2,8 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
+
 let valueToTest: any, jsName: any;
 
 describe(
@@ -17,7 +19,7 @@ describe(
         _.dataManager.dsValues[_.dataManager.defaultEnviorment].mockApiUrl,
       );
       _.apiPage.RunAPI();
-      _.agHelper.GetNClick(_.dataSources._queryResponse("JSON"));
+      BottomTabs.response.selectResponseResponseTypeFromMenu("JSON");
       _.apiPage.ReadApiResponsebyKey("name");
       cy.get("@apiResp").then((value) => {
         valueToTest = value;

@@ -1,6 +1,4 @@
 import React from "react";
-import { useLocation } from "react-router";
-import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { useSelector } from "react-redux";
 import {
   getActionByBaseId,
@@ -20,15 +18,15 @@ import { useActionSettingsConfig } from "./hooks";
 
 interface ChildrenProps {
   children: React.ReactNode | React.ReactNode[];
+  actionId: string;
 }
 
 const PluginActionEditor = (props: ChildrenProps) => {
-  const { pathname } = useLocation();
-
   const isEditorInitialized = useIsEditorInitialised();
 
-  const entity = identifyEntityFromPath(pathname);
-  const action = useSelector((state) => getActionByBaseId(state, entity.id));
+  const action = useSelector((state) =>
+    getActionByBaseId(state, props.actionId),
+  );
 
   const pluginId = get(action, "pluginId", "");
   const plugin = useSelector((state) => getPlugin(state, pluginId));
@@ -59,16 +57,6 @@ const PluginActionEditor = (props: ChildrenProps) => {
       <CenteredWrapper>
         <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
           Plugin not installed!
-        </Text>
-      </CenteredWrapper>
-    );
-  }
-
-  if (!settingsConfig || !editorConfig) {
-    return (
-      <CenteredWrapper>
-        <Text color="var(--ads-v2-color-fg-error)" kind="heading-m">
-          Editor config not found!
         </Text>
       </CenteredWrapper>
     );

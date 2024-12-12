@@ -85,15 +85,6 @@ export const WithLabel: Story = {
   render: (args) => <TagGroupExample {...args} />,
 };
 
-export const WithDescription: Story = {
-  args: {
-    label: "Categories",
-    description: "Select one or more categories.",
-    selectionMode: "multiple",
-  },
-  render: (args) => <TagGroupExample {...args} />,
-};
-
 export const WithError: Story = {
   args: {
     label: "Categories",

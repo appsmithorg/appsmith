@@ -20,6 +20,11 @@ export interface AppsmithUIConfigs {
     enabled: boolean;
     id: string;
   };
+  observability: {
+    deploymentName: string;
+    serviceInstanceId: string;
+    serviceName: string;
+  };
   newRelic: {
     enableNewRelic: boolean;
     accountId: string;
@@ -27,7 +32,6 @@ export interface AppsmithUIConfigs {
     browserAgentlicenseKey: string;
     browserAgentEndpoint: string;
     otlpLicenseKey: string;
-    otlpServiceName: string;
     otlpEndpoint: string;
   };
   segment: {
@@ -39,15 +43,11 @@ export interface AppsmithUIConfigs {
     enabled: boolean;
     licenseKey: string;
   };
-  algolia: {
-    enabled: boolean;
-    apiId: string;
-    apiKey: string;
-    indexName: string;
-    snippetIndex: string;
-  };
 
-  enableMixpanel: boolean;
+  mixpanel: {
+    enabled: boolean;
+    apiKey: string;
+  };
 
   cloudHosting: boolean;
 
@@ -55,8 +55,6 @@ export interface AppsmithUIConfigs {
   appVersion: AppVersionData;
   intercomAppID: string;
   mailEnabled: boolean;
-
-  cloudServicesBaseUrl: string;
 
   googleRecaptchaSiteKey: {
     enabled: boolean;

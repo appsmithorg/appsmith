@@ -6,7 +6,7 @@ import {
 
 describe(
   "Modal Widget background color spec",
-  { tags: ["@tag.Widget", "@tag.Modal"] },
+  { tags: ["@tag.Widget", "@tag.Modal", "@tag.Binding"] },
   () => {
     before(() => {
       agHelper.AddDsl("modalWidgetBGcolorDSL");

@@ -16,7 +16,7 @@ let datasourceName;
 
 describe(
   "Entity explorer tests related to copy query",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     beforeEach(() => {
       dataSources.StartDataSourceRoutes();
@@ -41,7 +41,7 @@ describe(
       dataSources.EnterQuery("select * from users");
 
       cy.EvaluateCurrentValue("select * from users");
-      cy.get(".t--action-name-edit-field").click({ force: true });
+
       cy.get("@saveDatasource").then((httpResponse) => {
         datasourceName = httpResponse.response.body.data.name;
         PageLeftPane.switchSegment(PagePaneSegment.Queries);

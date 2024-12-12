@@ -116,6 +116,11 @@ export const StyledButton = styled((props) => (
       "dimension",
       "hasOnClickAction",
       "compactMode",
+      "buttonColor",
+      "primaryColor",
+      "navColorStyle",
+      "isMinimal",
+      "insideSidebar",
     ])}
   />
 ))<ThemeProp & ButtonStyleProps>`

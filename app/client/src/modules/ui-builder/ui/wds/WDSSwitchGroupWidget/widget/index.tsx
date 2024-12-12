@@ -2,9 +2,9 @@ import React from "react";
 import xor from "lodash/xor";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
+import { Switch, ToggleGroup } from "@appsmith/wds";
 import type { SetterConfig } from "entities/AppTheming";
 import type { AnvilConfig } from "WidgetProvider/constants";
-import { Switch, ToggleGroup } from "@appsmith/wds";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import {
@@ -118,20 +118,19 @@ class WDSSwitchGroupWidget extends BaseWidget<
       <ToggleGroup
         {...rest}
         contextualHelp={labelTooltip}
-        items={options}
         onChange={this.onChange}
         value={selectedValues}
       >
-        {({ index, label, value }) => (
+        {options.map((option) => (
           <Switch
             excludeFromTabOrder={disableWidgetInteraction}
-            key={`${widgetId}-option-${index}`}
+            key={`${widgetId}-option-${option.value}`}
             labelPosition={labelPosition}
-            value={value}
+            value={option.value}
           >
-            {label}
+            {option.label}
           </Switch>
-        )}
+        ))}
       </ToggleGroup>
     );
   }

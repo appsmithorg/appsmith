@@ -15,7 +15,7 @@ import EditorNavigation, {
 
 describe(
   "JSObjects OnLoad Actions tests",
-  { tags: ["@tag.PropertyPane", "@tag.JS"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.AddDsl("tableWidgetDsl");
@@ -46,7 +46,7 @@ describe(
     it("2. Shows when API failed to load on page load.", function () {
       cy.fixture("testdata").then(function (dataSet: any) {
         apiPage.CreateAndFillApi(
-          "https://www.appsmith.com/" + dataSet.methods,
+          "https://www.google.com/" + dataSet.methods,
           "PageLoadApi2",
         );
       });
@@ -59,11 +59,12 @@ describe(
         `{{PageLoadApi2.data.data}}`,
       );
       agHelper.RefreshPage();
-      debuggerHelper.AssertDebugError(
-        'The action "PageLoadApi2" has failed.',
-        "",
+      debuggerHelper.OpenDebugger();
+      debuggerHelper.ClickLogsTab();
+      debuggerHelper.DoesConsoleLogExist(
+        "Failed execution",
         true,
-        false,
+        "PageLoadApi2",
       );
     });
 

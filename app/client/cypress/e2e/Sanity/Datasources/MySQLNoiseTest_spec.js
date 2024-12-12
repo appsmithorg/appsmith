@@ -9,11 +9,14 @@ import {
   dataSources,
   debuggerHelper,
 } from "../../../support/Objects/ObjectsCore";
+
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe(
   "MySQL noise test",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     let datasourceName;
 
@@ -68,7 +71,7 @@ describe(
       debuggerHelper.OpenDebugger();
       debuggerHelper.ClickLogsTab();
       debuggerHelper.DoesConsoleLogExist(
-        "Execution failed with status PE-STC-5000",
+        "Failed execution",
         true,
         "NoiseTestQuery",
       );

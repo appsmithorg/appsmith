@@ -51,10 +51,10 @@ export const ModalExamples = () => {
         }}
       />
       <Modal
-        dataAttributes={{ "data-size": "large" }}
         initialFocus={2}
         isOpen={isLargeOpen}
         setOpen={setLargeOpen}
+        size="large"
         triggerRef={largeRef}
       >
         <Unstyled>
@@ -121,10 +121,10 @@ export const ModalExamples = () => {
         </Unstyled>
       </Modal>
       <Modal
-        dataAttributes={{ "data-size": "small" }}
         initialFocus={2}
         isOpen={isSmallOpen}
         setOpen={setSmallOpen}
+        size="small"
         triggerRef={smallRef}
       >
         <Unstyled>

@@ -12,7 +12,7 @@ const alternateName = "AlternateName";
 const tooltTipQuery = `.rc-tooltip.ads-v2-tooltip:not(.rc-tooltip-hidden) > .rc-tooltip-content > .rc-tooltip-inner > .ads-v2-text`;
 describe(
   "Entity Explorer showing tooltips on long names",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.PropertyPane"] },
   function () {
     it("1. Expect tooltip on long names only", function () {
       // create an API with a short name

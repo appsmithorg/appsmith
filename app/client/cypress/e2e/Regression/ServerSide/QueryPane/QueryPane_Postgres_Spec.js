@@ -14,13 +14,14 @@ import {
   agHelper,
   entityItems,
   assertHelper,
+  debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 let datasourceName;
 
 describe(
   "Validate CRUD queries for Postgres along with UI flow verifications",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     // afterEach(function() {
     //   if (this.currentTest.state === "failed") {
@@ -311,15 +312,8 @@ describe(
       cy.runQuery();
       cy.typeValueNValidate("select * from public.users_crud limit 10");
       cy.onlyQueryRun();
-      cy.get(commonlocators.errorTab)
-        .should("be.visible")
-        .click({ force: true });
-      cy.get(commonlocators.debuggerLabel)
-        .first()
-        .invoke("text")
-        .then(($text) => {
-          expect($text).to.eq("Query execution error");
-        });
+      debuggerHelper.ClickLogsTab();
+      debuggerHelper.DoesConsoleLogExist("Failed execution", true, "Query1");
       cy.deleteQueryUsingContext();
     });
 

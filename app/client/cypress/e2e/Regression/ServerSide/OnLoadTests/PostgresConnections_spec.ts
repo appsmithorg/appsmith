@@ -17,7 +17,7 @@ let guid: any, dsName_1: any, dsName_2: any;
 
 describe(
   "Test Postgres number of connections on page load + Bug 11572, Bug 11202",
-  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Sanity"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Sanity", "@tag.Binding"] },
   function () {
     before(() => {
       agHelper.GenerateUUID();
@@ -25,7 +25,7 @@ describe(
         dataSources.NavigateToDSCreateNew();
         dataSources.CreatePlugIn("PostgreSQL");
         guid = uid.toLowerCase();
-        agHelper.RenameWithInPane("Postgres_1_" + guid, false);
+        agHelper.RenameDatasource("Postgres_1_" + guid);
         dataSources.FillPostgresDSForm();
         dataSources.TestSaveDatasource();
 
@@ -56,7 +56,7 @@ describe(
     it("2. Create new datasource for user test_conn_user", () => {
       dataSources.NavigateToDSCreateNew();
       dataSources.CreatePlugIn("PostgreSQL");
-      agHelper.RenameWithInPane("Postgres_2_" + guid, false);
+      agHelper.RenameDatasource("Postgres_2_" + guid);
       const userName = "test_conn_user_" + guid;
       dataSources.FillPostgresDSForm("Production", false, userName, "password");
       dataSources.TestSaveDatasource();

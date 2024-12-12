@@ -16,7 +16,7 @@ import EditorNavigation, {
 
 describe(
   "Generate New CRUD Page Inside from entity explorer",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let datasourceName;
 
@@ -52,7 +52,7 @@ describe(
         200,
       );
 
-      agHelper.AssertContains("Generate from data");
+      agHelper.AssertContains("Generate a page based on your data");
       agHelper.GetNClick(generatePage.selectTableDropdown);
       agHelper.GetNClickByContains(
         generatePage.dropdownOption,

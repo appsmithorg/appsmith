@@ -1,2 +1,4 @@
-import React from "react";
-export const MultilineInputIcon = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="#000" stroke-linecap="round" stroke-linejoin="round" d="m7.5 7.5-.5-1m-3.5 1 .5-1m0 0 1.5-3 1.5 3m-3 0h3"/><path stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-opacity=".25" d="M12.5 6.5h1m1 0h-1m0 0v8m-1 0h2"/><path stroke="#000" stroke-linecap="round" stroke-linejoin="round" d="M14.5 1.5h-12a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h7"/><path stroke="#000" stroke-linecap="round" d="M3.5 12v-2a.5.5 0 0 1 .5-.5h2a1.5 1.5 0 0 1 0 3H4a.5.5 0 0 1-.5-.5Z"/></svg>;
+import * as React from "react";
+import type { SVGProps } from "react";
+const MultilineInputIcon = (props: SVGProps<SVGSVGElement>) => <svg xmlns="http://www.w3.org/2000/svg" width={16} height={16} fill="none" {...props}><path stroke="#000" strokeLinecap="round" strokeLinejoin="round" d="m7.5 7.5-.5-1m-3.5 1 .5-1m0 0 1.5-3 1.5 3m-3 0h3" /><path stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeOpacity={0.25} d="M12.5 6.5h1m1 0h-1m0 0v8m-1 0h2" /><path stroke="#000" strokeLinecap="round" strokeLinejoin="round" d="M14.5 1.5h-12a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h7" /><path stroke="#000" strokeLinecap="round" d="M3.5 12v-2a.5.5 0 0 1 .5-.5h2a1.5 1.5 0 0 1 0 3H4a.5.5 0 0 1-.5-.5Z" /></svg>;
+export { MultilineInputIcon };

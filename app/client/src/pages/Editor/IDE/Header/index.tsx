@@ -13,6 +13,8 @@ import {
   TabPanel,
   Button,
   Link,
+  IDEHeader,
+  IDEHeaderTitle,
 } from "@appsmith/ads";
 import { useDispatch, useSelector } from "react-redux";
 import { EditInteractionKind, SavingState } from "@appsmith/ads-old";
@@ -70,13 +72,13 @@ import { useHref } from "pages/Editor/utils";
 import { viewerURL } from "ee/RouteBuilder";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { EditorTitle } from "./EditorTitle";
-import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import { useCurrentAppState } from "../hooks/useCurrentAppState";
 import { EditorState } from "ee/entities/IDE/constants";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
-import type { Page } from "entities/Page";
-import { IDEHeader, IDEHeaderTitle } from "IDE";
 import { APPLICATIONS_URL } from "constants/routes";
 import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
+import useLibraryHeaderTitle from "ee/pages/Editor/IDE/Header/useLibraryHeaderTitle";
+import { AppsmithLink } from "pages/Editor/AppsmithLink";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -88,10 +90,11 @@ const { cloudHosting } = getAppsmithConfigs();
 
 interface HeaderTitleProps {
   appState: EditorState;
-  currentPage?: Page;
 }
 
-const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
+const HeaderTitleComponent = ({ appState }: HeaderTitleProps) => {
+  const libraryHeaderTitle = useLibraryHeaderTitle();
+
   switch (appState) {
     case EditorState.DATA:
       return (
@@ -101,7 +104,7 @@ const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
         />
       );
     case EditorState.EDITOR:
-      return <EditorTitle key={appState} title={currentPage?.pageName || ""} />;
+      return <EditorTitle key={appState} />;
     case EditorState.SETTINGS:
       return (
         <IDEHeaderTitle
@@ -110,14 +113,9 @@ const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
         />
       );
     case EditorState.LIBRARIES:
-      return (
-        <IDEHeaderTitle
-          key={appState}
-          title={createMessage(HEADER_TITLES.LIBRARIES)}
-        />
-      );
+      return <IDEHeaderTitle key={appState} title={libraryHeaderTitle} />;
     default:
-      return <EditorTitle key={appState} title={currentPage?.pageName || ""} />;
+      return <EditorTitle key={appState} />;
   }
 };
 
@@ -220,8 +218,8 @@ const Header = () => {
   return (
     <>
       <IDEHeader>
-        <IDEHeader.Left>
-          <HeaderTitleComponent appState={appState} currentPage={currentPage} />
+        <IDEHeader.Left logo={<AppsmithLink />}>
+          <HeaderTitleComponent appState={appState} />
           <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
         </IDEHeader.Left>
         <IDEHeader.Center>

@@ -630,7 +630,8 @@
           }
         ]
       },
-      "new": false
+      "new": false,
+      "gitSyncId": "jso1"
     },
     {
       "id": "Page1_JSObject2",
@@ -650,7 +651,8 @@
           }
         ]
       },
-      "new": false
+      "new": false,
+      "gitSyncId": "jso2"
     }
   ],
   "decryptedFields": {

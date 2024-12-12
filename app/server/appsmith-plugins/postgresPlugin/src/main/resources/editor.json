@@ -3,6 +3,7 @@
     {
       "controlType": "SECTION_V2",
       "identifier": "SECTION-ONE",
+      "isFullWidth": true,
       "children": [
         {
           "controlType": "SINGLE_COLUMN_ZONE",

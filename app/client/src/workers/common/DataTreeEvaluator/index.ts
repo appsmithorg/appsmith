@@ -136,12 +136,18 @@ import DataStore from "workers/Evaluation/dataStore";
 import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
 import microDiff from "microdiff";
 import {
+  profileAsyncFn,
   profileFn,
   type WebworkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
 import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import generateOverrideContext from "ee/workers/Evaluation/generateOverrideContext";
+import appComputationCache from "../AppComputationCache";
+import {
+  EComputationCacheName,
+  type ICacheProps,
+} from "../AppComputationCache/types";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -235,16 +241,14 @@ export default class DataTreeEvaluator {
    * Method to create all data required for linting and
    * evaluation of the first tree
    */
-  setupFirstTree(
+  async setupFirstTree(
     // TODO: Fix this the next time the file is edited
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
-  ): {
-    jsUpdates: Record<string, JSUpdate>;
-    evalOrder: string[];
-  } {
+    cacheProps: ICacheProps,
+  ) {
     this.setConfigTree(configTree);
 
     const totalFirstTreeSetupStartTime = performance.now();
@@ -287,19 +291,29 @@ export default class DataTreeEvaluator {
     );
     const allKeysGenerationStartTime = performance.now();
 
-    this.allKeys = getAllPaths(unEvalTreeWithStrigifiedJSFunctions);
+    this.allKeys = await appComputationCache.fetchOrCompute({
+      cacheProps,
+      cacheName: EComputationCacheName.ALL_KEYS,
+      computeFn: () => getAllPaths(unEvalTreeWithStrigifiedJSFunctions),
+    });
+
     const allKeysGenerationEndTime = performance.now();
 
     const createDependencyMapStartTime = performance.now();
 
-    const { dependencies, inverseDependencies } = profileFn(
+    const { dependencies, inverseDependencies } = await profileAsyncFn(
       "createDependencyMap",
-      undefined,
+      async () =>
+        createDependencyMap(
+          this,
+          localUnEvalTree,
+          configTree,
+          cacheProps,
+          webworkerTelemetry,
+        ),
       webworkerTelemetry,
-      () => {
-        return createDependencyMap(this, localUnEvalTree, configTree);
-      },
     );
+
     const createDependencyMapEndTime = performance.now();
 
     this.dependencies = dependencies;
@@ -1045,7 +1059,7 @@ export default class DataTreeEvaluator {
     staleMetaIds: string[];
     contextTree: DataTree;
   } {
-    const safeTree = klona(unEvalTree);
+    const safeTree = klonaJSON(unEvalTree);
     const dataStore = DataStore.getDataStore();
     const dataStoreClone = klonaJSON(dataStore);
 
@@ -1193,7 +1207,7 @@ export default class DataTreeEvaluator {
             );
 
             set(contextTree, fullPropertyPath, parsedValue);
-            set(safeTree, fullPropertyPath, klona(parsedValue));
+            set(safeTree, fullPropertyPath, klonaJSON(parsedValue));
 
             staleMetaIds = staleMetaIds.concat(
               getStaleMetaStateIds({
@@ -1239,7 +1253,7 @@ export default class DataTreeEvaluator {
             if (!requiresEval) continue;
 
             set(contextTree, fullPropertyPath, evalPropertyValue);
-            set(safeTree, fullPropertyPath, klona(evalPropertyValue));
+            set(safeTree, fullPropertyPath, klonaJSON(evalPropertyValue));
             break;
           }
           case ENTITY_TYPE.JSACTION: {
@@ -1276,7 +1290,7 @@ export default class DataTreeEvaluator {
              * Their evaluated values need to be reset only when the variable is modified by the user.
              * When uneval value of a js variable hasn't changed, it means that the previously evaluated values are in both trees already  */
             if (!skipVariableValueAssignment) {
-              const valueForSafeTree = klona(evalValue);
+              const valueForSafeTree = klonaJSON(evalValue);
 
               set(contextTree, fullPropertyPath, evalValue);
               set(safeTree, fullPropertyPath, valueForSafeTree);
@@ -1291,7 +1305,7 @@ export default class DataTreeEvaluator {
           }
           default:
             set(contextTree, fullPropertyPath, evalPropertyValue);
-            set(safeTree, fullPropertyPath, klona(evalPropertyValue));
+            set(safeTree, fullPropertyPath, klonaJSON(evalPropertyValue));
         }
       }
     } catch (error) {
@@ -1779,7 +1793,7 @@ export default class DataTreeEvaluator {
     bindings: string[],
     executionParams?: Record<string, unknown> | string,
   ) {
-    const dataTree = klona(this.evalTree);
+    const dataTree = klonaJSON(this.evalTree);
     // We might get execution params as an object or as a string.
     // If the user has added a proper object (valid case) it will be an object
     // If they have not added any execution params or not an object

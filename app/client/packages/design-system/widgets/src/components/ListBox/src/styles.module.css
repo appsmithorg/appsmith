@@ -1,0 +1,5 @@
+.listBox {
+  min-inline-size: var(--trigger-width);
+  max-height: inherit;
+  overflow-y: auto;
+}

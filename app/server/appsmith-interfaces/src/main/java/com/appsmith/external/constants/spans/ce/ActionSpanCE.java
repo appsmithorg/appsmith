@@ -37,4 +37,11 @@ public class ActionSpanCE {
     public static final String CREATE_ACTION = APPSMITH_SPAN_PREFIX + "create.action";
     public static final String UPDATE_ACTION = APPSMITH_SPAN_PREFIX + "update.action";
     public static final String DELETE_ACTION = APPSMITH_SPAN_PREFIX + "delete.action";
+    public static final String FILL_SELF_REFERENCING_PATHS_ACTION =
+            APPSMITH_SPAN_PREFIX + "action.fillSelfReferencingPaths";
+
+    public static final String VALIDATE_AND_GENERATE_ACTION_DOMAIN_BASED_ON_CONTEXT =
+            APPSMITH_SPAN_PREFIX + ACTIONS + "validateAndGenerateActionDomainBasedOnContext";
+    public static final String VALIDATE_AND_SAVE_ACTION_TO_REPOSITORY =
+            APPSMITH_SPAN_PREFIX + ACTIONS + "validateAndSaveActionToRepository";
 }

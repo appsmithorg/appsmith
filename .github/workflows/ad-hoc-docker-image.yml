@@ -14,6 +14,11 @@ on:
         required: false
         type: string
         default: ad-hoc
+      pg_tag:
+        description: Postgres tag to use for image
+        required: false
+        type: string
+        default: pg
 
 jobs:
   server-build:
@@ -87,7 +92,17 @@ jobs:
       - name: Generate info.json
         run: |
           if [[ -f scripts/generate_info_json.sh ]]; then
-            scripts/generate_info_json.sh
+            scripts/generate_info_json.sh ${{ inputs.tag }}
+          fi
+
+      - name: Place server artifacts-es
+        run: |
+          run: |
+          if [[ -f scripts/prepare_server_artifacts.sh ]]; then
+            PG_TAG=${{ inputs.pg_tag }} scripts/prepare_server_artifacts.sh
+          else
+            echo "No script found to prepare server artifacts"
+            exit 1
           fi
 
       - name: Set up Depot CLI

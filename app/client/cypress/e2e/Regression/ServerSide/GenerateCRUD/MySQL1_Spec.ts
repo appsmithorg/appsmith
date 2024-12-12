@@ -21,7 +21,7 @@ let dsName: any;
 
 describe(
   "Validate MySQL Generate CRUD with JSON Form",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   () => {
     // beforeEach(function() {
     //   if (INTERCEPT.MYSQL) {
@@ -47,6 +47,7 @@ describe(
         dataSources._dropdownOption,
         "worldCountryInfo",
       );
+      agHelper.GetNClick(dataSources._generatePageBtn);
 
       GenerateCRUDNValidateDeployPage("ABW", "Aruba", "North America", "Code");
 
@@ -93,6 +94,7 @@ describe(
       assertHelper.AssertNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
       agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
       agHelper.GetNClickByContains(dataSources._dropdownOption, "customers");
+      agHelper.GetNClick(dataSources._generatePageBtn);
 
       GenerateCRUDNValidateDeployPage(
         "103",
@@ -110,6 +112,7 @@ describe(
     it("3. Generate CRUD page from datasource present in ACTIVE section", function () {
       EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
       dataSources.SelectTableFromPreviewSchemaList("employees");
+      agHelper.GetNClick(dataSources._datasourceCardGeneratePageBtn);
 
       GenerateCRUDNValidateDeployPage(
         "1002",
@@ -163,7 +166,7 @@ describe(
       agHelper.FocusElement(locators._codeMirrorTextArea);
       //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
-      dataSources.RunQueryNVerifyResponseViews();
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertTableInVirtuosoList(dsName, "productlines");
 
       agHelper.ActionContextMenuWithInPane({
@@ -279,7 +282,7 @@ describe(
       agHelper.FocusElement(locators._codeMirrorTextArea);
       //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
-      dataSources.RunQueryNVerifyResponseViews();
+      dataSources.runQueryAndVerifyResponseViews();
       dataSources.AssertTableInVirtuosoList(dsName, "Stores", false);
     });
 
@@ -311,9 +314,6 @@ describe(
       col3Text: string,
       jsonFromHeader: string,
     ) {
-      agHelper.GetNClick(
-        `${dataSources._generatePageBtn}, ${dataSources._datasourceCardGeneratePageBtn}`,
-      );
       assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
       agHelper.AssertContains("Successfully generated a page");
       //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes

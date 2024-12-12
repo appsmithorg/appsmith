@@ -81,7 +81,7 @@ describe("ApiResponseView", () => {
           <Router>
             <ApiResponseView
               currentActionConfig={Api1}
-              disabled={false}
+              isRunDisabled={false}
               isRunning={false}
               onRunClick={noop}
             />
@@ -92,7 +92,7 @@ describe("ApiResponseView", () => {
 
     expect(
       container
-        .querySelector(".t--api-bottom-pane-container")
+        .querySelector(".t--ide-bottom-view")
         ?.classList.contains("select-text"),
     ).toBe(true);
   });

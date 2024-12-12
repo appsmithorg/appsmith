@@ -1,5 +1,7 @@
 /// <reference types="Cypress" />
 
+import BottomTabs from "../../../../support/Pages/IDE/BottomTabs";
+
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");
 const formControls = require("../../../../locators/FormControl.json");
@@ -16,7 +18,7 @@ let datasourceName;
 
 describe(
   "Validate CRUD queries for Amazon S3 along with UI flow verifications",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
     let fileName;
 
@@ -75,7 +77,11 @@ describe(
         "List files",
       );
 
-      dataSources.RunQueryNVerifyResponseViews(100);
+      dataSources.runQueryAndVerifyResponseViews({
+        count: 100,
+        operator: "gte",
+      });
+
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
         entityType: entityItems.Query,
@@ -189,8 +195,7 @@ describe(
       cy.typeValueNValidate(fileName, formControls.s3ListPrefix);
       dataSources.RunQuery({ toValidateResponse: false });
 
-      agHelper.GetNClick(dataSources._queryResponse("TABLE"));
-      agHelper.GetNClick(dataSources._queryResponse("JSON"));
+      BottomTabs.response.selectResponseResponseTypeFromMenu("JSON");
 
       cy.wait("@postExecute").then(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(true);

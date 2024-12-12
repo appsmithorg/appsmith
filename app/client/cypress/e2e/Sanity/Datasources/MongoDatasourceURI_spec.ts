@@ -10,7 +10,9 @@ let dsName: any;
 //  https://github.com/appsmithorg/TestEventDriver/issues/40
 describe(
   "Create, test, save then delete a mongo datasource using URI",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  {
+    tags: ["@tag.Datasource", "@tag.Sanity", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     it("1. Create, test, save then delete a mongo datasource using URI without username and password - #24897 ", function () {
       dataSources.NavigateToDSCreateNew();
@@ -20,7 +22,7 @@ describe(
         // because I do not need to fill the datasource form and use the same default data
         dataSources.CreatePlugIn("MongoDB");
         dsName = "Mongo" + uid;
-        agHelper.RenameWithInPane(dsName, false);
+        agHelper.RenameDatasource(dsName);
 
         dataSources.FillMongoDatasourceFormWithURI();
         dataSources.TestSaveDatasource(true);
@@ -36,7 +38,7 @@ describe(
         // because I do not need to fill the datasource form and use the same default data
         dataSources.CreatePlugIn("MongoDB");
         dsName = "Mongo" + uid;
-        agHelper.RenameWithInPane(dsName, false);
+        agHelper.RenameDatasource(dsName);
 
         dataSources.FillMongoDSForm(dataManager.defaultEnviorment, true);
         dataSources.TestSaveDatasource();

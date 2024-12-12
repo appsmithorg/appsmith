@@ -9,7 +9,7 @@ import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 
 describe(
   "Leave workspace test spec",
-  { tags: ["@tag.Workspace"] },
+  { tags: ["@tag.Workspace", "@tag.AccessControl"] },
   function () {
     let newWorkspaceName;
 

@@ -1,8 +1,6 @@
 import {
   ADD_PATH,
   ADMIN_SETTINGS_PATH,
-  GEN_TEMPLATE_FORM_ROUTE,
-  GEN_TEMPLATE_URL,
   getViewerCustomPath,
   getViewerPath,
   TEMPLATES_PATH,
@@ -122,12 +120,6 @@ export const saasEditorApiIdURL = (
     }`,
   });
 
-export const generateTemplateFormURL = (props: URLBuilderParams): string =>
-  urlBuilder.build({
-    ...props,
-    suffix: `${GEN_TEMPLATE_URL}${GEN_TEMPLATE_FORM_ROUTE}`,
-  });
-
 export const onboardingCheckListUrl = (props: URLBuilderParams): string =>
   urlBuilder.build({
     ...props,
@@ -203,4 +195,13 @@ export const queryAddURL = (props: URLBuilderParams): string =>
   urlBuilder.build({
     ...props,
     suffix: `queries/add`,
+  });
+
+export const appLibrariesURL = (): string =>
+  urlBuilder.build({
+    suffix: "libraries",
+  });
+export const appPackagesURL = (): string =>
+  urlBuilder.build({
+    suffix: "packages",
   });

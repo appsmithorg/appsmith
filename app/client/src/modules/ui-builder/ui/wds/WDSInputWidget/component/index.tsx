@@ -1,6 +1,6 @@
 import React from "react";
 import { isNil } from "lodash";
-import { TextInput } from "@appsmith/wds";
+import { TextField } from "@appsmith/wds";
 import { Icon, TextArea } from "@appsmith/wds";
 import { useDebouncedValue } from "@mantine/hooks";
 import { INPUT_TYPES } from "modules/ui-builder/ui/wds/WDSBaseInputWidget";
@@ -46,7 +46,7 @@ function InputComponent(props: InputComponentProps) {
   })();
 
   const ElementType: React.ElementType =
-    props.inputType === INPUT_TYPES.MULTI_LINE_TEXT ? TextArea : TextInput;
+    props.inputType === INPUT_TYPES.MULTI_LINE_TEXT ? TextArea : TextField;
 
   const autoComplete = (() => {
     if (
@@ -94,9 +94,10 @@ function InputComponent(props: InputComponentProps) {
       autoFocus={props.autoFocus}
       contextualHelp={props.tooltip}
       defaultValue={props.defaultValue}
-      errorMessage={props.validationStatus === "invalid" ? errorMessage : ""}
+      errorMessage={validationStatus === "invalid" ? errorMessage : ""}
       excludeFromTabOrder={props.excludeFromTabOrder}
       isDisabled={props.isDisabled}
+      isInvalid={props.validationStatus === "invalid"}
       isReadOnly={props.isReadOnly}
       isRequired={props.isRequired}
       label={props.label}
@@ -112,7 +113,6 @@ function InputComponent(props: InputComponentProps) {
       spellCheck={props.spellCheck}
       suffix={endIcon}
       type={type}
-      validationState={validationStatus}
       value={props.value}
     />
   );

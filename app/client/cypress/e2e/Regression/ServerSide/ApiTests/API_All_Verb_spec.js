@@ -16,9 +16,9 @@ import {
 
 describe(
   "API Panel Test Functionality",
-  { tags: ["@tag.Datasource"] },
+  { tags: ["@tag.Datasource", "@tag.Git", "@tag.AccessControl"] },
   function () {
-    const successMsg = "Executed successfully from user request";
+    const successMsg = "Successfully executed in";
     afterEach(function () {
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",

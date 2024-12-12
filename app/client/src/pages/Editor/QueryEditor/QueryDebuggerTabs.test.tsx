@@ -24,6 +24,7 @@ const storeState = {
     },
     datasources: {
       structure: {},
+      list: [],
     },
   },
   ui: {
@@ -53,9 +54,7 @@ const storeState = {
 };
 
 describe("ApiResponseView", () => {
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let store: any;
+  let store = mockStore(storeState);
 
   beforeEach(() => {
     store = mockStore(storeState);

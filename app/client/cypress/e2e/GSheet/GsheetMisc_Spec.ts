@@ -23,7 +23,9 @@ let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
 describe.skip(
   "GSheet Miscellaneous Tests",
-  { tags: ["@tag.Datasource", "@tag.GSheet"] },
+  {
+    tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],
+  },
   function () {
     const columnHeaders = [
       "uniq_id",
@@ -64,7 +66,7 @@ describe.skip(
     it("1. Add query from active ds tab and verify", () => {
       dataSources.CreateQueryForDS(dataSourceName);
       // entityExplorer.CreateNewDsQuery(dataSourceName);
-      agHelper.RenameWithInPane("Fetch_Details");
+      agHelper.RenameQuery("Fetch_Details");
       dataSources.ValidateNSelectDropdown(
         "Operation",
         "Fetch Many",
@@ -88,7 +90,7 @@ describe.skip(
       dataSources.ValidateNSelectDropdown("Entity", "Sheet Row(s)");
       dataSources.ValidateNSelectDropdown("Spreadsheet", "", spreadSheetName);
       dataSources.ValidateNSelectDropdown("Sheet name", "", "Sheet1");
-      dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
+      dataSources.runQueryAndVerifyResponseViews({ count: GSHEET_DATA.length });
       dataSources.AssertQueryResponseHeaders(columnHeaders);
       dataSources.AssertQueryTableResponse(0, GSHEET_DATA[0].uniq_id);
       dataSources.AssertQueryTableResponse(1, "ホーンビィ 2014 カタログ"); // Asserting other language
@@ -102,7 +104,7 @@ describe.skip(
       dataSources.ValidateNSelectDropdown("Entity", "Sheet Row(s)");
       dataSources.ValidateNSelectDropdown("Spreadsheet", "", spreadSheetName);
       dataSources.ValidateNSelectDropdown("Sheet name", "", "Sheet1");
-      dataSources.RunQueryNVerifyResponseViews(GSHEET_DATA.length);
+      dataSources.runQueryAndVerifyResponseViews({ count: GSHEET_DATA.length });
       dataSources.AssertQueryResponseHeaders(columnHeaders);
       dataSources.AssertQueryTableResponse(0, GSHEET_DATA[0].uniq_id);
       dataSources.AssertQueryTableResponse(1, "ホーンビィ 2014 カタログ"); // Asserting other language

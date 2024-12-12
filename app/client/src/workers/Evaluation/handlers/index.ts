@@ -31,7 +31,6 @@ const syncHandlerMap: Record<
   (req: EvalWorkerSyncRequest) => any
 > = {
   [EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS]: evalActionBindings,
-  [EVAL_WORKER_ACTIONS.EVAL_TREE]: evalTree,
   [EVAL_WORKER_ACTIONS.EVAL_TREE_WITH_CHANGES]: evalTreeWithChanges,
   [EVAL_WORKER_ACTIONS.UNDO]: undo,
   [EVAL_WORKER_ACTIONS.REDO]: redo,
@@ -52,6 +51,7 @@ const asyncHandlerMap: Record<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (req: EvalWorkerASyncRequest) => any
 > = {
+  [EVAL_WORKER_ACTIONS.EVAL_TREE]: evalTree,
   [EVAL_WORKER_ACTIONS.EVAL_TRIGGER]: evalTrigger,
   [EVAL_WORKER_ACTIONS.EVAL_EXPRESSION]: evalExpression,
   [EVAL_WORKER_ACTIONS.LOAD_LIBRARIES]: loadLibraries,

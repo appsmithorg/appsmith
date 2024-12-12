@@ -17,7 +17,14 @@ import PageList from "../../../support/Pages/PageList";
 
 describe(
   "Validate Mock Query Active Ds querying & count",
-  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
+  {
+    tags: [
+      "@tag.Datasource",
+      "@tag.excludeForAirgap",
+      "@tag.Git",
+      "@tag.AccessControl",
+    ],
+  },
   () => {
     it("1. Create Query from Mock Postgres DB & verify active queries count", () => {
       PageList.AddNewPage();
@@ -35,7 +42,11 @@ describe(
           'SELECT * FROM public."users" LIMIT 10;',
         );
 
-        dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
+        dataSources.runQueryAndVerifyResponseViews({
+          count: 1,
+          operator: "gte",
+        }); //minimum 1 rows are expected
+
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
@@ -50,7 +61,11 @@ describe(
           expect(interception.request.body.source).to.equal("SELF");
         });
 
-        dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
+        dataSources.runQueryAndVerifyResponseViews({
+          count: 1,
+          operator: "gte",
+        }); //minimum 1 rows are expected
+
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
           .getDatasourceListItemDescription(mockDBName)
@@ -74,6 +89,12 @@ describe(
 
         assertHelper.AssertNetworkStatus("@trigger");
         dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
+
+        dataSources.runQueryAndVerifyResponseViews({
+          count: 1,
+          operator: "gte",
+          responseTypes: ["JSON", "RAW"],
+        });
       });
     });
   },

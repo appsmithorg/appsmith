@@ -5,7 +5,6 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
-const queryLocators = require("../../../../locators/QueryEditor.json");
 
 let queryName = "Query1";
 
@@ -30,7 +29,7 @@ let dsname;
 
 describe(
   "Cyclic Dependency Informational Error Messages",
-  { tags: ["@tag.PropertyPane", "@tag.JS"] },
+  { tags: ["@tag.PropertyPane", "@tag.JS", "@tag.Binding"] },
   function () {
     before(() => {
       //appId = localStorage.getItem("applicationId");
@@ -161,7 +160,6 @@ describe(
       // Case 6: When updating Datasource query
       EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
       // update query and check no cyclic dependency issue should occur
-      cy.xpath(queryLocators.query).click({ force: true });
       cy.get(".CodeMirror textarea").first().focus().type(" ", {
         force: true,
         parseSpecialCharSequences: false,

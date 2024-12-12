@@ -12,8 +12,8 @@ import type { ActionResponse } from "api/ActionAPI";
 interface PluginActionContextType {
   action: Action;
   actionResponse?: ActionResponse;
-  editorConfig: unknown[];
-  settingsConfig: unknown[];
+  editorConfig?: unknown[];
+  settingsConfig?: unknown[];
   plugin: Plugin;
   datasource?: EmbeddedRestDatasource | Datasource;
 }
@@ -28,19 +28,27 @@ interface ChildrenProps {
 export const PluginActionContextProvider = (
   props: ChildrenProps & PluginActionContextType,
 ) => {
-  const { action, children, datasource, editorConfig, plugin, settingsConfig } =
-    props;
+  const {
+    action,
+    actionResponse,
+    children,
+    datasource,
+    editorConfig,
+    plugin,
+    settingsConfig,
+  } = props;
 
   // using useMemo to avoid unnecessary renders
   const contextValue = useMemo(
     () => ({
       action,
+      actionResponse,
       datasource,
       editorConfig,
       plugin,
       settingsConfig,
     }),
-    [action, datasource, editorConfig, plugin, settingsConfig],
+    [action, actionResponse, datasource, editorConfig, plugin, settingsConfig],
   );
 
   return (

@@ -11,7 +11,7 @@ import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 
 describe(
   "Editor Segment Context Switch",
-  { tags: ["@tag.IDE", "@tag.ImportExport"] },
+  { tags: ["@tag.IDE", "@tag.ImportExport", "@tag.PropertyPane", "@tag.Git"] },
   function () {
     before("Import the test application", () => {
       homePage.CreateNewWorkspace("IDETest", true);

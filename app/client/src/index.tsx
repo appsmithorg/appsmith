@@ -30,7 +30,6 @@ import { PageViewTiming } from "@newrelic/browser-agent/features/page_view_timin
 import { PageViewEvent } from "@newrelic/browser-agent/features/page_view_event";
 import { Agent } from "@newrelic/browser-agent/loaders/agent";
 import { getCommonTelemetryAttributes } from "UITelemetry/generateTraces";
-
 const { newRelic } = getAppsmithConfigs();
 const { enableNewRelic } = newRelic;
 

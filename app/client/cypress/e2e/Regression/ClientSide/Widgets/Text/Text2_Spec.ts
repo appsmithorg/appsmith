@@ -14,7 +14,7 @@ import EditorNavigation, {
 
 describe(
   "Text widget tests",
-  { tags: ["@tag.Widget", "@tag.Text"] },
+  { tags: ["@tag.Widget", "@tag.Text", "@tag.Binding"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);

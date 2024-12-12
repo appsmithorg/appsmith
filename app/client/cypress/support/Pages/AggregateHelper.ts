@@ -16,12 +16,14 @@ interface DeleteParams {
   entityType?: EntityItemsType;
   toastToValidate?: string;
 }
+
 interface SubActionParams {
   subAction: string;
   index?: number;
   force?: boolean;
   toastToValidate?: string;
 }
+
 interface SelectAndValidateParams {
   clickOptions?: Partial<ClickOptions>;
   widgetName: string;
@@ -33,6 +35,7 @@ interface SelectAndValidateParams {
 }
 
 let LOCAL_STORAGE_MEMORY: any = {};
+
 export interface IEnterValue {
   propFieldName: string;
   directInput: boolean;
@@ -53,12 +56,15 @@ export class AggregateHelper {
   public get isMac() {
     return Cypress.platform === "darwin";
   }
+
   private selectLine = `${
     this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
   }`;
+
   public get removeLine() {
     return "{backspace}";
   }
+
   public _modifierKey = `${this.isMac ? "meta" : "ctrl"}`;
   private selectAll = `${this.isMac ? "{cmd}{a}" : "{ctrl}{a}"}`;
   private lazyCodeEditorFallback = ".t--lazyCodeEditor-fallback";
@@ -221,19 +227,55 @@ export class AggregateHelper {
       });
   }
 
-  public RenameWithInPane(renameVal: string, IsQuery = true) {
-    const name = IsQuery ? this.locator._queryName : this.locator._dsName;
-    const text = IsQuery ? this.locator._queryNameTxt : this.locator._dsNameTxt;
-    this.Sleep(300); //for default query name to load
-    this.GetNClick(name, 0, true);
-    cy.get(text)
+  private rename(args: {
+    nameLocator: string;
+    textInputLocator: string;
+    renameVal: string;
+    dblClick?: boolean;
+    willFailError?: string;
+  }) {
+    const { dblClick = false, nameLocator, renameVal, textInputLocator } = args;
+
+    this.Sleep(300);
+
+    if (dblClick) {
+      cy.get(nameLocator).dblclick({ force: true });
+    } else {
+      this.GetNClick(nameLocator, 0, true);
+    }
+
+    cy.get(textInputLocator)
       .clear({ force: true })
       .type(renameVal, { force: true, delay: 0 })
-      .should("have.value", renameVal)
-      .blur();
-    this.PressEnter(); //allow lil more time for new name to settle
+      .should("have.value", renameVal);
+
+    if (args.willFailError) {
+      this.AssertContains(args.willFailError, "exist", ".ads-v2-tooltip");
+      cy.get(textInputLocator).blur();
+    } else {
+      cy.get(textInputLocator).blur();
+      this.PressEnter();
+    }
+    this.Sleep();
+  }
+
+  public RenameDatasource(renameVal: string) {
+    this.rename({
+      nameLocator: this.locator._dsName,
+      textInputLocator: this.locator._dsNameTxt,
+      renameVal,
+    });
     this.AssertElementVisibility(this.locator._editIcon);
-    this.Sleep(); // wait for url update
+  }
+
+  public RenameQuery(renameVal: string, willFailError?: string) {
+    this.rename({
+      nameLocator: this.locator._queryName,
+      textInputLocator: this.locator._queryNameTxt,
+      renameVal,
+      dblClick: true,
+      willFailError,
+    });
   }
 
   public CheckForPageSaveError() {
@@ -907,6 +949,7 @@ export class AggregateHelper {
       this.TypeText(selector, totype, index);
     }
   }
+
   public ClickNClear(selector: string, force = false, index = 0) {
     this.GetNClick(selector, index, force);
     this.ClearTextField(selector, force, index);
@@ -1191,11 +1234,12 @@ export class AggregateHelper {
 
   public ActionContextMenuSubItem({
     force = false,
-    index = 0,
     subAction,
     toastToValidate = "",
   }: SubActionParams) {
-    this.GetNClick(this.locator._contextMenuItem(subAction), index, force);
+    cy.xpath(this.locator._contextMenuItem(subAction)).trigger("click", {
+      force: force,
+    });
     this.Sleep(500);
     toastToValidate && this.AssertContains(toastToValidate);
   }
