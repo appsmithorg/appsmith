@@ -1,4 +1,8 @@
 import {
+  gitSingleArtifactInitialAPIResponsesEE,
+  gitSingleArtifactInitialUIStateEE,
+} from "ee/git/store/helpers/gitSingleArtifactInitialState";
+import {
   GitConnectStep,
   GitImportStep,
   GitOpsTab,
@@ -32,6 +36,8 @@ const gitSingleArtifactInitialUIState: GitSingleArtifactUIReduxState = {
   },
   autocommitModalOpen: false,
   autocommitPolling: false,
+  // EE
+  ...gitSingleArtifactInitialUIStateEE,
 };
 
 const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxState =
@@ -131,6 +137,8 @@ const gitSingleArtifactInitialAPIResponses: GitSingleArtifactAPIResponsesReduxSt
       loading: false,
       error: null,
     },
+    // EE
+    ...gitSingleArtifactInitialAPIResponsesEE,
   };
 
 export const gitSingleArtifactInitialState: GitSingleArtifactReduxState = {
