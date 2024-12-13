@@ -45,6 +45,18 @@ class MixpanelSingleton {
     }
   }
 
+  public startRecording() {
+    if (this.mixpanel) {
+      this.mixpanel.start_session_recording();
+    }
+  }
+
+  public stopRecording() {
+    if (this.mixpanel) {
+      this.mixpanel.stop_session_recording();
+    }
+  }
+
   private registerDevice(token: string) {
     if (this.mixpanel) {
       this.mixpanel.register({ $device_id: token, distinct_id: token });
