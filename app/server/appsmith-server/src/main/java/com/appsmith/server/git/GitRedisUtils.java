@@ -69,7 +69,7 @@ public class GitRedisUtils {
      * @return : Boolean for whether the lock is acquired
      */
     // TODO @Manish add artifactType reference in incoming prs.
-    public Mono<Boolean> acquireGitLock(String baseArtifactId, String commandName, boolean isLockRequired) {
+    public Mono<Boolean> acquireGitLock(String baseArtifactId, String commandName, Boolean isLockRequired) {
         if (!Boolean.TRUE.equals(isLockRequired)) {
             return Mono.just(Boolean.TRUE);
         }
