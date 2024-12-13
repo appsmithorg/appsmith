@@ -7,7 +7,7 @@ export default function GitConflictErrorModal() {
 
   return (
     <DumbGitConflictErrorModal
-      isConfictErrorModalOpen={conflictErrorModalOpen}
+      isConflictErrorModalOpen={conflictErrorModalOpen}
       toggleConflictErrorModal={toggleConflictErrorModal}
     />
   );

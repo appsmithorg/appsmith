@@ -8,7 +8,7 @@ import {
   selectCurrentBranch,
   selectDeleteBranch,
 } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
+import type { GitApiError, GitRootState } from "git/store/types";
 import { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -20,16 +20,16 @@ interface UseGitBranchesParams {
 export interface UseGitBranchesReturnValue {
   branches: FetchBranchesResponseData | null;
   fetchBranchesLoading: boolean;
-  fetchBranchesError: string | null;
+  fetchBranchesError: GitApiError | null;
   fetchBranches: () => void;
   createBranchLoading: boolean;
-  createBranchError: string | null;
+  createBranchError: GitApiError | null;
   createBranch: (branchName: string) => void;
   deleteBranchLoading: boolean;
-  deleteBranchError: string | null;
+  deleteBranchError: GitApiError | null;
   deleteBranch: (branchName: string) => void;
   checkoutBranchLoading: boolean;
-  checkoutBranchError: string | null;
+  checkoutBranchError: GitApiError | null;
   checkoutBranch: (branchName: string) => void;
   currentBranch: string | null;
   toggleBranchListPopup: (open: boolean) => void;

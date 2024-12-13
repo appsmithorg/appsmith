@@ -9,7 +9,7 @@ import {
   selectSettingsModalOpen,
   selectSettingsModalTab,
 } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
+import type { GitApiError, GitRootState } from "git/store/types";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -23,7 +23,7 @@ export interface UseGitSettingsReturnValue {
   autocommitPolling: boolean;
   protectedBranches: FetchProtectedBranchesResponseData | null;
   fetchProtectedBranchesLoading: boolean;
-  fetchProtectedBranchesError: string | null;
+  fetchProtectedBranchesError: GitApiError | null;
   fetchProtectedBranches: () => void;
   protectedMode: boolean;
   settingsModalOpen: boolean;

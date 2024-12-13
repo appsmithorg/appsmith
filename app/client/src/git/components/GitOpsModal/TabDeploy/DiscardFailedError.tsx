@@ -2,18 +2,18 @@ import React from "react";
 import styled from "styled-components";
 import { Callout } from "@appsmith/ads";
 import type { CalloutProps } from "@appsmith/ads";
+import type { GitApiError } from "git/store/types";
 
 const Container = styled.div`
   margin: 8px 0 16px;
 `;
 
-export default function DiscardFailedWarning({
+export default function DiscardFailedError({
   closeHandler,
   error,
 }: {
   closeHandler: () => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: any;
+  error: GitApiError;
 }) {
   const calloutOptions: CalloutProps = {
     isClosable: true,

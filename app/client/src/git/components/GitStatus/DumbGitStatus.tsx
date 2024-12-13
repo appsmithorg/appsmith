@@ -4,7 +4,11 @@ import type { StatusTreeStruct } from "./StatusTree";
 import StatusTree from "./StatusTree";
 import { Text } from "@appsmith/ads";
 import { createMessage } from "@appsmith/ads-old";
-import { CHANGES_SINCE_LAST_DEPLOYMENT } from "ee/constants/messages";
+import {
+  CHANGES_SINCE_LAST_DEPLOYMENT,
+  FETCH_GIT_STATUS,
+} from "ee/constants/messages";
+import StatusLoader from "pages/Editor/gitSync/components/StatusLoader";
 
 const noopStatusTransformer = () => null;
 
@@ -28,7 +32,7 @@ export default function DumbGitStatus({
   }, [isFetchStatusLoading, status, statusTransformer]);
 
   if (isFetchStatusLoading) {
-    return <div>Loading...</div>;
+    return <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />;
   }
 
   if (!status || status.isClean || !statusTree) {

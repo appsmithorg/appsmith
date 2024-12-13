@@ -13,7 +13,7 @@ import {
   selectPull,
   selectStatus,
 } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
+import type { GitApiError, GitRootState } from "git/store/types";
 import { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -25,27 +25,27 @@ interface UseGitOpsParams {
 
 export interface UseGitOpsReturnValue {
   commitLoading: boolean;
-  commitError: string | null;
+  commitError: GitApiError | null;
   commit: (commitMessage: string) => void;
   clearCommitError: () => void;
   discardLoading: boolean;
-  discardError: string | null;
+  discardError: GitApiError | null;
   discard: () => void;
   clearDiscardError: () => void;
   status: FetchStatusResponseData | null;
   fetchStatusLoading: boolean;
-  fetchStatusError: string | null;
+  fetchStatusError: GitApiError | null;
   fetchStatus: () => void;
   mergeLoading: boolean;
-  mergeError: string | null;
+  mergeError: GitApiError | null;
   merge: () => void;
   mergeStatus: FetchMergeStatusResponseData | null;
   fetchMergeStatusLoading: boolean;
-  fetchMergeStatusError: string | null;
+  fetchMergeStatusError: GitApiError | null;
   fetchMergeStatus: (sourceBranch: string, destinationBranch: string) => void;
   clearMergeStatus: () => void;
   pullLoading: boolean;
-  pullError: string | null;
+  pullError: GitApiError | null;
   pull: () => void;
   opsModalTab: keyof typeof GitOpsTab;
   opsModalOpen: boolean;

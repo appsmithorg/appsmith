@@ -39,12 +39,12 @@ const StyledGitErrorPopup = styled.div`
 `;
 
 interface DumbGitConflictErrorModalProps {
-  isConfictErrorModalOpen?: boolean;
+  isConflictErrorModalOpen?: boolean;
   toggleConflictErrorModal?: (open: boolean) => void;
 }
 
 function DumbGitConflictErrorModal({
-  isConfictErrorModalOpen = false,
+  isConflictErrorModalOpen = false,
   toggleConflictErrorModal = noop,
 }: DumbGitConflictErrorModalProps) {
   const handleClose = useCallback(() => {
@@ -55,7 +55,7 @@ function DumbGitConflictErrorModal({
     <StyledGitErrorPopup>
       <Overlay
         hasBackdrop
-        isOpen={isConfictErrorModalOpen}
+        isOpen={isConflictErrorModalOpen}
         onClose={handleClose}
         transitionDuration={25}
         usePortal={false}

@@ -1,5 +1,6 @@
 import { Callout } from "@appsmith/ads";
 import { Text, TextType } from "@appsmith/ads-old";
+import type { GitApiError } from "git/store/types";
 import React from "react";
 import styled from "styled-components";
 
@@ -7,9 +8,15 @@ const Container = styled.div`
   margin: 8px 0 16px;
 `;
 
-// TODO: Fix this the next time the file is edited
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function PushFailedWarning({ closeHandler, error }: any) {
+export interface PushFailedErrorProps {
+  closeHandler: () => void;
+  error: GitApiError;
+}
+
+export default function PushFailedError({
+  closeHandler,
+  error,
+}: PushFailedErrorProps) {
   return (
     <Container className="ankita">
       <Callout isClosable kind="error" onClose={closeHandler}>

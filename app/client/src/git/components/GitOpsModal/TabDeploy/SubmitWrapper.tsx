@@ -17,7 +17,10 @@ export default function SubmitWrapper({
         ? e.metaKey && e.key === "Enter"
         : e.ctrlKey && e.key === "Enter";
 
-      if (triggerSubmit) onSubmit();
+      if (triggerSubmit) {
+        e.preventDefault();
+        onSubmit();
+      }
     },
     [onSubmit],
   );
