@@ -1145,12 +1145,11 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_CONFIG_ERROR));
                     }
 
-                    return gitRedisUtils
-                            .acquireGitLock(
+                    return Mono.just(branchedArtifact)
+                            .doFinally(signalType -> gitRedisUtils.acquireGitLock(
                                     branchedGitData.getDefaultArtifactId(),
                                     GitConstants.GitCommandConstants.DISCARD,
-                                    TRUE)
-                            .thenReturn(branchedArtifact);
+                                    TRUE));
                 })
                 .flatMap(branchedArtifact -> {
                     GitArtifactMetadata branchedGitData = branchedArtifact.getGitArtifactMetadata();
@@ -1168,12 +1167,12 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                     return gitHandlingService
                             .recreateArtifactJsonFromLastCommit(jsonTransformationDTO)
                             .onErrorResume(throwable -> {
-                                log.error("Git recreate ArtifactJsonFailed", throwable.getMessage());
+                                log.error("Git recreate ArtifactJsonFailed : {}", throwable.getMessage());
                                 return Mono.error(
                                         new AppsmithException(
                                                 AppsmithError.GIT_ACTION_FAILED,
                                                 "discard changes",
-                                                "Please create a new branch and resolve the conflicts on remote repository before proceeding ahead."));
+                                                "Please create a new branch and resolve conflicts in the remote repository before proceeding."));
                             })
                             .flatMap(artifactExchangeJson -> importService.importArtifactInWorkspaceFromGit(
                                     branchedArtifact.getWorkspaceId(),
@@ -1183,11 +1182,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                             // Update the last deployed status after the rebase
                             .flatMap(importedArtifact -> gitArtifactHelper.publishArtifact(importedArtifact, true));
                 })
-                .flatMap(branchedArtifact -> gitRedisUtils
-                        .releaseFileLock(
-                                branchedArtifact.getGitArtifactMetadata().getDefaultArtifactId(), TRUE)
-                        .then(gitAnalyticsUtils.addAnalyticsForGitOperation(
-                                AnalyticsEvents.GIT_DISCARD_CHANGES, branchedArtifact, null)))
+                .flatMap(branchedArtifact -> gitAnalyticsUtils
+                        .addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES, branchedArtifact, null)
+                        .doFinally(signalType -> gitRedisUtils.releaseFileLock(
+                                branchedArtifact.getGitArtifactMetadata().getDefaultArtifactId(), TRUE)))
                 .name(GitSpan.OPS_DISCARD_CHANGES)
                 .tap(Micrometer.observation(observationRegistry));
 
