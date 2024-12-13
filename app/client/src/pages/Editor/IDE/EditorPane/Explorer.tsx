@@ -15,7 +15,7 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "ee/constants/routes/appRoutes";
-import SegmentedHeader from "./components/SegmentedHeader";
+import SegmentSwitcher from "./components/SegmentSwitcher";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "ee/entities/IDE/constants";
@@ -41,7 +41,7 @@ const EditorPaneExplorer = () => {
           : "100%"
       }
     >
-      <SegmentedHeader />
+      <SegmentSwitcher />
       <Switch>
         <SentryRoute
           component={JSExplorer}

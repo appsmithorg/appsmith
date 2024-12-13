@@ -2,14 +2,14 @@ import React from "react";
 import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { EditorEntityTab } from "ee/entities/IDE/constants";
 import { useCurrentEditorState, useSegmentNavigation } from "../../hooks";
-import { NavigationHeader } from "@appsmith/ads";
+import { EditorSegments } from "@appsmith/ads";
 
-const SegmentedHeader = () => {
+const SegmentSwitcher = () => {
   const { segment } = useCurrentEditorState();
   const { onSegmentChange } = useSegmentNavigation();
 
   return (
-    <NavigationHeader
+    <EditorSegments
       onSegmentChange={onSegmentChange}
       options={[
         {
@@ -30,4 +30,4 @@ const SegmentedHeader = () => {
   );
 };
 
-export default SegmentedHeader;
+export default SegmentSwitcher;

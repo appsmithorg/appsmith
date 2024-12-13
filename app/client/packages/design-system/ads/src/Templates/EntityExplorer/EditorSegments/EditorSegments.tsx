@@ -19,7 +19,7 @@ const Container = styled(Flex)`
   }
 `;
 
-export const NavigationHeader = (props: Props) => {
+export const EditorSegments = (props: Props) => {
   const { children, onSegmentChange, options, selectedSegment } = props;
 
   return (
