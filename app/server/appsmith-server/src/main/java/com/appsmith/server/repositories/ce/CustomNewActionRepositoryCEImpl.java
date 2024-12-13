@@ -12,6 +12,7 @@ import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.IteratorUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -26,6 +27,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -487,5 +489,26 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(Bridge.in(NewAction.Fields.applicationId, applicationIds))
                 .fields(includedFields)
                 .all();
+    }
+
+    @Override
+    public Flux<NewAction> findByApplicationId(String applicationId) {
+        return queryBuilder()
+                .criteria(Bridge.equal(NewAction.Fields.applicationId, applicationId))
+                .all();
+    }
+
+    @Override
+    public Flux<NewAction> findAllByIdIn(Iterable<String> ids) {
+        return queryBuilder()
+                .criteria(Bridge.in(NewAction.Fields.applicationId, IteratorUtils.toList((Iterator) ids)))
+                .all();
+    }
+
+    @Override
+    public Mono<Long> countByDeletedAtNull() {
+        return queryBuilder()
+                .criteria(Bridge.exists(NewAction.Fields.deletedAt))
+                .count();
     }
 }

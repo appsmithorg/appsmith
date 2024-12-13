@@ -6,6 +6,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.repository.Meta;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -80,4 +81,12 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs);
 
     Flux<NewAction> findAllByApplicationIds(List<String> branchedArtifactIds, List<String> includedFields);
+
+    @Meta(cursorBatchSize = 10000)
+    Flux<NewAction> findByApplicationId(String applicationId);
+
+    @Meta(cursorBatchSize = 10000)
+    Flux<NewAction> findAllByIdIn(Iterable<String> ids);
+
+    Mono<Long> countByDeletedAtNull();
 }
