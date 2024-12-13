@@ -31,28 +31,14 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
   }
 
   before(() => {
-    // _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.BUTTON);
-    // _.deployMode.DeployApp();
-    // cy.get(
-    //   `${appNavigationLocators.header} ${appNavigationLocators.shareButton}`,
-    // )
-    //   .click()
-    //   .wait(1000);
-    // cy.get("[data-testid='copy-application-url']").last().click();
-
-    // cy.window()
-    //   .its("navigator.clipboard")
-    //   .invoke("readText")
-    //   .then((text) => {
-    //     cy.wrap(text).as("embeddedAppUrl");
-    //   });
-
-    // cy.enablePublicAccess();
     _.homePage.NavigateToHome();
     _.homePage.CreateNewApplication();
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.IFRAME);
     // cy.get("@embeddedAppUrl").then((url) => {
-    cy.testJsontext("url", "https://app.appsmith.com/applications/6752ba5904a5f464099437ec/pages/6752ba5904a5f464099437f3");
+    cy.testJsontext(
+      "url",
+      "https://app.appsmith.com/applications/6752ba5904a5f464099437ec/pages/6752ba5904a5f464099437f3",
+    );
     //});
     _.agHelper.Sleep(5000); //for Iframe to fully load with url data
     _.deployMode.DeployApp();
@@ -100,13 +86,6 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
     });
     cy.get(adminSettings.saveButton).click();
     cy.waitForServerRestart();
-    // TODO: Commented out as it is flaky
-    // cy.wait(["@getEnvVariables", "@getEnvVariables"]).then((interception) => {
-    //   const {
-    //     APPSMITH_ALLOWED_FRAME_ANCESTORS,
-    //   } = interception[1].response.body.data;
-    //   expect(APPSMITH_ALLOWED_FRAME_ANCESTORS).to.equal("*");
-    // });
     _.agHelper.Sleep(2000);
     cy.get("@deployUrl").then((depUrl) => {
       cy.log("deployUrl is " + depUrl);
@@ -128,13 +107,7 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
     cy.get("@deployUrl").then((depUrl) => {
       cy.log("deployUrl is " + depUrl);
       cy.visit(depUrl, { timeout: 60000 });
-    }); // TODO: Commented out as it is flaky
-    // cy.wait(["@getEnvVariables", "@getEnvVariables"]).then((interception) => {
-    //   const {
-    //     APPSMITH_ALLOWED_FRAME_ANCESTORS,
-    //   } = interception[1].response.body.data;
-    //   expect(APPSMITH_ALLOWED_FRAME_ANCESTORS).to.equal("'none'");
-    // });
+    });
     getIframeBody().contains("Submit").should("not.exist");
 
     ValidateEditModeSetting(_.embedSettings.locators._disabledText);
