@@ -51,10 +51,8 @@ export const ComboBox = (props: ComboBoxProps) => {
         size={size}
       />
       <FieldError>{errorMessage}</FieldError>
-      <Popover UNSTABLE_portalContainer={root} data-combobox-popover>
-        <ListBox data-combobox-listbox shouldFocusWrap>
-          {children}
-        </ListBox>
+      <Popover UNSTABLE_portalContainer={root}>
+        <ListBox shouldFocusWrap>{children}</ListBox>
       </Popover>
     </HeadlessCombobox>
   );

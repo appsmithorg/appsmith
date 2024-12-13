@@ -19,7 +19,9 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = (props) => {
   const { isDisabled, isInvalid, isLoading, placeholder, size } = props;
 
   return (
-    <Group className={textInputStyles.inputGroup}>
+    <Group
+      className={clsx(textInputStyles.inputGroup, styles.selectInputGroup)}
+    >
       <Button
         className={clsx(textInputStyles.input, styles.selectTriggerButton)}
         data-invalid={Boolean(isInvalid) ? "" : undefined}
@@ -35,7 +37,11 @@ export const SelectTrigger: React.FC<SelectTriggerProps> = (props) => {
           }
         </SelectValue>
         <span data-input-suffix>
-          {Boolean(isLoading) ? <Spinner /> : <Icon name="chevron-down" />}
+          {Boolean(isLoading) ? (
+            <Spinner />
+          ) : (
+            <Icon name="chevron-down" size="medium" />
+          )}
         </span>
       </Button>
     </Group>

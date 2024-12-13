@@ -3,7 +3,3 @@
   max-height: inherit;
   overflow-y: auto;
 }
-
-.listBox:is([data-select-listbox], [data-combobox-listbox]) {
-  min-inline-size: calc(var(--trigger-width) + var(--inner-spacing-2) * 2);
-}

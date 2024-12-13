@@ -9,7 +9,9 @@ import type { InputProps } from "./types";
 
 function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
   const {
+    className,
     defaultValue,
+    inputGroupClassName,
     isLoading,
     isReadOnly,
     prefix,
@@ -45,11 +47,15 @@ function _Input(props: InputProps, ref: React.Ref<HTMLInputElement>) {
   })();
 
   return (
-    <Group className={styles.inputGroup}>
+    <Group className={clsx(styles.inputGroup, inputGroupClassName)}>
       {Boolean(prefix) && <span data-input-prefix>{prefix}</span>}
       <HeadlessInput
         {...rest}
-        className={clsx(styles.input, getTypographyClassName("body"))}
+        className={clsx(
+          styles.input,
+          getTypographyClassName("body"),
+          className,
+        )}
         data-readonly={Boolean(isReadOnly) ? true : undefined}
         data-size={Boolean(size) ? size : undefined}
         defaultValue={defaultValue}

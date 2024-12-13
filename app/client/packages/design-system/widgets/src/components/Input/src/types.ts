@@ -15,7 +15,9 @@ interface CommonInputProps {
 
 export interface InputProps
   extends Omit<HeadlessInputProps, "prefix" | "size">,
-    CommonInputProps {}
+    CommonInputProps {
+  inputGroupClassName?: string;
+}
 
 export interface TextAreaInputProps
   extends Omit<HeadlessTextAreaProps, "prefix" | "size">,

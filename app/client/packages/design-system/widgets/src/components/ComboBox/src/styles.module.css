@@ -1,0 +1,7 @@
+div.comboboxInputGroup {
+  padding-inline-start: 0;
+}
+
+input.comboboxInput {
+  padding-inline-start: var(--inner-spacing-2);
+}
