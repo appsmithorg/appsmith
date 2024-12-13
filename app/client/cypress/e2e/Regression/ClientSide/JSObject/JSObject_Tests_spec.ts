@@ -37,6 +37,7 @@ describe("Validate JSObj", {}, () => {
     agHelper.GetNClick(jsEditor._addJSObj);
     agHelper.AssertContains("JSObject2", "exist", ".t--entity-name");
     agHelper.GetNClick(EditorNavigation.locators.MinimizeBtn);
+    EditorNavigation.CloseAnnouncementModal();
     agHelper.GetNClick(jsEditor._addJSObj);
     agHelper.GetNClick(EditorNavigation.locators.MaximizeBtn);
     agHelper.AssertContains("JSObject3", "exist", ".t--entity-name");
