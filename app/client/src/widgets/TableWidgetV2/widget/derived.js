@@ -284,12 +284,28 @@ export default {
     const getTextFromHTML = (html) => {
       if (!html) return "";
 
-      const tempDiv = document.createElement("div");
+      try {
+        const tempDiv = document.createElement("div");
 
-      tempDiv.innerHTML = html;
+        tempDiv.innerHTML = html;
 
-      return tempDiv.textContent || tempDiv.innerText || "";
+        return tempDiv.textContent || tempDiv.innerText || "";
+      } catch (e) {
+        return "";
+      }
     };
+
+    /**
+     * Since getTextFromHTML is an expensive operation, we need to avoid calling it unnecessarily
+     * This optimization ensures that getTextFromHTML is only called when required
+     */
+    const doesFiltersContainAnyHTMLColumn = props.filters.some((filter) =>
+      htmlColumns.includes(filter.column),
+    );
+    const shouldExtractHTMLText =
+      props.searchKey || doesFiltersContainAnyHTMLColumn;
+    const getKeyForExtractedTextFromHTML = (columnAlias) =>
+      `__htmlExtractedText_${columnAlias}__`;
 
     /* extend processedTableData with values from
      *  - computedValues, in case of normal column
@@ -325,6 +341,12 @@ export default {
             ...processedTableData[index],
             [column.alias]: computedValue,
           };
+
+          if (shouldExtractHTMLText && column.columnType === "html") {
+            processedTableData[index][
+              getKeyForExtractedTextFromHTML(column.alias)
+            ] = getTextFromHTML(computedValue);
+          }
         });
       });
     }
@@ -515,8 +537,19 @@ export default {
                   }
                 }
               case "html":
+                const htmlExtractedTextA =
+                  processedA[
+                    getKeyForExtractedTextFromHTML(sortByColumnOriginalId)
+                  ];
+                const htmlExtractedTextB =
+                  processedB[
+                    getKeyForExtractedTextFromHTML(sortByColumnOriginalId)
+                  ];
+
                 return sortByOrder(
-                  getTextFromHTML(processedA[sortByColumnOriginalId]) >
+                  htmlExtractedTextA ??
+                    getTextFromHTML(processedA[sortByColumnOriginalId]) >
+                      htmlExtractedTextB ??
                     getTextFromHTML(processedB[sortByColumnOriginalId]),
                 );
               default:
@@ -814,17 +847,23 @@ export default {
         return acc;
       }, {});
 
+      let htmlValues = {};
+
       /*
        * We don't want html tags and inline styles to match in search
        */
-      const htmlValues = columnsWithHTML.reduce((acc, column) => {
-        const value = row[column.alias];
+      if (shouldExtractHTMLText) {
+        htmlValues = columnsWithHTML.reduce((acc, column) => {
+          const value = row[column.alias];
 
-        acc[column.alias] =
-          value === null || value === undefined ? "" : getTextFromHTML(value);
+          acc[column.alias] = _.isNil(value)
+            ? ""
+            : row[getKeyForExtractedTextFromHTML(column.alias)] ??
+              getTextFromHTML(value);
 
-        return acc;
-      }, {});
+          return acc;
+        }, {});
+      }
 
       const displayedRow = {
         ...row,
@@ -877,10 +916,14 @@ export default {
              */
             const isHTMLColumn = htmlColumns.includes(props.filters[i].column);
             const originalColValue = isHTMLColumn
-              ? getTextFromHTML(originalRow[props.filters[i].column])
+              ? originalRow[
+                  getKeyForExtractedTextFromHTML(props.filters[i].column)
+                ] ?? getTextFromHTML(originalRow[props.filters[i].column])
               : originalRow[props.filters[i].column];
             const displayedColValue = isHTMLColumn
-              ? getTextFromHTML(displayedRow[props.filters[i].column])
+              ? displayedRow[
+                  getKeyForExtractedTextFromHTML(props.filters[i].column)
+                ] ?? getTextFromHTML(displayedRow[props.filters[i].column])
               : displayedRow[props.filters[i].column];
 
             filterResult =
