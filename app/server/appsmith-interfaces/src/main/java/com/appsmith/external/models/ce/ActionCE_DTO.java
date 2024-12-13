@@ -26,6 +26,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -204,11 +205,11 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView({Views.Internal.class})
     @Transient
     public String getValidName() {
-        if (this.fullyQualifiedName == null) {
-            return this.name;
-        } else {
+        if (StringUtils.hasText(this.fullyQualifiedName)) {
             return this.fullyQualifiedName;
         }
+
+        return this.name;
     }
 
     @Override

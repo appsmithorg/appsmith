@@ -1,4 +1,4 @@
-import type { AxiosResponse } from "axios";
+import type { AxiosPromise } from "axios";
 import type {
   DeleteBranchRequestParams,
   DeleteBranchResponse,
@@ -9,6 +9,6 @@ import Api from "api/Api";
 export default async function deleteBranchRequest(
   baseApplicationId: string,
   params: DeleteBranchRequestParams,
-): Promise<AxiosResponse<DeleteBranchResponse>> {
+): AxiosPromise<DeleteBranchResponse> {
   return Api.delete(`${GIT_BASE_URL}/branch/app/${baseApplicationId}`, params);
 }

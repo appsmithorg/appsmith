@@ -7,24 +7,9 @@ import com.appsmith.server.repositories.CustomApplicationRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ApplicationRepositoryCE extends BaseRepository<Application, String>, CustomApplicationRepository {
-
-    Optional<Application> findByName(String name);
-
-    List<Application> findByIdIn(List<String> ids);
-
-    List<Application> findByWorkspaceId(String workspaceId);
-
-    Optional<Long> countByWorkspaceId(String workspaceId);
-
+    // All methods moved to CustomApplicationRepositoryCE
     List<IdOnly> findIdsByWorkspaceId(String workspaceId);
-
-    List<Application> findByClonedFromApplicationId(String clonedFromApplicationId);
-
-    Optional<Long> countByDeletedAtNull();
-
-    Optional<Application> findByIdAndExportWithConfiguration(String id, boolean exportWithConfiguration);
 }

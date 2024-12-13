@@ -5,9 +5,13 @@ import useStatusChangeCount from "./hooks/useStatusChangeCount";
 
 function CtxAwareGitQuickActions() {
   const {
+    autocommitEnabled,
+    autocommitPolling,
     discard,
     discardLoading,
     fetchStatusLoading,
+    gitConnected,
+    protectedMode,
     pull,
     pullError,
     pullLoading,
@@ -17,12 +21,7 @@ function CtxAwareGitQuickActions() {
     toggleGitSettingsModal,
   } = useGitContext();
 
-  const isGitConnected = false;
-  const isAutocommitEnabled = true;
-  const isAutocommitPolling = false;
-  const isConnectPermitted = true;
-  const isProtectedMode = false;
-
+  const connectPermitted = true;
   const isPullFailing = !!pullError;
   const isStatusClean = status?.isClean ?? false;
   const statusBehindCount = status?.behindCount ?? 0;
@@ -31,13 +30,13 @@ function CtxAwareGitQuickActions() {
   return (
     <GitQuickActions
       discard={discard}
-      isAutocommitEnabled={isAutocommitEnabled}
-      isAutocommitPolling={isAutocommitPolling}
-      isConnectPermitted={isConnectPermitted}
+      isAutocommitEnabled={autocommitEnabled}
+      isAutocommitPolling={autocommitPolling}
+      isConnectPermitted={connectPermitted}
       isDiscardLoading={discardLoading}
       isFetchStatusLoading={fetchStatusLoading}
-      isGitConnected={isGitConnected}
-      isProtectedMode={isProtectedMode}
+      isGitConnected={gitConnected}
+      isProtectedMode={protectedMode}
       isPullFailing={isPullFailing}
       isPullLoading={pullLoading}
       isStatusClean={isStatusClean}
