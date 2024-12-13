@@ -28,6 +28,8 @@ import {
 } from "redux-saga/effects";
 import type { Task } from "redux-saga";
 import { validateResponse } from "sagas/ErrorSagas";
+import log from "loglevel";
+import { captureException } from "@sentry/react";
 
 const AUTOCOMMIT_POLL_DELAY = 1000;
 const AUTOCOMMIT_WHITELISTED_STATES = [
@@ -66,25 +68,30 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
     if (triggerResponse && isValidResponse) {
       yield put(gitArtifactActions.triggerAutocommitSuccess(basePayload));
     }
-  } catch (error) {
-    yield put(
-      gitArtifactActions.triggerAutocommitError({
-        ...basePayload,
-        error: error as string,
-      }),
-    );
+  } catch (e) {
+    if (triggerResponse && triggerResponse.responseMeta.error) {
+      const { error } = triggerResponse.responseMeta;
+
+      yield put(
+        gitArtifactActions.triggerAutocommitError({ ...basePayload, error }),
+      );
+    } else {
+      log.error(e);
+      captureException(e);
+    }
   }
+
+  let progressResponse: FetchAutocommitProgressResponse | null = null;
 
   try {
     if (isAutocommitHappening(triggerResponse?.data)) {
       yield put(gitArtifactActions.pollAutocommitProgressStart(basePayload));
 
       while (true) {
-        yield put(gitArtifactActions.fetchAutocommitProgressInit(basePayload));
-        const progressResponse: FetchAutocommitProgressResponse = yield call(
-          fetchAutocommitProgressRequest,
-          baseArtifactId,
+        progressResponse = yield put(
+          gitArtifactActions.fetchAutocommitProgressInit(basePayload),
         );
+        yield call(fetchAutocommitProgressRequest, baseArtifactId);
         const isValidResponse: boolean =
           yield validateResponse(progressResponse);
 
@@ -101,14 +108,22 @@ function* pollAutocommitProgressSaga(params: PollAutocommitProgressParams) {
     } else {
       yield put(gitArtifactActions.pollAutocommitProgressStop(basePayload));
     }
-  } catch (error) {
+  } catch (e) {
     yield put(gitArtifactActions.pollAutocommitProgressStop(basePayload));
-    yield put(
-      gitArtifactActions.fetchAutocommitProgressError({
-        ...basePayload,
-        error: error as string,
-      }),
-    );
+
+    if (progressResponse && progressResponse.responseMeta.error) {
+      const { error } = progressResponse.responseMeta;
+
+      yield put(
+        gitArtifactActions.fetchAutocommitProgressError({
+          ...basePayload,
+          error,
+        }),
+      );
+    } else {
+      log.error(e);
+      captureException(e);
+    }
   }
 }
 

@@ -11,6 +11,8 @@ import { validateResponse } from "sagas/ErrorSagas";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { initEditorAction } from "actions/initActions";
 import { APP_MODE } from "entities/App";
+import log from "loglevel";
+import { captureException } from "@sentry/react";
 
 export default function* pullSaga(
   action: GitArtifactPayloadAction<PullInitPayload>,
@@ -41,16 +43,18 @@ export default function* pullSaga(
       );
     }
   } catch (e) {
-    // !case: handle this with error
-    // if (triggeredFromBottomBar) {
-    //   yield put(setIsGitErrorPopupVisible({ isVisible: true }));
-    // }
+    if (response && response.responseMeta.error) {
+      const { error } = response.responseMeta;
 
-    yield put(
-      gitArtifactActions.pullError({
-        ...basePayload,
-        error: e as string,
-      }),
-    );
+      // !case: handle this with error
+      // if (triggeredFromBottomBar) {
+      //   yield put(setIsGitErrorPopupVisible({ isVisible: true }));
+      // }
+
+      yield put(gitArtifactActions.pullError({ ...basePayload, error }));
+    } else {
+      log.error(e);
+      captureException(e);
+    }
   }
 }

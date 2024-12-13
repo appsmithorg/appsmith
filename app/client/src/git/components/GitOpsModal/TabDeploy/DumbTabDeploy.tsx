@@ -41,6 +41,7 @@ import GitConflictError from "git/components/GitConflictError";
 import SubmitWrapper from "./SubmitWrapper";
 import UpstreamWarning from "./UpstreamWarning";
 import noop from "lodash/noop";
+import type { GitApiError } from "git/store/types";
 
 const Section = styled.div`
   margin-top: 0;
@@ -73,12 +74,10 @@ interface DumbTabDeployProps {
   clearCommitError: () => void;
   clearDiscardError: () => void;
   commit: (commitMessage: string) => void;
-  // ! case: improve error handling
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  commitError: any;
+  commitError: GitApiError | null;
   currentBranch: string | null;
   discard: () => void;
-  discardError: string | null;
+  discardError: GitApiError | null;
   isCommitLoading: boolean;
   isDiscardLoading: boolean;
   isFetchStatusLoading: boolean;
