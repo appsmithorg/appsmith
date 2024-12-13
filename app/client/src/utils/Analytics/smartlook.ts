@@ -40,6 +40,14 @@ class SmartlookUtil {
       });
     }
   }
+
+  public static identifyUser(userId: string, email: string) {
+    if (this.initialised) {
+      smartlookClient.identify(userId, {
+        email,
+      });
+    }
+  }
 }
 
 export default SmartlookUtil;
