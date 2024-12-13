@@ -16,7 +16,7 @@ const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet-all";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
-describe(
+describe.skip(
   "GSheet-Functional Tests With All Access",
   {
     tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],

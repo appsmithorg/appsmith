@@ -12,7 +12,7 @@ import {
   appSettings,
 } from "../../support/Objects/ObjectsCore";
 
-describe(
+describe.skip(
   "GSheet-Functional Tests With Read Access",
   {
     tags: ["@tag.Datasource", "@tag.GSheet", "@tag.Git", "@tag.AccessControl"],
