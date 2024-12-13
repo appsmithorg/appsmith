@@ -12,10 +12,10 @@ import type { TMessage } from "utils/MessageUtil";
 import { MessageType } from "utils/MessageUtil";
 import type { ResponsePayload } from "../sagas/EvaluationsSaga";
 import {
-  evalWorker,
   executeTriggerRequestSaga,
   updateDataTreeHandler,
 } from "../sagas/EvaluationsSaga";
+import { evalWorker } from "utils/workerInstances";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
 import isEmpty from "lodash/isEmpty";

@@ -16,4 +16,4 @@ export const REACT_JSON_PROPS = {
   collapsed: 1,
 };
 
-export const API_REACT_JSON_PROPS = { ...REACT_JSON_PROPS, collapsed: 0 };
+export const DEFAULT_ERROR_MESSAGE = "An unexpected error occurred";
