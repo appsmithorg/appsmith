@@ -1,7 +1,9 @@
+import { captureException } from "@sentry/react";
 import fetchGitMetadataRequest from "git/requests/fetchGitMetadataRequest";
 import type { FetchGitMetadataResponse } from "git/requests/fetchGitMetadataRequest.types";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import type { GitArtifactPayloadAction } from "git/store/types";
+import log from "loglevel";
 import { call, put } from "redux-saga/effects";
 import { validateResponse } from "sagas/ErrorSagas";
 
@@ -24,12 +26,19 @@ export default function* fetchGitMetadataSaga(
         }),
       );
     }
-  } catch (error) {
-    yield put(
-      gitArtifactActions.fetchGitMetadataError({
-        ...basePayload,
-        error: error as string,
-      }),
-    );
+  } catch (e) {
+    if (response && response.responseMeta.error) {
+      const { error } = response.responseMeta;
+
+      yield put(
+        gitArtifactActions.fetchGitMetadataError({
+          ...basePayload,
+          error,
+        }),
+      );
+    } else {
+      log.error(e);
+      captureException(e);
+    }
   }
 }

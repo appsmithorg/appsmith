@@ -4,7 +4,7 @@ import {
   selectGitConnected,
   selectGitMetadata,
 } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitRootState } from "git/store/types";
+import type { GitApiError, GitRootState } from "git/store/types";
 import { useMemo } from "react";
 import { useSelector } from "react-redux";
 
@@ -16,7 +16,7 @@ interface UseGitMetadataParams {
 export interface UseGitMetadataReturnValue {
   gitMetadata: FetchGitMetadataResponseData | null;
   fetchGitMetadataLoading: boolean;
-  fetchGitMetadataError: string | null;
+  fetchGitMetadataError: GitApiError | null;
   gitConnected: boolean;
 }
 
