@@ -34,6 +34,7 @@ import { noop } from "lodash";
 import type { FetchBranchesResponseData } from "git/requests/fetchBranchesRequest.types";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatusRequest.types";
+import type { GitApiError } from "git/store/types";
 
 const Container = styled.div`
   min-height: 360px;
@@ -74,9 +75,7 @@ interface DumbTabMergeProps {
   isMergeLoading: boolean;
   isStatusClean: boolean;
   merge: (sourceBranch: string, destinationBranch: string) => void;
-  // ! case: should add proper type
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  mergeError: any;
+  mergeError: GitApiError | null;
   mergeStatus: FetchMergeStatusResponseData | null;
   protectedBranches: FetchProtectedBranchesResponseData | null;
 }
@@ -125,7 +124,7 @@ export default function DumbTabMerge({
     status = MergeStatusState.NOT_MERGEABLE;
   } else if (mergeError) {
     status = MergeStatusState.ERROR;
-    message = mergeError.error.message;
+    message = mergeError.message;
   }
 
   // should check after added error code for conflicting

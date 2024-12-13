@@ -34,12 +34,11 @@ import { isEllipsisActive } from "utils/helpers";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import DiscardChangesWarning from "./DiscardChangesWarning";
-import PushFailedWarning from "./PushFailedWarning";
-import DiscardFailedWarning from "./DiscardFailedWarning";
+import PushFailedError from "./PushFailedError";
+import DiscardFailedError from "./DiscardFailedError";
 import GitStatus from "git/components/GitStatus";
 import GitConflictError from "git/components/GitConflictError";
 import SubmitWrapper from "./SubmitWrapper";
-import UpstreamWarning from "./UpstreamWarning";
 import noop from "lodash/noop";
 import type { GitApiError } from "git/store/types";
 
@@ -314,14 +313,9 @@ function DumbTabDeploy({
                 value={commitMessageDisplay}
               />
             </SubmitWrapper>
-            {/* // ! case: should be removed from here */}
-            {/* {isFetchStatusLoading && (
-              <StatusLoader loaderMsg={createMessage(FETCH_GIT_STATUS)} />
-            )} */}
-            {pullRequired && !isConflicting && <UpstreamWarning />}
             {isConflicting && <GitConflictError />}
             {commitError && (
-              <PushFailedWarning
+              <PushFailedError
                 closeHandler={handleCommitAndPushErrorClose}
                 error={commitError}
               />
@@ -347,7 +341,7 @@ function DumbTabDeploy({
           </Section>
 
           {discardError && (
-            <DiscardFailedWarning
+            <DiscardFailedError
               closeHandler={handleDiscardErrorClose}
               error={discardError}
             />

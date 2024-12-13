@@ -8,15 +8,15 @@ const Container = styled.div`
   margin: 8px 0 16px;
 `;
 
-export interface PushFailedWarningProps {
+export interface PushFailedErrorProps {
   closeHandler: () => void;
   error: GitApiError;
 }
 
-export default function PushFailedWarning({
+export default function PushFailedError({
   closeHandler,
   error,
-}: PushFailedWarningProps) {
+}: PushFailedErrorProps) {
   return (
     <Container className="ankita">
       <Callout isClosable kind="error" onClose={closeHandler}>
