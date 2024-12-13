@@ -16,7 +16,6 @@ import EditorNavigation, {
   EntityType,
   PageLeftPane,
 } from "../../support/Pages/EditorNavigation";
-import { featureFlagIntercept } from "../../support/Objects/FeatureFlags";
 
 const workspaceName = "gsheet apps";
 const dataSourceName = "gsheet-all";
