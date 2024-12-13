@@ -125,7 +125,11 @@ test_postgres_auth_enabled_upgrade_from_150tolocal() {
     
     # Check if the Appsmith instance is up
     if is_appsmith_instance_ready; then
-      check_user_exists appsmith
+      if ! check_user_exists appsmith; then
+          echo "Appsmith user does not exist"
+          echo "Test ${FUNCNAME[0]} Failed ❌"
+          exit 1
+      fi
       # Check if the Appsmith user has read access to databases
       if check_user_datasource_access_with_auth; then
           echo "Test ${FUNCNAME[0]} Passed ✅"
@@ -198,7 +202,11 @@ test_postgres_auth_enabled_restart_localtolocal() {
 
     # Check if the Appsmith instance is up
     if is_appsmith_instance_ready; then
-      check_user_exists appsmith
+      if ! check_user_exists appsmith; then
+          echo "Appsmith user does not exist"
+          echo "Test ${FUNCNAME[0]} Failed ❌"
+          exit 1
+      fi
       # Check if the Appsmith user has read access to databases
       if check_user_datasource_access_with_auth; then
           echo "Test ${FUNCNAME[0]} Passed ✅"

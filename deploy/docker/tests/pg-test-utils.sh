@@ -1,3 +1,8 @@
+#!/bin/bash
+
+# Default container name if not provided
+container_name=${container_name:-appsmith-docker-test}
+
 # Function to check if the Appsmith instance is up
 is_appsmith_instance_ready() {
   local max_retries=200
