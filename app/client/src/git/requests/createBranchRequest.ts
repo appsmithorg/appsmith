@@ -1,4 +1,4 @@
-import type { AxiosResponse } from "axios";
+import type { AxiosPromise } from "axios";
 import type {
   CreateBranchRequestParams,
   CreateBranchResponse,
@@ -9,7 +9,7 @@ import Api from "api/Api";
 export default async function createBranchRequest(
   branchedApplicationId: string,
   params: CreateBranchRequestParams,
-): Promise<AxiosResponse<CreateBranchResponse>> {
+): AxiosPromise<CreateBranchResponse> {
   return Api.post(
     `${GIT_BASE_URL}/create-branch/app/${branchedApplicationId}`,
     params,

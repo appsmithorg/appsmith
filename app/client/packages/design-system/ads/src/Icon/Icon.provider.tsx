@@ -775,6 +775,9 @@ const PackageIcon = importSvg(
 const ModuleIcon = importSvg(
   async () => import("../__assets__/icons/ads/module.svg"),
 );
+const CreateModuleIcon = importSvg(
+  async () => import("../__assets__/icons/ads/create-module.svg"),
+);
 const WorkflowsIcon = importSvg(
   async () => import("../__assets__/icons/ads/workflows.svg"),
 );
@@ -1187,6 +1190,7 @@ const ICON_LOOKUP = {
   "contract-right-line": ContractRight,
   "copy-control": CopyIcon,
   "copy2-control": Copy2Icon,
+  "create-module": CreateModuleIcon,
   "cut-control": CutIcon,
   "dashboard-line": DashboardLineIcon,
   "database-2-line": Database2Line,

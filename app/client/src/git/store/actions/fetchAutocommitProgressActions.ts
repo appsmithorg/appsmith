@@ -1,8 +1,4 @@
-import type {
-  GitArtifactPayloadAction,
-  GitArtifactErrorPayloadAction,
-  GitAutocommitProgress,
-} from "../types";
+import type { GitAsyncErrorPayload } from "../types";
 import { createSingleArtifactAction } from "../helpers/createSingleArtifactAction";
 
 export const fetchAutocommitProgressInitAction = createSingleArtifactAction(
@@ -15,27 +11,19 @@ export const fetchAutocommitProgressInitAction = createSingleArtifactAction(
 );
 
 export const fetchAutocommitProgressSuccessAction = createSingleArtifactAction(
-  (
-    state,
-    action: GitArtifactPayloadAction<{
-      autocommitProgress: GitAutocommitProgress;
-    }>,
-  ) => {
+  (state) => {
     state.apiResponses.autocommitProgress.loading = false;
-    state.apiResponses.autocommitProgress.value =
-      action.payload.autocommitProgress;
 
     return state;
   },
 );
 
-export const fetchAutocommitProgressErrorAction = createSingleArtifactAction(
-  (state, action: GitArtifactErrorPayloadAction) => {
+export const fetchAutocommitProgressErrorAction =
+  createSingleArtifactAction<GitAsyncErrorPayload>((state, action) => {
     const { error } = action.payload;
 
     state.apiResponses.autocommitProgress.loading = false;
     state.apiResponses.autocommitProgress.error = error;
 
     return state;
-  },
-);
+  });

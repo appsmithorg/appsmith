@@ -11,13 +11,8 @@ import type { FetchBranchesResponseData } from "../requests/fetchBranchesRequest
 import type { FetchLocalProfileResponseData } from "../requests/fetchLocalProfileRequest.types";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatusRequest.types";
-
-// These will be updated when contracts are finalized
-export type GitMetadata = Record<string, unknown>;
-
-export type GitProtectedBranches = Record<string, unknown>;
-
-export type GitAutocommitProgress = Record<string, unknown>;
+import type { FetchGitMetadataResponseData } from "git/requests/fetchGitMetadataRequest.types";
+import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 
 export type GitSSHKey = Record<string, unknown>;
 
@@ -32,7 +27,7 @@ interface AsyncStateWithoutValue {
   error: string | null;
 }
 export interface GitSingleArtifactAPIResponsesReduxState {
-  metadata: AsyncState<GitMetadata>;
+  metadata: AsyncState<FetchGitMetadataResponseData>;
   connect: AsyncStateWithoutValue;
   status: AsyncState<FetchStatusResponseData>;
   commit: AsyncStateWithoutValue;
@@ -47,9 +42,9 @@ export interface GitSingleArtifactAPIResponsesReduxState {
   localProfile: AsyncState<FetchLocalProfileResponseData>;
   updateLocalProfile: AsyncStateWithoutValue;
   disconnect: AsyncStateWithoutValue;
-  protectedBranches: AsyncState<GitProtectedBranches>;
+  protectedBranches: AsyncState<FetchProtectedBranchesResponseData>;
   updateProtectedBranches: AsyncStateWithoutValue;
-  autocommitProgress: AsyncState<GitAutocommitProgress>;
+  autocommitProgress: AsyncStateWithoutValue;
   toggleAutocommit: AsyncStateWithoutValue;
   triggerAutocommit: AsyncStateWithoutValue;
   sshKey: AsyncState<GitSSHKey>;
@@ -79,6 +74,8 @@ export interface GitSingleArtifactUIReduxState {
   repoLimitErrorModal: {
     open: boolean;
   };
+  autocommitPolling: boolean;
+  autocommitModalOpen: boolean;
 }
 export interface GitSingleArtifactReduxState {
   ui: GitSingleArtifactUIReduxState;

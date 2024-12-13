@@ -50,7 +50,7 @@ describe("QuickActionButton", () => {
         <QuickActionButton {...defaultProps} />
       </ThemeProvider>,
     );
-    const btn = container.getElementsByClassName("t--test-btn")[0];
+    const btn = container.querySelectorAll(".t--test-btn button")[0];
 
     fireEvent.click(btn);
     expect(defaultProps.onClick).toHaveBeenCalledTimes(1);
