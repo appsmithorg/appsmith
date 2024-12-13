@@ -1114,12 +1114,13 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
     }
 
     /**
-     *
+     * Resets the artifact to last commit, all uncommitted changes are lost in the process.
      * @param branchedArtifactId : id of the branchedArtifact
      * @param artifactType type of the artifact
-     * @param gitType
-     * @return
+     * @param gitType what is the intended implementation type
+     * @return : a publisher of an artifact.
      */
+    @Override
     public Mono<? extends Artifact> discardChanges(
             String branchedArtifactId, ArtifactType artifactType, GitType gitType) {
 
