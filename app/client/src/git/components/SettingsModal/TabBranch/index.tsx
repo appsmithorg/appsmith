@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import GitDefaultBranch from "../../GitDefaultBranch";
-import GitProtectedBranches from "../../GitProtectedBranches";
+import DefaultBranch from "../../DefaultBranch";
+import ProtectedBranches from "../../ProtectedBranches";
 
 const Container = styled.div`
   overflow: auto;
@@ -21,8 +21,8 @@ function TabBranch({
 
   return (
     <Container>
-      {showDefaultBranch && <GitDefaultBranch />}
-      {showProtectedBranches && <GitProtectedBranches />}
+      {showDefaultBranch && <DefaultBranch />}
+      {showProtectedBranches && <ProtectedBranches />}
     </Container>
   );
 }

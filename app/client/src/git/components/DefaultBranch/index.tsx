@@ -1,9 +1,9 @@
 import React from "react";
 import useGitFeatureFlags from "git/hooks/useGitFeatureFlags";
-import DefaultBranchEE from "ee/git/components/GitDefaultBranch";
+import DefaultBranchEE from "ee/git/components/DefaultBranch";
 import DefaultBranchCE from "./DefaultBranchCE";
 
-function GitDefaultBranch() {
+function DefaultBranch() {
   const { license_git_branch_protection_enabled } = useGitFeatureFlags();
 
   if (license_git_branch_protection_enabled) {
@@ -13,4 +13,4 @@ function GitDefaultBranch() {
   return <DefaultBranchCE />;
 }
 
-export default GitDefaultBranch;
+export default DefaultBranch;
