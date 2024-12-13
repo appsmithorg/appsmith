@@ -12,6 +12,7 @@ import {
 import styled from "styled-components";
 import {
   BRANCH,
+  CONTINUOUS_DELIVERY,
   GENERAL,
   SETTINGS_GIT,
   createMessage,
@@ -60,15 +61,8 @@ function DumbGitSettingsModal({
     [toggleSettingsModal],
   );
 
-  const handleModalOpenChange = useCallback(
-    () => (open: boolean) => {
-      toggleSettingsModal(open);
-    },
-    [toggleSettingsModal],
-  );
-
   return (
-    <Modal onOpenChange={handleModalOpenChange} open={isSettingsModalOpen}>
+    <Modal onOpenChange={toggleSettingsModal} open={isSettingsModalOpen}>
       <StyledModalContent data-testid="t--git-settings-modal">
         <ModalHeader>{createMessage(SETTINGS_GIT)}</ModalHeader>
         <Tabs onValueChange={handleTabKeyChange} value={settingsModalTab}>
@@ -81,14 +75,24 @@ function DumbGitSettingsModal({
                 {createMessage(BRANCH)}
               </Tab>
             )}
-            <Tab data-testid={"t--tab-cd"} value={GitSettingsTab.Branch}>
-              {createMessage(BRANCH)}
+            <Tab
+              data-testid={"t--tab-cd"}
+              value={GitSettingsTab.ContinuousDelivery}
+            >
+              {createMessage(CONTINUOUS_DELIVERY)}
             </Tab>
           </TabsList>
         </Tabs>
         <ModalBody>
           {settingsModalTab === GitSettingsTab.General && <TabGeneral />}
-          {settingsModalTab === GitSettingsTab.Branch && <TabBranch />}
+          {settingsModalTab === GitSettingsTab.Branch && (
+            <TabBranch
+              isManageDefaultBranchPermitted={isManageDefaultBranchPermitted}
+              isManageProtectedBranchesPermitted={
+                isManageProtectedBranchesPermitted
+              }
+            />
+          )}
           {settingsModalTab === GitSettingsTab.ContinuousDelivery && (
             <TabContinuousDelivery />
           )}
