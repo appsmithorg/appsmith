@@ -299,11 +299,21 @@ export default {
      * Since getTextFromHTML is an expensive operation, we need to avoid calling it unnecessarily
      * This optimization ensures that getTextFromHTML is only called when required
      */
-    const doesFiltersContainAnyHTMLColumn = props.filters.some((filter) =>
+    const columnsWithHTML = Object.values(props.primaryColumns).filter(
+      (column) => column.columnType === "html",
+    );
+    const htmlColumns = columnsWithHTML.map((column) => column.alias);
+
+    const isFilteringByColumnThatHasHTML = props.filters?.some((filter) =>
       htmlColumns.includes(filter.column),
     );
+    const isSortingByColumnThatHasHTML =
+      props.sortOrder?.column && htmlColumns.includes(props.sortOrder.column);
+
     const shouldExtractHTMLText =
-      props.searchKey || doesFiltersContainAnyHTMLColumn;
+      props.searchKey ||
+      isFilteringByColumnThatHasHTML ||
+      isSortingByColumnThatHasHTML;
     const getKeyForExtractedTextFromHTML = (columnAlias) =>
       `__htmlExtractedText_${columnAlias}__`;
 
@@ -536,7 +546,7 @@ export default {
                     );
                   }
                 }
-              case "html":
+              case "html": {
                 const htmlExtractedTextA =
                   processedA[
                     getKeyForExtractedTextFromHTML(sortByColumnOriginalId)
@@ -547,11 +557,12 @@ export default {
                   ];
 
                 return sortByOrder(
-                  htmlExtractedTextA ??
-                    getTextFromHTML(processedA[sortByColumnOriginalId]) >
-                      htmlExtractedTextB ??
-                    getTextFromHTML(processedB[sortByColumnOriginalId]),
+                  (htmlExtractedTextA ??
+                    getTextFromHTML(processedA[sortByColumnOriginalId])) >
+                    (htmlExtractedTextB ??
+                      getTextFromHTML(processedB[sortByColumnOriginalId])),
                 );
+              }
               default:
                 return sortByOrder(
                   processedA[sortByColumnOriginalId].toString().toLowerCase() >
@@ -748,10 +759,6 @@ export default {
         (column) => column.columnType === "url" && column.displayText,
       );
 
-      const columnsWithHTML = Object.values(props.primaryColumns).filter(
-        (column) => column.columnType === "html",
-      );
-
       /*
        * For select columns with label and values, we need to include the label value
        * in the search and filter data
@@ -871,7 +878,6 @@ export default {
         ...displayTextValues,
         ...htmlValues,
       };
-      const htmlColumns = columnsWithHTML.map((column) => column.alias);
 
       if (searchKey) {
         const combinedRowContent = [
