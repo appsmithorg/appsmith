@@ -14,8 +14,6 @@ import useGitMetadata from "./useGitMetadata";
 // internal dependencies
 import type { ApplicationPayload } from "entities/Application";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
-import useGitPermissions from "./useGitPermissions";
-import type { UseGitPermissionsReturnValue } from "./useGitPermissions";
 import type { StatusTreeStruct } from "git/components/StatusChanges/StatusTree";
 
 export interface UseGitContextValueParams {
@@ -32,8 +30,7 @@ export interface GitContextValue
     UseGitConnectReturnValue,
     UseGitOpsReturnValue,
     UseGitSettingsReturnValue,
-    UseGitBranchesReturnValue,
-    UseGitPermissionsReturnValue {
+    UseGitBranchesReturnValue {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
   artifactDef: {
@@ -64,10 +61,6 @@ export default function useGitContextValue({
   });
   const useGitBranchesReturnValue = useGitBranches(artifactDef);
   const useGitSettingsReturnValue = useGitSettings(artifactDef);
-  const useGitPermissionsReturnValue = useGitPermissions({
-    ...artifactDef,
-    artifact,
-  });
 
   return {
     artifactType,
@@ -80,6 +73,5 @@ export default function useGitContextValue({
     ...useGitBranchesReturnValue,
     ...useGitConnectReturnValue,
     ...useGitSettingsReturnValue,
-    ...useGitPermissionsReturnValue,
   };
 }

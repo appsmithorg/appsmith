@@ -99,7 +99,20 @@ export const selectCheckoutBranch = (
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.apiResponses.checkoutBranch;
 
-// settings
+// SETTINGS
+
+// local profile
+export const selectFetchLocalProfileState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.localProfile ?? null;
+
+export const selectUpdateLocalProfileState = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitArtifact(state, artifactDef)?.apiResponses.updateLocalProfile;
+
+// autocommit
 export const selectAutocommitEnabled = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
@@ -114,6 +127,13 @@ export const selectAutocommitPolling = (
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.ui.autocommitPolling;
 
+// default branch
+export const selectDefaultBranch = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitMetadata(state, artifactDef)?.value?.defaultBranchName ?? null;
+
+// protected branches
 export const selectFetchProtectedBranchesState = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
@@ -138,6 +158,7 @@ export const selectProtectedMode = (
   return protectedBranches?.includes(currentBranch ?? "") ?? false;
 };
 
+// settings modal
 export const selectSettingsModalOpen = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
@@ -147,9 +168,3 @@ export const selectSettingsModalTab = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectGitArtifact(state, artifactDef)?.ui.settingsModalTab;
-
-// default branch
-export const selectDefaultBranch = (
-  state: GitRootState,
-  artifactDef: GitArtifactDef,
-) => selectGitMetadata(state, artifactDef)?.value?.defaultBranchName ?? null;

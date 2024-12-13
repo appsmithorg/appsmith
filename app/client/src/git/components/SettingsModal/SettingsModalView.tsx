@@ -34,6 +34,8 @@ const StyledModalContent = styled(ModalContent)`
 `;
 
 interface SettingsModalViewProps {
+  isConnectPermitted: boolean;
+  isManageAutocommitPermitted: boolean;
   isManageDefaultBranchPermitted: boolean;
   isManageProtectedBranchesPermitted: boolean;
   isSettingsModalOpen: boolean;
@@ -45,6 +47,8 @@ interface SettingsModalViewProps {
 }
 
 function SettingsModalView({
+  isConnectPermitted = false,
+  isManageAutocommitPermitted = false,
   isManageDefaultBranchPermitted = false,
   isManageProtectedBranchesPermitted = false,
   isSettingsModalOpen = false,
@@ -84,7 +88,12 @@ function SettingsModalView({
           </TabsList>
         </Tabs>
         <ModalBody>
-          {settingsModalTab === GitSettingsTab.General && <TabGeneral />}
+          {settingsModalTab === GitSettingsTab.General && (
+            <TabGeneral
+              isConnectPermitted={isConnectPermitted}
+              isManageAutocommitPermitted={isManageAutocommitPermitted}
+            />
+          )}
           {settingsModalTab === GitSettingsTab.Branch && (
             <TabBranch
               isManageDefaultBranchPermitted={isManageDefaultBranchPermitted}

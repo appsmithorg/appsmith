@@ -3,6 +3,7 @@ import QuickActionsView from "./QuickActionsView";
 import { useGitContext } from "../GitContextProvider";
 import useStatusChangeCount from "./hooks/useStatusChangeCount";
 import useProtectedBranches from "git/hooks/useProtectedBranches";
+import useGitPermissions from "git/hooks/useGitPermissions";
 
 function QuickActions() {
   const {
@@ -21,8 +22,8 @@ function QuickActions() {
     toggleSettingsModal,
   } = useGitContext();
   const { isProtectedMode } = useProtectedBranches();
+  const { isConnectPermitted } = useGitPermissions();
 
-  const connectPermitted = true;
   const isPullFailing = !!pullError;
   const isStatusClean = status?.isClean ?? false;
   const statusBehindCount = status?.behindCount ?? 0;
@@ -33,7 +34,7 @@ function QuickActions() {
       discard={discard}
       isAutocommitEnabled={autocommitEnabled}
       isAutocommitPolling={autocommitPolling}
-      isConnectPermitted={connectPermitted}
+      isConnectPermitted={isConnectPermitted}
       isDiscardLoading={discardLoading}
       isFetchStatusLoading={fetchStatusLoading}
       isGitConnected={gitConnected}

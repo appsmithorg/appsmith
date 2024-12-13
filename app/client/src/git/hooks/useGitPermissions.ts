@@ -1,34 +1,25 @@
 import {
   hasConnectToGitPermission,
+  hasManageAutoCommitPermission,
   hasManageDefaultBranchPermission,
   hasManageProtectedBranchesPermission,
 } from "ee/utils/permissionHelpers";
-import type { ApplicationPayload } from "entities/Application";
+import { useGitContext } from "git/components/GitContextProvider";
 import { GitArtifactType } from "git/constants/enums";
 import { useMemo } from "react";
 
-interface UseGitPermissionsParams {
-  artifactType: keyof typeof GitArtifactType;
-  baseArtifactId: string;
-  artifact: ApplicationPayload | null;
-}
+export default function useGitPermissions() {
+  const { artifact, artifactDef } = useGitContext();
+  const { artifactType } = artifactDef;
 
-export interface UseGitPermissionsReturnValue {
-  isConnectPermitted: boolean;
-  isManageDefaultBranchPermitted: boolean;
-  isManageProtectedBranchesPermitted: boolean;
-}
-
-export default function useGitPermissions({
-  artifact,
-  artifactType,
-}: UseGitPermissionsParams): UseGitPermissionsReturnValue {
   const isConnectPermitted = useMemo(() => {
     if (artifact) {
       if (artifactType === GitArtifactType.Application) {
         return hasConnectToGitPermission(artifact.userPermissions);
       }
     }
+
+    return false;
   }, [artifact, artifactType]);
 
   const isManageDefaultBranchPermitted = useMemo(() => {
@@ -37,6 +28,8 @@ export default function useGitPermissions({
         return hasManageDefaultBranchPermission(artifact.userPermissions);
       }
     }
+
+    return false;
   }, [artifact, artifactType]);
 
   const isManageProtectedBranchesPermitted = useMemo(() => {
@@ -45,12 +38,24 @@ export default function useGitPermissions({
         return hasManageProtectedBranchesPermission(artifact.userPermissions);
       }
     }
+
+    return false;
+  }, [artifact, artifactType]);
+
+  const isManageAutocommitPermitted = useMemo(() => {
+    if (artifact) {
+      if (artifactType === GitArtifactType.Application) {
+        return hasManageAutoCommitPermission(artifact.userPermissions);
+      }
+    }
+
+    return false;
   }, [artifact, artifactType]);
 
   return {
-    isConnectPermitted: isConnectPermitted ?? false,
-    isManageDefaultBranchPermitted: isManageDefaultBranchPermitted ?? false,
-    isManageProtectedBranchesPermitted:
-      isManageProtectedBranchesPermitted ?? false,
+    isConnectPermitted,
+    isManageDefaultBranchPermitted,
+    isManageProtectedBranchesPermitted,
+    isManageAutocommitPermitted,
   };
 }

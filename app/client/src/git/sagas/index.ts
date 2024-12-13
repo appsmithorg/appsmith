@@ -50,13 +50,13 @@ const gitRequestBlockingActions: Record<
   // branches
   [gitArtifactActions.fetchBranchesInit.type]: fetchBranchesSaga,
 
-  // settings
+  // user profiles
   [gitArtifactActions.fetchLocalProfileInit.type]: fetchLocalProfileSaga,
   [gitArtifactActions.updateLocalProfileInit.type]: updateLocalProfileSaga,
   [gitConfigActions.fetchGlobalProfileInit.type]: fetchGlobalProfileSaga,
   [gitConfigActions.updateGlobalProfileInit.type]: updateGlobalProfileSaga,
 
-  // settings
+  // protected branches
   [gitArtifactActions.fetchProtectedBranchesInit.type]:
     fetchProtectedBranchesSaga,
   [gitArtifactActions.updateProtectedBranchesInit.type]:
