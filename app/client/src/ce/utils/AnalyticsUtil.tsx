@@ -11,31 +11,6 @@ import SentryUtil from "utils/Analytics/sentry";
 import SmartlookUtil from "utils/Analytics/smartlook";
 import TrackedUser from "ee/utils/Analytics/trackedUser";
 
-export const parentContextTypeTokens = ["pkg", "workflow"];
-
-/**
- * Function to check the current URL and return the parent context.
- * For app, function was returning app name due to the way app urls are structured
- * So this function will only return the parent context for pkg and workflow
- * @param location current location object based on URL
- * @returns object {id, type} where type is either pkg or workflow and id is the id of the pkg or workflow
- */
-export function getParentContextFromURL(location: Location) {
-  const pathSplit = location.pathname.split("/");
-  let type = parentContextTypeTokens[0];
-  const editorIndex = pathSplit.findIndex((path) =>
-    parentContextTypeTokens.includes(path),
-  );
-
-  if (editorIndex !== -1) {
-    type = pathSplit[editorIndex];
-
-    const id = pathSplit[editorIndex + 1];
-
-    return { id, type };
-  }
-}
-
 export enum AnalyticsEventType {
   error = "error",
 }
@@ -63,7 +38,6 @@ class AnalyticsUtil {
   protected static getEventExtraProperties() {
     const { appVersion } = getAppsmithConfigs();
     const instanceId = AnalyticsUtil.instanceId;
-    const parentContext = getParentContextFromURL(window.location);
     let userData;
 
     try {
@@ -76,7 +50,6 @@ class AnalyticsUtil {
       instanceId,
       version: appVersion.id,
       userData,
-      ...(parentContext ? { parentContext } : {}),
     };
   }
 
