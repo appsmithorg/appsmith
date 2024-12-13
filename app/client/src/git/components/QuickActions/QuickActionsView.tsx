@@ -23,7 +23,7 @@ const Container = styled.div`
   align-items: center;
 `;
 
-interface DumbGitQuickActionsProps {
+interface QuickActionsViewProps {
   discard: () => void;
   isAutocommitEnabled: boolean;
   isAutocommitPolling: boolean;
@@ -46,7 +46,7 @@ interface DumbGitQuickActionsProps {
   ) => void;
 }
 
-function DumbGitQuickActions({
+function QuickActionsView({
   discard = noop,
   isAutocommitEnabled = false,
   isAutocommitPolling = false,
@@ -64,7 +64,7 @@ function DumbGitQuickActions({
   toggleConnectModal = noop,
   toggleOpsModal = noop,
   toggleSettingsModal = noop,
-}: DumbGitQuickActionsProps) {
+}: QuickActionsViewProps) {
   const { isDisabled: isPullDisabled, message: pullTooltipMessage } =
     getPullBtnStatus({
       isStatusClean,
@@ -177,4 +177,4 @@ function DumbGitQuickActions({
   );
 }
 
-export default DumbGitQuickActions;
+export default QuickActionsView;

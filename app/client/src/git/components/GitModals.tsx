@@ -1,12 +1,12 @@
 import React from "react";
-import GitOpsModal from "./GitOpsModal";
-import GitConflictErrorModal from "./GitConflictErrorModal";
+import ConflictErrorModal from "./ConflictErrorModal";
+import OpsModal from "./OpsModal";
 
 export default function GitModals() {
   return (
     <>
-      <GitOpsModal />
-      <GitConflictErrorModal />
+      <OpsModal />
+      <ConflictErrorModal />
     </>
   );
 }

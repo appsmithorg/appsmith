@@ -36,8 +36,8 @@ import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import DiscardChangesWarning from "./DiscardChangesWarning";
 import PushFailedError from "./PushFailedError";
 import DiscardFailedError from "./DiscardFailedError";
-import GitStatus from "git/components/GitStatus";
-import GitConflictError from "git/components/GitConflictError";
+import StatusChanges from "git/components/StatusChanges";
+import ConflictError from "git/components/ConflictError";
 import SubmitWrapper from "./SubmitWrapper";
 import noop from "lodash/noop";
 import type { GitApiError } from "git/store/types";
@@ -69,7 +69,7 @@ const CommitLabelBranchText = styled(Text)`
 const FIRST_COMMIT = "First Commit";
 const NO_CHANGES_TO_COMMIT = "No changes to commit";
 
-interface DumbTabDeployProps {
+interface TabDeployViewProps {
   clearCommitError: () => void;
   clearDiscardError: () => void;
   commit: (commitMessage: string) => void;
@@ -89,7 +89,7 @@ interface DumbTabDeployProps {
   statusIsClean: boolean;
 }
 
-function DumbTabDeploy({
+function TabDeployView({
   clearCommitError = noop,
   clearDiscardError = noop,
   commit = noop,
@@ -107,7 +107,7 @@ function DumbTabDeploy({
   remoteUrl = null,
   statusBehindCount = 0,
   statusIsClean = false,
-}: DumbTabDeployProps) {
+}: TabDeployViewProps) {
   const hasChangesToCommit = !statusIsClean;
   const commitInputRef = useRef<HTMLInputElement>(null);
   const [commitMessage, setCommitMessage] = useState(
@@ -297,7 +297,7 @@ function DumbTabDeploy({
           style={{ minHeight: 360 }}
         >
           <Section>
-            <GitStatus />
+            <StatusChanges />
             <SubmitWrapper onSubmit={handleCommitViaKeyPress}>
               <Input
                 autoFocus
@@ -313,7 +313,7 @@ function DumbTabDeploy({
                 value={commitMessageDisplay}
               />
             </SubmitWrapper>
-            {isConflicting && <GitConflictError />}
+            {isConflicting && <ConflictError />}
             {commitError && (
               <PushFailedError
                 closeHandler={handleCommitAndPushErrorClose}
@@ -404,4 +404,4 @@ function DumbTabDeploy({
   );
 }
 
-export default DumbTabDeploy;
+export default TabDeployView;

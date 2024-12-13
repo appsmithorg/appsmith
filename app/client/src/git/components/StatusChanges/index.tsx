@@ -1,12 +1,12 @@
 import React from "react";
 import { useGitContext } from "../GitContextProvider";
-import DumbGitStatus from "./DumbGitStatus";
+import StatusChangesView from "./StatusChangesView";
 
-function GitStatus() {
+function StatusChanges() {
   const { fetchStatusLoading, status, statusTransformer } = useGitContext();
 
   return (
-    <DumbGitStatus
+    <StatusChangesView
       isFetchStatusLoading={fetchStatusLoading}
       status={status}
       statusTransformer={statusTransformer}
@@ -14,4 +14,4 @@ function GitStatus() {
   );
 }
 
-export default GitStatus;
+export default StatusChanges;

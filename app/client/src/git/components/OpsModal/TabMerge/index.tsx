@@ -1,5 +1,5 @@
 import React from "react";
-import DumbTabMerge from "./DumbTabMerge";
+import TabMergeView from "./TabMergeView";
 import { useGitContext } from "git/components/GitContextProvider";
 
 export default function TabMerge() {
@@ -23,7 +23,7 @@ export default function TabMerge() {
   const isStatusClean = status?.isClean ?? false;
 
   return (
-    <DumbTabMerge
+    <TabMergeView
       branches={branches}
       clearMergeStatus={clearMergeStatus}
       currentBranch={currentBranch}

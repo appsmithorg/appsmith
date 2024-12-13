@@ -1,8 +1,8 @@
 import React from "react";
-import DumbGitOpsModal from "./DumbGitOpsModal";
+import OpsModalView from "./OpsModalView";
 import { useGitContext } from "../GitContextProvider";
 
-export default function GitOpsModal() {
+export default function OpsModal() {
   const {
     fetchStatus,
     gitMetadata,
@@ -15,7 +15,7 @@ export default function GitOpsModal() {
   const repoName = gitMetadata?.repoName ?? null;
 
   return (
-    <DumbGitOpsModal
+    <OpsModalView
       fetchStatus={fetchStatus}
       isOpsModalOpen={opsModalOpen}
       isProtectedMode={protectedMode}

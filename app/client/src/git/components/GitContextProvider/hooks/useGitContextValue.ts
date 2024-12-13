@@ -14,7 +14,7 @@ import useGitMetadata from "./useGitMetadata";
 // internal dependencies
 import type { ApplicationPayload } from "entities/Application";
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
-import type { StatusTreeStruct } from "git/components/GitStatus/StatusTree";
+import type { StatusTreeStruct } from "git/components/StatusChanges/StatusTree";
 
 export interface UseGitContextValueParams {
   artifactType: keyof typeof GitArtifactType;

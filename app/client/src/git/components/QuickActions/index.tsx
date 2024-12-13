@@ -1,9 +1,9 @@
 import React from "react";
-import DumbGitQuickActions from "./DumbGitQuickActions";
+import QuickActionsView from "./QuickActionsView";
 import { useGitContext } from "../GitContextProvider";
 import useStatusChangeCount from "./hooks/useStatusChangeCount";
 
-function GitQuickActions() {
+function QuickActions() {
   const {
     autocommitEnabled,
     autocommitPolling,
@@ -28,7 +28,7 @@ function GitQuickActions() {
   const statusChangeCount = useStatusChangeCount(status);
 
   return (
-    <DumbGitQuickActions
+    <QuickActionsView
       discard={discard}
       isAutocommitEnabled={autocommitEnabled}
       isAutocommitPolling={autocommitPolling}
@@ -50,4 +50,4 @@ function GitQuickActions() {
   );
 }
 
-export default GitQuickActions;
+export default QuickActions;

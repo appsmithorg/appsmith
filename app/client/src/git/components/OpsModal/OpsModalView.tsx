@@ -26,7 +26,7 @@ const StyledModalContent = styled(ModalContent)`
   }
 `;
 
-interface DumbGitOpsModalProps {
+interface OpsModalViewProps {
   fetchStatus: () => void;
   isOpsModalOpen: boolean;
   isProtectedMode: boolean;
@@ -35,14 +35,14 @@ interface DumbGitOpsModalProps {
   toggleOpsModal: (open: boolean, tab?: keyof typeof GitOpsTab) => void;
 }
 
-function DumbGitOpsModal({
+function OpsModalView({
   fetchStatus = noop,
   isOpsModalOpen = false,
   isProtectedMode = false,
   opsModalTab = GitOpsTab.Deploy,
   repoName = null,
   toggleOpsModal = noop,
-}: DumbGitOpsModalProps) {
+}: OpsModalViewProps) {
   useEffect(
     function fetchStatusOnMountEffect() {
       if (isOpsModalOpen) {
@@ -102,4 +102,4 @@ function DumbGitOpsModal({
   );
 }
 
-export default DumbGitOpsModal;
+export default OpsModalView;

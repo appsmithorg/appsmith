@@ -28,7 +28,7 @@ import {
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { MergeStatusState } from "git/constants/enums";
 import MergeStatus from "./MergeStatus";
-import GitConflictError from "git/components/GitConflictError";
+import ConflictError from "git/components/ConflictError";
 import MergeSuccessIndicator from "./MergeSuccessIndicator";
 import { noop } from "lodash";
 import type { FetchBranchesResponseData } from "git/requests/fetchBranchesRequest.types";
@@ -63,7 +63,7 @@ interface BranchOption {
   value: string;
 }
 
-interface DumbTabMergeProps {
+interface TabMergeViewProps {
   branches: FetchBranchesResponseData | null;
   clearMergeStatus: () => void;
   currentBranch: string | null;
@@ -80,7 +80,7 @@ interface DumbTabMergeProps {
   protectedBranches: FetchProtectedBranchesResponseData | null;
 }
 
-export default function DumbTabMerge({
+export default function TabMergeView({
   branches = null,
   clearMergeStatus = noop,
   currentBranch = null,
@@ -95,7 +95,7 @@ export default function DumbTabMerge({
   mergeError = null,
   mergeStatus = null,
   protectedBranches = null,
-}: DumbTabMergeProps) {
+}: TabMergeViewProps) {
   const [showMergeSuccessIndicator, setShowMergeSuccessIndicator] =
     useState(false);
   const [selectedBranchOption, setSelectedBranchOption] =
@@ -293,7 +293,7 @@ export default function DumbTabMerge({
           <div className="mb-4">
             <MergeStatus message={message} status={status} />
           </div>
-          {isConflicting ? <GitConflictError /> : null}
+          {isConflicting ? <ConflictError /> : null}
           {showMergeSuccessIndicator ? <MergeSuccessIndicator /> : null}
           {isMergeLoading ? (
             <StatusbarWrapper>
