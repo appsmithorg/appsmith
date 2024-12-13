@@ -19,7 +19,11 @@ class SegmentSingleton {
     return SegmentSingleton.instance;
   }
 
-  public user = this.analytics?.user;
+  public getUser() {
+    if (this.analytics) {
+      return this.analytics.user();
+    }
+  }
 
   private getWriteKey(): string | undefined {
     const { segment } = getAppsmithConfigs();

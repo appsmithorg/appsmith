@@ -153,8 +153,12 @@ class AnalyticsUtil {
   static getAnonymousId(): string | undefined | null {
     const { segment } = getAppsmithConfigs();
 
-    if (this.segmentAnalytics && this.segmentAnalytics.user) {
-      return this.segmentAnalytics.user().anonymousId();
+    if (this.segmentAnalytics) {
+      const user = this.segmentAnalytics.getUser();
+
+      if (user) {
+        return user.anonymousId();
+      }
     } else if (segment.enabled) {
       return localStorage.getItem("ajs_anonymous_id")?.replaceAll('"', "");
     }
