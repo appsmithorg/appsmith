@@ -33,18 +33,6 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     }
 
     @Override
-    public Flux<Datasource> findByWorkspaceId(String workspaceId, AclPermission aclPermission) {
-        final BridgeQuery<Datasource> q = Bridge.equal(Datasource.Fields.workspaceId, workspaceId);
-        return queryBuilder().criteria(q).permission(aclPermission).all();
-    }
-
-    @Override
-    public Flux<Datasource> findAllByWorkspaceIdWithoutPermissions(String workspaceId) {
-        final BridgeQuery<Datasource> q = Bridge.equal(Datasource.Fields.workspaceId, workspaceId);
-        return queryBuilder().criteria(q).all();
-    }
-
-    @Override
     public Flux<Datasource> findByIdIn(List<String> ids) {
         final BridgeQuery<Datasource> q = Bridge.in(Datasource.Fields.id, ids);
         return queryBuilder().criteria(q).all();
