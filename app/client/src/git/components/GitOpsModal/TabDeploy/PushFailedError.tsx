@@ -18,7 +18,7 @@ export default function PushFailedError({
   error,
 }: PushFailedErrorProps) {
   return (
-    <Container className="ankita">
+    <Container className="t--git-push-failed-error">
       <Callout isClosable kind="error" onClose={closeHandler}>
         <>
           <Text type={TextType.H5}>{error.errorType}</Text>
