@@ -271,14 +271,14 @@ function DumbTabDeploy({
           content={currentBranch}
           isDisabled={
             !isEllipsisActive(
-              document.getElementById("git-branch-name-commmit-tab"),
+              document.getElementById("git-branch-name-commit-tab"),
             )
           }
         >
           <CommitLabelBranchText
             className="branch"
             color={"var(--ads-v2-color-fg-brand)"}
-            id="git-branch-name-commmit-tab"
+            id="git-branch-name-commit-tab"
           >
             &nbsp;{currentBranch}
           </CommitLabelBranchText>
