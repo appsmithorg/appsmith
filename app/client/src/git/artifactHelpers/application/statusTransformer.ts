@@ -111,7 +111,7 @@ function statusPageTransformer(status: FetchStatusResponseData) {
     }
 
     if (jsObjectDefs.length > 0) {
-      const subject = jsObjectDefs.length === 1 ? "query" : "queries";
+      const subject = jsObjectDefs.length === 1 ? "jsObject" : "jsObjects";
 
       children.push(createTreeNodeGroup(jsObjectDefs, subject));
     }

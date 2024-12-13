@@ -36,7 +36,7 @@ export default function DumbGitConflictError({
   repoUrl,
 }: DumbGitConflictErrorProps) {
   const handleClickOnOpenRepo = useCallback(() => {
-    window.open(repoUrl, "_blank");
+    window.open(repoUrl, "_blank", "noopener,noreferrer");
   }, [repoUrl]);
 
   const calloutLinks = useMemo(

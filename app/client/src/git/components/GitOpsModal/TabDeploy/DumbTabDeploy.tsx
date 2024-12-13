@@ -62,7 +62,7 @@ const CommitLabelText = styled(Text)`
 
 const CommitLabelBranchText = styled(Text)`
   overflow: hidden;
-  textoverflow: ellipsis;
+  text-overflow: ellipsis;
   whitespace: nowrap;
 `;
 
