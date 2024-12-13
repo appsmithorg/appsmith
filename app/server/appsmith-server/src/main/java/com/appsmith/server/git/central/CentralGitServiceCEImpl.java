@@ -371,27 +371,7 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
         }
 
-        Mono<UserData> currentUserMono = userDataService
-                .getForCurrentUser()
-                .filter(userData -> !CollectionUtils.isEmpty(userData.getGitProfiles()))
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_PROFILE_ERROR)));
-
-        Mono<GitUser> gitUserMono = currentUserMono
-                .map(userData -> {
-                    GitProfile profile = userData.getGitProfileByKey(baseArtifactId);
-                    if (profile == null
-                            || Boolean.TRUE.equals(profile.getUseGlobalProfile())
-                            || !StringUtils.hasText(profile.getAuthorName())) {
-                        profile = userData.getGitProfileByKey(DEFAULT);
-                    }
-
-                    GitUser gitUser = new GitUser();
-                    gitUser.setName(profile.getAuthorName());
-                    gitUser.setEmail(profile.getAuthorEmail());
-                    return gitUser;
-                })
-                .cache();
+        Mono<GitUser> gitUserMono = getGitUserForArtifactId(baseArtifactId);
 
         Mono<Map<String, GitProfile>> profileMono = gitProfileUtils
                 .updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), baseArtifactId)
@@ -441,9 +421,10 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                 .onErrorResume(error -> {
                                     log.error("Error while cloning the remote repo, ", error);
 
-                                    AppsmithException appsmithException =
-                                            new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, error.getMessage());
-                                    if (error instanceof TransportException) {
+                                    AppsmithException appsmithException = null;
+                                    if (error instanceof AppsmithException e) {
+                                        appsmithException = e;
+                                    } else if (error instanceof TransportException) {
                                         appsmithException =
                                                 new AppsmithException(AppsmithError.INVALID_GIT_SSH_CONFIGURATION);
                                     } else if (error instanceof InvalidRemoteException) {
@@ -458,6 +439,9 @@ public class CentralGitServiceCEImpl implements CentralGitServiceCE {
                                             appsmithException =
                                                     new AppsmithException(AppsmithError.INVALID_GIT_SSH_URL);
                                         }
+                                    } else {
+                                        appsmithException = new AppsmithException(
+                                                AppsmithError.GIT_GENERIC_ERROR, error.getMessage());
                                     }
 
                                     ArtifactJsonTransformationDTO jsonTransformationDTO =

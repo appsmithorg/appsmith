@@ -18,7 +18,6 @@ import WidgetFactory from "WidgetProvider/factory";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { sortObjectWithArray } from "../../../utils/treeUtils";
 import klona from "klona";
-
 import { APP_MODE } from "entities/App";
 
 const klonaFullSpy = jest.fn();
@@ -593,8 +592,8 @@ describe("DataTreeEvaluator", () => {
     );
     evaluator.evalAndValidateFirstTree();
     // Hard check to not regress on the number of clone operations. Try to improve this number.
-    expect(klonaFullSpy).toBeCalledTimes(40);
-    expect(klonaJsonSpy).toBeCalledTimes(3);
+    expect(klonaFullSpy).toBeCalledTimes(15);
+    expect(klonaJsonSpy).toBeCalledTimes(28);
   });
 
   it("Evaluates a binding in first run", () => {
@@ -1115,7 +1114,7 @@ describe("DataTreeEvaluator", () => {
       unEvalUpdates,
     );
     // Hard check to not regress on the number of clone operations. Try to improve this number.
-    expect(klonaFullSpy).toBeCalledTimes(6);
-    expect(klonaJsonSpy).toBeCalledTimes(2);
+    expect(klonaFullSpy).toBeCalledTimes(4);
+    expect(klonaJsonSpy).toBeCalledTimes(4);
   });
 });

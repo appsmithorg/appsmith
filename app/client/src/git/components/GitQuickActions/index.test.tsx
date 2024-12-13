@@ -15,8 +15,8 @@ jest.mock("./ConnectButton", () => () => (
   <div data-testid="connect-button">ConnectButton</div>
 ));
 
-jest.mock("./AutocommitStatusbar", () => () => (
-  <div data-testid="autocommit-statusbar">AutocommitStatusbar</div>
+jest.mock("./../Statusbar", () => () => (
+  <div data-testid="autocommit-statusbar">Statusbar</div>
 ));
 
 describe("QuickActions Component", () => {
@@ -79,7 +79,7 @@ describe("QuickActions Component", () => {
     ).toBe(1);
   });
 
-  it("should render AutocommitStatusbar when isAutocommitEnabled and isPollingAutocommit are true", () => {
+  it("should render Statusbar when isAutocommitEnabled and isPollingAutocommit are true", () => {
     const props = {
       ...defaultProps,
       isGitConnected: true,
@@ -110,8 +110,8 @@ describe("QuickActions Component", () => {
         <QuickActions {...props} />
       </ThemeProvider>,
     );
-    const commitButton = container.getElementsByClassName(
-      "t--bottom-bar-commit",
+    const commitButton = container.querySelectorAll(
+      ".t--bottom-bar-commit button",
     )[0];
 
     fireEvent.click(commitButton);
@@ -145,8 +145,9 @@ describe("QuickActions Component", () => {
         <QuickActions {...props} />
       </ThemeProvider>,
     );
-    const pullButton =
-      container.getElementsByClassName("t--bottom-bar-pull")[0];
+    const pullButton = container.querySelectorAll(
+      ".t--bottom-bar-pull button",
+    )[0];
 
     fireEvent.click(pullButton);
     expect(AnalyticsUtil.logEvent).toHaveBeenCalledWith("GS_PULL_GIT_CLICK", {
@@ -165,8 +166,8 @@ describe("QuickActions Component", () => {
         <QuickActions {...props} />
       </ThemeProvider>,
     );
-    const mergeButton = container.getElementsByClassName(
-      "t--bottom-bar-merge",
+    const mergeButton = container.querySelectorAll(
+      ".t--bottom-bar-merge button",
     )[0];
 
     fireEvent.click(mergeButton);
@@ -190,8 +191,8 @@ describe("QuickActions Component", () => {
         <QuickActions {...props} />
       </ThemeProvider>,
     );
-    const settingsButton = container.getElementsByClassName(
-      "t--bottom-git-settings",
+    const settingsButton = container.querySelectorAll(
+      ".t--bottom-git-settings button",
     )[0];
 
     fireEvent.click(settingsButton);
@@ -216,8 +217,8 @@ describe("QuickActions Component", () => {
         <QuickActions {...props} />
       </ThemeProvider>,
     );
-    const commitButton = container.getElementsByClassName(
-      "t--bottom-bar-commit",
+    const commitButton = container.querySelectorAll(
+      ".t--bottom-bar-commit button",
     )[0];
 
     expect(commitButton).toBeDisabled();
@@ -298,8 +299,9 @@ describe("QuickActions Component", () => {
         <QuickActions {...props} />
       </ThemeProvider>,
     );
-    const pullButton =
-      container.getElementsByClassName("t--bottom-bar-pull")[0];
+    const pullButton = container.querySelectorAll(
+      ".t--bottom-bar-pull button",
+    )[0];
 
     expect(pullButton).toBeDisabled();
   });

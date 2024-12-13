@@ -68,7 +68,7 @@ const PluginActionToolbar = (props: PluginActionToolbarProps) => {
             key={action.id}
             loop
             style={{ zIndex: 100 }}
-            width="200px"
+            width="204px"
           >
             {props.menuContent}
           </MenuContent>

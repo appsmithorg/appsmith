@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, act } from "@testing-library/react";
-import AutocommitStatusbar from "./AutocommitStatusbar";
+import Statusbar from ".";
 import "@testing-library/jest-dom";
 
 // Mock timers using Jest
@@ -17,13 +17,13 @@ const TOTAL_DURATION_MS = 4000;
 const STEPS = 9;
 const INTERVAL_MS = TOTAL_DURATION_MS / STEPS;
 
-describe("AutocommitStatusbar Component", () => {
+describe("Statusbar Component", () => {
   afterEach(() => {
     jest.clearAllTimers();
   });
 
   it("should render with initial percentage 0 when completed is false", () => {
-    render(<AutocommitStatusbar completed={false} />);
+    render(<Statusbar completed={false} />);
     const statusbar = screen.getByTestId("statusbar");
 
     expect(statusbar).toBeInTheDocument();
@@ -31,7 +31,7 @@ describe("AutocommitStatusbar Component", () => {
   });
 
   it("should increment percentage over time when completed is false", () => {
-    render(<AutocommitStatusbar completed={false} />);
+    render(<Statusbar completed={false} />);
     const statusbar = screen.getByTestId("statusbar");
 
     // Initial percentage
@@ -57,7 +57,7 @@ describe("AutocommitStatusbar Component", () => {
   });
 
   it("should not increment percentage beyond 90 when completed is false", () => {
-    render(<AutocommitStatusbar completed={false} />);
+    render(<Statusbar completed={false} />);
     const statusbar = screen.getByTestId("statusbar");
 
     // Advance time beyond the total interval duration
@@ -74,7 +74,7 @@ describe("AutocommitStatusbar Component", () => {
   });
 
   it("should set percentage to 100 when completed is true", () => {
-    render(<AutocommitStatusbar completed />);
+    render(<Statusbar completed />);
     const statusbar = screen.getByTestId("statusbar");
 
     expect(statusbar).toHaveTextContent("100%");
@@ -83,7 +83,7 @@ describe("AutocommitStatusbar Component", () => {
   it("should call onHide after 1 second when completed is true", () => {
     const onHide = jest.fn();
 
-    render(<AutocommitStatusbar completed onHide={onHide} />);
+    render(<Statusbar completed onHide={onHide} />);
     expect(onHide).not.toHaveBeenCalled();
 
     // Advance timer by 1 second
@@ -96,9 +96,7 @@ describe("AutocommitStatusbar Component", () => {
   it("should clean up intervals and timeouts on unmount", () => {
     const onHide = jest.fn();
 
-    const { unmount } = render(
-      <AutocommitStatusbar completed={false} onHide={onHide} />,
-    );
+    const { unmount } = render(<Statusbar completed={false} onHide={onHide} />);
 
     // Start the interval
     act(() => {
@@ -118,7 +116,7 @@ describe("AutocommitStatusbar Component", () => {
   it("should handle transition from false to true for completed prop", () => {
     const onHide = jest.fn();
     const { rerender } = render(
-      <AutocommitStatusbar completed={false} onHide={onHide} />,
+      <Statusbar completed={false} onHide={onHide} />,
     );
     const statusbar = screen.getByTestId("statusbar");
 
@@ -129,7 +127,7 @@ describe("AutocommitStatusbar Component", () => {
     expect(statusbar).toHaveTextContent("10%");
 
     // Update the completed prop to true
-    rerender(<AutocommitStatusbar completed onHide={onHide} />);
+    rerender(<Statusbar completed onHide={onHide} />);
     expect(statusbar).toHaveTextContent("100%");
 
     // Ensure onHide is called after 1 second
@@ -140,13 +138,13 @@ describe("AutocommitStatusbar Component", () => {
   });
 
   it("should not reset percentage when completed changes from true to false", () => {
-    const { rerender } = render(<AutocommitStatusbar completed />);
+    const { rerender } = render(<Statusbar completed />);
     const statusbar = screen.getByTestId("statusbar");
 
     expect(statusbar).toHaveTextContent("100%");
 
     // Change completed to false
-    rerender(<AutocommitStatusbar completed={false} />);
+    rerender(<Statusbar completed={false} />);
     expect(statusbar).toHaveTextContent("100%");
 
     // Advance timer to check if percentage increments beyond 100%
