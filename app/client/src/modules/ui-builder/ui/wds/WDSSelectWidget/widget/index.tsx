@@ -173,7 +173,7 @@ class WDSSelectWidget extends BaseWidget<WDSSelectWidgetProps, WidgetState> {
         selectedKey={selectedOptionValue}
       >
         {this.optionsToSelectItems(options).map((option) => (
-          <ListBoxItem id={option.id} key={option.id} textValue={option.label}>
+          <ListBoxItem key={option.id} textValue={option.label}>
             {option.label}
           </ListBoxItem>
         ))}

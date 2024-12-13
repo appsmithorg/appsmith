@@ -17,5 +17,9 @@ export const settersConfig = {
       type: "boolean",
       accessor: "isSwitchedOn",
     },
+    setColor: {
+      path: "accentColor",
+      type: "string",
+    },
   },
 };
