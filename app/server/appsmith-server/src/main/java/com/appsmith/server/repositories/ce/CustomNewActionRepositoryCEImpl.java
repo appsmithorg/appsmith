@@ -7,6 +7,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.projections.IdPoliciesOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.transaction.Transactional;
@@ -484,5 +485,12 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(Bridge.in(NewAction.Fields.applicationId, applicationIds))
                 .fields(includedFields)
                 .all();
+    }
+
+    @Override
+    public List<IdPoliciesOnly> findIdsAndPolicyMapByApplicationIdIn(List<String> applicationIds) {
+        return queryBuilder()
+                .criteria(Bridge.in(NewAction.Fields.applicationId, applicationIds))
+                .all(IdPoliciesOnly.class);
     }
 }
