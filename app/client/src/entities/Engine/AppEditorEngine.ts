@@ -1,14 +1,14 @@
 import { fetchMockDatasources } from "actions/datasourceActions";
-import {
-  fetchGitProtectedBranchesInit,
-  fetchGitStatusInit,
-  remoteUrlInputValue,
-  resetPullMergeStatus,
-  fetchBranchesInit,
-  triggerAutocommitInitAction,
-  getGitMetadataInitAction,
-} from "actions/gitSyncActions";
-import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
+// import {
+//   fetchGitProtectedBranchesInit,
+//   fetchGitStatusInit,
+//   remoteUrlInputValue,
+//   resetPullMergeStatus,
+//   fetchBranchesInit,
+//   triggerAutocommitInitAction,
+//   getGitMetadataInitAction,
+// } from "actions/gitSyncActions";
+// import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
 import {
   fetchAllPageEntityCompletion,
@@ -24,9 +24,9 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ee/constants/ReduxActionConstants";
-import { addBranchParam } from "constants/routes";
+// import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
-import { call, fork, put, select, spawn } from "redux-saga/effects";
+import { call, put, select, spawn } from "redux-saga/effects";
 import type { EditConsolidatedApi } from "sagas/InitSagas";
 import {
   failFastApiCalls,
@@ -38,7 +38,7 @@ import {
   isGitPersistBranchEnabledSelector,
 } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
-import history from "utils/history";
+// import history from "utils/history";
 import type { AppEnginePayload } from ".";
 import AppEngine, {
   ActionsNotFoundError,
@@ -74,6 +74,8 @@ import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";
 import log from "loglevel";
+import { gitArtifactActions } from "git/store/gitArtifactSlice";
+import { GitArtifactType } from "git/constants/enums";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -364,34 +366,45 @@ export default class AppEditorEngine extends AppEngine {
 
   public *loadGit(applicationId: string, rootSpan: Span) {
     const loadGitSpan = startNestedSpan("AppEditorEngine.loadGit", rootSpan);
-
-    const branchInStore: string = yield select(getCurrentGitBranch);
+    const currentApplication: ApplicationPayload = yield select(
+      getCurrentApplication,
+    );
 
     yield put(
-      restoreRecentEntitiesRequest({
-        applicationId,
-        branch: branchInStore,
+      gitArtifactActions.initGitForEditor({
+        artifactType: GitArtifactType.Application,
+        baseArtifactId: currentApplication.baseId,
+        artifact: currentApplication,
       }),
     );
-    // init of temporary remote url from old application
-    yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));
-    // add branch query to path and fetch status
 
-    if (branchInStore) {
-      history.replace(addBranchParam(branchInStore));
-      yield fork(this.loadGitInBackground);
-    }
+    // const branchInStore: string = yield select(getCurrentGitBranch);
+
+    // yield put(
+    //   restoreRecentEntitiesRequest({
+    //     applicationId,
+    //     branch: branchInStore,
+    //   }),
+    // );
+    // // init of temporary remote url from old application
+    // yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));
+    // // add branch query to path and fetch status
+
+    // if (branchInStore) {
+    //   history.replace(addBranchParam(branchInStore));
+    //   yield fork(this.loadGitInBackground);
+    // }
 
     endSpan(loadGitSpan);
   }
 
-  private *loadGitInBackground() {
-    yield put(fetchBranchesInit());
-    yield put(fetchGitProtectedBranchesInit());
-    yield put(fetchGitProtectedBranchesInit());
-    yield put(getGitMetadataInitAction());
-    yield put(triggerAutocommitInitAction());
-    yield put(fetchGitStatusInit({ compareRemote: true }));
-    yield put(resetPullMergeStatus());
-  }
+  // private *loadGitInBackground() {
+  //   yield put(fetchBranchesInit());
+  //   yield put(fetchGitProtectedBranchesInit());
+  //   yield put(fetchGitProtectedBranchesInit());
+  //   yield put(getGitMetadataInitAction());
+  //   yield put(triggerAutocommitInitAction());
+  //   yield put(fetchGitStatusInit({ compareRemote: true }));
+  //   yield put(resetPullMergeStatus());
+  // }
 }

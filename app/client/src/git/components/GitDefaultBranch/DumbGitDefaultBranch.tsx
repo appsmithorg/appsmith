@@ -1,21 +1,17 @@
 import {
-  // APPSMITH_ENTERPRISE,
+  APPSMITH_ENTERPRISE,
   DEFAULT_BRANCH,
   DEFAULT_BRANCH_DESC,
   UPDATE,
   createMessage,
 } from "ee/constants/messages";
-// import { updateGitDefaultBranch } from "actions/gitSyncActions";
-import { Button, Option, Select, Text } from "@appsmith/ads";
-import React, { useEffect, useMemo, useState } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { getGitBranches } from "selectors/gitSyncSelectors";
+import { Button, Link, Option, Select, Text } from "@appsmith/ads";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-// import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-// import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-// import { useAppsmithEnterpriseLink } from "./hooks";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { FetchBranchesResponseData } from "git/requests/fetchBranchesRequest.types";
+import noop from "lodash/noop";
+import { useAppsmithEnterpriseUrl } from "git/hooks/useAppsmithEnterpriseUrl";
 
 const Container = styled.div`
   padding-top: 8px;
@@ -47,11 +43,13 @@ const StyledSelect = styled(Select)`
 interface DumbGitDefaultBranchProps {
   branches: FetchBranchesResponseData | null;
   isGitProtectedFeatureLicensed: boolean;
+  updateDefaultBranch?: (branchName: string) => void;
 }
 
 function DumbGitDefaultBranch({
   branches = null,
   isGitProtectedFeatureLicensed = false,
+  updateDefaultBranch = noop,
 }: DumbGitDefaultBranchProps) {
   const [selectedValue, setSelectedValue] = useState<string | undefined>();
 
@@ -61,9 +59,17 @@ function DumbGitDefaultBranch({
     return defaultBranch?.branchName;
   }, [branches]);
 
-  // const enterprisePricingLink = useAppsmithEnterpriseLink(
-  //   "git_branch_protection",
-  // );
+  const enterprisePricingUrl = useAppsmithEnterpriseUrl(
+    "git_branch_protection",
+  );
+
+  const filteredBranches = useMemo(
+    () => branches?.filter((branch) => !branch.branchName.includes("origin/")),
+    [branches],
+  );
+
+  const isUpdateDisabled =
+    !selectedValue || selectedValue === currentDefaultBranch;
 
   useEffect(
     function selectedValueOnInitEffect() {
@@ -74,22 +80,20 @@ function DumbGitDefaultBranch({
     [branches],
   );
 
-  const filteredBranches = branches?.filter(
-    (branch) => !branch.branchName.includes("origin/"),
+  const handleGetPopupContainer = useCallback(
+    (triggerNode) => triggerNode.parentNode,
+    [],
   );
 
-  const handleUpdate = () => {
+  const handleUpdate = useCallback(() => {
     if (selectedValue) {
       AnalyticsUtil.logEvent("GS_DEFAULT_BRANCH_UPDATE", {
         old_branch: currentDefaultBranch,
         new_branch: selectedValue,
       });
-      //   dispatch(updateGitDefaultBranch({ branchName: selectedValue }));
+      updateDefaultBranch(selectedValue);
     }
-  };
-
-  const updateIsDisabled =
-    !selectedValue || selectedValue === currentDefaultBranch;
+  }, [currentDefaultBranch, selectedValue, updateDefaultBranch]);
 
   return (
     <Container>
@@ -103,14 +107,14 @@ function DumbGitDefaultBranch({
         {!isGitProtectedFeatureLicensed && (
           <SectionDesc kind="body-m" renderAs="p">
             To change your default branch, try{" "}
-            {/* <Link
+            <Link
+              className="inline-flex"
               kind="primary"
-              style={{ display: "inline-flex" }}
               target="_blank"
-              to={enterprisePricingLink}
+              to={enterprisePricingUrl}
             >
               {createMessage(APPSMITH_ENTERPRISE)}
-            </Link> */}
+            </Link>
           </SectionDesc>
         )}
       </HeadContainer>
@@ -118,9 +122,9 @@ function DumbGitDefaultBranch({
         <StyledSelect
           data-testid="t--git-default-branch-select"
           dropdownMatchSelectWidth
-          getPopupContainer={(triggerNode) => triggerNode.parentNode}
+          getPopupContainer={handleGetPopupContainer}
           isDisabled={!isGitProtectedFeatureLicensed}
-          onChange={(v) => setSelectedValue(v)}
+          onChange={setSelectedValue}
           value={selectedValue}
         >
           {filteredBranches?.map((b) => (
@@ -131,7 +135,7 @@ function DumbGitDefaultBranch({
         </StyledSelect>
         <Button
           data-testid="t--git-default-branch-update-btn"
-          isDisabled={updateIsDisabled}
+          isDisabled={isUpdateDisabled}
           kind="secondary"
           onClick={handleUpdate}
           size="md"

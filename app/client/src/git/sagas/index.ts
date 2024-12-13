@@ -24,6 +24,10 @@ import fetchStatusSaga from "./fetchStatusSaga";
 import fetchProtectedBranchesSaga from "./fetchProtectedBranchesSaga";
 import pullSaga from "./pullSaga";
 import fetchMergeStatusSaga from "./fetchMergeStatusSaga";
+import {
+  gitRequestBlockingActionsEE,
+  gitRequestNonBlockingActionsEE,
+} from "ee/git/sagas";
 
 const gitRequestBlockingActions: Record<
   string,
@@ -53,6 +57,9 @@ const gitRequestBlockingActions: Record<
 
   // autocommit
   [gitArtifactActions.triggerAutocommitInit.type]: triggerAutocommitSaga,
+
+  // EE
+  ...gitRequestBlockingActionsEE,
 };
 
 const gitRequestNonBlockingActions: Record<
@@ -66,6 +73,9 @@ const gitRequestNonBlockingActions: Record<
   // settings
   [gitArtifactActions.fetchProtectedBranchesInit.type]:
     fetchProtectedBranchesSaga,
+
+  // EE
+  ...gitRequestNonBlockingActionsEE,
 };
 
 /**

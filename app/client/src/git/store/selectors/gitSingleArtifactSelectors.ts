@@ -1,7 +1,7 @@
 import type { GitArtifactType } from "git/constants/enums";
 import type { GitRootState } from "../types";
 
-interface GitArtifactDef {
+export interface GitArtifactDef {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
 }

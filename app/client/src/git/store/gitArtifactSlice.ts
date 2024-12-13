@@ -1,4 +1,3 @@
-/* eslint-disable padding-line-between-statements */
 import { createSlice } from "@reduxjs/toolkit";
 import type { GitArtifactReduxState } from "./types";
 import { mountAction, unmountAction } from "./actions/mountActions";
@@ -111,6 +110,7 @@ import {
   fetchAutocommitProgressInitAction,
   fetchAutocommitProgressSuccessAction,
 } from "./actions/fetchAutocommitProgressActions";
+import gitArtifactCaseReducersEE from "ee/git/store/actions";
 
 const initialState: GitArtifactReduxState = {};
 
@@ -201,6 +201,9 @@ export const gitArtifactSlice = createSlice({
     fetchAutocommitProgressError: fetchAutocommitProgressErrorAction,
     pollAutocommitProgressStart: pollAutocommitProgressStartAction,
     pollAutocommitProgressStop: pollAutocommitProgressStopAction,
+
+    // EE
+    ...gitArtifactCaseReducersEE,
   },
 });
 

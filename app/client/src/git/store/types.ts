@@ -14,6 +14,10 @@ import type { FetchMergeStatusResponseData } from "git/requests/fetchMergeStatus
 import type { FetchGitMetadataResponseData } from "git/requests/fetchGitMetadataRequest.types";
 import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 import type { ApiResponseError } from "api/types";
+import type {
+  GitSingleArtifactAPIResponsesReduxStateEE,
+  GitSingleArtifactUIReduxStateEE,
+} from "ee/git/store/types";
 
 export type GitSSHKey = Record<string, unknown>;
 
@@ -22,17 +26,18 @@ export interface GitApiError extends ApiResponseError {
   referenceDoc?: string;
   title?: string;
 }
-interface GitAsyncState<T = unknown> {
+export interface GitAsyncState<T = unknown> {
   value: T | null;
   loading: boolean;
   error: GitApiError | null;
 }
 
-interface GitAsyncStateWithoutValue {
+export interface GitAsyncStateWithoutValue {
   loading: boolean;
   error: GitApiError | null;
 }
-export interface GitSingleArtifactAPIResponsesReduxState {
+export interface GitSingleArtifactAPIResponsesReduxState
+  extends GitSingleArtifactAPIResponsesReduxStateEE {
   metadata: GitAsyncState<FetchGitMetadataResponseData>;
   connect: GitAsyncStateWithoutValue;
   status: GitAsyncState<FetchStatusResponseData>;
@@ -57,7 +62,8 @@ export interface GitSingleArtifactAPIResponsesReduxState {
   generateSSHKey: GitAsyncStateWithoutValue;
 }
 
-export interface GitSingleArtifactUIReduxState {
+export interface GitSingleArtifactUIReduxState
+  extends GitSingleArtifactUIReduxStateEE {
   connectModal: {
     open: boolean;
     step: keyof typeof GitConnectStep;
