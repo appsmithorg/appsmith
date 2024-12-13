@@ -36,6 +36,10 @@ export interface GitContextValue
     UseGitPermissionsReturnValue {
   artifactType: keyof typeof GitArtifactType;
   baseArtifactId: string;
+  artifactDef: {
+    artifactType: keyof typeof GitArtifactType;
+    baseArtifactId: string;
+  };
   artifact: ApplicationPayload | null;
   statusTransformer: (
     status: FetchStatusResponseData,
@@ -48,26 +52,27 @@ export default function useGitContextValue({
   baseArtifactId = "",
   statusTransformer,
 }: UseGitContextValueParams): GitContextValue {
-  const basePayload = useMemo(
+  const artifactDef = useMemo(
     () => ({ artifactType, baseArtifactId }),
     [artifactType, baseArtifactId],
   );
-  const useGitMetadataReturnValue = useGitMetadata(basePayload);
-  const useGitConnectReturnValue = useGitConnect(basePayload);
+  const useGitMetadataReturnValue = useGitMetadata(artifactDef);
+  const useGitConnectReturnValue = useGitConnect(artifactDef);
   const useGitOpsReturnValue = useGitOps({
-    ...basePayload,
+    ...artifactDef,
     artifactId: artifact?.id ?? null,
   });
-  const useGitBranchesReturnValue = useGitBranches(basePayload);
-  const useGitSettingsReturnValue = useGitSettings(basePayload);
+  const useGitBranchesReturnValue = useGitBranches(artifactDef);
+  const useGitSettingsReturnValue = useGitSettings(artifactDef);
   const useGitPermissionsReturnValue = useGitPermissions({
-    ...basePayload,
+    ...artifactDef,
     artifact,
   });
 
   return {
     artifactType,
     baseArtifactId,
+    artifactDef,
     statusTransformer,
     artifact,
     ...useGitMetadataReturnValue,

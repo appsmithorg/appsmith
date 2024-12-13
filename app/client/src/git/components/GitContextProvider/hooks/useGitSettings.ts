@@ -1,15 +1,12 @@
 import { GitSettingsTab, type GitArtifactType } from "git/constants/enums";
-import type { FetchProtectedBranchesResponseData } from "git/requests/fetchProtectedBranchesRequest.types";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import {
   selectAutocommitEnabled,
   selectAutocommitPolling,
-  selectProtectedBranches,
-  selectProtectedMode,
   selectSettingsModalOpen,
   selectSettingsModalTab,
 } from "git/store/selectors/gitSingleArtifactSelectors";
-import type { GitApiError, GitRootState } from "git/store/types";
+import type { GitRootState } from "git/store/types";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -21,11 +18,6 @@ interface UseGitSettingsParams {
 export interface UseGitSettingsReturnValue {
   autocommitEnabled: boolean;
   autocommitPolling: boolean;
-  protectedBranches: FetchProtectedBranchesResponseData | null;
-  fetchProtectedBranchesLoading: boolean;
-  fetchProtectedBranchesError: GitApiError | null;
-  fetchProtectedBranches: () => void;
-  protectedMode: boolean;
   settingsModalOpen: boolean;
   settingsModalTab: keyof typeof GitSettingsTab;
   toggleSettingsModal: (
@@ -53,23 +45,6 @@ export default function useGitSettings({
     selectAutocommitPolling(state, basePayload),
   );
 
-  // branch protection
-  const protectedBranchesState = useSelector((state: GitRootState) =>
-    selectProtectedBranches(state, basePayload),
-  );
-
-  const fetchProtectedBranches = () => {
-    dispatch(
-      gitArtifactActions.fetchProtectedBranchesInit({
-        ...basePayload,
-      }),
-    );
-  };
-
-  const protectedMode = useSelector((state: GitRootState) =>
-    selectProtectedMode(state, basePayload),
-  );
-
   // ui
   const settingsModalOpen = useSelector((state: GitRootState) =>
     selectSettingsModalOpen(state, basePayload),
@@ -95,11 +70,7 @@ export default function useGitSettings({
   return {
     autocommitEnabled: autocommitEnabled ?? false,
     autocommitPolling: autocommitPolling ?? false,
-    protectedBranches: protectedBranchesState.value,
-    fetchProtectedBranchesLoading: protectedBranchesState.loading ?? false,
-    fetchProtectedBranchesError: protectedBranchesState.error,
-    fetchProtectedBranches,
-    protectedMode: protectedMode ?? false,
+
     settingsModalOpen: settingsModalOpen ?? false,
     settingsModalTab: settingsModalTab ?? GitSettingsTab.General,
     toggleSettingsModal,

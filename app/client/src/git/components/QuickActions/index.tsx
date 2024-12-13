@@ -2,6 +2,7 @@ import React from "react";
 import QuickActionsView from "./QuickActionsView";
 import { useGitContext } from "../GitContextProvider";
 import useStatusChangeCount from "./hooks/useStatusChangeCount";
+import useProtectedBranches from "git/hooks/useProtectedBranches";
 
 function QuickActions() {
   const {
@@ -11,7 +12,6 @@ function QuickActions() {
     discardLoading,
     fetchStatusLoading,
     gitConnected,
-    protectedMode,
     pull,
     pullError,
     pullLoading,
@@ -20,6 +20,7 @@ function QuickActions() {
     toggleOpsModal,
     toggleSettingsModal,
   } = useGitContext();
+  const { isProtectedMode } = useProtectedBranches();
 
   const connectPermitted = true;
   const isPullFailing = !!pullError;
@@ -36,7 +37,7 @@ function QuickActions() {
       isDiscardLoading={discardLoading}
       isFetchStatusLoading={fetchStatusLoading}
       isGitConnected={gitConnected}
-      isProtectedMode={protectedMode}
+      isProtectedMode={isProtectedMode}
       isPullFailing={isPullFailing}
       isPullLoading={pullLoading}
       isStatusClean={isStatusClean}

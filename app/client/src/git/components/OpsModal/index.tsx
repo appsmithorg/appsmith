@@ -1,6 +1,7 @@
 import React from "react";
 import OpsModalView from "./OpsModalView";
 import { useGitContext } from "../GitContextProvider";
+import useProtectedBranches from "git/hooks/useProtectedBranches";
 
 export default function OpsModal() {
   const {
@@ -8,9 +9,9 @@ export default function OpsModal() {
     gitMetadata,
     opsModalOpen,
     opsModalTab,
-    protectedMode,
     toggleOpsModal,
   } = useGitContext();
+  const { isProtectedMode } = useProtectedBranches();
 
   const repoName = gitMetadata?.repoName ?? null;
 
@@ -18,7 +19,7 @@ export default function OpsModal() {
     <OpsModalView
       fetchStatus={fetchStatus}
       isOpsModalOpen={opsModalOpen}
-      isProtectedMode={protectedMode}
+      isProtectedMode={isProtectedMode}
       opsModalTab={opsModalTab}
       repoName={repoName}
       toggleOpsModal={toggleOpsModal}

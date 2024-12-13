@@ -28,6 +28,7 @@ import {
   gitRequestBlockingActionsEE,
   gitRequestNonBlockingActionsEE,
 } from "ee/git/sagas";
+import updateProtectedBranchesSaga from "./updateProtectedBranchesSaga";
 
 const gitRequestBlockingActions: Record<
   string,
@@ -55,6 +56,12 @@ const gitRequestBlockingActions: Record<
   [gitConfigActions.fetchGlobalProfileInit.type]: fetchGlobalProfileSaga,
   [gitConfigActions.updateGlobalProfileInit.type]: updateGlobalProfileSaga,
 
+  // settings
+  [gitArtifactActions.fetchProtectedBranchesInit.type]:
+    fetchProtectedBranchesSaga,
+  [gitArtifactActions.updateProtectedBranchesInit.type]:
+    updateProtectedBranchesSaga,
+
   // autocommit
   [gitArtifactActions.triggerAutocommitInit.type]: triggerAutocommitSaga,
 
@@ -69,10 +76,6 @@ const gitRequestNonBlockingActions: Record<
 > = {
   // init
   [gitArtifactActions.initGitForEditor.type]: initGitForEditorSaga,
-
-  // settings
-  [gitArtifactActions.fetchProtectedBranchesInit.type]:
-    fetchProtectedBranchesSaga,
 
   // EE
   ...gitRequestNonBlockingActionsEE,
