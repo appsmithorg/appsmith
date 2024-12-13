@@ -26,15 +26,15 @@ const ConflictInfoContainer = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
 `;
 
-interface DumbGitConflictErrorProps {
+interface ConflictErrorViewProps {
   learnMoreUrl: string;
   repoUrl: string;
 }
 
-export default function DumbGitConflictError({
+export default function ConflictErrorView({
   learnMoreUrl,
   repoUrl,
-}: DumbGitConflictErrorProps) {
+}: ConflictErrorViewProps) {
   const handleClickOnOpenRepo = useCallback(() => {
     window.open(repoUrl, "_blank", "noopener,noreferrer");
   }, [repoUrl]);

@@ -8,7 +8,7 @@ import {
 
 import { Button } from "@appsmith/ads";
 import noop from "lodash/noop";
-import GitConflictError from "../GitConflictError";
+import ConflictError from "../ConflictError";
 
 const StyledGitErrorPopup = styled.div`
   & {
@@ -38,15 +38,15 @@ const StyledGitErrorPopup = styled.div`
   }
 `;
 
-interface DumbGitConflictErrorModalProps {
+interface ConflictErrorModalViewProps {
   isConflictErrorModalOpen?: boolean;
   toggleConflictErrorModal?: (open: boolean) => void;
 }
 
-function DumbGitConflictErrorModal({
+function ConflictErrorModalView({
   isConflictErrorModalOpen = false,
   toggleConflictErrorModal = noop,
-}: DumbGitConflictErrorModalProps) {
+}: ConflictErrorModalViewProps) {
   const handleClose = useCallback(() => {
     toggleConflictErrorModal(false);
   }, [toggleConflictErrorModal]);
@@ -63,6 +63,7 @@ function DumbGitConflictErrorModal({
         <div className={Classes.OVERLAY_CONTENT}>
           <div className="git-error-popup">
             <div
+              // ! case: remove inline styles
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -81,7 +82,7 @@ function DumbGitConflictErrorModal({
                 startIcon="close-modal"
               />
             </div>
-            <GitConflictError />
+            <ConflictError />
           </div>
         </div>
       </Overlay>
@@ -89,4 +90,4 @@ function DumbGitConflictErrorModal({
   );
 }
 
-export default DumbGitConflictErrorModal;
+export default ConflictErrorModalView;

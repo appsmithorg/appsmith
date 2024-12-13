@@ -12,7 +12,7 @@ import StatusLoader from "pages/Editor/gitSync/components/StatusLoader";
 
 const noopStatusTransformer = () => null;
 
-interface DumbGitStatusProps {
+interface StatusChangesViewProps {
   status: FetchStatusResponseData | null;
   statusTransformer: (
     status: FetchStatusResponseData,
@@ -20,11 +20,11 @@ interface DumbGitStatusProps {
   isFetchStatusLoading: boolean;
 }
 
-export default function DumbGitStatus({
+export default function StatusChangesView({
   isFetchStatusLoading = false,
   status = null,
   statusTransformer = noopStatusTransformer,
-}: DumbGitStatusProps) {
+}: StatusChangesViewProps) {
   const statusTree = useMemo(() => {
     if (!status || isFetchStatusLoading) return null;
 

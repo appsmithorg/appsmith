@@ -1,6 +1,6 @@
 import type { FetchStatusResponseData } from "git/requests/fetchStatusRequest.types";
 import { objectKeys } from "@appsmith/utils";
-import type { StatusTreeStruct } from "git/components/GitStatus/StatusTree";
+import type { StatusTreeStruct } from "git/components/StatusChanges/StatusTree";
 
 const ICON_LOOKUP = {
   query: "query",

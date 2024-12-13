@@ -1,12 +1,12 @@
 import React from "react";
-import DumbGitConflictErrorModal from "./DumbGitConflictErrorModal";
+import ConflictErrorModalView from "./ConflictErrorModalView";
 import { useGitContext } from "../GitContextProvider";
 
-export default function GitConflictErrorModal() {
+export default function ConflictErrorModal() {
   const { conflictErrorModalOpen, toggleConflictErrorModal } = useGitContext();
 
   return (
-    <DumbGitConflictErrorModal
+    <ConflictErrorModalView
       isConflictErrorModalOpen={conflictErrorModalOpen}
       toggleConflictErrorModal={toggleConflictErrorModal}
     />

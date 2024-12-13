@@ -1,5 +1,5 @@
 import React from "react";
-import DumbTabDeploy from "./DumbTabDeploy";
+import TabDeployView from "./TabDeployView";
 import { useGitContext } from "git/components/GitContextProvider";
 
 export default function TabDeploy() {
@@ -29,7 +29,7 @@ export default function TabDeploy() {
   const remoteUrl = gitMetadata?.remoteUrl ?? "";
 
   return (
-    <DumbTabDeploy
+    <TabDeployView
       clearCommitError={clearCommitError}
       clearDiscardError={clearDiscardError}
       commit={commit}
