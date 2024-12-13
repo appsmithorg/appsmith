@@ -35,6 +35,8 @@ export interface GitContextValue
     UseGitSettingsReturnValue,
     UseGitBranchesReturnValue,
     UseGitPermissionsReturnValue {
+  artifactType: keyof typeof GitArtifactType;
+  baseArtifactId: string;
   artifact: ApplicationPayload | null;
   statusTransformer: (
     status: FetchStatusResponseData,
@@ -65,6 +67,8 @@ export default function useGitContextValue({
   });
 
   return {
+    artifactType,
+    baseArtifactId,
     statusTransformer,
     artifact,
     ...useGitMetadataReturnValue,

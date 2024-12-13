@@ -138,3 +138,9 @@ export const selectSettingsModalTab = (
   state: GitRootState,
   artifactDef: GitArtifactDef,
 ) => selectSingleArtifact(state, artifactDef)?.ui.settingsModalTab;
+
+// default branch
+export const selectDefaultBranch = (
+  state: GitRootState,
+  artifactDef: GitArtifactDef,
+) => selectGitMetadata(state, artifactDef)?.value?.defaultBranchName;

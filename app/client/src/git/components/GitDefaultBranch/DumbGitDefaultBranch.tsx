@@ -1,19 +1,19 @@
 import {
-  APPSMITH_ENTERPRISE,
+  // APPSMITH_ENTERPRISE,
   DEFAULT_BRANCH,
   DEFAULT_BRANCH_DESC,
   UPDATE,
   createMessage,
 } from "ee/constants/messages";
 // import { updateGitDefaultBranch } from "actions/gitSyncActions";
-import { Button, Link, Option, Select, Text } from "@appsmith/ads";
+import { Button, Option, Select, Text } from "@appsmith/ads";
 import React, { useEffect, useMemo, useState } from "react";
 // import { useDispatch, useSelector } from "react-redux";
 // import { getGitBranches } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 // import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 // import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
-import { useAppsmithEnterpriseLink } from "./hooks";
+// import { useAppsmithEnterpriseLink } from "./hooks";
 import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import type { FetchBranchesResponseData } from "git/requests/fetchBranchesRequest.types";
 
@@ -61,9 +61,9 @@ function DumbGitDefaultBranch({
     return defaultBranch?.branchName;
   }, [branches]);
 
-  const enterprisePricingLink = useAppsmithEnterpriseLink(
-    "git_branch_protection",
-  );
+  // const enterprisePricingLink = useAppsmithEnterpriseLink(
+  //   "git_branch_protection",
+  // );
 
   useEffect(
     function selectedValueOnInitEffect() {
@@ -103,14 +103,14 @@ function DumbGitDefaultBranch({
         {!isGitProtectedFeatureLicensed && (
           <SectionDesc kind="body-m" renderAs="p">
             To change your default branch, try{" "}
-            <Link
+            {/* <Link
               kind="primary"
               style={{ display: "inline-flex" }}
               target="_blank"
               to={enterprisePricingLink}
             >
               {createMessage(APPSMITH_ENTERPRISE)}
-            </Link>
+            </Link> */}
           </SectionDesc>
         )}
       </HeadContainer>
