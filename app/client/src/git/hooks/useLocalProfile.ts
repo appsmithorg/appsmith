@@ -4,6 +4,7 @@ import { gitArtifactActions } from "git/store/gitArtifactSlice";
 import { selectFetchGlobalProfileState } from "git/store/selectors/gitConfigSelectors";
 import { selectFetchLocalProfileState } from "git/store/selectors/gitSingleArtifactSelectors";
 import type { GitRootState } from "git/store/types";
+import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function useLocalProfile() {
@@ -15,22 +16,25 @@ export default function useLocalProfile() {
     selectFetchLocalProfileState(state, artifactDef),
   );
 
-  const fetchLocalProfile = () => {
+  const fetchLocalProfile = useCallback(() => {
     dispatch(gitArtifactActions.fetchLocalProfileInit(artifactDef));
-  };
+  }, [artifactDef, dispatch]);
 
   const updateLocalProfileState = useSelector((state: GitRootState) =>
     selectFetchGlobalProfileState(state),
   );
 
-  const updateLocalProfile = (params: UpdateLocalProfileRequestParams) => {
-    dispatch(
-      gitArtifactActions.updateLocalProfileInit({
-        ...artifactDef,
-        ...params,
-      }),
-    );
-  };
+  const updateLocalProfile = useCallback(
+    (params: UpdateLocalProfileRequestParams) => {
+      dispatch(
+        gitArtifactActions.updateLocalProfileInit({
+          ...artifactDef,
+          ...params,
+        }),
+      );
+    },
+    [artifactDef, dispatch],
+  );
 
   return {
     localProfile: fetchLocalProfileState?.value ?? null,

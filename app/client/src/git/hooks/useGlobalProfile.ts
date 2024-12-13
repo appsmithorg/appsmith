@@ -5,6 +5,7 @@ import { gitConfigActions } from "git/store/gitConfigSlice";
 import { selectFetchGlobalProfileState } from "git/store/selectors/gitConfigSelectors";
 
 import type { GitRootState } from "git/store/types";
+import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function useGlobalProfile() {
@@ -13,17 +14,20 @@ export default function useGlobalProfile() {
     selectFetchGlobalProfileState(state),
   );
 
-  const fetchGlobalProfile = () => {
+  const fetchGlobalProfile = useCallback(() => {
     dispatch(gitConfigActions.fetchGlobalProfileInit());
-  };
+  }, [dispatch]);
 
   const updateGlobalProfileState = useSelector((state: GitRootState) =>
     selectFetchGlobalProfileState(state),
   );
 
-  const updateGlobalProfile = (params: UpdateGlobalProfileRequestParams) => {
-    dispatch(gitConfigActions.updateGlobalProfileInit(params));
-  };
+  const updateGlobalProfile = useCallback(
+    (params: UpdateGlobalProfileRequestParams) => {
+      dispatch(gitConfigActions.updateGlobalProfileInit(params));
+    },
+    [dispatch],
+  );
 
   return {
     globalProfile: fetchGlobalProfileState?.value ?? null,

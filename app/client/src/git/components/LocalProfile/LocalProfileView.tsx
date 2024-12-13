@@ -27,7 +27,7 @@ const HeadContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 36px;
+  margin-bottom: 12px;
 `;
 
 const BodyContainer = styled.div`
@@ -127,8 +127,8 @@ interface AuthorInfo {
 }
 
 interface LocalProfileProps {
-  fetchGlobalProfile?: () => void;
-  fetchLocalProfile?: () => void;
+  fetchGlobalProfile: () => void;
+  fetchLocalProfile: () => void;
   globalProfile: FetchGlobalProfileResponseData | null;
   isFetchGlobalProfileLoading: boolean;
   isFetchLocalProfileLoading: boolean;

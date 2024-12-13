@@ -4,13 +4,20 @@ import useLocalProfile from "git/hooks/useLocalProfile";
 import useGlobalProfile from "git/hooks/useGlobalProfile";
 
 function LocalProfile() {
-  const { isFetchLocalProfileLoading, localProfile, updateLocalProfile } =
-    useLocalProfile();
+  const {
+    fetchLocalProfile,
+    isFetchLocalProfileLoading,
+    localProfile,
+    updateLocalProfile,
+  } = useLocalProfile();
 
-  const { globalProfile, isFetchGlobalProfileLoading } = useGlobalProfile();
+  const { fetchGlobalProfile, globalProfile, isFetchGlobalProfileLoading } =
+    useGlobalProfile();
 
   return (
     <LocalProfileView
+      fetchGlobalProfile={fetchGlobalProfile}
+      fetchLocalProfile={fetchLocalProfile}
       globalProfile={globalProfile}
       isFetchGlobalProfileLoading={isFetchGlobalProfileLoading}
       isFetchLocalProfileLoading={isFetchLocalProfileLoading}
