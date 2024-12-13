@@ -5,7 +5,7 @@ import { showToastOnExecutionError } from "sagas/ActionExecution/errorUtils";
 import { setUserCurrentGeoLocation } from "actions/browserRequestActions";
 import type { Channel } from "redux-saga";
 import { channel } from "redux-saga";
-import { evalWorker } from "sagas/EvaluationsSaga";
+import { evalWorker } from "utils/workerInstances";
 import type {
   TGetGeoLocationDescription,
   TWatchGeoLocationDescription,
