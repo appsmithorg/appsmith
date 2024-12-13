@@ -21,6 +21,10 @@ export function getApplicationId(location: Location) {
     (path) => path === "applications",
   );
 
+  if (applicationsIndex === -1 || applicationsIndex + 1 >= pathSplit.length) {
+    return undefined;
+  }
+
   return pathSplit[applicationsIndex + 1];
 }
 
