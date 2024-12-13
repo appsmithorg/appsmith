@@ -1070,6 +1070,10 @@ export const IS_EMPTY_REPO_QUESTION = () =>
 export const HOW_TO_CREATE_EMPTY_REPO = () => "How to create a new repository?";
 export const IMPORT_APP_IF_NOT_EMPTY = () =>
   "If you already have an app connected to Git, you can import it to the workspace.";
+export const IMPORT_ARTIFACT_IF_NOT_EMPTY = (artifactType: string) =>
+  `If you already have an ${artifactType.toLocaleLowerCase()} connected to Git, you can import it to the workspace.`;
+export const I_HAVE_EXISTING_ARTIFACT_REPO = (artifactType: string) =>
+  `I have an existing appsmith ${artifactType.toLocaleLowerCase()} connected to Git`;
 export const I_HAVE_EXISTING_REPO = () =>
   "I have an existing appsmith app connected to Git";
 export const ERROR_REPO_NOT_EMPTY_TITLE = () =>

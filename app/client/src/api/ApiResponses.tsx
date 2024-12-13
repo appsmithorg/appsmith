@@ -1,6 +1,7 @@
 export interface APIResponseError {
   code: string | number;
   message: string;
+  errorType?: string;
 }
 
 export interface ResponseMeta {

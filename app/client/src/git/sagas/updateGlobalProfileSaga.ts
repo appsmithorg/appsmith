@@ -10,6 +10,8 @@ import { gitConfigActions } from "../store/gitConfigSlice";
 
 // internal dependencies
 import { validateResponse } from "sagas/ErrorSagas";
+import log from "loglevel";
+import { captureException } from "@sentry/react";
 
 export default function* updateGlobalProfileSaga(
   action: PayloadAction<UpdateGlobalProfileInitPayload>,
@@ -30,9 +32,14 @@ export default function* updateGlobalProfileSaga(
       yield put(gitConfigActions.updateGlobalProfileSuccess());
       yield put(gitConfigActions.fetchGlobalProfileInit());
     }
-  } catch (error) {
-    yield put(
-      gitConfigActions.updateGlobalProfileError({ error: error as string }),
-    );
+  } catch (e) {
+    if (response && response.responseMeta.error) {
+      const { error } = response.responseMeta;
+
+      yield put(gitConfigActions.updateGlobalProfileError({ error }));
+    } else {
+      log.error(e);
+      captureException(e);
+    }
   }
 }

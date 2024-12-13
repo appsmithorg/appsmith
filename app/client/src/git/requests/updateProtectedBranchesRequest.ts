@@ -4,12 +4,12 @@ import type {
   UpdateProtectedBranchesRequestParams,
   UpdateProtectedBranchesResponse,
 } from "./updateProtectedBranchesRequest.types";
-import type { AxiosResponse } from "axios";
+import type { AxiosPromise } from "axios";
 
 export default async function updateProtectedBranchesRequest(
   baseApplicationId: string,
   params: UpdateProtectedBranchesRequestParams,
-): Promise<AxiosResponse<UpdateProtectedBranchesResponse>> {
+): AxiosPromise<UpdateProtectedBranchesResponse> {
   return Api.post(
     `${GIT_BASE_URL}/branch/app/${baseApplicationId}/protected`,
     params,
