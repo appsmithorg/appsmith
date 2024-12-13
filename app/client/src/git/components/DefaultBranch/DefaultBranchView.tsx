@@ -40,17 +40,17 @@ const StyledSelect = styled(Select)`
   margin-right: 12px;
 `;
 
-interface DumbGitDefaultBranchProps {
+interface DefaultBranchViewProps {
   branches: FetchBranchesResponseData | null;
   isGitProtectedFeatureLicensed: boolean;
   updateDefaultBranch?: (branchName: string) => void;
 }
 
-function DumbGitDefaultBranch({
+function DefaultBranchView({
   branches = null,
   isGitProtectedFeatureLicensed = false,
   updateDefaultBranch = noop,
-}: DumbGitDefaultBranchProps) {
+}: DefaultBranchViewProps) {
   const [selectedValue, setSelectedValue] = useState<string | undefined>();
 
   const currentDefaultBranch = useMemo(() => {
@@ -147,4 +147,4 @@ function DumbGitDefaultBranch({
   );
 }
 
-export default DumbGitDefaultBranch;
+export default DefaultBranchView;

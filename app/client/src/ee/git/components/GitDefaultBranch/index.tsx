@@ -1,1 +1,3 @@
-export { GitDefaultBranchCE as GitDefaultBranchEE } from "git/components/GitDefaultBranch";
+import { default as DefaultBranchEE } from "git/components/DefaultBranch/DefaultBranchCE";
+
+export default DefaultBranchEE;

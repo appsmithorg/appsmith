@@ -33,7 +33,7 @@ const StyledModalContent = styled(ModalContent)`
   }
 `;
 
-interface DumbGitSettingsModalProps {
+interface SettingsModalViewProps {
   isManageDefaultBranchPermitted: boolean;
   isManageProtectedBranchesPermitted: boolean;
   isSettingsModalOpen: boolean;
@@ -44,13 +44,13 @@ interface DumbGitSettingsModalProps {
   ) => void;
 }
 
-function DumbGitSettingsModal({
+function SettingsModalView({
   isManageDefaultBranchPermitted = false,
   isManageProtectedBranchesPermitted = false,
   isSettingsModalOpen = false,
   settingsModalTab = GitSettingsTab.General,
   toggleSettingsModal = noop,
-}: DumbGitSettingsModalProps) {
+}: SettingsModalViewProps) {
   const showBranchTab =
     isManageDefaultBranchPermitted || isManageProtectedBranchesPermitted;
 
@@ -102,4 +102,4 @@ function DumbGitSettingsModal({
   );
 }
 
-export default DumbGitSettingsModal;
+export default SettingsModalView;

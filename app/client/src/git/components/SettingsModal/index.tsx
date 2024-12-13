@@ -1,8 +1,8 @@
 import React from "react";
-import DumbGitSettingsModal from "./DumbGitSettingsModal";
+import SettingsModalView from "./SettingsModalView";
 import { useGitContext } from "../GitContextProvider";
 
-function GitSettingsModal() {
+function SettingsModal() {
   const {
     isManageDefaultBranchPermitted,
     isManageProtectedBranchesPermitted,
@@ -12,7 +12,7 @@ function GitSettingsModal() {
   } = useGitContext();
 
   return (
-    <DumbGitSettingsModal
+    <SettingsModalView
       isManageDefaultBranchPermitted={isManageDefaultBranchPermitted}
       isManageProtectedBranchesPermitted={isManageProtectedBranchesPermitted}
       isSettingsModalOpen={settingsModalOpen}
@@ -22,4 +22,4 @@ function GitSettingsModal() {
   );
 }
 
-export default GitSettingsModal;
+export default SettingsModal;
