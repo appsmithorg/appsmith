@@ -29,6 +29,8 @@ import {
 } from "ee/git/sagas";
 import updateProtectedBranchesSaga from "./updateProtectedBranchesSaga";
 import fetchMetadataSaga from "./fetchMetadataSaga";
+import toggleAutocommitSaga from "./toggleAutocommitSaga";
+import disconnectSaga from "./disconnectSaga";
 
 const gitRequestBlockingActions: Record<
   string,
@@ -40,6 +42,7 @@ const gitRequestBlockingActions: Record<
 
   // connect
   [gitArtifactActions.connectInit.type]: connectSaga,
+  [gitArtifactActions.disconnectInit.type]: disconnectSaga,
 
   // ops
   [gitArtifactActions.commitInit.type]: commitSaga,
@@ -76,6 +79,7 @@ const gitRequestNonBlockingActions: Record<
 > = {
   // init
   [gitArtifactActions.initGitForEditor.type]: initGitForEditorSaga,
+  [gitArtifactActions.toggleAutocommitInit.type]: toggleAutocommitSaga,
 
   // EE
   ...gitRequestNonBlockingActionsEE,

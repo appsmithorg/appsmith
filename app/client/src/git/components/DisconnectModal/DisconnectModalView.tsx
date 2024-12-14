@@ -136,6 +136,7 @@ function DisconnectModalView({
           <Button
             className="t--git-revoke-button"
             isDisabled={shouldDisableRevokeButton}
+            isLoading={isDisconnectLoading}
             kind="primary"
             onClick={handleClickOnDisconnect}
             size="md"
