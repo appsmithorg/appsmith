@@ -160,13 +160,10 @@ function LocalProfileView({
 
   const isLoading = isFetchGlobalProfileLoading || isFetchLocalProfileLoading;
 
-  useEffect(
-    function fetchProfilesOnInitEffect() {
-      fetchGlobalProfile();
-      fetchLocalProfile();
-    },
-    [fetchGlobalProfile, fetchLocalProfile],
-  );
+  useEffect(function fetchProfilesOnInitEffect() {
+    fetchGlobalProfile();
+    fetchLocalProfile();
+  }, []);
 
   useEffect(
     function setDefaultProfileOnInitEffect() {

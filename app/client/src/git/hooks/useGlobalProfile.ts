@@ -1,8 +1,9 @@
-// useGlobaProfile same as useLocalProfile but it uses global state
-
 import type { UpdateGlobalProfileRequestParams } from "git/requests/updateGlobalProfileRequest.types";
 import { gitConfigActions } from "git/store/gitConfigSlice";
-import { selectFetchGlobalProfileState } from "git/store/selectors/gitConfigSelectors";
+import {
+  selectFetchGlobalProfileState,
+  selectUpdateGlobalProfileState,
+} from "git/store/selectors/gitConfigSelectors";
 
 import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
@@ -19,7 +20,7 @@ export default function useGlobalProfile() {
   }, [dispatch]);
 
   const updateGlobalProfileState = useSelector((state: GitRootState) =>
-    selectFetchGlobalProfileState(state),
+    selectUpdateGlobalProfileState(state),
   );
 
   const updateGlobalProfile = useCallback(

@@ -1,8 +1,10 @@
 import { useGitContext } from "git/components/GitContextProvider";
 import type { UpdateLocalProfileRequestParams } from "git/requests/updateLocalProfileRequest.types";
 import { gitArtifactActions } from "git/store/gitArtifactSlice";
-import { selectFetchGlobalProfileState } from "git/store/selectors/gitConfigSelectors";
-import { selectFetchLocalProfileState } from "git/store/selectors/gitSingleArtifactSelectors";
+import {
+  selectFetchLocalProfileState,
+  selectUpdateLocalProfileState,
+} from "git/store/selectors/gitSingleArtifactSelectors";
 import type { GitRootState } from "git/store/types";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,7 +23,7 @@ export default function useLocalProfile() {
   }, [artifactDef, dispatch]);
 
   const updateLocalProfileState = useSelector((state: GitRootState) =>
-    selectFetchGlobalProfileState(state),
+    selectUpdateLocalProfileState(state, artifactDef),
   );
 
   const updateLocalProfile = useCallback(

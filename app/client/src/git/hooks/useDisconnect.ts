@@ -23,7 +23,7 @@ export default function useDisconnect() {
     dispatch(gitArtifactActions.disconnectInit(artifactDef));
   }, [artifactDef, dispatch]);
 
-  const diconnectBaseArtifactId = useSelector((state: GitRootState) =>
+  const disconnectBaseArtifactId = useSelector((state: GitRootState) =>
     selectDisconnectBaseArtifactId(state, artifactDef),
   );
 
@@ -45,8 +45,8 @@ export default function useDisconnect() {
     isDisconnectLoading: disconnectState?.loading ?? false,
     disconnectError: disconnectState?.error ?? null,
     disconnect,
-    isDisconnectModalOpen: !!diconnectBaseArtifactId,
-    diconnectBaseArtifactId,
+    isDisconnectModalOpen: !!disconnectBaseArtifactId,
+    disconnectBaseArtifactId,
     disconnectArtifactName,
     openDisconnectModal,
     closeDisconnectModal,

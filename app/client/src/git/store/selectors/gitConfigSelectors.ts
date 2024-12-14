@@ -7,3 +7,6 @@ export const selectGitConfig = (state: GitRootState) => {
 // global profile
 export const selectFetchGlobalProfileState = (state: GitRootState) =>
   selectGitConfig(state).globalProfile;
+
+export const selectUpdateGlobalProfileState = (state: GitRootState) =>
+  selectGitConfig(state).updateGlobalProfile;

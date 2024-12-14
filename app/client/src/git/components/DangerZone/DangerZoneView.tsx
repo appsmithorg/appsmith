@@ -56,7 +56,7 @@ interface DangerZoneViewProps {
   isManageAutocommitPermitted: boolean;
   isToggleAutocommitLoading: boolean;
   isAutocommitEnabled: boolean;
-  isMetadataLoading: boolean;
+  isFetchMetadataLoading: boolean;
   openDisconnectModal: () => void;
   toggleAutocommit: () => void;
   toggleDisableAutocommitModal: (open: boolean) => void;
@@ -69,8 +69,8 @@ interface DangerZoneViewProps {
 function DangerZoneView({
   isAutocommitEnabled = false,
   isConnectPermitted = false,
+  isFetchMetadataLoading = false,
   isManageAutocommitPermitted = false,
-  isMetadataLoading = false,
   isToggleAutocommitLoading = false,
   openDisconnectModal = noop,
   toggleAutocommit = noop,
@@ -122,7 +122,7 @@ function DangerZoneView({
             </BodyInnerContainer>
             <Button
               data-testid="t--git-autocommit-btn"
-              isLoading={isToggleAutocommitLoading || isMetadataLoading}
+              isLoading={isToggleAutocommitLoading || isFetchMetadataLoading}
               kind={isAutocommitEnabled ? "error" : "secondary"}
               onClick={handleToggleAutocommit}
               size="md"
