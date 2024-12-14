@@ -104,7 +104,7 @@ function DisconnectModalView({
           {createMessage(GIT_REVOKE_ACCESS, disconnectArtifactName)}
         </ModalHeader>
         <ModalBody>
-          <Flex flexDirection="column" gap="spaces-1">
+          <Flex flexDirection="column" gap="spaces-3">
             <Text color={"var(--ads-v2-color-fg-emphasis)"} kind="heading-s">
               {createMessage(
                 GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS,
