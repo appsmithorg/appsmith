@@ -29,7 +29,7 @@ export const StyledButton = styled(Button)`
   display: inline-block;
 `;
 
-function TabContDelivery() {
+function ContinuousDeliveryCE() {
   const enterprisePricingLink = useAppsmithEnterpriseLink(
     "git_continuous_delivery",
   );
@@ -55,4 +55,4 @@ function TabContDelivery() {
   );
 }
 
-export default TabContDelivery;
+export default ContinuousDeliveryCE;
