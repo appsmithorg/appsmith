@@ -501,7 +501,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findAllByIdIn(Iterable<String> ids) {
         return queryBuilder()
-                .criteria(Bridge.in(NewAction.Fields.applicationId, IteratorUtils.toList((Iterator) ids)))
+                .criteria(Bridge.in(NewAction.Fields.id, IteratorUtils.toList((Iterator) ids)))
                 .all();
     }
 
